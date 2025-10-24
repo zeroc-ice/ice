@@ -530,14 +530,14 @@ namespace Ice
         /// @param line The line where this exception is constructed.
         /// @param kindOfObject The kind of object that could not be removed: "servant", "facet", "object", "default
         /// servant", "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
-        /// @param id The ID (or name) of the object that is registered already.
+        /// @param id The ID (or name) of the object that is already registered.
         AlreadyRegisteredException(const char* file, int line, std::string kindOfObject, std::string id);
 
         /// Gets the kind of object that could not be removed: "servant", "facet", "object", "default servant",
         /// "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
         [[nodiscard]] const std::string& kindOfObject() const noexcept { return *_kindOfObject; }
 
-        /// Gets the ID (or name) of the object that is registered already.
+        /// Gets the ID (or name) of the object that is already registered.
         [[nodiscard]] const std::string& id() const noexcept { return *_id; }
 
         [[nodiscard]] const char* ice_id() const noexcept final;

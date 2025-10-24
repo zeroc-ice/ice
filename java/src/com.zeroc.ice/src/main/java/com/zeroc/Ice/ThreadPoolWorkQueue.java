@@ -13,16 +13,6 @@ final class ThreadPoolWorkQueue extends EventHandler {
         _registered = SocketOperation.Read;
     }
 
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            Assert.FinalizerAssert(_destroyed);
-        } catch (Exception ex) {} finally {
-            super.finalize();
-        }
-    }
-
     void destroy() {
         // Called with the thread pool locked
         assert (!_destroyed);

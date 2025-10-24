@@ -20,8 +20,7 @@ final class ObserverMiddleware implements Object {
     @Override
     public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
         throws UserException {
-        DispatchObserver observer =
-            _communicatorObserver.getDispatchObserver(request.current, request.size);
+        DispatchObserver observer = _communicatorObserver.getDispatchObserver(request.current, request.size);
 
         if (observer != null) {
             observer.attach();
@@ -31,14 +30,14 @@ final class ObserverMiddleware implements Object {
                         (response, exception) -> {
                             if (exception != null) {
                                 // We need to marshal the exception into the response
-                                // immediately to observe the response size. TODO: should we
-                                // really marshal/handle errors here?
+                                // immediately to observe the response size.
+                                //
+                                // TODO: should we really marshal/handle errors here?
                                 response =
                                     request.current.createOutgoingResponse(exception);
                             }
 
-                            observeResponse(
-                                response, observer, request.current.requestId != 0);
+                            observeResponse(response, observer, request.current.requestId != 0);
                             observer.detach();
                             return response;
                         });
@@ -54,22 +53,13 @@ final class ObserverMiddleware implements Object {
         }
     }
 
-    private void observeResponse(
-            OutgoingResponse response, DispatchObserver observer, boolean isTwoWay) {
+    private void observeResponse(OutgoingResponse response, DispatchObserver observer, boolean isTwoWay) {
         var replyStatus = ReplyStatus.valueOf(response.replyStatus);
         if (replyStatus != null) {
             switch (replyStatus) {
-                case Ok:
-                    // don't do anything
-                    break;
-
-                case UserException:
-                    observer.userException();
-                    break;
-
-                default:
-                    observer.failed(response.exceptionId);
-                    break;
+                case Ok -> { /* don't do anything */ }
+                case UserException -> observer.userException();
+                default -> observer.failed(response.exceptionId);
             }
         } else {
             // Unknown reply status, like default case above.

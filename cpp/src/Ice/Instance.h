@@ -43,21 +43,19 @@ namespace IceInternal
     class MetricsAdminI;
     using MetricsAdminIPtr = std::shared_ptr<MetricsAdminI>;
 
-    //
-    // Structure to track warnings for attempts to set socket buffer sizes
-    //
+    /// Structure to track warnings for attempts to set socket buffer sizes
     struct BufSizeWarnInfo
     {
-        // Whether send size warning has been emitted
+        /// Whether send size warning has been emitted
         bool sndWarn;
 
-        // The send size for which the warning was emitted
+        /// The send size for which the warning was emitted
         int sndSize;
 
-        // Whether receive size warning has been emitted
+        /// Whether receive size warning has been emitted
         bool rcvWarn;
 
-        // The receive size for which the warning was emitted
+        /// The receive size for which the warning was emitted
         int rcvSize;
     };
 

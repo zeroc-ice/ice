@@ -26,9 +26,7 @@ final class SOCKSNetworkProxy implements NetworkProxy {
             throw new FeatureNotSupportedException("SOCKS4 only supports IPv4 addresses");
         }
 
-        //
         // SOCKS connect request
-        //
         buf.resize(9, false);
         final ByteOrder order = buf.b.order();
         buf.b.order(ByteOrder.BIG_ENDIAN); // Network byte order.
@@ -51,9 +49,7 @@ final class SOCKSNetworkProxy implements NetworkProxy {
 
     @Override
     public void beginRead(Buffer buf) {
-        //
         // Read the SOCKS4 response whose size is 8 bytes.
-        //
         if (!buf.b.hasRemaining()) {
             buf.resize(8, true);
             buf.position(0);
@@ -79,8 +75,7 @@ final class SOCKSNetworkProxy implements NetworkProxy {
     @Override
     public NetworkProxy resolveHost(int protocolSupport) {
         assert (_host != null);
-        return new SOCKSNetworkProxy(
-            Network.getAddresses(_host, _port, protocolSupport, false, true).get(0));
+        return new SOCKSNetworkProxy(Network.getAddresses(_host, _port, protocolSupport, false, true).get(0));
     }
 
     @Override

@@ -211,7 +211,7 @@ public class AllTests : Test.AllTests
                 var initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties().Clone();
                 initData.properties.setProperty("IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
-                Ice.Communicator comm = Ice.Util.initialize(initData);
+                using var comm = new Ice.Communicator(initData);
                 test(comm.getDefaultLocator() != null);
                 try
                 {
@@ -221,7 +221,6 @@ public class AllTests : Test.AllTests
                 catch (Ice.LocalException)
                 {
                 }
-                comm.destroy();
             }
             {
                 var initData = new Ice.InitializationData();
@@ -236,10 +235,9 @@ public class AllTests : Test.AllTests
                     "IceDiscovery.Lookup",
                     $"udp -h {multicast} --interface unknown:" +
                     $"udp -h {multicast} -p {port} {intf}");
-                Ice.Communicator comm = Ice.Util.initialize(initData);
+                using var comm = new Ice.Communicator(initData);
                 test(comm.getDefaultLocator() != null);
                 comm.stringToProxy("controller0@control0").ice_ping();
-                comm.destroy();
             }
         }
         output.WriteLine("ok");

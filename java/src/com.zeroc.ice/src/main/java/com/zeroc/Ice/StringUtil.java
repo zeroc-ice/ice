@@ -61,8 +61,7 @@ public final class StringUtil {
         return -1;
     }
 
-    private static void encodeChar(
-            char c, StringBuilder sb, String special, ToStringMode toStringMode) {
+    private static void encodeChar(char c, StringBuilder sb, String special, ToStringMode toStringMode) {
         switch (c) {
             case '\\' -> sb.append("\\\\");
             case '\'' -> sb.append("\\'");
@@ -140,8 +139,7 @@ public final class StringUtil {
      * @param toStringMode the string mode for escaping
      * @return the escaped string
      */
-    public static String escapeString(
-            String s, String special, ToStringMode toStringMode) {
+    public static String escapeString(String s, String special, ToStringMode toStringMode) {
         if (special != null) {
             for (int i = 0; i < special.length(); i++) {
                 if (special.charAt(i) < 32 || special.charAt(i) > 126) {
@@ -173,12 +171,10 @@ public final class StringUtil {
 
             for (int i = 0; i < s.length(); i++) {
                 char c = s.charAt(i);
-                if (toStringMode == ToStringMode.Unicode
-                    || !Character.isSurrogate(c)) {
+                if (toStringMode == ToStringMode.Unicode || !Character.isSurrogate(c)) {
                     encodeChar(c, result, special, toStringMode);
                 } else {
-                    assert (toStringMode == ToStringMode.ASCII
-                        && Character.isSurrogate(c));
+                    assert (toStringMode == ToStringMode.ASCII && Character.isSurrogate(c));
                     if (i + 1 == s.length()) {
                         throw new IllegalArgumentException("High surrogate without low surrogate");
                     } else {
@@ -219,8 +215,7 @@ public final class StringUtil {
      *
      * @return the index of the first character following the decoded character or escape sequence.
      */
-    private static int decodeChar(
-            String s, int start, int end, String special, StringBuilder result) {
+    private static int decodeChar(String s, int start, int end, String special, StringBuilder result) {
         assert (start >= 0);
         assert (start < end);
         assert (end <= s.length());
@@ -288,12 +283,10 @@ public final class StringUtil {
                         --size;
                     }
                     if (size > 0) {
-                        throw new IllegalArgumentException(
-                            "Invalid universal character name: too few hex digits");
+                        throw new IllegalArgumentException("Invalid universal character name: too few hex digits");
                     }
                     if (codePoint >= 0xD800 && codePoint <= 0xDFFF) {
-                        throw new IllegalArgumentException(
-                            "A universal character name cannot designate a surrogate");
+                        throw new IllegalArgumentException("A universal character name cannot designate a surrogate");
                     }
                     if (inBMP || Character.isBmpCodePoint(codePoint)) {
                         result.append((char) codePoint);
@@ -329,8 +322,7 @@ public final class StringUtil {
                                 --size;
                             }
                             if (size == 2) {
-                                throw new IllegalArgumentException(
-                                    "Invalid \\x escape sequence: no hex digit");
+                                throw new IllegalArgumentException("Invalid \\x escape sequence: no hex digit");
                             }
                         } else {
                             for (int j = 0; j < 3 && start < end; j++) {
@@ -397,8 +389,7 @@ public final class StringUtil {
         if (special != null) {
             for (int i = 0; i < special.length(); i++) {
                 if (special.charAt(i) < 32 || special.charAt(i) > 126) {
-                    throw new IllegalArgumentException(
-                        "special characters must be in ASCII range 32-126");
+                    throw new IllegalArgumentException("special characters must be in ASCII range 32-126");
                 }
             }
         }
@@ -520,8 +511,7 @@ public final class StringUtil {
         }
 
         // Make sure start of the strings match
-        if (beginIndex > s.length()
-            || !s.substring(0, beginIndex).equals(pat.substring(0, beginIndex))) {
+        if (beginIndex > s.length() || !s.substring(0, beginIndex).equals(pat.substring(0, beginIndex))) {
             return false;
         }
 

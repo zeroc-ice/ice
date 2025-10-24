@@ -94,9 +94,8 @@ public class AllTests : global::Test.AllTests
             init.properties = new Ice.Properties();
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
-            Ice.Communicator com = Ice.Util.initialize(init);
+            using var com = new Ice.Communicator(init);
             testFacets(com, true);
-            com.destroy();
         }
         {
             //
@@ -107,17 +106,15 @@ public class AllTests : global::Test.AllTests
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.Facets", "Properties");
-            Ice.Communicator com = Ice.Util.initialize(init);
+            using var com = new Ice.Communicator(init);
             testFacets(com, false);
-            com.destroy();
         }
         {
             //
             // Test: Verify that the operations work correctly with the Admin object disabled.
             //
-            Ice.Communicator com = Ice.Util.initialize();
+            using var com = new Ice.Communicator();
             testFacets(com, false);
-            com.destroy();
         }
         {
             //
@@ -126,7 +123,7 @@ public class AllTests : global::Test.AllTests
             var init = new Ice.InitializationData();
             init.properties = new Ice.Properties();
             init.properties.setProperty("Ice.Admin.Enabled", "1");
-            Ice.Communicator com = Ice.Util.initialize(init);
+            using var com = new Ice.Communicator(init);
             test(com.getAdmin() == null);
             Ice.Identity id = Ice.Util.stringToIdentity("test-admin");
             try
@@ -143,7 +140,6 @@ public class AllTests : global::Test.AllTests
             test(com.getAdmin() != null);
 
             testFacets(com, true);
-            com.destroy();
         }
         {
             //
@@ -154,11 +150,10 @@ public class AllTests : global::Test.AllTests
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.DelayCreation", "1");
-            Ice.Communicator com = Ice.Util.initialize(init);
+            using var com = new Ice.Communicator(init);
             testFacets(com, true);
             com.getAdmin();
             testFacets(com, true);
-            com.destroy();
         }
         output.WriteLine("ok");
 

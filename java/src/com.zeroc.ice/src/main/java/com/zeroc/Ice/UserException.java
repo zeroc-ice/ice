@@ -181,17 +181,13 @@ public abstract class UserException extends java.lang.Exception {
                 Map<java.lang.Object, java.lang.Object> objectTable,
                 OutputBase out) {
             if (!c.equals(java.lang.Object.class)) {
-                //
                 // Write the superclass first.
-                //
                 writeFields(name, obj, c.getSuperclass(), objectTable, out);
 
-                //
                 // Write the declared fields of the given class. We prefer to use the declared
                 // fields because it includes protected fields that may have been defined using the
                 // Slice "protected" metadata. However, if a security manager prevents us from
                 // obtaining the declared fields, we will fall back to using the public ones.
-                //
                 java.lang.reflect.Field[] fields = null;
                 try {
                     fields = c.getDeclaredFields();
@@ -204,14 +200,10 @@ public abstract class UserException extends java.lang.Exception {
                 }
                 assert (fields != null);
                 for (java.lang.reflect.Field field : fields) {
-                    //
                     // Only write public, non-static fields.
-                    //
                     int mods = field.getModifiers();
-                    if (java.lang.reflect.Modifier.isPublic(mods)
-                        && !java.lang.reflect.Modifier.isStatic(mods)) {
-                        String fieldName =
-                            name != null ? name + '.' + field.getName() : field.getName();
+                    if (java.lang.reflect.Modifier.isPublic(mods) && !java.lang.reflect.Modifier.isStatic(mods)) {
+                        String fieldName = name != null ? name + '.' + field.getName() : field.getName();
 
                         try {
                             java.lang.Object value = field.get(obj);

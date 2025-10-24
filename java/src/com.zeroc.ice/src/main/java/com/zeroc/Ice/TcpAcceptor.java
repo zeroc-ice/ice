@@ -77,22 +77,10 @@ class TcpAcceptor implements Acceptor {
                 Network.setReuseAddress(_fd, true);
             }
 
-            _addr =
-                Network.getAddressForServer(
-                    host, port, instance.protocolSupport(), instance.preferIPv6());
+            _addr = Network.getAddressForServer(host, port, instance.protocolSupport(), instance.preferIPv6());
         } catch (RuntimeException ex) {
             _fd = null;
             throw ex;
-        }
-    }
-
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            Assert.FinalizerAssert(_fd == null);
-        } catch (Exception ex) {} finally {
-            super.finalize();
         }
     }
 

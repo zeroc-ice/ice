@@ -8,46 +8,69 @@ internal interface LoggerAdminLogger : Logger
 {
     Ice.Object getFacet();
 
-    void destroy();
+    // Once detach is called, the logger only logs to the local logger.
+    void detach();
 }
 
+// Decorates a logger.
 internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
 {
+    private static readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    private readonly Logger _localLogger;
+    private readonly LoggerAdminI _loggerAdmin;
+    private Thread _sendLogThread;
+    private volatile bool _detached;
+    private readonly Queue<Job> _jobQueue = new Queue<Job>();
+    private const string _traceCategory = "Admin.Logger";
+    private readonly object _mutex = new();
+
     public void print(string message)
     {
-        var logMessage = new Ice.LogMessage(Ice.LogMessageType.PrintMessage, now(), "", message);
         _localLogger.print(message);
-        log(logMessage);
+        if (!_detached)
+        {
+            var logMessage = new LogMessage(LogMessageType.PrintMessage, now(), "", message);
+            log(logMessage);
+        }
     }
 
     public void trace(string category, string message)
     {
-        var logMessage = new Ice.LogMessage(Ice.LogMessageType.TraceMessage, now(), category, message);
         _localLogger.trace(category, message);
-        log(logMessage);
+        if (!_detached)
+        {
+            var logMessage = new LogMessage(LogMessageType.TraceMessage, now(), category, message);
+            log(logMessage);
+        }
     }
 
     public void warning(string message)
     {
-        var logMessage = new Ice.LogMessage(Ice.LogMessageType.WarningMessage, now(), "", message);
         _localLogger.warning(message);
-        log(logMessage);
+        if (!_detached)
+        {
+            var logMessage = new LogMessage(LogMessageType.WarningMessage, now(), "", message);
+            log(logMessage);
+        }
     }
 
     public void error(string message)
     {
-        var logMessage = new Ice.LogMessage(Ice.LogMessageType.ErrorMessage, now(), "", message);
         _localLogger.error(message);
-        log(logMessage);
+        if (!_detached)
+        {
+            var logMessage = new LogMessage(LogMessageType.ErrorMessage, now(), "", message);
+            log(logMessage);
+        }
     }
 
     public string getPrefix() => _localLogger.getPrefix();
 
-    public Ice.Logger cloneWithPrefix(string prefix) => _localLogger.cloneWithPrefix(prefix);
+    public Logger cloneWithPrefix(string prefix) => _localLogger.cloneWithPrefix(prefix);
 
     public Ice.Object getFacet() => _loggerAdmin;
 
-    public void destroy()
+    public void detach()
     {
         Thread thread = null;
         lock (_mutex)
@@ -56,19 +79,20 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
             {
                 thread = _sendLogThread;
                 _sendLogThread = null;
-                _destroyed = true;
+                _detached = true;
                 Monitor.PulseAll(_mutex);
-            }
-
-            if (_localLogger is FileLoggerI fileLogger)
-            {
-                fileLogger.destroy();
             }
         }
 
         thread?.Join();
 
         _loggerAdmin.destroy();
+    }
+
+    public void Dispose()
+    {
+        detach();
+        _localLogger.Dispose();
     }
 
     internal LoggerAdminLoggerI(Ice.Properties props, Ice.Logger localLogger)
@@ -129,14 +153,14 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
             Job job = null;
             lock (_mutex)
             {
-                while (!_destroyed && _jobQueue.Count == 0)
+                while (!_detached && _jobQueue.Count == 0)
                 {
                     Monitor.Wait(_mutex);
                 }
 
-                if (_destroyed)
+                if (_detached)
                 {
-                    break; // for(;;)
+                    break;
                 }
 
                 Debug.Assert(_jobQueue.Count > 0);
@@ -194,13 +218,4 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
         internal readonly List<Ice.RemoteLoggerPrx> remoteLoggers;
         internal readonly Ice.LogMessage logMessage;
     }
-
-    private static readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-    private readonly Ice.Logger _localLogger;
-    private readonly LoggerAdminI _loggerAdmin;
-    private bool _destroyed;
-    private Thread _sendLogThread;
-    private readonly Queue<Job> _jobQueue = new Queue<Job>();
-    private const string _traceCategory = "Admin.Logger";
-    private readonly object _mutex = new();
 }

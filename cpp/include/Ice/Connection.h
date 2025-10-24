@@ -151,7 +151,7 @@ namespace Ice
         virtual void setBufferSize(int rcvSize, int sndSize) = 0;
 
         /// Throws an exception that provides the reason for the closure of this connection. For example, this function
-        /// throw CloseConnectionException when the connection was closed gracefully by the peer; it throws
+        /// throws CloseConnectionException when the connection was closed gracefully by the peer; it throws
         /// ConnectionAbortedException when the connection is aborted with #abort. This function does nothing if the
         /// connection is not yet closed.
         virtual void throwException() const = 0;

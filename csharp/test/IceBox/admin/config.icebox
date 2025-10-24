@@ -2,6 +2,6 @@ Ice.Admin.InstanceName=DemoIceBox
 Ice.Admin.Endpoints=default -p 9996 -h 127.0.0.1
 Ice.ProgramName=IceBox
 
-IceBox.Service.TestService=msbuild/testservice/net8.0/testservice.dll:TestServiceI --Ice.Config=config.service
+IceBox.Service.TestService=msbuild/testservice/net8.0/testservice.dll:IceBox.admin.TestServiceI --Ice.Config=config.service
 
 IceBox.PrintServicesReady=IceBox.ServiceManager

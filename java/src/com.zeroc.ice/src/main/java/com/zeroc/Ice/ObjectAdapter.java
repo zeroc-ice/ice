@@ -25,8 +25,7 @@ import java.util.stream.Stream;
  *   and {@link #use}).
  *
  * <p>An object adapter can dispatch "bidirectional requests"--requests it receives over an outgoing connection
- * instead of a more common incoming connection. It can also dispatch collocated requests (with no connection at
- * all).
+ * instead of a more common incoming connection. It can also dispatch collocated requests (with no connection at all).
  *
  * @see Communicator#createObjectAdapter
  * @see ServantLocator
@@ -68,9 +67,7 @@ public final class ObjectAdapter {
      * @return This object adapter's name.
      */
     public String getName() {
-        //
         // No mutex lock necessary, _name is immutable.
-        //
         return _noConfig ? "" : _name;
     }
 
@@ -101,10 +98,8 @@ public final class ObjectAdapter {
         synchronized (this) {
             checkForDeactivation();
 
-            //
             // If we've previously been initialized we just need to activate the
             // incoming connection factories and we're done.
-            //
             if (_state != StateUninitialized) {
                 for (IncomingConnectionFactory factory : _incomingConnectionFactories) {
                     factory.activate();
@@ -114,13 +109,10 @@ public final class ObjectAdapter {
                 return;
             }
 
-            //
-            // One off initializations of the adapter: update the
-            // locator registry and print the "adapter ready"
-            // message. We set set state to StateActivating to prevent
-            // deactivation from other threads while these one off
-            // initializations are done.
-            //
+            // One off initializations of the adapter:
+            // update the locator registry and print the "adapter ready" message.
+            // We set set state to StateActivating to prevent deactivation from other threads
+            // while these one off initializations are done.
             _state = StateActivating;
 
             locatorInfo = _locatorInfo;
@@ -135,12 +127,8 @@ public final class ObjectAdapter {
             dummy.name = "dummy";
             updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
         } catch (LocalException ex) {
-            //
-            // If we couldn't update the locator registry, we let the
-            // exception go through and don't activate the adapter to
-            // allow to user code to retry activating the adapter
-            // later.
-            //
+            // If we couldn't update the locator registry, we let the exception go through
+            // and don't activate the adapter to allow to user code to retry activating the adapter later.
             synchronized (this) {
                 _state = StateUninitialized;
                 notifyAll();
@@ -155,9 +143,7 @@ public final class ObjectAdapter {
         synchronized (this) {
             assert (_state == StateActivating);
 
-            //
             // Signal threads waiting for the activation.
-            //
             _state = StateActive;
             notifyAll();
 
@@ -241,18 +227,14 @@ public final class ObjectAdapter {
             _state = StateDeactivating;
         }
 
-        //
         // NOTE: the router/locator infos and incoming connection
         // factory list are immutable at this point.
-        //
 
         try {
             updateLocatorRegistry(_locatorInfo, null);
         } catch (LocalException ex) {
-            //
             // We can't throw exceptions in deactivate so we ignore
             // failures to update the locator registry.
-            //
         }
 
         for (IncomingConnectionFactory factory : _incomingConnectionFactories) {
@@ -278,11 +260,8 @@ public final class ObjectAdapter {
         try {
             List<IncomingConnectionFactory> incomingConnectionFactories;
             synchronized (this) {
-                //
                 // Wait for deactivation of the adapter itself, and
-                // for the return of all direct method calls using
-                // this adapter.
-                //
+                // for the return of all direct method calls using this adapter.
                 while ((_state < StateDeactivated) || _directCount > 0) {
                     wait();
                 }
@@ -292,11 +271,8 @@ public final class ObjectAdapter {
                 incomingConnectionFactories = new ArrayList<>(_incomingConnectionFactories);
             }
 
-            //
-            // Now we wait for until all incoming connection factories are
-            // finished (the incoming connection factory list is immutable
-            // at this point).
-            //
+            // Now we wait for until all incoming connection factories are finished
+            // (the incoming connection factory list is immutable at this point).
             for (IncomingConnectionFactory f : incomingConnectionFactories) {
                 f.waitUntilFinished();
             }
@@ -324,20 +300,15 @@ public final class ObjectAdapter {
      * @see Communicator#destroy
      */
     public void destroy() {
-        //
         // Deactivate and wait for completion.
-        //
         deactivate();
         waitForDeactivate();
 
         synchronized (this) {
             assert (_state >= StateDeactivated);
 
-            //
-            // Only a single thread is allowed to destroy the object
-            // adapter. Other threads wait for the destruction to be
-            // completed.
-            //
+            // Only a single thread is allowed to destroy the object adapter.
+            // Other threads wait for the destruction to be completed.
             while (_state == StateDestroying) {
                 try {
                     wait();
@@ -362,15 +333,10 @@ public final class ObjectAdapter {
 
         _instance.outgoingConnectionFactory().removeAdapter(this);
 
-        //
-        // Now it's also time to clean up our servants and servant
-        // locators.
-        //
+        // Now it's also time to clean up our servants and servant locators.
         _servantManager.destroy();
 
-        //
         // Destroy the thread pool.
-        //
         if (_threadPool != null) {
             _threadPool.destroy();
             try {
@@ -385,9 +351,7 @@ public final class ObjectAdapter {
         synchronized (this) {
             _incomingConnectionFactories.clear();
 
-            //
             // Remove object references (some of them cyclic).
-            //
             _instance = null;
             _threadPool = null;
             _routerInfo = null;
@@ -396,9 +360,7 @@ public final class ObjectAdapter {
             _reference = null;
             _objectAdapterFactory = null;
 
-            //
             // Signal that destroying is complete.
-            //
             _state = StateDestroyed;
             notifyAll();
         }
@@ -415,15 +377,14 @@ public final class ObjectAdapter {
      *     creates its dispatch pipeline. A middleware factory is a function that takes an Object (the next element
      *     in the dispatch pipeline) and returns a new Object (the middleware you want to install in the pipeline).
      * @return This object adapter.
-     * @throws IllegalStateException Thrown if the object adapter's dispatch pipeline has already
+     * @throws IllegalStateException Thrown when the object adapter's dispatch pipeline has already
      *     been created. This creation typically occurs the first time the object adapter dispatches
      *     an incoming request.
      */
     public ObjectAdapter use(Function<Object, Object> middleware) {
         // This code is not thread-safe, and it's not supposed to be.
         if (_dispatchPipeline != null) {
-            throw new IllegalStateException(
-                "All middleware must be installed before the first dispatch.");
+            throw new IllegalStateException("All middleware must be installed before the first dispatch.");
         }
         _middlewareStack.push(middleware);
         return this;
@@ -457,8 +418,7 @@ public final class ObjectAdapter {
      * @param identity The identity of the Ice object that is implemented by the servant.
      * @param facet The facet of the Ice object that is implemented by the servant.
      * @return A proxy for the identity and facet created by this object adapter.
-     * @throws AlreadyRegisteredException Thrown when a servant with the same identity and facet is already
-     *     registered.
+     * @throws AlreadyRegisteredException Thrown when a servant with the same identity and facet is already registered.
      * @see Identity
      * @see #add
      * @see #addFacetWithUUID
@@ -472,10 +432,7 @@ public final class ObjectAdapter {
             throw new IllegalArgumentException("cannot add null servant to Object Adapter");
         }
 
-        //
-        // Create a copy of the Identity argument, in case the caller
-        // reuses it.
-        //
+        // Create a copy of the Identity argument, in case the caller reuses it.
         Identity id = new Identity(identity.name, identity.category);
         _servantManager.addServant(servant, id, facet);
 
@@ -483,8 +440,8 @@ public final class ObjectAdapter {
     }
 
     /**
-     * Adds a servant to this object adapter's Active Servant Map (ASM), using an automatically generated UUID as
-     * its identity.
+     * Adds a servant to this object adapter's Active Servant Map (ASM),
+     * using an automatically generated UUID as its identity.
      *
      * @param servant The servant to add.
      * @return A proxy with the generated UUID identity created by this object adapter.
@@ -499,8 +456,8 @@ public final class ObjectAdapter {
     }
 
     /**
-     * Adds a servant to this object adapter's Active Servant Map (ASM), using an automatically generated UUID as
-     * its identity. Also specifies a facet.
+     * Adds a servant to this object adapter's Active Servant Map (ASM),
+     * using an automatically generated UUID as its identity. Also specifies a facet.
      *
      * @param servant The servant to add.
      * @param facet The facet of the Ice object that is implemented by the servant.
@@ -635,13 +592,13 @@ public final class ObjectAdapter {
     /**
      * Looks up a servant with an identity and facet.
      *
-     * <p>This method only tries to find the servant in the ASM and among the default servants. It does not
-     * attempt to locate a servant using servant locators.
+     * <p>This method only tries to find the servant in the ASM and among the default servants.
+     * It does not attempt to locate a servant using servant locators.
      *
      * @param identity The identity of an Ice object.
      * @param facet The facet of an Ice object. An empty facet means the default facet.
-     * @return The servant that implements the Ice object with the given identity and facet, or null
-     *     if no such servant has been found.
+     * @return The servant that implements the Ice object with the given identity and facet,
+     *     or null if no such servant has been found.
      * @see Identity
      * @see #find
      * @see #findByProxy
@@ -672,8 +629,8 @@ public final class ObjectAdapter {
      * Looks up a servant with an identity and a facet. It's equivalent to calling {@link #findFacet}.
      *
      * @param proxy The proxy that provides the identity and facet to search.
-     * @return The servant that matches the identity and facet carried by the proxy, or null if no such servant
-     *     has been found.
+     * @return The servant that matches the identity and facet carried by the proxy,
+     *     or null if no such servant has been found.
      * @see #find
      * @see #findFacet
      */
@@ -689,8 +646,7 @@ public final class ObjectAdapter {
      *
      * @param locator The servant locator to add.
      * @param category The category. The empty category means the locator handles all categories.
-     * @throws AlreadyRegisteredException Thrown when a servant locator with the same category is already
-     *     registered.
+     * @throws AlreadyRegisteredException Thrown when a servant locator with the same category is already registered.
      * @see #addDefaultServant
      * @see Identity
      * @see #removeServantLocator
@@ -828,8 +784,7 @@ public final class ObjectAdapter {
     /**
      * Gets the Ice locator used by this object adapter.
      *
-     * @return The locator used by this object adapter, or null if no locator is used by this object
-     *     adapter.
+     * @return The locator used by this object adapter, or null if no locator is used by this object adapter.
      * @see Locator
      * @see #setLocator
      */
@@ -866,8 +821,7 @@ public final class ObjectAdapter {
      * @see Endpoint
      */
     public synchronized Endpoint[] getPublishedEndpoints() {
-        return Arrays.copyOf(
-            _publishedEndpoints, _publishedEndpoints.length, Endpoint[].class);
+        return Arrays.copyOf(_publishedEndpoints, _publishedEndpoints.length, Endpoint[].class);
     }
 
     /**
@@ -888,8 +842,7 @@ public final class ObjectAdapter {
             }
 
             oldPublishedEndpoints = _publishedEndpoints;
-            _publishedEndpoints =
-                Arrays.copyOf(newEndpoints, newEndpoints.length, EndpointI[].class);
+            _publishedEndpoints = Arrays.copyOf(newEndpoints, newEndpoints.length, EndpointI[].class);
             locatorInfo = _locatorInfo;
         }
 
@@ -899,9 +852,7 @@ public final class ObjectAdapter {
             updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
         } catch (LocalException ex) {
             synchronized (this) {
-                //
                 // Restore the old published endpoints.
-                //
                 _publishedEndpoints = oldPublishedEndpoints;
                 throw ex;
             }
@@ -915,22 +866,14 @@ public final class ObjectAdapter {
      * @return true if the reference refers to a local object, false otherwise
      */
     public boolean isLocal(Reference ref) {
-        //
         // NOTE: it's important that isLocal() doesn't perform any blocking operations as
         // it can be called for AMI invocations if the proxy has no delegate set yet.
-        //
 
         if (ref.isWellKnown()) {
-            //
-            // Check the active servant map to see if the well-known
-            // proxy is for a local object.
-            //
+            // Check the active servant map to see if the well-known proxy is for a local object.
             return _servantManager.hasServant(ref.getIdentity());
         } else if (ref.isIndirect()) {
-            //
-            // Proxy is local if the reference adapter id matches this
-            // adapter id or replica group id.
-            //
+            // Proxy is local if the reference adapter id matches this adapter id or replica group id.
             return ref.getAdapterId().equals(_id) || ref.getAdapterId().equals(_replicaGroupId);
         } else {
             // Proxies which have at least one endpoint in common with the published endpoints are considered local.
@@ -952,8 +895,7 @@ public final class ObjectAdapter {
      * @param compressBatch indicates whether to compress the batch requests
      * @param outAsync the callback for the asynchronous flush operation
      */
-    public void flushAsyncBatchRequests(
-            CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
+    public void flushAsyncBatchRequests(CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
         List<IncomingConnectionFactory> f;
         synchronized (this) {
             f = new ArrayList<>(_incomingConnectionFactories);
@@ -1020,8 +962,7 @@ public final class ObjectAdapter {
      */
     public ThreadPool getThreadPool() {
         // No mutex lock necessary, _threadPool and _instance are
-        // immutable after creation until they are removed in
-        // destroy().
+        // immutable after creation until they are removed in destroy().
 
         // Not check for deactivation here!
 
@@ -1077,11 +1018,7 @@ public final class ObjectAdapter {
         // Install default middleware depending on the communicator's configuration.
         if (_instance.initializationData().logger != null) {
             Logger logger = _instance.initializationData().logger;
-            int warningLevel =
-                _instance
-                    .initializationData()
-                    .properties
-                    .getIcePropertyAsInt("Ice.Warn.Dispatch");
+            int warningLevel = _instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch");
             if (_instance.traceLevels().dispatch > 0 || warningLevel > 0) {
                 use(
                     next ->
@@ -1110,53 +1047,34 @@ public final class ObjectAdapter {
         final Properties properties = _instance.initializationData().properties;
 
         try {
-            Properties.validatePropertiesWithPrefix(
-                _name, properties, PropertyNames.ObjectAdapterProps);
+            Properties.validatePropertiesWithPrefix(_name, properties, PropertyNames.ObjectAdapterProps);
         } catch (PropertyException ex) {
-            // Prevent finalizer from complaining about the adapter not being destroyed.
-            _state = StateDestroyed;
             throw ex;
         }
 
-        //
         // Make sure named adapter has some configuration.
-        //
         if (router == null && properties.getPropertiesForPrefix(_name).isEmpty()) {
-            // Prevent finalizer from complaining about the adapter not being destroyed.
-            _state = StateDestroyed;
-
-            throw new InitializationException(
-                "Object adapter '" + _name + "' requires configuration.");
+            throw new InitializationException("Object adapter '" + _name + "' requires configuration.");
         }
 
         _id = properties.getProperty(_name + ".AdapterId");
         _replicaGroupId = properties.getProperty(_name + ".ReplicaGroupId");
 
-        //
         // Setup a reference to be used to get the default proxy options
         // when creating new proxies. By default, create twoway proxies.
-        //
         String proxyOptions = properties.getPropertyWithDefault(_name + ".ProxyOptions", "-t");
         try {
             _reference = _instance.referenceFactory().create("dummy " + proxyOptions, "");
         } catch (ParseException ex) {
-            // Prevent finalizer from complaining about the adapter not being destroyed.
-            _state = StateDestroyed;
-            throw new InitializationException(
-                "invalid proxy options '"
-                    + proxyOptions
-                    + "' for object adapter '"
-                    + _name
-                    + "'.",
-                ex);
+            String msg = "invalid proxy options '" + proxyOptions + "' for object adapter '" + _name + "'.";
+            throw new InitializationException(msg, ex);
         }
 
-        // The maximum size of an Ice protocol message in bytes. This is limited to 0x7fffffff, which corresponds to
-        // the maximum value of a 32-bit signed integer (int).
+        // The maximum size of an Ice protocol message in bytes.
+        // This is limited to 0x7fffffff, which corresponds to the maximum value of a 32-bit signed integer (int).
         final int messageSizeMaxUpperLimit = Integer.MAX_VALUE;
         final int defaultMessageSizeMax = instance.messageSizeMax() / 1024;
-        int messageSizeMax = properties.getPropertyAsIntWithDefault(
-            _name + ".MessageSizeMax", defaultMessageSizeMax);
+        int messageSizeMax = properties.getPropertyAsIntWithDefault(_name + ".MessageSizeMax", defaultMessageSizeMax);
         if (messageSizeMax > messageSizeMaxUpperLimit / 1024) {
             throw new InitializationException(
                 _name + ".MessageSizeMax '" + messageSizeMax + "' is too large, it must be less than or equal to '"
@@ -1187,63 +1105,44 @@ public final class ObjectAdapter {
                         "An object adapter with a router cannot accept incoming connections.");
                 }
 
-                //
                 // Make sure this router is not already registered with another adapter.
-                //
                 if (_routerInfo.getAdapter() != null) {
                     throw new AlreadyRegisteredException(
                         "object adapter with router",
                         _communicator.identityToString(router.ice_getIdentity()));
                 }
 
-                //
-                // Associate this object adapter with the router. This way,
-                // new outgoing connections to the router's client proxy will
-                // use this object adapter for callbacks.
-                //
+                // Associate this object adapter with the router. This way, new outgoing
+                // connections to the router's client proxy will use this object adapter for callbacks.
                 _routerInfo.setAdapter(this);
 
-                //
                 // Also modify all existing outgoing connections to the
-                // router's client proxy to use this object adapter for
-                // callbacks.
-                //
+                // router's client proxy to use this object adapter for callbacks.
                 _instance.outgoingConnectionFactory().setRouterInfo(_routerInfo);
             } else {
-                //
-                // Parse the endpoints, but don't store them in the adapter. The connection
-                // factory might change it, for example, to fill in the real port number.
-                //
-                List<EndpointI> endpoints =
-                    parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
+                // Parse the endpoints, but don't store them in the adapter.
+                // The connection factory might change it, for example, to fill in the real port number.
+                List<EndpointI> endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
 
                 for (EndpointI endpoint : endpoints) {
                     for (EndpointI expanded : endpoint.expandHost()) {
-                        _incomingConnectionFactories.add(
-                            new IncomingConnectionFactory(instance, expanded, this));
+                        _incomingConnectionFactories.add(new IncomingConnectionFactory(instance, expanded, this));
                     }
                 }
                 if (endpoints.isEmpty()) {
                     TraceLevels tl = _instance.traceLevels();
                     if (tl.network >= 2) {
-                        _instance
-                            .initializationData()
-                            .logger
-                            .trace(
-                                tl.networkCat,
-                                "created adapter '" + name + "' without endpoints");
+                        String msg = "created adapter '" + name + "' without endpoints";
+                        _instance.initializationData().logger.trace(tl.networkCat, msg);
                     }
                 }
             }
 
-            //
             // Compute the published endpoints.
-            //
             _publishedEndpoints = computePublishedEndpoints();
 
             if (properties.getProperty(_name + ".Locator").length() > 0) {
-                setLocator(
-                    LocatorPrx.uncheckedCast(communicator.propertyToProxy(_name + ".Locator")));
+                setLocator(LocatorPrx.uncheckedCast(communicator.propertyToProxy(_name + ".Locator")));
             } else {
                 setLocator(_instance.referenceFactory().getDefaultLocator());
             }
@@ -1262,32 +1161,6 @@ public final class ObjectAdapter {
         return _sslEngineFactory;
     }
 
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            if (_state < StateDeactivated) {
-                _instance
-                    .initializationData()
-                    .logger
-                    .warning("object adapter `" + getName() + "' has not been deactivated");
-            } else if (_state != StateDestroyed) {
-                _instance
-                    .initializationData()
-                    .logger
-                    .warning("object adapter `" + getName() + "' has not been destroyed");
-            } else {
-                Assert.FinalizerAssert(_threadPool == null);
-                // Not cleared, it needs to be immutable.
-                // Assert.FinalizerAssert(_servantManager == null);
-                // Assert.FinalizerAssert(_incomingConnectionFactories.isEmpty());
-                Assert.FinalizerAssert(_directCount == 0);
-            }
-        } catch (Exception ex) {} finally {
-            super.finalize();
-        }
-    }
-
     private ObjectPrx newProxy(Identity ident, String facet) {
         if (_id.isEmpty()) {
             return newDirectProxy(ident, facet);
@@ -1300,8 +1173,7 @@ public final class ObjectAdapter {
 
     private ObjectPrx newDirectProxy(Identity ident, String facet) {
         // Create a reference and return a proxy for this reference.
-        var ref =
-            _instance.referenceFactory().create(ident, facet, _reference, _publishedEndpoints);
+        var ref = _instance.referenceFactory().create(ident, facet, _reference, _publishedEndpoints);
         return new _ObjectPrxI(ref);
     }
 
@@ -1326,8 +1198,7 @@ public final class ObjectAdapter {
 
     private static void checkIdentity(Identity ident) {
         if (ident.name == null || ident.name.isEmpty()) {
-            throw new IllegalArgumentException(
-                "The name of an Ice object identity cannot be empty.");
+            throw new IllegalArgumentException("The name of an Ice object identity cannot be empty.");
         }
 
         if (ident.category == null) {
@@ -1405,34 +1276,21 @@ public final class ObjectAdapter {
             // Get the router's server proxy endpoints and use them as the published endpoints.
             endpointsArray = _routerInfo.getServerEndpoints();
         } else {
-            // Parse published endpoints. If set, these are used instead of the connection factory
-            // endpoints.
-            var endpointsList =
-                parseEndpoints(
-                    _instance
-                        .initializationData()
-                        .properties
-                        .getProperty(_name + ".PublishedEndpoints"),
-                    false);
+            // Parse published endpoints. If set, these are used instead of the connection factory endpoints.
+            var endpointsList = parseEndpoints(
+                _instance.initializationData().properties.getProperty(_name + ".PublishedEndpoints"),
+                false);
 
             if (endpointsList.isEmpty()) {
-                // If the PublishedEndpoints property isn't set, we compute the published endpoints
-                // from the factory endpoints.
-                endpointsList =
-                    _incomingConnectionFactories.stream()
-                        .map(IncomingConnectionFactory::endpoint)
-                        .toList();
+                // If the PublishedEndpoints property isn't set,
+                // we compute the published endpoints from the factory endpoints.
+                endpointsList = _incomingConnectionFactories.stream().map(IncomingConnectionFactory::endpoint).toList();
 
                 // Remove all loopback/multicast endpoints.
-                var endpointsNoLoopback =
-                    endpointsList.stream().filter(e -> !e.isLoopbackOrMulticast()).toList();
+                var endpointsNoLoopback = endpointsList.stream().filter(e -> !e.isLoopbackOrMulticast()).toList();
 
                 // Retrieve published host.
-                String publishedHost =
-                    _instance
-                        .initializationData()
-                        .properties
-                        .getProperty(_name + ".PublishedHost");
+                String publishedHost = _instance.initializationData().properties.getProperty(_name + ".PublishedHost");
 
                 Stream<EndpointI> endpoints;
 
@@ -1447,17 +1305,14 @@ public final class ObjectAdapter {
                         try {
                             publishedHost = InetAddress.getLocalHost().getHostName();
                         } catch (UnknownHostException e) {
-                            throw new InitializationException(
-                                "failed to get the local host name", e);
+                            throw new InitializationException("failed to get the local host name", e);
                         }
                     }
                 }
 
-                // Replace the host in all endpoints by publishedHost (when applicable) and clear
-                // local options.
+                // Replace the host in all endpoints by publishedHost (when applicable) and clear local options.
                 final String publishedHostCapture = publishedHost;
-                endpoints =
-                    endpoints.map(e -> e.toPublishedEndpoint(publishedHostCapture)).distinct();
+                endpoints = endpoints.map(e -> e.toPublishedEndpoint(publishedHostCapture)).distinct();
 
                 endpointsArray = endpoints.toArray(EndpointI[]::new);
             } else {
@@ -1477,10 +1332,7 @@ public final class ObjectAdapter {
                 s.append(endpoint.toString());
                 first = false;
             }
-            _instance
-                .initializationData()
-                .logger
-                .trace(_instance.traceLevels().networkCat, s.toString());
+            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
         }
         return endpointsArray;
     }
@@ -1490,10 +1342,7 @@ public final class ObjectAdapter {
             return; // Nothing to update.
         }
 
-        //
-        // Call on the locator registry outside the synchronization to
-        // blocking other threads that need to lock this OA.
-        //
+        // Call on the locator registry outside the synchronization to blocking other threads that need to lock this OA.
         LocatorRegistryPrx locatorRegistry = locatorInfo.getLocatorRegistry();
         if (locatorRegistry == null) {
             return;
@@ -1512,10 +1361,7 @@ public final class ObjectAdapter {
                 s.append(_id);
                 s.append("' endpoints with the locator registry:\n");
                 s.append("the object adapter is not known to the locator registry");
-                _instance
-                    .initializationData()
-                    .logger
-                    .trace(_instance.traceLevels().locationCat, s.toString());
+                _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
             }
 
             throw new NotRegisteredException("object adapter", _id);
@@ -1528,10 +1374,7 @@ public final class ObjectAdapter {
                 s.append("the replica group `");
                 s.append(_replicaGroupId);
                 s.append("' is not known to the locator registry");
-                _instance
-                    .initializationData()
-                    .logger
-                    .trace(_instance.traceLevels().locationCat, s.toString());
+                _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
             }
 
             throw new NotRegisteredException("replica group", _replicaGroupId);
@@ -1542,10 +1385,7 @@ public final class ObjectAdapter {
                 s.append(_id);
                 s.append("' endpoints with the locator registry:\n");
                 s.append("the object adapter endpoints are already set");
-                _instance
-                    .initializationData()
-                    .logger
-                    .trace(_instance.traceLevels().locationCat, s.toString());
+                _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
             }
 
             throw new ObjectAdapterIdInUseException(_id);
@@ -1560,13 +1400,9 @@ public final class ObjectAdapter {
                 s.append(_id);
                 s.append("' endpoints with the locator registry:\n");
                 s.append(e.toString());
-                _instance
-                    .initializationData()
-                    .logger
-                    .trace(_instance.traceLevels().locationCat, s.toString());
+                _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
             }
-            throw e; // TODO: Shall we raise a special exception instead of a non obvious local
-            // exception?
+            throw e; // TODO: Shall we raise a special exception instead of a non obvious local exception?
         }
 
         if (_instance.traceLevels().location >= 1) {
@@ -1584,10 +1420,7 @@ public final class ObjectAdapter {
                     }
                 }
             }
-            _instance
-                .initializationData()
-                .logger
-                .trace(_instance.traceLevels().locationCat, s.toString());
+            _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
         }
     }
 }

@@ -16,12 +16,10 @@ class RetryTask implements Runnable, CancellationHandler {
         if (cancel()) {
             _outAsync.retry();
 
-            //
             // NOTE: this must be called last, destroy() blocks until all task
             // are removed to prevent the client thread pool to be destroyed
             // (we still need the client thread pool at this point to call
             // exception callbacks with CommunicatorDestroyedException).
-            //
             _queue.remove(this);
         }
     }
@@ -33,10 +31,7 @@ class RetryTask implements Runnable, CancellationHandler {
                 StringBuilder s = new StringBuilder(128);
                 s.append("operation retry canceled\n");
                 s.append(Ex.toString(ex));
-                _instance
-                    .initializationData()
-                    .logger
-                    .trace(_instance.traceLevels().retryCat, s.toString());
+                _instance.initializationData().logger.trace(_instance.traceLevels().retryCat, s.toString());
             }
             if (_outAsync.completed(ex)) {
                 _outAsync.invokeCompletedAsync();

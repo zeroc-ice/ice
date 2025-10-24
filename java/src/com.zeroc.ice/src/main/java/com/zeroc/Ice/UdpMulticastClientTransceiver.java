@@ -19,9 +19,7 @@ import java.util.List;
 final class UdpMulticastClientTransceiver implements Transceiver {
     @Override
     public SelectableChannel fd() {
-        //
         // Android doesn't provide non-blocking APIs for UDP multicast.
-        //
         return null;
     }
 
@@ -34,17 +32,13 @@ final class UdpMulticastClientTransceiver implements Transceiver {
 
     @Override
     public int initialize(Buffer readBuffer, Buffer writeBuffer) {
-        //
         // Nothing to do.
-        //
         return SocketOperation.None;
     }
 
     @Override
     public int closing(boolean initiator, LocalException ex) {
-        //
         // Nothing to do.
-        //
         return SocketOperation.None;
     }
 
@@ -80,9 +74,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
 
     @Override
     public EndpointI bind() {
-        //
         // Nothing to do for a client transceiver.
-        //
         return null;
     }
 
@@ -90,7 +82,6 @@ final class UdpMulticastClientTransceiver implements Transceiver {
     public synchronized int write(Buffer buf) {
         if (_exception != null) {
             throw _exception;
-            // throw (LocalException) _exception.fillInStackTrace();
         }
 
         if (!buf.b.hasRemaining()) {
@@ -100,14 +91,10 @@ final class UdpMulticastClientTransceiver implements Transceiver {
         assert (buf.b.position() == 0);
         assert (_socket != null);
 
-        //
         // The caller is supposed to check the send size before by calling checkSendSize.
-        //
         assert (java.lang.Math.min(_maxPacketSize, _size - _udpOverhead) >= buf.size());
 
-        //
         // Queue the buffer for processing by the write thread.
-        //
         _buffers.add(new Buffer(buf, true));
         notifyAll();
 
@@ -116,9 +103,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
 
     @Override
     public synchronized int read(Buffer buf) {
-        //
         // This transceiver can only write.
-        //
         throw new SocketException();
     }
 
@@ -139,9 +124,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
     @Override
     public String toDetailedString() {
         StringBuilder s = new StringBuilder(toString());
-        List<String> intfs =
-            Network.getInterfacesForMulticast(
-                _mcastInterface, Network.getProtocolSupport(_addr));
+        List<String> intfs = Network.getInterfacesForMulticast(_mcastInterface, Network.getProtocolSupport(_addr));
         if (!intfs.isEmpty()) {
             s.append("\nlocal interfaces = ");
             s.append(String.join(", ", intfs));
@@ -150,8 +133,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
     }
 
     @Override
-    public synchronized ConnectionInfo getInfo(
-            boolean incoming, String adapterName, String connectionId) {
+    public synchronized ConnectionInfo getInfo(boolean incoming, String adapterName, String connectionId) {
         return new UDPConnectionInfo(
             incoming,
             adapterName,
@@ -168,10 +150,8 @@ final class UdpMulticastClientTransceiver implements Transceiver {
 
     @Override
     public synchronized void checkSendSize(Buffer buf) {
-        //
         // The maximum packetSize is either the maximum allowable UDP packet size, or the UDP send
         // buffer size (whichever is smaller).
-        //
         final int packetSize = java.lang.Math.min(_maxPacketSize, _size - _udpOverhead);
         if (packetSize < buf.size()) {
             throw new DatagramLimitException();
@@ -200,9 +180,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
         try {
             _socket = new MulticastSocket();
 
-            //
             // Configure the send buffer size.
-            //
             _size = _socket.getSendBufferSize();
             _newSize = -1;
             setBufSize(-1);
@@ -210,10 +188,8 @@ final class UdpMulticastClientTransceiver implements Transceiver {
                 updateBufSize();
             }
 
-            //
             // NOTE: Setting the multicast interface before performing the connect is important for
             // some systems such as macOS.
-            //
             if (!mcastInterface.isEmpty()) {
                 _socket.setNetworkInterface(Network.getInterface(mcastInterface));
             }
@@ -252,56 +228,36 @@ final class UdpMulticastClientTransceiver implements Transceiver {
     private void setBufSize(int sz) {
         assert (_socket != null);
 
-        //
         // Get property for buffer size if size not passed in.
-        //
         if (sz == -1) {
             sz = _instance.properties().getPropertyAsIntWithDefault("Ice.UDP.SndSize", _size);
         }
 
-        //
         // Check for sanity.
-        //
         if (sz < (_udpOverhead + Protocol.headerSize)) {
-            _instance
-                .logger()
-                .warning("Invalid Ice.UDP.SndSize value of " + sz + " adjusted to " + _size);
+            _instance.logger().warning("Invalid Ice.UDP.SndSize value of " + sz + " adjusted to " + _size);
         } else if (sz != _size) {
             _newSize = sz;
         }
 
-        //
         // Defer the actual modification of the buffer size to the helper thread.
-        //
     }
 
     private void updateBufSize() {
-        //
         // Must be called without any other threads holding the lock to the MulticastSocket!
-        //
 
         try {
-            //
-            // Try to set the buffer size. The kernel will silently adjust the size to an acceptable
-            // value. Then read the size back to get the size that was actually set.
-            //
+            // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value.
+            // Then read the size back to get the size that was actually set.
             _socket.setSendBufferSize(_newSize);
             _size = _socket.getSendBufferSize();
 
-            //
-            // Warn if the size that was set is less than the requested size and we have not already
-            // warned.
-            //
+            // Warn if the size that was set is less than the requested size and we have not already warned.
             if (_size < _newSize) {
                 BufSizeWarnInfo winfo = _instance.getBufSizeWarn(UDPEndpointType.value);
                 if (!winfo.sndWarn || winfo.sndSize != _newSize) {
-                    _instance
-                        .logger()
-                        .warning(
-                            "UDP send buffer size: requested size of "
-                                + _newSize
-                                + " adjusted to "
-                                + _size);
+                    String msg = "UDP send buffer size: requested size of " + _newSize + " adjusted to " + _size;
+                    _instance.logger().warning(msg);
                     _instance.setSndBufSizeWarn(UDPEndpointType.value, _newSize);
                 }
             }
@@ -311,16 +267,6 @@ final class UdpMulticastClientTransceiver implements Transceiver {
             }
             _socket = null;
             throw new SocketException(ex);
-        }
-    }
-
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            Assert.FinalizerAssert(_socket == null);
-        } catch (Exception ex) {} finally {
-            super.finalize();
         }
     }
 
@@ -334,10 +280,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
                 Buffer buf;
 
                 synchronized (this) {
-                    //
-                    // Wait until the socket is closed, an exception occurs, or we have something to
-                    // write.
-                    //
+                    // Wait until the socket is closed, an exception occurs, or we have something to write.
                     while (_socket != null && _exception == null && _buffers.isEmpty()) {
                         try {
                             wait();
@@ -351,9 +294,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
                     }
 
                     if (_newSize != -1) {
-                        //
                         // Application must have called setBufferSize.
-                        //
                         updateBufSize();
                         _newSize = -1;
                     }
@@ -370,10 +311,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
                         arr = buf.b.array();
                         offset = buf.b.arrayOffset();
                     } else {
-                        //
-                        // If the buffer doesn't have a backing array, we'll have to make a copy of
-                        // the data.
-                        //
+                        // If the buffer doesn't have a backing array, we'll have to make a copy of the data.
                         arr = new byte[buf.b.limit()];
                         offset = 0;
                         buf.b.get(arr);
@@ -384,9 +322,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
                 }
 
                 synchronized (this) {
-                    //
                     // After the write is complete, indicate whether we can accept more data.
-                    //
                     _readyCallback.ready(SocketOperation.Write, !_buffers.isEmpty());
                 }
             }

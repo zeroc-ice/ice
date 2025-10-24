@@ -19,18 +19,14 @@ class EndpointHostResolver {
         _protocol = instance.protocolSupport();
         _preferIPv6 = instance.preferIPv6();
         try {
-            _threadName =
-                Util.createThreadName(
-                    _instance.initializationData().properties, "Ice.HostResolver");
+            _threadName = Util.createThreadName(_instance.initializationData().properties, "Ice.HostResolver");
             _executor =
                 Executors.newFixedThreadPool(
                     1,
-                    Util.createThreadFactory(
-                        _instance.initializationData().properties, _threadName));
+                    Util.createThreadFactory(_instance.initializationData().properties, _threadName));
             updateObserver();
         } catch (RuntimeException ex) {
-            String s =
-                "cannot create thread for endpoint host resolver thread:\n" + Ex.toString(ex);
+            String s = "cannot create thread for endpoint host resolver thread:\n" + Ex.toString(ex);
             _instance.initializationData().logger.error(s);
             throw ex;
         }
@@ -41,18 +37,14 @@ class EndpointHostResolver {
             final int port,
             final IPEndpointI endpoint,
             final EndpointI_connectors callback) {
-        //
         // TODO: Optimize to avoid the lookup if the given host is a textual IPv4 or IPv6 address.
-        // This requires implementing parsing of IPv4/IPv6 addresses (Java does not provide such
-        // methods).
-        //
+        // This requires implementing parsing of IPv4/IPv6 addresses (Java does not provide such methods).
 
         assert (!_destroyed);
 
         NetworkProxy networkProxy = _instance.networkProxy();
         if (networkProxy == null) {
-            List<InetSocketAddress> addrs =
-                Network.getAddresses(host, port, _protocol, _preferIPv6, false);
+            List<InetSocketAddress> addrs = Network.getAddresses(host, port, _protocol, _preferIPv6, false);
             if (addrs != null) {
                 callback.connectors(endpoint.connectors(addrs, networkProxy));
                 return;
@@ -80,8 +72,7 @@ class EndpointHostResolver {
                 }
 
                 if (threadObserver != null) {
-                    threadObserver.stateChanged(
-                        ThreadState.ThreadStateIdle, ThreadState.ThreadStateInUseForOther);
+                    threadObserver.stateChanged(ThreadState.ThreadStateIdle, ThreadState.ThreadStateInUseForOther);
                 }
 
                 Observer obsv = observer;
@@ -95,8 +86,7 @@ class EndpointHostResolver {
                         }
                     }
 
-                    List<InetSocketAddress> addresses =
-                        Network.getAddresses(host, port, protocol, _preferIPv6, true);
+                    List<InetSocketAddress> addresses = Network.getAddresses(host, port, protocol, _preferIPv6, true);
 
                     if (obsv != null) {
                         obsv.detach();
@@ -112,9 +102,7 @@ class EndpointHostResolver {
                     callback.exception(ex);
                 } finally {
                     if (threadObserver != null) {
-                        threadObserver.stateChanged(
-                            ThreadState.ThreadStateInUseForOther,
-                            ThreadState.ThreadStateIdle);
+                        threadObserver.stateChanged(ThreadState.ThreadStateInUseForOther, ThreadState.ThreadStateIdle);
                     }
                 }
             });
@@ -124,9 +112,7 @@ class EndpointHostResolver {
         if (!_destroyed) {
             _destroyed = true;
 
-            //
             // Shutdown the executor. No new tasks will be accepted. Existing tasks will execute.
-            //
             _executor.shutdown();
         }
     }
@@ -147,12 +133,9 @@ class EndpointHostResolver {
     }
 
     synchronized void updateObserver() {
-        CommunicatorObserver obsv =
-            _instance.initializationData().observer;
+        CommunicatorObserver obsv = _instance.initializationData().observer;
         if (obsv != null) {
-            _observer =
-                obsv.getThreadObserver(
-                    "Communicator", _threadName, ThreadState.ThreadStateIdle, _observer);
+            _observer = obsv.getThreadObserver("Communicator", _threadName, ThreadState.ThreadStateIdle, _observer);
             if (_observer != null) {
                 _observer.attach();
             }
@@ -160,8 +143,7 @@ class EndpointHostResolver {
     }
 
     private Observer getObserver(IPEndpointI endpoint) {
-        CommunicatorObserver obsv =
-            _instance.initializationData().observer;
+        CommunicatorObserver obsv = _instance.initializationData().observer;
         if (obsv != null) {
             return obsv.getEndpointLookupObserver(endpoint);
         }

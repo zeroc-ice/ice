@@ -69,9 +69,8 @@ public class AllTests : global::Test.AllTests
             {
                 var initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties().Clone();
-                Ice.Communicator comm = Ice.Util.initialize(initData);
+                using var comm = new Ice.Communicator(initData);
                 _ = comm.stringToProxy("test:" + helper.getTestEndpoint(0)).ice_pingAsync();
-                comm.destroy();
             }
             output.WriteLine("ok");
         }
@@ -384,8 +383,10 @@ public class AllTests : global::Test.AllTests
                 initData.properties.setProperty("Ice.ServerIdleTime", "1");
                 // The thread pool threads have to be idle first before server idle time is checked.
                 initData.properties.setProperty("Ice.ThreadPool.Server.ThreadIdleTime", "1");
-                using Communicator idleCommunicator = Ice.Util.initialize(initData);
-                ObjectAdapter idleOA = idleCommunicator.createObjectAdapterWithEndpoints("IdleAdapter", "tcp -h 127.0.0.1");
+                using var idleCommunicator = new Ice.Communicator(initData);
+                ObjectAdapter idleOA = idleCommunicator.createObjectAdapterWithEndpoints(
+                    "IdleAdapter",
+                    "tcp -h 127.0.0.1");
                 idleOA.activate();
                 idleCommunicator.waitForShutdown();
             });
@@ -398,7 +399,7 @@ public class AllTests : global::Test.AllTests
                 initData.properties.setProperty("Ice.ServerIdleTime", "0");
                 // The thread pool threads have to be idle first before server idle time is checked.
                 initData.properties.setProperty("Ice.ThreadPool.Server.ThreadIdleTime", "1");
-                using Communicator idleCommunicator = Ice.Util.initialize(initData);
+                using var idleCommunicator = new Ice.Communicator(initData);
                 {
                     ObjectAdapter idleOA = idleCommunicator.createObjectAdapterWithEndpoints("IdleAdapter", "tcp -h 127.0.0.1");
                     idleOA.activate();

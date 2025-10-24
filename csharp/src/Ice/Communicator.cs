@@ -35,6 +35,38 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     private const string _flushBatchRequests_name = "flushBatchRequests";
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="Communicator" /> class.
+    /// </summary>
+    /// <param name="initData">Options for the new communicator.</param>
+    public Communicator(InitializationData? initData = null)
+    {
+        initData = initData is null ? new InitializationData() : initData with { };
+
+        instance = new Instance();
+        instance.initialize(this, initData);
+
+        try
+        {
+            instance.finishSetup(this);
+        }
+        catch
+        {
+            instance.destroy();
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Communicator" /> class.
+    /// </summary>
+    /// <param name="args">The command-line arguments. This constructor uses <paramref name="args"/> to create
+    /// the <see cref="Properties"/> of the new communicator.</param>
+    public Communicator(ref string[] args)
+        : this(new InitializationData { properties = new Properties(ref args) })
+    {
+    }
+
+    /// <summary>
     /// Disposes this communicator. It's an alias for <see cref="destroy"/>.
     /// </summary>
     public void Dispose() => destroy();
@@ -416,25 +448,6 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// </summary>
     /// <returns>A collection containing all the facet names and servants of the Admin object.</returns>
     public Dictionary<string, Object> findAllAdminFacets() => instance.findAllAdminFacets();
-
-    internal Communicator(InitializationData initData)
-    {
-        instance = new Instance();
-        instance.initialize(this, initData);
-    }
-
-    internal void finishSetup()
-    {
-        try
-        {
-            instance.finishSetup(this);
-        }
-        catch
-        {
-            instance.destroy();
-            throw;
-        }
-    }
 }
 
 /// <summary>

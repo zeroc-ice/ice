@@ -5,18 +5,16 @@ package com.zeroc.Ice;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Implements SliceLoader using an array of annotated classes.
- */
+/** Implements SliceLoader using an array of annotated classes. */
 public final class ClassSliceLoader implements SliceLoader {
     private final Map<String, Class<?>> _typeIdToClass = new HashMap<>();
 
     /**
      * Creates a ClassSliceLoader.
      *
-     * @param classes An array of classes with the {@link SliceTypeId} annotation. Each class may also have the
-     *                {@link CompactSliceTypeId} annotation.
-     * @throws IllegalArgumentException If any class is not annotated with {@link SliceTypeId}.
+     * @param classes an array of classes with the {@link SliceTypeId} annotation.
+     *     Each class may also have the {@link CompactSliceTypeId} annotation.
+     * @throws IllegalArgumentException if any class is not annotated with {@link SliceTypeId}
      */
     public ClassSliceLoader(Class<?>... classes) {
         for (Class<?> c : classes) {
@@ -30,10 +28,8 @@ public final class ClassSliceLoader implements SliceLoader {
                     _typeIdToClass.put(String.valueOf(compactTypeId.value()), c);
                 }
             } else {
-                throw new IllegalArgumentException(
-                    String.format(
-                        "Class '%s' is not annotated with @SliceTypeId.",
-                        c.getName()));
+                String msg = String.format("Class '%s' is not annotated with @SliceTypeId.", c.getName());
+                throw new IllegalArgumentException(msg);
             }
         }
     }
@@ -45,11 +41,9 @@ public final class ClassSliceLoader implements SliceLoader {
             try {
                 return c.getDeclaredConstructor().newInstance();
             } catch (Exception ex) {
-                throw new MarshalException(
-                    String.format(
-                        "Failed to create an instance of class '%s' for type ID '%s'.",
-                        c.getName(), typeId),
-                    ex);
+                String msg =
+                    String.format("Failed to create an instance of class '%s' for type ID '%s'.", c.getName(), typeId);
+                throw new MarshalException(msg, ex);
             }
         }
         return null;

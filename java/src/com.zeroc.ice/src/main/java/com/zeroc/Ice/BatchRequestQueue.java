@@ -54,9 +54,7 @@ class BatchRequestQueue {
 
         _maxSize = instance.batchAutoFlushSize();
         if (_maxSize > 0 && datagram) {
-            int udpSndSize =
-                initData.properties.getPropertyAsIntWithDefault(
-                    "Ice.UDP.SndSize", 65535 - _udpOverhead);
+            int udpSndSize = initData.properties.getPropertyAsIntWithDefault("Ice.UDP.SndSize", 65535 - _udpOverhead);
             if (udpSndSize < _maxSize) {
                 _maxSize = udpSndSize;
             }
@@ -74,16 +72,14 @@ class BatchRequestQueue {
     }
 
     public void finishBatchRequest(OutputStream os, ObjectPrx proxy, String operation) {
-        //
         // No need for synchronization, no other threads are supposed to modify the queue since we
         // set _batchStreamInUse to true.
-        //
         assert _batchStreamInUse;
         _batchStream.swap(os);
 
         try {
-            _batchStreamCanFlush =
-                true; // Allow flush to proceed even if the stream is marked in use.
+            // Allow flush to proceed even if the stream is marked in use.
+            _batchStreamCanFlush = true;
 
             if (_maxSize > 0 && _batchStream.size() >= _maxSize) {
                 proxy.ice_flushBatchRequestsAsync(); // Auto flush
@@ -146,9 +142,7 @@ class BatchRequestQueue {
         result.compress = _batchCompress;
         _batchStream.swap(os);
 
-        //
         // Reset the batch.
-        //
         _batchRequestNum = 0;
         _batchCompress = false;
         _batchStream.writeBlob(Protocol.requestBatchHdr);
@@ -164,12 +158,9 @@ class BatchRequestQueue {
     }
 
     private void waitStreamInUse(boolean flush) {
-        //
-        // This is similar to a mutex lock in that the stream is
-        // only "locked" while marshaling. As such we don't permit the wait
-        // to be interrupted. Instead the interrupted status is saved and
-        // restored.
-        //
+        // This is similar to a mutex lock in that the stream is only "locked" while marshaling.
+        // As such we don't permit the wait to be interrupted.
+        // Instead the interrupted status is saved and restored.
         boolean interrupted = false;
         while (_batchStreamInUse && !(flush && _batchStreamCanFlush)) {
             try {
@@ -178,9 +169,8 @@ class BatchRequestQueue {
                 interrupted = true;
             }
         }
-        //
+
         // Restore the interrupted flag if we were interrupted.
-        //
         if (interrupted) {
             Thread.currentThread().interrupt();
         }

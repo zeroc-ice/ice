@@ -27,11 +27,7 @@ public interface InvocationObserver extends Observer {
      * @param size The size of the invocation.
      * @return The observer to instrument the remote invocation.
      */
-    RemoteObserver getRemoteObserver(
-            ConnectionInfo con,
-            Endpoint endpoint,
-            int requestId,
-            int size);
+    RemoteObserver getRemoteObserver(ConnectionInfo con, Endpoint endpoint, int requestId, int size);
 
     /**
      * Get a collocated observer for this invocation.
@@ -41,6 +37,5 @@ public interface InvocationObserver extends Observer {
      * @param size The size of the invocation.
      * @return The observer to instrument the collocated invocation.
      */
-    CollocatedObserver getCollocatedObserver(
-            ObjectAdapter adapter, int requestId, int size);
+    CollocatedObserver getCollocatedObserver(ObjectAdapter adapter, int requestId, int size);
 }

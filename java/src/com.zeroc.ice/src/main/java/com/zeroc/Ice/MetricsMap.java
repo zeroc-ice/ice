@@ -199,19 +199,14 @@ public class MetricsMap<T extends Metrics> {
         }
 
         SubMapCloneFactory<S> createCloneFactory(String subMapPrefix, Properties properties) {
-            return new SubMapCloneFactory<S>(
-                new MetricsMap<S>(subMapPrefix, _class, properties, null), _field);
+            return new SubMapCloneFactory<S>(new MetricsMap<S>(subMapPrefix, _class, properties, null), _field);
         }
 
         private final Class<S> _class;
         private final java.lang.reflect.Field _field;
     }
 
-    MetricsMap(
-            String mapPrefix,
-            Class<T> cl,
-            Properties props,
-            Map<String, SubMapFactory<?>> subMaps) {
+    MetricsMap(String mapPrefix, Class<T> cl, Properties props, Map<String, SubMapFactory<?>> subMaps) {
         MetricsAdminI.validateProperties(mapPrefix, props);
         _properties = props.getPropertiesForPrefix(mapPrefix);
 
@@ -225,8 +220,7 @@ public class MetricsMap<T extends Metrics> {
         String groupBy = props.getPropertyWithDefault(mapPrefix + "GroupBy", "id");
         if (!groupBy.isEmpty()) {
             String v = "";
-            boolean attribute =
-                Character.isLetter(groupBy.charAt(0)) || Character.isDigit(groupBy.charAt(0));
+            boolean attribute = Character.isLetter(groupBy.charAt(0)) || Character.isDigit(groupBy.charAt(0));
             if (!attribute) {
                 _groupByAttributes.add("");
             }
@@ -347,9 +341,7 @@ public class MetricsMap<T extends Metrics> {
      * @return the matching entry or null if no match is found
      */
     public Entry getMatching(MetricsHelper<T> helper, Entry previous) {
-        //
         // Check the accept and reject filters.
-        //
         for (Map.Entry<String, Pattern> e : _accept.entrySet()) {
             if (!match(e.getKey(), e.getValue(), helper, false)) {
                 return null;
@@ -362,9 +354,7 @@ public class MetricsMap<T extends Metrics> {
             }
         }
 
-        //
         // Compute the key from the GroupBy property.
-        //
         String key;
         try {
             if (_groupByAttributes.size() == 1) {
@@ -384,9 +374,7 @@ public class MetricsMap<T extends Metrics> {
             return null;
         }
 
-        //
         // Lookup the metrics object.
-        //
         synchronized (this) {
             if (previous != null && previous._object.id.equals(key)) {
                 assert (_objects.get(key) == previous);
@@ -437,8 +425,7 @@ public class MetricsMap<T extends Metrics> {
         _detachedQueue.add(entry);
     }
 
-    private Map<String, Pattern> parseRule(
-            Properties properties, String name) {
+    private Map<String, Pattern> parseRule(Properties properties, String name) {
         Map<String, Pattern> pats = new HashMap<>();
         Map<String, String> rules = properties.getPropertiesForPrefix(name + '.');
         for (Map.Entry<String, String> e : rules.entrySet()) {
@@ -449,11 +436,7 @@ public class MetricsMap<T extends Metrics> {
         return pats;
     }
 
-    private boolean match(
-            String attribute,
-            Pattern regex,
-            MetricsHelper<T> helper,
-            boolean reject) {
+    private boolean match(String attribute, Pattern regex, MetricsHelper<T> helper, boolean reject) {
         String value;
         try {
             value = helper.resolve(attribute);

@@ -35,17 +35,13 @@ public enum ThreadState {
      * @return the enumerator corresponding to the given integer value, or {@code null} if no such enumerator exists
      */
     public static ThreadState valueOf(int v) {
-        switch (v) {
-            case 0:
-                return ThreadStateIdle;
-            case 1:
-                return ThreadStateInUseForIO;
-            case 2:
-                return ThreadStateInUseForUser;
-            case 3:
-                return ThreadStateInUseForOther;
-        }
-        return null;
+        return switch (v) {
+            case 0 -> ThreadStateIdle;
+            case 1 -> ThreadStateInUseForIO;
+            case 2 -> ThreadStateInUseForUser;
+            case 3 -> ThreadStateInUseForOther;
+            default -> null;
+        };
     }
 
     private ThreadState(int v) {

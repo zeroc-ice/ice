@@ -8,8 +8,7 @@ import java.net.InetSocketAddress;
  * @hidden Public because it's used by IceBT, SSL, and the 'Ice/background' test.
  */
 public class ProtocolInstance {
-    public ProtocolInstance(
-            Communicator communicator, short type, String protocol, boolean secure) {
+    public ProtocolInstance(Communicator communicator, short type, String protocol, boolean secure) {
         _instance = communicator.getInstance();
         _traceLevel = _instance.traceLevels().network;
         _traceCategory = _instance.traceLevels().networkCat;

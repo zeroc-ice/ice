@@ -19,11 +19,8 @@ public class UnderlyingEndpointFactory implements EndpointFactory {
     }
 
     public void initialize() {
-        //
         // Get the endpoint factory of the given endpoint type. If it's a factory that
-        // delegates to an underlying endpoint, clone it and instruct it to delegate to
-        // our underlying factory.
-        //
+        // delegates to an underlying endpoint, clone it and instruct it to delegate to our underlying factory.
         EndpointFactory factory = _instance.getEndpointFactory(_type);
         if (factory != null && factory instanceof EndpointFactoryWithUnderlying) {
             EndpointFactoryWithUnderlying f = (EndpointFactoryWithUnderlying) factory;

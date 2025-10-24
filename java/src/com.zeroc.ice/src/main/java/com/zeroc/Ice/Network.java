@@ -316,11 +316,8 @@ public final class Network {
         }
 
         if ("Linux".equals(System.getProperty("os.name"))) {
-            //
             // Prevent self connect (self connect happens on Linux when a client tries to connect to
-            // a server which was just deactivated if the client socket re-uses the same ephemeral
-            // port as the server).
-            //
+            // a server which was just deactivated if the client socket re-uses the same ephemeral port as the server).
             if (addr.equals(fd.socket().getLocalSocketAddress())) {
                 closeSocketNoThrow(fd);
                 throw new ConnectionRefusedException();
@@ -330,10 +327,7 @@ public final class Network {
     }
 
     public static void doFinishConnect(SocketChannel fd) {
-        //
-        // Note: we don't close the socket if there's an exception. It's the responsibility of the
-        // caller to do so.
-        //
+        // Note: we don't close the socket if there's an exception. It's the responsibility of the caller to do so.
 
         try {
             if (!fd.finishConnect()) {
@@ -341,11 +335,8 @@ public final class Network {
             }
 
             if ("Linux".equals(System.getProperty("os.name"))) {
-                //
-                // Prevent self connect (self connect happens on Linux when a client tries to
-                // connect to a server which was just deactivated if the client socket re-uses the
-                // same ephemeral port as the server).
-                //
+                // Prevent self connect (self connect happens on Linux when a client tries to connect to a server
+                // which was just deactivated if the client socket re-uses the same ephemeral port as the server).
                 SocketAddress addr = fd.socket().getRemoteSocketAddress();
                 if (addr != null && addr.equals(fd.socket().getLocalSocketAddress())) {
                     throw new ConnectionRefusedException();
@@ -789,10 +780,7 @@ public final class Network {
     public static String addrToString(InetAddress addr, int port) {
         StringBuffer s = new StringBuffer();
 
-        //
-        // In early Android releases, sockets don't correctly report their address and port
-        // information.
-        //
+        // In early Android releases, sockets don't correctly report their address and port information.
 
         if (addr == null || addr.isAnyLocalAddress()) {
             s.append("<not available>");

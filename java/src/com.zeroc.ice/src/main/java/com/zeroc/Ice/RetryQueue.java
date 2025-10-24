@@ -16,10 +16,7 @@ class RetryQueue {
         }
         RetryTask task = new RetryTask(_instance, this, outAsync);
         outAsync.cancelable(task); // This will throw if the request is canceled
-        task.setFuture(
-            _instance
-                .timer()
-                .schedule(task, interval, TimeUnit.MILLISECONDS));
+        task.setFuture(_instance.timer().schedule(task, interval, TimeUnit.MILLISECONDS));
         _requests.add(task);
     }
 
@@ -37,11 +34,8 @@ class RetryQueue {
         _requests = keep;
         _instance = null;
 
-        //
-        // Wait for the tasks to be executed, it shouldn't take long
-        // since they couldn't be canceled. If interrupted, we
-        // preserve the interrupt.
-        //
+        // Wait for the tasks to be executed, it shouldn't take long since they couldn't be canceled.
+        // If interrupted, we preserve the interrupt.
         boolean interrupted = false;
         while (!_requests.isEmpty()) {
             try {

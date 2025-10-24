@@ -3,8 +3,7 @@
 package com.zeroc.Ice;
 
 /**
- * This exception indicates that an attempt has been made to change the connection properties of a
- * fixed proxy.
+ * This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
  */
 public final class FixedProxyException extends LocalException {
     /**

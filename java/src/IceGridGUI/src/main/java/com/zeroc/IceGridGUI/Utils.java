@@ -86,8 +86,7 @@ public class Utils {
     }
 
     public static void removeEscapeListener(JDialog dialog) {
-        dialog.getRootPane()
-            .unregisterKeyboardAction(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
+        dialog.getRootPane().unregisterKeyboardAction(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
     }
 
     // Extract Ice version in the form XXYYZZ, e.g.  030201 (for 3.2.1)
@@ -114,8 +113,7 @@ public class Utils {
                         result += Integer.parseInt(version.substring(firstDotPos + 1));
                         result *= 100;
                     } else {
-                        result +=
-                            Integer.parseInt(version.substring(firstDotPos + 1, secondDotPos));
+                        result += Integer.parseInt(version.substring(firstDotPos + 1, secondDotPos));
                         result *= 100;
                         result += Integer.parseInt(version.substring(secondDotPos + 1));
                     }
@@ -127,8 +125,7 @@ public class Utils {
         return result;
     }
 
-    public static void storeWindowBounds(
-            Window window, Preferences prefs) {
+    public static void storeWindowBounds(Window window, Preferences prefs) {
         if (window instanceof Frame) {
             Frame frame = (Frame) window;
             boolean maximized = frame.getExtendedState() == Frame.MAXIMIZED_BOTH;
@@ -170,9 +167,7 @@ public class Utils {
             for (GraphicsDevice s : screens) {
                 visibleBounds.add(s.getDefaultConfiguration().getBounds());
             }
-            locationVisible =
-                visibleBounds.contains(x, y)
-                    || (maximized && visibleBounds.contains(x + 20, y + 20));
+            locationVisible = visibleBounds.contains(x, y) || (maximized && visibleBounds.contains(x + 20, y + 20));
 
             if (locationVisible) {
                 if (maximized) {
@@ -215,8 +210,7 @@ public class Utils {
     }
 
     // Stringify helpers
-    public static StringifyResult stringify(
-            Collection<?> col, Stringifier stringifier, String separator) {
+    public static StringifyResult stringify(Collection<?> col, Stringifier stringifier, String separator) {
         StringifyResult r = new StringifyResult();
         r.returnValue = "";
 
@@ -275,8 +269,7 @@ public class Utils {
                 @Override
                 public String toString(Object obj) {
                     @SuppressWarnings("unchecked")
-                    Map.Entry<String, String> entry =
-                        (Map.Entry<String, String>) obj;
+                    Map.Entry<String, String> entry = (Map.Entry<String, String>) obj;
                     return entry.getKey() + pairSeparator + entry.getValue();
                 }
             };
@@ -300,10 +293,7 @@ public class Utils {
         }
 
         // Resolver for instance; in-parameters are not yet substituted
-        public Resolver(
-                Resolver parent,
-                Map<String, String> parameters,
-                Map<String, String> defaults) {
+        public Resolver(Resolver parent, Map<String, String> parameters, Map<String, String> defaults) {
             _variables = parent._variables;
 
             // Whenever the parent's predefined variables change, the resolver must be recreated
@@ -322,9 +312,7 @@ public class Utils {
             }
         }
 
-        private Resolver(
-                Map<String, String>[] variables,
-                Map<String, String> predefinedVariables) {
+        private Resolver(Map<String, String>[] variables, Map<String, String> predefinedVariables) {
             _variables = variables;
             _predefinedVariables = predefinedVariables;
 
@@ -366,10 +354,7 @@ public class Utils {
         }
 
         // Reset parameters and pre-defined variables
-        public void reset(
-                Resolver parent,
-                Map<String, String> parameters,
-                Map<String, String> defaults) {
+        public void reset(Resolver parent, Map<String, String> parameters, Map<String, String> defaults) {
             assert _variables == parent._variables;
             _predefinedVariables = new HashMap<>(parent._predefinedVariables);
 
@@ -440,8 +425,7 @@ public class Utils {
         }
 
         // Substitute all the values from the input map
-        public Map<String, String> substituteParameterValues(
-                Map<String, String> input, Map<String, String> defaults) {
+        public Map<String, String> substituteParameterValues(Map<String, String> input, Map<String, String> defaults) {
             Map<String, String> result = new HashMap<>();
             for (Map.Entry<String, String> p : input.entrySet()) {
                 result.put(p.getKey(), substitute(p.getValue()));
@@ -484,15 +468,13 @@ public class Utils {
         return toMap;
     }
 
-    public static SortedMap<String, String> propertySetToMap(
-            ExpandedPropertySet propertySet, Resolver resolver) {
+    public static SortedMap<String, String> propertySetToMap(ExpandedPropertySet propertySet, Resolver resolver) {
         List<ExpandedPropertySet> list = new LinkedList<>();
         list.add(propertySet);
         return propertySetsToMap(list, resolver);
     }
 
-    private static void addSet(
-            ExpandedPropertySet set, Resolver resolver, SortedMap<String, String> toMap) {
+    private static void addSet(ExpandedPropertySet set, Resolver resolver, SortedMap<String, String> toMap) {
         for (ExpandedPropertySet s : set.references) {
             addSet(s, resolver, toMap);
         }

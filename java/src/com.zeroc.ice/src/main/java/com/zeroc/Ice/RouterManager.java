@@ -14,18 +14,13 @@ final class RouterManager {
         _table.clear();
     }
 
-    //
-    // Returns router info for a given router. Automatically creates the router info if it doesn't
-    // exist yet.
-    //
+    // Returns router info for a given router. Automatically creates the router info if it doesn't exist yet.
     public RouterInfo get(RouterPrx router) {
         if (router == null) {
             return null;
         }
 
-        //
         // The router cannot be routed.
-        //
         router = RouterPrx.uncheckedCast(router.ice_router(null));
 
         synchronized (this) {

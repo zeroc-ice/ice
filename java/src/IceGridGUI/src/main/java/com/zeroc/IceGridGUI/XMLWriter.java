@@ -16,8 +16,7 @@ import java.util.List;
 public class XMLWriter {
     public XMLWriter(File file) throws FileNotFoundException, IOException {
         try {
-            _writer =
-                new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
+            _writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             assert false;
         }

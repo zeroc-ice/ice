@@ -3636,19 +3636,16 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << " */";
     out << nl << "public static " << name << " valueOf(int v)";
     out << sb;
-    out << nl << "switch (v)";
+    out << nl << "return switch (v)";
     out << sb;
     out.dec();
     for (const auto& enumerator : enumerators)
     {
-        out << nl << "case " << enumerator->value() << ':';
-        out.inc();
-        out << nl << "return " << enumerator->mappedName() << ';';
-        out.dec();
+        out << nl << "case " << enumerator->value() << " -> " << enumerator->mappedName() << ';';
     }
+    out << nl << "default -> null;";
     out.inc();
-    out << eb;
-    out << nl << "return null;";
+    out << eb << ';';
     out << eb;
 
     out << sp << nl << "private " << name << "(int v)";

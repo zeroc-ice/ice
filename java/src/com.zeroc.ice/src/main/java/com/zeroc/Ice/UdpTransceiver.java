@@ -23,17 +23,13 @@ final class UdpTransceiver implements Transceiver {
 
     @Override
     public int initialize(Buffer readBuffer, Buffer writeBuffer) {
-        //
         // Nothing to do.
-        //
         return SocketOperation.None;
     }
 
     @Override
     public int closing(boolean initiator, LocalException ex) {
-        //
         // Nothing to do.
-        //
         return SocketOperation.None;
     }
 
@@ -56,14 +52,11 @@ final class UdpTransceiver implements Transceiver {
             if (System.getProperty("os.name").startsWith("Windows")) {
                 // Windows does not allow binding to the mcast address itself so we bind to INADDR_ANY instead.
                 int protocolSupport = Network.getProtocolSupport(_mcastAddr);
-                _addr =
-                    Network.getAddressForServer(
-                        "", _port, protocolSupport, _instance.preferIPv6());
+                _addr = Network.getAddressForServer("", _port, protocolSupport, _instance.preferIPv6());
             }
             _addr = Network.doBind(_fd, _addr);
             if (_port == 0) {
-                _mcastAddr =
-                    new InetSocketAddress(_mcastAddr.getAddress(), _addr.getPort());
+                _mcastAddr = new InetSocketAddress(_mcastAddr.getAddress(), _addr.getPort());
             }
             Network.setMcastGroup(_fd, _mcastAddr, _mcastInterface);
         } else {
@@ -149,8 +142,7 @@ final class UdpTransceiver implements Transceiver {
             }
         }
 
-        // A client connection is already connected at this point, and a server connection is never
-        // connected.
+        // A client connection is already connected at this point, and a server connection is never connected.
         assert _state != StateNeedConnect;
 
         buf.resize(ret, true);
@@ -175,10 +167,7 @@ final class UdpTransceiver implements Transceiver {
             s = "local address = " + Network.addrToString(_addr);
         } else if (_state == StateNotConnected) {
             DatagramSocket socket = _fd.socket();
-            s =
-                "local address = "
-                    + Network.addrToString(
-                    (InetSocketAddress) socket.getLocalSocketAddress());
+            s = "local address = " + Network.addrToString((InetSocketAddress) socket.getLocalSocketAddress());
         } else {
             s = Network.fdToString(_fd);
         }
@@ -193,9 +182,7 @@ final class UdpTransceiver implements Transceiver {
     public String toDetailedString() {
         StringBuilder s = new StringBuilder(toString());
         if (_mcastAddr != null) {
-            var intfs =
-                Network.getInterfacesForMulticast(
-                    _mcastInterface, Network.getProtocolSupport(_mcastAddr));
+            var intfs = Network.getInterfacesForMulticast(_mcastInterface, Network.getProtocolSupport(_mcastAddr));
             if (!intfs.isEmpty()) {
                 s.append("\nlocal interfaces = ");
                 s.append(String.join(", ", intfs));
@@ -263,17 +250,12 @@ final class UdpTransceiver implements Transceiver {
 
     @Override
     public synchronized void checkSendSize(Buffer buf) {
-        //
         // The maximum packetSize is either the maximum allowable UDP packet size, or the UDP send
         // buffer size (which ever is smaller).
-        //
         final int packetSize = java.lang.Math.min(_maxPacketSize, _sndSize - _udpOverhead);
         if (packetSize < buf.size()) {
             throw new DatagramLimitException(
-                "message size of "
-                    + buf.size()
-                    + " exceeds the maximum packet size of "
-                    + packetSize);
+                "message size of " + buf.size() + " exceeds the maximum packet size of " + packetSize);
         }
     }
 
@@ -374,33 +356,20 @@ final class UdpTransceiver implements Transceiver {
                 _sndSize = dfltSize;
             }
 
-            //
             // Get property for buffer size if size not passed in.
-            //
             if (sizeRequested == -1) {
                 sizeRequested = _instance.properties().getPropertyAsIntWithDefault(prop, dfltSize);
             }
-            //
             // Check for sanity.
-            //
             if (sizeRequested < (_udpOverhead + Protocol.headerSize)) {
-                _instance
-                    .logger()
-                    .warning(
-                        "Invalid "
-                            + prop
-                            + " value of "
-                            + sizeRequested
-                            + " adjusted to "
-                            + dfltSize);
+                String msg = "Invalid " + prop + " value of " + sizeRequested + " adjusted to " + dfltSize;
+                _instance.logger().warning(msg);
                 sizeRequested = dfltSize;
             }
 
             if (sizeRequested != dfltSize) {
-                //
                 // Try to set the buffer size. The kernel will silently adjust the size to an
                 // acceptable value. Then read the size back to get the size that was actually set.
-                //
                 int sizeSet;
                 if (i == 0) {
                     Network.setRecvBufferSize(_fd, sizeRequested);
@@ -412,23 +381,14 @@ final class UdpTransceiver implements Transceiver {
                     sizeSet = _sndSize;
                 }
 
-                //
-                // Warn if the size that was set is less than the requested size and we have not
-                // already warned
-                //
+                // Warn if the size that was set is less than the requested size and we have not already warned
                 if (sizeSet < sizeRequested) {
                     BufSizeWarnInfo winfo = _instance.getBufSizeWarn(UDPEndpointType.value);
                     if ((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested))
                         || (!isSnd && (!winfo.rcvWarn || winfo.rcvSize != sizeRequested))) {
-                        _instance
-                            .logger()
-                            .warning(
-                                "UDP "
-                                    + direction
-                                    + " buffer size: requested size of "
-                                    + sizeRequested
-                                    + " adjusted to "
-                                    + sizeSet);
+                        String msg = "UDP " + direction + " buffer size: requested size of " + sizeRequested
+                            + " adjusted to " + sizeSet;
+                        _instance.logger().warning(msg);
 
                         if (isSnd) {
                             _instance.setSndBufSizeWarn(UDPEndpointType.value, sizeRequested);
@@ -438,16 +398,6 @@ final class UdpTransceiver implements Transceiver {
                     }
                 }
             }
-        }
-    }
-
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            Assert.FinalizerAssert(_fd == null);
-        } catch (Exception ex) {} finally {
-            super.finalize();
         }
     }
 

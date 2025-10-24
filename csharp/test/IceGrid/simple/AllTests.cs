@@ -70,59 +70,59 @@ public class AllTests : Test.AllTests
             initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
 
             initData.pluginFactories = [new IceLocatorDiscovery.PluginFactory()];
-
-            Ice.Communicator com = Ice.Util.initialize(initData);
-            test(com.getDefaultLocator() != null);
-            com.stringToProxy("test @ TestAdapter").ice_ping();
-            com.stringToProxy("test").ice_ping();
-
-            test(com.getDefaultLocator().getRegistry() != null);
-            test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalRegistry() != null);
-            test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalQuery() != null);
-
-            Ice.ObjectAdapter adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
-            adapter.activate();
-            adapter.deactivate();
-            com.destroy();
-
-            //
-            // Now, ensure that the IceGrid discovery locator correctly
-            // handles failure to find a locator.
-            //
-            initData.properties.setProperty("IceLocatorDiscovery.InstanceName", "unknown");
-            initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
-            initData.properties.setProperty("IceLocatorDiscovery.Timeout", "100");
-            com = Ice.Util.initialize(initData);
-            test(com.getDefaultLocator() != null);
-            try
             {
+                using var com = new Ice.Communicator(initData);
+                test(com.getDefaultLocator() != null);
                 com.stringToProxy("test @ TestAdapter").ice_ping();
-            }
-            catch (Ice.NoEndpointException)
-            {
-            }
-            try
-            {
                 com.stringToProxy("test").ice_ping();
-            }
-            catch (Ice.NoEndpointException)
-            {
-            }
-            test(com.getDefaultLocator().getRegistry() == null);
-            test(IceGrid.LocatorPrxHelper.checkedCast(com.getDefaultLocator()) == null);
-            try
-            {
-                IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalRegistry();
-            }
-            catch (Ice.OperationNotExistException)
-            {
+
+                test(com.getDefaultLocator().getRegistry() != null);
+                test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalRegistry() != null);
+                test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalQuery() != null);
+
+                Ice.ObjectAdapter adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
+                adapter.activate();
+                adapter.deactivate();
             }
 
-            adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
-            adapter.activate();
-            adapter.deactivate();
+            {
+                //
+                // Now, ensure that the IceGrid discovery locator correctly
+                // handles failure to find a locator.
+                //
+                initData.properties.setProperty("IceLocatorDiscovery.InstanceName", "unknown");
+                initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
+                initData.properties.setProperty("IceLocatorDiscovery.Timeout", "100");
+                using var com = new Ice.Communicator(initData);
+                test(com.getDefaultLocator() != null);
+                try
+                {
+                    com.stringToProxy("test @ TestAdapter").ice_ping();
+                }
+                catch (Ice.NoEndpointException)
+                {
+                }
+                try
+                {
+                    com.stringToProxy("test").ice_ping();
+                }
+                catch (Ice.NoEndpointException)
+                {
+                }
+                test(com.getDefaultLocator().getRegistry() == null);
+                test(IceGrid.LocatorPrxHelper.checkedCast(com.getDefaultLocator()) == null);
+                try
+                {
+                    IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalRegistry();
+                }
+                catch (Ice.OperationNotExistException)
+                {
+                }
 
-            com.destroy();
+                Ice.ObjectAdapter adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
+                adapter.activate();
+                adapter.deactivate();
+            }
 
             string multicast;
             if (communicator.getProperties().getIceProperty("Ice.IPv6") == "1")
@@ -134,75 +134,82 @@ public class AllTests : Test.AllTests
                 multicast = "239.255.0.1";
             }
 
-            //
-            // Test invalid lookup endpoints
-            //
-            initData.properties = communicator.getProperties().Clone();
-            initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("IceLocatorDiscovery.Lookup", $"udp -h {multicast} --interface unknown:");
-
-            initData.pluginFactories = [new IceLocatorDiscovery.PluginFactory()];
-
-            com = Ice.Util.initialize(initData);
-            test(com.getDefaultLocator() != null);
-            try
             {
-                com.stringToProxy("test @ TestAdapter").ice_ping();
-                test(false);
-            }
-            catch (Ice.NoEndpointException)
-            {
-            }
-            com.destroy();
-
-            initData.properties = communicator.getProperties().Clone();
-            initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "0");
-            initData.properties.setProperty("IceLocatorDiscovery.Lookup", $"udp -h {multicast} --interface unknown");
-
-            initData.pluginFactories = [new IceLocatorDiscovery.PluginFactory()];
-
-            com = Ice.Util.initialize(initData);
-            test(com.getDefaultLocator() != null);
-            try
-            {
-                com.stringToProxy("test @ TestAdapter").ice_ping();
-                test(false);
-            }
-            catch (Ice.NoEndpointException)
-            {
-            }
-            com.destroy();
-
-            initData.properties = communicator.getProperties().Clone();
-            initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
-            {
-                string intf = initData.properties.getIceProperty("IceLocatorDiscovery.Interface");
-                if (intf.Length > 0)
-                {
-                    intf = " --interface \"" + intf + "\"";
-                }
-                string port = $"{helper.getTestPort(99)}";
+                //
+                // Test invalid lookup endpoints
+                //
+                initData.properties = communicator.getProperties().Clone();
+                initData.properties.setProperty("Ice.Default.Locator", "");
                 initData.properties.setProperty(
                     "IceLocatorDiscovery.Lookup",
-                    $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port} {intf}");
+                    $"udp -h {multicast} --interface unknown");
+
+                initData.pluginFactories = [new IceLocatorDiscovery.PluginFactory()];
+
+                using var com = new Ice.Communicator(initData);
+                test(com.getDefaultLocator() != null);
+                try
+                {
+                    com.stringToProxy("test @ TestAdapter").ice_ping();
+                    test(false);
+                }
+                catch (Ice.NoEndpointException)
+                {
+                }
             }
 
-            initData.pluginFactories = [new IceLocatorDiscovery.PluginFactory()];
+            {
+                initData.properties = communicator.getProperties().Clone();
+                initData.properties.setProperty("Ice.Default.Locator", "");
+                initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "0");
+                initData.properties.setProperty(
+                    "IceLocatorDiscovery.Lookup",
+                    $"udp -h {multicast} --interface unknown");
 
-            com = Ice.Util.initialize(initData);
-            test(com.getDefaultLocator() != null);
-            try
-            {
-                com.stringToProxy("test @ TestAdapter").ice_ping();
+                initData.pluginFactories = [new IceLocatorDiscovery.PluginFactory()];
+
+                using var com = new Ice.Communicator(initData);
+                test(com.getDefaultLocator() != null);
+                try
+                {
+                    com.stringToProxy("test @ TestAdapter").ice_ping();
+                    test(false);
+                }
+                catch (Ice.NoEndpointException)
+                {
+                }
             }
-            catch (System.Exception ex)
+
             {
-                Console.Out.WriteLine($"could not ping 'test': {ex}");
-                test(false);
+                initData.properties = communicator.getProperties().Clone();
+                initData.properties.setProperty("Ice.Default.Locator", "");
+                initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
+                {
+                    string intf = initData.properties.getIceProperty("IceLocatorDiscovery.Interface");
+                    if (intf.Length > 0)
+                    {
+                        intf = " --interface \"" + intf + "\"";
+                    }
+                    string port = $"{helper.getTestPort(99)}";
+                    initData.properties.setProperty(
+                        "IceLocatorDiscovery.Lookup",
+                        $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port}{intf}");
+                }
+
+                initData.pluginFactories = [new IceLocatorDiscovery.PluginFactory()];
+
+                using var com = new Ice.Communicator(initData);
+                test(com.getDefaultLocator() != null);
+                try
+                {
+                    com.stringToProxy("test @ TestAdapter").ice_ping();
+                }
+                catch (System.Exception ex)
+                {
+                    Console.Out.WriteLine($"could not ping 'test': {ex}");
+                    test(false);
+                }
             }
-            com.destroy();
         }
         Console.Out.WriteLine("ok");
 

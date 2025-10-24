@@ -29,30 +29,16 @@ public class ThreadObserverI
             @Override
             public void update(ThreadMetrics v) {
                 switch (_oldState) {
-                    case ThreadStateInUseForIO:
-                        --v.inUseForIO;
-                        break;
-                    case ThreadStateInUseForUser:
-                        --v.inUseForUser;
-                        break;
-                    case ThreadStateInUseForOther:
-                        --v.inUseForOther;
-                        break;
-                    default:
-                        break;
+                    case ThreadStateInUseForIO -> --v.inUseForIO;
+                    case ThreadStateInUseForUser -> --v.inUseForUser;
+                    case ThreadStateInUseForOther -> --v.inUseForOther;
+                    default -> {}
                 }
                 switch (_newState) {
-                    case ThreadStateInUseForIO:
-                        ++v.inUseForIO;
-                        break;
-                    case ThreadStateInUseForUser:
-                        ++v.inUseForUser;
-                        break;
-                    case ThreadStateInUseForOther:
-                        ++v.inUseForOther;
-                        break;
-                    default:
-                        break;
+                    case ThreadStateInUseForIO -> ++v.inUseForIO;
+                    case ThreadStateInUseForUser -> ++v.inUseForUser;
+                    case ThreadStateInUseForOther -> ++v.inUseForOther;
+                    default -> {}
                 }
             }
         };

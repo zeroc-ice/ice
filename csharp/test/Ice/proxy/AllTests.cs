@@ -1010,7 +1010,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing communicator shutdown/destroy... ");
         output.Flush();
         {
-            Ice.Communicator com = Ice.Util.initialize();
+            using var com = new Ice.Communicator();
             com.shutdown();
             test(com.isShutdown());
             await com.shutdownCompleted;
@@ -1018,7 +1018,6 @@ public class AllTests : global::Test.AllTests
             com.shutdown();
             test(com.isShutdown());
             await com.shutdownCompleted;
-            com.destroy();
         }
         output.WriteLine("ok");
 

@@ -147,15 +147,13 @@ public class SessionKeeper {
 
             try {
                 if (!routed) {
-                    ObjectPrx adminCallbackTemplate =
-                        _session.getAdminCallbackTemplate();
+                    ObjectPrx adminCallbackTemplate = _session.getAdminCallbackTemplate();
 
                     if (adminCallbackTemplate != null) {
                         _adminCallbackCategory = adminCallbackTemplate.ice_getIdentity().category;
 
                         String publishedEndpoints = null;
-                        for (Endpoint endpoint :
-                                adminCallbackTemplate.ice_getEndpoints()) {
+                        for (Endpoint endpoint : adminCallbackTemplate.ice_getEndpoints()) {
                             String endpointString = endpoint.toString();
                             if (publishedEndpoints == null) {
                                 publishedEndpoints = endpointString;
@@ -166,8 +164,7 @@ public class SessionKeeper {
                         _coordinator
                             .getCommunicator()
                             .getProperties()
-                            .setProperty(
-                                "CallbackAdapter.PublishedEndpoints", publishedEndpoints);
+                            .setProperty("CallbackAdapter.PublishedEndpoints", publishedEndpoints);
                     }
                 }
                 _serverAdminCategory = _admin.getServerAdminCategory();
@@ -262,21 +259,18 @@ public class SessionKeeper {
                         .getCommunicator()
                         .createObjectAdapterWithEndpoints("IceGridAdmin.Internal", "tcp -h 127.0.0.1");
 
-                _routedAdmin =
-                    AdminPrx.uncheckedCast(adminRouterAdapter.addWithUUID(new AdminRouter(_admin)));
+                _routedAdmin = AdminPrx.uncheckedCast(adminRouterAdapter.addWithUUID(new AdminRouter(_admin)));
 
                 adminRouterAdapter.activate();
             }
             return _routedAdmin;
         }
 
-        ObjectPrx addCallback(
-                com.zeroc.Ice.Object servant, String name, String facet) {
+        ObjectPrx addCallback(com.zeroc.Ice.Object servant, String name, String facet) {
             if (_adminCallbackCategory == null) {
                 return null;
             } else {
-                return _adapter.addFacet(
-                    servant, new Identity(name, _adminCallbackCategory), facet);
+                return _adapter.addFacet(servant, new Identity(name, _adminCallbackCategory), facet);
             }
         }
 
@@ -284,8 +278,7 @@ public class SessionKeeper {
             if (_adminCallbackCategory == null) {
                 return null;
             } else {
-                Identity ident =
-                    new Identity(name, _adminCallbackCategory);
+                Identity ident = new Identity(name, _adminCallbackCategory);
                 if (_adapter.findFacet(ident, facet) == null) {
                     return null;
                 } else {
@@ -298,8 +291,7 @@ public class SessionKeeper {
             if (_adminCallbackCategory == null || _adapter == null) {
                 return null;
             } else {
-                return _adapter.removeFacet(
-                    new Identity(name, _adminCallbackCategory), facet);
+                return _adapter.removeFacet(new Identity(name, _adminCallbackCategory), facet);
             }
         }
 
@@ -330,9 +322,7 @@ public class SessionKeeper {
                 _adapter.activate();
                 _session.ice_getConnection().setAdapter(_adapter);
             } else {
-                RouterPrx router =
-                    RouterPrx.uncheckedCast(
-                        _coordinator.getCommunicator().getDefaultRouter());
+                RouterPrx router = RouterPrx.uncheckedCast(_coordinator.getCommunicator().getDefaultRouter());
                 category = router.getCategoryForClient();
                 _adminCallbackCategory = category;
 
@@ -344,8 +334,7 @@ public class SessionKeeper {
             }
 
             // Create servants and proxies
-            _applicationObserverIdentity.name =
-                "application-" + UUID.randomUUID().toString();
+            _applicationObserverIdentity.name = "application-" + UUID.randomUUID().toString();
             _applicationObserverIdentity.category = category;
             _adapterObserverIdentity.name = "adapter-" + UUID.randomUUID().toString();
             _adapterObserverIdentity.category = category;

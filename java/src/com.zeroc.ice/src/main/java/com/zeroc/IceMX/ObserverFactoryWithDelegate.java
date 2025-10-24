@@ -17,6 +17,7 @@ public class ObserverFactoryWithDelegate<
     OImpl extends ObserverWithDelegate<T, O>,
     O extends Observer>
     extends ObserverFactory<T, OImpl> {
+
     /**
      * Constructs an ObserverFactoryWithDelegate.
      *
@@ -24,8 +25,7 @@ public class ObserverFactoryWithDelegate<
      * @param name the name of the metrics map
      * @param cl the metrics class
      */
-    public ObserverFactoryWithDelegate(
-            MetricsAdminI metrics, String name, Class<T> cl) {
+    public ObserverFactoryWithDelegate(MetricsAdminI metrics, String name, Class<T> cl) {
         super(metrics, name, cl);
     }
 

@@ -3,7 +3,6 @@
 package com.zeroc.testcontroller;
 
 import android.app.Activity;
-import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
@@ -13,6 +12,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -20,10 +20,12 @@ import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ControllerActivity extends ListActivity
+public class ControllerActivity extends Activity
 {
     private final LinkedList<String> _output = new LinkedList<>();
     private ArrayAdapter<String> _outputAdapter;
+    private ListView _outputListView;
+    private WifiManager.MulticastLock _multicastLock;
 
     private static final int REQUEST_ENABLE_BT = 1;
 
@@ -33,9 +35,15 @@ public class ControllerActivity extends ListActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        _outputListView = findViewById(R.id.outputList);
+        if(_outputListView == null)
+        {
+            throw new IllegalStateException("Layout must include a View with android:id=\"@+id/outputList\"");
+        }
+
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        WifiManager.MulticastLock lock = wifiManager.createMulticastLock("com.zeroc.testcontroller");
-        lock.acquire();
+        _multicastLock = wifiManager.createMulticastLock("com.zeroc.testcontroller");
+        _multicastLock.acquire();
     }
 
     @Override
@@ -70,6 +78,22 @@ public class ControllerActivity extends ListActivity
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        if (_multicastLock != null && _multicastLock.isHeld()) {
+            _multicastLock.release();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (_multicastLock != null && !_multicastLock.isHeld()) {
+            _multicastLock.acquire();
+        }
+    }
+
+    @Override
     protected void onActivityResult(int req, int res, Intent data)
     {
         if(req == REQUEST_ENABLE_BT && _outputAdapter == null)
@@ -89,7 +113,7 @@ public class ControllerActivity extends ListActivity
     private synchronized void setup(boolean bluetooth)
     {
         _outputAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, _output);
-        setListAdapter(_outputAdapter);
+        _outputListView.setAdapter(_outputAdapter);
         final ControllerApp app = (ControllerApp)getApplication();
         final java.util.List<String> ipv4Addresses = app.getAddresses(false);
         ArrayAdapter<String> ipv4Adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, ipv4Addresses);

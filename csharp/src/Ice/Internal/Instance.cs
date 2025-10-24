@@ -551,12 +551,16 @@ public sealed class Instance
         }
     }
 
-    public void
-    setLogger(Ice.Logger logger) =>
-        //
-        // No locking, as it can only be called during plug-in loading
-        //
+    internal void setLogger(Logger logger)
+    {
+        // Only called by the LoggerPlugin constructor, so no need to lock.
+        if (_ownLogger)
+        {
+            _initData.logger!.Dispose();
+        }
         _initData.logger = logger;
+        _ownLogger = true;
+    }
 
     public void
     setThreadHook(System.Action threadStart, System.Action threadStop)
@@ -640,12 +644,13 @@ public sealed class Instance
                 }
             }
 
-            if (_initData.logger == null)
+            if (_initData.logger is null)
             {
                 string logfile = _initData.properties.getIceProperty("Ice.LogFile");
                 if (logfile.Length != 0)
                 {
                     _initData.logger = new FileLoggerI(programName, logfile);
+                    _ownLogger = true;
                 }
                 else if (Ice.Util.getProcessLogger() is LoggerI)
                 {
@@ -653,13 +658,16 @@ public sealed class Instance
                     // Ice.ConsoleListener is enabled by default.
                     //
                     bool console = _initData.properties.getIcePropertyAsInt("Ice.ConsoleListener") > 0;
-                    _initData.logger = new Ice.TraceLoggerI(programName, console);
+                    _initData.logger = new TraceLoggerI(programName, console);
+                    _ownLogger = true;
                 }
                 else
                 {
                     _initData.logger = Ice.Util.getProcessLogger();
+                    // _ownLogger remains false
                 }
             }
+            // else _ownLogger remains false
 
             _traceLevels = new TraceLevels(_initData.properties);
 
@@ -910,7 +918,8 @@ public sealed class Instance
             if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(loggerFacetName))
             {
                 LoggerAdminLogger logger = new LoggerAdminLoggerI(_initData.properties, _initData.logger);
-                setLogger(logger);
+                // Decorate the existing logger, and don't change _ownLogger.
+                _initData.logger = logger;
                 _adminFacets.Add(loggerFacetName, logger.getFacet());
             }
 
@@ -1081,7 +1090,8 @@ public sealed class Instance
 
         if (_initData.logger is LoggerAdminLogger loggerAdminLogger)
         {
-            loggerAdminLogger.destroy();
+            // In effect, remove the decorator.
+            loggerAdminLogger.detach();
         }
 
         //
@@ -1149,9 +1159,9 @@ public sealed class Instance
             Monitor.PulseAll(_mutex);
         }
 
-        if (_initData.logger is FileLoggerI fileLogger)
+        if (_ownLogger)
         {
-            fileLogger.destroy();
+            _initData.logger!.Dispose();
         }
     }
 
@@ -1386,6 +1396,8 @@ public sealed class Instance
 
     private int _state;
     private Ice.InitializationData _initData; // Immutable, not reset by destroy().
+    private bool _ownLogger; // When true, this instance owns _initData.logger and must dispose it.
+
     private TraceLevels _traceLevels; // Immutable, not reset by destroy().
     private DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private int _messageSizeMax; // Immutable, not reset by destroy().

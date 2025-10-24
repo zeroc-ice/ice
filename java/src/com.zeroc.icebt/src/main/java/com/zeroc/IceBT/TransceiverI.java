@@ -113,7 +113,6 @@ final class TransceiverI implements Transceiver {
     public synchronized int write(Buffer buf) {
         if (_exception != null) {
             throw _exception;
-            // throw (LocalException) _exception.fillInStackTrace();
         }
 
         // Accept up to _sndSize bytes in our internal buffer.
@@ -136,7 +135,6 @@ final class TransceiverI implements Transceiver {
     public synchronized int read(Buffer buf) {
         if (_exception != null) {
             throw _exception;
-            // throw (LocalException) _exception.fillInStackTrace();
         }
 
         // Copy the requested amount of data from our internal buffer to the given buffer.
@@ -155,10 +153,7 @@ final class TransceiverI implements Transceiver {
             } else if (_readBuffer.b.hasArray()) {
                 // Copy directly from the source buffer's backing array.
                 byte[] arr = _readBuffer.b.array();
-                buf.b.put(
-                    arr,
-                    _readBuffer.b.arrayOffset() + _readBuffer.b.position(),
-                    bytesAvailable);
+                buf.b.put(arr, _readBuffer.b.arrayOffset() + _readBuffer.b.position(), bytesAvailable);
                 _readBuffer.b.position(_readBuffer.b.position() + bytesAvailable);
             } else {
                 // Copy using a temporary array.
@@ -277,10 +272,8 @@ final class TransceiverI implements Transceiver {
         }
 
         final int defaultBufSize = 128 * 1024;
-        _rcvSize =
-            _instance.properties().getPropertyAsIntWithDefault("IceBT.RcvSize", defaultBufSize);
-        _sndSize =
-            _instance.properties().getPropertyAsIntWithDefault("IceBT.SndSize", defaultBufSize);
+        _rcvSize = _instance.properties().getPropertyAsIntWithDefault("IceBT.RcvSize", defaultBufSize);
+        _sndSize = _instance.properties().getPropertyAsIntWithDefault("IceBT.SndSize", defaultBufSize);
 
         _readBuffer = new Buffer(false);
         _writeBuffer = new Buffer(false);
@@ -303,8 +296,7 @@ final class TransceiverI implements Transceiver {
             BluetoothDevice device = adapter.getRemoteDevice(_remoteAddr);
 
             // This can block for several seconds.
-            BluetoothSocket socket =
-                device.createRfcommSocketToServiceRecord(UUID.fromString(_uuid));
+            BluetoothSocket socket = device.createRfcommSocketToServiceRecord(UUID.fromString(_uuid));
             socket.connect();
 
             synchronized (this) {
@@ -379,9 +371,7 @@ final class TransceiverI implements Transceiver {
                 synchronized (this) {
                     // If we've read too much data, wait until the application consumes some before
                     // we read again.
-                    while (_state == StateConnected
-                        && _exception == null
-                        && _readBuffer.b.position() > _rcvSize) {
+                    while (_state == StateConnected && _exception == null && _readBuffer.b.position() > _rcvSize) {
                         try {
                             wait();
                         } catch (InterruptedException ex) {
@@ -410,13 +400,11 @@ final class TransceiverI implements Transceiver {
             }
         } catch (IOException ex) {
             exception(new SocketException(ex));
-            // Mark as ready for reading so that the Ice run time will invoke read() and we can
-            // report the exception.
+            // Mark as ready for reading so that the Ice run time will invoke read() and we can report the exception.
             _readyCallback.ready(SocketOperation.Read, true);
         } catch (LocalException ex) {
             exception(ex);
-            // Mark as ready for reading so that the Ice run time will invoke read() and we can
-            // report the exception.
+            // Mark as ready for reading so that the Ice run time will invoke read() and we can report the exception.
             _readyCallback.ready(SocketOperation.Read, true);
         } finally {
             if (in != null) {
@@ -445,9 +433,7 @@ final class TransceiverI implements Transceiver {
                 ByteBuffer b = null;
 
                 synchronized (this) {
-                    while (_state == StateConnected
-                        && _exception == null
-                        && _writeBuffer.b.position() == 0) {
+                    while (_state == StateConnected && _exception == null && _writeBuffer.b.position() == 0) {
                         try {
                             wait();
                         } catch (InterruptedException ex) {
@@ -474,8 +460,7 @@ final class TransceiverI implements Transceiver {
 
                 synchronized (this) {
                     // After the write is complete, indicate whether we can accept more data.
-                    _readyCallback.ready(
-                        SocketOperation.Write, _writeBuffer.b.position() < _sndSize);
+                    _readyCallback.ready(SocketOperation.Write, _writeBuffer.b.position() < _sndSize);
                 }
             }
         } catch (IOException ex) {

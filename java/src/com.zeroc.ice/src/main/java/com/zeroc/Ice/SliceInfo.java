@@ -31,12 +31,7 @@ public final class SliceInfo {
      *  @param hasOptionalMembers whether or not the slice contains optional members
      *  @param isLastSlice whether or not this is the last slice
     */
-    public SliceInfo(
-            String typeId,
-            int compactId,
-            byte[] bytes,
-            boolean hasOptionalMembers,
-            boolean isLastSlice) {
+    public SliceInfo(String typeId, int compactId, byte[] bytes, boolean hasOptionalMembers, boolean isLastSlice) {
         this.typeId = typeId;
         this.compactId = compactId;
         this.bytes = bytes;

@@ -77,12 +77,13 @@ public class RemoteCommunicatorFactoryI : Test.RemoteCommunicatorFactoryDisp_
         if (init.properties.getPropertyAsInt("NullLogger") > 0)
         {
             init.logger = new NullLogger();
+            // We should dispose this logger; we don't do it because we know NullLogger.Dispose is no-op.
         }
 
         //
         // Initialize a new communicator.
         //
-        Ice.Communicator communicator = Ice.Util.initialize(init);
+        var communicator = new Ice.Communicator(init);
 
         //
         // Install a custom admin facet.
@@ -128,6 +129,10 @@ public class RemoteCommunicatorFactoryI : Test.RemoteCommunicatorFactoryDisp_
 
         public string getPrefix() => "NullLogger";
 
-        public Ice.Logger cloneWithPrefix(string prefix) => this;
+        public Ice.Logger cloneWithPrefix(string prefix) => new NullLogger();
+
+        public void Dispose()
+        {
+        }
     }
 }
