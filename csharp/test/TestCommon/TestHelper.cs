@@ -5,21 +5,6 @@ using System.Text;
 
 namespace Test;
 
-public interface ControllerHelper
-{
-    void serverReady();
-    void communicatorInitialized(Ice.Communicator communicator);
-}
-
-public interface PlatformAdapter
-{
-    bool isEmulator();
-
-    string processControllerRegistryHost();
-
-    string processControllerIdentity();
-}
-
 public abstract class TestHelper
 {
     // A custom trace listener that always aborts the application upon failure.
@@ -88,19 +73,7 @@ public abstract class TestHelper
         }
     }
 
-    public TextWriter getWriter()
-    {
-        if (_writer == null)
-        {
-            return Console.Out;
-        }
-        else
-        {
-            return _writer;
-        }
-    }
-
-    public void setWriter(TextWriter writer) => _writer = writer;
+    public TextWriter getWriter() => Console.Out;
 
     public Ice.Properties createTestProperties(ref string[] args)
     {
@@ -131,7 +104,6 @@ public abstract class TestHelper
     {
         var communicator = new Ice.Communicator(initData);
         _communicator ??= communicator;
-        _controllerHelper?.communicatorInitialized(communicator);
         return communicator;
     }
 
@@ -169,13 +141,11 @@ public abstract class TestHelper
         Environment.Exit(1);
     }
 
-    public void setControllerHelper(ControllerHelper controllerHelper) => _controllerHelper = controllerHelper;
-
-    public void serverReady() => _controllerHelper?.serverReady();
+    public void serverReady()
+    {
+    }
 
     private Ice.Communicator _communicator;
-    private ControllerHelper _controllerHelper;
-    private TextWriter _writer;
 }
 
 public abstract class AllTests
