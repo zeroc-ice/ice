@@ -2743,6 +2743,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
         RemoteProcessController.__init__(self, current, "")
         self.simulatorID = None
         self.runtimeID = None
+        self.controllerProcesses = {}
         # Pick the last iOS simulator runtime ID in the list of iOS simulators (assumed to be the latest).
         try:
             sys.stdout.write("searching for latest iOS simulator runtime... ")
@@ -2819,24 +2820,40 @@ class iOSSimulatorProcessController(RemoteProcessController):
         run('xcrun simctl install "{0}" "{1}"'.format(self.device, appFullPath))
         print("ok")
 
+        logStreamProcess = subprocess.Popen(
+            [
+                "xcrun",
+                "simctl",
+                "spawn",
+                "booted",
+                "log",
+                "stream",
+                "--level",
+                "debug",
+                "--predicate",
+                f'subsystem contains "{ident.name}"',
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+
         sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
         sys.stdout.flush()
-        n = 0
-        while n < 5:
-            try:
-                subprocess.run(["xcrun", "simctl", "launch", self.device, ident.name], check=True, timeout=60)
-                break
-            except subprocess.TimeoutExpired:
-                n += 1
-                sys.stdout.write(f"\nlaunch timeout, retrying {n}/5... ")
-                sys.stdout.flush()
+        try:
+            subprocess.run(["xcrun", "simctl", "launch", self.device, ident.name], check=True, timeout=60)
+        except subprocess.TimeoutExpired as ex:
+            logStreamProcess.terminate()
+            output = logStreamProcess.stdout.readlines()
+            print(output)
+            raise RuntimeError(f"timed out launching controller app: {ex}") from ex
+
         # No "ok" as the command prints its own output
 
     def restartControllerApp(self, current, ident):
         # We reboot the simulator if the controller fails to start. Terminating the controller app
         # with simctl terminate doesn't always work, it can hang if the controller app died because
         # of the springboard watchdog.
-        run('xcrun simctl shutdown "{0}"'.format(self.device))
+        run('xcown "{0}"'.format(self.device))
         nRetry = 0
         while nRetry < 20:
             try:
@@ -2845,7 +2862,8 @@ class iOSSimulatorProcessController(RemoteProcessController):
             except Exception:
                 time.sleep(1.0)
                 nRetry += 1
-        run('xcrun simctl launch "{0}" {1}'.format(self.device, ident.name))
+
+        subprocess.run(["xcrun", "simctl", "launch", self.device, ident.name], check=True, timeout=60)
 
     def stopControllerApp(self, ident):
         controllerBundleIdentifier = ident.name
