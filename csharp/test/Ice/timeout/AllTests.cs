@@ -94,7 +94,7 @@ public class AllTests : global::Test.AllTests
             //
             Properties properties = communicator.getProperties().Clone();
             properties.setProperty("Ice.Connection.Client.ConnectTimeout", "-1");
-            using var communicator2 = Util.initialize(new InitializationData { properties = properties });
+            using var communicator2 = new Communicator(new InitializationData { properties = properties });
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.createProxy(communicator2, sref);
             controller.holdAdapter(100);
             try

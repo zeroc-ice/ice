@@ -455,7 +455,7 @@ public class AllTests : global::Test.AllTests
             var initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().Clone();
             initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
-            Ice.Communicator ic = helper.initialize(initData);
+            using var ic = helper.initialize(initData);
 
             registry.setAdapterDirectProxy("TestAdapter5", locator.findAdapterById("TestAdapter"));
             registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
@@ -502,7 +502,6 @@ public class AllTests : global::Test.AllTests
             {
                 // Expected to fail once they endpoints have been updated in the background.
             }
-            ic.destroy();
         }
         output.WriteLine("ok");
 

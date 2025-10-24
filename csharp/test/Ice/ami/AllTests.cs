@@ -216,7 +216,7 @@ public class AllTests : global::Test.AllTests
             {
                 var initData = new InitializationData();
                 initData.properties = communicator.getProperties().Clone();
-                Communicator ic = helper.initialize(initData);
+                using Communicator ic = helper.initialize(initData);
                 Test.TestIntfPrx p2 = Test.TestIntfPrxHelper.createProxy(ic, p.ToString());
                 ic.destroy();
 

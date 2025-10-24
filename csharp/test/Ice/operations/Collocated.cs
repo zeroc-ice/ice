@@ -35,7 +35,7 @@ public class Collocated : TestHelper
         int port = helper.getTestPort(1);
         output.Write("testing collocated invocation with normalized IPv6 address... ");
         output.Flush();
-        using var communicator = Ice.Util.initialize();
+        using var communicator = new Ice.Communicator();
         communicator.getProperties().setProperty("TestAdapter.Endpoints", $"tcp -h \"0:0:0:0:0:0:0:1\" -p {port}");
         var adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));

@@ -20,7 +20,7 @@ public class PlatformTests
         SslServerAuthenticationOptions serverAuthenticationOptions,
         TestHelper helper)
     {
-        var communicator = Ice.Util.initialize();
+        var communicator = new Ice.Communicator();
         var adapter = communicator.createObjectAdapterWithEndpoints(
             "ServerAdapter",
             helper.getTestEndpoint(10, "ssl"),
@@ -32,7 +32,7 @@ public class PlatformTests
 
     private static Ice.Communicator createClient(SslClientAuthenticationOptions clientAuthenticationOptions)
     {
-        var communicator = Ice.Util.initialize(new Ice.InitializationData
+        var communicator = new Ice.Communicator(new Ice.InitializationData
         {
             clientAuthenticationOptions = clientAuthenticationOptions
         });
