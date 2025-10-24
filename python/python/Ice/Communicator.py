@@ -19,8 +19,6 @@ from .Properties import Properties
 if TYPE_CHECKING:
     from collections.abc import Awaitable
 
-    import IcePy
-
     from .CompressBatch import CompressBatch
     from .EventLoopAdapter import EventLoopAdapter
     from .Identity import Identity
@@ -78,7 +76,7 @@ class Communicator:
         Parameters
         ----------
         args : list of str, optional
-            The command-line arguments, parsed into Ice properties by this initializer.
+            The command-line arguments, parsed into Ice properties by this method.
         eventLoop : asyncio.AbstractEventLoop, optional
             An asyncio event loop used to run coroutines and wrap futures. If provided, a new event loop adapter is
             created and configured with the communicator. This adapter is responsible for executing coroutines returned
