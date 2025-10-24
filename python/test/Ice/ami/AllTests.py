@@ -354,7 +354,7 @@ def allTestsFuture(helper: TestHelper, communicator: Ice.Communicator, collocate
     if p.ice_getConnection():
         initData = Ice.InitializationData()
         initData.properties = communicator.getProperties().clone()
-        ic = Ice.initialize(initData=initData)
+        ic = Ice.Communicator(initData=initData)
         obj = ic.stringToProxy(p.ice_toString())
         p2 = Test.TestIntfPrx.checkedCast(obj)
         assert p2 is not None

@@ -35,7 +35,7 @@ import sys
 import VisitorCenter
 
 async def main():
-    async with Ice.initialize(sys.argv, eventLoop=asyncio.get_running_loop()) as communicator:
+    async with Ice.Communicator(sys.argv, eventLoop=asyncio.get_running_loop()) as communicator:
         greeter = VisitorCenter.GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061")
         greeting = await greeter.greetAsync(getpass.getuser())
         print(greeting)
@@ -52,7 +52,7 @@ import chatbot
 import sys
 
 def main():
-    with Ice.initialize(sys.argv) as communicator:
+    with Ice.Communicator(sys.argv) as communicator:
         adapter = communicator.createObjectAdapterWithEndpoints("GreeterAdapter", "tcp -p 4061")
         adapter.add(chatbot.Chatbot(), Ice.Identity(name="greeter"))
 
