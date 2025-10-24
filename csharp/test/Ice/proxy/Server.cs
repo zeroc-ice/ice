@@ -8,7 +8,7 @@ public class Server : TestHelper
 {
     public override void run(string[] args)
     {
-        var properties = createTestProperties(ref args);
+        Properties properties = createTestProperties(ref args);
         //
         // We don't want connection warnings because of the timeout test.
         //

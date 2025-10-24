@@ -13,7 +13,7 @@ public class Collocated : TestHelper
         initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
         initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
         initData.properties.setProperty("Ice.BatchAutoFlushSize", "100");
-        await using var communicator = initialize(initData);
+        await using Communicator communicator = initialize(initData);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         ObjectPrx prx = adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
@@ -37,10 +37,10 @@ public class Collocated : TestHelper
         output.Flush();
         using var communicator = new Ice.Communicator();
         communicator.getProperties().setProperty("TestAdapter.Endpoints", $"tcp -h \"0:0:0:0:0:0:0:1\" -p {port}");
-        var adapter = communicator.createObjectAdapter("TestAdapter");
+        ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
 
-        var prx = Ice.ObjectPrxHelper.createProxy(communicator, $"test:tcp -h \"::1\" -p {port}");
+        ObjectPrx prx = Ice.ObjectPrxHelper.createProxy(communicator, $"test:tcp -h \"::1\" -p {port}");
         prx.ice_ping();
 
         prx = Ice.ObjectPrxHelper.createProxy(communicator, $"test:tcp -h \"0:0:0:0:0:0:0:1\" -p {port}");

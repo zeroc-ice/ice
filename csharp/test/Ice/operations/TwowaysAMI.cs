@@ -105,7 +105,7 @@ public static class TwowaysAMI
             si2.e = Test.MyEnum.enum2;
             si2.s.s = "def";
 
-            var ret = p.opStructAsync(si1, si2).Result;
+            Test.MyClass_OpStructResult ret = p.opStructAsync(si1, si2).Result;
             test(ret.returnValue.p == null);
             test(ret.returnValue.e == Test.MyEnum.enum2);
             test(ret.returnValue.s.s == "def");
@@ -163,7 +163,7 @@ public static class TwowaysAMI
             int[] isi = [5, 6, 7, 8];
             long[] lsi = [10, 30, 20];
 
-            var ret = p.opShortIntLongSAsync(ssi, isi, lsi).Result;
+            Test.MyClass_OpShortIntLongSResult ret = p.opShortIntLongSAsync(ssi, isi, lsi).Result;
             test(ret.p4.Length == 3);
             test(ret.p4[0] == 1);
             test(ret.p4[1] == 2);
@@ -190,7 +190,7 @@ public static class TwowaysAMI
             float[] fsi = [3.14f, 1.11f];
             double[] dsi = [1.1e10, 1.2e10, 1.3e10];
 
-            var result = p.opFloatDoubleSAsync(fsi, dsi).Result;
+            Test.MyClass_OpFloatDoubleSResult result = p.opFloatDoubleSAsync(fsi, dsi).Result;
             test(result.p3.Length == 2);
             test(result.p3[0] == 3.14f);
             test(result.p3[1] == 1.11f);
@@ -549,7 +549,7 @@ public static class TwowaysAMI
                 [Test.MyEnum.enum3] = "qwerty"
             };
 
-            var result = await p.opMyEnumStringDAsync(di1, di2);
+            Test.MyClass_OpMyEnumStringDResult result = await p.opMyEnumStringDAsync(di1, di2);
 
             test(Internal.DictionaryExtensions.DictionaryEqual(result.p3, di1));
             test(Internal.DictionaryExtensions.DictionaryEqual(result.returnValue, di2));

@@ -109,7 +109,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing invocation timeout... ");
         output.Flush();
         {
-            var connection = timeout.ice_getConnection();
+            Connection connection = timeout.ice_getConnection();
             var to = (Test.TimeoutPrx)timeout.ice_invocationTimeout(100);
             test(connection == to.ice_getConnection());
             try
@@ -160,7 +160,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing close timeout... ");
         output.Flush();
         {
-            var connection = connect(timeout);
+            Connection connection = connect(timeout);
             controller.holdAdapter(-1);
             Task closeTask = connection.closeAsync(); // initiate closure
             try
