@@ -7,7 +7,7 @@ public class AllTests : global::Test.AllTests
     public static async Task<Test.TestIntfPrx> allTests(global::Test.TestHelper helper)
     {
         Ice.Communicator communicator = helper.communicator();
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
         string @ref = "test:" + helper.getTestEndpoint(0);
@@ -17,11 +17,10 @@ public class AllTests : global::Test.AllTests
 
         output.Write("testing checked cast... ");
         output.Flush();
-        var obj = Test.TestIntfPrxHelper.checkedCast(@base);
+        Test.TestIntfPrx obj = Test.TestIntfPrxHelper.checkedCast(@base);
         test(obj != null);
         test(obj.Equals(@base));
         output.WriteLine("ok");
-
         {
             output.Write("creating/destroying/recreating object adapter... ");
             output.Flush();
@@ -61,8 +60,8 @@ public class AllTests : global::Test.AllTests
             test(adapter.isDeactivated());
             adapter.destroy();
         }
-        output.WriteLine("ok");
 
+        output.WriteLine("ok");
         {
             output.Write("testing connection closure... ");
             output.Flush();
@@ -107,7 +106,7 @@ public class AllTests : global::Test.AllTests
             // PublishedHost not set
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                var publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.Length == 1);
                 test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo &&
                     ipEndpointInfo.host.Length > 0);
@@ -117,7 +116,7 @@ public class AllTests : global::Test.AllTests
             communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                var publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.Length == 1);
                 test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo &&
                     ipEndpointInfo.host == "test.zeroc.com");
@@ -129,7 +128,7 @@ public class AllTests : global::Test.AllTests
             communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                var publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.Length == 1);
                 test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo &&
                     ipEndpointInfo.host == "127.0.0.1");
@@ -139,7 +138,7 @@ public class AllTests : global::Test.AllTests
             communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                var publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.Length == 1);
                 test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo &&
                     ipEndpointInfo.host == "test.zeroc.com");
@@ -154,7 +153,7 @@ public class AllTests : global::Test.AllTests
             communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                var publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.Length == 2);
                 test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo0 &&
                     ipEndpointInfo0.host == "127.0.0.1" &&
@@ -172,7 +171,7 @@ public class AllTests : global::Test.AllTests
             communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                var publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.Length == 1); // loopback filtered out
                 test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo &&
                     ipEndpointInfo.host.Length > 0 &&
@@ -183,7 +182,7 @@ public class AllTests : global::Test.AllTests
             communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                var publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.Length == 1); // loopback filtered out
                 test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo &&
                     ipEndpointInfo.host == "test.zeroc.com" &&
@@ -197,7 +196,7 @@ public class AllTests : global::Test.AllTests
             communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                var publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.Length == 2);
                 test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo0 &&
                     ipEndpointInfo0.host.Length > 0 &&
@@ -211,7 +210,7 @@ public class AllTests : global::Test.AllTests
             communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                var publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.Length == 2);
                 test(getUnderlying(publishedEndpoints[0].getInfo()) is IPEndpointInfo ipEndpointInfo0 &&
                     ipEndpointInfo0.host == "test.zeroc.com" &&
@@ -335,7 +334,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing object adapter creation with port in use... ");
         output.Flush();
         {
-            var adapter1 = communicator.createObjectAdapterWithEndpoints("Adpt1", helper.getTestEndpoint(10));
+            ObjectAdapter adapter1 = communicator.createObjectAdapterWithEndpoints("Adpt1", helper.getTestEndpoint(10));
             try
             {
                 communicator.createObjectAdapterWithEndpoints("Adpt2", helper.getTestEndpoint(10));
@@ -385,8 +384,8 @@ public class AllTests : global::Test.AllTests
                 initData.properties.setProperty("Ice.ServerIdleTime", "1");
                 // The thread pool threads have to be idle first before server idle time is checked.
                 initData.properties.setProperty("Ice.ThreadPool.Server.ThreadIdleTime", "1");
-                using var idleCommunicator = Ice.Util.initialize(initData);
-                var idleOA = idleCommunicator.createObjectAdapterWithEndpoints("IdleAdapter", "tcp -h 127.0.0.1");
+                using Communicator idleCommunicator = Ice.Util.initialize(initData);
+                ObjectAdapter idleOA = idleCommunicator.createObjectAdapterWithEndpoints("IdleAdapter", "tcp -h 127.0.0.1");
                 idleOA.activate();
                 idleCommunicator.waitForShutdown();
             });
@@ -399,9 +398,9 @@ public class AllTests : global::Test.AllTests
                 initData.properties.setProperty("Ice.ServerIdleTime", "0");
                 // The thread pool threads have to be idle first before server idle time is checked.
                 initData.properties.setProperty("Ice.ThreadPool.Server.ThreadIdleTime", "1");
-                using var idleCommunicator = Ice.Util.initialize(initData);
+                using Communicator idleCommunicator = Ice.Util.initialize(initData);
                 {
-                    var idleOA = idleCommunicator.createObjectAdapterWithEndpoints("IdleAdapter", "tcp -h 127.0.0.1");
+                    ObjectAdapter idleOA = idleCommunicator.createObjectAdapterWithEndpoints("IdleAdapter", "tcp -h 127.0.0.1");
                     idleOA.activate();
                     await Task.Delay(1100);
                     test(!idleCommunicator.isShutdown());

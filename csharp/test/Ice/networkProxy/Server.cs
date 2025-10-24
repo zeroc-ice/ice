@@ -8,6 +8,8 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace Ice.networkProxy;
+
 public class Server : Test.TestHelper
 {
     private class TestI : Test.TestIntfDisp_

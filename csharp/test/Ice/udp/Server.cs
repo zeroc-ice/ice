@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+using System.Globalization;
 using System.Text;
 
 namespace Ice.udp;
@@ -12,11 +13,11 @@ public class Server : global::Test.TestHelper
         properties.setProperty("Ice.Warn.Connections", "0");
         properties.setProperty("Ice.UDP.RcvSize", "16384");
 
-        using var communicator = initialize(properties);
+        using Communicator communicator = initialize(properties);
         int num = 0;
         try
         {
-            num = args.Length == 1 ? int.Parse(args[0]) : 0;
+            num = args.Length == 1 ? int.Parse(args[0], CultureInfo.InvariantCulture) : 0;
         }
         catch (FormatException)
         {

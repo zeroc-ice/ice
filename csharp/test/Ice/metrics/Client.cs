@@ -8,6 +8,8 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace Ice.metrics;
+
 public class Client : Test.TestHelper
 {
     public override async Task runAsync(string[] args)
@@ -25,7 +27,7 @@ public class Client : Test.TestHelper
         // speed up connection establishment test
         initData.properties.setProperty("Ice.Connection.Client.ConnectTimeout", "1");
 
-        await using var communicator = initialize(initData);
+        await using Communicator communicator = initialize(initData);
         Test.MetricsPrx metrics = await AllTests.allTests(this, observer);
         metrics.shutdown();
     }

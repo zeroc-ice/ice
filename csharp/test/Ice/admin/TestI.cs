@@ -19,7 +19,7 @@ public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
 
     public override Dictionary<string, string> getChanges(Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             return _changes;
         }
@@ -47,7 +47,7 @@ public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
 
     public void updated(Dictionary<string, string> changes)
     {
-        lock (this)
+        lock (_mutex)
         {
             _changes = changes;
         }
@@ -55,6 +55,7 @@ public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
 
     private readonly Ice.Communicator _communicator;
     private Dictionary<string, string> _changes;
+    private readonly object _mutex = new();
 }
 
 public class RemoteCommunicatorFactoryI : Test.RemoteCommunicatorFactoryDisp_

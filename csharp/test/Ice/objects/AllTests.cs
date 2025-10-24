@@ -55,7 +55,7 @@ namespace Ice.objects
             {
                 Communicator communicator = helper.communicator();
 
-                var output = helper.getWriter();
+                TextWriter output = helper.getWriter();
 
                 output.Write("testing stringToProxy... ");
                 output.Flush();
@@ -66,7 +66,7 @@ namespace Ice.objects
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                var initial = Test.InitialPrxHelper.checkedCast(@base);
+                InitialPrx initial = Test.InitialPrxHelper.checkedCast(@base);
                 test(initial != null);
                 test(initial.Equals(@base));
                 output.WriteLine("ok");
@@ -159,7 +159,7 @@ namespace Ice.objects
                 output.Write("getting K... ");
                 {
                     output.Flush();
-                    var k = initial.getK();
+                    K k = initial.getK();
                     var l = k.value as L;
                     test(l != null);
                     test(l.data == "l");
@@ -231,7 +231,7 @@ namespace Ice.objects
                 output.Flush();
                 try
                 {
-                    var inS = new Base[0];
+                    Base[] inS = [];
                     Base[] retS;
                     retS = initial.opBaseSeq(inS, out Base[] outS);
 
@@ -248,7 +248,7 @@ namespace Ice.objects
                 output.Write("testing recursive type... ");
                 output.Flush();
                 var top = new Test.Recursive();
-                var bottom = top;
+                Recursive bottom = top;
                 int maxDepth = 10;
                 for (int i = 1; i < maxDepth; i++)
                 {
@@ -296,7 +296,7 @@ namespace Ice.objects
                 @ref = "uoet:" + helper.getTestEndpoint(0);
                 @base = communicator.stringToProxy(@ref);
                 test(@base != null);
-                var uoet = Test.UnexpectedObjectExceptionTestPrxHelper.uncheckedCast(@base);
+                UnexpectedObjectExceptionTestPrx uoet = Test.UnexpectedObjectExceptionTestPrxHelper.uncheckedCast(@base);
                 test(uoet != null);
                 try
                 {
@@ -305,8 +305,8 @@ namespace Ice.objects
                 }
                 catch (Ice.MarshalException ex)
                 {
-                    test(ex.Message.Contains("'::Test::AlsoEmpty'"));
-                    test(ex.Message.Contains("'::Test::Empty'"));
+                    test(ex.Message.Contains("'::Test::AlsoEmpty'", StringComparison.Ordinal));
+                    test(ex.Message.Contains("'::Test::Empty'", StringComparison.Ordinal));
                 }
                 catch (System.Exception ex)
                 {
@@ -348,7 +348,7 @@ namespace Ice.objects
                     m.v[k1] = new L("one");
                     var k2 = new StructKey(2, "2");
                     m.v[k2] = new L("two");
-                    var m2 = initial.opM(m, out M m1);
+                    M m2 = initial.opM(m, out M m1);
                     test(m1.v.Count == 2);
                     test(m2.v.Count == 2);
 
@@ -357,7 +357,6 @@ namespace Ice.objects
 
                     test(m1.v[k2].data == "two");
                     test(m2.v[k2].data == "two");
-
                 }
                 output.WriteLine("ok");
 
@@ -378,8 +377,7 @@ namespace Ice.objects
                     if (initial.hasF3())
                     {
                         F3 f31 = initial.opF3(
-                            new F3(new F1("F11"),
-                            F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21"))),
+                            new F3(new F1("F11"), F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21"))),
                             out F3 f32);
 
                         test(f31.f1.name == "F11");
@@ -396,7 +394,7 @@ namespace Ice.objects
                 {
                     var rec = new Test.Recursive();
                     rec.v = rec;
-                    var acceptsCycles = initial.acceptsClassCycles();
+                    bool acceptsCycles = initial.acceptsClassCycles();
                     try
                     {
                         initial.setCycle(rec);
@@ -406,7 +404,6 @@ namespace Ice.objects
                     {
                         test(!acceptsCycles);
                     }
-
                 }
                 output.WriteLine("ok");
 

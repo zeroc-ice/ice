@@ -7,7 +7,7 @@ public class AllTests : global::Test.AllTests
     public static async Task allTests(global::Test.TestHelper helper)
     {
         Ice.Communicator communicator = helper.communicator();
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
         string @ref = "hold:" + helper.getTestEndpoint(0);
@@ -20,12 +20,12 @@ public class AllTests : global::Test.AllTests
 
         output.Write("testing checked cast... ");
         output.Flush();
-        var hold = Test.HoldPrxHelper.checkedCast(@base);
-        var holdOneway = Test.HoldPrxHelper.uncheckedCast(@base.ice_oneway());
+        Test.HoldPrx hold = Test.HoldPrxHelper.checkedCast(@base);
+        Test.HoldPrx holdOneway = Test.HoldPrxHelper.uncheckedCast(@base.ice_oneway());
         test(hold != null);
         test(hold.Equals(@base));
-        var holdSerialized = Test.HoldPrxHelper.checkedCast(baseSerialized);
-        var holdSerializedOneway = Test.HoldPrxHelper.uncheckedCast(baseSerialized.ice_oneway());
+        Test.HoldPrx holdSerialized = Test.HoldPrxHelper.checkedCast(baseSerialized);
+        Test.HoldPrx holdSerializedOneway = Test.HoldPrxHelper.uncheckedCast(baseSerialized.ice_oneway());
         test(holdSerialized != null);
         test(holdSerialized.Equals(baseSerialized));
         output.WriteLine("ok");
@@ -61,13 +61,14 @@ public class AllTests : global::Test.AllTests
             {
                 sentTcs = new TaskCompletionSource();
                 int expected = value;
-                var t = hold.setAsync(
-                    ++value, value < 500 ? rand.Next(5) : 0,
+                Task<int> t = hold.setAsync(
+                    ++value,
+                    value < 500 ? rand.Next(5) : 0,
                     progress: new Progress<bool>(value => sentTcs.TrySetResult()));
                 _ = Task.Run(
                     async () =>
                     {
-                        var response = await t;
+                        int response = await t;
                         if (response != expected)
                         {
                             outOfOrderTcs.TrySetResult();

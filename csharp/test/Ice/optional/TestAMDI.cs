@@ -11,22 +11,19 @@ public class InitialI : Test.AsyncInitialDisp_
     }
 
     public override Task<Ice.Value>
-    pingPongAsync(Ice.Value obj, Current current) => Task.FromResult<Ice.Value>(obj);
+    pingPongAsync(Ice.Value o, Current current) => Task.FromResult(o);
 
-    public override Task
-    opOptionalExceptionAsync(int? a,
-                             string b,
-                             Current c) => throw new Test.OptionalException(false, a, b);
+    public override Task opOptionalExceptionAsync(
+        int? a,
+        string b,
+        Current current) => throw new Test.OptionalException(false, a, b);
 
-    public override Task
-    opDerivedExceptionAsync(int? a,
-                            string b,
-                            Current c) => throw new Test.DerivedException(false, a, b, "d1", b, "d2");
+    public override Task opDerivedExceptionAsync(
+        int? a,
+        string b,
+        Current current) => throw new Test.DerivedException(false, a, b, "d1", b, "d2");
 
-    public override Task
-    opRequiredExceptionAsync(int? a,
-                             string b,
-                             Current c)
+    public override Task opRequiredExceptionAsync(int? a, string b, Current current)
     {
         var e = new Test.RequiredException();
         e.a = a;

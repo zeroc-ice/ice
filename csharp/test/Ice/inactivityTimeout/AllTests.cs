@@ -22,6 +22,7 @@ internal class AllTests : global::Test.AllTests
 
         await p.shutdownAsync();
     }
+
     private static async Task testClientInactivityTimeout(Test.TestIntfPrx p, TextWriter output)
     {
         output.Write("testing that the client side inactivity timeout shuts down the connection... ");

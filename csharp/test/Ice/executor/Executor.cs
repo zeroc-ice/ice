@@ -2,6 +2,8 @@
 
 using System.Diagnostics;
 
+namespace Ice.executor;
+
 public class Executor
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
@@ -81,6 +83,6 @@ public class Executor
 
     private readonly Queue<System.Action> _calls = new Queue<System.Action>();
     private readonly Thread _thread;
-    private bool _terminated = false;
+    private bool _terminated;
     private static readonly object _m = new object();
 }

@@ -8,6 +8,7 @@ namespace Test;
 public interface ControllerHelper
 {
     void serverReady();
+
     void communicatorInitialized(Ice.Communicator communicator);
 }
 

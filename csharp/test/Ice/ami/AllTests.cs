@@ -13,7 +13,7 @@ public class AllTests : global::Test.AllTests
 
         public bool checkReceived() => _received;
 
-        private bool _received = false;
+        private bool _received;
     }
 
     public class ProgressCallback : IProgress<bool>
@@ -22,14 +22,15 @@ public class AllTests : global::Test.AllTests
         {
             get
             {
-                lock (this)
+                lock (_mutex)
                 {
                     return _sent;
                 }
             }
+
             set
             {
-                lock (this)
+                lock (_mutex)
                 {
                     _sent = value;
                 }
@@ -40,14 +41,15 @@ public class AllTests : global::Test.AllTests
         {
             get
             {
-                lock (this)
+                lock (_mutex)
                 {
                     return _sentSynchronously;
                 }
             }
+
             set
             {
-                lock (this)
+                lock (_mutex)
                 {
                     _sentSynchronously = value;
                 }
@@ -60,11 +62,17 @@ public class AllTests : global::Test.AllTests
             Sent = true;
         }
 
-        private bool _sent = false;
-        private bool _sentSynchronously = false;
+        private readonly object _mutex = new();
+        private bool _sent;
+        private bool _sentSynchronously;
     }
 
-    private enum ThrowType { LocalException, UserException, OtherException }
+    private enum ThrowType
+    {
+        LocalException,
+        UserException,
+        OtherException
+    }
 
     private class Thrower(AllTests.ThrowType t)
     {
@@ -111,12 +119,12 @@ public class AllTests : global::Test.AllTests
         Communicator communicator = helper.communicator();
 
         string sref = "test:" + helper.getTestEndpoint(0);
-        var p = Test.TestIntfPrxHelper.createProxy(communicator, sref);
+        Test.TestIntfPrx p = Test.TestIntfPrxHelper.createProxy(communicator, sref);
 
         sref = "testController:" + helper.getTestEndpoint(1);
-        var testController = Test.TestIntfControllerPrxHelper.createProxy(communicator, sref);
+        Test.TestIntfControllerPrx testController = Test.TestIntfControllerPrxHelper.createProxy(communicator, sref);
 
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
 
         output.Write("testing async/await...");
         output.Flush();
@@ -129,26 +137,26 @@ public class AllTests : global::Test.AllTests
             await p.ice_pingAsync();
             await p.ice_pingAsync(ctx);
 
-            var id = await p.ice_idAsync();
+            string id = await p.ice_idAsync();
             test(id == "::Test::TestIntf");
             id = await p.ice_idAsync(ctx);
             test(id == "::Test::TestIntf");
 
-            var ids = await p.ice_idsAsync();
+            string[] ids = await p.ice_idsAsync();
             test(ids.Length == 2);
             ids = await p.ice_idsAsync(ctx);
             test(ids.Length == 2);
 
             if (!collocated)
             {
-                var conn = await p.ice_getConnectionAsync();
+                Connection conn = await p.ice_getConnectionAsync();
                 test(conn != null);
             }
 
             await p.opAsync();
             await p.opAsync(ctx);
 
-            var result = await p.opWithResultAsync();
+            int result = await p.opWithResultAsync();
             test(result == 15);
             result = await p.opWithResultAsync(ctx);
             test(result == 15);
@@ -372,7 +380,7 @@ public class AllTests : global::Test.AllTests
                 test(p.opBatchCount() == 0);
                 var b1 = (Test.TestIntfPrx)p.ice_batchOneway();
                 b1.opBatch();
-                var bf = b1.opBatchAsync();
+                Task bf = b1.opBatchAsync();
                 test(bf.IsCompleted);
                 var tcs = new TaskCompletionSource();
                 Task t = b1.ice_flushBatchRequestsAsync(
@@ -408,8 +416,8 @@ public class AllTests : global::Test.AllTests
                     // Async task.
                     //
                     test(p.opBatchCount() == 0);
-                    var b1 = Test.TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
-                                                                     p.ice_getIdentity()).ice_batchOneway());
+                    Test.TestIntfPrx b1 = Test.TestIntfPrxHelper.uncheckedCast(
+                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
                     b1.opBatch();
                     var tcs = new TaskCompletionSource();
@@ -428,8 +436,8 @@ public class AllTests : global::Test.AllTests
                     // Async task exception.
                     //
                     test(p.opBatchCount() == 0);
-                    var b1 = Test.TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
-                                                                         p.ice_getIdentity()).ice_batchOneway());
+                    Test.TestIntfPrx b1 = Test.TestIntfPrxHelper.uncheckedCast(
+                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
                     await b1.ice_getConnection().closeAsync();
                     var tcs = new TaskCompletionSource();
@@ -462,7 +470,7 @@ public class AllTests : global::Test.AllTests
                     // Async task - 1 connection.
                     //
                     test(p.opBatchCount() == 0);
-                    var b1 = Test.TestIntfPrxHelper.uncheckedCast(
+                    Test.TestIntfPrx b1 = Test.TestIntfPrxHelper.uncheckedCast(
                         p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
                     b1.opBatch();
@@ -482,7 +490,7 @@ public class AllTests : global::Test.AllTests
                     // Async task exception - 1 connection.
                     //
                     test(p.opBatchCount() == 0);
-                    var b1 = Test.TestIntfPrxHelper.uncheckedCast(
+                    Test.TestIntfPrx b1 = Test.TestIntfPrxHelper.uncheckedCast(
                         p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
                     await b1.ice_getConnection().closeAsync();
@@ -501,9 +509,9 @@ public class AllTests : global::Test.AllTests
                     // Async task - 2 connections.
                     //
                     test(p.opBatchCount() == 0);
-                    var b1 = Test.TestIntfPrxHelper.uncheckedCast(
+                    Test.TestIntfPrx b1 = Test.TestIntfPrxHelper.uncheckedCast(
                         p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
-                    var b2 = Test.TestIntfPrxHelper.uncheckedCast(
+                    Test.TestIntfPrx b2 = Test.TestIntfPrxHelper.uncheckedCast(
                         p.ice_connectionId("2").ice_getConnection().createProxy(
                             p.ice_getIdentity()).ice_batchOneway());
 
@@ -531,11 +539,10 @@ public class AllTests : global::Test.AllTests
                     // Exceptions should not be reported.
                     //
                     test(p.opBatchCount() == 0);
-                    var b1 = Test.TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
-                                                                         p.ice_getIdentity()).ice_batchOneway());
-                    var b2 = Test.TestIntfPrxHelper.uncheckedCast(
-                        p.ice_connectionId("2").ice_getConnection().createProxy(
-                            p.ice_getIdentity()).ice_batchOneway());
+                    Test.TestIntfPrx b1 = Test.TestIntfPrxHelper.uncheckedCast(
+                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
+                    Test.TestIntfPrx b2 = Test.TestIntfPrxHelper.uncheckedCast(
+                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
@@ -557,11 +564,10 @@ public class AllTests : global::Test.AllTests
                     // The sent callback should be invoked even if all connections fail.
                     //
                     test(p.opBatchCount() == 0);
-                    var b1 = Test.TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
-                                                                         p.ice_getIdentity()).ice_batchOneway());
-                    var b2 = Test.TestIntfPrxHelper.uncheckedCast(
-                        p.ice_connectionId("2").ice_getConnection().createProxy(
-                            p.ice_getIdentity()).ice_batchOneway());
+                    Test.TestIntfPrx b1 = Test.TestIntfPrxHelper.uncheckedCast(
+                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
+                    Test.TestIntfPrx b2 = Test.TestIntfPrxHelper.uncheckedCast(
+                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
@@ -588,7 +594,7 @@ public class AllTests : global::Test.AllTests
             {
                 await p.opAsync();
 
-                var r = await p.opWithResultAsync();
+                int r = await p.opWithResultAsync();
                 test(r == 15);
 
                 try
@@ -680,7 +686,6 @@ public class AllTests : global::Test.AllTests
                     catch (InvocationCanceledException)
                     {
                     }
-
                 }
                 finally
                 {
@@ -732,7 +737,7 @@ public class AllTests : global::Test.AllTests
                     }
 
                     bool sentSynchronously = true;
-                    var closeTask = p.closeConnectionAsync(
+                    Task closeTask = p.closeConnectionAsync(
                         progress: new Progress<bool>(value => sentSynchronously = value));
                     tasks.Add(closeTask);
 
@@ -816,12 +821,12 @@ public class AllTests : global::Test.AllTests
                (t) =>
                 {
                     test(Thread.CurrentThread.Name == null ||
-                         !Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client"));
+                         !Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client", StringComparison.Ordinal));
                 }).Wait();
 
             p.ice_pingAsync().ContinueWith(
-               (t) => test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client")), p.ice_scheduler()).Wait();
-
+               (t) => test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client", StringComparison.Ordinal)),
+               p.ice_scheduler()).Wait();
             {
                 var s1 = new TaskCompletionSource<int>();
                 var s2 = new TaskCompletionSource<int>();
@@ -830,14 +835,15 @@ public class AllTests : global::Test.AllTests
                 Task t3 = null;
                 Task t4 = null;
                 p.ice_pingAsync().ContinueWith(
-                   (t) =>
+                    (t) =>
                     {
-                        test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client"));
+                        test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client", StringComparison.Ordinal));
                         //
                         // t1 Continuation run in the thread that completes it.
                         //
-                        var id = Thread.CurrentThread.ManagedThreadId;
-                        t3 = t1.ContinueWith(prev => test(id == Thread.CurrentThread.ManagedThreadId),
+                        int id = Environment.CurrentManagedThreadId;
+                        t3 = t1.ContinueWith(
+                            prev => test(id == Environment.CurrentManagedThreadId),
                             CancellationToken.None,
                             TaskContinuationOptions.ExecuteSynchronously,
                             p.ice_scheduler());
@@ -846,16 +852,21 @@ public class AllTests : global::Test.AllTests
                         //
                         // t2 completed from the main thread
                         //
-                        t4 = t2.ContinueWith(prev =>
-                                    {
-                                        test(id != Thread.CurrentThread.ManagedThreadId);
-                                        test(Thread.CurrentThread.Name == null ||
-                                             !Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client"));
-                                    },
-                                    CancellationToken.None,
-                                    TaskContinuationOptions.ExecuteSynchronously,
-                                    p.ice_scheduler());
-                    }, p.ice_scheduler()).Wait();
+                        t4 = t2.ContinueWith(
+                            prev =>
+                            {
+                                test(id != Environment.CurrentManagedThreadId);
+                                test(
+                                    Thread.CurrentThread.Name == null ||
+                                    !Thread.CurrentThread.Name.Contains(
+                                        "Ice.ThreadPool.Client",
+                                        StringComparison.Ordinal));
+                            },
+                            CancellationToken.None,
+                            TaskContinuationOptions.ExecuteSynchronously,
+                            p.ice_scheduler());
+                    },
+                    p.ice_scheduler()).Wait();
                 s2.SetResult(1);
                 Task.WaitAll(t1, t2, t3, t4);
             }
@@ -867,7 +878,7 @@ public class AllTests : global::Test.AllTests
             output.Write("testing bi-dir... ");
             ObjectAdapter adapter = communicator.createObjectAdapter("");
             var replyI = new PingReplyI();
-            var reply = Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI));
+            Test.PingReplyPrx reply = Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI));
 
             var context = new Dictionary<string, string> { ["ONE"] = "" };
             await p.pingBiDirAsync(reply, context);
@@ -882,9 +893,9 @@ public class AllTests : global::Test.AllTests
         output.Write("testing result struct... ");
         output.Flush();
         {
-            var q = Test.Outer.Inner.TestIntfPrxHelper.createProxy(
+            Test.Outer.Inner.TestIntfPrx q = Test.Outer.Inner.TestIntfPrxHelper.createProxy(
                 communicator, "test2:" + helper.getTestEndpoint(0));
-            var r = await q.opAsync(1);
+            Test.Outer.Inner.TestIntf_OpResult r = await q.opAsync(1);
             test(r.returnValue == 1);
             test(r.j == 1);
         }

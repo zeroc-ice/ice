@@ -46,7 +46,7 @@ public class AllTests : global::Test.AllTests
 
     private class StringComparator : IComparer<string>
     {
-        public int Compare(string l, string r) => l.CompareTo(r);
+        public int Compare(string l, string r) => string.Compare(l, r, StringComparison.Ordinal);
     }
 
     public static async Task allTests(global::Test.TestHelper helper)
@@ -57,15 +57,15 @@ public class AllTests : global::Test.AllTests
             Test.RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
 
         var rand = new Random(unchecked((int)DateTime.Now.Ticks));
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
 
         output.Write("testing binding with single endpoint... ");
         output.Flush();
         {
             Test.RemoteObjectAdapterPrx adapter = com.createObjectAdapter("Adapter", "default");
 
-            var test1 = adapter.getTestIntf();
-            var test2 = adapter.getTestIntf();
+            Test.TestIntfPrx test1 = adapter.getTestIntf();
+            Test.TestIntfPrx test2 = adapter.getTestIntf();
             test(test1.ice_getConnection() == test2.ice_getConnection());
 
             test1.ice_ping();
@@ -73,7 +73,7 @@ public class AllTests : global::Test.AllTests
 
             com.deactivateObjectAdapter(adapter);
 
-            var test3 = Test.TestIntfPrxHelper.uncheckedCast(test1);
+            Test.TestIntfPrx test3 = Test.TestIntfPrxHelper.uncheckedCast(test1);
             test(test3.ice_getConnection() == test1.ice_getConnection());
             test(test3.ice_getConnection() == test2.ice_getConnection());
 
@@ -115,11 +115,11 @@ public class AllTests : global::Test.AllTests
             {
                 var adpts = new List<Test.RemoteObjectAdapterPrx>(adapters);
 
-                var test1 = createTestIntfPrx(adpts);
+                Test.TestIntfPrx test1 = createTestIntfPrx(adpts);
                 shuffle(ref adpts);
-                var test2 = createTestIntfPrx(adpts);
+                Test.TestIntfPrx test2 = createTestIntfPrx(adpts);
                 shuffle(ref adpts);
-                var test3 = createTestIntfPrx(adpts);
+                Test.TestIntfPrx test3 = createTestIntfPrx(adpts);
                 test1.ice_ping();
                 test(test1.ice_getConnection() == test2.ice_getConnection());
                 test(test2.ice_getConnection() == test3.ice_getConnection());
@@ -133,21 +133,21 @@ public class AllTests : global::Test.AllTests
             // always send the request over the same connection.)
             //
             {
-                foreach (var adpt in adapters)
+                foreach (Test.RemoteObjectAdapterPrx adpt in adapters)
                 {
                     adpt.getTestIntf().ice_ping();
                 }
 
-                var t = createTestIntfPrx(adapters);
+                Test.TestIntfPrx t = createTestIntfPrx(adapters);
                 string name = t.getAdapterName();
                 int nRetry = 10;
                 int i;
-                for (i = 0; i < nRetry && t.getAdapterName().Equals(name); i++)
+                for (i = 0; i < nRetry && t.getAdapterName() == name; i++)
                 {
                 }
                 test(i == nRetry);
 
-                foreach (var adpt in adapters)
+                foreach (Test.RemoteObjectAdapterPrx adpt in adapters)
                 {
                     await adpt.getTestIntf().ice_getConnection().closeAsync();
                 }
@@ -164,11 +164,11 @@ public class AllTests : global::Test.AllTests
             {
                 var adpts = new List<Test.RemoteObjectAdapterPrx>(adapters);
 
-                var test1 = createTestIntfPrx(adpts);
+                Test.TestIntfPrx test1 = createTestIntfPrx(adpts);
                 shuffle(ref adpts);
-                var test2 = createTestIntfPrx(adpts);
+                Test.TestIntfPrx test2 = createTestIntfPrx(adpts);
                 shuffle(ref adpts);
-                var test3 = createTestIntfPrx(adpts);
+                Test.TestIntfPrx test3 = createTestIntfPrx(adpts);
 
                 test(test1.ice_getConnection() == test2.ice_getConnection());
                 test(test2.ice_getConnection() == test3.ice_getConnection());
@@ -182,7 +182,7 @@ public class AllTests : global::Test.AllTests
             // establish the connection to the remaining adapter.
             //
             com.deactivateObjectAdapter((Test.RemoteObjectAdapterPrx)adapters[2]);
-            var obj = createTestIntfPrx(adapters);
+            Test.TestIntfPrx obj = createTestIntfPrx(adapters);
             test(obj.getAdapterName() == "Adapter12");
 
             deactivate(com, adapters);
@@ -254,7 +254,7 @@ public class AllTests : global::Test.AllTests
                 }
                 test(connections.Count <= adapterCount);
 
-                foreach (var a in adapters)
+                foreach (Test.RemoteObjectAdapterPrx a in adapters)
                 {
                     try
                     {
@@ -293,11 +293,11 @@ public class AllTests : global::Test.AllTests
             {
                 var adpts = new List<Test.RemoteObjectAdapterPrx>(adapters);
 
-                var test1 = createTestIntfPrx(adpts);
+                Test.TestIntfPrx test1 = createTestIntfPrx(adpts);
                 shuffle(ref adpts);
-                var test2 = createTestIntfPrx(adpts);
+                Test.TestIntfPrx test2 = createTestIntfPrx(adpts);
                 shuffle(ref adpts);
-                var test3 = createTestIntfPrx(adpts);
+                Test.TestIntfPrx test3 = createTestIntfPrx(adpts);
                 test1.ice_ping();
                 test(test1.ice_getConnection() == test2.ice_getConnection());
                 test(test2.ice_getConnection() == test3.ice_getConnection());
@@ -311,21 +311,21 @@ public class AllTests : global::Test.AllTests
             // always send the request over the same connection.)
             //
             {
-                foreach (var adpt in adapters)
+                foreach (Test.RemoteObjectAdapterPrx adpt in adapters)
                 {
                     adpt.getTestIntf().ice_ping();
                 }
 
-                var t = createTestIntfPrx(adapters);
+                Test.TestIntfPrx t = createTestIntfPrx(adapters);
                 string name = await t.getAdapterNameAsync();
                 int nRetry = 10;
                 int i;
-                for (i = 0; i < nRetry && (await t.getAdapterNameAsync()).Equals(name); i++)
+                for (i = 0; i < nRetry && (await t.getAdapterNameAsync()) == name; i++)
                 {
                 }
                 test(i == nRetry);
 
-                foreach (var adpt in adapters)
+                foreach (Test.RemoteObjectAdapterPrx adpt in adapters)
                 {
                     await adpt.getTestIntf().ice_getConnection().closeAsync();
                 }
@@ -342,11 +342,11 @@ public class AllTests : global::Test.AllTests
             {
                 var adpts = new List<Test.RemoteObjectAdapterPrx>(adapters);
 
-                var test1 = createTestIntfPrx(adpts);
+                Test.TestIntfPrx test1 = createTestIntfPrx(adpts);
                 shuffle(ref adpts);
-                var test2 = createTestIntfPrx(adpts);
+                Test.TestIntfPrx test2 = createTestIntfPrx(adpts);
                 shuffle(ref adpts);
-                var test3 = createTestIntfPrx(adpts);
+                Test.TestIntfPrx test3 = createTestIntfPrx(adpts);
 
                 test(test1.ice_getConnection() == test2.ice_getConnection());
                 test(test2.ice_getConnection() == test3.ice_getConnection());
@@ -360,7 +360,7 @@ public class AllTests : global::Test.AllTests
             // establish the connection to the remaining adapter.
             //
             com.deactivateObjectAdapter(adapters[2]);
-            var obj = createTestIntfPrx(adapters);
+            Test.TestIntfPrx obj = createTestIntfPrx(adapters);
             test((await obj.getAdapterNameAsync()) == "AdapterAMI12");
 
             deactivate(com, adapters);
@@ -377,7 +377,7 @@ public class AllTests : global::Test.AllTests
                     com.createObjectAdapter("Adapter23", "default")
                 };
 
-            var obj = createTestIntfPrx(adapters);
+            Test.TestIntfPrx obj = createTestIntfPrx(adapters);
             test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random);
 
             var names = new List<string>
@@ -418,7 +418,7 @@ public class AllTests : global::Test.AllTests
                     com.createObjectAdapter("Adapter33", "default")
                 };
 
-            var obj = createTestIntfPrx(adapters);
+            Test.TestIntfPrx obj = createTestIntfPrx(adapters);
             obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
             test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
             int nRetry = 3;
@@ -488,10 +488,10 @@ public class AllTests : global::Test.AllTests
         output.Write("testing per request binding with single endpoint... ");
         output.Flush();
         {
-            var adapter = com.createObjectAdapter("Adapter41", "default");
+            Test.RemoteObjectAdapterPrx adapter = com.createObjectAdapter("Adapter41", "default");
 
-            var test1 = Test.TestIntfPrxHelper.uncheckedCast(adapter.getTestIntf().ice_connectionCached(false));
-            var test2 = Test.TestIntfPrxHelper.uncheckedCast(adapter.getTestIntf().ice_connectionCached(false));
+            Test.TestIntfPrx test1 = Test.TestIntfPrxHelper.uncheckedCast(adapter.getTestIntf().ice_connectionCached(false));
+            Test.TestIntfPrx test2 = Test.TestIntfPrxHelper.uncheckedCast(adapter.getTestIntf().ice_connectionCached(false));
             test(!test1.ice_isConnectionCached());
             test(!test2.ice_isConnectionCached());
             test(test1.ice_getConnection() != null && test2.ice_getConnection() != null);
@@ -501,7 +501,7 @@ public class AllTests : global::Test.AllTests
 
             com.deactivateObjectAdapter(adapter);
 
-            var test3 = Test.TestIntfPrxHelper.uncheckedCast(test1);
+            Test.TestIntfPrx test3 = Test.TestIntfPrxHelper.uncheckedCast(test1);
             try
             {
                 test(test3.ice_getConnection() == test1.ice_getConnection());
@@ -526,7 +526,7 @@ public class AllTests : global::Test.AllTests
                     com.createObjectAdapter("Adapter53", "default")
                 };
 
-            var obj = Test.TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(false));
+            Test.TestIntfPrx obj = Test.TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(false));
             test(!obj.ice_isConnectionCached());
 
             List<string> names = ["Adapter51", "Adapter52", "Adapter53"];
@@ -562,7 +562,8 @@ public class AllTests : global::Test.AllTests
                     com.createObjectAdapter("AdapterAMI53", "default")
                 };
 
-            var obj = Test.TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(false));
+            Test.TestIntfPrx obj = Test.TestIntfPrxHelper.uncheckedCast(
+                createTestIntfPrx(adapters).ice_connectionCached(false));
             test(!obj.ice_isConnectionCached());
 
             var names = new List<string>
@@ -603,7 +604,7 @@ public class AllTests : global::Test.AllTests
                     com.createObjectAdapter("Adapter63", "default")
                 };
 
-            var obj = createTestIntfPrx(adapters);
+            Test.TestIntfPrx obj = createTestIntfPrx(adapters);
             obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
             test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
             obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_connectionCached(false));
@@ -680,7 +681,7 @@ public class AllTests : global::Test.AllTests
                     com.createObjectAdapter("AdapterAMI63", "default")
                 };
 
-            var obj = createTestIntfPrx(adapters);
+            Test.TestIntfPrx obj = createTestIntfPrx(adapters);
             obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
             test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
             obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_connectionCached(false));
@@ -753,10 +754,10 @@ public class AllTests : global::Test.AllTests
                     com.createObjectAdapter("Adapter72", "udp")
                 };
 
-            var obj = createTestIntfPrx(adapters);
+            Test.TestIntfPrx obj = createTestIntfPrx(adapters);
             test(obj.getAdapterName() == "Adapter71");
 
-            var testUDP = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_datagram());
+            Test.TestIntfPrx testUDP = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_datagram());
             test(obj.ice_getConnection() != testUDP.ice_getConnection());
             try
             {
@@ -766,8 +767,8 @@ public class AllTests : global::Test.AllTests
             {
             }
         }
-        output.WriteLine("ok");
 
+        output.WriteLine("ok");
         {
             output.Write("testing ipv4 & ipv6 connections... ");
             output.Flush();
@@ -796,7 +797,7 @@ public class AllTests : global::Test.AllTests
 
             List<Properties> clientProps = [ipv4, ipv6, bothPreferIPv4, bothPreferIPv6];
 
-            string endpoint = "tcp -p " + helper.getTestPort(2).ToString();
+            string endpoint = $"tcp -p {helper.getTestPort(2)}";
 
             Properties anyipv4 = ipv4.Clone();
             anyipv4.setProperty("Adapter.Endpoints", endpoint);
@@ -812,10 +813,10 @@ public class AllTests : global::Test.AllTests
             anyboth.setProperty("Adapter.Endpoints", endpoint);
             anyboth.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \"::1\":" + endpoint + " -h 127.0.0.1");
 
-            var localipv4 = ipv4.Clone();
+            Properties localipv4 = ipv4.Clone();
             localipv4.setProperty("Adapter.Endpoints", "tcp -h 127.0.0.1");
 
-            var localipv6 = ipv6.Clone();
+            Properties localipv6 = ipv6.Clone();
             localipv6.setProperty("Adapter.Endpoints", "tcp -h \"::1\"");
 
             List<Properties> serverProps =

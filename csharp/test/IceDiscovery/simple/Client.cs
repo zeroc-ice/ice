@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+using System.Globalization;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]
@@ -8,15 +9,17 @@ using System.Reflection;
 [assembly: AssemblyDescription("IceDiscovery test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace IceDiscovery.simple;
+
 public class Client : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using var communicator = initialize(ref args);
+        using Ice.Communicator communicator = initialize(ref args);
         int num;
         try
         {
-            num = args.Length == 1 ? int.Parse(args[0]) : 0;
+            num = args.Length == 1 ? int.Parse(args[0], CultureInfo.InvariantCulture) : 0;
         }
         catch (FormatException)
         {

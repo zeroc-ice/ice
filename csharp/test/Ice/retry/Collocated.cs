@@ -28,6 +28,7 @@ public class Collocated : TestHelper
         Test.RetryPrx retry = await AllTests.allTests(this, communicator, communicator2, "retry");
         retry.shutdown();
     }
+
     public static Task<int> Main(string[] args) =>
         TestDriver.runTestAsync<Collocated>(args);
 }

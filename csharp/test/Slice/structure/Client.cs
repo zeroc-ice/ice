@@ -2,6 +2,8 @@
 
 using Test;
 
+namespace Slice.structure;
+
 public class Client : TestHelper
 {
     private static void allTests(Ice.Communicator communicator)
@@ -21,8 +23,21 @@ public class Client : TestHelper
             { "abc", "def" }
         };
         Ice.ObjectPrx def_prx = communicator.stringToProxy("test");
-        var def_s2 = new S2(true, (byte)98, (short)99, 100, 101, (float)1.0, 2.0, "string", def_ss, def_il, def_sd,
-                           def_s, def_cls, def_prx);
+        var def_s2 = new S2(
+            true,
+            98,
+            99,
+            100,
+            101,
+            1.0f,
+            2.0,
+            "string",
+            def_ss,
+            def_il,
+            def_sd,
+            def_s,
+            def_cls,
+            def_prx);
 
         //
         // Change one primitive member at a time.
@@ -198,7 +213,7 @@ public class Client : TestHelper
 
     public override void run(string[] args)
     {
-        using var communicator = initialize(ref args);
+        using Ice.Communicator communicator = initialize(ref args);
         allTests(communicator);
     }
 

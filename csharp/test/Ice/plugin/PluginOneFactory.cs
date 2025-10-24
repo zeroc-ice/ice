@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+namespace Ice.plugin;
+
 public class PluginOneFactory : Ice.PluginFactory
 {
     public string pluginName => "Test";
@@ -8,7 +10,8 @@ public class PluginOneFactory : Ice.PluginFactory
 
     internal class PluginOne : BasePlugin
     {
-        public PluginOne(Ice.Communicator communicator) : base(communicator)
+        public PluginOne(Communicator communicator)
+            : base(communicator)
         {
         }
 

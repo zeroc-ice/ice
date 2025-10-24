@@ -5,7 +5,7 @@ namespace Ice.binding;
 public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
 {
     public override Test.RemoteObjectAdapterPrx
-    createObjectAdapter(string name, string endpts, Ice.Current current)
+    createObjectAdapter(string name, string endpoints, Ice.Current current)
     {
         int retry = 5;
         while (true)
@@ -13,15 +13,15 @@ public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
             try
             {
                 Ice.Communicator communicator = current.adapter.getCommunicator();
-                string endpoints = endpts;
-                if (endpoints.IndexOf("-p") < 0)
+                string endpts = endpoints;
+                if (endpts.IndexOf("-p", StringComparison.Ordinal) < 0)
                 {
-                    endpoints =
-                        global::Test.TestHelper.getTestEndpoint(communicator.getProperties(), _nextPort++, endpoints);
+                    endpts =
+                        global::Test.TestHelper.getTestEndpoint(communicator.getProperties(), _nextPort++, endpts);
                 }
 
                 communicator.getProperties().setProperty(name + ".ThreadPool.Size", "1");
-                Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(name, endpoints);
+                Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(name, endpts);
                 return Test.RemoteObjectAdapterPrxHelper.uncheckedCast(
                     current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
             }

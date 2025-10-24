@@ -4,7 +4,7 @@ internal class Configuration
 {
     public void connectorsException(Ice.LocalException ex)
     {
-        lock (this)
+        lock (_mutex)
         {
             _connectorsException = ex;
         }
@@ -12,7 +12,7 @@ internal class Configuration
 
     public void checkConnectorsException()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_connectorsException != null)
             {
@@ -23,7 +23,7 @@ internal class Configuration
 
     public void connectException(Ice.LocalException ex)
     {
-        lock (this)
+        lock (_mutex)
         {
             _connectException = ex;
         }
@@ -31,7 +31,7 @@ internal class Configuration
 
     public void checkConnectException()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_connectException != null)
             {
@@ -42,7 +42,7 @@ internal class Configuration
 
     public void initializeException(Ice.LocalException ex)
     {
-        lock (this)
+        lock (_mutex)
         {
             _initializeException = ex;
         }
@@ -50,7 +50,7 @@ internal class Configuration
 
     public void checkInitializeException()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_initializeException != null)
             {
@@ -61,7 +61,7 @@ internal class Configuration
 
     public void readReady(bool ready)
     {
-        lock (this)
+        lock (_mutex)
         {
             _readReadyCount = ready ? 0 : 10;
         }
@@ -69,7 +69,7 @@ internal class Configuration
 
     public void readException(Ice.LocalException ex)
     {
-        lock (this)
+        lock (_mutex)
         {
             _readException = ex;
         }
@@ -77,7 +77,7 @@ internal class Configuration
 
     public bool readReady()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_readReadyCount == 0)
             {
@@ -90,7 +90,7 @@ internal class Configuration
 
     public void checkReadException()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_readException != null)
             {
@@ -101,7 +101,7 @@ internal class Configuration
 
     public void writeReady(bool ready)
     {
-        lock (this)
+        lock (_mutex)
         {
             _writeReadyCount = ready ? 0 : 10;
         }
@@ -109,7 +109,7 @@ internal class Configuration
 
     public void writeException(Ice.LocalException ex)
     {
-        lock (this)
+        lock (_mutex)
         {
             _writeException = ex;
         }
@@ -117,7 +117,7 @@ internal class Configuration
 
     public bool writeReady()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_writeReadyCount == 0)
             {
@@ -130,7 +130,7 @@ internal class Configuration
 
     public void checkWriteException()
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_writeException != null)
             {
@@ -153,6 +153,7 @@ internal class Configuration
     private int _writeReadyCount;
     private Ice.LocalException _writeException;
     private bool _buffered;
+    private readonly object _mutex = new();
 
     private static readonly Configuration _instance = new Configuration();
 }

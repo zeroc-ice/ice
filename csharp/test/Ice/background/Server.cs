@@ -8,6 +8,8 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace Ice.background;
+
 public class Server : Test.TestHelper
 {
     internal class LocatorI : Ice.LocatorDisp_
@@ -47,8 +49,7 @@ public class Server : Test.TestHelper
             return null;
         }
 
-        public override Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current) =>
-            new Ice.ObjectPrx[0];
+        public override Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current) => [];
 
         internal RouterI(BackgroundControllerI controller) => _controller = controller;
 
@@ -57,7 +58,7 @@ public class Server : Test.TestHelper
 
     public override void run(string[] args)
     {
-        var properties = createTestProperties(ref args);
+        Ice.Properties properties = createTestProperties(ref args);
         //
         // This test kills connections, so we don't want warnings.
         //
@@ -72,10 +73,9 @@ public class Server : Test.TestHelper
         //
         // Setup the test transport plug-in.
         //
-        properties.setProperty("Ice.Default.Protocol",
-                               "test-" + properties.getIceProperty("Ice.Default.Protocol"));
+        properties.setProperty("Ice.Default.Protocol", "test-" + properties.getIceProperty("Ice.Default.Protocol"));
 
-        using var communicator = initialize(properties);
+        using Ice.Communicator communicator = initialize(properties);
         var plugin = new PluginI(communicator);
         plugin.initialize();
         communicator.getPluginManager().addPlugin("Test", plugin);

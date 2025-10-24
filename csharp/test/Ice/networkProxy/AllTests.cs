@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+namespace Ice.networkProxy;
+
 public class AllTests : Test.AllTests
 {
     private static Ice.IPConnectionInfo getIPConnectionInfo(Ice.ConnectionInfo info)
@@ -29,7 +31,7 @@ public class AllTests : Test.AllTests
 
         Test.TestIntfPrx testPrx = Test.TestIntfPrxHelper.checkedCast(obj);
         test(testPrx != null);
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Write("testing connection... ");
         output.Flush();
         {

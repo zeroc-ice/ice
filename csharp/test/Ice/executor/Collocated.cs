@@ -8,6 +8,8 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace Ice.executor;
+
 public class Collocated : Test.TestHelper
 {
     public override void run(string[] args)

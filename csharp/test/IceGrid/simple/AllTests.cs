@@ -2,6 +2,8 @@
 
 using Test;
 
+namespace IceGrid.simple;
+
 public class AllTests : Test.AllTests
 {
     public static void allTests(Test.TestHelper helper)
@@ -63,7 +65,7 @@ public class AllTests : Test.AllTests
             var initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().Clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("IceLocatorDiscovery.Port", helper.getTestPort(99).ToString());
+            initData.properties.setProperty("IceLocatorDiscovery.Port", $"{helper.getTestPort(99)}");
             initData.properties.setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
             initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
 
@@ -137,8 +139,7 @@ public class AllTests : Test.AllTests
             //
             initData.properties = communicator.getProperties().Clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("IceLocatorDiscovery.Lookup",
-                                             "udp -h " + multicast + " --interface unknown");
+            initData.properties.setProperty("IceLocatorDiscovery.Lookup", $"udp -h {multicast} --interface unknown:");
 
             initData.pluginFactories = [new IceLocatorDiscovery.PluginFactory()];
 
@@ -157,8 +158,7 @@ public class AllTests : Test.AllTests
             initData.properties = communicator.getProperties().Clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "0");
-            initData.properties.setProperty("IceLocatorDiscovery.Lookup",
-                                             "udp -h " + multicast + " --interface unknown");
+            initData.properties.setProperty("IceLocatorDiscovery.Lookup", $"udp -h {multicast} --interface unknown");
 
             initData.pluginFactories = [new IceLocatorDiscovery.PluginFactory()];
 
@@ -183,10 +183,10 @@ public class AllTests : Test.AllTests
                 {
                     intf = " --interface \"" + intf + "\"";
                 }
-                string port = helper.getTestPort(99).ToString();
-                initData.properties.setProperty("IceLocatorDiscovery.Lookup",
-                                                 "udp -h " + multicast + " --interface unknown:" +
-                                                 "udp -h " + multicast + " -p " + port + intf);
+                string port = $"{helper.getTestPort(99)}";
+                initData.properties.setProperty(
+                    "IceLocatorDiscovery.Lookup",
+                    $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port} {intf}");
             }
 
             initData.pluginFactories = [new IceLocatorDiscovery.PluginFactory()];

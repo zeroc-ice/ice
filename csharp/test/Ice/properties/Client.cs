@@ -8,6 +8,8 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace Ice.properties;
+
 public class Client : Test.TestHelper
 {
     public override void run(string[] args)
@@ -98,7 +100,7 @@ public class Client : Test.TestHelper
             Console.Out.Flush();
             var properties = new Ice.Properties();
             string stringValue = properties.getIceProperty("Ice.Admin.Router");
-            test(stringValue == "");
+            test(stringValue.Length == 0);
             int intValue = properties.getIcePropertyAsInt("Ice.Admin.Router");
             test(intValue == 0);
             string[] listValue = properties.getIcePropertyAsList("Ice.Admin.Router");

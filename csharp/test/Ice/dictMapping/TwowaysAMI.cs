@@ -2,7 +2,7 @@
 
 namespace Ice.dictMapping;
 
-public class TwowaysAMI
+public static class TwowaysAMI
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
@@ -15,7 +15,7 @@ public class TwowaysAMI
                 [1] = 0
             };
 
-            var result = await p.opNVAsync(i);
+            Test.MyClass_OpNVResult result = await p.opNVAsync(i);
             test(Internal.DictionaryExtensions.DictionaryEqual(i, result.o));
             test(Internal.DictionaryExtensions.DictionaryEqual(i, result.returnValue));
         }
@@ -27,7 +27,7 @@ public class TwowaysAMI
                 ["b"] = "a"
             };
 
-            var result = await p.opNRAsync(i);
+            Test.MyClass_OpNRResult result = await p.opNRAsync(i);
             test(Internal.DictionaryExtensions.DictionaryEqual(i, result.o));
             test(Internal.DictionaryExtensions.DictionaryEqual(i, result.returnValue));
         }
@@ -42,7 +42,7 @@ public class TwowaysAMI
             i["a"] = id;
             i["b"] = id;
 
-            var result = await p.opNDVAsync(i);
+            Test.MyClass_OpNDVResult result = await p.opNDVAsync(i);
             foreach (string key in i.Keys)
             {
                 test(Internal.DictionaryExtensions.DictionaryEqual(i[key], result.o[key]));
@@ -60,7 +60,7 @@ public class TwowaysAMI
             i["a"] = id;
             i["b"] = id;
 
-            var result = await p.opNDRAsync(i);
+            Test.MyClass_OpNDRResult result = await p.opNDRAsync(i);
             foreach (string key in i.Keys)
             {
                 test(Internal.DictionaryExtensions.DictionaryEqual(i[key], result.o[key]));
@@ -76,7 +76,7 @@ public class TwowaysAMI
                 ["b"] = ii
             };
 
-            var result = await p.opNDAISAsync(i);
+            Test.MyClass_OpNDAISResult result = await p.opNDAISAsync(i);
             foreach (string key in i.Keys)
             {
                 test(Enumerable.SequenceEqual(i[key], result.o[key]));
@@ -96,7 +96,7 @@ public class TwowaysAMI
                 ["b"] = ii
             };
 
-            var result = await p.opNDGISAsync(i);
+            Test.MyClass_OpNDGISResult result = await p.opNDGISAsync(i);
             foreach (string key in i.Keys)
             {
                 test(Enumerable.SequenceEqual(i[key], result.o[key]));
@@ -112,7 +112,7 @@ public class TwowaysAMI
                 ["b"] = ii
             };
 
-            var result = await p.opNDASSAsync(i);
+            Test.MyClass_OpNDASSResult result = await p.opNDASSAsync(i);
             foreach (string key in i.Keys)
             {
                 test(Enumerable.SequenceEqual(i[key], result.o[key]));
@@ -132,7 +132,7 @@ public class TwowaysAMI
                 ["b"] = ii
             };
 
-            var result = await p.opNDGSSAsync(i);
+            Test.MyClass_OpNDGSSResult result = await p.opNDGSSAsync(i);
             foreach (string key in i.Keys)
             {
                 test(Enumerable.SequenceEqual(i[key], result.o[key]));

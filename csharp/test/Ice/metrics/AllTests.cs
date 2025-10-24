@@ -3,6 +3,8 @@
 using System.Diagnostics;
 using Test;
 
+namespace Ice.metrics;
+
 public class AllTests : Test.AllTests
 {
     private static IceMX.ConnectionMetrics
@@ -33,7 +35,7 @@ public class AllTests : Test.AllTests
 
     public abstract class CallbackBase
     {
-        public CallbackBase() => Wait = true;
+        protected CallbackBase() => Wait = true;
 
         public abstract void response();
 
@@ -41,27 +43,29 @@ public class AllTests : Test.AllTests
 
         public void waitForResponse()
         {
-            lock (this)
+            lock (mutex_)
             {
                 while (Wait)
                 {
-                    Monitor.Wait(this);
+                    Monitor.Wait(mutex_);
                 }
                 Wait = true;
             }
         }
 
         protected bool Wait;
+
+        protected readonly object mutex_ = new();
     }
 
     private class Callback : CallbackBase
     {
         public override void response()
         {
-            lock (this)
+            lock (mutex_)
             {
                 Wait = false;
-                Monitor.Pulse(this);
+                Monitor.Pulse(mutex_);
             }
         }
 
@@ -75,10 +79,10 @@ public class AllTests : Test.AllTests
         public override void exception(Ice.Exception ex)
         {
             test(ex is UserEx);
-            lock (this)
+            lock (mutex_)
             {
                 Wait = false;
-                Monitor.Pulse(this);
+                Monitor.Pulse(mutex_);
             }
         }
     }
@@ -90,10 +94,10 @@ public class AllTests : Test.AllTests
         public override void exception(Ice.Exception ex)
         {
             test(ex is Ice.RequestFailedException);
-            lock (this)
+            lock (mutex_)
             {
                 Wait = false;
-                Monitor.Pulse(this);
+                Monitor.Pulse(mutex_);
             }
         }
     }
@@ -105,10 +109,10 @@ public class AllTests : Test.AllTests
         public override void exception(Ice.Exception ex)
         {
             test(ex is Ice.LocalException);
-            lock (this)
+            lock (mutex_)
             {
                 Wait = false;
-                Monitor.Pulse(this);
+                Monitor.Pulse(mutex_);
             }
         }
     }
@@ -120,10 +124,10 @@ public class AllTests : Test.AllTests
         public override void exception(Ice.Exception ex)
         {
             test(ex is Ice.UnknownException);
-            lock (this)
+            lock (mutex_)
             {
                 Wait = false;
-                Monitor.Pulse(this);
+                Monitor.Pulse(mutex_);
             }
         }
     }
@@ -135,17 +139,17 @@ public class AllTests : Test.AllTests
         public override void exception(Ice.Exception ex)
         {
             test(ex is Ice.ConnectionLostException);
-            lock (this)
+            lock (mutex_)
             {
                 Wait = false;
-                Monitor.Pulse(this);
+                Monitor.Pulse(mutex_);
             }
         }
     }
 
     private static string
     getPort(Ice.PropertiesAdminPrx p, int testPort = 0) =>
-        TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), testPort).ToString();
+        $"{TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), testPort)}";
 
     private static Dictionary<string, string>
     getClientProps(Ice.PropertiesAdminPrx p, Dictionary<string, string> orig, string m)
@@ -198,11 +202,11 @@ public class AllTests : Test.AllTests
         public void
         waitForUpdate()
         {
-            lock (this)
+            lock (_mutex)
             {
                 while (!_updated)
                 {
-                    Monitor.Wait(this);
+                    Monitor.Wait(_mutex);
                 }
             }
 
@@ -212,7 +216,7 @@ public class AllTests : Test.AllTests
             // completed.
             _serverProps.setProperties([]);
 
-            lock (this)
+            lock (_mutex)
             {
                 _updated = false;
             }
@@ -221,15 +225,16 @@ public class AllTests : Test.AllTests
         public void
         updated(Dictionary<string, string> dict)
         {
-            lock (this)
+            lock (_mutex)
             {
                 _updated = true;
-                Monitor.Pulse(this);
+                Monitor.Pulse(_mutex);
             }
         }
 
-        private bool _updated = false;
+        private bool _updated;
         private readonly Ice.PropertiesAdminPrx _serverProps = serverProps;
+        private readonly object _mutex = new();
     }
 
     private static void
@@ -301,7 +306,7 @@ public class AllTests : Test.AllTests
 
         await func();
         Dictionary<string, IceMX.Metrics[]> view = metrics.getMetricsView("View", out _);
-        if (!view.ContainsKey(map) || view[map].Length == 0)
+        if (!view.TryGetValue(map, out IceMX.Metrics[] metricsValue) || metricsValue.Length == 0)
         {
             if (value.Length > 0)
             {
@@ -309,7 +314,7 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-        else if (!view[map][0].id.Equals(value))
+        else if (view[map][0].id != value)
         {
             output.WriteLine("invalid attribute value: " + attr + " = " + value + " got " + view[map][0].id);
             test(false);
@@ -360,21 +365,23 @@ public class AllTests : Test.AllTests
     }
 
     private static Task
-    testAttributeAsync(IceMX.MetricsAdminPrx metrics,
-                  Ice.PropertiesAdminPrx props,
-                  UpdateCallbackI update,
-                  string map,
-                  string attr,
-                  string value,
-                  TextWriter output) =>
-                    testAttributeAsync(metrics, props, update, map, attr, value, () => Task.CompletedTask, output);
+    testAttributeAsync(
+        IceMX.MetricsAdminPrx metrics,
+        Ice.PropertiesAdminPrx props,
+        UpdateCallbackI update,
+        string map,
+        string attr,
+        string value,
+        TextWriter output) =>
+        testAttributeAsync(metrics, props, update, map, attr, value, () => Task.CompletedTask, output);
 
     private static void
-    updateProps(Ice.PropertiesAdminPrx cprops,
-                Ice.PropertiesAdminPrx sprops,
-                UpdateCallbackI callback,
-                Dictionary<string, string> props,
-                string map)
+    updateProps(
+        Ice.PropertiesAdminPrx cprops,
+        Ice.PropertiesAdminPrx sprops,
+        UpdateCallbackI callback,
+        Dictionary<string, string> props,
+        string map)
     {
         if (sprops.ice_getConnection() != null)
         {
@@ -456,7 +463,7 @@ public class AllTests : Test.AllTests
         Ice.Communicator communicator = helper.communicator();
 
         string host = helper.getTestHost();
-        string port = helper.getTestPort(0).ToString();
+        string port = $"{helper.getTestPort(0)}";
         string hostAndPort = host + ":" + port;
         string protocol = helper.getTestProtocol();
 
@@ -465,7 +472,7 @@ public class AllTests : Test.AllTests
 
         MetricsPrx metrics = MetricsPrxHelper.checkedCast(communicator.stringToProxy("metrics:" + endpoint));
         bool collocated = metrics.ice_getConnection() == null;
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Write("testing metrics admin facet checkedCast... ");
         output.Flush();
         Ice.ObjectPrx admin = communicator.getAdmin();
@@ -524,7 +531,7 @@ public class AllTests : Test.AllTests
 
         var invoke = (IceMX.InvocationMetrics)view["Invocation"][0];
 
-        test(invoke.id.IndexOf("[ice_ping]") > 0 && invoke.current == 0 && invoke.total == 5);
+        test(invoke.id.IndexOf("[ice_ping]", StringComparison.Ordinal) > 0 && invoke.current == 0 && invoke.total == 5);
         if (!collocated)
         {
             test(invoke.remotes.Length == 2);
@@ -546,7 +553,7 @@ public class AllTests : Test.AllTests
         }
         test(view["Dispatch"].Length == 1);
         test(view["Dispatch"][0].current == 0 && view["Dispatch"][0].total == 5);
-        test(view["Dispatch"][0].id.IndexOf("[ice_ping]") > 0);
+        test(view["Dispatch"][0].id.IndexOf("[ice_ping]", StringComparison.Ordinal) > 0);
 
         if (!collocated)
         {
@@ -566,7 +573,7 @@ public class AllTests : Test.AllTests
         if (!collocated)
         {
             Ice.EndpointInfo endpointInfo = metrics.ice_getConnection().getEndpoint().getInfo();
-            type = endpointInfo.type().ToString();
+            type = $"{endpointInfo.type()}";
             isSecure = endpointInfo.secure() ? "True" : "False";
         }
 
@@ -683,8 +690,14 @@ public class AllTests : Test.AllTests
                 "Communicator",
                 output);
             // await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "id", "");
-            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpoint",
-                          endpoint + " -t infinite", output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "Connection",
+                "endpoint",
+                $"{endpoint} -t infinite",
+                output);
 
             await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpointType", type, output);
             await testAttributeAsync(
@@ -742,7 +755,7 @@ public class AllTests : Test.AllTests
 
             test(clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"].Length == 1);
             IceMX.Metrics m1 = clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"][0];
-            test(m1.current == 0 && m1.total == 1 && m1.id.Equals(hostAndPort));
+            test(m1.current == 0 && m1.total == 1 && m1.id == hostAndPort);
 
             await metrics.ice_getConnection().closeAsync();
             controller.hold();
@@ -761,7 +774,7 @@ public class AllTests : Test.AllTests
             controller.resume();
             test(clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"].Length == 1);
             m1 = clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"][0];
-            test(m1.id.Equals(hostAndPort) && m1.total == 3 && m1.failures == 2);
+            test(m1.id == hostAndPort && m1.total == 3 && m1.failures == 2);
 
             checkFailure(clientMetrics, "ConnectionEstablishment", m1.id, "::Ice::ConnectTimeoutException", 2, output);
 
@@ -784,8 +797,15 @@ public class AllTests : Test.AllTests
                 hostAndPort,
                 c,
                 output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
-                          endpoint, c, output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "ConnectionEstablishment",
+                "endpoint",
+                endpoint,
+                c,
+                output);
 
             await testAttributeAsync(
                 clientMetrics,
@@ -882,11 +902,11 @@ public class AllTests : Test.AllTests
             }
             test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 2);
             m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][0];
-            if (!m1.id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500"))
+            if (m1.id != $"tcp -h unknownfoo.zeroc.com -p {port} -t 500")
             {
                 m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][1];
             }
-            test(m1.id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500") && m1.total == 2 &&
+            test(m1.id == $"tcp -h unknownfoo.zeroc.com -p {port} -t 500" && m1.total == 2 &&
                  (!dnsException || m1.failures == 2));
             if (dnsException)
             {
@@ -1368,8 +1388,15 @@ public class AllTests : Test.AllTests
         test(rim1.current <= 1 && rim1.total == 2 && rim1.failures == 0);
         test(rim1.size == 42 && rim1.replySize == 0);
 
-        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "mode", "oneway",
-                      () => invokeOpAsync(metricsOneway), output);
+        await testAttributeAsync(
+            clientMetrics,
+            clientProps,
+            update,
+            "Invocation",
+            "mode",
+            "oneway",
+            () => invokeOpAsync(metricsOneway),
+            output);
 
         //
         // Batch oneway tests
@@ -1389,8 +1416,15 @@ public class AllTests : Test.AllTests
         test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
         test(im1.remotes.Length == 0);
 
-        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "mode", "batch-oneway",
-                      () => invokeOpAsync(metricsBatchOneway), output);
+        await testAttributeAsync(
+            clientMetrics,
+            clientProps,
+            update,
+            "Invocation",
+            "mode",
+            "batch-oneway",
+            () => invokeOpAsync(metricsBatchOneway),
+            output);
 
         //
         // Tests flushBatchRequests

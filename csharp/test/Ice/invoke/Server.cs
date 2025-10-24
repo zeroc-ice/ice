@@ -19,14 +19,14 @@ public class ServantLocatorI : Ice.ServantLocator
     }
 
     public Ice.Object
-    locate(Ice.Current current, out object cookie)
+    locate(Ice.Current curr, out object cookie)
     {
         cookie = null;
         return _blobject;
     }
 
     public void
-    finished(Ice.Current current, Ice.Object servant, object cookie)
+    finished(Ice.Current curr, Ice.Object servant, object cookie)
     {
     }
 

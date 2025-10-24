@@ -53,9 +53,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return p1;
     }
 
-    public override Dictionary<byte, bool> opByteBoolD(Dictionary<byte, bool> p1, Dictionary<byte, bool> p2,
-                                                       out Dictionary<byte, bool> p3,
-                                                       Ice.Current current)
+    public override Dictionary<byte, bool> opByteBoolD(
+        Dictionary<byte, bool> p1,
+        Dictionary<byte, bool> p2,
+        out Dictionary<byte, bool> p3,
+        Current current)
     {
         p3 = p1;
         var r = new Dictionary<byte, bool>();
@@ -105,9 +107,12 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return p2;
     }
 
-    public override double[] opFloatDoubleS(float[] p1, double[] p2,
-                                            out float[] p3, out double[] p4,
-                                            Ice.Current current)
+    public override double[] opFloatDoubleS(
+        float[] p1,
+        double[] p2,
+        out float[] p3,
+        out double[] p4,
+        Current current)
     {
         p3 = p1;
 
@@ -126,9 +131,12 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override double[][] opFloatDoubleSS(float[][] p1, double[][] p2,
-                                               out float[][] p3, out double[][] p4,
-                                               Ice.Current current)
+    public override double[][] opFloatDoubleSS(
+        float[][] p1,
+        double[][] p2,
+        out float[][] p3,
+        out double[][] p4,
+        Current current)
     {
         p3 = p1;
 
@@ -151,9 +159,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Dictionary<long, float> opLongFloatD(Dictionary<long, float> p1, Dictionary<long, float> p2,
-                                                         out Dictionary<long, float> p3,
-                                                         Ice.Current current)
+    public override Dictionary<long, float> opLongFloatD(
+        Dictionary<long, float> p1,
+        Dictionary<long, float> p2,
+        out Dictionary<long, float> p3,
+        Current current)
     {
         p3 = p1;
         var r = new Dictionary<long, float>();
@@ -168,8 +178,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Test.MyClassPrx opMyClass(Test.MyClassPrx p1, out Test.MyClassPrx p2, out Test.MyClassPrx p3,
-                                              Ice.Current current)
+    public override Test.MyClassPrx opMyClass(
+        Test.MyClassPrx p1,
+        out Test.MyClassPrx p2,
+        out Test.MyClassPrx p3,
+        Current current)
     {
         p2 = p1;
         p3 = Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(
@@ -177,14 +190,17 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
     }
 
-    public override Test.MyEnum opMyEnum(Test.MyEnum p1, out Test.MyEnum p2, Ice.Current current)
+    public override Test.MyEnum opMyEnum(Test.MyEnum p1, out Test.MyEnum p2, Current current)
     {
         p2 = p1;
         return Test.MyEnum.enum3;
     }
 
-    public override Dictionary<short, int> opShortIntD(Dictionary<short, int> p1, Dictionary<short, int> p2,
-                                                       out Dictionary<short, int> p3, Ice.Current current)
+    public override Dictionary<short, int> opShortIntD(
+        Dictionary<short, int> p1,
+        Dictionary<short, int> p2,
+        out Dictionary<short, int> p3,
+        Current current)
     {
         p3 = p1;
         var r = new Dictionary<short, int>();
@@ -199,8 +215,14 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override long opShortIntLong(short p1, int p2, long p3, out short p4, out int p5, out long p6,
-                                        Ice.Current current)
+    public override long opShortIntLong(
+        short p1,
+        int p2,
+        long p3,
+        out short p4,
+        out int p5,
+        out long p6,
+        Current current)
     {
         p4 = p1;
         p5 = p2;
@@ -208,9 +230,14 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return p3;
     }
 
-    public override long[] opShortIntLongS(short[] p1, int[] p2, long[] p3,
-                                           out short[] p4, out int[] p5, out long[] p6,
-                                           Ice.Current current)
+    public override long[] opShortIntLongS(
+        short[] p1,
+        int[] p2,
+        long[] p3,
+        out short[] p4,
+        out int[] p5,
+        out long[] p6,
+        Current current)
     {
         p4 = p1;
 
@@ -227,9 +254,14 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return p3;
     }
 
-    public override long[][] opShortIntLongSS(short[][] p1, int[][] p2, long[][] p3,
-                                              out short[][] p4, out int[][] p5, out long[][] p6,
-                                              Ice.Current current)
+    public override long[][] opShortIntLongSS(
+        short[][] p1,
+        int[][] p2,
+        long[][] p3,
+        out short[][] p4,
+        out int[][] p5,
+        out long[][] p6,
+        Current current)
     {
         p4 = p1;
 
@@ -252,10 +284,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return p1 + " " + p2;
     }
 
-    public override Dictionary<string, Test.MyEnum> opStringMyEnumD(Dictionary<string, Test.MyEnum> p1,
-                                                                    Dictionary<string, Test.MyEnum> p2,
-                                                                    out Dictionary<string, Test.MyEnum> p3,
-                                                                    Ice.Current current)
+    public override Dictionary<string, Test.MyEnum> opStringMyEnumD(
+        Dictionary<string, Test.MyEnum> p1,
+        Dictionary<string, Test.MyEnum> p2,
+        out Dictionary<string, Test.MyEnum> p3,
+        Current current)
     {
         p3 = p1;
         var r = new Dictionary<string, Test.MyEnum>();
@@ -270,18 +303,19 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Dictionary<Test.MyEnum, string> opMyEnumStringD(Dictionary<Test.MyEnum, string> p1,
-                                                                    Dictionary<Test.MyEnum, string> p2,
-                                                                    out Dictionary<Test.MyEnum, string> p3,
-                                                                    Ice.Current current)
+    public override Dictionary<Test.MyEnum, string> opMyEnumStringD(
+        Dictionary<Test.MyEnum, string> p1,
+        Dictionary<Test.MyEnum, string> p2,
+        out Dictionary<Test.MyEnum, string> p3,
+        Current current)
     {
         p3 = p1;
         var r = new Dictionary<Test.MyEnum, string>();
-        foreach (var e in p1)
+        foreach (KeyValuePair<Test.MyEnum, string> e in p1)
         {
             r[e.Key] = e.Value;
         }
-        foreach (var e in p2)
+        foreach (KeyValuePair<Test.MyEnum, string> e in p2)
         {
             r[e.Key] = e.Value;
         }
@@ -289,28 +323,29 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
     }
 
     public override Dictionary<Test.MyStruct, Test.MyEnum> opMyStructMyEnumD(
-                                                Dictionary<Test.MyStruct, Test.MyEnum> p1,
-                                                Dictionary<Test.MyStruct, Test.MyEnum> p2,
-                                                out Dictionary<Test.MyStruct, Test.MyEnum> p3,
-                                                Ice.Current current)
+        Dictionary<Test.MyStruct, Test.MyEnum> p1,
+        Dictionary<Test.MyStruct, Test.MyEnum> p2,
+        out Dictionary<Test.MyStruct, Test.MyEnum> p3,
+        Current current)
     {
         p3 = p1;
         var r = new Dictionary<Test.MyStruct, Test.MyEnum>();
-        foreach (var e in p1)
+        foreach (KeyValuePair<Test.MyStruct, Test.MyEnum> e in p1)
         {
             r[e.Key] = e.Value;
         }
-        foreach (var e in p2)
+        foreach (KeyValuePair<Test.MyStruct, Test.MyEnum> e in p2)
         {
             r[e.Key] = e.Value;
         }
         return r;
     }
 
-    public override Dictionary<byte, bool>[] opByteBoolDS(Dictionary<byte, bool>[] p1,
-                                                         Dictionary<byte, bool>[] p2,
-                                                         out Dictionary<byte, bool>[] p3,
-                                                         Ice.Current current)
+    public override Dictionary<byte, bool>[] opByteBoolDS(
+        Dictionary<byte, bool>[] p1,
+        Dictionary<byte, bool>[] p2,
+        out Dictionary<byte, bool>[] p3,
+        Current current)
     {
         p3 = new Dictionary<byte, bool>[p1.Length + p2.Length];
         Array.Copy(p2, p3, p2.Length);
@@ -324,10 +359,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Dictionary<short, int>[] opShortIntDS(Dictionary<short, int>[] p1,
-                                                          Dictionary<short, int>[] p2,
-                                                          out Dictionary<short, int>[] p3,
-                                                          Ice.Current current)
+    public override Dictionary<short, int>[] opShortIntDS(
+        Dictionary<short, int>[] p1,
+        Dictionary<short, int>[] p2,
+        out Dictionary<short, int>[] p3,
+        Current current)
     {
         p3 = new Dictionary<short, int>[p1.Length + p2.Length];
         Array.Copy(p2, p3, p2.Length);
@@ -341,10 +377,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Dictionary<long, float>[] opLongFloatDS(Dictionary<long, float>[] p1,
-                                                            Dictionary<long, float>[] p2,
-                                                            out Dictionary<long, float>[] p3,
-                                                            Ice.Current current)
+    public override Dictionary<long, float>[] opLongFloatDS(
+        Dictionary<long, float>[] p1,
+        Dictionary<long, float>[] p2,
+        out Dictionary<long, float>[] p3,
+        Current current)
     {
         p3 = new Dictionary<long, float>[p1.Length + p2.Length];
         Array.Copy(p2, p3, p2.Length);
@@ -358,10 +395,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Dictionary<string, string>[] opStringStringDS(Dictionary<string, string>[] p1,
-                                                                  Dictionary<string, string>[] p2,
-                                                                  out Dictionary<string, string>[] p3,
-                                                                  Ice.Current current)
+    public override Dictionary<string, string>[] opStringStringDS(
+        Dictionary<string, string>[] p1,
+        Dictionary<string, string>[] p2,
+        out Dictionary<string, string>[] p3,
+        Current current)
     {
         p3 = new Dictionary<string, string>[p1.Length + p2.Length];
         Array.Copy(p2, p3, p2.Length);
@@ -375,10 +413,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Dictionary<string, Test.MyEnum>[] opStringMyEnumDS(Dictionary<string, Test.MyEnum>[] p1,
-                                                                       Dictionary<string, Test.MyEnum>[] p2,
-                                                                       out Dictionary<string, Test.MyEnum>[] p3,
-                                                                       Ice.Current current)
+    public override Dictionary<string, Test.MyEnum>[] opStringMyEnumDS(
+        Dictionary<string, Test.MyEnum>[] p1,
+        Dictionary<string, Test.MyEnum>[] p2,
+        out Dictionary<string, Test.MyEnum>[] p3,
+        Current current)
     {
         p3 = new Dictionary<string, Test.MyEnum>[p1.Length + p2.Length];
         Array.Copy(p2, p3, p2.Length);
@@ -392,10 +431,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Dictionary<Test.MyEnum, string>[] opMyEnumStringDS(Dictionary<Test.MyEnum, string>[] p1,
-                                                                       Dictionary<Test.MyEnum, string>[] p2,
-                                                                       out Dictionary<Test.MyEnum, string>[] p3,
-                                                                       Ice.Current current)
+    public override Dictionary<Test.MyEnum, string>[] opMyEnumStringDS(
+        Dictionary<Test.MyEnum, string>[] p1,
+        Dictionary<Test.MyEnum, string>[] p2,
+        out Dictionary<Test.MyEnum, string>[] p3,
+        Current current)
     {
         p3 = new Dictionary<Test.MyEnum, string>[p1.Length + p2.Length];
         Array.Copy(p2, p3, p2.Length);
@@ -427,28 +467,30 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Dictionary<byte, byte[]> opByteByteSD(Dictionary<byte, byte[]> p1,
-                                                          Dictionary<byte, byte[]> p2,
-                                                          out Dictionary<byte, byte[]> p3,
-                                                          Ice.Current current)
+    public override Dictionary<byte, byte[]> opByteByteSD(
+        Dictionary<byte, byte[]> p1,
+        Dictionary<byte, byte[]> p2,
+        out Dictionary<byte, byte[]> p3,
+        Current current)
     {
         p3 = p2;
         var r = new Dictionary<byte, byte[]>();
-        foreach (var e in p1)
+        foreach (KeyValuePair<byte, byte[]> e in p1)
         {
             r[e.Key] = e.Value;
         }
-        foreach (var e in p2)
+        foreach (KeyValuePair<byte, byte[]> e in p2)
         {
             r[e.Key] = e.Value;
         }
         return r;
     }
 
-    public override Dictionary<bool, bool[]> opBoolBoolSD(Dictionary<bool, bool[]> p1,
-                                                          Dictionary<bool, bool[]> p2,
-                                                          out Dictionary<bool, bool[]> p3,
-                                                          Ice.Current current)
+    public override Dictionary<bool, bool[]> opBoolBoolSD(
+        Dictionary<bool, bool[]> p1,
+        Dictionary<bool, bool[]> p2,
+        out Dictionary<bool, bool[]> p3,
+        Current current)
     {
         p3 = p2;
         var r = new Dictionary<bool, bool[]>();
@@ -463,10 +505,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Dictionary<short, short[]> opShortShortSD(Dictionary<short, short[]> p1,
-                                                              Dictionary<short, short[]> p2,
-                                                              out Dictionary<short, short[]> p3,
-                                                              Ice.Current current)
+    public override Dictionary<short, short[]> opShortShortSD(
+        Dictionary<short, short[]> p1,
+        Dictionary<short, short[]> p2,
+        out Dictionary<short, short[]> p3,
+        Current current)
     {
         p3 = p2;
         var r = new Dictionary<short, short[]>();
@@ -481,10 +524,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Dictionary<int, int[]> opIntIntSD(Dictionary<int, int[]> p1,
-                                                      Dictionary<int, int[]> p2,
-                                                      out Dictionary<int, int[]> p3,
-                                                      Ice.Current current)
+    public override Dictionary<int, int[]> opIntIntSD(
+        Dictionary<int, int[]> p1,
+        Dictionary<int, int[]> p2,
+        out Dictionary<int, int[]> p3,
+        Current current)
     {
         p3 = p2;
         var r = new Dictionary<int, int[]>();
@@ -499,10 +543,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Dictionary<long, long[]> opLongLongSD(Dictionary<long, long[]> p1,
-                                                          Dictionary<long, long[]> p2,
-                                                          out Dictionary<long, long[]> p3,
-                                                          Ice.Current current)
+    public override Dictionary<long, long[]> opLongLongSD(
+        Dictionary<long, long[]> p1,
+        Dictionary<long, long[]> p2,
+        out Dictionary<long, long[]> p3,
+        Current current)
     {
         p3 = p2;
         var r = new Dictionary<long, long[]>();
@@ -517,10 +562,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Dictionary<string, float[]> opStringFloatSD(Dictionary<string, float[]> p1,
-                                                                Dictionary<string, float[]> p2,
-                                                                out Dictionary<string, float[]> p3,
-                                                                Ice.Current current)
+    public override Dictionary<string, float[]> opStringFloatSD(
+        Dictionary<string, float[]> p1,
+        Dictionary<string, float[]> p2,
+        out Dictionary<string, float[]> p3,
+        Current current)
     {
         p3 = p2;
         var r = new Dictionary<string, float[]>();
@@ -535,10 +581,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Dictionary<string, double[]> opStringDoubleSD(Dictionary<string, double[]> p1,
-                                                                  Dictionary<string, double[]> p2,
-                                                                  out Dictionary<string, double[]> p3,
-                                                                  Ice.Current current)
+    public override Dictionary<string, double[]> opStringDoubleSD(
+        Dictionary<string, double[]> p1,
+        Dictionary<string, double[]> p2,
+        out Dictionary<string, double[]> p3,
+        Current current)
     {
         p3 = p2;
         var r = new Dictionary<string, double[]>();
@@ -553,10 +600,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Dictionary<string, string[]> opStringStringSD(Dictionary<string, string[]> p1,
-                                                                  Dictionary<string, string[]> p2,
-                                                                  out Dictionary<string, string[]> p3,
-                                                                  Ice.Current current)
+    public override Dictionary<string, string[]> opStringStringSD(
+        Dictionary<string, string[]> p1,
+        Dictionary<string, string[]> p2,
+        out Dictionary<string, string[]> p3,
+        Current current)
     {
         p3 = p2;
         var r = new Dictionary<string, string[]>();
@@ -575,15 +623,15 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         Dictionary<Test.MyEnum, Test.MyEnum[]> p1,
         Dictionary<Test.MyEnum, Test.MyEnum[]> p2,
         out Dictionary<Test.MyEnum, Test.MyEnum[]> p3,
-        Ice.Current ice)
+        Current current)
     {
         p3 = p2;
         var r = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
-        foreach (var e in p1)
+        foreach (KeyValuePair<Test.MyEnum, Test.MyEnum[]> e in p1)
         {
             r[e.Key] = e.Value;
         }
-        foreach (var e in p2)
+        foreach (KeyValuePair<Test.MyEnum, Test.MyEnum[]> e in p2)
         {
             r[e.Key] = e.Value;
         }
@@ -602,7 +650,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
 
     public override void opByteSOneway(byte[] s, Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             ++_opByteSOnewayCallCount;
         }
@@ -610,7 +658,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
 
     public override int opByteSOnewayCallCount(Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             int count = _opByteSOnewayCallCount;
             _opByteSOnewayCallCount = 0;
@@ -673,10 +721,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Dictionary<string, string> opStringStringD(Dictionary<string, string> p1,
-                                                               Dictionary<string, string> p2,
-                                                               out Dictionary<string, string> p3,
-                                                               Ice.Current current)
+    public override Dictionary<string, string> opStringStringD(
+        Dictionary<string, string> p1,
+        Dictionary<string, string> p2,
+        out Dictionary<string, string> p3,
+        Current current)
     {
         p3 = p1;
         var r = new Dictionary<string, string>();
@@ -727,54 +776,54 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
     public override Dictionary<byte, bool> opByteBoolD1(Dictionary<byte, bool> opByteBoolD1, Ice.Current current) =>
         opByteBoolD1;
 
-    public override string[] opStringS2(string[] opStringS2, Ice.Current current) => opStringS2;
+    public override string[] opStringS2(string[] stringS, Ice.Current current) => stringS;
 
-    public override Dictionary<byte, bool> opByteBoolD2(Dictionary<byte, bool> opByteBoolD2, Ice.Current current) =>
-        opByteBoolD2;
+    public override Dictionary<byte, bool> opByteBoolD2(Dictionary<byte, bool> byteBoolD, Ice.Current current) =>
+        byteBoolD;
 
-    public override Test.MyClass1 opMyClass1(Test.MyClass1 c, Ice.Current current) => c;
+    public override Test.MyClass1 opMyClass1(Test.MyClass1 opMyClass1, Ice.Current current) => opMyClass1;
 
-    public override Test.MyStruct1 opMyStruct1(Test.MyStruct1 s, Ice.Current current) => s;
+    public override Test.MyStruct1 opMyStruct1(Test.MyStruct1 opMyStruct1, Ice.Current current) => opMyStruct1;
 
     public override string[] opStringLiterals(Ice.Current current)
     {
-        return new string[]
-            {
-                        Test.s0.value,
-                        Test.s1.value,
-                        Test.s2.value,
-                        Test.s3.value,
-                        Test.s4.value,
-                        Test.s5.value,
-                        Test.s6.value,
-                        Test.s7.value,
-                        Test.s8.value,
-                        Test.s9.value,
-                        Test.s10.value,
+        return
+            [
+                Test.s0.value,
+                Test.s1.value,
+                Test.s2.value,
+                Test.s3.value,
+                Test.s4.value,
+                Test.s5.value,
+                Test.s6.value,
+                Test.s7.value,
+                Test.s8.value,
+                Test.s9.value,
+                Test.s10.value,
 
-                        Test.sw0.value,
-                        Test.sw1.value,
-                        Test.sw2.value,
-                        Test.sw3.value,
-                        Test.sw4.value,
-                        Test.sw5.value,
-                        Test.sw6.value,
-                        Test.sw7.value,
-                        Test.sw8.value,
-                        Test.sw9.value,
-                        Test.sw10.value,
+                Test.sw0.value,
+                Test.sw1.value,
+                Test.sw2.value,
+                Test.sw3.value,
+                Test.sw4.value,
+                Test.sw5.value,
+                Test.sw6.value,
+                Test.sw7.value,
+                Test.sw8.value,
+                Test.sw9.value,
+                Test.sw10.value,
 
-                        Test.ss0.value,
-                        Test.ss1.value,
-                        Test.ss2.value,
-                        Test.ss3.value,
-                        Test.ss4.value,
-                        Test.ss5.value,
+                Test.ss0.value,
+                Test.ss1.value,
+                Test.ss2.value,
+                Test.ss3.value,
+                Test.ss4.value,
+                Test.ss5.value,
 
-                        Test.su0.value,
-                        Test.su1.value,
-                        Test.su2.value
-            };
+                Test.su0.value,
+                Test.su1.value,
+                Test.su2.value
+            ];
     }
 
     public override string[] opWStringLiterals(Ice.Current current) => opStringLiterals(current);
@@ -789,7 +838,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         new Test.MyClass_OpMStruct2MarshaledResult(p1, p1, current);
 
     public override Test.MyClass_OpMSeq1MarshaledResult opMSeq1(Ice.Current current) =>
-        new Test.MyClass_OpMSeq1MarshaledResult(new string[0], current);
+        new Test.MyClass_OpMSeq1MarshaledResult([], current);
 
     public override Test.MyClass_OpMSeq2MarshaledResult opMSeq2(string[] p1, Ice.Current current) =>
         new Test.MyClass_OpMSeq2MarshaledResult(p1, p1, current);
@@ -800,5 +849,6 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
     public override Test.MyClass_OpMDict2MarshaledResult opMDict2(Dictionary<string, string> p1, Ice.Current current) =>
         new Test.MyClass_OpMDict2MarshaledResult(p1, p1, current);
 
-    private int _opByteSOnewayCallCount = 0;
+    private int _opByteSOnewayCallCount;
+    private readonly object _mutex = new();
 }

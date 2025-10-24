@@ -1,12 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Reflection;
-
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
+namespace Ice.background;
 
 public class Client : Test.TestHelper
 {
@@ -31,10 +25,9 @@ public class Client : Test.TestHelper
         //
         // Setup the test transport plug-in.
         //
-        properties.setProperty("Ice.Default.Protocol",
-                               "test-" + properties.getIceProperty("Ice.Default.Protocol"));
+        properties.setProperty("Ice.Default.Protocol", "test-" + properties.getIceProperty("Ice.Default.Protocol"));
 
-        await using var communicator = initialize(properties);
+        await using Ice.Communicator communicator = initialize(properties);
         var plugin = new PluginI(communicator);
         plugin.initialize();
         communicator.getPluginManager().addPlugin("Test", plugin);

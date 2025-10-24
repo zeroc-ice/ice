@@ -2,7 +2,9 @@
 
 using Test;
 
-public class AllTests : global::Test.AllTests
+namespace Ice.background;
+
+public class AllTests : Test.AllTests
 {
     public class Progress(Action<bool> onProgress = null) : IProgress<bool>
     {
@@ -38,7 +40,7 @@ public class AllTests : global::Test.AllTests
             int count = 0;
             while (true)
             {
-                lock (this)
+                lock (_mutex)
                 {
                     if (_destroyed)
                     {
@@ -64,15 +66,16 @@ public class AllTests : global::Test.AllTests
 
         public void destroy()
         {
-            lock (this)
+            lock (_mutex)
             {
                 _destroyed = true;
             }
         }
 
-        private bool _destroyed = false;
-        private readonly BackgroundPrx _background = null;
+        private bool _destroyed;
+        private readonly BackgroundPrx _background;
         private Thread _thread;
+        private readonly object _mutex = new();
     }
 
     public static async Task<BackgroundPrx> allTests(Test.TestHelper helper)
@@ -518,7 +521,7 @@ public class AllTests : global::Test.AllTests
             configuration.readException(new Ice.SocketException());
             BackgroundPrx prx = i == 0 ? background : (BackgroundPrx)background.ice_oneway();
             var progress = new Progress();
-            var t = prx.opAsync(progress: progress);
+            Task t = prx.opAsync(progress: progress);
             test(!progress.SentSynchronously);
             try
             {
@@ -567,7 +570,7 @@ public class AllTests : global::Test.AllTests
                 configuration.readReady(false);
                 configuration.readException(new Ice.SocketException());
                 var progress = new Progress();
-                var t = background.opAsync(progress: progress);
+                Task t = background.opAsync(progress: progress);
                 test(!progress.SentSynchronously);
                 try
                 {
@@ -586,8 +589,8 @@ public class AllTests : global::Test.AllTests
             ctl.holdAdapter(); // Hold to block in connection validation
             var p1 = new Progress();
             var p2 = new Progress();
-            var t1 = background.opAsync(progress: p1);
-            var t2 = background.opAsync(progress: p2);
+            Task t1 = background.opAsync(progress: p1);
+            Task t2 = background.opAsync(progress: p2);
             test(!p1.SentSynchronously && !p2.SentSynchronously);
             test(!t1.IsCompleted && !t2.IsCompleted);
             ctl.resumeAdapter();
@@ -725,7 +728,7 @@ public class AllTests : global::Test.AllTests
             background.ice_ping();
             configuration.writeException(new Ice.SocketException());
             var progress = new Progress();
-            var t = prx.opAsync(progress: progress);
+            Task t = prx.opAsync(progress: progress);
             test(!progress.SentSynchronously);
             try
             {
@@ -812,7 +815,7 @@ public class AllTests : global::Test.AllTests
             configuration.writeReady(false);
             configuration.writeException(new Ice.SocketException());
             var progress = new Progress();
-            var t = prx.opAsync(progress: progress);
+            Task t = prx.opAsync(progress: progress);
             test(!progress.SentSynchronously);
             try
             {
@@ -861,7 +864,7 @@ public class AllTests : global::Test.AllTests
             configuration.readReady(false);
             configuration.writeReady(false);
             configuration.readException(new Ice.SocketException());
-            var t = background.opAsync();
+            Task t = background.opAsync();
             // The read exception might propagate before the message send is seen as completed on IOCP.
             // r.waitForSent();
             try
@@ -895,12 +898,12 @@ public class AllTests : global::Test.AllTests
 
         var tcs1 = new TaskCompletionSource();
         var p1 = new Progress(value => tcs1.SetResult());
-        var t1 = background.opAsync(progress: p1);
+        Task t1 = background.opAsync(progress: p1);
         test(!p1.SentSynchronously && !tcs1.Task.IsCompleted);
 
         var tcs2 = new TaskCompletionSource();
         var p2 = new Progress(value => tcs2.SetResult());
-        var t2 = background.opAsync(progress: p2);
+        Task t2 = background.opAsync(progress: p2);
         test(!p2.SentSynchronously && !tcs2.Task.IsCompleted);
 
         var p0 = new Progress();

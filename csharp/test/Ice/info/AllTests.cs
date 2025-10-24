@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+using System.Globalization;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Ice.info;
@@ -33,7 +34,7 @@ public class AllTests : global::Test.AllTests
     public static void allTests(global::Test.TestHelper helper)
     {
         Ice.Communicator communicator = helper.communicator();
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Write("testing proxy endpoint information... ");
         output.Flush();
         {
@@ -98,15 +99,15 @@ public class AllTests : global::Test.AllTests
                  tcpEndpoint.type() == Ice.WSEndpointType.value ||
                  tcpEndpoint.type() == Ice.WSSEndpointType.value);
 
-            test(tcpEndpoint.host.Equals(host));
+            test(tcpEndpoint.host == host);
             test(tcpEndpoint.port > 0);
 
             var udpEndpoint = (Ice.UDPEndpointInfo)endpoints[1].getInfo();
-            test(udpEndpoint.host.Equals(host));
+            test(udpEndpoint.host == host);
             test(udpEndpoint.datagram());
             test(udpEndpoint.port > 0);
 
-            endpoints = new Ice.Endpoint[] { endpoints[0] };
+            endpoints = [endpoints[0]];
             test(endpoints.Length == 1);
             adapter.setPublishedEndpoints(endpoints);
             publishedEndpoints = adapter.getPublishedEndpoints();
@@ -143,7 +144,7 @@ public class AllTests : global::Test.AllTests
         Ice.ObjectPrx @base = communicator.stringToProxy("test:" +
                                                          helper.getTestEndpoint(0) + ":" +
                                                          helper.getTestEndpoint(0, "udp"));
-        var testIntf = Test.TestIntfPrxHelper.checkedCast(@base);
+        Test.TestIntfPrx testIntf = Test.TestIntfPrxHelper.checkedCast(@base);
 
         string defaultHost = communicator.getProperties().getIceProperty("Ice.Default.Host");
 
@@ -154,18 +155,18 @@ public class AllTests : global::Test.AllTests
             Ice.TCPEndpointInfo tcpinfo = getTCPEndpointInfo(info);
             test(tcpinfo.port == endpointPort);
             test(!tcpinfo.compress);
-            test(tcpinfo.host.Equals(defaultHost));
+            test(tcpinfo.host == defaultHost);
 
             Dictionary<string, string> ctx = testIntf.getEndpointInfoAsContext();
-            test(ctx["host"].Equals(tcpinfo.host));
+            test(ctx["host"] == tcpinfo.host);
             test(ctx["compress"] == "false");
-            int port = int.Parse(ctx["port"]);
+            int port = int.Parse(ctx["port"], CultureInfo.InvariantCulture);
             test(port > 0);
 
             info = @base.ice_datagram().ice_getConnection().getEndpoint().getInfo();
             var udp = (Ice.UDPEndpointInfo)info;
             test(udp.port == endpointPort);
-            test(udp.host.Equals(defaultHost));
+            test(udp.host == defaultHost);
         }
         output.WriteLine("ok");
 
@@ -183,8 +184,8 @@ public class AllTests : global::Test.AllTests
             test(ipInfo.localPort > 0);
             if (defaultHost == "127.0.0.1")
             {
-                test(ipInfo.localAddress.Equals(defaultHost));
-                test(ipInfo.remoteAddress.Equals(defaultHost));
+                test(ipInfo.localAddress == defaultHost);
+                test(ipInfo.remoteAddress == defaultHost);
             }
             test(ipInfo.rcvSize >= 1024);
             test(ipInfo.sndSize >= 2048);
@@ -192,10 +193,10 @@ public class AllTests : global::Test.AllTests
             Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();
             test(ctx["incoming"] == "true");
             test(ctx["adapterName"] == "TestAdapter");
-            test(ctx["remoteAddress"].Equals(ipInfo.localAddress));
-            test(ctx["localAddress"].Equals(ipInfo.remoteAddress));
-            test(ctx["remotePort"].Equals(ipInfo.localPort.ToString()));
-            test(ctx["localPort"].Equals(ipInfo.remotePort.ToString()));
+            test(ctx["remoteAddress"] == ipInfo.localAddress);
+            test(ctx["localAddress"] == ipInfo.remoteAddress);
+            test(ctx["remotePort"] == $"{ipInfo.localPort}");
+            test(ctx["localPort"] == $"{ipInfo.remotePort}");
 
             if (@base.ice_getConnection().type() == "ws" || @base.ice_getConnection().type() == "wss")
             {
@@ -238,8 +239,8 @@ public class AllTests : global::Test.AllTests
 
             if (defaultHost == "127.0.0.1")
             {
-                test(udpInfo.remoteAddress.Equals(defaultHost));
-                test(udpInfo.localAddress.Equals(defaultHost));
+                test(udpInfo.remoteAddress == defaultHost);
+                test(udpInfo.localAddress == defaultHost);
             }
             test(udpInfo.rcvSize >= 2048);
             test(udpInfo.sndSize >= 1024);
@@ -255,12 +256,12 @@ public class AllTests : global::Test.AllTests
     private static void checkPeerCertificateSubjectName(
         X500DistinguishedName subjectName)
     {
-        test(subjectName.Name.Contains("E=info@zeroc.com"));
-        test(subjectName.Name.Contains("CN=ca.server"));
-        test(subjectName.Name.Contains("OU=Ice test infrastructure"));
-        test(subjectName.Name.Contains("O=ZeroC"));
-        test(subjectName.Name.Contains("L=Jupiter"));
-        test(subjectName.Name.Contains("S=Florida"));
-        test(subjectName.Name.Contains("C=US"));
+        test(subjectName.Name.Contains("E=info@zeroc.com", StringComparison.Ordinal));
+        test(subjectName.Name.Contains("CN=ca.server", StringComparison.Ordinal));
+        test(subjectName.Name.Contains("OU=Ice test infrastructure", StringComparison.Ordinal));
+        test(subjectName.Name.Contains("O=ZeroC", StringComparison.Ordinal));
+        test(subjectName.Name.Contains("L=Jupiter", StringComparison.Ordinal));
+        test(subjectName.Name.Contains("S=Florida", StringComparison.Ordinal));
+        test(subjectName.Name.Contains("C=US", StringComparison.Ordinal));
     }
 }

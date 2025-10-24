@@ -13,47 +13,47 @@ public sealed class ServantLocatorI : Ice.ServantLocator
 
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
-    public Ice.Object locate(Ice.Current current, out object cookie)
+    public Ice.Object locate(Ice.Current curr, out object cookie)
     {
-        lock (this)
+        lock (_mutex)
         {
             test(!_deactivated);
         }
 
-        test(current.id.category.Equals(_category) || _category.Length == 0);
+        test(curr.id.category == _category || _category.Length == 0);
 
-        if (current.id.name == "unknown")
+        if (curr.id.name == "unknown")
         {
             cookie = null;
             return null;
         }
 
-        if (current.id.name == "invalidReturnValue" || current.id.name == "invalidReturnType")
+        if (curr.id.name == "invalidReturnValue" || curr.id.name == "invalidReturnType")
         {
             cookie = null;
             return null;
         }
 
-        test(current.id.name == "locate" || current.id.name == "finished");
-        if (current.id.name == "locate")
+        test(curr.id.name == "locate" || curr.id.name == "finished");
+        if (curr.id.name == "locate")
         {
-            exception(current);
+            exception(curr);
         }
 
         //
         // Ensure locate() is only called once per request.
         //
         test(_requestId == -1);
-        _requestId = current.requestId;
+        _requestId = curr.requestId;
 
         cookie = new Cookie();
 
         return new TestI();
     }
 
-    public void finished(Ice.Current current, Ice.Object servant, object cookie)
+    public void finished(Ice.Current curr, Ice.Object servant, object cookie)
     {
-        lock (this)
+        lock (_mutex)
         {
             test(!_deactivated);
         }
@@ -61,15 +61,15 @@ public sealed class ServantLocatorI : Ice.ServantLocator
         //
         // Ensure finished() is only called once per request.
         //
-        test(_requestId == current.requestId);
+        test(_requestId == curr.requestId);
         _requestId = -1;
 
-        test(current.id.category.Equals(_category) || _category.Length == 0);
-        test(current.id.name == "locate" || current.id.name == "finished");
+        test(curr.id.category == _category || _category.Length == 0);
+        test(curr.id.name == "locate" || curr.id.name == "finished");
 
-        if (current.id.name == "finished")
+        if (curr.id.name == "finished")
         {
-            exception(current);
+            exception(curr);
         }
 
         var co = (Cookie)cookie;
@@ -78,7 +78,7 @@ public sealed class ServantLocatorI : Ice.ServantLocator
 
     public void deactivate(string category)
     {
-        lock (this)
+        lock (_mutex)
         {
             test(!_deactivated);
 
@@ -144,5 +144,6 @@ public sealed class ServantLocatorI : Ice.ServantLocator
 
     private bool _deactivated;
     private readonly string _category;
+    private readonly object _mutex = new();
     private int _requestId;
 }

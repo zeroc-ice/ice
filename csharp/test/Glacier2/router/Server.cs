@@ -8,11 +8,13 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace Glacier2.router;
+
 public class Server : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using var communicator = initialize(ref args);
+        using Ice.Communicator communicator = initialize(ref args);
         communicator.getProperties().setProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("CallbackAdapter");
 

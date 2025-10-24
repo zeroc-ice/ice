@@ -10,28 +10,17 @@ internal class Oneways
     {
         _ = helper.communicator();
         p = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
+        p.ice_ping();
+        p.opVoid();
+        p.opIdempotent();
 
+        try
         {
-            p.ice_ping();
+            p.opByte(0xff, 0x0f, out byte b);
+            test(false);
         }
-
+        catch (Ice.TwowayOnlyException)
         {
-            p.opVoid();
-        }
-
-        {
-            p.opIdempotent();
-        }
-
-        {
-            try
-            {
-                p.opByte((byte)0xff, (byte)0x0f, out byte b);
-                test(false);
-            }
-            catch (Ice.TwowayOnlyException)
-            {
-            }
         }
     }
 }

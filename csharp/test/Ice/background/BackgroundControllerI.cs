@@ -6,7 +6,7 @@ internal class BackgroundControllerI : BackgroundControllerDisp_
 {
     public override void pauseCall(string opName, Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             _pausedCalls.Add(opName);
         }
@@ -14,20 +14,20 @@ internal class BackgroundControllerI : BackgroundControllerDisp_
 
     public override void resumeCall(string opName, Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             _pausedCalls.Remove(opName);
-            System.Threading.Monitor.PulseAll(this);
+            Monitor.PulseAll(_mutex);
         }
     }
 
     internal void checkCallPause(Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             while (_pausedCalls.Contains(current.operation))
             {
-                System.Threading.Monitor.Wait(this);
+                Monitor.Wait(_mutex);
                 break;
             }
         }
@@ -61,4 +61,5 @@ internal class BackgroundControllerI : BackgroundControllerDisp_
     private readonly Ice.ObjectAdapter _adapter;
     private readonly HashSet<string> _pausedCalls = new HashSet<string>();
     private readonly Configuration _configuration;
+    private readonly object _mutex = new();
 }

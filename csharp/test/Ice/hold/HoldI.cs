@@ -5,8 +5,9 @@ namespace Ice.hold;
 public sealed class HoldI : Test.HoldDisp_
 {
     private readonly Ice.ObjectAdapter _adapter;
-    private int _last = 0;
-    private readonly object _taskMutex = new object();
+    private int _last;
+    private readonly object _mutex = new();
+    private readonly object _taskMutex = new();
 
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
@@ -46,7 +47,7 @@ public sealed class HoldI : Test.HoldDisp_
 
     public override void waitForHold(Ice.Current current)
     {
-        var adapter = current.adapter;
+        ObjectAdapter adapter = current.adapter;
 
         _ = Task.Run(() =>
         {
@@ -69,7 +70,7 @@ public sealed class HoldI : Test.HoldDisp_
     {
         System.Threading.Thread.Sleep(delay);
 
-        lock (this)
+        lock (_mutex)
         {
             int tmp = _last;
             _last = value;
@@ -79,7 +80,7 @@ public sealed class HoldI : Test.HoldDisp_
 
     public override void setOneway(int value, int expected, Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             test(_last == expected);
             _last = value;

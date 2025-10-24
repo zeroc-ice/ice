@@ -2,6 +2,8 @@
 
 using Test;
 
+namespace Ice.slicing.exceptions;
+
 public sealed class TestI : AsyncTestIntfDisp_
 {
     public override Task shutdownAsync(Ice.Current current)

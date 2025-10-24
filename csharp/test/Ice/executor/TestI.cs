@@ -2,6 +2,8 @@
 
 using Test;
 
+namespace Ice.executor;
+
 public class TestI : TestIntfDisp_
 {
     private static void test(bool b) => TestHelper.test(b);

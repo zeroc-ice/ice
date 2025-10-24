@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+namespace Ice.slicing.exceptions;
+
 public class Server : Test.TestHelper
 {
     public override void run(string[] args)

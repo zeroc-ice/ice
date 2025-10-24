@@ -9,6 +9,8 @@ using Test;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace Glacier2.router;
+
 public class Client : Test.TestHelper
 {
     public override void run(string[] args)
@@ -21,7 +23,7 @@ public class Client : Test.TestHelper
         // ConnectionLostException.
         //
         properties.setProperty("Ice.Warn.Connections", "0");
-        using var communicator = initialize(properties);
+        using Ice.Communicator communicator = initialize(properties);
         Ice.ObjectPrx routerBase;
         {
             Console.Out.Write("testing stringToProxy for router... ");
@@ -65,7 +67,6 @@ public class Client : Test.TestHelper
         }
 
         Ice.ObjectPrx @base;
-
         {
             Console.Out.Write("testing stringToProxy for server object... ");
             Console.Out.Flush();
@@ -180,7 +181,6 @@ public class Client : Test.TestHelper
         }
 
         CallbackPrx twoway;
-
         {
             Console.Out.Write("testing checked cast for server object... ");
             Console.Out.Flush();
@@ -190,7 +190,6 @@ public class Client : Test.TestHelper
         }
 
         Ice.ObjectAdapter adapter;
-
         {
             Console.Out.Write("creating and activating callback receiver adapter... ");
             Console.Out.Flush();
@@ -201,7 +200,6 @@ public class Client : Test.TestHelper
         }
 
         string category;
-
         {
             Console.Out.Write("getting category from router... ");
             Console.Out.Flush();
@@ -213,7 +211,6 @@ public class Client : Test.TestHelper
         Ice.Object callbackReceiver;
         CallbackReceiverPrx twowayR;
         CallbackReceiverPrx fakeTwowayR;
-
         {
             Console.Out.Write("creating and adding callback receiver object... ");
             Console.Out.Flush();
@@ -406,7 +403,6 @@ public class Client : Test.TestHelper
             }
 
             Ice.ObjectPrx processBase;
-
             {
                 Console.Out.Write("testing stringToProxy for admin object... ");
                 processBase = communicator.stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
@@ -422,7 +418,6 @@ public class Client : Test.TestHelper
             */
 
             Ice.ProcessPrx process;
-
             {
                 Console.Out.Write("testing checked cast for process object... ");
                 process = Ice.ProcessPrxHelper.checkedCast(processBase);

@@ -8,6 +8,8 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace  Ice.metrics;
+
 public class Collocated : Test.TestHelper
 {
     public override async Task runAsync(string[] args)
@@ -22,7 +24,7 @@ public class Collocated : Test.TestHelper
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
 
-        await using var communicator = initialize(initData);
+        await using Communicator communicator = initialize(initData);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new MetricsI(), Ice.Util.stringToIdentity("metrics"));

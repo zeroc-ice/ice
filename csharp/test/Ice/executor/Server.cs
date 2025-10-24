@@ -8,6 +8,8 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace Ice.executor;
+
 public class Server : Test.TestHelper
 {
     public override void run(string[] args)
@@ -23,7 +25,7 @@ public class Server : Test.TestHelper
         {
             initData.executor = new Executor().execute;
 
-            using var communicator = initialize(initData);
+            using Communicator communicator = initialize(initData);
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
             communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");

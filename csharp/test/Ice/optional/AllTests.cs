@@ -10,12 +10,12 @@ public class AllTests : global::Test.AllTests
         global::Test.TestHelper helper,
         CustomSliceLoader customSliceLoader)
     {
-        var communicator = helper.communicator();
-        var output = helper.getWriter();
+        Communicator communicator = helper.communicator();
+        TextWriter output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
         string @ref = "initial:" + helper.getTestEndpoint(0);
-        var @base = communicator.stringToProxy(@ref);
+        ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base is not null);
         output.WriteLine("ok");
 
@@ -43,7 +43,7 @@ public class AllTests : global::Test.AllTests
         mo1.c = 19;
         mo1.d = 78;
         mo1.e = 99;
-        mo1.f = (float)5.5;
+        mo1.f = 5.5f;
         mo1.g = 1.0;
         mo1.h = "test";
         mo1.i = Test.MyEnum.MyEnumMember;
@@ -90,12 +90,12 @@ public class AllTests : global::Test.AllTests
 
         mo1.bos = [false, true, false];
 
-        test(mo1.a.Value == (byte)15);
+        test(mo1.a.Value == 15);
         test(mo1.b.Value);
         test(mo1.c.Value == 19);
         test(mo1.d.Value == 78);
         test(mo1.e.Value == 99);
-        test(mo1.f.Value == (float)5.5);
+        test(mo1.f.Value == 5.5f);
         test(mo1.g.Value == 1.0);
         test(mo1.h == "test");
         test(mo1.i.Value == Test.MyEnum.MyEnumMember);
@@ -170,7 +170,7 @@ public class AllTests : global::Test.AllTests
         test(mo5.e.Value == mo1.e.Value);
         test(mo5.f.Value == mo1.f.Value);
         test(mo5.g.Value == mo1.g.Value);
-        test(mo5.h.Equals(mo1.h));
+        test(mo5.h == mo1.h);
         test(mo5.i.Value == mo1.i.Value);
         test(mo5.j.Equals(mo1.j));
         test(ArraysEqual(mo5.bs, mo1.bs));
@@ -215,7 +215,7 @@ public class AllTests : global::Test.AllTests
         test(mo7.e is null);
         test(mo7.f.Equals(mo1.f));
         test(mo7.g is null);
-        test(mo7.h.Equals(mo1.h));
+        test(mo7.h == mo1.h);
         test(mo7.i is null);
         test(mo7.j.Equals(mo1.j));
         test(ArraysEqual(mo7.bs, mo1.bs));
@@ -321,10 +321,10 @@ public class AllTests : global::Test.AllTests
         g.gg2Opt = new Test.G2(20);
         g.gg1 = new Test.G1("gg1");
         g = initial.opG(g);
-        test("gg1Opt".Equals(g.gg1Opt.a));
-        test(10 == g.gg2.a);
-        test(20 == g.gg2Opt.Value.a);
-        test("gg1".Equals(g.gg1.a));
+        test(g.gg1Opt.a == "gg1Opt");
+        test(g.gg2.a == 10);
+        test(g.gg2Opt.Value.a == 20);
+        test(g.gg1.a == "gg1");
 
         initial.opVoid();
 
@@ -515,8 +515,7 @@ public class AllTests : global::Test.AllTests
                 os.endSize(pos);
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                test(initial.ice_invoke("opClassAndUnknownOptional", Ice.OperationMode.Normal, inEncaps,
-                                        out outEncaps));
+                test(initial.ice_invoke("opClassAndUnknownOptional", OperationMode.Normal, inEncaps, out outEncaps));
 
                 @in = new Ice.InputStream(communicator, outEncaps);
                 @in.startEncapsulation();
@@ -536,7 +535,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opByte(p1, out p3);
             test(p2.Value == 56 && p3.Value == 56);
 
-            var result = await initial.opByteAsync(p1);
+            Test.Initial_OpByteResult result = await initial.opByteAsync(p1);
             test(result.returnValue.Value == 56 && result.p3.Value == 56);
 
             p2 = initial.opByte(null, out p3);
@@ -571,7 +570,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opBool(p1, out p3);
             test(p2.Value == true && p3.Value == true);
 
-            var result = await initial.opBoolAsync(p1);
+            Test.Initial_OpBoolResult result = await initial.opBoolAsync(p1);
             test(result.returnValue.Value == true && result.p3.Value == true);
 
             p2 = initial.opBool(null, out p3);
@@ -606,7 +605,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opShort(p1, out p3);
             test(p2.Value == 56 && p3.Value == 56);
 
-            var result = await initial.opShortAsync(p1);
+            Test.Initial_OpShortResult result = await initial.opShortAsync(p1);
             test(result.returnValue.Value == 56 && result.p3.Value == 56);
 
             p2 = initial.opShort(null, out p3);
@@ -641,7 +640,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opInt(p1, out p3);
             test(p2.Value == 56 && p3.Value == 56);
 
-            var result = await initial.opIntAsync(p1);
+            Test.Initial_OpIntResult result = await initial.opIntAsync(p1);
             test(result.returnValue.Value == 56 && result.p3.Value == 56);
 
             p2 = initial.opInt(null, out p3);
@@ -676,7 +675,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opLong(p1, out p3);
             test(p2.Value == 56 && p3.Value == 56);
 
-            var result = await initial.opLongAsync(p1);
+            Test.Initial_OpLongResult result = await initial.opLongAsync(p1);
             test(result.returnValue.Value == 56 && p3.Value == 56);
 
             p2 = initial.opLong(null, out p3);
@@ -707,11 +706,11 @@ public class AllTests : global::Test.AllTests
             float? p2 = initial.opFloat(p1, out float? p3);
             test(p2 is null && p3 is null);
 
-            p1 = (float)1.0;
+            p1 = 1.0f;
             p2 = initial.opFloat(p1, out p3);
             test(p2.Value == 1.0 && p3.Value == 1.0);
 
-            var result = await initial.opFloatAsync(p1);
+            Test.Initial_OpFloatResult result = await initial.opFloatAsync(p1);
             test(result.returnValue.Value == 1.0 && result.p3.Value == 1.0);
 
             p2 = initial.opFloat(null, out p3);
@@ -745,7 +744,7 @@ public class AllTests : global::Test.AllTests
             p1 = 1.0;
             p2 = initial.opDouble(p1, out p3);
             test(p2.Value == 1.0 && p3.Value == 1.0);
-            var result = await initial.opDoubleAsync(p1);
+            Test.Initial_OpDoubleResult result = await initial.opDoubleAsync(p1);
             test(result.returnValue.Value == 1.0 && result.p3.Value == 1.0);
 
             p2 = initial.opDouble(null, out p3);
@@ -781,7 +780,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opString(p1, out p3);
             test(p2 == "test" && p3 == "test");
 
-            var result = await initial.opStringAsync(p1);
+            Test.Initial_OpStringResult result = await initial.opStringAsync(p1);
             test(result.returnValue == "test" && result.p3 == "test");
 
             p2 = initial.opString(null, out p3);
@@ -816,7 +815,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opMyEnum(p1, out p3);
             test(p2.Value == Test.MyEnum.MyEnumMember && p3.Value == Test.MyEnum.MyEnumMember);
 
-            var result = await initial.opMyEnumAsync(p1);
+            Test.Initial_OpMyEnumResult result = await initial.opMyEnumAsync(p1);
             test(result.returnValue.Value == Test.MyEnum.MyEnumMember &&
                  result.p3.Value == Test.MyEnum.MyEnumMember);
             p2 = initial.opMyEnum(p1.Value, out p3);
@@ -853,7 +852,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opSmallStruct(p1, out p3);
             test(p2.Value.m == 56 && p3.Value.m == 56);
 
-            var result = await initial.opSmallStructAsync(p1);
+            Test.Initial_OpSmallStructResult result = await initial.opSmallStructAsync(p1);
             test(result.returnValue.Value.m == 56 && result.p3.Value.m == 56);
 
             p2 = initial.opSmallStruct(null, out p3);
@@ -893,7 +892,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opFixedStruct(p1, out p3);
             test(p2.Value.m == 56 && p3.Value.m == 56);
 
-            var result = await initial.opFixedStructAsync(p1);
+            Test.Initial_OpFixedStructResult result = await initial.opFixedStructAsync(p1);
             test(result.returnValue.Value.m == 56 && result.p3.Value.m == 56);
 
             p2 = initial.opFixedStruct(null, out p3);
@@ -933,7 +932,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opVarStruct(p1, out p3);
             test(p2.m == "test" && p3.m == "test");
 
-            var result = await initial.opVarStructAsync(p1);
+            Test.Initial_OpVarStructResult result = await initial.opVarStructAsync(p1);
             test(result.returnValue.m == "test" && result.p3.m == "test");
 
             p2 = initial.opVarStruct(null, out p3);
@@ -976,7 +975,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opMyInterfaceProxy(p1, out p3);
             test(p2.Equals(p1) && p3.Equals(p1));
 
-            var result = await initial.opMyInterfaceProxyAsync(p1);
+            Test.Initial_OpMyInterfaceProxyResult result = await initial.opMyInterfaceProxyAsync(p1);
             test(result.returnValue.Equals(p1) && result.p3.Equals(p1));
             p2 = initial.opMyInterfaceProxy(p1, out p3);
             test(p2.Equals(p1) && p3.Equals(p1));
@@ -1016,7 +1015,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opOneOptional(p1, out p3);
             test(p2.a.Value == 58 && p3.a.Value == 58);
 
-            var result = await initial.opOneOptionalAsync(p1);
+            Test.Initial_OpOneOptionalResult result = await initial.opOneOptionalAsync(p1);
             test(result.returnValue.a.Value == 58 && result.p3.a.Value == 58);
 
             p2 = initial.opOneOptional(new Test.OneOptional(), out p3);
@@ -1048,7 +1047,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opByteSeq(p1, out p3);
             test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
-            var result = await initial.opByteSeqAsync(p1);
+            Test.Initial_OpByteSeqResult result = await initial.opByteSeqAsync(p1);
             test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
             p2 = initial.opByteSeq(null, out p3);
@@ -1084,7 +1083,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opBoolSeq(p1, out p3);
             test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
-            var result = await initial.opBoolSeqAsync(p1);
+            Test.Initial_OpBoolSeqResult result = await initial.opBoolSeqAsync(p1);
             test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
             p2 = initial.opBoolSeq(null, out p3);
@@ -1119,7 +1118,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opShortSeq(p1, out p3);
             test(p2.SequenceEqual(p1) && p3.SequenceEqual(p1));
 
-            var result = await initial.opShortSeqAsync(p1);
+            Test.Initial_OpShortSeqResult result = await initial.opShortSeqAsync(p1);
             test(result.returnValue.SequenceEqual(p1) && result.p3.SequenceEqual(p1));
 
             p2 = initial.opShortSeq(null, out p3);
@@ -1159,7 +1158,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opIntSeq(p1, out p3);
             test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
-            var result = await initial.opIntSeqAsync(p1);
+            Test.Initial_OpIntSeqResult result = await initial.opIntSeqAsync(p1);
             test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
             p2 = initial.opIntSeq(null, out p3);
@@ -1198,7 +1197,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opLongSeq(p1, out p3);
             test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
-            var result = await initial.opLongSeqAsync(p1);
+            Test.Initial_OpLongSeqResult result = await initial.opLongSeqAsync(p1);
             test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
             p2 = initial.opLongSeq(null, out p3);
@@ -1234,11 +1233,11 @@ public class AllTests : global::Test.AllTests
             test(p2 is null && p3 is null);
 
             p1 = new float[100];
-            Populate(p1, (float)1.0);
+            Populate(p1, 1.0f);
             p2 = initial.opFloatSeq(p1, out p3);
             test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
-            var result = await initial.opFloatSeqAsync(p1);
+            Test.Initial_OpFloatSeqResult result = await initial.opFloatSeqAsync(p1);
             test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
             p2 = initial.opFloatSeq(null, out p3);
@@ -1277,7 +1276,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opDoubleSeq(p1, out p3);
             test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
-            var result = await initial.opDoubleSeqAsync(p1);
+            Test.Initial_OpDoubleSeqResult result = await initial.opDoubleSeqAsync(p1);
             test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
             p2 = initial.opDoubleSeq(null, out p3);
@@ -1316,7 +1315,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opStringSeq(p1, out p3);
             test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
-            var result = await initial.opStringSeqAsync(p1);
+            Test.Initial_OpStringSeqResult result = await initial.opStringSeqAsync(p1);
             test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
             p2 = initial.opStringSeq(null, out p3);
@@ -1359,7 +1358,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opSmallStructSeq(p1, out p3);
             test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
-            var result = await initial.opSmallStructSeqAsync(p1);
+            Test.Initial_OpSmallStructSeqResult result = await initial.opSmallStructSeqAsync(p1);
             test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
             p2 = initial.opSmallStructSeq(null, out p3);
@@ -1404,7 +1403,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opSmallStructList(p1, out p3);
             test(ListsEqual(p2, p1));
 
-            var result = await initial.opSmallStructListAsync(p1);
+            Test.Initial_OpSmallStructListResult result = await initial.opSmallStructListAsync(p1);
             test(ListsEqual(result.returnValue, p1) && ListsEqual(result.p3, p1));
 
             p2 = initial.opSmallStructList(null, out p3);
@@ -1448,7 +1447,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opFixedStructSeq(p1, out p3);
             test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
-            var result = await initial.opFixedStructSeqAsync(p1);
+            Test.Initial_OpFixedStructSeqResult result = await initial.opFixedStructSeqAsync(p1);
             test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
             p2 = initial.opFixedStructSeq(null, out p3);
@@ -1492,7 +1491,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opFixedStructList(p1, out p3);
             test(ListsEqual(p2, p1) && ListsEqual(p3, p1));
 
-            var result = await initial.opFixedStructListAsync(p1);
+            Test.Initial_OpFixedStructListResult result = await initial.opFixedStructListAsync(p1);
             test(ListsEqual(result.returnValue, p1) && ListsEqual(result.p3, p1));
 
             p2 = initial.opFixedStructList(null, out p3);
@@ -1536,7 +1535,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opVarStructSeq(p1, out p3);
             test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
-            var result = await initial.opVarStructSeqAsync(p1);
+            Test.Initial_OpVarStructSeqResult result = await initial.opVarStructSeqAsync(p1);
             test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
             p2 = initial.opVarStructSeq(null, out p3);
@@ -1581,7 +1580,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opIntIntDict(p1, out p3);
             test(MapsEqual(p2, p1) && MapsEqual(p3, p1));
 
-            var result = await initial.opIntIntDictAsync(p1);
+            Test.Initial_OpIntIntDictResult result = await initial.opIntIntDictAsync(p1);
             test(MapsEqual(result.returnValue, p1) && MapsEqual(p3, p1));
 
             p2 = initial.opIntIntDict(null, out p3);
@@ -1625,7 +1624,7 @@ public class AllTests : global::Test.AllTests
             p2 = initial.opStringIntDict(p1, out p3);
             test(MapsEqual(p2, p1) && MapsEqual(p3, p1));
 
-            var result = await initial.opStringIntDictAsync(p1);
+            Test.Initial_OpStringIntDictResult result = await initial.opStringIntDictAsync(p1);
             test(MapsEqual(result.returnValue, p1) && MapsEqual(result.p3, p1));
 
             p2 = initial.opStringIntDict(null, out p3);
@@ -1785,7 +1784,6 @@ public class AllTests : global::Test.AllTests
             test(initial.opMStruct1() is not null);
             test(initial.opMDict1() is not null);
             test(initial.opMSeq1() is not null);
-
             {
                 Test.SmallStruct? p1, p3;
                 p3 = initial.opMStruct2(null, out Test.SmallStruct? p2);
@@ -1904,7 +1902,7 @@ public class AllTests : global::Test.AllTests
         EqualityComparer<V> valueComparer = EqualityComparer<V>.Default;
         foreach (K key in d1.Keys)
         {
-            if (!d2.ContainsKey(key) || !valueComparer.Equals(d1[key], d2[key]))
+            if (!d2.TryGetValue(key, out V value) || !valueComparer.Equals(d1[key], value))
             {
                 return false;
             }

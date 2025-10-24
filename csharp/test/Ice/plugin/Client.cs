@@ -8,6 +8,8 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace Ice.plugin;
+
 public class Client : Test.TestHelper
 {
     public static Task<int> Main(string[] args) =>
@@ -20,10 +22,10 @@ public class Client : Test.TestHelper
             Console.Write("testing a simple plug-in... ");
             Console.Out.Flush();
             var properties = new Ice.Properties();
-            properties.setProperty("Ice.Plugin.Test",
-                pluginPath + ":PluginFactory 'C:\\Program Files\\' --DatabasePath " +
-                "'C:\\Program Files\\Application\\db'");
-            using (var communicator = initialize(properties))
+            properties.setProperty(
+                "Ice.Plugin.Test",
+                $"{pluginPath}:PluginFactory 'C:\\Program Files\\' --DatabasePath 'C:\\Program Files\\Application\\db'");
+            using (Ice.Communicator communicator = initialize(properties))
             {
             }
             Console.WriteLine("ok");
@@ -54,7 +56,7 @@ public class Client : Test.TestHelper
             properties.setProperty("Ice.Plugin.PluginTwo", pluginPath + ":PluginTwoFactory");
             properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
             properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
-            using (var communicator = initialize(properties))
+            using (Ice.Communicator communicator = initialize(properties))
             {
             }
             Console.WriteLine("ok");
@@ -72,7 +74,7 @@ public class Client : Test.TestHelper
             properties.setProperty("Ice.InitPlugins", "0");
 
             MyPlugin p4 = null;
-            using (var communicator = initialize(properties))
+            using (Ice.Communicator communicator = initialize(properties))
             {
                 Ice.PluginManager pm = communicator.getPluginManager();
                 test(pm.getPlugin("PluginOne") != null);
@@ -138,7 +140,7 @@ public class Client : Test.TestHelper
 
         public void destroy() => _destroyed = true;
 
-        private bool _initialized = false;
-        private bool _destroyed = false;
+        private bool _initialized;
+        private bool _destroyed;
     }
 }

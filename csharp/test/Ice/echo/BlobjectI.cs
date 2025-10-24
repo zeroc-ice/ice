@@ -2,6 +2,8 @@
 
 using System.Diagnostics;
 
+namespace Ice.echo;
+
 public class BlobjectI : Ice.BlobjectAsync
 {
     public void startBatch()
@@ -42,14 +44,11 @@ public class BlobjectI : Ice.BlobjectAsync
             if (_batchProxy != null)
             {
                 obj.ice_invoke(current.operation, current.mode, inEncaps, out _, current.ctx);
-                return Task.FromResult(new Ice.Object_Ice_invokeResult(true, new byte[0]));
+                return Task.FromResult(new Ice.Object_Ice_invokeResult(true, []));
             }
             else
             {
-                return obj.ice_oneway().ice_invokeAsync(current.operation,
-                                                        current.mode,
-                                                        inEncaps,
-                                                        current.ctx);
+                return obj.ice_oneway().ice_invokeAsync(current.operation, current.mode, inEncaps, current.ctx);
             }
         }
         else
@@ -58,10 +57,7 @@ public class BlobjectI : Ice.BlobjectAsync
             {
                 obj = obj.ice_facet(current.facet);
             }
-            return obj.ice_invokeAsync(current.operation,
-                                       current.mode,
-                                       inEncaps,
-                                       current.ctx);
+            return obj.ice_invokeAsync(current.operation, current.mode, inEncaps, current.ctx);
         }
     }
 

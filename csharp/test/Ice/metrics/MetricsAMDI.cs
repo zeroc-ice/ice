@@ -2,6 +2,8 @@
 
 using Test;
 
+namespace Ice.metrics;
+
 public sealed class ControllerI(Ice.ObjectAdapter adapter) : ControllerDisp_
 {
     public override void hold(Ice.Current current)
@@ -34,7 +36,7 @@ public sealed class MetricsI : AsyncMetricsDisp_
         throw new Ice.SyscallException(message: null);
 
     public override Task opWithUnknownExceptionAsync(Ice.Current current) =>
-        throw new ArgumentOutOfRangeException();
+        throw new ArgumentOutOfRangeException(nameof(current));
 
     public override Task opByteSAsync(byte[] bs, Ice.Current current) => Task.CompletedTask;
 

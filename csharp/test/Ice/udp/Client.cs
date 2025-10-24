@@ -1,22 +1,24 @@
 // Copyright (c) ZeroC, Inc.
 
+using System.Globalization;
+
 namespace Ice.udp;
 
 public class Client : global::Test.TestHelper
 {
     public override async Task runAsync(string[] args)
     {
-        var properties = createTestProperties(ref args);
+        Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.Warn.Connections", "0");
         properties.setProperty("Ice.UDP.SndSize", "16384");
-        await using var communicator = initialize(properties);
+        await using Communicator communicator = initialize(properties);
 
         await AllTests.allTests(this);
 
         int num;
         try
         {
-            num = args.Length == 1 ? int.Parse(args[0]) : 1;
+            num = args.Length == 1 ? int.Parse(args[0], CultureInfo.InvariantCulture) : 1;
         }
         catch (FormatException)
         {
@@ -25,7 +27,7 @@ public class Client : global::Test.TestHelper
 
         for (int i = 0; i < num; ++i)
         {
-            var prx = communicator.stringToProxy("control:" + getTestEndpoint(i, "tcp"));
+            ObjectPrx prx = communicator.stringToProxy("control:" + getTestEndpoint(i, "tcp"));
             Test.TestIntfPrxHelper.uncheckedCast(prx).shutdown();
         }
     }
