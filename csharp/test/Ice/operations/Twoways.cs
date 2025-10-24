@@ -1441,7 +1441,7 @@ internal class Twoways
                 initData.properties = communicator.getProperties().Clone();
                 initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
 
-                Ice.Communicator ic = helper.initialize(initData);
+                using Ice.Communicator ic = helper.initialize(initData);
 
                 var ctx = new Dictionary<string, string>
                 {
@@ -1501,7 +1501,6 @@ internal class Twoways
                     thread.Start();
                     thread.Join();
                 }
-                ic.destroy();
             }
         }
 

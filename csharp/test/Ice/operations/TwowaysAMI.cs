@@ -1254,7 +1254,7 @@ public class TwowaysAMI
                 initData.properties = communicator.getProperties().Clone();
                 initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
 
-                Communicator ic = helper.initialize(initData);
+                using Communicator ic = helper.initialize(initData);
 
                 var ctx = new Dictionary<string, string>
                 {
@@ -1309,9 +1309,6 @@ public class TwowaysAMI
                 {
                     test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContextAsync().Result, combined));
                 }
-
-                // ic.getImplicitContext().setContext(null);
-                ic.destroy();
             }
         }
 

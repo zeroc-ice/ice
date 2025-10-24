@@ -2340,6 +2340,8 @@ public class Coordinator {
         _initData = new InitializationData();
 
         _initData.logger = new Logger(mainFrame, Util.getProcessLogger());
+        // In theory, we should close this logger when done, but it's not necessary since Logger.close is no-op.
+
         List<String> rArgs = new ArrayList<>();
         _initData.properties = createProperties(args, rArgs);
 

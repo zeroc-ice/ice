@@ -44,5 +44,10 @@ public final class DummyLogger implements Logger {
         return new DummyLogger();
     }
 
+    @Override
+    public void close() {
+        // nothing to do
+    }
+
     private final Logger _logger = Util.getProcessLogger();
 }

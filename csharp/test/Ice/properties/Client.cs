@@ -137,7 +137,7 @@ public class Client : Test.TestHelper
         }
 
         {
-            using Ice.Communicator communicator = Ice.Util.initialize();
+            using var communicator = new Ice.Communicator();
             Ice.Properties properties = communicator.getProperties();
 
             Console.Out.Write(

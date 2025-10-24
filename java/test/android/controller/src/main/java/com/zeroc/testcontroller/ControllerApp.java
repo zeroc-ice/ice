@@ -86,6 +86,11 @@ public class ControllerApp extends Application {
         public Logger cloneWithPrefix(String s) {
             return new AndroidLogger(s);
         }
+
+        @Override
+        public void close() {
+            // nothing to do
+        }
     }
 
     @Override

@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadFactory;
 
@@ -291,6 +292,7 @@ public final class Util {
                 // TODO: Would be nice to be able to use process name as prefix by default.
                 //
                 _processLogger = new LoggerI("");
+                _ownProcessLogger = true;
             }
 
             return _processLogger;
@@ -304,8 +306,16 @@ public final class Util {
      * @param logger The new per-process logger instance.
      */
     public static void setProcessLogger(Logger logger) {
+        Objects.requireNonNull(logger);
         synchronized (_processLoggerMutex) {
+            if (_ownProcessLogger) {
+                try {
+                    _processLogger.close();
+                } catch (Exception ignored) {
+                }
+            }
             _processLogger = logger;
+            _ownProcessLogger = false;
         }
     }
 
@@ -656,6 +666,7 @@ public final class Util {
 
     private static final java.lang.Object _processLoggerMutex = new java.lang.Object();
     private static Logger _processLogger;
+    private static boolean _ownProcessLogger;
 
     private Util() {}
 }

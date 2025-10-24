@@ -433,14 +433,6 @@ final class ServiceManagerI implements ServiceManager {
                     info.args = serviceArgs;
                 }
 
-                // Clone the logger to assign a new prefix. If one of the built-in loggers is
-                // configured don't set any logger.
-                if (initData.properties.getIceProperty("Ice.LogFile").isEmpty()
-                    && (initData.properties.getIcePropertyAsInt("Ice.UseSyslog") <= 0
-                    || System.getProperty("os.name").startsWith("Windows"))) {
-                    initData.logger = _logger.cloneWithPrefix(initData.properties.getIceProperty("Ice.ProgramName"));
-                }
-
                 // If Admin is enabled on the IceBox communicator, for each service that does not set
                 // Ice.Admin.Enabled, we set Ice.Admin.Enabled=1 to have this service create facets;
                 // then we add these facets to the IceBox Admin object as IceBox.Service.<service>.<facet>.

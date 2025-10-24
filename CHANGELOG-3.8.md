@@ -788,6 +788,8 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Reworked IceMX to avoid creating split packages.
 
+- The Logger interface now extends AutoCloseable.
+
 - Added overloads for the `ice_invocationTimeout` and `ice_locatorCacheTimeout` proxy methods that accept
   `java.time.Duration` values. The corresponding `ice_getInvocationTimeout` and `ice_getLocatorCacheTimeout` methods
   now return a `java.time.Duration`.
