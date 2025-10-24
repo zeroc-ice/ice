@@ -8,7 +8,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_, Ice.Object
     {
     }
 
-    public override Ice.ObjectPrx echo(Ice.ObjectPrx obj, Ice.Current c) => obj;
+    public override Ice.ObjectPrx echo(Ice.ObjectPrx obj, Ice.Current current) => obj;
 
     public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 

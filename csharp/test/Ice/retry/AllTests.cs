@@ -4,19 +4,20 @@ namespace Ice.retry;
 
 public class AllTests : global::Test.AllTests
 {
-    public static async Task<Test.RetryPrx> allTests(global::Test.TestHelper helper,
+    public static async Task<Test.RetryPrx> allTests(
+        global::Test.TestHelper helper,
         Communicator communicator,
         Communicator communicator2,
         string rf)
     {
         Instrumentation.testInvocationReset();
 
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
-        var base1 = communicator.stringToProxy(rf);
+        ObjectPrx base1 = communicator.stringToProxy(rf);
         test(base1 != null);
-        var base2 = communicator.stringToProxy(rf);
+        ObjectPrx base2 = communicator.stringToProxy(rf);
         test(base2 != null);
         output.WriteLine("ok");
 
@@ -128,30 +129,32 @@ public class AllTests : global::Test.AllTests
             output.WriteLine("ok");
         }
 
-        output.Write("testing non-idempotent operation... ");
-        try
         {
-            retry1.opNotIdempotent();
-            test(false);
+            output.Write("testing non-idempotent operation... ");
+            try
+            {
+                retry1.opNotIdempotent();
+                test(false);
+            }
+            catch (LocalException)
+            {
+            }
+            Instrumentation.testInvocationCount(1);
+            Instrumentation.testFailureCount(1);
+            Instrumentation.testRetryCount(0);
+            try
+            {
+                await retry1.opNotIdempotentAsync();
+                test(false);
+            }
+            catch (LocalException)
+            {
+            }
+            Instrumentation.testInvocationCount(1);
+            Instrumentation.testFailureCount(1);
+            Instrumentation.testRetryCount(0);
+            output.WriteLine("ok");
         }
-        catch (LocalException)
-        {
-        }
-        Instrumentation.testInvocationCount(1);
-        Instrumentation.testFailureCount(1);
-        Instrumentation.testRetryCount(0);
-        try
-        {
-            await retry1.opNotIdempotentAsync();
-            test(false);
-        }
-        catch (LocalException)
-        {
-        }
-        Instrumentation.testInvocationCount(1);
-        Instrumentation.testFailureCount(1);
-        Instrumentation.testRetryCount(0);
-        output.WriteLine("ok");
 
         {
             output.Write("testing invocation timeout and retries... ");

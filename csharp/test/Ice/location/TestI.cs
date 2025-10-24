@@ -4,8 +4,7 @@ namespace Ice.location;
 
 public class TestI : Test.TestIntfDisp_
 {
-    internal TestI(Ice.ObjectAdapter adapter1,
-                   Ice.ObjectAdapter adapter2, ServerLocatorRegistry registry)
+    internal TestI(ObjectAdapter adapter1, ObjectAdapter adapter2, ServerLocatorRegistry registry)
     {
         _adapter1 = adapter1;
         _adapter2 = adapter2;

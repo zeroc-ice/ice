@@ -8,6 +8,8 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace Ice.executor;
+
 public class Client : Test.TestHelper
 {
     public override void run(string[] args)
@@ -23,7 +25,7 @@ public class Client : Test.TestHelper
             //
             initData.properties.setProperty("Ice.TCP.SndSize", "50000");
             initData.executor = new Executor().execute;
-            using var communicator = initialize(initData);
+            using Communicator communicator = initialize(initData);
             AllTests.allTests(this);
         }
         finally

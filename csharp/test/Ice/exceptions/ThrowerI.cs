@@ -3,6 +3,7 @@
 using System.Diagnostics;
 
 namespace Ice.exceptions;
+
 public sealed class ThrowerI : Test.ThrowerDisp_
 {
     public ThrowerI()

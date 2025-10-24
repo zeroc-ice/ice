@@ -8,7 +8,7 @@ public class Server : TestHelper
 {
     public override void run(string[] args)
     {
-        using var communicator = initialize(ref args);
+        using Communicator communicator = initialize(ref args);
         communicator.getProperties().setProperty("TestAdapter1.Endpoints", getTestEndpoint(0));
         communicator.getProperties().setProperty("TestAdapter1.ThreadPool.Size", "5");
         communicator.getProperties().setProperty("TestAdapter1.ThreadPool.SizeMax", "5");

@@ -7,7 +7,7 @@ public class AllTests : global::Test.AllTests
     public static void
     allTests(global::Test.TestHelper helper)
     {
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         Ice.Communicator communicator = helper.communicator();
         Ice.ObjectAdapter oa = communicator.createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
         oa.activate();

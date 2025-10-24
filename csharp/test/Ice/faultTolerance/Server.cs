@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+using System.Globalization;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]
@@ -7,6 +8,8 @@ using System.Reflection;
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
+
+namespace Ice.faultTolerance;
 
 public class Server : Test.TestHelper
 {
@@ -28,7 +31,7 @@ public class Server : Test.TestHelper
 
             try
             {
-                port = int.Parse(args[i]);
+                port = int.Parse(args[i], CultureInfo.InvariantCulture);
             }
             catch (FormatException)
             {
@@ -41,7 +44,7 @@ public class Server : Test.TestHelper
             throw new ArgumentException("Server: no port specified");
         }
 
-        using var communicator = initialize(properties);
+        using Communicator communicator = initialize(properties);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(port));
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object obj = new TestI();

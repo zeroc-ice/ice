@@ -2,6 +2,8 @@
 
 using Test;
 
+namespace IceBox.admin;
+
 public class AllTests : Test.AllTests
 {
     public static void allTests(Test.TestHelper helper)
@@ -103,8 +105,7 @@ public class AllTests : Test.AllTests
             test(views.Length == 3);
 
             // Make sure that the IceBox communicator metrics admin is a separate instance.
-            test(IceMX.MetricsAdminPrxHelper.checkedCast(admin,
-                                                         "Metrics").getMetricsViewNames(out _).Length == 0);
+            test(IceMX.MetricsAdminPrxHelper.checkedCast(admin, "Metrics").getMetricsViewNames(out _).Length == 0);
         }
         Console.Out.WriteLine("ok");
     }

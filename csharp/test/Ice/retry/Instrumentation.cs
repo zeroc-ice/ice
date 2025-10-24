@@ -2,7 +2,7 @@
 
 namespace Ice.retry;
 
-public class Instrumentation
+public static class Instrumentation
 {
     private static readonly object mutex = new();
 
@@ -51,6 +51,7 @@ public class Instrumentation
         public Ice.Instrumentation.CollocatedObserver
         getCollocatedObserver(Ice.ObjectAdapter adapter, int i, int j) => null;
     }
+
     private static readonly Ice.Instrumentation.InvocationObserver invocationObserver = new InvocationObserverI();
 
     private class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
@@ -62,16 +63,18 @@ public class Instrumentation
         getEndpointLookupObserver(Ice.Endpoint e) => null;
 
         public Ice.Instrumentation.ConnectionObserver
-        getConnectionObserver(ConnectionInfo ci,
-                              Endpoint ei,
-                              Ice.Instrumentation.ConnectionState s,
-                              Ice.Instrumentation.ConnectionObserver o) => null;
+        getConnectionObserver(
+            ConnectionInfo ci,
+            Endpoint ei,
+            Ice.Instrumentation.ConnectionState s,
+            Ice.Instrumentation.ConnectionObserver o) => null;
 
         public Ice.Instrumentation.ThreadObserver
-        getThreadObserver(string p,
-                          string n,
-                          Ice.Instrumentation.ThreadState s,
-                          Ice.Instrumentation.ThreadObserver o) => null;
+        getThreadObserver(
+            string p,
+            string n,
+            Ice.Instrumentation.ThreadState s,
+            Ice.Instrumentation.ThreadObserver o) => null;
 
         public Ice.Instrumentation.InvocationObserver
         getInvocationObserver(Ice.ObjectPrx p, string o, Dictionary<string, string> c) => invocationObserver;
@@ -137,7 +140,7 @@ public class Instrumentation
         nInvocation = 0;
     }
 
-    private static int nRetry = 0;
-    private static int nFailure = 0;
-    private static int nInvocation = 0;
+    private static int nRetry;
+    private static int nFailure;
+    private static int nInvocation;
 }

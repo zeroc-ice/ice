@@ -8,11 +8,13 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace IceGrid.simple;
+
 public class Client : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using var communicator = initialize(ref args);
+        using Ice.Communicator communicator = initialize(ref args);
         if (args.Any(v => v == "--with-deploy"))
         {
             AllTests.allTestsWithDeploy(this);

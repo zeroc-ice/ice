@@ -8,7 +8,7 @@ public class AllTests : global::Test.AllTests
 {
     public static void allTests(global::Test.TestHelper helper)
     {
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         Communicator communicator = helper.communicator();
         testMiddlewareExecutionOrder(communicator, output);
     }
@@ -23,7 +23,7 @@ public class AllTests : global::Test.AllTests
         var inLog = new List<string>();
         var outLog = new List<string>();
 
-        var oa = communicator.createObjectAdapter("");
+        ObjectAdapter oa = communicator.createObjectAdapter("");
 
         oa.add(new MyObjectI(), new Identity { name = "test" });
         oa.use(next => new Middleware(next, "A", inLog, outLog))
@@ -53,7 +53,7 @@ public class AllTests : global::Test.AllTests
         public async ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)
         {
             _inLog.Add(_name);
-            var response = await _next.dispatchAsync(request);
+            OutgoingResponse response = await _next.dispatchAsync(request);
             _outLog.Add(_name);
             return response;
         }

@@ -1,18 +1,18 @@
 // Copyright (c) ZeroC, Inc.
 
 using System.Net.Security;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Test;
 
-public class PlatformTests
+namespace Ice.SSL.configuration;
+
+public static class PlatformTests
 {
     private static void test(bool b)
     {
         if (!b)
         {
-            throw new Exception();
+            throw new System.Exception();
         }
     }
 
@@ -21,7 +21,7 @@ public class PlatformTests
         TestHelper helper)
     {
         var communicator = new Ice.Communicator();
-        var adapter = communicator.createObjectAdapterWithEndpoints(
+        ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(
             "ServerAdapter",
             helper.getTestEndpoint(10, "ssl"),
             serverAuthenticationOptions);
@@ -49,16 +49,16 @@ public class PlatformTests
         {
             ServerCertificate = serverCertificate,
         };
-        using var serverCommunicator = createServer(serverOptions, helper);
+        using Ice.Communicator serverCommunicator = createServer(serverOptions, helper);
 
         var clientOptions = new SslClientAuthenticationOptions
         {
             RemoteCertificateValidationCallback =
                 (sender, certificate, chain, sslPolicyErrors) => certificate.Subject == serverCertificate.Subject
         };
-        using var clientCommunicator = createClient(clientOptions);
+        using Ice.Communicator clientCommunicator = createClient(clientOptions);
 
-        var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+        ServerPrx obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
         obj.ice_ping();
         Console.Out.WriteLine("ok");
     }
@@ -73,8 +73,8 @@ public class PlatformTests
         {
             TargetHost = "zeroc.com"
         };
-        using var clientCommunicator = createClient(clientOptions);
-        var obj = Ice.ObjectPrxHelper.createProxy(
+        using Ice.Communicator clientCommunicator = createClient(clientOptions);
+        Ice.ObjectPrx obj = Ice.ObjectPrxHelper.createProxy(
             clientCommunicator,
             "Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
         obj.ice_ping();
@@ -91,15 +91,15 @@ public class PlatformTests
         {
             ServerCertificate = serverCertificate,
         };
-        using var serverCommunicator = createServer(serverOptions, helper);
+        using Ice.Communicator serverCommunicator = createServer(serverOptions, helper);
 
         var clientOptions = new SslClientAuthenticationOptions
         {
             RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => false
         };
-        using var clientCommunicator = createClient(clientOptions);
+        using Ice.Communicator clientCommunicator = createClient(clientOptions);
 
-        var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+        ServerPrx obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
         try
         {
             obj.ice_ping();
@@ -122,11 +122,11 @@ public class PlatformTests
         {
             ServerCertificate = serverCertificate,
         };
-        using var serverCommunicator = createServer(serverOptions, helper);
+        using Ice.Communicator serverCommunicator = createServer(serverOptions, helper);
 
-        using var clientCommunicator = createClient(new SslClientAuthenticationOptions { });
+        using Ice.Communicator clientCommunicator = createClient(new SslClientAuthenticationOptions { });
 
-        var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+        ServerPrx obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
         try
         {
             obj.ice_ping();
@@ -138,6 +138,7 @@ public class PlatformTests
         }
         Console.Out.WriteLine("ok");
     }
+
     private static void serverValidatesClientUsingValidationCallback(TestHelper helper, string certificatesPath)
     {
         Console.Out.Write("server validates client certificate using validation callback... ");
@@ -153,7 +154,7 @@ public class PlatformTests
             RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                 certificate.Subject == clientCertificate.Subject,
         };
-        using var serverCommunicator = createServer(serverOptions, helper);
+        using Ice.Communicator serverCommunicator = createServer(serverOptions, helper);
 
         var clientOptions = new SslClientAuthenticationOptions
         {
@@ -164,9 +165,9 @@ public class PlatformTests
                 clientCertificate
             ]
         };
-        using var clientCommunicator = createClient(clientOptions);
+        using Ice.Communicator clientCommunicator = createClient(clientOptions);
 
-        var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+        ServerPrx obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
         obj.ice_ping();
         Console.WriteLine("ok");
     }
@@ -183,7 +184,7 @@ public class PlatformTests
             ClientCertificateRequired = true,
             RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => false,
         };
-        using var serverCommunicator = createServer(serverOptions, helper);
+        using Ice.Communicator serverCommunicator = createServer(serverOptions, helper);
 
         var clientOptions = new SslClientAuthenticationOptions
         {
@@ -194,9 +195,9 @@ public class PlatformTests
                 clientCertificate
             ]
         };
-        using var clientCommunicator = createClient(clientOptions);
+        using Ice.Communicator clientCommunicator = createClient(clientOptions);
 
-        var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+        ServerPrx obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
         try
         {
             obj.ice_ping();
@@ -219,7 +220,7 @@ public class PlatformTests
             ServerCertificate = serverCertificate,
             ClientCertificateRequired = true,
         };
-        using var serverCommunicator = createServer(serverOptions, helper);
+        using Ice.Communicator serverCommunicator = createServer(serverOptions, helper);
 
         var clientOptions = new SslClientAuthenticationOptions
         {
@@ -230,9 +231,9 @@ public class PlatformTests
                 clientCertificate
             ]
         };
-        using var clientCommunicator = createClient(clientOptions);
+        using Ice.Communicator clientCommunicator = createClient(clientOptions);
 
-        var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+        ServerPrx obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
 
         try
         {
@@ -274,17 +275,17 @@ public class PlatformTests
         {
             ServerCertificateSelectionCallback = (sender, hostName) => serverState.Certificate
         };
-        using var serverCommunicator = createServer(serverOptions, helper);
 
+        using Ice.Communicator serverCommunicator = createServer(serverOptions, helper);
         {
             var clientOptions = new SslClientAuthenticationOptions
             {
                 RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                     certificate.Issuer == trustedRootCertificatesCA1.Subject
             };
-            using var clientCommunicator = createClient(clientOptions);
+            using Ice.Communicator clientCommunicator = createClient(clientOptions);
 
-            var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+            ServerPrx obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
             obj.ice_ping();
         }
 
@@ -295,9 +296,9 @@ public class PlatformTests
                 RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                     certificate.Issuer == trustedRootCertificatesCA2.Subject
             };
-            using var clientCommunicator = createClient(clientOptions);
+            using Ice.Communicator clientCommunicator = createClient(clientOptions);
 
-            var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+            ServerPrx obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
             try
             {
                 obj.ice_ping();
@@ -310,7 +311,6 @@ public class PlatformTests
         }
 
         serverState.reloadCertificate(Path.Combine(certificatesPath, "ca2/server.p12"));
-
         {
             // CA2 is accepted with the new configuration
             var clientOptions = new SslClientAuthenticationOptions
@@ -318,9 +318,9 @@ public class PlatformTests
                 RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                     certificate.Issuer == trustedRootCertificatesCA2.Subject
             };
-            using var clientCommunicator = createClient(clientOptions);
+            using Ice.Communicator clientCommunicator = createClient(clientOptions);
 
-            var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+            ServerPrx obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
             obj.ice_ping();
         }
 
@@ -331,9 +331,9 @@ public class PlatformTests
                 RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                     certificate.Issuer == trustedRootCertificatesCA1.Subject
             };
-            using var clientCommunicator = createClient(clientOptions);
+            using Ice.Communicator clientCommunicator = createClient(clientOptions);
 
-            var obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+            ServerPrx obj = ServerPrxHelper.createProxy(clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
             try
             {
                 obj.ice_ping();

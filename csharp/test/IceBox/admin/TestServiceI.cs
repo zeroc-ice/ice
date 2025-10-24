@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+namespace IceBox.admin;
+
 public class TestServiceI : IceBox.Service
 {
     public TestServiceI(Ice.Communicator serviceManagerCommunicator)

@@ -10,10 +10,10 @@ public class AllTests : global::Test.AllTests
         string sref = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
-        var proxy = Test.TestIntfPrxHelper.uncheckedCast(obj);
+        Test.TestIntfPrx proxy = Test.TestIntfPrxHelper.uncheckedCast(obj);
         test(proxy != null);
 
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
 
         output.Write("testing enum values... ");
         output.Flush();
@@ -118,7 +118,6 @@ public class AllTests : global::Test.AllTests
 
         output.Write("testing enum sequences operations... ");
         output.Flush();
-
         {
             var b1 = new Test.ByteEnum[11]
                     {

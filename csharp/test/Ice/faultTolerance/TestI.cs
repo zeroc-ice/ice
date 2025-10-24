@@ -1,15 +1,16 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Diagnostics;
 using Test;
+
+namespace Ice.faultTolerance;
 
 public sealed class TestI : TestIntfDisp_
 {
     public TestI()
     {
-        lock (this)
+        lock (_mutex)
         {
-            _p = Process.GetCurrentProcess();
+            _p = System.Diagnostics.Process.GetCurrentProcess();
             _pid = _p.Id;
         }
     }
@@ -26,7 +27,7 @@ public sealed class TestI : TestIntfDisp_
 
     public override int pid(Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             return _pid;
         }
@@ -34,6 +35,7 @@ public sealed class TestI : TestIntfDisp_
 
     public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
-    private readonly Process _p;
+    private readonly object _mutex = new();
+    private readonly System.Diagnostics.Process _p;
     private readonly int _pid;
 }

@@ -2,6 +2,8 @@
 
 using Test;
 
+namespace IceBox.admin;
+
 public class TestFacetI : TestFacetDisp_
 {
     public TestFacetI()
@@ -12,11 +14,12 @@ public class TestFacetI : TestFacetDisp_
 
     public void updated(Dictionary<string, string> changes)
     {
-        lock (this)
+        lock (_mutex)
         {
             _changes = changes;
         }
     }
 
     private Dictionary<string, string> _changes;
+    private readonly object _mutex = new();
 }

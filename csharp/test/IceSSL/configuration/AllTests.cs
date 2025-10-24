@@ -1,15 +1,13 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Test;
 
+namespace Ice.SSL.configuration;
+
 public class AllTests : global::Test.AllTests
 {
-    private static X509Certificate2 createCertificate(string certPEM) =>
-        new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
-
     private static Ice.InitializationData
     createClientProps(Ice.Properties defaultProperties)
     {
@@ -813,7 +811,8 @@ public class AllTests : global::Test.AllTests
             Console.Out.Flush();
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                initData.properties.setProperty("IceSSL.TrustOnly",
+                initData.properties.setProperty(
+                    "IceSSL.TrustOnly",
                     "C=US, ST=Florida, O=ZeroC,OU=Ice test infrastructure, emailAddress=info@zeroc.com, CN=ca1.server");
                 using var comm = new Ice.Communicator(initData);
 
@@ -833,7 +832,8 @@ public class AllTests : global::Test.AllTests
             }
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                initData.properties.setProperty("IceSSL.TrustOnly",
+                initData.properties.setProperty(
+                    "IceSSL.TrustOnly",
                     "!C=US, ST=Florida, O=ZeroC,OU=Ice test infrastructure, emailAddress=info@zeroc.com, CN=ca1.server");
                 using var comm = new Ice.Communicator(initData);
 
@@ -852,7 +852,8 @@ public class AllTests : global::Test.AllTests
             }
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                initData.properties.setProperty("IceSSL.TrustOnly",
+                initData.properties.setProperty(
+                    "IceSSL.TrustOnly",
                     "C=US, ST=Florida, O=ZeroC,OU=Ice test infrastructure, emailAddress=info@zeroc.com, CN=ca1.server");
                 using var comm = new Ice.Communicator(initData);
 
@@ -1173,7 +1174,8 @@ public class AllTests : global::Test.AllTests
             Console.Out.Flush();
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                initData.properties.setProperty("IceSSL.TrustOnly.Client",
+                initData.properties.setProperty(
+                    "IceSSL.TrustOnly.Client",
                     "C=US, ST=Florida, O=ZeroC,OU=Ice test infrastructure, emailAddress=info@zeroc.com, CN=ca1.server");
                 using var comm = new Ice.Communicator(initData);
 
@@ -1196,7 +1198,8 @@ public class AllTests : global::Test.AllTests
             }
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                initData.properties.setProperty("IceSSL.TrustOnly.Client",
+                initData.properties.setProperty(
+                    "IceSSL.TrustOnly.Client",
                     "!C=US, ST=Florida, O=ZeroC,OU=Ice test infrastructure, emailAddress=info@zeroc.com, CN=ca1.server");
                 using var comm = new Ice.Communicator(initData);
 
@@ -1276,7 +1279,8 @@ public class AllTests : global::Test.AllTests
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 // Should have no effect.
-                initData.properties.setProperty("IceSSL.TrustOnly.Server",
+                initData.properties.setProperty(
+                    "IceSSL.TrustOnly.Server",
                     "C=US, ST=Florida, O=ZeroC,OU=Ice test infrastructure, emailAddress=info@zeroc.com, CN=ca1.client");
                 using var comm = new Ice.Communicator(initData);
 
@@ -1487,7 +1491,7 @@ public class AllTests : global::Test.AllTests
 
                 var certStore = new X509Store("My", StoreLocation.CurrentUser);
                 certStore.Open(OpenFlags.ReadWrite);
-                var storageFlags = X509KeyStorageFlags.DefaultKeySet;
+                X509KeyStorageFlags storageFlags = X509KeyStorageFlags.DefaultKeySet;
                 try
                 {
                     foreach (string certPath in certificates)
@@ -1549,7 +1553,6 @@ public class AllTests : global::Test.AllTests
                             test(false);
                         }
                     }
-
                 }
                 finally
                 {
@@ -1595,7 +1598,6 @@ public class AllTests : global::Test.AllTests
                 const int retryMax = 5;
                 const int retryDelay = 1000;
                 int retryCount = 0;
-
                 {
                     initData = createClientProps(defaultProperties);
                     initData.properties.setProperty("IceSSL.DefaultDir", "");

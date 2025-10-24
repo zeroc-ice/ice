@@ -14,7 +14,7 @@ public class AllTests : global::Test.AllTests
         catch (Ice.ObjectNotExistException ex)
         {
             test(ex.id.Equals(obj.ice_getIdentity()));
-            test(ex.facet.Equals(obj.ice_getFacet()));
+            test(ex.facet == obj.ice_getFacet());
             test(ex.operation == "requestFailedException");
         }
         catch (Exception)
@@ -71,7 +71,7 @@ public class AllTests : global::Test.AllTests
         }
         catch (Ice.UnknownUserException ex)
         {
-            test(ex.Message.Contains("Test::TestIntfUserException"));
+            test(ex.Message.Contains("Test::TestIntfUserException", StringComparison.Ordinal));
         }
         catch (Ice.OperationNotExistException)
         {
@@ -88,8 +88,8 @@ public class AllTests : global::Test.AllTests
         }
         catch (Ice.UnknownLocalException ex)
         {
-            test(ex.Message.Contains("Ice::SocketException") ||
-                 ex.Message.Contains("Ice.SocketException"));
+            test(ex.Message.Contains("Ice::SocketException", StringComparison.Ordinal) ||
+                 ex.Message.Contains("Ice.SocketException", StringComparison.Ordinal));
         }
         catch (Exception)
         {
@@ -103,7 +103,7 @@ public class AllTests : global::Test.AllTests
         }
         catch (Ice.UnknownException ex)
         {
-            test(ex.Message.Contains("System.Exception"));
+            test(ex.Message.Contains("System.Exception", StringComparison.Ordinal));
         }
         catch (Ice.OperationNotExistException)
         {
@@ -187,19 +187,19 @@ public class AllTests : global::Test.AllTests
 
     public static Test.TestIntfPrx allTests(global::Test.TestHelper helper)
     {
-        var communicator = helper.communicator();
-        var output = helper.getWriter();
+        Communicator communicator = helper.communicator();
+        TextWriter output = helper.getWriter();
 
         output.Write("testing stringToProxy... ");
         output.Flush();
         string @ref = "asm:" + helper.getTestEndpoint(0);
-        var @base = communicator.stringToProxy(@ref);
+        ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         output.WriteLine("ok");
 
         output.Write("testing checked cast... ");
         output.Flush();
-        var obj = Test.TestIntfPrxHelper.checkedCast(@base);
+        Test.TestIntfPrx obj = Test.TestIntfPrxHelper.checkedCast(@base);
         test(obj != null);
         test(obj.Equals(@base));
         output.WriteLine("ok");
@@ -208,13 +208,13 @@ public class AllTests : global::Test.AllTests
         output.Flush();
         try
         {
-            var o = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
+            ObjectPrx o = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
             o.ice_ids();
             test(false);
         }
         catch (Ice.UnknownUserException ex)
         {
-            test(ex.Message.Contains("::Test::TestIntfUserException"));
+            test(ex.Message.Contains("::Test::TestIntfUserException", StringComparison.Ordinal));
         }
         catch (Exception)
         {
@@ -223,13 +223,13 @@ public class AllTests : global::Test.AllTests
 
         try
         {
-            var o = communicator.stringToProxy("category/finished:" + helper.getTestEndpoint(0));
+            ObjectPrx o = communicator.stringToProxy("category/finished:" + helper.getTestEndpoint(0));
             o.ice_ids();
             test(false);
         }
         catch (Ice.UnknownUserException ex)
         {
-            test(ex.Message.Contains("::Test::TestIntfUserException"));
+            test(ex.Message.Contains("::Test::TestIntfUserException", StringComparison.Ordinal));
         }
         catch (Exception)
         {
@@ -328,7 +328,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing servant locator removal... ");
         output.Flush();
         @base = communicator.stringToProxy("test/activation:" + helper.getTestEndpoint(0));
-        var activation = Test.TestActivationPrxHelper.checkedCast(@base);
+        Test.TestActivationPrx activation = Test.TestActivationPrxHelper.checkedCast(@base);
         activation.activateServantLocator(false);
         try
         {

@@ -3,6 +3,8 @@
 using System.Diagnostics;
 using Test;
 
+namespace Ice.slicing.exceptions;
+
 public class AllTests : Test.AllTests
 {
     private class Callback
@@ -11,7 +13,7 @@ public class AllTests : Test.AllTests
 
         public virtual void check()
         {
-            lock (this)
+            lock (_mutex)
             {
                 while (!_called)
                 {
@@ -24,7 +26,7 @@ public class AllTests : Test.AllTests
 
         public virtual void called()
         {
-            lock (this)
+            lock (_mutex)
             {
                 Debug.Assert(!_called);
                 _called = true;
@@ -33,12 +35,13 @@ public class AllTests : Test.AllTests
         }
 
         private bool _called;
+        private readonly object _mutex = new();
     }
 
     public static async Task<TestIntfPrx> allTests(Test.TestHelper helper, bool collocated)
     {
         Ice.Communicator communicator = helper.communicator();
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
         string @ref = "Test:" + helper.getTestEndpoint(0) + " -t 2000";

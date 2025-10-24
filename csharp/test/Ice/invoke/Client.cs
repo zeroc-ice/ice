@@ -8,8 +8,8 @@ public class Client : global::Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using var communicator = initialize(ref args);
-        var myClass = AllTests.allTests(this);
+        using Communicator communicator = initialize(ref args);
+        Test.MyClassPrx myClass = AllTests.allTests(this);
         myClass.shutdown();
     }
 

@@ -8,7 +8,7 @@ public class Collocated : TestHelper
 {
     public override async Task runAsync(string[] args)
     {
-        await using var communicator = initialize(ref args);
+        await using Communicator communicator = initialize(ref args);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
 
         //
@@ -16,7 +16,7 @@ public class Collocated : TestHelper
         //
         communicator.getProperties().setProperty("TestAdapter.ThreadPool.Size", "2");
 
-        var adapter = communicator.createObjectAdapter("TestAdapter");
+        ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         var locator = new ServantLocatorI();
         adapter.addServantLocator(locator, "");
 

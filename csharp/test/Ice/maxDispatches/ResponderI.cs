@@ -8,7 +8,7 @@ internal sealed class ResponderI : Test.ResponderDisp_
 {
     private readonly object _mutex = new();
     private readonly List<Action> _responses = new();
-    private bool _started = false;
+    private bool _started;
 
     public override void start(Current current)
     {
@@ -17,11 +17,11 @@ internal sealed class ResponderI : Test.ResponderDisp_
         lock (_mutex)
         {
             _started = true;
-            responses = new List<Action>(_responses);
+            responses = [.. _responses];
             _responses.Clear();
         }
 
-        foreach (var response in responses)
+        foreach (Action response in responses)
         {
             response();
         }

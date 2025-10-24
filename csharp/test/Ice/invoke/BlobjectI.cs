@@ -14,7 +14,7 @@ public class BlobjectI : Ice.Blobject
         outS.startEncapsulation();
         if (current.operation == "opOneway")
         {
-            outParams = new byte[0];
+            outParams = [];
             return true;
         }
         else if (current.operation == "opString")
@@ -69,16 +69,16 @@ public class BlobjectI : Ice.Blobject
 public class BlobjectAsyncI : Ice.BlobjectAsync
 {
     public override Task<Ice.Object_Ice_invokeResult>
-    ice_invokeAsync(byte[] inParams, Ice.Current current)
+    ice_invokeAsync(byte[] inEncaps, Ice.Current current)
     {
         Ice.Communicator communicator = current.adapter.getCommunicator();
-        var inS = new Ice.InputStream(communicator, inParams);
+        var inS = new Ice.InputStream(communicator, inEncaps);
         inS.startEncapsulation();
         var outS = new Ice.OutputStream(communicator);
         outS.startEncapsulation();
         if (current.operation == "opOneway")
         {
-            return Task.FromResult(new Ice.Object_Ice_invokeResult(true, new byte[0]));
+            return Task.FromResult(new Ice.Object_Ice_invokeResult(true, []));
         }
         else if (current.operation == "opString")
         {

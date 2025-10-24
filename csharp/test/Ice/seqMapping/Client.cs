@@ -10,8 +10,8 @@ public class Client : TestHelper
     {
         var initData = new InitializationData();
         initData.properties = createTestProperties(ref args);
-        await using var communicator = initialize(initData);
-        var myClass = await AllTests.allTests(this, false);
+        await using Communicator communicator = initialize(initData);
+        Test.MyClassPrx myClass = await AllTests.allTests(this, false);
         Console.Out.Write("shutting down server... ");
         Console.Out.Flush();
         myClass.shutdown();

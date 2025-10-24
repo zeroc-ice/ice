@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Diagnostics;
-
 namespace Ice.ami;
 
 public class TestI : Test.TestIntfDisp_
@@ -29,19 +27,19 @@ public class TestI : Test.TestIntfDisp_
     }
 
     public override void
-    opBatch(Ice.Current current)
+    opBatch(Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             ++_batchCount;
-            Monitor.Pulse(this);
+            Monitor.Pulse(_mutex);
         }
     }
 
     public override int
     opBatchCount(Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             return _batchCount;
         }
@@ -50,11 +48,11 @@ public class TestI : Test.TestIntfDisp_
     public override bool
     waitForBatch(int count, Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             while (_batchCount < count)
             {
-                test(Monitor.Wait(this, 10000));
+                test(Monitor.Wait(_mutex, 10000));
             }
             bool result = count == _batchCount;
             _batchCount = 0;
@@ -89,7 +87,7 @@ public class TestI : Test.TestIntfDisp_
     public override void
     shutdown(Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             _shutdown = true;
             if (_pending != null)
@@ -112,18 +110,18 @@ public class TestI : Test.TestIntfDisp_
     public override async Task<int>
     opWithResultAsyncDispatchAsync(Ice.Current current)
     {
-        test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+        test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server", StringComparison.Ordinal));
         await Task.Yield();
-        test(!Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+        test(!Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server", StringComparison.Ordinal));
         return await self(current).opWithResultAsync();
     }
 
     public override async Task
     opWithUEAsyncDispatchAsync(Ice.Current current)
     {
-        test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+        test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server", StringComparison.Ordinal));
         await Task.Yield();
-        test(!Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+        test(!Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server", StringComparison.Ordinal));
         await self(current).opWithUEAsync();
     }
 
@@ -149,7 +147,7 @@ public class TestI : Test.TestIntfDisp_
     public override Task
     startDispatchAsync(Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_shutdown)
             {
@@ -171,7 +169,7 @@ public class TestI : Test.TestIntfDisp_
     public override void
     finishDispatch(Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (_shutdown)
             {
@@ -187,7 +185,8 @@ public class TestI : Test.TestIntfDisp_
 
     private int _batchCount;
     private bool _shutdown;
-    private TaskCompletionSource<object> _pending = null;
+    private TaskCompletionSource<object> _pending;
+    private readonly object _mutex = new();
 }
 
 public class TestII : Test.Outer.Inner.TestIntfDisp_

@@ -8,11 +8,13 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace Ice.hash;
+
 public class Client : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using var communicator = initialize(ref args);
+        using Ice.Communicator communicator = initialize(ref args);
         Console.Error.Write("testing proxy & endpoint hash algorithm collisions... ");
         Console.Error.Flush();
         var seenProxy = new Dictionary<int, Ice.ObjectPrx>();
@@ -22,7 +24,6 @@ public class Client : Test.TestHelper
         int i = 0;
         int maxCollisions = 10;
         int maxIterations = 10000;
-
         {
             var rand = new Random();
             for (i = 0; proxyCollisions < maxCollisions &&
@@ -217,23 +218,23 @@ public class Client : Test.TestHelper
 
         Console.Error.Write("testing proxy hash of slightly different proxies... ");
 
-        var proxyString = new string[]
-        {
-                "test:tcp -p 10001 -h hello.zeroc.com",
-                "test:udp -p 10001 -h hello.zeroc.com",
-                "test:ssl -p 10001 -h hello.zeroc.com",
-                "test:tcp -p 10001 -h hello.zeroc.com -t 10000",
-                "test -f fa:tcp -p 10001 -h hello.zeroc.com",
-                "test @ adapt",
-                "test @ adapt2",
-                "test:opaque -t 12 -v abcd",
-                "test:opaque -t 13 -v abcd",
-                "test:opaque -t 13 -v abce",
-        };
+        string[] proxyString =
+        [
+            "test:tcp -p 10001 -h hello.zeroc.com",
+            "test:udp -p 10001 -h hello.zeroc.com",
+            "test:ssl -p 10001 -h hello.zeroc.com",
+            "test:tcp -p 10001 -h hello.zeroc.com -t 10000",
+            "test -f fa:tcp -p 10001 -h hello.zeroc.com",
+            "test @ adapt",
+            "test @ adapt2",
+            "test:opaque -t 12 -v abcd",
+            "test:opaque -t 13 -v abcd",
+            "test:opaque -t 13 -v abce",
+        ];
 
         var hashes = new HashSet<int>();
 
-        foreach (var s in proxyString)
+        foreach (string s in proxyString)
         {
             bool inserted = hashes.Add(communicator.stringToProxy(s).GetHashCode());
             test(inserted);
@@ -242,7 +243,6 @@ public class Client : Test.TestHelper
         Console.Error.WriteLine("ok");
 
         Console.Error.Write("testing exceptions hash algorithm collisions... ");
-
         {
             var seenException = new Dictionary<int, Test.OtherException>();
             var rand = new Random();
@@ -281,10 +281,11 @@ public class Client : Test.TestHelper
             int exceptionCollisions = 0;
             for (i = 0; i < maxIterations && exceptionCollisions < maxCollisions; ++i)
             {
-                var ex = new Test.OtherException((rand.Next(100) * 2) ^ 30,
-                                                                 (rand.Next(100) * 2) ^ 30,
-                                                                 (rand.Next(100) * 2) ^ 30,
-                                                                 false);
+                var ex = new Test.OtherException(
+                    (rand.Next(100) * 2) ^ 30,
+                    (rand.Next(100) * 2) ^ 30,
+                    (rand.Next(100) * 2) ^ 30,
+                    false);
 
                 if (seenException.ContainsKey(ex.GetHashCode()))
                 {
@@ -363,9 +364,10 @@ public class Client : Test.TestHelper
             int structCollisions = 0;
             for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
             {
-                var pf = new Test.PointF((float)rand.NextDouble(),
-                                                 (float)rand.NextDouble(),
-                                                 (float)rand.NextDouble());
+                var pf = new Test.PointF(
+                    (float)rand.NextDouble(),
+                    (float)rand.NextDouble(),
+                    (float)rand.NextDouble());
                 if (seenPointF.ContainsKey(pf.GetHashCode()))
                 {
                     if (pf.Equals(seenPointF[pf.GetHashCode()]))
@@ -389,9 +391,7 @@ public class Client : Test.TestHelper
             structCollisions = 0;
             for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
             {
-                var pd = new Test.PointD(rand.NextDouble(),
-                                                 rand.NextDouble(),
-                                                 rand.NextDouble());
+                var pd = new Test.PointD(rand.NextDouble(), rand.NextDouble(), rand.NextDouble());
                 if (seenPointD.ContainsKey(pd.GetHashCode()))
                 {
                     if (pd.Equals(seenPointD[pd.GetHashCode()]))
@@ -449,10 +449,8 @@ public class Client : Test.TestHelper
                 var colorPalette = new Test.ColorPalette(colors: new());
                 for (int j = 0; j < 100; ++j)
                 {
-                    colorPalette.colors[j] = new Test.Color(rand.Next(255),
-                                                            rand.Next(255),
-                                                            rand.Next(255),
-                                                            rand.Next(255));
+                    colorPalette.colors[j] =
+                        new Test.Color(rand.Next(255), rand.Next(255), rand.Next(255), rand.Next(255));
                 }
 
                 if (seenColorPalette.ContainsKey(colorPalette.GetHashCode()))
@@ -505,8 +503,9 @@ public class Client : Test.TestHelper
             {
                 var draw = new Test.Draw(
                     new Test.Color(rand.Next(255), rand.Next(255), rand.Next(255), rand.Next(255)),
-                    new Test.Pen(rand.Next(10),
-                                 new Test.Color(rand.Next(255), rand.Next(255), rand.Next(255), rand.Next(255))),
+                    new Test.Pen(
+                        rand.Next(10),
+                        new Test.Color(rand.Next(255), rand.Next(255), rand.Next(255), rand.Next(255))),
                     false);
 
                 if (seenDraw.ContainsKey(draw.GetHashCode()))

@@ -264,33 +264,28 @@ public sealed class MyClassI : Test.MyClassDisp_
         return i;
     }
 
-    public override List<Ice.ObjectPrx> opLObjectPrxS(List<Ice.ObjectPrx> i,
-                                                              out List<Ice.ObjectPrx> o,
-                                                              Ice.Current current)
+    public override List<ObjectPrx> opLObjectPrxS(List<ObjectPrx> i, out List<ObjectPrx> o, Current current)
     {
         o = i;
         return i;
     }
 
-    public override LinkedList<Ice.ObjectPrx> opKObjectPrxS(LinkedList<Ice.ObjectPrx> i,
-                                                                    out LinkedList<Ice.ObjectPrx> o,
-                                                                    Ice.Current current)
+    public override LinkedList<ObjectPrx> opKObjectPrxS(
+        LinkedList<ObjectPrx> i,
+        out LinkedList<ObjectPrx> o,
+        Current current)
     {
         o = i;
         return i;
     }
 
-    public override Queue<Ice.ObjectPrx> opQObjectPrxS(Queue<Ice.ObjectPrx> i,
-                                                               out Queue<Ice.ObjectPrx> o,
-                                                               Ice.Current current)
+    public override Queue<ObjectPrx> opQObjectPrxS(Queue<ObjectPrx> i, out Queue<ObjectPrx> o, Current current)
     {
         o = i;
         return i;
     }
 
-    public override Stack<Ice.ObjectPrx> opSObjectPrxS(Stack<Ice.ObjectPrx> i,
-                                                               out Stack<Ice.ObjectPrx> o,
-                                                               Ice.Current current)
+    public override Stack<ObjectPrx> opSObjectPrxS(Stack<ObjectPrx> i, out Stack<ObjectPrx> o, Current current)
     {
         o = i;
         return i;
@@ -458,15 +453,19 @@ public sealed class MyClassI : Test.MyClassDisp_
         return i;
     }
 
-    public override Custom<Custom<int>> opCustomIntSS(Custom<Custom<int>> i, out Custom<Custom<int>> o,
-                                                      Ice.Current current)
+    public override Custom<Custom<int>> opCustomIntSS(
+        Custom<Custom<int>> i,
+        out Custom<Custom<int>> o,
+        Current current)
     {
         o = i;
         return i;
     }
 
-    public override Custom<Custom<Test.CV>> opCustomCVSS(Custom<Custom<Test.CV>> i, out Custom<Custom<Test.CV>> o,
-                                                         Ice.Current current)
+    public override Custom<Custom<Test.CV>> opCustomCVSS(
+        Custom<Custom<Test.CV>> i,
+        out Custom<Custom<Test.CV>> o,
+        Current current)
     {
         o = i;
         return i;

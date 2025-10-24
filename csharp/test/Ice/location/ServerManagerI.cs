@@ -50,10 +50,12 @@ public class ServerManagerI : Test.ServerManagerDisp_
             Ice.ObjectAdapter adapter2 = null;
             try
             {
-                serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints",
-                                                               _helper.getTestEndpoint(_nextPort++));
-                serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints",
-                                                               _helper.getTestEndpoint(_nextPort++));
+                serverCommunicator.getProperties().setProperty(
+                    "TestAdapter.Endpoints",
+                    _helper.getTestEndpoint(_nextPort++));
+                serverCommunicator.getProperties().setProperty(
+                    "TestAdapter2.Endpoints",
+                    _helper.getTestEndpoint(_nextPort++));
 
                 adapter = serverCommunicator.createObjectAdapter("TestAdapter");
                 adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");

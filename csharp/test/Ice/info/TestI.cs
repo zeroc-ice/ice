@@ -30,38 +30,37 @@ public class TestI : Test.TestIntfDisp_
 
     public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
-    public override Dictionary<string, string> getEndpointInfoAsContext(Ice.Current c)
+    public override Dictionary<string, string> getEndpointInfoAsContext(Ice.Current current)
     {
         var ctx = new Dictionary<string, string>();
-        Ice.EndpointInfo info = c.con.getEndpoint().getInfo();
+        Ice.EndpointInfo info = current.con.getEndpoint().getInfo();
         ctx["compress"] = info.compress ? "true" : "false";
         ctx["datagram"] = info.datagram() ? "true" : "false";
         ctx["secure"] = info.datagram() ? "true" : "false";
-        ctx["type"] = info.type().ToString();
+        ctx["type"] = $"P{info.type()}";
 
         Ice.IPEndpointInfo ipinfo = getIPEndpointInfo(info);
         ctx["host"] = ipinfo.host;
-        ctx["port"] = ipinfo.port.ToString();
+        ctx["port"] = $"{ipinfo.port}";
 
         return ctx;
     }
 
-    public override Dictionary<string, string> getConnectionInfoAsContext(Ice.Current c)
+    public override Dictionary<string, string> getConnectionInfoAsContext(Ice.Current current)
     {
         var ctx = new Dictionary<string, string>();
-        Ice.ConnectionInfo info = c.con.getInfo();
+        Ice.ConnectionInfo info = current.con.getInfo();
         ctx["adapterName"] = info.adapterName;
         ctx["incoming"] = info.incoming ? "true" : "false";
 
         Ice.IPConnectionInfo ipinfo = getIPConnectionInfo(info);
         ctx["localAddress"] = ipinfo.localAddress;
-        ctx["localPort"] = ipinfo.localPort.ToString();
+        ctx["localPort"] = $"{ipinfo.localPort}";
         ctx["remoteAddress"] = ipinfo.remoteAddress;
-        ctx["remotePort"] = ipinfo.remotePort.ToString();
+        ctx["remotePort"] = $"{ipinfo.remotePort}";
 
-        if (info is Ice.WSConnectionInfo)
+        if (info is Ice.WSConnectionInfo wsinfo)
         {
-            var wsinfo = (Ice.WSConnectionInfo)info;
             foreach (KeyValuePair<string, string> e in wsinfo.headers)
             {
                 ctx["ws." + e.Key] = e.Value;

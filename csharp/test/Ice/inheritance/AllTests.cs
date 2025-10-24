@@ -7,7 +7,7 @@ public class AllTests : global::Test.AllTests
     public static Test.InitialPrx allTests(global::Test.TestHelper helper)
     {
         Ice.Communicator communicator = helper.communicator();
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
         string ref_Renamed = "initial:" + helper.getTestEndpoint(0);
@@ -17,17 +17,17 @@ public class AllTests : global::Test.AllTests
 
         output.Write("testing checked cast... ");
         output.Flush();
-        var initial = Test.InitialPrxHelper.checkedCast(@base);
+        Test.InitialPrx initial = Test.InitialPrxHelper.checkedCast(@base);
         test(initial != null);
         test(initial.Equals(@base));
         output.WriteLine("ok");
 
         output.Write("getting proxies for interface hierarchy... ");
         output.Flush();
-        var ia = initial.iaop();
-        var ib1 = initial.ib1op();
-        var ib2 = initial.ib2op();
-        var ic = initial.icop();
+        Test.MA.IAPrx ia = initial.iaop();
+        Test.MB.IB1Prx ib1 = initial.ib1op();
+        Test.MB.IB2Prx ib2 = initial.ib2op();
+        Test.MA.ICPrx ic = initial.icop();
         test(ia != ib1);
         test(ia != ib2);
         test(ia != ic);

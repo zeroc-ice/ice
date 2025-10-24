@@ -2,8 +2,6 @@
 
 #nullable enable
 
-using System.Diagnostics;
-
 namespace Ice.Internal;
 
 internal sealed class RequestHandlerCache

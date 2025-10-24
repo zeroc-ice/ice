@@ -14,7 +14,7 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
 
         public void Start()
         {
-            lock (this)
+            lock (_mutex)
             {
                 _thread = new Thread(new ThreadStart(Run));
                 _thread.Start();
@@ -25,13 +25,14 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
 
         public void Join()
         {
-            lock (this)
+            lock (_mutex)
             {
                 _thread.Join();
             }
         }
 
         private Thread _thread;
+        private readonly object _mutex = new();
     }
 
     public override Task shutdownAsync(Current current)
@@ -178,15 +179,15 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpFloatDoubleSSResult>
     opFloatDoubleSSAsync(float[][] p1, double[][] p2, Current current)
     {
-        var p3 = p1;
+        float[][] p3 = p1;
 
-        var p4 = new double[p2.Length][];
+        double[][] p4 = new double[p2.Length][];
         for (int i = 0; i < p2.Length; i++)
         {
             p4[i] = p2[^(i + 1)];
         }
 
-        var r = new double[p2.Length + p2.Length][];
+        double[][] r = new double[p2.Length + p2.Length][];
         Array.Copy(p2, r, p2.Length);
         for (int i = 0; i < p2.Length; i++)
         {
@@ -203,7 +204,7 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpLongFloatDResult>
     opLongFloatDAsync(Dictionary<long, float> p1, Dictionary<long, float> p2, Current current)
     {
-        var p3 = p1;
+        Dictionary<long, float> p3 = p1;
         var r = new Dictionary<long, float>();
         foreach (KeyValuePair<long, float> e in p1)
         {
@@ -220,8 +221,8 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpMyClassResult>
     opMyClassAsync(Test.MyClassPrx p1, Current current)
     {
-        var p2 = p1;
-        var p3 = Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(
+        Test.MyClassPrx p2 = p1;
+        Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(
                                                 Ice.Util.stringToIdentity("noSuchIdentity")));
         return Task.FromResult(new Test.MyClass_OpMyClassResult(
             Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id)), p2, p3));
@@ -234,7 +235,7 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpShortIntDResult>
     opShortIntDAsync(Dictionary<short, int> p1, Dictionary<short, int> p2, Current current)
     {
-        var p3 = p1;
+        Dictionary<short, int> p3 = p1;
         var r = new Dictionary<short, int>();
         foreach (KeyValuePair<short, int> e in p1)
         {
@@ -254,13 +255,13 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpShortIntLongSResult>
     opShortIntLongSAsync(short[] p1, int[] p2, long[] p3, Current current)
     {
-        var p4 = p1;
-        var p5 = new int[p2.Length];
+        short[] p4 = p1;
+        int[] p5 = new int[p2.Length];
         for (int i = 0; i < p2.Length; i++)
         {
             p5[i] = p2[^(i + 1)];
         }
-        var p6 = new long[p3.Length + p3.Length];
+        long[] p6 = new long[p3.Length + p3.Length];
         Array.Copy(p3, p6, p3.Length);
         Array.Copy(p3, 0, p6, p3.Length, p3.Length);
         return Task.FromResult(new Test.MyClass_OpShortIntLongSResult(p3, p4, p5, p6));
@@ -269,15 +270,15 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpShortIntLongSSResult>
     opShortIntLongSSAsync(short[][] p1, int[][] p2, long[][] p3, Current current)
     {
-        var p4 = p1;
+        short[][] p4 = p1;
 
-        var p5 = new int[p2.Length][];
+        int[][] p5 = new int[p2.Length][];
         for (int i = 0; i < p2.Length; i++)
         {
             p5[i] = p2[^(i + 1)];
         }
 
-        var p6 = new long[p3.Length + p3.Length][];
+        long[][] p6 = new long[p3.Length + p3.Length][];
         Array.Copy(p3, p6, p3.Length);
         Array.Copy(p3, 0, p6, p3.Length, p3.Length);
         return Task.FromResult(new Test.MyClass_OpShortIntLongSSResult(p3, p4, p5, p6));
@@ -290,7 +291,7 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpStringMyEnumDResult>
     opStringMyEnumDAsync(Dictionary<string, Test.MyEnum> p1, Dictionary<string, Test.MyEnum> p2, Current current)
     {
-        var p3 = p1;
+        Dictionary<string, Test.MyEnum> p3 = p1;
         var r = new Dictionary<string, Test.MyEnum>();
         foreach (KeyValuePair<string, Test.MyEnum> e in p1)
         {
@@ -306,9 +307,9 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpMyEnumStringDResult>
     opMyEnumStringDAsync(Dictionary<Test.MyEnum, string> p1, Dictionary<Test.MyEnum, string> p2, Current current)
     {
-        var p3 = p1;
+        Dictionary<Test.MyEnum, string> p3 = p1;
         var r = new Dictionary<Test.MyEnum, string>();
-        foreach (var e in p1)
+        foreach (KeyValuePair<Test.MyEnum, string> e in p1)
         {
             r[e.Key] = e.Value;
         }
@@ -319,17 +320,18 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         return Task.FromResult(new Test.MyClass_OpMyEnumStringDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpMyStructMyEnumDResult>
-    opMyStructMyEnumDAsync(Dictionary<Test.MyStruct, Test.MyEnum> p1,
-                           Dictionary<Test.MyStruct, Test.MyEnum> p2, Current current)
+    public override Task<Test.MyClass_OpMyStructMyEnumDResult> opMyStructMyEnumDAsync(
+        Dictionary<Test.MyStruct, Test.MyEnum> p1,
+        Dictionary<Test.MyStruct, Test.MyEnum> p2,
+        Current current)
     {
-        var p3 = p1;
+        Dictionary<Test.MyStruct, Test.MyEnum> p3 = p1;
         var r = new Dictionary<Test.MyStruct, Test.MyEnum>();
-        foreach (var e in p1)
+        foreach (KeyValuePair<Test.MyStruct, Test.MyEnum> e in p1)
         {
             r[e.Key] = e.Value;
         }
-        foreach (var e in p2)
+        foreach (KeyValuePair<Test.MyStruct, Test.MyEnum> e in p2)
         {
             r[e.Key] = e.Value;
         }
@@ -426,10 +428,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         return Task.FromResult(new Test.MyClass_OpMyEnumStringDSResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpMyStructMyEnumDSResult>
-    opMyStructMyEnumDSAsync(Dictionary<Test.MyStruct, Test.MyEnum>[] p1,
-                            Dictionary<Test.MyStruct, Test.MyEnum>[] p2,
-                            Current current)
+    public override Task<Test.MyClass_OpMyStructMyEnumDSResult> opMyStructMyEnumDSAsync(
+        Dictionary<Test.MyStruct, Test.MyEnum>[] p1,
+        Dictionary<Test.MyStruct, Test.MyEnum>[] p2,
+        Current current)
     {
         var p3 = new Dictionary<Test.MyStruct, Test.MyEnum>[p1.Length + p2.Length];
         Array.Copy(p2, p3, p2.Length);
@@ -446,13 +448,13 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpByteByteSDResult>
     opByteByteSDAsync(Dictionary<byte, byte[]> p1, Dictionary<byte, byte[]> p2, Current current)
     {
-        var p3 = p2;
+        Dictionary<byte, byte[]> p3 = p2;
         var r = new Dictionary<byte, byte[]>();
-        foreach (var e in p1)
+        foreach (KeyValuePair<byte, byte[]> e in p1)
         {
             r[e.Key] = e.Value;
         }
-        foreach (var e in p2)
+        foreach (KeyValuePair<byte, byte[]> e in p2)
         {
             r[e.Key] = e.Value;
         }
@@ -462,7 +464,7 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpBoolBoolSDResult>
     opBoolBoolSDAsync(Dictionary<bool, bool[]> p1, Dictionary<bool, bool[]> p2, Current current)
     {
-        var p3 = p2;
+        Dictionary<bool, bool[]> p3 = p2;
         var r = new Dictionary<bool, bool[]>();
         foreach (KeyValuePair<bool, bool[]> e in p1)
         {
@@ -478,13 +480,13 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpShortShortSDResult>
     opShortShortSDAsync(Dictionary<short, short[]> p1, Dictionary<short, short[]> p2, Current current)
     {
-        var p3 = p2;
+        Dictionary<short, short[]> p3 = p2;
         var r = new Dictionary<short, short[]>();
-        foreach (var e in p1)
+        foreach (KeyValuePair<short, short[]> e in p1)
         {
             r[e.Key] = e.Value;
         }
-        foreach (var e in p2)
+        foreach (KeyValuePair<short, short[]> e in p2)
         {
             r[e.Key] = e.Value;
         }
@@ -494,13 +496,13 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpIntIntSDResult>
     opIntIntSDAsync(Dictionary<int, int[]> p1, Dictionary<int, int[]> p2, Current current)
     {
-        var p3 = p2;
+        Dictionary<int, int[]> p3 = p2;
         var r = new Dictionary<int, int[]>();
-        foreach (var e in p1)
+        foreach (KeyValuePair<int, int[]> e in p1)
         {
             r[e.Key] = e.Value;
         }
-        foreach (var e in p2)
+        foreach (KeyValuePair<int, int[]> e in p2)
         {
             r[e.Key] = e.Value;
         }
@@ -510,13 +512,13 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpLongLongSDResult>
     opLongLongSDAsync(Dictionary<long, long[]> p1, Dictionary<long, long[]> p2, Current current)
     {
-        var p3 = p2;
+        Dictionary<long, long[]> p3 = p2;
         var r = new Dictionary<long, long[]>();
-        foreach (var e in p1)
+        foreach (KeyValuePair<long, long[]> e in p1)
         {
             r[e.Key] = e.Value;
         }
-        foreach (var e in p2)
+        foreach (KeyValuePair<long, long[]> e in p2)
         {
             r[e.Key] = e.Value;
         }
@@ -526,13 +528,13 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpStringFloatSDResult>
     opStringFloatSDAsync(Dictionary<string, float[]> p1, Dictionary<string, float[]> p2, Current current)
     {
-        var p3 = p2;
+        Dictionary<string, float[]> p3 = p2;
         var r = new Dictionary<string, float[]>();
-        foreach (var e in p1)
+        foreach (KeyValuePair<string, float[]> e in p1)
         {
             r[e.Key] = e.Value;
         }
-        foreach (var e in p2)
+        foreach (KeyValuePair<string, float[]> e in p2)
         {
             r[e.Key] = e.Value;
         }
@@ -542,13 +544,13 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpStringDoubleSDResult>
     opStringDoubleSDAsync(Dictionary<string, double[]> p1, Dictionary<string, double[]> p2, Current current)
     {
-        var p3 = p2;
+        Dictionary<string, double[]> p3 = p2;
         var r = new Dictionary<string, double[]>();
-        foreach (var e in p1)
+        foreach (KeyValuePair<string, double[]> e in p1)
         {
             r[e.Key] = e.Value;
         }
-        foreach (var e in p2)
+        foreach (KeyValuePair<string, double[]> e in p2)
         {
             r[e.Key] = e.Value;
         }
@@ -558,30 +560,31 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpStringStringSDResult>
     opStringStringSDAsync(Dictionary<string, string[]> p1, Dictionary<string, string[]> p2, Current current)
     {
-        var p3 = p2;
+        Dictionary<string, string[]> p3 = p2;
         var r = new Dictionary<string, string[]>();
-        foreach (var e in p1)
+        foreach (KeyValuePair<string, string[]> e in p1)
         {
             r[e.Key] = e.Value;
         }
-        foreach (var e in p2)
+        foreach (KeyValuePair<string, string[]> e in p2)
         {
             r[e.Key] = e.Value;
         }
         return Task.FromResult<Test.MyClass_OpStringStringSDResult>(new Test.MyClass_OpStringStringSDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpMyEnumMyEnumSDResult>
-    opMyEnumMyEnumSDAsync(Dictionary<Test.MyEnum, Test.MyEnum[]> p1, Dictionary<Test.MyEnum, Test.MyEnum[]> p2,
+    public override Task<Test.MyClass_OpMyEnumMyEnumSDResult> opMyEnumMyEnumSDAsync(
+        Dictionary<Test.MyEnum, Test.MyEnum[]> p1,
+        Dictionary<Test.MyEnum, Test.MyEnum[]> p2,
         Current current)
     {
-        var p3 = p2;
+        Dictionary<Test.MyEnum, Test.MyEnum[]> p3 = p2;
         var r = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
-        foreach (var e in p1)
+        foreach (KeyValuePair<Test.MyEnum, Test.MyEnum[]> e in p1)
         {
             r[e.Key] = e.Value;
         }
-        foreach (var e in p2)
+        foreach (KeyValuePair<Test.MyEnum, Test.MyEnum[]> e in p2)
         {
             r[e.Key] = e.Value;
         }
@@ -591,7 +594,7 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<int[]>
     opIntSAsync(int[] s, Current current)
     {
-        var r = new int[s.Length];
+        int[] r = new int[s.Length];
         for (int i = 0; i < s.Length; ++i)
         {
             r[i] = -s[i];
@@ -605,7 +608,7 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task
     opByteSOnewayAsync(byte[] s, Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             ++_opByteSOnewayCallCount;
         }
@@ -615,9 +618,9 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<int>
     opByteSOnewayCallCountAsync(Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
-            var count = _opByteSOnewayCallCount;
+            int count = _opByteSOnewayCallCount;
             _opByteSOnewayCallCount = 0;
             return Task.FromResult<int>(count);
         }
@@ -626,7 +629,7 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task
     opDoubleMarshalingAsync(double p1, double[] p2, Current current)
     {
-        var d = 1278312346.0 / 13.0;
+        double d = 1278312346.0 / 13.0;
         test(p1 == d);
         for (int i = 0; i < p2.Length; ++i)
         {
@@ -638,11 +641,11 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpStringSResult>
     opStringSAsync(string[] p1, string[] p2, Current current)
     {
-        var p3 = new string[p1.Length + p2.Length];
+        string[] p3 = new string[p1.Length + p2.Length];
         Array.Copy(p1, p3, p1.Length);
         Array.Copy(p2, 0, p3, p1.Length, p2.Length);
 
-        var r = new string[p1.Length];
+        string[] r = new string[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
             r[i] = p1[^(i + 1)];
@@ -653,10 +656,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpStringSSResult>
     opStringSSAsync(string[][] p1, string[][] p2, Current current)
     {
-        var p3 = new string[p1.Length + p2.Length][];
+        string[][] p3 = new string[p1.Length + p2.Length][];
         Array.Copy(p1, p3, p1.Length);
         Array.Copy(p2, 0, p3, p1.Length, p2.Length);
-        var r = new string[p2.Length][];
+        string[][] r = new string[p2.Length][];
         for (int i = 0; i < p2.Length; i++)
         {
             r[i] = p2[^(i + 1)];
@@ -667,11 +670,11 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpStringSSSResult>
     opStringSSSAsync(string[][][] p1, string[][][] p2, Current current)
     {
-        var p3 = new string[p1.Length + p2.Length][][];
+        string[][][] p3 = new string[p1.Length + p2.Length][][];
         Array.Copy(p1, p3, p1.Length);
         Array.Copy(p2, 0, p3, p1.Length, p2.Length);
 
-        var r = new string[p2.Length][][];
+        string[][][] r = new string[p2.Length][][];
         for (int i = 0; i < p2.Length; i++)
         {
             r[i] = p2[^(i + 1)];
@@ -682,13 +685,13 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpStringStringDResult>
     opStringStringDAsync(Dictionary<string, string> p1, Dictionary<string, string> p2, Current current)
     {
-        var p3 = p1;
+        Dictionary<string, string> p3 = p1;
         var r = new Dictionary<string, string>();
-        foreach (var e in p1)
+        foreach (KeyValuePair<string, string> e in p1)
         {
             r[e.Key] = e.Value;
         }
-        foreach (var e in p2)
+        foreach (KeyValuePair<string, string> e in p2)
         {
             r[e.Key] = e.Value;
         }
@@ -698,7 +701,7 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     public override Task<Test.MyClass_OpStructResult>
     opStructAsync(Test.Structure p1, Test.Structure p2, Current current)
     {
-        var p3 = p1;
+        Test.Structure p3 = p1;
         p3.s.s = "a new string";
         return Task.FromResult(new Test.MyClass_OpStructResult(p2, p3));
     }
@@ -714,83 +717,83 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     opDerivedAsync(Current current) => Task.CompletedTask;
 
     public override Task<byte>
-    opByte1Async(byte value, Current current) => Task.FromResult(value);
+    opByte1Async(byte opByte1, Current current) => Task.FromResult(opByte1);
 
     public override Task<short>
-    opShort1Async(short value, Current current) => Task.FromResult(value);
+    opShort1Async(short opShort1, Current current) => Task.FromResult(opShort1);
 
     public override Task<int>
-    opInt1Async(int value, Current current) => Task.FromResult<int>(value);
+    opInt1Async(int opInt1, Current current) => Task.FromResult<int>(opInt1);
 
     public override Task<long>
-    opLong1Async(long value, Current current) => Task.FromResult(value);
+    opLong1Async(long opLong1, Current current) => Task.FromResult(opLong1);
 
     public override Task<float>
-    opFloat1Async(float value, Current current) => Task.FromResult(value);
+    opFloat1Async(float opFloat1, Current current) => Task.FromResult(opFloat1);
 
     public override Task<double>
-    opDouble1Async(double value, Current current) => Task.FromResult(value);
+    opDouble1Async(double opDouble1, Current current) => Task.FromResult(opDouble1);
 
     public override Task<string>
-    opString1Async(string value, Current current) => Task.FromResult<string>(value);
+    opString1Async(string opString1, Current current) => Task.FromResult<string>(opString1);
 
     public override Task<string[]>
-    opStringS1Async(string[] value, Current current) => Task.FromResult(value);
+    opStringS1Async(string[] opStringS1, Current current) => Task.FromResult(opStringS1);
 
     public override Task<Dictionary<byte, bool>>
-    opByteBoolD1Async(Dictionary<byte, bool> value, Current current) => Task.FromResult(value);
+    opByteBoolD1Async(Dictionary<byte, bool> opByteBoolD1, Current current) => Task.FromResult(opByteBoolD1);
 
     public override Task<string[]>
-    opStringS2Async(string[] value, Current current) => Task.FromResult(value);
+    opStringS2Async(string[] stringS, Current current) => Task.FromResult(stringS);
 
     public override Task<Dictionary<byte, bool>>
-    opByteBoolD2Async(Dictionary<byte, bool> value, Current current) => Task.FromResult(value);
+    opByteBoolD2Async(Dictionary<byte, bool> byteBoolD, Current current) => Task.FromResult(byteBoolD);
 
     public override Task<Test.MyClass1>
-    opMyClass1Async(Test.MyClass1 value, Current current) => Task.FromResult<Test.MyClass1>(value);
+    opMyClass1Async(Test.MyClass1 opMyClass1, Current current) => Task.FromResult<Test.MyClass1>(opMyClass1);
 
     public override Task<Test.MyStruct1>
-    opMyStruct1Async(Test.MyStruct1 value, Current current) => Task.FromResult(value);
+    opMyStruct1Async(Test.MyStruct1 opMyStruct1, Current current) => Task.FromResult(opMyStruct1);
 
     public override Task<string[]>
     opStringLiteralsAsync(Current current)
     {
         return Task.FromResult(new string[]
             {
-                                Test.s0.value,
-                                Test.s1.value,
-                                Test.s2.value,
-                                Test.s3.value,
-                                Test.s4.value,
-                                Test.s5.value,
-                                Test.s6.value,
-                                Test.s7.value,
-                                Test.s8.value,
-                                Test.s9.value,
-                                Test.s10.value,
+                Test.s0.value,
+                Test.s1.value,
+                Test.s2.value,
+                Test.s3.value,
+                Test.s4.value,
+                Test.s5.value,
+                Test.s6.value,
+                Test.s7.value,
+                Test.s8.value,
+                Test.s9.value,
+                Test.s10.value,
 
-                                Test.sw0.value,
-                                Test.sw1.value,
-                                Test.sw2.value,
-                                Test.sw3.value,
-                                Test.sw4.value,
-                                Test.sw5.value,
-                                Test.sw6.value,
-                                Test.sw7.value,
-                                Test.sw8.value,
-                                Test.sw9.value,
-                                Test.sw10.value,
+                Test.sw0.value,
+                Test.sw1.value,
+                Test.sw2.value,
+                Test.sw3.value,
+                Test.sw4.value,
+                Test.sw5.value,
+                Test.sw6.value,
+                Test.sw7.value,
+                Test.sw8.value,
+                Test.sw9.value,
+                Test.sw10.value,
 
-                                Test.ss0.value,
-                                Test.ss1.value,
-                                Test.ss2.value,
-                                Test.ss3.value,
-                                Test.ss4.value,
-                                Test.ss5.value,
+                Test.ss0.value,
+                Test.ss1.value,
+                Test.ss2.value,
+                Test.ss3.value,
+                Test.ss4.value,
+                Test.ss5.value,
 
-                                Test.su0.value,
-                                Test.su1.value,
-                                Test.su2.value
+                Test.su0.value,
+                Test.su1.value,
+                Test.su2.value
             });
     }
 
@@ -858,5 +861,6 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         Task.FromResult(new Test.MyClass_OpMDict2MarshaledResult(p1, p1, current));
 
     private Thread_opVoid _opVoidThread;
-    private int _opByteSOnewayCallCount = 0;
+    private int _opByteSOnewayCallCount;
+    private readonly object _mutex = new();
 }

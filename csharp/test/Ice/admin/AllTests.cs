@@ -82,8 +82,8 @@ public class AllTests : global::Test.AllTests
 
     public static void allTests(global::Test.TestHelper helper)
     {
-        Ice.Communicator communicator = helper.communicator();
-        var output = helper.getWriter();
+        Communicator communicator = helper.communicator();
+        TextWriter output = helper.getWriter();
         output.Write("testing communicator operations... ");
         output.Flush();
         {
@@ -172,7 +172,7 @@ public class AllTests : global::Test.AllTests
                 { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
                 { "Ice.Admin.InstanceName", "Test" }
             };
-            var com = factory.createCommunicator(props);
+            Test.RemoteCommunicatorPrx com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
             Ice.ProcessPrx proc = Ice.ProcessPrxHelper.checkedCast(obj, "Process");
             proc.shutdown();
@@ -192,7 +192,7 @@ public class AllTests : global::Test.AllTests
                 { "Prop2", "2" },
                 { "Prop3", "3" }
             };
-            var com = factory.createCommunicator(props);
+            Test.RemoteCommunicatorPrx com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
             Ice.PropertiesAdminPrx pa = Ice.PropertiesAdminPrxHelper.checkedCast(obj, "Properties");
 
@@ -257,7 +257,7 @@ public class AllTests : global::Test.AllTests
                 { "Ice.Admin.InstanceName", "Test" },
                 { "NullLogger", "1" }
             };
-            var com = factory.createCommunicator(props);
+            Test.RemoteCommunicatorPrx com = factory.createCommunicator(props);
 
             com.trace("testCat", "trace");
             com.warning("warning");
@@ -288,20 +288,16 @@ public class AllTests : global::Test.AllTests
             com.trace("testCat", "trace2");
             com.warning("warning2");
 
-            Ice.LogMessageType[] messageTypes = {
-                            Ice.LogMessageType.ErrorMessage,
-                            Ice.LogMessageType.WarningMessage
-                        };
+            LogMessageType[] messageTypes = [LogMessageType.ErrorMessage, LogMessageType.WarningMessage];
 
             logMessages = logger.getLog(messageTypes, null, -1, out prefix);
 
             test(logMessages.Length == 4);
             test(prefix == "NullLogger");
 
-            foreach (var msg in logMessages)
+            foreach (LogMessage msg in logMessages)
             {
-                test(msg.type == Ice.LogMessageType.ErrorMessage ||
-                     msg.type == Ice.LogMessageType.WarningMessage);
+                test(msg.type == LogMessageType.ErrorMessage || msg.type == LogMessageType.WarningMessage);
             }
 
             //
@@ -311,19 +307,16 @@ public class AllTests : global::Test.AllTests
             com.trace("testCat", "trace3");
             com.trace("testCat2", "B");
 
-            messageTypes = new Ice.LogMessageType[] {
-                            Ice.LogMessageType.ErrorMessage,
-                            Ice.LogMessageType.TraceMessage
-                        };
+            messageTypes = [LogMessageType.ErrorMessage, LogMessageType.TraceMessage];
             string[] categories = { "testCat" };
             logMessages = logger.getLog(messageTypes, categories, -1, out prefix);
             test(logMessages.Length == 5);
             test(prefix == "NullLogger");
 
-            foreach (var msg in logMessages)
+            foreach (LogMessage msg in logMessages)
             {
-                test(msg.type == Ice.LogMessageType.ErrorMessage ||
-                    (msg.type == Ice.LogMessageType.TraceMessage && msg.traceCategory == "testCat"));
+                test(msg.type == LogMessageType.ErrorMessage ||
+                    (msg.type == LogMessageType.TraceMessage && msg.traceCategory == "testCat"));
             }
 
             //
@@ -359,7 +352,7 @@ public class AllTests : global::Test.AllTests
             logger.attachRemoteLogger(myProxy, null, null, -1);
             remoteLogger.wait(1);
 
-            foreach (var m in logMessages)
+            foreach (LogMessage m in logMessages)
             {
                 remoteLogger.checkNextInit(prefix, m.type, m.message, m.traceCategory);
             }
@@ -388,7 +381,7 @@ public class AllTests : global::Test.AllTests
             logger.attachRemoteLogger(myProxy, messageTypes, categories, 4);
             remoteLogger.wait(1);
 
-            foreach (var m in logMessages)
+            foreach (LogMessage m in logMessages)
             {
                 remoteLogger.checkNextInit(prefix, m.type, m.message, m.traceCategory);
             }
@@ -409,8 +402,11 @@ public class AllTests : global::Test.AllTests
             //
             try
             {
-                logger.attachRemoteLogger(Ice.RemoteLoggerPrxHelper.uncheckedCast(myProxy.ice_oneway()),
-                                          messageTypes, categories, 4);
+                logger.attachRemoteLogger(
+                    RemoteLoggerPrxHelper.uncheckedCast(myProxy.ice_oneway()),
+                    messageTypes,
+                    categories,
+                    4);
                 test(false);
             }
             catch (Ice.RemoteLoggerAlreadyAttachedException)
@@ -433,9 +429,9 @@ public class AllTests : global::Test.AllTests
                 { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
                 { "Ice.Admin.InstanceName", "Test" }
             };
-            var com = factory.createCommunicator(props);
+            Test.RemoteCommunicatorPrx com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
-            var tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
+            Test.TestFacetPrx tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
             tf.op();
             com.destroy();
         }
@@ -454,7 +450,7 @@ public class AllTests : global::Test.AllTests
                 { "Ice.Admin.InstanceName", "Test" },
                 { "Ice.Admin.Facets", "Properties" }
             };
-            var com = factory.createCommunicator(props);
+            Test.RemoteCommunicatorPrx com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
             try
             {
@@ -487,7 +483,7 @@ public class AllTests : global::Test.AllTests
                 { "Ice.Admin.InstanceName", "Test" },
                 { "Ice.Admin.Facets", "Process" }
             };
-            var com = factory.createCommunicator(props);
+            Test.RemoteCommunicatorPrx com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
             try
             {
@@ -520,7 +516,7 @@ public class AllTests : global::Test.AllTests
                 { "Ice.Admin.InstanceName", "Test" },
                 { "Ice.Admin.Facets", "TestFacet" }
             };
-            var com = factory.createCommunicator(props);
+            Test.RemoteCommunicatorPrx com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
             try
             {
@@ -553,11 +549,11 @@ public class AllTests : global::Test.AllTests
                 { "Ice.Admin.InstanceName", "Test" },
                 { "Ice.Admin.Facets", "Properties TestFacet" }
             };
-            var com = factory.createCommunicator(props);
+            Test.RemoteCommunicatorPrx com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
             Ice.PropertiesAdminPrx pa = Ice.PropertiesAdminPrxHelper.checkedCast(obj, "Properties");
             test(pa.getProperty("Ice.Admin.InstanceName") == "Test");
-            var tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
+            Test.TestFacetPrx tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
             tf.op();
             try
             {
@@ -581,7 +577,7 @@ public class AllTests : global::Test.AllTests
                 { "Ice.Admin.InstanceName", "Test" },
                 { "Ice.Admin.Facets", "TestFacet, Process" }
             };
-            var com = factory.createCommunicator(props);
+            Test.RemoteCommunicatorPrx com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
             try
             {
@@ -592,7 +588,7 @@ public class AllTests : global::Test.AllTests
             {
                 // Expected
             }
-            var tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
+            Test.TestFacetPrx tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
             tf.op();
             Ice.ProcessPrx proc = Ice.ProcessPrxHelper.checkedCast(obj, "Process");
             proc.shutdown();
@@ -608,69 +604,70 @@ public class AllTests : global::Test.AllTests
     {
         public override void init(string prefix, Ice.LogMessage[] messages, Ice.Current current)
         {
-            lock (this)
+            lock (_mutex)
             {
                 _prefix = prefix;
-                foreach (var message in messages)
+                foreach (LogMessage message in messages)
                 {
                     _initMessages.Enqueue(message);
                 }
                 _receivedCalls++;
-                Monitor.PulseAll(this);
+                Monitor.PulseAll(_mutex);
             }
         }
 
         public override void log(Ice.LogMessage message, Ice.Current current)
         {
-            lock (this)
+            lock (_mutex)
             {
                 _logMessages.Enqueue(message);
                 _receivedCalls++;
-                Monitor.PulseAll(this);
+                Monitor.PulseAll(_mutex);
             }
         }
 
-        internal void checkNextInit(string prefix, Ice.LogMessageType type, string message, string category)
+        internal void checkNextInit(string prefix, LogMessageType type, string message, string category)
         {
-            lock (this)
+            lock (_mutex)
             {
-                test(_prefix.Equals(prefix));
+                test(_prefix == prefix);
                 test(_initMessages.Count > 0);
-                var logMessage = _initMessages.Dequeue();
+                LogMessage logMessage = _initMessages.Dequeue();
                 test(logMessage.type == type);
-                test(logMessage.message.Equals(message));
-                test(logMessage.traceCategory.Equals(category));
+                test(logMessage.message == message);
+                test(logMessage.traceCategory == category);
             }
         }
 
         internal void checkNextLog(Ice.LogMessageType type, string message, string category)
         {
-            lock (this)
+            lock (_mutex)
             {
                 test(_logMessages.Count > 0);
-                var logMessage = _logMessages.Dequeue();
+                LogMessage logMessage = _logMessages.Dequeue();
                 test(logMessage.type == type);
-                test(logMessage.message.Equals(message));
-                test(logMessage.traceCategory.Equals(category));
+                test(logMessage.message == message);
+                test(logMessage.traceCategory == category);
             }
         }
 
         internal void wait(int calls)
         {
-            lock (this)
+            lock (_mutex)
             {
                 _receivedCalls -= calls;
 
                 while (_receivedCalls < 0)
                 {
-                    Monitor.Wait(this);
+                    Monitor.Wait(_mutex);
                 }
             }
         }
 
-        private int _receivedCalls = 0;
+        private int _receivedCalls;
         private string _prefix;
         private readonly Queue<Ice.LogMessage> _initMessages = new Queue<Ice.LogMessage>();
         private readonly Queue<Ice.LogMessage> _logMessages = new Queue<Ice.LogMessage>();
+        private readonly object _mutex = new();
     }
 }

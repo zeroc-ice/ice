@@ -13,10 +13,10 @@ public class ServerLocator : Test.TestLocatorDisp_
         _requestCount = 0;
     }
 
-    public override Ice.ObjectPrx findAdapterById(string adapter, Ice.Current current)
+    public override Ice.ObjectPrx findAdapterById(string id, Ice.Current current)
     {
         ++_requestCount;
-        if (adapter == "TestAdapter10" || adapter == "TestAdapter10-2")
+        if (id == "TestAdapter10" || id == "TestAdapter10-2")
         {
             Debug.Assert(current.encoding.Equals(Ice.Util.Encoding_1_0));
             return _registry.getAdapter("TestAdapter");
@@ -26,7 +26,7 @@ public class ServerLocator : Test.TestLocatorDisp_
             // We add a small delay to make sure locator request queuing gets tested when
             // running the test on a fast machine
             System.Threading.Thread.Sleep(1);
-            return _registry.getAdapter(adapter);
+            return _registry.getAdapter(id);
         }
     }
 

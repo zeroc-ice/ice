@@ -1,8 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 
 //
 // NOTE: We don't use C# timers, the API is quite a bit different from

@@ -12,33 +12,33 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         _objects = new Hashtable();
     }
 
-    public override void setAdapterDirectProxy(string adapter, Ice.ObjectPrx obj, Ice.Current current)
+    public override void setAdapterDirectProxy(string id, ObjectPrx proxy, Current current)
     {
-        if (obj != null)
+        if (proxy != null)
         {
-            _adapters[adapter] = obj;
+            _adapters[id] = proxy;
         }
         else
         {
-            _adapters.Remove(adapter);
+            _adapters.Remove(id);
         }
     }
 
     public override void setReplicatedAdapterDirectProxy(
-        string adapter,
-        string replica,
-        Ice.ObjectPrx obj,
-        Ice.Current current)
+        string adapterId,
+        string replicaGroupId,
+        ObjectPrx proxy,
+        Current current)
     {
-        if (obj != null)
+        if (proxy != null)
         {
-            _adapters[adapter] = obj;
-            _adapters[replica] = obj;
+            _adapters[adapterId] = proxy;
+            _adapters[replicaGroupId] = proxy;
         }
         else
         {
-            _adapters.Remove(adapter);
-            _adapters.Remove(replica);
+            _adapters.Remove(adapterId);
+            _adapters.Remove(replicaGroupId);
         }
     }
 

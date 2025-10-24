@@ -4,20 +4,19 @@ namespace Ice.invoke;
 
 public class AllTests : global::Test.AllTests
 {
-    private static readonly string testString = "This is a test string";
+    private const string testString = "This is a test string";
 
     public static Test.MyClassPrx allTests(global::Test.TestHelper helper)
     {
         Ice.Communicator communicator = helper.communicator();
         Ice.ObjectPrx baseProxy = communicator.stringToProxy("test:" + helper.getTestEndpoint(0));
-        var cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
-        var oneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_oneway());
-        var batchOneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_batchOneway());
+        Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
+        Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_oneway());
+        Test.MyClassPrx batchOneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_batchOneway());
 
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Write("testing ice_invoke... ");
         output.Flush();
-
         {
             byte[] inEncaps;
             if (!oneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out _))
@@ -41,10 +40,10 @@ public class AllTests : global::Test.AllTests
                 var inS = new Ice.InputStream(communicator, outEncaps);
                 inS.startEncapsulation();
                 string s = inS.readString();
-                test(s.Equals(testString));
+                test(s == testString);
                 s = inS.readString();
                 inS.endEncapsulation();
-                test(s.Equals(testString));
+                test(s == testString);
             }
             else
             {
@@ -91,7 +90,6 @@ public class AllTests : global::Test.AllTests
 
         output.Write("testing asynchronous ice_invoke with Async Task API... ");
         output.Flush();
-
         {
             try
             {
@@ -109,16 +107,16 @@ public class AllTests : global::Test.AllTests
             byte[] inEncaps = outS.finished();
 
             // begin_ice_invoke with no callback
-            var result = cl.ice_invokeAsync("opString", Ice.OperationMode.Normal, inEncaps).Result;
+            Object_Ice_invokeResult result = cl.ice_invokeAsync("opString", Ice.OperationMode.Normal, inEncaps).Result;
             if (result.returnValue)
             {
                 var inS = new Ice.InputStream(communicator, result.outEncaps);
                 inS.startEncapsulation();
                 string s = inS.readString();
-                test(s.Equals(testString));
+                test(s == testString);
                 s = inS.readString();
                 inS.endEncapsulation();
-                test(s.Equals(testString));
+                test(s == testString);
             }
             else
             {
@@ -127,7 +125,7 @@ public class AllTests : global::Test.AllTests
         }
 
         {
-            var result = cl.ice_invokeAsync("opException", Ice.OperationMode.Normal, null).Result;
+            Object_Ice_invokeResult result = cl.ice_invokeAsync("opException", Ice.OperationMode.Normal, null).Result;
             if (result.returnValue)
             {
                 test(false);

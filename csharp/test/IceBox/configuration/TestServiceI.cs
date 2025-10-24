@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+namespace IceBox.configuration;
+
 internal class TestServiceI : IceBox.Service
 {
     public void
@@ -10,8 +12,7 @@ internal class TestServiceI : IceBox.Service
         adapter.activate();
     }
 
-    public void
-    stop()
+    public void stop()
     {
     }
 }

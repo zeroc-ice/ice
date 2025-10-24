@@ -3,6 +3,8 @@
 using System.Diagnostics;
 using Test;
 
+namespace Ice.faultTolerance;
+
 public class AllTests : Test.AllTests
 {
     private static void exceptAbortI(Ice.Exception ex, TextWriter output)
@@ -30,7 +32,7 @@ public class AllTests : Test.AllTests
     public static async Task allTests(Test.TestHelper helper, List<int> ports)
     {
         Ice.Communicator communicator = helper.communicator();
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
         string refString = "test";

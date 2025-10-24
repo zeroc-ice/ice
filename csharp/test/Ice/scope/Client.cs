@@ -10,8 +10,8 @@ public class Client : TestHelper
     {
         var initData = new InitializationData();
         initData.properties = createTestProperties(ref args);
-        using var communicator = initialize(initData);
-        var output = getWriter();
+        using Communicator communicator = initialize(initData);
+        TextWriter output = getWriter();
         output.Write("test using same type name in different Slice modules... ");
         output.Flush();
         AllTests.allTests(this);

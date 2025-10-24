@@ -13,8 +13,8 @@ public class Client : TestHelper
         var customSliceLoader = new AllTests.CustomSliceLoader();
         initData.sliceLoader = customSliceLoader;
 
-        await using var communicator = initialize(initData);
-        var initial = await AllTests.allTests(this, customSliceLoader);
+        await using Communicator communicator = initialize(initData);
+        Test.InitialPrx initial = await AllTests.allTests(this, customSliceLoader);
         initial.shutdown();
     }
 

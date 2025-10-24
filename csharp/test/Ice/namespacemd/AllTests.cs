@@ -8,21 +8,20 @@ public class AllTests : global::Test.AllTests
 {
     public static Test.InitialPrx allTests(TestHelper helper)
     {
-        var communicator = helper.communicator();
-        var output = helper.getWriter();
+        Communicator communicator = helper.communicator();
+        TextWriter output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
-        var @base = communicator.stringToProxy("initial:" + helper.getTestEndpoint(0));
+        ObjectPrx @base = communicator.stringToProxy("initial:" + helper.getTestEndpoint(0));
         test(@base != null);
         output.WriteLine("ok");
 
         output.Write("testing checked cast... ");
         output.Flush();
-        var initial = Test.InitialPrxHelper.checkedCast(@base);
+        Test.InitialPrx initial = Test.InitialPrxHelper.checkedCast(@base);
         test(initial != null);
         test(initial.Equals(@base));
         output.WriteLine("ok");
-
         {
             output.Write("testing types without package... ");
             output.Flush();
@@ -64,7 +63,6 @@ public class AllTests : global::Test.AllTests
         {
             output.Write("testing types with package... ");
             output.Flush();
-
             {
                 WithNamespace.C1 c1 = initial.getWithNamespaceC2AsC1();
                 test(c1 != null);

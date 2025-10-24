@@ -8,6 +8,8 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace Ice.assemblies;
+
 public class Client : Test.TestHelper
 {
     public override void run(string[] args)
@@ -19,18 +21,17 @@ public class Client : Test.TestHelper
         Ice.Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.PreloadAssemblies", "0");
 #pragma warning disable SYSLIB0012 // Type or member is obsolete
-        string assembly =
-            string.Format("{0}/core.dll",
-                          Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
+        string codeBase = Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase));
+        string assembly = $"{codeBase}/core.dll";
 
-        using (var communicator = initialize(properties))
+        using (Ice.Communicator communicator = initialize(properties))
         {
             test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) => e.CodeBase.EndsWith(
                 assembly,
                 StringComparison.InvariantCultureIgnoreCase)) == null);
         }
         properties.setProperty("Ice.PreloadAssemblies", "1");
-        using (var communicator = initialize(properties))
+        using (Ice.Communicator communicator = initialize(properties))
         {
             test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) => e.CodeBase.EndsWith(
                 assembly,

@@ -2,12 +2,14 @@
 
 using System.Diagnostics;
 
+namespace Ice.metrics;
+
 public class ObserverI : Ice.Instrumentation.Observer
 {
     public virtual void
     reset()
     {
-        lock (this)
+        lock (mutex_)
         {
             total = 0;
             current = 0;
@@ -15,54 +17,50 @@ public class ObserverI : Ice.Instrumentation.Observer
         }
     }
 
-    public void
-    attach()
+    public void attach()
     {
-        lock (this)
+        lock (mutex_)
         {
             ++total;
             ++current;
         }
     }
-    public void
-    detach()
+
+    public void detach()
     {
-        lock (this)
+        lock (mutex_)
         {
             --current;
         }
     }
-    public void
-    failed(string s)
+
+    public void failed(string exceptionName)
     {
-        lock (this)
+        lock (mutex_)
         {
             ++failedCount;
         }
     }
 
-    public int
-    getTotal()
+    public int getTotal()
     {
-        lock (this)
+        lock (mutex_)
         {
             return total;
         }
     }
 
-    public int
-    getCurrent()
+    public int getCurrent()
     {
-        lock (this)
+        lock (mutex_)
         {
             return current;
         }
     }
 
-    public int
-    getFailedCount()
+    public int getFailedCount()
     {
-        lock (this)
+        lock (mutex_)
         {
             return failedCount;
         }
@@ -71,6 +69,8 @@ public class ObserverI : Ice.Instrumentation.Observer
     public int total;
     public int current;
     public int failedCount;
+
+    protected readonly object mutex_ = new();
 }
 
 public class ChildInvocationObserverI : ObserverI, Ice.Instrumentation.ChildInvocationObserver
@@ -78,19 +78,18 @@ public class ChildInvocationObserverI : ObserverI, Ice.Instrumentation.ChildInvo
     public override void
     reset()
     {
-        lock (this)
+        lock (mutex_)
         {
             base.reset();
             replySize = 0;
         }
     }
 
-    public void
-    reply(int s)
+    public void reply(int size)
     {
-        lock (this)
+        lock (mutex_)
         {
-            replySize += s;
+            replySize += size;
         }
     }
 
@@ -110,7 +109,7 @@ public class InvocationObserverI : ObserverI, Ice.Instrumentation.InvocationObse
     public override void
     reset()
     {
-        lock (this)
+        lock (mutex_)
         {
             base.reset();
             retriedCount = 0;
@@ -123,7 +122,7 @@ public class InvocationObserverI : ObserverI, Ice.Instrumentation.InvocationObse
     public void
     retried()
     {
-        lock (this)
+        lock (mutex_)
         {
             ++retriedCount;
         }
@@ -132,16 +131,16 @@ public class InvocationObserverI : ObserverI, Ice.Instrumentation.InvocationObse
     public void
     userException()
     {
-        lock (this)
+        lock (mutex_)
         {
             ++userExceptionCount;
         }
     }
 
     public Ice.Instrumentation.RemoteObserver
-    getRemoteObserver(Ice.ConnectionInfo c, Ice.Endpoint e, int a, int b)
+    getRemoteObserver(Ice.ConnectionInfo con, Ice.Endpoint endpt, int requestId, int size)
     {
-        lock (this)
+        lock (mutex_)
         {
             if (remoteObserver == null)
             {
@@ -153,9 +152,9 @@ public class InvocationObserverI : ObserverI, Ice.Instrumentation.InvocationObse
     }
 
     public Ice.Instrumentation.CollocatedObserver
-    getCollocatedObserver(Ice.ObjectAdapter adapter, int a, int b)
+    getCollocatedObserver(Ice.ObjectAdapter adapter, int requestId, int size)
     {
-        lock (this)
+        lock (mutex_)
         {
             if (collocatedObserver == null)
             {
@@ -169,8 +168,8 @@ public class InvocationObserverI : ObserverI, Ice.Instrumentation.InvocationObse
     public int userExceptionCount;
     public int retriedCount;
 
-    public RemoteObserverI remoteObserver = null;
-    public CollocatedObserverI collocatedObserver = null;
+    public RemoteObserverI remoteObserver;
+    public CollocatedObserverI collocatedObserver;
 }
 
 public class DispatchObserverI : ObserverI, Ice.Instrumentation.DispatchObserver
@@ -178,7 +177,7 @@ public class DispatchObserverI : ObserverI, Ice.Instrumentation.DispatchObserver
     public override void
     reset()
     {
-        lock (this)
+        lock (mutex_)
         {
             base.reset();
             userExceptionCount = 0;
@@ -189,18 +188,18 @@ public class DispatchObserverI : ObserverI, Ice.Instrumentation.DispatchObserver
     public void
     userException()
     {
-        lock (this)
+        lock (mutex_)
         {
             ++userExceptionCount;
         }
     }
 
     public void
-    reply(int s)
+    reply(int size)
     {
-        lock (this)
+        lock (mutex_)
         {
-            replySize += s;
+            replySize += size;
         }
     }
 
@@ -213,7 +212,7 @@ public class ConnectionObserverI : ObserverI, Ice.Instrumentation.ConnectionObse
     public override void
     reset()
     {
-        lock (this)
+        lock (mutex_)
         {
             base.reset();
             received = 0;
@@ -222,20 +221,20 @@ public class ConnectionObserverI : ObserverI, Ice.Instrumentation.ConnectionObse
     }
 
     public void
-    sentBytes(int s)
+    sentBytes(int num)
     {
-        lock (this)
+        lock (mutex_)
         {
-            sent += s;
+            sent += num;
         }
     }
 
     public void
-    receivedBytes(int s)
+    receivedBytes(int num)
     {
-        lock (this)
+        lock (mutex_)
         {
-            received += s;
+            received += num;
         }
     }
 
@@ -248,7 +247,7 @@ public class ThreadObserverI : ObserverI, Ice.Instrumentation.ThreadObserver
     public override void
     reset()
     {
-        lock (this)
+        lock (mutex_)
         {
             base.reset();
             states = 0;
@@ -256,9 +255,9 @@ public class ThreadObserverI : ObserverI, Ice.Instrumentation.ThreadObserver
     }
 
     public void
-    stateChanged(Ice.Instrumentation.ThreadState o, Ice.Instrumentation.ThreadState n)
+    stateChanged(Ice.Instrumentation.ThreadState oldState, Ice.Instrumentation.ThreadState newState)
     {
-        lock (this)
+        lock (mutex_)
         {
             ++states;
         }
@@ -270,18 +269,18 @@ public class ThreadObserverI : ObserverI, Ice.Instrumentation.ThreadObserver
 public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
 {
     public void
-    setObserverUpdater(Ice.Instrumentation.ObserverUpdater u)
+    setObserverUpdater(Ice.Instrumentation.ObserverUpdater updater)
     {
-        lock (this)
+        lock (_mutex)
         {
-            updater = u;
+            this.updater = updater;
         }
     }
 
     public Ice.Instrumentation.Observer
-    getConnectionEstablishmentObserver(Ice.Endpoint e, string s)
+    getConnectionEstablishmentObserver(Ice.Endpoint endpt, string connector)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (connectionEstablishmentObserver == null)
             {
@@ -293,9 +292,9 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
     }
 
     public Ice.Instrumentation.Observer
-    getEndpointLookupObserver(Ice.Endpoint e)
+    getEndpointLookupObserver(Ice.Endpoint endpt)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (endpointLookupObserver == null)
             {
@@ -306,15 +305,15 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
         }
     }
 
-    public Ice.Instrumentation.ConnectionObserver
-    getConnectionObserver(Ice.ConnectionInfo c,
-                          Ice.Endpoint e,
-                          Ice.Instrumentation.ConnectionState s,
-                          Ice.Instrumentation.ConnectionObserver old)
+    public Ice.Instrumentation.ConnectionObserver getConnectionObserver(
+        Ice.ConnectionInfo c,
+        Ice.Endpoint e,
+        Ice.Instrumentation.ConnectionState s,
+        Ice.Instrumentation.ConnectionObserver o)
     {
-        lock (this)
+        lock (_mutex)
         {
-            Debug.Assert(old == null || old is ConnectionObserverI);
+            Debug.Assert(o == null || o is ConnectionObserverI);
             if (connectionObserver == null)
             {
                 connectionObserver = new ConnectionObserverI();
@@ -325,12 +324,11 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
     }
 
     public Ice.Instrumentation.ThreadObserver
-    getThreadObserver(string p, string id, Ice.Instrumentation.ThreadState s,
-                      Ice.Instrumentation.ThreadObserver old)
+    getThreadObserver(string parent, string id, Ice.Instrumentation.ThreadState s, Ice.Instrumentation.ThreadObserver o)
     {
-        lock (this)
+        lock (_mutex)
         {
-            Debug.Assert(old == null || old is ThreadObserverI);
+            Debug.Assert(o == null || o is ThreadObserverI);
             if (threadObserver == null)
             {
                 threadObserver = new ThreadObserverI();
@@ -341,9 +339,9 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
     }
 
     public Ice.Instrumentation.InvocationObserver
-    getInvocationObserver(Ice.ObjectPrx p, string op, Dictionary<string, string> ctx)
+    getInvocationObserver(Ice.ObjectPrx prx, string operation, Dictionary<string, string> ctx)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (invocationObserver == null)
             {
@@ -354,10 +352,9 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
         }
     }
 
-    public Ice.Instrumentation.DispatchObserver
-    getDispatchObserver(Ice.Current current, int s)
+    public Ice.Instrumentation.DispatchObserver getDispatchObserver(Ice.Current c, int size)
     {
-        lock (this)
+        lock (_mutex)
         {
             if (dispatchObserver == null)
             {
@@ -376,4 +373,6 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
     public ThreadObserverI threadObserver;
     public InvocationObserverI invocationObserver;
     public DispatchObserverI dispatchObserver;
+
+    private readonly object _mutex = new();
 }

@@ -19,14 +19,14 @@ public class ServantLocatorI : Ice.ServantLocator
     }
 
     public Ice.Object
-    locate(Ice.Current current, out object cookie)
+    locate(Ice.Current curr, out object cookie)
     {
         cookie = null;
         return _blobject;
     }
 
     public void
-    finished(Ice.Current current, Ice.Object servant, object cookie)
+    finished(Ice.Current curr, Ice.Object servant, object cookie)
     {
     }
 
@@ -43,7 +43,7 @@ public class Server : TestHelper
     public override void run(string[] args)
     {
         bool async = args.Any(v => v == "--async");
-        using var communicator = initialize(ref args);
+        using Communicator communicator = initialize(ref args);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.addServantLocator(new ServantLocatorI(async), "");

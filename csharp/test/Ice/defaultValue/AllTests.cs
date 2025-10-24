@@ -8,10 +8,9 @@ public class AllTests : global::Test.AllTests
 {
     public static void allTests(global::Test.TestHelper helper)
     {
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Write("testing default values... ");
         output.Flush();
-
         {
             var point = new Point();
             test(point.x == 0);
@@ -48,9 +47,9 @@ public class AllTests : global::Test.AllTests
             test(v.s == 16000);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == (float)5.1);
+            test(v.f == 5.1f);
             test(v.d == 6.2);
-            test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
+            test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
             test(v.c1 == Color.red);
             test(v.c2 == Color.green);
             test(v.c3 == Color.blue);
@@ -75,7 +74,7 @@ public class AllTests : global::Test.AllTests
             test(v.l == ConstLong.value);
             test(v.f == ConstFloat.value);
             test(v.d == ConstDouble.value);
-            test(v.str.Equals(ConstString.value));
+            test(v.str == ConstString.value);
             test(v.c1 == ConstColor1.value);
             test(v.c2 == ConstColor2.value);
             test(v.c3 == ConstColor3.value);
@@ -154,7 +153,7 @@ public class AllTests : global::Test.AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
+            test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
             test(v.noDefault.Length == 0);
             test(v.zeroI == 0);
             test(v.zeroL == 0);
@@ -174,7 +173,7 @@ public class AllTests : global::Test.AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
+            test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
             test(v.c1 == Color.red);
             test(v.c2 == Color.green);
             test(v.c3 == Color.blue);

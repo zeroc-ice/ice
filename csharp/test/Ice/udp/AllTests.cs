@@ -10,16 +10,16 @@ public class AllTests : global::Test.AllTests
     {
         public override void reply(Ice.Current current)
         {
-            lock (this)
+            lock (_mutex)
             {
                 ++_replies;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(_mutex);
             }
         }
 
         public void reset()
         {
-            lock (this)
+            lock (_mutex)
             {
                 _replies = 0;
             }
@@ -27,15 +27,15 @@ public class AllTests : global::Test.AllTests
 
         public bool waitReply(int expectedReplies, long timeout)
         {
-            lock (this)
+            lock (_mutex)
             {
-                long end = Ice.Internal.Time.currentMonotonicTimeMillis() + timeout;
+                long end = Internal.Time.currentMonotonicTimeMillis() + timeout;
                 while (_replies < expectedReplies)
                 {
-                    int delay = (int)(end - Ice.Internal.Time.currentMonotonicTimeMillis());
+                    int delay = (int)(end - Internal.Time.currentMonotonicTimeMillis());
                     if (delay > 0)
                     {
-                        System.Threading.Monitor.Wait(this, delay);
+                        Monitor.Wait(_mutex, delay);
                     }
                     else
                     {
@@ -46,7 +46,8 @@ public class AllTests : global::Test.AllTests
             }
         }
 
-        private int _replies = 0;
+        private readonly object _mutex = new();
+        private int _replies;
     }
 
     public static async Task allTests(global::Test.TestHelper helper)
@@ -166,7 +167,7 @@ public class AllTests : global::Test.AllTests
         endpoint.Append(" -p ");
         endpoint.Append(helper.getTestPort(10));
         @base = communicator.stringToProxy("test -d:" + endpoint.ToString());
-        var objMcast = Test.TestIntfPrxHelper.uncheckedCast(@base);
+        Test.TestIntfPrx objMcast = Test.TestIntfPrxHelper.uncheckedCast(@base);
 
         nRetry = 5;
         while (nRetry-- > 0)
