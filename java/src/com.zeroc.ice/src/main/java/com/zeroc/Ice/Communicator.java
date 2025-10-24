@@ -33,7 +33,6 @@ public final class Communicator implements AutoCloseable {
      * Constructs a communicator with the specified options.
      *
      * @param initData the options for the new communicator
-     *
      */
     public Communicator(InitializationData initData) {
         _instance = new Instance();
