@@ -825,9 +825,11 @@ public sealed class ObjectAdapter
         lock (_mutex)
         {
             checkForDeactivation();
+
             if (_routerInfo is not null)
             {
-                throw new ArgumentException("can't set published endpoints on object adapter associated with a router");
+                throw new ArgumentException(
+                    "Cannot set published endpoints on an object adapter associated with a router.");
             }
 
             oldPublishedEndpoints = _publishedEndpoints;
