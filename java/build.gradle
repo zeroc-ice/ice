@@ -136,8 +136,22 @@ dependencies {
     )
 }
 
-// Causes build failure when rewriteRun would make changes.
-def runningInCi = providers.environmentVariable("CI").isPresent()
 tasks.named('rewriteDryRun') {
-    rewrite.failOnDryRunResults = runningInCi
+    doFirst {
+        // Delete the old report file if present
+        def reportFile = file(reportPath)
+        if (reportFile.exists()) {
+            reportFile.delete()
+        }
+    }
+
+    doLast {
+        if (file(reportPath).exists()) {
+            print("\n\n" + java.nio.file.Files.readString(reportPath))
+
+            if (providers.environmentVariable("CI").isPresent()) {
+                throw RuntimeException("Applying recipes would make changes. See logs for more details.")
+            }
+        }
+    }
 }
