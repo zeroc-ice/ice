@@ -13,6 +13,9 @@ module Test
         // Allow remote addition of objects to the locator registry.
         //
         void addObject(Object* obj);
+
+        /// Gets the number of setXxx requests sent to this LocatorRegistry.
+        int getSetRequestCount();
     }
 
     interface TestLocator extends Ice::Locator
