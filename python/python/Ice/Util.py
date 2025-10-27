@@ -116,8 +116,9 @@ def createProperties(args: list[str] | None = None, defaults: Properties | None 
     args : list[str], optional
         A list of command-line arguments, such as ``sys.argv``. Arguments that match Ice runtime options are parsed
         into properties and removed from the list.
-    defaults : dict[str, str], optional
-        A dictionary representing default property values.
+    defaults : Properties, optional
+        Default values for the new Properties object. Settings in configuration files and the arguments override
+        these defaults.
 
     Returns
     -------
@@ -127,7 +128,6 @@ def createProperties(args: list[str] | None = None, defaults: Properties | None 
     Examples
     --------
     .. code-block:: python
-
         # Create a new empty property set.
         properties = Ice.createProperties()
 
@@ -135,12 +135,14 @@ def createProperties(args: list[str] | None = None, defaults: Properties | None 
         properties = Ice.createProperties(sys.argv)
 
         # Create a property set using default values.
-        defaults = {"Ice.Trace.Protocol": "1"}
-        properties = Ice.createProperties(defaults)
+        defaultProperties = Ice.createProperties()
+        defaultProperties.setProperty("Ice.Trace.Protocol", "1")
+        properties = Ice.createProperties(defaults=defaultProperties)
 
         # Combine command-line parsing with default values.
-        defaults = {"Ice.Trace.Protocol": "1"}
-        properties = Ice.createProperties(sys.argv, defaults)
+        defaultProperties = Ice.createProperties()
+        defaultProperties.setProperty("Ice.Trace.Protocol", "1")
+        properties = Ice.createProperties(sys.argv, defaultProperties)
     """
     return Properties(args, defaults)
 

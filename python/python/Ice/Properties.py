@@ -28,8 +28,9 @@ class Properties:
         args : list[str], optional
             A list of command-line arguments, such as ``sys.argv``. Arguments that match Ice runtime options are parsed
             into properties and removed from the list.
-        defaults : dict[str, str], optional
-            A dictionary representing default property values.
+        defaults : Properties, optional
+            Default values for the new Properties object. Settings in configuration files and the arguments override
+            these defaults.
 
         Returns
         -------
@@ -39,7 +40,6 @@ class Properties:
         Examples
         --------
         .. code-block:: python
-
             # Create a new empty property set.
             properties = Ice.Properties()
 
@@ -47,12 +47,14 @@ class Properties:
             properties = Ice.Properties(sys.argv)
 
             # Create a property set using default values.
-            defaults = {"Ice.Trace.Protocol": "1"}
-            properties = Ice.Properties(defaults)
+            defaultProperties = Ice.Properties()
+            defaultProperties.setProperty("Ice.Trace.Protocol", "1")
+            properties = Ice.Properties(defaults=defaultProperties)
 
             # Combine command-line parsing with default values.
-            defaults = {"Ice.Trace.Protocol": "1"}
-            properties = Ice.Properties(sys.argv, defaults)
+            defaultProperties = Ice.Properties()
+            defaultProperties.setProperty("Ice.Trace.Protocol", "1")
+            properties = Ice.Properties(sys.argv, defaultProperties)
         """
         if isinstance(args, IcePy.Properties):
             self._impl = args
