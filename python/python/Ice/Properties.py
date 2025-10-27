@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-from typing import final
+from typing import Self, final
 
 import IcePy
 
@@ -13,8 +13,51 @@ class Properties:
     application-name[.category[.sub-category]].name.
     """
 
-    def __init__(self, impl: IcePy.Properties):
-        self._impl = impl
+    def __init__(self, args: list[str] | IcePy.Properties | None = None, defaults: Self | None = None):
+        """
+        Creates a new property set.
+
+        This function creates a new Ice property set. You can optionally provide a command-line argument list (such as
+        ``sys.argv``) and/or a dictionary of default property values.
+
+        If an argument list is supplied, this function parses arguments starting with ``--`` and a known Ice prefix
+        (e.g., ``Ice``, ``IceSSL``), and removes recognized arguments from the list.
+
+        Parameters
+        ----------
+        args : list[str], optional
+            A list of command-line arguments, such as ``sys.argv``. Arguments that match Ice runtime options are parsed
+            into properties and removed from the list.
+        defaults : dict[str, str], optional
+            A dictionary representing default property values.
+
+        Returns
+        -------
+        Properties
+            A new Ice property set instance.
+
+        Examples
+        --------
+        .. code-block:: python
+
+            # Create a new empty property set.
+            properties = Ice.Properties()
+
+            # Create a property set from command-line arguments.
+            properties = Ice.Properties(sys.argv)
+
+            # Create a property set using default values.
+            defaults = {"Ice.Trace.Protocol": "1"}
+            properties = Ice.Properties(defaults)
+
+            # Combine command-line parsing with default values.
+            defaults = {"Ice.Trace.Protocol": "1"}
+            properties = Ice.Properties(sys.argv, defaults)
+        """
+        if isinstance(args, IcePy.Properties):
+            self._impl = args
+        else:
+            self._impl = IcePy.createProperties(args, defaults)
 
     def getProperty(self, key: str) -> str:
         """

@@ -108,6 +108,9 @@ def createProperties(args: list[str] | None = None, defaults: Properties | None 
     If an argument list is supplied, this function parses arguments starting with ``--`` and a known Ice prefix
     (e.g., ``Ice``, ``IceSSL``), and removes recognized arguments from the list.
 
+    This function is provided for backwards compatibility. New code should call the :class:`Properties` constructor
+    directly.
+
     Parameters
     ----------
     args : list[str], optional
@@ -139,8 +142,7 @@ def createProperties(args: list[str] | None = None, defaults: Properties | None 
         defaults = {"Ice.Trace.Protocol": "1"}
         properties = Ice.createProperties(sys.argv, defaults)
     """
-    properties = IcePy.createProperties(args, defaults)
-    return Properties(properties)
+    return Properties(args, defaults)
 
 
 def getSliceDir() -> str | None:
