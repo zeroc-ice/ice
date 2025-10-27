@@ -358,7 +358,7 @@ export class Client extends TestHelper {
             const initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().clone();
             initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
-            const ic = Ice.initialize(initData);
+            const ic = new Ice.Communicator(initData);
 
             await registry.setAdapterDirectProxy("TestAdapter5", await locator.findAdapterById("TestAdapter"));
             await registry.addObject(new Ice.ObjectPrx(communicator, "test3@TestAdapter"));

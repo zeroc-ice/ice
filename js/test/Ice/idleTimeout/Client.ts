@@ -34,7 +34,7 @@ async function testConnectionNotAbortedByIdleCheck(properties: Ice.Properties, h
     helper.updateLogFileProperty(properties, "-idleTimeout=1s");
     const initData = new Ice.InitializationData();
     initData.properties = properties;
-    await using communicator = Ice.initialize(initData);
+    await using communicator = new Ice.Communicator(initData);
     const adapter = await communicator.createObjectAdapter("");
     const callback = Test.TestIntfPrx.uncheckedCast(adapter.add(new TestI(), Ice.stringToIdentity("test")));
 
@@ -79,7 +79,7 @@ async function testConnectionAbortedByIdleCheck(properties: Ice.Properties, help
     helper.updateLogFileProperty(properties, "-idleTimeout=0");
     const initData = new Ice.InitializationData();
     initData.properties = properties;
-    await using communicator = Ice.initialize(initData);
+    await using communicator = new Ice.Communicator(initData);
     const adapter = await communicator.createObjectAdapter("");
     const obj = adapter.add(new TestI(), Ice.stringToIdentity("test"));
     const callback = Test.TestIntfPrx.uncheckedCast(obj);
@@ -117,7 +117,7 @@ async function testServerWithEnableDisableIdleCheck(
     helper.updateLogFileProperty(properties, "-idleTimeout=1s");
     const initData = new Ice.InitializationData();
     initData.properties = properties;
-    await using communicator = Ice.initialize(initData);
+    await using communicator = new Ice.Communicator(initData);
     const p = new Test.TestIntfPrx(communicator, proxyString3s);
     const connection = await p.ice_getConnection();
     test(connection != null);
@@ -145,7 +145,7 @@ async function testNoIdleTimeout(properties: Ice.Properties, helper: TestHelper)
     helper.updateLogFileProperty(properties, "-idleTimeout=0");
     const initData = new Ice.InitializationData();
     initData.properties = properties;
-    await using communicator = Ice.initialize(initData);
+    await using communicator = new Ice.Communicator(initData);
     const p = new Test.TestIntfPrx(communicator, proxyStringNoIdleTimeout);
     const connection = await p.ice_getConnection();
     test(connection != null);

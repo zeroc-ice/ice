@@ -1049,7 +1049,7 @@ export class Client extends TestHelper {
             // Invocation in a WS or WSS proxy that has not hostname set
             // will fail creating the WebSocket object.
             //
-            const communicator2 = Ice.initialize();
+            const communicator2 = new Ice.Communicator();
             const invalid = new Ice.ObjectPrx(communicator2, `test:${this.getTestEndpoint()}`);
             try {
                 await invalid.ice_ping();
@@ -1064,7 +1064,7 @@ export class Client extends TestHelper {
 
         out.write("testing communicator shutdown/destroy... ");
         {
-            const c = Ice.initialize();
+            const c = new Ice.Communicator();
             c.shutdown();
             test(c.isShutdown());
             await c.waitForShutdown();
