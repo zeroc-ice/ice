@@ -1312,7 +1312,7 @@ export async function twoways(
         initData.properties = communicator.getProperties().clone();
         initData.properties.setProperty("Ice.ImplicitContext", "Shared");
 
-        const ic = Ice.initialize(initData);
+        const ic = new Ice.Communicator(initData);
 
         let ctx = new Ice.Context();
         ctx.set("one", "ONE");

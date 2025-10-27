@@ -3,39 +3,10 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * A class that encapsulates data to initialize a communicator.
-         */
-        class InitializationData {
-            /**
-             * Construct a new InitializationData instance.
-             */
-            constructor();
-
-            /**
-             * Creates a deep copy of the object.
-             *
-             * @returns A deep copy of the object
-             */
-            clone(): InitializationData;
-
-            /**
-             * The properties for the communicator.
-             */
-            properties: Properties;
-
-            /**
-             * The logger for the communicator.
-             */
-            logger: Logger;
-
-            /**
-             * The Slice loader, used to unmarshal Slice classes and exceptions.
-             */
-            sliceLoader: SliceLoader;
-        }
-
-        /**
          * Creates a communicator.
+         *
+         * This method is provided for backwards compatibility. New code should call the {@link Communicator}
+         * constructor directly.
          *
          * @param initData Additional initialization data.
          * @returns The initialized communicator.
@@ -45,6 +16,9 @@ declare module "@zeroc/ice" {
 
         /**
          * Creates a communicator.
+         *
+         * This method is provided for backwards compatibility. New code should call the {@link Communicator}
+         * constructor directly.
          *
          * @param args A command-line argument vector. Any Ice-related options in this vector are used to initialize
          * the communicator. This method modifies the argument vector by removing any Ice-related options.
@@ -57,6 +31,10 @@ declare module "@zeroc/ice" {
 
         /**
          * Creates a property set
+         *
+         * This method is provided for backwards compatibility. New code should call the {@link Properties}
+         * constructor directly.
+         *
          * @param args An optional command-line argument vector, possibly containing options to set properties.
          * This method modifies the argument vector by removing any Ice-related options.
          * @param defaults Default values for the property set. Settings in args override these defaults.
