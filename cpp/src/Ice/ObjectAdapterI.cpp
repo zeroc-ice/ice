@@ -114,9 +114,7 @@ Ice::ObjectAdapterI::activate()
     {
         try
         {
-            Ice::Identity dummy;
-            dummy.name = "dummy";
-            updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
+            updateLocatorRegistry(locatorInfo, createDirectProxy(Identity{.name = "dummy", .category = ""}));
         }
         catch (const Ice::LocalException&)
         {
