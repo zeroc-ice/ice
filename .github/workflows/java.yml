@@ -44,4 +44,4 @@ jobs:
 
       - name: Run rewrite linter
         working-directory: java
-        run: ./gradlew rewriteDryRun --no-parallel
+        run: ./gradlew rewriteDryRun --no-parallel --no-configuration-cache
