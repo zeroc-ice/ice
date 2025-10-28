@@ -15,6 +15,7 @@ ServerLocatorRegistry::ServerLocatorRegistry() = default;
 void
 ServerLocatorRegistry::setAdapterDirectProxy(string adapter, optional<ObjectPrx> object, const Current&)
 {
+    ++_setRequestCount;
     if (!object)
     {
         _adapters.erase(adapter);
@@ -32,6 +33,7 @@ ServerLocatorRegistry::setReplicatedAdapterDirectProxy(
     optional<ObjectPrx> object,
     const Current&)
 {
+    ++_setRequestCount;
     if (!object)
     {
         _adapters.erase(adapter);
@@ -47,12 +49,19 @@ ServerLocatorRegistry::setReplicatedAdapterDirectProxy(
 void
 ServerLocatorRegistry::setServerProcessProxy(string, optional<ProcessPrx>, const Current&)
 {
+    ++_setRequestCount;
 }
 
 void
 ServerLocatorRegistry::addObject(optional<ObjectPrx> object, const Current&)
 {
     addObject(object);
+}
+
+int32_t
+ServerLocatorRegistry::getSetRequestCount(const Current&)
+{
+    return _setRequestCount;
 }
 
 optional<ObjectPrx>

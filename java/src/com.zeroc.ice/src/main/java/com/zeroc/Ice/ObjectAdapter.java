@@ -94,6 +94,7 @@ public final class ObjectAdapter {
     public void activate() {
         LocatorInfo locatorInfo = null;
         boolean printAdapterReady = false;
+        boolean hasPublishedEndpoints = false;
 
         synchronized (this) {
             checkForDeactivation();
@@ -120,20 +121,24 @@ public final class ObjectAdapter {
                 final Properties properties = _instance.initializationData().properties;
                 printAdapterReady = properties.getIcePropertyAsInt("Ice.PrintAdapterReady") > 0;
             }
+
+            hasPublishedEndpoints = _publishedEndpoints.length > 0;
         }
 
-        try {
-            Identity dummy = new Identity();
-            dummy.name = "dummy";
-            updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
-        } catch (LocalException ex) {
-            // If we couldn't update the locator registry, we let the exception go through
-            // and don't activate the adapter to allow to user code to retry activating the adapter later.
-            synchronized (this) {
-                _state = StateUninitialized;
-                notifyAll();
+        if (hasPublishedEndpoints) {
+            try {
+                Identity dummy = new Identity();
+                dummy.name = "dummy";
+                updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
+            } catch (LocalException ex) {
+                // If we couldn't update the locator registry, we let the exception go through
+                // and don't activate the adapter to allow to user code to retry activating the adapter later.
+                synchronized (this) {
+                    _state = StateUninitialized;
+                    notifyAll();
+                }
+                throw ex;
             }
-            throw ex;
         }
 
         if (printAdapterReady) {
@@ -211,6 +216,7 @@ public final class ObjectAdapter {
      * @see Communicator#shutdown
      */
     public void deactivate() {
+        boolean hasPublishedEndpoints = false;
         synchronized (this) {
             // Wait for activation or a previous deactivation to complete.
             // This is necessary to avoid out of order locator updates.
@@ -225,16 +231,19 @@ public final class ObjectAdapter {
                 return;
             }
             _state = StateDeactivating;
+            hasPublishedEndpoints = _publishedEndpoints.length > 0;
         }
 
         // NOTE: the router/locator infos and incoming connection
         // factory list are immutable at this point.
 
-        try {
-            updateLocatorRegistry(_locatorInfo, null);
-        } catch (LocalException ex) {
-            // We can't throw exceptions in deactivate so we ignore
-            // failures to update the locator registry.
+        if (hasPublishedEndpoints) {
+            try {
+                updateLocatorRegistry(_locatorInfo, null);
+            } catch (LocalException ex) {
+                // We can't throw exceptions in deactivate so we ignore
+                // failures to update the locator registry.
+            }
         }
 
         for (IncomingConnectionFactory factory : _incomingConnectionFactories) {
@@ -827,18 +836,22 @@ public final class ObjectAdapter {
     /**
      * Sets the endpoints that proxies created by this object adapter will contain.
      *
-     * @param newEndpoints The new set of endpoints that the object adapter will embed in proxies.
-     * @see Endpoint
+     * @param newEndpoints The new set of endpoints that the object adapter will embed in proxies. Must contain
+     *     at least one endpoint.
      */
     public void setPublishedEndpoints(Endpoint[] newEndpoints) {
         LocatorInfo locatorInfo = null;
         EndpointI[] oldPublishedEndpoints;
 
+        if (newEndpoints.length == 0) {
+            throw new IllegalArgumentException("The newEndpoints argument must contain at least one endpoint.");
+        }
+
         synchronized (this) {
             checkForDeactivation();
             if (_routerInfo != null) {
                 throw new IllegalArgumentException(
-                    "can't set published endpoints on object adapter associated with a router");
+                    "Cannot set published endpoints on an object adapter associated with a router.");
             }
 
             oldPublishedEndpoints = _publishedEndpoints;

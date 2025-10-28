@@ -16,6 +16,7 @@ import java.util.HashMap;
 public class ServerLocatorRegistry implements TestLocatorRegistry {
     @Override
     public void setAdapterDirectProxy(String adapter, ObjectPrx object, Current current) {
+        ++_setRequestCount;
         if (object != null) {
             _adapters.put(adapter, object);
         } else {
@@ -25,6 +26,7 @@ public class ServerLocatorRegistry implements TestLocatorRegistry {
 
     @Override
     public void setReplicatedAdapterDirectProxy(String adapter, String replica, ObjectPrx object, Current current) {
+        ++_setRequestCount;
         if (object != null) {
             _adapters.put(adapter, object);
             _adapters.put(replica, object);
@@ -36,12 +38,17 @@ public class ServerLocatorRegistry implements TestLocatorRegistry {
 
     @Override
     public void setServerProcessProxy(String id, ProcessPrx proxy, Current current) {
-        // No-op
+        ++_setRequestCount;
     }
 
     @Override
     public void addObject(ObjectPrx object, Current current) {
         _objects.put(object.ice_getIdentity(), object);
+    }
+
+    @Override
+    public int getSetRequestCount(Current current) {
+        return _setRequestCount;
     }
 
     public ObjectPrx getAdapter(String adapter) throws AdapterNotFoundException {
@@ -62,4 +69,5 @@ public class ServerLocatorRegistry implements TestLocatorRegistry {
 
     private final HashMap<String, ObjectPrx> _adapters = new HashMap<>();
     private final HashMap<Identity, ObjectPrx> _objects = new HashMap<>();
+    private int _setRequestCount;
 }

@@ -626,6 +626,16 @@ allTests(Test::TestHelper* helper, const string& ref)
         cout << "ok" << endl;
     }
 
+    cout << "testing indirect object adapter without published endpoints... " << flush;
+    int32_t setRequestCount = registry.getSetRequestCount();
+    communicator->getProperties()->setProperty("CollocAdapter.AdapterId", "CollocId");
+    ObjectAdapterPtr collocAdapter = communicator->createObjectAdapter("CollocAdapter");
+    collocAdapter->activate();                               // not necessary, but allowed
+    test(setRequestCount == registry->getSetRequestCount()); // no set call on registry
+    collocAdapter->deactivate();
+    test(setRequestCount == registry->getSetRequestCount()); // no set call on registry
+    cout << "ok" << endl;
+
     cout << "shutdown server manager... " << flush;
     manager->shutdown();
     cout << "ok" << endl;
