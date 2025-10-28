@@ -2819,15 +2819,42 @@ class iOSSimulatorProcessController(RemoteProcessController):
         run('xcrun simctl install "{0}" "{1}"'.format(self.device, appFullPath))
         print("ok")
 
+        logStreamProcess = subprocess.Popen(
+            [
+                "xcrun",
+                "simctl",
+                "spawn",
+                "booted",
+                "log",
+                "stream",
+                "--level",
+                "debug",
+                # "--predicate",
+                # f'subsystem contains "{ident.name}"',
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+
         sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
         sys.stdout.flush()
         n = 0
-        while n < 10:
+        while n < 5:
             try:
-                subprocess.run(["xcrun", "simctl", "launch", self.device, ident.name], check=True, timeout=60)
+                subprocess.run(["xcrun", "simctl", "launch", self.device, ident.name], check=True, timeout=120)
                 break
             except subprocess.TimeoutExpired:
                 n += 1
+
+        print(f"ok with {n + 1} attempts")
+        logStreamProcess.terminate()
+
+        if n == 5:
+            output = logStreamProcess.stdout.readlines()
+            with open("ios_simulator.log", "wb") as f:
+                for line in output:
+                    f.write(line)
+            raise RuntimeError("failed to launch the controller application")
         # No "ok" as the command prints its own output
 
     def restartControllerApp(self, current, ident):
