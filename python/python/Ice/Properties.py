@@ -19,7 +19,9 @@ class Properties:
     @overload
     def __init__(self, *, properties: IcePy.Properties): ...
 
-    def __init__(self, args: list[str] | None = None, defaults: Self | None = None, properties: IcePy.Properties | None = None):
+    def __init__(
+        self, args: list[str] | None = None, defaults: Self | None = None, properties: IcePy.Properties | None = None
+    ):
         """
         Initialize a new instance of the Properties class.
 
