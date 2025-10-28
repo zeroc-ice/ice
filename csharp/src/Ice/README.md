@@ -5,9 +5,26 @@ minimal effort. [Ice] allows you to focus your efforts on your application logic
 with low-level network programming interfaces. With Ice, there is no need to worry about details such as opening network
 connections, serializing and deserializing data for network transmission, or retrying failed connection attempts.
 
-[Package][package] | [Source code][source] [Examples][examples] | [Documentation][docs] | [API reference][api]
+[Package][package] | [Source code][source] | [Examples][examples] | [Documentation][docs] | [API reference][api]
 
 ## Sample Code
+
+```slice
+// Slice contract
+
+module VisitorCenter
+{
+    /// Represents a simple greeter.
+    interface Greeter
+    {
+        /// Creates a personalized greeting.
+        /// @param name The name of the person to greet.
+        /// @return The greeting.
+        ["cs:identifier:Greet"] // We prefer PascalCase for C# methods.
+        string greet(string name);
+    }
+}
+```
 
 ```csharp
 // Client application

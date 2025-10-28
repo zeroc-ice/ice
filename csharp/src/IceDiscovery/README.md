@@ -1,7 +1,7 @@
 # IceDiscovery
 
-IceDiscovery is an Ice plug-in that provides a location service using UDP multicast that allows Ice applications to
-discover objects and object adapters.
+IceDiscovery provides an Ice location service based on UDP multicast.
+The ZeroC.IceDiscovery NuGet package includes the IceDiscovery plugin for Ice for C#.
 
 [Package][package] | [Source code][source] [Examples][examples] | [Documentation][docs]
 

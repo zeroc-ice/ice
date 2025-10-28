@@ -1,8 +1,7 @@
 # IceLocatorDiscovery
 
-IceLocatorDiscovery is an Ice plug-in that discovers IceGrid and custom locators on a network using UDP multicast. Once
-installed, the plug-in automatically and transparently issues a multicast query in an attempt to find one or more
-locators, collects the responses, and configures the Ice runtime accordingly.
+IceLocatorDiscovery provides an Ice location service based on UDP multicast that allows Ice applications to automatically discover and configure locators.
+The ZeroC.IceLocatorDiscovery NuGet package includes the IceLocatorDiscovery plugin for Ice for C#.
 
 [Package][package] | [Source code][source] [Examples][examples] | [Documentation][docs]
 
