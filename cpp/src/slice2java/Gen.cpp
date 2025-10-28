@@ -1349,7 +1349,7 @@ Slice::JavaVisitor::getPatcher(const TypePtr& type, const string& package, const
     if ((b && b->usesClasses()) || cl)
     {
         string clsName = b ? "com.zeroc.Ice.Value" : getUnqualified(cl, package);
-        string varName = dest == "v" ? "var" : "v";
+        string varName = dest == "v" ? "v_" : "v";
         ostr << varName << " -> " << dest << " = " << varName << ", " << clsName << ".class";
     }
     return ostr.str();
