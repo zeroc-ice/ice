@@ -1,8 +1,9 @@
 # IceStorm
 
-**IceStorm** is an efficient publish/subscribe service for Ice applications.
-The **ZeroC.IceStorm** NuGet package enables you to create C# applications that act as IceStorm publishers and
-subscribers.
+IceStorm is an efficient publish/subscribe service for Ice applications.
+
+The ZeroC.IceStorm NuGet package enables C# applications to act as IceStorm publishers and subscribers. It includes the
+Slice definitions for IceStorm. The generated code for these definitions is included in the IceStorm assembly.
 
 [Package][package] | [Source code][source] [Examples][examples] | [Documentation][docs] | [API reference][api]
 

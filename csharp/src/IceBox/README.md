@@ -1,9 +1,13 @@
 # IceBox
 
-IceBox allows you to develop Ice servers as collections of services that can be dynamically loaded by the [IceBox server].
-The ZeroC.IceBox NuGet package provides the IceBox assembly required to develop IceBox services. It also includes the Slice definitions that define the `IceBox::ServiceManager` interface, used to remotely administer an IceBox server. The generated code for these definitions is included in the IceBox assembly.
+IceBox allows you to develop Ice servers as collections of services that can be dynamically loaded by the
+[IceBox server] through configuration.
 
-[Package][package] | [Source code][source] [Examples][examples] | [Documentation][docs] | [API reference][api]
+The ZeroC.IceBox NuGet package provides the IceBox assembly required to develop IceBox services. It also includes the
+Slice definitions that define the `IceBox::ServiceManager` interface, used to remotely administer an IceBox server. The
+generated code for these definitions is included in the IceBox assembly.
+
+[Package][package] | [Source code][source] | [Examples][examples] | [Documentation][docs] | [API reference][api]
 
 [api]: https://code.zeroc.com/ice/main/api/csharp/api/IceBox.html
 [docs]:https://docs.zeroc.com/ice/latest/csharp/
