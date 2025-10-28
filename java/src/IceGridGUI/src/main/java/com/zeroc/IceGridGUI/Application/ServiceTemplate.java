@@ -6,7 +6,6 @@ import com.zeroc.IceGrid.CommunicatorDescriptor;
 import com.zeroc.IceGrid.ServiceDescriptor;
 import com.zeroc.IceGrid.TemplateDescriptor;
 import com.zeroc.IceGridGUI.ApplicationActions;
-import com.zeroc.IceGridGUI.TreeNodeBase;
 import com.zeroc.IceGridGUI.Utils;
 import com.zeroc.IceGridGUI.XMLWriter;
 

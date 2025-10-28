@@ -5,7 +5,6 @@ package com.zeroc.IceGridGUI.Application;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 
-import com.zeroc.IceGrid.CommunicatorDescriptor;
 import com.zeroc.IceGrid.TemplateDescriptor;
 
 import java.util.LinkedList;
