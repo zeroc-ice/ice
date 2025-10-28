@@ -2846,7 +2846,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
             except subprocess.TimeoutExpired:
                 n += 1
 
-        print(f"ok with {n + 1} attempts")
+        print(f"ok ({n} retries)")
         logStreamProcess.terminate()
 
         if n == 5:
