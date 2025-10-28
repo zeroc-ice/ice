@@ -93,7 +93,7 @@ class Communicator:
             eventLoopAdapter = AsyncIOEventLoopAdapter(eventLoop)
 
         if args:
-            initData = InitializationData(properties=Properties(IcePy.createProperties(args, None)))
+            initData = InitializationData(properties=Properties(args))
 
         # initData can be None here, which is acceptable.
         self._impl = IcePy.Communicator(initData)
@@ -403,7 +403,7 @@ class Communicator:
             The properties associated with this communicator.
         """
         properties = self._impl.getProperties()
-        return Properties(properties)
+        return Properties(properties=properties)
 
     def getLogger(self) -> Logger:
         """
