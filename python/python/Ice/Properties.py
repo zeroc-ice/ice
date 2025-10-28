@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-from typing import Self, final
+from typing import Self, final, overload
 
 import IcePy
 
@@ -13,29 +13,35 @@ class Properties:
     application-name[.category[.sub-category]].name.
     """
 
-    def __init__(self, args: list[str] | IcePy.Properties | None = None, defaults: Self | None = None):
+    @overload
+    def __init__(self, args: list[str] | None = None, defaults: Self | None = None): ...
+
+    @overload
+    def __init__(self, *, properties: IcePy.Properties): ...
+
+    def __init__(self, args: list[str] | None = None, defaults: Self | None = None, properties: IcePy.Properties | None = None):
         """
-        Creates a new property set.
+        Initialize a new instance of the Properties class.
 
-        This function creates a new Ice property set. You can optionally provide a command-line argument list (such as
-        ``sys.argv``) and/or a dictionary of default property values.
-
-        If an argument list is supplied, this function parses arguments starting with ``--`` and a known Ice prefix
-        (e.g., ``Ice``, ``IceSSL``), and removes recognized arguments from the list.
+        This constructor loads the configuration files specified by the ``Ice.Config`` property or the
+        ``ICE_CONFIG`` environment variable, and then parses Ice properties from ``args``.
 
         Parameters
         ----------
-        args : list[str], optional
-            A list of command-line arguments, such as ``sys.argv``. Arguments that match Ice runtime options are parsed
-            into properties and removed from the list.
-        defaults : Properties, optional
-            Default values for the new Properties object. Settings in configuration files and the arguments override
-            these defaults.
+        args : list of str, optional
+            The command-line arguments. Arguments starting with ``--`` and one of the reserved prefixes
+            (``Ice``, ``IceSSL``, etc.) are parsed as properties and removed from the list. If there is
+            an argument starting with ``--Ice.Config``, the specified configuration file is loaded. When
+            the same property is set in both a configuration file and a command-line argument, the
+            command-line setting takes precedence.
+        defaults : dict of (str, str), optional
+            Default values for the new Properties object. Settings in configuration files and command-line
+            arguments override these defaults.
 
-        Returns
-        -------
-        Properties
-            A new Ice property set instance.
+        Notes
+        -----
+        When there is no ``--Ice.Config`` command-line argument, this constructor loads properties from
+        the files specified by the ``ICE_CONFIG`` environment variable.
 
         Examples
         --------

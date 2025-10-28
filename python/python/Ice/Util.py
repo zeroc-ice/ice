@@ -100,13 +100,7 @@ def stringToIdentity(str: str) -> Identity:
 
 def createProperties(args: list[str] | None = None, defaults: Properties | None = None) -> Properties:
     """
-    Creates a new property set.
-
-    This function creates a new Ice property set. You can optionally provide a command-line argument list (such as
-    ``sys.argv``) and/or a dictionary of default property values.
-
-    If an argument list is supplied, this function parses arguments starting with ``--`` and a known Ice prefix
-    (e.g., ``Ice``, ``IceSSL``), and removes recognized arguments from the list.
+    Creates a property set initialized from command-line arguments and a default property set.
 
     This function is provided for backwards compatibility. New code should call the :class:`Properties` constructor
     directly.
@@ -114,35 +108,14 @@ def createProperties(args: list[str] | None = None, defaults: Properties | None 
     Parameters
     ----------
     args : list[str], optional
-        A list of command-line arguments, such as ``sys.argv``. Arguments that match Ice runtime options are parsed
-        into properties and removed from the list.
+        The command-line arguments.
     defaults : Properties, optional
-        Default values for the new Properties object. Settings in configuration files and the arguments override
-        these defaults.
+        Default values for the new property set.
 
     Returns
     -------
     Properties
-        A new Ice property set instance.
-
-    Examples
-    --------
-    .. code-block:: python
-        # Create a new empty property set.
-        properties = Ice.createProperties()
-
-        # Create a property set from command-line arguments.
-        properties = Ice.createProperties(sys.argv)
-
-        # Create a property set using default values.
-        defaultProperties = Ice.createProperties()
-        defaultProperties.setProperty("Ice.Trace.Protocol", "1")
-        properties = Ice.createProperties(defaults=defaultProperties)
-
-        # Combine command-line parsing with default values.
-        defaultProperties = Ice.createProperties()
-        defaultProperties.setProperty("Ice.Trace.Protocol", "1")
-        properties = Ice.createProperties(sys.argv, defaultProperties)
+        A new property set.
     """
     return Properties(args, defaults)
 
