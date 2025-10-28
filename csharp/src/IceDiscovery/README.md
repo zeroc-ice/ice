@@ -17,7 +17,7 @@ var initData = new Ice.InitializationData
 };
 
 // Create an Ice communicator.
-await using var communicator = nwe Ice.Communicator(initData);
+await using var communicator = new Ice.Communicator(initData);
 ```
 
 [docs]:https://docs.zeroc.com/ice/latest/csharp/

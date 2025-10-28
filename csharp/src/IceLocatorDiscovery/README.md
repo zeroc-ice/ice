@@ -6,7 +6,7 @@ The ZeroC.IceLocatorDiscovery NuGet package includes the IceLocatorDiscovery plu
 [Package][package] | [Source code][source] | [Examples][examples] | [Documentation][docs]
 
 ```csharp
-// Configure the communicator to load the IceLocatorDiscovery plug-in during initialization..
+// Configure the communicator to load the IceLocatorDiscovery plug-in during initialization.
 var initData = new Ice.InitializationData
 {
     properties = new Ice.Properties(ref args),
