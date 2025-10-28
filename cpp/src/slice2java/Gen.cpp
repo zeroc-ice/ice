@@ -760,7 +760,7 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
                 {
                     out << nl << "final int fi" << iter << " = i" << iter << ";";
                     patchParams << "value -> " << param << ".set(fi" << iter << ", value), " << origContentS
-                        << ".class";
+                            << ".class";
                 }
 
                 writeMarshalUnmarshalCode(
@@ -884,7 +884,7 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
                     {
                         out << nl << "final int fi" << iter << " = i" << iter << ";";
                         patchParams << "value -> " << param << "[fi" << iter << "] = value, " << origContentS
-                            << ".class";
+                                << ".class";
                     }
 
                     writeMarshalUnmarshalCode(
