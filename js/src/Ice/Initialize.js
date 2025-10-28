@@ -5,7 +5,7 @@ import { Protocol } from "./Protocol.js";
 import { Properties } from "./Properties.js";
 
 export function initialize() {
-    return new Communicator(arguments);
+    return new Communicator(...arguments);
 }
 
 export function createProperties(args, defaults) {
