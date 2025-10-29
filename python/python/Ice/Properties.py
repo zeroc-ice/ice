@@ -64,8 +64,8 @@ class Properties:
             defaultProperties.setProperty("Ice.Trace.Protocol", "1")
             properties = Ice.Properties(sys.argv, defaultProperties)
         """
-        if isinstance(args, IcePy.Properties):
-            self._impl = args
+        if isinstance(properties, IcePy.Properties):
+            self._impl = properties
         else:
             self._impl = IcePy.createProperties(args, defaults)
 
