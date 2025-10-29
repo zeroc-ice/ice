@@ -19,8 +19,7 @@ public class SerializableClass implements Serializable {
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return _v;
     }
 
