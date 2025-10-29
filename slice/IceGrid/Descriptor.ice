@@ -95,7 +95,7 @@ module IceGrid
         /// The descriptors of well-known objects.
         ObjectDescriptorSeq objects;
 
-        /// The descriptors of allocatable objects
+        /// The descriptors of allocatable objects.
         ObjectDescriptorSeq allocatables;
     }
 
