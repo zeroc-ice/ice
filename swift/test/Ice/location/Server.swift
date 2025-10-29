@@ -11,7 +11,10 @@ class Server: TestHelperI, @unchecked Sendable {
         // 'server'(a server isn't a different process, it's just a new
         // communicator and object adapter).
         //
+
         let properties = try createTestProperties(args)
+        properties.setProperty(key: "Ice.Trace.Dispatch", value: "1")
+        properties.setProperty(key: "Ice.Trace.Network", value: "3")
         properties.setProperty(key: "Ice.ThreadPool.Server.Size", value: "2")
         let communicator = try initialize(Ice.InitializationData(properties: properties))
         defer {

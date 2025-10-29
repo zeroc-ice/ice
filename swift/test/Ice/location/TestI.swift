@@ -67,12 +67,17 @@ actor ServerManagerI: ServerManager {
         _properties.setProperty(key: "Ice.PrintAdapterReady", value: "0")
     }
 
-    func startServer(current _: Ice.Current) async throws {
+    func startServer(current: Ice.Current) async throws {
+
+        let startTime = CFAbsoluteTimeGetCurrent()
         for c in _communicators {
-            c.waitForShutdown()
+            await c.shutdownCompleted()
             c.destroy()
         }
         _communicators.removeAll()
+        let endTime = CFAbsoluteTimeGetCurrent()
+        current.adapter.getCommunicator().getLogger().print(
+            "Previous servers shutdown took \(endTime - startTime) seconds")
 
         //
         // Simulate a server: create a new communicator and object
