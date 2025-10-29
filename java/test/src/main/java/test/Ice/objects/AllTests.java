@@ -325,7 +325,7 @@ public class AllTests {
 
             Initial.OpF2Result opF2Result =
                 initial.opF2(
-                    F2Prx.createProxy(communicator, "F21:" + helper.getTestEndpoint()));
+                    F2Prx.createProxy(communicator, "F21:" + helper.getTestEndpoint(0)));
             test("F21".equals(opF2Result.returnValue.ice_getIdentity().name));
             opF2Result.returnValue.op();
             test("F22".equals(opF2Result.f22.ice_getIdentity().name));

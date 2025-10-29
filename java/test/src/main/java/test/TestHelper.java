@@ -32,28 +32,15 @@ public abstract class TestHelper {
         void serverReady();
     }
 
-    public String getTestEndpoint() {
-        return getTestEndpoint(_communicator.getProperties(), 0, "");
-    }
-
-    public static String getTestEndpoint(Properties properties) {
-        return getTestEndpoint(properties, 0, "");
-    }
-
     public String getTestEndpoint(int num) {
         return getTestEndpoint(_communicator.getProperties(), num, "");
-    }
-
-    public static String getTestEndpoint(Properties properties, int num) {
-        return getTestEndpoint(properties, num, "");
     }
 
     public String getTestEndpoint(int num, String protocol) {
         return getTestEndpoint(_communicator.getProperties(), num, protocol);
     }
 
-    public static String getTestEndpoint(
-            Properties properties, int num, String prot) {
+    public static String getTestEndpoint(Properties properties, int num, String prot) {
         String protocol = prot;
         if (protocol.isEmpty()) {
             protocol = properties.getIceProperty("Ice.Default.Protocol");

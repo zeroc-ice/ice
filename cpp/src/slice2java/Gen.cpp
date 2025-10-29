@@ -2928,7 +2928,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         out << sp;
         writeDocComment(
             out,
-            "@{inheritDoc}\n"
+            "{@inheritDoc}\n"
             "@hidden");
         out << nl << "@Override";
         out << nl << "public boolean _usesClasses()";

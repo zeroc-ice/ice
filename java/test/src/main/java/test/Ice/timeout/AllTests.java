@@ -239,7 +239,7 @@ public class AllTests {
                 test(ex.getCause() instanceof InvocationTimeoutException);
             }
 
-            ((TimeoutPrx) proxy.ice_invocationTimeout(-1)).ice_ping();
+            proxy.ice_invocationTimeout(-1).ice_ping();
 
             TimeoutPrx batchTimeout = proxy.ice_batchOneway();
             batchTimeout.ice_ping();
