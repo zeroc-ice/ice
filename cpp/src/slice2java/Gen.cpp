@@ -756,12 +756,8 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
                 out << nl << param << ".add(null);";
 
                 ostringstream patchParams;
-                if (type->isClassType())
-                {
-                    out << nl << "final int fi" << iter << " = i" << iter << ";";
-                    patchParams << "value -> " << param << ".set(fi" << iter << ", value), " << origContentS
-                                << ".class";
-                }
+                out << nl << "final int fi" << iter << " = i" << iter << ";";
+                patchParams << "value -> " << param << ".set(fi" << iter << ", value), " << origContentS << ".class";
 
                 writeMarshalUnmarshalCode(
                     out,
