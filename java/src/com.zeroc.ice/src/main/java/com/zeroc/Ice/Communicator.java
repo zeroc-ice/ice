@@ -36,7 +36,7 @@ public final class Communicator implements AutoCloseable {
      */
     public Communicator(InitializationData initData) {
         _instance = new Instance();
-        _instance.initialize(this, initData);
+        _instance.initialize(this, initData.clone());
 
         try {
             _instance.finishSetup(this);

@@ -14,35 +14,26 @@ import { identityToString } from "./IdentityToString.js";
 // Ice.Communicator
 //
 export class Communicator {
-    constructor(arg1, arg2) {
+    constructor() {
         this._isShutdown = false;
         this._shutdownPromise = new Promise();
 
-        let args = null;
         let initData = null;
-
-        if (arg1 instanceof Array) {
-            args = arg1;
-        } else if (arg1 instanceof InitializationData) {
-            initData = arg1;
-        } else if (arg1 !== undefined && arg1 !== null) {
-            throw new InitializationException("invalid argument to initialize");
-        }
-
-        if (arg2 !== undefined && arg2 !== null) {
-            if (arg2 instanceof InitializationData && initData === null) {
-                initData = arg2;
-            } else {
-                throw new InitializationException("invalid argument to initialize");
-            }
-        }
-
-        if (initData === null) {
+        if (arguments.length === 0) {
             initData = new InitializationData();
+        } else if (arguments.length === 1) {
+            const arg0 = arguments[0];
+            if (arg0 instanceof Array) {
+                initData = new InitializationData();
+                initData.properties = new Properties(arg0);
+            } else if (arg0 instanceof InitializationData) {
+                initData = arg0.clone();
+            } else {
+                throw new InitializationException("invalid argument provided to the Communicator constructor");
+            }
         } else {
-            initData = initData.clone();
+            throw new InitializationException("invalid number of arguments provided to the Communicator constructor");
         }
-        initData.properties = new Properties(args, initData.properties);
 
         if (initData.sliceLoader === null || initData.sliceLoader === undefined) {
             initData.sliceLoader = defaultSliceLoaderInstance;

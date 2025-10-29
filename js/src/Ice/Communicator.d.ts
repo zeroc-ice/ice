@@ -11,9 +11,17 @@ declare module "@zeroc/ice" {
          */
         class Communicator {
             /**
+             * Creates a communicator with default options.
+             *
+             * @returns The initialized communicator.
+             * @throws {@link InitializationException} If an error occurs during initialization.
+             */
+            constructor();
+
+            /**
              * Creates a communicator.
              *
-             * @param initData Additional initialization data.
+             * @param initData Options for the new communicator.
              * @returns The initialized communicator.
              * @throws {@link InitializationException} If an error occurs during initialization.
              */
@@ -24,12 +32,10 @@ declare module "@zeroc/ice" {
              *
              * @param args A command-line argument vector. Any Ice-related options in this vector are used to initialize
              * the communicator. This method modifies the argument vector by removing any Ice-related options.
-             * @param initData Additional initialization data. Property settings in args override property settings in
-             * initData.
              * @returns The initialized communicator.
              * @throws {@link InitializationException} If an error occurs during initialization.
              */
-            constructor(args: string[], initData?: InitializationData);
+            constructor(args: string[]);
 
             /**
              * Destroys this communicator. This method calls {@link shutdown} implicitly. Calling {@link destroy}

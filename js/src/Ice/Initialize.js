@@ -4,8 +4,8 @@ import { Communicator } from "./Communicator.js";
 import { Protocol } from "./Protocol.js";
 import { Properties } from "./Properties.js";
 
-export function initialize(arg1, arg2) {
-    return new Communicator(arg1, arg2);
+export function initialize() {
+    return new Communicator(...arguments);
 }
 
 export function createProperties(args, defaults) {

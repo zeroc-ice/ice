@@ -8,7 +8,18 @@ declare module "@zeroc/ice" {
          * This method is provided for backwards compatibility. New code should call the {@link Communicator}
          * constructor directly.
          *
-         * @param initData Additional initialization data.
+         * @returns The initialized communicator.
+         * @throws {@link InitializationException} If an error occurs during initialization.
+         */
+        function initialize(): Communicator;
+
+        /**
+         * Creates a communicator.
+         *
+         * This method is provided for backwards compatibility. New code should call the {@link Communicator}
+         * constructor directly.
+         *
+         * @param initData Options for the new communicator.
          * @returns The initialized communicator.
          * @throws {@link InitializationException} If an error occurs during initialization.
          */
@@ -22,12 +33,10 @@ declare module "@zeroc/ice" {
          *
          * @param args A command-line argument vector. Any Ice-related options in this vector are used to initialize
          * the communicator. This method modifies the argument vector by removing any Ice-related options.
-         * @param initData Additional initialization data. Property settings in args override property settings in
-         * initData.
          * @returns The initialized communicator.
          * @throws {@link InitializationException} If an error occurs during initialization.
          */
-        function initialize(args: string[], initData?: InitializationData): Communicator;
+        function initialize(args: string[]): Communicator;
 
         /**
          * Creates a property set
