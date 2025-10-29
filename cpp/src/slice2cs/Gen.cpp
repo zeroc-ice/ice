@@ -1588,7 +1588,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
 
         // Don't explicitly initialize to default value.
-        if (!builtin || builtin->kind() == Builtin::KindString || defaultValue != "0")
+        if (!builtin || builtin->kind() == Builtin::KindString || (defaultValue != "0" && defaultValue != "false"))
         {
             _out << " = ";
             writeConstantValue(p->type(), p->defaultValueType(), defaultValue);

@@ -19,7 +19,7 @@
         </PackageReference>
     </ItemGroup>
     <ItemDefinitionGroup>
-        <SliceCompile Conditions="'$(EnableAnalysis)' == 'true'">
+        <SliceCompile Condition="'$(EnableAnalysis)' == 'true'">
             <AdditionalOptions>--enable-analysis</AdditionalOptions>
         </SliceCompile>
     </ItemDefinitionGroup>
