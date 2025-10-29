@@ -20,7 +20,6 @@ import com.zeroc.IceGrid.ServerState;
 import com.zeroc.IceGrid.ServiceDescriptor;
 import com.zeroc.IceGrid.ServiceInstanceDescriptor;
 import com.zeroc.IceGridGUI.LiveActions;
-import com.zeroc.IceGridGUI.TreeNodeBase;
 import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.Component;

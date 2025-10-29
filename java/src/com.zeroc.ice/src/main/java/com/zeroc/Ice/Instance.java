@@ -19,10 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -85,43 +83,6 @@ public final class Instance {
         @Override
         protected void afterExecute(Runnable t, Throwable e) {
             _observerHelper.afterExecute();
-        }
-
-        private final ThreadObserverHelper _observerHelper;
-    }
-
-    private static class QueueExecutor extends ThreadPoolExecutor {
-        QueueExecutor(Properties props, String threadName) {
-            super(
-                1,
-                1,
-                0,
-                TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(),
-                Util.createThreadFactory(props, threadName));
-            _observerHelper = new ThreadObserverHelper(threadName);
-        }
-
-        public void updateObserver(CommunicatorObserver obsv) {
-            _observerHelper.updateObserver(obsv);
-        }
-
-        @Override
-        protected void beforeExecute(Thread t, Runnable r) {
-            _observerHelper.beforeExecute();
-        }
-
-        @Override
-        protected void afterExecute(Runnable t, Throwable e) {
-            _observerHelper.afterExecute();
-        }
-
-        public void destroy() throws InterruptedException {
-            shutdown();
-            while (!isTerminated()) {
-                // A very long time.
-                awaitTermination(100000, TimeUnit.SECONDS);
-            }
         }
 
         private final ThreadObserverHelper _observerHelper;
@@ -1305,7 +1266,6 @@ public final class Instance {
     private int _messageSizeMax; // Immutable, not reset by destroy().
     private int _batchAutoFlushSize; // Immutable, not reset by destroy().
     private int _classGraphDepthMax; // Immutable, not reset by destroy().
-    private SliceLoader _sliceLoader; // Immutable, not reset by destroy().
     private ToStringMode _toStringMode; // Immutable, not reset by destroy().
     private int _cacheMessageBuffers; // Immutable, not reset by destroy().
     private ImplicitContextI _implicitContext;

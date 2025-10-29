@@ -7,7 +7,6 @@ import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
 
-import com.zeroc.IceGrid.ApplicationDescriptor;
 import com.zeroc.IceGrid.ApplicationInfo;
 
 import java.awt.Container;

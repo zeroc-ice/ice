@@ -875,8 +875,13 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
                 if (isObject)
                 {
                     ostringstream patchParams;
-                    out << nl << "final int fi" << iter << " = i" << iter << ";";
-                    patchParams << "value -> " << param << "[fi" << iter << "] = value, " << origContentS << ".class";
+                    if (type->isClassType())
+                    {
+                        out << nl << "final int fi" << iter << " = i" << iter << ";";
+                        patchParams << "value -> " << param << "[fi" << iter << "] = value, " << origContentS
+                                    << ".class";
+                    }
+
                     writeMarshalUnmarshalCode(
                         out,
                         package,
@@ -1338,16 +1343,9 @@ Slice::JavaVisitor::getPatcher(const TypePtr& type, const string& package, const
     ostringstream ostr;
     if ((b && b->usesClasses()) || cl)
     {
-        string clsName;
-        if (b)
-        {
-            clsName = "com.zeroc.Ice.Value";
-        }
-        else
-        {
-            clsName = getUnqualified(cl, package);
-        }
-        ostr << "v -> " << dest << " = v, " << clsName << ".class";
+        string clsName = b ? "com.zeroc.Ice.Value" : getUnqualified(cl, package);
+        string varName = dest == "v" ? "v_" : "v";
+        ostr << varName << " -> " << dest << " = " << varName << ", " << clsName << ".class";
     }
     return ostr.str();
 }

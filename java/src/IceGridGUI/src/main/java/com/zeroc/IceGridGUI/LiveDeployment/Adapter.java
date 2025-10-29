@@ -5,7 +5,6 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.IceGrid.AdapterDescriptor;
 import com.zeroc.IceGrid.AdapterDynamicInfo;
-import com.zeroc.IceGridGUI.TreeNodeBase;
 import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.Component;
