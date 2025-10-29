@@ -187,7 +187,7 @@ actor ServerLocator: TestLocator {
         return try await _registry.getObject(id)
     }
 
-    func getRegistry(current _: Ice.Current) -> Ice.LocatorRegistryPrx? {
+    nonisolated func getRegistry(current _: Ice.Current) -> Ice.LocatorRegistryPrx? {
         return _registryPrx
     }
 
