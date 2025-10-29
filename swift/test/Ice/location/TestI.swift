@@ -123,12 +123,10 @@ actor ServerManagerI: ServerManager {
                 try adapter2.setLocator(uncheckedCast(prx: locator, type: Ice.LocatorPrx.self))
 
                 let object = try TestI(adapter1: adapter, adapter2: adapter2, registry: _registry)
-                try await _registry.addObject(adapter.add(servant: HelloI(), id: Ice.stringToIdentity("hello")))
-
                 try await _registry.addObject(adapter.add(servant: object, id: Ice.Identity(name: "test")))
-                try await _registry.addObject(adapter.add(servant: object, id: Ice.stringToIdentity("test2")))
+                try await _registry.addObject(adapter.add(servant: object, id: Ice.Identity(name: "test2")))
 
-                _ = try adapter.add(servant: object, id: Ice.stringToIdentity("test3"))
+                _ = try adapter.add(servant: object, id: Ice.Identity(name: "test3"))
 
                 try adapter.activate()
                 try adapter2.activate()
