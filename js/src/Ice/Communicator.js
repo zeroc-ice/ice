@@ -22,17 +22,17 @@ export class Communicator {
         if (arguments.length === 0) {
             initData = new InitializationData();
         } else if (arguments.length === 1) {
-            const arg1 = arguments[0];
-            if (arg1 instanceof Array) {
+            const arg0 = arguments[0];
+            if (arg0 instanceof Array) {
                 initData = new InitializationData();
-                initData.properties = new Properties(arg1);
-            } else if (arg1 instanceof InitializationData) {
-                initData = arg1.clone();
+                initData.properties = new Properties(arg0);
+            } else if (arg0 instanceof InitializationData) {
+                initData = arg0.clone();
             } else {
-                throw new InitializationException("invalid argument pass to Communicator constructor");
+                throw new InitializationException("invalid argument provided to the Communicator constructor");
             }
         } else {
-            throw new InitializationException("invalid number of arguments pass to Communicator constructor");
+            throw new InitializationException("invalid number of arguments provided to the Communicator constructor");
         }
 
         if (initData.sliceLoader === null || initData.sliceLoader === undefined) {

@@ -11,7 +11,7 @@ declare module "@zeroc/ice" {
          */
         class Communicator {
             /**
-             * Creates a communicator.
+             * Creates a communicator with default options.
              *
              * @returns The initialized communicator.
              * @throws {@link InitializationException} If an error occurs during initialization.
@@ -21,7 +21,7 @@ declare module "@zeroc/ice" {
             /**
              * Creates a communicator.
              *
-             * @param initData Additional initialization data.
+             * @param initData Options for the new communicator.
              * @returns The initialized communicator.
              * @throws {@link InitializationException} If an error occurs during initialization.
              */

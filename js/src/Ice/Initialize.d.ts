@@ -19,7 +19,7 @@ declare module "@zeroc/ice" {
          * This method is provided for backwards compatibility. New code should call the {@link Communicator}
          * constructor directly.
          *
-         * @param initData Additional initialization data.
+         * @param initData Options for the new communicator.
          * @returns The initialized communicator.
          * @throws {@link InitializationException} If an error occurs during initialization.
          */
