@@ -754,7 +754,6 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
                 // Add a null value to the list as a placeholder for the element.
                 //
                 out << nl << param << ".add(null);";
-
                 ostringstream patchParams;
                 out << nl << "final int fi" << iter << " = i" << iter << ";";
                 patchParams << "value -> " << param << ".set(fi" << iter << ", value), " << origContentS << ".class";
