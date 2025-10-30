@@ -57,7 +57,7 @@ public class AllTests : global::Test.AllTests
 
         public void Report(bool value)
         {
-            SentSynchronously = sentSynchronously;
+            SentSynchronously = value;
             Sent = true;
         }
 
