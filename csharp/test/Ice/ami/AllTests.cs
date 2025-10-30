@@ -57,8 +57,8 @@ public class AllTests : global::Test.AllTests
 
         public void Report(bool value)
         {
-            _sentSynchronously = value;
-            _sent = true;
+            SentSynchronously = sentSynchronously;
+            Sent = true;
         }
 
         private readonly object _mutex = new();
