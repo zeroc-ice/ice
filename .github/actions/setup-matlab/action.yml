@@ -23,7 +23,7 @@ runs:
       run: |
         echo "MATLAB_VERSION=R2025a" >> $env:GITHUB_ENV
         echo "MATLAB_HOME=${{ steps.setup-matlab.outputs.matlabroot }}" >> $env:GITHUB_ENV
-      shell: pwsh
+      shell: powershell
       if: runner.os == 'Windows'
 
     # https://github.com/matlab-actions/run-command/issues/53

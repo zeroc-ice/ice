@@ -178,7 +178,7 @@ jobs:
         if: matrix.enable_csharp_analysis == true
         run: |
           echo "EnableAnalysis=true" >> $env:GITHUB_ENV
-        shell: powershell
+        shell: pwsh
 
       - name: Build ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/build
