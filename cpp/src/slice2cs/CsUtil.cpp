@@ -813,8 +813,8 @@ Slice::Csharp::writeOptionalMarshalUnmarshalCode(
         }
         else
         {
-            out << nl << stream << ".writeSize(" << param << ".Count * "
-                << (keyType->minWireSize() + valueType->minWireSize()) << " + (" << param << ".Count > 254 ? 5 : 1));";
+            out << nl << stream << ".writeSize((" << param << ".Count * "
+                << (keyType->minWireSize() + valueType->minWireSize()) << ") + (" << param << ".Count > 254 ? 5 : 1));";
         }
         writeMarshalUnmarshalCode(out, type, scope, param, marshal, customStream);
         if (keyType->isVariableLength() || valueType->isVariableLength())
@@ -1611,7 +1611,7 @@ Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
             }
             else if (st->minWireSize() > 1)
             {
-                out << nl << stream << ".writeSize(" << length << " * " << st->minWireSize() << " + (" << length
+                out << nl << stream << ".writeSize((" << length << " * " << st->minWireSize() << ") + (" << length
                     << " > 254 ? 5 : 1));";
             }
             writeSequenceMarshalUnmarshalCode(out, seq, scope, param, marshal, true, stream);

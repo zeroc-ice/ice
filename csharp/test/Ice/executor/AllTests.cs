@@ -14,7 +14,7 @@ public class AllTests : Test.AllTests
 
         public bool getResult() => _sentSynchronously;
 
-        public void Report(bool sentSynchronously) => _sentSynchronously = sentSynchronously;
+        public void Report(bool value) => _sentSynchronously = value;
 
         private bool _sentSynchronously;
     }

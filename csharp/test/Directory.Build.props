@@ -18,4 +18,9 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+    <ItemDefinitionGroup>
+        <SliceCompile Condition="'$(EnableAnalysis)' == 'true'">
+            <AdditionalOptions>--enable-analysis</AdditionalOptions>
+        </SliceCompile>
+    </ItemDefinitionGroup>
 </Project>
