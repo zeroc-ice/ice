@@ -6,11 +6,38 @@
 #import "include/LocalExceptionFactory.h"
 #import "include/ObjectAdapter.h"
 
+#include <chrono>
+
+namespace
+{
+    std::string timePointToString(const std::chrono::system_clock::time_point& timePoint)
+    {
+        auto time = std::chrono::system_clock::to_time_t(timePoint);
+        struct tm tr;
+
+        localtime_r(&time, &tr);
+
+        char buf[32];
+        strftime(buf, sizeof(buf), "%x %H:%M:%S", &tr);
+
+        auto usec = std::chrono::duration_cast<std::chrono::microseconds>(timePoint.time_since_epoch());
+        return std::string(buf) + "." + std::to_string(usec.count() % 1000000 / 1000);
+    }
+}
+
 void
 CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::OutgoingResponse)> sendResponse)
 {
     // Captured as a const copy by the block according to https://clang.llvm.org/docs/BlockLanguageSpec.html
     Ice::Current current{request.current()};
+
+    auto logger = current.adapter->getCommunicator()->getLogger();
+
+    auto startTime = std::chrono::system_clock::now();
+
+    logger->print(
+        "C++ Dispatch into Swift: time=" + timePointToString(startTime) + " identity=" + current.id.name +
+        " operation=" + current.operation + " start time");
 
     int32_t sz;
     const std::byte* inEncaps;
@@ -49,6 +76,12 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
 
     ICEOutgoingResponse outgoingResponse =
         ^(uint8_t replyStatus, NSString* exceptionId, NSString* exceptionDetails, const void* message, long count) {
+          auto endTime = std::chrono::system_clock::now();
+          logger->print(
+              "C++ Dispatch completed: time=" + timePointToString(endTime) + " identity=" + current.id.name +
+              " operation=" + current.operation + " duration=" +
+              std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count()) +
+              " ms");
           cleanup();
 
           // We need to copy the message here as we don't own the memory and it can be sent asynchronously.
@@ -61,6 +94,9 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
               fromNSString(exceptionDetails),
               std::move(ostr),
               current});
+          logger->print(
+              "Swift Dispatch: time=" + timePointToString(std::chrono::system_clock::now()) +
+              " identity=" + current.id.name + " operation=" + current.operation + " response sent");
         };
 
     ICEObjectAdapter* adapter = [ICEObjectAdapter getHandle:current.adapter];

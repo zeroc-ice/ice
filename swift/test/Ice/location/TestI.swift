@@ -67,12 +67,17 @@ actor ServerManagerI: ServerManager {
         _properties.setProperty(key: "Ice.PrintAdapterReady", value: "0")
     }
 
-    func startServer(current _: Ice.Current) async throws {
+    func startServer(current: Ice.Current) async throws {
+
+        let startTime = CFAbsoluteTimeGetCurrent()
         for c in _communicators {
-            c.waitForShutdown()
+            await c.shutdownCompleted()
             c.destroy()
         }
         _communicators.removeAll()
+        let endTime = CFAbsoluteTimeGetCurrent()
+        current.adapter.getCommunicator().getLogger().print(
+            "Previous servers shutdown took \(endTime - startTime) seconds")
 
         //
         // Simulate a server: create a new communicator and object
@@ -118,12 +123,11 @@ actor ServerManagerI: ServerManager {
                 try adapter2.setLocator(uncheckedCast(prx: locator, type: Ice.LocatorPrx.self))
 
                 let object = try TestI(adapter1: adapter, adapter2: adapter2, registry: _registry)
-                try await _registry.addObject(adapter.add(servant: HelloI(), id: Ice.stringToIdentity("hello")))
-
+                try await _registry.addObject(adapter.add(servant: HelloI(), id: Ice.Identity(name: "hello")))
                 try await _registry.addObject(adapter.add(servant: object, id: Ice.Identity(name: "test")))
-                try await _registry.addObject(adapter.add(servant: object, id: Ice.stringToIdentity("test2")))
+                try await _registry.addObject(adapter.add(servant: object, id: Ice.Identity(name: "test2")))
 
-                _ = try adapter.add(servant: object, id: Ice.stringToIdentity("test3"))
+                _ = try adapter.add(servant: object, id: Ice.Identity(name: "test3"))
 
                 try adapter.activate()
                 try adapter2.activate()
@@ -187,7 +191,7 @@ actor ServerLocator: TestLocator {
         return try await _registry.getObject(id)
     }
 
-    func getRegistry(current _: Ice.Current) -> Ice.LocatorRegistryPrx? {
+    nonisolated func getRegistry(current _: Ice.Current) -> Ice.LocatorRegistryPrx? {
         return _registryPrx
     }
 
