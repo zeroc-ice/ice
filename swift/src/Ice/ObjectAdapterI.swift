@@ -234,6 +234,12 @@ final class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDis
     ) {
         precondition(handle == adapter)
 
+
+        let logger = getCommunicator().getLogger()
+
+        logger.print(
+            "Swift Dispatch started: time=\(Date().formatted(.iso8601.year().month().day().time(includingFractionalSeconds: true))) identity=\(name) operation=\(operation) starting dispatch")
+
         let connection = con?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: con!) }
         let encoding = EncodingVersion(major: encodingMajor, minor: encodingMinor)
 
@@ -255,17 +261,22 @@ final class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDis
 
         let request = IncomingRequest(current: current, inputStream: istr)
 
+        logger.print(
+            "About to start Task: time=\(Date().formatted(.iso8601.year().month().day().time(includingFractionalSeconds: true))) identity=\(name) operation=\(operation) starting dispatch")
         Task {
             let response: OutgoingResponse
 
             // TODO: the request is in the Task capture and we need to send it. Is there a better syntax?
             nonisolated(unsafe) let request = request
             do {
+                logger.print(
+                    "Dispatching OA request: time=\(Date().formatted(.iso8601.year().month().day().time(includingFractionalSeconds: true))) identity=\(name) operation=\(operation) starting dispatch")
                 response = try await dispatchPipeline.dispatch(request)
             } catch {
                 response = current.makeOutgoingResponse(error: error)
             }
-
+            logger.print(
+                "Completed OA request: time=\(Date().formatted(.iso8601.year().month().day().time(includingFractionalSeconds: true))) identity=\(name) operation=\(operation) dispatch completed, sending response")
             response.outputStream.finished().withUnsafeBytes {
                 outgoingResponseHandler(
                     response.replyStatus,
