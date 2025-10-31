@@ -15,6 +15,7 @@ struct ProcessI: CommonProcess {
 
     func waitReady(timeout: Int32, current _: Ice.Current) async throws {
         try await _helper.waitReady(timeout: timeout)
+
     }
 
     func waitSuccess(timeout: Int32, current _: Ice.Current) async throws -> Int32 {
@@ -26,39 +27,6 @@ struct ProcessI: CommonProcess {
         let adapter = current.adapter
         try adapter.remove(current.id)
         return _helper.getOutput()
-    }
-}
-
-enum TimeoutError: Error {
-    case timedOut
-}
-
-func awaitTaskWithTimeout<T>(
-    _ task: Task<T, Error>,
-    timeout: TimeInterval
-) async throws -> T {
-    return try await withThrowingTaskGroup(of: T.self) { group in
-        // Add the original task to the group
-        group.addTask {
-            return try await task.value
-        }
-
-        // Add a timeout task to the group
-        group.addTask {
-            try await Task.sleep(nanoseconds: UInt64(timeout * Double(NSEC_PER_SEC)))
-            throw TimeoutError.timedOut
-        }
-
-        // Wait for the first task to complete
-        guard let result = try await group.next() else {
-            // This case should ideally not be reached if at least one task is added
-            throw TimeoutError.timedOut // Or another appropriate error
-        }
-
-        // Cancel any remaining tasks (the other task in this case)
-        group.cancelAll()
-
-        return result
     }
 }
 
@@ -164,65 +132,31 @@ class ControllerI {
     }
 }
 
-actor StatusState {
-    var value: Int32? = nil
-
-    func set(_ value: Int32) {
-        precondition(self.value == nil)
-        self.value = value
-    }
-}
-
 class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
     private let _view: ViewController
     private let _args: [String]
-    private var _communicator: Ice.Communicator?
+    private var _communicator: Ice.Communicator? = nil
     private let _exe: String
     private let _testName: String
     private var _out: String = ""
 
-    private let _readyTask: Task<Void, Never>
-    private let _readyContinuation: CheckedContinuation<Void, Never>
-
-    private let _status = StatusState()
-    private let _completedTask: Task<Void, Never>
-    private let _completedContinuation: CheckedContinuation<Void, Never>
+    private struct State {
+        var isReady = false
+        var completedStatus: Int32?
+    }
+    private let _lock = Mutex(State())
 
     public init(view: ViewController, testName: String, args: [String], exe: String) {
         _view = view
         _testName = testName
         _args = args
-        _communicator = nil
         _exe = exe
-
-        let group = DispatchGroup()
-
-        let readyContinuation: CheckedContinuation<Void, Never>!
-        let completedContinuation: CheckedContinuation<Void, Never>!
-
-        group.enter()
-        _readyTask = Task {
-            await withCheckedContinuation { continuation in
-                readyContinuation = continuation
-                group.leave()
-            }
-        }
-
-        group.enter()
-        _completedTask = Task {
-            await withCheckedContinuation { continuation in
-                completedContinuation = continuation
-                group.leave()
-            }
-        }
-
-        group.wait()
-        _readyContinuation = readyContinuation
-        _completedContinuation = completedContinuation
     }
 
     public func serverReady() {
-        _readyContinuation.resume()
+        _lock.withLock {
+            $0.isReady = true
+        }
     }
 
     public func communicatorInitialized(communicator: Ice.Communicator) {
@@ -242,8 +176,9 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
     }
 
     public func completed(status: Int32) async {
-        await _status.set(status)
-        _completedContinuation.resume()
+        _lock.withLock {
+            $0.completedStatus = status
+        }
     }
 
     public func run() {
@@ -272,56 +207,45 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
     }
 
     public func waitReady(timeout: Int32) async throws {
-        return try await withThrowingTaskGroup(of: Void.self) { group in
-            // Add a timeout task to the group
-            group.addTask {
-                try await Task.sleep(for: .seconds(Int(timeout)))
-                throw CommonProcessFailedException(reason: "timed out waiting for the process to succeed")
+        let deadline = ContinuousClock.now + .seconds(Int(timeout))
+
+        while ContinuousClock.now < deadline {
+            // Check current state
+            let state = _lock.withLock { $0 }
+
+            if state.isReady {
+                return
             }
 
-            group.addTask { await self._readyTask.value }
-            group.addTask { await self._completedTask.value }
-
-            // Wait for the FIRST task to complete (winner takes all)
-            try await group.next()
-            group.cancelAll()
-
-            let status = await self._status.value
-
-            switch status {
-                case .some(let status) where status != 0:
-                    throw CommonProcessFailedException(reason: self._out)
-                default:
+            if let status = state.completedStatus {
+                if status == 0 {
                     return
+                } else {
+                    throw CommonProcessFailedException(reason: self._out)
+                }
             }
+
+            // Brief sleep to avoid busy waiting
+            try await Task.sleep(for: .milliseconds(100))
         }
+
+        throw CommonProcessFailedException(reason: "timed out waiting for the process to succeed")
     }
 
     public func waitSuccess(timeout: Int32) async throws -> Int32 {
-        return try await withThrowingTaskGroup(of: Void.self) { group in
-            // Add a timeout task to the group
-            group.addTask {
-                try await Task.sleep(for: .seconds(Int(timeout)))
-                throw CommonProcessFailedException(reason: "timed out waiting for the process to succeed")
+        let deadline = ContinuousClock.now + .seconds(Int(timeout))
+
+        while ContinuousClock.now < deadline {
+            // Check if completed
+            if let status = _lock.withLock({ $0.completedStatus }) {
+                return status
             }
 
-            group.addTask { await self._completedTask.value }
-
-            // Wait for the FIRST task to complete (winner takes all)
-            try await group.next()
-            group.cancelAll()
-
-            let status = await self._status.value
-
-            switch status {
-                case .none:
-                    fatalError("Completed status is nil")
-                case .some(let status) where status != 0:
-                    throw CommonProcessFailedException(reason: self._out)
-                case .some(let status):
-                    return status
-            }
+            // Brief sleep to avoid busy waiting
+            try await Task.sleep(for: .milliseconds(100))
         }
+
+        throw CommonProcessFailedException(reason: "timed out waiting for the process to succeed")
     }
 
     public func getOutput() -> String {
