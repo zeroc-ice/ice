@@ -6,7 +6,8 @@
             "args": [],
             "cwd": "${workspaceFolder:ice}",
             "name": "Debug slice2swift",
-            "program": "${workspaceFolder:ice}/.build/debug/slice2swift",
+            "target": "slice2swift",
+            "configuration": "debug",
             "preLaunchTask": "swift: Build Debug slice2swift"
         },
         {
@@ -15,7 +16,8 @@
             "args": [],
             "cwd": "${workspaceFolder:ice}",
             "name": "Release slice2swift",
-            "program": "${workspaceFolder:ice}/.build/release/slice2swift",
+            "target": "slice2swift",
+            "configuration": "release",
             "preLaunchTask": "swift: Build Release slice2swift"
         }
     ]
