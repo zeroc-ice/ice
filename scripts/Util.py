@@ -2824,7 +2824,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
         n = 0
         while n < 5:
             try:
-                subprocess.run(["xcrun", "simctl", "launch", self.device, ident.name], check=True, timeout=60)
+                subprocess.run(["xcrun", "simctl", "launch", self.device, ident.name], check=True, timeout=120)
                 break
             except subprocess.TimeoutExpired:
                 n += 1
