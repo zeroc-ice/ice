@@ -27,8 +27,10 @@ class PingReplyI: PingReply, @unchecked Sendable {
 
         return await withTaskGroup(of: Bool.self) { group in
             group.addTask {
-                for _ in 0..<expectedReplies {
-                    for await _ in self._stream {
+                var count = 0
+                for await _ in self._stream {
+                    count += 1
+                    if count == expectedReplies {
                         break
                     }
                 }
