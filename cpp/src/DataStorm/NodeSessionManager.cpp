@@ -113,6 +113,9 @@ NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& newConnection
     session->init();
     _sessions.emplace(node->ice_getIdentity(), session);
 
+    // Disable the inactivity timeout on the connection used for the session.
+    newConnection->disableInactivityCheck();
+
     // Register a callback with the connection manager to destroy the session when the connection is closed.
     instance->getConnectionManager()->add(
         newConnection,
@@ -373,6 +376,9 @@ NodeSessionManager::connected(const NodePrx& node, const LookupPrx& lookup)
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         out << "established node session (peer = '" << node << "'):\n" << connection->toString();
     }
+
+    // Disable the inactivity timeout on the connection used for the session.
+    connection->disableInactivityCheck();
 
     instance->getConnectionManager()->add(
         connection,
