@@ -19,7 +19,6 @@ import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.ProcessPrx;
 import com.zeroc.Ice.RouterFinderPrx;
 import com.zeroc.Ice.SocketException;
-import com.zeroc.Ice.Util;
 
 import test.Glacier2.router.Test.CallbackException;
 import test.Glacier2.router.Test.CallbackPrx;
@@ -290,9 +289,7 @@ public class Client extends TestHelper {
                 Map<String, String> context = new HashMap<>();
                 context.put("_fwd", "t");
                 CallbackPrx otherCategoryTwoway =
-                    CallbackPrx.uncheckedCast(
-                        twoway.ice_identity(
-                            Util.stringToIdentity("c2/callback")));
+                    CallbackPrx.uncheckedCast(twoway.ice_identity(new Identity("callback", "c2")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
                 out.println("ok");
@@ -305,9 +302,7 @@ public class Client extends TestHelper {
                 context.put("_fwd", "t");
                 try {
                     CallbackPrx otherCategoryTwoway =
-                        CallbackPrx.uncheckedCast(
-                            twoway.ice_identity(
-                                Util.stringToIdentity("c3/callback")));
+                        CallbackPrx.uncheckedCast(twoway.ice_identity(new Identity("callback", "c3")));
                     otherCategoryTwoway.initiateCallback(twowayR, context);
                     test(false);
                 } catch (ObjectNotExistException ex) {
@@ -321,9 +316,7 @@ public class Client extends TestHelper {
                 Map<String, String> context = new HashMap<>();
                 context.put("_fwd", "t");
                 CallbackPrx otherCategoryTwoway =
-                    CallbackPrx.uncheckedCast(
-                        twoway.ice_identity(
-                            Util.stringToIdentity("_userid/callback")));
+                    CallbackPrx.uncheckedCast(twoway.ice_identity(new Identity("callback", "_userid")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
                 out.println("ok");

@@ -22,8 +22,7 @@ class ProxyFlushBatch extends ProxyOutgoingAsyncBase<Void> {
     }
 
     @Override
-    public int invokeRemote(ConnectionI connection, boolean compress, boolean response)
-        throws RetryException {
+    public int invokeRemote(ConnectionI connection, boolean compress, boolean response) throws RetryException {
         if (_batchRequestNum == 0) {
             return sent() ? AsyncStatus.Sent | AsyncStatus.InvokeSentCallback : AsyncStatus.Sent;
         }
@@ -40,8 +39,7 @@ class ProxyFlushBatch extends ProxyOutgoingAsyncBase<Void> {
     }
 
     public void invoke() {
-        Protocol.checkSupportedProtocol(
-            Protocol.getCompatibleProtocol(_proxy._getReference().getProtocol()));
+        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_proxy._getReference().getProtocol()));
         try {
             invokeImpl(true); // userThread = true
         } catch (LocalException ex) {

@@ -15,8 +15,7 @@ final class WSEndpointFactory extends EndpointFactoryWithUnderlying {
     }
 
     @Override
-    public EndpointI createWithUnderlying(
-            EndpointI underlying, ArrayList<String> args, boolean oaEndpoint) {
+    public EndpointI createWithUnderlying(EndpointI underlying, ArrayList<String> args, boolean oaEndpoint) {
         return new WSEndpoint(_instance, underlying, args);
     }
 

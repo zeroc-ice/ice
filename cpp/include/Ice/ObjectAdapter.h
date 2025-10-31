@@ -298,7 +298,8 @@ namespace Ice
         [[nodiscard]] virtual EndpointSeq getPublishedEndpoints() const = 0;
 
         /// Sets the endpoints that proxies created by this object adapter will contain.
-        /// @param newEndpoints The new set of endpoints that the object adapter will embed in proxies.
+        /// @param newEndpoints The new set of endpoints that the object adapter will embed in proxies. Must contain
+        /// at least one endpoint.
         virtual void setPublishedEndpoints(EndpointSeq newEndpoints) = 0;
 
     protected:

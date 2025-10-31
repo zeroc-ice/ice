@@ -2,6 +2,8 @@
 
 using Test;
 
+namespace Ice.executor;
+
 public class AllTests : Test.AllTests
 {
     public class Progress : IProgress<bool>
@@ -12,14 +14,14 @@ public class AllTests : Test.AllTests
 
         public bool getResult() => _sentSynchronously;
 
-        public void Report(bool sentSynchronously) => _sentSynchronously = sentSynchronously;
+        public void Report(bool value) => _sentSynchronously = value;
 
-        private bool _sentSynchronously = false;
+        private bool _sentSynchronously;
     }
 
     public static void allTests(TestHelper helper)
     {
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         Ice.Communicator communicator = helper.communicator();
         string sref = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
@@ -37,41 +39,43 @@ public class AllTests : Test.AllTests
         output.Flush();
         {
             var t = new TaskCompletionSource<object>();
-            p.opAsync().ContinueWith(async previous => // Execute the code below from the Ice client thread pool
-            {
-                try
+            p.opAsync().ContinueWith(
+                async previous => // Execute the code below from the Ice client thread pool
                 {
-                    await p.opAsync();
-                    test(Executor.isExecutorThread());
-
                     try
                     {
-                        var i = (TestIntfPrx)p.ice_adapterId("dummy");
-                        await i.opAsync();
-                        test(false);
-                    }
-                    catch (Exception)
-                    {
+                        await p.opAsync();
                         test(Executor.isExecutorThread());
-                    }
 
-                    Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
-                    try
-                    {
-                        await to.sleepAsync(500);
-                        test(false);
+                        try
+                        {
+                            var i = (TestIntfPrx)p.ice_adapterId("dummy");
+                            await i.opAsync();
+                            test(false);
+                        }
+                        catch (Exception)
+                        {
+                            test(Executor.isExecutorThread());
+                        }
+
+                        TestIntfPrx to = TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
+                        try
+                        {
+                            await to.sleepAsync(500);
+                            test(false);
+                        }
+                        catch (Ice.InvocationTimeoutException)
+                        {
+                            test(Executor.isExecutorThread());
+                        }
+                        t.SetResult(null);
                     }
-                    catch (Ice.InvocationTimeoutException)
+                    catch (Exception ex)
                     {
-                        test(Executor.isExecutorThread());
+                        t.SetException(ex);
                     }
-                    t.SetResult(null);
-                }
-                catch (Exception ex)
-                {
-                    t.SetException(ex);
-                }
-            }, p.ice_scheduler());
+                },
+                p.ice_scheduler());
 
             t.Task.Wait();
         }

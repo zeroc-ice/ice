@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Collections.Immutable;
-
 namespace IceBox;
 
 public static class Server
@@ -48,7 +46,7 @@ public static class Server
             }
         }
 
-        var serviceManagerImpl = new ServiceManagerI(communicator, args);
+        using var serviceManagerImpl = new ServiceManagerI(communicator, args);
         return serviceManagerImpl.run();
     }
 
@@ -64,7 +62,7 @@ public static class Server
 
         try
         {
-            using Ice.Communicator communicator = Ice.Util.initialize(initData);
+            using var communicator = new Ice.Communicator(initData);
             Console.CancelKeyPress += (sender, eventArgs) =>
             {
                 eventArgs.Cancel = true;

@@ -3,12 +3,12 @@
 package com.zeroc.Ice;
 
 /**
- * The Ice message logger. Applications can provide their own logger by implementing this interface
- * and installing it in a communicator.
+ * Represents Ice's abstraction for logging and tracing. Applications can provide their own logger by implementing this
+ * abstraction and setting a logger on the communicator.
  */
-public interface Logger {
+public interface Logger extends AutoCloseable {
     /**
-     * Print a message. The message is printed literally, without any decorations such as executable
+     * Prints a message. The message is printed literally, without any decorations such as executable
      * name or time stamp.
      *
      * @param message The message to log.
@@ -16,7 +16,7 @@ public interface Logger {
     void print(String message);
 
     /**
-     * Log a trace message.
+     * Logs a trace message.
      *
      * @param category The trace category.
      * @param message The trace message to log.
@@ -24,7 +24,7 @@ public interface Logger {
     void trace(String category, String message);
 
     /**
-     * Log a warning message.
+     * Logs a warning message.
      *
      * @param message The warning message to log.
      * @see #error
@@ -32,7 +32,7 @@ public interface Logger {
     void warning(String message);
 
     /**
-     * Log an error message.
+     * Logs an error message.
      *
      * @param message The error message to log.
      * @see #warning

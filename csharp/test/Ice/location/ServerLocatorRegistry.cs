@@ -6,47 +6,54 @@ namespace Ice.location;
 
 public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
 {
+    private readonly Hashtable _adapters;
+    private readonly Hashtable _objects;
+    private int _setRequestCount;
+
     public ServerLocatorRegistry()
     {
         _adapters = new Hashtable();
         _objects = new Hashtable();
     }
 
-    public override void setAdapterDirectProxy(string adapter, Ice.ObjectPrx obj, Ice.Current current)
+    public override void setAdapterDirectProxy(string id, ObjectPrx proxy, Current current)
     {
-        if (obj != null)
+        ++_setRequestCount;
+        if (proxy != null)
         {
-            _adapters[adapter] = obj;
+            _adapters[id] = proxy;
         }
         else
         {
-            _adapters.Remove(adapter);
+            _adapters.Remove(id);
         }
     }
 
     public override void setReplicatedAdapterDirectProxy(
-        string adapter,
-        string replica,
-        Ice.ObjectPrx obj,
-        Ice.Current current)
+        string adapterId,
+        string replicaGroupId,
+        ObjectPrx proxy,
+        Current current)
     {
-        if (obj != null)
+        ++_setRequestCount;
+        if (proxy != null)
         {
-            _adapters[adapter] = obj;
-            _adapters[replica] = obj;
+            _adapters[adapterId] = proxy;
+            _adapters[replicaGroupId] = proxy;
         }
         else
         {
-            _adapters.Remove(adapter);
-            _adapters.Remove(replica);
+            _adapters.Remove(adapterId);
+            _adapters.Remove(replicaGroupId);
         }
     }
 
-    public override void setServerProcessProxy(string id, Ice.ProcessPrx proxy, Ice.Current current)
-    {
-    }
+    public override void setServerProcessProxy(string id, Ice.ProcessPrx proxy, Ice.Current current) =>
+        ++_setRequestCount;
 
     public override void addObject(Ice.ObjectPrx obj, Ice.Current current) => addObject(obj);
+
+    public override int getSetRequestCount(Current current) => _setRequestCount;
 
     internal void addObject(Ice.ObjectPrx obj) => _objects[obj.ice_getIdentity()] = obj;
 
@@ -61,7 +68,4 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         object obj = _objects[id] ?? throw new Ice.ObjectNotFoundException();
         return (Ice.ObjectPrx)obj;
     }
-
-    private readonly Hashtable _adapters;
-    private readonly Hashtable _objects;
 }

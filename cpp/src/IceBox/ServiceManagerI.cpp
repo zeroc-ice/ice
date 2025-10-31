@@ -575,24 +575,6 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             }
 
             //
-            // Clone the logger to assign a new prefix. If one of the built-in loggers is configured
-            // don't set any logger.
-            //
-            if (initData.properties->getIceProperty("Ice.LogFile").empty()
-#ifndef _WIN32
-                && initData.properties->getIcePropertyAsInt("Ice.UseSyslog") <= 0 &&
-                initData.properties->getIcePropertyAsInt("Ice.UseSystemdJournal") <= 0
-#endif
-            )
-            {
-                //
-                // When _logger is a LoggerAdminLogger, cloneWithPrefix returns a clone of the
-                // underlying local logger, not of the LoggerAdminLogger itself
-                //
-                initData.logger = _logger->cloneWithPrefix(initData.properties->getIceProperty("Ice.ProgramName"));
-            }
-
-            //
             // If Admin is enabled on the IceBox communicator, for each service that does not set
             // Ice.Admin.Enabled, we set Ice.Admin.Enabled=1 to have this service create facets; then
             // we add these facets to the IceBox Admin object as IceBox.Service.<service>.<facet>.

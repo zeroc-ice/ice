@@ -2,6 +2,8 @@
 
 using Test;
 
+namespace Slice.macros;
+
 public class Client : TestHelper
 {
     public override void run(string[] args)

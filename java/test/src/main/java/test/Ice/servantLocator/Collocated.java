@@ -3,10 +3,10 @@
 package test.Ice.servantLocator;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -23,9 +23,9 @@ public class Collocated extends TestHelper {
             ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
             adapter.addServantLocator(new ServantLocatorI("category"), "category");
             adapter.addServantLocator(new ServantLocatorI(""), "");
-            adapter.add(new TestI(), Util.stringToIdentity("asm"));
+            adapter.add(new TestI(), new Identity("asm", ""));
             adapter.add(
-                new TestActivationI(), Util.stringToIdentity("test/activation"));
+                new TestActivationI(), new Identity("activation", "test"));
             AllTests.allTests(this);
         }
     }

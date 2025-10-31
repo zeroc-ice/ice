@@ -13,30 +13,6 @@ import test.Ice.operations.Test.MyClassPrx;
 import java.io.PrintWriter;
 
 class BatchOnewaysAMI {
-    private static class Callback {
-        Callback() {
-            _called = false;
-        }
-
-        public synchronized void check() {
-            while (!_called) {
-                try {
-                    wait();
-                } catch (InterruptedException ex) {}
-            }
-
-            _called = false;
-        }
-
-        public synchronized void called() {
-            assert (!_called);
-            _called = true;
-            notify();
-        }
-
-        private boolean _called;
-    }
-
     private static void test(boolean b) {
         if (!b) {
             throw new RuntimeException();

@@ -39,9 +39,7 @@ final class UdpEndpointI extends IPEndpointI {
         _compress = s.readBool();
     }
 
-    //
     // Return the endpoint information.
-    //
     @Override
     public EndpointInfo getInfo() {
         return new UDPEndpointInfo(
@@ -53,39 +51,27 @@ final class UdpEndpointI extends IPEndpointI {
             _mcastTtl);
     }
 
-    //
-    // Return the timeout for the endpoint in milliseconds. 0 means
-    // non-blocking, -1 means no timeout.
-    //
+    // Return the timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
     @Override
     public int timeout() {
         return -1;
     }
 
-    //
-    // Return a new endpoint with a different timeout value, provided
-    // that timeouts are supported by the endpoint. Otherwise the same
-    // endpoint is returned.
-    //
+    // Return a new endpoint with a different timeout value, provided that timeouts are supported by the endpoint.
+    // Otherwise the same endpoint is returned.
     @Override
     public EndpointI timeout(int timeout) {
         return this;
     }
 
-    //
-    // Return true if the endpoints support bzip2 compress, or false
-    // otherwise.
-    //
+    // Return true if the endpoints support bzip2 compress, or false otherwise.
     @Override
     public boolean compress() {
         return _compress;
     }
 
-    //
-    // Return a new endpoint with a different compression value,
-    // provided that compression is supported by the
-    // endpoint. Otherwise the same endpoint is returned.
-    //
+    // Return a new endpoint with a different compression value, provided that compression is
+    // supported by the endpoint. Otherwise the same endpoint is returned.
     @Override
     public EndpointI compress(boolean compress) {
         if (compress == _compress) {
@@ -103,23 +89,17 @@ final class UdpEndpointI extends IPEndpointI {
         }
     }
 
-    //
     // Return true if the endpoint is datagram-based.
-    //
     @Override
     public boolean datagram() {
         return true;
     }
 
-    //
-    // Return a server side transceiver for this endpoint, or null if a
-    // transceiver can only be created by an acceptor.
-    //
+    // Return a server side transceiver for this endpoint, or null if a transceiver can only be created by an acceptor.
     @Override
     public Transceiver transceiver() {
         InetSocketAddress addr =
-            Network.getAddressForServer(
-                _host, _port, _instance.protocolSupport(), _instance.preferIPv6());
+            Network.getAddressForServer(_host, _port, _instance.protocolSupport(), _instance.preferIPv6());
         if (Util.isAndroid() && addr.getAddress().isMulticastAddress()) {
             return new UdpMulticastServerTransceiver(this, _instance, addr, _mcastInterface);
         } else {
@@ -127,9 +107,7 @@ final class UdpEndpointI extends IPEndpointI {
         }
     }
 
-    //
     // Return an acceptor for this endpoint, or null if no acceptor is available.
-    //
     @Override
     public Acceptor acceptor(String adapterName, SSLEngineFactory factory) {
         assert (factory == null);
@@ -178,24 +156,19 @@ final class UdpEndpointI extends IPEndpointI {
             if (oaEndpoint) {
                 _mcastInterface = "";
             } else {
-                throw new ParseException(
-                    "'--interface *' not valid for proxy endpoint '" + toString() + "'");
+                throw new ParseException("'--interface *' not valid for proxy endpoint '" + toString() + "'");
             }
         }
     }
 
-    //
     // Convert the endpoint to its string form
-    //
     @Override
     public String options() {
-        //
         // WARNING: Certain features, such as proxy validation in Glacier2,
         // depend on the format of proxy strings. Changes to toString() and
         // methods called to generate parts of the reference string could break
         // these features. Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
-        //
         String s = super.options();
 
         if (!_mcastInterface.isEmpty()) {
@@ -252,9 +225,7 @@ final class UdpEndpointI extends IPEndpointI {
         return super.compareTo(obj);
     }
 
-    //
     // Marshal the endpoint
-    //
     @Override
     public void streamWriteImpl(OutputStream s) {
         super.streamWriteImpl(s);
@@ -295,23 +266,15 @@ final class UdpEndpointI extends IPEndpointI {
 
         if ("-z".equals(option)) {
             if (argument != null) {
-                throw new ParseException(
-                    "unexpected argument '"
-                        + argument
-                        + "' provided for -z option in '"
-                        + endpoint
-                        + "'");
+                String msg = "unexpected argument '" + argument + "' provided for -z option in '" + endpoint + "'";
+                throw new ParseException(msg);
             }
 
             _compress = true;
         } else if ("-v".equals(option) || "-e".equals(option)) {
             if (argument == null) {
-                throw new ParseException(
-                    "no argument provided for "
-                        + option
-                        + " option in endpoint '"
-                        + endpoint
-                        + "'");
+                String msg = "no argument provided for " + option + " option in endpoint '" + endpoint + "'";
+                throw new ParseException(msg);
             }
 
             try {
@@ -320,32 +283,25 @@ final class UdpEndpointI extends IPEndpointI {
                     _instance.logger().warning("deprecated udp endpoint option: " + option);
                 }
             } catch (ParseException ex) {
-                throw new ParseException(
-                    "invalid version '" + argument + "' in endpoint '" + endpoint + "'", ex);
+                throw new ParseException("invalid version '" + argument + "' in endpoint '" + endpoint + "'", ex);
             }
         } else if ("--ttl".equals(option)) {
             if (argument == null) {
-                throw new ParseException(
-                    "no argument provided for --ttl option in endpoint '" + endpoint + "'");
+                throw new ParseException("no argument provided for --ttl option in endpoint '" + endpoint + "'");
             }
 
             try {
                 _mcastTtl = Integer.parseInt(argument);
             } catch (NumberFormatException ex) {
-                throw new ParseException(
-                    "invalid TTL value '" + argument + "' in endpoint '" + endpoint + "'", ex);
+                throw new ParseException("invalid TTL value '" + argument + "' in endpoint '" + endpoint + "'", ex);
             }
 
             if (_mcastTtl < 0) {
-                throw new ParseException(
-                    "TTL value '" + argument + "' out of range in endpoint '" + endpoint + "'");
+                throw new ParseException("TTL value '" + argument + "' out of range in endpoint '" + endpoint + "'");
             }
         } else if ("--interface".equals(option)) {
             if (argument == null) {
-                throw new ParseException(
-                    "no argument provided for --interface option in endpoint '"
-                        + endpoint
-                        + "'");
+                throw new ParseException("no argument provided for --interface option in endpoint '" + endpoint + "'");
             }
             _mcastInterface = argument;
         } else {
@@ -356,8 +312,7 @@ final class UdpEndpointI extends IPEndpointI {
 
     @Override
     protected Connector createConnector(InetSocketAddress addr, NetworkProxy proxy) {
-        return new UdpConnector(
-            _instance, addr, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId);
+        return new UdpConnector(_instance, addr, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId);
     }
 
     @Override

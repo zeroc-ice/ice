@@ -105,7 +105,7 @@ export class TestHelper {
             }
         }
 
-        const communicator = Ice.initialize(initData);
+        const communicator = new Ice.Communicator(initData);
         if (this._communicator === undefined) {
             this._communicator = communicator;
         }

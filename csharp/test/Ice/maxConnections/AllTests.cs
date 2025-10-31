@@ -18,7 +18,7 @@ internal class AllTests : global::Test.AllTests
         // When the transport is WS or WSS, we need to wait a little bit: the server closes the connection after it
         // gets a transport frame from the client.
         Func<Task>? postCloseDelay = null;
-        if (helper.getTestProtocol().StartsWith("ws"))
+        if (helper.getTestProtocol().StartsWith("ws", StringComparison.Ordinal))
         {
             postCloseDelay = () => Task.Delay(TimeSpan.FromMilliseconds(50));
         }

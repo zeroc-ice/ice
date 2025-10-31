@@ -10,8 +10,8 @@ public class Client : TestHelper
     {
         var initData = new InitializationData();
         initData.properties = createTestProperties(ref args);
-        using var communicator = initialize(initData);
-        var obj = AllTests.allTests(this);
+        using Communicator communicator = initialize(initData);
+        Test.TestIntfPrx obj = AllTests.allTests(this);
         obj.shutdown();
     }
 

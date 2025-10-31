@@ -77,7 +77,7 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
         #
         # Initialize a new communicator.
         #
-        communicator = Ice.initialize(initData=init)
+        communicator = Ice.Communicator(initData=init)
 
         proxy = current.adapter.addWithUUID(RemoteCommunicatorI(communicator, threadHook))
         return Test.RemoteCommunicatorPrx.uncheckedCast(proxy)

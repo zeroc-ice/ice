@@ -4,8 +4,8 @@ package test.Ice.networkProxy;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.Ice.networkProxy.Test.TestIntf;
 import test.TestHelper;
@@ -21,7 +21,7 @@ public class Server extends TestHelper {
         try (Communicator communicator = initialize(args)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new TestI(), Util.stringToIdentity("test"));
+            adapter.add(new TestI(), new Identity("test", ""));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

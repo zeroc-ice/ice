@@ -6,7 +6,6 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 
 import com.zeroc.IceGrid.AdapterDescriptor;
-import com.zeroc.IceGrid.ObjectDescriptor;
 import com.zeroc.IceGridGUI.Utils;
 
 import java.util.Map;

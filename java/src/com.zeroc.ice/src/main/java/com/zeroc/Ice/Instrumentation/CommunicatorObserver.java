@@ -21,8 +21,8 @@ public interface CommunicatorObserver {
      * Ice run-time calls this method for each connection establishment attempt.
      *
      * @param endpoint The endpoint.
-     * @param connector The description of the connector. For IP transports, this is typically the
-     *     IP address to connect to.
+     * @param connector The description of the connector.
+     *     For IP transports, this is typically the IP address to connect to.
      * @return The observer to instrument the connection establishment.
      */
     Observer getConnectionEstablishmentObserver(Endpoint endpoint, String connector);
@@ -30,8 +30,7 @@ public interface CommunicatorObserver {
     /**
      * This method should return an observer for the given endpoint information. The Ice run-time
      * calls this method to resolve an endpoint and obtain the list of connectors. For IP endpoints,
-     * this typically involves doing a DNS lookup to obtain the IP addresses associated with the DNS
-     * name.
+     * this typically involves doing a DNS lookup to obtain the IP addresses associated with the DNS name.
      *
      * @param endpoint The endpoint.
      * @return The observer to instrument the endpoint lookup.
@@ -49,11 +48,7 @@ public interface CommunicatorObserver {
      * @param o The old connection observer if one is already set or a null reference otherwise.
      * @return The connection observer to instrument the connection.
      */
-    ConnectionObserver getConnectionObserver(
-            ConnectionInfo c,
-            Endpoint e,
-            ConnectionState s,
-            ConnectionObserver o);
+    ConnectionObserver getConnectionObserver(ConnectionInfo c, Endpoint e, ConnectionState s, ConnectionObserver o);
 
     /**
      * This method should return a thread observer for the given thread. The Ice run-time calls this
@@ -77,8 +72,7 @@ public interface CommunicatorObserver {
      * @param ctx The context specified by the user.
      * @return The invocation observer to instrument the invocation.
      */
-    InvocationObserver getInvocationObserver(
-            ObjectPrx prx, String operation, Map<String, String> ctx);
+    InvocationObserver getInvocationObserver(ObjectPrx prx, String operation, Map<String, String> ctx);
 
     /**
      * This method should return a dispatch observer for the given dispatch. The Ice run-time calls

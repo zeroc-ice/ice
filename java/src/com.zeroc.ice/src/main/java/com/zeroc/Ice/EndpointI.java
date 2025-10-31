@@ -24,111 +24,70 @@ public abstract class EndpointI implements Endpoint, Comparable<EndpointI> {
 
     @Override
     public String _toString() {
-        //
         // WARNING: Certain features, such as proxy validation in Glacier2,
         // depend on the format of proxy strings. Changes to toString() and
         // methods called to generate parts of the reference string could break these features.
         // Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
-        //
         return protocol() + options();
     }
 
-    //
     // Marshal the endpoint.
-    //
     public abstract void streamWriteImpl(OutputStream s);
 
-    //
     // Return the endpoint type.
-    //
     public abstract short type();
 
-    //
     // Return the protocol name.
-    //
     public abstract String protocol();
 
-    //
-    // Return the timeout for the endpoint in milliseconds. 0 means
-    // non-blocking, -1 means no timeout.
-    //
+    // Return the timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
     public abstract int timeout();
 
-    //
     // Return a new endpoint with a different timeout value, provided
-    // that timeouts are supported by the endpoint. Otherwise the same
-    // endpoint is returned.
-    //
+    // that timeouts are supported by the endpoint. Otherwise the same endpoint is returned.
     public abstract EndpointI timeout(int t);
 
-    //
     // Return the connection ID
-    //
     public abstract String connectionId();
 
-    //
     // Return a new endpoint with a different connection id.
-    //
     public abstract EndpointI connectionId(String connectionId);
 
-    //
-    // Return true if the endpoints support bzip2 compress, or false
-    // otherwise.
-    //
+    // Return true if the endpoints support bzip2 compress, or false otherwise.
     public abstract boolean compress();
 
-    //
     // Return a new endpoint with a different compression value,
-    // provided that compression is supported by the
-    // endpoint. Otherwise the same endpoint is returned.
-    //
+    // provided that compression is supported by the endpoint. Otherwise the same endpoint is returned.
     public abstract EndpointI compress(boolean co);
 
-    //
     // Return true if the endpoint is datagram-based.
-    //
     public abstract boolean datagram();
 
-    //
     // Return true if the endpoint is secure.
-    //
     public abstract boolean secure();
 
-    //
-    // Return a server side transceiver for this endpoint, or null if a
-    // transceiver can only be created by an acceptor.
-    //
+    // Return a server side transceiver for this endpoint, or null if a transceiver can only be created by an acceptor.
     public abstract Transceiver transceiver();
 
-    //
-    // Return connectors for this endpoint, or empty list if no connector
-    // is available.
-    //
+    // Return connectors for this endpoint, or empty list if no connector is available.
     public abstract void connectors_async(EndpointI_connectors callback);
 
-    //
-    // Return an acceptor for this endpoint, or null if no acceptors
-    // is available.
-    //
-    public abstract Acceptor acceptor(
-            String adapterName, SSLEngineFactory sslEngineFactory);
+    // Return an acceptor for this endpoint, or null if no acceptors is available.
+    public abstract Acceptor acceptor(String adapterName, SSLEngineFactory sslEngineFactory);
 
     // Expand endpoint into separate endpoints for each IP address returned by the DNS resolver.
     // Used only for server endpoints.
     public abstract List<EndpointI> expandHost();
 
-    // Returns true when the most underlying endpoint is an IP endpoint with a loopback or multicast
-    // address.
+    // Returns true when the most underlying endpoint is an IP endpoint with a loopback or multicast address.
     public abstract boolean isLoopbackOrMulticast();
 
     // Returns a new endpoint with the specified host (if not empty) and all local options cleared.
     // May return this.
     public abstract EndpointI toPublishedEndpoint(String publishedHost);
 
-    //
     // Check whether the endpoint is equivalent to another one.
-    //
     public abstract boolean equivalent(EndpointI endpoint);
 
     public abstract String options();
@@ -170,9 +129,7 @@ public abstract class EndpointI implements Endpoint, Comparable<EndpointI> {
         args.addAll(unknown);
     }
 
-    //
     // Compare endpoints for sorting purposes.
-    //
     @Override
     public boolean equals(java.lang.Object obj) {
         if (!(obj instanceof EndpointI)) {

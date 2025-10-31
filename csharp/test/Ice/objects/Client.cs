@@ -13,8 +13,8 @@ public class Client : TestHelper
         initData.properties = createTestProperties(ref args);
         initData.sliceLoader = new CustomSliceLoader();
 
-        using var communicator = initialize(initData);
-        var initial = Test.AllTests.allTests(this);
+        using Communicator communicator = initialize(initData);
+        InitialPrx initial = Test.AllTests.allTests(this);
         initial.shutdown();
     }
 

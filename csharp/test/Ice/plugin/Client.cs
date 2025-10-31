@@ -8,6 +8,8 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace Ice.plugin;
+
 public class Client : Test.TestHelper
 {
     public static Task<int> Main(string[] args) =>
@@ -20,10 +22,10 @@ public class Client : Test.TestHelper
             Console.Write("testing a simple plug-in... ");
             Console.Out.Flush();
             var properties = new Ice.Properties();
-            properties.setProperty("Ice.Plugin.Test",
-                pluginPath + ":PluginFactory 'C:\\Program Files\\' --DatabasePath " +
-                "'C:\\Program Files\\Application\\db'");
-            using (var communicator = initialize(properties))
+            properties.setProperty(
+                "Ice.Plugin.Test",
+                $"{pluginPath}:Ice.plugin.PluginFactory 'C:\\Program Files\\' --DatabasePath 'C:\\Program Files\\Application\\db'");
+            using (Ice.Communicator communicator = initialize(properties))
             {
             }
             Console.WriteLine("ok");
@@ -35,8 +37,8 @@ public class Client : Test.TestHelper
             try
             {
                 var properties = new Ice.Properties();
-                properties.setProperty("Ice.Plugin.Test", pluginPath + ":PluginInitializeFailFactory");
-                initialize(properties);
+                properties.setProperty("Ice.Plugin.Test", $"{pluginPath}:Ice.plugin.PluginInitializeFailFactory");
+                using Communicator _ = initialize(properties);
                 test(false);
             }
             catch (Ice.PluginInitializationException ex)
@@ -50,11 +52,11 @@ public class Client : Test.TestHelper
             Console.Write("testing plug-in load order... ");
             Console.Out.Flush();
             var properties = new Ice.Properties();
-            properties.setProperty("Ice.Plugin.PluginOne", pluginPath + ":PluginOneFactory");
-            properties.setProperty("Ice.Plugin.PluginTwo", pluginPath + ":PluginTwoFactory");
-            properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
+            properties.setProperty("Ice.Plugin.PluginOne", $"{pluginPath}:Ice.plugin.PluginOneFactory");
+            properties.setProperty("Ice.Plugin.PluginTwo", $"{pluginPath}:Ice.plugin.PluginTwoFactory");
+            properties.setProperty("Ice.Plugin.PluginThree", $"{pluginPath}:Ice.plugin.PluginThreeFactory");
             properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
-            using (var communicator = initialize(properties))
+            using (Ice.Communicator communicator = initialize(properties))
             {
             }
             Console.WriteLine("ok");
@@ -65,14 +67,14 @@ public class Client : Test.TestHelper
             Console.Out.Flush();
 
             var properties = new Ice.Properties();
-            properties.setProperty("Ice.Plugin.PluginOne", pluginPath + ":PluginOneFactory");
-            properties.setProperty("Ice.Plugin.PluginTwo", pluginPath + ":PluginTwoFactory");
-            properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
-            properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
+            properties.setProperty("Ice.Plugin.PluginOne", $"{pluginPath}:Ice.plugin.PluginOneFactory");
+            properties.setProperty("Ice.Plugin.PluginTwo", $"{pluginPath}:Ice.plugin.PluginTwoFactory");
+            properties.setProperty("Ice.Plugin.PluginThree", $"{pluginPath}:Ice.plugin.PluginThreeFactory");
+            properties.setProperty("Ice.Plugin.PluginThree", $"{pluginPath}:Ice.plugin.PluginThreeFactory");
             properties.setProperty("Ice.InitPlugins", "0");
 
             MyPlugin p4 = null;
-            using (var communicator = initialize(properties))
+            using (Ice.Communicator communicator = initialize(properties))
             {
                 Ice.PluginManager pm = communicator.getPluginManager();
                 test(pm.getPlugin("PluginOne") != null);
@@ -97,11 +99,11 @@ public class Client : Test.TestHelper
             try
             {
                 var properties = new Ice.Properties();
-                properties.setProperty("Ice.Plugin.PluginOneFail", pluginPath + ":PluginOneFailFactory");
-                properties.setProperty("Ice.Plugin.PluginTwoFail", pluginPath + ":PluginTwoFailFactory");
-                properties.setProperty("Ice.Plugin.PluginThreeFail", pluginPath + ":PluginThreeFailFactory");
+                properties.setProperty("Ice.Plugin.PluginOneFail", $"{pluginPath}:Ice.plugin.PluginOneFailFactory");
+                properties.setProperty("Ice.Plugin.PluginTwoFail", $"{pluginPath}:Ice.plugin.PluginTwoFailFactory");
+                properties.setProperty("Ice.Plugin.PluginThreeFail", $"{pluginPath}:Ice.plugin.PluginThreeFailFactory");
                 properties.setProperty("Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
-                initialize(properties);
+                using Communicator _ = initialize(properties);
             }
             catch (Ice.PluginInitializationException ex)
             {
@@ -117,7 +119,7 @@ public class Client : Test.TestHelper
             {
                 var properties = new Ice.Properties();
                 properties.setProperty("Ice.Plugin.Discovery", "IceDiscovery:IceDiscovery.PluginFactory");
-                initialize(properties);
+                using Communicator _ = initialize(properties);
                 test(false);
             }
             catch (Ice.PluginInitializationException ex)
@@ -138,7 +140,7 @@ public class Client : Test.TestHelper
 
         public void destroy() => _destroyed = true;
 
-        private bool _initialized = false;
-        private bool _destroyed = false;
+        private bool _initialized;
+        private bool _destroyed;
     }
 }

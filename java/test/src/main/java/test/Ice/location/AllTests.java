@@ -600,6 +600,17 @@ public class AllTests {
 
         out.println("ok");
 
+        out.print("testing indirect object adapter without published endpoints... ");
+        out.flush();
+        int setRequestCount = registry.getSetRequestCount();
+        communicator.getProperties().setProperty("CollocAdapter.AdapterId", "CollocId");
+        ObjectAdapter collocAdapter = communicator.createObjectAdapter("CollocAdapter");
+        collocAdapter.activate(); // not necessary, but allowed
+        test(setRequestCount == registry.getSetRequestCount()); // no set call on registry
+        collocAdapter.deactivate();
+        test(setRequestCount == registry.getSetRequestCount()); // no set call on registry
+        out.println("ok");
+
         out.print("shutdown server manager... ");
         out.flush();
         manager.shutdown();

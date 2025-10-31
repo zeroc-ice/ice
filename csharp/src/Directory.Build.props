@@ -17,4 +17,9 @@
         <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)../msbuild/CodeAnalysis.Base.globalconfig" />
         <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)../msbuild/CodeAnalysis.Src.globalconfig" />
     </ItemGroup>
+    <ItemDefinitionGroup>
+        <SliceCompile Condition="'$(EnableAnalysis)' == 'true'">
+            <AdditionalOptions>--enable-analysis</AdditionalOptions>
+        </SliceCompile>
+    </ItemDefinitionGroup>
 </Project>

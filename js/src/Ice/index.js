@@ -4,6 +4,7 @@ import * as Ice_AsyncResult from "./AsyncResult.js";
 import * as Ice_AsyncStatus from "./AsyncStatus.js";
 import * as Ice_Buffer from "./Buffer.js";
 import * as Ice_BuiltinSequences from "./BuiltinSequences.js";
+import * as Ice_InitializationData from "./InitializationData.js";
 import * as Ice_Communicator from "./Communicator.js";
 // Must be imported after Communicator.js for the prototype extensions.
 import "./CommunicatorExtensions.js";
@@ -108,6 +109,7 @@ export const Ice = {
     ...Ice_IdentityToString,
     ...Ice_ImplicitContext,
     ...Ice_Initialize,
+    ...Ice_InitializationData,
     ...Ice_InputStream,
     ...Ice_Instance,
     ...Ice_IncomingRequest,

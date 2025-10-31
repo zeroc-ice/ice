@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+namespace Ice.plugin;
+
 public class PluginFactory : Ice.PluginFactory
 {
     public string pluginName => "Test";
@@ -25,7 +27,7 @@ public class PluginFactory : Ice.PluginFactory
 
         private static void test(bool b) => global::Test.TestHelper.test(b);
 
-        private bool _initialized = false;
+        private bool _initialized;
         private readonly string[] _args;
     }
 }

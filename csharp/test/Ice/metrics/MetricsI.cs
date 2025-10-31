@@ -2,6 +2,8 @@
 
 using Test;
 
+namespace Ice.metrics;
+
 public sealed class ControllerI(Ice.ObjectAdapter adapter) : ControllerDisp_
 {
     public override void hold(Ice.Current current)
@@ -29,7 +31,7 @@ public sealed class MetricsI : MetricsDisp_
 
     public override void opWithLocalException(Ice.Current current) => throw new Ice.SyscallException(message: null);
 
-    public override void opWithUnknownException(Ice.Current current) => throw new ArgumentOutOfRangeException();
+    public override void opWithUnknownException(Ice.Current current) => throw new ArgumentOutOfRangeException(nameof(current));
 
     public override void opByteS(byte[] bs, Ice.Current current)
     {

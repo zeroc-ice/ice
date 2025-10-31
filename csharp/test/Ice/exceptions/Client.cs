@@ -12,9 +12,9 @@ public class Client : TestHelper
         initData.properties = createTestProperties(ref args);
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        await using var communicator = initialize(initData);
+        await using Communicator communicator = initialize(initData);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-        var thrower = await AllTests.allTests(this);
+        Test.ThrowerPrx thrower = await AllTests.allTests(this);
         thrower.shutdown();
     }
 

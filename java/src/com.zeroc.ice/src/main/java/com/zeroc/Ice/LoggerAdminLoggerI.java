@@ -10,31 +10,38 @@ import java.util.List;
 final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     @Override
     public void print(String message) {
-        LogMessage logMessage = new LogMessage(LogMessageType.PrintMessage, now(), "", message);
         _localLogger.print(message);
-        log(logMessage);
+        if (!_detached) {
+            LogMessage logMessage = new LogMessage(LogMessageType.PrintMessage, now(), "", message);
+            log(logMessage);
+        }
     }
 
     @Override
     public void trace(String category, String message) {
-        LogMessage logMessage =
-            new LogMessage(LogMessageType.TraceMessage, now(), category, message);
         _localLogger.trace(category, message);
-        log(logMessage);
+        if (!_detached) {
+            LogMessage logMessage = new LogMessage(LogMessageType.TraceMessage, now(), category, message);
+            log(logMessage);
+        }
     }
 
     @Override
     public void warning(String message) {
-        LogMessage logMessage = new LogMessage(LogMessageType.WarningMessage, now(), "", message);
         _localLogger.warning(message);
-        log(logMessage);
+        if (!_detached) {
+            LogMessage logMessage = new LogMessage(LogMessageType.WarningMessage, now(), "", message);
+            log(logMessage);
+        }
     }
 
     @Override
     public void error(String message) {
-        LogMessage logMessage = new LogMessage(LogMessageType.ErrorMessage, now(), "", message);
         _localLogger.error(message);
-        log(logMessage);
+        if (!_detached) {
+            LogMessage logMessage = new LogMessage(LogMessageType.ErrorMessage, now(), "", message);
+            log(logMessage);
+        }
     }
 
     @Override
@@ -53,13 +60,13 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     }
 
     @Override
-    public void destroy() {
+    public void detach() {
         Thread thread = null;
         synchronized (this) {
             if (_sendLogThread != null) {
                 thread = _sendLogThread;
                 _sendLogThread = null;
-                _destroyed = true;
+                _detached = true;
                 notifyAll();
             }
         }
@@ -79,15 +86,20 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     }
 
     @Override
+    public void close() throws Exception {
+        _localLogger.close();
+    }
+
+    @Override
     public void run() {
         if (_loggerAdmin.getTraceLevel() > 1) {
             _localLogger.trace(_traceCategory, "send log thread started");
         }
 
-        for (; ; ) {
+        while (true) {
             Job job = null;
             synchronized (this) {
-                while (!_destroyed && _jobQueue.isEmpty()) {
+                while (!_detached && _jobQueue.isEmpty()) {
                     try {
                         wait();
                     } catch (InterruptedException e) {
@@ -95,8 +107,8 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
                     }
                 }
 
-                if (_destroyed) {
-                    break; // for(;;)
+                if (_detached) {
+                    break;
                 }
 
                 assert (!_jobQueue.isEmpty());
@@ -105,41 +117,26 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
 
             for (RemoteLoggerPrx p : job.remoteLoggers) {
                 if (_loggerAdmin.getTraceLevel() > 1) {
-                    _localLogger.trace(
-                        _traceCategory, "sending log message to `" + p.toString() + "'");
+                    _localLogger.trace(_traceCategory, "sending log message to `" + p.toString() + "'");
                 }
 
                 try {
-                    //
                     // p is a proxy associated with the _sendLogCommunicator
-                    //
                     p.logAsync(job.logMessage)
                         .whenComplete(
                             (Void v, Throwable ex) -> {
                                 if (ex != null) {
                                     if (ex instanceof CommunicatorDestroyedException) {
-                                        // Expected if there are outstanding calls during
-                                        // communicator destruction.
+                                        // Expected if there are outstanding calls during communicator destruction.
                                     } else if (ex instanceof LocalException) {
-                                        _loggerAdmin.deadRemoteLogger(
-                                            p,
-                                            _localLogger,
-                                            (LocalException) ex,
-                                            "log");
+                                        _loggerAdmin.deadRemoteLogger(p, _localLogger, (LocalException) ex, "log");
                                     } else {
-                                        _loggerAdmin.deadRemoteLogger(
-                                            p,
-                                            _localLogger,
-                                            new UnknownException(ex),
-                                            "log");
+                                        _loggerAdmin.deadRemoteLogger(p, _localLogger, new UnknownException(ex), "log");
                                     }
                                 } else {
                                     if (_loggerAdmin.getTraceLevel() > 1) {
-                                        _localLogger.trace(
-                                            _traceCategory,
-                                            "log on `"
-                                                + p.toString()
-                                                + "' completed successfully");
+                                        String msg = "log on `" + p.toString() + "' completed successfully";
+                                        _localLogger.trace(_traceCategory, msg);
                                     }
                                 }
                             });
@@ -202,7 +199,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
 
     private final Logger _localLogger;
     private final LoggerAdminI _loggerAdmin;
-    private boolean _destroyed;
+    private volatile boolean _detached;
     private Thread _sendLogThread;
     private final Deque<Job> _jobQueue = new ArrayDeque<>();
 

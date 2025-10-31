@@ -2,6 +2,7 @@
 
 /// <reference path="./ObjectPrx.d.ts" />
 /// <reference path="./ImplicitContext.d.ts" />
+/// <reference path="./InitializationData.d.ts" />
 /// <reference path="./Version.d.ts" />
 /// <reference path="./SSL/ConnectionInfo.d.ts" />
 /// <reference path="./SSL/EndpointInfo.d.ts" />

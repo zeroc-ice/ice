@@ -82,8 +82,7 @@ final class Server {
             }
         }
 
-        ServiceManagerI serviceManagerImpl =
-            new ServiceManagerI(communicator, argSeq.toArray(new String[0]));
+        ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator, argSeq.toArray(new String[0]));
         return serviceManagerImpl.run();
     }
 
@@ -96,7 +95,7 @@ final class Server {
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
         ShutdownHook shutdownHook = null;
 
-        try (Communicator communicator = Util.initialize(initData)) {
+        try (Communicator communicator = new Communicator(initData)) {
             shutdownHook = new ShutdownHook(communicator);
             Runtime.getRuntime().addShutdownHook(shutdownHook);
 

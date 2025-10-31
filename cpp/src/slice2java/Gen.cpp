@@ -875,8 +875,13 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
                 if (isObject)
                 {
                     ostringstream patchParams;
-                    out << nl << "final int fi" << iter << " = i" << iter << ";";
-                    patchParams << "value -> " << param << "[fi" << iter << "] = value, " << origContentS << ".class";
+                    if (type->isClassType())
+                    {
+                        out << nl << "final int fi" << iter << " = i" << iter << ";";
+                        patchParams << "value -> " << param << "[fi" << iter << "] = value, " << origContentS
+                                    << ".class";
+                    }
+
                     writeMarshalUnmarshalCode(
                         out,
                         package,
@@ -1338,16 +1343,9 @@ Slice::JavaVisitor::getPatcher(const TypePtr& type, const string& package, const
     ostringstream ostr;
     if ((b && b->usesClasses()) || cl)
     {
-        string clsName;
-        if (b)
-        {
-            clsName = "com.zeroc.Ice.Value";
-        }
-        else
-        {
-            clsName = getUnqualified(cl, package);
-        }
-        ostr << "v -> " << dest << " = v, " << clsName << ".class";
+        string clsName = b ? "com.zeroc.Ice.Value" : getUnqualified(cl, package);
+        string varName = dest == "v" ? "v_" : "v";
+        ostr << varName << " -> " << dest << " = " << varName << ", " << clsName << ".class";
     }
     return ostr.str();
 }
@@ -3636,19 +3634,16 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << " */";
     out << nl << "public static " << name << " valueOf(int v)";
     out << sb;
-    out << nl << "switch (v)";
+    out << nl << "return switch (v)";
     out << sb;
     out.dec();
     for (const auto& enumerator : enumerators)
     {
-        out << nl << "case " << enumerator->value() << ':';
-        out.inc();
-        out << nl << "return " << enumerator->mappedName() << ';';
-        out.dec();
+        out << nl << "case " << enumerator->value() << " -> " << enumerator->mappedName() << ';';
     }
+    out << nl << "default -> null;";
     out.inc();
-    out << eb;
-    out << nl << "return null;";
+    out << eb << ';';
     out << eb;
 
     out << sp << nl << "private " << name << "(int v)";

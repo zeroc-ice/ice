@@ -82,7 +82,7 @@ def allTests(helper: TestHelper, communicator: "Ice.Communicator") -> None:
     init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1")
     init.properties.setProperty("Ice.Admin.InstanceName", "Test")
     init.properties.setProperty("Ice.ProgramName", "MyTestProgram")
-    com = Ice.initialize(initData=init)
+    com = Ice.Communicator(initData=init)
     testFacets(com)
     test(com.getLogger().getPrefix() == "MyTestProgram")
     com.destroy()
@@ -95,14 +95,14 @@ def allTests(helper: TestHelper, communicator: "Ice.Communicator") -> None:
     init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1")
     init.properties.setProperty("Ice.Admin.InstanceName", "Test")
     init.properties.setProperty("Ice.Admin.Facets", "Properties")
-    com = Ice.initialize(initData=init)
+    com = Ice.Communicator(initData=init)
     testFacets(com, False)
     com.destroy()
 
     #
     # Test: Verify that the operations work correctly with the Admin object disabled.
     #
-    com = Ice.initialize()
+    com = Ice.Communicator()
     testFacets(com, False)
     com.destroy()
 
@@ -112,7 +112,7 @@ def allTests(helper: TestHelper, communicator: "Ice.Communicator") -> None:
     init = Ice.InitializationData()
     init.properties = Ice.createProperties()
     init.properties.setProperty("Ice.Admin.Enabled", "1")
-    com = Ice.initialize(initData=init)
+    com = Ice.Communicator(initData=init)
     test(com.getAdmin() is None)
     identity = Ice.stringToIdentity("test-admin")
     try:
@@ -136,7 +136,7 @@ def allTests(helper: TestHelper, communicator: "Ice.Communicator") -> None:
     init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1")
     init.properties.setProperty("Ice.Admin.InstanceName", "Test")
     init.properties.setProperty("Ice.Admin.DelayCreation", "1")
-    com = Ice.initialize(initData=init)
+    com = Ice.Communicator(initData=init)
     testFacets(com)
     com.getAdmin()
     testFacets(com)

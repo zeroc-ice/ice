@@ -19,9 +19,7 @@ import java.util.List;
 final class UdpMulticastServerTransceiver implements Transceiver {
     @Override
     public SelectableChannel fd() {
-        //
         // Android doesn't provide non-blocking APIs for UDP multicast.
-        //
         return null;
     }
 
@@ -30,26 +28,20 @@ final class UdpMulticastServerTransceiver implements Transceiver {
         assert (_readyCallback == null && callback != null);
         _readyCallback = callback;
 
-        //
         // Start the thread only once the ready callback is set or otherwise the thread
         // might start receiving datagrams but wouldn't be able to notify the thread pool.
-        //
         _thread.start();
     }
 
     @Override
     public int initialize(Buffer readBuffer, Buffer writeBuffer) {
-        //
         // Nothing to do.
-        //
         return SocketOperation.None;
     }
 
     @Override
     public int closing(boolean initiator, LocalException ex) {
-        //
         // Nothing to do.
-        //
         return SocketOperation.None;
     }
 
@@ -58,9 +50,7 @@ final class UdpMulticastServerTransceiver implements Transceiver {
         Thread thread;
 
         synchronized (this) {
-            //
             // Close the socket first in order to interrupt the helper thread.
-            //
             if (_socket != null) {
                 _socket.close();
                 _socket = null;
@@ -81,9 +71,7 @@ final class UdpMulticastServerTransceiver implements Transceiver {
 
     @Override
     public EndpointI bind() {
-        //
         // The constructor binds the socket so there's not much left to do.
-        //
 
         _endpoint = _endpoint.endpoint(this);
         return _endpoint;
@@ -91,9 +79,7 @@ final class UdpMulticastServerTransceiver implements Transceiver {
 
     @Override
     public int write(Buffer buf) {
-        //
         // This transceiver can only read.
-        //
         throw new SocketException();
     }
 
@@ -101,7 +87,6 @@ final class UdpMulticastServerTransceiver implements Transceiver {
     public synchronized int read(Buffer buf) {
         if (_exception != null) {
             throw _exception;
-            // throw (LocalException) _exception.fillInStackTrace();
         }
 
         assert (buf.b.position() == 0);
@@ -117,17 +102,13 @@ final class UdpMulticastServerTransceiver implements Transceiver {
                 _recycle.add(rb);
             }
 
-            //
             // The read thread will temporarily stop reading if we exceed our threshold. Wake it up
             // if we've transitioned below the limit.
-            //
             if (_buffers.size() == _threshold - 1) {
                 notifyAll();
             }
 
-            //
             // Update our Read state to indicate whether we still have more data waiting to be read.
-            //
             _readyCallback.ready(SocketOperation.Read, !_buffers.isEmpty());
         }
 
@@ -151,9 +132,7 @@ final class UdpMulticastServerTransceiver implements Transceiver {
     @Override
     public String toDetailedString() {
         StringBuilder s = new StringBuilder(toString());
-        List<String> intfs =
-            Network.getInterfacesForMulticast(
-                _mcastInterface, Network.getProtocolSupport(_addr));
+        List<String> intfs = Network.getInterfacesForMulticast(_mcastInterface, Network.getProtocolSupport(_addr));
         if (!intfs.isEmpty()) {
             s.append("\nlocal interfaces = ");
             s.append(String.join(", ", intfs));
@@ -162,8 +141,7 @@ final class UdpMulticastServerTransceiver implements Transceiver {
     }
 
     @Override
-    public synchronized ConnectionInfo getInfo(
-            boolean incoming, String adapterName, String connectionId) {
+    public synchronized ConnectionInfo getInfo(boolean incoming, String adapterName, String connectionId) {
         return new UDPConnectionInfo(
             incoming,
             adapterName,
@@ -180,9 +158,7 @@ final class UdpMulticastServerTransceiver implements Transceiver {
 
     @Override
     public void checkSendSize(Buffer buf) {
-        //
         // Nothing to do.
-        //
     }
 
     @Override
@@ -208,24 +184,16 @@ final class UdpMulticastServerTransceiver implements Transceiver {
         _addr = addr;
 
         try {
-            //
             // The MulticastSocket constructor binds the socket and calls setReuseAddress(true).
-            //
             _socket = new MulticastSocket(_addr);
 
-            //
             // Obtain the local socket address (in case a system-assigned port was requested).
-            //
             _addr = (InetSocketAddress) _socket.getLocalSocketAddress();
 
-            //
             // Set the multicast group.
-            //
             Network.setMcastGroup(_socket, _addr, _mcastInterface);
 
-            //
             // Configure the receive buffer size.
-            //
             _size = _socket.getReceiveBufferSize();
             _newSize = -1;
             setBufSize(-1);
@@ -262,56 +230,36 @@ final class UdpMulticastServerTransceiver implements Transceiver {
     private void setBufSize(int sz) {
         assert (_socket != null);
 
-        //
         // Get property for buffer size if size not passed in.
-        //
         if (sz == -1) {
             sz = _instance.properties().getPropertyAsIntWithDefault("Ice.UDP.RcvSize", _size);
         }
 
-        //
         // Check for sanity.
-        //
         if (sz < (_udpOverhead + Protocol.headerSize)) {
-            _instance
-                .logger()
-                .warning("Invalid Ice.UDP.RcvSize value of " + sz + " adjusted to " + _size);
+            _instance.logger().warning("Invalid Ice.UDP.RcvSize value of " + sz + " adjusted to " + _size);
         } else if (sz != _size) {
             _newSize = sz;
         }
 
-        //
         // Defer the actual modification of the buffer size to the helper thread.
-        //
     }
 
     private void updateBufSize() {
-        //
         // Must be called without any other threads holding the lock to the MulticastSocket!
-        //
 
         try {
-            //
-            // Try to set the buffer size. The kernel will silently adjust the size to an acceptable
-            // value. Then read the size back to get the size that was actually set.
-            //
+            // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value.
+            // Then read the size back to get the size that was actually set.
             _socket.setReceiveBufferSize(_newSize);
             _size = _socket.getReceiveBufferSize();
 
-            //
-            // Warn if the size that was set is less than the requested size and we have not already
-            // warned.
-            //
+            // Warn if the size that was set is less than the requested size and we have not already warned.
             if (_size < _newSize) {
                 BufSizeWarnInfo winfo = _instance.getBufSizeWarn(UDPEndpointType.value);
                 if (!winfo.rcvWarn || winfo.rcvSize != _newSize) {
-                    _instance
-                        .logger()
-                        .warning(
-                            "UDP receive buffer size: requested size of "
-                                + _newSize
-                                + " adjusted to "
-                                + _size);
+                    String msg = "UDP receive buffer size: requested size of " + _newSize + " adjusted to " + _size;
+                    _instance.logger().warning(msg);
                     _instance.setRcvBufSizeWarn(UDPEndpointType.value, _newSize);
                 }
             }
@@ -333,10 +281,7 @@ final class UdpMulticastServerTransceiver implements Transceiver {
                 Buffer buf = null;
 
                 synchronized (this) {
-                    //
-                    // If we've read too much data, wait until the application consumes some before
-                    // we read again.
-                    //
+                    // If we've read too much data, wait until the application consumes some before we read again.
                     while (_socket != null && _exception == null && _buffers.size() >= _threshold) {
                         try {
                             wait();
@@ -350,9 +295,7 @@ final class UdpMulticastServerTransceiver implements Transceiver {
                     }
 
                     if (_newSize != -1) {
-                        //
                         // Application must have called setBufferSize.
-                        //
                         updateBufSize();
                         _newSize = -1;
                     }
@@ -389,17 +332,11 @@ final class UdpMulticastServerTransceiver implements Transceiver {
             }
         } catch (IOException ex) {
             exception(new SocketException(ex));
-            //
-            // Mark as ready for reading so that the Ice run time will invoke read() and we can
-            // report the exception.
-            //
+            // Mark as ready for reading so that the Ice run time will invoke read() and we can report the exception.
             _readyCallback.ready(SocketOperation.Read, true);
         } catch (LocalException ex) {
             exception(ex);
-            //
-            // Mark as ready for reading so that the Ice run time will invoke read() and we can
-            // report the exception.
-            //
+            // Mark as ready for reading so that the Ice run time will invoke read() and we can report the exception.
             _readyCallback.ready(SocketOperation.Read, true);
         }
     }
@@ -413,18 +350,11 @@ final class UdpMulticastServerTransceiver implements Transceiver {
     private InetSocketAddress _addr;
     private final String _mcastInterface;
 
-    //
     // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for
-    // the
-    // UDP header
-    // to get the maximum payload.
-    //
+    // the UDP header to get the maximum payload.
     private static final int _udpOverhead = 20 + 8;
 
-    //
-    // The maximum number of packets that we'll queue before the read thread temporarily stops
-    // reading.
-    //
+    // The maximum number of packets that we'll queue before the read thread temporarily stops reading.
     private static final int _threshold = 10;
 
     private Thread _thread;

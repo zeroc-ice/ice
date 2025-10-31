@@ -7,10 +7,8 @@ import com.zeroc.Ice.Instrumentation.InvocationObserver;
 
 import java.util.concurrent.ExecutionException;
 
-//
-// Base class for handling asynchronous invocations. This class is
-// responsible for the handling of the output stream and the child invocation observer.
-//
+// Base class for handling asynchronous invocations.
+// This class is responsible for the handling of the output stream and the child invocation observer.
 abstract class OutgoingAsyncBase<T> extends InvocationFuture<T> {
     public boolean sent() {
         return sent(true);

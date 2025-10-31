@@ -8,6 +8,8 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace Ice.logger;
+
 public class Client : Test.TestHelper
 {
     public override void run(string[] args)
@@ -21,12 +23,12 @@ public class Client : Test.TestHelper
         var initData = new Ice.InitializationData();
         initData.properties = createTestProperties(ref args);
         initData.properties.setProperty("Ice.LogFile", "log.txt");
-        using (var communicator = initialize(initData))
+        using (Communicator communicator = initialize(initData))
         {
             communicator.getLogger().trace("info", "my logger");
         }
         test(File.Exists("log.txt"));
-        test(File.ReadAllText("log.txt").Contains("my logger"));
+        test(File.ReadAllText("log.txt").Contains("my logger", StringComparison.Ordinal));
         File.Delete("log.txt");
         Console.Out.WriteLine("ok");
     }

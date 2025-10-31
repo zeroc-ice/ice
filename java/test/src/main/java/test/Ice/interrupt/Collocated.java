@@ -3,10 +3,10 @@
 package test.Ice.interrupt;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -31,9 +31,9 @@ public class Collocated extends TestHelper {
             ObjectAdapter adapter2 =
                 communicator().createObjectAdapter("ControllerAdapter");
             TestControllerI controller = new TestControllerI(adapter);
-            adapter.add(new TestI(controller), Util.stringToIdentity("test"));
+            adapter.add(new TestI(controller), new Identity("test", ""));
             // adapter.activate(); // Don't activate OA to ensure collocation is used.
-            adapter2.add(controller, Util.stringToIdentity("testController"));
+            adapter2.add(controller, new Identity("testController", ""));
             // adapter2.activate(); // Don't activate OA to ensure collocation is used.
             AllTests.allTests(this);
         } catch (InterruptedException ex) {

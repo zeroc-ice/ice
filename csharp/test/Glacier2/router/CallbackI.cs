@@ -3,6 +3,8 @@
 using System.Diagnostics;
 using Test;
 
+namespace Glacier2.router;
+
 public sealed class CallbackI : Test.CallbackDisp_
 {
     public CallbackI()
@@ -26,11 +28,11 @@ public sealed class CallbackReceiverI : CallbackReceiverDisp_
     public override void
     callback(Ice.Current current)
     {
-        lock (this)
+        lock (_mutex)
         {
             Debug.Assert(!_callback);
             _callback = true;
-            System.Threading.Monitor.Pulse(this);
+            Monitor.Pulse(_mutex);
         }
     }
 
@@ -47,11 +49,11 @@ public sealed class CallbackReceiverI : CallbackReceiverDisp_
     public void
     callbackOK()
     {
-        lock (this)
+        lock (_mutex)
         {
             while (!_callback)
             {
-                System.Threading.Monitor.Wait(this, 30000);
+                Monitor.Wait(_mutex, 30000);
                 TestHelper.test(_callback);
             }
 
@@ -60,4 +62,5 @@ public sealed class CallbackReceiverI : CallbackReceiverDisp_
     }
 
     private bool _callback;
+    private readonly object _mutex = new();
 }

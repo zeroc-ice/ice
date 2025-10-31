@@ -2,19 +2,22 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final
+import asyncio
+from typing import TYPE_CHECKING, Self, final, overload
+
+import IcePy
 
 from ._LoggerI import LoggerI
+from .asyncio.EventLoopAdapter import EventLoopAdapter as AsyncIOEventLoopAdapter
 from .Future import Future
 from .ImplicitContext import ImplicitContext
+from .InitializationData import InitializationData
 from .Logger import Logger
 from .ObjectAdapter import ObjectAdapter
 from .Properties import Properties
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable
-
-    import IcePy
 
     from .CompressBatch import CompressBatch
     from .EventLoopAdapter import EventLoopAdapter
@@ -28,7 +31,14 @@ if TYPE_CHECKING:
 @final
 class Communicator:
     """
-    The main entry point to the Ice runtime, represented by the ``Communicator`` class.
+    Communicator is the central object in Ice. Its responsibilities include:
+    - creating and managing outgoing connections
+    - executing callbacks in its client thread pool
+    - creating and destroying object adapters
+    - loading plug-ins
+    - managing properties (configuration), retries, logging, instrumentation, and more.
+    The communicator is usually the first object you create when programming with Ice. You can create multiple
+    communicators in a single program, but this is not common.
 
     Example
     -------
@@ -38,7 +48,7 @@ class Communicator:
     .. code-block:: python
 
         async def main():
-            async with Ice.initialize(
+            async with Ice.Communicator(
                 sys.argv, eventLoop=asyncio.get_running_loop()
             ) as communicator:
                 ...
@@ -48,9 +58,46 @@ class Communicator:
             asyncio.run(main())
     """
 
-    def __init__(self, impl: IcePy.Communicator, eventLoopAdapter: EventLoopAdapter | None = None) -> None:
-        self._impl = impl
-        impl._setWrapper(self)
+    @overload
+    def __init__(self, args: list[str] | None = None, eventLoop: asyncio.AbstractEventLoop | None = None) -> None: ...
+
+    @overload
+    def __init__(self, *, initData: InitializationData | None = None) -> None: ...
+
+    def __init__(
+        self,
+        args: list[str] | None = None,
+        eventLoop: asyncio.AbstractEventLoop | None = None,
+        initData: InitializationData | None = None,
+    ) -> None:
+        """
+        Initializes a new instance of Communicator.
+
+        Parameters
+        ----------
+        args : list of str, optional
+            The command-line arguments, parsed into Ice properties by this method.
+        eventLoop : asyncio.AbstractEventLoop, optional
+            An asyncio event loop used to run coroutines and wrap futures. If provided, a new event loop adapter is
+            created and configured with the communicator. This adapter is responsible for executing coroutines returned
+            by Ice asynchronous dispatch methods and for wrapping Ice futures (from Ice Async APIs) into asyncio
+            futures. This argument and the `initData` argument are mutually exclusive. If the `initData` argument is
+            provided, the event loop adapter can be set using the :attr:`InitializationData.eventLoopAdapter` attribute.
+        initData : InitializationData, optional
+            Options for the new communicator. This argument and the `args` argument are mutually exclusive.
+        """
+        eventLoopAdapter = None
+        if initData:
+            eventLoopAdapter = initData.eventLoopAdapter
+        elif eventLoop:
+            eventLoopAdapter = AsyncIOEventLoopAdapter(eventLoop)
+
+        if args:
+            initData = InitializationData(properties=Properties(args))
+
+        # initData can be None here, which is acceptable.
+        self._impl = IcePy.Communicator(initData)
+        self._impl._setWrapper(self)
         self._eventLoopAdapter = eventLoopAdapter
 
     def __enter__(self) -> Self:
@@ -356,7 +403,7 @@ class Communicator:
             The properties associated with this communicator.
         """
         properties = self._impl.getProperties()
-        return Properties(properties)
+        return Properties(properties=properties)
 
     def getLogger(self) -> Logger:
         """

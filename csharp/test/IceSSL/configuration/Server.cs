@@ -8,11 +8,13 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
+namespace Ice.SSL.configuration;
+
 public class Server : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using var communicator = initialize(ref args);
+        using Ice.Communicator communicator = initialize(ref args);
         if (args.Length < 1)
         {
             throw new ArgumentException("Usage: server testdir");

@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-from typing import final
+from typing import Self, final, overload
 
 import IcePy
 
@@ -8,13 +8,66 @@ import IcePy
 @final
 class Properties:
     """
-    A property set used to configure Ice and Ice applications. Properties are key/value pairs, with both keys and
-    values being strings. By convention, property keys should have the form
+    Represents a set of properties used to configure Ice and Ice-based applications. A property is a key/value pair,
+    where both the key and the value are strings. By convention, property keys should have the form
     application-name[.category[.sub-category]].name.
     """
 
-    def __init__(self, impl: IcePy.Properties):
-        self._impl = impl
+    @overload
+    def __init__(self, args: list[str] | None = None, defaults: Self | None = None): ...
+
+    @overload
+    def __init__(self, *, properties: IcePy.Properties): ...
+
+    def __init__(
+        self, args: list[str] | None = None, defaults: Self | None = None, properties: IcePy.Properties | None = None
+    ):
+        """
+        Initialize a new instance of the Properties class.
+
+        This constructor loads the configuration files specified by the ``Ice.Config`` property or the
+        ``ICE_CONFIG`` environment variable, and then parses Ice properties from ``args``.
+
+        Parameters
+        ----------
+        args : list of str, optional
+            The command-line arguments. Arguments starting with ``--`` and one of the reserved prefixes
+            (``Ice``, ``IceSSL``, etc.) are parsed as properties and removed from the list. If there is
+            an argument starting with ``--Ice.Config``, the specified configuration file is loaded. When
+            the same property is set in both a configuration file and a command-line argument, the
+            command-line setting takes precedence.
+        defaults : dict of (str, str), optional
+            Default values for the new Properties object. Settings in configuration files and command-line
+            arguments override these defaults.
+
+        Notes
+        -----
+        When there is no ``--Ice.Config`` command-line argument, this constructor loads properties from
+        the files specified by the ``ICE_CONFIG`` environment variable.
+
+        Examples
+        --------
+        .. code-block:: python
+            # Create a new empty property set.
+            properties = Ice.Properties()
+
+            # Create a property set from command-line arguments.
+            properties = Ice.Properties(sys.argv)
+
+            # Create a property set using default values.
+            defaultProperties = Ice.Properties()
+            defaultProperties.setProperty("Ice.Trace.Protocol", "1")
+            properties = Ice.Properties(defaults=defaultProperties)
+
+            # Combine command-line parsing with default values.
+            defaultProperties = Ice.Properties()
+            defaultProperties.setProperty("Ice.Trace.Protocol", "1")
+            properties = Ice.Properties(sys.argv, defaultProperties)
+        """
+        if isinstance(properties, IcePy.Properties):
+            self._impl = properties
+        else:
+            self._impl = IcePy.createProperties(args, defaults)
 
     def getProperty(self, key: str) -> str:
         """
@@ -324,7 +377,7 @@ class Properties:
         Properties
             A copy of this property set.
         """
-        return Properties(self._impl.clone())
+        return Properties(properties=self._impl.clone())
 
     def __iter__(self):
         dict = self._impl.getPropertiesForPrefix("")

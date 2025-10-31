@@ -26,7 +26,7 @@ public class SyscallException extends LocalException {
      * Constructs a SyscallException with the specified detail message and cause.
      *
      * @param message the detail message
-     * @param cause   the cause
+     * @param cause the cause
      */
     protected SyscallException(String message, Throwable cause) {
         super(message, cause);

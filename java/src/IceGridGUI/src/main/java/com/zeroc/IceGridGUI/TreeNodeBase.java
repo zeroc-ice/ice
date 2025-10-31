@@ -18,8 +18,7 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-// This class behaves like a leaf; derived class that represent non-leaf nodes must override various
-// methods.
+// This class behaves like a leaf; derived class that represent non-leaf nodes must override various methods.
 public class TreeNodeBase implements TreeNode, TreeCellRenderer {
     public Coordinator getCoordinator() {
         return _parent.getCoordinator();
@@ -104,8 +103,7 @@ public class TreeNodeBase implements TreeNode, TreeCellRenderer {
     }
 
     public LinkedList<String> getFullId() {
-        LinkedList<String> result =
-            _parent == null ? new LinkedList<>() : _parent.getFullId();
+        LinkedList<String> result = _parent == null ? new LinkedList<>() : _parent.getFullId();
 
         result.add(_id);
         return result;
@@ -140,8 +138,7 @@ public class TreeNodeBase implements TreeNode, TreeCellRenderer {
     // Helper functions
     //
 
-    protected boolean insertSortedChild(
-            TreeNodeBase newChild, List c, DefaultTreeModel treeModel) {
+    protected boolean insertSortedChild(TreeNodeBase newChild, List c, DefaultTreeModel treeModel) {
         @SuppressWarnings("unchecked")
         List<TreeNodeBase> children = c;
 
@@ -164,8 +161,7 @@ public class TreeNodeBase implements TreeNode, TreeCellRenderer {
         return true;
     }
 
-    protected String insertSortedChildren(
-            List nc, List ic, DefaultTreeModel treeModel) {
+    protected String insertSortedChildren(List nc, List ic, DefaultTreeModel treeModel) {
         @SuppressWarnings("unchecked")
         List<TreeNodeBase> newChildren = nc;
         @SuppressWarnings("unchecked")
@@ -227,8 +223,7 @@ public class TreeNodeBase implements TreeNode, TreeCellRenderer {
         return null;
     }
 
-    protected void removeSortedChildren(
-            String[] childIds, List fc, DefaultTreeModel treeModel) {
+    protected void removeSortedChildren(String[] childIds, List fc, DefaultTreeModel treeModel) {
         @SuppressWarnings("unchecked")
         List<TreeNodeBase> fromChildren = fc;
 

@@ -86,6 +86,11 @@ public class ControllerApp extends Application {
         public Logger cloneWithPrefix(String s) {
             return new AndroidLogger(s);
         }
+
+        @Override
+        public void close() {
+            // nothing to do
+        }
     }
 
     @Override
@@ -193,7 +198,7 @@ public class ControllerApp extends Application {
                 initData.properties.setProperty("IceDiscovery.DomainId", "TestController");
             }
 
-            _communicator = com.zeroc.Ice.Util.initialize(initData);
+            _communicator = new com.zeroc.Ice.Communicator(initData);
             com.zeroc.Ice.ObjectAdapter adapter =
                     _communicator.createObjectAdapter("ControllerAdapter");
             ProcessControllerPrx processController =

@@ -10,7 +10,6 @@ import com.zeroc.Ice.NativePropertiesAdmin;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Properties;
-import com.zeroc.Ice.Util;
 
 import test.Ice.admin.Test.RemoteCommunicatorFactory;
 import test.Ice.admin.Test.RemoteCommunicatorPrx;
@@ -52,7 +51,12 @@ public class RemoteCommunicatorFactoryI implements RemoteCommunicatorFactory {
 
                     @Override
                     public Logger cloneWithPrefix(String prefix) {
-                        return this;
+                        return this; // not a correct implementation
+                    }
+
+                    @Override
+                    public void close() {
+                        // No resources to close in this logger.
                     }
                 };
         }
@@ -60,7 +64,7 @@ public class RemoteCommunicatorFactoryI implements RemoteCommunicatorFactory {
         //
         // Initialize a new communicator.
         //
-        Communicator communicator = Util.initialize(initData);
+        Communicator communicator = new Communicator(initData);
 
         //
         // Install a custom admin facet.

@@ -3,8 +3,8 @@
 package test.Ice.timeout;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -18,13 +18,13 @@ public class Server extends TestHelper {
             communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new TimeoutI(), Util.stringToIdentity("timeout"));
+            adapter.add(new TimeoutI(), new Identity("timeout", ""));
             adapter.activate();
 
             ObjectAdapter controllerAdapter =
                 communicator.createObjectAdapter("ControllerAdapter");
             controllerAdapter.add(
-                new ControllerI(adapter), Util.stringToIdentity("controller"));
+                new ControllerI(adapter), new Identity("controller", ""));
             controllerAdapter.activate();
             serverReady();
             communicator.waitForShutdown();

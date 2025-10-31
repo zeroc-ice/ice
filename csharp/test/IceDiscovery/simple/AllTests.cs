@@ -2,12 +2,14 @@
 
 using Test;
 
+namespace IceDiscovery.simple;
+
 public class AllTests : Test.AllTests
 {
     public static void
     allTests(Test.TestHelper helper, int num)
     {
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         Ice.Communicator communicator = helper.communicator();
         var proxies = new List<ControllerPrx>();
         var indirectProxies = new List<ControllerPrx>();
@@ -209,7 +211,7 @@ public class AllTests : Test.AllTests
                 var initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties().Clone();
                 initData.properties.setProperty("IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
-                Ice.Communicator comm = Ice.Util.initialize(initData);
+                using var comm = new Ice.Communicator(initData);
                 test(comm.getDefaultLocator() != null);
                 try
                 {
@@ -219,7 +221,6 @@ public class AllTests : Test.AllTests
                 catch (Ice.LocalException)
                 {
                 }
-                comm.destroy();
             }
             {
                 var initData = new Ice.InitializationData();
@@ -230,13 +231,13 @@ public class AllTests : Test.AllTests
                     intf = " --interface \"" + intf + "\"";
                 }
                 string port = initData.properties.getIceProperty("IceDiscovery.Port");
-                initData.properties.setProperty("IceDiscovery.Lookup",
-                                                 "udp -h " + multicast + " --interface unknown:" +
-                                                 "udp -h " + multicast + " -p " + port + intf);
-                Ice.Communicator comm = Ice.Util.initialize(initData);
+                initData.properties.setProperty(
+                    "IceDiscovery.Lookup",
+                    $"udp -h {multicast} --interface unknown:" +
+                    $"udp -h {multicast} -p {port} {intf}");
+                using var comm = new Ice.Communicator(initData);
                 test(comm.getDefaultLocator() != null);
                 comm.stringToProxy("controller0@control0").ice_ping();
-                comm.destroy();
             }
         }
         output.WriteLine("ok");

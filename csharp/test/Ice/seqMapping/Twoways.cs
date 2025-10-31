@@ -6,7 +6,7 @@ internal class Twoways
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
-    private static readonly int _length = 100;
+    private const int _length = 100;
 
     internal static void twoways(Ice.Communicator communicator, Test.MyClassPrx p)
     {
@@ -156,12 +156,8 @@ internal class Twoways
             {
                 i[c] = (short)c;
             }
-            short[] o;
-            short[] r;
 
-            {
-                r = p.opAShortS(i, out o);
-            }
+            short[] r = p.opAShortS(i, out short[] o);
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
@@ -506,7 +502,7 @@ internal class Twoways
             string[] i = new string[_length];
             for (int c = 0; c < _length; ++c)
             {
-                i[c] = c.ToString();
+                i[c] = $"{c}";
             }
             string[] r;
 
@@ -520,7 +516,7 @@ internal class Twoways
             var i = new List<string>(_length);
             for (int c = 0; c < _length; ++c)
             {
-                i.Add(c.ToString());
+                i.Add($"{c}");
             }
             List<string> r;
 
@@ -534,7 +530,7 @@ internal class Twoways
             var i = new LinkedList<string>();
             for (int c = 0; c < _length; ++c)
             {
-                i.AddLast(c.ToString());
+                i.AddLast($"{c}");
             }
             LinkedList<string> r;
 
@@ -548,7 +544,7 @@ internal class Twoways
             var i = new Queue<string>();
             for (int c = 0; c < _length; ++c)
             {
-                i.Enqueue(c.ToString());
+                i.Enqueue($"{c}");
             }
             Queue<string> r;
 
@@ -562,7 +558,7 @@ internal class Twoways
             var i = new Stack<string>();
             for (int c = 0; c < _length; ++c)
             {
-                i.Push(c.ToString());
+                i.Push($"{c}");
             }
             Stack<string> r;
 
@@ -603,8 +599,8 @@ internal class Twoways
 
             r = p.opLObjectS(i, out List<Value> o);
 
-            var eo = o.GetEnumerator();
-            var er = r.GetEnumerator();
+            List<Value>.Enumerator eo = o.GetEnumerator();
+            List<Value>.Enumerator er = r.GetEnumerator();
             foreach (Test.CV obj in i)
             {
                 eo.MoveNext();
@@ -618,7 +614,7 @@ internal class Twoways
             var i = new Ice.ObjectPrx[_length];
             for (int c = 0; c < _length; ++c)
             {
-                i[c] = communicator.stringToProxy(c.ToString());
+                i[c] = communicator.stringToProxy($"{c}");
             }
             Ice.ObjectPrx[] r;
 
@@ -632,7 +628,7 @@ internal class Twoways
             var i = new List<Ice.ObjectPrx>(_length);
             for (int c = 0; c < _length; ++c)
             {
-                i.Add(communicator.stringToProxy(c.ToString()));
+                i.Add(communicator.stringToProxy($"{c}"));
             }
             List<Ice.ObjectPrx> r;
 
@@ -646,7 +642,7 @@ internal class Twoways
             var i = new LinkedList<Ice.ObjectPrx>();
             for (int c = 0; c < _length; ++c)
             {
-                i.AddLast(communicator.stringToProxy(c.ToString()));
+                i.AddLast(communicator.stringToProxy($"{c}"));
             }
             LinkedList<Ice.ObjectPrx> r;
 
@@ -660,7 +656,7 @@ internal class Twoways
             var i = new Queue<Ice.ObjectPrx>();
             for (int c = 0; c < _length; ++c)
             {
-                i.Enqueue(communicator.stringToProxy(c.ToString()));
+                i.Enqueue(communicator.stringToProxy($"{c}"));
             }
             Queue<Ice.ObjectPrx> r;
 
@@ -674,7 +670,7 @@ internal class Twoways
             var i = new Stack<Ice.ObjectPrx>();
             for (int c = 0; c < _length; ++c)
             {
-                i.Push(communicator.stringToProxy(c.ToString()));
+                i.Push(communicator.stringToProxy($"{c}"));
             }
             Stack<Ice.ObjectPrx> r;
 
@@ -982,7 +978,7 @@ internal class Twoways
             var i = new Test.IPrx[_length];
             for (int c = 0; c < _length; ++c)
             {
-                i[c] = Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString()));
+                i[c] = Test.IPrxHelper.uncheckedCast(communicator.stringToProxy($"{c}"));
             }
             Test.IPrx[] r;
 
@@ -996,7 +992,7 @@ internal class Twoways
             var i = new List<Test.IPrx>(_length);
             for (int c = 0; c < _length; ++c)
             {
-                i.Add(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
+                i.Add(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy($"{c}")));
             }
             List<Test.IPrx> r;
 
@@ -1010,7 +1006,7 @@ internal class Twoways
             var i = new LinkedList<Test.IPrx>();
             for (int c = 0; c < _length; ++c)
             {
-                i.AddLast(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
+                i.AddLast(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy($"{c}")));
             }
             LinkedList<Test.IPrx> r;
 
@@ -1024,7 +1020,7 @@ internal class Twoways
             var i = new Queue<Test.IPrx>();
             for (int c = 0; c < _length; ++c)
             {
-                i.Enqueue(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
+                i.Enqueue(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy($"{c}")));
             }
             Queue<Test.IPrx> r;
 
@@ -1038,7 +1034,7 @@ internal class Twoways
             var i = new Stack<Test.IPrx>();
             for (int c = 0; c < _length; ++c)
             {
-                i.Push(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
+                i.Push(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy($"{c}")));
             }
             Stack<Test.IPrx> r;
 
@@ -1073,8 +1069,8 @@ internal class Twoways
 
             r = p.opCustomCVS(i, out Custom<Test.CV> o);
 
-            var eo = o.GetEnumerator();
-            var er = r.GetEnumerator();
+            IEnumerator<Test.CV> eo = o.GetEnumerator();
+            IEnumerator<Test.CV> er = r.GetEnumerator();
             foreach (Test.CV obj in i)
             {
                 eo.MoveNext();
@@ -1126,8 +1122,8 @@ internal class Twoways
 
             r = p.opCustomCVSS(i, out Custom<Custom<Test.CV>> o);
 
-            var eo = o.GetEnumerator();
-            var er = r.GetEnumerator();
+            IEnumerator<Custom<Test.CV>> eo = o.GetEnumerator();
+            IEnumerator<Custom<Test.CV>> er = r.GetEnumerator();
             foreach (Custom<Test.CV> s in i)
             {
                 eo.MoveNext();

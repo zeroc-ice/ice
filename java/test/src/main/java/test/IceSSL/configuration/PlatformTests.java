@@ -4,10 +4,10 @@ package test.IceSSL.configuration;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ConnectionLostException;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.SecurityException;
-import com.zeroc.Ice.Util;
 
 import test.IceSSL.configuration.Test.ServerPrx;
 import test.TestHelper;
@@ -86,7 +86,7 @@ public class PlatformTests {
             trustManagerFactory == null ? null : trustManagerFactory.getTrustManagers();
         sslContext.init(keyManagers, trustManagers, null);
 
-        var communicator = Util.initialize();
+        var communicator = new Communicator();
         var adapter =
             communicator.createObjectAdapterWithEndpoints(
                 "ServerAdapter",
@@ -96,7 +96,7 @@ public class PlatformTests {
                     engine.setNeedClientAuth(clientCertificateRequired);
                     return engine;
                 });
-        adapter.add(new ServerI(communicator), Util.stringToIdentity("server"));
+        adapter.add(new ServerI(communicator), new Identity("server", ""));
         adapter.activate();
         return communicator;
     }
@@ -120,7 +120,7 @@ public class PlatformTests {
         var initializationData = new InitializationData();
         initializationData.clientSSLEngineFactory =
             (String peerHost, int peerPort) -> sslContext.createSSLEngine(peerHost, peerPort);
-        return Util.initialize(initializationData);
+        return new Communicator(initializationData);
     }
 
     public static void clientValidatesServerUsingTrustStore(
@@ -335,7 +335,7 @@ public class PlatformTests {
             }
         }
 
-        try (var serverCommunicator = Util.initialize()) {
+        try (var serverCommunicator = new Communicator()) {
             var keyManager = new ReloadableKeyManager(certificatesPath + "/ca1/server.jks");
             var sslContext = SSLContext.getInstance("TLS");
             sslContext.init(new KeyManager[]{keyManager}, null, null);
@@ -347,7 +347,7 @@ public class PlatformTests {
                         return sslContext.createSSLEngine(peerHost, peerPort);
                     });
             adapter.add(
-                new ServerI(serverCommunicator), Util.stringToIdentity("server"));
+                new ServerI(serverCommunicator), new Identity("server", ""));
             adapter.activate();
 
             try (var clientCommunicator =

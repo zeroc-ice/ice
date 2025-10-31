@@ -2,9 +2,7 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.PropertyDescriptor;
 import com.zeroc.IceGrid.PropertySetDescriptor;
-import com.zeroc.IceGridGUI.TreeNodeBase;
 import com.zeroc.IceGridGUI.Utils;
 import com.zeroc.IceGridGUI.XMLWriter;
 

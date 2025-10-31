@@ -15,16 +15,15 @@ public class Custom<T> : IEnumerable<T>
         get => _list[index];
 
         set => _list[index] = value;
-
     }
 
     public void Add(T elmt) => _list.Add(elmt);
 
-    public override bool Equals(object o)
+    public override bool Equals(object obj)
     {
         try
         {
-            var tmp = (Custom<T>)o;
+            var tmp = (Custom<T>)obj;
             IEnumerator<T> e = tmp.GetEnumerator();
             foreach (T elmt in _list)
             {

@@ -7,8 +7,7 @@ public class RemoteObjectAdapterI : Test.RemoteObjectAdapterDisp_
     public RemoteObjectAdapterI(Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
-        _testIntf = Test.TestIntfPrxHelper.uncheckedCast(_adapter.add(new TestI(),
-                                                    Ice.Util.stringToIdentity("test")));
+        _testIntf = Test.TestIntfPrxHelper.uncheckedCast(_adapter.add(new TestI(), Util.stringToIdentity("test")));
         _adapter.activate();
     }
 

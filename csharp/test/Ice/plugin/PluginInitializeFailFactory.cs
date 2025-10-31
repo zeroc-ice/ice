@@ -1,15 +1,17 @@
 // Copyright (c) ZeroC, Inc.
 
+namespace Ice.plugin;
+
 public class PluginInitializeFailFactory : Ice.PluginFactory
 {
     public string pluginName => "Test";
 
-    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args) => new PluginInitializeFail();
+    public Plugin create(Communicator communicator, string name, string[] args) => new PluginInitializeFail();
 
-    internal class PluginInitializeFail : Ice.Plugin
+    internal class PluginInitializeFail : Plugin
     {
         public void initialize() => throw new PluginInitializeFailException();
 
-        public void destroy() => global::Test.TestHelper.test(false);
+        public void destroy() => Test.TestHelper.test(false);
     }
 }

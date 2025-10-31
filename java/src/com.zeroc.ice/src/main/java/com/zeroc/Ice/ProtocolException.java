@@ -17,7 +17,7 @@ public class ProtocolException extends LocalException {
      * Constructs a ProtocolException with a message and a cause.
      *
      * @param message the detail message
-     * @param cause   the cause
+     * @param cause the cause
      */
     public ProtocolException(String message, Throwable cause) {
         super(message, cause);

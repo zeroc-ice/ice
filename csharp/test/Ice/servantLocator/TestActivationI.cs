@@ -13,7 +13,7 @@ public sealed class TestActivationI : Test.TestActivationDisp_
         }
         else
         {
-            var locator = current.adapter.removeServantLocator("");
+            ServantLocator locator = current.adapter.removeServantLocator("");
             locator.deactivate("");
             locator = current.adapter.removeServantLocator("category");
             locator.deactivate("category");

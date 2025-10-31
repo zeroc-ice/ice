@@ -19,8 +19,8 @@ class Server: TestHelperI, @unchecked Sendable {
         }
 
         communicator.getProperties().setProperty(
-            key: "ServerManagerAdapter.Endpoints", value: getTestEndpoint(num: 0))
-        let adapter = try communicator.createObjectAdapter("ServerManagerAdapter")
+            key: "ServerManager.Endpoints", value: getTestEndpoint(num: 0))
+        let adapter = try communicator.createObjectAdapter("ServerManager")
 
         //
         // We also register a sample server locator which implements the
@@ -28,9 +28,13 @@ class Server: TestHelperI, @unchecked Sendable {
         // 'servers' created with the server manager interface.
         //
         let registry = ServerLocatorRegistry()
-        let object = ServerManagerI(registry: registry, helper: self)
+
+        // Make sure we use a separate copy of the properties as the servant modifies them.
+        let object = ServerManagerI(registry: registry, properties: properties.clone(), helper: self)
+
         try adapter.add(servant: object, id: Ice.stringToIdentity("ServerManager"))
         try await registry.addObject(adapter.createProxy(Ice.stringToIdentity("ServerManager")))
+
         let registryPrx = try uncheckedCast(
             prx: adapter.add(
                 servant: registry,

@@ -6,15 +6,15 @@ public class AllTests : global::Test.AllTests
 {
     public static async Task<Test.MyClassPrx> allTests(global::Test.TestHelper helper)
     {
-        var communicator = helper.communicator();
-        var output = helper.getWriter();
+        Communicator communicator = helper.communicator();
+        TextWriter output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
         string rf = "test:" + helper.getTestEndpoint(0);
-        var baseProxy = communicator.stringToProxy(rf);
+        ObjectPrx baseProxy = communicator.stringToProxy(rf);
         test(baseProxy != null);
 
-        var b1 = communicator.stringToProxy("test");
+        ObjectPrx b1 = communicator.stringToProxy("test");
         test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.Length == 0 &&
              b1.ice_getAdapterId().Length == 0 && b1.ice_getFacet().Length == 0);
         b1 = communicator.stringToProxy("test ");
@@ -78,7 +78,7 @@ public class AllTests : global::Test.AllTests
         test(b1.ice_getIdentity().name == "test\u00494test");
 
         b1 = communicator.stringToProxy("test\\b\\f\\n\\r\\t\\'\\\"\\\\test");
-        test(b1.ice_getIdentity().name.Equals("test\b\f\n\r\t\'\"\\test") && b1.ice_getIdentity().category.Length == 0);
+        test(b1.ice_getIdentity().name == "test\b\f\n\r\t\'\"\\test" && b1.ice_getIdentity().category.Length == 0);
 
         b1 = communicator.stringToProxy("category/test");
         test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category == "category" &&
@@ -272,7 +272,7 @@ public class AllTests : global::Test.AllTests
         // Test for bug ICE-5543: escaped escapes in stringToIdentity
         //
         var id = new Ice.Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
-        var id2 = Ice.Util.stringToIdentity(communicator.identityToString(id));
+        Identity id2 = Ice.Util.stringToIdentity(communicator.identityToString(id));
         test(id.Equals(id2));
 
         id = new Ice.Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
@@ -354,7 +354,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing proxyToString... ");
         output.Flush();
         b1 = communicator.stringToProxy(rf);
-        var b2 = communicator.stringToProxy(communicator.proxyToString(b1));
+        ObjectPrx b2 = communicator.stringToProxy(communicator.proxyToString(b1));
         test(b1.Equals(b2));
 
         if (b1.ice_getConnection() != null) // not colloc-optimized target
@@ -366,14 +366,14 @@ public class AllTests : global::Test.AllTests
 
             // Verify that the stringified fixed proxy is the same as a regular stringified proxy
             // but without endpoints
-            test(str2.StartsWith(str));
+            test(str2.StartsWith(str, StringComparison.Ordinal));
             test(str2[str.Length] == ':');
         }
         output.WriteLine("ok");
 
         output.Write("testing propertyToProxy... ");
         output.Flush();
-        var prop = communicator.getProperties();
+        Properties prop = communicator.getProperties();
         string propertyPrefix = "Foo.Proxy";
         prop.setProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
         b1 = communicator.propertyToProxy(propertyPrefix);
@@ -788,8 +788,8 @@ public class AllTests : global::Test.AllTests
         catch (UnknownLocalException ex)
         {
             test(
-                ex.Message.Contains("::Ice::MarshalException") ||
-                ex.Message.Contains("Ice.MarshalException"));
+                ex.Message.Contains("::Ice::MarshalException", StringComparison.Ordinal) ||
+                ex.Message.Contains("Ice.MarshalException", StringComparison.Ordinal));
         }
 
         try
@@ -808,8 +808,8 @@ public class AllTests : global::Test.AllTests
         catch (UnknownLocalException ex)
         {
             test(
-                ex.Message.Contains("::Ice::MarshalException") ||
-                ex.Message.Contains("Ice.MarshalException"));
+                ex.Message.Contains("::Ice::MarshalException", StringComparison.Ordinal) ||
+                ex.Message.Contains("Ice.MarshalException", StringComparison.Ordinal));
         }
 
         output.WriteLine("ok");
@@ -991,7 +991,7 @@ public class AllTests : global::Test.AllTests
         output.WriteLine("ok");
 
         output.Write("testing proxy hierarchy... ");
-        var cPrx = Test.CPrxHelper.createProxy(communicator, "c:" + helper.getTestEndpoint());
+        Test.CPrx cPrx = Test.CPrxHelper.createProxy(communicator, "c:" + helper.getTestEndpoint());
 
         Test.APrx aPrx = cPrx.opA(cPrx);
         test(aPrx.Equals(cPrx));
@@ -1010,7 +1010,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing communicator shutdown/destroy... ");
         output.Flush();
         {
-            Ice.Communicator com = Ice.Util.initialize();
+            using var com = new Ice.Communicator();
             com.shutdown();
             test(com.isShutdown());
             await com.shutdownCompleted;
@@ -1018,7 +1018,6 @@ public class AllTests : global::Test.AllTests
             com.shutdown();
             test(com.isShutdown());
             await com.shutdownCompleted;
-            com.destroy();
         }
         output.WriteLine("ok");
 

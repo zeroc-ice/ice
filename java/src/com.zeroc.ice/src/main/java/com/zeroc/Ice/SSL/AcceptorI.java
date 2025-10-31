@@ -32,8 +32,7 @@ final class AcceptorI implements Acceptor {
 
     @Override
     public Transceiver accept() {
-        return new TransceiverI(
-            _instance, _delegate.accept(), _adapterName, true, _sslEngineFactory);
+        return new TransceiverI(_instance, _delegate.accept(), _adapterName, true, _sslEngineFactory);
     }
 
     @Override
@@ -62,9 +61,7 @@ final class AcceptorI implements Acceptor {
         _delegate = delegate;
         _adapterName = adapterName;
         if (sslEngineFactory == null) {
-            _sslEngineFactory =
-                (peerHost, peerPort) ->
-                    instance.engine().createSSLEngine(true, peerHost, peerPort);
+            _sslEngineFactory = (peerHost, peerPort) -> instance.engine().createSSLEngine(true, peerHost, peerPort);
         } else {
             _sslEngineFactory = sslEngineFactory;
         }

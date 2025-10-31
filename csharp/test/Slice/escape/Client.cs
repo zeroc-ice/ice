@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+namespace Slice.escape;
+
 public class Client : Test.TestHelper
 {
     public sealed class caseI : @abstract.caseDisp_
@@ -25,14 +27,14 @@ public class Client : Test.TestHelper
 
     public sealed class Test1I : @abstract.System.TestDisp_
     {
-        public override void op(Ice.Current c)
+        public override void op(Ice.Current current)
         {
         }
     }
 
     public sealed class Test2I : System.TestDisp_
     {
-        public override void op(Ice.Current c)
+        public override void op(Ice.Current current)
         {
         }
     }
@@ -84,7 +86,7 @@ public class Client : Test.TestHelper
 
     public override void run(string[] args)
     {
-        using var communicator = initialize(ref args);
+        using Ice.Communicator communicator = initialize(ref args);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new decimalI(), Ice.Util.stringToIdentity("test"));

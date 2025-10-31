@@ -3,8 +3,8 @@
 package test.Ice.hold;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -28,10 +28,10 @@ public class Server extends TestHelper {
             Timer timer = new Timer();
 
             ObjectAdapter adapter1 = communicator.createObjectAdapter("TestAdapter1");
-            adapter1.add(new HoldI(timer, adapter1), Util.stringToIdentity("hold"));
+            adapter1.add(new HoldI(timer, adapter1), new Identity("hold", ""));
 
             ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
-            adapter2.add(new HoldI(timer, adapter2), Util.stringToIdentity("hold"));
+            adapter2.add(new HoldI(timer, adapter2), new Identity("hold", ""));
 
             adapter1.activate();
             adapter2.activate();

@@ -11,8 +11,8 @@ public class DispatchException extends LocalException {
      * Constructs a DispatchException with the specified reply status, message, and cause.
      *
      * @param replyStatus the reply status as an int
-     * @param message     the detail message
-     * @param cause       the cause of this exception
+     * @param message the detail message
+     * @param cause the cause of this exception
      */
     public DispatchException(int replyStatus, String message, Throwable cause) {
         super(createMessage(message, replyStatus), cause);
@@ -23,7 +23,7 @@ public class DispatchException extends LocalException {
      * Constructs a DispatchException with the specified reply status and message.
      *
      * @param replyStatus the reply status as an int
-     * @param message     the detail message
+     * @param message the detail message
      */
     public DispatchException(int replyStatus, String message) {
         this(replyStatus, message, null);
@@ -50,9 +50,7 @@ public class DispatchException extends LocalException {
 
     private static String createMessage(String message, int replyStatus) {
         if (message == null) {
-            return "The dispatch failed with reply status "
-                + replyStatusToString(replyStatus)
-                + ".";
+            return "The dispatch failed with reply status " + replyStatusToString(replyStatus) + ".";
         } else {
             return message;
         }

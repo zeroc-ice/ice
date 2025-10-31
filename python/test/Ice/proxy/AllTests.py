@@ -907,7 +907,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
 
     sys.stdout.write("testing communicator shutdown/destroy... ")
     sys.stdout.flush()
-    c = Ice.initialize()
+    c = Ice.Communicator()
     c.shutdown()
     test(c.isShutdown())
     c.waitForShutdown()

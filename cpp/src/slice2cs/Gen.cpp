@@ -758,7 +758,9 @@ Slice::CsVisitor::modulePrefixEnd(const ModulePtr& p)
     }
 }
 
-Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir) : _includePaths(includePaths)
+Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, bool enableAnalysis)
+    : _includePaths(includePaths),
+      _enableAnalysis(enableAnalysis)
 {
     string fileBase = base;
     string::size_type pos = base.find_last_of("/\\");
@@ -781,7 +783,11 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     }
     FileTracker::instance()->addFile(file);
     printHeader();
-    printGeneratedHeader(_out, fileBase + ".ice");
+
+    if (!_enableAnalysis)
+    {
+        printGeneratedHeader(_out, fileBase + ".ice");
+    }
 
     _out << sp;
     _out << nl << "#nullable enable";
@@ -790,20 +796,21 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
 
     _out << sp;
 
-    /*
-    // Disable some warnings when auto-generated is removed from the header. See printGeneratedHeader above.
-    _out << nl << "#pragma warning disable SA1403 // File may only contain a single namespace";
-    _out << nl << "#pragma warning disable SA1611 // The documentation for parameter x is missing";
+    if (_enableAnalysis)
+    {
+        // Disable some warnings when auto-generated is removed from the header. See printGeneratedHeader above.
+        _out << nl << "#pragma warning disable SA1403 // File may only contain a single namespace";
+        _out << nl << "#pragma warning disable SA1611 // The documentation for parameter x is missing";
 
-    _out << nl << "#pragma warning disable CA1041 // Provide a message for the ObsoleteAttribute that marks ...";
-    _out << nl << "#pragma warning disable CA1068 // Cancellation token as last parameter";
-    _out << nl << "#pragma warning disable CA1725 // Change parameter name istr_ to istr in order to match ...";
+        _out << nl << "#pragma warning disable CA1041 // Provide a message for the ObsoleteAttribute that marks ...";
+        _out << nl << "#pragma warning disable CA1068 // Cancellation token as last parameter";
+        _out << nl << "#pragma warning disable CA1725 // Change parameter name istr_ to istr in order to match ...";
 
-    // Missing doc - only necessary for the tests.
-    _out << nl << "#pragma warning disable SA1602";
-    _out << nl << "#pragma warning disable SA1604";
-    _out << nl << "#pragma warning disable SA1605";
-    */
+        // Missing doc - only necessary for the tests.
+        _out << nl << "#pragma warning disable SA1602";
+        _out << nl << "#pragma warning disable SA1604";
+        _out << nl << "#pragma warning disable SA1605";
+    }
 
     _out << nl << "#pragma warning disable CS1591 // Missing XML Comment";
     _out << nl << "#pragma warning disable CS1573 // Parameter has no matching param tag in the XML comment";
@@ -1112,7 +1119,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "public static " << name << " read(Ice.InputStream istr)";
     _out << sb;
     _out << nl << "int sz = istr.readSize();";
-    _out << nl << name << " r = new " << name << "();";
+    _out << nl << "var r = new " << name << "();";
     _out << nl << "for (int i = 0; i < sz; ++i)";
     _out << sb;
     _out << nl << keyS << " k;";
@@ -1581,7 +1588,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
 
         // Don't explicitly initialize to default value.
-        if (!builtin || builtin->kind() == Builtin::KindString || defaultValue != "0")
+        if (!builtin || builtin->kind() == Builtin::KindString || (defaultValue != "0" && defaultValue != "false"))
         {
             _out << " = ";
             writeConstantValue(p->type(), p->defaultValueType(), defaultValue);

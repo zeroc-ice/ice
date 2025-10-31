@@ -2,6 +2,8 @@
 
 using Test;
 
+namespace Ice.slicing.exceptions;
+
 public sealed class TestI : TestIntfDisp_
 {
     public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();

@@ -129,9 +129,7 @@ class LocatorRegistryI implements LocatorRegistry {
 
             if (prx != null) {
                 r.isReplicaGroup = true;
-                r.returnValue =
-                    prx.ice_endpoints(
-                        endpoints.toArray(new Endpoint[endpoints.size()]));
+                r.returnValue = prx.ice_endpoints(endpoints.toArray(new Endpoint[endpoints.size()]));
                 return r;
             }
         }

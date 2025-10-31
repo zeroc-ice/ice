@@ -1,8 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Threading;
-
 namespace Ice.retry;
+
 public sealed class RetryI : Test.RetryDisp_
 {
     public RetryI()
@@ -24,9 +23,9 @@ public sealed class RetryI : Test.RetryDisp_
         }
     }
 
-    public override int opIdempotent(int nRetry, Ice.Current current)
+    public override int opIdempotent(int c, Ice.Current current)
     {
-        if (nRetry > _counter)
+        if (c > _counter)
         {
             ++_counter;
             throw new Ice.ConnectionLostException();
@@ -38,7 +37,7 @@ public sealed class RetryI : Test.RetryDisp_
 
     public override void opNotIdempotent(Ice.Current current) => throw new Ice.ConnectionLostException();
 
-    public override void sleep(int delay, Ice.Current c) => Thread.Sleep(delay);
+    public override void sleep(int delay, Ice.Current current) => Thread.Sleep(delay);
 
     public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 

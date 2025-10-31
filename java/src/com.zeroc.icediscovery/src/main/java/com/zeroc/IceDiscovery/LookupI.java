@@ -82,8 +82,7 @@ class LookupI implements Lookup {
 
         abstract void finished(ObjectPrx proxy);
 
-        protected abstract void invokeWithLookup(
-                String domainId, LookupPrx lookup, LookupReplyPrx lookupReply);
+        protected abstract void invokeWithLookup(String domainId, LookupPrx lookup, LookupReplyPrx lookupReply);
 
         private final String _requestId;
 
@@ -111,8 +110,7 @@ class LookupI implements Lookup {
             if (isReplicaGroup) {
                 _proxies.add(proxy);
                 if (_latency == 0) {
-                    _latency =
-                        (long) ((System.nanoTime() - _start) * _latencyMultiplier / 100000.0);
+                    _latency = (long) ((System.nanoTime() - _start) * _latencyMultiplier / 100000.0);
                     if (_latency == 0) {
                         _latency = 1; // 1ms
                     }
@@ -140,9 +138,7 @@ class LookupI implements Lookup {
                     }
                     endpoints.addAll(Arrays.asList(prx.ice_getEndpoints()));
                 }
-                sendResponse(
-                    result.ice_endpoints(
-                        endpoints.toArray(new Endpoint[endpoints.size()])));
+                sendResponse(result.ice_endpoints(endpoints.toArray(new Endpoint[endpoints.size()])));
             }
         }
 
@@ -152,8 +148,7 @@ class LookupI implements Lookup {
         }
 
         @Override
-        protected void invokeWithLookup(
-                String domainId, LookupPrx lookup, LookupReplyPrx lookupReply) {
+        protected void invokeWithLookup(String domainId, LookupPrx lookup, LookupReplyPrx lookupReply) {
             lookup.findAdapterByIdAsync(domainId, _id, lookupReply)
                 .whenCompleteAsync(
                     (v, ex) -> {
@@ -202,8 +197,7 @@ class LookupI implements Lookup {
         }
 
         @Override
-        protected void invokeWithLookup(
-                String domainId, LookupPrx lookup, LookupReplyPrx lookupReply) {
+        protected void invokeWithLookup(String domainId, LookupPrx lookup, LookupReplyPrx lookupReply) {
             lookup.findObjectByIdAsync(domainId, _id, lookupReply)
                 .whenCompleteAsync(
                     (v, ex) -> {
@@ -215,8 +209,7 @@ class LookupI implements Lookup {
         }
     }
 
-    public LookupI(
-            LocatorRegistryI registry, LookupPrx lookup, Properties properties) {
+    public LookupI(LocatorRegistryI registry, LookupPrx lookup, Properties properties) {
         _registry = registry;
         _lookup = lookup;
         _timeout = properties.getIcePropertyAsInt("IceDiscovery.Timeout");
@@ -234,18 +227,14 @@ class LookupI implements Lookup {
     }
 
     void setLookupReply(LookupReplyPrx lookupReply) {
-        // Use a lookup reply proxy whose address matches the interface used to send multicast
-        // datagrams.
+        // Use a lookup reply proxy whose address matches the interface used to send multicast datagrams.
         Endpoint[] single = new Endpoint[1];
         for (Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet()) {
-            UDPEndpointInfo info =
-                (UDPEndpointInfo) entry.getKey().ice_getEndpoints()[0].getInfo();
+            UDPEndpointInfo info = (UDPEndpointInfo) entry.getKey().ice_getEndpoints()[0].getInfo();
             if (!info.mcastInterface.isEmpty()) {
                 for (Endpoint q : lookupReply.ice_getEndpoints()) {
                     EndpointInfo r = q.getInfo();
-                    if (r instanceof IPEndpointInfo
-                        && ((IPEndpointInfo) r)
-                        .host.equals(info.mcastInterface)) {
+                    if (r instanceof IPEndpointInfo && ((IPEndpointInfo) r).host.equals(info.mcastInterface)) {
                         single[0] = q;
                         entry.setValue((LookupReplyPrx) lookupReply.ice_endpoints(single));
                     }
@@ -260,11 +249,7 @@ class LookupI implements Lookup {
     }
 
     @Override
-    public void findObjectById(
-            String domainId,
-            Identity id,
-            LookupReplyPrx reply,
-            Current c) {
+    public void findObjectById(String domainId, Identity id, LookupReplyPrx reply, Current c) {
         if (!domainId.equals(_domainId)) {
             return; // Ignore.
         }
@@ -281,11 +266,7 @@ class LookupI implements Lookup {
     }
 
     @Override
-    public void findAdapterById(
-            String domainId,
-            String adapterId,
-            LookupReplyPrx reply,
-            Current c) {
+    public void findAdapterById(String domainId, String adapterId, LookupReplyPrx reply, Current c) {
         if (!domainId.equals(_domainId)) {
             return; // Ignore.
         }
@@ -301,8 +282,7 @@ class LookupI implements Lookup {
         }
     }
 
-    synchronized void findObject(
-            CompletableFuture<ObjectPrx> f, Identity id) {
+    synchronized void findObject(CompletableFuture<ObjectPrx> f, Identity id) {
         ObjectRequest request = _objectRequests.get(id);
         if (request == null) {
             request = new ObjectRequest(id, _retryCount);

@@ -9,7 +9,34 @@ declare module "@zeroc/ice" {
          * @see {@link ObjectAdapter}
          * @see {@link Properties}
          */
-        interface Communicator {
+        class Communicator {
+            /**
+             * Creates a communicator with default options.
+             *
+             * @returns The initialized communicator.
+             * @throws {@link InitializationException} If an error occurs during initialization.
+             */
+            constructor();
+
+            /**
+             * Creates a communicator.
+             *
+             * @param initData Options for the new communicator.
+             * @returns The initialized communicator.
+             * @throws {@link InitializationException} If an error occurs during initialization.
+             */
+            constructor(initData?: InitializationData);
+
+            /**
+             * Creates a communicator.
+             *
+             * @param args A command-line argument vector. Any Ice-related options in this vector are used to initialize
+             * the communicator. This method modifies the argument vector by removing any Ice-related options.
+             * @returns The initialized communicator.
+             * @throws {@link InitializationException} If an error occurs during initialization.
+             */
+            constructor(args: string[]);
+
             /**
              * Destroys this communicator. This method calls {@link shutdown} implicitly. Calling {@link destroy}
              * destroys all object adapters, and closes all outgoing connections. {@code destroy} waits for all

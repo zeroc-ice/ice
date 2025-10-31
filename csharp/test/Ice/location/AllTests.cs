@@ -7,15 +7,15 @@ public class AllTests : global::Test.AllTests
     public static async Task allTests(global::Test.TestHelper helper)
     {
         Ice.Communicator communicator = helper.communicator();
-        var manager = Test.ServerManagerPrxHelper.checkedCast(
+        Test.ServerManagerPrx manager = Test.ServerManagerPrxHelper.checkedCast(
                                         communicator.stringToProxy("ServerManager :" + helper.getTestEndpoint(0)));
         test(manager != null);
-        var locator = Test.TestLocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());
+        Test.TestLocatorPrx locator = Test.TestLocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());
         test(locator != null);
-        var registry = Test.TestLocatorRegistryPrxHelper.checkedCast(locator.getRegistry());
+        Test.TestLocatorRegistryPrx registry = Test.TestLocatorRegistryPrxHelper.checkedCast(locator.getRegistry());
         test(registry != null);
 
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
         Ice.ObjectPrx @base = communicator.stringToProxy("test @ TestAdapter");
@@ -66,17 +66,17 @@ public class AllTests : global::Test.AllTests
 
         output.Write("testing checked cast... ");
         output.Flush();
-        var obj = Test.TestIntfPrxHelper.checkedCast(@base);
+        Test.TestIntfPrx obj = Test.TestIntfPrxHelper.checkedCast(@base);
         test(obj != null);
-        var obj2 = Test.TestIntfPrxHelper.checkedCast(base2);
+        Test.TestIntfPrx obj2 = Test.TestIntfPrxHelper.checkedCast(base2);
         test(obj2 != null);
-        var obj3 = Test.TestIntfPrxHelper.checkedCast(base3);
+        Test.TestIntfPrx obj3 = Test.TestIntfPrxHelper.checkedCast(base3);
         test(obj3 != null);
-        var obj4 = Test.ServerManagerPrxHelper.checkedCast(base4);
+        Test.ServerManagerPrx obj4 = Test.ServerManagerPrxHelper.checkedCast(base4);
         test(obj4 != null);
-        var obj5 = Test.TestIntfPrxHelper.checkedCast(base5);
+        Test.TestIntfPrx obj5 = Test.TestIntfPrxHelper.checkedCast(base5);
         test(obj5 != null);
-        var obj6 = Test.TestIntfPrxHelper.checkedCast(base6);
+        Test.TestIntfPrx obj6 = Test.TestIntfPrxHelper.checkedCast(base6);
         test(obj6 != null);
         output.WriteLine("ok");
 
@@ -251,7 +251,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing proxy from server... ");
         output.Flush();
         obj = Test.TestIntfPrxHelper.checkedCast(communicator.stringToProxy("test@TestAdapter"));
-        var hello = obj.getHello();
+        Test.HelloPrx hello = obj.getHello();
         test(hello.ice_getAdapterId() == "TestAdapter");
         hello.sayHello();
         hello = obj.getReplicatedHello();
@@ -286,7 +286,7 @@ public class AllTests : global::Test.AllTests
         {
             results.Add(hello.sayHelloAsync());
         }
-        foreach (var t in results)
+        foreach (Task t in results)
         {
             try
             {
@@ -323,8 +323,9 @@ public class AllTests : global::Test.AllTests
         try
         {
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
-            registry.setAdapterDirectProxy("TestAdapter3",
-                                           communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
+            registry.setAdapterDirectProxy(
+                "TestAdapter3",
+                communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
         }
         catch (Ice.LocalException)
@@ -373,8 +374,9 @@ public class AllTests : global::Test.AllTests
             test(ex.id == "TestUnknown");
         }
         registry.addObject(communicator.stringToProxy("test3@TestAdapter4")); // Update
-        registry.setAdapterDirectProxy("TestAdapter4",
-                                       communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
+        registry.setAdapterDirectProxy(
+            "TestAdapter4",
+            communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
         try
         {
             communicator.stringToProxy("test3").ice_ping();
@@ -393,8 +395,9 @@ public class AllTests : global::Test.AllTests
             test(false);
         }
 
-        registry.setAdapterDirectProxy("TestAdapter4",
-                                       communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
+        registry.setAdapterDirectProxy(
+            "TestAdapter4",
+            communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
         try
         {
             communicator.stringToProxy("test3").ice_ping();
@@ -455,7 +458,7 @@ public class AllTests : global::Test.AllTests
             var initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().Clone();
             initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
-            Ice.Communicator ic = helper.initialize(initData);
+            using Communicator ic = helper.initialize(initData);
 
             registry.setAdapterDirectProxy("TestAdapter5", locator.findAdapterById("TestAdapter"));
             registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
@@ -502,7 +505,6 @@ public class AllTests : global::Test.AllTests
             {
                 // Expected to fail once they endpoints have been updated in the background.
             }
-            ic.destroy();
         }
         output.WriteLine("ok");
 
@@ -582,7 +584,7 @@ public class AllTests : global::Test.AllTests
         adapter.activate();
 
         // Ensure that calls on the well-known proxy is collocated.
-        var helloPrx = Test.HelloPrxHelper.checkedCast(
+        Test.HelloPrx helloPrx = Test.HelloPrxHelper.checkedCast(
             communicator.stringToProxy("\"" + communicator.identityToString(id) + "\""));
         test(helloPrx.ice_getConnection() == null);
 
@@ -594,6 +596,17 @@ public class AllTests : global::Test.AllTests
         helloPrx = Test.HelloPrxHelper.checkedCast(adapter.createDirectProxy(id));
         test(helloPrx.ice_getConnection() == null);
 
+        output.WriteLine("ok");
+
+        output.Write("testing indirect object adapter without published endpoints... ");
+        output.Flush();
+        int setRequestCount = registry.getSetRequestCount();
+        communicator.getProperties().setProperty("CollocAdapter.AdapterId", "CollocId");
+        ObjectAdapter collocAdapter = communicator.createObjectAdapter("CollocAdapter");
+        collocAdapter.activate(); // not necessary, but allowed
+        test(setRequestCount == registry.getSetRequestCount()); // no set call on registry
+        collocAdapter.deactivate();
+        test(setRequestCount == registry.getSetRequestCount()); // no set call on registry
         output.WriteLine("ok");
 
         output.Write("shutdown server manager... ");

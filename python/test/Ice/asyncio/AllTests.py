@@ -90,7 +90,7 @@ async def allTestsAsync(helper: TestHelper, communicator: Ice.Communicator):
     sys.stdout.write("testing communicator shutdownCompleted... ")
     sys.stdout.flush()
 
-    testCommunicator = Ice.initialize(eventLoop=asyncio.get_running_loop())
+    testCommunicator = Ice.Communicator(eventLoop=asyncio.get_running_loop())
     shutdownCompletedFuture = testCommunicator.shutdownCompleted()
     assert isinstance(shutdownCompletedFuture, asyncio.Future)
     test(not shutdownCompletedFuture.done())
@@ -114,7 +114,7 @@ async def allTestsAsync(helper: TestHelper, communicator: Ice.Communicator):
     initData.properties = communicator.getProperties()
     initData.eventLoopAdapter = Ice.asyncio.EventLoopAdapter(asyncio.get_running_loop())
 
-    async with Ice.initialize(initData=initData) as testCommunicator:
+    async with Ice.Communicator(initData=initData) as testCommunicator:
         p1 = Test.TestIntfPrx(testCommunicator, f"test:{helper.getTestEndpoint(num=0)}")
         await p1.opAsync()
 
@@ -124,7 +124,7 @@ async def allTestsAsync(helper: TestHelper, communicator: Ice.Communicator):
     except Ice.CommunicatorDestroyedException:
         pass
 
-    async with Ice.initialize(initData=initData) as testCommunicator:
+    async with Ice.Communicator(initData=initData) as testCommunicator:
         p1 = Test.TestIntfPrx(testCommunicator, f"test:{helper.getTestEndpoint(num=0)}")
         await p1.opAsync()
 

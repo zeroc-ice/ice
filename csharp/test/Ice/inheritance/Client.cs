@@ -8,8 +8,8 @@ public class Client : TestHelper
 {
     public override void run(string[] args)
     {
-        using var communicator = initialize(ref args);
-        var initial = AllTests.allTests(this);
+        using Communicator communicator = initialize(ref args);
+        Test.InitialPrx initial = AllTests.allTests(this);
         initial.shutdown();
     }
 

@@ -2,6 +2,8 @@
 
 using Test;
 
+namespace Ice.slicing.objects;
+
 public sealed class TestI : TestIntfDisp_
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
@@ -62,15 +64,15 @@ public sealed class TestI : TestIntfDisp_
         return su;
     }
 
-    public override void checkSUnknown(Ice.Value obj, Ice.Current current)
+    public override void checkSUnknown(Ice.Value o, Ice.Current current)
     {
         if (current.encoding.Equals(Ice.Util.Encoding_1_0))
         {
-            test(!(obj is SUnknown));
+            test(!(o is SUnknown));
         }
         else
         {
-            var su = obj as SUnknown;
+            var su = o as SUnknown;
             test(su.su == "SUnknown.su");
         }
     }
@@ -155,7 +157,7 @@ public sealed class TestI : TestIntfDisp_
         p2 = d2;
     }
 
-    public override void paramTest2(out B p1, out B p2, Ice.Current current) => paramTest1(out p2, out p1, current);
+    public override void paramTest2(out B p2, out B p1, Ice.Current current) => paramTest1(out p1, out p2, current);
 
     public override B paramTest3(out B p1, out B p2, Ice.Current current)
     {
@@ -188,7 +190,7 @@ public sealed class TestI : TestIntfDisp_
         return d3;
     }
 
-    public override B paramTest4(out B p1, Ice.Current current)
+    public override B paramTest4(out B p, Ice.Current current)
     {
         var d4 = new D4();
         d4.sb = "D4.sb (1)";
@@ -197,7 +199,7 @@ public sealed class TestI : TestIntfDisp_
         d4.p1.sb = "B.sb (1)";
         d4.p2 = new B();
         d4.p2.sb = "B.sb (2)";
-        p1 = d4;
+        p = d4;
         return d4.p2;
     }
 
@@ -207,10 +209,10 @@ public sealed class TestI : TestIntfDisp_
         return p1;
     }
 
-    public override B returnTest2(out B p1, out B p2, Ice.Current current)
+    public override B returnTest2(out B p2, out B p1, Ice.Current current)
     {
-        paramTest1(out p2, out p1, current);
-        return p1;
+        paramTest1(out p1, out p2, current);
+        return p2;
     }
 
     public override B returnTest3(B p1, B p2, Ice.Current current) => p1;
@@ -223,8 +225,10 @@ public sealed class TestI : TestIntfDisp_
         return ss;
     }
 
-    public override Dictionary<int, B> dictionaryTest(Dictionary<int, B> bin, out Dictionary<int, B> bout,
-                                                      Ice.Current current)
+    public override Dictionary<int, B> dictionaryTest(
+        Dictionary<int, B> bin,
+        out Dictionary<int, B> bout,
+        Ice.Current current)
     {
         bout = new Dictionary<int, B>();
         int i;
@@ -241,7 +245,7 @@ public sealed class TestI : TestIntfDisp_
         var r = new Dictionary<int, B>();
         for (i = 0; i < 10; ++i)
         {
-            string s = "D1." + (i * 20).ToString();
+            string s = $"D1.{i * 20}";
             var d1 = new D1();
             d1.sb = s;
             d1.pb = i == 0 ? null : r[(i - 1) * 20];

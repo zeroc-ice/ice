@@ -4,14 +4,15 @@ jar {
     destinationDirectory = new File("${libDir}")
 }
 
-task jarSources(type:Jar, dependsOn: jar){
-    from sourceSets.main.allSource
-    archiveClassifier = 'sources'
-    destinationDirectory = new File("${libDir}")
+tasks.named('javadocJar') {
+    destinationDirectory = layout.buildDirectory.dir("${libDir}")
+}
+
+tasks.named('sourcesJar') {
+    destinationDirectory = layout.buildDirectory.dir("${libDir}")
 }
 
 javadoc.dependsOn(compileSlice)
-
 javadoc {
     source = sourceSets.main.allJava
     doFirst {
@@ -40,7 +41,7 @@ project.ext.pomName = "${libDir}/${project.name}-${project.version}.pom"
 apply from: "$project.ext.topSrcDir/java/gradle/maven-publish.publishing.gradle"
 
 tasks.named('assemble') {
-    dependsOn tasks.named('jar'), tasks.named('jarSources'), tasks.named('javadocJar')
+    dependsOn tasks.named('jar'), tasks.named('sourcesJar'), tasks.named('javadocJar')
 }
 
 jar {
@@ -64,7 +65,7 @@ clean {
     delete(project.ext.pomName)
 }
 
-task installJars(type: Copy, dependsOn: jarSources) {
+task installJars(type: Copy, dependsOn: assemble) {
     from "${project.ext.pomName}"
     from "${libDir}/${project.name}-${project.version}.jar"
     from "${libDir}/${project.name}-${project.version}-sources.jar"

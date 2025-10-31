@@ -41,27 +41,27 @@ public class Timer
 
     public void schedule(Task task, int milliseconds)
     {
-        lock (this)
+        lock (_mutex)
         {
             var e = new Entry();
             e.task = task;
             e.when = currentMonotonicTimeMillis() + milliseconds;
             _tasks.Add(e);
             _tasks.Sort();
-            Monitor.Pulse(this);
+            Monitor.Pulse(_mutex);
         }
     }
 
     public void shutdown()
     {
-        lock (this)
+        lock (_mutex)
         {
             var e = new Entry();
             e.task = null;
             e.when = 0;
             _tasks.Add(e);
             _tasks.Sort();
-            Monitor.Pulse(this);
+            Monitor.Pulse(_mutex);
         }
     }
 
@@ -72,13 +72,13 @@ public class Timer
         while (true)
         {
             Entry e;
-            lock (this)
+            lock (_mutex)
             {
                 while (true)
                 {
                     while (_tasks.Count == 0)
                     {
-                        Monitor.Wait(this);
+                        Monitor.Wait(_mutex);
                     }
 
                     e = _tasks[0];
@@ -92,17 +92,18 @@ public class Timer
                         _tasks.RemoveAt(0);
                         break;
                     }
-                    Monitor.Wait(this, (int)(e.when - now));
+                    Monitor.Wait(_mutex, (int)(e.when - now));
                 }
             }
             e.task();
         }
-
     }
 
     private long currentMonotonicTimeMillis() => _sw.ElapsedMilliseconds;
+
     private readonly Stopwatch _sw = Stopwatch.StartNew();
 
     private readonly Thread _t;
-    private readonly List<Entry> _tasks = new List<Entry>();
+    private readonly List<Entry> _tasks = [];
+    private readonly object _mutex = new();
 }

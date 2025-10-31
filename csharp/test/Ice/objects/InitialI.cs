@@ -27,12 +27,12 @@ public sealed class InitialI : Test.InitialDisp_
         _d.theC = null; // Reference to a C.
     }
 
-    public override void getAll(out Test.B b1, out Test.B b2, out Test.C c, out Test.D d, Ice.Current current)
+    public override void getAll(out Test.B b1, out Test.B b2, out Test.C theC, out Test.D theD, Current current)
     {
         b1 = _b1;
         b2 = _b2;
-        c = _c;
-        d = _d;
+        theC = _c;
+        theD = _d;
     }
 
     public override Test.B getB1(Ice.Current current) => _b1;
@@ -58,14 +58,13 @@ public sealed class InitialI : Test.InitialDisp_
     }
 
     public override Dictionary<string, Ice.Value>
-    opValueMap(Dictionary<string, Ice.Value> v1, out Dictionary<string, Ice.Value> v2,
-               Ice.Current current)
+    opValueMap(Dictionary<string, Value> v1, out Dictionary<string, Value> v2, Current current)
     {
         v2 = v1;
         return v1;
     }
 
-    public override void setRecursive(Test.Recursive r, Ice.Current current)
+    public override void setRecursive(Test.Recursive p, Ice.Current current)
     {
     }
 
@@ -84,10 +83,10 @@ public sealed class InitialI : Test.InitialDisp_
     {
     }
 
-    public override Test.Base[] opBaseSeq(Test.Base[] inS, out Test.Base[] outS, Ice.Current current)
+    public override Test.Base[] opBaseSeq(Test.Base[] inSeq, out Test.Base[] outSeq, Ice.Current current)
     {
-        outS = inS;
-        return inS;
+        outSeq = inSeq;
+        return inSeq;
     }
 
     public override Test.Compact getCompact(Ice.Current current) => new Test.CompactExt();
@@ -134,7 +133,8 @@ public sealed class InitialI : Test.InitialDisp_
     public override Test.F3
     opF3(Test.F3 f31, out Test.F3 f32, Ice.Current current)
     {
-        f32 = new Test.F3(new Test.F1("F12"),
+        f32 = new Test.F3(
+            new Test.F1("F12"),
             Test.F2PrxHelper.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22")));
         return f31;
     }

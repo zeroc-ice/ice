@@ -4,16 +4,15 @@ package com.zeroc.Ice;
 
 /**
  * A special plug-in that installs a logger during a communicator's initialization.
- *
- * @see PluginFactory
- * @see InitializationData
+ * Both initialize and destroy are no-op.
  */
 public class LoggerPlugin implements Plugin {
     /**
-     * Constructs and installs a custom logger in the provided communicator.
+     * Constructs a logger plugin. This constructor installs a custom logger in the communicator. The communicator takes
+     * ownership of the logger and is responsible for closing it when the communicator is destroyed.
      *
      * @param communicator the communicator in which to install the logger
-     * @param logger the custom logger to be installed
+     * @param logger the logger to install
      */
     public LoggerPlugin(Communicator communicator, Logger logger) {
         if (communicator == null) {

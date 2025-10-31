@@ -17,10 +17,7 @@ public abstract class EndpointFactoryWithUnderlying implements EndpointFactory {
     }
 
     public void initialize() {
-        //
-        // Get the endpoint factory for the underlying type and clone it with
-        // our protocol instance.
-        //
+        // Get the endpoint factory for the underlying type and clone it with our protocol instance.
         EndpointFactory factory = _instance.getEndpointFactory(_type);
         if (factory != null) {
             _underlying = factory.clone(_instance);
@@ -56,8 +53,7 @@ public abstract class EndpointFactoryWithUnderlying implements EndpointFactory {
 
     public abstract EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short type);
 
-    protected abstract EndpointI createWithUnderlying(
-            EndpointI underlying, ArrayList<String> args, boolean oaEndpoint);
+    protected abstract EndpointI createWithUnderlying(EndpointI underlying, ArrayList<String> args, boolean oaEndpoint);
 
     protected abstract EndpointI readWithUnderlying(EndpointI underlying, InputStream s);
 

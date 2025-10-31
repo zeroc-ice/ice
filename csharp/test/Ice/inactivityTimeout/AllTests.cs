@@ -22,6 +22,7 @@ internal class AllTests : global::Test.AllTests
 
         await p.shutdownAsync();
     }
+
     private static async Task testClientInactivityTimeout(Test.TestIntfPrx p, TextWriter output)
     {
         output.Write("testing that the client side inactivity timeout shuts down the connection... ");
@@ -62,7 +63,7 @@ internal class AllTests : global::Test.AllTests
         // Switch to a separate log file
         global::Test.TestHelper.updateLogFileProperty(properties, "-inactivityTimeout=5s");
 
-        await using Communicator communicator = Util.initialize(new InitializationData { properties = properties });
+        await using var communicator = new Communicator(new InitializationData { properties = properties });
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.createProxy(communicator, proxyString);
 
         await p.ice_pingAsync();

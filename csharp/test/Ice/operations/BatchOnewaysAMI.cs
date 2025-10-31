@@ -6,19 +6,17 @@ namespace Ice.operations;
 
 internal class BatchOnewaysAMI
 {
-    private static void test(bool b) => global::Test.TestHelper.test(b);
-
     private class Callback
     {
         internal Callback() => _called = false;
 
         public void check()
         {
-            lock (this)
+            lock (_mutex)
             {
                 while (!_called)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    Monitor.Wait(_mutex);
                 }
 
                 _called = false;
@@ -27,15 +25,16 @@ internal class BatchOnewaysAMI
 
         public void called()
         {
-            lock (this)
+            lock (_mutex)
             {
                 Debug.Assert(!_called);
                 _called = true;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(_mutex);
             }
         }
 
         private bool _called;
+        private readonly object _mutex = new();
     }
 
     internal static async Task batchOneways(Test.MyClassPrx p)
@@ -52,7 +51,7 @@ internal class BatchOnewaysAMI
         while (count < 27) // 3 * 9 requests auto-flushed.
         {
             count += p.opByteSOnewayCallCount();
-            System.Threading.Thread.Sleep(10);
+            Thread.Sleep(10);
         }
 
         if (batch.ice_getConnection() != null)

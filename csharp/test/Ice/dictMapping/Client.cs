@@ -8,9 +8,9 @@ public class Client : TestHelper
 {
     public override async Task runAsync(string[] args)
     {
-        await using var communicator = initialize(ref args);
-        var output = getWriter();
-        var myClass = await AllTests.allTests(this, false);
+        await using Communicator communicator = initialize(ref args);
+        TextWriter output = getWriter();
+        Test.MyClassPrx myClass = await AllTests.allTests(this, false);
         output.Write("shutting down server... ");
         output.Flush();
         myClass.shutdown();

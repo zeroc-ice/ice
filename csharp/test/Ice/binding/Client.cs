@@ -8,7 +8,7 @@ public class Client : TestHelper
 {
     public override async Task runAsync(string[] args)
     {
-        await using var communicator = initialize(ref args);
+        await using Communicator communicator = initialize(ref args);
         await AllTests.allTests(this);
     }
 

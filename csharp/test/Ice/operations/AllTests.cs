@@ -7,11 +7,11 @@ public class AllTests : global::Test.AllTests
     public static async Task<Test.MyClassPrx> allTests(global::Test.TestHelper helper)
     {
         Ice.Communicator communicator = helper.communicator();
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Flush();
         string rf = "test:" + helper.getTestEndpoint(0);
-        var cl = Test.MyClassPrxHelper.createProxy(communicator, rf);
-        var derivedProxy = Test.MyDerivedClassPrxHelper.uncheckedCast(cl);
+        Test.MyClassPrx cl = Test.MyClassPrxHelper.createProxy(communicator, rf);
+        Test.MyDerivedClassPrx derivedProxy = Test.MyDerivedClassPrxHelper.uncheckedCast(cl);
 
         output.Write("testing twoway operations... ");
         output.Flush();

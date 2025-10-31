@@ -69,6 +69,7 @@ Ice::ObjectAdapterI::activate()
 {
     LocatorInfoPtr locatorInfo;
     bool printAdapterReady = false;
+    bool hasPublishedEndpoints = false;
 
     {
         lock_guard lock(_mutex);
@@ -106,28 +107,30 @@ Ice::ObjectAdapterI::activate()
             PropertiesPtr properties = _instance->initializationData().properties;
             printAdapterReady = properties->getIcePropertyAsInt("Ice.PrintAdapterReady") > 0;
         }
+        hasPublishedEndpoints = !_publishedEndpoints.empty();
     }
 
-    try
+    if (hasPublishedEndpoints)
     {
-        Ice::Identity dummy;
-        dummy.name = "dummy";
-        updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
-    }
-    catch (const Ice::LocalException&)
-    {
-        //
-        // If we couldn't update the locator registry, we let the
-        // exception go through and don't activate the adapter to
-        // allow to user code to retry activating the adapter
-        // later.
-        //
+        try
         {
-            lock_guard lock(_mutex);
-            _state = StateUninitialized;
-            _conditionVariable.notify_all();
+            updateLocatorRegistry(locatorInfo, createDirectProxy(Identity{.name = "dummy", .category = ""}));
         }
-        throw;
+        catch (const Ice::LocalException&)
+        {
+            //
+            // If we couldn't update the locator registry, we let the
+            // exception go through and don't activate the adapter to
+            // allow to user code to retry activating the adapter
+            // later.
+            //
+            {
+                lock_guard lock(_mutex);
+                _state = StateUninitialized;
+                _conditionVariable.notify_all();
+            }
+            throw;
+        }
     }
 
     if (printAdapterReady)
@@ -181,6 +184,7 @@ Ice::ObjectAdapterI::waitForHold()
 void
 Ice::ObjectAdapterI::deactivate() noexcept
 {
+    bool hasPublishedEndpoints = false;
     {
         unique_lock lock(_mutex);
 
@@ -193,6 +197,7 @@ Ice::ObjectAdapterI::deactivate() noexcept
             return;
         }
         _state = StateDeactivating;
+        hasPublishedEndpoints = !_publishedEndpoints.empty();
     }
 
     //
@@ -200,16 +205,19 @@ Ice::ObjectAdapterI::deactivate() noexcept
     // factory list are immutable at this point.
     //
 
-    try
+    if (hasPublishedEndpoints)
     {
-        updateLocatorRegistry(_locatorInfo, nullopt);
-    }
-    catch (const Ice::LocalException&)
-    {
-        //
-        // We can't throw exceptions in deactivate so we ignore
-        // failures to update the locator registry.
-        //
+        try
+        {
+            updateLocatorRegistry(_locatorInfo, nullopt);
+        }
+        catch (const Ice::LocalException&)
+        {
+            //
+            // We can't throw exceptions in deactivate so we ignore
+            // failures to update the locator registry.
+            //
+        }
     }
 
     for_each(
@@ -611,14 +619,19 @@ Ice::ObjectAdapterI::setPublishedEndpoints(EndpointSeq newEndpoints)
 {
     LocatorInfoPtr locatorInfo;
     vector<EndpointIPtr> oldPublishedEndpoints;
+
+    if (newEndpoints.empty())
+    {
+        throw std::invalid_argument("the newEndpoints argument must contain at least one endpoint");
+    }
+
     {
         lock_guard lock(_mutex);
         checkForDeactivation();
 
         if (_routerInfo)
         {
-            const string s("can't set published endpoints on object adapter associated with a router");
-            throw invalid_argument(s);
+            throw invalid_argument("cannot set published endpoints on an object adapter associated with a router");
         }
 
         oldPublishedEndpoints = _publishedEndpoints;

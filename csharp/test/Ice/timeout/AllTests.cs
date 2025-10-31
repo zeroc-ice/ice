@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Diagnostics;
-
 namespace Ice.timeout;
 
 public class AllTests : global::Test.AllTests
@@ -48,12 +46,12 @@ public class AllTests : global::Test.AllTests
 
     public static async Task allTestsWithController(global::Test.TestHelper helper, Test.ControllerPrx controller)
     {
-        var communicator = helper.communicator();
+        Communicator communicator = helper.communicator();
         string sref = "timeout:" + helper.getTestEndpoint(0);
 
         Test.TimeoutPrx timeout = Test.TimeoutPrxHelper.createProxy(communicator, sref);
 
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Write("testing connect timeout... ");
         output.Flush();
         {
@@ -94,7 +92,7 @@ public class AllTests : global::Test.AllTests
             //
             Properties properties = communicator.getProperties().Clone();
             properties.setProperty("Ice.Connection.Client.ConnectTimeout", "-1");
-            using var communicator2 = Util.initialize(new InitializationData { properties = properties });
+            using var communicator2 = new Communicator(new InitializationData { properties = properties });
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.createProxy(communicator2, sref);
             controller.holdAdapter(100);
             try
@@ -111,7 +109,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing invocation timeout... ");
         output.Flush();
         {
-            var connection = timeout.ice_getConnection();
+            Connection connection = timeout.ice_getConnection();
             var to = (Test.TimeoutPrx)timeout.ice_invocationTimeout(100);
             test(connection == to.ice_getConnection());
             try
@@ -162,7 +160,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing close timeout... ");
         output.Flush();
         {
-            var connection = connect(timeout);
+            Connection connection = connect(timeout);
             controller.holdAdapter(-1);
             Task closeTask = connection.closeAsync(); // initiate closure
             try
@@ -204,7 +202,7 @@ public class AllTests : global::Test.AllTests
         {
             communicator.getProperties().setProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
 
-            var adapter = communicator.createObjectAdapter("TimeoutCollocated");
+            ObjectAdapter adapter = communicator.createObjectAdapter("TimeoutCollocated");
             adapter.activate();
 
             Test.TimeoutPrx proxy = Test.TimeoutPrxHelper.uncheckedCast(adapter.addWithUUID(new TimeoutI()));

@@ -2,6 +2,8 @@
 
 using Test;
 
+namespace Ice.slicing.objects;
+
 public sealed class TestI : AsyncTestIntfDisp_
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
@@ -41,15 +43,15 @@ public sealed class TestI : AsyncTestIntfDisp_
         return Task.FromResult<Ice.Value>(su);
     }
 
-    public override Task checkSUnknownAsync(Ice.Value obj, Ice.Current current)
+    public override Task checkSUnknownAsync(Ice.Value o, Ice.Current current)
     {
         if (current.encoding.Equals(Ice.Util.Encoding_1_0))
         {
-            test(!(obj is SUnknown));
+            test(o is not SUnknown);
         }
         else
         {
-            var su = obj as SUnknown;
+            var su = o as SUnknown;
             test(su.su == "SUnknown.su");
         }
         return Task.CompletedTask;
@@ -250,7 +252,7 @@ public sealed class TestI : AsyncTestIntfDisp_
         var r = new Dictionary<int, B>();
         for (i = 0; i < 10; ++i)
         {
-            string s = "D1." + (i * 20).ToString();
+            string s = $"D1.{i * 20}";
             var d1 = new D1();
             d1.sb = s;
             d1.pb = i == 0 ? null : r[(i - 1) * 20];

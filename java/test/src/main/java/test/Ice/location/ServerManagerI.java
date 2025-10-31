@@ -4,13 +4,13 @@ package test.Ice.location;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.LocatorPrx;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.SocketException;
-import com.zeroc.Ice.Util;
 
 import test.Ice.location.Test.ServerManager;
 import test.TestHelper;
@@ -76,10 +76,10 @@ public class ServerManagerI implements ServerManager {
 
                 Object object = new TestI(adapter, adapter2, _registry);
                 _registry.addObject(
-                    adapter.add(object, Util.stringToIdentity("test")), null);
+                    adapter.add(object, new Identity("test", "")), null);
                 _registry.addObject(
-                    adapter.add(object, Util.stringToIdentity("test2")), null);
-                adapter.add(object, Util.stringToIdentity("test3"));
+                    adapter.add(object, new Identity("test2", "")), null);
+                adapter.add(object, new Identity("test3", ""));
 
                 adapter.activate();
                 adapter2.activate();

@@ -3,6 +3,8 @@
 using System.Diagnostics;
 using Test;
 
+namespace Ice.slicing.objects;
+
 public class AllTests : Test.AllTests
 {
     private class Callback
@@ -11,11 +13,11 @@ public class AllTests : Test.AllTests
 
         public virtual void check()
         {
-            lock (this)
+            lock (_mutex)
             {
                 while (!_called)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    Monitor.Wait(_mutex);
                 }
 
                 _called = false;
@@ -24,15 +26,16 @@ public class AllTests : Test.AllTests
 
         public virtual void called()
         {
-            lock (this)
+            lock (_mutex)
             {
                 Debug.Assert(!_called);
                 _called = true;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(_mutex);
             }
         }
 
         private bool _called;
+        private readonly object _mutex = new();
     }
 
     internal class CustomSliceLoader : Ice.SliceLoader
@@ -55,20 +58,20 @@ public class AllTests : Test.AllTests
     {
         public PNodeI() => ++counter;
 
-        internal static int counter = 0;
+        internal static int counter;
     }
 
     private class PreservedI : Preserved
     {
         public PreservedI() => ++counter;
 
-        internal static int counter = 0;
+        internal static int counter;
     }
 
     public static TestIntfPrx allTests(Test.TestHelper helper, bool collocated)
     {
         Ice.Communicator communicator = helper.communicator();
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
         Ice.ObjectPrx basePrx = communicator.stringToProxy("Test:" + helper.getTestEndpoint(0) + " -t 2000");
@@ -315,7 +318,7 @@ public class AllTests : Test.AllTests
                 {
                     try
                     {
-                        var o = testPrx.SUnknownAsObjectAsync().Result;
+                        Value o = testPrx.SUnknownAsObjectAsync().Result;
                     }
                     catch (AggregateException ae)
                     {
@@ -326,7 +329,7 @@ public class AllTests : Test.AllTests
                 {
                     try
                     {
-                        var o = testPrx.SUnknownAsObjectAsync().Result;
+                        Value o = testPrx.SUnknownAsObjectAsync().Result;
                         test(o is Ice.UnknownSlicedValue);
                         test((o as Ice.UnknownSlicedValue).ice_id() == "::Test::SUnknown");
                     }
@@ -367,7 +370,7 @@ public class AllTests : Test.AllTests
         output.Write("one-element cycle (AMI)... ");
         output.Flush();
         {
-            var b = testPrx.oneElementCycleAsync().Result;
+            B b = testPrx.oneElementCycleAsync().Result;
             test(b != null);
             test(b.ice_id() == "::Test::B");
             test(b.sb == "B1.sb");
@@ -602,7 +605,7 @@ public class AllTests : Test.AllTests
         output.Write("param ptr slicing with known first (AMI)... ");
         output.Flush();
         {
-            var result = testPrx.paramTest1Async().Result;
+            TestIntf_ParamTest1Result result = testPrx.paramTest1Async().Result;
             B b1 = result.p1;
             B b2 = result.p2;
 
@@ -654,7 +657,7 @@ public class AllTests : Test.AllTests
         output.Write("param ptr slicing with unknown first (AMI)... ");
         output.Flush();
         {
-            var result = testPrx.paramTest2Async().Result;
+            TestIntf_ParamTest2Result result = testPrx.paramTest2Async().Result;
             B b2 = result.p2;
             B b1 = result.p1;
             test(b1 != null);
@@ -692,7 +695,7 @@ public class AllTests : Test.AllTests
         output.Write("return value identity with known first (AMI)... ");
         output.Flush();
         {
-            var result = testPrx.returnTest1Async().Result;
+            TestIntf_ReturnTest1Result result = testPrx.returnTest1Async().Result;
             test(result.returnValue == result.p1);
         }
         output.WriteLine("ok");
@@ -716,7 +719,7 @@ public class AllTests : Test.AllTests
         output.Write("return value identity with unknown first (AMI)... ");
         output.Flush();
         {
-            var result = testPrx.returnTest2Async().Result;
+            TestIntf_ReturnTest2Result result = testPrx.returnTest2Async().Result;
             test(result.returnValue == result.p2);
         }
         output.WriteLine("ok");
@@ -962,7 +965,7 @@ public class AllTests : Test.AllTests
         output.Write("remainder unmarshaling (3 instances) (AMI)... ");
         output.Flush();
         {
-            var result = testPrx.paramTest3Async().Result;
+            TestIntf_ParamTest3Result result = testPrx.paramTest3Async().Result;
 
             B ret = result.returnValue;
             B p1 = result.p1;
@@ -1012,7 +1015,7 @@ public class AllTests : Test.AllTests
         output.Write("remainder unmarshaling (4 instances) (AMI)... ");
         output.Flush();
         {
-            var result = testPrx.paramTest4Async().Result;
+            TestIntf_ParamTest4Result result = testPrx.paramTest4Async().Result;
             B ret = result.returnValue;
             B b = result.p;
 
@@ -1379,7 +1382,7 @@ public class AllTests : Test.AllTests
                 int i;
                 for (i = 0; i < 10; ++i)
                 {
-                    string s = "D1." + i.ToString();
+                    string s = $"D1.{i}";
                     var d1 = new D1();
                     d1.sb = s;
                     d1.pb = d1;
@@ -1394,11 +1397,11 @@ public class AllTests : Test.AllTests
                 {
                     B b = bout[i * 10];
                     test(b != null);
-                    string s = "D1." + i.ToString();
-                    test(b.sb.Equals(s));
+                    string s = $"D1.{i}";
+                    test(b.sb == s);
                     test(b.pb != null);
                     test(b.pb != b);
-                    test(b.pb.sb.Equals(s));
+                    test(b.pb.sb == s);
                     test(b.pb.pb == b.pb);
                 }
 
@@ -1407,12 +1410,12 @@ public class AllTests : Test.AllTests
                 {
                     B b = ret[i * 20];
                     test(b != null);
-                    string s = "D1." + (i * 20).ToString();
-                    test(b.sb.Equals(s));
+                    string s = $"D1.{i * 20}";
+                    test(b.sb == s);
                     test(b.pb == (i == 0 ? (B)null : ret[(i - 1) * 20]));
                     var d1 = (D1)b;
                     test(d1 != null);
-                    test(d1.sd1.Equals(s));
+                    test(d1.sd1 == s);
                     test(d1.pd1 == d1);
                 }
             }
@@ -1431,7 +1434,7 @@ public class AllTests : Test.AllTests
             int i;
             for (i = 0; i < 10; ++i)
             {
-                string s = "D1." + i.ToString();
+                string s = $"D1.{i}";
                 var d1 = new D1();
                 d1.sb = s;
                 d1.pb = d1;
@@ -1439,7 +1442,7 @@ public class AllTests : Test.AllTests
                 bin[i] = d1;
             }
 
-            var result = testPrx.dictionaryTestAsync(bin).Result;
+            TestIntf_DictionaryTestResult result = testPrx.dictionaryTestAsync(bin).Result;
             Dictionary<int, B> rv = result.returnValue;
             Dictionary<int, B> bout = result.bout;
 
@@ -1448,11 +1451,11 @@ public class AllTests : Test.AllTests
             {
                 B b = bout[i * 10];
                 test(b != null);
-                string s = "D1." + i.ToString();
-                test(b.sb.Equals(s));
+                string s = $"D1.{i}";
+                test(b.sb == s);
                 test(b.pb != null);
                 test(b.pb != b);
-                test(b.pb.sb.Equals(s));
+                test(b.pb.sb == s);
                 test(b.pb.pb == b.pb);
             }
 
@@ -1461,12 +1464,12 @@ public class AllTests : Test.AllTests
             {
                 B b = rv[i * 20];
                 test(b != null);
-                string s = "D1." + (i * 20).ToString();
-                test(b.sb.Equals(s));
-                test(b.pb == (i == 0 ? (B)null : rv[(i - 1) * 20]));
+                string s = $"D1.{i * 20}";
+                test(b.sb == s);
+                test(b.pb == (i == 0 ? null : rv[(i - 1) * 20]));
                 var d1 = (D1)b;
                 test(d1 != null);
-                test(d1.sd1.Equals(s));
+                test(d1.sd1 == s);
                 test(d1.pd1 == d1);
             }
         }
@@ -2133,7 +2136,6 @@ public class AllTests : Test.AllTests
             }
 
             PreservedI.counter = 0;
-
         }
         catch (Ice.OperationNotExistException)
         {

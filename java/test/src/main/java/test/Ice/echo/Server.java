@@ -4,8 +4,8 @@ package test.Ice.echo;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.Ice.echo.Test.Echo;
 import test.TestHelper;
@@ -40,7 +40,7 @@ public class Server extends TestHelper {
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             BlobjectI blob = new BlobjectI();
             adapter.addDefaultServant(blob, "");
-            adapter.add(new EchoI(blob), Util.stringToIdentity("__echo"));
+            adapter.add(new EchoI(blob), new Identity("__echo", ""));
             adapter.activate();
             communicator.waitForShutdown();
         }

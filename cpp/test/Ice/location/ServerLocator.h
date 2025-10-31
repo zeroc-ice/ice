@@ -20,6 +20,8 @@ public:
 
     void addObject(std::optional<Ice::ObjectPrx>, const Ice::Current&) final;
 
+    std::int32_t getSetRequestCount(const Ice::Current&) final;
+
     //
     // Internal method
     //
@@ -30,6 +32,7 @@ public:
 private:
     std::map<std::string, std::optional<Ice::ObjectPrx>> _adapters;
     std::map<Ice::Identity, std::optional<Ice::ObjectPrx>> _objects;
+    std::int32_t _setRequestCount{0};
 };
 using ServerLocatorRegistryPtr = std::shared_ptr<ServerLocatorRegistry>;
 

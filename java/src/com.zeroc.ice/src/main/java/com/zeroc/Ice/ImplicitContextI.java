@@ -16,8 +16,7 @@ abstract class ImplicitContextI implements ImplicitContext {
         } else if ("PerThread".equals(kind)) {
             return new PerThread();
         } else {
-            throw new InitializationException(
-                "'" + kind + "' is not a valid value for ImplicitContext");
+            throw new InitializationException("'" + kind + "' is not a valid value for ImplicitContext");
         }
     }
 
@@ -108,8 +107,7 @@ abstract class ImplicitContextI implements ImplicitContext {
         }
 
         @Override
-        synchronized Map<String, String> combine(
-                Map<String, String> prxContext) {
+        synchronized Map<String, String> combine(Map<String, String> prxContext) {
             Map<String, String> combined = new HashMap<>(_context);
             combined.putAll(prxContext);
             return combined;
@@ -122,9 +120,7 @@ abstract class ImplicitContextI implements ImplicitContext {
 
         @Override
         public Map<String, String> getContext() {
-            //
             // Note that _map is a *synchronized* map
-            //
             Map<String, String> threadContext = _map.get(Thread.currentThread());
 
             if (threadContext == null) {
@@ -244,10 +240,7 @@ abstract class ImplicitContextI implements ImplicitContext {
             return combined;
         }
 
-        //
         // Synchronized map Thread -> Context
-        //
-        private Map<Thread, Map<String, String>> _map =
-            Collections.synchronizedMap(new HashMap<>());
+        private Map<Thread, Map<String, String>> _map = Collections.synchronizedMap(new HashMap<>());
     }
 }

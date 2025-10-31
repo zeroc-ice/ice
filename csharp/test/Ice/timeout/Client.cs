@@ -6,7 +6,7 @@ public class Client : global::Test.TestHelper
 {
     public override async Task runAsync(string[] args)
     {
-        var properties = createTestProperties(ref args);
+        Properties properties = createTestProperties(ref args);
 
         //
         // For this test, we want to disable retries.
@@ -16,7 +16,7 @@ public class Client : global::Test.TestHelper
         properties.setProperty("Ice.Connection.Client.ConnectTimeout", "1");
         properties.setProperty("Ice.Connection.Client.CloseTimeout", "1");
 
-        await using var communicator = initialize(properties);
+        await using Communicator communicator = initialize(properties);
         await AllTests.allTests(this);
     }
 

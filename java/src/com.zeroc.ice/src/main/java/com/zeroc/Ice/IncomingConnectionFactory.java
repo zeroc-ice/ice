@@ -30,23 +30,16 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
         LinkedList<ConnectionI> connections;
 
         synchronized (this) {
-            //
             // First we wait until the connection factory itself is in holding state.
-            //
             while (_state < StateHolding) {
                 wait();
             }
 
-            //
-            // We want to wait until all connections are in holding state outside the thread
-            // synchronization.
-            //
+            // We want to wait until all connections are in holding state outside the thread synchronization.
             connections = new LinkedList<>(_connections);
         }
 
-        //
         // Now we wait until each connection is in holding state.
-        //
         for (ConnectionI connection : connections) {
             connection.waitUntilHolding();
         }
@@ -56,23 +49,16 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
         LinkedList<ConnectionI> connections = null;
 
         synchronized (this) {
-            //
-            // First we wait until the factory is destroyed. If we are using an acceptor, we also
-            // wait for it to be closed.
-            //
+            // First we wait until the factory is destroyed. If we are using an acceptor,
+            // we also wait for it to be closed.
             while (_state != StateFinished) {
                 wait();
             }
 
-            //
             // Clear the OA. See bug 1673 for the details of why this is necessary.
-            //
             _adapter = null;
 
-            //
-            // We want to wait until all connections are finished outside the thread
-            // synchronization.
-            //
+            // We want to wait until all connections are finished outside the thread synchronization.
             connections = new LinkedList<>(_connections);
         }
 
@@ -80,9 +66,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             try {
                 connection.waitUntilFinished();
             } catch (InterruptedException e) {
-                //
                 // Force close all of the connections.
-                //
                 for (ConnectionI c : connections) {
                     c.abort();
                 }
@@ -102,9 +86,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
     public synchronized LinkedList<ConnectionI> connections() {
         LinkedList<ConnectionI> connections = new LinkedList<>();
 
-        //
         // Only copy connections which have not been destroyed.
-        //
         for (ConnectionI connection : _connections) {
             if (connection.isActiveOrHolding()) {
                 connections.add(connection);
@@ -143,9 +125,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                 return;
             }
 
-            //
             // Now accept a new connection.
-            //
             Transceiver transceiver = null;
             try {
                 transceiver = _acceptor.accept();
@@ -158,10 +138,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                         s.append(" connection\n");
                         s.append(transceiver.toString());
                         s.append("\nbecause the maximum number of connections has been reached");
-                        _instance
-                            .initializationData()
-                            .logger
-                            .trace(_instance.traceLevels().networkCat, s.toString());
+                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
                     }
                     try {
                         transceiver.close();
@@ -176,10 +153,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                     s.append(_endpoint.protocol());
                     s.append(" connection\n");
                     s.append(transceiver.toString());
-                    _instance
-                        .initializationData()
-                        .logger
-                        .trace(_instance.traceLevels().networkCat, s.toString());
+                    _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
                 }
             } catch (LocalException ex) {
                 if (_warn) {
@@ -261,15 +235,10 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
         }
     }
 
-    //
     // Operations from ConnectionI.StartCallback
-    //
     @Override
     public synchronized void connectionStartCompleted(ConnectionI connection) {
-        //
-        // Initially, connections are in the holding state. If the factory is active we activate the
-        // connection.
-        //
+        // Initially, connections are in the holding state. If the factory is active we activate the connection.
         if (_state == StateActive) {
             connection.activate();
         }
@@ -288,18 +257,11 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
         _maxConnections =
             endpoint.datagram()
                 ? 0
-                : instance.initializationData()
-                .properties
-                .getPropertyAsInt(adapter.getName() + ".MaxConnections");
+                : instance.initializationData().properties.getPropertyAsInt(adapter.getName() + ".MaxConnections");
 
         _endpoint = endpoint;
         _adapter = adapter;
-        _warn =
-            _instance
-                .initializationData()
-                .properties
-                .getIcePropertyAsInt("Ice.Warn.Connections")
-                > 0;
+        _warn = _instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
         _state = StateHolding;
         _acceptorStarted = false;
 
@@ -317,10 +279,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                     s.append(_endpoint.protocol());
                     s.append(" socket\n");
                     s.append(_transceiver.toString());
-                    _instance
-                        .initializationData()
-                        .logger
-                        .trace(_instance.traceLevels().networkCat, s.toString());
+                    _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
                 }
                 _endpoint = _transceiver.bind();
 
@@ -386,10 +345,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                         s.append(_endpoint.protocol());
                         s.append(" connections at ");
                         s.append(_acceptor.toString());
-                        _instance
-                            .initializationData()
-                            .logger
-                            .trace(_instance.traceLevels().networkCat, s.toString());
+                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
                     }
                     _adapter.getThreadPool().register(this, SocketOperation.Read);
                 }
@@ -411,10 +367,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                         s.append(_endpoint.protocol());
                         s.append(" connections at ");
                         s.append(_acceptor.toString());
-                        _instance
-                            .initializationData()
-                            .logger
-                            .trace(_instance.traceLevels().networkCat, s.toString());
+                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
                     }
                     _adapter.getThreadPool().unregister(this, SocketOperation.Read);
                 }
@@ -426,12 +379,9 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
 
             case StateClosed -> {
                 if (_acceptorStarted) {
-                    //
                     // If possible, close the acceptor now to prevent new connections from being
                     // accepted while we are deactivating. This is especially useful if there
-                    // are no more threads in the thread pool available to dispatch the finish()
-                    // call.
-                    //
+                    // are no more threads in the thread pool available to dispatch the finish() call.
                     _acceptorStarted = false;
                     if (_adapter.getThreadPool().finish(this, true)) {
                         closeAcceptor();
@@ -465,10 +415,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                 s.append(_endpoint.protocol());
                 s.append(" socket ");
                 s.append(_acceptor.toString());
-                _instance
-                    .initializationData()
-                    .logger
-                    .trace(_instance.traceLevels().networkCat, s.toString());
+                _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
             }
 
             _endpoint = _acceptor.listen();
@@ -478,10 +425,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                 s.append(_endpoint.protocol());
                 s.append(" connections\n");
                 s.append(_acceptor.toDetailedString());
-                _instance
-                    .initializationData()
-                    .logger
-                    .trace(_instance.traceLevels().networkCat, s.toString());
+                _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
             }
 
             _adapter.getThreadPool().initialize(this);
@@ -507,10 +451,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             s.append(_endpoint.protocol());
             s.append(" connections at ");
             s.append(_acceptor.toString());
-            _instance
-                .initializationData()
-                .logger
-                .trace(_instance.traceLevels().networkCat, s.toString());
+            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
         }
 
         assert (!_acceptorStarted);

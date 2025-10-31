@@ -5,10 +5,7 @@ using System.Diagnostics;
 
 namespace IceBox;
 
-//
-// NOTE: the class isn't sealed on purpose to allow users to extend it.
-//
-internal class ServiceManagerI : ServiceManagerDisp_
+internal class ServiceManagerI : ServiceManagerDisp_, IDisposable
 {
     public ServiceManagerI(Ice.Communicator communicator, string[] args)
     {
@@ -42,6 +39,8 @@ internal class ServiceManagerI : ServiceManagerDisp_
         _argv = args;
         _traceServiceObserver = _communicator.getProperties().getIcePropertyAsInt("IceBox.Trace.ServiceObserver");
     }
+
+    public void Dispose() => _sharedCommunicator?.Dispose();
 
     public override void startService(string name, Ice.Current current)
     {
@@ -347,7 +346,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 string facetNamePrefix = "IceBox.SharedCommunicator.";
                 bool addFacets = configureAdmin(initData.properties, facetNamePrefix);
 
-                _sharedCommunicator = Ice.Util.initialize(initData);
+                _sharedCommunicator = new Ice.Communicator(initData);
 
                 if (addFacets)
                 {
@@ -547,7 +546,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 string serviceFacetNamePrefix = "IceBox.Service." + service + ".";
                 bool addFacets = configureAdmin(initData.properties, serviceFacetNamePrefix);
 
-                info.communicator = Ice.Util.initialize(initData);
+                info.communicator = new Ice.Communicator(initData);
                 communicator = info.communicator;
 
                 if (addFacets)
@@ -1002,7 +1001,11 @@ internal class ServiceManagerI : ServiceManagerDisp_
     private readonly bool _adminEnabled;
     private readonly HashSet<string> _adminFacetFilter;
     private Ice.Communicator _sharedCommunicator;
+
+#pragma warning disable CA2213
+    // This class does not own _logger.
     private readonly Ice.Logger _logger;
+#pragma warning restore CA2213
     private readonly string[] _argv; // Filtered server argument vector
     private readonly List<ServiceInfo> _services = new();
     private bool _pendingStatusChanges;

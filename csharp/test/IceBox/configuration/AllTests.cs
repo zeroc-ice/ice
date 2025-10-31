@@ -2,6 +2,8 @@
 
 using Test;
 
+namespace IceBox.configuration;
+
 public class AllTests : Test.AllTests
 {
     public static void allTests(Test.TestHelper helper)

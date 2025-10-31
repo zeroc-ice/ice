@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+namespace Ice.plugin;
+
 public class PluginTwoFailFactory : Ice.PluginFactory
 {
     public string pluginName => "Test";
@@ -9,7 +11,8 @@ public class PluginTwoFailFactory : Ice.PluginFactory
 
     internal class PluginTwoFail : BasePluginFail
     {
-        public PluginTwoFail(Ice.Communicator communicator) : base(communicator)
+        public PluginTwoFail(Ice.Communicator communicator)
+            : base(communicator)
         {
         }
 

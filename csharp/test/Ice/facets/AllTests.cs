@@ -7,7 +7,7 @@ public class AllTests : global::Test.AllTests
     public static async Task<Test.GPrx> allTests(global::Test.TestHelper helper)
     {
         Ice.Communicator communicator = helper.communicator();
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Write("testing Ice.Admin.Facets property... ");
         test(communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets").Length == 0);
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
@@ -31,7 +31,7 @@ public class AllTests : global::Test.AllTests
 
         output.Write("testing add facet with uuid... ");
         {
-            var testAdapter = communicator.createObjectAdapterWithEndpoints("TestAdapter2", "default");
+            ObjectAdapter testAdapter = communicator.createObjectAdapterWithEndpoints("TestAdapter2", "default");
             test(testAdapter.addFacetWithUUID(new EmptyI(), "facetABCD").ice_getFacet() == "facetABCD");
             testAdapter.destroy();
         }
@@ -110,13 +110,13 @@ public class AllTests : global::Test.AllTests
         test(prx2.ice_getFacet() == "facetABCD");
         Ice.ObjectPrx prx3 = Ice.ObjectPrxHelper.uncheckedCast(prx, "");
         test(prx3.ice_getFacet().Length == 0);
-        var d = Test.DPrxHelper.uncheckedCast(db);
+        Test.DPrx d = Test.DPrxHelper.uncheckedCast(db);
         test(d.ice_getFacet().Length == 0);
-        var df = Test.DPrxHelper.uncheckedCast(db, "facetABCD");
+        Test.DPrx df = Test.DPrxHelper.uncheckedCast(db, "facetABCD");
         test(df.ice_getFacet() == "facetABCD");
-        var df2 = Test.DPrxHelper.uncheckedCast(df);
+        Test.DPrx df2 = Test.DPrxHelper.uncheckedCast(df);
         test(df2.ice_getFacet() == "facetABCD");
-        var df3 = Test.DPrxHelper.uncheckedCast(df, "");
+        Test.DPrx df3 = Test.DPrxHelper.uncheckedCast(df, "");
         test(df3.ice_getFacet().Length == 0);
         output.WriteLine("ok");
 
@@ -163,7 +163,7 @@ public class AllTests : global::Test.AllTests
 
         output.Write("testing facets E and F... ");
         output.Flush();
-        var ff = await Test.FPrxHelper.checkedCastAsync(d, "facetEF");
+        Test.FPrx ff = await Test.FPrxHelper.checkedCastAsync(d, "facetEF");
         test(ff != null);
         test(ff.callE() == "E");
         test(ff.callF() == "F");
@@ -171,14 +171,14 @@ public class AllTests : global::Test.AllTests
 
         output.Write("testing facet G... ");
         output.Flush();
-        var gf = await Test.GPrxHelper.checkedCastAsync(ff, "facetGH");
+        Test.GPrx gf = await Test.GPrxHelper.checkedCastAsync(ff, "facetGH");
         test(gf != null);
         test(gf.callG() == "G");
         output.WriteLine("ok");
 
         output.Write("testing whether casting preserves the facet... ");
         output.Flush();
-        var hf = await Test.HPrxHelper.checkedCastAsync(gf);
+        Test.HPrx hf = await Test.HPrxHelper.checkedCastAsync(gf);
         test(hf != null);
         test(hf.callG() == "G");
         test(hf.callH() == "H");

@@ -32,7 +32,7 @@ export class Client extends TestHelper {
         for (let i = 0; i < 10; ++i) {
             const initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().clone();
-            const comm = Ice.initialize(initData);
+            const comm = new Ice.Communicator(initData);
             await new Ice.ObjectPrx(comm, `test:${this.getTestEndpoint()}`).ice_ping();
             await comm.destroy();
         }

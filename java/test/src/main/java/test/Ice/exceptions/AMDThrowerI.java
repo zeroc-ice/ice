@@ -64,23 +64,19 @@ public final class AMDThrowerI implements AsyncThrower {
     @Override
     public CompletionStage<Void> throwBasAAsync(int a, int b, Current current)
         throws A {
-        CompletableFuture<Void> r = new CompletableFuture<>();
         B ex = new B();
         ex.aMem = a;
         ex.bMem = b;
         throw ex;
-        // r.completeExceptionally(ex);
     }
 
     @Override
     public CompletionStage<Void> throwBasBAsync(int a, int b, Current current)
         throws B {
-        CompletableFuture<Void> r = new CompletableFuture<>();
         B ex = new B();
         ex.aMem = a;
         ex.bMem = b;
         throw ex;
-        // r.completeExceptionally(ex);
     }
 
     @Override
@@ -142,14 +138,11 @@ public final class AMDThrowerI implements AsyncThrower {
     @Override
     public CompletionStage<Void> throwUndeclaredCAsync(
             int a, int b, int c, Current current) throws UserException {
-        CompletableFuture<Void> r = new CompletableFuture<>();
         C ex = new C();
         ex.aMem = a;
         ex.bMem = b;
         ex.cMem = c;
         throw ex;
-        // r.completeExceptionally(ex);
-        // return r;
     }
 
     @Override

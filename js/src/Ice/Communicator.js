@@ -1,17 +1,46 @@
 // Copyright (c) ZeroC, Inc.
 
+import { CompositeSliceLoader } from "./CompositeSliceLoader.js";
+import { InitializationData } from "./InitializationData.js";
+import { InitializationException } from "./LocalExceptions.js";
+import { ObjectPrx } from "./ObjectPrx.js";
+import { Promise } from "./Promise.js";
+import { Properties } from "./Properties.js";
+import { defaultSliceLoaderInstance } from "./DefaultSliceLoader.js";
 import { generateUUID } from "./UUID.js";
 import { identityToString } from "./IdentityToString.js";
-import { Promise } from "./Promise.js";
-import { ObjectPrx } from "./ObjectPrx.js";
 
 //
 // Ice.Communicator
 //
 export class Communicator {
-    constructor(initData) {
+    constructor() {
         this._isShutdown = false;
         this._shutdownPromise = new Promise();
+
+        let initData = null;
+        if (arguments.length === 0) {
+            initData = new InitializationData();
+        } else if (arguments.length === 1) {
+            const arg0 = arguments[0];
+            if (arg0 instanceof Array) {
+                initData = new InitializationData();
+                initData.properties = new Properties(arg0);
+            } else if (arg0 instanceof InitializationData) {
+                initData = arg0.clone();
+            } else {
+                throw new InitializationException("invalid argument provided to the Communicator constructor");
+            }
+        } else {
+            throw new InitializationException("invalid number of arguments provided to the Communicator constructor");
+        }
+
+        if (initData.sliceLoader === null || initData.sliceLoader === undefined) {
+            initData.sliceLoader = defaultSliceLoaderInstance;
+        } else {
+            initData.sliceLoader = new CompositeSliceLoader([initData.sliceLoader, defaultSliceLoaderInstance]);
+        }
+
         this._instance = this.createInstance(initData);
         this._instance.finishSetup(this);
     }

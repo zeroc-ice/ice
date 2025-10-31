@@ -2,6 +2,8 @@
 
 using System.Diagnostics;
 
+namespace IceDiscovery.simple;
+
 public sealed class ControllerI : Test.ControllerDisp_
 {
     public override void

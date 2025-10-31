@@ -2,6 +2,8 @@
 
 using Test;
 
+namespace IceBox.configuration;
+
 public class TestI : TestIntfDisp_
 {
     public TestI(string[] args) => _args = args;

@@ -223,8 +223,7 @@ public final class Properties {
             try {
                 return Integer.parseInt(pv.value);
             } catch (NumberFormatException ex) {
-                throw new PropertyException(
-                    "property '" + key + "' has an invalid integer value: '" + pv.value + "'");
+                throw new PropertyException("property '" + key + "' has an invalid integer value: '" + pv.value + "'");
             }
         }
 
@@ -289,11 +288,8 @@ public final class Properties {
 
             String[] result = StringUtil.splitString(pv.value, ", \t\r\n");
             if (result == null) {
-                Util.getProcessLogger()
-                    .warning(
-                        "mismatched quotes in property "
-                            + key
-                            + "'s value, returning default value");
+                String msg = "mismatched quotes in property " + key + "'s value, returning default value";
+                Util.getProcessLogger().warning(msg);
                 return value;
             }
             if (result.length == 0) {
@@ -333,9 +329,7 @@ public final class Properties {
      * @see #getProperty
      */
     public void setProperty(String key, String value) {
-        //
         // Trim whitespace
-        //
         if (key != null) {
             key = key.trim();
         }
@@ -344,23 +338,16 @@ public final class Properties {
             throw new InitializationException("Attempt to set property with empty key");
         }
 
-        // Check if the property is in an Ice property prefix. If so, check that it's a valid
-        // property.
+        // Check if the property is in an Ice property prefix. If so, check that it's a valid property.
         PropertyArray propertyArray = findIcePropertyArray(key);
         if (propertyArray != null) {
-            if (propertyArray.isOptIn()
-                && _optInPrefixes.stream().noneMatch(propertyArray.name()::equals)) {
+            if (propertyArray.isOptIn() && _optInPrefixes.stream().noneMatch(propertyArray.name()::equals)) {
 
-                throw new PropertyException(
-                    "unable to set '"
-                        + key
-                        + "': property prefix '"
-                        + propertyArray.name()
-                        + "' is opt-in and must be explicitly enabled");
+                throw new PropertyException("unable to set '" + key + "': property prefix '" + propertyArray.name()
+                    + "' is opt-in and must be explicitly enabled");
             }
 
-            Property prop =
-                findProperty(key.substring(propertyArray.name().length() + 1), propertyArray);
+            Property prop = findProperty(key.substring(propertyArray.name().length() + 1), propertyArray);
             if (prop == null) {
                 throw new PropertyException("unknown Ice property: " + key);
             }
@@ -370,9 +357,7 @@ public final class Properties {
             }
         }
         synchronized (this) {
-            //
             // Set or clear the property.
-            //
             if (value != null && !value.isEmpty()) {
                 PropertyValue pv = _propertySet.get(key);
                 if (pv != null) {
@@ -459,12 +444,10 @@ public final class Properties {
         if (System.getProperty("os.name").startsWith("Windows")
             && (file.startsWith("HKCU\\") || file.startsWith("HKLM\\"))) {
             try {
-                java.lang.Process process =
-                    Runtime.getRuntime().exec(new String[]{"reg", "query", file});
+                java.lang.Process process = Runtime.getRuntime().exec(new String[]{"reg", "query", file});
                 process.waitFor();
                 if (process.exitValue() != 0) {
-                    throw new InitializationException(
-                        "Could not read Windows registry key '" + file + "'");
+                    throw new InitializationException("Could not read Windows registry key '" + file + "'");
                 }
 
                 java.io.InputStream is = process.getInputStream();
@@ -492,9 +475,7 @@ public final class Properties {
                             int start = line.indexOf('%', 0);
                             int end = line.indexOf('%', start + 1);
 
-                            //
                             // If there isn't more %var% break the loop
-                            //
                             if (start == -1 || end == -1) {
                                 break;
                             }
@@ -517,8 +498,7 @@ public final class Properties {
             } catch (LocalException ex) {
                 throw ex;
             } catch (Exception ex) {
-                throw new InitializationException(
-                    "Could not read Windows registry key `" + file + "'", ex);
+                throw new InitializationException("Could not read Windows registry key `" + file + "'", ex);
             }
         } else {
             PushbackInputStream is = null;
@@ -527,9 +507,8 @@ public final class Properties {
                 if (f == null) {
                     throw new FileException("failed to open '" + file + "'");
                 }
-                //
+
                 // Skip UTF-8 BOM if present.
-                //
                 byte[] bom = new byte[3];
                 is = new PushbackInputStream(f, bom.length);
                 int read = is.read(bom, 0, bom.length);
@@ -783,8 +762,7 @@ public final class Properties {
         }
         value += escapedspace;
 
-        if ((state == ParseStateKey && !key.isEmpty())
-            || (state == ParseStateValue && key.isEmpty())) {
+        if ((state == ParseStateKey && !key.isEmpty()) || (state == ParseStateValue && key.isEmpty())) {
             Util.getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
             return;
         } else if (key.isEmpty()) {
@@ -846,9 +824,7 @@ public final class Properties {
                 //  - shorter than the property pattern
                 //  - the property pattern must start with the key
                 // - the pattern character after the key must be a dot
-                if (key.length() > pattern.length()
-                    && key.startsWith(pattern)
-                    && key.charAt(pattern.length()) == '.') {
+                if (key.length() > pattern.length() && key.startsWith(pattern) && key.charAt(pattern.length()) == '.') {
                     String substring = key.substring(pattern.length() + 1);
                     // Check if the suffix is a valid property. If so, return it. If it's not,
                     // continue searching the current property array.
@@ -870,8 +846,7 @@ public final class Properties {
      * @param propertyArray The property array to validate against.
      * @throws PropertyException if any unknown properties are found.
      */
-    static void validatePropertiesWithPrefix(
-            String prefix, Properties properties, PropertyArray propertyArray) {
+    static void validatePropertiesWithPrefix(String prefix, Properties properties, PropertyArray propertyArray) {
         // Do not check for unknown properties if Ice prefix, ie Ice, Glacier2, etc
         for (PropertyArray props : PropertyNames.validProps) {
             if (prefix.startsWith(props.name() + ".")) {
@@ -890,13 +865,8 @@ public final class Properties {
                 .collect(Collectors.toList());
 
         if (unknownProperties.size() > 0) {
-            throw new PropertyException(
-                "found unknown properties for "
-                    + propertyArray.name()
-                    + ": '"
-                    + prefix
-                    + "'\n    "
-                    + String.join("\n    ", unknownProperties));
+            throw new PropertyException("found unknown properties for " + propertyArray.name() + ": '" + prefix
+                + "'\n    " + String.join("\n    ", unknownProperties));
         }
     }
 
@@ -935,8 +905,7 @@ public final class Properties {
             throw new PropertyException("unknown Ice property: " + key);
         }
 
-        Property prop =
-            findProperty(key.substring(propertyArray.name().length() + 1), propertyArray);
+        Property prop = findProperty(key.substring(propertyArray.name().length() + 1), propertyArray);
         if (prop == null) {
             throw new PropertyException("unknown Ice property: " + key);
         }

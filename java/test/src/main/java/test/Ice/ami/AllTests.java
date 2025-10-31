@@ -954,7 +954,7 @@ public class AllTests {
                 while (!done && maxQueue < 50) {
                     done = true;
                     p.ice_ping();
-                    var futures = new ArrayList<CompletableFuture>();
+                    var futures = new ArrayList<CompletableFuture<Void>>();
                     for (int i = 0; i < maxQueue; i++) {
                         futures.add(Util.getInvocationFuture(p.opWithPayloadAsync(seq)));
                     }

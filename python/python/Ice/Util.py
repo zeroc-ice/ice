@@ -12,7 +12,6 @@ import IcePy
 from .asyncio.EventLoopAdapter import EventLoopAdapter as AsyncIOEventLoopAdapter
 from .Communicator import Communicator
 from .InitializationData import InitializationData
-from .LocalExceptions import InitializationException
 from .Properties import Properties
 
 if TYPE_CHECKING:
@@ -37,21 +36,16 @@ def initialize(
     initData: InitializationData | None = None,
 ) -> Communicator:
     """
-    Creates a new communicator.
+    Creates a new communicator. This function is provided for backwards compatibility. New code should call the
+    :class:`Communicator` constructor directly.
 
     Parameters
     ----------
     args : list of str, optional
-        The command-line arguments. This function parses arguments starting with ``--`` and one of the
-        reserved prefixes (Ice, IceSSL etc.) as properties for the new communicator. If there is an argument starting
-        with ``--Ice.Config``, this function loads the specified configuration file. When the same property is set in a
-        configuration file and through a command-line argument, the command-line setting takes precedence.
+        The command-line arguments.
     eventLoop : asyncio.AbstractEventLoop, optional
-        An asyncio event loop used to run coroutines and wrap futures. If provided, a new event loop adapter is created
-        and configured with the communicator. This adapter is responsible for executing coroutines returned by Ice
-        asynchronous dispatch methods and for wrapping Ice futures (from Ice Async APIs) into asyncio futures.
-        This argument and the `initData` argument are mutually exclusive. If the `initData` argument is provided, the
-        event loop adapter can be set using the :attr:`InitializationData.eventLoopAdapter` attribute.
+        An asyncio event loop used to run coroutines and wrap futures. This argument and the `initData` argument are
+        mutually exclusive.
     initData : InitializationData, optional
         Options for the new communicator. This argument and the `args` argument are mutually exclusive.
 
@@ -59,31 +53,8 @@ def initialize(
     -------
     Communicator
         The new communicator.
-
-    Examples
-    --------
-
-    .. code-block:: python
-
-        with Ice.initialize(sys.argv, eventLoop=asyncio.get_running_loop()) as communicator:
-            greeter = VisitorCenter.GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061")
-            await greeter.greetAsync()
     """
-
-    eventLoopAdapter = initData.eventLoopAdapter if initData else None
-
-    eventLoopAdapter = None
-    if initData:
-        eventLoopAdapter = initData.eventLoopAdapter
-    elif eventLoop:
-        eventLoopAdapter = AsyncIOEventLoopAdapter(eventLoop)
-
-    if args:
-        initData = InitializationData(properties=createProperties(args))
-
-    # initData can be None here, which is acceptable.
-    communicator = IcePy.Communicator(initData)
-    return Communicator(communicator, eventLoopAdapter)
+    return Communicator(initData=initData) if initData is not None else Communicator(args, eventLoop)
 
 
 def identityToString(identity: Identity, toStringMode: ToStringMode | None = None) -> str:
@@ -129,47 +100,24 @@ def stringToIdentity(str: str) -> Identity:
 
 def createProperties(args: list[str] | None = None, defaults: Properties | None = None) -> Properties:
     """
-    Creates a new property set.
+    Creates a property set initialized from command-line arguments and a default property set.
 
-    This function creates a new Ice property set. You can optionally provide a command-line argument list (such as
-    ``sys.argv``) and/or a dictionary of default property values.
-
-    If an argument list is supplied, this function parses arguments starting with ``--`` and a known Ice prefix
-    (e.g., ``Ice``, ``IceSSL``), and removes recognized arguments from the list.
+    This function is provided for backwards compatibility. New code should call the :class:`Properties` constructor
+    directly.
 
     Parameters
     ----------
     args : list[str], optional
-        A list of command-line arguments, such as ``sys.argv``. Arguments that match Ice runtime options are parsed
-        into properties and removed from the list.
-    defaults : dict[str, str], optional
-        A dictionary representing default property values.
+        The command-line arguments.
+    defaults : Properties, optional
+        Default values for the new property set.
 
     Returns
     -------
     Properties
-        A new Ice property set instance.
-
-    Examples
-    --------
-    .. code-block:: python
-
-        # Create a new empty property set.
-        properties = Ice.createProperties()
-
-        # Create a property set from command-line arguments.
-        properties = Ice.createProperties(sys.argv)
-
-        # Create a property set using default values.
-        defaults = {"Ice.Trace.Protocol": "1"}
-        properties = Ice.createProperties(defaults)
-
-        # Combine command-line parsing with default values.
-        defaults = {"Ice.Trace.Protocol": "1"}
-        properties = Ice.createProperties(sys.argv, defaults)
+        A new property set.
     """
-    properties = IcePy.createProperties(args, defaults)
-    return Properties(properties)
+    return Properties(args, defaults)
 
 
 def getSliceDir() -> str | None:

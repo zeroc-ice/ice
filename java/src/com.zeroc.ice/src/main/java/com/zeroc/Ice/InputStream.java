@@ -17,7 +17,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -29,8 +28,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Interface to read sequence of bytes encoded using the Slice encoding and recreate the corresponding
- * Slice types.
+ * Interface to read sequence of bytes encoded using the Slice encoding and recreate the corresponding Slice types.
  *
  * @see OutputStream
  */
@@ -79,8 +77,7 @@ public final class InputStream {
      * @param encoding The desired encoding version.
      * @param buf The byte buffer containing encoded Slice types.
      */
-    public InputStream(
-            Communicator communicator, EncodingVersion encoding, ByteBuffer buf) {
+    public InputStream(Communicator communicator, EncodingVersion encoding, ByteBuffer buf) {
         this(communicator.getInstance(), encoding, new Buffer(buf));
     }
 
@@ -231,11 +228,9 @@ public final class InputStream {
 
         _encapsStack.start = _buf.b.position();
 
-        //
         // I don't use readSize() for encapsulations, because when creating an encapsulation,
-        // I must know in advance how many bytes the size information will require in the data
-        // stream. If I use an Int, it is always 4 bytes. For readSize(), it could be 1 or 5 bytes.
-        //
+        // I must know in advance how many bytes the size information will require in the data stream.
+        // If I use an Int, it is always 4 bytes. For readSize(), it could be 1 or 5 bytes.
         int sz = readInt();
         if (sz < 6) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE);
@@ -266,12 +261,8 @@ public final class InputStream {
                 throw new MarshalException("Failed to unmarshal encapsulation.");
             }
 
-            //
-            // Ice version < 3.3 had a bug where user exceptions with
-            // class members could be encoded with a trailing byte
-            // when dispatched with AMD. So we tolerate an extra byte
-            // in the encapsulation.
-            //
+            // Ice version < 3.3 had a bug where user exceptions with class members could be encoded with a
+            // trailing byte when dispatched with AMD. So we tolerate an extra byte in the encapsulation.
             try {
                 _buf.b.get();
             } catch (BufferUnderflowException ex) {
@@ -305,14 +296,10 @@ public final class InputStream {
 
         if (encoding.equals(Util.Encoding_1_0)) {
             if (sz != 6) {
-                throw new MarshalException(
-                    sz + "is not a valid encapsulation size for a 1.0 empty encapsulation.");
+                throw new MarshalException(sz + "is not a valid encapsulation size for a 1.0 empty encapsulation.");
             }
         } else {
-            //
-            // Skip the optional content of the encapsulation if we are expecting an empty
-            // encapsulation.
-            //
+            // Skip the optional content of the encapsulation if we are expecting an empty encapsulation.
             _buf.position(_buf.b.position() + sz - 6);
         }
         return encoding;
@@ -418,16 +405,12 @@ public final class InputStream {
     public void readPendingValues() {
         if (_encapsStack != null && _encapsStack.decoder != null) {
             _encapsStack.decoder.readPendingValues();
-        } else if (_encapsStack != null
-            ? _encapsStack.encoding_1_0
-            : _encoding.equals(Util.Encoding_1_0)) {
-            //
+        } else if (_encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.equals(Util.Encoding_1_0)) {
             // If using the 1.0 encoding and no instances were read, we still read an empty sequence
             // of pending instances if requested (i.e.: if this is called).
             //
             // This is required by the 1.0 encoding, even if no instances are written we do marshal
             // an empty sequence if marshaled data types use classes.
-            //
             skipSize();
         }
     }
@@ -467,22 +450,18 @@ public final class InputStream {
             return sz;
         }
 
-        //
         // The _startSeq variable points to the start of the sequence for which
         // we expect to read at least _minSeqSize bytes from the stream.
         //
-        // If not initialized or if we already read more data than _minSeqSize, we reset _startSeq
-        // and _minSeqSize for this sequence (possibly a top-level sequence or enclosed sequence it
-        // doesn't really matter).
+        // If not initialized or if we already read more data than _minSeqSize, we reset _startSeq and _minSeqSize
+        // for this sequence (possibly a top-level sequence or enclosed sequence it doesn't really matter).
         //
         // Otherwise, we are reading an enclosed sequence and we have to bump _minSeqSize by the
         // minimum size that this sequence will require on the stream.
         //
         // The goal of this check is to ensure that when we start un-marshaling a new sequence, we
         // check the minimal size of this new sequence against the estimated remaining buffer size.
-        // This estimation is based on the minimum size of the enclosing sequences, it's
-        // _minSeqSize.
-        //
+        // This estimation is based on the minimum size of the enclosing sequences, it's _minSeqSize.
         if (_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize)) {
             _startSeq = _buf.b.position();
             _minSeqSize = sz * minSize;
@@ -490,11 +469,8 @@ public final class InputStream {
             _minSeqSize += sz * minSize;
         }
 
-        //
-        // If there isn't enough data to read on the stream for the sequence (and possibly enclosed
-        // sequences), something is wrong with the marshaled data: it's claiming having more data
-        // that what is possible to read.
-        //
+        // If there isn't enough data to read on the stream for the sequence (and possibly enclosed sequences),
+        // something is wrong with the marshaled data: it's claiming having more data that what is possible to read.
         if (_startSeq + _minSeqSize > _buf.size()) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE);
         }
@@ -603,8 +579,7 @@ public final class InputStream {
         try {
             final int sz = readAndCheckSeqSize(1);
             ByteBuffer v = _buf.b.slice();
-            // Cast to java.nio.Buffer to avoid incompatible covariant
-            // return type used in Java 9 java.nio.ByteBuffer
+            // Cast to java.nio.Buffer to avoid incompatible covariant return type used in Java 9 java.nio.ByteBuffer
             ((java.nio.Buffer) v).limit(sz);
             _buf.position(_buf.b.position() + sz);
             return v.asReadOnlyBuffer();
@@ -653,8 +628,7 @@ public final class InputStream {
      * @param cl The class for the serializable type.
      * @return The optional value (if any).
      */
-    public <T extends Serializable> Optional<T> readSerializable(
-            int tag, Class<T> cl) {
+    public <T extends Serializable> Optional<T> readSerializable(int tag, Class<T> cl) {
         if (readOptional(tag, OptionalFormat.VSize)) {
             return Optional.of(readSerializable(cl));
         } else {
@@ -791,8 +765,7 @@ public final class InputStream {
             final int sz = readAndCheckSeqSize(2);
             ShortBuffer shortBuf = _buf.b.asShortBuffer();
             ShortBuffer v = shortBuf.slice();
-            // Cast to java.nio.Buffer to avoid incompatible covariant
-            // return type used in Java 9 java.nio.ShortBuffer
+            // Cast to java.nio.Buffer to avoid incompatible covariant return type used in Java 9 java.nio.ShortBuffer
             ((java.nio.Buffer) v).limit(sz);
             _buf.position(_buf.b.position() + sz * 2);
             return v.asReadOnlyBuffer();
@@ -871,8 +844,7 @@ public final class InputStream {
             final int sz = readAndCheckSeqSize(4);
             IntBuffer intBuf = _buf.b.asIntBuffer();
             IntBuffer v = intBuf.slice();
-            // Cast to java.nio.Buffer to avoid incompatible covariant
-            // return type used in Java 9 java.nio.IntBuffer
+            // Cast to java.nio.Buffer to avoid incompatible covariant return type used in Java 9 java.nio.IntBuffer
             ((java.nio.Buffer) v).limit(sz);
             _buf.position(_buf.b.position() + sz * 4);
             return v.asReadOnlyBuffer();
@@ -951,8 +923,7 @@ public final class InputStream {
             final int sz = readAndCheckSeqSize(8);
             LongBuffer longBuf = _buf.b.asLongBuffer();
             LongBuffer v = longBuf.slice();
-            // Cast to java.nio.Buffer to avoid incompatible covariant
-            // return type used in Java 9 java.nio.LongBuffer
+            // Cast to java.nio.Buffer to avoid incompatible covariant return type used in Java 9 java.nio.LongBuffer
             ((java.nio.Buffer) v).limit(sz);
             _buf.position(_buf.b.position() + sz * 8);
             return v.asReadOnlyBuffer();
@@ -1031,8 +1002,7 @@ public final class InputStream {
             final int sz = readAndCheckSeqSize(4);
             FloatBuffer floatBuf = _buf.b.asFloatBuffer();
             FloatBuffer v = floatBuf.slice();
-            // Cast to java.nio.Buffer to avoid incompatible covariant
-            // return type used in Java 9 java.nio.FloatBuffer
+            // Cast to java.nio.Buffer to avoid incompatible covariant return type used in Java 9 java.nio.FloatBuffer
             ((java.nio.Buffer) v).limit(sz);
             _buf.position(_buf.b.position() + sz * 4);
             return v.asReadOnlyBuffer();
@@ -1112,8 +1082,7 @@ public final class InputStream {
             final int sz = readAndCheckSeqSize(8);
             DoubleBuffer doubleBuf = _buf.b.asDoubleBuffer();
             DoubleBuffer v = doubleBuf.slice();
-            // Cast to java.nio.Buffer to avoid incompatible covariant
-            // return type used in Java 9 java.nio.DoubleBuffer
+            // Cast to java.nio.Buffer to avoid incompatible covariant return type used in Java 9 java.nio.DoubleBuffer
             ((java.nio.Buffer) v).limit(sz);
             _buf.position(_buf.b.position() + sz * 8);
             return v.asReadOnlyBuffer();
@@ -1135,17 +1104,13 @@ public final class InputStream {
         if (len == 0) {
             return "";
         } else {
-            //
             // Check the buffer has enough bytes to read.
-            //
             if (_buf.b.remaining() < len) {
                 throw new MarshalException(END_OF_BUFFER_MESSAGE);
             }
 
             try {
-                //
                 // We reuse the _stringBytes array to avoid creating excessive garbage.
-                //
                 if (_stringBytes == null || len > _stringBytes.length) {
                     _stringBytes = new byte[len];
                 }
@@ -1154,24 +1119,16 @@ public final class InputStream {
                 }
                 _buf.b.get(_stringBytes, 0, len);
 
-                //
-                // It's more efficient to construct a string using a
-                // character array instead of a byte array, because
-                // byte arrays require conversion.
-                //
+                // It's more efficient to construct a string using a character array instead of a byte array,
+                // because byte arrays require conversion.
                 for (int i = 0; i < len; i++) {
                     if (_stringBytes[i] < 0) {
-                        //
-                        // Multi-byte character found - we must use
-                        // conversion.
+                        // Multi-byte character found - we must use conversion.
                         //
                         // TODO: If the string contains garbage bytes
-                        // that won't correctly decode as UTF, the behavior of this constructor is
-                        // undefined. It would be better to explicitly decode using
-                        // java.nio.charset.CharsetDecoder and to
-                        // throw MarshalException if the string won't
-                        // decode.
-                        //
+                        // that won't correctly decode as UTF, the behavior of this constructor is undefined.
+                        // It would be better to explicitly decode using java.nio.charset.CharsetDecoder and to
+                        // throw MarshalException if the string won't decode.
                         return new String(_stringBytes, 0, len, "UTF8");
                     } else {
                         _stringChars[i] = (char) _stringBytes[i];
@@ -1249,8 +1206,7 @@ public final class InputStream {
      * Extracts a proxy from the stream. The stream must have been initialized with a communicator.
      *
      * @param <T> the proxy type
-     * @param cast the uncheckedCast function to call on the unmarshaled proxy to obtain the correct
-     *     proxy type
+     * @param cast the uncheckedCast function to call on the unmarshaled proxy to obtain the correct proxy type
      * @return The extracted proxy.
      */
     public <T extends ObjectPrx> T readProxy(Function<ObjectPrx, T> cast) {
@@ -1258,8 +1214,7 @@ public final class InputStream {
     }
 
     /**
-     * Extracts an optional proxy from the stream. The stream must have been initialized with a
-     * communicator.
+     * Extracts an optional proxy from the stream. The stream must have been initialized with a communicator.
      *
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
@@ -1274,13 +1229,11 @@ public final class InputStream {
     }
 
     /**
-     * Extracts an optional proxy from the stream. The stream must have been initialized with a
-     * communicator.
+     * Extracts an optional proxy from the stream. The stream must have been initialized with a communicator.
      *
      * @param <T> The proxy type.
      * @param tag The numeric tag associated with the value.
-     * @param cast The uncheckedCast function to call on the unmarshaled proxy to obtain the correct
-     *     proxy type.
+     * @param cast The uncheckedCast function to call on the unmarshaled proxy to obtain the correct proxy type.
      * @return The optional value (if any).
      */
     public <T extends ObjectPrx> Optional<T> readProxy(
@@ -1386,8 +1339,7 @@ public final class InputStream {
                 skipOptional(format); // Skip optional data members
             } else {
                 if (format != expectedFormat) {
-                    throw new MarshalException(
-                        "invalid optional data member `" + tag + "': unexpected format");
+                    throw new MarshalException("invalid optional data member `" + tag + "': unexpected format");
                 }
                 return true;
             }
@@ -1408,9 +1360,7 @@ public final class InputStream {
     }
 
     private void skipOptionals() {
-        //
         // Skip remaining un-read optional members.
-        //
         while (true) {
             if (_buf.b.position() >= _encapsStack.start + _encapsStack.sz) {
                 return; // End of encapsulation also indicates end of optionals.
@@ -1569,10 +1519,8 @@ public final class InputStream {
         protected void addPatchEntry(int index, Consumer<Value> cb) {
             assert (index > 0);
 
-            //
-            // Check if we have already unmarshaled the instance. If that's the case, just invoke
-            // the callback and we're done.
-            //
+            // Check if we have already unmarshaled the instance.
+            // If that's the case, just invoke the callback and we're done.
             Value obj = _unmarshaledMap.get(index);
             if (obj != null) {
                 cb.accept(obj);
@@ -1583,57 +1531,41 @@ public final class InputStream {
                 _patchMap = new TreeMap<>();
             }
 
-            //
-            // Add patch entry if the instance isn't unmarshaled yet, the callback will be called
-            // when the instance is unmarshaled.
-            //
+            // Add patch entry if the instance isn't unmarshaled yet,
+            // the callback will be called when the instance is unmarshaled.
             LinkedList<PatchEntry> l = _patchMap.get(index);
             if (l == null) {
-                //
-                // We have no outstanding instances to be patched for this index, so make a new
-                // entry in the patch map.
-                //
+                // We have no outstanding instances to be patched for this index,
+                // so make a new entry in the patch map.
                 l = new LinkedList<>();
                 _patchMap.put(index, l);
             }
 
-            //
             // Append a patch entry for this instance.
-            //
             l.add(new PatchEntry(cb, _classGraphDepth));
         }
 
         protected void unmarshal(int index, Value v) {
-            //
-            // Add the instance to the map of unmarshaled instances, this must be done before
-            // reading the instances (for circular references).
-            //
+            // Add the instance to the map of unmarshaled instances,
+            // this must be done before reading the instances (for circular references).
             _unmarshaledMap.put(index, v);
 
-            //
             // Read the instance.
-            //
             v._iceRead(_stream);
 
             if (_patchMap != null) {
-                //
                 // Patch all instances now that the instance is unmarshaled.
-                //
                 LinkedList<PatchEntry> l = _patchMap.get(index);
                 if (l != null) {
                     assert (!l.isEmpty());
 
-                    //
                     // Patch all pointers that refer to the instance.
-                    //
                     for (PatchEntry entry : l) {
                         entry.cb.accept(v);
                     }
 
-                    //
                     // Clear out the patch map for that index -- there is nothing left to patch for
                     // that index for the time being.
-                    //
                     _patchMap.remove(index);
                 }
             }
@@ -1675,19 +1607,14 @@ public final class InputStream {
     }
 
     private static final class EncapsDecoder10 extends EncapsDecoder {
-        EncapsDecoder10(
-                InputStream stream,
-                int classGraphDepthMax,
-                SliceLoader sliceLoader) {
+        EncapsDecoder10(InputStream stream, int classGraphDepthMax, SliceLoader sliceLoader) {
             super(stream, classGraphDepthMax, sliceLoader);
             _sliceType = SliceType.NoSlice;
         }
 
         @Override
         void readValue(Consumer<Value> cb) {
-            //
             // Object references are encoded as a negative integer in 1.0.
-            //
             int index = _stream.readInt();
             if (index > 0) {
                 throw new MarshalException("invalid object id");
@@ -1705,29 +1632,22 @@ public final class InputStream {
         void throwException() throws UserException {
             assert (_sliceType == SliceType.NoSlice);
 
-            //
             // User exception with the 1.0 encoding start with a boolean flag
             // that indicates whether or not the exception has classes.
             //
-            // This allows reading the pending instances even if some part of the exception was
-            // sliced.
-            //
+            // This allows reading the pending instances even if some part of the exception was sliced.
             boolean usesClasses = _stream.readBool();
 
             _sliceType = SliceType.ExceptionSlice;
             _skipFirstSlice = false;
 
-            //
             // Read the first slice header.
-            //
             startSlice();
             final String mostDerivedId = _typeId;
             while (true) {
                 UserException userEx = _stream.createUserException(_typeId);
 
-                //
                 // We found the exception.
-                //
                 if (userEx != null) {
                     userEx._read(_stream);
                     if (usesClasses) {
@@ -1738,14 +1658,11 @@ public final class InputStream {
                     // Never reached.
                 }
 
-                //
                 // Slice off what we don't understand.
-                //
                 skipSlice();
                 try {
                     startSlice();
                 } catch (MarshalException ex) {
-                    //
                     // An oversight in the 1.0 encoding means there is no marker to indicate the
                     // last slice of an exception. As a result, we just try to read the
                     // next type ID, which raises MarshalException when the input buffer underflows.
@@ -1762,9 +1679,7 @@ public final class InputStream {
 
         @Override
         SlicedData endInstance() {
-            //
             // Read the Ice::Object slice.
-            //
             if (_sliceType == SliceType.ValueSlice) {
                 startSlice();
                 int sz = _stream.readSize(); // For compatibility with the old AFM.
@@ -1780,10 +1695,8 @@ public final class InputStream {
 
         @Override
         void startSlice() {
-            //
             // If first slice, don't read the header, it was already read in
             // readInstance or throwException to find the factory.
-            //
             if (_skipFirstSlice) {
                 _skipFirstSlice = false;
                 return;
@@ -1827,10 +1740,8 @@ public final class InputStream {
             } while (num > 0);
 
             if (_patchMap != null && !_patchMap.isEmpty()) {
-                //
-                // If any entries remain in the patch map, the sender has sent an index for an
-                // object, but failed to supply the object.
-                //
+                // If any entries remain in the patch map, the sender has sent an index for an object,
+                // but failed to supply the object.
                 throw new MarshalException("index for class received, but no instance");
             }
         }
@@ -1845,9 +1756,7 @@ public final class InputStream {
             _sliceType = SliceType.ValueSlice;
             _skipFirstSlice = false;
 
-            //
             // Read the first slice header.
-            //
             startSlice();
             final String mostDerivedId = _typeId;
             Value v = null;
@@ -1860,24 +1769,18 @@ public final class InputStream {
 
                 v = newInstance(_typeId);
 
-                //
                 // We found a factory, we get out of this loop.
-                //
                 if (v != null) {
                     break;
                 }
 
-                //
                 // Slice off what we don't understand.
-                //
                 skipSlice();
                 startSlice(); // Read next Slice header for next iteration.
             }
 
-            //
             // Compute the biggest class graph depth of this object. To compute this, we get the
             // class graph depth of each ancestor from the patch map and keep the biggest one.
-            //
             _classGraphDepth = 0;
             var l = _patchMap != null ? _patchMap.get(index) : null;
             if (l != null) {
@@ -1893,9 +1796,7 @@ public final class InputStream {
                 throw new MarshalException("maximum class graph depth reached");
             }
 
-            //
             // Unmarshal the instance and add it to the map of unmarshaled instances.
-            //
             unmarshal(index, v);
         }
 
@@ -1909,10 +1810,7 @@ public final class InputStream {
     }
 
     private static class EncapsDecoder11 extends EncapsDecoder {
-        EncapsDecoder11(
-                InputStream stream,
-                int classGraphDepthMax,
-                SliceLoader sliceLoader) {
+        EncapsDecoder11(InputStream stream, int classGraphDepthMax, SliceLoader sliceLoader) {
             super(stream, classGraphDepthMax, sliceLoader);
             _current = null;
             _valueIdIndex = 1;
@@ -1926,17 +1824,13 @@ public final class InputStream {
             } else if (index == 0) {
                 cb.accept(null);
             } else if (_current != null && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0) {
-                //
                 // When reading a class instance within a slice and there's an indirect instance
-                // table, always read an indirect reference
-                // that points to an instance from the indirect instance table
-                // marshaled at the end of the Slice.
+                // table, always read an indirect reference that points to an instance from the indirect
+                // instance table marshaled at the end of the Slice.
                 //
-                // Maintain a list of indirect references. Note that the
-                // indirect index starts at 1, so we decrement it by one to
-                // derive an index into the indirection table that we'll read
+                // Maintain a list of indirect references. Note that the indirect index starts at 1,
+                // so we decrement it by one to derive an index into the indirection table that we'll read
                 // at the end of the slice.
-                //
 
                 // Lazy initialization
                 if (_current.indirectPatchList == null) {
@@ -1957,17 +1851,13 @@ public final class InputStream {
 
             push(SliceType.ExceptionSlice);
 
-            //
             // Read the first slice header.
-            //
             startSlice();
             final String mostDerivedId = _current.typeId;
             while (true) {
                 UserException userEx = _stream.createUserException(_current.typeId);
 
-                //
                 // We found the exception.
-                //
                 if (userEx != null) {
                     userEx._read(_stream);
                     throw userEx;
@@ -1975,14 +1865,11 @@ public final class InputStream {
                     // Never reached.
                 }
 
-                //
                 // Slice off what we don't understand.
-                //
                 skipSlice();
 
                 if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0) {
-                    throw new MarshalException(
-                        "cannot unmarshal user exception with type ID '" + mostDerivedId + "'");
+                    throw new MarshalException("cannot unmarshal user exception with type ID '" + mostDerivedId + "'");
                 }
 
                 startSlice();
@@ -2028,9 +1915,7 @@ public final class InputStream {
                     _current.typeId = String.valueOf(_current.compactId);
                 } else if (
                     (_current.sliceFlags & (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0) {
-                    _current.typeId =
-                        readTypeId(
-                            (_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
+                    _current.typeId = readTypeId((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
                     _current.compactId = -1;
                 } else {
                     // Only the most derived slice encodes the type ID for the compact format.
@@ -2059,23 +1944,17 @@ public final class InputStream {
                 _stream.skipOptionals();
             }
 
-            //
             // Read the indirection table if one is present and transform the
             // indirect patch list into patch entries with direct references.
-            //
             if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0) {
-                //
                 // The table is written as a sequence<size> to conserve space.
-                //
                 int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
                 for (int i = 0; i < indirectionTable.length; i++) {
                     indirectionTable[i] = readInstance(_stream.readSize(), null);
                 }
 
-                //
                 // Sanity checks. If there are optional members, it's possible that not all instance
                 // references were read if they are from unknown optional data members.
-                //
                 if (indirectionTable.length == 0) {
                     throw new MarshalException("empty indirection table");
                 }
@@ -2084,9 +1963,7 @@ public final class InputStream {
                     throw new MarshalException("no references to indirection table");
                 }
 
-                //
                 // Convert indirect references into direct references.
-                //
                 if (_current.indirectPatchList != null) {
                     for (IndirectPatchEntry e : _current.indirectPatchList) {
                         assert (e.index >= 0);
@@ -2123,10 +2000,7 @@ public final class InputStream {
                 }
             }
 
-            //
-            // Preserve this slice if unmarshaling a value in Slice format. Exception slices are not
-            // preserved.
-            //
+            // Preserve this slice if unmarshaling a value in Slice format. Exception slices are not preserved.
             if (_current.sliceType == SliceType.ValueSlice) {
                 boolean hasOptionalMembers =
                     (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
@@ -2135,10 +2009,8 @@ public final class InputStream {
                 final int end = buffer.b.position();
                 int dataEnd = end;
                 if (hasOptionalMembers) {
-                    //
-                    // Don't include the optional member end marker. It will be re-written by
-                    // endSlice when the sliced data is re-written.
-                    //
+                    // Don't include the optional member end marker.
+                    // It will be re-written by endSlice when the sliced data is re-written.
                     --dataEnd;
                 }
                 var bytes = new byte[dataEnd - start];
@@ -2166,10 +2038,8 @@ public final class InputStream {
                 _current.indirectionTables = new ArrayList<>();
             }
 
-            //
             // Read the indirect instance table. We read the instances or their IDs if the instance
             // is a reference to an already unmarshaled instance.
-            //
             if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0) {
                 int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
                 for (int i = 0; i < indirectionTable.length; i++) {
@@ -2203,20 +2073,17 @@ public final class InputStream {
 
             push(SliceType.ValueSlice);
 
-            //
             // Get the instance ID before we start reading slices. If some slices are skipped, the
             // indirect instance table is still read and might read other instances.
-            //
             index = ++_valueIdIndex;
 
-            //
             // Read the first slice header.
-            //
             startSlice();
             final String mostDerivedId = _current.typeId;
             Value v = null;
             while (true) {
-                if (!_current.typeId.isEmpty()) { // we can read an empty typeId with the compact format
+                // we can read an empty typeId with the compact format
+                if (!_current.typeId.isEmpty()) {
                     v = newInstance(_current.typeId);
                     if (v != null) {
                         break;
@@ -2226,16 +2093,10 @@ public final class InputStream {
                 // Slice off what we don't understand.
                 skipSlice();
 
-                //
-                // If this is the last slice, keep the instance as an opaque
-                // UnknownSlicedValue object.
-                //
+                // If this is the last slice, keep the instance as an opaque UnknownSlicedValue object.
                 if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0) {
-                    //
                     // Provide a factory with an opportunity to supply the instance. We pass the
-                    // "::Ice::Object" ID to indicate that this is the last chance to preserve the
-                    // instance.
-                    //
+                    // "::Ice::Object" ID to indicate that this is the last chance to preserve the instance.
                     v = newInstance(Value.ice_staticId());
                     if (v == null) {
                         v = new UnknownSlicedValue(mostDerivedId);
@@ -2251,18 +2112,14 @@ public final class InputStream {
                 throw new MarshalException("maximum class graph depth reached");
             }
 
-            //
             // Unmarshal the instance.
-            //
             unmarshal(index, v);
 
             --_classGraphDepth;
 
             if (_current == null && _patchMap != null && !_patchMap.isEmpty()) {
-                //
-                // If any entries remain in the patch map, the sender has sent an index for an
-                // instance, but failed to supply the instance.
-                //
+                // If any entries remain in the patch map, the sender has sent an index for an instance,
+                // but failed to supply the instance.
                 throw new MarshalException("index for class received, but no instance");
             }
 
@@ -2364,10 +2221,8 @@ public final class InputStream {
         Encaps next;
     }
 
-    //
-    // The encoding version to use when there's no encapsulation to read from. This is for example
-    // used to read message headers.
-    //
+    // The encoding version to use when there's no encapsulation to read from.
+    // This is for example used to read message headers.
     private EncodingVersion _encoding;
 
     private boolean isEncoding_1_0() {
@@ -2395,13 +2250,9 @@ public final class InputStream {
         // Lazy initialization.
         if (_encapsStack.decoder == null) {
             if (_encapsStack.encoding_1_0) {
-                _encapsStack.decoder =
-                    new EncapsDecoder10(
-                        this, _classGraphDepthMax, _instance.sliceLoader());
+                _encapsStack.decoder = new EncapsDecoder10(this, _classGraphDepthMax, _instance.sliceLoader());
             } else {
-                _encapsStack.decoder =
-                    new EncapsDecoder11(
-                        this, _classGraphDepthMax, _instance.sliceLoader());
+                _encapsStack.decoder = new EncapsDecoder11(this, _classGraphDepthMax, _instance.sliceLoader());
             }
         }
     }
@@ -2450,6 +2301,5 @@ public final class InputStream {
     private int _startSeq = -1;
     private int _minSeqSize;
 
-    private static final String END_OF_BUFFER_MESSAGE =
-        "Attempting to unmarshal past the end of the buffer.";
+    private static final String END_OF_BUFFER_MESSAGE = "Attempting to unmarshal past the end of the buffer.";
 }

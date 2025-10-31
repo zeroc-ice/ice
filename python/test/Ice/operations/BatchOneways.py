@@ -104,7 +104,7 @@ def batchOneways(p: Test.MyClassPrx) -> None:
         interceptor = BatchRequestInterceptor()
         initData.batchRequestInterceptor = interceptor.enqueue
 
-        ic = Ice.initialize(initData=initData)
+        ic = Ice.Communicator(initData=initData)
 
         batch = Test.MyClassPrx(ic, p.ice_toString()).ice_batchOneway()
 

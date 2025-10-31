@@ -1,6 +1,9 @@
 global_level = 110
 is_global = true
 
+# CA1515: Because an application's API isn't typically referenced from outside the assembly, types can be made internal
+dotnet_diagnostic.CA1515.severity = none
+
 # CA1849: Call async methods when in an async method
 dotnet_diagnostic.CA1849.severity = none
 

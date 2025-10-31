@@ -25,7 +25,9 @@ namespace DataStormI
             std::lock_guard<std::mutex> lock(_mutex);
             const Ice::Identity id{.name = std::to_string(_nextId++), .category = _category};
             _forwarders.emplace(id.name, std::move(forwarder));
-            return _adapter->createProxy<Prx>(std::move(id));
+            Prx prx{_adapter->createProxy<Prx>(std::move(id))};
+            // disable invocation timeout for collocated forwarders
+            return prx->ice_invocationTimeout(std::chrono::milliseconds::zero());
         }
 
         template<typename Prx, std::enable_if_t<std::is_base_of_v<Ice::ObjectPrx, Prx>, bool> = true>

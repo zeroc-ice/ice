@@ -3,6 +3,7 @@
 using System.Diagnostics;
 
 namespace Ice.exceptions;
+
 public class AllTests : global::Test.AllTests
 {
     private class Callback
@@ -11,11 +12,11 @@ public class AllTests : global::Test.AllTests
 
         public virtual void check()
         {
-            lock (this)
+            lock (_mutex)
             {
                 while (!_called)
                 {
-                    Monitor.Wait(this);
+                    Monitor.Wait(_mutex);
                 }
 
                 _called = false;
@@ -24,21 +25,22 @@ public class AllTests : global::Test.AllTests
 
         public virtual void called()
         {
-            lock (this)
+            lock (_mutex)
             {
                 Debug.Assert(!_called);
                 _called = true;
-                Monitor.Pulse(this);
+                Monitor.Pulse(_mutex);
             }
         }
 
         private bool _called;
+        private readonly object _mutex = new();
     }
 
     public static async Task<Test.ThrowerPrx> allTests(global::Test.TestHelper helper)
     {
         Communicator communicator = helper.communicator();
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         {
             output.Write("testing object adapter registration exceptions... ");
             ObjectAdapter first;
@@ -156,7 +158,7 @@ public class AllTests : global::Test.AllTests
 
         output.Write("testing checked cast... ");
         output.Flush();
-        var thrower = Test.ThrowerPrxHelper.checkedCast(@base);
+        Test.ThrowerPrx thrower = Test.ThrowerPrxHelper.checkedCast(@base);
 
         test(thrower != null);
         test(thrower.Equals(@base));
@@ -385,7 +387,7 @@ public class AllTests : global::Test.AllTests
             }
             catch (MarshalException ex)
             {
-                test(ex.Message.Contains("exceeds the maximum allowed"));
+                test(ex.Message.Contains("exceeds the maximum allowed", StringComparison.Ordinal));
             }
             catch (Exception)
             {
@@ -411,7 +413,7 @@ public class AllTests : global::Test.AllTests
 
             try
             {
-                var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(
+                Test.ThrowerPrx thrower2 = Test.ThrowerPrxHelper.uncheckedCast(
                     communicator.stringToProxy("thrower:" + helper.getTestEndpoint(1)));
                 try
                 {
@@ -419,10 +421,10 @@ public class AllTests : global::Test.AllTests
                 }
                 catch (MarshalException ex)
                 {
-                    test(ex.Message.Contains("exceeds the maximum allowed"));
+                    test(ex.Message.Contains("exceeds the maximum allowed", StringComparison.Ordinal));
                 }
 
-                var thrower3 = Test.ThrowerPrxHelper.uncheckedCast(
+                Test.ThrowerPrx thrower3 = Test.ThrowerPrxHelper.uncheckedCast(
                     communicator.stringToProxy("thrower:" + helper.getTestEndpoint(2)));
                 try
                 {
@@ -447,7 +449,7 @@ public class AllTests : global::Test.AllTests
         Identity id = Util.stringToIdentity("does not exist");
         try
         {
-            var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
+            Test.ThrowerPrx thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
             thrower2.ice_ping();
             test(false);
         }
@@ -463,7 +465,7 @@ public class AllTests : global::Test.AllTests
 
         try
         {
-            var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
+            Test.ThrowerPrx thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
             try
             {
                 thrower2.ice_ping();
@@ -486,7 +488,7 @@ public class AllTests : global::Test.AllTests
 
         try
         {
-            var thrower2 = Test.WrongOperationPrxHelper.uncheckedCast(thrower);
+            Test.WrongOperationPrx thrower2 = Test.WrongOperationPrxHelper.uncheckedCast(thrower);
             thrower2.noSuchOperation();
             test(false);
         }
@@ -746,7 +748,7 @@ public class AllTests : global::Test.AllTests
         id = Util.stringToIdentity("does not exist");
         try
         {
-            var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
+            Test.ThrowerPrx thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
             await thrower2.throwAasAAsync(1);
             test(false);
         }
@@ -761,7 +763,7 @@ public class AllTests : global::Test.AllTests
 
         try
         {
-            var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
+            Test.ThrowerPrx thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
             await thrower2.throwAasAAsync(1);
             test(false);
         }
@@ -777,7 +779,7 @@ public class AllTests : global::Test.AllTests
 
         try
         {
-            var thrower4 = Test.WrongOperationPrxHelper.uncheckedCast(thrower);
+            Test.WrongOperationPrx thrower4 = Test.WrongOperationPrxHelper.uncheckedCast(thrower);
             await thrower4.noSuchOperationAsync();
             test(false);
         }
@@ -872,7 +874,7 @@ public class AllTests : global::Test.AllTests
         try
         {
             id = Util.stringToIdentity("does not exist");
-            var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
+            Test.ThrowerPrx thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
             await thrower2.throwAasAAsync(1);
         }
         catch (ObjectNotExistException ex)
@@ -887,7 +889,7 @@ public class AllTests : global::Test.AllTests
 
         try
         {
-            var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
+            Test.ThrowerPrx thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
             await thrower2.throwAasAAsync(1);
             test(false);
         }
@@ -903,7 +905,7 @@ public class AllTests : global::Test.AllTests
 
         try
         {
-            var thrower4 = Test.WrongOperationPrxHelper.uncheckedCast(thrower);
+            Test.WrongOperationPrx thrower4 = Test.WrongOperationPrxHelper.uncheckedCast(thrower);
             await thrower4.noSuchOperationAsync();
             test(false);
         }

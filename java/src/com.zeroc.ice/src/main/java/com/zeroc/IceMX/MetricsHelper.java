@@ -107,10 +107,7 @@ public class MetricsHelper<T> {
          * @param method the method to invoke first
          * @param field the field to access on the method result
          */
-        public void add(
-                final String name,
-                final java.lang.reflect.Method method,
-                final java.lang.reflect.Field field) {
+        public void add(final String name, final java.lang.reflect.Method method, final java.lang.reflect.Field field) {
             _attributes.put(
                 name,
                 new Resolver() {

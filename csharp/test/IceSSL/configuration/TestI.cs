@@ -3,6 +3,8 @@
 using System.Collections;
 using Test;
 
+namespace Ice.SSL.configuration;
+
 internal sealed class ServerI : ServerDisp_
 {
     internal ServerI(Ice.Communicator communicator) => _communicator = communicator;
@@ -29,8 +31,8 @@ internal sealed class ServerI : ServerDisp_
             var info = (Ice.SSL.ConnectionInfo)current.con.getInfo();
             test(info.verified);
             test(info.certs.Length == 1 &&
-                 info.certs[0].Subject.Equals(subjectDN) &&
-                 info.certs[0].Issuer.Equals(issuerDN));
+                 info.certs[0].Subject == subjectDN &&
+                 info.certs[0].Issuer == issuerDN);
         }
         catch (Ice.LocalException)
         {
@@ -44,7 +46,7 @@ internal sealed class ServerI : ServerDisp_
         try
         {
             var info = (Ice.SSL.ConnectionInfo)current.con.getInfo();
-            test(info.cipher.Equals(cipher));
+            test(info.cipher == cipher);
         }
         catch (Ice.LocalException)
         {
@@ -74,7 +76,7 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
             initData.properties.setProperty(key, props[key]);
         }
         initData.properties.setProperty("IceSSL.DefaultDir", _defaultDir);
-        Ice.Communicator communicator = Ice.Util.initialize(initData);
+        var communicator = new Ice.Communicator(initData);
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
         var server = new ServerI(communicator);
         Ice.ObjectPrx obj = adapter.addWithUUID(server);

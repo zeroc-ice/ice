@@ -20,14 +20,7 @@ public final class TCPConnectionInfo extends IPConnectionInfo {
             int remotePort,
             int rcvSize,
             int sndSize) {
-        super(
-            incoming,
-            adapterName,
-            connectionId,
-            localAddress,
-            localPort,
-            remoteAddress,
-            remotePort);
+        super(incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort);
         this.rcvSize = rcvSize;
         this.sndSize = sndSize;
     }

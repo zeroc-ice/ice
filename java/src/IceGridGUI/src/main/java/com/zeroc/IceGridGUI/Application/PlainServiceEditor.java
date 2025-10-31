@@ -4,7 +4,6 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 
-import com.zeroc.IceGrid.ServiceDescriptor;
 import com.zeroc.IceGrid.ServiceInstanceDescriptor;
 import com.zeroc.IceGridGUI.Utils;
 

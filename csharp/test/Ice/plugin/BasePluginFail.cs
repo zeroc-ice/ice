@@ -1,8 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
+namespace Ice.plugin;
+
 public abstract class BasePluginFail : Ice.Plugin
 {
-    public BasePluginFail(Ice.Communicator communicator)
+    protected BasePluginFail(Ice.Communicator communicator)
     {
         _communicator = communicator;
         _initialized = false;
@@ -16,6 +18,7 @@ public abstract class BasePluginFail : Ice.Plugin
     protected static void test(bool b) => global::Test.TestHelper.test(b);
 
     public abstract void initialize();
+
     public abstract void destroy();
 
     protected Ice.Communicator _communicator;

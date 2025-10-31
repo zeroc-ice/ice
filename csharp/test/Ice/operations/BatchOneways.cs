@@ -94,7 +94,7 @@ internal class BatchOneways
         }
 
         var identity = new Identity("invalid", "");
-        var batch3 = batch.ice_identity(identity);
+        ObjectPrx batch3 = batch.ice_identity(identity);
         batch3.ice_ping();
         batch3.ice_flushBatchRequests();
 
@@ -110,7 +110,7 @@ internal class BatchOneways
             initData.properties = p.ice_getCommunicator().getProperties().Clone();
             var interceptor = new BatchRequestInterceptorI();
             initData.batchRequestInterceptor = interceptor.enqueue;
-            Communicator ic = helper.initialize(initData);
+            using Communicator ic = helper.initialize(initData);
 
             batch = Test.MyClassPrxHelper.uncheckedCast(ic.stringToProxy(p.ToString()).ice_batchOneway());
 
@@ -138,8 +138,6 @@ internal class BatchOneways
             batch.opByteSOneway(bs1); // This should trigger the flush
             batch.ice_ping();
             test(interceptor.count() == 2);
-
-            ic.destroy();
         }
 
         p.ice_ping();

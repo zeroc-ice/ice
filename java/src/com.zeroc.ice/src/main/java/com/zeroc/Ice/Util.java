@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadFactory;
 
@@ -73,67 +74,55 @@ public final class Util {
      *     {@code args}.
      * @return A new property set.
      */
-    public static Properties createProperties(
-            String[] args, Properties defaults, List<String> remainingArgs) {
+    public static Properties createProperties(String[] args, Properties defaults, List<String> remainingArgs) {
         return new Properties(args, defaults, remainingArgs);
     }
 
     /**
-     * Creates a new communicator.
+     * Creates a new communicator. This method is provided for backwards compatibility. New code should call the
+     * {@link Communicator#Communicator(InitializationData)} constructor directly.
      *
-     * @param initData Options for the new communicator.
-     * @return The new communicator.
+     * @param initData options for the new communicator
+     * @return the new communicator
      * @see InitializationData
      */
     public static Communicator initialize(InitializationData initData) {
-        if (initData == null) {
-            initData = new InitializationData();
-        } else {
-            initData = initData.clone(); // shallow clone
-        }
-
-        var communicator = new Communicator(initData);
-        communicator.finishSetup();
-        return communicator;
+        return new Communicator(initData);
     }
 
     /**
-     * Creates a new communicator with the default options.
+     * Creates a new communicator with the default options. This method is provided for backwards compatibility. New
+     * code should call the {@link Communicator#Communicator()} constructor directly.
      *
-     * @return The new communicator.
+     * @return the new communicator
      */
     public static Communicator initialize() {
-        return initialize((InitializationData) null);
+        return new Communicator();
     }
 
     /**
-     * Creates a new communicator, using Ice properties parsed from command-line arguments.
+     * Creates a new communicator, using Ice properties parsed from command-line arguments. This method is provided for
+     * backwards compatibility. New code should call the {@link Communicator#Communicator(String[], java.util.List)}
+     * constructor directly.
      *
-     * @param args A command-line argument vector. This method parses arguments starting with `--` and one of the
-     *     reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument
-     *     starting with `--Ice.Config`, this method loads the specified configuration file. When the same property is
-     *     set in a configuration file and through a command-line argument, the command-line setting takes precedence.
-     * @param remainingArgs If non-null, the given list will contain on return the command-line arguments that were
-     *     not used to set properties.
-     * @return The new communicator.
+     * @param args the command-line arguments
+     * @param remainingArgs if non-null, the remaining command-line arguments after parsing Ice properties
+     * @return the new communicator
      */
     public static Communicator initialize(String[] args, List<String> remainingArgs) {
-        var initData = new InitializationData();
-        initData.properties = new Properties(args, remainingArgs);
-        return initialize(initData);
+        return new Communicator(args, remainingArgs);
     }
 
     /**
-     * Creates a new communicator, using Ice properties parsed from command-line arguments.
+     * Creates a new communicator, using Ice properties parsed from command-line arguments. This method is provided for
+     * backwards compatibility. New code should call the {@link Communicator#Communicator(String[])} constructor
+     * directly.
      *
-     * @param args A command-line argument vector. This method parses arguments starting with `--` and one of the
-     *     reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument
-     *     starting with `--Ice.Config`, this method loads the specified configuration file. When the same property is
-     *     set in a configuration file and through a command-line argument, the command-line setting takes precedence.
-     * @return The new communicator.
+     * @param args the command-line arguments
+     * @return the new communicator
      */
     public static Communicator initialize(String[] args) {
-        return initialize(args, null);
+        return new Communicator(args);
     }
 
     /**
@@ -145,10 +134,7 @@ public final class Util {
     public static Identity stringToIdentity(String s) {
         Identity ident = new Identity();
 
-        //
-        // Find unescaped separator; note that the string may contain an escaped
-        // backslash before the separator.
-        //
+        // Find unescaped separator; note that the string may contain an escaped backslash before the separator.
         int slash = -1, pos = 0;
         while ((pos = s.indexOf('/', pos)) != -1) {
             int escapes = 0;
@@ -156,16 +142,12 @@ public final class Util {
                 escapes++;
             }
 
-            //
             // We ignore escaped escapes
-            //
             if (escapes % 2 == 0) {
                 if (slash == -1) {
                     slash = pos;
                 } else {
-                    //
                     // Extra unescaped slash found.
-                    //
                     throw new ParseException("unescaped backslash in identity string '" + s + "'");
                 }
             }
@@ -310,6 +292,7 @@ public final class Util {
                 // TODO: Would be nice to be able to use process name as prefix by default.
                 //
                 _processLogger = new LoggerI("");
+                _ownProcessLogger = true;
             }
 
             return _processLogger;
@@ -323,8 +306,16 @@ public final class Util {
      * @param logger The new per-process logger instance.
      */
     public static void setProcessLogger(Logger logger) {
+        Objects.requireNonNull(logger);
         synchronized (_processLoggerMutex) {
+            if (_ownProcessLogger) {
+                try {
+                    _processLogger.close();
+                } catch (Exception ignored) {
+                }
+            }
             _processLogger = logger;
+            _ownProcessLogger = false;
         }
     }
 
@@ -491,18 +482,15 @@ public final class Util {
      */
     public static InputStream openResource(ClassLoader cl, String path)
         throws IOException {
-        //
         // Calling getResourceAsStream on the class loader means all paths are absolute,
         // whereas calling it on the class means all paths are relative to the class
         // unless the path has a leading forward slash. We call it on the class loader.
         //
         // getResourceAsStream returns null if the resource can't be found.
-        //
         InputStream stream = null;
         try {
             stream = cl.getResourceAsStream(path);
         } catch (IllegalArgumentException ex) {
-            //
             // With JDK-7 this can happen if the result url (base url + path) produces a
             // malformed url for an URLClassLoader. For example the code in following
             // comment will produce this exception under Windows.
@@ -510,7 +498,6 @@ public final class Util {
             // URLClassLoader cl = new URLClassLoader(new URL[] {new
             // URL("http://localhost:8080/")});
             // java.io.InputStream in = Util.openResource(cl, "c:\\foo.txt");
-            //
         }
         if (stream == null) {
             try {
@@ -535,14 +522,12 @@ public final class Util {
      * @hidden Public because it's used by IceBox and IceGridGUI.
      */
     public static Class<?> findClass(String className, ClassLoader cl) throws LinkageError {
-        //
         // Try to load the class using the given class loader (if any). If that fails (or
         // none is provided), we try to load the class a few more ways before giving up.
         //
         // Calling Class.forName() doesn't always work. For example, if Ice.jar is installed
         // as an extension (in $JAVA_HOME/jre/lib/ext), calling Class.forName(name) uses the
         // extension class loader, which will not look in CLASSPATH for the target class.
-        //
 
         Class<?> c = null;
 
@@ -550,9 +535,7 @@ public final class Util {
             c = loadClass(className, cl);
         }
 
-        //
         // Try using the current thread's class loader.
-        //
         if (c == null) {
             try {
                 cl = Thread.currentThread().getContextClassLoader();
@@ -562,9 +545,7 @@ public final class Util {
             } catch (java.lang.SecurityException ex) {}
         }
 
-        //
         // Try using Class.forName().
-        //
         try {
             if (c == null) {
                 c = Class.forName(className);
@@ -573,9 +554,7 @@ public final class Util {
             // Ignore
         }
 
-        //
         // Fall back to the system class loader (which knows about CLASSPATH).
-        //
         if (c == null) {
             try {
                 cl = ClassLoader.getSystemClassLoader();
@@ -687,6 +666,7 @@ public final class Util {
 
     private static final java.lang.Object _processLoggerMutex = new java.lang.Object();
     private static Logger _processLogger;
+    private static boolean _ownProcessLogger;
 
     private Util() {}
 }

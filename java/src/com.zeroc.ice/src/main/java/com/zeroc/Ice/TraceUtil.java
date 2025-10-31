@@ -23,15 +23,13 @@ final class TraceUtil {
             StringWriter s = new StringWriter();
             byte type = printMessage(s, is, connection);
 
-            logger.trace(
-                tl.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.toString());
+            logger.trace(tl.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.toString());
 
             str.pos(p);
         }
     }
 
-    public static void traceRecv(
-            InputStream str, ConnectionI connection, Logger logger, TraceLevels tl) {
+    public static void traceRecv(InputStream str, ConnectionI connection, Logger logger, TraceLevels tl) {
         if (tl.protocol >= 1) {
             int p = str.pos();
             str.pos(0);
@@ -39,20 +37,13 @@ final class TraceUtil {
             StringWriter s = new StringWriter();
             byte type = printMessage(s, str, connection);
 
-            logger.trace(
-                tl.protocolCat,
-                "received " + getMessageTypeAsString(type) + " " + s.toString());
+            logger.trace(tl.protocolCat, "received " + getMessageTypeAsString(type) + " " + s.toString());
 
             str.pos(p);
         }
     }
 
-    public static void trace(
-            String heading,
-            InputStream str,
-            ConnectionI connection,
-            Logger logger,
-            TraceLevels tl) {
+    public static void trace(String heading, InputStream str, ConnectionI connection, Logger logger, TraceLevels tl) {
         if (tl.protocol >= 1) {
             int p = str.pos();
             str.pos(0);
@@ -68,8 +59,7 @@ final class TraceUtil {
 
     private static final Set<String> slicingIds = new HashSet<>();
 
-    public static synchronized void traceSlicing(
-            String kind, String typeId, String slicingCat, Logger logger) {
+    public static synchronized void traceSlicing(String kind, String typeId, String slicingCat, Logger logger) {
         if (slicingIds.add(typeId)) {
             StringWriter s = new StringWriter();
             s.write("unknown " + kind + " type `" + typeId + "'");
@@ -129,24 +119,17 @@ final class TraceUtil {
             s.write(replyStatus.toString());
 
             switch (replyStatus) {
-                case Ok:
-                case UserException:
+                case Ok, UserException -> {
                     EncodingVersion v = str.skipEncapsulation();
                     if (!v.equals(Util.Encoding_1_0)) {
                         s.write("\nencoding = ");
                         s.write(Util.encodingVersionToString(v));
                     }
-                    break;
+                }
 
-                case ObjectNotExist:
-                case FacetNotExist:
-                case OperationNotExist:
-                    printIdentityFacetOperation(s, str);
-                    break;
+                case ObjectNotExist, FacetNotExist, OperationNotExist -> printIdentityFacetOperation(s, str);
 
-                default:
-                    s.write("\nmessage = " + str.readString());
-                    break;
+                default -> s.write("\nmessage = " + str.readString());
             }
         } else {
             s.write(Integer.toString(replyStatusInt));
@@ -190,20 +173,16 @@ final class TraceUtil {
     }
 
     private static byte printHeader(Writer out, InputStream stream) {
-        stream.readByte(); // Don't bother printing the magic number
-        stream.readByte();
-        stream.readByte();
-        stream.readByte();
+        stream.readByte(); // 'I'
+        stream.readByte(); // 'c'
+        stream.readByte(); // 'e'
+        stream.readByte(); // 'P'
 
-        //        byte pMajor = stream.readByte();
-        //        byte pMinor = stream.readByte();
-        //        out.write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
+        // protocol
         stream.readByte(); // major
         stream.readByte(); // minor
 
-        //        byte eMajor = stream.readByte();
-        //        byte eMinor = stream.readByte();
-        //        out.write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
+        // encoding
         stream.readByte(); // major
         stream.readByte(); // minor
 

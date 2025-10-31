@@ -72,12 +72,8 @@ final class TransceiverI implements Transceiver {
             // Require BIG_ENDIAN byte buffers. This is needed for Android >= 8.0 which can read
             // the SSL messages directly with these buffers.
             int bufSize = _engine.getSession().getPacketBufferSize() * 2;
-            _netInput =
-                new Buffer(
-                    ByteBuffer.allocateDirect(bufSize * 2), ByteOrder.BIG_ENDIAN);
-            _netOutput =
-                new Buffer(
-                    ByteBuffer.allocateDirect(bufSize * 2), ByteOrder.BIG_ENDIAN);
+            _netInput = new Buffer(ByteBuffer.allocateDirect(bufSize * 2), ByteOrder.BIG_ENDIAN);
+            _netOutput = new Buffer(ByteBuffer.allocateDirect(bufSize * 2), ByteOrder.BIG_ENDIAN);
         }
 
         int status = handshakeNonBlocking();
@@ -96,13 +92,8 @@ final class TransceiverI implements Transceiver {
             // No peer certificates.
         }
 
-        //
         // Additional verification.
-        //
-        _instance.verifyPeer(
-            _host,
-            (ConnectionInfo) getInfo(_incoming, _adapterName, ""),
-            _delegate.toString());
+        _instance.verifyPeer(_host, (ConnectionInfo) getInfo(_incoming, _adapterName, ""), _delegate.toString());
 
         if (_instance.securityTraceLevel() >= 1) {
             _instance.traceConnection(_delegate.toString(), _engine, _incoming);
@@ -121,9 +112,7 @@ final class TransceiverI implements Transceiver {
     public void close() {
         if (_engine != null) {
             try {
-                //
                 // Send the close_notify message.
-                //
                 _engine.closeOutbound();
                 // Cast to java.nio.Buffer to avoid incompatible covariant
                 // return type used in Java 9 java.nio.ByteBuffer
@@ -131,12 +120,9 @@ final class TransceiverI implements Transceiver {
                 while (!_engine.isOutboundDone()) {
                     _engine.wrap(_emptyBuffer, _netOutput.b);
                     try {
-                        //
                         // Note: we can't block to send the close_notify message. In some cases, the
                         // close_notify message might therefore not be received by the peer. This is
-                        // not a big issue since the Ice protocol isn't subject to truncation
-                        // attacks.
-                        //
+                        // not a big issue since the Ice protocol isn't subject to truncation attacks.
                         flushNonBlocking();
                     } catch (LocalException ex) {
                         // Ignore.
@@ -149,7 +135,6 @@ final class TransceiverI implements Transceiver {
             try {
                 _engine.closeInbound();
             } catch (SSLException ex) {
-                //
                 // SSLEngine always raises an exception with this message:
                 //
                 // Inbound closed before receiving peer's close_notify: possible truncation attack?
@@ -190,16 +175,11 @@ final class TransceiverI implements Transceiver {
 
         _readyCallback.ready(SocketOperation.Read, false);
 
-        //
         // Try to satisfy the request from data we've already decrypted.
-        //
         fill(buf.b);
 
-        //
         // Read and decrypt more data if necessary. Note that we might read
-        // more data from the socket than is actually necessary to fill the
-        // caller's stream.
-        //
+        // more data from the socket than is actually necessary to fill the caller's stream.
         try {
             while (buf.b.hasRemaining()) {
                 _netInput.flip();
@@ -237,9 +217,7 @@ final class TransceiverI implements Transceiver {
             throw new SecurityException("SSL transport: error during read", ex);
         }
 
-        //
         // Indicate whether more data is available.
-        //
         if (_netInput.b.position() > 0 || _appInput.position() > 0) {
             _readyCallback.ready(SocketOperation.Read, true);
         }
@@ -263,15 +241,12 @@ final class TransceiverI implements Transceiver {
     }
 
     @Override
-    public com.zeroc.Ice.ConnectionInfo getInfo(
-            boolean incoming, String adapterName, String connectionId) {
+    public com.zeroc.Ice.ConnectionInfo getInfo(boolean incoming, String adapterName, String connectionId) {
         assert incoming == _incoming;
         // adapterName is the name of the object adapter currently associated with this connection,
-        // while _adapterName represents the name of the object adapter that created this connection
-        // (incoming only).
+        // while _adapterName represents the name of the object adapter that created this connection (incoming only).
 
-        return new ConnectionInfo(
-            _delegate.getInfo(incoming, adapterName, connectionId), _cipher, _certs, _verified);
+        return new ConnectionInfo(_delegate.getInfo(incoming, adapterName, connectionId), _cipher, _certs, _verified);
     }
 
     @Override
@@ -325,18 +300,14 @@ final class TransceiverI implements Transceiver {
                             }
                         }
 
-                        //
                         // The engine needs more data. We might already have enough data in
                         // the _netInput buffer to satisfy the engine. If not, the engine
                         // responds with BUFFER_UNDERFLOW and we'll read from the socket.
-                        //
                         _netInput.flip();
                         result = _engine.unwrap(_netInput.b, _appInput);
                         _netInput.b.compact();
-                        //
-                        // FINISHED is only returned from wrap or unwrap, not from
-                        // engine.getHandshakeResult().
-                        //
+
+                        // FINISHED is only returned from wrap or unwrap, not from engine.getHandshakeResult().
                         status = result.getHandshakeStatus();
                         switch (result.getStatus()) {
                             case BUFFER_OVERFLOW -> throw new AssertionError();
@@ -393,23 +364,16 @@ final class TransceiverI implements Transceiver {
     }
 
     private int writeNonBlocking(ByteBuffer buf) {
-        //
         // This method has two purposes: encrypt the application's message buffer into our
-        // _netOutput buffer, and write the contents of _netOutput to the socket without
-        // blocking.
-        //
+        // _netOutput buffer, and write the contents of _netOutput to the socket without blocking.
         try {
             while (buf.hasRemaining() || _netOutput.b.position() > 0) {
                 if (buf.hasRemaining()) {
-                    //
                     // Encrypt the buffer.
-                    //
                     SSLEngineResult result = _engine.wrap(buf, _netOutput.b);
                     switch (result.getStatus()) {
                         case BUFFER_OVERFLOW:
-                            //
                             // Need to make room in _netOutput.b.
-                            //
                             break;
                         case BUFFER_UNDERFLOW:
                             assert false;
@@ -421,11 +385,9 @@ final class TransceiverI implements Transceiver {
                     }
                 }
 
-                //
                 // Write the encrypted data to the socket. We continue writing until we've written
                 // all of _netOutput, or until flushNonBlocking indicates that it cannot write
                 // (i.e., by returning SocketOperation.Write).
-                //
                 if (_netOutput.b.position() > 0) {
                     int s = flushNonBlocking();
                     if (s != SocketOperation.None) {
@@ -434,8 +396,7 @@ final class TransceiverI implements Transceiver {
                 }
             }
         } catch (SSLException ex) {
-            throw new SecurityException(
-                "SSL transport: error while encoding message", ex);
+            throw new SecurityException("SSL transport: error while encoding message", ex);
         }
 
         assert (_netOutput.b.position() == 0);
@@ -454,8 +415,7 @@ final class TransceiverI implements Transceiver {
         } catch (SocketException ex) {
             throw new ConnectionLostException(ex);
         }
-        // Cast to java.nio.Buffer to avoid incompatible covariant
-        // return type used in Java 9 java.nio.ByteBuffer
+        // Cast to java.nio.Buffer to avoid incompatible covariant return type used in Java 9 java.nio.ByteBuffer
         ((java.nio.Buffer) _netOutput.b).clear();
         return SocketOperation.None;
     }
@@ -469,27 +429,21 @@ final class TransceiverI implements Transceiver {
                 bytesAvailable = bytesNeeded;
             }
             if (buf.hasArray()) {
-                //
                 // Copy directly into the destination buffer's backing array.
-                //
                 byte[] arr = buf.array();
                 _appInput.get(arr, buf.arrayOffset() + buf.position(), bytesAvailable);
                 // Cast to java.nio.Buffer to avoid incompatible covariant
                 // return type used in Java 9 java.nio.ByteBuffer
                 ((java.nio.Buffer) buf).position(buf.position() + bytesAvailable);
             } else if (_appInput.hasArray()) {
-                //
                 // Copy directly from the source buffer's backing array.
-                //
                 byte[] arr = _appInput.array();
                 buf.put(arr, _appInput.arrayOffset() + _appInput.position(), bytesAvailable);
                 // Cast to java.nio.Buffer to avoid incompatible covariant
                 // return type used in Java 9 java.nio.ByteBuffer
                 ((java.nio.Buffer) _appInput).position(_appInput.position() + bytesAvailable);
             } else {
-                //
                 // Copy using a temporary array.
-                //
                 byte[] arr = new byte[bytesAvailable];
                 _appInput.get(arr);
                 buf.put(arr);
