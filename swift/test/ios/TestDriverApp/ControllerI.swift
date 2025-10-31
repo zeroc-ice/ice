@@ -229,7 +229,7 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
             try await Task.sleep(for: .milliseconds(100))
         }
 
-        throw CommonProcessFailedException(reason: "timed out waiting for the process to succeed")
+        throw CommonProcessFailedException(reason: "timed out waiting for the process to be ready")
     }
 
     public func waitSuccess(timeout: Int32) async throws -> Int32 {
