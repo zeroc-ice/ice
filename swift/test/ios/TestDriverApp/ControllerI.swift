@@ -13,12 +13,13 @@ struct ProcessI: CommonProcess {
         _helper = helper
     }
 
-    func waitReady(timeout: Int32, current _: Ice.Current) throws {
-        try _helper.waitReady(timeout: timeout)
+    func waitReady(timeout: Int32, current _: Ice.Current) async throws {
+        try await _helper.waitReady(timeout: timeout)
+
     }
 
-    func waitSuccess(timeout: Int32, current _: Ice.Current) throws -> Int32 {
-        return try _helper.waitSuccess(timeout: timeout)
+    func waitSuccess(timeout: Int32, current _: Ice.Current) async throws -> Int32 {
+        return try await _helper.waitSuccess(timeout: timeout)
     }
 
     func terminate(current: Ice.Current) throws -> String {
@@ -134,31 +135,28 @@ class ControllerI {
 class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
     private let _view: ViewController
     private let _args: [String]
-    private var _ready: Bool
-    private var _completed: Bool
-    private var _status: Int32
-    private var _out: String
-    private var _communicator: Ice.Communicator!
-    private let _semaphore: DispatchSemaphore
+    private var _communicator: Ice.Communicator? = nil
     private let _exe: String
     private let _testName: String
+    private var _out: String = ""
+
+    private struct State {
+        var isReady = false
+        var completedStatus: Int32?
+    }
+    private let _lock = Mutex(State())
 
     public init(view: ViewController, testName: String, args: [String], exe: String) {
         _view = view
         _testName = testName
         _args = args
-        _ready = false
-        _completed = false
-        _status = 1
-        _out = ""
-        _communicator = nil
         _exe = exe
-        _semaphore = DispatchSemaphore(value: 0)
     }
 
     public func serverReady() {
-        _ready = true
-        _semaphore.signal()
+        _lock.withLock {
+            $0.isReady = true
+        }
     }
 
     public func communicatorInitialized(communicator: Ice.Communicator) {
@@ -177,10 +175,10 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
         write("\(msg)\n")
     }
 
-    public func completed(status: Int32) {
-        _completed = true
-        _status = status
-        _semaphore.signal()
+    public func completed(status: Int32) async {
+        _lock.withLock {
+            $0.completedStatus = status
+        }
     }
 
     public func run() {
@@ -193,10 +191,10 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
                 testHelper.setControllerHelper(controllerHelper: self)
                 testHelper.setWriter(writer: self)
                 try await testHelper.run(args: self._args)
-                self.completed(status: 0)
+                await completed(status: 0)
             } catch {
                 self.writeLine("Error: \(error)")
-                self.completed(status: 1)
+                await completed(status: 1)
             }
         }
     }
@@ -208,47 +206,46 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
         communicator.shutdown()
     }
 
-    public func waitReady(timeout: Int32) throws {
-        var ex: Error?
-        do {
-            while !_ready, !_completed {
-                if _semaphore.wait(timeout: .now() + Double(timeout)) == .timedOut {
-                    throw CommonProcessFailedException(
-                        reason: "timed out waiting for the process to be ready")
+    public func waitReady(timeout: Int32) async throws {
+        let deadline = ContinuousClock.now + .seconds(Int(timeout))
+
+        while ContinuousClock.now < deadline {
+            // Check current state
+            let state = _lock.withLock { $0 }
+
+            if state.isReady {
+                return
+            }
+
+            if let status = state.completedStatus {
+                if status == 0 {
+                    return
+                } else {
+                    throw CommonProcessFailedException(reason: self._out)
                 }
             }
 
-            if _completed, _status != 0 {
-                throw CommonProcessFailedException(reason: _out)
-            }
-        } catch {
-            ex = error
+            // Brief sleep to avoid busy waiting
+            try await Task.sleep(for: .milliseconds(100))
         }
-        if let ex = ex {
-            throw ex
-        }
+
+        throw CommonProcessFailedException(reason: "timed out waiting for the process to be ready")
     }
 
-    public func waitSuccess(timeout: Int32) throws -> Int32 {
-        var ex: Error?
-        do {
-            while !_completed {
-                if _semaphore.wait(timeout: .now() + Double(timeout)) == .timedOut {
-                    throw CommonProcessFailedException(reason: "timed out waiting for the process to succeed")
-                }
+    public func waitSuccess(timeout: Int32) async throws -> Int32 {
+        let deadline = ContinuousClock.now + .seconds(Int(timeout))
+
+        while ContinuousClock.now < deadline {
+            // Check if completed
+            if let status = _lock.withLock({ $0.completedStatus }) {
+                return status
             }
 
-            if _completed, _status != 0 {
-                throw CommonProcessFailedException(reason: _out)
-            }
-        } catch {
-            ex = error
+            // Brief sleep to avoid busy waiting
+            try await Task.sleep(for: .milliseconds(100))
         }
 
-        if let ex = ex {
-            throw ex
-        }
-        return _status
+        throw CommonProcessFailedException(reason: "timed out waiting for the process to succeed")
     }
 
     public func getOutput() -> String {
