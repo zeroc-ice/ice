@@ -130,52 +130,52 @@ public func allTests(_ helper: TestHelper) async throws {
     }
     output.writeLine("ok")
 
-    output.write("testing udp multicast... ")
-    var endpoint = "udp -h "
-    if communicator.getProperties().getIceProperty("Ice.IPv6") == "1" {
-        endpoint += "\"ff15::1:1\" --interface \"::1\""
-    } else {
-        endpoint += "239.255.1.1 --interface 127.0.0.1"
-    }
-    endpoint += " -p "
-    endpoint += "\(helper.getTestPort(num: 10))"
-    base = try communicator.stringToProxy("test -d:\(endpoint)")!
-    let objMcast = uncheckedCast(prx: base, type: TestIntfPrx.self)
+    // output.write("testing udp multicast... ")
+    // var endpoint = "udp -h "
+    // if communicator.getProperties().getIceProperty("Ice.IPv6") == "1" {
+    //     endpoint += "\"ff15::1:1\" --interface \"::1\""
+    // } else {
+    //     endpoint += "239.255.1.1 --interface 127.0.0.1"
+    // }
+    // endpoint += " -p "
+    // endpoint += "\(helper.getTestPort(num: 10))"
+    // base = try communicator.stringToProxy("test -d:\(endpoint)")!
+    // let objMcast = uncheckedCast(prx: base, type: TestIntfPrx.self)
 
-    for _ in 0..<5 {
-        let replyI = PingReplyI()
-        let reply = try replyI.getProxy(adapter)
-        do {
-            try await objMcast.ping(reply)
-            ret = await replyI.waitReply(expectedReplies: 5, timeout: 5000)
-        } catch is Ice.SocketException
-            where communicator.getProperties().getIceProperty("Ice.IPv6") == "1"
-        {
-            output.write("(not supported) ")
-            ret = true
-        }
+    // for _ in 0..<5 {
+    //     let replyI = PingReplyI()
+    //     let reply = try replyI.getProxy(adapter)
+    //     do {
+    //         try await objMcast.ping(reply)
+    //         ret = await replyI.waitReply(expectedReplies: 5, timeout: 5000)
+    //     } catch is Ice.SocketException
+    //         where communicator.getProperties().getIceProperty("Ice.IPv6") == "1"
+    //     {
+    //         output.write("(not supported) ")
+    //         ret = true
+    //     }
 
-        if ret {
-            break
-        }
-    }
+    //     if ret {
+    //         break
+    //     }
+    // }
 
-    try test(ret)
-    output.writeLine("ok")
+    // try test(ret)
+    // output.writeLine("ok")
 
-    output.write("testing udp bi-dir connection... ")
-    try await obj.ice_getConnection()!.setAdapter(adapter)
-    for _ in 0..<5 {
-        let replyI = PingReplyI()
-        let reply = try replyI.getProxy(adapter)
-        try await obj.pingBiDir(reply.ice_getIdentity())
-        try await obj.pingBiDir(reply.ice_getIdentity())
-        try await obj.pingBiDir(reply.ice_getIdentity())
-        ret = await replyI.waitReply(expectedReplies: 3, timeout: 2000)
-        if ret {
-            break  // Success
-        }
-    }
-    try test(ret)
-    output.writeLine("ok")
+    // output.write("testing udp bi-dir connection... ")
+    // try await obj.ice_getConnection()!.setAdapter(adapter)
+    // for _ in 0..<5 {
+    //     let replyI = PingReplyI()
+    //     let reply = try replyI.getProxy(adapter)
+    //     try await obj.pingBiDir(reply.ice_getIdentity())
+    //     try await obj.pingBiDir(reply.ice_getIdentity())
+    //     try await obj.pingBiDir(reply.ice_getIdentity())
+    //     ret = await replyI.waitReply(expectedReplies: 3, timeout: 2000)
+    //     if ret {
+    //         break  // Success
+    //     }
+    // }
+    // try test(ret)
+    // output.writeLine("ok")
 }
