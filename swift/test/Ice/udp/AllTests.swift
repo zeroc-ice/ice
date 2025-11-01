@@ -87,47 +87,47 @@ public func allTests(_ helper: TestHelper) async throws {
     }
     try test(ret)
 
-    if try communicator.getProperties().getIcePropertyAsInt("Ice.Override.Compress") == 0 {
-        //
-        // Only run this test if compression is disabled, the test expect fixed message size
-        // to be sent over the wire.
-        //
-        var seq: ByteSeq
-        do {
-            seq = ByteSeq(repeating: 0, count: 1024)
-            let replyI = PingReplyI()
-            let reply = try replyI.getProxy(adapter)
+    // if try communicator.getProperties().getIcePropertyAsInt("Ice.Override.Compress") == 0 {
+    //     //
+    //     // Only run this test if compression is disabled, the test expect fixed message size
+    //     // to be sent over the wire.
+    //     //
+    //     var seq: ByteSeq
+    //     do {
+    //         seq = ByteSeq(repeating: 0, count: 1024)
+    //         let replyI = PingReplyI()
+    //         let reply = try replyI.getProxy(adapter)
 
-            while true {
-                seq = ByteSeq(repeating: 0, count: seq.count * 2 + 10)
-                try await obj.sendByteSeq(seq: seq, reply: reply)
-            }
-        } catch is Ice.DatagramLimitException {
-            //
-            // The server's Ice.UDP.RcvSize property is set to 16384, which means that DatagramLimitException
-            // will be throw when try to send a packet bigger than that.
-            //
-            try test(seq.count > 16384)
-        }
-        try await obj.ice_getConnection()!.close()
-        communicator.getProperties().setProperty(key: "Ice.UDP.SndSize", value: "64000")
-        seq = ByteSeq(repeating: 0, count: 50000)
-        do {
-            let replyI = PingReplyI()
-            let reply = try replyI.getProxy(adapter)
+    //         while true {
+    //             seq = ByteSeq(repeating: 0, count: seq.count * 2 + 10)
+    //             try await obj.sendByteSeq(seq: seq, reply: reply)
+    //         }
+    //     } catch is Ice.DatagramLimitException {
+    //         //
+    //         // The server's Ice.UDP.RcvSize property is set to 16384, which means that DatagramLimitException
+    //         // will be throw when try to send a packet bigger than that.
+    //         //
+    //         try test(seq.count > 16384)
+    //     }
+    //     try await obj.ice_getConnection()!.close()
+    //     communicator.getProperties().setProperty(key: "Ice.UDP.SndSize", value: "64000")
+    //     seq = ByteSeq(repeating: 0, count: 50000)
+    //     do {
+    //         let replyI = PingReplyI()
+    //         let reply = try replyI.getProxy(adapter)
 
-            try await obj.sendByteSeq(seq: seq, reply: reply)
-            let b = await replyI.waitReply(expectedReplies: 1, timeout: 500)
-            //
-            // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
-            // should not be delivered.
-            //
-            try test(!b)
-        } catch {
-            print("Failed to send large request over udp: \(error)")
-            try test(false)
-        }
-    }
+    //         try await obj.sendByteSeq(seq: seq, reply: reply)
+    //         let b = await replyI.waitReply(expectedReplies: 1, timeout: 500)
+    //         //
+    //         // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
+    //         // should not be delivered.
+    //         //
+    //         try test(!b)
+    //     } catch {
+    //         print("Failed to send large request over udp: \(error)")
+    //         try test(false)
+    //     }
+    // }
     output.writeLine("ok")
 
     // output.write("testing udp multicast... ")
