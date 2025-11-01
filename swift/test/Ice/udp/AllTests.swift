@@ -38,7 +38,7 @@ class PingReplyI: PingReply, @unchecked Sendable {
             }
 
             group.addTask {
-                try? await Task.sleep(nanoseconds: UInt64(timeout) * 1_000_000)
+                try? await Task.sleep(for: .milliseconds(timeout))
                 return false
             }
 
@@ -47,7 +47,6 @@ class PingReplyI: PingReply, @unchecked Sendable {
             }
 
             group.cancelAll()
-
             return result
         }
     }
