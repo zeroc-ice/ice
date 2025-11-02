@@ -65,7 +65,7 @@ public func allTests(_ helper: TestHelper) async throws {
     let output = helper.getWriter()
 
     output.write("testing udp... ")
-    let base = try communicator.stringToProxy("test:\(helper.getTestEndpoint(num: 0, prot: "udp"))")!
+    var base = try communicator.stringToProxy("test:\(helper.getTestEndpoint(num: 0, prot: "udp"))")!
         .ice_datagram()
     let obj = uncheckedCast(prx: base, type: TestIntfPrx.self)
 
