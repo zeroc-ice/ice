@@ -2440,6 +2440,9 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
 void
 ServerI::updateRevision(const string& uuid, int revision)
 {
+    // We must have either _desc or _load.
+    assert(_desc || _load);
+
     // _desc can be nullptr if the server initial load didn't complete yet.
     shared_ptr<InternalServerDescriptor> desc = _desc;
     if (desc)
