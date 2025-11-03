@@ -123,7 +123,7 @@ Slice::Swift::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
         {
             out << nl << "///";
         }
-        out << nl << "/// - See Also";
+        out << nl << "/// - See Also:";
         writeDocLines(out, seeAlso);
     }
 }
