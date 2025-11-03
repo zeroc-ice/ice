@@ -46,11 +46,6 @@ class PythonDocCommentFormatter final : public DocCommentFormatter
     {
         return Slice::Python::pyLinkFormatter(rawLink, source, target);
     }
-
-    string formatSeeAlso(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
-    {
-        return Slice::Python::pyLinkFormatter(rawLink, source, target);
-    }
 };
 
 string

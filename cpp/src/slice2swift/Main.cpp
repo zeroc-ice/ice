@@ -32,11 +32,6 @@ class SwiftDocCommentFormatter final : public DocCommentFormatter
     {
         return Slice::Swift::swiftLinkFormatter(rawLink, source, target);
     }
-
-    string formatSeeAlso(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
-    {
-        return Slice::Swift::swiftLinkFormatter(rawLink, source, target);
-    }
 };
 
 static void
