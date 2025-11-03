@@ -18,6 +18,10 @@ ConnectionManager::add(
     function<void(const ConnectionPtr&, exception_ptr)> callback)
 {
     lock_guard<mutex> lock(_mutex);
+
+    // Disable the inactivity timeout on the connection.
+    connection->disableInactivityCheck();
+
     auto& objects = _connections[connection];
     if (objects.empty())
     {

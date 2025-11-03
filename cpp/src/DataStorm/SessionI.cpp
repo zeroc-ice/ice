@@ -547,9 +547,6 @@ SessionI::connected(SessionPrx session, const ConnectionPtr& newConnection, cons
     _connection = newConnection;
     if (newConnection)
     {
-        // Disable the inactivity timeout on the connection used for the session.
-        newConnection->disableInactivityCheck();
-
         auto self = shared_from_this();
 
         // Register a callback with the connection manager to reconnect the session if the connection is closed.
