@@ -2276,7 +2276,7 @@ Slice::Python::CodeVisitor::writeSeeAlso(const StringList& seeAlso, bool needsNe
         out << nl << "--------";
         for (const string& line : seeAlso)
         {
-            out << nl << line;
+            out << nl << "    " << line;
         }
     }
 }
