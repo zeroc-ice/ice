@@ -26,4 +26,3 @@ class UdpTestCase(ClientServerTestCase):
 
 
 TestSuite(__name__, [UdpTestCase()], multihost=False)
-d
