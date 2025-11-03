@@ -105,8 +105,6 @@ Slice::Swift::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
         hasStarted = true;
     }
 
-    // TODO we should add a section for '@see' tags.
-
     const StringList& remarks = doc->remarks();
     if (!remarks.empty())
     {
