@@ -19,10 +19,11 @@ class UdpTestCase(ClientServerTestCase):
             ]
 
     def setupClientSide(self, current):
-        if current.config.android:
+        if current.config.android or current.config.buildPlatform in ["iphonesimulator"]:
             self.clients = [Client(traceProps=traceProps)]
         else:
             self.clients = [Client(args=[5], traceProps=traceProps)]
 
 
 TestSuite(__name__, [UdpTestCase()], multihost=False)
+d
