@@ -453,6 +453,9 @@ namespace Slice::Python
         /// Writes the provided @p remarks in its own subheading in the current comment (if @p remarks is non-empty).
         void writeRemarksDocComment(const StringList& remarks, bool needsNewline, IceInternal::Output& out);
 
+        /// Writes the provided @p seeAlso in its own subheading in the current comment (if @p seeAlso is non-empty).
+        void writeSeeAlso(const StringList& seeAlso, bool needsNewline, IceInternal::Output& out);
+
         void writeDocstring(const std::optional<DocComment>&, const std::string&, IceInternal::Output&);
         void writeDocstring(const std::optional<DocComment>&, const DataMemberList&, IceInternal::Output&);
         void writeDocstring(const std::optional<DocComment>&, const EnumPtr&, IceInternal::Output&);

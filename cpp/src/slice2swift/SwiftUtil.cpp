@@ -114,8 +114,19 @@ Slice::Swift::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
         {
             out << nl << "///";
         }
-        out << nl << "/// ## Remarks";
+        out << nl << "/// - Remark:";
         writeDocLines(out, remarks);
+    }
+
+    const StringList& seeAlso = doc->seeAlso();
+    if (!seeAlso.empty())
+    {
+        if (hasStarted)
+        {
+            out << nl << "///";
+        }
+        out << nl << "/// - See Also";
+        writeDocLines(out, seeAlso);
     }
 }
 
