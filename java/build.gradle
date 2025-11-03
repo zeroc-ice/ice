@@ -43,7 +43,8 @@ subprojects {
     }
 
     tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:-options"
+        options.compilerArgs << "-Xdoclint:all,-missing"
+                             << "-Xlint:all,-rawtypes,-exports,-serial,-try,-missing-explicit-ctor,-deprecation"
         options.encoding = "UTF-8"
         options.deprecation = true
     }

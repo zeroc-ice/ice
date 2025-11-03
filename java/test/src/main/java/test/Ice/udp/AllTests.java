@@ -141,14 +141,14 @@ public class AllTests {
                 StringBuilder endpoint = new StringBuilder();
                 if (isIpv6) {
                     endpoint.append("udp -h \"ff15::1:1\" -p ");
-                    endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
+                    endpoint.append(TestHelper.getTestPort(communicator.getProperties(), 10));
                     if (System.getProperty("os.name").contains("OS X")) {
                         // Use loopback on macOS to run successfully on GitHub runners.
                         endpoint.append(" --interface \"::1\"");
                     }
                 } else {
                     endpoint.append("udp -h 239.255.1.1 -p ");
-                    endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
+                    endpoint.append(TestHelper.getTestPort(communicator.getProperties(), 10));
                     if (System.getProperty("os.name").contains("OS X")) {
                         // Use loopback on macOS to run successfully on GitHub runners.
                         endpoint.append(" --interface 127.0.0.1");
@@ -161,7 +161,7 @@ public class AllTests {
                 // On Android, the test suite driver only starts one server instance. Otherwise, we
                 // expect there to be five servers and we expect a response from all of them.
                 //
-                final int numServers = helper.isAndroid() ? 1 : 5;
+                final int numServers = TestHelper.isAndroid() ? 1 : 5;
 
                 nRetry = 5;
                 while (nRetry-- > 0) {

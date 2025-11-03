@@ -28,7 +28,7 @@ public class AllTests {
         {
             var i =
                 MyInterfacePrx.createProxy(
-                    communicator, "i1:" + helper.getTestEndpoint());
+                    communicator, "i1:" + helper.getTestEndpoint(0));
 
             var s1 = new MyStruct(0);
             MyInterface.OpMyStructResult opMyStructResult = i.opMyStruct(s1);
@@ -81,7 +81,7 @@ public class AllTests {
         {
             var i =
                 MyInterfacePrx.createProxy(
-                    communicator, "i1:" + helper.getTestEndpoint());
+                    communicator, "i1:" + helper.getTestEndpoint(0));
 
             var s1 = new MyStruct(0);
             MyInterface.OpMyStructResult opMyStructResult =
@@ -138,7 +138,7 @@ public class AllTests {
         {
             var i =
                 test.Ice.scope.Test.Inner.MyInterfacePrx.createProxy(
-                    communicator, "i2:" + helper.getTestEndpoint());
+                    communicator, "i2:" + helper.getTestEndpoint(0));
 
             var s1 = new test.Ice.scope.Test.Inner.Inner2.MyStruct(0);
             test.Ice.scope.Test.Inner.MyInterface.OpMyStructResult opMyStructResult =
@@ -181,7 +181,7 @@ public class AllTests {
         {
             var i =
                 test.Ice.scope.Test.Inner.MyInterfacePrx.createProxy(
-                    communicator, "i2:" + helper.getTestEndpoint());
+                    communicator, "i2:" + helper.getTestEndpoint(0));
 
             var s1 = new test.Ice.scope.Test.Inner.Inner2.MyStruct(0);
             test.Ice.scope.Test.Inner.MyInterface.OpMyStructResult opMyStructResult =
@@ -225,7 +225,7 @@ public class AllTests {
         {
             var i =
                 test.Ice.scope.Test.Inner.Inner2.MyInterfacePrx.createProxy(
-                    communicator, "i3:" + helper.getTestEndpoint());
+                    communicator, "i3:" + helper.getTestEndpoint(0));
 
             var s1 = new test.Ice.scope.Test.Inner.Inner2.MyStruct(0);
             test.Ice.scope.Test.Inner.Inner2.MyInterface.OpMyStructResult opMyStructResult =
@@ -269,7 +269,7 @@ public class AllTests {
         {
             var i =
                 test.Ice.scope.Test.Inner.Inner2.MyInterfacePrx.createProxy(
-                    communicator, "i3:" + helper.getTestEndpoint());
+                    communicator, "i3:" + helper.getTestEndpoint(0));
 
             var s1 = new test.Ice.scope.Test.Inner.Inner2.MyStruct(0);
             test.Ice.scope.Test.Inner.Inner2.MyInterface.OpMyStructResult opMyStructResult =
@@ -313,7 +313,7 @@ public class AllTests {
         {
             var i =
                 test.Ice.scope.Inner.Test.Inner2.MyInterfacePrx.createProxy(
-                    communicator, "i4:" + helper.getTestEndpoint());
+                    communicator, "i4:" + helper.getTestEndpoint(0));
 
             var s1 = new MyStruct(0);
             test.Ice.scope.Inner.Test.Inner2.MyInterface.OpMyStructResult opMyStructResult =
@@ -357,7 +357,7 @@ public class AllTests {
         {
             var i =
                 MyInterfacePrx.createProxy(
-                    communicator, "i1:" + helper.getTestEndpoint());
+                    communicator, "i1:" + helper.getTestEndpoint(0));
             i.shutdown();
         }
     }

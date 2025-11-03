@@ -169,7 +169,7 @@ public class AllTests {
             holdSerialized.set(value, 0);
             CompletableFuture<Void> r = null;
             InvocationFuture<Void> f = null;
-            int max = helper.isAndroid() ? 5000 : 10000;
+            int max = TestHelper.isAndroid() ? 5000 : 10000;
 
             // We use the same proxy for all oneway calls.
             holdSerializedOneway = holdSerialized.ice_oneway();

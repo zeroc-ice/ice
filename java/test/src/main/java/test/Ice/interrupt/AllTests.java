@@ -221,7 +221,7 @@ public class AllTests {
                     // already completed.
                     //
                     // test(false);
-                    mainThread.interrupted();
+                    Thread.interrupted(); // clear the interrupted flag.
                 } catch (ExecutionException ex) {
                     test(false);
                 } catch (InterruptedException ex) {
@@ -263,7 +263,7 @@ public class AllTests {
                 // get() won't raise InterruptedException if the operation has already completed.
                 //
                 // test(false);
-                mainThread.interrupted();
+                Thread.interrupted(); // clear the interrupted flag.
             } catch (ExecutionException ex) {
                 test(false);
             } catch (InterruptedException ex) {
@@ -310,7 +310,7 @@ public class AllTests {
                     // completed.
                     //
                     // test(false);
-                    mainThread.interrupted();
+                    Thread.interrupted(); // clear the interrupted flag.
                 } catch (ExecutionException ex) {
                     test(false);
                 } catch (InterruptedException ex) {
@@ -357,7 +357,7 @@ public class AllTests {
                 // get() won't raise InterruptedException if the operation has already completed.
                 //
                 // test(false);
-                mainThread.interrupted();
+                Thread.interrupted(); // clear the interrupted flag.
             } catch (ExecutionException ex) {
                 test(false);
             } catch (InterruptedException ex) {

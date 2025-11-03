@@ -117,7 +117,7 @@ public class Client extends TestHelper {
         initData.properties.setProperty("Ice.MessageSizeMax", "100");
 
         try (Communicator communicator = initialize(initData)) {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(new _defaultI(), new Identity("test", ""));
             adapter.activate();

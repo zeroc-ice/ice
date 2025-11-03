@@ -70,7 +70,7 @@ public class AllTests {
 
             Endpoint[] endps = p1.ice_getEndpoints();
             EndpointInfo info = endps[0].getInfo();
-            TCPEndpointInfo tcpEndpoint = (TCPEndpointInfo) getTCPEndpointInfo(info);
+            TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(info);
             test("tcphost".equals(tcpEndpoint.host));
             test(tcpEndpoint.port == 10000);
             test("10.10.10.10".equals(tcpEndpoint.sourceAddress));

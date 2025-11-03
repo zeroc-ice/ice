@@ -2928,7 +2928,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         out << sp;
         writeDocComment(
             out,
-            "@{inheritDoc}\n"
+            "{@inheritDoc}\n"
             "@hidden");
         out << nl << "@Override";
         out << nl << "public boolean _usesClasses()";
@@ -3946,6 +3946,9 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
     out << eb;
 
+    out << sp;
+    out << nl << "private " << name << "Helper() {}";
+
     out << eb;
     close();
 }
@@ -4070,6 +4073,9 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "return java.util.Optional.empty();";
     out << eb;
     out << eb;
+
+    out << sp;
+    out << nl << "private " << name << "Helper() {}";
 
     out << eb;
     close();

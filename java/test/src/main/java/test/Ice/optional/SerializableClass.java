@@ -18,6 +18,11 @@ public class SerializableClass implements Serializable {
         return false;
     }
 
+    @Override
+    public int hashCode() {
+        return _v;
+    }
+
     private final int _v;
     private static final long serialVersionUID = 1;
 }

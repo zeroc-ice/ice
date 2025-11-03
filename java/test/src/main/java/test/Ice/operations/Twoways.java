@@ -1400,7 +1400,7 @@ class Twoways {
 
                     var p3 =
                         MyClassPrx.createProxy(
-                            ic, "test:" + helper.getTestEndpoint(properties, 0));
+                            ic, "test:" + TestHelper.getTestEndpoint(properties, 0, ""));
 
                     ic.getImplicitContext().setContext(ctx);
                     test(ic.getImplicitContext().getContext().equals(ctx));

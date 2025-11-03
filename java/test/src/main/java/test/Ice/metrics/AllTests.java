@@ -45,8 +45,7 @@ public class AllTests {
     }
 
     static String getPort(PropertiesAdminPrx p, int testPort) {
-        return Integer.toString(
-            TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), testPort));
+        return Integer.toString(TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), testPort));
     }
 
     static ConnectionMetrics getServerConnectionMetrics(MetricsAdminPrx metrics, long expected) {
@@ -1232,7 +1231,7 @@ public class AllTests {
         props.put("IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy", "localPort");
         updateProps(clientProps, serverProps, props, "Invocation");
 
-        metricsBatchOneway = (MetricsPrx) metrics.ice_batchOneway();
+        metricsBatchOneway = metrics.ice_batchOneway();
         metricsBatchOneway.op();
 
         metricsBatchOneway.ice_flushBatchRequests();
@@ -1252,7 +1251,7 @@ public class AllTests {
 
             Connection con = metricsBatchOneway.ice_getConnection();
 
-            metricsBatchOneway = (MetricsPrx) metricsBatchOneway.ice_fixed(con);
+            metricsBatchOneway = metricsBatchOneway.ice_fixed(con);
             metricsBatchOneway.op();
 
             con.flushBatchRequests(CompressBatch.No);

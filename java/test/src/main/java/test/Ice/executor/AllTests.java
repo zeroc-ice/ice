@@ -74,7 +74,7 @@ public class AllTests {
 
         int mult = 1;
         if (!"tcp".equals(communicator.getProperties().getIceProperty("Ice.Default.Protocol"))
-            || helper.isAndroid()) {
+            || TestHelper.isAndroid()) {
             mult = 4;
         }
 

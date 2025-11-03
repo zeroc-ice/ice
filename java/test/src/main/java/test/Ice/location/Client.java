@@ -9,7 +9,7 @@ import test.TestHelper;
 public class Client extends TestHelper {
     public void run(String[] args) {
         var properties = createTestProperties(args);
-        properties.setProperty("Ice.Default.Locator", "locator:" + getTestEndpoint(properties, 0));
+        properties.setProperty("Ice.Default.Locator", "locator:" + getTestEndpoint(properties, 0, ""));
 
         try (Communicator communicator = initialize(properties)) {
             AllTests.allTests(this);
