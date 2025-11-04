@@ -59,14 +59,14 @@ classdef AllTests
             fprintf('ok\n');
 
             fprintf('testing renamed classes... ');
-            renamed = Test.MatlabClass("renamed");
+            renamed = Test.MatlabClass('renamed');
             renamed = initial.opRenamedClass(renamed);
-            test(renamed.data == "renamed");
+            assert(strcmp(renamed.data, 'renamed'));
 
-            derivedRenamed = Test.MatlabDerivedClass("renamed", "derived");
+            derivedRenamed = Test.MatlabDerivedClass('renamed', 'derived');
             derivedRenamed = initial.opRenamedClass(derivedRenamed);
-            test(derivedRenamed.data == "renamed");
-            test(derivedRenamed.moreData == "derived");
+            assert(strcmp(derivedRenamed.data, 'renamed'));
+            assert(strcmp(derivedRenamed.moreData, 'derived'));
             fprintf('ok\n');
 
             fprintf('checking consistency... ');

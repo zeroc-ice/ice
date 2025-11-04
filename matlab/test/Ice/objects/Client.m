@@ -14,7 +14,7 @@ function client(args)
     properties.setProperty('Ice.Warn.Connections', '0');
 
     sliceLoader = Ice.CompositeSliceLoader(CustomSliceLoader(), ...
-        Ice.ClassSliceLoader(?DI, ?Test.Compact, ?Test.CompactExt));
+        Ice.ClassSliceLoader(?DI, ?Test.Compact, ?Test.CompactExt, ?Test.MatlabClass, ?Test.MatlabDerivedClass));
 
     communicator = helper.initialize(Properties = properties, SliceLoader = sliceLoader);
     cleanup = onCleanup(@() communicator.destroy());
