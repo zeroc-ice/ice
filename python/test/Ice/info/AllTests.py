@@ -25,6 +25,24 @@ def getTCPConnectionInfo(info: Ice.ConnectionInfo) -> Ice.TCPConnectionInfo:
         info = info.underlying
 
 
+def checkPeerCertificate(data: bytes):
+    peerCertificate = cryptography.x509.load_pem_x509_certificate(data)
+    test(peerCertificate.issuer.get_attributes_for_oid(cryptography.x509.NameOID.ORGANIZATION_NAME)[0].value == "ZeroC")
+    test(
+        peerCertificate.issuer.get_attributes_for_oid(cryptography.x509.NameOID.ORGANIZATIONAL_UNIT_NAME)[0].value
+        == "Ice test infrastructure"
+    )
+    test(peerCertificate.issuer.get_attributes_for_oid(cryptography.x509.NameOID.COMMON_NAME)[0].value == "ca")
+    test(
+        peerCertificate.subject.get_attributes_for_oid(cryptography.x509.NameOID.ORGANIZATION_NAME)[0].value == "ZeroC"
+    )
+    test(
+        peerCertificate.subject.get_attributes_for_oid(cryptography.x509.NameOID.ORGANIZATIONAL_UNIT_NAME)[0].value
+        == "Ice test infrastructure"
+    )
+    test(peerCertificate.subject.get_attributes_for_oid(cryptography.x509.NameOID.COMMON_NAME)[0].value == "ca.server")
+
+
 def allTests(helper: TestHelper, communicator: Ice.Communicator):
     sys.stdout.write("testing proxy endpoint information... ")
     sys.stdout.flush()
@@ -211,30 +229,16 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
         test(ctx["ws.Sec-WebSocket-Protocol"] == "ice.zeroc.com")
         test(ctx["ws.Sec-WebSocket-Version"] == "13")
         test("ws.Sec-WebSocket-Key" in ctx)
+
+        test(
+            (connection.type() == "ws" and not isinstance(info.underlying, Ice.SSLConnectionInfo))
+            or (connection.type() == "wss" and isinstance(info.underlying, Ice.SSLConnectionInfo))
+        )
+        if isinstance(info.underlying, Ice.SSLConnectionInfo):
+            checkPeerCertificate(info.underlying.peerCertificate.encode())
     elif connection.type() == "ssl":
         assert isinstance(info, Ice.SSLConnectionInfo)
-        peerCertificate = cryptography.x509.load_pem_x509_certificate(info.peerCertificate.encode())
-        test(
-            peerCertificate.issuer.get_attributes_for_oid(cryptography.x509.NameOID.ORGANIZATION_NAME)[0].value
-            == "ZeroC"
-        )
-        test(
-            peerCertificate.issuer.get_attributes_for_oid(cryptography.x509.NameOID.ORGANIZATIONAL_UNIT_NAME)[0].value
-            == "Ice test infrastructure"
-        )
-        test(peerCertificate.issuer.get_attributes_for_oid(cryptography.x509.NameOID.COMMON_NAME)[0].value == "ca")
-        test(
-            peerCertificate.subject.get_attributes_for_oid(cryptography.x509.NameOID.ORGANIZATION_NAME)[0].value
-            == "ZeroC"
-        )
-        test(
-            peerCertificate.subject.get_attributes_for_oid(cryptography.x509.NameOID.ORGANIZATIONAL_UNIT_NAME)[0].value
-            == "Ice test infrastructure"
-        )
-        test(
-            peerCertificate.subject.get_attributes_for_oid(cryptography.x509.NameOID.COMMON_NAME)[0].value
-            == "ca.server"
-        )
+        checkPeerCertificate(info.peerCertificate.encode())
 
     connection = base.ice_datagram().ice_getConnection()
     assert connection is not None
