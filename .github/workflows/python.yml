@@ -41,7 +41,7 @@ jobs:
       - name: Setup Python
         uses: ./.github/actions/setup-python
 
-      - name: Install Pyright and NumPy
+      - name: Install Python dependencies
         run: python -m pip install pyright numpy cryptography setuptools
 
       - name: Build Ice for Python
