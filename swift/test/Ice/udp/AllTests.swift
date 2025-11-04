@@ -42,10 +42,7 @@ class PingReplyI: PingReply, @unchecked Sendable {
                 return false
             }
 
-            guard let result = await group.next() else {
-                fatalError("empty task group")
-            }
-
+            let result = await group.next()!
             group.cancelAll()
             return result
         }
