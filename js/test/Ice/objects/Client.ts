@@ -150,7 +150,7 @@ export class Client extends TestHelper {
         test(renamed != null);
         test(renamed.data == "renamed");
 
-        let derivedRenamed : Test_Test.JsDerivedClass | null = new Test.JsDerivedClass("renamed", "derived");
+        let derivedRenamed: Test_Test.JsDerivedClass | null = new Test.JsDerivedClass("renamed", "derived");
         derivedRenamed = (await initial.opRenamedClass(derivedRenamed)) as Test_Test.JsDerivedClass;
         test(derivedRenamed != null);
         test(derivedRenamed.data == "renamed");

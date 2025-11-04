@@ -81,6 +81,10 @@ final class InitialI: Initial, @unchecked Sendable {
         return (_b1, _b2, _c, _d)
     }
 
+    func opRenamedClass(r: SwiftClass?, current _: Ice.Current) -> SwiftClass? {
+        return r
+    }
+
     func getMB(current _: Current) -> B? {
         return _b1
     }
