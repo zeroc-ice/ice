@@ -10,6 +10,7 @@ class Client: TestHelperI, @unchecked Sendable {
             let properties = try createTestProperties(&restArgs)
             properties.setProperty(key: "Ice.Warn.Connections", value: "0")
             properties.setProperty(key: "Ice.UDP.SndSize", value: "16384")
+            properties.setProperty(key: "Ice.UDP.RcvSize", value: "16384")
 
             let communicator = try initialize(properties)
             defer {

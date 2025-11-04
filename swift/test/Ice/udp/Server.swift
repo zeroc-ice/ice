@@ -8,6 +8,7 @@ class Server: TestHelperI, @unchecked Sendable {
         var restArgs = args
         let properties = try createTestProperties(&restArgs)
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
+        properties.setProperty(key: "Ice.UDP.SndSize", value: "16384")
         properties.setProperty(key: "Ice.UDP.RcvSize", value: "16384")
 
         let communicator = try initialize(properties)
@@ -21,7 +22,7 @@ class Server: TestHelperI, @unchecked Sendable {
         let adapter = try communicator.createObjectAdapter("ControlAdapter")
         try adapter.add(servant: TestIntfI(), id: Ice.stringToIdentity("control"))
         try adapter.activate()
-        serverReady()
+
         if num == 0 {
             communicator.getProperties().setProperty(
                 key: "TestAdapter.Endpoints",
@@ -46,6 +47,9 @@ class Server: TestHelperI, @unchecked Sendable {
         let mcastAdapter = try communicator.createObjectAdapter("McastTestAdapter")
         try mcastAdapter.add(servant: TestIntfI(), id: Ice.Identity(name: "test"))
         try mcastAdapter.activate()
-        communicator.waitForShutdown()
+
+        serverReady()
+
+        await communicator.shutdownCompleted()
     }
 }

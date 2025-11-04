@@ -1,30 +1,51 @@
 // Copyright (c) ZeroC, Inc.
 
-import Dispatch
 import Foundation
 import Ice
 import TestCommon
 
 class PingReplyI: PingReply, @unchecked Sendable {
-    private let _semaphore = DispatchSemaphore(value: 0)
+    private let _stream: AsyncStream<Void>
+    private let _streamContinuation: AsyncStream<Void>.Continuation
+
+    init() {
+        let (stream, continuation) = AsyncStream<Void>.makeStream()
+        _stream = stream
+        _streamContinuation = continuation
+    }
 
     func reply(current _: Current) {
-        _semaphore.signal()
+        _streamContinuation.yield()
     }
 
     func getProxy(_ adapter: ObjectAdapter) throws -> PingReplyPrx {
         try uncheckedCast(prx: adapter.addWithUUID(self), type: PingReplyPrx.self).ice_datagram()
     }
 
-    func waitReply(expectedReplies: Int, timeout: Int) -> Bool {
+    func waitReply(expectedReplies: Int, timeout: Int) async -> Bool {
         precondition(timeout > 0, "Timeout must be greater than 0")
-        let end = DispatchTime.now() + .milliseconds(timeout)
-        for _ in 0..<expectedReplies {
-            if _semaphore.wait(timeout: end) == .timedOut {
-                return false  // timed out
+
+        return await withTaskGroup(of: Bool.self) { group in
+            group.addTask {
+                var count = 0
+                for await _ in self._stream {
+                    count += 1
+                    if count == expectedReplies {
+                        break
+                    }
+                }
+                return true
             }
+
+            group.addTask {
+                try? await Task.sleep(for: .milliseconds(timeout))
+                return false
+            }
+
+            let result = await group.next()!
+            group.cancelAll()
+            return result
         }
-        return true  // success
     }
 }
 
@@ -53,7 +74,7 @@ public func allTests(_ helper: TestHelper) async throws {
         try await obj.ping(reply)
         try await obj.ping(reply)
         try await obj.ping(reply)
-        ret = replyI.waitReply(expectedReplies: 3, timeout: 2000)
+        ret = await replyI.waitReply(expectedReplies: 3, timeout: 2000)
         if ret {
             break  // Success
         }
@@ -93,7 +114,7 @@ public func allTests(_ helper: TestHelper) async throws {
             let reply = try replyI.getProxy(adapter)
 
             try await obj.sendByteSeq(seq: seq, reply: reply)
-            let b = replyI.waitReply(expectedReplies: 1, timeout: 500)
+            let b = await replyI.waitReply(expectedReplies: 1, timeout: 500)
             //
             // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
             // should not be delivered.
@@ -123,7 +144,7 @@ public func allTests(_ helper: TestHelper) async throws {
         let reply = try replyI.getProxy(adapter)
         do {
             try await objMcast.ping(reply)
-            ret = replyI.waitReply(expectedReplies: 5, timeout: 5000)
+            ret = await replyI.waitReply(expectedReplies: 5, timeout: 5000)
         } catch is Ice.SocketException
             where communicator.getProperties().getIceProperty("Ice.IPv6") == "1"
         {
@@ -147,7 +168,7 @@ public func allTests(_ helper: TestHelper) async throws {
         try await obj.pingBiDir(reply.ice_getIdentity())
         try await obj.pingBiDir(reply.ice_getIdentity())
         try await obj.pingBiDir(reply.ice_getIdentity())
-        ret = replyI.waitReply(expectedReplies: 3, timeout: 2000)
+        ret = await replyI.waitReply(expectedReplies: 3, timeout: 2000)
         if ret {
             break  // Success
         }
