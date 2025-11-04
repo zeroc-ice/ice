@@ -8,7 +8,7 @@ traceProps = {"Ice.Trace.Network": 3, "Ice.Trace.Retry": 1, "Ice.Trace.Protocol"
 
 class UdpTestCase(ClientServerTestCase):
     def setupServerSide(self, current):
-        if current.config.android or current.config.buildPlatform in ["iphonesimulator"]:
+        if current.config.android:
             self.servers = [Server(ready="McastTestAdapter", traceProps=traceProps)]
         else:
             self.servers = [
@@ -19,7 +19,7 @@ class UdpTestCase(ClientServerTestCase):
             ]
 
     def setupClientSide(self, current):
-        if current.config.android or current.config.buildPlatform in ["iphonesimulator"]:
+        if current.config.android:
             self.clients = [Client(traceProps=traceProps)]
         else:
             self.clients = [Client(args=[5], traceProps=traceProps)]

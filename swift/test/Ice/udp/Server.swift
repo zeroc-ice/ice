@@ -50,6 +50,6 @@ class Server: TestHelperI, @unchecked Sendable {
 
         serverReady()
 
-        communicator.waitForShutdown()
+        await communicator.shutdownCompleted()
     }
 }
