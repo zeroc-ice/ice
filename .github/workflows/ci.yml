@@ -235,14 +235,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
         if: matrix.config == 'release' && runner.os == 'macOS'
 
-      - name: Upload logs from simulator
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-logs-${{ matrix.config }}-${{ matrix.os }}-simulator
-          path: /Users/runner/Library/Developer/CoreSimulator/Devices/**/*.log
-          if-no-files-found: ignore
-        if: runner.os == 'macOS' && always()
-
       - name: Upload test logs
         uses: actions/upload-artifact@v4
         with:
