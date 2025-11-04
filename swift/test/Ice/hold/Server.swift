@@ -38,6 +38,6 @@ class Server: TestHelperI, @unchecked Sendable {
         try adapter1.activate()
         try adapter2.activate()
         serverReady()
-        communicator.waitForShutdown()
+        await communicator.shutdownCompleted()
     }
 }

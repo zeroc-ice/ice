@@ -19,6 +19,6 @@ class Server: TestHelperI, @unchecked Sendable {
             id: id)
         try adapter.activate()
         serverReady()
-        communicator.waitForShutdown()
+        await communicator.shutdownCompleted()
     }
 }

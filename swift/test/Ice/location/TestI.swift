@@ -69,7 +69,7 @@ actor ServerManagerI: ServerManager {
 
     func startServer(current _: Ice.Current) async throws {
         for c in _communicators {
-            c.waitForShutdown()
+            await c.shutdownCompleted()
             c.destroy()
         }
         _communicators.removeAll()

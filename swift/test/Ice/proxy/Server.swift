@@ -28,6 +28,6 @@ class Server: TestHelperI, @unchecked Sendable {
             id: Ice.Identity(name: "c"))
         try adapter.activate()
         serverReady()
-        communicator.waitForShutdown()
+        await communicator.shutdownCompleted()
     }
 }

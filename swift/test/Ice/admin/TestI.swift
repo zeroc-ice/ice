@@ -55,12 +55,12 @@ final class RemoteCommunicatorI: RemoteCommunicator {
         _communicator.shutdown()
     }
 
-    func waitForShutdown(current _: Ice.Current) {
+    func waitForShutdown(current _: Ice.Current) async {
         //
         // Note that we are executing in a thread of the *main* communicator,
         // not the one that is being shut down.
         //
-        _communicator.waitForShutdown()
+        await _communicator.shutdownCompleted()
     }
 
     func destroy(current _: Ice.Current) {

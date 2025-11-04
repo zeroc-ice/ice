@@ -28,6 +28,6 @@ class Server: TestHelperI, @unchecked Sendable {
         try adapter.activate()
 
         serverReady()
-        communicator.waitForShutdown()
+        await communicator.shutdownCompleted()
     }
 }
