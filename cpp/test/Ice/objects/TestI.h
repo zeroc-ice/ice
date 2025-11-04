@@ -73,6 +73,8 @@ public:
 
     void getAll(Test::BPtr&, Test::BPtr&, Test::CPtr&, Test::DPtr&, const Ice::Current&) final;
 
+    Test::CppClassPtr opRenamedClass(Test::CppClassPtr r, const Ice::Current&) final;
+
     Test::KPtr getK(const Ice::Current&) final;
 
     Ice::ValuePtr opValue(Ice::ValuePtr, Ice::ValuePtr&, const Ice::Current&) final;
