@@ -165,6 +165,19 @@ module Test
         F2* f2;
     }
 
+    // Ensure that renamed classes are correctly encoded/decoded.
+    ["matlab:identifier:MatlabClass"]
+    class Renamed
+    {
+        string data;
+    }
+
+    ["matlab:identifier:MatlabDerivedClass"]
+    class RenamedDerived extends Renamed
+    {
+        string moreData;
+    }
+
     interface Initial
     {
         void shutdown();
@@ -182,6 +195,8 @@ module Test
         ["amd"] ["marshaled-result"] B getAMDMB();
 
         void getAll(out B b1, out B b2, out C theC, out D theD);
+
+        Renamed opRenamedClass(Renamed r);
 
         K getK();
 
