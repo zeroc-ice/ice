@@ -99,6 +99,10 @@ class InitialI(Test.Initial):
         return (self._b1, self._b2, self._c, self._d)
 
     @override
+    def opRenamedClass(self, r: Test.PyClass | None, current: Ice.Current) -> Test.PyClass | None:
+        return r
+
+    @override
     def getK(self, current: Ice.Current) -> Test.K:
         return Test.K(Test.L("l"))
 
