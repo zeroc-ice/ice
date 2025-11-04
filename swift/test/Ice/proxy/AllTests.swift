@@ -871,11 +871,11 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
         let com = try Ice.initialize()
         com.shutdown()
         try test(com.isShutdown())
-        com.waitForShutdown()
+        await com.shutdownCompleted()
         com.destroy()
         com.shutdown()
         try test(com.isShutdown())
-        com.waitForShutdown()
+        await com.shutdownCompleted()
         com.destroy()
     }
     writer.writeLine("ok")

@@ -40,6 +40,6 @@ class Server: TestHelperI, @unchecked Sendable {
         try controllerAdapter.activate()
 
         serverReady()
-        communicator.waitForShutdown()
+        await communicator.shutdownCompleted()
     }
 }

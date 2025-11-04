@@ -25,6 +25,6 @@ class Server: TestHelperI, @unchecked Sendable {
         try adapter.add(servant: TestI(self), id: Ice.stringToIdentity("Test"))
         try adapter.activate()
         serverReady()
-        communicator.waitForShutdown()
+        await communicator.shutdownCompleted()
     }
 }

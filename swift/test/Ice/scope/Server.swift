@@ -21,6 +21,6 @@ class Server: TestHelperI, @unchecked Sendable {
         try adapter.add(servant: NPMyInterface(), id: Ice.stringToIdentity("npi"))
         try adapter.activate()
         serverReady()
-        communicator.waitForShutdown()
+        await communicator.shutdownCompleted()
     }
 }
