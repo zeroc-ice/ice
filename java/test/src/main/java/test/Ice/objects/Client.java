@@ -11,6 +11,8 @@ import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import test.Ice.objects.Test.Compact;
 import test.Ice.objects.Test.CompactExt;
 import test.Ice.objects.Test.InitialPrx;
+import test.Ice.objects.Test.JavaClass;
+import test.Ice.objects.Test.JavaDerivedClass;
 import test.TestHelper;
 
 public class Client extends TestHelper {
@@ -28,7 +30,7 @@ public class Client extends TestHelper {
                         default -> null;
                     };
                 },
-                new ClassSliceLoader(Compact.class, CompactExt.class),
+                new ClassSliceLoader(Compact.class, CompactExt.class, JavaDerivedClass.class, JavaClass.class),
                 new ModuleToPackageSliceLoader("::Test", "test.Ice.objects.Test"));
 
         try (Communicator communicator = initialize(initData)) {

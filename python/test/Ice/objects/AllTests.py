@@ -142,7 +142,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.Initial
     assert d is not None
     print("ok")
 
-    sys.stdout.write("checking consistency... ")
+    sys.stdout.write("checking renamed classes... ")
     sys.stdout.flush()
     renamed = Test.PyClass("renamed")
     r = initial.opRenamedClass(renamed)

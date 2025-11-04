@@ -13,6 +13,8 @@ import com.zeroc.Ice.ObjectAdapter;
 import test.Ice.objects.Test.Compact;
 import test.Ice.objects.Test.CompactExt;
 import test.Ice.objects.Test.Initial;
+import test.Ice.objects.Test.JavaClass;
+import test.Ice.objects.Test.JavaDerivedClass;
 import test.TestHelper;
 
 public class Collocated extends TestHelper {
@@ -30,7 +32,7 @@ public class Collocated extends TestHelper {
                         default -> null;
                     };
                 },
-                new ClassSliceLoader(Compact.class, CompactExt.class),
+                new ClassSliceLoader(Compact.class, CompactExt.class, JavaDerivedClass.class, JavaClass.class),
                 new ModuleToPackageSliceLoader("::Test", "test.Ice.objects.Test"));
 
         try (Communicator communicator = initialize(initData)) {

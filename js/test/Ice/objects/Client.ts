@@ -144,6 +144,19 @@ export class Client extends TestHelper {
         test(d !== null);
         out.writeLine("ok");
 
+        out.write("testing renamed classes... ");
+        let renamed: Test_Test.JsClass | null = new Test.JsClass("renamed");
+        renamed = await initial.opRenamedClass(renamed);
+        test(renamed != null);
+        test(renamed.data == "renamed");
+
+        let derivedRenamed : Test_Test.JsDerivedClass | null = new Test.JsDerivedClass("renamed", "derived");
+        derivedRenamed = (await initial.opRenamedClass(derivedRenamed)) as Test_Test.JsDerivedClass;
+        test(derivedRenamed != null);
+        test(derivedRenamed.data == "renamed");
+        test(derivedRenamed.moreData == "derived");
+        out.writeLine("ok");
+
         out.write("checking consistency... ");
         test(b1 !== b2);
         test(b1.theA === b2);

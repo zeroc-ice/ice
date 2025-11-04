@@ -2,18 +2,25 @@
 
 package test.Ice.objects;
 
+import com.zeroc.Ice.ClassSliceLoader;
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.CompositeSliceLoader;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
 
+import test.Ice.objects.Test.JavaClass;
+import test.Ice.objects.Test.JavaDerivedClass;
 import test.TestHelper;
 
 public class Server extends TestHelper {
     public void run(String[] args) {
         var initData = new InitializationData();
-        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.objects.Test");
+        initData.sliceLoader =
+            new CompositeSliceLoader(
+                new ClassSliceLoader(JavaDerivedClass.class, JavaClass.class),
+                new ModuleToPackageSliceLoader("::Test", "test.Ice.objects.Test"));
         initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
 
