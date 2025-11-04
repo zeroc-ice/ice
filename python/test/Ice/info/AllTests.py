@@ -2,6 +2,7 @@
 
 import sys
 
+import cryptography.x509
 from generated.test.Ice.info import Test
 from TestHelper import TestHelper, test
 
@@ -212,6 +213,47 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
         test(ctx["ws.Sec-WebSocket-Protocol"] == "ice.zeroc.com")
         test(ctx["ws.Sec-WebSocket-Version"] == "13")
         test("ws.Sec-WebSocket-Key" in ctx)
+    elif connection.type() == "ssl":
+        assert isinstance(info, Ice.SSLConnectionInfo)
+        peerCertificate = cryptography.x509.load_pem_x509_certificate(info.peerCertificate.encode())
+        test(
+            peerCertificate.issuer.get_attributes_for_oid(cryptography.x509.NameOID.ORGANIZATION_NAME)[0].value
+            == "ZeroC"
+        )
+        test(
+            peerCertificate.issuer.get_attributes_for_oid(cryptography.x509.NameOID.ORGANIZATIONAL_UNIT_NAME)[0].value
+            == "Ice test infrastructure"
+        )
+        test(peerCertificate.issuer.get_attributes_for_oid(cryptography.x509.NameOID.COMMON_NAME)[0].value == "ca")
+        test(
+            peerCertificate.subject.get_attributes_for_oid(cryptography.x509.NameOID.ORGANIZATION_NAME)[0].value
+            == "ZeroC"
+        )
+        test(
+            peerCertificate.subject.get_attributes_for_oid(cryptography.x509.NameOID.ORGANIZATIONAL_UNIT_NAME)[0].value
+            == "Ice test infrastructure"
+        )
+        test(
+            peerCertificate.subject.get_attributes_for_oid(cryptography.x509.NameOID.COMMON_NAME)[0].value
+            == "ca.server"
+        )
+
+    connection = base.ice_datagram().ice_getConnection()
+    assert connection is not None
+    connection.setBufferSize(2048, 1024)
+
+    udpInfo = connection.getInfo()
+    assert isinstance(udpInfo, Ice.UDPConnectionInfo)
+    test(not udpInfo.incoming)
+    test(udpInfo.adapterName == "")
+    test(udpInfo.localPort > 0)
+    test(udpInfo.remotePort == port)
+
+    if defaultHost == "127.0.0.1":
+        test(udpInfo.remoteAddress == defaultHost)
+        test(udpInfo.localAddress == defaultHost)
+    test(udpInfo.rcvSize >= 2048)
+    test(udpInfo.sndSize >= 1024)
 
     print("ok")
 
