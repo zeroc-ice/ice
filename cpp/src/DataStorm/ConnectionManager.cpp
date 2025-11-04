@@ -17,6 +17,9 @@ ConnectionManager::add(
     shared_ptr<void> object,
     function<void(const ConnectionPtr&, exception_ptr)> callback)
 {
+    // Disable the inactivity timeout on the connection.
+    connection->disableInactivityCheck();
+
     lock_guard<mutex> lock(_mutex);
     auto& objects = _connections[connection];
     if (objects.empty())
