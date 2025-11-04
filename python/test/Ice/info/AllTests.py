@@ -198,8 +198,6 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     test(ctx["remotePort"] == str(tcpinfo.localPort))
     test(ctx["localPort"] == str(tcpinfo.remotePort))
 
-    connection = base.ice_getConnection()
-    assert connection is not None
     if connection.type() == "ws" or connection.type() == "wss":
         assert isinstance(info, Ice.WSConnectionInfo)
 
