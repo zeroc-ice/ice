@@ -297,7 +297,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
 
         if (shouldRetry) {
             try {
-                return checkRetryAfterException((LocalException) ex);
+                return checkRetryAfterException(ex);
             } catch (CommunicatorDestroyedException exc) {
                 throw ex; // The communicator is already destroyed, so we cannot retry.
             }

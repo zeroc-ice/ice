@@ -2,6 +2,7 @@
 
 import sys
 
+import cryptography.x509
 from generated.test.Ice.info import Test
 from TestHelper import TestHelper, test
 
@@ -22,6 +23,24 @@ def getTCPConnectionInfo(info: Ice.ConnectionInfo) -> Ice.TCPConnectionInfo:
             return info
         assert info.underlying is not None
         info = info.underlying
+
+
+def checkPeerCertificate(data: bytes):
+    peerCertificate = cryptography.x509.load_pem_x509_certificate(data)
+    test(peerCertificate.issuer.get_attributes_for_oid(cryptography.x509.NameOID.ORGANIZATION_NAME)[0].value == "ZeroC")
+    test(
+        peerCertificate.issuer.get_attributes_for_oid(cryptography.x509.NameOID.ORGANIZATIONAL_UNIT_NAME)[0].value
+        == "Ice test infrastructure"
+    )
+    test(peerCertificate.issuer.get_attributes_for_oid(cryptography.x509.NameOID.COMMON_NAME)[0].value == "ca")
+    test(
+        peerCertificate.subject.get_attributes_for_oid(cryptography.x509.NameOID.ORGANIZATION_NAME)[0].value == "ZeroC"
+    )
+    test(
+        peerCertificate.subject.get_attributes_for_oid(cryptography.x509.NameOID.ORGANIZATIONAL_UNIT_NAME)[0].value
+        == "Ice test infrastructure"
+    )
+    test(peerCertificate.subject.get_attributes_for_oid(cryptography.x509.NameOID.COMMON_NAME)[0].value == "ca.server")
 
 
 def allTests(helper: TestHelper, communicator: Ice.Communicator):
@@ -197,8 +216,6 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     test(ctx["remotePort"] == str(tcpinfo.localPort))
     test(ctx["localPort"] == str(tcpinfo.remotePort))
 
-    connection = base.ice_getConnection()
-    assert connection is not None
     if connection.type() == "ws" or connection.type() == "wss":
         assert isinstance(info, Ice.WSConnectionInfo)
 
@@ -212,6 +229,33 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
         test(ctx["ws.Sec-WebSocket-Protocol"] == "ice.zeroc.com")
         test(ctx["ws.Sec-WebSocket-Version"] == "13")
         test("ws.Sec-WebSocket-Key" in ctx)
+
+        test(
+            (connection.type() == "ws" and not isinstance(info.underlying, Ice.SSLConnectionInfo))
+            or (connection.type() == "wss" and isinstance(info.underlying, Ice.SSLConnectionInfo))
+        )
+        if isinstance(info.underlying, Ice.SSLConnectionInfo):
+            checkPeerCertificate(info.underlying.peerCertificate.encode())
+    elif connection.type() == "ssl":
+        assert isinstance(info, Ice.SSLConnectionInfo)
+        checkPeerCertificate(info.peerCertificate.encode())
+
+    connection = base.ice_datagram().ice_getConnection()
+    assert connection is not None
+    connection.setBufferSize(2048, 1024)
+
+    udpInfo = connection.getInfo()
+    assert isinstance(udpInfo, Ice.UDPConnectionInfo)
+    test(not udpInfo.incoming)
+    test(udpInfo.adapterName == "")
+    test(udpInfo.localPort > 0)
+    test(udpInfo.remotePort == port)
+
+    if defaultHost == "127.0.0.1":
+        test(udpInfo.remoteAddress == defaultHost)
+        test(udpInfo.localAddress == defaultHost)
+    test(udpInfo.rcvSize >= 2048)
+    test(udpInfo.sndSize >= 1024)
 
     print("ok")
 

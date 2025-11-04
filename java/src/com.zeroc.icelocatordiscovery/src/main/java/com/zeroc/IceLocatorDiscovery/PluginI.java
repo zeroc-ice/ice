@@ -162,7 +162,7 @@ class PluginI implements Plugin {
             Endpoint[] single = new Endpoint[1];
             for (Endpoint endpt : lookup.ice_getEndpoints()) {
                 single[0] = endpt;
-                _lookups.put((LookupPrx) lookup.ice_endpoints(single), null);
+                _lookups.put(lookup.ice_endpoints(single), null);
             }
             assert (!_lookups.isEmpty());
         }
@@ -177,7 +177,7 @@ class PluginI implements Plugin {
                         EndpointInfo r = q.getInfo();
                         if (r instanceof IPEndpointInfo && ((IPEndpointInfo) r).host.equals(info.mcastInterface)) {
                             single[0] = q;
-                            entry.setValue((LookupReplyPrx) lookupReply.ice_endpoints(single));
+                            entry.setValue(lookupReply.ice_endpoints(single));
                         }
                     }
                 }
@@ -305,7 +305,7 @@ class PluginI implements Plugin {
                         newEndpoints.add(p);
                     }
                 }
-                l = (LocatorPrx) l.ice_endpoints(newEndpoints.toArray(new Endpoint[newEndpoints.size()]));
+                l = l.ice_endpoints(newEndpoints.toArray(new Endpoint[newEndpoints.size()]));
             } else {
                 l = locator;
             }

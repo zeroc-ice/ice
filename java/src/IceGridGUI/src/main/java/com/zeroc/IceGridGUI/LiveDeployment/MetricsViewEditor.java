@@ -429,7 +429,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         private MetricsViewTransferableData _data;
     }
 
-    /** Class used to transfer selected metric fields with drag & drop. */
+    /** Class used to transfer selected metric fields with drag {@literal &} drop. */
     public static class MetricsViewTransferableData {
         public MetricsViewTransferableData(
                 MetricsViewInfo info, String name, Map<String, List<MetricsCell>> rows) {
@@ -1285,10 +1285,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                 if (d2.value - d1.value == 0 || d2.timestamp - d1.timestamp == 0) {
                     last = 0.0d;
                 } else {
-                    last =
-                        (double)
-                            ((d2.value - d1.value)
-                                / ((d2.timestamp - d1.timestamp) / _scaleFactor));
+                    last = (d2.value - d1.value) / ((d2.timestamp - d1.timestamp) / _scaleFactor);
                 }
             }
             _last.put(m.id, last);

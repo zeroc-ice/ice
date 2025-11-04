@@ -1073,7 +1073,7 @@ public class AllTests {
         out.println("ok");
 
         out.print("testing proxy hierarchy... ");
-        var cPrx = CPrx.createProxy(communicator, "c:" + helper.getTestEndpoint());
+        var cPrx = CPrx.createProxy(communicator, "c:" + helper.getTestEndpoint(0));
 
         APrx aPrx = cPrx.opA(cPrx);
         test(aPrx.equals(cPrx));

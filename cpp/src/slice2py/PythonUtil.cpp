@@ -2258,6 +2258,25 @@ Slice::Python::CodeVisitor::writeRemarksDocComment(const StringList& remarks, bo
 }
 
 void
+Slice::Python::CodeVisitor::writeSeeAlso(const StringList& seeAlso, bool needsNewline, Output& out)
+{
+    if (!seeAlso.empty())
+    {
+        if (needsNewline)
+        {
+            out << nl;
+        }
+
+        out << nl << "See Also";
+        out << nl << "--------";
+        for (const string& line : seeAlso)
+        {
+            out << nl << "    " << line;
+        }
+    }
+}
+
+void
 Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, const string& prefix, Output& out)
 {
     if (!comment)
@@ -2310,7 +2329,8 @@ Slice::Python::CodeVisitor::writeDocstring(
 
     const StringList& overview = comment->overview();
     const StringList& remarks = comment->remarks();
-    if (overview.empty() && remarks.empty() && docs.empty())
+    const StringList& seeAlso = comment->seeAlso();
+    if (overview.empty() && remarks.empty() && docs.empty() && seeAlso.empty())
     {
         return;
     }
@@ -2352,6 +2372,8 @@ Slice::Python::CodeVisitor::writeDocstring(
 
     writeRemarksDocComment(remarks, !overview.empty() || !docs.empty(), out);
 
+    writeSeeAlso(seeAlso, !overview.empty() || !docs.empty() || !remarks.empty(), out);
+
     out << nl << tripleQuotes;
 }
 
@@ -2380,7 +2402,8 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
 
     const StringList& overview = comment->overview();
     const StringList& remarks = comment->remarks();
-    if (overview.empty() && remarks.empty() && docs.empty())
+    const StringList& seeAlso = comment->seeAlso();
+    if (overview.empty() && remarks.empty() && docs.empty() && seeAlso.empty())
     {
         return;
     }
@@ -2417,6 +2440,8 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
 
     writeRemarksDocComment(remarks, !overview.empty() || !docs.empty(), out);
 
+    writeSeeAlso(seeAlso, !overview.empty() || !docs.empty() || !remarks.empty(), out);
+
     out << nl << tripleQuotes;
 }
 
@@ -2438,11 +2463,12 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
 
     const StringList& overview = comment->overview();
     const StringList& remarks = comment->remarks();
+    const StringList& seeAlso = comment->seeAlso();
     const StringList& returnsDoc = comment->returns();
     const auto& parametersDoc = comment->parameters();
     const auto& exceptionsDoc = comment->exceptions();
 
-    if (overview.empty() && remarks.empty())
+    if (overview.empty() && remarks.empty() && seeAlso.empty())
     {
         if ((methodKind == MethodKind::SyncInvocation || methodKind == MethodKind::Dispatch) && parametersDoc.empty() &&
             exceptionsDoc.empty() && returnsDoc.empty())
@@ -2636,6 +2662,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
     }
 
     writeRemarksDocComment(remarks, true, out);
+    writeSeeAlso(seeAlso, true, out);
 
     out << nl << tripleQuotes;
 }
@@ -3004,19 +3031,25 @@ Slice::Python::pyLinkFormatter(const string& rawLink, const ContainedPtr&, const
     {
         result << "``";
 
-        auto hashPos = rawLink.find('#');
-        if (hashPos != string::npos)
+        // Replace "::" by "." in the raw link. This is for the situation where the user passes a Slice type
+        // reference but (a) the source Slice file does not include this type and (b) there is no python:identifier or
+        // other identifier renaming.
+        string targetS = rawLink;
+        // Replace any "::" scope separators with '.'s.
+        auto pos = targetS.find("::");
+        while (pos != string::npos)
         {
-            if (hashPos != 0)
-            {
-                result << rawLink.substr(0, hashPos) << ".";
-            }
-            result << rawLink.substr(hashPos + 1);
+            targetS.replace(pos, 2, ".");
+            pos = targetS.find("::", pos);
         }
-        else
+        // Replace any '#' scope separators with '.'s.
+        replace(targetS.begin(), targetS.end(), '#', '.');
+        // Remove any leading scope separators.
+        if (targetS.find('.') == 0)
         {
-            result << rawLink;
+            targetS.erase(0, 1);
         }
+        result << targetS;
 
         result << "``";
     }
