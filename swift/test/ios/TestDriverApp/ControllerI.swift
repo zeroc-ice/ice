@@ -236,7 +236,7 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
             case timeout
         }
 
-        let result =  await withTaskGroup(of: ReadyResult.self) { group in
+        let result = await withTaskGroup(of: ReadyResult.self) { group in
             group.addTask {
                 try? await Task.sleep(for: .seconds(Int(timeout)))
                 return .timeout
@@ -275,12 +275,12 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
         }
 
         switch result {
-            case .timeout:
-                throw CommonProcessFailedException(reason: "timed out waiting for the process to succeed")
-            case .completed(let status) where status != 0:
-                throw CommonProcessFailedException(reason: self._out)
-            case .ready, .completed(_):
-                return
+        case .timeout:
+            throw CommonProcessFailedException(reason: "timed out waiting for the process to succeed")
+        case .completed(let status) where status != 0:
+            throw CommonProcessFailedException(reason: self._out)
+        case .ready, .completed(_):
+            return
         }
     }
 
@@ -291,7 +291,7 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
             case timeout
         }
 
-        let result =  await withTaskGroup(of: WaitResult.self) { group in
+        let result = await withTaskGroup(of: WaitResult.self) { group in
             group.addTask {
                 try? await Task.sleep(for: .seconds(Int(timeout)))
                 return .timeout
@@ -323,10 +323,10 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
         }
 
         switch result {
-            case .completed(let status):
-                return status
-            case .timeout:
-                throw CommonProcessFailedException(reason: "timed out waiting for the process to succeed")
+        case .completed(let status):
+            return status
+        case .timeout:
+            throw CommonProcessFailedException(reason: "timed out waiting for the process to succeed")
         }
     }
 
