@@ -42,22 +42,8 @@ install-shared-matlab-module = $(call install-shared-module,$(call mkmatlabmodul
 #
 define make-matlab-package
 
-$2/+$3/.depend/%.ice.d: | $2/+$3/.depend ;
-
-$2/+$3/.depend:
-	$(Q)$(MKDIR) -p $$@
-
-.PRECIOUS: $2/+$3/.depend/%.ice.d
-
-ifeq ($(filter %clean,$(MAKECMDGOALS)),)
-    # Include the dependencies
-    -include $(addprefix $2/+$3/.depend/,$(call source-to-dependency,$(wildcard $1/$3/*.ice)))
-endif
-
 $2/+$3/%.m: $1/$3/%.ice $2/+$3/.depend/%.ice.d $(slice2matlab_path)
 	$(E) "Compiling $$<"
-	$(Q)$(slice2matlab_path) $(slice2matlab_flags) -I$1 --output-dir $2 --depend $$< | \
-		sed 's/\(.*: \\\)/$(subst /,\/,$2)\/$3\/\1/' > $2/+$3/.depend/$$(*F).ice.d
 	$(Q)$(slice2matlab_path) $(slice2matlab_flags) -I$1 --output-dir $2 $$<
 
 distclean clean::
@@ -73,28 +59,13 @@ endef
 #
 define make-matlab-test-project
 
-$1/.depend/%.ice.d: | $1/.depend ;
-
-$1/.depend:
-	$(Q)$(MKDIR) -p $$@
-
-.PRECIOUS: $1/.depend/%.ice.d
-
-ifeq ($(filter %clean,$(MAKECMDGOALS)),)
-    # Include the dependencies
-    -include $(addprefix $1/.depend/,$(call source-to-dependency,$(wildcard $1/*.ice)))
-endif
-
 $1/generated/%.m: $1/%.ice $1/.depend/%.ice.d $(slice2matlab_path)
 	$(E) "Compiling $$<"
 	$(Q)$(MKDIR) -p $1/generated
-	$(Q)$(slice2matlab_path) $(slice2matlab_flags) -I$(slicedir) -I$1 --output-dir $1 $$($1_sliceflags) --depend $$< | \
-		sed 's/\(.*: \\\)/$(subst /,\/,$2)\/$3\/\1/' > $1/.depend/$$(*F).ice.d
 	$(Q)$(slice2matlab_path) $(slice2matlab_flags) -I$(slicedir) -I$1 --output-dir $1/generated $$($1_sliceflags) $$<
 
 distclean clean::
 	$(E) "Cleaning $1"
-	$(Q)$(RM) -r $1/.depend
 	$(Q)$(RM) -r $1/generated
 
 tests generate-srcs srcs all:: $(patsubst $1/%.ice,$1/generated/%.m,$(wildcard $1/*.ice))
