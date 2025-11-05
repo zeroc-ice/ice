@@ -158,18 +158,8 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
         _args = args
         _exe = exe
 
-        let (readyStream, readyStreamContinuation) = AsyncStream<Void>.makeStream()
-        let (completedStream, completedStreamContinuation) = AsyncStream<Void>.makeStream()
-
-        _readyStream = readyStream
-        _readyStreamContinuation = readyStreamContinuation
-
-        _completedStream = completedStream
-        _completedStreamContinuation = completedStreamContinuation
-    }
-
-    deinit {
-        _communicator?.getLogger().print("testName: \(_testName) exe: \(_exe) ControllerHelperI deinit called")
+        (_readyStream, _readyStreamContinuation) = AsyncStream<Void>.makeStream()
+        (_completedStream, _completedStreamContinuation) = AsyncStream<Void>.makeStream()
     }
 
     public func serverReady() {
@@ -255,9 +245,8 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
                 // we get the completed status or the task is cancelled.
                 var completedStatus: Int32?
                 while completedStatus == nil && !Task.isCancelled {
-                    for await _ in self._completedStream {
-                        break
-                    }
+                    var iterator = self._completedStream.makeAsyncIterator()
+                    _ = await iterator.next()
                     completedStatus = self._state.withLock { $0.completedStatus }
                 }
 
@@ -303,9 +292,8 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
                 // we get the completed status or the task is cancelled.
                 var completedStatus: Int32?
                 while completedStatus == nil && !Task.isCancelled {
-                    for await _ in self._completedStream {
-                        break
-                    }
+                    var iterator = self._completedStream.makeAsyncIterator()
+                    _ = await iterator.next()
                     completedStatus = self._state.withLock { $0.completedStatus }
                 }
 
