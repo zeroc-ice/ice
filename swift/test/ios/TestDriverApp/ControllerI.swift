@@ -150,7 +150,7 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
         var completedStatus: Int32?
     }
 
-    private let _lock = Mutex(State())
+    private let _state = Mutex(State())
 
     public init(view: ViewController, testName: String, args: [String], exe: String) {
         _view = view
@@ -173,7 +173,7 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
     }
 
     public func serverReady() {
-        _lock.withLock {
+        _state.withLock {
             precondition(!$0.isReady, "serverReady called multiple times")
             $0.isReady = true
         }
@@ -197,7 +197,7 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
     }
 
     public func completed(status: Int32) {
-        _lock.withLock {
+        _state.withLock {
             precondition($0.completedStatus == nil, "completed status already set")
             $0.completedStatus = status
         }
@@ -258,7 +258,7 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
                     for await _ in self._completedStream {
                         break
                     }
-                    completedStatus = self._lock.withLock { $0.completedStatus }
+                    completedStatus = self._state.withLock { $0.completedStatus }
                 }
 
                 if Task.isCancelled {
@@ -306,7 +306,7 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
                     for await _ in self._completedStream {
                         break
                     }
-                    completedStatus = self._lock.withLock { $0.completedStatus }
+                    completedStatus = self._state.withLock { $0.completedStatus }
                 }
 
                 if Task.isCancelled {
