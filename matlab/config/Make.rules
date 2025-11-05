@@ -44,6 +44,7 @@ define make-matlab-package
 
 $2/+$3/%.m: $1/$3/%.ice $(slice2matlab_path)
 	$(E) "Compiling $$<"
+	$(Q)$(MKDIR) -p $2/+$3
 	$(Q)$(slice2matlab_path) $(slice2matlab_flags) -I$1 --output-dir $2 $$<
 
 distclean clean::
