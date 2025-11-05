@@ -276,7 +276,7 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
 
         switch result {
         case .timeout:
-            throw CommonProcessFailedException(reason: "timed out waiting for the process to succeed")
+            throw CommonProcessFailedException(reason: "timed out waiting for the process to be ready")
         case .completed(let status) where status != 0:
             throw CommonProcessFailedException(reason: self._out)
         case .ready, .completed(_):
