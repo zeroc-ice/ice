@@ -8,6 +8,7 @@ traceProps = {
     "DataStorm.Trace.Session": 3,
     "DataStorm.Trace.Data": 2,
     "Ice.Trace.Protocol": 1,
+    "Ice.Trace.Network": 3,
 }
 
 # A client connected to the default server
