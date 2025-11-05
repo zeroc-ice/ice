@@ -253,7 +253,7 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
                 // The task cancellation from another thread that's also reading the stream
                 // can cause this task stream's iterator to return. We just loop until
                 // we get the completed status or the task is cancelled.
-                var completedStatus: Int32? = nil
+                var completedStatus: Int32?
                 while completedStatus == nil && !Task.isCancelled {
                     for await _ in self._completedStream {
                         break
