@@ -623,9 +623,13 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     let endpts2 = try communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001")!.ice_getEndpoints()
 
     try test(endpts1[0] != endpts2[0])
-    try test(
-        endpts1[0] == communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")!.ice_getEndpoints()[0]
-    )
+
+    var compObj3 = try makeProxy(
+        communicator: communicator, proxyString: "foo:tcp",
+        type: ObjectPrx.self)
+    compObj3 = compObj3.ice_endpoints(endpts1)
+    let endpts3 = compObj3.ice_getEndpoints()
+    try test(endpts1[0] == endpts3[0])
 
     let baseConnection = try await baseProxy.ice_getConnection()
     if baseConnection != nil {

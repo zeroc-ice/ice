@@ -640,7 +640,11 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
     test(endpts1 != endpts2)
     test(endpts1 < endpts2)
     test(not (endpts2 < endpts1))
-    test(endpts1 == cast(Ice.ObjectPrx, communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")).ice_getEndpoints())
+
+    compObj3 = Ice.ObjectPrx(communicator, "foo:tcp")
+    compObj3 = compObj3.ice_endpoints(endpts1)
+    endpts3 = compObj3.ice_getEndpoints()
+    test(endpts1 == endpts3)
 
     test(compObj1.ice_encodingVersion(Ice.Encoding_1_0) == compObj1.ice_encodingVersion(Ice.Encoding_1_0))
     test(compObj1.ice_encodingVersion(Ice.Encoding_1_0) != compObj1.ice_encodingVersion(Ice.Encoding_1_1))

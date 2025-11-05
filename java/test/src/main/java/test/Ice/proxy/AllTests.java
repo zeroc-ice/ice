@@ -755,10 +755,11 @@ public class AllTests {
         Endpoint[] endpts2 =
             communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001").ice_getEndpoints();
         test(!endpts1[0].equals(endpts2[0]));
-        test(
-            endpts1[0].equals(
-                communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")
-                    .ice_getEndpoints()[0]));
+
+        var compObj3 = ObjectPrx.createProxy(communicator, "foo:tcp");
+        compObj3 = compObj3.ice_endpoints(endpts1);
+        Endpoint[] endpts3 = compObj3.ice_getEndpoints();
+        test(endpts1[0].equals(endpts3[0]));
 
         test(
             compObj1.ice_encodingVersion(Util.Encoding_1_0)
