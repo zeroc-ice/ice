@@ -778,7 +778,9 @@ allTests(TestHelper* helper)
         endpts1.end(),
         Ice::TargetCompare<Ice::EndpointPtr, std::less>()));
 
-    Ice::EndpointSeq endpts3 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")->ice_getEndpoints();
+    ObjectPrx compObj3{communicator, "foo:tcp"};
+    compObj3 = compObj3->ice_endpoints(endpts1);
+    Ice::EndpointSeq endpts3 = compObj3->ice_getEndpoints();
     test(
         endpts1.size() == endpts3.size() &&
         equal(endpts1.begin(), endpts1.end(), endpts3.begin(), Ice::TargetCompare<Ice::EndpointPtr, std::equal_to>()));

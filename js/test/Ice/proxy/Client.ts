@@ -702,11 +702,11 @@ export class Client extends TestHelper {
             `foo:${defaultProtocol} -h 127.0.0.1 -p 10001`,
         ).ice_getEndpoints();
         test(!endpts1[0].equals(endpts2[0]));
-        test(
-            endpts1[0].equals(
-                new Ice.ObjectPrx(communicator, `foo:${defaultProtocol} -h 127.0.0.1 -p 10000`).ice_getEndpoints()[0],
-            ),
-        );
+
+        let compObj3 = new Ice.ObjectPrx(communicator, "foo:tcp");
+        compObj3 = compObj3.ice_endpoints(endpts1);
+        let endpts3 = compObj3.ice_getEndpoints();
+        test(endpts1[0].equals(endpts3[0]));
 
         test(compObj1.ice_encodingVersion(Ice.Encoding_1_0).equals(compObj1.ice_encodingVersion(Ice.Encoding_1_0)));
         test(!compObj1.ice_encodingVersion(Ice.Encoding_1_0).equals(compObj1.ice_encodingVersion(Ice.Encoding_1_1)));

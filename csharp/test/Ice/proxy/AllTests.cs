@@ -647,7 +647,11 @@ public class AllTests : global::Test.AllTests
         Ice.Endpoint[] endpts1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints();
         Ice.Endpoint[] endpts2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001").ice_getEndpoints();
         test(!endpts1[0].Equals(endpts2[0]));
-        test(endpts1[0].Equals(communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints()[0]));
+
+        var compObj3 = Ice.ObjectPrxHelper.createProxy(communicator, "foo:tcp");
+        compObj3 = compObj3.ice_endpoints(endpts1);
+        Ice.Endpoint[] endpts3 = compObj3.ice_getEndpoints();
+        test(endpts1[0].Equals(endpts3[0]));
 
         Ice.Connection baseConnection = baseProxy.ice_getConnection();
         if (baseConnection != null)
