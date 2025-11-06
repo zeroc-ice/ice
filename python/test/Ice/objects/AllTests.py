@@ -142,6 +142,23 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.Initial
     assert d is not None
     print("ok")
 
+    sys.stdout.write("checking renamed classes... ")
+    sys.stdout.flush()
+    renamed = Test.PyClass("renamed")
+    r = initial.opRenamedClass(renamed)
+    assert r is not None
+    test(isinstance(r, Test.PyClass))
+    test(r.data == "renamed")
+
+    renamed = Test.PyDerivedClass("renamed", "derived")
+    r = initial.opRenamedClass(renamed)
+    assert r is not None
+    test(isinstance(r, Test.PyDerivedClass))
+    r = cast(Test.PyDerivedClass, r)
+    test(r.data == "renamed")
+    test(r.moreData == "derived")
+    print("ok")
+
     sys.stdout.write("checking consistency... ")
     sys.stdout.flush()
     test(b1 != b2)

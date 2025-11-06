@@ -35,6 +35,8 @@ public sealed class InitialI : Test.InitialDisp_
         theD = _d;
     }
 
+    public override Test.CsClass opRenamedClass(Test.CsClass r, Ice.Current current) => r;
+
     public override Test.B getB1(Ice.Current current) => _b1;
 
     public override Test.B getB2(Ice.Current current) => _b2;

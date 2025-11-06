@@ -109,6 +109,17 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     try test(dout !== nil)
     output.writeLine("ok")
 
+    output.write("testing renamed classes... ")
+    var renamed = SwiftClass(data: "renamed")
+    renamed = try await initial.opRenamedClass(renamed)!
+    try test(renamed.data == "renamed")
+
+    var derivedRenamed = SwiftDerivedClass(data: "renamed", moreData: "derived")
+    derivedRenamed = try await initial.opRenamedClass(derivedRenamed)! as! SwiftDerivedClass
+    try test(derivedRenamed.data == "renamed")
+    try test(derivedRenamed.moreData == "derived")
+    output.writeLine("ok")
+
     output.write("checking consistency... ")
     try test(b1out !== b2out)
     try test(b1out!.theA === b2out)

@@ -171,6 +171,12 @@ InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d, const Current&)
     d = _d;
 }
 
+Test::CppClassPtr
+InitialI::opRenamedClass(Test::CppClassPtr r, const Ice::Current&)
+{
+    return r;
+}
+
 void
 InitialI::setG(GPtr, const Current&)
 {

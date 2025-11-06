@@ -22,6 +22,7 @@ import test.Ice.objects.Test.G;
 import test.Ice.objects.Test.Initial;
 import test.Ice.objects.Test.Inner.A;
 import test.Ice.objects.Test.Inner.Ex;
+import test.Ice.objects.Test.JavaClass;
 import test.Ice.objects.Test.K;
 import test.Ice.objects.Test.L;
 import test.Ice.objects.Test.M;
@@ -65,6 +66,11 @@ public final class InitialI implements Initial {
         r.b2 = _b2;
         r.theC = _c;
         r.theD = _d;
+        return r;
+    }
+
+    @Override
+    public JavaClass opRenamedClass(JavaClass r, Current current) {
         return r;
     }
 

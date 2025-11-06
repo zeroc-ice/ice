@@ -25,6 +25,8 @@ import test.Ice.objects.Test.Initial.OpValueMapResult;
 import test.Ice.objects.Test.Initial.OpValueResult;
 import test.Ice.objects.Test.Initial.OpValueSeqResult;
 import test.Ice.objects.Test.InitialPrx;
+import test.Ice.objects.Test.JavaClass;
+import test.Ice.objects.Test.JavaDerivedClass;
 import test.Ice.objects.Test.K;
 import test.Ice.objects.Test.L;
 import test.Ice.objects.Test.M;
@@ -126,6 +128,20 @@ public class AllTests {
         test(b2 != null);
         test(c != null);
         test(d != null);
+        out.println("ok");
+
+        out.print("testing renamed classes... ");
+        out.flush();
+        var renamed = new JavaClass("renamed");
+        renamed = initial.opRenamedClass(renamed);
+        test(renamed != null);
+        test("renamed".equals(renamed.data));
+
+        var derivedRenamed = new JavaDerivedClass("renamed", "derived");
+        derivedRenamed = (JavaDerivedClass) initial.opRenamedClass(derivedRenamed);
+        test(derivedRenamed != null);
+        test("renamed".equals(derivedRenamed.data));
+        test("derived".equals(derivedRenamed.moreData));
         out.println("ok");
 
         out.print("checking consistency... ");

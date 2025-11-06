@@ -68,6 +68,22 @@ def allTests(helper, communicator)
     test(d)
     puts "ok"
 
+    print "checking renamed classes... "
+    STDOUT.flush
+    renamed = Test::RubyClass.new("renamed")
+    r = initial.opRenamedClass(renamed)
+    test(r != nil)
+    test(r.is_a?(Test::RubyClass))
+    test(r.data == "renamed")
+
+    renamed = Test::RubyDerivedClass.new("renamed", "derived")
+    r = initial.opRenamedClass(renamed)
+    test(r != nil)
+    test(r.is_a?(Test::RubyDerivedClass))
+    test(r.data == "renamed")
+    test(r.moreData == "derived")
+    puts "ok"
+
     print "checking consistency... "
     STDOUT.flush
     test(b1 != b2)

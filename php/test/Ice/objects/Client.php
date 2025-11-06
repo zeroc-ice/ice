@@ -91,6 +91,20 @@ function allTests($helper)
     test($d != null);
     echo "ok\n";
 
+    echo "checking renamed classes... ";
+    flush();
+    $renamed = new Test\PhpClass("renamed");
+    $renamed = $initial->opRenamedClass($renamed);
+    test($renamed != null);
+    test($renamed->data == "renamed");
+
+    $renamed = new Test\PhpDerivedClass("renamed", "derived");
+    $renamed = $initial->opRenamedClass($renamed);
+    test($renamed != null);
+    test($renamed->data == "renamed");
+    test($renamed->moreData == "derived");
+    echo "ok\n";
+
     echo "checking consistency... ";
     flush();
     test($b1 !== $b2);
