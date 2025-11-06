@@ -693,9 +693,7 @@ public sealed class StringUtil
         //
         // Make sure end of the strings match
         //
-        if (!s[endIndex..].Equals(
-               pat.Substring(beginIndex + 1, pat.Length - beginIndex - 1),
-               StringComparison.Ordinal))
+        if (!s[endIndex..].Equals(pat[(beginIndex + 1)..], StringComparison.Ordinal))
         {
             return false;
         }

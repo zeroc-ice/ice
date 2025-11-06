@@ -31,4 +31,9 @@
     <Content Include="@(SliceCompile)" Pack="true" PackagePath="/slice/Ice"/>
     <Content Include="ZeroC.Ice.props" Pack="true" PackagePath="buildTransitive/" />
   </ItemGroup>
+
+  <!-- Required for X509CertificateLoader with .NET 8-->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.Bcl.Cryptography" Version="9.0.*" />
+  </ItemGroup>
 </Project>

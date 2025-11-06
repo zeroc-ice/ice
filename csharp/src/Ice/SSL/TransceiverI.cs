@@ -53,7 +53,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         Debug.Assert(_sslStream.IsAuthenticated);
         _authenticated = true;
 
-        _cipher = _sslStream.CipherAlgorithm.ToString();
+        _cipher = _sslStream.NegotiatedCipherSuite.ToString();
         _instance.verifyPeer((ConnectionInfo)getInfo(_incoming, _adapterName, connectionId: ""), ToString());
 
         if (_instance.securityTraceLevel() >= 1)
@@ -422,7 +422,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
                 // If authentication fails the task throws AuthenticationException.
                 _writeResult.Wait();
                 _verified = true;
-                _cipher = _sslStream.CipherAlgorithm.ToString();
+                _cipher = _sslStream.NegotiatedCipherSuite.ToString();
             }
             catch (AggregateException ex)
             {

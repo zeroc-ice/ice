@@ -58,7 +58,7 @@ internal class SSLEngine
         // If IceSSL.CertFile is defined, load a certificate from a file and add it to the collection.
         _certs = [];
         string certFile = properties.getIceProperty("IceSSL.CertFile");
-        string passwordStr = properties.getIceProperty("IceSSL.Password");
+        string password = properties.getIceProperty("IceSSL.Password");
         string findCert = properties.getIceProperty("IceSSL.FindCert");
 
         if (certFile.Length > 0)
@@ -81,15 +81,10 @@ internal class SSLEngine
                     importFlags = X509KeyStorageFlags.UserKeySet;
                 }
 
-                if (passwordStr.Length > 0)
-                {
-                    using SecureString password = createSecureString(passwordStr);
-                    cert = new X509Certificate2(certFile, password, importFlags);
-                }
-                else
-                {
-                    cert = new X509Certificate2(certFile, (string)null, importFlags);
-                }
+                cert = X509CertificateLoader.LoadPkcs12FromFile(
+                    certFile,
+                    password.Length > 0 ? password : null,
+                    importFlags);
                 _certs.Add(cert);
             }
             catch (CryptographicException ex)
@@ -137,8 +132,8 @@ internal class SSLEngine
 
                 if (_caCerts.Count == 0)
                 {
-                    // Fallback to Import which handles DER/PFX.
-                    _caCerts.Import(certAuthFile);
+                    // Fallback to LoadCertificateFromFile loads a single certificate in either DER or PEM format.
+                    _caCerts.Add(X509CertificateLoader.LoadCertificateFromFile(certAuthFile));
                 }
             }
             catch (Exception ex)
@@ -175,9 +170,7 @@ internal class SSLEngine
         s.Append("\nencrypted = " + (stream.IsEncrypted ? "yes" : "no"));
         s.Append("\nsigned = " + (stream.IsSigned ? "yes" : "no"));
         s.Append("\nmutually authenticated = " + (stream.IsMutuallyAuthenticated ? "yes" : "no"));
-        s.Append("\nhash algorithm = " + stream.HashAlgorithm + "/" + stream.HashStrength);
-        s.Append("\ncipher algorithm = " + stream.CipherAlgorithm + "/" + stream.CipherStrength);
-        s.Append("\nkey exchange algorithm = " + stream.KeyExchangeAlgorithm + "/" + stream.KeyExchangeStrength);
+        s.Append("\ncipher = " + stream.NegotiatedCipherSuite);
         s.Append("\nprotocol = " + stream.SslProtocol);
         _logger.trace(_securityTraceCategory, s.ToString());
     }
@@ -337,7 +330,7 @@ internal class SSLEngine
         {
             try
             {
-                store = new X509Store((StoreName)Enum.Parse(typeof(StoreName), name, true), storeLocation);
+                store = new X509Store(Enum.Parse<StoreName>(name, true), storeLocation);
             }
             catch (ArgumentException)
             {
