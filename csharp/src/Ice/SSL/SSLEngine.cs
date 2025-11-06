@@ -81,10 +81,7 @@ internal class SSLEngine
                     importFlags = X509KeyStorageFlags.UserKeySet;
                 }
 
-                cert = X509CertificateLoader.LoadPkcs12FromFile(
-                    certFile,
-                    password.Length > 0 ? password : null,
-                    importFlags);
+                cert = X509CertificateLoader.LoadPkcs12FromFile(certFile, password, importFlags);
                 _certs.Add(cert);
             }
             catch (CryptographicException ex)
