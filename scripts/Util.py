@@ -3662,14 +3662,15 @@ class CSharpMapping(Mapping):
     class Config(Mapping.Config):
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["csharp-config=", "coverage-session="])
+            return ("", ["csharp-config=", "coverage-session=", "target-framework="])
 
         @classmethod
         def usage(self):
             print("")
             print("C# mapping options:")
-            print("--csharp-config=<config>   C# build configuration for .NET executables (overrides --config).")
-            print("--coverage-session=<id>      Run tests the dotnet-coverage using the given session ID.")
+            print("--csharp-config=<config>                  C# build configuration for .NET executables (overrides --config).")
+            print("--coverage-session=<id>                   Run tests the dotnet-coverage using the given session ID.")
+            print("--target-framework=net8.0|net9.0|net10.0  Choose the target framework used to run .NET tests")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
@@ -3679,6 +3680,7 @@ class CSharpMapping(Mapping):
                 self.buildConfig = "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug"
 
             self.dotnetCoverageSession = ""
+            self.targetFramework = "net8.0"
 
             parseOptions(
                 self,
@@ -3686,11 +3688,12 @@ class CSharpMapping(Mapping):
                 {
                     "csharp-config": "buildConfig",
                     "coverage-session": "dotnetCoverageSession",
+                    "target-framework": "targetFramework",
                 },
             )
 
     def getTargetFramework(self, current):
-        return "net8.0"
+        return current.config.targetFramework
 
     def getBuildDir(self, name, current):
         return os.path.join("msbuild", name, self.getTargetFramework(current))
