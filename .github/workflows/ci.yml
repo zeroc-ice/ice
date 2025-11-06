@@ -121,6 +121,7 @@ jobs:
           - os: windows-2025
             config: ".NET10"
             working_directory: "csharp"
+            build_flags: "/p:Platform=x64"
             net_target_framework: "net10.0"
             test_flags: "--target-framework=net10.0"
             build_cpp_and_python: true
