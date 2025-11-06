@@ -3668,9 +3668,11 @@ class CSharpMapping(Mapping):
         def usage(self):
             print("")
             print("C# mapping options:")
-            print("--csharp-config=<config>                  C# build configuration for .NET executables (overrides --config).")
-            print("--coverage-session=<id>                   Run tests the dotnet-coverage using the given session ID.")
-            print("--target-framework=net8.0|net9.0|net10.0  Choose the target framework used to run .NET tests")
+            print("--csharp-config=<config>        C# build configuration for .NET executables (overrides --config).")
+            print("--coverage-session=<id>         Run tests the dotnet-coverage using the given session ID.")
+            print("--target-framework=<framework>  Choose the target framework used to run .NET tests")
+            print("                                It should match the target framework used to build the tests")
+            print("                                (default: net8.0) supported values: (net8.0|net9.0|net10.0)")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
