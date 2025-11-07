@@ -224,6 +224,7 @@ jobs:
           build_cpp_and_python: ${{ matrix.build_cpp_and_python || false }}
           build_android_controller: ${{ matrix.build_android_controller || false }}
           build_flags: ${{ matrix.build_flags || '' }}
+          msbuild_command: ${{ matrix.msbuild_command || 'msbuild /m' }}
           msbuild_project: ${{ matrix.msbuild_project || 'ice.proj' }}
 
       - name: Install testing dependencies from pip
