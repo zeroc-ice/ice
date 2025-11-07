@@ -121,6 +121,7 @@ jobs:
           - os: windows-2025
             config: ".NET10"
             working_directory: "csharp"
+            msbuild_command: "dotnet msbuild"
             build_flags: "/p:Platform=x64"
             msbuild_project: "msbuild/ice.proj"
             net_target_framework: "net10.0"
