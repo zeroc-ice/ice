@@ -102,11 +102,7 @@ export function defineEnum(enumerators) {
 
     Object.defineProperty(type, "valueOf", {
         value: function (v) {
-            let enumerator = enums[v];
-            if (enumerator === undefined) {
-                enumerator = new type(`${v}`, v);
-            }
-            return enumerator;
+            return enums[v];
         },
     });
 
