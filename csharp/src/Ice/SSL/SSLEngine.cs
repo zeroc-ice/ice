@@ -493,16 +493,6 @@ internal class SSLEngine
         return result;
     }
 
-    private static SecureString createSecureString(string s)
-    {
-        var result = new SecureString();
-        foreach (char ch in s)
-        {
-            result.AppendChar(ch);
-        }
-        return result;
-    }
-
     private bool checkPath(ref string path)
     {
         if (File.Exists(path))
