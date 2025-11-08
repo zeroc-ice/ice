@@ -2759,11 +2759,10 @@ Slice::Gen::TypeScriptVisitor::visitEnum(const EnumPtr& p)
     }
     _out << nl;
     _out << nl << "/**";
-    _out << nl << " * Returns the enumerator for the given value.";
+    _out << nl << " * Returns the enumerator corresponding to the specified numeric value.";
     _out << nl << " *";
     _out << nl << " * @param value The enumerator value.";
-    _out << nl << " * @returns The enumerator for the given value or undefined if the value does not correspond to any";
-    _out << nl << " * enumerator.";
+    _out << nl << " * The matching enumerator, or `undefined` if no enumerator corresponds to the given value.";
     _out << nl << " */";
     _out << nl << "static valueOf(value: number): " << name << " | undefined;";
     _out << eb;
