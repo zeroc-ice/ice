@@ -59,7 +59,9 @@ function printReply(s, inputStream) {
     s.push(`\nrequest id = ${requestId}`);
 
     // This creates a new enumerator (e.g. "18": 18) if one doesn't exist yet.
-    const replyStatus = ReplyStatus.valueOf(inputStream.readByte());
+    const replyStatusValue = inputStream.readByte();
+    const replyStatus =
+        ReplyStatus.valueOf(replyStatusValue) ?? new ReplyStatus(`${replyStatusValue}`, replyStatusValue);
     s.push(`\nreply status = ${replyStatus}`);
 
     switch (replyStatus) {

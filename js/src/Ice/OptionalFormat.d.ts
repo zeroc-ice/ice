@@ -47,12 +47,12 @@ declare module "@zeroc/ice" {
             static readonly Class: OptionalFormat;
 
             /**
-             * Returns the enumerator for the given value.
+             * Returns the enumerator corresponding to the specified numeric value.
              *
              * @param value The enumerator value.
-             * @returns The enumerator for the given value.
+             * @returns The matching enumerator, or `undefined` if no enumerator corresponds to the given value.
              */
-            static valueOf(value: number): OptionalFormat;
+            static valueOf(value: number): OptionalFormat | undefined;
         }
     }
 }
