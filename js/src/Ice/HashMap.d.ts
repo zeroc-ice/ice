@@ -19,7 +19,7 @@ declare module "@zeroc/ice" {
             constructor();
 
             /**
-             * Creates a copy of the specified HashMap.
+             * Creates a copy from the specified HashMap.
              *
              * @param other - The HashMap to copy.
              */
