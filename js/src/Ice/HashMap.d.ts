@@ -72,6 +72,7 @@ declare module "@zeroc/ice" {
 
             /**
              * Executes a provided function once for each key-value pair in the HashMap.
+             *
              * @param fn The function to execute for each entry.
              * @param thisArg Optional. Value to use as this when executing fn.
              */
