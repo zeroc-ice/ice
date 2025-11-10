@@ -40,20 +40,15 @@ function compareIdentity(v1, v2) {
 }
 
 export class HashMap {
-    constructor(arg1, arg2) {
-        //
-        // The first argument can be a HashMap or the keyComparator, the second
-        // argument if present is always the value comparator.
-        //
-        let h, keyComparator, valueComparator;
+    constructor(arg1) {
+        // The first argument can be a HashMap or the keyComparator.
+        let h, keyComparator;
 
         if (typeof arg1 == "function") {
             keyComparator = arg1;
-            valueComparator = arg2;
         } else if (arg1 instanceof HashMap) {
             h = arg1;
-            keyComparator = h.keyComparator;
-            valueComparator = h.valueComparator;
+            keyComparator = h._keyComparator;
         }
 
         this._size = 0;
@@ -63,7 +58,6 @@ export class HashMap {
         this._table = [];
 
         this._keyComparator = typeof keyComparator == "function" ? keyComparator : compareIdentity;
-        this._valueComparator = typeof valueComparator == "function" ? valueComparator : compareIdentity;
 
         if (h instanceof HashMap && h._size > 0) {
             this._threshold = h._threshold;
@@ -71,7 +65,10 @@ export class HashMap {
             for (let i = 0; i < h._table.length; i++) {
                 this._table[i] = null;
             }
-            this.merge(h);
+
+            for (const [k, v] of h) {
+                this.set(k, v);
+            }
         } else {
             this._threshold = this._initialCapacity * this._loadFactor;
             for (let i = 0; i < this._initialCapacity; i++) {
@@ -177,33 +174,6 @@ export class HashMap {
     *values() {
         for (let e = this._head; e !== null; e = e._next) {
             yield e._value;
-        }
-    }
-
-    equals(other, valuesEqual) {
-        if (other === null || !(other instanceof HashMap) || this._size !== other._size) {
-            return false;
-        }
-
-        let eq;
-        if (valuesEqual) {
-            eq = valuesEqual;
-        } else {
-            eq = (v1, v2) => this._valueComparator.call(this._valueComparator, v1, v2);
-        }
-
-        for (let e = this._head; e !== null; e = e._next) {
-            const oe = other.findEntry(e._key, e._hash);
-            if (oe === undefined || !eq(e._value, oe._value)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    merge(from) {
-        for (let e = from._head; e !== null; e = e._next) {
-            setInternal(this, e._key, e._value, e._hash, this.hashIndex(e._hash, this._table.length));
         }
     }
 
