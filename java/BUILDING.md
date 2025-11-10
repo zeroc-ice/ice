@@ -121,7 +121,7 @@ To build the Android test controller from the command line:
 - Once the test controller is running, open a terminal, change to the java subdirectory, and execute:
 
   ```shell
-  python allTests --android --all
+  python allTests.py --android --all
   ```
 
 ## Generating the API reference

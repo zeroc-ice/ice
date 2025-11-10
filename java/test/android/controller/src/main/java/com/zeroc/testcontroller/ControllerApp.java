@@ -186,102 +186,19 @@ public class ControllerApp extends Application {
             }
             else
             {
-                initData.properties.setProperty(
-                    "ControllerAdapter.AdapterId", java.util.UUID.randomUUID().toString());
+                initData.properties.setProperty("ControllerAdapter.AdapterId", java.util.UUID.randomUUID().toString());
                 initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
                 if (bluetooth) {
-                    initData.properties.setProperty(
-                            "Ice.Plugin.IceBT", "com.zeroc.IceBT.PluginFactory");
+                    initData.properties.setProperty("Ice.Plugin.IceBT", "com.zeroc.IceBT.PluginFactory");
                 }
-                initData.properties.setProperty(
-                        "Ice.Plugin.IceDiscovery", "com.zeroc.IceDiscovery.PluginFactory");
+                initData.properties.setProperty("Ice.Plugin.IceDiscovery", "com.zeroc.IceDiscovery.PluginFactory");
                 initData.properties.setProperty("IceDiscovery.DomainId", "TestController");
             }
 
             _communicator = new com.zeroc.Ice.Communicator(initData);
-            com.zeroc.Ice.ObjectAdapter adapter =
-                    _communicator.createObjectAdapter("ControllerAdapter");
-            ProcessControllerPrx processController =
-                    ProcessControllerPrx.uncheckedCast(
-                            adapter.add(
-                                    new ProcessControllerI(),
-                                    com.zeroc.Ice.Util.stringToIdentity(
-                                            "Android/ProcessController")));
+            com.zeroc.Ice.ObjectAdapter adapter = _communicator.createObjectAdapter("ControllerAdapter");
+            adapter.add(new ProcessControllerI(), new com.zeroc.Ice.Identity("ProcessController", "Android"));
             adapter.activate();
-
-            if (!isEmulator())
-            {
-                // Use IceDiscovery to find a process controller registry
-                ProcessControllerRegistryPrx registry =
-                    ProcessControllerRegistryPrx.createProxy(_communicator, "Util/ProcessControllerRegistry");
-                registerProcessController(adapter, registry, processController);
-            }
-        }
-
-        public void registerProcessController(
-                final com.zeroc.Ice.ObjectAdapter adapter,
-                final ProcessControllerRegistryPrx registry,
-                final ProcessControllerPrx processController) {
-            registry.ice_pingAsync()
-                    .whenCompleteAsync(
-                            (r1, e1) -> {
-                                if (e1 != null) {
-                                    handleException(e1, adapter, registry, processController);
-                                } else {
-                                    com.zeroc.Ice.Connection connection =
-                                            registry.ice_getConnection();
-                                    connection.setAdapter(adapter);
-                                    connection.setCloseCallback(
-                                            con -> {
-                                                println(
-                                                        "connection with process controller"
-                                                                + " registry closed");
-                                                while (true) {
-                                                    try {
-                                                        Thread.sleep(500);
-                                                        break;
-                                                    } catch (InterruptedException e) {
-                                                        // Ignore and try again.
-                                                    }
-                                                }
-                                                registerProcessController(
-                                                        adapter, registry, processController);
-                                            });
-
-                                    registry.setProcessControllerAsync(processController)
-                                            .whenCompleteAsync(
-                                                    (r2, e2) -> {
-                                                        if (e2 != null) {
-                                                            handleException(
-                                                                    e2,
-                                                                    adapter,
-                                                                    registry,
-                                                                    processController);
-                                                        }
-                                                    });
-                                }
-                            });
-        }
-
-        public void handleException(
-                Throwable ex,
-                final com.zeroc.Ice.ObjectAdapter adapter,
-                final ProcessControllerRegistryPrx registry,
-                final ProcessControllerPrx processController) {
-            if (ex instanceof com.zeroc.Ice.ConnectFailedException
-                    || ex instanceof com.zeroc.Ice.TimeoutException) {
-                while (true) {
-                    try {
-                        Thread.sleep(500);
-                        break;
-                    } catch (InterruptedException e) {
-                        // Ignore and try again.
-                    }
-                }
-                registerProcessController(adapter, registry, processController);
-            } else {
-                println(ex.toString());
-            }
         }
 
         public void destroy() {
