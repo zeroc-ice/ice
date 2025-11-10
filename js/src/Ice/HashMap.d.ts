@@ -33,7 +33,7 @@ declare module "@zeroc/ice" {
             constructor(keyComparator: (k1: Key, k2: Key) => boolean);
 
             /**
-             * Adds a new entry with a specified key and value to this Map, or updates an existing entry if the key
+             * Adds a new entry with a specified key and value to this HashMap, or updates an existing entry if the key
              * already exists.
              *
              * @param key The key of the entry.
