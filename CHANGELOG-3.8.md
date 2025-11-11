@@ -554,10 +554,10 @@ classDiagram
 - Loosened restrictions on Slice identifiers:
   - It is no longer an error for Slice definitions to have the same identifier as their enclosing module
   - It is no longer an error for a Slice identifier to start with "ice"
-  - Slice identifiers can now contain single underscores (double underscores are still disallowed)
+  - Slice identifiers can now contain single underscore characters (double underscores, i.e. `__`, are still disallowed)
 
 - Removed the `["ice-prefix"]` and `["underscore"]` metadata, and the `--ice` and `--underscore` compiler options.
-  Slice identifiers can start with `"ice"` and contain underscores now, without needing to specify these.
+  Slice identifiers can start with `"ice"` and contain single underscore characters now, without needing to specify these.
 
 - `:` is now an alias for the `extends` keyword.
 
