@@ -1,8 +1,9 @@
 name: Windows Debug Tools Installer
+description: "Installs Debugging Tools for Windows using the Windows SDK installer."
 runs:
   using: "composite"
   steps:
-    - name: Install Debugging Tools via Visual Studio Installer
+    - name: Install Debugging Tools for Windows
       shell: pwsh
       run: |
         $sdkPath = "$env:TEMP\sdksetup.exe"
