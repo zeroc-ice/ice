@@ -9,9 +9,6 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
-import Test.Common.ProcessControllerPrx;
-import Test.Common.ProcessControllerRegistryPrx;
-
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Logger;
 import com.zeroc.Ice.Time;
@@ -35,11 +32,11 @@ public class ControllerApp extends Application {
             _class = (Class<? extends test.TestHelper>) _loader.loadClass(name);
         }
 
-        test.TestHelper newInstance() throws IllegalAccessException, InstantiationException {
+        test.TestHelper newInstance() throws ReflectiveOperationException {
             if (_class == null) {
                 return null;
             }
-            return _class.newInstance();
+            return _class.getDeclaredConstructor().newInstance();
         }
 
         ClassLoader getClassLoader() {
@@ -119,22 +116,20 @@ public class ControllerApp extends Application {
     public List<String> getAddresses(boolean ipv6) {
         List<String> addresses = new java.util.ArrayList<>();
         try {
-            java.util.Enumeration<java.net.NetworkInterface> ifaces =
-                    java.net.NetworkInterface.getNetworkInterfaces();
+            java.util.Enumeration<java.net.NetworkInterface> ifaces = java.net.NetworkInterface.getNetworkInterfaces();
             while (ifaces.hasMoreElements()) {
                 java.net.NetworkInterface iface = ifaces.nextElement();
                 java.util.Enumeration<java.net.InetAddress> addrs = iface.getInetAddresses();
                 while (addrs.hasMoreElements()) {
                     java.net.InetAddress addr = addrs.nextElement();
-                    if ((ipv6 && addr instanceof java.net.Inet6Address)
-                            || (!ipv6 && !(addr instanceof java.net.Inet6Address))) {
+                    boolean isInet6Address = addr instanceof java.net.Inet6Address;
+                    if ((ipv6 && isInet6Address) || (!ipv6 && !isInet6Address)) {
                         addresses.add(addr.getHostAddress());
                     }
                 }
             }
         } catch (java.net.SocketException ex) {
-            // Ignore, if we are not able to retrieve the network interfaces, we return an empty
-            // list.
+            // Ignore, if we are not able to retrieve the network interfaces, we return an empty list.
         }
         return addresses;
     }
@@ -217,20 +212,12 @@ public class ControllerApp extends Application {
         public void communicatorInitialized(Communicator communicator) {}
 
         public java.io.InputStream loadResource(String path) {
-            switch (path) {
-                case "server.p12" -> {
-                    return getResources().openRawResource(R.raw.server);
-                }
-                case "client.p12" -> {
-                    return getResources().openRawResource(R.raw.client);
-                }
-                case "ca.p12" -> {
-                    return getResources().openRawResource(R.raw.ca);
-                }
-                default -> {
-                    return null;
-                }
-            }
+            return switch (path) {
+                case "server.p12" -> getResources().openRawResource(R.raw.server);
+                case "client.p12" -> getResources().openRawResource(R.raw.client);
+                case "ca.p12" -> getResources().openRawResource(R.raw.ca);
+                default -> null;
+            };
         }
 
         public void run() {
@@ -288,8 +275,7 @@ public class ControllerApp extends Application {
                 try {
                     wait(timeout * 1000L);
                     if (Time.currentMonotonicTimeMillis() - now > timeout * 1000L) {
-                        throw new Test.Common.ProcessFailedException(
-                                "timed out waiting for the process to be ready");
+                        throw new Test.Common.ProcessFailedException("timed out waiting for the process to be ready");
                     }
                 } catch (InterruptedException ex) {
                     // Ignore and try again.
@@ -307,8 +293,7 @@ public class ControllerApp extends Application {
                 try {
                     wait(timeout * 1000L);
                     if (Time.currentMonotonicTimeMillis() - now > timeout * 1000L) {
-                        throw new Test.Common.ProcessFailedException(
-                                "timed out waiting for the process to complete");
+                        throw new Test.Common.ProcessFailedException("timed out waiting for the process to complete");
                     }
                 } catch (InterruptedException ex) {
                     // Ignore and try again.
@@ -345,8 +330,7 @@ public class ControllerApp extends Application {
                 TestSuiteBundle bundle = new TestSuiteBundle(className, getClassLoader());
                 ControllerHelperI mainHelper = new ControllerHelperI(bundle, args);
                 mainHelper.start();
-                return Test.Common.ProcessPrx.uncheckedCast(
-                        current.adapter.addWithUUID(new ProcessI(mainHelper)));
+                return Test.Common.ProcessPrx.uncheckedCast(current.adapter.addWithUUID(new ProcessI(mainHelper)));
             } catch (Exception ex) {
                 throw new Test.Common.ProcessFailedException(
                         "testsuite `" + testsuite + "' exe ` " + exe + "' start failed:\n" + ex);
