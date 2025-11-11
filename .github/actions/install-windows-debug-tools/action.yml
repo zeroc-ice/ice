@@ -16,7 +16,7 @@ runs:
         $p = Start-Process -FilePath $sdkPath -ArgumentList $args -PassThru -Wait
 
     - name: Upload SDK install log
-      if: failed()
+      if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: sdk-install-log
