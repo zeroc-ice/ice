@@ -6,12 +6,13 @@ runs:
       shell: pwsh
       run: |
         $sdkPath = "$env:TEMP\sdksetup.exe"
+        $logPath = "$env:TEMP\sdk.log"
 
         Write-Host "Downloading Windows SDK installer..."
         Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/?linkid=2338977" -OutFile $sdkPath
 
         Write-Host "Running Windows SDK installer (Debugging Tools only)..."
-        $args = '/quiet /norestart /features OptionId.WindowsDesktopDebuggers /log "{0}"' -f sdk-install.log
+        $args = '/quiet /norestart /features OptionId.WindowsDesktopDebuggers /log "{0}"' -f $logPath
         $p = Start-Process -FilePath $sdkPath -ArgumentList $args -PassThru -Wait
 
     - name: Upload SDK install log
@@ -19,4 +20,4 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: sdk-install-log
-        path: sdk-install.log
+        path: ${{ env.TEMP }}\sdk.log

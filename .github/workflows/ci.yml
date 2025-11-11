@@ -153,7 +153,7 @@ jobs:
         uses: ./.github/actions/setup-android
 
       - name: Install Windows Debug Tools
-        if: matrix.os == 'windows-2025'
+        if: runner.os == 'Windows'
         uses: ./.github/actions/install-windows-debug-tools
 
       - name: Install ice-builder-xcode
