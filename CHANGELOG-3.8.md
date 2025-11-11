@@ -551,6 +551,11 @@ classDiagram
 - An interface can no longer be used as a type. This feature, known as "interface by value", has been deprecated since
   Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `Greeter` represents an interface.
 
+- Loosened restrictions on what Slice definitions can be named:
+  - Slice definitions can now have the same name as any of their enclosing modules
+  - Slice definition names can now start with "ice"
+  - Slice definition names can now contain single underscores (double underscores are still disallowed)
+
 - `:` is now an alias for the `extends` keyword.
 
 - Sequences can no longer be used as dictionary key types.
