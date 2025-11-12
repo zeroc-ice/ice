@@ -2378,7 +2378,6 @@ class RemoteProcessController(ProcessController):
 
         if controllerEndpoints is not None:
             proxy = Test.Common.ProcessControllerPrx(comm, f"{comm.identityToString(ident)}:{controllerEndpoints}")
-
         else:
             # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
             proxy = Test.Common.ProcessControllerPrx(comm, comm.identityToString(ident))
@@ -2498,13 +2497,8 @@ class RemoteProcessController(ProcessController):
 
 class AndroidProcessController(RemoteProcessController):
     def __init__(self, current):
-        endpoint = None
-        self.forwardPort = None
-        if current.config.device:
-            endpoint = "tcp -h 0.0.0.0 -p 15001"
-        elif current.config.avd or not current.config.device:
-            self.forwardPort = "15001"
-        RemoteProcessController.__init__(self, current, endpoint)
+        RemoteProcessController.__init__(self, current, None)
+        self.forwardPort = "15001" if not current.config.device else None
         self.device = current.config.device if current.config.device != "" else None
         self.avd = current.config.avd
         self.emulator = None  # Keep a reference to the android emulator process
@@ -2544,7 +2538,7 @@ class AndroidProcessController(RemoteProcessController):
             raise RuntimeError("couldn't find AVD `{}'".format(avd))
 
         #
-        # Find and unused port to run android emulator, between 5554 and 5584
+        # Find an unused port to run android emulator, between 5554 and 5584
         #
         port = -1
         out = run("adb devices -l")
@@ -2740,7 +2734,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
     deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-15"
 
     def __init__(self, current):
-        RemoteProcessController.__init__(self, current, "")
+        RemoteProcessController.__init__(self, current, None)
         self.simulatorID = None
         self.runtimeID = None
         # Pick the last iOS simulator runtime ID in the list of iOS simulators (assumed to be the latest).
@@ -2891,7 +2885,7 @@ class iOSDeviceProcessController(RemoteProcessController):
     appPath = "cpp/test/ios/controller/build"
 
     def __init__(self, current):
-        RemoteProcessController.__init__(self, current, "")
+        RemoteProcessController.__init__(self, current, None)
 
     def __str__(self):
         return "iOS Device"
