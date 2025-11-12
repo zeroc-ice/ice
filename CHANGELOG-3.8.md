@@ -554,7 +554,7 @@ classDiagram
 - It is no longer an error for a Slice definition to have the same identifier as one of its enclosing modules.
 
 - Removed the `["ice-prefix"]` metadata and the `--ice` compiler option.
-  Slice identifiers can now start `"ice"` without needing to specify either of these.
+  Slice identifiers can now start with `"ice"` without needing to specify either of these.
 
 - Removed the `["underscore"]` metadata and the `--underscore` compiler option.
   Slice identifiers can now contain single underscores without needing to specify either of these.
