@@ -2497,7 +2497,7 @@ class RemoteProcessController(ProcessController):
 
 class AndroidProcessController(RemoteProcessController):
     def __init__(self, current):
-        RemoteProcessController.__init__(self, current, "")
+        RemoteProcessController.__init__(self, current, None)
         self.forwardPort = "15001" if not current.config.device else None
         self.device = current.config.device if current.config.device != "" else None
         self.avd = current.config.avd
@@ -2734,7 +2734,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
     deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-15"
 
     def __init__(self, current):
-        RemoteProcessController.__init__(self, current, "")
+        RemoteProcessController.__init__(self, current, None)
         self.simulatorID = None
         self.runtimeID = None
         # Pick the last iOS simulator runtime ID in the list of iOS simulators (assumed to be the latest).
@@ -2885,7 +2885,7 @@ class iOSDeviceProcessController(RemoteProcessController):
     appPath = "cpp/test/ios/controller/build"
 
     def __init__(self, current):
-        RemoteProcessController.__init__(self, current, "")
+        RemoteProcessController.__init__(self, current, None)
 
     def __str__(self):
         return "iOS Device"
