@@ -44,7 +44,7 @@ public static class PlatformTests
         Console.Out.Write("client validates server certificate using validation callback... ");
         Console.Out.Flush();
         using X509Certificate2 serverCertificate =
-            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1/server.p12"), "password");
+            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1", "server.p12"), "password");
         var serverOptions = new SslServerAuthenticationOptions
         {
             ServerCertificate = serverCertificate,
@@ -86,7 +86,7 @@ public static class PlatformTests
         Console.Out.Write("client rejects server certificate using validation callback... ");
         Console.Out.Flush();
         using X509Certificate2 serverCertificate =
-            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1/server.p12"), "password");
+            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1", "server.p12"), "password");
         var serverOptions = new SslServerAuthenticationOptions
         {
             ServerCertificate = serverCertificate,
@@ -117,7 +117,7 @@ public static class PlatformTests
         Console.Out.Write("client rejects server certificate using default validation callback... ");
         Console.Out.Flush();
         using X509Certificate2 serverCertificate =
-            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1/server.p12"), "password");
+            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1", "server.p12"), "password");
         var serverOptions = new SslServerAuthenticationOptions
         {
             ServerCertificate = serverCertificate,
@@ -144,9 +144,9 @@ public static class PlatformTests
         Console.Out.Write("server validates client certificate using validation callback... ");
         Console.Out.Flush();
         using X509Certificate2 serverCertificate =
-            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1/server.p12"), "password");
+            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1", "server.p12"), "password");
         using X509Certificate2 clientCertificate =
-            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1/client.p12"), "password");
+            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1", "client.p12"), "password");
         var serverOptions = new SslServerAuthenticationOptions
         {
             ServerCertificate = serverCertificate,
@@ -177,9 +177,9 @@ public static class PlatformTests
         Console.Out.Write("server rejects client certificate using validation callback... ");
         Console.Out.Flush();
         using X509Certificate2 serverCertificate =
-            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1/server.p12"), "password");
+            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1", "server.p12"), "password");
         using X509Certificate2 clientCertificate =
-            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1/client.p12"), "password");
+            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1", "client.p12"), "password");
         var serverOptions = new SslServerAuthenticationOptions
         {
             ServerCertificate = serverCertificate,
@@ -216,9 +216,9 @@ public static class PlatformTests
         Console.Out.Write("server rejects client certificate using default validation callback... ");
         Console.Out.Flush();
         using X509Certificate2 serverCertificate =
-            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1/server.p12"), "password");
+            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1", "server.p12"), "password");
         using X509Certificate2 clientCertificate =
-            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1/client.p12"), "password");
+            X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(certificatesPath, "ca1", "client.p12"), "password");
         var serverOptions = new SslServerAuthenticationOptions
         {
             ServerCertificate = serverCertificate,
@@ -272,11 +272,11 @@ public static class PlatformTests
         Console.Out.Flush();
 
         using X509Certificate2 trustedRootCertificatesCA1 =
-            X509CertificateLoader.LoadCertificateFromFile(Path.Combine(certificatesPath, "ca1/ca1_cert.pem"));
+            X509CertificateLoader.LoadCertificateFromFile(Path.Combine(certificatesPath, "ca1", "ca1_cert.pem"));
         using X509Certificate2 trustedRootCertificatesCA2 =
-            X509CertificateLoader.LoadCertificateFromFile(Path.Combine(certificatesPath, "ca2/ca2_cert.pem"));
+            X509CertificateLoader.LoadCertificateFromFile(Path.Combine(certificatesPath, "ca2", "ca2_cert.pem"));
 
-        using var serverState = new ServerState(Path.Combine(certificatesPath, "ca1/server.p12"));
+        using var serverState = new ServerState(Path.Combine(certificatesPath, "ca1", "server.p12"));
 
         var serverOptions = new SslServerAuthenticationOptions
         {
@@ -317,7 +317,7 @@ public static class PlatformTests
             }
         }
 
-        serverState.reloadCertificate(Path.Combine(certificatesPath, "ca2/server.p12"));
+        serverState.reloadCertificate(Path.Combine(certificatesPath, "ca2", "server.p12"));
         {
             // CA2 is accepted with the new configuration
             var clientOptions = new SslClientAuthenticationOptions
