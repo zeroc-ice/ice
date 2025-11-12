@@ -364,7 +364,7 @@ classDiagram
   endpoints (and by extension proxies), since multiple object adapters often listen on the same multicast address/port
   combination.
 
-- Add new `ice2slice` compiler that converts Slice files in the `.ice` format (used by Ice) into Slice files in the
+- Added a new `ice2slice` compiler that converts Slice files in the `.ice` format (used by Ice) into Slice files in the
   `.slice` format (used by IceRPC).
 
 - Removed Slice checksums.
@@ -551,13 +551,14 @@ classDiagram
 - An interface can no longer be used as a type. This feature, known as "interface by value", has been deprecated since
   Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `Greeter` represents an interface.
 
-- Loosened restrictions on Slice identifiers:
-  - It is no longer an error for Slice definitions to have the same identifier as their enclosing module
-  - It is no longer an error for a Slice identifier to start with "ice"
-  - Slice identifiers can now contain single underscore characters (double underscores, i.e. `__`, are still disallowed)
+- It is no longer an error for a Slice definition to have the same identifier as one of its enclosing modules.
 
-- Removed the `["ice-prefix"]` and `["underscore"]` metadata, and the `--ice` and `--underscore` compiler options.
-  Slice identifiers can start with `"ice"` and contain single underscore characters now, without needing to specify these.
+- Removed the `["ice-prefix"]` metadata and the `--ice` compiler option.
+  Slice identifiers can now start `"ice"` without needing to specify either of these.
+
+- Removed the `["underscore"]` metadata and the `--underscore` compiler option.
+  Slice identifiers can now contain single underscores without needing to specify either of these.
+  Double underscores (`__`) are still disallowed in Slice identifiers.
 
 - `:` is now an alias for the `extends` keyword.
 
