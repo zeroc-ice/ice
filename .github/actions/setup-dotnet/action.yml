@@ -17,5 +17,4 @@ runs:
       if: inputs.include_net10 == 'true'
       uses: actions/setup-dotnet@v4
       with:
-        quality: preview
         dotnet-version: 10.x
