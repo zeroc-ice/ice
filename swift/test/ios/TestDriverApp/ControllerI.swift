@@ -140,23 +140,34 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
     private let _testName: String
     private var _out: String = ""
 
+    private let _readyStream: AsyncStream<Void>
+    private let _readyStreamContinuation: AsyncStream<Void>.Continuation
+    private let _completedStream: AsyncStream<Void>
+    private let _completedStreamContinuation: AsyncStream<Void>.Continuation
+
     private struct State {
         var isReady = false
         var completedStatus: Int32?
     }
-    private let _lock = Mutex(State())
+
+    private let _state = Mutex(State())
 
     public init(view: ViewController, testName: String, args: [String], exe: String) {
         _view = view
         _testName = testName
         _args = args
         _exe = exe
+
+        (_readyStream, _readyStreamContinuation) = AsyncStream<Void>.makeStream()
+        (_completedStream, _completedStreamContinuation) = AsyncStream<Void>.makeStream()
     }
 
     public func serverReady() {
-        _lock.withLock {
+        _state.withLock {
+            precondition(!$0.isReady, "serverReady called multiple times")
             $0.isReady = true
         }
+        _readyStreamContinuation.finish()
     }
 
     public func communicatorInitialized(communicator: Ice.Communicator) {
@@ -175,10 +186,12 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
         write("\(msg)\n")
     }
 
-    public func completed(status: Int32) async {
-        _lock.withLock {
+    public func completed(status: Int32) {
+        _state.withLock {
+            precondition($0.completedStatus == nil, "completed status already set")
             $0.completedStatus = status
         }
+        _completedStreamContinuation.finish()
     }
 
     public func run() {
@@ -191,10 +204,10 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
                 testHelper.setControllerHelper(controllerHelper: self)
                 testHelper.setWriter(writer: self)
                 try await testHelper.run(args: self._args)
-                await completed(status: 0)
+                completed(status: 0)
             } catch {
                 self.writeLine("Error: \(error)")
-                await completed(status: 1)
+                completed(status: 1)
             }
         }
     }
@@ -207,45 +220,102 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
     }
 
     public func waitReady(timeout: Int32) async throws {
-        let deadline = ContinuousClock.now + .seconds(Int(timeout))
-
-        while ContinuousClock.now < deadline {
-            // Check current state
-            let state = _lock.withLock { $0 }
-
-            if state.isReady {
-                return
-            }
-
-            if let status = state.completedStatus {
-                if status == 0 {
-                    return
-                } else {
-                    throw CommonProcessFailedException(reason: self._out)
-                }
-            }
-
-            // Brief sleep to avoid busy waiting
-            try await Task.sleep(for: .milliseconds(100))
+        enum ReadyResult {
+            case completed(Int32)
+            case ready
+            case timeout
         }
 
-        throw CommonProcessFailedException(reason: "timed out waiting for the process to be ready")
+        let result = await withTaskGroup(of: ReadyResult.self) { group in
+            group.addTask {
+                try? await Task.sleep(for: .seconds(Int(timeout)))
+                return .timeout
+            }
+
+            group.addTask {
+                for await _ in self._readyStream {
+                    break
+                }
+                return .ready
+            }
+
+            group.addTask {
+                // The task cancellation from another thread that's also reading the stream
+                // can cause this task stream's iterator to return. We just loop until
+                // we get the completed status or the task is cancelled.
+                var completedStatus: Int32?
+                while completedStatus == nil && !Task.isCancelled {
+                    var iterator = self._completedStream.makeAsyncIterator()
+                    _ = await iterator.next()
+                    completedStatus = self._state.withLock { $0.completedStatus }
+                }
+
+                if Task.isCancelled {
+                    return .timeout
+                }
+                return .completed(completedStatus!)
+            }
+
+            // Get the first result
+            let result = await group.next()!
+            group.cancelAll()
+
+            return result
+        }
+
+        switch result {
+        case .timeout:
+            throw CommonProcessFailedException(reason: "timed out waiting for the process to be ready")
+        case .completed(let status) where status != 0:
+            throw CommonProcessFailedException(reason: self._out)
+        case .ready, .completed(_):
+            return
+        }
     }
 
     public func waitSuccess(timeout: Int32) async throws -> Int32 {
-        let deadline = ContinuousClock.now + .seconds(Int(timeout))
 
-        while ContinuousClock.now < deadline {
-            // Check if completed
-            if let status = _lock.withLock({ $0.completedStatus }) {
-                return status
-            }
-
-            // Brief sleep to avoid busy waiting
-            try await Task.sleep(for: .milliseconds(100))
+        enum WaitResult {
+            case completed(Int32)
+            case timeout
         }
 
-        throw CommonProcessFailedException(reason: "timed out waiting for the process to succeed")
+        let result = await withTaskGroup(of: WaitResult.self) { group in
+            group.addTask {
+                try? await Task.sleep(for: .seconds(Int(timeout)))
+                return .timeout
+            }
+
+            group.addTask {
+                // The task cancellation from another thread that's also reading the stream
+                // can cause this task stream's iterator to return. We just loop until
+                // we get the completed status or the task is cancelled.
+                var completedStatus: Int32?
+                while completedStatus == nil && !Task.isCancelled {
+                    var iterator = self._completedStream.makeAsyncIterator()
+                    _ = await iterator.next()
+                    completedStatus = self._state.withLock { $0.completedStatus }
+                }
+
+                if Task.isCancelled {
+                    return .timeout
+                }
+                return .completed(completedStatus!)
+            }
+
+            // Get the first result
+            let result = await group.next()!
+            group.cancelAll()
+
+            return result
+        }
+
+        switch result {
+        case .completed(let status):
+            return status
+        case .timeout:
+            throw CommonProcessFailedException(reason: "timed out waiting for the process to succeed")
+        }
     }
 
     public func getOutput() -> String {

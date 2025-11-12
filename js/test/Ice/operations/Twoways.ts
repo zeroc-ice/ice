@@ -692,7 +692,10 @@ export async function twoways(
         di2.set(s23, Test.MyEnum.enum2);
 
         const [retval, p3] = await prx.opMyStructMyEnumD(di1, di2);
-        test(p3.equals(di1));
+        test(p3.size === di1.size);
+        for (const [k, v] of di1) {
+            test(v === p3.get(k));
+        }
 
         test(retval.size === 4);
         test(retval.get(s11) === Test.MyEnum.enum1);

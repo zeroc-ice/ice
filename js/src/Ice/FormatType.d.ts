@@ -21,12 +21,12 @@ declare module "@zeroc/ice" {
             static readonly SlicedFormat: FormatType;
 
             /**
-             * Returns the enumerator for the given value.
+             * Returns the enumerator corresponding to the specified numeric value.
              *
              * @param value - The numeric value of the enumerator.
-             * @returns The enumerator corresponding to the given value.
+             * @returns The matching enumerator, or `undefined` if no enumerator corresponds to the given value.
              */
-            static valueOf(value: number): FormatType;
+            static valueOf(value: number): FormatType | undefined;
         }
     }
 }

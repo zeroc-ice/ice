@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+using System.Diagnostics;
+
 namespace Ice.objects
 {
     namespace Test
@@ -128,6 +130,20 @@ namespace Ice.objects
                 test(b2out != null);
                 test(cout != null);
                 test(dout != null);
+                output.WriteLine("ok");
+
+                output.Write("testing renamed classes... ");
+                output.Flush();
+                var renamed = new Test.CsClass("renamed");
+                renamed = initial.opRenamedClass(renamed);
+                Debug.Assert(renamed is not null);
+                test(renamed.data == "renamed");
+
+                var derivedRenamed = new Test.CsDerivedClass("renamed", "derived");
+                derivedRenamed = initial.opRenamedClass(derivedRenamed) as Test.CsDerivedClass;
+                Debug.Assert(derivedRenamed is not null);
+                test(derivedRenamed.data == "renamed");
+                test(derivedRenamed.moreData == "derived");
                 output.WriteLine("ok");
 
                 output.Write("checking consistency... ");

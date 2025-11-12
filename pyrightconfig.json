@@ -13,4 +13,5 @@
     "reportUnusedClass": "error",
     "reportUnusedFunction": "error",
     "reportUnusedVariable": "error",
+    "pythonVersion": "3.12"
 }

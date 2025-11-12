@@ -118,6 +118,10 @@ export class InitialI extends Test.Initial {
         return [this._b1, this._b2, this._c, this._d];
     }
 
+    opRenamedClass(r: Test.JsClass | null, _: Ice.Current): Test.JsClass | null {
+        return r;
+    }
+
     getB1(_: Ice.Current) {
         this._b1.preMarshalInvoked = false;
         this._b2.preMarshalInvoked = false;

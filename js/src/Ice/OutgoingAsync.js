@@ -414,8 +414,9 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
             this._is.swap(istr);
 
             // We can't (shouldn't) use the generated code to unmarshal a possibly unknown reply status.
-            // This creates a new enumerator (e.g. "18": 18) if one doesn't exist yet.
-            const replyStatus = ReplyStatus.valueOf(this._is.readByte());
+            const replyStatusValue = this._is.readByte();
+            const replyStatus =
+                ReplyStatus.valueOf(replyStatusValue) || new ReplyStatus(`${replyStatusValue}`, replyStatusValue);
 
             switch (replyStatus) {
                 case ReplyStatus.Ok:

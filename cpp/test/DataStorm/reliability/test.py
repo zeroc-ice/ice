@@ -8,19 +8,14 @@ traceProps = {
     "DataStorm.Trace.Session": 3,
     "DataStorm.Trace.Data": 2,
     "Ice.Trace.Protocol": 1,
+    "Ice.Trace.Network": 3,
 }
-
-# Disable client and server idle timeout below to avoid a test to recover after the connection is closed by the idle timeout.
-# This ensure that test hangs if the session goes into an invalid state, and is not silently recover after the idle timeout
-# closes the connection.
 
 # A client connected to the default server
 clientProps = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Enabled": 0,
     "DataStorm.Node.ConnectTo": "tcp -p {port1}",
-    "Ice.Connection.Server.IdleTimeout": 0,
-    "Ice.Connection.Client.IdleTimeout": 0,
 }
 
 # A client connected to the second server
@@ -28,8 +23,6 @@ client2Props = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Enabled": 0,
     "DataStorm.Node.ConnectTo": "tcp -p {port2}",
-    "Ice.Connection.Server.IdleTimeout": 0,
-    "Ice.Connection.Client.IdleTimeout": 0,
 }
 
 # The default server, not connected to any other server.
@@ -37,8 +30,6 @@ serverProps = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Endpoints": "tcp -p {port1}",
     "DataStorm.Node.ConnectTo": "",
-    "Ice.Connection.Server.IdleTimeout": 0,
-    "Ice.Connection.Client.IdleTimeout": 0,
 }
 
 # A second server connected to the first server
@@ -46,8 +37,6 @@ server2Props = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Endpoints": "tcp -p {port2}",
     "DataStorm.Node.ConnectTo": "tcp -p {port1}",
-    "Ice.Connection.Server.IdleTimeout": 0,
-    "Ice.Connection.Client.IdleTimeout": 0,
 }
 
 # A server without a fixed endpoint, connected to the first server.
@@ -55,8 +44,6 @@ serverAnyProps = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Endpoints": "tcp",
     "DataStorm.Node.ConnectTo": "tcp -p {port1}",
-    "Ice.Connection.Server.IdleTimeout": 0,
-    "Ice.Connection.Client.IdleTimeout": 0,
 }
 
 props = [

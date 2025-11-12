@@ -148,6 +148,19 @@ allTests(Test::TestHelper* helper)
     test(d);
     cout << "ok" << endl;
 
+    cout << "testing renamed classes... " << flush;
+    auto renamed = make_shared<Test::CppClass>("renamed");
+    renamed = initial->opRenamedClass(renamed);
+    test(renamed != nullptr);
+    test(renamed->data == "renamed");
+
+    auto derivedRenamed = make_shared<Test::CppDerivedClass>("renamed", "derived");
+    derivedRenamed = dynamic_pointer_cast<Test::CppDerivedClass>(initial->opRenamedClass(derivedRenamed));
+    test(derivedRenamed != nullptr);
+    test(derivedRenamed->data == "renamed");
+    test(derivedRenamed->moreData == "derived");
+    cout << "ok" << endl;
+
     cout << "checking consistency... " << flush;
     test(b1 != b2);
     test(b1 != dynamic_pointer_cast<B>(c));
