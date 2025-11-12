@@ -32,3 +32,6 @@ dotnet_diagnostic.CA1016.severity = none
 
 # CA2008: Do not create tasks without passing a TaskScheduler
 dotnet_diagnostic.CA2008.severity = none
+
+# CA1515: Because an application's API isn't typically referenced from outside the assembly, types can be made internal
+dotnet_diagnostic.CA1515.severity = none

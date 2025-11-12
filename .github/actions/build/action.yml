@@ -16,6 +16,11 @@ inputs:
     default: "ice.proj"
     type: string
 
+  msbuild_command:
+    description: "The msbuild command to use"
+    default: "msbuild /m"
+    type: string
+
   build_cpp_and_python:
     description: "Build C++ and Python"
     type: choice
@@ -67,6 +72,6 @@ runs:
 
     - name: Build
       working-directory: ${{ inputs.working_directory }}
-      run: msbuild /m ${{ inputs.build_flags }} ${{ inputs.msbuild_project }}
+      run: ${{ inputs.msbuild_command }} ${{ inputs.build_flags }} ${{ inputs.msbuild_project }}
       shell: powershell
       if: runner.os == 'Windows'

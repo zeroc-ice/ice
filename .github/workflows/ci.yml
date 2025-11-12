@@ -110,6 +110,31 @@ jobs:
             build_cpp_and_python: true
             build_android_controller: true
 
+          # .NET 10.0
+          - os: ubuntu-24.04
+            config: ".NET10"
+            working_directory: "csharp"
+            net_target_framework: "net10.0"
+            test_flags: "--target-framework=net10.0"
+            build_cpp_and_python: true
+
+          - os: windows-2025
+            config: ".NET10"
+            working_directory: "csharp"
+            msbuild_command: "dotnet msbuild"
+            build_flags: "/p:Platform=x64"
+            msbuild_project: "msbuild/ice.proj"
+            net_target_framework: "net10.0"
+            test_flags: "--target-framework=net10.0"
+            build_cpp_and_python: true
+
+          - os: macos-26
+            config: ".NET10"
+            working_directory: "csharp"
+            net_target_framework: "net10.0"
+            test_flags: "--target-framework=net10.0"
+            build_cpp_and_python: true
+
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -133,6 +158,8 @@ jobs:
 
       - name: Setup .NET
         uses: ./.github/actions/setup-dotnet
+        with:
+          include_net10: ${{ matrix.net_target_framework == 'net10.0' }}
 
       - name: Setup Java
         uses: ./.github/actions/setup-java
@@ -183,6 +210,12 @@ jobs:
           echo "EnableAnalysis=true" >> $env:GITHUB_ENV
         shell: pwsh
 
+      - name: .NET Target Framework
+        if: matrix.net_target_framework == 'net10.0'
+        run: |
+          echo "AppTargetFramework=net10.0" >> $env:GITHUB_ENV
+        shell: pwsh
+
       - name: Build ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/build
         timeout-minutes: 90
@@ -191,6 +224,7 @@ jobs:
           build_cpp_and_python: ${{ matrix.build_cpp_and_python || false }}
           build_android_controller: ${{ matrix.build_android_controller || false }}
           build_flags: ${{ matrix.build_flags || '' }}
+          msbuild_command: ${{ matrix.msbuild_command || 'msbuild /m' }}
           msbuild_project: ${{ matrix.msbuild_project || 'ice.proj' }}
 
       - name: Install testing dependencies from pip

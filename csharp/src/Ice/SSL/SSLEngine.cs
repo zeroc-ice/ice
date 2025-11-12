@@ -175,9 +175,7 @@ internal class SSLEngine
         s.Append("\nencrypted = " + (stream.IsEncrypted ? "yes" : "no"));
         s.Append("\nsigned = " + (stream.IsSigned ? "yes" : "no"));
         s.Append("\nmutually authenticated = " + (stream.IsMutuallyAuthenticated ? "yes" : "no"));
-        s.Append("\nhash algorithm = " + stream.HashAlgorithm + "/" + stream.HashStrength);
-        s.Append("\ncipher algorithm = " + stream.CipherAlgorithm + "/" + stream.CipherStrength);
-        s.Append("\nkey exchange algorithm = " + stream.KeyExchangeAlgorithm + "/" + stream.KeyExchangeStrength);
+        s.Append("\ncipher = " + stream.NegotiatedCipherSuite);
         s.Append("\nprotocol = " + stream.SslProtocol);
         _logger.trace(_securityTraceCategory, s.ToString());
     }
@@ -337,7 +335,7 @@ internal class SSLEngine
         {
             try
             {
-                store = new X509Store((StoreName)Enum.Parse(typeof(StoreName), name, true), storeLocation);
+                store = new X509Store(Enum.Parse<StoreName>(name, true), storeLocation);
             }
             catch (ArgumentException)
             {

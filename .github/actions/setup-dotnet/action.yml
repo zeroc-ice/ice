@@ -1,8 +1,20 @@
 name: Setup .NET
+
+inputs:
+  include_net10:
+    description: "Include .NET 10"
+    default: "false"
+
 runs:
   using: "composite"
   steps:
     - name: Setup .NET 8
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 8.x
+        dotnet-version: 8.0.x
+
+    - name: Setup .NET 10
+      if: inputs.include_net10 == 'true'
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: 10.0.x
