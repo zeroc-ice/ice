@@ -203,7 +203,7 @@ compile(const vector<string>& argv)
                 JavaDocCommentFormatter formatter;
                 parseAllDocComments(unit, formatter);
 
-                Gen gen(preprocessor->getBaseName(), includePaths, output);
+                Gen gen(preprocessor->getBaseName(), output);
                 gen.generate(unit);
 
                 status |= unit->getStatus();

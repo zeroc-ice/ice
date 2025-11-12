@@ -50,9 +50,8 @@ namespace
     }
 }
 
-Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir)
-    : _out(false, true), // No break before opening block in Swift + short empty blocks
-      _includePaths(includePaths)
+Gen::Gen(const string& base, const string& dir)
+    : _out(false, true) // No break before opening block in Swift + short empty blocks
 {
     _fileBase = base;
     string::size_type pos = base.find_last_of("/\\");

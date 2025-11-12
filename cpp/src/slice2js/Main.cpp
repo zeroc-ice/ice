@@ -239,12 +239,12 @@ compile(const vector<string>& argv)
 
                 if (useStdout)
                 {
-                    Gen gen(preprocessor->getBaseName(), includePaths, output, typeScript, cout);
+                    Gen gen(preprocessor->getBaseName(), output, typeScript, cout);
                     gen.generate(unit);
                 }
                 else
                 {
-                    Gen gen(preprocessor->getBaseName(), includePaths, output, typeScript);
+                    Gen gen(preprocessor->getBaseName(), output, typeScript);
                     gen.generate(unit);
                 }
 

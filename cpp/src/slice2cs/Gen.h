@@ -75,7 +75,7 @@ namespace Slice
     class Gen final
     {
     public:
-        Gen(const std::string&, const std::vector<std::string>&, const std::string&, bool);
+        Gen(const std::string&, const std::string&, bool);
         Gen(const Gen&) = delete;
         ~Gen();
 
@@ -83,7 +83,6 @@ namespace Slice
 
     private:
         IceInternal::Output _out;
-        std::vector<std::string> _includePaths;
         bool _enableAnalysis;
 
         void printHeader();

@@ -256,7 +256,7 @@ compile(const vector<string>& argv)
                 CsharpDocCommentFormatter formatter;
                 parseAllDocComments(unit, formatter);
 
-                Gen gen(preprocessor->getBaseName(), includePaths, output, enableAnalysis);
+                Gen gen(preprocessor->getBaseName(), output, enableAnalysis);
                 gen.generate(unit);
 
                 status |= unit->getStatus();
