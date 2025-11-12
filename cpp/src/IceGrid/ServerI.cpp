@@ -1952,14 +1952,14 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
 {
     assert(_load && descriptor);
 
-    _desc = descriptor;
-    _waitForReplication = true;
-
     // Remember if the server was just released by a session, this will be used later to not update the configuration
     // on the disk (as an optimization and to allow users to review the configuration file after allocating a server --
     // that's useful if the server configuration is bogus and the session server can't start).
     bool serverSessionReleased = _desc && _desc->activation == "session" && _desc->revision == descriptor->revision &&
                                  !_desc->sessionId.empty() && descriptor->sessionId.empty();
+
+    _desc = descriptor;
+    _waitForReplication = true;
 
     // Go through the adapters and create the object adapter Ice objects if necessary, also remove the old ones.
     {
