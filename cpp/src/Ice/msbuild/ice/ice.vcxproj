@@ -1045,12 +1045,12 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets" Condition="Exists('..\..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets')" />
+    <Import Project="..\..\..\..\msbuild\packages\ZeroC.Bzip2.1.0.6\build\native\ZeroC.Bzip2.targets" Condition="Exists('..\..\..\..\msbuild\packages\ZeroC.Bzip2.1.0.6\build\native\ZeroC.Bzip2.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\ZeroC.Bzip2.1.0.6\build\native\ZeroC.Bzip2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\ZeroC.Bzip2.1.0.6\build\native\ZeroC.Bzip2.targets'))" />
   </Target>
 </Project>

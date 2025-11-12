@@ -9,9 +9,8 @@
 
   <ItemDefinitionGroup>
     <Link>
-      <GenerateDebugInformation>Yes</GenerateDebugInformation>
       <FullProgramDatabaseFile>false</FullProgramDatabaseFile>
-      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
 
