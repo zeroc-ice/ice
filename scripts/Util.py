@@ -2463,7 +2463,7 @@ class RemoteProcessController(ProcessController):
         # TODO: support envs?
 
         traceProps = process.getEffectiveTraceProps(current)
-        if traceProps:
+        if traceProps and not current.config.browser:
             if "Ice.ProgramName" in props:
                 programName = props["Ice.ProgramName"]
             else:

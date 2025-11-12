@@ -112,6 +112,10 @@ class ProcessControllerI extends Test.Common.BrowserProcessController {
         return "127.0.0.1";
     }
 
+    createLogDirectory() {
+        // No-op in browser environment.
+    }
+
     redirect(url, current) {
         current.con.close();
         window.location.href = url;

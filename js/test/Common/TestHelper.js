@@ -76,7 +76,7 @@ export class TestHelper {
 
     updateLogFileProperty(properties, suffix) {
         const logFile = properties.getIceProperty("Ice.LogFile");
-        if (logFile.length > 0) {
+        if (!TestHelper.isBrowser() && logFile.length > 0) {
             const dotIndex = logFile.lastIndexOf(".");
             const newLogFile =
                 dotIndex == -1
