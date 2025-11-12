@@ -58,7 +58,7 @@ internal class SSLEngine
         // If IceSSL.CertFile is defined, load a certificate from a file and add it to the collection.
         _certs = [];
         string certFile = properties.getIceProperty("IceSSL.CertFile");
-        string password = properties.getIceProperty("IceSSL.Password");
+        string passwordStr = properties.getIceProperty("IceSSL.Password");
         string findCert = properties.getIceProperty("IceSSL.FindCert");
 
         if (certFile.Length > 0)
@@ -81,10 +81,15 @@ internal class SSLEngine
                     importFlags = X509KeyStorageFlags.UserKeySet;
                 }
 
-                cert = X509CertificateLoader.LoadPkcs12FromFile(
-                    certFile,
-                    password.Length > 0 ? password : null,
-                    importFlags | X509KeyStorageFlags.Exportable);
+                if (passwordStr.Length > 0)
+                {
+                    using SecureString password = createSecureString(passwordStr);
+                    cert = new X509Certificate2(certFile, password, importFlags);
+                }
+                else
+                {
+                    cert = new X509Certificate2(certFile, (string)null, importFlags);
+                }
                 _certs.Add(cert);
             }
             catch (CryptographicException ex)
@@ -132,8 +137,8 @@ internal class SSLEngine
 
                 if (_caCerts.Count == 0)
                 {
-                    // Fallback to LoadCertificateFromFile loads a single certificate in either DER or PEM format.
-                    _caCerts.Add(X509CertificateLoader.LoadCertificateFromFile(certAuthFile));
+                    // Fallback to Import which handles DER/PFX.
+                    _caCerts.Import(certAuthFile);
                 }
             }
             catch (Exception ex)
@@ -490,6 +495,16 @@ internal class SSLEngine
             store.Close();
         }
 
+        return result;
+    }
+
+    private static SecureString createSecureString(string s)
+    {
+        var result = new SecureString();
+        foreach (char ch in s)
+        {
+            result.AppendChar(ch);
+        }
         return result;
     }
 
