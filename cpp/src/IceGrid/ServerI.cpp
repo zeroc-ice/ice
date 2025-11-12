@@ -2440,13 +2440,26 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
 void
 ServerI::updateRevision(const string& uuid, int revision)
 {
-    _desc->uuid = uuid;
-    _desc->revision = revision;
+    // We must have either _desc or _load.
+    assert(_desc || _load);
+
+    string application;
+
+    // _desc can be nullptr if the server initial load didn't complete yet.
+    if (_desc)
+    {
+        _desc->uuid = uuid;
+        _desc->revision = revision;
+        application = _desc->application;
+    }
 
     if (_load)
     {
         _load->getInternalServerDescriptor()->uuid = uuid;
         _load->getInternalServerDescriptor()->revision = revision;
+
+        // When both _desc and _load are not null, this one prevails.
+        application = _load->getInternalServerDescriptor()->application;
     }
 
     string idFilePath = _serverDir + "/revision";
@@ -2454,10 +2467,10 @@ ServerI::updateRevision(const string& uuid, int revision)
     if (os.good())
     {
         os << "#" << endl;
-        os << "# This server belongs to the application '" << _desc->application << "'" << endl;
+        os << "# This server belongs to the application '" << application << "'" << endl;
         os << "#" << endl;
-        os << "uuid: " << _desc->uuid << endl;
-        os << "revision: " << _desc->revision << endl;
+        os << "uuid: " << uuid << endl;
+        os << "revision: " << revision << endl;
     }
 }
 
