@@ -2332,9 +2332,7 @@ Slice::JavaVisitor::writeParamDocComments(IceInternal::Output& out, const DataMe
     }
 }
 
-Slice::Gen::Gen(string base, string dir) : _base(std::move(base)), _dir(std::move(dir))
-{
-}
+Slice::Gen::Gen(string base, string dir) : _base(std::move(base)), _dir(std::move(dir)) {}
 
 Slice::Gen::~Gen() = default;
 

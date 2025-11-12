@@ -443,11 +443,7 @@ Slice::Gen::Gen(const string& base, const string& dir, bool typeScript)
     }
 }
 
-Slice::Gen::Gen(
-    const string& base,
-    const string& /*dir*/,
-    bool typeScript,
-    ostream& out)
+Slice::Gen::Gen(const string& base, const string& /*dir*/, bool typeScript, ostream& out)
     : _javaScriptOutput(out, false, true),
       _typeScriptOutput(out, false, true),
       _useStdout(true),
@@ -548,9 +544,7 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 }
 
-Slice::Gen::ImportVisitor::ImportVisitor(IceInternal::Output& out) : JsVisitor(out)
-{
-}
+Slice::Gen::ImportVisitor::ImportVisitor(IceInternal::Output& out) : JsVisitor(out) {}
 
 bool
 Slice::Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr&)
