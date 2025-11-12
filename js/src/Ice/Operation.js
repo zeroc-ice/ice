@@ -244,7 +244,9 @@ function dispatchImpl(servant, op, request) {
     // Check to make sure the servant implements the operation.
     //
     const method = servant[op.servantMethod];
-    console.assert(typeof method === "function");
+    if (typeof method !== "function") {
+        throw new OperationNotExistException();
+    }
 
     if (op.mode === OperationMode.Normal) {
         checkNonIdempotent(request.current);
