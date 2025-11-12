@@ -166,12 +166,12 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\msbuild\packages\zeroc.lmdb.v143.0.9.29\build\native\zeroc.lmdb.v143.targets" Condition="Exists('..\..\..\msbuild\packages\zeroc.lmdb.v143.0.9.29\build\native\zeroc.lmdb.v143.targets')" />
+    <Import Project="..\..\..\msbuild\packages\ZeroC.LMDB.0.9.29\build\native\ZeroC.LMDB.targets" Condition="Exists('..\..\..\msbuild\packages\ZeroC.LMDB.0.9.29\build\native\ZeroC.LMDB.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\msbuild\packages\zeroc.lmdb.v143.0.9.29\build\native\zeroc.lmdb.v143.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\zeroc.lmdb.v143.0.9.29\build\native\zeroc.lmdb.v143.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\ZeroC.LMDB.0.9.29\build\native\ZeroC.LMDB.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\ZeroC.LMDB.0.9.29\build\native\ZeroC.LMDB.targets'))" />
   </Target>
 </Project>
