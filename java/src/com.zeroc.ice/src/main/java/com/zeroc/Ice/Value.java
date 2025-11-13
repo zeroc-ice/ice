@@ -7,7 +7,7 @@ import java.io.Serializable;
 /** The base class for instances of Slice-defined classes. */
 public abstract class Value implements Cloneable, Serializable {
     /**
-     * Returns a field-for-field copy of this object.
+     * Returns a shallow field-for-field copy of this object.
      *
      * @return the cloned object
      */
@@ -25,21 +25,21 @@ public abstract class Value implements Cloneable, Serializable {
     }
 
     /**
-     * The Ice run time calls this method before marshaling an object's data members.
-     * This allows a subclass to override this method in order to validate its data members.
+     * The Ice runtime calls this method before marshaling a class instance.
+     * Subclasses can override this method in order to update or validate their fields before marshalling.
      */
     public void ice_preMarshal() {}
 
     /**
-     * The Ice run time calls this method after unmarshaling an object's data members.
-     * This allows a subclass to override this method in order to perform additional initialization.
+     * The Ice runtime calls this method after unmarshaling a class instance.
+     * Subclasses can override this method in order to update or validate their fields after unmarshaling.
      */
     public void ice_postUnmarshal() {}
 
     /**
-     * Returns the type ID of the most-derived Slice interface supported by this object.
+     * Returns the Slice type ID of the most-derived class supported by this object.
      *
-     * @return The return value is always {@code ::Ice::Object}.
+     * @return the Slice type ID
      */
     public String ice_id() {
         return ice_staticId();
@@ -48,17 +48,17 @@ public abstract class Value implements Cloneable, Serializable {
     /**
      * Returns the sliced data associated with this instance.
      *
-     * @return The sliced data if the value has a preserved-slice base class and has been sliced
-     *     during unmarshaling of the value; {@code null} otherwise.
+     * @return If this value has a preserved-slice base class and has been sliced during unmarshaling, this returns the
+     *     sliced data; otherwise this returns {@code null}.
      */
     public SlicedData ice_getSlicedData() {
         return _slicedData;
     }
 
     /**
-     * Gets the Slice type ID of this type.
+     * Returns the Slice type ID of this type.
      *
-     * @return The return value is always {@code ::Ice::Object}.
+     * @return The return value is always {@code "::Ice::Object"}.
      */
     public static String ice_staticId() {
         return "::Ice::Object";
@@ -96,7 +96,7 @@ public abstract class Value implements Cloneable, Serializable {
      */
     protected void _iceReadImpl(InputStream istr) {}
 
-    /** The sliced data associated with this object. */
+    /** The sliced data associated with this instance. */
     private SlicedData _slicedData;
 
     private static final long serialVersionUID = 0L;

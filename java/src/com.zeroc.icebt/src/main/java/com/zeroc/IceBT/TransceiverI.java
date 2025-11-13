@@ -316,7 +316,7 @@ final class TransceiverI implements Transceiver {
         } catch (Exception ex) {
             exception(new SocketException(ex));
         } finally {
-            // This causes the Ice run time to invoke initialize() again.
+            // This causes the Ice runtime to invoke initialize() again.
             _readyCallback.ready(SocketOperation.Read, true);
         }
     }
@@ -400,11 +400,11 @@ final class TransceiverI implements Transceiver {
             }
         } catch (IOException ex) {
             exception(new SocketException(ex));
-            // Mark as ready for reading so that the Ice run time will invoke read() and we can report the exception.
+            // Mark as ready for reading so that the Ice runtime will invoke read() and we can report the exception.
             _readyCallback.ready(SocketOperation.Read, true);
         } catch (LocalException ex) {
             exception(ex);
-            // Mark as ready for reading so that the Ice run time will invoke read() and we can report the exception.
+            // Mark as ready for reading so that the Ice runtime will invoke read() and we can report the exception.
             _readyCallback.ready(SocketOperation.Read, true);
         } finally {
             if (in != null) {

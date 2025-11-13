@@ -109,9 +109,9 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
     }
 
     /**
-     * When you start an asynchronous invocation, the Ice run time attempts to write the
+     * When you start an asynchronous invocation, the Ice runtime attempts to write the
      * corresponding request to the client-side transport. If the transport cannot accept the
-     * request, the Ice run time queues the request for later transmission. This method returns true
+     * request, the Ice runtime queues the request for later transmission. This method returns true
      * if, at the time it is called, the request has been written to the local transport (whether it
      * was initially queued or not). Otherwise, if the request is still queued, this method returns
      * false.

@@ -1,4 +1,4 @@
 // Copyright (c) ZeroC, Inc.
 
-/** APIs for clients of the Glacier2 firewall traversal service. */
+/** Client APIs to communicate through firewalls and across NATs with Glacier2. */
 package com.zeroc.Glacier2;
