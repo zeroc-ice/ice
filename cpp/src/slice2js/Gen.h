@@ -35,9 +35,9 @@ namespace Slice
     class Gen final
     {
     public:
-        Gen(const std::string&, const std::vector<std::string>&, const std::string&, bool);
+        Gen(const std::string&, const std::string&, bool);
 
-        Gen(const std::string&, const std::vector<std::string>&, const std::string&, bool, std::ostream&);
+        Gen(const std::string&, const std::string&, bool, std::ostream&);
 
         ~Gen();
 
@@ -47,7 +47,6 @@ namespace Slice
         IceInternal::Output _javaScriptOutput;
         IceInternal::Output _typeScriptOutput;
 
-        std::vector<std::string> _includePaths;
         std::string _fileBase;
         bool _useStdout;
         bool _typeScript;
@@ -55,7 +54,7 @@ namespace Slice
         class ImportVisitor final : public JsVisitor
         {
         public:
-            ImportVisitor(::IceInternal::Output&, std::vector<std::string>);
+            ImportVisitor(::IceInternal::Output&);
 
             bool visitClassDefStart(const ClassDefPtr&) final;
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
@@ -82,7 +81,6 @@ namespace Slice
             bool _seenObjectProxySeq{false};
             bool _seenObjectDict{false};
             bool _seenObjectProxyDict{false};
-            std::vector<std::string> _includePaths;
         };
 
         class ExportsVisitor final : public JsVisitor

@@ -758,9 +758,7 @@ Slice::CsVisitor::modulePrefixEnd(const ModulePtr& p)
     }
 }
 
-Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, bool enableAnalysis)
-    : _includePaths(includePaths),
-      _enableAnalysis(enableAnalysis)
+Slice::Gen::Gen(const string& base, const string& dir, bool enableAnalysis) : _enableAnalysis(enableAnalysis)
 {
     string fileBase = base;
     string::size_type pos = base.find_last_of("/\\");

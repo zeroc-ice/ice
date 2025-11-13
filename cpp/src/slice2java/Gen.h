@@ -173,7 +173,7 @@ namespace Slice
     class Gen final
     {
     public:
-        Gen(std::string, const std::vector<std::string>&, std::string);
+        Gen(std::string, std::string);
         Gen(const Gen&) = delete;
         ~Gen();
 
@@ -183,7 +183,6 @@ namespace Slice
 
     private:
         std::string _base;
-        std::vector<std::string> _includePaths;
         std::string _dir;
 
         class TypesVisitor final : public JavaVisitor

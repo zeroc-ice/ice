@@ -393,10 +393,9 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeRemarks,
     _out << nl << " */";
 }
 
-Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, bool typeScript)
+Slice::Gen::Gen(const string& base, const string& dir, bool typeScript)
     : _javaScriptOutput(false, true), // No break before opening block in JS + short empty blocks
       _typeScriptOutput(false, true), // No break before opening block in TS + short empty blocks
-      _includePaths(includePaths),
       _useStdout(false),
       _typeScript(typeScript)
 {
@@ -444,15 +443,9 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     }
 }
 
-Slice::Gen::Gen(
-    const string& base,
-    const vector<string>& includePaths,
-    const string& /*dir*/,
-    bool typeScript,
-    ostream& out)
+Slice::Gen::Gen(const string& base, const string& /*dir*/, bool typeScript, ostream& out)
     : _javaScriptOutput(out, false, true),
       _typeScriptOutput(out, false, true),
-      _includePaths(includePaths),
       _useStdout(true),
       _typeScript(typeScript)
 {
@@ -501,7 +494,7 @@ Slice::Gen::generate(const UnitPtr& p)
     _javaScriptOutput << nl;
 
     {
-        ImportVisitor importVisitor(_javaScriptOutput, _includePaths);
+        ImportVisitor importVisitor(_javaScriptOutput);
         p->visit(&importVisitor);
         set<string> importedModules = importVisitor.writeImports(p);
 
@@ -551,15 +544,7 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 }
 
-Slice::Gen::ImportVisitor::ImportVisitor(IceInternal::Output& out, vector<string> includePaths)
-    : JsVisitor(out),
-      _includePaths(std::move(includePaths))
-{
-    for (auto& includePath : _includePaths)
-    {
-        includePath = fullPath(includePath);
-    }
-}
+Slice::Gen::ImportVisitor::ImportVisitor(IceInternal::Output& out) : JsVisitor(out) {}
 
 bool
 Slice::Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr&)
