@@ -1191,11 +1191,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             }
         }
 
-        if (_startCallback is not null)
-        {
-            _startCallback.connectionStartFailed(this, _exception);
-            _startCallback = null;
-        }
+        _startCallback?.connectionStartFailed(this, _exception);
+        _startCallback = null;
 
         if (_sendStreams.Count > 0)
         {

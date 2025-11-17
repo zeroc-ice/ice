@@ -90,11 +90,8 @@ public class TestI : Test.TestIntfDisp_
         lock (_mutex)
         {
             _shutdown = true;
-            if (_pending != null)
-            {
-                _pending.SetResult(null);
-                _pending = null;
-            }
+            _pending?.SetResult(null);
+            _pending = null;
             current.adapter.getCommunicator().shutdown();
         }
     }
@@ -175,9 +172,9 @@ public class TestI : Test.TestIntfDisp_
             {
                 return;
             }
-            else if (_pending != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
+            else // Pending might not be set yet if startDispatch is dispatch out-of-order
             {
-                _pending.SetResult(null);
+                _pending?.SetResult(null);
                 _pending = null;
             }
         }
