@@ -1,10 +1,16 @@
 name: Setup Python
+
+inputs:
+  python-version:
+    description: "The version of Python to set up."
+    default: "3.13"
+
 runs:
   using: "composite"
   steps:
     - uses: actions/setup-python@v5
       with:
-        python-version: "3.13"
+        python-version: ${{ inputs.python-version }}
 
     - name: Configure Windows Python Environment
       run: |
