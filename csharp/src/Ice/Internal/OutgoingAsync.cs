@@ -99,11 +99,8 @@ public abstract class OutgoingAsyncBase
             warning(ex);
         }
 
-        if (observer_ != null)
-        {
-            observer_.detach();
-            observer_ = null;
-        }
+        observer_?.detach();
+        observer_ = null;
     }
 
     public void invokeResponse()
@@ -137,11 +134,8 @@ public abstract class OutgoingAsyncBase
             warning(ex);
         }
 
-        if (observer_ != null)
-        {
-            observer_.detach();
-            observer_ = null;
-        }
+        observer_?.detach();
+        observer_ = null;
     }
 
     public virtual void cancelable(CancellationHandler handler)
@@ -229,11 +223,8 @@ public abstract class OutgoingAsyncBase
             if (done)
             {
                 _doneInSent = true;
-                if (childObserver_ != null)
-                {
-                    childObserver_.detach();
-                    childObserver_ = null;
-                }
+                childObserver_?.detach();
+                childObserver_ = null;
                 _cancellationHandler = null;
 
                 //
@@ -1347,11 +1338,8 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
         public override bool
         sent()
         {
-            if (childObserver_ != null)
-            {
-                childObserver_.detach();
-                childObserver_ = null;
-            }
+            childObserver_?.detach();
+            childObserver_ = null;
             _outAsync.check(false);
             return false;
         }

@@ -119,11 +119,8 @@ public class EndpointHostResolver
                 }
 
                 List<EndPoint> addrs = Network.getAddresses(r.host, r.port, protocol, _preferIPv6, true);
-                if (r.observer != null)
-                {
-                    r.observer.detach();
-                    r.observer = null;
-                }
+                r.observer?.detach();
+                r.observer = null;
 
                 r.callback.connectors(r.endpoint.connectors(addrs, networkProxy));
             }
