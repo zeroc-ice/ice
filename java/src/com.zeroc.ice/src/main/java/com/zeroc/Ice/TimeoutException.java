@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** This exception indicates a timeout condition. */
+/** The exception that is thrown when a timeout occurs. This is the base class for all timeout exceptions. */
 public class TimeoutException extends LocalException {
     /** Constructs a TimeoutException. */
     public TimeoutException() {

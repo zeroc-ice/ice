@@ -3623,7 +3623,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "/**";
     out << nl << " * Returns the {@code " << name << "} enumerator corresponding to the given integer value.";
     out << nl << " *";
-    out << nl << " * @param v the value to match";
+    out << nl << " * @param v the integer value of the enumerator";
     out << nl << " * @return the {@code " << name
         << "} enumerator corresponding to the given integer value, or {@code null} if no such enumerator exists";
     out << nl << " */";

@@ -209,7 +209,8 @@ class StreamSocket {
      *
      * @param buf The ByteBuffer containing data to write.
      * @return The number of bytes written.
-     * @throws ConnectionLostException or SocketException if the connection is closed or an error occurs.
+     * @throws ConnectionLostException if the connection is closed or an error occurs
+     * @throws SocketException if the connection is closed or an error occurs
      */
     public int write(ByteBuffer buf) {
         assert (_fd != null);

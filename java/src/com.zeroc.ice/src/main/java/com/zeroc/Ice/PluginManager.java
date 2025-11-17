@@ -11,14 +11,14 @@ public interface PluginManager {
      * initialized in the order in which they are loaded. If a plug-in throws an exception during initialization,
      * the communicator calls {@link Plugin#destroy} on the plug-ins that have already been initialized.
      *
-     * @throws InitializationException Thrown when the plug-ins have already been initialized.
+     * @throws InitializationException if the plug-ins have already been initialized
      */
     void initializePlugins();
 
     /**
-     * Gets a list of the installed plug-ins.
+     * Gets the installed plug-ins.
      *
-     * @return The names of the installed plug-ins.
+     * @return the names of the installed plug-ins
      * @see #getPlugin
      */
     String[] getPlugins();
@@ -28,7 +28,7 @@ public interface PluginManager {
      *
      * @param name the plug-in's name
      * @return the plug-in
-     * @throws NotRegisteredException Thrown when no plug-in is found with the given name.
+     * @throws NotRegisteredException if no plug-in is found with the given name
      */
     Plugin getPlugin(String name);
 
@@ -37,7 +37,7 @@ public interface PluginManager {
      *
      * @param name the plug-in's name
      * @param pi the plug-in
-     * @throws AlreadyRegisteredException Thrown when a plug-in already exists with the given name.
+     * @throws AlreadyRegisteredException if a plug-in already exists with the given name
      */
     void addPlugin(String name, Plugin pi);
 

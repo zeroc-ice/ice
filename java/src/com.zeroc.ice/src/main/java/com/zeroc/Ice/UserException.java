@@ -8,19 +8,19 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-/** Base class for exceptions defined in Slice. */
+/** Base class for all exceptions defined in Slice. */
 public abstract class UserException extends java.lang.Exception {
     /**
-     * Returns the type id of this exception.
+     * Returns the Slice type ID of this user exception.
      *
-     * @return The type id of this exception.
+     * @return the Slice type ID
      */
     public abstract String ice_id();
 
     /**
-     * Returns a string representation of this exception.
+     * Returns a string representation of this user exception.
      *
-     * @return A string representation of this exception.
+     * @return a string representation
      */
     @Override
     public String toString() {
@@ -48,7 +48,7 @@ public abstract class UserException extends java.lang.Exception {
     }
 
     /**
-     * Unmarshals a {@code UserException} from an input stream into this exception.
+     * Unmarshals a {@code UserException} from an input stream, and uses it to set this exception's fields.
      *
      * @param is the input stream to unmarshal from
      * @hidden
@@ -62,7 +62,7 @@ public abstract class UserException extends java.lang.Exception {
     /**
      * Returns {@code true} if this exception holds classes, {@code false} otherwise.
      *
-     * @return {@code true} if this exception holds classes, {@code false} otherwise
+     * @return whether this exception holds classes
      * @hidden
      */
     public boolean _usesClasses() {

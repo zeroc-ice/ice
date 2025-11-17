@@ -1271,7 +1271,7 @@ public final class InputStream {
      *
      * @param <T> The value type.
      * @param cb The consumer to notify when the extracted instance is available. The stream
-     *     extracts Slice values in stages. The Ice run time calls accept on the consumer when the
+     *     extracts Slice values in stages. The Ice runtime calls accept on the consumer when the
      *     corresponding instance has been fully unmarshaled.
      * @param cls The type of the Ice.Value to unmarshal.
      */
@@ -1291,7 +1291,7 @@ public final class InputStream {
      * Extracts a Slice value from the stream.
      *
      * @param cb The consumer to notify when the extracted instance is available. The stream
-     *     extracts Slice values in stages. The Ice run time calls accept on the consumer when the
+     *     extracts Slice values in stages. The Ice runtime calls accept on the consumer when the
      *     corresponding instance has been fully unmarshaled.
      */
     public void readValue(Consumer<Value> cb) {
@@ -2269,7 +2269,7 @@ public final class InputStream {
 
     /**
      * We need to override the resolveClass method of ObjectInputStream so that we can use the same
-     * class-lookup mechanism as elsewhere in the Ice run time.
+     * class-lookup mechanism as elsewhere in the Ice runtime.
      */
     private class ObjectInputStreamWrapper extends java.io.ObjectInputStream {
         public ObjectInputStreamWrapper(Instance instance, java.io.InputStream in)

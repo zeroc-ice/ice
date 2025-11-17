@@ -11,7 +11,7 @@ public final class TwowayOnlyException extends LocalException {
     /**
      * Constructs a TwowayOnlyException with the operation name.
      *
-     * @param operation the operation that can only be invoked with a twoway request
+     * @param operation the name of the two-way only operation
      */
     public TwowayOnlyException(String operation) {
         super(
@@ -26,7 +26,7 @@ public final class TwowayOnlyException extends LocalException {
         return "::Ice::TwowayOnlyException";
     }
 
-    /** The name of the operation that was invoked. */
+    /** The name of the two-way only operation. */
     public final String operation;
 
     private static final long serialVersionUID = -7036652448391478186L;

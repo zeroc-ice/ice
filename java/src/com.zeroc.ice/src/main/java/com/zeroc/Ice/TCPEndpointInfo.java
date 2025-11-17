@@ -21,7 +21,6 @@ public final class TCPEndpointInfo extends IPEndpointInfo {
         return _secure;
     }
 
-    // internal constructor
     TCPEndpointInfo(boolean compress, String host, int port, String sourceAddress, short type, boolean secure) {
         super(compress, host, port, sourceAddress);
         this._type = type;

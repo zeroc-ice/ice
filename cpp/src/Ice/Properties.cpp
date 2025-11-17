@@ -20,7 +20,7 @@ using namespace IceInternal;
 
 namespace
 {
-    /// Find the Ice property array for a given property name.
+    /// Finds the Ice property array for a given property name.
     /// @param key The property name.
     /// @return The property array if found, nullopt otherwise.
     const PropertyArray* findIcePropertyArray(string_view key)
@@ -49,10 +49,10 @@ namespace
         return nullptr;
     }
 
-    /// Find the default value for an Ice property. If there is no default value, return an empty string.
-    /// @param key The ice property name.
-    /// @return The default value for the property.
-    /// @throws PropertyException if the property is unknown.
+    /// Finds the default value for an Ice property.
+    /// @param key The Ice property name.
+    /// @return The default value for the property, or the empty string if the property doesn't have a default value.
+    /// @throws PropertyException Thrown when the property is unknown.
     string_view getDefaultValue(string_view key)
     {
         auto propertyArray = findIcePropertyArray(key);

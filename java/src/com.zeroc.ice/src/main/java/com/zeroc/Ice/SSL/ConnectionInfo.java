@@ -15,7 +15,6 @@ public final class ConnectionInfo extends com.zeroc.Ice.ConnectionInfo {
     /** The certificate chain verification status. */
     public final boolean verified;
 
-    // internal constructor
     ConnectionInfo(com.zeroc.Ice.ConnectionInfo underlying, String cipher, Certificate[] certs, boolean verified) {
         super(underlying);
         this.cipher = cipher;

@@ -57,7 +57,7 @@ namespace Ice
 
     /// Represents a set of properties used to configure Ice and Ice-based applications. A property is a key/value pair,
     /// where both the key and the value are strings. By convention, property keys should have the form
-    /// `application-name>[.category[.sub-category]].name`.
+    /// `application-name[.category[.sub-category]].name`.
     /// @remark This class is thread-safe: multiple threads can safely read and write the properties.
     /// @headerfile Ice/Ice.h
     class ICE_API Properties final
@@ -180,7 +180,7 @@ namespace Ice
         /// Gets a property as an integer.
         /// @param key The property key.
         /// @param value The default value to return if the property does not exist.
-        /// @return The property value interpreted as an integer, or the default value of the property is not set.
+        /// @return The property value interpreted as an integer, or the default value if the property is not set.
         /// @throws PropertyException Thrown when the property value is not a valid integer.
         /// @see #setProperty
         int getPropertyAsIntWithDefault(std::string_view key, int value);
@@ -199,8 +199,9 @@ namespace Ice
         /// mismatched, the default list is returned.  Within single quotes or double quotes, you can escape the quote
         /// in question with a backslash, e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
         /// @param key The property key.
-        /// @return The property value interpreted as list of strings, or the default value if the property is not set.
-        /// @throws PropertyException If the property is not a known Ice property.
+        /// @return The property value interpreted as a list of strings, or the default value if the property is not
+        ///     set.
+        /// @throws PropertyException Thrown when the property is not a known Ice property.
         /// @see #setProperty
         StringSeq getIcePropertyAsList(std::string_view key);
 
@@ -210,13 +211,14 @@ namespace Ice
         /// in question with a backslash, e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
         /// @param key The property key.
         /// @param value The default value to use if the property is not set.
-        /// @return The property value interpreted as list of strings, or the default value if the property is not set.
+        /// @return The property value interpreted as a list of strings, or the default value if the property is not
+        ///     set.
         /// @see #setProperty
         StringSeq getPropertyAsListWithDefault(std::string_view key, const StringSeq& value);
 
-        /// Gets all properties whose keys begins with @p prefix. If @p prefix is the empty string, then all properties
+        /// Gets all properties whose keys begin with @p prefix. If @p prefix is the empty string, then all properties
         /// are returned.
-        /// @param prefix The prefix to search for (empty string if none).
+        /// @param prefix The prefix to search for.
         /// @return The matching property set.
         PropertyDict getPropertiesForPrefix(std::string_view prefix);
 

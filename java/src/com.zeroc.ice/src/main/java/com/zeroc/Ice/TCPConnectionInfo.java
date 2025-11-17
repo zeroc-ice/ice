@@ -2,12 +2,12 @@
 
 package com.zeroc.Ice;
 
-/** Provides access to the connection details of a TCP connection */
+/** Provides access to the connection details of a TCP connection. */
 public final class TCPConnectionInfo extends IPConnectionInfo {
-    /** The connection buffer receive size. */
+    /** The size of the receive buffer. */
     public final int rcvSize;
 
-    /** The connection buffer send size. */
+    /** The size of the send buffer. */
     public final int sndSize;
 
     TCPConnectionInfo(

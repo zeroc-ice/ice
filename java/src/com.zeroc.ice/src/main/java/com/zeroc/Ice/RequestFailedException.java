@@ -2,10 +2,7 @@
 
 package com.zeroc.Ice;
 
-/**
- * This exception is raised if a request failed. This exception, and all exceptions derived from
- * {@link DispatchException}, are transmitted by the Ice protocol.
- */
+/** The base class for the 3 NotExist exceptions. */
 public abstract class RequestFailedException extends DispatchException {
     @Override
     public String ice_id() {
@@ -21,7 +18,6 @@ public abstract class RequestFailedException extends DispatchException {
     /** The operation name of the request. */
     public final String operation;
 
-    // Logically protected too.
     RequestFailedException(ReplyStatus replyStatus) {
         super(replyStatus.value());
         this.id = new Identity();
@@ -29,7 +25,6 @@ public abstract class RequestFailedException extends DispatchException {
         this.operation = "";
     }
 
-    // Logically protected too.
     RequestFailedException(ReplyStatus replyStatus, Identity id, String facet, String operation) {
         super(replyStatus.value(), createMessage(replyStatus, id, facet, operation));
         this.id = id;

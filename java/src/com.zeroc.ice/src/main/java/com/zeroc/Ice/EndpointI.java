@@ -73,7 +73,7 @@ public abstract class EndpointI implements Endpoint, Comparable<EndpointI> {
     // Return connectors for this endpoint, or empty list if no connector is available.
     public abstract void connectors_async(EndpointI_connectors callback);
 
-    // Return an acceptor for this endpoint, or null if no acceptors is available.
+    // Return an acceptor for this endpoint, or null if no acceptor is available.
     public abstract Acceptor acceptor(String adapterName, SSLEngineFactory sslEngineFactory);
 
     // Expand endpoint into separate endpoints for each IP address returned by the DNS resolver.

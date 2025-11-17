@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** Provides access to the connection details of a UDP connection */
+/** Provides access to the connection details of a UDP connection. */
 public final class UDPConnectionInfo extends IPConnectionInfo {
     /** The multicast address. */
     public final String mcastAddress;
@@ -10,10 +10,10 @@ public final class UDPConnectionInfo extends IPConnectionInfo {
     /** The multicast port. */
     public final int mcastPort;
 
-    /** The connection buffer receive size. */
+    /** The size of the receive buffer. */
     public final int rcvSize;
 
-    /** The connection buffer send size. */
+    /** The size of the send buffer. */
     public final int sndSize;
 
     UDPConnectionInfo(

@@ -61,12 +61,10 @@ namespace IceInternal
         EndpointFactoryPtr _underlying;
     };
 
-    //
-    // The underlying endpoint factory creates endpoints with a factory of the given
-    // type. If this factory is of the EndpointFactoryWithUnderlying type, it will
-    // delegate to the given underlying factory (this is used by IceIAP/IceBT plugins
-    // for the BTS/iAPS endpoint factories).
-    //
+    /// The underlying endpoint factory creates endpoints with a factory of the given type.
+    /// If this factory is of the @c EndpointFactoryWithUnderlying type,
+    /// it will delegate to the given underlying factory.
+    /// @remark This is used by IceIAP/IceBT plugins for the BTS/iAPS endpoint factories.
     class ICE_API UnderlyingEndpointFactory : public EndpointFactory
     {
     public:

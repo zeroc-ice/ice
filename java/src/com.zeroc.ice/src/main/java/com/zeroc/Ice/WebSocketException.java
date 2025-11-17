@@ -4,11 +4,11 @@ package com.zeroc.Ice;
 
 // TODO: should this derive from 'LocalException'?
 /**
- * Exception thrown to indicate a WebSocket protocol error or failure.
+ * The exception that is thrown when a Websocket protocol error or failure is encountered.
  */
 final class WebSocketException extends RuntimeException {
     /**
-     * Constructs a WebSocketException with the specified message.
+     * Constructs a WebSocketException a message.
      *
      * @param message the detail message
      */
