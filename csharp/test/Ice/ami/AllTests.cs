@@ -913,7 +913,6 @@ public class AllTests : global::Test.AllTests
                 Task sleep2Task = p.sleepAsync(1500);
                 Task sleep3Task = p.sleepAsync(1500);
                 bool canceled = false;
-                using var cts = new CancellationTokenSource(200);
                 try
                 {
                     var onewayProxy = (Test.TestIntfPrx)p.ice_oneway();
@@ -925,6 +924,7 @@ public class AllTests : global::Test.AllTests
                     // twice before blocking.
                     for (int i = 0; i < 3; ++i)
                     {
+                        using var cts = new CancellationTokenSource(200);
                         await onewayProxy.opWithPayloadAsync(new byte[768 * 1024]).WaitAsync(cts.Token);
                     }
                 }
