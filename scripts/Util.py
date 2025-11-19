@@ -2498,7 +2498,6 @@ class RemoteProcessController(ProcessController):
 class AndroidProcessController(RemoteProcessController):
     def __init__(self, current):
         RemoteProcessController.__init__(self, current, None)
-        self.forwardPort = "15001" if not current.config.device else None
         self.device = current.config.device if current.config.device != "" else None
         self.avd = current.config.avd
         self.emulator = None  # Keep a reference to the android emulator process
@@ -2508,21 +2507,17 @@ class AndroidProcessController(RemoteProcessController):
         return "Android"
 
     def setup(self, current):
-        if self.forwardPort:
-            print(f"forwarding port {self.forwardPort} to the controller app")
-            run(f"{self.adb()} forward tcp:{self.forwardPort} tcp:{self.forwardPort}")
+        print(f"forwarding port 15001 to the controller app")
+        run(f"{self.adb()} forward tcp:15001 tcp:15001")
 
     def supportsDiscovery(self):
-        return self.device is not None  # Discovery is only used with devices
+        return False
 
     def getControllerIdentity(self, current):
         return "Android/ProcessController"
 
     def getControllerEndpoints(self, current):
-        # If using an emulator or no device is specified, we use adb port forwarding
-        if current.config.avd or not current.config.device:
-            return "tcp -h 127.0.0.1 -p 15001"
-        return None
+        return "tcp -h 127.0.0.1 -p 15001"
 
     def adb(self):
         return "adb -d" if self.device == "usb" else "adb"
