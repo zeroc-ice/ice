@@ -8,7 +8,7 @@ package com.zeroc.Ice;
  */
 final class WebSocketException extends RuntimeException {
     /**
-     * Constructs a WebSocketException a message.
+     * Constructs a WebSocketException with a message.
      *
      * @param message the detail message
      */

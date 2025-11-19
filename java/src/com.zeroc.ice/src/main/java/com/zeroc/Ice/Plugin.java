@@ -3,14 +3,14 @@
 package com.zeroc.Ice;
 
 /**
- * A communicator plug-in. A plug-in generally adds a feature to a communicator, such as support for
- * a protocol. The communicator loads its plug-ins in two stages: the first stage creates the plug-ins,
- * and the second stage invokes {@link Plugin#initialize} on each one.
+ * Represents a communicator plug-in. A plug-in generally adds a feature to a communicator,
+ * such as support for an additional transport. The communicator loads its plug-ins in two stages:
+ * the first stage creates the plug-ins, and the second stage calls {@link Plugin#initialize} on each one.
  */
 public interface Plugin {
-    /** Perform any necessary initialization steps. */
+    /** Performs any necessary initialization steps. */
     void initialize();
 
-    /** Called when the communicator is being destroyed. */
+    /** Destroys this plugin. This method is called when the communicator is destroyed. */
     void destroy();
 }

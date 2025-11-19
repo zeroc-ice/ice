@@ -34,10 +34,11 @@ public final class Properties {
     /**
      * Constructs a property set, loads the configuration files specified by the {@code Ice.Config} property or the
      * {@code ICE_CONFIG} environment variable, and then parses Ice properties from {@code args}.
-     * This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
+     *
+     * <p>This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
      * there is no {@code --Ice.Config} command-line argument.
      *
-     * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
+     * @param args the command-line arguments. This constructor parses arguments starting with {@code --} and one of the
      *     reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with
      *     {@code --Ice.Config}, this constructor loads the specified configuration file. When the same property is set
      *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
@@ -49,15 +50,16 @@ public final class Properties {
     /**
      * Constructs a property set, loads the configuration files specified by the {@code Ice.Config} property or the
      * {@code ICE_CONFIG} environment variable, and then parses Ice properties from {@code args}.
-     * This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
+     *
+     * <p>This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
      * there is no {@code --Ice.Config} command-line argument.
      *
-     * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
+     * @param args the command-line arguments. This constructor parses arguments starting with {@code --} and one of the
      *     reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with
      *     {@code --Ice.Config}, this constructor loads the specified configuration file. When the same property is set
      *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
-     * @param remainingArgs If non-null, this constructor puts in this list the command-line arguments that were not
-     *     used to set properties.
+     * @param remainingArgs if non-null, this list will be cleared and filled with any command-line arguments that were
+     *     not used to set properties.
      */
     public Properties(String[] args, List<String> remainingArgs) {
         this(args, (Properties) null, remainingArgs);
@@ -66,15 +68,16 @@ public final class Properties {
     /**
      * Constructs a property set, loads the configuration files specified by the {@code Ice.Config} property or the
      * {@code ICE_CONFIG} environment variable, and then parses Ice properties from {@code args}.
-     * This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
+     *
+     * <p>This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
      * there is no {@code --Ice.Config} command-line argument.
      *
-     * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
+     * @param args the command-line arguments. This constructor parses arguments starting with {@code --} and one of the
      *     reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with
      *     {@code --Ice.Config}, this constructor loads the specified configuration file. When the same property is set
      *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
-     * @param defaults Default values for the property set. Settings in configuration files and {@code args} override
-     *     these defaults.
+     * @param defaults default values for the new {@code Properties} object.
+     *     Settings in configuration files and {@code args} override these defaults.
      */
     public Properties(String[] args, Properties defaults) {
         this(args, defaults, null);
@@ -83,17 +86,18 @@ public final class Properties {
     /**
      * Constructs a property set, loads the configuration files specified by the {@code Ice.Config} property or the
      * {@code ICE_CONFIG} environment variable, and then parses Ice properties from {@code args}.
-     * This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
+     *
+     * <p>This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
      * there is no {@code --Ice.Config} command-line argument.
      *
-     * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
+     * @param args the command-line arguments. This constructor parses arguments starting with {@code --} and one of the
      *     reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with
      *     {@code --Ice.Config}, this constructor loads the specified configuration file. When the same property is set
      *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
-     * @param defaults Default values for the property set. Settings in configuration files and {@code args} override
-     *     these defaults.
-     * @param remainingArgs If non-null, this constructor puts in this list the command-line arguments that were not
-     *     used to set properties.
+     * @param defaults default values for the new {@code Properties} object.
+     *     Settings in configuration files and {@code args} override these defaults.
+     * @param remainingArgs if non-null, this list will be cleared and filled with any command-line arguments that were
+     *     not used to set properties.
      */
     public Properties(String[] args, Properties defaults, List<String> remainingArgs) {
         this(defaults);
@@ -101,19 +105,29 @@ public final class Properties {
     }
 
     /**
+     * Constructs a property set with additional opt-in prefixes.
+     *
      * @hidden optInPrefixes is only for internal use in Java.
-     *     Constructs a property set with additional opt-in prefixes.
      */
     public Properties(List<String> optInPrefixes) {
         _optInPrefixes = List.copyOf(optInPrefixes); // _optInPrefixes is immutable
     }
 
     /**
+     * Constructs a property set, loads the configuration files specified by the {@code Ice.Config} property or the
+     * {@code ICE_CONFIG} environment variable, and then parses Ice properties from {@code args}.
+     *
+     * <p>This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
+     * there is no {@code --Ice.Config} command-line argument.
+     *
+     * @param args the command-line arguments. This constructor parses arguments starting with {@code --} and one of the
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with
+     *     {@code --Ice.Config}, this constructor loads the specified configuration file. When the same property is set
+     *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
+     * @param remainingArgs if non-null, this list will be cleared and filled with any command-line arguments that were
+     *     not used to set properties.
+     * 
      * @hidden optInPrefixes is only for internal use in Java.
-     *     Constructs a property set, loads the configuration files specified by the {@code Ice.Config} property or the
-     *     {@code ICE_CONFIG} environment variable, and then parses Ice properties from {@code args}.
-     *     This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
-     *     there is no {@code --Ice.Config} command-line argument.
      */
     public Properties(String[] args, List<String> remainingArgs, List<String> optInPrefixes) {
         this(optInPrefixes);
@@ -121,10 +135,10 @@ public final class Properties {
     }
 
     /**
-     * Get a property by key. If the property is not set, an empty string is returned.
+     * Gets a property by key.
      *
-     * @param key The property key.
-     * @return The property value.
+     * @param key the property key
+     * @return the property value, or the empty string if the property is not set
      * @see #setProperty
      */
     public synchronized String getProperty(String key) {
@@ -138,11 +152,11 @@ public final class Properties {
     }
 
     /**
-     * Get an Ice property by key. If the property is not set, its default value is returned.
+     * Gets an Ice property by key.
      *
-     * @param key The property key.
-     * @return The property value or the default value.
-     * @throws PropertyException If the property is not a known Ice property.
+     * @param key the property key
+     * @return the property value, or the default value for this property if the property is not set
+     * @throws PropertyException if the property is not a known Ice property
      * @see #setProperty
      */
     public synchronized String getIceProperty(String key) {
@@ -156,11 +170,11 @@ public final class Properties {
     }
 
     /**
-     * Get a property by key. If the property is not set, the given default value is returned.
+     * Gets a property by key.
      *
-     * @param key The property key.
-     * @param value The default value to use if the property does not exist.
-     * @return The property value or the default value.
+     * @param key the property key
+     * @param value the default value to return if the property is not set
+     * @return the property value or the default value if the property is not set
      * @see #setProperty
      */
     public synchronized String getPropertyWithDefault(String key, String value) {
@@ -174,11 +188,11 @@ public final class Properties {
     }
 
     /**
-     * Get a property as an integer. If the property is not set, 0 is returned.
+     * Gets a property as an integer.
      *
-     * @param key The property key.
-     * @return The property value interpreted as an integer.
-     * @throws PropertyException If the property value is not a valid integer.
+     * @param key the property key
+     * @return the property value interpreted as an integer, or {@Code 0} if the property is not set
+     * @throws PropertyException if the property value is not a valid integer
      * @see #setProperty
      */
     public int getPropertyAsInt(String key) {
@@ -186,12 +200,11 @@ public final class Properties {
     }
 
     /**
-     * Get an Ice property as an integer. If the property is not set, its default value is returned.
+     * Gets an Ice property as an integer.
      *
-     * @param key The property key.
-     * @return The property value interpreted as an integer, or the default value.
-     * @throws PropertyException If the property is not a known Ice property or the value is
-     *     not a valid integer.
+     * @param key the property key
+     * @return the property value interpreted as an integer, or the default value if the property is not set
+     * @throws PropertyException if the property is not a known Ice property or its value is not a valid integer
      * @see #setProperty
      */
     public synchronized int getIcePropertyAsInt(String key) {
@@ -206,13 +219,12 @@ public final class Properties {
     }
 
     /**
-     * Get a property as an integer. If the property is not set, the given default value is
-     * returned.
+     * Gets a property as an integer.
      *
-     * @param key The property key.
-     * @param value The default value to use if the property does not exist.
-     * @return The property value interpreted as an integer, or the default value.
-     * @throws PropertyException If the property value is not a valid integer.
+     * @param key the property key
+     * @param value the default value to return if the property does not exist
+     * @return the property value interpreted as an integer, or the default value if the property is not set
+     * @throws PropertyException if the property value is not a valid integer
      * @see #setProperty
      */
     public synchronized int getPropertyAsIntWithDefault(String key, int value) {
@@ -231,15 +243,13 @@ public final class Properties {
     }
 
     /**
-     * Get a property as a list of strings. The strings must be separated by whitespace or comma. If
-     * the property is not set, an empty list is returned. The strings in the list can contain
-     * whitespace and commas if they are enclosed in single or double quotes. If quotes are
-     * mismatched, an empty list is returned. Within single quotes or double quotes, you can escape
-     * the quote in question with a backslash, e.g. O'Reilly can be written as O'Reilly, "O'Reilly"
-     * or 'O\'Reilly'.
+     * Gets a property as a list of strings. The strings must be separated by whitespace or comma. The strings in the
+     * list can contain whitespace and commas if they are enclosed in single or double quotes. If quotes are mismatched,
+     * an empty list is returned. Within single quotes or double quotes, you can escape the quote in question with
+     * a backslash, e.g. O'Reilly can be written as {@code O'Reilly}, {@code "O'Reilly"} or {@code 'O\'Reilly'}.
      *
-     * @param key The property key.
-     * @return The property value interpreted as a list of strings.
+     * @param key the property key
+     * @return the property value interpreted as a list of strings, or an empty list if the property is not set
      * @see #setProperty
      */
     public String[] getPropertyAsList(String key) {
@@ -247,16 +257,15 @@ public final class Properties {
     }
 
     /**
-     * Get an Ice property as a list of strings. The strings must be separated by whitespace or
-     * comma. If the property is not set, its default list is returned. The strings in the list can
-     * contain whitespace and commas if they are enclosed in single or double quotes. If quotes are
-     * mismatched, the default list is returned. Within single quotes or double quotes, you can
-     * escape the quote in question with a backslash, e.g. O'Reilly can be written as O'Reilly,
-     * "O'Reilly" or 'O\'Reilly'.
+     * Gets an Ice property as a list of strings. The strings must be separated by whitespace or comma. The strings in
+     * the list can contain whitespace and commas if they are enclosed in single or double quotes. If quotes are
+     * mismatched, the default list is returned. Within single quotes or double quotes, you can escape the quote in
+     * question with a backslash, e.g. O'Reilly can be written as {@code O'Reilly}, {@code "O'Reilly"} or
+     * {@code 'O\'Reilly'}.
      *
-     * @param key The property key.
-     * @return The property value interpreted as list of strings, or the default value.
-     * @throws PropertyException If the property is not a known Ice property.
+     * @param key the property key
+     * @return the property value interpreted as a list of strings, or the default value if the property is not set
+     * @throws PropertyException if the property is not a known Ice property
      * @see #setProperty
      */
     public synchronized String[] getIcePropertyAsList(String key) {
@@ -265,16 +274,15 @@ public final class Properties {
     }
 
     /**
-     * Get a property as a list of strings. The strings must be separated by whitespace or comma. If
-     * the property is not set, the default list is returned. The strings in the list can contain
-     * whitespace and commas if they are enclosed in single or double quotes. If quotes are
-     * mismatched, the default list is returned. Within single quotes or double quotes, you can
-     * escape the quote in question with a backslash, e.g. O'Reilly can be written as O'Reilly,
-     * "O'Reilly" or 'O\'Reilly'.
+     * Gets a property as a list of strings. The strings must be separated by whitespace or comma. The strings in the
+     * list can contain whitespace and commas if they are enclosed in single or double quotes. If quotes are mismatched,
+     * the default list is returned. Within single quotes or double quotes, you can escape the quote in question with
+     * a backslash, e.g. O'Reilly can be written as {@code O'Reilly}, {@code "O'Reilly"} or {@code 'O\'Reilly'}.
      *
-     * @param key The property key.
-     * @param value The default value to use if the property is not set.
-     * @return The property value interpreted as list of strings, or the default value.
+     * @param key the property key
+     * @param value the default value to return if the property is not set
+     * he property value interpreted as list of strings, or the default value if the property is not set
+     * @return the property value interpreted as a list of strings, or the default value if the property is not set
      * @see #setProperty
      */
     public synchronized String[] getPropertyAsListWithDefault(String key, String[] value) {
@@ -302,11 +310,11 @@ public final class Properties {
     }
 
     /**
-     * Get all properties whose keys begins with <em>prefix</em>. If <em>prefix</em> is an empty
-     * string, then all properties are returned.
+     * Gets all properties whose keys begin with {@code prefix}. If {@code prefix} is the empty string,
+     * then all properties are returned.
      *
-     * @param prefix The prefix to search for (empty string if none).
-     * @return The matching property set.
+     * @param prefix the prefix to search for
+     * @return the matching property set
      */
     public synchronized Map<String, String> getPropertiesForPrefix(String prefix) {
         HashMap<String, String> result = new HashMap<>();
@@ -322,10 +330,10 @@ public final class Properties {
     }
 
     /**
-     * Set a property. To unset a property, set it to the empty string.
+     * Sets a property. To unset a property, set it to the empty string.
      *
-     * @param key The property key.
-     * @param value The property value.
+     * @param key the property key
+     * @param value the property value
      * @see #getProperty
      */
     public void setProperty(String key, String value) {
@@ -373,10 +381,10 @@ public final class Properties {
     }
 
     /**
-     * Get a sequence of command-line options that is equivalent to this property set. Each element
-     * of the returned sequence is a command-line option of the form {@code --<em>key</em>=<em>value</em>}.
+     * Gets a sequence of command-line options that is equivalent to this property set. Each element of the
+     * returned sequence is a command-line option of the form {@code --key=value}.
      *
-     * @return The command line options for this property set.
+     * @return the command line options for this property set
      */
     public synchronized String[] getCommandLineOptions() {
         String[] result = new String[_propertySet.size()];
@@ -389,13 +397,13 @@ public final class Properties {
     }
 
     /**
-     * Convert a sequence of command-line options into properties. All options that begin with
-     * {@code --<em>prefix</em>.} are converted into properties. If the prefix is empty, all options
-     * that begin with {@code --} are converted to properties.
+     * Converts a sequence of command-line options into properties. All options that start with {@code --prefix.} are
+     * converted into properties. If the prefix is empty, all options that begin with {@code --} are converted to
+     * properties.
      *
-     * @param prefix The property prefix, or an empty string to convert all options starting with {@code --}.
-     * @param options The command-line options.
-     * @return The command-line options that do not start with the specified prefix, in their original order.
+     * @param prefix the property prefix, or the empty string to convert all options starting with {@code --}
+     * @param options the command-line options
+     * @return the command-line options that do not start with the specified prefix, in their original order
      */
     public String[] parseCommandLineOptions(String prefix, String[] options) {
         if (!prefix.isEmpty() && prefix.charAt(prefix.length() - 1) != '.') {
@@ -419,13 +427,11 @@ public final class Properties {
     }
 
     /**
-     * Convert a sequence of command-line options into properties. All options that begin with one
-     * of the following prefixes are converted into properties: {@code --Ice}, {@code --IceBox},
-     * {@code --IceGrid}, {@code --Ice.SSL}, {@code --IceStorm}, and {@code --Glacier2}.
+     * Converts a sequence of command-line options into properties. All options that start with one of the
+     * reserved Ice prefixes ({@code --Ice}, {@code --IceSSL}, etc.) are converted into properties.
      *
-     * @param options The command-line options.
-     * @return The command-line options that do not start with one of the listed prefixes, in their
-     *     original order.
+     * @param options the command-line options
+     * @return the command-line options that do not start with one of the reserved prefixes, in their original order
      */
     public String[] parseIceCommandLineOptions(String[] options) {
         String[] args = options;
@@ -436,9 +442,9 @@ public final class Properties {
     }
 
     /**
-     * Load properties from a file.
+     * Loads properties from a file.
      *
-     * @param file The property file.
+     * @param file the property file
      */
     public void load(String file) {
         if (System.getProperty("os.name").startsWith("Windows")
@@ -539,9 +545,9 @@ public final class Properties {
     }
 
     /**
-     * Create a copy of this property set.
+     * Creates a copy of this property set.
      *
-     * @return A copy of this property set.
+     * @return a copy of this property set
      */
     public Properties _clone() {
         return new Properties(this);
@@ -576,7 +582,10 @@ public final class Properties {
         }
     }
 
+    //
     // Helper method called exclusively by constructors.
+    //
+
     private void loadArgs(String[] args, List<String> remainingArgs) {
         boolean loadConfigFiles = false;
 
@@ -796,11 +805,11 @@ public final class Properties {
     }
 
     /**
-     * Find a property by key in a property array.
+     * Searches a property array for a property with the given key.
      *
-     * @param key The property key.
-     * @param propertyArray The property array to search.
-     * @return The property if found, null otherwise.
+     * @param key the key to search for
+     * @param propertyArray the property array to search
+     * @return the property if found, {@code null} otherwise
      */
     static Property findProperty(String key, PropertyArray propertyArray) {
         for (Property prop : propertyArray.properties()) {
@@ -839,12 +848,12 @@ public final class Properties {
     }
 
     /**
-     * Validate properties with a given prefix.
+     * Validates the properties for a given prefix.
      *
-     * @param prefix The property prefix.
-     * @param properties The properties to validate.
-     * @param propertyArray The property array to validate against.
-     * @throws PropertyException if any unknown properties are found.
+     * @param prefix the prefix to validate
+     * @param properties the properties to consider
+     * @param propertyArray the property array to search against
+     * @throws PropertyException if any unknown properties are found
      */
     static void validatePropertiesWithPrefix(String prefix, Properties properties, PropertyArray propertyArray) {
         // Do not check for unknown properties if Ice prefix, ie Ice, Glacier2, etc
@@ -871,10 +880,10 @@ public final class Properties {
     }
 
     /**
-     * Find an Ice property array by key.
+     * Finds the Ice property array for a given property name.
      *
-     * @param key The property key.
-     * @return The property array if found, null otherwise.
+     * @param key the property key
+     * @return the property array if found, {@code null} otherwise
      */
     private static PropertyArray findIcePropertyArray(String key) {
         int dotPos = key.indexOf('.');
@@ -893,11 +902,11 @@ public final class Properties {
     }
 
     /**
-     * Gets the default value for a given Ice property.
+     * Finds the default value for an Ice property.
      *
-     * @param key The property key.
-     * @return The default value.
-     * @throws PropertyException if the property is unknown.
+     * @param key the Ice property name
+     * @return the default value for the property, or the empty string if the property doesn't have a default value
+     * @throws PropertyException if the property is unknown
      */
     private static String getDefaultProperty(String key) {
         PropertyArray propertyArray = findIcePropertyArray(key);

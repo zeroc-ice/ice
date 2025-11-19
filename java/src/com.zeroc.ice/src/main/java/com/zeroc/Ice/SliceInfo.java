@@ -38,12 +38,9 @@ public final class SliceInfo {
         this.hasOptionalMembers = hasOptionalMembers;
         this.isLastSlice = isLastSlice;
 
-        if (compactId == -1)
-        {
+        if (compactId == -1) {
             assert (!typeId.isEmpty());
-        }
-        else
-        {
+        } else {
             assert (typeId.isEmpty());
         }
     }

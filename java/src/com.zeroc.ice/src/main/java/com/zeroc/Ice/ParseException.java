@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** Reports a failure that occurred while parsing a string. */
+/** The exception that is thrown when the parsing of a string fails. */
 public final class ParseException extends LocalException {
     /**
      * Constructs a ParseException with a message.
