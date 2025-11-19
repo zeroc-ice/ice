@@ -281,7 +281,6 @@ public final class Properties {
      *
      * @param key the property key
      * @param value the default value to return if the property is not set
-     * he property value interpreted as list of strings, or the default value if the property is not set
      * @return the property value interpreted as a list of strings, or the default value if the property is not set
      * @see #setProperty
      */
