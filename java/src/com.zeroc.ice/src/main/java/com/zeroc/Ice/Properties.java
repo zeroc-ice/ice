@@ -107,6 +107,8 @@ public final class Properties {
     /**
      * Constructs a property set with additional opt-in prefixes.
      *
+     * @param optInPrefixes -
+     *
      * @hidden optInPrefixes is only for internal use in Java.
      */
     public Properties(List<String> optInPrefixes) {
@@ -126,6 +128,7 @@ public final class Properties {
      *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
      * @param remainingArgs if non-null, this list will be cleared and filled with any command-line arguments that were
      *     not used to set properties.
+     * @param optInPrefixes -
      *
      * @hidden optInPrefixes is only for internal use in Java.
      */
@@ -191,7 +194,7 @@ public final class Properties {
      * Gets a property as an integer.
      *
      * @param key the property key
-     * @return the property value interpreted as an integer, or {@Code 0} if the property is not set
+     * @return the property value interpreted as an integer, or {@code 0} if the property is not set
      * @throws PropertyException if the property value is not a valid integer
      * @see #setProperty
      */
