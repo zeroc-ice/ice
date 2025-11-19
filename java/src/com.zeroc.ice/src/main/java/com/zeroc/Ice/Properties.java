@@ -126,7 +126,7 @@ public final class Properties {
      *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
      * @param remainingArgs if non-null, this list will be cleared and filled with any command-line arguments that were
      *     not used to set properties.
-     * 
+     *
      * @hidden optInPrefixes is only for internal use in Java.
      */
     public Properties(String[] args, List<String> remainingArgs, List<String> optInPrefixes) {
