@@ -26,7 +26,7 @@ public abstract class Value implements Cloneable, Serializable {
 
     /**
      * The Ice runtime calls this method before marshaling a class instance.
-     * Subclasses can override this method in order to update or validate their fields before marshalling.
+     * Subclasses can override this method in order to update or validate their fields before marshaling.
      */
     public void ice_preMarshal() {}
 

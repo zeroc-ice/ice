@@ -231,7 +231,7 @@ classdef (Hidden) EncapsDecoder11 < IceInternal.EncapsDecoder
             end
 
             %
-            % Preserve this slice if unmarshalling a value in Slice format. Exception slices are not preserved.
+            % Preserve this slice if unmarshaling a value in Slice format. Exception slices are not preserved.
             %
 
             if current.sliceType == IceInternal.SliceType.ValueSlice

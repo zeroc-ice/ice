@@ -34,7 +34,7 @@ namespace Ice
         Value& operator=(Value&&) = delete;
 
         /// The Ice runtime calls this function before marshaling a class instance.
-        /// Subclasses can override this function in order to update or validate their fields before marshalling.
+        /// Subclasses can override this function in order to update or validate their fields before marshaling.
         virtual void ice_preMarshal() {}
 
         /// The Ice runtime calls this function after unmarshaling a class instance.
