@@ -932,7 +932,9 @@ public class AllTests : global::Test.AllTests
                 {
                     canceled = true;
                 }
-                test(canceled && !sleep1Task.IsCompleted);
+                test(canceled);
+                test(!sleep1Task.IsCompleted);
+
                 await sleep1Task;
                 await sleep2Task;
                 await sleep3Task;
