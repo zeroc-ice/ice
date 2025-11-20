@@ -59,6 +59,8 @@ runs:
       run: |
         cd test/android/controller
         ./gradlew build
+        ./gradlew check
+        ./gradlew rewriteDryRun --no-parallel --no-configuration-cache
       shell: bash
       if: inputs.build_android_controller == 'true'
 

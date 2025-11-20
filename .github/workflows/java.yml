@@ -25,10 +25,7 @@ jobs:
 
       - name: Run checkstyle formatter
         working-directory: java
-        run: |
-          ./gradlew check
-          cd test/android/controller
-          ./gradlew check
+        run: ./gradlew check
 
   rewrite:
     runs-on: ubuntu-24.04
@@ -47,7 +44,4 @@ jobs:
 
       - name: Run rewrite linter
         working-directory: java
-        run: |
-          ./gradlew rewriteDryRun --no-parallel --no-configuration-cache
-          cd test/android/controller
-          ./gradlew rewriteDryRun --no-parallel --no-configuration-cache
+        run: ./gradlew rewriteDryRun --no-parallel --no-configuration-cache
