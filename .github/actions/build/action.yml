@@ -58,7 +58,7 @@ runs:
       working-directory: ${{ inputs.working_directory }}
       run: |
         cd test/android/controller
-        ./gradlew build -x checkStyleMain -x checkStyleTest
+        ./gradlew build
       shell: bash
       if: inputs.build_android_controller == 'true'
 

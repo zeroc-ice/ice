@@ -106,6 +106,8 @@ checkstyle {
 }
 
 rewrite {
+    configFile('../../../rewrite.yml')
+
     activeRecipe('com.zeroc.IceRewriteRecipes')
     activeStyle('com.zeroc.IceRewriteStyle')
 
