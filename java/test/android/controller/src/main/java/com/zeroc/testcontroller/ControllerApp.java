@@ -177,14 +177,9 @@ public class ControllerApp extends Application {
             initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 15001");
             initData.properties.setProperty("ControllerAdapter.PublishedHost", "127.0.0.1");
 
-            if (!isEmulator())
+            if (bluetooth)
             {
-                initData.properties.setProperty("ControllerAdapter.AdapterId", java.util.UUID.randomUUID().toString());
-                if (bluetooth) {
-                    initData.properties.setProperty("Ice.Plugin.IceBT", "com.zeroc.IceBT.PluginFactory");
-                }
-                initData.properties.setProperty("Ice.Plugin.IceDiscovery", "com.zeroc.IceDiscovery.PluginFactory");
-                initData.properties.setProperty("IceDiscovery.DomainId", "TestController");
+                initData.properties.setProperty("Ice.Plugin.IceBT", "com.zeroc.IceBT.PluginFactory");
             }
 
             _communicator = new com.zeroc.Ice.Communicator(initData);
