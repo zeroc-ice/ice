@@ -177,8 +177,7 @@ public class ControllerApp extends Application {
             initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 15001");
             initData.properties.setProperty("ControllerAdapter.PublishedHost", "127.0.0.1");
 
-            if (bluetooth)
-            {
+            if (bluetooth) {
                 initData.properties.setProperty("Ice.Plugin.IceBT", "com.zeroc.IceBT.PluginFactory");
             }
 
