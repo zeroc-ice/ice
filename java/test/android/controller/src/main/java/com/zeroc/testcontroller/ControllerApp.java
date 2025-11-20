@@ -15,6 +15,7 @@ import com.zeroc.Ice.Time;
 
 import java.io.File;
 import java.io.Writer;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -173,21 +174,12 @@ public class ControllerApp extends Application {
             initData.properties.setProperty("Ice.Warn.Connections", "1");
             initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
 
-            if (isEmulator())
-            {
-                // We use a hardcoded port that's forwarded to the host machine by the emulator.
-                initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 15001");
-                initData.properties.setProperty("ControllerAdapter.PublishedHost", "127.0.0.1");
-            }
-            else
-            {
-                initData.properties.setProperty("ControllerAdapter.AdapterId", java.util.UUID.randomUUID().toString());
-                initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
-                if (bluetooth) {
-                    initData.properties.setProperty("Ice.Plugin.IceBT", "com.zeroc.IceBT.PluginFactory");
-                }
-                initData.properties.setProperty("Ice.Plugin.IceDiscovery", "com.zeroc.IceDiscovery.PluginFactory");
-                initData.properties.setProperty("IceDiscovery.DomainId", "TestController");
+            // We use a hardcoded port that is forwarded to the device / emulator with `adb forward`.
+            initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 15001");
+            initData.properties.setProperty("ControllerAdapter.PublishedHost", "127.0.0.1");
+
+            if (bluetooth) {
+                initData.pluginFactories = Collections.singletonList(new com.zeroc.IceBT.PluginFactory());
             }
 
             _communicator = new com.zeroc.Ice.Communicator(initData);
