@@ -6,8 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Wraps one of our {@link com.zeroc.Ice.OutputStream}s in a way that provides the API of {@link java.io.OutputStream},
- * so we can serialize arbitrary serializable Java classes with it.
+ * Decorates an {@link com.zeroc.Ice.OutputStream} to marshal serializable Java classes into a sequence of bytes.
  *
  * <p>Slice sequences are encoded on the wire as a count of elements, followed by the sequence contents.
  * For arbitrary Java classes, we do not know how big the sequence that is eventually written will be.

@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-/**  Core APIs of the Ice RPC framework. */
+/** Core APIs of the Ice RPC framework. */
 module com.zeroc.ice {
     exports com.zeroc.Ice;
     exports com.zeroc.Ice.SSL;
