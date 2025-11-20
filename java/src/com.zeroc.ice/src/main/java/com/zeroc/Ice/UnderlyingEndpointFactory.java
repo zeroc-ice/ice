@@ -5,8 +5,8 @@ package com.zeroc.Ice;
 import java.util.ArrayList;
 
 /**
- * The underlying endpoint factory creates endpoints with a factory of the given type. If this
- * factory is of the EndpointFactoryWithUnderlying type, it will delegate to the given underlying
+ * The underlying endpoint factory creates endpoints with a factory of the given type.
+ * If this factory is of the {@code EndpointFactoryWithUnderlying} type, it will delegate to the given underlying
  * factory (this is used by IceIAP/IceBT plugins for the BTS/iAPS endpoint factories).
  *
  * @hidden Public because it's used by IceBT.

@@ -5,19 +5,17 @@ package com.zeroc.Ice;
 import java.io.IOException;
 import java.io.OutputStream;
 
-// Class to provide a java.io.OutputStream on top of our stream.
-// We use this to serialize arbitrary Java serializable classes into
-//
-// Slice sequences are encoded on the wire as a count of elements, followed
-// by the sequence contents. For arbitrary Java classes, we do not know how
-// big the sequence that is eventually written will be. To avoid excessive
-// data copying, this class mantains a private _bytes array of 254 bytes and,
-// initially, writes data into that array. If more than 254 bytes end up being
-// written, we write a dummy sequence size of 255 (which occupies five bytes
-// on the wire) into the stream and, once this stream is closed, patch
-// that size to match the actual size. Otherwise, if the _bytes buffer contains
-// fewer than 255 bytes when this stream is closed, we write the sequence size
-// as a single byte, followed by the contents of the _bytes buffer.
+/**
+ * Decorates an {@link com.zeroc.Ice.OutputStream} to marshal serializable Java classes into a sequence of bytes.
+ *
+ * <p>Slice sequences are encoded on the wire as a count of elements, followed by the sequence contents.
+ * For arbitrary Java classes, we do not know how big the sequence that is eventually written will be.
+ * To avoid excessive data copying, this class maintains a private byte-array of 254 bytes and, initially,
+ * writes data into that array. If more than 254 bytes end up being written, we write a dummy sequence size of 255
+ * (which occupies five bytes on the wire) into the stream and, once this stream is closed, patch that size to match
+ * the actual size. Otherwise, if the _bytes buffer contains fewer than 255 bytes when this stream is closed,
+ * we write the sequence size as a single byte, followed by the contents of the _bytes buffer.
+ */
 class OutputStreamWrapper extends OutputStream {
     public OutputStreamWrapper(com.zeroc.Ice.OutputStream s) {
         _s = s;

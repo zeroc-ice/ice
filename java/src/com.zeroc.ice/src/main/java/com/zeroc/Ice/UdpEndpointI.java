@@ -39,7 +39,6 @@ final class UdpEndpointI extends IPEndpointI {
         _compress = s.readBool();
     }
 
-    // Return the endpoint information.
     @Override
     public EndpointInfo getInfo() {
         return new UDPEndpointInfo(
@@ -51,27 +50,21 @@ final class UdpEndpointI extends IPEndpointI {
             _mcastTtl);
     }
 
-    // Return the timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
     @Override
     public int timeout() {
         return -1;
     }
 
-    // Return a new endpoint with a different timeout value, provided that timeouts are supported by the endpoint.
-    // Otherwise the same endpoint is returned.
     @Override
     public EndpointI timeout(int timeout) {
         return this;
     }
 
-    // Return true if the endpoints support bzip2 compress, or false otherwise.
     @Override
     public boolean compress() {
         return _compress;
     }
 
-    // Return a new endpoint with a different compression value, provided that compression is
-    // supported by the endpoint. Otherwise the same endpoint is returned.
     @Override
     public EndpointI compress(boolean compress) {
         if (compress == _compress) {
@@ -89,13 +82,11 @@ final class UdpEndpointI extends IPEndpointI {
         }
     }
 
-    // Return true if the endpoint is datagram-based.
     @Override
     public boolean datagram() {
         return true;
     }
 
-    // Return a server side transceiver for this endpoint, or null if a transceiver can only be created by an acceptor.
     @Override
     public Transceiver transceiver() {
         InetSocketAddress addr =
@@ -107,7 +98,6 @@ final class UdpEndpointI extends IPEndpointI {
         }
     }
 
-    // Return an acceptor for this endpoint, or null if no acceptor is available.
     @Override
     public Acceptor acceptor(String adapterName, SSLEngineFactory factory) {
         assert (factory == null);
@@ -161,7 +151,11 @@ final class UdpEndpointI extends IPEndpointI {
         }
     }
 
-    // Convert the endpoint to its string form
+    /**
+     * Convert the endpoint to its string form.
+     *
+     * @return the stringified endpoint
+     */
     @Override
     public String options() {
         // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -225,7 +219,6 @@ final class UdpEndpointI extends IPEndpointI {
         return super.compareTo(obj);
     }
 
-    // Marshal the endpoint
     @Override
     public void streamWriteImpl(OutputStream s) {
         super.streamWriteImpl(s);

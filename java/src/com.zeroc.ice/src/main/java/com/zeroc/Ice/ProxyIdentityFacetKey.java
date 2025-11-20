@@ -7,12 +7,11 @@ package com.zeroc.Ice;
  * The {@code hashCode} and {@code equals} methods are based on the object identity and facet of the proxy.
  *
  * @see Util#proxyIdentityAndFacetCompare
- * @see Util#proxyIdentityCompare
  * @see ProxyIdentityKey
  */
 public class ProxyIdentityFacetKey {
     /**
-     * Creates a ProxyIdentityFacetKey from the passed proxy.
+     * Creates a ProxyIdentityFacetKey from the provided proxy.
      *
      * @param proxy the proxy to use
      */
@@ -31,7 +30,7 @@ public class ProxyIdentityFacetKey {
     /**
      * Returns a hash value based on the object identity and facet of the wrapped proxy.
      *
-     * @return The hash value.
+     * @return the hash value
      */
     @Override
     public int hashCode() {
@@ -43,7 +42,7 @@ public class ProxyIdentityFacetKey {
      *
      * @param obj the object to compare this proxy with
      * @return {@code true} if the passed object is a proxy with the same object identity and facet;
-     *     {@code false}, otherwise.
+     *     {@code false} otherwise.
      */
     @Override
     public boolean equals(java.lang.Object obj) {
@@ -60,9 +59,9 @@ public class ProxyIdentityFacetKey {
     }
 
     /**
-     * Returns the proxy stored by this class.
+     * Returns the proxy wrapped by this class.
      *
-     * @return the proxy stored by this class
+     * @return the wrapped proxy
      */
     public ObjectPrx getProxy() {
         return _proxy;

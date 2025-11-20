@@ -60,7 +60,7 @@ namespace Slice
             const std::string& package,
             const std::string& streamName,
             const std::string& paramPrefix,
-            bool isMarshalling);
+            bool isMarshaling);
 
         static void writeResultType(
             IceInternal::Output& out,

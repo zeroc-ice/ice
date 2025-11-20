@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
+/** A dispatcher that manages servants and servant locators for an object adapter. */
 final class ServantManager implements Object {
     private Instance _instance;
     private final String _adapterName;

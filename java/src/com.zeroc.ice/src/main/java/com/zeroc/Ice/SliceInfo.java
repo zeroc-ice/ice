@@ -2,12 +2,12 @@
 
 package com.zeroc.Ice;
 
-/** Encapsulates the details of a slice with an unknown type. */
+/** Encapsulates the details of a class slice with an unknown type. */
 public final class SliceInfo {
-    /** The Slice type ID for this slice. */
+    /** The Slice type ID for this slice. It's empty when {@link #compactId} is set (not {@code -1}). */
     public final String typeId;
 
-    /** The Slice compact type ID for this slice. */
+    /** The Slice compact type ID for this slice. If no compact ID is set, it's encoded as {@code -1}. */
     public final int compactId;
 
     /** The encoded bytes for this slice, including the leading size integer. */
@@ -23,13 +23,13 @@ public final class SliceInfo {
     public final boolean isLastSlice;
 
     /**
-     * The SliceInfo constructor.
+     * Constructs a SliceInfo instance.
      *
-     *  @param typeId the Slice type ID
-     *  @param compactId the Slice compact type ID
-     *  @param bytes the encoded bytes for this slice, including the leading size integer
-     *  @param hasOptionalMembers whether or not the slice contains optional members
-     *  @param isLastSlice whether or not this is the last slice
+     * @param typeId the Slice type ID for this slice
+     * @param compactId the Slice compact type ID for this slice
+     * @param bytes the encoded bytes for this slice
+     * @param hasOptionalMembers whether or not the slice contains optional members
+     * @param isLastSlice whether or not this is the last slice
     */
     public SliceInfo(String typeId, int compactId, byte[] bytes, boolean hasOptionalMembers, boolean isLastSlice) {
         this.typeId = typeId;
@@ -37,5 +37,11 @@ public final class SliceInfo {
         this.bytes = bytes;
         this.hasOptionalMembers = hasOptionalMembers;
         this.isLastSlice = isLastSlice;
+
+        if (compactId == -1) {
+            assert (!typeId.isEmpty());
+        } else {
+            assert (typeId.isEmpty());
+        }
     }
 }

@@ -8,9 +8,11 @@ import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-// Base class for proxy based invocations. This class handles the retry for proxy invocations.
-// It also ensures the child observer is correct notified of failures and make sure the retry task is
-// correctly canceled when the invocation completes.
+/**
+ * Base class for proxy based invocations. This class handles the retry for proxy invocations.
+ * It also ensures the child observer is correct notified of failures and make sure the retry task is
+ * correctly canceled when the invocation completes.
+ */
 abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
     public abstract int invokeRemote(ConnectionI con, boolean compress, boolean response) throws RetryException;
 

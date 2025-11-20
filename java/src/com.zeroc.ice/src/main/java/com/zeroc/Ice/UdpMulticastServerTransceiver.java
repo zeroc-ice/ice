@@ -11,8 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 //
-// This class is only used on Android, where the java.nio.channels.MulticastChannel interface is not
-// supported.
+// This class is only used on Android, where the java.nio.channels.MulticastChannel interface is not supported.
 //
 // NOTE: Most of the important methods on java.net.MulticastSocket are synchronized.
 //
@@ -332,11 +331,11 @@ final class UdpMulticastServerTransceiver implements Transceiver {
             }
         } catch (IOException ex) {
             exception(new SocketException(ex));
-            // Mark as ready for reading so that the Ice run time will invoke read() and we can report the exception.
+            // Mark as ready for reading so that the Ice runtime will invoke read() and we can report the exception.
             _readyCallback.ready(SocketOperation.Read, true);
         } catch (LocalException ex) {
             exception(ex);
-            // Mark as ready for reading so that the Ice run time will invoke read() and we can report the exception.
+            // Mark as ready for reading so that the Ice runtime will invoke read() and we can report the exception.
             _readyCallback.ready(SocketOperation.Read, true);
         }
     }

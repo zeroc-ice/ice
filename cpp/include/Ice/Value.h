@@ -33,16 +33,16 @@ namespace Ice
         Value& operator=(const Value&) = delete;
         Value& operator=(Value&&) = delete;
 
-        /// Validates or updates the fields of this object before marshaling.
-        /// @remark The Ice runtime calls this function before marshaling a class instance.
+        /// The Ice runtime calls this function before marshaling a class instance.
+        /// Subclasses can override this function in order to update or validate their fields before marshaling.
         virtual void ice_preMarshal() {}
 
-        /// Validates or updates the fields of this object after unmarshaling.
-        /// @remark The Ice runtime calls this function after unmarshaling a class instance.
+        /// The Ice runtime calls this function after unmarshaling a class instance.
+        /// Subclasses can override this function in order to update or validate their fields after unmarshaling.
         virtual void ice_postUnmarshal() {}
 
         /// Gets the Slice type ID of the most-derived class supported by this object.
-        /// @return The type ID.
+        /// @return The Slice type ID.
         [[nodiscard]] virtual const char* ice_id() const noexcept;
 
         /// Gets the Slice type ID of this type.

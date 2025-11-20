@@ -2,28 +2,28 @@
 
 package com.zeroc.Ice;
 
-/** Unknown sliced value holds an instance of an unknown Slice class type. */
+/** Represents an instance of an unknown class. */
 public final class UnknownSlicedValue extends Value {
     /**
-     * Represents an instance of a Slice class type having the given Slice type.
+     * Constructs the placeholder instance.
      *
-     * @param unknownTypeId The Slice type ID of the unknown object.
+     * @param unknownTypeId the Slice type ID of the unknown value
      */
     public UnknownSlicedValue(String unknownTypeId) {
         _unknownTypeId = unknownTypeId;
     }
 
     /**
-     * Determine the Slice type ID associated with this object.
+     * Returns the Slice type ID associated with this instance.
      *
-     * @return the type ID
+     * @return the type ID supplied to the constructor
      */
     @Override
     public String ice_id() {
         return _unknownTypeId;
     }
 
-    /** The Slice type ID of the unknown object. */
+    /** The Slice type ID of the unknown value. */
     private final String _unknownTypeId;
 
     private static final long serialVersionUID = -3199177633147630863L;

@@ -8,16 +8,30 @@ package com.zeroc.Ice;
 public final class ProtocolPluginFacade {
     private final Instance _instance;
 
+    /**
+     * Registers a plug-in facade.
+     *
+     * @param communicator -
+     */
     public ProtocolPluginFacade(Communicator communicator) {
         _instance = communicator.getInstance();
     }
 
-    // Registers an EndpointFactory.
+    /**
+     * Registers an {@link EndpointFactory}.
+     *
+     * @param factory -
+     */
     public void addEndpointFactory(EndpointFactory factory) {
         _instance.endpointFactoryManager().add(factory);
     }
 
-    // Gets an EndpointFactory.
+    /**
+     * Gets an {@link EndpointFactory}.
+     *
+     * @param type -
+     * @return -
+     */
     public EndpointFactory getEndpointFactory(short type) {
         return _instance.endpointFactoryManager().get(type);
     }

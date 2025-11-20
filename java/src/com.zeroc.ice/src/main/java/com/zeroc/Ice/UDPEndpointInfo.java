@@ -24,7 +24,6 @@ public final class UDPEndpointInfo extends IPEndpointInfo {
         return true;
     }
 
-    // internal constructor
     UDPEndpointInfo(
             boolean compress,
             String host,

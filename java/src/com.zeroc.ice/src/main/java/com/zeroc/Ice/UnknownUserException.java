@@ -22,9 +22,9 @@ public final class UnknownUserException extends UnknownException {
     }
 
     /**
-     * Creates an UnknownUserException from a type ID.
+     * Creates an UnknownUserException from the type ID of an unexpected exception.
      *
-     * @param typeId the type ID of the user exception
+     * @param typeId the type ID
      * @return an UnknownUserException
      */
     public static UnknownUserException fromTypeId(String typeId) {

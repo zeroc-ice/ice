@@ -7,12 +7,12 @@ public final class SlicedData {
     /**
      * Constructs a SlicedData from the given array of slices.
      *
-     *  @param slices the array of slices, in order of most-derived to least-derived
+     *  @param slices the slices of the unknown class, in order of most-derived to least-derived
      */
     public SlicedData(SliceInfo[] slices) {
         this.slices = slices;
     }
 
-    /** The details of each slice, in order of most-derived to least-derived. */
+    /** The slices of the unknown class, in order of most-derived to least-derived. */
     public final SliceInfo[] slices;
 }

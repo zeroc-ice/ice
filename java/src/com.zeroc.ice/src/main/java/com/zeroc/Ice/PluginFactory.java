@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** Applications implement this interface to provide a plug-in factory to the Ice run time. */
+/** Applications implement this interface to provide a plug-in factory to the Ice runtime. */
 public interface PluginFactory {
     /**
      * Returns the default and preferred name for plug-ins created by this factory.
@@ -12,7 +12,7 @@ public interface PluginFactory {
     String getPluginName();
 
     /**
-     * Called by the Ice run time to create a new plug-in.
+     * Called by the Ice runtime to create a new plug-in.
      *
      * @param communicator The communicator that is in the process of being initialized.
      * @param name The name of the plug-in.

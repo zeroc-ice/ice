@@ -40,7 +40,6 @@ public class UnknownException extends DispatchException {
         return "::Ice::UnknownException";
     }
 
-    // Logically protected too.
     UnknownException(ReplyStatus replyStatus, String message) {
         super(replyStatus.value(), message);
     }

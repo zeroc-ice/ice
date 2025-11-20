@@ -11,8 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 //
-// This class is only used on Android, where the java.nio.channels.MulticastChannel interface is not
-// supported.
+// This class is only used on Android, where the java.nio.channels.MulticastChannel interface is not supported.
 //
 // NOTE: Most of the important methods on java.net.MulticastSocket are synchronized.
 //

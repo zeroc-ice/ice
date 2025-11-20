@@ -8,18 +8,18 @@ package com.zeroc.Ice;
  */
 class RetryException extends java.lang.Exception {
     /**
-     * Constructs a RetryException with the specified LocalException cause.
+     * Constructs a RetryException with a cause.
      *
-     * @param ex the LocalException that caused this retry condition
+     * @param ex the {@link LocalException} that caused this retry condition
      */
     public RetryException(LocalException ex) {
         _ex = ex;
     }
 
     /**
-     * Returns the LocalException that caused this retry condition.
+     * Returns the {@link LocalException} that caused this retry condition.
      *
-     * @return the LocalException cause
+     * @return the cause
      */
     public LocalException get() {
         return _ex;

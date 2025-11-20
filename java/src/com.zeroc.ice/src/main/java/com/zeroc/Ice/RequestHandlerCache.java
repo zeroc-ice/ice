@@ -2,6 +2,10 @@
 
 package com.zeroc.Ice;
 
+/**
+ * Represents a holder/cache for a request handler.
+ * It's tied to a single {@link Reference}, and can be shared by multiple proxies (if all use the same Reference).
+ */
 final class RequestHandlerCache {
     RequestHandler getRequestHandler() {
         if (_cacheConnection) {

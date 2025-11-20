@@ -2,17 +2,17 @@
 
 package com.zeroc.Ice;
 
-/** This exception indicates socket errors. */
+/** The exception that is thrown to report a socket error. */
 public class SocketException extends SyscallException {
     /**
-     * Constructs a SocketException with {@code null} as its detail message.
+     * Constructs a SocketException.
      */
     public SocketException() {
         super((String) null);
     }
 
     /**
-     * Constructs a SocketException with the specified cause.
+     * Constructs a SocketException with a cause.
      *
      * @param cause the cause
      */

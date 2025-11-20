@@ -914,7 +914,7 @@ Slice::JavaVisitor::writeResultTypeMarshalUnmarshalCode(
     const string& package,
     const string& streamName,
     const string& paramPrefix,
-    bool isMarshalling)
+    bool isMarshaling)
 {
     int iter = 0;
 
@@ -924,7 +924,7 @@ Slice::JavaVisitor::writeResultTypeMarshalUnmarshalCode(
     {
         const bool isOptional = param->optional();
         const string name = paramPrefix + param->mappedName();
-        const string patchParams = isMarshalling ? getPatcher(param->type(), package, name) : "";
+        const string patchParams = isMarshaling ? getPatcher(param->type(), package, name) : "";
 
         writeMarshalUnmarshalCode(
             out,
@@ -934,7 +934,7 @@ Slice::JavaVisitor::writeResultTypeMarshalUnmarshalCode(
             isOptional,
             param->tag(),
             name,
-            !isMarshalling,
+            !isMarshaling,
             iter,
             streamName,
             param->getMetadata(),
@@ -1740,7 +1740,7 @@ Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, c
         out << sb;
     }
 
-    // Write the marshalling code like normal.
+    // Write the marshaling code like normal.
     writeMarshalUnmarshalCode(
         out,
         package,
@@ -1799,7 +1799,7 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
         }
     }
 
-    // Write the unmarshalling code like normal.
+    // Write the unmarshaling code like normal.
     const string memberName = (forStruct ? "this." : "") + member->mappedName();
     const MetadataList& metadata = member->getMetadata();
     const string patchParams = getPatcher(member->type(), package, member->mappedName());
@@ -3623,7 +3623,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "/**";
     out << nl << " * Returns the {@code " << name << "} enumerator corresponding to the given integer value.";
     out << nl << " *";
-    out << nl << " * @param v the value to match";
+    out << nl << " * @param v the integer value of the enumerator";
     out << nl << " * @return the {@code " << name
         << "} enumerator corresponding to the given integer value, or {@code null} if no such enumerator exists";
     out << nl << " */";
