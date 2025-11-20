@@ -99,8 +99,7 @@ clean {
 dependencies {
     implementation files("${rootProject.projectDir}/../../../lib/glacier2-${project.iceVersion}.jar")
     implementation files("${rootProject.projectDir}/../../../lib/ice-${project.iceVersion}.jar")
-    runtimeOnly files("${rootProject.projectDir}/../../../lib/icediscovery-${project.iceVersion}.jar")
-    runtimeOnly files("${rootProject.projectDir}/../../../lib/icebt-${project.iceVersion}.jar")
+    implementation files("${rootProject.projectDir}/../../../lib/icebt-${project.iceVersion}.jar")
 
     implementation files("${rootProject.projectDir}/../../../lib/test.jar")
     runtimeOnly "org.apache.commons:commons-compress:1.20"

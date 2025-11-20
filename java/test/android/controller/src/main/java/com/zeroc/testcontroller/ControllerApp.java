@@ -15,6 +15,7 @@ import com.zeroc.Ice.Time;
 
 import java.io.File;
 import java.io.Writer;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -178,7 +179,7 @@ public class ControllerApp extends Application {
             initData.properties.setProperty("ControllerAdapter.PublishedHost", "127.0.0.1");
 
             if (bluetooth) {
-                initData.properties.setProperty("Ice.Plugin.IceBT", "com.zeroc.IceBT.PluginFactory");
+                initData.pluginFactories = Collections.singletonList(new com.zeroc.IceBT.PluginFactory());
             }
 
             _communicator = new com.zeroc.Ice.Communicator(initData);
