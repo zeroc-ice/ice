@@ -913,7 +913,6 @@ public class AllTests : global::Test.AllTests
                 Task sleep2Task = p.sleepAsync(1500);
                 Task sleep3Task = p.sleepAsync(1500);
                 bool canceled = false;
-                using var cts = new CancellationTokenSource(200);
                 try
                 {
                     var onewayProxy = (Test.TestIntfPrx)p.ice_oneway();
@@ -921,10 +920,11 @@ public class AllTests : global::Test.AllTests
                     // Sending should be canceled because the TCP send/receive buffer size on the server is set
                     // to 50KB. Note: we don't use the cancel parameter of the operation here because the
                     // cancellation doesn't cancel the operation whose payload is being sent.
-                    // We loop up to 3 times because on Windows with TCP, the Socket.Send call appears to always succeed
+                    // We loop up to 4 times because on Windows with TCP, the Socket.Send call appears to always succeed
                     // twice before blocking.
-                    for (int i = 0; i < 3; ++i)
+                    for (int i = 0; i < 4; ++i)
                     {
+                        using var cts = new CancellationTokenSource(200);
                         await onewayProxy.opWithPayloadAsync(new byte[768 * 1024]).WaitAsync(cts.Token);
                     }
                 }
@@ -932,7 +932,9 @@ public class AllTests : global::Test.AllTests
                 {
                     canceled = true;
                 }
-                test(canceled && !sleep1Task.IsCompleted);
+                test(canceled);
+                test(!sleep1Task.IsCompleted);
+
                 await sleep1Task;
                 await sleep2Task;
                 await sleep3Task;

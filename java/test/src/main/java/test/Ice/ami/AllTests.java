@@ -1100,10 +1100,8 @@ public class AllTests {
                 CompletableFuture<Void> sleep3Future = p.sleepAsync(1000);
                 TestIntfPrx onewayProxy = p.ice_oneway();
 
-                // Sending should block because the TCP send/receive buffer size on the server is
-                // set to 50KB.
-                CompletableFuture<Void> future =
-                    onewayProxy.opWithPayloadAsync(new byte[768 * 1024]);
+                // Sending should block because the TCP send/receive buffer size on the server is set to 50KB.
+                CompletableFuture<Void> future = onewayProxy.opWithPayloadAsync(new byte[768 * 1024]);
                 boolean timeout = false;
                 try {
                     future.get(200, TimeUnit.MILLISECONDS);
@@ -1114,7 +1112,6 @@ public class AllTests {
                 test(!sleep1Future.isDone());
 
                 sleep1Future.get();
-
                 sleep2Future.get();
                 sleep3Future.get();
             } catch (Exception ex) {

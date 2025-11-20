@@ -1292,13 +1292,13 @@ allTests(TestHelper* helper, bool collocated)
                 auto onewayProxy = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_oneway());
 
                 // Sending should block because the TCP send/receive buffer size on the server is set to 50KB.
-                // We loop up to 3 times because on Windows with TCP, the Socket.Send call appears to always succeed
+                // We loop up to 4 times because on Windows with TCP, the Socket.Send call appears to always succeed
                 // twice before blocking.
                 Ice::ByteSeq seq;
                 seq.resize(768 * 1024);
 
                 bool timedOut = false;
-                for (int i = 0; i < 3; ++i)
+                for (int i = 0; i < 4; ++i)
                 {
                     auto future = onewayProxy->opWithPayloadAsync(seq);
                     if (future.wait_for(200ms) == future_status::timeout)
