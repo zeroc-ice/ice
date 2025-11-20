@@ -14,8 +14,11 @@ buildscript {
 
 plugins {
     id 'com.zeroc.slice-tools' apply false
+    id 'checkstyle'
+    id 'org.openrewrite.rewrite' version '7.19.0'
 }
 
+apply plugin: 'checkstyle'
 apply plugin: 'com.android.application'
 apply plugin: 'com.zeroc.slice-tools'
 
@@ -96,6 +99,26 @@ clean {
     delete("src/main/res/raw/server.p12")
 }
 
+checkstyle {
+    toolVersion = '10.21.4'
+    ignoreFailures = false
+    showViolations = true
+}
+
+rewrite {
+    activeRecipe('com.zeroc.IceRewriteRecipes')
+    activeStyle('com.zeroc.IceRewriteStyle')
+
+    setExportDatatables(true)
+    exclusion(
+        // OpenRewrite is technically capable of modifying Groovy and Kotlin files, but we are avoiding this for now.
+        '**/*.gradle',
+        '**/*.kts',
+        // These are all generated files, and thus should not be subject to modification from OpenRewrite.
+        '**/generated/**/*',
+    )
+}
+
 dependencies {
     implementation files("${rootProject.projectDir}/../../../lib/glacier2-${project.iceVersion}.jar")
     implementation files("${rootProject.projectDir}/../../../lib/ice-${project.iceVersion}.jar")
@@ -103,4 +126,29 @@ dependencies {
 
     implementation files("${rootProject.projectDir}/../../../lib/test.jar")
     runtimeOnly "org.apache.commons:commons-compress:1.20"
+
+    rewrite(
+        "org.openrewrite.recipe:rewrite-static-analysis:2.19.0",
+        "org.openrewrite.recipe:rewrite-java-dependencies:1.43.0"
+    )
+}
+
+tasks.named('rewriteDryRun') {
+    doFirst {
+        // Delete the old report file if present
+        def reportFile = file(reportPath)
+        if (reportFile.exists()) {
+            reportFile.delete()
+        }
+    }
+
+    doLast {
+        if (file(reportPath).exists()) {
+            print("\n\n" + java.nio.file.Files.readString(reportPath))
+
+            if (providers.environmentVariable("CI").isPresent()) {
+                throw RuntimeException("Applying recipes would make changes. See logs for more details.")
+            }
+        }
+    }
 }
