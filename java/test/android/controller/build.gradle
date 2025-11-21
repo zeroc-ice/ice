@@ -99,14 +99,27 @@ clean {
     delete("src/main/res/raw/server.p12")
 }
 
+// Technically this is an 'android' project, not a 'java' project, so Checkstyle doesn't automatically
+// generate tasks we can call with gradle. So we have to define our own Checkstyle task to run it.
+task checkstyle(type: Checkstyle) {
+    source 'src'
+    include '**/*.java'
+    exclude '**/generated/**/*'
+
+    // 'classpath' doesn't matter here, but we're required to provide a value for it.
+    classpath = files()
+}
+
 checkstyle {
     toolVersion = '10.21.4'
     ignoreFailures = false
     showViolations = true
+
+    configDirectory = file("${rootProject.projectDir}/../../../config/checkstyle")
 }
 
 rewrite {
-    configFile('../../../rewrite.yml')
+    configFile = "${rootProject.projectDir}/../../../rewrite.yml"
 
     activeRecipe('com.zeroc.IceRewriteRecipes')
     activeStyle('com.zeroc.IceRewriteStyle')
