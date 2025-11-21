@@ -105,14 +105,14 @@ public class ControllerActivity extends Activity {
         Spinner s = findViewById(R.id.ipv4);
         s.setAdapter(ipv4Adapter);
         s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    app.setIpv4Address(ipv4Addresses.get((int) id));
-                }
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                app.setIpv4Address(ipv4Addresses.get((int) id));
+            }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> arg0) {}
-            });
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {}
+        });
         s.setSelection(0);
 
         final java.util.List<String> ipv6Addresses = app.getAddresses(true);
@@ -120,14 +120,14 @@ public class ControllerActivity extends Activity {
         s = findViewById(R.id.ipv6);
         s.setAdapter(ipv6Adapter);
         s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    app.setIpv6Address(ipv6Addresses.get((int) id));
-                }
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                app.setIpv6Address(ipv6Addresses.get((int) id));
+            }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> arg0) {}
-            });
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {}
+        });
         s.setSelection(0);
 
         // Start the controller in a background thread. Starting the controller creates the ObjectAdapter which makes

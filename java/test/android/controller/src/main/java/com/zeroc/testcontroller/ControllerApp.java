@@ -8,7 +8,6 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
-
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Logger;
 import com.zeroc.Ice.Time;
@@ -309,7 +308,7 @@ public class ControllerApp extends Application {
                 final String exe,
                 String[] args,
                 com.zeroc.Ice.Current current)
-                throws Test.Common.ProcessFailedException {
+            throws Test.Common.ProcessFailedException {
             println("starting " + testsuite + " " + exe);
             String className = "test." + testsuite.replace("/", ".") + "."
                 + exe.substring(0, 1).toUpperCase(Locale.ROOT) + exe.substring(1);
@@ -321,7 +320,7 @@ public class ControllerApp extends Application {
                 return Test.Common.ProcessPrx.uncheckedCast(current.adapter.addWithUUID(new ProcessI(mainHelper)));
             } catch (Exception ex) {
                 throw new Test.Common.ProcessFailedException(
-                        "testsuite `" + testsuite + "' exe ` " + exe + "' start failed:\n" + ex);
+                    "testsuite `" + testsuite + "' exe ` " + exe + "' start failed:\n" + ex);
             }
         }
 
