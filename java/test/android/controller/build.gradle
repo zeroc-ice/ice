@@ -18,6 +18,8 @@ plugins {
     id 'org.openrewrite.rewrite' version '7.19.0'
 }
 
+def runningInCi = providers.environmentVariable("CI").isPresent()
+
 apply plugin: 'checkstyle'
 apply plugin: 'com.android.application'
 apply plugin: 'com.zeroc.slice-tools'
@@ -116,6 +118,12 @@ checkstyle {
     showViolations = true
 
     configDirectory = file("${rootProject.projectDir}/../../../config/checkstyle")
+
+    // If we're running in CI, we want the build to fail if any warnings are emitted.
+    // This doesn't affect what checkstyle emits, just whether it 'fails' or 'succeeds' from Gradle's perspective.
+    if (runningInCi) {
+        maxWarnings = 0
+    }
 }
 
 rewrite {
