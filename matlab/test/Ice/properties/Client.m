@@ -79,4 +79,3 @@ function client(args)
     communicator.destroy();
     fprintf('ok\n');
 end
-
