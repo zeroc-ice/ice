@@ -132,7 +132,6 @@ iostest_excludes       = $(addprefix test/Ice/,\
     faultTolerance \
     gc \
     logger \
-    properties \
     services \
     stringConverter \
     threadPoolPriority)

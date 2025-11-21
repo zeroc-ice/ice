@@ -17,6 +17,7 @@ public:
 void
 Client::run(int, char**)
 {
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
     ifstream in("./config/configPath");
     if (!in)
     {
@@ -109,7 +110,7 @@ Client::run(int, char**)
         }
         cout << "ok" << endl;
     }
-
+#endif
     {
         cout << "testing ice properties with set default values... " << flush;
         Ice::PropertiesPtr properties = Ice::createProperties();
@@ -237,6 +238,23 @@ Client::run(int, char**)
         test(args[0] == "--Foo=Bar");
         test(properties->getIceProperty("Ice.Trace.Network") == "3");
         cout << "ok" << endl;
+    }
+
+    {
+        cout << "testing Ice.ProgramName fallback... " << flush;
+        Ice::InitializationData initData;
+        Ice::CommunicatorPtr communicator = Ice::initialize(std::move(initData));
+        Ice::PropertiesPtr properties = communicator->getProperties();
+        string programName = properties->getIceProperty("Ice.ProgramName");
+#ifdef _WIN32
+        test(programName == "client.exe");
+#elif defined(__APPLE__) && TARGET_OS_IPHONE != 0
+        test(programName == "IceC++");
+#else
+        test(programName == "client");
+#endif
+        communicator->destroy();
+        cout << programName << " ok" << endl;
     }
 }
 

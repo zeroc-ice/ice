@@ -249,7 +249,8 @@ func allTests(_ helper: TestHelper) async throws {
         // Test: PropertiesAdmin::getProperties()
         //
         let pd = try await pa.getPropertiesForPrefix("")
-        try test(pd.count == 5)
+        try test(pd.count == 6)
+        try test(pd["Ice.ProgramName"]!.count > 0)
         try test(pd["Ice.Admin.Endpoints"] == "tcp -h 127.0.0.1")
         try test(pd["Ice.Admin.InstanceName"] == "Test")
         try test(pd["Prop1"] == "1")

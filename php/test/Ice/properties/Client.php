@@ -85,5 +85,10 @@ class Client extends TestHelper
         test($communicator->getProperties()->getIceProperty("Ice.Trace.Network") == "3");
         test(count($args) == 2);
         echo "ok\n";
+
+        echo "testing Ice.ProgramName fallback...";
+        $communicator = Ice\initialize();
+        test(str_ends_with($communicator->getProperties()->getIceProperty("Ice.ProgramName"), "TestHelper.php"));
+        echo "ok\n";
     }
 }

@@ -59,6 +59,17 @@ public func initialize(_ initData: InitializationData = InitializationData()) th
 
     let propsHandle = (newInitData.properties as! PropertiesI).handle
 
+    let properties = newInitData.properties!
+
+    // If the user has not set Ice.ProgramName, set it to the Swift executable name.
+    if properties.getIceProperty("Ice.ProgramName").isEmpty {
+        if let programName = CommandLine.arguments.first.map({ URL(fileURLWithPath: $0).lastPathComponent }) {
+            properties.setProperty(key: "Ice.ProgramName", value: programName)
+        } else {
+            properties.setProperty(key: "Ice.ProgramName", value: "IceSwift")
+        }
+    }
+
     return try autoreleasepool {
         let handle = try ICEUtil.initialize(propsHandle, logger: loggerP)
 

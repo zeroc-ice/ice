@@ -727,6 +727,14 @@ See `InitializationData::pluginFactories`.
   There is no clean way to recover from these errors, and keeping malfunctioning systems running is of no help;
   aborting the application allows the replica management system to take over in a replicated setup.
 
+- Added a default value for the `Ice.ProgramName` property. The property is now set to:
+  - The first argument of the argv argument passed to `Ice::initialize`.
+  - Otherwise, the executing program name from the operating system.
+  - Lastly, if the program name cannot be determined from the operating system, it is set to "IceC++".
+
+  Previously, this property was set to the first element of the argv array passed
+  to `Ice::createProperties` (and indirectly from `Ice::initialize`).
+
 ### C# Changes
 
 - Upgrade to .NET 8.0 / C# 12.
@@ -893,7 +901,7 @@ initialization. See `InitializationData.pluginFactories`.
 - Changed the default value for properties mapped from a Slice struct type. It's now an empty array of the mapped class;
   it was previously a new instance of the mapped class created with no argument.
 
-- The default value for property `Ice.ProgramName` is now `matlab-client`. It used to be the first element in the args
+- The default value for property `Ice.ProgramName` is now `IceMATLAB`. It used to be the first element in the args
   cell given to `Ice.initialize`.
 
 - The `slice2matlab` function has been updated to accept multiple arguments, which are passed directly to the
@@ -922,6 +930,10 @@ initialization. See `InitializationData.pluginFactories`.
 - Removed the `ice_premarshal` and `ice_postunmarshal` "hooks" called during class marshaling and unmarshaling.
   `ice_postunmarshal` only makes sense if the application can register a custom Slice loader and Ice for PHP does not
   provide custom Slice loaders.
+
+- Added a default value for the `Ice.ProgramName` property. The `SCRIPT_FILENAME` server variable will be used if
+  available; otherwise, the default value is `IcePHP`. It used to be the first element in the args cell given
+  to `Ice.initialize`.
 
 ### Python Changes
 
@@ -1042,6 +1054,10 @@ initialization. See `InitializationData.pluginFactories`.
 - Removed the self-reference parameter from `InvocationFuture.add_sent_callback`. Registered callbacks no longer
   receive the `Ice.InvocationFuture` instance as their first parameter.
 
+- Added a default value for the `Ice.ProgramName` property. The first value in `sys.argv` will be used if available;
+  otherwise, the default value is `IcePython`.  It used to be the first element in the args cell given
+  to `Ice.initialize`.
+
 ### Ruby Changes
 
 - Updated the optional `Ice.initialize` block to only accept a single argument, the communicator. Previously, this
@@ -1084,6 +1100,10 @@ initialization. See `InitializationData.pluginFactories`.
   protocols as servants / dispatchers, like in other language mappings.
 
 - Added a SwiftPM plugin, `CompileSlice`, that lets you compile Slice files as part of SwiftPM and Xcode builds.
+
+- - Added a default value for the `Ice.ProgramName` property. The first value in `CommandLine.arguments` will be used
+  if available; otherwise, the default value is `IceSwift`. It used to be the first element in the args cell given
+  to `Ice.initialize`.
 
 ### Ice Service Changes
 

@@ -75,7 +75,6 @@ class Ice(Util.Component):
                     "Ice/faultTolerance",
                     "Ice/library",
                     "Ice/logger",
-                    "Ice/properties",
                     "Ice/plugin",
                     "Ice/stringConverter",
                     "Ice/threadPoolPriority",

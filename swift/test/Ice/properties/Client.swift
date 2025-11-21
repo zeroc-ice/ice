@@ -6,7 +6,7 @@ import TestCommon
 public class Client: TestHelperI, @unchecked Sendable {
     override public func run(args _: [String]) async throws {
         let output = getWriter()
-
+#if os(macOS)
         output.write("testing load properties exception... ")
         do {
             let properties = Ice.createProperties()
@@ -73,7 +73,7 @@ public class Client: TestHelperI, @unchecked Sendable {
             }
             output.writeLine("ok")
         }
-
+#endif
         do {
             output.write("testing arg parsing...")
             var args1 = ["--Foo=1", "--Ice.Default.InvocationTimeout=12345", "-T", "--Bar=2"]
@@ -146,6 +146,21 @@ public class Client: TestHelperI, @unchecked Sendable {
             }
 
             output.writeLine("ok")
+        }
+
+        do {
+            output.write("testing that Ice.Program is set during initialization... ")
+            let communicator = try Ice.initialize()
+            defer {
+                communicator.destroy()
+            }
+            let properties = communicator.getProperties()
+#if os(macOS)
+            try test(properties.getIceProperty("Ice.ProgramName") == "TestDriver")
+#elseif os(iOS)
+            try test(properties.getIceProperty("Ice.ProgramName") == "TestDriverApp")
+#endif
+    output.writeLine("ok")
         }
     }
 }
