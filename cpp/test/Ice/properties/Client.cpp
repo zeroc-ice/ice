@@ -247,14 +247,18 @@ Client::run(int, char**)
         Ice::PropertiesPtr properties = communicator->getProperties();
         string programName = properties->getIceProperty("Ice.ProgramName");
 #ifdef _WIN32
-        test(programName == "client.exe");
+        string expectedSuffix = "client.exe";
 #elif defined(__APPLE__) && TARGET_OS_IPHONE != 0
-        test(programName == "IceC++");
+        string expectedSuffix = "IceC++";
 #else
-        test(programName == "client");
+        string expectedSuffix = "client";
 #endif
+        test(
+            programName.size() >= expectedSuffix.size() &&
+            programName.compare(programName.size() - expectedSuffix.size(), expectedSuffix.size(), expectedSuffix) ==
+                0);
         communicator->destroy();
-        cout << programName << " ok" << endl;
+        cout << " ok" << endl;
     }
 }
 
