@@ -14,8 +14,13 @@ buildscript {
 
 plugins {
     id 'com.zeroc.slice-tools' apply false
+    id 'checkstyle'
+    id 'org.openrewrite.rewrite' version '7.19.0'
 }
 
+def runningInCi = providers.environmentVariable("CI").isPresent()
+
+apply plugin: 'checkstyle'
 apply plugin: 'com.android.application'
 apply plugin: 'com.zeroc.slice-tools'
 
@@ -96,6 +101,51 @@ clean {
     delete("src/main/res/raw/server.p12")
 }
 
+// Technically this is an 'android' project, not a 'java' project, so Checkstyle doesn't automatically
+// generate tasks we can call with gradle. So we have to define our own Checkstyle task to run it.
+task checkstyle(type: Checkstyle) {
+    source 'src'
+    include '**/*.java'
+    exclude '**/generated/**/*'
+
+    // 'classpath' doesn't matter here, but we're required to provide a value for it.
+    classpath = files()
+}
+
+tasks.named('checkstyle').configure {
+    dependsOn(copyCertificates)
+}
+
+checkstyle {
+    toolVersion = '10.21.4'
+    ignoreFailures = false
+    showViolations = true
+
+    configDirectory = file("${rootProject.projectDir}/../../../config/checkstyle")
+
+    // If we're running in CI, we want the build to fail if any warnings are emitted.
+    // This doesn't affect what checkstyle emits, just whether it 'fails' or 'succeeds' from Gradle's perspective.
+    if (runningInCi) {
+        maxWarnings = 0
+    }
+}
+
+rewrite {
+    configFile = "${rootProject.projectDir}/../../../rewrite.yml"
+
+    activeRecipe('com.zeroc.IceRewriteRecipes')
+    activeStyle('com.zeroc.IceRewriteStyle')
+
+    setExportDatatables(true)
+    exclusion(
+        // OpenRewrite is technically capable of modifying Groovy and Kotlin files, but we are avoiding this for now.
+        '**/*.gradle',
+        '**/*.kts',
+        // These are all generated files, and thus should not be subject to modification from OpenRewrite.
+        '**/generated/**/*',
+    )
+}
+
 dependencies {
     implementation files("${rootProject.projectDir}/../../../lib/glacier2-${project.iceVersion}.jar")
     implementation files("${rootProject.projectDir}/../../../lib/ice-${project.iceVersion}.jar")
@@ -103,4 +153,29 @@ dependencies {
 
     implementation files("${rootProject.projectDir}/../../../lib/test.jar")
     runtimeOnly "org.apache.commons:commons-compress:1.20"
+
+    rewrite(
+        "org.openrewrite.recipe:rewrite-static-analysis:2.19.0",
+        "org.openrewrite.recipe:rewrite-java-dependencies:1.43.0"
+    )
+}
+
+tasks.named('rewriteDryRun') {
+    doFirst {
+        // Delete the old report file if present
+        def reportFile = file(reportPath)
+        if (reportFile.exists()) {
+            reportFile.delete()
+        }
+    }
+
+    doLast {
+        if (file(reportPath).exists()) {
+            print("\n\n" + java.nio.file.Files.readString(reportPath))
+
+            if (providers.environmentVariable("CI").isPresent()) {
+                throw RuntimeException("Applying recipes would make changes. See logs for more details.")
+            }
+        }
+    }
 }

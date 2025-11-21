@@ -8,7 +8,6 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
-
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Logger;
 import com.zeroc.Ice.Time;
@@ -145,23 +144,23 @@ public class ControllerApp extends Application {
     public synchronized void println(final String data) {
         com.zeroc.Ice.Util.getProcessLogger().print(data);
         _activity.runOnUiThread(
-                () -> {
-                    synchronized (ControllerApp.this) {
-                        _activity.println(data);
-                    }
-                });
+            () -> {
+                synchronized (ControllerApp.this) {
+                    _activity.println(data);
+                }
+            });
     }
 
     public static boolean isEmulator() {
         return Build.FINGERPRINT.startsWith("google/sdk_gphone")
-                || Build.FINGERPRINT.startsWith("generic")
-                || Build.FINGERPRINT.startsWith("unknown")
-                || Build.MODEL.contains("google_sdk")
-                || Build.MODEL.contains("Emulator")
-                || Build.MODEL.contains("Android SDK built for x86")
-                || Build.MANUFACTURER.contains("Genymotion")
-                || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
-                || Build.PRODUCT.equals("google_sdk");
+            || Build.FINGERPRINT.startsWith("generic")
+            || Build.FINGERPRINT.startsWith("unknown")
+            || Build.MODEL.contains("google_sdk")
+            || Build.MODEL.contains("Emulator")
+            || Build.MODEL.contains("Android SDK built for x86")
+            || Build.MANUFACTURER.contains("Genymotion")
+            || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+            || Build.PRODUCT.equals("google_sdk");
     }
 
     class ControllerI {
@@ -219,18 +218,18 @@ public class ControllerApp extends Application {
                 _helper.setControllerHelper(this);
 
                 _helper.setWriter(
-                        new Writer() {
-                            @Override
-                            public void close() {}
+                    new Writer() {
+                        @Override
+                        public void close() {}
 
-                            @Override
-                            public void flush() {}
+                        @Override
+                        public void flush() {}
 
-                            @Override
-                            public void write(char[] buf, int offset, int count) {
-                                _out.append(buf, offset, count);
-                            }
-                        });
+                        @Override
+                        public void write(char[] buf, int offset, int count) {
+                            _out.append(buf, offset, count);
+                        }
+                    });
 
                 _helper.run(_args);
                 completed(0);
@@ -297,9 +296,9 @@ public class ControllerApp extends Application {
         private final TestSuiteBundle _bundle;
         private final String[] _args;
         private test.TestHelper _helper;
-        private boolean _ready = false;
-        private boolean _completed = false;
-        private int _status = 0;
+        private boolean _ready;
+        private boolean _completed;
+        private int _status;
         private final StringBuffer _out = new StringBuffer();
     }
 
@@ -309,14 +308,10 @@ public class ControllerApp extends Application {
                 final String exe,
                 String[] args,
                 com.zeroc.Ice.Current current)
-                throws Test.Common.ProcessFailedException {
+            throws Test.Common.ProcessFailedException {
             println("starting " + testsuite + " " + exe);
-            String className =
-                    "test."
-                            + testsuite.replace("/", ".")
-                            + "."
-                            + exe.substring(0, 1).toUpperCase(Locale.ROOT)
-                            + exe.substring(1);
+            String className = "test." + testsuite.replace("/", ".") + "."
+                + exe.substring(0, 1).toUpperCase(Locale.ROOT) + exe.substring(1);
 
             try {
                 TestSuiteBundle bundle = new TestSuiteBundle(className, getClassLoader());
@@ -325,7 +320,7 @@ public class ControllerApp extends Application {
                 return Test.Common.ProcessPrx.uncheckedCast(current.adapter.addWithUUID(new ProcessI(mainHelper)));
             } catch (Exception ex) {
                 throw new Test.Common.ProcessFailedException(
-                        "testsuite `" + testsuite + "' exe ` " + exe + "' start failed:\n" + ex);
+                    "testsuite `" + testsuite + "' exe ` " + exe + "' start failed:\n" + ex);
             }
         }
 

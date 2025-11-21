@@ -20,8 +20,7 @@ import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ControllerActivity extends Activity
-{
+public class ControllerActivity extends Activity {
     private final LinkedList<String> _output = new LinkedList<>();
     private ArrayAdapter<String> _outputAdapter;
     private ListView _outputListView;
@@ -30,14 +29,12 @@ public class ControllerActivity extends Activity
     private static final int REQUEST_ENABLE_BT = 1;
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
         _outputListView = findViewById(R.id.outputList);
-        if(_outputListView == null)
-        {
+        if (_outputListView == null) {
             throw new IllegalStateException("Layout must include a View with android:id=\"@+id/outputList\"");
         }
 
@@ -47,32 +44,24 @@ public class ControllerActivity extends Activity
     }
 
     @Override
-    public void onStart()
-    {
+    public void onStart() {
         super.onStart();
 
         // Enable Bluetooth if necessary.
-        BluetoothManager bluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter adapter = bluetoothManager.getAdapter();
-        if(adapter == null)
-        {
+        if (adapter == null) {
             Toast.makeText(this, R.string.no_bluetooth, Toast.LENGTH_SHORT).show();
             setup(false);
-        }
-        else if(!adapter.isEnabled())
-        {
+        } else if (!adapter.isEnabled()) {
             try {
                 Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-            }
-            catch (java.lang.SecurityException ex)
-            {
+            } catch (java.lang.SecurityException ex) {
                 // The user didn't grant the required permissions.
                 Toast.makeText(this, ex.toString(), Toast.LENGTH_SHORT).show();
             }
-        }
-        else
-        {
+        } else {
             setup(true);
         }
     }
@@ -94,61 +83,51 @@ public class ControllerActivity extends Activity
     }
 
     @Override
-    protected void onActivityResult(int req, int res, Intent data)
-    {
-        if(req == REQUEST_ENABLE_BT && _outputAdapter == null)
-        {
-            if(res == Activity.RESULT_OK)
-            {
+    protected void onActivityResult(int req, int res, Intent data) {
+        if (req == REQUEST_ENABLE_BT && _outputAdapter == null) {
+            if (res == Activity.RESULT_OK) {
                 setup(true);
-            }
-            else
-            {
+            } else {
                 Toast.makeText(this, R.string.no_bluetooth, Toast.LENGTH_SHORT).show();
                 setup(false);
             }
         }
     }
 
-    private synchronized void setup(boolean bluetooth)
-    {
+    private synchronized void setup(boolean bluetooth) {
+        var spinnerDropdownItem = android.R.layout.simple_spinner_dropdown_item;
+
         _outputAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, _output);
         _outputListView.setAdapter(_outputAdapter);
-        final ControllerApp app = (ControllerApp)getApplication();
+        final ControllerApp app = (ControllerApp) getApplication();
         final java.util.List<String> ipv4Addresses = app.getAddresses(false);
-        ArrayAdapter<String> ipv4Adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, ipv4Addresses);
+        ArrayAdapter<String> ipv4Adapter = new ArrayAdapter<>(this, spinnerDropdownItem, ipv4Addresses);
         Spinner s = findViewById(R.id.ipv4);
         s.setAdapter(ipv4Adapter);
-        s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener()
-            {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-                {
-                    app.setIpv4Address(ipv4Addresses.get((int)id));
-                }
+        s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                app.setIpv4Address(ipv4Addresses.get((int) id));
+            }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> arg0)
-                {}
-            });
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {}
+        });
         s.setSelection(0);
 
         final java.util.List<String> ipv6Addresses = app.getAddresses(true);
-        ArrayAdapter<String> ipv6Adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, ipv6Addresses);
+        ArrayAdapter<String> ipv6Adapter = new ArrayAdapter<>(this, spinnerDropdownItem, ipv6Addresses);
         s = findViewById(R.id.ipv6);
         s.setAdapter(ipv6Adapter);
-        s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener()
-            {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-                {
-                    app.setIpv6Address(ipv6Addresses.get((int)id));
-                }
+        s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                app.setIpv6Address(ipv6Addresses.get((int) id));
+            }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> arg0)
-                {}
-            });
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {}
+        });
         s.setSelection(0);
 
         // Start the controller in a background thread. Starting the controller creates the ObjectAdapter which makes
@@ -164,8 +143,7 @@ public class ControllerActivity extends Activity
         executor.shutdown();
     }
 
-    public synchronized void println(String data)
-    {
+    public synchronized void println(String data) {
         _output.add(data);
         _outputAdapter.notifyDataSetChanged();
     }
