@@ -26,7 +26,7 @@ public class ControllerActivity extends Activity {
     private ListView _outputListView;
     private WifiManager.MulticastLock _multicastLock;
 
-    private static final int REQUEST_ENABLE_BT = 1;   
+    private static final int REQUEST_ENABLE_BT = 1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,7 +48,7 @@ public class ControllerActivity extends Activity {
         super.onStart();
 
         // Enable Bluetooth if necessary.
-        BluetoothManager bluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter adapter = bluetoothManager.getAdapter();
         if (adapter == null) {
             Toast.makeText(this, R.string.no_bluetooth, Toast.LENGTH_SHORT).show();
@@ -83,8 +83,7 @@ public class ControllerActivity extends Activity {
     }
 
     @Override
-    protected void onActivityResult(int req, int res, Intent data)
-    {
+    protected void onActivityResult(int req, int res, Intent data) {
         if (req == REQUEST_ENABLE_BT && _outputAdapter == null) {
             if (res == Activity.RESULT_OK) {
                 setup(true);
@@ -100,16 +99,15 @@ public class ControllerActivity extends Activity {
 
         _outputAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, _output);
         _outputListView.setAdapter(_outputAdapter);
-        final ControllerApp app = (ControllerApp)getApplication();
+        final ControllerApp app = (ControllerApp) getApplication();
         final java.util.List<String> ipv4Addresses = app.getAddresses(false);
         ArrayAdapter<String> ipv4Adapter = new ArrayAdapter<>(this, spinnerDropdownItem, ipv4Addresses);
         Spinner s = findViewById(R.id.ipv4);
         s.setAdapter(ipv4Adapter);
-        s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener()
-            {
+        s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    app.setIpv4Address(ipv4Addresses.get((int)id));
+                    app.setIpv4Address(ipv4Addresses.get((int) id));
                 }
 
                 @Override
@@ -121,11 +119,10 @@ public class ControllerActivity extends Activity {
         ArrayAdapter<String> ipv6Adapter = new ArrayAdapter<>(this, spinnerDropdownItem, ipv6Addresses);
         s = findViewById(R.id.ipv6);
         s.setAdapter(ipv6Adapter);
-        s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener()
-            {
+        s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    app.setIpv6Address(ipv6Addresses.get((int)id));
+                    app.setIpv6Address(ipv6Addresses.get((int) id));
                 }
 
                 @Override

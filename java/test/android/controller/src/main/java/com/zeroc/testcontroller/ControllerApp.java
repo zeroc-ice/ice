@@ -311,8 +311,8 @@ public class ControllerApp extends Application {
                 com.zeroc.Ice.Current current)
                 throws Test.Common.ProcessFailedException {
             println("starting " + testsuite + " " + exe);
-            String className = "test." + testsuite.replace("/", ".") + "." +
-                exe.substring(0, 1).toUpperCase(Locale.ROOT) + exe.substring(1);
+            String className = "test." + testsuite.replace("/", ".") + "."
+                + exe.substring(0, 1).toUpperCase(Locale.ROOT) + exe.substring(1);
 
             try {
                 TestSuiteBundle bundle = new TestSuiteBundle(className, getClassLoader());
