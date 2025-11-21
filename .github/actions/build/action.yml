@@ -58,7 +58,8 @@ runs:
       working-directory: ${{ inputs.working_directory }}
       run: |
         cd test/android/controller
-        ./gradlew build checkstyle
+        ./gradlew build
+        ./gradlew checkstyle
         ./gradlew rewriteDryRun --no-parallel --no-configuration-cache
       shell: bash
       if: inputs.build_android_controller == 'true'
