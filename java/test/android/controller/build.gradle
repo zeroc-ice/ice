@@ -112,6 +112,10 @@ task checkstyle(type: Checkstyle) {
     classpath = files()
 }
 
+tasks.named('checkstyle').configure {
+    dependsOn(copyCertificates)
+}
+
 checkstyle {
     toolVersion = '10.21.4'
     ignoreFailures = false
