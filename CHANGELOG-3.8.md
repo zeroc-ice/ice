@@ -1101,7 +1101,7 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Added a SwiftPM plugin, `CompileSlice`, that lets you compile Slice files as part of SwiftPM and Xcode builds.
 
-- - Added a default value for the `Ice.ProgramName` property. The first value in `CommandLine.arguments` will be used
+- Added a default value for the `Ice.ProgramName` property. The first value in `CommandLine.arguments` will be used
   if available; otherwise, the default value is `IceSwift`. It used to be the first element in the args cell given
   to `Ice.initialize`.
 
