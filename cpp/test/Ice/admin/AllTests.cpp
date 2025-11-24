@@ -300,7 +300,6 @@ allTests(Test::TestHelper* helper)
         // Test: PropertiesAdmin::getProperties()
         //
         PropertyDict pd = pa->getPropertiesForPrefix("");
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
         test(pd.size() == 6);
         test(!pd["Ice.ProgramName"].empty());
         test(pd["Ice.Admin.Endpoints"] == "tcp -h " + defaultHost);
@@ -308,7 +307,6 @@ allTests(Test::TestHelper* helper)
         test(pd["Prop1"] == "1");
         test(pd["Prop2"] == "2");
         test(pd["Prop3"] == "3");
-#endif
 
         PropertyDict changes;
 

@@ -105,7 +105,7 @@ namespace
         }
     }
 
-    string getFallbackProgramName()
+    string getProgramName()
     {
         string programName{"IceC++"}; // Default name if we can't determine it
 #if defined(__APPLE__) && TARGET_OS_IPHONE == 0
@@ -124,7 +124,6 @@ namespace
         {
             programName = string{buffer.data(), static_cast<size_t>(len)};
         }
-
 #elif defined(_WIN32)
         vector<char> buffer(MAX_PATH);
         DWORD len = GetModuleFileNameA(NULL, buffer.data(), static_cast<DWORD>(buffer.size()));
@@ -971,7 +970,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         if (programName.empty())
         {
-            programName = getFallbackProgramName();
+            programName = getProgramName();
             _initData.properties->setProperty("Ice.ProgramName", programName);
         }
 
