@@ -39,7 +39,6 @@
 #include "DisableWarnings.h"
 
 #include <cstdio>
-#include <iostream>
 #include <list>
 #include <mutex>
 #if defined(_WIN32)
