@@ -106,7 +106,7 @@ namespace
 
     string getProgramName()
     {
-        string programName{"IceC++"}; // Default name if we can't determine it
+        string programName{"IceC++"};
 #if defined(__APPLE__) && TARGET_OS_IPHONE == 0
         vector<char> buffer(PATH_MAX);
         int len = proc_pidpath(getpid(), buffer.data(), static_cast<uint32_t>(buffer.size()));
