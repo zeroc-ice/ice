@@ -122,5 +122,6 @@ class Client < ::TestHelper
         Ice.initialize() do |communicator|
             test(communicator.getProperties().getIceProperty("Ice.ProgramName").end_with?("TestHelper.rb"))
         end
+        puts "ok"
     end
 end
