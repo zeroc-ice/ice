@@ -187,10 +187,14 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
                 {
                     // Name is empty when Python is executed without a script file. For example, when using the
                     // interactive shell or the -c option.
-                    string name = PyUnicode_AsUTF8(programNameObj);
-                    if (!name.empty())
+                    const char* namePtr = PyUnicode_AsUTF8(programNameObj);
+                    if (namePtr)
                     {
-                        programName = name;
+                        string name = namePtr;
+                        if (!name.empty())
+                        {
+                            programName = name;
+                        }
                     }
                 }
             }
