@@ -149,7 +149,7 @@ public class Client: TestHelperI, @unchecked Sendable {
         }
 
         do {
-            output.write("testing that Ice.Program is set during initialization... ")
+            output.write("testing that Ice.ProgramName is set during initialization... ")
             let communicator = try Ice.initialize()
             defer {
                 communicator.destroy()
