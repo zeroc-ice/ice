@@ -1055,7 +1055,7 @@ initialization. See `InitializationData.pluginFactories`.
   receive the `Ice.InvocationFuture` instance as their first parameter.
 
 - Added a default value for the `Ice.ProgramName` property. The first value in `sys.argv` will be used if available;
-  otherwise, the default value is `IcePython`.  It used to be the first element in the args cell given
+  otherwise, the default value is `IcePy`.  It used to be the first element in the args cell given
   to `Ice.initialize`.
 
 ### Ruby Changes
