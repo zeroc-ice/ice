@@ -180,7 +180,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         if (sysModule.get())
         {
             PyObjectHandle argv{PyObject_GetAttrString(sysModule.get(), "argv")};
-            if (argv.get() && PyList_Check(argv.get()) && PyList_Size(argv.get()) > 0)
+            if (argv && PyList_Check(argv.get()) && PyList_Size(argv.get()) > 0)
             {
                 PyObject* programNameObj = PyList_GetItem(argv.get(), 0);
                 if (programNameObj)
