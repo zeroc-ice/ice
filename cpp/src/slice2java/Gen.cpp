@@ -131,6 +131,7 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
     }
     else if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
+        string typeSuffix;
         switch (builtin->kind())
         {
             case Builtin::KindByte:
@@ -142,30 +143,8 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
             case Builtin::KindDouble:
             case Builtin::KindString:
             {
-                string s = builtinNameTable[builtin->kind()];
-                if (marshal)
-                {
-                    if (isOptional)
-                    {
-                        out << nl << stream << ".write" << s << "(" << tag << ", " << param << ");";
-                    }
-                    else
-                    {
-                        out << nl << stream << ".write" << s << "(" << param << ");";
-                    }
-                }
-                else
-                {
-                    if (isOptional)
-                    {
-                        out << nl << param << " = " << stream << ".read" << s << "(" << tag << ");";
-                    }
-                    else
-                    {
-                        out << nl << param << " = " << stream << ".read" << s << "();";
-                    }
-                }
-                return;
+                typeSuffix = builtinNameTable[builtin->kind()];
+                break;
             }
             case Builtin::KindValue:
             {
@@ -174,44 +153,41 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
             }
             case Builtin::KindObjectProxy:
             {
-                if (marshal)
-                {
-                    if (isOptional)
-                    {
-                        out << nl << stream << ".writeProxy(" << tag << ", " << param << ");";
-                    }
-                    else
-                    {
-                        out << nl << stream << ".writeProxy(" << param << ");";
-                    }
-                }
-                else
-                {
-                    if (isOptional)
-                    {
-                        out << nl << param << " = " << stream << ".readProxy(" << tag << ");";
-                    }
-                    else
-                    {
-                        out << nl << param << " = " << stream << ".readProxy();";
-                    }
-                }
-                return;
+                typeSuffix = "Proxy";
+                break;
             }
         }
+
+        if (marshal)
+        {
+            out << nl << stream << ".write" << typeSuffix << "(";
+            if (isOptional)
+            {
+                out << tag << ", ";
+            }
+            out << param << ");";
+        }
+        else
+        {
+            out << nl << param << " = " << stream << ".read" << typeSuffix << "(";
+            if (isOptional)
+            {
+                out << tag;
+            }
+            out << ");";
+        }
+        return;
     }
     else if (auto prx = dynamic_pointer_cast<InterfaceDecl>(type))
     {
         if (marshal)
         {
+            out << nl << stream << ".writeProxy(";
             if (isOptional)
             {
-                out << nl << stream << ".writeProxy(" << tag << ", " << param << ");";
+                out << tag << ", ";
             }
-            else
-            {
-                out << nl << stream << ".writeProxy(" << param << ");";
-            }
+            out << param << ");";
         }
         else
         {
@@ -396,14 +372,12 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
         }
         else
         {
+            out << nl << param << " = " << typeS << ".ice_read(" << stream;
             if (isOptional)
             {
-                out << nl << param << " = " << typeS << ".ice_read(" << stream << ", " << tag << ");";
+                out << ", " << tag;
             }
-            else
-            {
-                out << nl << param << " = " << typeS << ".ice_read(" << stream << ");";
-            }
+            out << ");";
         }
     }
 }
