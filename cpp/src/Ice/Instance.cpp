@@ -124,7 +124,7 @@ namespace
 #elif defined(_WIN32)
         vector<char> buffer(MAX_PATH);
         DWORD len = GetModuleFileNameA(NULL, buffer.data(), static_cast<DWORD>(buffer.size()));
-        if (len > 0 && len < buffer.size())
+        if (len > 0)
         {
             programName = string{buffer.data(), static_cast<size_t>(len)};
         }
