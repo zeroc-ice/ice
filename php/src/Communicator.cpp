@@ -914,15 +914,15 @@ ZEND_FUNCTION(Ice_initialize)
     if (initData.properties->getIceProperty("Ice.ProgramName").empty())
     {
         // Try to get the script filename from PHP's global variables
-        zval* scriptName = zend_hash_str_find(&EG(symbol_table), "_SERVER", sizeof("_SERVER") - 1);
+        zval* scriptInfo = zend_hash_str_find(&EG(symbol_table), "_SERVER", sizeof("_SERVER") - 1);
         string programName{"IcePHP"};
-        if (scriptName && Z_TYPE_P(scriptName) == IS_ARRAY)
+        if (scriptInfo && Z_TYPE_P(scriptInfo) == IS_ARRAY)
         {
-            zval* phpSelf =
-                zend_hash_str_find(Z_ARRVAL_P(scriptName), "SCRIPT_FILENAME", sizeof("SCRIPT_FILENAME") - 1);
-            if (phpSelf && Z_TYPE_P(phpSelf) == IS_STRING)
+            zval* phpScriptName =
+                zend_hash_str_find(Z_ARRVAL_P(scriptInfo), "SCRIPT_FILENAME", sizeof("SCRIPT_FILENAME") - 1);
+            if (phpScriptName && Z_TYPE_P(phpScriptName) == IS_STRING)
             {
-                string name{Z_STRVAL_P(phpSelf), Z_STRLEN_P(phpSelf)};
+                string name{Z_STRVAL_P(phpScriptName), Z_STRLEN_P(phpScriptName)};
                 if (!name.empty())
                 {
                     programName = name;

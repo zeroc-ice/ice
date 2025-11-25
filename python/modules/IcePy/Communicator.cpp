@@ -176,13 +176,13 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     {
         string programName{"IcePy"};
         // Get python program name using python c api
-        PyObject* sysModule = PyImport_ImportModule("sys");
-        if (sysModule)
+        PyObjectHandle sysModule{PyImport_ImportModule("sys")};
+        if (sysModule.get())
         {
-            PyObject* argv = PyObject_GetAttrString(sysModule, "argv");
-            if (argv && PyList_Check(argv) && PyList_Size(argv) > 0)
+            PyObjectHandle argv{PyObject_GetAttrString(sysModule.get(), "argv")};
+            if (argv.get() && PyList_Check(argv.get()) && PyList_Size(argv.get()) > 0)
             {
-                PyObject* programNameObj = PyList_GetItem(argv, 0);
+                PyObject* programNameObj = PyList_GetItem(argv.get(), 0);
                 if (programNameObj)
                 {
                     // Name is empty when Python is executed without a script file. For example, when using the
@@ -203,8 +203,6 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
                     }
                 }
             }
-            Py_XDECREF(argv);
-            Py_DECREF(sysModule);
         }
 
         initData.properties->setProperty("Ice.ProgramName", programName);
