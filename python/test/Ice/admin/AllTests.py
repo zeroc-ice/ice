@@ -190,7 +190,8 @@ def allTests(helper: TestHelper, communicator: "Ice.Communicator") -> None:
     # Test: PropertiesAdmin::getProperties()
     #
     pd = pa.getPropertiesForPrefix("")
-    test(len(pd) == 6)
+    test(len(pd) == 7)
+    test(pd["Ice.ProgramName"] != "")
     test(pd["Ice.Admin.Endpoints"] == "tcp -h 127.0.0.1")
     test(pd["Ice.Admin.InstanceName"] == "Test")
     test(pd["Prop1"] == "1")

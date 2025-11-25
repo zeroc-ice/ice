@@ -300,7 +300,8 @@ allTests(Test::TestHelper* helper)
         // Test: PropertiesAdmin::getProperties()
         //
         PropertyDict pd = pa->getPropertiesForPrefix("");
-        test(pd.size() == 5);
+        test(pd.size() == 6);
+        test(!pd["Ice.ProgramName"].empty());
         test(pd["Ice.Admin.Endpoints"] == "tcp -h " + defaultHost);
         test(pd["Ice.Admin.InstanceName"] == "Test");
         test(pd["Prop1"] == "1");

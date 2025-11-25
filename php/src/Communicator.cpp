@@ -911,6 +911,33 @@ ZEND_FUNCTION(Ice_initialize)
         initData.properties = std::make_shared<Ice::Properties>();
     }
 
+    if (initData.properties->getIceProperty("Ice.ProgramName").empty())
+    {
+        // Try to get the script filename from PHP's global variables
+        zval* scriptInfo = zend_hash_str_find(&EG(symbol_table), "_SERVER", sizeof("_SERVER") - 1);
+        string programName{"IcePHP"};
+        if (scriptInfo && Z_TYPE_P(scriptInfo) == IS_ARRAY)
+        {
+            zval* phpScriptName =
+                zend_hash_str_find(Z_ARRVAL_P(scriptInfo), "SCRIPT_FILENAME", sizeof("SCRIPT_FILENAME") - 1);
+            if (phpScriptName && Z_TYPE_P(phpScriptName) == IS_STRING)
+            {
+                string name{Z_STRVAL_P(phpScriptName), Z_STRLEN_P(phpScriptName)};
+                if (!name.empty())
+                {
+                    programName = name;
+                    size_t pos = programName.find_last_of("/\\");
+                    if (pos != string::npos)
+                    {
+                        programName = programName.substr(pos + 1);
+                    }
+                }
+            }
+        }
+
+        initData.properties->setProperty("Ice.ProgramName", programName);
+    }
+
     // Always accept class cycles during the unmarshaling of PHP objects by the C++ code.
     initData.properties->setProperty("Ice.AcceptClassCycles", "1");
 

@@ -380,6 +380,12 @@ classDiagram
 - Added `getIceProperty`, `getIcePropertyAsInt`, and `getIcePropertyAsList` methods to `Properties`. These methods
   return the value of an Ice property, or the default value if the property is not set.
 
+- The `Ice.ProgramName` property is now always set during communicator initialization, either to the executable/script
+  name when available, or `Ice<LANGUAGE>` otherwise. Previously, `Ice.ProgramName` was only set when the args array
+  was passed to `createProperties`, and was set to the first element of that array.
+
+  In C++, the first element of the `argv` array is still used if passed to `initialize`.
+
 ### Packaging Changes
 
 - The Windows MSI installer is now built using the WiX Toolset. The WiX project files are included in the packaging/msi
@@ -892,9 +898,6 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Changed the default value for properties mapped from a Slice struct type. It's now an empty array of the mapped class;
   it was previously a new instance of the mapped class created with no argument.
-
-- The default value for property `Ice.ProgramName` is now `matlab-client`. It used to be the first element in the args
-  cell given to `Ice.initialize`.
 
 - The `slice2matlab` function has been updated to accept multiple arguments, which are passed directly to the
   `slice2matlab` compiler. In Ice 3.7, all arguments had to be provided as a single string, which was less convenient.

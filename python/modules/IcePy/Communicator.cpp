@@ -171,6 +171,43 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         return -1;
     }
 
+    // Set Ice.ProgramName if not already set.
+    if (initData.properties->getIceProperty("Ice.ProgramName").empty())
+    {
+        string programName{"IcePy"};
+        // Get python program name using python c api
+        PyObjectHandle sysModule{PyImport_ImportModule("sys")};
+        if (sysModule.get())
+        {
+            PyObjectHandle argv{PyObject_GetAttrString(sysModule.get(), "argv")};
+            if (argv && PyList_Check(argv.get()) && PyList_Size(argv.get()) > 0)
+            {
+                PyObject* programNameObj = PyList_GetItem(argv.get(), 0);
+                if (programNameObj)
+                {
+                    // Name is empty when Python is executed without a script file. For example, when using the
+                    // interactive shell or the -c option.
+                    const char* namePtr = PyUnicode_AsUTF8(programNameObj);
+                    if (namePtr)
+                    {
+                        string name = namePtr;
+                        if (!name.empty())
+                        {
+                            programName = name;
+                            size_t pos = programName.find_last_of("/\\");
+                            if (pos != string::npos)
+                            {
+                                programName = programName.substr(pos + 1);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        initData.properties->setProperty("Ice.ProgramName", programName);
+    }
+
     // Always accept class cycles during the unmarshaling of Python objects by the C++ code.
     initData.properties->setProperty("Ice.AcceptClassCycles", "1");
 

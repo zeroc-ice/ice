@@ -127,8 +127,14 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         // Insert the program name (stored in the Ruby global variable $0) unless already set.
         if (initData.properties->getProperty("Ice.ProgramName").empty())
         {
-            volatile VALUE progName = callRuby(rb_gv_get, "$0");
-            initData.properties->setProperty("Ice.ProgramName", getString(progName));
+            volatile VALUE programNameValue = callRuby(rb_gv_get, "$0");
+            string programName = getString(programNameValue);
+            size_t pos = programName.find_last_of("/\\");
+            if (pos != string::npos)
+            {
+                programName = programName.substr(pos + 1);
+            }
+            initData.properties->setProperty("Ice.ProgramName", programName);
         }
 
         // Always accept class cycles during the unmarshaling of Ruby objects by the C++ code.

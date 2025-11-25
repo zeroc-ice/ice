@@ -46,13 +46,6 @@ IceRuby_createProperties(int argc, VALUE* argv, VALUE /*self*/)
             defaults = getProperties(argv[1]);
         }
 
-        //
-        // Insert the program name (stored in the Ruby global variable $0) as the first
-        // element of the sequence.
-        //
-        volatile VALUE progName = callRuby(rb_gv_get, "$0");
-        seq.insert(seq.begin(), getString(progName));
-
         Ice::PropertiesPtr obj;
         if (argc >= 1)
         {
@@ -68,14 +61,13 @@ IceRuby_createProperties(int argc, VALUE* argv, VALUE /*self*/)
         //
         if (argc > 0 && !NIL_P(argv[0]))
         {
+            // Clear the argv array.
             callRuby(rb_ary_clear, argv[0]);
 
-            //
-            // We start at index 1 in order to skip the element that we inserted earlier.
-            //
-            for (Ice::StringSeq::size_type i = 1; i < seq.size(); ++i)
+            // Populate argv with the remaining arguments.
+            for (const auto& arg : seq)
             {
-                volatile VALUE str = createString(seq[i]);
+                volatile VALUE str = createString(arg);
                 callRuby(rb_ary_push, argv[0], str);
             }
         }

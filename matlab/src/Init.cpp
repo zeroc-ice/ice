@@ -22,7 +22,7 @@ extern "C"
             {
                 // Set a default program name if Ice.ProgramName is not set. This is used by Ice to identify the
                 // application in log messages.
-                initData.properties->setProperty("Ice.ProgramName", "matlab-client");
+                initData.properties->setProperty("Ice.ProgramName", "IceMATLAB");
             }
 
             // We don't implement Ice.AcceptClassCycles in InputStream, and ignore the value of this property.

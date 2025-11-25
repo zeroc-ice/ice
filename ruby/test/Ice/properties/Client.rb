@@ -117,5 +117,11 @@ class Client < ::TestHelper
         end
 
         puts "ok"
+
+        print "testing Ice.ProgramName default... "
+        Ice.initialize() do |communicator|
+            test(communicator.getProperties().getIceProperty("Ice.ProgramName") == "TestHelper.rb")
+        end
+        puts "ok"
     end
 end

@@ -121,3 +121,12 @@ class Client(TestHelper):
         except Ice.PropertyException:
             pass
         print("ok")
+
+        sys.stdout.write("testing Ice.ProgramName default... ")
+        sys.stdout.flush()
+
+        with Ice.initialize() as communicator:
+            properties = communicator.getProperties()
+            test(properties.getIceProperty("Ice.ProgramName") == "TestHelper.py")
+
+        print("ok")

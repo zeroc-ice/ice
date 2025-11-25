@@ -72,4 +72,10 @@ function client(args)
         assert(isa(ex, 'Ice.PropertyException'));
     end
     fprintf('ok\n');
+
+    fprintf('testing Ice.ProgramName default... ');
+    communicator = Ice.initialize();
+    assert(strcmp(communicator.getProperties().getIceProperty('Ice.ProgramName'), 'IceMATLAB'));
+    communicator.destroy();
+    fprintf('ok\n');
 end
