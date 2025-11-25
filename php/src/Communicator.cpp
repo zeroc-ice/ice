@@ -922,7 +922,7 @@ ZEND_FUNCTION(Ice_initialize)
                 zend_hash_str_find(Z_ARRVAL_P(scriptName), "SCRIPT_FILENAME", sizeof("SCRIPT_FILENAME") - 1);
             if (phpSelf && Z_TYPE_P(phpSelf) == IS_STRING)
             {
-                string name = string{Z_STRVAL_P(phpSelf), Z_STRLEN_P(phpSelf)};
+                string name{Z_STRVAL_P(phpSelf), Z_STRLEN_P(phpSelf)};
                 if (!name.empty())
                 {
                     programName = name;
