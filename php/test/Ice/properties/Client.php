@@ -86,9 +86,9 @@ class Client extends TestHelper
         test(count($args) == 2);
         echo "ok\n";
 
-        echo "testing Ice.ProgramName fallback...";
+        echo "testing Ice.ProgramName default...";
         $communicator = Ice\initialize();
-        test(str_ends_with($communicator->getProperties()->getIceProperty("Ice.ProgramName"), "TestHelper.php"));
+        test($communicator->getProperties()->getIceProperty("Ice.ProgramName") == "TestHelper.php");
         echo "ok\n";
     }
 }

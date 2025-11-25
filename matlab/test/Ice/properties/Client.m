@@ -73,7 +73,7 @@ function client(args)
     end
     fprintf('ok\n');
 
-    fprintf('testing Ice.ProgramName fallback... ');
+    fprintf('testing Ice.ProgramName default... ');
     communicator = Ice.initialize();
     assert(strcmp(communicator.getProperties().getIceProperty('Ice.ProgramName'), 'IceMATLAB'));
     communicator.destroy();

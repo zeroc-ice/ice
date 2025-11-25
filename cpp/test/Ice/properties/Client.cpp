@@ -241,22 +241,19 @@ Client::run(int, char**)
     }
 
     {
-        cout << "testing Ice.ProgramName fallback... " << flush;
+        cout << "testing Ice.ProgramName default... " << flush;
         Ice::InitializationData initData;
         Ice::CommunicatorPtr communicator = Ice::initialize(std::move(initData));
         Ice::PropertiesPtr properties = communicator->getProperties();
         string programName = properties->getIceProperty("Ice.ProgramName");
 #ifdef _WIN32
-        string expectedSuffix = "client.exe";
+        string expectedName = "client.exe";
 #elif defined(__APPLE__) && TARGET_OS_IPHONE != 0
-        string expectedSuffix = "IceC++";
+        string expectedName = "IceC++";
 #else
-        string expectedSuffix = "client";
+        string expectedName = "client";
 #endif
-        test(
-            programName.size() >= expectedSuffix.size() &&
-            programName.compare(programName.size() - expectedSuffix.size(), expectedSuffix.size(), expectedSuffix) ==
-                0);
+        test(programName == expectedName);
         communicator->destroy();
         cout << " ok" << endl;
     }

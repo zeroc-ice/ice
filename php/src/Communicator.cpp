@@ -926,6 +926,11 @@ ZEND_FUNCTION(Ice_initialize)
                 if (!name.empty())
                 {
                     programName = name;
+                    size_t pos = programName.find_last_of("/\\");
+                    if (pos != string::npos)
+                    {
+                        programName = programName.substr(pos + 1);
+                    }
                 }
             }
         }

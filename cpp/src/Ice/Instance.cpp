@@ -115,10 +115,8 @@ namespace
             programName = string{buffer.data(), static_cast<size_t>(len)};
         }
 #elif defined(__linux__)
-        // Read the command line from proc
-        string procExePath{"/proc/self/exe"};
         vector<char> buffer(PATH_MAX);
-        ssize_t len = readlink(procExePath.c_str(), buffer.data(), buffer.size());
+        ssize_t len = readlink("/proc/self/exe", buffer.data(), buffer.size());
         if (len > 0)
         {
             programName = string{buffer.data(), static_cast<size_t>(len)};
@@ -128,9 +126,14 @@ namespace
         DWORD len = GetModuleFileNameA(NULL, buffer.data(), static_cast<DWORD>(buffer.size()));
         if (len > 0 && len < buffer.size())
         {
-            programName = string{buffer.data(), len};
+            programName = string{buffer.data(), static_cast<size_t>(len)};
         }
 #endif
+        size_t pos = programName.find_last_of("/\\");
+        if (pos != string::npos)
+        {
+            programName = programName.substr(pos + 1);
+        }
         return programName;
     }
 

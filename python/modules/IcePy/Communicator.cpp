@@ -194,6 +194,16 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
                         if (!name.empty())
                         {
                             programName = name;
+                            size_t pos = programName.find_last_of("/\\");
+                            if (pos != string::npos)
+                            {
+                                programName = programName.substr(pos + 1);
+                                size_t pos = programName.find_last_of("/\\");
+                                if (pos != string::npos)
+                                {
+                                    programName = programName.substr(pos + 1);
+                                }
+                            }
                         }
                     }
                 }
