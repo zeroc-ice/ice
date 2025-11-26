@@ -249,7 +249,7 @@ Client::run(int, char**)
 #ifdef _WIN32
         string expectedName = "client.exe";
 #elif defined(__APPLE__) && TARGET_OS_IPHONE != 0
-        string expectedName = "IceC++";
+        string expectedName = "";
 #else
         string expectedName = "client";
 #endif
