@@ -174,7 +174,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     // Set Ice.ProgramName if not already set.
     if (initData.properties->getIceProperty("Ice.ProgramName").empty())
     {
-        string programName{"IcePy"};
+        string programName{""};
         // Get python program name using python c api
         PyObjectHandle sysModule{PyImport_ImportModule("sys")};
         if (sysModule.get())
