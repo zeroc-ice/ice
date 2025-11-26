@@ -213,8 +213,6 @@ public class Client : Test.TestHelper
             Console.Out.Write("testing Ice.ProgramName default... ");
             Console.Out.Flush();
             using var communicator = new Ice.Communicator();
-            Console.Out.Write("Ice.ProgramName=");
-            Console.Out.WriteLine(communicator.getProperties().getIceProperty("Ice.ProgramName"));
             test(communicator.getProperties().getIceProperty("Ice.ProgramName") == "client");
             Console.Out.WriteLine("ok");
         }
