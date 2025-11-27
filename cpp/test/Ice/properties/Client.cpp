@@ -247,11 +247,11 @@ Client::run(int, char**)
         Ice::PropertiesPtr properties = communicator->getProperties();
         string programName = properties->getIceProperty("Ice.ProgramName");
 #ifdef _WIN32
-        string expectedName = "client.exe";
+        string expectedName{"client.exe"};
 #elif defined(__APPLE__) && TARGET_OS_IPHONE != 0
-        string expectedName = "IceC++";
+        string expectedName;
 #else
-        string expectedName = "client";
+        string expectedName{"client"};
 #endif
         test(programName == expectedName);
         communicator->destroy();

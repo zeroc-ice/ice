@@ -380,9 +380,9 @@ classDiagram
 - Added `getIceProperty`, `getIcePropertyAsInt`, and `getIcePropertyAsList` methods to `Properties`. These methods
   return the value of an Ice property, or the default value if the property is not set.
 
-- The `Ice.ProgramName` property is now always set during communicator initialization, either to the executable/script
-  name when available, or `Ice<LANGUAGE>` otherwise. Previously, `Ice.ProgramName` was only set when the args array
-  was passed to `createProperties`, and was set to the first element of that array.
+- The `Ice.ProgramName` property is now set to the executable/script name (when possible) during communicator
+  initialization in C++, MATLAB, PHP, Python, Ruby, and Swift. Previously, `Ice.ProgramName` was only set when the
+  args array was passed to `createProperties`, and was set to the first element of that array.
 
   In C++, the first element of the `argv` array is still used if passed to `initialize`.
 

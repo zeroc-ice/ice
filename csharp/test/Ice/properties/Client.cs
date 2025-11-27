@@ -208,6 +208,14 @@ public class Client : Test.TestHelper
             }
             Console.Out.WriteLine("ok");
         }
+
+        {
+            Console.Out.Write("testing Ice.ProgramName default... ");
+            Console.Out.Flush();
+            using var communicator = new Ice.Communicator();
+            test(communicator.getProperties().getIceProperty("Ice.ProgramName") == "client");
+            Console.Out.WriteLine("ok");
+        }
     }
 
     public static Task<int> Main(string[] args) =>

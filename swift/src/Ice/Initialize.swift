@@ -65,8 +65,6 @@ public func initialize(_ initData: InitializationData = InitializationData()) th
     if properties.getIceProperty("Ice.ProgramName").isEmpty {
         if let programName = CommandLine.arguments.first.map({ URL(fileURLWithPath: $0).lastPathComponent }) {
             properties.setProperty(key: "Ice.ProgramName", value: programName)
-        } else {
-            properties.setProperty(key: "Ice.ProgramName", value: "IceSwift")
         }
     }
 

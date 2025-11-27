@@ -915,7 +915,7 @@ ZEND_FUNCTION(Ice_initialize)
     {
         // Try to get the script filename from PHP's global variables
         zval* scriptInfo = zend_hash_str_find(&EG(symbol_table), "_SERVER", sizeof("_SERVER") - 1);
-        string programName{"IcePHP"};
+        string programName;
         if (scriptInfo && Z_TYPE_P(scriptInfo) == IS_ARRAY)
         {
             zval* phpScriptName =
