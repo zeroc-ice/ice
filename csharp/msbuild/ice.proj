@@ -3,13 +3,6 @@
     <PropertyGroup Condition="'$(Configuration)' == ''">
         <Configuration>Release</Configuration>
     </PropertyGroup>
-    <PropertyGroup>
-        <!-- The version for all NuGet packages built with this distribution. -->
-        <!-- Defaults to IcePackageVersion, which is set in ice.version.props imported above. -->
-        <PackageVersion>$(IcePackageVersion)</PackageVersion>
-        <CppPlatform Condition="'$(Platform)' == 'x64'">x64</CppPlatform>
-        <CppPlatform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Win32'">Win32</CppPlatform>
-    </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
 
@@ -56,13 +49,13 @@
 
         <!-- .NET Solution files -->
         <SolutionFile Include="ice.slnx">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
+          <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
           <Properties Condition="'$(PackageVersion)' != ''">%(Properties);PackageVersion=$(PackageVersion)</Properties>
         </SolutionFile>
 
         <!-- .NET projects to build with dist target -->
         <DistSolutionFile Include="ice.dist.slnx">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;</Properties>
           <Properties Condition="'$(PackageVersion)' != ''">%(Properties);PackageVersion=$(PackageVersion)</Properties>
         </DistSolutionFile>
     </ItemGroup>
