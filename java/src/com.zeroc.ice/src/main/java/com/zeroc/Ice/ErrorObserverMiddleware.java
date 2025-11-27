@@ -7,7 +7,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
 
 /**
- * Provides a simple middleware that allows applications to observe java.lang.Error thrown by the
+ * Provides a simple middleware that allows applications to observe any {@link java.lang.Error}s thrown by the
  * dispatch of an incoming request.
  */
 public final class ErrorObserverMiddleware implements Object {
@@ -17,9 +17,9 @@ public final class ErrorObserverMiddleware implements Object {
     /**
      * Constructs a ErrorObserverMiddleware.
      *
-     * @param next The next dispatcher in the chain.
-     * @param errorObserver The error observer. If error observer throws an exception while
-     *     observing an error, this exception replaces the error for the remainder of the dispatch.
+     * @param next the next dispatcher in the chain
+     * @param errorObserver the error observer. If the provided observer throws an exception while
+     *     observing an error, this exception replaces the observed error for the remainder of the dispatch.
      */
     public ErrorObserverMiddleware(Object next, Consumer<Error> errorObserver) {
         _next = next;

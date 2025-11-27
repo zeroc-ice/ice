@@ -25,7 +25,7 @@ public interface Object {
          *
          * @param returnValue {@code true} for a successful invocation (any results are encoded in {@code outParams});
          *     {@code false} if a user exception occurred (the exception is encoded in {@code outParams}).
-         * @param outParams The encoded results.
+         * @param outParams the encoded results of the operation
          */
         public Ice_invokeResult(boolean returnValue, byte[] outParams) {
             this.returnValue = returnValue;
@@ -33,16 +33,14 @@ public interface Object {
         }
 
         /**
-         * If the operation completed successfully, the return value is {@code true}. If the
-         * operation raises a user exception, the return value is {@code false}; in this case,
-         * {@code outParams} contains the encoded user exception. If the operation raises a
-         * run-time exception, it throws it directly.
+         * {@code true} if the operation completed successfully, {@code false} if the operation threw a user exception.
+         * If {@code false}, {@code outParams} contains the encoded user exception.
+         * If the operation raises a run-time exception, it throws it directly.
          */
         public boolean returnValue;
 
         /**
-         * The encoded out-parameters and return value for the operation.
-         * The return value follows any out-parameters.
+         * The encoded out-parameters and return value for the operation (in that order).
          */
         public byte[] outParams;
     }
@@ -50,14 +48,14 @@ public interface Object {
     /**
      * Tests whether this object supports a specific Slice interface.
      *
-     * @param s the type ID of the Slice interface to test against
+     * @param typeId the type ID of the Slice interface to test against
      * @param current the {@link Current} object of the incoming request
-     * @return {@code true} if this object implements the Slice interface specified by {@code s} or
+     * @return {@code true} if this object implements the Slice interface specified by {@code typeId} or
      *     implements a derived interface, {@code false} otherwise
      */
-    default boolean ice_isA(String s, Current current) {
+    default boolean ice_isA(String typeId, Current current) {
 
-        return isA(this.getClass(), s);
+        return isA(this.getClass(), typeId);
     }
 
     /**
@@ -70,7 +68,7 @@ public interface Object {
     }
 
     /**
-     * Returns the Slice interfaces supported by this object as a list of type IDs.
+     * Returns the Slice interfaces supported by this object as a list of Slice type IDs.
      *
      * @param current the {@link Current} object of the incoming request
      * @return the Slice type IDs of the interfaces supported by this object, in alphabetical order
@@ -101,7 +99,7 @@ public interface Object {
     /**
      * Returns the type ID of the associated Slice interface.
      *
-     * @return The return value is always ::Ice::Object.
+     * @return The return value is always {@code "::Ice::Object"}.
      */
     public static String ice_staticId() {
         return "::Ice::Object";
@@ -125,8 +123,7 @@ public interface Object {
     }
 
     /**
-     * Dispatches an incoming request and returns the corresponding outgoing response
-     * for the {@link ice_isA} operation.
+     * Dispatches an incoming request and returns a corresponding outgoing response for the {@link ice_isA} operation.
      *
      * @param obj the object to dispatch the request to
      * @param request the incoming request
@@ -145,8 +142,7 @@ public interface Object {
     }
 
     /**
-     * Dispatches an incoming request and returns the corresponding outgoing response
-     * for the {@link ice_ping} operation.
+     * Dispatches an incoming request and returns a corresponding outgoing response for the {@link ice_ping} operation.
      *
      * @param obj the object to dispatch the request to
      * @param request the incoming request
@@ -160,8 +156,7 @@ public interface Object {
     }
 
     /**
-     * Dispatches an incoming request and returns the corresponding outgoing response
-     * for the {@link ice_ids} operation.
+     * Dispatches an incoming request and returns a corresponding outgoing response for the {@link ice_ids} operation.
      *
      * @param obj the object to dispatch the request to
      * @param request the incoming request
@@ -179,8 +174,7 @@ public interface Object {
     }
 
     /**
-     * Dispatches an incoming request and returns the corresponding outgoing response
-     * for the {@link ice_id} operation.
+     * Dispatches an incoming request and returns a corresponding outgoing response for the {@link ice_id} operation.
      *
      * @param obj the object to dispatch the request to
      * @param request the incoming request

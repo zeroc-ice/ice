@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
+ * A sequence of metrics.
+ *
  * @hidden Public because it's used by IceMX.
  */
 public class MetricsMap<T extends Metrics> {

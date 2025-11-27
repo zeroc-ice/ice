@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-/** The base class for all ImplicitContext implementations. */
+/** The base class for all {@link ImplicitContext} implementations. */
 abstract class ImplicitContextI implements ImplicitContext {
     public static ImplicitContextI create(String kind) {
         if (kind.isEmpty() || "None".equals(kind)) {

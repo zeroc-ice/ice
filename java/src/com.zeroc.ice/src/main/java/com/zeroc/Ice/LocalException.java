@@ -3,9 +3,10 @@
 package com.zeroc.Ice;
 
 /**
- * Base class for Ice run-time exceptions. These exceptions are not checked so we inherit from
- * java.lang.RuntimeException. User exceptions are checked exceptions and therefore inherit directly
- * from java.lang.Exception.
+ * Base class for all Ice exceptions not defined in Slice.
+ *
+ * <p>These exceptions are not checked so we inherit from {@link java.lang.RuntimeException}.
+ * User exceptions are checked and therefore inherit directly from {@link java.lang.Exception}.
  */
 public class LocalException extends RuntimeException {
     /**

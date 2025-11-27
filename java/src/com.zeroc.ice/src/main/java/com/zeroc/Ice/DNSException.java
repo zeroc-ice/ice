@@ -2,10 +2,10 @@
 
 package com.zeroc.Ice;
 
-/** This exception indicates a DNS problem. */
+/** The exception that is thrown to report a DNS resolution failure. */
 public final class DNSException extends SyscallException {
     /**
-     * Constructs a DNSException with a message.
+     * Constructs a DNSException.
      *
      * @param host the host that could not be resolved
      */
@@ -14,10 +14,10 @@ public final class DNSException extends SyscallException {
     }
 
     /**
-     * Constructs a DNSException with a message and a cause.
+     * Constructs a DNSException with a cause.
      *
      * @param host the host that could not be resolved
-     * @param cause the cause of this exception
+     * @param cause the cause
      */
     public DNSException(String host, Throwable cause) {
         super("Cannot resolve host '" + host + "'", cause);

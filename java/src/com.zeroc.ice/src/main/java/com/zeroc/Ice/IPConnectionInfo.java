@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** Provides access to the connection details of an IP connection */
+/** Provides access to the connection details of an IP connection. */
 public class IPConnectionInfo extends ConnectionInfo {
     /** The local address. */
     public final String localAddress;
@@ -17,7 +17,7 @@ public class IPConnectionInfo extends ConnectionInfo {
     public final int remotePort;
 
     /**
-     * Constructs an IPConnectionInfo with the specified connection parameters.
+     * Constructs an IPConnectionInfo.
      *
      * @param incoming whether this connection is incoming
      * @param adapterName the name of the adapter associated with this connection

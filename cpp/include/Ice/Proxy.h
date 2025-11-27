@@ -319,12 +319,12 @@ namespace Ice
         /// @private
         void _iceI_ping(const std::shared_ptr<IceInternal::OutgoingAsyncT<void>>&, const Ice::Context&) const;
 
-        /// Gets the Slice interfaces supported by this object as a list of type IDs.
+        /// Gets the Slice interfaces supported by this object as a list of Slice type IDs.
         /// @param context The request context.
         /// @return The Slice type IDs of the interfaces supported by this object, in alphabetical order.
         [[nodiscard]] std::vector<std::string> ice_ids(const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// Gets the Slice interfaces supported by this object as a list of type IDs.
+        /// Gets the Slice interfaces supported by this object as a list of Slice type IDs.
         /// @param response The response callback. It accepts:
         /// - The Slice type IDs of the interfaces supported by this object, in alphabetical order.
         /// @param ex The exception callback.
@@ -338,7 +338,7 @@ namespace Ice
             std::function<void(bool)> sent = nullptr,
             const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// Gets the Slice interfaces supported by this object as a list of type IDs.
+        /// Gets the Slice interfaces supported by this object as a list of Slice type IDs.
         /// @param context The request context.
         /// @return A future that becomes available when the invocation completes. This future holds:
         /// - The Slice type IDs of the interfaces supported by this object, in alphabetical order.
@@ -515,10 +515,10 @@ namespace Ice
         /// connection.
         [[nodiscard]] Ice::ConnectionPtr ice_getCachedConnection() const noexcept;
 
-        /// Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
+        /// Flushes any pending batched requests for this proxy. The call blocks until the flush is complete.
         void ice_flushBatchRequests() const;
 
-        /// Flushes asynchronously any pending batched requests for this communicator.
+        /// Flushes any pending batched requests for this proxy asynchronously.
         /// @param ex The exception callback.
         /// @param sent The sent callback.
         /// @return A function that can be called to cancel the invocation locally.
@@ -527,7 +527,7 @@ namespace Ice
             std::function<void(std::exception_ptr)> ex,
             std::function<void(bool)> sent = nullptr) const;
 
-        /// Flushes asynchronously any pending batched requests for this communicator.
+        /// Flushes any pending batched requests for this proxy asynchronously.
         /// @return A future that becomes available when the flush completes.
         [[nodiscard]] std::future<void> ice_flushBatchRequestsAsync() const;
 

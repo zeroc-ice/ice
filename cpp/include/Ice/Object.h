@@ -63,7 +63,7 @@ namespace Ice
         /// @private
         void _iceD_ice_ping(IncomingRequest&, std::function<void(OutgoingResponse)>);
 
-        /// Gets the Slice interfaces supported by this object as a list of type IDs.
+        /// Gets the Slice interfaces supported by this object as a list of Slice type IDs.
         /// @param current The Current object of the incoming request.
         /// @return The Slice type IDs of the interfaces supported by this object, in alphabetical order.
         [[nodiscard]] virtual std::vector<std::string> ice_ids(const Current& current) const;

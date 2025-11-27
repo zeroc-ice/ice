@@ -48,8 +48,8 @@ namespace Ice
         /// @return The string representation of this endpoint.
         [[nodiscard]] virtual std::string toString() const noexcept = 0;
 
-        /// Returns the endpoint information.
-        /// @return The endpoint information class.
+        /// Returns this endpoint's information.
+        /// @return This endpoint's information class.
         [[nodiscard]] virtual EndpointInfoPtr getInfo() const noexcept = 0;
     };
 

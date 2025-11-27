@@ -528,12 +528,11 @@ namespace Ice
         /// Constructs a AlreadyRegisteredException.
         /// @param file The file where this exception is constructed. This C string is not copied.
         /// @param line The line where this exception is constructed.
-        /// @param kindOfObject The kind of object that could not be removed: "servant", "facet", "object", "default
-        /// servant", "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
+        /// @param kindOfObject The kind of object that is already registered.
         /// @param id The ID (or name) of the object that is already registered.
         AlreadyRegisteredException(const char* file, int line, std::string kindOfObject, std::string id);
 
-        /// Gets the kind of object that could not be removed: "servant", "facet", "object", "default servant",
+        /// Gets the kind of object that is already registered: "servant", "facet", "object", "default servant",
         /// "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
         [[nodiscard]] const std::string& kindOfObject() const noexcept { return *_kindOfObject; }
 
@@ -682,7 +681,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// An attempt was made to find or deregister something that is not registered with Ice.
+    /// The exception that is thrown when attempting to find or deregister something that is not registered with Ice.
     /// @headerfile Ice/Ice.h
     class ICE_API NotRegisteredException final : public LocalException
     {

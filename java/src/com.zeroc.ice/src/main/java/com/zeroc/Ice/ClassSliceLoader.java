@@ -5,7 +5,7 @@ package com.zeroc.Ice;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Implements SliceLoader using an array of annotated classes. */
+/** Implements {@link SliceLoader} using an array of classes with the {@link SliceTypeId} annotation. */
 public final class ClassSliceLoader implements SliceLoader {
     private final Map<String, Class<?>> _typeIdToClass = new HashMap<>();
 
@@ -14,7 +14,7 @@ public final class ClassSliceLoader implements SliceLoader {
      *
      * @param classes an array of classes with the {@link SliceTypeId} annotation.
      *     Each class may also have the {@link CompactSliceTypeId} annotation.
-     * @throws IllegalArgumentException if any class is not annotated with {@link SliceTypeId}
+     * @throws IllegalArgumentException if any of the provided classes are not annotated with {@link SliceTypeId}
      */
     public ClassSliceLoader(Class<?>... classes) {
         for (Class<?> c : classes) {

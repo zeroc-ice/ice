@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** This exception indicates a file error occurred. */
+/** The exception that is thrown to report a file system error. */
 public final class FileException extends SyscallException {
     /**
      * Constructs a FileException with a message.

@@ -7,21 +7,23 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Implements SliceLoader using a map Slice module to Java package.
+ * Implements SliceLoader using a map of Slice-module names to Java-package names.
  */
 public final class ModuleToPackageSliceLoader implements SliceLoader {
     private final Map<String, String> _moduleToPackageMap;
     private final ClassLoader _classLoader;
 
-    // We cache successful resolutions. The size of this cache is bounded by the number of Slice classes and exceptions
-    // in the program. We can't cache unsuccessful resolutions because it would create an unbounded cache.
+    /**
+     * We cache successful resolutions. The size of this cache is bounded by the number of Slice classes and exceptions
+     * in the program. We can't cache unsuccessful resolutions because it would create an unbounded cache.
+     */
     private final Map<String, Class<?>> _typeIdToClass = new ConcurrentHashMap<>();
 
     /**
      * Creates a ModuleToPackageSliceLoader.
      *
-     * @param moduleToPackageMap A map of Slice module names to Java package names.
-     * @param classLoader The class loader to use to load the classes. Can be null.
+     * @param moduleToPackageMap a map of Slice module names to Java package names
+     * @param classLoader the class loader to use to load the classes. Can be null.
      */
     public ModuleToPackageSliceLoader(Map<String, String> moduleToPackageMap, ClassLoader classLoader) {
         _moduleToPackageMap = new HashMap<>(moduleToPackageMap);
@@ -29,10 +31,10 @@ public final class ModuleToPackageSliceLoader implements SliceLoader {
     }
 
     /**
-     * Creates a ModuleToPackageSliceLoader using a single module to package mapping.
+     * Creates a ModuleToPackageSliceLoader using a single 'module to package' mapping.
      *
-     * @param module The type ID of the Slice module, for example "::VisitorCenter".
-     * @param packageName The Java package name, for example "com.example.visitorcenter".
+     * @param module the Slice type ID of the Slice module, for example "::VisitorCenter"
+     * @param packageName the name of the Java package, for example "com.example.visitorcenter"
      */
     public ModuleToPackageSliceLoader(String module, String packageName) {
         this(Map.of(module, packageName), null);
@@ -76,9 +78,7 @@ public final class ModuleToPackageSliceLoader implements SliceLoader {
             return mappedClass.getDeclaredConstructor().newInstance();
         } catch (Exception ex) {
             throw new MarshalException(String.format(
-                    "Failed to create an instance of class '%s' for type ID '%s'.",
-                    mappedClass.getName(),
-                    typeId),
+                    "Failed to create an instance of class '%s' for type ID '%s'.", mappedClass.getName(), typeId),
                 ex);
         }
     }

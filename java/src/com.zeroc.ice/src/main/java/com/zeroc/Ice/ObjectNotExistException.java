@@ -14,7 +14,7 @@ public final class ObjectNotExistException extends RequestFailedException {
     }
 
     /**
-     * Constructs an ObjectNotExistException with object details.
+     * Constructs an ObjectNotExistException with details about the object that couldn't be found.
      *
      * @param id the identity of the Ice Object to which the request was sent
      * @param facet the facet to which the request was sent

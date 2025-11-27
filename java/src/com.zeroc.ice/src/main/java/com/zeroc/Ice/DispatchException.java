@@ -3,16 +3,18 @@
 package com.zeroc.Ice;
 
 /**
- * The dispatch failed. This is the base class for local exceptions that can be marshaled and
- * transmitted "over the wire".
+ * The exception that is thrown when a dispatch failed. This is the base class for local exceptions that can be
+ * marshaled and transmitted "over the wire".
+ * You can throw this exception in the implementation of an operation, or in a middleware. The Ice runtime then
+ * logically rethrows this exception to the client.
  */
 public class DispatchException extends LocalException {
     /**
-     * Constructs a DispatchException with the specified reply status, message, and cause.
+     * Constructs a DispatchException with the specified reply-status, message, and cause.
      *
-     * @param replyStatus the reply status as an int
+     * @param replyStatus the reply status as an int (see {@link ReplyStatus})
      * @param message the detail message
-     * @param cause the cause of this exception
+     * @param cause the cause
      */
     public DispatchException(int replyStatus, String message, Throwable cause) {
         super(createMessage(message, replyStatus), cause);
@@ -20,9 +22,9 @@ public class DispatchException extends LocalException {
     }
 
     /**
-     * Constructs a DispatchException with the specified reply status and message.
+     * Constructs a DispatchException with the specified reply-status and message.
      *
-     * @param replyStatus the reply status as an int
+     * @param replyStatus the reply status as an int (see {@link ReplyStatus})
      * @param message the detail message
      */
     public DispatchException(int replyStatus, String message) {
@@ -30,15 +32,15 @@ public class DispatchException extends LocalException {
     }
 
     /**
-     * Constructs a DispatchException with the specified reply status.
+     * Constructs a DispatchException with the specified reply-status.
      *
-     * @param replyStatus the reply status as an int
+     * @param replyStatus the reply status as an int (see {@link ReplyStatus})
      */
     public DispatchException(int replyStatus) {
         this(replyStatus, null, null);
     }
 
-    /** The reply status, as an int. */
+    /** The reply status as an int (see {@link ReplyStatus}). */
     public final int replyStatus;
 
     @Override

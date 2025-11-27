@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.concurrent.CompletionStage;
 
+/** A middleware that logs warnings for failed dispatches. */
 final class LoggerMiddleware implements Object {
     private final Object _next;
     private final Logger _logger;

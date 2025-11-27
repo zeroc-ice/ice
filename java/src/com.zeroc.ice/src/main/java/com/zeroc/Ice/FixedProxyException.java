@@ -2,13 +2,9 @@
 
 package com.zeroc.Ice;
 
-/**
- * This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
- */
+/** The exception that is thrown when attempting to change a connection-related property on a fixed proxy. */
 public final class FixedProxyException extends LocalException {
-    /**
-     * Constructs a FixedProxyException.
-     */
+    /** Constructs a FixedProxyException. */
     public FixedProxyException() {
         super("Cannot change the connection properties of a fixed proxy.");
     }

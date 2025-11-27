@@ -8,7 +8,7 @@ package com.zeroc.Ice;
  * @see Endpoint
  */
 public final class OpaqueEndpointInfo extends EndpointInfo {
-    /** The encoding version of the opaque endpoint (to decode or encode the rawBytes). */
+    /** The encoding version of the opaque endpoint (to decode or encode the {@link #rawBytes}). */
     public final EncodingVersion rawEncoding;
 
     /** The raw encoding of the opaque endpoint. */

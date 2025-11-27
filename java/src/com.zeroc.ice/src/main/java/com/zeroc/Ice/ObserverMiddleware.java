@@ -8,6 +8,7 @@ import com.zeroc.Ice.Instrumentation.DispatchObserver;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+/** A middleware that observes dispatches. */
 final class ObserverMiddleware implements Object {
     private final Object _next;
     private final CommunicatorObserver _communicatorObserver;

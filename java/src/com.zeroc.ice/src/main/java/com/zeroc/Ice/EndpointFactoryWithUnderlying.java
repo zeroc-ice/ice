@@ -5,8 +5,8 @@ package com.zeroc.Ice;
 import java.util.ArrayList;
 
 /**
- * The endpoint factory with underlying create endpoints that delegate to an underlying endpoint
- * (e.g.: the SSL/WS endpoints are endpoints with underlying endpoints).
+ * This factory is used to create endpoints that delegate to an underlying endpoint.
+ * For example, the SSL/WS endpoints are endpoints that always delegate to underlying endpoints.
  *
  * @hidden Public because it's used by SSL.
  */

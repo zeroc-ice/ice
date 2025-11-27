@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Decorates SliceLoader to cache null results.
+ * Decorates a {@link SliceLoader} to cache null results.
  */
 final class NotFoundSliceLoaderDecorator implements SliceLoader {
     private final SliceLoader _decoratee;
@@ -18,9 +18,9 @@ final class NotFoundSliceLoaderDecorator implements SliceLoader {
     /**
      * Creates a NotFoundSliceLoaderDecorator.
      *
-     * @param decoratee The SliceLoader to decorate.
-     * @param cacheSize The maximum number of type IDs that can be cached.
-     * @param logger The logger used to warn when the cache is full. It's null when Ice.Warn.SliceLoader is set to 0.
+     * @param decoratee the SliceLoader to decorate
+     * @param cacheSize the maximum number of type IDs that can be cached
+     * @param logger the logger used to warn when the cache is full. It's null when Ice.Warn.SliceLoader is set to 0
      */
     NotFoundSliceLoaderDecorator(SliceLoader decoratee, int cacheSize, Logger logger) {
         _decoratee = decoratee;
