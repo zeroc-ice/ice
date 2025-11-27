@@ -1,0 +1,261 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+  </Configurations>
+  <Folder Name="/src/">
+    <Project Path="../src/Glacier2/Glacier2.csproj" />
+    <Project Path="../src/Ice/Ice.csproj" />
+    <Project Path="../src/IceBox/IceBox.csproj" />
+    <Project Path="../src/iceboxnet/iceboxnet.csproj" />
+    <Project Path="../src/IceDiscovery/IceDiscovery.csproj" />
+    <Project Path="../src/IceGrid/IceGrid.csproj" />
+    <Project Path="../src/IceLocatorDiscovery/IceLocatorDiscovery.csproj" />
+    <Project Path="../src/IceStorm/IceStorm.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/Glacier2/" />
+  <Folder Name="/tests/Glacier2/router/">
+    <Project Path="../test/Glacier2/router/msbuild/client/client.csproj" />
+    <Project Path="../test/Glacier2/router/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/" />
+  <Folder Name="/tests/Ice/adapterDeactivation/">
+    <Project Path="../test/Ice/adapterDeactivation/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/adapterDeactivation/msbuild/collocated/collocated.csproj" />
+    <Project Path="../test/Ice/adapterDeactivation/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/admin/">
+    <Project Path="../test/Ice/admin/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/admin/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/ami/">
+    <Project Path="../test/Ice/ami/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/ami/msbuild/collocated/collocated.csproj" />
+    <Project Path="../test/Ice/ami/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/assemblies/">
+    <Project Path="../test/Ice/assemblies/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/assemblies/msbuild/core/core.csproj" />
+    <Project Path="../test/Ice/assemblies/msbuild/user/user.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/background/">
+    <Project Path="../test/Ice/background/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/background/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/binding/">
+    <Project Path="../test/Ice/binding/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/binding/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/defaultServant/">
+    <Project Path="../test/Ice/defaultServant/msbuild/client/client.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/defaultValue/">
+    <Project Path="../test/Ice/defaultValue/msbuild/client/client.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/dictMapping/">
+    <Project Path="../test/Ice/dictMapping/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/dictMapping/msbuild/collocated/collocated.csproj" />
+    <Project Path="../test/Ice/dictMapping/msbuild/server/server.csproj" />
+    <Project Path="../test/Ice/dictMapping/msbuild/serveramd/serveramd.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/echo/">
+    <Project Path="../test/Ice/echo/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/enums/">
+    <Project Path="../test/Ice/enums/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/enums/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/exceptions/">
+    <Project Path="../test/Ice/exceptions/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/exceptions/msbuild/collocated/collocated.csproj" />
+    <Project Path="../test/Ice/exceptions/msbuild/server/server.csproj" />
+    <Project Path="../test/Ice/exceptions/msbuild/serveramd/serveramd.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/executor/">
+    <Project Path="../test/Ice/executor/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/executor/msbuild/collocated/collocated.csproj" />
+    <Project Path="../test/Ice/executor/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/facets/">
+    <Project Path="../test/Ice/facets/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/facets/msbuild/collocated/collocated.csproj" />
+    <Project Path="../test/Ice/facets/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/faultTolerance/">
+    <Project Path="../test/Ice/faultTolerance/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/faultTolerance/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/hash/">
+    <Project Path="../test/Ice/hash/msbuild/client/client.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/hold/">
+    <Project Path="../test/Ice/hold/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/hold/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/idleTimeout/">
+    <Project Path="../test/Ice/idleTimeout/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/idleTimeout/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/inactivityTimeout/">
+    <Project Path="../test/Ice/inactivityTimeout/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/inactivityTimeout/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/info/">
+    <Project Path="../test/Ice/info/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/info/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/inheritance/">
+    <Project Path="../test/Ice/inheritance/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/inheritance/msbuild/collocated/collocated.csproj" />
+    <Project Path="../test/Ice/inheritance/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/invoke/">
+    <Project Path="../test/Ice/invoke/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/invoke/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/location/">
+    <Project Path="../test/Ice/location/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/location/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/logger/">
+    <Project Path="../test/Ice/logger/msbuild/client/client.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/maxConnections/">
+    <Project Path="../test/Ice/maxConnections/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/maxConnections/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/maxDispatches/">
+    <Project Path="../test/Ice/maxDispatches/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/maxDispatches/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/metrics/">
+    <Project Path="../test/Ice/metrics/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/metrics/msbuild/collocated/collocated.csproj" />
+    <Project Path="../test/Ice/metrics/msbuild/server/server.csproj" />
+    <Project Path="../test/Ice/metrics/msbuild/serveramd/serveramd.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/middleware/">
+    <Project Path="../test/Ice/middleware/msbuild/client/client.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/namespacemd/">
+    <Project Path="../test/Ice/namespacemd/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/namespacemd/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/networkProxy/">
+    <Project Path="../test/Ice/networkProxy/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/networkProxy/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/objects/">
+    <Project Path="../test/Ice/objects/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/objects/msbuild/collocated/collocated.csproj" />
+    <Project Path="../test/Ice/objects/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/operations/">
+    <Project Path="../test/Ice/operations/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/operations/msbuild/collocated/collocated.csproj" />
+    <Project Path="../test/Ice/operations/msbuild/server/server.csproj" />
+    <Project Path="../test/Ice/operations/msbuild/serveramd/serveramd.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/optional/">
+    <Project Path="../test/Ice/optional/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/optional/msbuild/server/server.csproj" />
+    <Project Path="../test/Ice/optional/msbuild/serveramd/serveramd.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/plugin/">
+    <Project Path="../test/Ice/plugin/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/plugin/msbuild/plugin/plugin.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/properties/">
+    <Project Path="../test/Ice/properties/msbuild/client/client.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/proxy/">
+    <Project Path="../test/Ice/proxy/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/proxy/msbuild/collocated/collocated.csproj" />
+    <Project Path="../test/Ice/proxy/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/retry/">
+    <Project Path="../test/Ice/retry/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/retry/msbuild/collocated/collocated.csproj" />
+    <Project Path="../test/Ice/retry/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/scope/">
+    <Project Path="../test/Ice/scope/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/scope/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/seqMapping/">
+    <Project Path="../test/Ice/seqMapping/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/seqMapping/msbuild/collocated/collocated.csproj" />
+    <Project Path="../test/Ice/seqMapping/msbuild/server/server.csproj" />
+    <Project Path="../test/Ice/seqMapping/msbuild/serveramd/serveramd.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/servantLocator/">
+    <Project Path="../test/Ice/servantLocator/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/servantLocator/msbuild/collocated/collocated.csproj" />
+    <Project Path="../test/Ice/servantLocator/msbuild/server/server.csproj" />
+    <Project Path="../test/Ice/servantLocator/msbuild/serveramd/serveramd.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/slicing/" />
+  <Folder Name="/tests/Ice/slicing/exceptions/">
+    <Project Path="../test/Ice/slicing/exceptions/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/slicing/exceptions/msbuild/server/server.csproj" />
+    <Project Path="../test/Ice/slicing/exceptions/msbuild/serveramd/serveramd.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/slicing/objects/">
+    <Project Path="../test/Ice/slicing/objects/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/slicing/objects/msbuild/server/server.csproj" />
+    <Project Path="../test/Ice/slicing/objects/msbuild/serveramd/serveramd.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/stream/">
+    <Project Path="../test/Ice/stream/msbuild/client/client.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/threadPoolPriority/">
+    <Project Path="../test/Ice/threadPoolPriority/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/threadPoolPriority/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/timeout/">
+    <Project Path="../test/Ice/timeout/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/timeout/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ice/udp/">
+    <Project Path="../test/Ice/udp/msbuild/client/client.csproj" />
+    <Project Path="../test/Ice/udp/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/IceBox/" />
+  <Folder Name="/tests/IceBox/admin/">
+    <Project Path="../test/IceBox/admin/msbuild/client/client.csproj" />
+    <Project Path="../test/IceBox/admin/msbuild/testservice/testservice.csproj" />
+  </Folder>
+  <Folder Name="/tests/IceBox/configuration/">
+    <Project Path="../test/IceBox/configuration/msbuild/client/client.csproj" />
+    <Project Path="../test/IceBox/configuration/msbuild/testservice/testservice.csproj" />
+  </Folder>
+  <Folder Name="/tests/IceDiscovery/" />
+  <Folder Name="/tests/IceDiscovery/simple/">
+    <Project Path="../test/IceDiscovery/simple/msbuild/client/client.csproj" />
+    <Project Path="../test/IceDiscovery/simple/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/IceGrid/" />
+  <Folder Name="/tests/IceGrid/simple/">
+    <Project Path="../test/IceGrid/simple/msbuild/client/client.csproj" />
+    <Project Path="../test/IceGrid/simple/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/IceSSL/" />
+  <Folder Name="/tests/IceSSL/configuration/">
+    <Project Path="../test/IceSSL/configuration/msbuild/client/client.csproj" />
+    <Project Path="../test/IceSSL/configuration/msbuild/server/server.csproj" />
+  </Folder>
+  <Folder Name="/tests/IceUtil/" />
+  <Folder Name="/tests/IceUtil/inputUtil/">
+    <Project Path="../test/IceUtil/inputUtil/msbuild/client/client.csproj" />
+  </Folder>
+  <Folder Name="/tests/Slice/" />
+  <Folder Name="/tests/Slice/escape/">
+    <Project Path="../test/Slice/escape/msbuild/client/client.csproj" />
+  </Folder>
+  <Folder Name="/tests/Slice/macros/">
+    <Project Path="../test/Slice/macros/msbuild/client/client.csproj" />
+  </Folder>
+  <Folder Name="/tests/Slice/structure/">
+    <Project Path="../test/Slice/structure/msbuild/client/client.csproj" />
+  </Folder>
+</Solution>
