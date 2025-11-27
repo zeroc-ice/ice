@@ -13,7 +13,7 @@
 
 ## Prerequisites
 
-1. .NET SDK 8.0 \
+1. .NET SDK 10.0 \
    Download the .NET SDK from [dotnet.microsoft.com](https://dotnet.microsoft.com/en-us/download/dotnet).
 
 2. The Slice to C# compiler (slice2cs) from the C++ source distribution.
