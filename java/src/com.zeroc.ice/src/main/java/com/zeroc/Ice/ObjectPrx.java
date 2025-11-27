@@ -9,48 +9,50 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-/** Base interface of all object proxies. */
+/** The base interface of all Ice proxies. */
 public interface ObjectPrx {
     /**
      * Gets the communicator that created this proxy.
      *
-     * @return The communicator that created this proxy.
+     * @return the communicator that created this proxy
      */
     Communicator ice_getCommunicator();
 
     /**
      * Tests whether this object supports a specific Slice interface.
      *
-     * @param id The type ID of the Slice interface to test against.
-     * @return {@code true} if the target object has the interface specified by {@code id}
-     *     or derives from the interface specified by {@code id}.
+     * @param id the type ID of the Slice interface to test against
+     * @return {@code true} if the target object implements the Slice interface specified by {@code id}
+     *     or implements a derived interface, and {@code false} otherwise.
      */
     boolean ice_isA(String id);
 
     /**
      * Tests whether this object supports a specific Slice interface.
      *
-     * @param id The type ID of the Slice interface to test against.
-     * @param context The context map for the invocation.
-     * @return {@code true} if the target object has the interface specified by {@code id}
-     *     or derives from the interface specified by {@code id}.
+     * @param id the type ID of the Slice interface to test against
+     * @param context the request context
+     * @return {@code true} if the target object implements the Slice interface specified by {@code id}
+     *     or implements a derived interface, and {@code false} otherwise.
      */
     boolean ice_isA(String id, Map<String, String> context);
 
     /**
      * Tests whether this object supports a specific Slice interface.
      *
-     * @param id The type ID of the Slice interface to test against.
-     * @return A future for the completion of the request.
+     * @param id the type ID of the Slice interface to test against
+     * @return a future that completes with {@code true} if the target object implements the Slice interface specified
+     *     by {@code id} or implements a derived interface, and {@code false} otherwise.
      */
     CompletableFuture<Boolean> ice_isAAsync(String id);
 
     /**
      * Tests whether this object supports a specific Slice interface.
      *
-     * @param id The type ID of the Slice interface to test against.
-     * @param context The context map for the invocation.
-     * @return A future for the completion of the request.
+     * @param id the type ID of the Slice interface to test against
+     * @param context the request context
+     * @return a future that completes with {@code true} if the target object implements the Slice interface specified
+     *     by {@code id} or implements a derived interface, and {@code false} otherwise.
      */
     CompletableFuture<Boolean> ice_isAAsync(String id, Map<String, String> context);
 
@@ -60,113 +62,107 @@ public interface ObjectPrx {
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param context The context map for the invocation.
+     * @param context the request context
      */
     void ice_ping(Map<String, String> context);
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @return A future for the completion of the request.
+     * @return a future that completes when the ping is successfully dispatched
      */
     CompletableFuture<Void> ice_pingAsync();
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param context The context map for the invocation.
-     * @return A future for the completion of the request.
+     * @param context the request context
+     * @return a future that completes when the ping is successfully dispatched
      */
     CompletableFuture<Void> ice_pingAsync(Map<String, String> context);
 
     /**
-     * Gets the Slice type IDs of the interfaces supported by the target object of this proxy.
+     * Returns the Slice interfaces supported by this object as a list of Slice type IDs.
      *
-     * @return The Slice type IDs of the interfaces supported by the target object, in alphabetical
-     *     order.
+     * @return the Slice type IDs of the interfaces supported by this object, in alphabetical order
      */
     String[] ice_ids();
 
     /**
-     * Gets the Slice type IDs of the interfaces supported by the target object of this proxy.
+     * Returns the Slice interfaces supported by this object as a list of Slice type IDs.
      *
-     * @param context The context map for the invocation.
-     * @return The Slice type IDs of the interfaces supported by the target object, in alphabetical
-     *     order.
+     * @param context the request context
+     * @return the Slice type IDs of the interfaces supported by this object, in alphabetical order
      */
     String[] ice_ids(Map<String, String> context);
 
     /**
-     * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+     * Returns the Slice interfaces supported by this object as a list of Slice type IDs.
      *
-     * @return A future for the completion of the request.
+     * @return a future that completes with the Slice type IDs of the interfaces supported by this object,
+     *     in alphabetical order
      */
     CompletableFuture<String[]> ice_idsAsync();
 
     /**
-     * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+     * Returns the Slice interfaces supported by this object as a list of Slice type IDs.
      *
-     * @param context The context map for the invocation.
-     * @return A future for the completion of the request.
+     * @param context the request context
+     * @return a future that completes with the Slice type IDs of the interfaces supported by this object,
+     *     in alphabetical order
      */
     CompletableFuture<String[]> ice_idsAsync(Map<String, String> context);
 
     /**
-     * Gets the Slice type ID of the most-derived interface supported by the target object of
-     * this proxy.
+     * Returns the type ID of the most-derived Slice interface supported by this object.
      *
-     * @return The Slice type ID of the most-derived interface.
+     * @return the Slice type ID of the most-derived interface
      */
     String ice_id();
 
     /**
-     * Gets the Slice type ID of the most-derived interface supported by the target object of
-     * this proxy.
+     * Returns the type ID of the most-derived Slice interface supported by this object.
      *
-     * @param context The context map for the invocation.
-     * @return The Slice type ID of the most-derived interface.
+     * @param context the request context
+     * @return the Slice type ID of the most-derived interface
      */
     String ice_id(Map<String, String> context);
 
     /**
-     * Returns the Slice type ID of the most-derived interface supported by the target object of
-     * this proxy.
+     * Returns the type ID of the most-derived Slice interface supported by this object.
      *
-     * @return A future for the completion of the request.
+     * @return a future that completes with the type ID of the most-derived Slice interface supported by this object
      */
     CompletableFuture<String> ice_idAsync();
 
     /**
-     * Returns the Slice type ID of the most-derived interface supported by the target object of
-     * this proxy.
+     * Returns the type ID of the most-derived Slice interface supported by this object.
      *
-     * @param context The context map for the invocation.
-     * @return A future for the completion of the request.
+     * @param context the request context
+     * @return a future that completes with the type ID of the most-derived Slice interface supported by this object
      */
     CompletableFuture<String> ice_idAsync(Map<String, String> context);
 
     /**
-     * Invokes an operation dynamically.
+     * Invokes an operation.
      *
-     * @param operation The name of the operation to invoke.
-     * @param mode The operation mode (normal or idempotent).
-     * @param inParams The encoded in-parameters for the operation.
-     * @return The results of the invocation.
+     * @param operation the name of the operation to invoke
+     * @param mode the operation mode (normal or idempotent)
+     * @param inParams an encapsulation containing the encoded in-parameters for the operation
+     * @return the result of the invocation
      * @see Blobject
-     * @see OperationMode
      */
     Object.Ice_invokeResult ice_invoke(String operation, OperationMode mode, byte[] inParams);
 
     /**
-     * Invokes an operation dynamically.
+     * Invokes an operation.
      *
-     * @param operation The name of the operation to invoke.
-     * @param mode The operation mode (normal or idempotent).
-     * @param inParams The encoded in-parameters for the operation.
-     * @param context The context map for the invocation.
-     * @return The results of the invocation.
+     * @param operation the name of the operation to invoke
+     * @param mode the operation mode (normal or idempotent)
+     * @param inParams an encapsulation containing the encoded in-parameters for the operation
+     * @param context the request context
+     * @return the result of the invocation
      * @see Blobject
-     * @see OperationMode
      */
     Object.Ice_invokeResult ice_invoke(
             String operation,
@@ -177,25 +173,23 @@ public interface ObjectPrx {
     /**
      * Invokes an operation asynchronously.
      *
-     * @param operation The name of the operation to invoke.
-     * @param mode The operation mode (normal or idempotent).
-     * @param inParams The encoded in-parameters for the operation.
-     * @return A future for the completion of the request.
+     * @param operation the name of the operation to invoke
+     * @param mode the operation mode (normal or idempotent)
+     * @param inParams an encapsulation containing the encoded in-parameters for the operation
+     * @return A future that completes with the result of the invocation
      * @see Blobject
-     * @see OperationMode
      */
     CompletableFuture<Object.Ice_invokeResult> ice_invokeAsync(String operation, OperationMode mode, byte[] inParams);
 
     /**
      * Invokes an operation asynchronously.
      *
-     * @param operation The name of the operation to invoke.
-     * @param mode The operation mode (normal or idempotent).
-     * @param inParams The encoded in-parameters for the operation.
-     * @param context The context map for the invocation.
-     * @return A future for the completion of the request.
+     * @param operation the name of the operation to invoke
+     * @param mode the operation mode (normal or idempotent)
+     * @param inParams an encapsulation containing the encoded in-parameters for the operation
+     * @param context the request context
+     * @return A future that completes with the result of the invocation
      * @see Blobject
-     * @see OperationMode
      */
     CompletableFuture<Object.Ice_invokeResult> ice_invokeAsync(
             String operation,
@@ -206,84 +200,82 @@ public interface ObjectPrx {
     /**
      * Gets the identity embedded in this proxy.
      *
-     * @return The identity of the target object.
+     * @return the identity of the target object
      */
     Identity ice_getIdentity();
 
     /**
-     * Creates a new proxy that is identical to this proxy, except for the identity.
+     * Creates a proxy that is identical to this proxy, except for the identity.
      *
-     * @param newIdentity The identity for the new proxy.
-     * @return A proxy with the new identity.
+     * @param newIdentity the identity for the new proxy
+     * @return a proxy with the new identity
      */
     ObjectPrx ice_identity(Identity newIdentity);
 
     /**
      * Gets the per-proxy context for this proxy.
      *
-     * @return The per-proxy context. If the proxy does not have a per-proxy (implicit) context, the
-     *     return value is {@code null}.
+     * @return the per-proxy context, or {@code null} if the proxy does not have a per-proxy context.
      */
     Map<String, String> ice_getContext();
 
     /**
-     * Creates a new proxy that is identical to this proxy, except for the per-proxy context.
+     * Creates a proxy that is identical to this proxy, except for the per-proxy context.
      *
-     * @param newContext The context for the new proxy.
-     * @return A proxy with the new per-proxy context.
+     * @param newContext the context for the new proxy
+     * @return a proxy with the new per-proxy context
      */
     ObjectPrx ice_context(Map<String, String> newContext);
 
     /**
      * Gets the facet for this proxy.
      *
-     * @return The facet for this proxy. If the proxy uses the default facet, the return value is the empty string.
+     * @return the facet for this proxy. If the proxy uses the default facet, the return value is the empty string
      */
     String ice_getFacet();
 
     /**
-     * Creates a new proxy that is identical to this proxy, except for the facet.
+     * Creates a proxy that is identical to this proxy, except for the facet.
      *
-     * @param newFacet The facet for the new proxy.
-     * @return A proxy with the new facet.
+     * @param newFacet the facet for the new proxy
+     * @return a proxy with the new facet
      */
     ObjectPrx ice_facet(String newFacet);
 
     /**
      * Gets the adapter ID for this proxy.
      *
-     * @return The adapter ID. If the proxy does not have an adapter ID, the return value is the empty string.
+     * @return the adapter ID. If the proxy does not have an adapter ID, the return value is the empty string.
      */
     String ice_getAdapterId();
 
     /**
-     * Creates a new proxy that is identical to this proxy, except for the adapter ID.
+     * Creates a proxy that is identical to this proxy, except for the adapter ID.
      *
-     * @param newAdapterId The adapter ID for the new proxy.
-     * @return A proxy with the new adapter ID.
+     * @param newAdapterId the adapter ID for the new proxy
+     * @return a proxy with the new adapter ID
      */
     ObjectPrx ice_adapterId(String newAdapterId);
 
     /**
      * Gets the endpoints used by this proxy.
      *
-     * @return The endpoints used by this proxy.
-     * @see Endpoint
+     * @return the endpoints used by this proxy
      */
     Endpoint[] ice_getEndpoints();
 
     /**
-     * Creates a new proxy that is identical to this proxy, except for the endpoints.
+     * Creates a proxy that is identical to this proxy, except for the endpoints.
      *
-     * @param newEndpoints The endpoints for the new proxy.
-     * @return A proxy with the new endpoints.
+     * @param newEndpoints the endpoints for the new proxy
+     * @return a proxy with the new endpoints
      */
     ObjectPrx ice_endpoints(Endpoint[] newEndpoints);
 
     /**
      * Gets the locator cache timeout of this proxy.
      *
-     * @return The locator cache timeout value.
+     * @return the locator cache timeout value
      * @see Locator
      */
     Duration ice_getLocatorCacheTimeout();
@@ -291,284 +283,285 @@ public interface ObjectPrx {
     /**
      * Gets the invocation timeout of this proxy.
      *
-     * @return The invocation timeout value.
+     * @return the invocation timeout value
      */
     Duration ice_getInvocationTimeout();
 
     /**
      * Gets the connection id of this proxy.
      *
-     * @return The connection id.
+     * @return the connection ID
      */
     String ice_getConnectionId();
 
     /**
-     * Creates a new proxy that is identical to this proxy, except it's a fixed proxy bound to the given connection.
+     * Creates a proxy that is identical to this proxy, except it's a fixed proxy bound to the given connection.
      *
-     * @param connection The fixed proxy connection.
-     * @return A fixed proxy bound to the given connection.
+     * @param connection the fixed proxy connection
+     * @return a fixed proxy bound to the given connection
      */
     ObjectPrx ice_fixed(Connection connection);
 
     /**
      * Determines whether this proxy is a fixed proxy.
      *
-     * @return {@code true} if this is a fixed proxy, {@code false} otherwise.
+     * @return {@code true} if this is a fixed proxy, {@code false} otherwise
      */
     boolean ice_isFixed();
 
     /**
-     * Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
+     * Creates a proxy that is identical to this proxy, except for the locator cache timeout.
      *
-     * @param newTimeout The new locator cache timeout (in seconds).
-     * @return A proxy with the new timeout.
+     * @param newTimeout the new locator cache timeout (in seconds)
+     * @return a proxy with the new timeout
      * @see Locator
      */
     ObjectPrx ice_locatorCacheTimeout(int newTimeout);
 
     /**
-     * Returns a proxy that is identical to this proxy, except for the locator cache timeout.
+     * Creates a proxy that is identical to this proxy, except for the locator cache timeout.
      *
-     * @param newTimeout The new locator cache timeout.
-     * @return The proxy with the new timeout.
+     * @param newTimeout the new locator cache timeout
+     * @return a proxy with the new timeout
      * @see Locator
      */
     ObjectPrx ice_locatorCacheTimeout(Duration newTimeout);
 
     /**
-     * Returns a proxy that is identical to this proxy, except for the invocation timeout.
+     * Creates a proxy that is identical to this proxy, except for the invocation timeout.
      *
-     * @param newTimeout The new invocation timeout (in milliseconds).
-     * @return The proxy with the new timeout.
+     * @param newTimeout the new invocation timeout (in milliseconds)
+     * @return a proxy with the new timeout
      */
     ObjectPrx ice_invocationTimeout(int newTimeout);
 
     /**
-     * Returns a proxy that is identical to this proxy, except for the invocation timeout.
+     * Creates a proxy that is identical to this proxy, except for the invocation timeout.
      *
-     * @param newTimeout The new invocation timeout.
-     * @return The proxy with the new timeout.
+     * @param newTimeout the new invocation timeout
+     * @return a proxy with the new timeout
      */
     ObjectPrx ice_invocationTimeout(Duration newTimeout);
 
     /**
      * Determines whether this proxy caches connections.
      *
-     * @return {@code true} if this proxy caches connections, {@code false} otherwise.
+     * @return {@code true} if this proxy caches connections, {@code false} otherwise
      */
     boolean ice_isConnectionCached();
 
     /**
-     * Returns a proxy that is identical to this proxy, except for connection caching.
+     * Creates a proxy that is identical to this proxy, except for connection caching.
      *
-     * @param newCache {@code true} if the new proxy should cache connections; {@code false} otherwise.
-     * @return The proxy with the specified caching policy.
+     * @param newCache {@code true} if the new proxy should cache connections, {@code false} otherwise
+     * @return a proxy with the specified caching policy
      */
     ObjectPrx ice_connectionCached(boolean newCache);
 
     /**
      * Gets the endpoint selection policy for this proxy (randomly or ordered).
      *
-     * @return The endpoint selection policy.
-     * @see EndpointSelectionType
+     * @return the endpoint selection policy
      */
     EndpointSelectionType ice_getEndpointSelection();
 
     /**
-     * Returns a proxy that is identical to this proxy, except for the endpoint selection policy.
+     * Creates a proxy that is identical to this proxy, except for the endpoint selection policy.
      *
-     * @param newType The new endpoint selection policy.
-     * @return The proxy with the specified endpoint selection policy.
-     * @see EndpointSelectionType
+     * @param newType the new endpoint selection policy
+     * @return a proxy with the specified endpoint selection policy
      */
     ObjectPrx ice_endpointSelection(EndpointSelectionType newType);
 
     /**
-     * Returns a proxy that is identical to this proxy, except for the encoding used to marshal parameters.
+     * Creates a proxy that is identical to this proxy, except for the encoding used to marshal parameters.
      *
-     * @param e The encoding version to use to marshal request parameters.
-     * @return The proxy with the specified encoding version.
+     * @param e the encoding version to use to marshal request parameters
+     * @return a proxy with the specified encoding version
      */
     ObjectPrx ice_encodingVersion(EncodingVersion e);
 
     /**
      * Gets the encoding version used to marshal request parameters.
      *
-     * @return The encoding version.
+     * @return the encoding version
      */
     EncodingVersion ice_getEncodingVersion();
 
     /**
      * Gets the router for this proxy.
      *
-     * @return The router for the proxy. If no router is configured for the proxy, the return value is {@code null}.
+     * @return the router for the proxy. If no router is configured for the proxy, the return value is {@code null}.
      */
     RouterPrx ice_getRouter();
 
     /**
-     * Returns a proxy that is identical to this proxy, except for the router.
+     * Creates a proxy that is identical to this proxy, except for the router.
      *
-     * @param router The router for the new proxy.
-     * @return The proxy with the specified router.
+     * @param router the router for the new proxy
+     * @return a proxy with the specified router
      */
     ObjectPrx ice_router(RouterPrx router);
 
     /**
      * Gets the locator for this proxy.
      *
-     * @return The locator for this proxy. If no locator is configured, the return value is {@code null}.
+     * @return the locator for this proxy. If no locator is configured, the return value is {@code null}.
      */
     LocatorPrx ice_getLocator();
 
     /**
-     * Returns a proxy that is identical to this proxy, except for the locator.
+     * Creates a proxy that is identical to this proxy, except for the locator.
      *
-     * @param locator The locator for the new proxy.
-     * @return The proxy with the specified locator.
+     * @param locator the locator for the new proxy
+     * @return a proxy with the specified locator
      */
     ObjectPrx ice_locator(LocatorPrx locator);
 
     /**
      * Determines whether this proxy uses collocation optimization.
      *
-     * @return {@code true} if the proxy uses collocation optimization, {@code false} otherwise.
+     * @return {@code true} if the proxy uses collocation optimization, {@code false} otherwise
      */
     boolean ice_isCollocationOptimized();
 
     /**
-     * Returns a proxy that is identical to this proxy, except for collocation optimization.
+     * Creates a proxy that is identical to this proxy, except for collocation optimization.
      *
-     * @param b {@code true} if the new proxy enables collocation optimization; {@code false} otherwise.
-     * @return The proxy with the specified collocation optimization.
+     * @param b {@code true} if the new proxy enables collocation optimization, {@code false} otherwise
+     * @return a proxy with the specified collocation optimization
      */
     ObjectPrx ice_collocationOptimized(boolean b);
 
     /**
-     * Creates a new proxy that is identical to this proxy, but uses twoway invocations.
+     * Creates a proxy that is identical to this proxy, but uses twoway invocations.
      *
-     * @return A proxy that uses twoway invocations.
+     * @return a proxy that uses twoway invocations
      */
     ObjectPrx ice_twoway();
 
     /**
      * Determines whether this proxy uses twoway invocations.
      *
-     * @return {@code true} if this proxy uses twoway invocations, {@code false} otherwise.
+     * @return {@code true} if this proxy uses twoway invocations, {@code false} otherwise
      */
     boolean ice_isTwoway();
 
     /**
-     * Creates a new proxy that is identical to this proxy, but uses oneway invocations.
+     * Creates a proxy that is identical to this proxy, but uses oneway invocations.
      *
-     * @return A proxy that uses oneway invocations.
+     * @return a proxy that uses oneway invocations
      */
     ObjectPrx ice_oneway();
 
     /**
      * Determines whether this proxy uses oneway invocations.
      *
-     * @return {@code true} if this proxy uses oneway invocations, {@code false} otherwise.
+     * @return {@code true} if this proxy uses oneway invocations, {@code false} otherwise
      */
     boolean ice_isOneway();
 
     /**
-     * Creates a new proxy that is identical to this proxy, but uses batch oneway invocations.
+     * Creates a proxy that is identical to this proxy, but uses batch oneway invocations.
      *
-     * @return A proxy that uses batch oneway invocations.
+     * @return a proxy that uses batch oneway invocations
      */
     ObjectPrx ice_batchOneway();
 
     /**
      * Determines whether this proxy uses batch oneway invocations.
      *
-     * @return {@code true} if this proxy uses batch oneway invocations, {@code false} otherwise.
+     * @return {@code true} if this proxy uses batch oneway invocations, {@code false} otherwise
      */
     boolean ice_isBatchOneway();
 
     /**
-     * Creates a new proxy that is identical to this proxy, but uses datagram invocations.
+     * Creates a proxy that is identical to this proxy, but uses datagram invocations.
      *
-     * @return A proxy that uses datagram invocations.
+     * @return a proxy that uses datagram invocations
      */
     ObjectPrx ice_datagram();
 
     /**
      * Determines whether this proxy uses datagram invocations.
      *
-     * @return {@code true} if this proxy uses datagram invocations, {@code false} otherwise.
+     * @return {@code true} if this proxy uses datagram invocations, {@code false} otherwise
      */
     boolean ice_isDatagram();
 
     /**
-     * Creates a new proxy that is identical to this proxy, but uses batch datagram invocations.
+     * Creates a proxy that is identical to this proxy, but uses batch datagram invocations.
      *
-     * @return A proxy that uses batch datagram invocations.
+     * @return a proxy that uses batch datagram invocations
      */
     ObjectPrx ice_batchDatagram();
 
     /**
      * Determines whether this proxy uses batch datagram invocations.
      *
-     * @return {@code true} if this proxy uses batch datagram invocations, {@code false} otherwise.
+     * @return {@code true} if this proxy uses batch datagram invocations, {@code false} otherwise
      */
     boolean ice_isBatchDatagram();
 
     /**
-     * Returns a proxy that is identical to this proxy, except for its compression setting which
+     * Creates a proxy that is identical to this proxy, except for its compression setting which
      * overrides the compression setting from the proxy endpoints.
      *
-     * @param co {@code true} enables compression for the new proxy; {@code false} disables compression.
-     * @return A proxy with the specified compression setting.
+     * @param co {@code true} enables compression for the new proxy, {@code false} disables compression.
+     * @return a proxy with the specified compression override setting
      */
     ObjectPrx ice_compress(boolean co);
 
     /**
      * Gets the compression override setting of this proxy.
      *
-     * @return The compression override setting. If no optional value is present, no override is  set.
-     *     Otherwise, true if compression is enabled, false otherwise.
+     * @return The compression override setting. If no optional value is present, no override is set.
+     *     Otherwise, {@code true} if compression is enabled, {@code false} otherwise.
      */
     Optional<Boolean> ice_getCompress();
 
     /**
-     * Returns a proxy that is identical to this proxy, except for its connection ID.
+     * Creates a proxy that is identical to this proxy, except for its connection ID.
      *
-     * @param connectionId The connection ID for the new proxy. An empty string removes the connection ID.
-     * @return A proxy with the specified connection ID.
+     * @param connectionId the connection ID for the new proxy. An empty string removes the connection ID.
+     * @return a proxy with the specified connection ID
      */
     ObjectPrx ice_connectionId(String connectionId);
 
     /**
-     * Gets the connection for this proxy. If the proxy does not yet have an established
-     * connection, it first attempts to create a connection.
+     * Gets the connection for this proxy. If the proxy does not yet have an established connection,
+     * it first attempts to create a connection.
+     *
+     * <p>You can call this method to establish a connection or associate the proxy with an existing
+     * connection and ignore the return value.
      *
      * @return The {@link Connection} for this proxy.
-     * @see Connection
      */
     Connection ice_getConnection();
 
     /**
-     * Gets an executor object that uses the Ice thread pool.
+     * Returns an executor object that uses the Ice thread pool.
      *
-     * @return The Executor object.
+     * @return the {@link Executor} object
      */
     default Executor ice_executor() {
         return _getReference().getThreadPool();
     }
 
     /**
-     * Gets the connection for this proxy asynchronously. The call does not block.
+     * Gets the connection for this proxy asynchronously. If the proxy does not yet have an established connection,
+     * it first attempts to create a connection.
      *
-     * @return A future for the completion of the request.
+     * @return a future that completes with the {@link Connection} for this proxy
      */
     CompletableFuture<Connection> ice_getConnectionAsync();
 
     /**
-     * Gets the cached {@link Connection} for this proxy. If the proxy does not yet have an
-     * established connection, it does not attempt to create a connection.
+     * Gets the cached connection for this proxy. If the proxy does not yet have an established connection,
+     * it does not attempt to create a connection.
      *
-     * @return The cached {@link Connection} for this proxy ({@code null} if the proxy does not
-     *     have an established connection).
+     * @return the cached {@link Connection} for this proxy, or {@code null} if the proxy does not
+     *     have an established connection
      * @see Connection
      */
     Connection ice_getCachedConnection();
@@ -581,7 +574,7 @@ public interface ObjectPrx {
     /**
      * Flushes any pending batched requests for this proxy asynchronously. The call does not block.
      *
-     * @return A future for the completion of the request.
+     * @return A future that completes when the flush completes.
      */
     CompletableFuture<Void> ice_flushBatchRequestsAsync();
 
@@ -601,7 +594,7 @@ public interface ObjectPrx {
     /**
      * Gets the Slice type ID associated with this type.
      *
-     * @return The Slice type ID.
+     * @return the Slice type ID
      */
     static String ice_staticId() {
         return ice_staticId;
@@ -610,10 +603,10 @@ public interface ObjectPrx {
     /**
      * Creates a new proxy that implements {@link ObjectPrx}.
      *
-     * @param communicator The communicator of the new proxy.
-     * @param proxyString The string representation of the proxy.
-     * @return The new proxy.
-     * @throws ParseException Thrown when {@code proxyString} is not a valid proxy string.
+     * @param communicator the communicator of the new proxy
+     * @param proxyString the string representation of the proxy
+     * @return the new proxy
+     * @throws ParseException if {@code proxyString} is not a valid proxy string.
      */
     public static ObjectPrx createProxy(Communicator communicator, String proxyString) {
         var ref = communicator.getInstance().referenceFactory().create(proxyString, null);
@@ -626,8 +619,8 @@ public interface ObjectPrx {
     /**
      * Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
      *
-     * @param obj The source proxy.
-     * @return A new proxy or {@code null} if the target object does not support the specified type.
+     * @param obj the source proxy
+     * @return a new proxy or {@code null} if the target object does not support the specified type
      */
     static ObjectPrx checkedCast(ObjectPrx obj) {
         return checkedCast(obj, noExplicitContext);
@@ -636,9 +629,9 @@ public interface ObjectPrx {
     /**
      * Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
      *
-     * @param obj The source proxy.
-     * @param context The {@code Context} map for the invocation.
-     * @return A new proxy or {@code null} if the target object does not support the specified type.
+     * @param obj the source proxy
+     * @param context the request context
+     * @return a new proxy or {@code null} if the target object does not support the specified type
      */
     static ObjectPrx checkedCast(ObjectPrx obj, Map<String, String> context) {
         return obj != null && obj.ice_isA(ice_staticId, context) ? obj : null;
@@ -647,10 +640,10 @@ public interface ObjectPrx {
     /**
      * Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
      *
-     * @param obj The source proxy.
-     * @param facet The facet for the new proxy.
-     * @return A new proxy with the specified facet, or {@code null} if the target facet does not support the specified
-     *     type.
+     * @param obj the source proxy
+     * @param facet a facet name
+     * @return a new proxy with the specified facet, or {@code null} if the target facet does not support the specified
+     *     type
      */
     static ObjectPrx checkedCast(ObjectPrx obj, String facet) {
         return checkedCast(obj, facet, noExplicitContext);
@@ -659,22 +652,21 @@ public interface ObjectPrx {
     /**
     * Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
      *
-     * @param obj The source proxy.
-     * @param facet The facet for the new proxy.
-     * @param context The {@code Context} map for the invocation.
-     * @return A new proxy with the specified facet, or {@code null} if the target facet does not support the specified
-     *     type.
+     * @param obj the source proxy
+     * @param facet a facet name
+     * @param context the request context
+     * @return a new proxy with the specified facet, or {@code null} if the target facet does not support the specified
+     *     type
      */
-    static ObjectPrx checkedCast(
-            ObjectPrx obj, String facet, Map<String, String> context) {
+    static ObjectPrx checkedCast(ObjectPrx obj, String facet, Map<String, String> context) {
         return obj == null ? null : checkedCast(obj.ice_facet(facet), context);
     }
 
     /**
      * Creates a new proxy from an existing proxy.
      *
-     * @param obj The source proxy.
-     * @return A new proxy with the desired type or {@code null} if {@code obj} is {@code null}.
+     * @param obj the source proxy
+     * @return a new proxy with the desired type or {@code null} if {@code obj} is {@code null}
      */
     static ObjectPrx uncheckedCast(ObjectPrx obj) {
         return obj;
@@ -683,29 +675,29 @@ public interface ObjectPrx {
     /**
     * Creates a new proxy from an existing proxy.
      *
-     * @param obj The source proxy.
-     * @param facet The facet for the new proxy.
-     * @return A new proxy with the desired type or {@code null} if {@code obj} is {@code null}.
+     * @param obj the source proxy
+     * @param facet a facet name
+     * @return a new proxy with the desired type or {@code null} if {@code obj} is {@code null}
      */
     static ObjectPrx uncheckedCast(ObjectPrx obj, String facet) {
         return obj == null ? null : obj.ice_facet(facet);
     }
 
     /**
-     * Writes a proxy to the stream.
+     * Writes a proxy to the provided stream.
      *
-     * @param ostr The destination stream.
-     * @param v The proxy to write to the stream.
+     * @param ostr the destination stream
+     * @param v the proxy to write to the stream
      */
     static void write(OutputStream ostr, ObjectPrx v) {
         ostr.writeProxy(v);
     }
 
     /**
-     * Reads a proxy from the stream.
+     * Reads a proxy from the provided stream.
      *
-     * @param istr The source stream.
-     * @return A new proxy or {@code null} for a null proxy.
+     * @param istr the source stream
+     * @return a new proxy from the stream or {@code null} for a null proxy
      */
     static ObjectPrx read(InputStream istr) {
         return istr.readProxy();

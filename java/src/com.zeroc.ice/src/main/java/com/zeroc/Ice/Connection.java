@@ -32,8 +32,7 @@ public interface Connection {
      * The default object adapter of an incoming connection is the object adapter that created this connection;
      * the default object adapter of an outgoing connection is the communicator's default object adapter.
      *
-     * @param adapter the object adapter to associate with the connection
-     * @see #createProxy
+     * @param adapter the object adapter to associate with this connection
      * @see #getAdapter
      * @see Communicator#setDefaultObjectAdapter
      */
@@ -88,14 +87,14 @@ public interface Connection {
     void disableInactivityCheck();
 
     /**
-     * Gets the connection type. This corresponds to the endpoint type, such as "tcp", "udp", etc.
+     * Returns the connection type. This corresponds to the endpoint type, such as "tcp", "udp", etc.
      *
      * @return the type of the connection
      */
     String type();
 
     /**
-     * Gets a description of the connection as human readable text, suitable for logging or error messages.
+     * Returns a description of the connection as human readable text, suitable for logging or error messages.
      * This method remains usable after the connection is closed or aborted.
      *
      * @return the description of the connection as human readable text
@@ -103,7 +102,7 @@ public interface Connection {
     String _toString();
 
     /**
-     * Gets the connection information.
+     * Returns the connection information.
      *
      * @return the connection information
      */

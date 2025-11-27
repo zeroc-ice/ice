@@ -10,17 +10,19 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
- * A class that encapsulates data to initialize a communicator.
+ * Represents a set of options that you can specify when initializing a communicator.
  *
- * @see Util#initialize
- * @see Properties
- * @see Logger
+ * @see Communicator#Communicator(InitializationData)
  */
 public final class InitializationData implements Cloneable {
-    /** Creates an instance with all members set to {@code null} or empty. */
+    /** Creates an InitializationData with all fields set to {@code null} or the empty list. */
     public InitializationData() {}
 
-    /** Creates and returns a copy of this object. */
+    /**
+     * Creates and returns a copy of this {@code InitializationData}.
+     *
+     * @return a copy of this object
+     */
     @Override
     public InitializationData clone() {
         // A member-wise copy is safe because the members are immutable.
@@ -34,28 +36,27 @@ public final class InitializationData implements Cloneable {
     }
 
     /**
-     * The properties for the communicator. When non-null, this field corresponds to the object returned by
-     * {@link Communicator#getProperties()}.
-    */
+     * The properties for the communicator.
+     * When non-null, this field corresponds to the object returned by {@link Communicator#getProperties()}.
+     */
     public Properties properties;
 
     /** The logger for the communicator. */
     public Logger logger;
 
-    /** The communicator observer used by the communicator. */
+    /** The communicator observer used by the Ice runtime. */
     public CommunicatorObserver observer;
 
-    /** threadStart is called whenever the communicator starts a new thread. */
+    /** {@code threadStart} is called whenever the communicator starts a new thread. */
     public Runnable threadStart;
 
-    /**
-     * threadStop is called whenever a thread created by the communicator is about to be destroyed.
-     */
+    /** {@code threadStop} is called whenever a thread created by the communicator is about to be destroyed. */
     public Runnable threadStop;
 
-    /** The custom class loader for the communicator.
-     * An application can supply a custom class loader that the Ice communicator will use when it unmarshals class
-     * instances and user exceptions, and when loads Ice plug-ins.
+    /**
+     * The custom class loader for the communicator.
+     * Applications can supply a custom class loader that the Ice runtime will use when unmarshaling class
+     * instances and user exceptions, and when loading plug-ins.
      *
      * <p>If an application does not supply a class loader (or if the application-supplied class loader fails to locate
      * a class), the Ice communicator attempts to load the class using class loaders in the following order:
@@ -74,7 +75,7 @@ public final class InitializationData implements Cloneable {
      * safe to invoke directly on GUI objects.
      *
      * <p>The executor is responsible for running the dispatch or async invocation callback on its
-     * favorite thread. It must execute the the provided {@code Runnable} parameter. The con
+     * favorite thread. It must execute the the provided {@code Runnable} parameter. The {@code Connection}
      * parameter represents the connection associated with this call.
      */
     public BiConsumer<Runnable, Connection> executor;
@@ -83,20 +84,18 @@ public final class InitializationData implements Cloneable {
     public BatchRequestInterceptor batchRequestInterceptor;
 
     /**
-     * The SSL engine factory used to configure the client-side ssl transport. If non-null all the
+     * The SSL engine factory used to configure the client-side ssl transport. If non-null, all the
      * IceSSL configuration properties are ignored, and any SSL configuration must be done through
      * the SSLEngineFactory.
      */
     public SSLEngineFactory clientSSLEngineFactory;
 
     /**
-     * The plug-in factories. The corresponding plug-ins are created during communicator initialization,
+     * A list of plug-in factories. The corresponding plug-ins are created during communicator initialization,
      * in order, before all other plug-ins.
      */
     public List<PluginFactory> pluginFactories = Collections.emptyList();
 
-    /**
-     * The Slice loader, used to unmarshal Slice classes and exceptions.
-     */
+    /** The Slice loader, used to unmarshal Slice classes and exceptions. */
     public SliceLoader sliceLoader;
 }

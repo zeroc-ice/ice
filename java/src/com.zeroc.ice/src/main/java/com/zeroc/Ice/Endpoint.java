@@ -2,19 +2,22 @@
 
 package com.zeroc.Ice;
 
-/** The user-level interface to an endpoint. */
+/**
+ * An endpoint specifies the address of the server-end of an Ice connection.
+ * An object adapter listens on one or more endpoints and a client establishes a connection to an endpoint.
+ */
 public interface Endpoint {
     /**
-     * Return a string representation of the endpoint.
+     * Returns a string representation of this endpoint.
      *
-     * @return The string representation of the endpoint.
+     * @return the string representation of this endpoint
      */
     String _toString();
 
     /**
-     * Returns the endpoint information.
+     * Returns this endpoint's information.
      *
-     * @return The endpoint information class.
+     * @return this endpoint's information class
      */
     EndpointInfo getInfo();
 }

@@ -33,7 +33,7 @@ namespace Ice
         /// @param message The message to log.
         virtual void print(const std::string& message) = 0;
 
-        /// Logs trace message.
+        /// Logs a trace message.
         /// @param category The trace category.
         /// @param message The trace message to log.
         virtual void trace(const std::string& category, const std::string& message) = 0;

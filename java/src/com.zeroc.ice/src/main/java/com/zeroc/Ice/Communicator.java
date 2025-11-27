@@ -12,14 +12,14 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * The central object in Ice. Its responsibilities include:
+ * Communicator is the central object in Ice. Its responsibilities include:
  * - creating and managing outgoing connections
  * - executing callbacks in its client thread pool
  * - creating and destroying object adapters
  * - loading plug-ins
  * - managing properties (configuration), retries, logging, instrumentation, and more.
- * You create a communicator with {@code Ice.initialize}, and it's usually the first object you create when programming
- * with Ice. You can create multiple communicators in a single program, but this is not common.
+ * Communicators are usually the first object you create when programming with Ice.
+ * You can create multiple communicators in a single program, but this is not common.
  *
  * @see Logger
  * @see ObjectAdapter
@@ -54,8 +54,8 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Constructs a communicator, using Ice properties parsed from command-line arguments. This constructor uses args
-     * to create the {@link Properties} of the new communicator.
+     * Constructs a communicator, using Ice properties parsed from command-line arguments.
+     *  This constructor uses {@code args} to create the {@link Properties} of the new communicator.
      *
      * @param args the command-line arguments
      * @param remainingArgs if non-null, the remaining command-line arguments after parsing Ice properties
@@ -65,8 +65,8 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Constructs a communicator, using Ice properties parsed from command-line arguments. This constructor uses args
-     * to create the {@link Properties} of the new communicator.
+     * Constructs a communicator, using Ice properties parsed from command-line arguments.
+     * This constructor uses {@code args} to create the {@link Properties} of the new communicator.
      *
      * @param args the command-line arguments
      */
@@ -85,11 +85,10 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Destroys this communicator. This method calls {@link #shutdown} implicitly. Calling {@link #destroy} destroys
+     * Destroys this communicator. This method calls {@link #shutdown} implicitly. Calling {@code destroy} destroys
      * all object adapters, and closes all outgoing connections. {@code destroy} waits for all outstanding dispatches
      * to complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
      *
-     * @see #shutdown
      * @see ObjectAdapter#destroy
      */
     public void destroy() {
@@ -100,7 +99,6 @@ public final class Communicator implements AutoCloseable {
      * Shuts down this communicator. This method calls {@link ObjectAdapter#deactivate} on all object adapters
      * created by this communicator. Shutting down a communicator has no effect on outgoing connections.
      *
-     * @see #destroy
      * @see #waitForShutdown
      * @see ObjectAdapter#deactivate
      */

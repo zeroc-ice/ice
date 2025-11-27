@@ -6,29 +6,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents a request received by a connection. It's the argument of {@link
- * Object#dispatch(IncomingRequest)}.
+ * Represents a request received by a connection.
+ *
+ * @see Object#dispatch(IncomingRequest)
  */
 public final class IncomingRequest {
-    /** Gets the current object for the request. */
+    /** The Current object of the request. */
     public final Current current;
 
-    /** Gets the incoming stream buffer of the request. */
+    /** The input stream buffer of the request. */
     public final InputStream inputStream;
 
-    /**
-     * Gets the number of bytes in the request.
-     * These are all the bytes starting with the identity of the target.
-     */
+    /** The number of bytes in the request. These are all the bytes starting with the identity of the target. */
     public final int size;
 
     /**
      * Constructs an incoming request.
      *
-     * @param requestId The request ID. It's 0 for oneway requests.
-     * @param connection The connection that received the request. It's null for collocated invocations.
-     * @param adapter The object adapter to set in current.
-     * @param inputStream The input stream buffer over the incoming Ice protocol request message.
+     * @param requestId the request ID. It's {@code 0} for one-way requests.
+     * @param connection the connection that received the request. It's {@code null} for collocated invocations.
+     * @param adapter the object adapter to set in {@link #current}.
+     * @param inputStream the input stream buffer over the incoming Ice protocol request message.
      *     The stream is positioned at the beginning of the request header - the next data to read
      *     is the identity of the target.
      */

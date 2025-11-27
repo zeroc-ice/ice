@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/** Implements SliceLoader by combining multiple SliceLoaders. */
+/** Implements {@link SliceLoader} by combining multiple SliceLoader instances. */
 public final class CompositeSliceLoader implements SliceLoader {
     private final List<SliceLoader> _loaders;
 
     /**
-     * Creates a CompositeSliceLoader that combines the given SliceLoaders.
+     * Constructs a CompositeSliceLoader that combines the given SliceLoaders.
      *
      * @param loaders the Slice loaders to use
      */

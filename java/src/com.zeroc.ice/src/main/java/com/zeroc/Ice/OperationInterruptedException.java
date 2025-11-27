@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** This exception indicates a request was interrupted. */
+/** The exception that is thrown when a request is interrupted. */
 public final class OperationInterruptedException extends LocalException {
     /**
      * Constructs an OperationInterruptedException with a cause.

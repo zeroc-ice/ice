@@ -7,7 +7,7 @@ public final class FeatureNotSupportedException extends LocalException {
     /**
      * Constructs a FeatureNotSupportedException with a message.
      *
-     * @param message the message explaining why the feature is not supported
+     * @param message the detail message
      */
     public FeatureNotSupportedException(String message) {
         super(message);

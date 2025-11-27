@@ -7,9 +7,12 @@ import java.io.InputStream;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
-// Class to provide a java.io.InputStream on top of a ByteBuffer.
-// We use this to deserialize arbitrary Java serializable classes from a Slice byte sequence.
-// This class is a wrapper around a Buffer that passes all methods through.
+/**
+ * Decorates a {@link ByteBuffer} to provide an {@link InputStream}.
+ * We use this to unmarshal serializable Java classes from a Slice byte sequence.
+ *
+ * <p>This wrapper just passes all calls through to the underlying buffer.
+ */
 class InputStreamWrapper extends InputStream {
     public InputStreamWrapper(int size, ByteBuffer buf) {
         _buf = buf;

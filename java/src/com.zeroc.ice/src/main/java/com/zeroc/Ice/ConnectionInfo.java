@@ -17,9 +17,9 @@ public class ConnectionInfo {
     public final String connectionId;
 
     /**
-     * Constructs a ConnectionInfo that wraps the specified underlying connection info.
+     * Constructs a ConnectionInfo that wraps the provided underlying ConnectionInfo.
      *
-     * @param underlying the underlying connection info to wrap
+     * @param underlying the underlying ConnectionInfo to wrap
      */
     protected ConnectionInfo(ConnectionInfo underlying) {
         assert underlying != null;
