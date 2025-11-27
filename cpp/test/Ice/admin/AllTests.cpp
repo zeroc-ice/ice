@@ -300,7 +300,7 @@ allTests(Test::TestHelper* helper)
         // Test: PropertiesAdmin::getProperties()
         //
         PropertyDict pd = pa->getPropertiesForPrefix("");
-#if defined(_APPLE_) && TARGET_OS_IPHONE != 0
+#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
         // We do not set a default for Ice.ProgramName on iOS
         test(pd.size() == 5);
 #else
