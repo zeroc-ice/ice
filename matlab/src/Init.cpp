@@ -18,13 +18,6 @@ extern "C"
             assert(propsImpl);
             Ice::InitializationData initData{.properties = deref<Ice::Properties>(propsImpl)};
 
-            if (initData.properties->getIceProperty("Ice.ProgramName").empty())
-            {
-                // Set a default program name if Ice.ProgramName is not set. This is used by Ice to identify the
-                // application in log messages.
-                initData.properties->setProperty("Ice.ProgramName", "IceMATLAB");
-            }
-
             // We don't implement Ice.AcceptClassCycles in InputStream, and ignore the value of this property.
 
             // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.

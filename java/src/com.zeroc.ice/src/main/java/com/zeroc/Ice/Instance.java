@@ -503,7 +503,6 @@ public final class Instance {
 
             Properties properties = _initData.properties;
 
-            // TODO: set a fallback value like in C#.
             String programName = properties.getIceProperty("Ice.ProgramName");
 
             synchronized (Instance.class) {
