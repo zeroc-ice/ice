@@ -1,7 +1,9 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.version.props" />
-    <PropertyGroup Condition="'$(Configuration)' == ''">
-        <Configuration>Release</Configuration>
+    <PropertyGroup>
+        <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+	<!-- Defaults to IcePackageVersion, which is set in ice.version.props imported above. -->
+        <PackageVersion>$(IcePackageVersion)</PackageVersion>
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
