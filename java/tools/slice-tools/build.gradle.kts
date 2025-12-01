@@ -107,6 +107,13 @@ checkstyle {
     }
 }
 
+tasks.withType<Checkstyle>().configureEach {
+    // Ensure that running checkstyle multiple times always yields the same output. Otherwise, after an initial run,
+    // the checkstyle task will be marked "UP TO DATE", and subsequent runs will just skip re-running it.
+    outputs.upToDateWhen { false }
+    doNotTrackState("Always run Checkstyle")
+}
+
 rewrite {
     activeRecipe("com.zeroc.IceRewriteRecipes")
     activeStyle("com.zeroc.IceRewriteStyle")
