@@ -431,7 +431,8 @@ public class AllTests {
         objPrx = communicator.stringToProxy("hello:udp -h host1 -p 10000 --sourceAddress 127.0.0.1");
         test(objPrx != null);
         try {
-            communicator.stringToProxy("hello:udp -h host1 -p 10000 --sourceAddress 127.0.0.1 --sourceAddress 10.0.0.1");
+            communicator.stringToProxy(
+                "hello:udp -h host1 -p 10000 --sourceAddress 127.0.0.1 --sourceAddress 10.0.0.1");
             test(false);
         } catch (ParseException expected) {
         }
