@@ -146,7 +146,7 @@ public final class Communicator implements AutoCloseable {
      *
      * @param str The stringified proxy to convert into a proxy.
      * @return The proxy, or null if {@code str} is an empty string.
-     * @throws ParseException Thrown when {@code str} is not a valid proxy string.
+     * @throws ParseException if {@code str} is not a valid proxy string.
      * @see #proxyToString
      */
     public ObjectPrx stringToProxy(String str) {
@@ -224,9 +224,6 @@ public final class Communicator implements AutoCloseable {
      * <p>It is legal to create an object adapter with the empty string as its name. Such an object adapter is
      * accessible via bidirectional connections or by collocated invocations.
      *
-     * <p>It is an error to pass a non-null sslEngineFactory when the name is empty, this raises
-     * IllegalArgumentException.
-     *
      * @param name The object adapter name.
      * @param sslEngineFactory The SSL engine factory used by the server-side ssl transport of the
      *     new object adapter. When set to a non-null value all Ice.SSL configuration properties are
@@ -235,6 +232,7 @@ public final class Communicator implements AutoCloseable {
      *     configured through Ice.SSL configuration properties. Passing null is equivalent to
      *     calling {@link #createObjectAdapterWithEndpoints(String, String)}.
      * @return The new object adapter.
+     * @throws IllegalArgumentException If the provided name is empty and sslEngineFactory is non-null.
      * @see #createObjectAdapterWithEndpoints
      * @see ObjectAdapter
      * @see Properties
@@ -493,7 +491,7 @@ public final class Communicator implements AutoCloseable {
      *     is set, this method uses the {@code Ice.Admin} object adapter, after creating and activating this adapter.
      * @param adminId The identity of the Admin object.
      * @return A proxy to the main ("") facet of the Admin object.
-     * @throws InitializationException Thrown when createAdmin is called more than once.
+     * @throws InitializationException if createAdmin is called more than once.
      * @see #getAdmin
      */
     public ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminId) {
@@ -519,7 +517,7 @@ public final class Communicator implements AutoCloseable {
      *
      * @param servant The servant that implements the new Admin facet.
      * @param facet The name of the new Admin facet.
-     * @throws AlreadyRegisteredException Thrown when a facet with the same name is already registered.
+     * @throws AlreadyRegisteredException if a facet with the same name is already registered.
      */
     public void addAdminFacet(Object servant, String facet) {
         _instance.addAdminFacet(servant, facet);
@@ -530,7 +528,7 @@ public final class Communicator implements AutoCloseable {
      *
      * @param facet The name of the Admin facet.
      * @return The servant associated with this Admin facet.
-     * @throws NotRegisteredException Thrown when no facet with the given name is registered.
+     * @throws NotRegisteredException if no facet with the given name is registered.
      */
     public Object removeAdminFacet(String facet) {
         return _instance.removeAdminFacet(facet);

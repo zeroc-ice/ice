@@ -12,10 +12,10 @@ public interface Service {
      *
      * <p class="Note">The {@link ServiceManager} owns this communicator, and is responsible for destroying it.
      *
-     * @param name The service's name, as determined by the configuration.
-     * @param communicator A communicator for use by the service.
-     * @param args The service arguments that were not converted into properties.
-     * @throws FailureException Raised if {@link #start} failed.
+     * @param name the service's name, as determined by the configuration
+     * @param communicator a communicator for use by the service
+     * @param args the service arguments that were not converted into properties
+     * @throws FailureException if {@link #start} failed.
      */
     void start(String name, Communicator communicator, String[] args);
 

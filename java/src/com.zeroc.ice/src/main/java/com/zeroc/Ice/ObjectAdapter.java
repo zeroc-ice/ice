@@ -28,7 +28,6 @@ import java.util.stream.Stream;
  * instead of a more common incoming connection. It can also dispatch collocated requests (with no connection at all).
  *
  * @see Communicator#createObjectAdapter
- * @see ServantLocator
  */
 public final class ObjectAdapter {
     private static final int StateUninitialized = 0; // Just constructed.
@@ -64,7 +63,7 @@ public final class ObjectAdapter {
     /**
      * Gets the name of this object adapter.
      *
-     * @return This object adapter's name.
+     * @return this object adapter's name
      */
     public String getName() {
         // No mutex lock necessary, _name is immutable.
@@ -74,8 +73,7 @@ public final class ObjectAdapter {
     /**
      * Gets the communicator that created this object adapter.
      *
-     * @return This object adapter's communicator.
-     * @see Communicator
+     * @return this object adapter's communicator
      */
     public Communicator getCommunicator() {
         return _communicator;
@@ -159,11 +157,11 @@ public final class ObjectAdapter {
     }
 
     /**
-     * Stops reading requests from incoming connections. Outstanding dispatches are not affected. The object
-     * adapter can be reactivated with {@link #activate}.
+     * Stops reading requests from incoming connections. Outstanding dispatches are not affected.
+     * The object adapter can be reactivated with {@link #activate}.
      *
-     * <p>This method is provided for backward compatibility with older versions of Ice. Don't use it in
-     * new applications.
+     * <p>This method is provided for backward compatibility with older versions of Ice.
+     * Don't use it in new applications.
      *
      * @see #activate
      * @see #deactivate
@@ -181,8 +179,8 @@ public final class ObjectAdapter {
      * Waits until the object adapter is in the holding state (see {@link #hold}) and the dispatch of requests received
      * over incoming connection has completed.
      *
-     * <p>This method is provided for backward compatibility with older versions of Ice. Don't use it in
-     * new applications.
+     * <p>This method is provided for backward compatibility with older versions of Ice.
+     * Don't use it in new applications.
      *
      * @see #hold
      * @see #waitForDeactivate
@@ -258,10 +256,9 @@ public final class ObjectAdapter {
 
     /**
      * Waits until {@link #deactivate} is called on this object adapter and all connections accepted by this
-     * object adapter
-     * are closed. A connection is closed only after all outstanding dispatches on this connection have completed.
+     * object adapter are closed. A connection is closed only after all outstanding dispatches on this connection
+     * have completed.
      *
-     * @see #deactivate
      * @see #waitForHold
      * @see Communicator#waitForShutdown
      */
@@ -293,7 +290,7 @@ public final class ObjectAdapter {
     /**
      * Checks whether or not {@link #deactivate} was called on this object adapter.
      *
-     * @return {@code true} if {@link #deactivate} was called on this object adapter, {@code false} otherwise.
+     * @return {@code true} if {@link #deactivate} was called on this object adapter, {@code false} otherwise
      * @see Communicator#shutdown
      */
     public synchronized boolean isDeactivated() {
@@ -301,11 +298,9 @@ public final class ObjectAdapter {
     }
 
     /**
-     * Destroys this object adapter and cleans up all resources associated with it. Once this method has
-     * returned, you can recreate another object adapter with the same name.
+     * Destroys this object adapter and cleans up all resources associated with it.
+     * Once this method has returned, you can recreate another object adapter with the same name.
      *
-     * @see #deactivate
-     * @see #waitForDeactivate
      * @see Communicator#destroy
      */
     public void destroy() {
@@ -385,10 +380,9 @@ public final class ObjectAdapter {
      * @param middleware The middleware factory that creates the new middleware when this object adapter
      *     creates its dispatch pipeline. A middleware factory is a function that takes an Object (the next element
      *     in the dispatch pipeline) and returns a new Object (the middleware you want to install in the pipeline).
-     * @return This object adapter.
-     * @throws IllegalStateException Thrown when the object adapter's dispatch pipeline has already
-     *     been created. This creation typically occurs the first time the object adapter dispatches
-     *     an incoming request.
+     * @return this object adapter
+     * @throws IllegalStateException if the object adapter's dispatch pipeline has already been created.
+     *     This creation typically occurs the first time the object adapter dispatches an incoming request.
      */
     public ObjectAdapter use(Function<Object, Object> middleware) {
         // This code is not thread-safe, and it's not supposed to be.
@@ -400,16 +394,15 @@ public final class ObjectAdapter {
     }
 
     /**
-     * Adds a servant to this object adapter's Active Servant Map (ASM). The ASM is a map {identity, facet} ->
-     * servant.
+     * Adds a servant to this object adapter's Active Servant Map (ASM).
+     * The ASM is a map {identity, facet} -> servant.
      *
      * <p>This method is equivalent to calling {@link #addFacet} with an empty facet.
      *
-     * @param servant The servant to add.
-     * @param identity The identity of the Ice object that is implemented by the servant.
-     * @return A proxy for the identity created by this object adapter.
-     * @throws AlreadyRegisteredException Thrown when a servant with the same identity is already registered.
-     * @see Identity
+     * @param servant the servant to add
+     * @param identity the identity of the Ice object that is implemented by the servant
+     * @return a proxy for {@code identity}, created by this object adapter
+     * @throws AlreadyRegisteredException if a servant with the same identity is already registered.
      * @see #addFacet
      * @see #addWithUUID
      * @see #remove
@@ -420,15 +413,14 @@ public final class ObjectAdapter {
     }
 
     /**
-     * Adds a servant to this object adapter's Active Servant Map (ASM), while specifying a facet. The ASM is a map
-     * {identity, facet} -> servant.
+     * Adds a servant to this object adapter's Active Servant Map (ASM), while specifying a facet.
+     * The ASM is a map {identity, facet} -> servant.
      *
-     * @param servant The servant to add.
-     * @param identity The identity of the Ice object that is implemented by the servant.
-     * @param facet The facet of the Ice object that is implemented by the servant.
-     * @return A proxy for the identity and facet created by this object adapter.
-     * @throws AlreadyRegisteredException Thrown when a servant with the same identity and facet is already registered.
-     * @see Identity
+     * @param servant the servant to add
+     * @param identity the identity of the Ice object that is implemented by the servant
+     * @param facet the facet of the Ice object that is implemented by the servant
+     * @return a proxy for {@code identity} and {@code facet}, created by this object adapter
+     * @throws AlreadyRegisteredException if a servant with the same identity and facet is already registered.
      * @see #add
      * @see #addFacetWithUUID
      * @see #removeFacet
@@ -452,9 +444,8 @@ public final class ObjectAdapter {
      * Adds a servant to this object adapter's Active Servant Map (ASM),
      * using an automatically generated UUID as its identity.
      *
-     * @param servant The servant to add.
-     * @return A proxy with the generated UUID identity created by this object adapter.
-     * @see Identity
+     * @param servant the servant to add
+     * @return a proxy with the generated UUID identity created by this object adapter
      * @see #add
      * @see #addFacetWithUUID
      * @see #remove
@@ -468,10 +459,9 @@ public final class ObjectAdapter {
      * Adds a servant to this object adapter's Active Servant Map (ASM),
      * using an automatically generated UUID as its identity. Also specifies a facet.
      *
-     * @param servant The servant to add.
-     * @param facet The facet of the Ice object that is implemented by the servant.
-     * @return A proxy with the generated UUID identity and the specified facet.
-     * @see Identity
+     * @param servant the servant to add
+     * @param facet the facet of the Ice object that is implemented by the servant
+     * @return a proxy with the generated UUID identity and the specified facet
      * @see #addFacet
      * @see #addWithUUID
      * @see #removeFacet
@@ -501,10 +491,10 @@ public final class ObjectAdapter {
      *  - If all the previous steps fail, the object adapter gives up and the caller receives an
      *    {@link ObjectNotExistException} or a {@link FacetNotExistException}.
      *
-     * @param servant The default servant to add.
-     * @param category The category for which the default servant is registered. The empty category means it
-     *     handles all categories.
-     * @throws AlreadyRegisteredException Thrown when a default servant with the same category is already registered.
+     * @param servant the default servant to add
+     * @param category the category for which the default servant is registered. The empty category means it
+     *     handles all categories
+     * @throws AlreadyRegisteredException if a default servant with the same category is already registered.
      * @see #removeDefaultServant
      * @see #findDefaultServant
      */
@@ -520,12 +510,10 @@ public final class ObjectAdapter {
     /**
      * Removes a servant from the object adapter's Active Servant Map.
      *
-     * @param identity The identity of the Ice object that is implemented by the servant.
-     * @return The removed servant.
-     * @throws NotRegisteredException Thrown when no servant with the given identity is registered.
-     * @see Identity
+     * @param identity the identity of the Ice object that is implemented by the servant
+     * @return the removed servant
+     * @throws NotRegisteredException if no servant with the given identity is registered.
      * @see #add
-     * @see #addWithUUID
      */
     public Object remove(Identity identity) {
         return removeFacet(identity, "");
@@ -534,11 +522,10 @@ public final class ObjectAdapter {
     /**
      * Removes a servant from the object adapter's Active Servant Map, while specifying a facet.
      *
-     * @param identity The identity of the Ice object that is implemented by the servant.
-     * @param facet The facet. An empty facet means the default facet.
-     * @return The removed servant.
-     * @throws NotRegisteredException Thrown when no servant with the given identity and facet is registered.
-     * @see Identity
+     * @param identity the identity of the Ice object that is implemented by the servant
+     * @param facet the facet. An empty facet means the default facet.
+     * @return the removed servant
+     * @throws NotRegisteredException if no servant with the given identity and facet is registered.
      * @see #addFacet
      * @see #addFacetWithUUID
      */
@@ -553,9 +540,9 @@ public final class ObjectAdapter {
      * Removes all facets with the given identity from the Active Servant Map. The method completely removes the
      * Ice object, including its default facet.
      *
-     * @param identity The identity of the Ice object to be removed.
-     * @return A collection containing all the facet names and servants of the removed Ice object.
-     * @throws NotRegisteredException Thrown when no servant with the given identity is registered.
+     * @param identity the identity of the Ice object to be removed
+     * @return a collection containing all the facet names and servants of the removed Ice object
+     * @throws NotRegisteredException if no servant with the given identity is registered
      * @see #remove
      * @see #removeFacet
      */
@@ -569,9 +556,9 @@ public final class ObjectAdapter {
     /**
      * Removes the default servant for a specific category.
      *
-     * @param category The category of the default servant to remove.
-     * @return The default servant.
-     * @throws NotRegisteredException Thrown when no default servant is registered for the given category.
+     * @param category the category of the default servant to remove
+     * @return the default servant
+     * @throws NotRegisteredException if no default servant is registered for the given category
      * @see #addDefaultServant
      * @see #findDefaultServant
      */
@@ -584,13 +571,12 @@ public final class ObjectAdapter {
     /**
      * Looks up a servant.
      *
-     * <p>This method only tries to find the servant in the ASM and among the default servants. It does not
-     * attempt to locate a servant using servant locators.
+     * <p>This method only tries to find the servant in the ASM and among the default servants.
+     * It does not attempt to locate a servant using servant locators.
      *
-     * @param identity The identity of an Ice object.
-     * @return The servant that implements the Ice object with the given identity, or null if no such servant
-     *     has been found.
-     * @see Identity
+     * @param identity the identity of an Ice object
+     * @return the servant that implements the Ice object with the given identity,
+     *     or {@code null} if no such servant has been found
      * @see #findFacet
      * @see #findByProxy
      */
@@ -604,11 +590,10 @@ public final class ObjectAdapter {
      * <p>This method only tries to find the servant in the ASM and among the default servants.
      * It does not attempt to locate a servant using servant locators.
      *
-     * @param identity The identity of an Ice object.
-     * @param facet The facet of an Ice object. An empty facet means the default facet.
-     * @return The servant that implements the Ice object with the given identity and facet,
-     *     or null if no such servant has been found.
-     * @see Identity
+     * @param identity the identity of an Ice object
+     * @param facet the facet of an Ice object. An empty facet means the default facet.
+     * @return the servant that implements the Ice object with the given identity and facet,
+     *     or {@code null} if no such servant has been found
      * @see #find
      * @see #findByProxy
      */
@@ -622,8 +607,8 @@ public final class ObjectAdapter {
     /**
      * Finds all facets for a given identity in the Active Servant Map.
      *
-     * @param identity The identity.
-     * @return A collection containing all the facet names and servants that have been found. Can be empty.
+     * @param identity the identity
+     * @return a collection containing all the facet names and servants that have been found. Can be empty.
      * @see #find
      * @see #findFacet
      */
@@ -637,9 +622,9 @@ public final class ObjectAdapter {
     /**
      * Looks up a servant with an identity and a facet. It's equivalent to calling {@link #findFacet}.
      *
-     * @param proxy The proxy that provides the identity and facet to search.
-     * @return The servant that matches the identity and facet carried by the proxy,
-     *     or null if no such servant has been found.
+     * @param proxy the proxy that provides the identity and facet to search
+     * @return the servant that matches the identity and facet carried by the proxy,
+     *     or null if no such servant has been found
      * @see #find
      * @see #findFacet
      */
@@ -653,14 +638,12 @@ public final class ObjectAdapter {
     /**
      * Adds a ServantLocator to this object adapter for a specific category.
      *
-     * @param locator The servant locator to add.
-     * @param category The category. The empty category means the locator handles all categories.
-     * @throws AlreadyRegisteredException Thrown when a servant locator with the same category is already registered.
+     * @param locator the servant locator to add
+     * @param category the category. The empty category means the locator handles all categories.
+     * @throws AlreadyRegisteredException if a servant locator with the same category is already registered.
      * @see #addDefaultServant
-     * @see Identity
      * @see #removeServantLocator
      * @see #findServantLocator
-     * @see ServantLocator
      */
     public synchronized void addServantLocator(ServantLocator locator, String category) {
         checkForDestruction();
@@ -671,13 +654,11 @@ public final class ObjectAdapter {
     /**
      * Removes a ServantLocator from this object adapter.
      *
-     * @param category The category.
-     * @return The servant locator.
-     * @throws NotRegisteredException Thrown when no ServantLocator with the given category is registered.
-     * @see Identity
+     * @param category the category
+     * @return the servant locator
+     * @throws NotRegisteredException if no ServantLocator with the given category is registered.
      * @see #addServantLocator
      * @see #findServantLocator
-     * @see ServantLocator
      */
     public synchronized ServantLocator removeServantLocator(String category) {
         checkForDestruction();
@@ -688,12 +669,10 @@ public final class ObjectAdapter {
     /**
      * Finds a ServantLocator registered with this object adapter.
      *
-     * @param category The category.
-     * @return The servant locator, or null if not found.
-     * @see Identity
+     * @param category the category
+     * @return the servant locator, or null if not found
      * @see #addServantLocator
      * @see #removeServantLocator
-     * @see ServantLocator
      */
     public synchronized ServantLocator findServantLocator(String category) {
         checkForDestruction();
@@ -704,8 +683,8 @@ public final class ObjectAdapter {
     /**
      * Finds the default servant for a specific category.
      *
-     * @param category The category.
-     * @return The default servant, or null if not found.
+     * @param category the category
+     * @return the default servant, or null if not found
      * @see #addDefaultServant
      * @see #removeDefaultServant
      */
@@ -718,7 +697,7 @@ public final class ObjectAdapter {
     /**
      * Gets the dispatch pipeline of this object adapter.
      *
-     * @return The dispatch pipeline. The returned value is never null.
+     * @return the dispatch pipeline. The returned value is never null.
      */
     public synchronized Object dispatchPipeline() {
         if (_dispatchPipeline == null) {
@@ -736,9 +715,8 @@ public final class ObjectAdapter {
      * indirect proxy that refers to this replica group ID. Otherwise, the proxy is a direct proxy containing this
      * object adapter's published endpoints.
      *
-     * @param identity An Ice identity.
-     * @return A proxy with the given identity.
-     * @see Identity
+     * @param identity an Ice identity
+     * @return a proxy with the given identity
      */
     public synchronized ObjectPrx createProxy(Identity identity) {
         checkForDestruction();
@@ -750,9 +728,8 @@ public final class ObjectAdapter {
     /**
      * Creates a direct proxy from an Ice identity.
      *
-     * @param identity An Ice identity.
-     * @return A proxy with the given identity and this published endpoints of this object adapter.
-     * @see Identity
+     * @param identity an Ice identity
+     * @return a proxy with the given identity and this published endpoints of this object adapter
      */
     public synchronized ObjectPrx createDirectProxy(Identity identity) {
         checkForDestruction();
@@ -764,10 +741,9 @@ public final class ObjectAdapter {
     /**
      * Creates an indirect proxy for an Ice identity.
      *
-     * @param identity An Ice identity.
-     * @return An indirect proxy with the given identity. If this object adapter is not configured with an adapter
+     * @param identity an Ice identity
+     * @return an indirect proxy with the given identity. If this object adapter is not configured with an adapter
      *     ID or a replica group ID, the new proxy is a well-known proxy (i.e., an identity-only proxy).
-     * @see Identity
      */
     public synchronized ObjectPrx createIndirectProxy(Identity identity) {
         checkForDestruction();
@@ -779,10 +755,8 @@ public final class ObjectAdapter {
     /**
      * Sets an Ice locator on this object adapter.
      *
-     * @param locator The locator used by this object adapter.
+     * @param locator the locator used by this object adapter
      * @see #createDirectProxy
-     * @see Locator
-     * @see LocatorRegistry
      */
     public synchronized void setLocator(LocatorPrx locator) {
         checkForDeactivation();
@@ -793,8 +767,7 @@ public final class ObjectAdapter {
     /**
      * Gets the Ice locator used by this object adapter.
      *
-     * @return The locator used by this object adapter, or null if no locator is used by this object adapter.
-     * @see Locator
+     * @return the locator used by this object adapter, or null if no locator is used by this object adapter
      * @see #setLocator
      */
     public synchronized LocatorPrx getLocator() {
@@ -810,8 +783,7 @@ public final class ObjectAdapter {
      *
      * <p>This method remains usable after the object adapter has been deactivated.
      *
-     * @return The set of endpoints.
-     * @see Endpoint
+     * @return the set of endpoints
      */
     public synchronized Endpoint[] getEndpoints() {
         List<Endpoint> endpoints = new ArrayList<>();
@@ -826,8 +798,7 @@ public final class ObjectAdapter {
      *
      * <p>This method remains usable after the object adapter has been deactivated.
      *
-     * @return The set of published endpoints.
-     * @see Endpoint
+     * @return the set of published endpoints
      */
     public synchronized Endpoint[] getPublishedEndpoints() {
         return Arrays.copyOf(_publishedEndpoints, _publishedEndpoints.length, Endpoint[].class);
@@ -836,8 +807,8 @@ public final class ObjectAdapter {
     /**
      * Sets the endpoints that proxies created by this object adapter will contain.
      *
-     * @param newEndpoints The new set of endpoints that the object adapter will embed in proxies. Must contain
-     *     at least one endpoint.
+     * @param newEndpoints the new set of endpoints that the object adapter will embed in proxies.
+     *     Must contain at least one endpoint.
      */
     public void setPublishedEndpoints(Endpoint[] newEndpoints) {
         LocatorInfo locatorInfo = null;
