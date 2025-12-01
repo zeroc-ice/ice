@@ -413,6 +413,46 @@ allTests(TestHelper* helper)
     id2 = Ice::stringToIdentity(idStr);
     test(id == id2);
 
+    //
+    // Test proxies with duplicated endpoint option.
+    //
+
+    std::optional<Ice::ObjectPrx> objPrx = communicator->stringToProxy("hello:tcp -h host1 -p 4061");
+    test(objPrx);
+    try
+    {
+        communicator->stringToProxy("hello:tcp -h host1 -p 4061 -h host2");
+        test(false);
+    }
+    catch (const Ice::ParseException&)
+    {
+        // expected
+    }
+
+    objPrx = communicator->stringToProxy("hello:udp -p 10000 -h host1");
+    test(objPrx);
+    try
+    {
+        communicator->stringToProxy("hello:udp -p 10000 -h host1 -p 11000");
+        test(false);
+    }
+    catch (const Ice::ParseException&)
+    {
+        // expected
+    }
+
+    objPrx = communicator->stringToProxy("hello:udp -h host1 -p 10000 --sourceAddress 127.0.0.1");
+    test(objPrx);
+    try
+    {
+        communicator->stringToProxy("hello:udp -h host1 -p 10000 --sourceAddress 127.0.0.1 --sourceAddress 10.0.0.1");
+        test(false);
+    }
+    catch (const Ice::ParseException&)
+    {
+        // expected
+    }
+
     cout << "ok" << endl;
 
     cout << "testing proxyToString... " << flush;

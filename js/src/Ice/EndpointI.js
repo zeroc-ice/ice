@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+import { ParseException } from "./LocalExceptions.js";
+
 export class EndpointI {
     toString() {
         //
@@ -15,7 +17,7 @@ export class EndpointI {
     initWithOptions(args) {
         const unknown = [];
 
-        let str = "`" + this.protocol();
+        let str = "'" + this.protocol();
         for (let i = 0; i < args.length; ++i) {
             if (args[i].search(/[ \t\n\r]+/) !== -1) {
                 str += ' "' + args[i] + '"';
@@ -24,6 +26,8 @@ export class EndpointI {
             }
         }
         str += "'";
+
+        let knownOptions = new Set();
 
         for (let i = 0; i < args.length; ) {
             const option = args[i++];
@@ -37,7 +41,12 @@ export class EndpointI {
                 argument = args[i++];
             }
 
-            if (!this.checkOption(option, argument, str)) {
+            if (this.checkOption(option, argument, str)) {
+                if (knownOptions.has(option)) {
+                    throw new ParseException(`duplicate option '${option}' in endpoint ${str}`);
+                }
+                knownOptions.add(option);
+            } else {
                 unknown.push(option);
                 if (argument !== null) {
                     unknown.push(argument);

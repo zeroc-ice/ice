@@ -416,6 +416,38 @@ export class Client extends TestHelper {
         id2 = Ice.stringToIdentity(idStr);
         test(id.equals(id2));
 
+        //
+        // Test proxies with duplicated endpoint option.
+        //
+
+        let objPrx = communicator.stringToProxy("hello:tcp -h host1 -p 4061");
+        test(objPrx !== null);
+        try {
+            communicator.stringToProxy("hello:tcp -h host1 -p 4061 -h host2");
+            test(false);
+        } catch (ex) {
+            test(ex instanceof Ice.ParseException, ex as Error);
+        }
+
+        objPrx = communicator.stringToProxy("hello:tcp -p 10000 -h host1");
+        test(objPrx !== null);
+        try {
+            communicator.stringToProxy("hello:tcp -p 10000 -h host1 -p 11000");
+            test(false);
+        } catch (ex) {
+            test(ex instanceof Ice.ParseException, ex as Error);
+        }
+
+        objPrx = communicator.stringToProxy("hello:tcp -h host1 -p 10000 --sourceAddress 127.0.0.1");
+        test(objPrx !== null);
+        try {
+            communicator.stringToProxy(
+                "hello:tcp -h host1 -p 10000 --sourceAddress 127.0.0.1 --sourceAddress 10.0.0.1");
+            test(false);
+        } catch (ex) {
+            test(ex instanceof Ice.ParseException, ex as Error);
+        }
+
         out.writeLine("ok");
 
         out.write("testing propertyToProxy... ");

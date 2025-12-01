@@ -386,6 +386,10 @@ classDiagram
 
   In C++, the first element of the `argv` array is still used if passed to `initialize`.
 
+- Duplicated options are now rejected when parsing a stringified endpoint. For example,
+  "greeter:tcp -h host1 -h host2 -p 4061" was a valid proxy string in prior Ice releases. Its parsing now fails with a
+  ParseException.
+
 ### Packaging Changes
 
 - The Windows MSI installer is now built using the WiX Toolset. The WiX project files are included in the packaging/msi

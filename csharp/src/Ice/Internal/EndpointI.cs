@@ -150,7 +150,7 @@ public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>
     {
         var unknown = new List<string>();
 
-        string str = "`" + protocol() + " ";
+        string str = "'" + protocol() + " ";
         foreach (string p in args)
         {
             if (Ice.UtilInternal.StringUtil.findFirstOf(p, " \t\n\r") != -1)
@@ -163,6 +163,8 @@ public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>
             }
         }
         str += "'";
+
+        var knownOptions = new HashSet<string>();
 
         for (int n = 0; n < args.Count; ++n)
         {
@@ -179,7 +181,14 @@ public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>
                 argument = args[++n];
             }
 
-            if (!checkOption(option, argument, str))
+            if (checkOption(option, argument, str))
+            {
+                if (!knownOptions.Add(option))
+                {
+                    throw new ParseException($"Duplicate option '{option}' in endpoint {str}.");
+                }
+            }
+            else
             {
                 unknown.Add(option);
                 if (argument != null)
