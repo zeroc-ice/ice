@@ -442,7 +442,8 @@ export class Client extends TestHelper {
         test(objPrx !== null);
         try {
             communicator.stringToProxy(
-                "hello:tcp -h host1 -p 10000 --sourceAddress 127.0.0.1 --sourceAddress 10.0.0.1");
+                "hello:tcp -h host1 -p 10000 --sourceAddress 127.0.0.1 --sourceAddress 10.0.0.1",
+            );
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.ParseException, ex as Error);

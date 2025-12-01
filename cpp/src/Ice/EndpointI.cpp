@@ -101,10 +101,7 @@ IceInternal::EndpointI::initWithOptions(vector<string>& args)
         {
             if (!knownOptions.insert(option).second)
             {
-                throw Ice::ParseException{
-                    __FILE__,
-                    __LINE__,
-                    "duplicate option '" + option + "' in endpoint " + str};
+                throw Ice::ParseException{__FILE__, __LINE__, "duplicate option '" + option + "' in endpoint " + str};
             }
         }
         else

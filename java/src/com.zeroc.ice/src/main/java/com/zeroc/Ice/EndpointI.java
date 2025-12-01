@@ -123,8 +123,7 @@ public abstract class EndpointI implements Endpoint, Comparable<EndpointI> {
                 if (!knownOptions.add(option)) {
                     throw new ParseException("Duplicate option '" + option + "' in endpoint " + str + ".");
                 }
-            }
-            else {
+            } else {
                 unknown.add(option);
                 if (argument != null) {
                     unknown.add(argument);
