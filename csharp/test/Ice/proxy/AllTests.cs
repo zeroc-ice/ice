@@ -355,14 +355,14 @@ public class AllTests : global::Test.AllTests
         string goodBase = "hello:default -h host1 -p 4061 --sourceAddress 127.0.0.1";
         test(communicator.stringToProxy(goodBase) != null);
 
-        var dupOptions = new string[]
+        string[] dupOptions = new string[]
         {
             " -h host2",
             " -p 4062",
             " --sourceAddress 10.0.0.1"
         };
 
-        foreach (var opt in dupOptions)
+        foreach (string opt in dupOptions)
         {
             try
             {
