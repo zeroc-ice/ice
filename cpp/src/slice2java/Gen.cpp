@@ -4147,7 +4147,8 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << sp;
     writeDocComment(
         out,
-        "Creates a new proxy that implements {@link " + prxName + "}.\n"
+        "Creates a new proxy that implements {@link " + prxName +
+            "}.\n"
             "@param communicator the communicator of the new proxy\n"
             "@param proxyString the string representation of the proxy\n"
             "@return the new proxy\n"
