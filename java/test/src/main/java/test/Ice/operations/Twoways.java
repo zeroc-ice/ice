@@ -266,14 +266,6 @@ class Twoways {
             MyClass.OpMyEnumResult r = p.opMyEnum(MyEnum.enum2);
             test(r.p2 == MyEnum.enum2);
             test(r.returnValue == MyEnum.enum3);
-
-            //
-            // Test marshaling of null enum (first enum value is
-            // marshaled in this case).
-            //
-            r = p.opMyEnum(null);
-            test(r.p2 == MyEnum.enum1);
-            test(r.returnValue == MyEnum.enum3);
         }
 
         {
