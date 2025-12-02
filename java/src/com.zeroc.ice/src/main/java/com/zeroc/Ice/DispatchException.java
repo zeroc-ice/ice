@@ -10,7 +10,7 @@ package com.zeroc.Ice;
  */
 public class DispatchException extends LocalException {
     /**
-     * Constructs a DispatchException with the specified reply-status, message, and cause.
+     * Constructs a DispatchException with the specified reply status, message, and cause.
      *
      * @param replyStatus the reply status as an int (see {@link ReplyStatus})
      * @param message the detail message
@@ -22,7 +22,7 @@ public class DispatchException extends LocalException {
     }
 
     /**
-     * Constructs a DispatchException with the specified reply-status and message.
+     * Constructs a DispatchException with the specified reply status and message.
      *
      * @param replyStatus the reply status as an int (see {@link ReplyStatus})
      * @param message the detail message
@@ -32,7 +32,7 @@ public class DispatchException extends LocalException {
     }
 
     /**
-     * Constructs a DispatchException with the specified reply-status.
+     * Constructs a DispatchException with the specified reply status.
      *
      * @param replyStatus the reply status as an int (see {@link ReplyStatus})
      */

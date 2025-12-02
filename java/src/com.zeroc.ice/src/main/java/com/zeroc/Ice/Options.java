@@ -36,7 +36,7 @@ public final class Options {
                             //
                             // If a backslash comes before a space, single quote, double
                             // quote, or dollar sign we drop the backslash, but still write
-                            // the the space, quote, or dollar sign. This is necessary to
+                            // the space, quote, or dollar sign. This is necessary to
                             // allow quotes to be escaped. Dropping the backslash preceding
                             // a space deviates from bash quoting rules, but is necessary so
                             // we don't drop backslashes from Windows path names.

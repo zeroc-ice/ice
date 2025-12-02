@@ -75,7 +75,7 @@ public final class InitializationData implements Cloneable {
      * safe to invoke directly on GUI objects.
      *
      * <p>The executor is responsible for running the dispatch or async invocation callback on its
-     * favorite thread. It must execute the the provided {@code Runnable} parameter. The {@code Connection}
+     * favorite thread. It must execute the provided {@code Runnable} parameter. The {@code Connection}
      * parameter represents the connection associated with this call.
      */
     public BiConsumer<Runnable, Connection> executor;
