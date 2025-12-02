@@ -419,34 +419,18 @@ export class Client extends TestHelper {
         //
         // Test proxies with duplicated endpoint option.
         //
+        const goodBase = "hello:default -h host1 -p 4061 --sourceAddress 127.0.0.1";
+        test(communicator.stringToProxy(goodBase) !== null);
 
-        let objPrx = communicator.stringToProxy("hello:tcp -h host1 -p 4061");
-        test(objPrx !== null);
-        try {
-            communicator.stringToProxy("hello:tcp -h host1 -p 4061 -h host2");
-            test(false);
-        } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex as Error);
-        }
+        const dupOptions = [" -h host2", " -p 4062", " --sourceAddress 10.0.0.1"];
 
-        objPrx = communicator.stringToProxy("hello:tcp -p 10000 -h host1");
-        test(objPrx !== null);
-        try {
-            communicator.stringToProxy("hello:tcp -p 10000 -h host1 -p 11000");
-            test(false);
-        } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex as Error);
-        }
-
-        objPrx = communicator.stringToProxy("hello:tcp -h host1 -p 10000 --sourceAddress 127.0.0.1");
-        test(objPrx !== null);
-        try {
-            communicator.stringToProxy(
-                "hello:tcp -h host1 -p 10000 --sourceAddress 127.0.0.1 --sourceAddress 10.0.0.1",
-            );
-            test(false);
-        } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex as Error);
+        for (const opt of dupOptions) {
+            try {
+                communicator.stringToProxy(goodBase + opt);
+                test(false);
+            } catch (ex) {
+                test(ex instanceof Ice.ParseException, ex as Error);
+            }
         }
 
         out.writeLine("ok");

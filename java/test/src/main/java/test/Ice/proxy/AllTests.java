@@ -411,30 +411,21 @@ public class AllTests {
         //
         // Test proxies with duplicated endpoint option.
         //
+        String goodBase = "hello:default -h host1 -p 4061 --sourceAddress 127.0.0.1";
+        test(communicator.stringToProxy(goodBase) != null);
 
-        ObjectPrx objPrx = communicator.stringToProxy("hello:tcp -h host1 -p 4061");
-        test(objPrx != null);
-        try {
-            communicator.stringToProxy("hello:tcp -h host1 -p 4061 -h host2");
-            test(false);
-        } catch (ParseException expected) {
-        }
+        var dupOptions = new String[] {
+                " -h host2",
+                " -p 4062",
+                " --sourceAddress 10.0.0.1"
+        };
 
-        objPrx = communicator.stringToProxy("hello:udp -p 10000 -h host1");
-        test(objPrx != null);
-        try {
-            communicator.stringToProxy("hello:udp -p 10000 -h host1 -p 11000");
-            test(false);
-        } catch (ParseException expected) {
-        }
-
-        objPrx = communicator.stringToProxy("hello:udp -h host1 -p 10000 --sourceAddress 127.0.0.1");
-        test(objPrx != null);
-        try {
-            communicator.stringToProxy(
-                "hello:udp -h host1 -p 10000 --sourceAddress 127.0.0.1 --sourceAddress 10.0.0.1");
-            test(false);
-        } catch (ParseException expected) {
+        for (String opt : dupOptions) {
+            try {
+                communicator.stringToProxy(goodBase + opt);
+                test(false);
+            } catch (ParseException expected) {
+            }
         }
 
         out.println("ok");
