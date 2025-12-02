@@ -5,6 +5,9 @@
         <!-- The version for all NuGet packages built with this distribution. -->
         <!-- Defaults to IcePackageVersion, which is set in ice.version.props imported above. -->
         <PackageVersion>$(IcePackageVersion)</PackageVersion>
+        <!-- Symbol Packages -->
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <!-- Include PDB in the built .nupkg -->
         <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
         <!-- TODO: move to common.props and fix analyzer warnings in tests -->
