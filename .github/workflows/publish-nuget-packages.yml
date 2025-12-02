@@ -52,8 +52,13 @@ jobs:
               ;;
           esac
 
-          # Collect all .nupkg and .snupkg files
-          mapfile -t packages < <(find staging -type f \( -name "*.nupkg" -o -name "*.snupkg" \))
+          # Collect all packages. It's important to process ".nupkg" files before ".snupkg" files
+          # because NuGet.org doesn't allow publishing symbol packages before their corresponding
+          # packages.
+          mapfile -t nupkgs < <(find staging -type f -name "*.nupkg")
+          mapfile -t snupkgs < <(find staging -type f -name "*.snupkg")
+
+          packages=( "${nupkgs[@]}" "${snupkgs[@]}" )
 
           # Push each package to the appropriate NuGet repository
           for package in "${packages[@]}"; do
