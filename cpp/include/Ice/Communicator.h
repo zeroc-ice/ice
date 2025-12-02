@@ -394,11 +394,11 @@ namespace Ice
         ~CommunicatorHolder();
 
         /// Gets the communicator.
-        /// @return The communicator held by this holder, or null if the holder is empty.
+        /// @return The communicator held by this holder, or nullptr if the holder is empty.
         [[nodiscard]] const CommunicatorPtr& communicator() const noexcept { return _communicator; }
 
         /// Gets the communicator.
-        /// @return The communicator held by this holder, or null if the holder is empty.
+        /// @return The communicator held by this holder, or nullptr if the holder is empty.
         const CommunicatorPtr& operator->() const noexcept { return _communicator; }
 
         /// Gets the communicator and clears the reference held by the holder.

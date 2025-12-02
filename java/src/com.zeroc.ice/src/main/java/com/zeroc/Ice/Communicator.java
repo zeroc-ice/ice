@@ -55,7 +55,7 @@ public final class Communicator implements AutoCloseable {
 
     /**
      * Constructs a communicator, using Ice properties parsed from command-line arguments.
-     *  This constructor uses {@code args} to create the {@link Properties} of the new communicator.
+     * This constructor uses {@code args} to create the {@link Properties} of the new communicator.
      *
      * @param args the command-line arguments
      * @param remainingArgs if non-null, the remaining command-line arguments after parsing Ice properties
@@ -130,7 +130,7 @@ public final class Communicator implements AutoCloseable {
     /**
      * Checks whether or not {@link #shutdown} was called on this communicator.
      *
-     * @return {@code true} if {@link #shutdown} was called on this communicator, {@code false} otherwise.
+     * @return {@code true} if {@link #shutdown} was called on this communicator, {@code false} otherwise
      * @see #shutdown
      */
     public boolean isShutdown() {
@@ -144,9 +144,9 @@ public final class Communicator implements AutoCloseable {
     /**
      * Converts a stringified proxy into a proxy.
      *
-     * @param str The stringified proxy to convert into a proxy.
-     * @return The proxy, or null if {@code str} is an empty string.
-     * @throws ParseException if {@code str} is not a valid proxy string.
+     * @param str the stringified proxy to convert into a proxy
+     * @return the proxy, or null if {@code str} is an empty string
+     * @throws ParseException if {@code str} is not a valid proxy string
      * @see #proxyToString
      */
     public ObjectPrx stringToProxy(String str) {
@@ -157,8 +157,8 @@ public final class Communicator implements AutoCloseable {
     /**
      * Converts a proxy into a string.
      *
-     * @param proxy The proxy to convert into a stringified proxy.
-     * @return The stringified proxy, or an empty string if {@code proxy} is null.
+     * @param proxy the proxy to convert into a stringified proxy
+     * @return the stringified proxy, or an empty string if {@code proxy} is null
      * @see #stringToProxy
      */
     public String proxyToString(ObjectPrx proxy) {
@@ -170,8 +170,8 @@ public final class Communicator implements AutoCloseable {
      * refers to a property containing a stringified proxy, such as {@code MyProxy=id:tcp -h localhost -p 10000}.
      * Additional properties configure local settings for the proxy.
      *
-     * @param property The base property name.
-     * @return The proxy, or null if the property is not set.
+     * @param property the base property name
+     * @return the proxy, or null if the property is not set
      */
     public ObjectPrx propertyToProxy(String property) {
         String proxy = _instance.initializationData().properties.getProperty(property);
@@ -182,9 +182,9 @@ public final class Communicator implements AutoCloseable {
     /**
      * Converts a proxy into a set of proxy properties.
      *
-     * @param proxy The proxy.
-     * @param prefix The base property name.
-     * @return The property set.
+     * @param proxy the proxy
+     * @param prefix the base property name
+     * @return the property set
      */
     public Map<String, String> proxyToProperty(ObjectPrx proxy, String prefix) {
         return proxy == null ? new HashMap<>() : proxy._getReference().toProperty(prefix);
@@ -193,8 +193,8 @@ public final class Communicator implements AutoCloseable {
     /**
      * Converts an identity into a string.
      *
-     * @param ident The identity to convert into a string.
-     * @return The "stringified" identity.
+     * @param ident the identity to convert into a string
+     * @return the "stringified" identity
      */
     public String identityToString(Identity ident) {
         return Util.identityToString(ident, _instance.toStringMode());
@@ -207,10 +207,9 @@ public final class Communicator implements AutoCloseable {
      * <p>It is legal to create an object adapter with the empty string as its name. Such an object adapter is
      * accessible via bidirectional connections or by collocated invocations.
      *
-     * @param name The object adapter name.
-     * @return The new object adapter.
+     * @param name the object adapter name
+     * @return the new object adapter
      * @see #createObjectAdapterWithEndpoints
-     * @see ObjectAdapter
      * @see Properties
      */
     public ObjectAdapter createObjectAdapter(String name) {
@@ -224,17 +223,16 @@ public final class Communicator implements AutoCloseable {
      * <p>It is legal to create an object adapter with the empty string as its name. Such an object adapter is
      * accessible via bidirectional connections or by collocated invocations.
      *
-     * @param name The object adapter name.
-     * @param sslEngineFactory The SSL engine factory used by the server-side ssl transport of the
+     * @param name the object adapter name
+     * @param sslEngineFactory the SSL engine factory used by the server-side ssl transport of the
      *     new object adapter. When set to a non-null value all Ice.SSL configuration properties are
      *     ignored, and any SSL configuration must be done through the SSLEngineFactory. Pass null
      *     if the object adapter does not use secure endpoints, or if the ssl transport is
      *     configured through Ice.SSL configuration properties. Passing null is equivalent to
      *     calling {@link #createObjectAdapterWithEndpoints(String, String)}.
-     * @return The new object adapter.
-     * @throws IllegalArgumentException If the provided name is empty and sslEngineFactory is non-null.
+     * @return the new object adapter
+     * @throws IllegalArgumentException if the provided name is empty and sslEngineFactory is non-null
      * @see #createObjectAdapterWithEndpoints
-     * @see ObjectAdapter
      * @see Properties
      */
     public ObjectAdapter createObjectAdapter(String name, SSLEngineFactory sslEngineFactory) {
@@ -250,11 +248,10 @@ public final class Communicator implements AutoCloseable {
      * as a convenience method. Calling this method with an empty name will result in a UUID
      * being generated for the name.
      *
-     * @param name The object adapter name.
-     * @param endpoints The endpoints of the object adapter.
-     * @return The new object adapter.
+     * @param name the object adapter name
+     * @param endpoints the endpoints of the object adapter
+     * @return the new object adapter
      * @see #createObjectAdapter
-     * @see ObjectAdapter
      * @see Properties
      */
     public ObjectAdapter createObjectAdapterWithEndpoints(String name, String endpoints) {
@@ -267,17 +264,16 @@ public final class Communicator implements AutoCloseable {
      * as a convenience method. Calling this method with an empty name will result in a UUID
      * being generated for the name.
      *
-     * @param name The object adapter name.
-     * @param endpoints The endpoints of the object adapter.
-     * @param sslEngineFactory The SSL engine factory used by the server-side ssl transport of the
-     *     new object adapter. When set to a non-null value all Ice.SSL configuration properties are
-     *     ignored, and any SSL configuration must be done through the SSLEngineFactory. Pass null
-     *     if the object adapter does not use secure endpoints, or if the ssl transport is
-     *     configured through Ice.SSL configuration properties. Passing null is equivalent to
+     * @param name the object adapter name
+     * @param endpoints the endpoints of the object adapter
+     * @param sslEngineFactory the SSL engine factory used by the server-side ssl transport of the
+     *     new object adapter. When set to a non-null value all {@code Ice.SSL} configuration properties are
+     *     ignored, and any SSL configuration must be done through the {@code SSLEngineFactory}. Pass {@code null}
+     *     if the object adapter does not use secure endpoints, or if the ssl transport is configured
+     *     through {@code Ice.SSL} configuration properties. Passing {@code null} is equivalent to
      *     calling {@link #createObjectAdapterWithEndpoints(String, String)}.
-     * @return The new object adapter.
+     * @return the new object adapter
      * @see #createObjectAdapter
-     * @see ObjectAdapter
      * @see Properties
      */
     public ObjectAdapter createObjectAdapterWithEndpoints(
@@ -294,11 +290,10 @@ public final class Communicator implements AutoCloseable {
      * Creates a new object adapter with a router. This method creates a routed object adapter.
      * Calling this method with an empty name will result in a UUID being generated for the name.
      *
-     * @param name The object adapter name.
-     * @param router The router.
-     * @return The new object adapter.
+     * @param name the object adapter name
+     * @param router the router
+     * @return the new object adapter
      * @see #createObjectAdapter
-     * @see ObjectAdapter
      * @see Properties
      */
     public ObjectAdapter createObjectAdapterWithRouter(String name, RouterPrx router) {
@@ -320,7 +315,8 @@ public final class Communicator implements AutoCloseable {
      * by this communicator. This method returns null unless you set a non-null default object
      * adapter using {@link setDefaultObjectAdapter}.
      *
-     * @return The object adapter associated by default with new outgoing connections.
+     * @return the object adapter associated by default with new outgoing connections
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      * @see Connection#getAdapter
      */
     public ObjectAdapter getDefaultObjectAdapter() {
@@ -331,7 +327,7 @@ public final class Communicator implements AutoCloseable {
      * Sets the object adapter that will be associated with new outgoing connections created by this
      * communicator. This method has no effect on existing outgoing connections, or on incoming connections.
      *
-     * @param adapter The object adapter to associate with new outgoing connections.
+     * @param adapter the object adapter to associate with new outgoing connections
      * @see Connection#setAdapter
      */
     public void setDefaultObjectAdapter(ObjectAdapter adapter) {
@@ -341,7 +337,7 @@ public final class Communicator implements AutoCloseable {
     /**
      * Gets the implicit context associated with this communicator.
      *
-     * @return The implicit context associated with this communicator; returns null when the
+     * @return the implicit context associated with this communicator; returns null when the
      *     property {@code Ice.ImplicitContext} is not set or is set to {@code None}.
      */
     public ImplicitContext getImplicitContext() {
@@ -351,7 +347,7 @@ public final class Communicator implements AutoCloseable {
     /**
      * Gets the properties of this communicator.
      *
-     * @return This communicator's properties.
+     * @return this communicator's properties
      * @see Properties
      */
     public Properties getProperties() {
@@ -361,7 +357,7 @@ public final class Communicator implements AutoCloseable {
     /**
      * Gets the logger of this communicator.
      *
-     * @return This communicator's logger.
+     * @return this communicator's logger
      * @see Logger
      */
     public Logger getLogger() {
@@ -374,9 +370,9 @@ public final class Communicator implements AutoCloseable {
      *
      * <p>This method is not thread-safe and should only be called right after the communicator is created.
      * It's provided for applications that cannot set the Slice loader in the {@link InitializationData} of the
-     * communicator, such as IceBox services.</p>
+     * communicator, such as IceBox services.
      *
-     * @param loader The Slice loader to add.
+     * @param loader the Slice loader to add
      */
     public void addSliceLoader(SliceLoader loader) {
         _instance.addSliceLoader(loader);
@@ -385,7 +381,7 @@ public final class Communicator implements AutoCloseable {
     /**
      * Gets the observer object of this communicator.
      *
-     * @return This communicator's observer object.
+     * @return this communicator's observer object
      */
     public CommunicatorObserver getObserver() {
         return _instance.initializationData().observer;
@@ -394,7 +390,8 @@ public final class Communicator implements AutoCloseable {
     /**
      * Gets the default router of this communicator.
      *
-     * @return The default router of this communicator.
+     * @return the default router of this communicator
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      * @see #setDefaultRouter
      * @see Router
      */
@@ -406,7 +403,7 @@ public final class Communicator implements AutoCloseable {
      * Sets the default router of this communicator. All newly created proxies will use this default router.
      * This method has no effect on existing proxies.
      *
-     * @param router The new default router. Use null to remove the default router.
+     * @param router the new default router. Use {@code null} to remove the default router.
      * @see #getDefaultRouter
      * @see #createObjectAdapterWithRouter
      * @see Router
@@ -418,7 +415,7 @@ public final class Communicator implements AutoCloseable {
     /**
      * Gets the default locator of this communicator.
      *
-     * @return The default locator of this communicator.
+     * @return the default locator of this communicator
      * @see #setDefaultLocator
      * @see Locator
      */
@@ -430,7 +427,7 @@ public final class Communicator implements AutoCloseable {
      * Sets the default locator of this communicator. All newly created proxies will use this default locator.
      * This method has no effect on existing proxies or object adapters.
      *
-     * @param locator The new default locator. Use null to remove the default locator.
+     * @param locator the new default locator. Use {@code null} to remove the default locator.
      * @see #getDefaultLocator
      * @see Locator
      * @see ObjectAdapter#setLocator
@@ -442,7 +439,8 @@ public final class Communicator implements AutoCloseable {
     /**
      * Gets the plug-in manager of this communicator.
      *
-     * @return This communicator's plug-in manager.
+     * @return this communicator's plug-in manager
+     * @throws CommunicatorDestroyedException if this communicator has been destroyed
      * @see PluginManager
      */
     public PluginManager getPluginManager() {
@@ -454,8 +452,8 @@ public final class Communicator implements AutoCloseable {
      * on fixed proxies for all connections associated with the communicator. Errors that occur
      * while flushing a connection are ignored.
      *
-     * @param compressBatch Specifies whether or not the queued batch requests should be compressed
-     *     before being sent over the wire.
+     * @param compressBatch specifies whether or not the queued batch requests should be compressed
+     *     before being sent over the wire
      */
     public void flushBatchRequests(CompressBatch compressBatch) {
         _iceI_flushBatchRequestsAsync(compressBatch).waitForResponse();
@@ -466,9 +464,9 @@ public final class Communicator implements AutoCloseable {
      * on fixed proxies for all connections associated with the communicator. Errors that occur
      * while flushing a connection are ignored.
      *
-     * @param compressBatch Specifies whether or not the queued batch requests should be compressed
-     *     before being sent over the wire.
-     * @return A future that will be completed when the invocation completes.
+     * @param compressBatch specifies whether or not the queued batch requests should be compressed
+     *     before being sent over the wire
+     * @return a future that will be completed when the invocation completes
      */
     public CompletableFuture<Void> flushBatchRequestsAsync(
             CompressBatch compressBatch) {
@@ -487,11 +485,12 @@ public final class Communicator implements AutoCloseable {
      * {@code Ice.Admin.ServerId} is set and the provided object adapter has a {@link Locator},
      * createAdmin registers the Admin's Process facet with the {@link Locator}'s {@link LocatorRegistry}.
      *
-     * @param adminAdapter The object adapter used to host the Admin object; if null and {@code Ice.Admin.Endpoints}
-     *     is set, this method uses the {@code Ice.Admin} object adapter, after creating and activating this adapter.
-     * @param adminId The identity of the Admin object.
-     * @return A proxy to the main ("") facet of the Admin object.
-     * @throws InitializationException if createAdmin is called more than once.
+     * @param adminAdapter the object adapter used to host the Admin object; if it is null and
+     *     {@code Ice.Admin.Endpoints} is set, this method uses the {@code Ice.Admin} object adapter,
+     *     after creating and activating this adapter.
+     * @param adminId the identity of the Admin object
+     * @return a proxy to the main ("") facet of the Admin object
+     * @throws InitializationException if createAdmin is called more than once
      * @see #getAdmin
      */
     public ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminId) {
@@ -505,7 +504,7 @@ public final class Communicator implements AutoCloseable {
      * {@code {UUID}/admin} when {@code Ice.Admin.InstanceName} is not set. If {@code Ice.Admin.DelayCreation} is
      * {@code 0} or not set, getAdmin is called by the communicator initialization, after initialization of all plugins.
      *
-     * @return A proxy to the main ("") facet of the Admin object, or null if no Admin object is configured.
+     * @return a proxy to the main ("") facet of the Admin object, or null if no Admin object is configured
      * @see #createAdmin
      */
     public ObjectPrx getAdmin() {
@@ -515,9 +514,9 @@ public final class Communicator implements AutoCloseable {
     /**
      * Adds a new facet to the Admin object.
      *
-     * @param servant The servant that implements the new Admin facet.
-     * @param facet The name of the new Admin facet.
-     * @throws AlreadyRegisteredException if a facet with the same name is already registered.
+     * @param servant the servant that implements the new Admin facet
+     * @param facet the name of the new Admin facet
+     * @throws AlreadyRegisteredException if a facet with the same name is already registered
      */
     public void addAdminFacet(Object servant, String facet) {
         _instance.addAdminFacet(servant, facet);
@@ -526,9 +525,9 @@ public final class Communicator implements AutoCloseable {
     /**
      * Removes a facet from the Admin object.
      *
-     * @param facet The name of the Admin facet.
-     * @return The servant associated with this Admin facet.
-     * @throws NotRegisteredException if no facet with the given name is registered.
+     * @param facet the name of the Admin facet
+     * @return the servant associated with this Admin facet
+     * @throws NotRegisteredException if no facet with the given name is registered
      */
     public Object removeAdminFacet(String facet) {
         return _instance.removeAdminFacet(facet);
@@ -537,8 +536,8 @@ public final class Communicator implements AutoCloseable {
     /**
      * Returns a facet of the Admin object.
      *
-     * @param facet The name of the Admin facet.
-     * @return The servant associated with this Admin facet, or null if no facet is registered with the given name.
+     * @param facet the name of the Admin facet
+     * @return the servant associated with this Admin facet, or null if no facet is registered with the given name
      */
     public Object findAdminFacet(String facet) {
         return _instance.findAdminFacet(facet);
@@ -547,7 +546,7 @@ public final class Communicator implements AutoCloseable {
     /**
      * Returns a map of all facets of the Admin object.
      *
-     * @return A collection containing all the facet names and servants of the Admin object.
+     * @return a collection containing all the facet names and servants of the Admin object
      * @see #findAdminFacet
      */
     public Map<String, Object> findAllAdminFacets() {
@@ -555,9 +554,9 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Get the {@code Instance} object associated with this communicator.
+     * Get the {@link Instance} object associated with this communicator.
      *
-     * @return the {@code Instance} object associated with this communicator
+     * @return the {@link Instance} object associated with this communicator
      * @hidden
      */
     public Instance getInstance() {
