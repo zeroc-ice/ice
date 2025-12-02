@@ -176,7 +176,7 @@ public interface ObjectPrx {
      * @param operation the name of the operation to invoke
      * @param mode the operation mode (normal or idempotent)
      * @param inParams an encapsulation containing the encoded in-parameters for the operation
-     * @return A future that completes with the result of the invocation
+     * @return a future that completes with the result of the invocation
      * @see Blobject
      */
     CompletableFuture<Object.Ice_invokeResult> ice_invokeAsync(String operation, OperationMode mode, byte[] inParams);
@@ -188,7 +188,7 @@ public interface ObjectPrx {
      * @param mode the operation mode (normal or idempotent)
      * @param inParams an encapsulation containing the encoded in-parameters for the operation
      * @param context the request context
-     * @return A future that completes with the result of the invocation
+     * @return a future that completes with the result of the invocation
      * @see Blobject
      */
     CompletableFuture<Object.Ice_invokeResult> ice_invokeAsync(
@@ -574,7 +574,7 @@ public interface ObjectPrx {
     /**
      * Flushes any pending batched requests for this proxy asynchronously. The call does not block.
      *
-     * @return A future that completes when the flush completes.
+     * @return a future that completes when the flush completes
      */
     CompletableFuture<Void> ice_flushBatchRequestsAsync();
 
