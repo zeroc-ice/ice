@@ -7,6 +7,7 @@
 #include "Test.h"
 #include "TestHelper.h"
 
+#include <array>
 #include <stdexcept>
 
 #ifdef _MSC_VER
