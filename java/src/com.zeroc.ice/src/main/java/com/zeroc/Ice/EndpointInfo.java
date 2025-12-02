@@ -31,7 +31,7 @@ public class EndpointInfo {
     /**
      * Returns whether this endpoint uses SSL.
      *
-     * @returns {@code true} if this endpoint's transport uses SSL, {@code false} otherwise.
+     * @return {@code true} if this endpoint's transport uses SSL, {@code false} otherwise.
      */
     public boolean secure() {
         return underlying != null ? underlying.secure() : false;

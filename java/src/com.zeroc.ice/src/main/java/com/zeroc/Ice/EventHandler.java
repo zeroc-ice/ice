@@ -19,7 +19,7 @@ abstract class EventHandler {
     /** Returns the native information of the handler, this is used by the selector. */
     public abstract SelectableChannel fd();
 
-    /** Sets the ready callback */
+    /** Sets the ready callback. */
     public abstract void setReadyCallback(ReadyCallback callback);
 
     public int _disabled;

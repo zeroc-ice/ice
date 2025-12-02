@@ -157,7 +157,6 @@ namespace Ice
         /// @param serverAuthenticationOptions The SSL options for server connections.
         /// @return The new object adapter.
         /// @see #createObjectAdapter
-        /// @see ObjectAdapter
         /// @see Properties
         /// @see SSL::OpenSSLServerAuthenticationOptions
         /// @see SSL::SecureTransportServerAuthenticationOptions
@@ -173,7 +172,6 @@ namespace Ice
         /// @param rtr The router.
         /// @return The new object adapter.
         /// @see #createObjectAdapter
-        /// @see ObjectAdapter
         /// @see Properties
         ObjectAdapterPtr createObjectAdapterWithRouter(std::string name, RouterPrx rtr);
 

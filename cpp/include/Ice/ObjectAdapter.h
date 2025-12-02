@@ -85,7 +85,7 @@ namespace Ice
         /// @see Communicator#destroy
         virtual void destroy() noexcept = 0;
 
-        /// Adds a middleware to the dispatch pipeline of this object adapter.Adds a middleware to the dispatch pipeline of this object adapter.
+        /// Adds a middleware to the dispatch pipeline of this object adapter.
         /// @param middlewareFactory The middleware factory that creates the new middleware when this object adapter
         /// creates its dispatch pipeline. A middleware factory is a function that takes an ObjectPtr (the next element
         /// in the dispatch pipeline) and returns a new ObjectPtr (the middleware you want to install in the pipeline).
