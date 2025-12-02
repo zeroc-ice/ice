@@ -4151,8 +4151,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             "}.\n"
             "@param communicator the communicator of the new proxy\n"
             "@param proxyString the string representation of the proxy\n"
-            "@return the new proxy\n"
-            "@throws ParseException if {@code proxyString} is not a valid proxy string.");
+            "@return the new proxy\n");
     out << nl << "static " << prxName
         << " createProxy(com.zeroc.Ice.Communicator communicator, java.lang.String proxyString)";
     out << sb;
