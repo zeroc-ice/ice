@@ -95,7 +95,7 @@ public abstract class EndpointI implements Endpoint, Comparable<EndpointI> {
     public void initWithOptions(ArrayList<String> args) {
         ArrayList<String> unknown = new ArrayList<>();
 
-        String str = "`" + protocol() + " ";
+        String str = "'" + protocol() + " ";
         for (String p : args) {
             if (StringUtil.findFirstOf(p, " \t\n\r") != -1) {
                 str += " \"" + p + "\"";
@@ -104,6 +104,8 @@ public abstract class EndpointI implements Endpoint, Comparable<EndpointI> {
             }
         }
         str += "'";
+
+        var knownOptions = new java.util.HashSet<String>();
 
         for (int n = 0; n < args.size(); n++) {
             String option = args.get(n);
@@ -117,7 +119,11 @@ public abstract class EndpointI implements Endpoint, Comparable<EndpointI> {
                 argument = args.get(++n);
             }
 
-            if (!checkOption(option, argument, str)) {
+            if (checkOption(option, argument, str)) {
+                if (!knownOptions.add(option)) {
+                    throw new ParseException("Duplicate option '" + option + "' in endpoint " + str + ".");
+                }
+            } else {
                 unknown.add(option);
                 if (argument != null) {
                     unknown.add(argument);

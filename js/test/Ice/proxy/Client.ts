@@ -416,6 +416,23 @@ export class Client extends TestHelper {
         id2 = Ice.stringToIdentity(idStr);
         test(id.equals(id2));
 
+        //
+        // Test proxies with duplicated endpoint option.
+        //
+        const goodBase = "hello:default -h host1 -p 4061 --sourceAddress 127.0.0.1";
+        test(communicator.stringToProxy(goodBase) !== null);
+
+        const dupOptions = [" -h host2", " -p 4062", " --sourceAddress 10.0.0.1"];
+
+        for (const opt of dupOptions) {
+            try {
+                communicator.stringToProxy(goodBase + opt);
+                test(false);
+            } catch (ex) {
+                test(ex instanceof Ice.ParseException, ex as Error);
+            }
+        }
+
         out.writeLine("ok");
 
         out.write("testing propertyToProxy... ");

@@ -7,6 +7,7 @@
 #include "Test.h"
 #include "TestHelper.h"
 
+#include <array>
 #include <stdexcept>
 
 #ifdef _MSC_VER
@@ -412,6 +413,27 @@ allTests(TestHelper* helper)
     test(idStr == "greek \\360\\220\\205\\252/banana \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$");
     id2 = Ice::stringToIdentity(idStr);
     test(id == id2);
+
+    //
+    // Test proxies with duplicated endpoint option.
+    //
+    string goodBase = "hello:default -h host1 -p 4061 --sourceAddress 127.0.0.1";
+    test(communicator->stringToProxy(goodBase));
+
+    array<string, 3> dupOptions = {" -h host2", " -p 4062", " --sourceAddress 10.0.0.1"};
+
+    for (const string& opt : dupOptions)
+    {
+        try
+        {
+            communicator->stringToProxy(goodBase + opt);
+            test(false);
+        }
+        catch (const ParseException&)
+        {
+            // expected
+        }
+    }
 
     cout << "ok" << endl;
 

@@ -1,8 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "EndpointI.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/OutputStream.h"
 
+#include <set>
 #include <sstream>
 
 using namespace std;
@@ -63,7 +65,7 @@ IceInternal::EndpointI::initWithOptions(vector<string>& args)
     vector<string> unknown;
 
     ostringstream ostr;
-    ostr << '`' << protocol() << " ";
+    ostr << "'" << protocol() << " "; // protocol means transport here
     for (const auto& arg : args)
     {
         if (arg.find_first_of(" \t\n\r") != string::npos)
@@ -77,6 +79,8 @@ IceInternal::EndpointI::initWithOptions(vector<string>& args)
     }
     ostr << "'";
     const string str = ostr.str();
+
+    set<string> knownOptions;
 
     for (vector<string>::size_type n = 0; n < args.size(); ++n)
     {
@@ -93,7 +97,14 @@ IceInternal::EndpointI::initWithOptions(vector<string>& args)
             argument = args[++n];
         }
 
-        if (!checkOption(option, argument, str))
+        if (checkOption(option, argument, str))
+        {
+            if (!knownOptions.insert(option).second)
+            {
+                throw Ice::ParseException{__FILE__, __LINE__, "duplicate option '" + option + "' in endpoint " + str};
+            }
+        }
+        else
         {
             unknown.push_back(option);
             if (!argument.empty())

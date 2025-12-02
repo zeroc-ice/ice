@@ -349,6 +349,32 @@ public class AllTests : global::Test.AllTests
         test(idStr == "greek \\360\\220\\205\\252/banana \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$");
         test(id.Equals(id2));
 
+        //
+        // Test proxies with duplicated endpoint option.
+        //
+        string goodBase = "hello:default -h host1 -p 4061 --sourceAddress 127.0.0.1";
+        test(communicator.stringToProxy(goodBase) != null);
+
+        string[] dupOptions = new string[]
+        {
+            " -h host2",
+            " -p 4062",
+            " --sourceAddress 10.0.0.1"
+        };
+
+        foreach (string opt in dupOptions)
+        {
+            try
+            {
+                communicator.stringToProxy(goodBase + opt);
+                test(false);
+            }
+            catch (ParseException)
+            {
+                // expected
+            }
+        }
+
         output.WriteLine("ok");
 
         output.Write("testing proxyToString... ");

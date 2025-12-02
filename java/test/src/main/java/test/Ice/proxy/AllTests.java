@@ -408,6 +408,26 @@ public class AllTests {
                     + " \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$"));
         test(id.equals(id2));
 
+        //
+        // Test proxies with duplicated endpoint option.
+        //
+        String goodBase = "hello:default -h host1 -p 4061 --sourceAddress 127.0.0.1";
+        test(communicator.stringToProxy(goodBase) != null);
+
+        var dupOptions = new String[]{
+            " -h host2",
+            " -p 4062",
+            " --sourceAddress 10.0.0.1"
+        };
+
+        for (String opt : dupOptions) {
+            try {
+                communicator.stringToProxy(goodBase + opt);
+                test(false);
+            } catch (ParseException expected) {
+            }
+        }
+
         out.println("ok");
         //CHECKSTYLE:ON: AvoidEscapedUnicodeCharacters
 
