@@ -22,7 +22,7 @@ public class EndpointInfo {
     /**
      * Returns whether this endpoint is a datagram endpoint.
      *
-     * @return {@code true} for a UDP endpoint, {@code false} otherwise.
+     * @return {@code true} for a UDP endpoint, {@code false} otherwise
      */
     public boolean datagram() {
         return underlying != null ? underlying.datagram() : false;
