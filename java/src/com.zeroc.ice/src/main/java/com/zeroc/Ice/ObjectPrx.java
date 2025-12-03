@@ -69,7 +69,7 @@ public interface ObjectPrx {
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @return a future that completes when a response is received from the target object
+     * @return a future that completes when the invocation completes
      */
     CompletableFuture<Void> ice_pingAsync();
 
@@ -77,7 +77,7 @@ public interface ObjectPrx {
      * Tests whether the target object of this proxy can be reached.
      *
      * @param context the request context
-     * @return a future that completes when a response is received from the target object
+     * @return a future that completes when the invocation completes
      */
     CompletableFuture<Void> ice_pingAsync(Map<String, String> context);
 
