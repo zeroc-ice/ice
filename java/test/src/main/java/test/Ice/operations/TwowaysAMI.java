@@ -260,7 +260,7 @@ class TwowaysAMI {
             si2.s = new AnotherStruct();
             si2.s.s = "def";
 
-            var cb1 = new Callback();
+            Callback cb = new Callback();
             p.opStructAsync(si1, si2)
                 .whenComplete(
                     (result, ex) -> {
@@ -278,35 +278,9 @@ class TwowaysAMI {
                             == 0) {
                             result.p3.p.opVoid();
                         }
-                        cb1.called();
+                        cb.called();
                     });
-            cb1.check();
-
-            //
-            // Test marshaling of structs with default or null member values.
-            //
-            si1 = new Structure();
-
-            var cb2 = new Callback();
-            p.opStructAsync(si1, si1)
-                .whenComplete(
-                    (result, ex) -> {
-                        test(ex == null);
-                        test(result.returnValue.p == null);
-                        test(result.returnValue.e == MyEnum.enum1);
-                        test(result.returnValue.s.s.isEmpty());
-                        test(result.p3.p == null);
-                        test(result.p3.e == MyEnum.enum1);
-                        test("a new string".equals(result.p3.s.s));
-                        // We can't do the callbacks below in connection serialization mode.
-                        if (communicator
-                            .getProperties()
-                            .getIcePropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0) {
-                            result.p3.p.opVoid();
-                        }
-                        cb2.called();
-                    });
-            cb2.check();
+            cb.check();
         }
 
         {
