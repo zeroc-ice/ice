@@ -99,6 +99,7 @@ yyerror(const char* s)
 %token ICEGRID_STRING
 %token ICEGRID_START
 %token ICEGRID_STOP
+%token ICEGRID_STATUS
 %token ICEGRID_SIGNAL
 %token ICEGRID_STDOUT
 %token ICEGRID_STDERR
@@ -478,6 +479,14 @@ command
 {
     parser->usage("service", "stop");
 }
+| ICEGRID_SERVICE ICEGRID_STATUS strings ';'
+{
+    parser->serviceStatus($3);
+}
+| ICEGRID_SERVICE ICEGRID_STATUS ICEGRID_HELP ';'
+{
+    parser->usage("service", "status");
+}
 | ICEGRID_SERVICE ICEGRID_DESCRIBE strings ';'
 {
     parser->describeService($3);
@@ -737,6 +746,10 @@ keyword
 {
 }
 | ICEGRID_STOP
+{
+}
+|
+| ICEGRID_STATUS
 {
 }
 | ICEGRID_SIGNAL

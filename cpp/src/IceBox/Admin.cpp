@@ -115,7 +115,7 @@ run(const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& args)
             try
             {
                 bool running = manager->isServiceRunning(*r);
-                consoleOut << "Service '" << *r << "' is " << (running ? "running." : "stopped.") << endl;
+                consoleOut << (running ? "running" : "stopped") << endl;
             }
             catch (const IceBox::NoSuchServiceException&)
             {

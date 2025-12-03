@@ -28,6 +28,7 @@ might need to be aware of.
   - [Ice Service Changes](#ice-service-changes)
     - [DataStorm](#datastorm)
     - [Glacier2](#glacier2)
+    - [IceBox](#icebox)
     - [IceGrid](#icegrid)
     - [IcePatch2](#icepatch2)
     - [IceStorm](#icestorm)
@@ -1124,6 +1125,12 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Removed session timeouts configured using `Glacier2.SessionTimeout`. The Glacier2 router now relies on the common
   idle check described under [General Changes](#general-changes) for these connection-bound sessions.
+
+#### IceBox
+
+- Added a new operation on `IceBox::ServiceManager`: `isServiceRunning`.
+  This operation is called by the new "status SERVICE" command of `iceboxadmin` and `com.zeroc.IceBox.Admin`. It also
+  called by the new `icegridadmin` command "service status SERVER SERVICE".
 
 #### IceGrid
 

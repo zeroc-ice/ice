@@ -125,6 +125,7 @@ namespace
          "                          started on demand or administratively).\n"},
         {"service", "start", "service start ID NAME     Starts service NAME in IceBox server ID.\n"},
         {"service", "stop", "service stop ID NAME      Stops service NAME in IceBox server ID.\n"},
+        {"service", "status", "service status ID NAME    Gets the status of service NAME in IceBox server ID.\n"},
         {"service", "describe", "service describe ID NAME  Describes service NAME in IceBox server ID.\n"},
         {"service",
          "properties",
@@ -1562,6 +1563,42 @@ Parser::stopService(const list<string>& args)
     catch (const IceBox::AlreadyStoppedException&)
     {
         error("the service '" + service + "' is already stopped");
+    }
+    catch (const IceBox::NoSuchServiceException&)
+    {
+        error("couldn't find service '" + service + "'");
+    }
+    catch (const Ice::ObjectNotExistException&)
+    {
+        error("couldn't reach the server's Admin object");
+    }
+    catch (const Ice::FacetNotExistException&)
+    {
+        error("the server's Admin object does not provide a 'IceBox.ServiceManager' facet");
+    }
+    catch (const Ice::Exception&)
+    {
+        exception(current_exception());
+    }
+}
+
+void
+Parser::serviceStatus(const list<string>& args)
+{
+    if (args.size() != 2)
+    {
+        invalidCommand("service status", "requires exactly two arguments");
+        return;
+    }
+
+    const string& server = args.front();
+    string service = *(++args.begin());
+    try
+    {
+        auto admin = _admin->getServerAdmin(server);
+        auto manager = admin->ice_facet<IceBox::ServiceManagerPrx>("IceBox.ServiceManager");
+        bool running = manager->isServiceRunning(service);
+        consoleOut << (running ? "running" : "stopped") << endl;
     }
     catch (const IceBox::NoSuchServiceException&)
     {

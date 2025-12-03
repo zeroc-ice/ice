@@ -89,9 +89,9 @@ final class Admin {
                 try {
                     boolean running = manager.isServiceRunning(service);
                     if (running) {
-                        System.out.println("Service '" + service + "' is running.");
+                        System.out.println("running");
                     } else {
-                        System.out.println("Service '" + service + "' is stopped.");
+                        System.out.println("stopped");
                     }
                 } catch (NoSuchServiceException ex) {
                     System.err.println("IceBox.Admin: unknown service '" + service + "'");;
