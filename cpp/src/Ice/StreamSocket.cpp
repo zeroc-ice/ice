@@ -190,7 +190,7 @@ StreamSocket::read(char* buf, size_t length)
 #endif
         if (ret == 0)
         {
-            throw Ice::ConnectionLostException(__FILE__, __LINE__, 0);
+            throw Ice::ConnectionLostException(__FILE__, __LINE__, 0, addrToString(_addr));
         }
         else if (ret == SOCKET_ERROR)
         {
@@ -212,7 +212,7 @@ StreamSocket::read(char* buf, size_t length)
 
             if (connectionLost())
             {
-                throw Ice::ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
+                throw Ice::ConnectionLostException(__FILE__, __LINE__, getSocketErrno(), addrToString(_addr));
             }
             else
             {
@@ -248,7 +248,7 @@ StreamSocket::write(const char* buf, size_t length)
 #endif
         if (ret == 0)
         {
-            throw Ice::ConnectionLostException(__FILE__, __LINE__, 0);
+            throw Ice::ConnectionLostException(__FILE__, __LINE__, 0, addrToString(_addr));
         }
         else if (ret == SOCKET_ERROR)
         {
@@ -270,7 +270,7 @@ StreamSocket::write(const char* buf, size_t length)
 
             if (connectionLost())
             {
-                throw Ice::ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
+                throw Ice::ConnectionLostException(__FILE__, __LINE__, getSocketErrno(), addrToString(_addr));
             }
             else
             {
@@ -328,7 +328,7 @@ StreamSocket::startWrite(Buffer& buf)
         {
             if (connectionLost())
             {
-                throw Ice::ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
+                throw Ice::ConnectionLostException(__FILE__, __LINE__, getSocketErrno(), addrToString(_addr));
             }
             else
             {

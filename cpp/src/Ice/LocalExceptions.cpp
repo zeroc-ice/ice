@@ -352,6 +352,18 @@ namespace
         }
         return IceInternal::errorToString(error);
     }
+
+    string makePrefixWithAddress(string messagePrefix, optional<string> address)
+    {
+        if (address.has_value())
+        {
+            return std::move(messagePrefix) + " (remote address = " + std::move(*address) + ")";
+        }
+        else
+        {
+            return messagePrefix;
+        }
+    }
 }
 
 Ice::SocketException::SocketException(const char* file, int line, string messagePrefix, ErrorCode error)
@@ -363,6 +375,16 @@ const char*
 Ice::SocketException::ice_id() const noexcept
 {
     return "::Ice::SocketException";
+}
+
+Ice::ConnectFailedException::ConnectFailedException(
+    const char* file,
+    int line,
+    string messagePrefix,
+    ErrorCode error,
+    optional<string> address)
+    : SocketException(file, line, makePrefixWithAddress(std::move(messagePrefix), std::move(address)), error)
+{
 }
 
 const char*
@@ -385,8 +407,17 @@ namespace
     }
 }
 
-Ice::ConnectionLostException::ConnectionLostException(const char* file, int line, ErrorCode error)
-    : SocketException(file, line, "connection lost", error, connectionLostErrorToString)
+Ice::ConnectionLostException::ConnectionLostException(
+    const char* file,
+    int line,
+    ErrorCode error,
+    optional<string> address)
+    : SocketException(
+          file,
+          line,
+          makePrefixWithAddress("connection lost", std::move(address)),
+          error,
+          connectionLostErrorToString)
 {
 }
 

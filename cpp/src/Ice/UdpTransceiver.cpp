@@ -249,7 +249,7 @@ repeat:
 
             if (connectionLost())
             {
-                throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
+                throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno(), addrToString(_peerAddr));
             }
             else
             {
@@ -309,7 +309,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
         {
             if (connectionLost())
             {
-                throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
+                throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno(), addrToString(_peerAddr));
             }
             else
             {
@@ -333,7 +333,7 @@ IceInternal::UdpTransceiver::finishWrite(Buffer& buf)
         WSASetLastError(_write.error);
         if (connectionLost())
         {
-            throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
+            throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno(), addrToString(_peerAddr));
         }
         else
         {
@@ -379,7 +379,7 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
         {
             if (connectionLost())
             {
-                throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
+                throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno(), addrToString(_peerAddr));
             }
             else
             {
@@ -407,7 +407,7 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
         {
             if (connectionLost())
             {
-                throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
+                throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno(), addrToString(_peerAddr));
             }
             else
             {
