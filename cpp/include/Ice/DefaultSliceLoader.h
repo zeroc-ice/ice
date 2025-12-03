@@ -11,6 +11,12 @@
 #include <string>
 #include <type_traits>
 
+#if defined(_MSC_VER)
+#    pragma warning(push)
+#    pragma warning(disable : 4250) // ... : inherits ... via dominance
+#    pragma warning(disable : 4251) // class ... needs to have dll-interface to be used by clients of class ...
+#endif
+
 namespace IceInternal
 {
     class DefaultSliceLoader;
@@ -147,5 +153,9 @@ namespace IceInternal
         const char* _typeId;
     };
 }
+
+#if defined(_MSC_VER)
+#    pragma warning(pop)
+#endif
 
 #endif

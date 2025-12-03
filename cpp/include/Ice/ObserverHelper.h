@@ -8,6 +8,12 @@
 
 #include <string_view>
 
+#if defined(_MSC_VER)
+#    pragma warning(push)
+#    pragma warning(disable : 4250) // ... : inherits ... via dominance
+#    pragma warning(disable : 4251) // class ... needs to have dll-interface to be used by clients of class ...
+#endif
+
 namespace Ice
 {
     class ObjectPrx;
@@ -151,5 +157,9 @@ namespace IceInternal
         using ObserverHelperT<Ice::Instrumentation::InvocationObserver>::attach;
     };
 }
+
+#if defined(_MSC_VER)
+#    pragma warning(pop)
+#endif
 
 #endif
