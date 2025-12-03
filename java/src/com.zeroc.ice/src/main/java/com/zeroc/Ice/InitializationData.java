@@ -58,8 +58,11 @@ public final class InitializationData implements Cloneable {
      * Applications can supply a custom class loader that the Ice runtime will use when unmarshaling class
      * instances and user exceptions, and when loading plug-ins.
      *
+     * <p>If a custom {@link #sliceLoader} is provided, then that will be used to unmarshal class instances and
+     * user exceptions, instead of this class loader.
+     *
      * <p>If an application does not supply a class loader (or if the application-supplied class loader fails to locate
-     * a class), the Ice communicator attempts to load the class using class loaders in the following order:
+     * a class), the Ice runtime attempts to load the class using class loaders in the following order:
      * <ul>
      *  <li>the current thread's class loader</li>
      *  <li>the default class loader (that is, by calling Class.forName)</li>
@@ -96,6 +99,9 @@ public final class InitializationData implements Cloneable {
      */
     public List<PluginFactory> pluginFactories = Collections.emptyList();
 
-    /** The Slice loader, used to unmarshal Slice classes and exceptions. */
+    /**
+     * The Slice loader, used to create instances of Slice classes and user exceptions.
+     * Applications can supply a custom slice loader that the Ice runtime will use during unmarshaling.
+     */
     public SliceLoader sliceLoader;
 }
