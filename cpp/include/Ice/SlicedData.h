@@ -27,7 +27,7 @@ namespace Ice
         /// The Slice type ID for this slice. It's empty when the compact ID is set (not `-1`).
         const std::string typeId;
 
-        /// The Slice compact type ID for this slice. No compact ID is encoded as `-1`.
+        /// The Slice compact type ID for this slice, or `-1` if the slice has no compact ID.
         const int compactId;
 
         /// The encoded bytes for this slice, including the leading size integer.

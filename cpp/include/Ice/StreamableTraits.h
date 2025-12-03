@@ -52,7 +52,7 @@ namespace Ice
     constexpr StreamHelperCategory StreamHelperCategoryUserException = 9;
 
     /// The optional format, used for marshaling optional fields and arguments.
-    /// It describes how the data is marshaled and how it can be skipped by the unmarshaling code when the tag isn't
+    /// It describes how the data is marshaled and how it can be skipped by the unmarshaling code if the optional isn't
     /// known to the receiver.
     enum class OptionalFormat : std::uint8_t
     {
@@ -68,17 +68,18 @@ namespace Ice
         /// Fixed 8-byte encoding.
         F8 = 3,
 
-        /// "Size encoding" using 1 to 5 bytes, e.g., enum, class identifier.
+        /// "Size encoding" using either 1 or 5 bytes. Used by enums, class identifiers, etc.
         Size = 4,
 
-        /// "Size encoding" using 1 to 5 bytes followed by data, e.g., string, fixed size struct, or containers whose
-        /// size can be computed prior to marshaling.
+        /// Variable "size encoding" using either 1 or 5 bytes followed by data.
+        /// Used by strings, fixed size structs, and containers whose size can be computed prior to marshaling.
         VSize = 5,
 
-        /// Fixed size using 4 bytes followed by data, e.g., variable-size struct, container.
+        /// Fixed "size encoding" using 4 bytes followed by data.
+        /// Used by variable-size structs, and containers whose sizes can't be computed prior to unmarshaling.
         FSize = 6,
 
-        /// Class instance. Not longer supported.
+        /// Class instance. No longer supported.
         Class = 7
     };
 

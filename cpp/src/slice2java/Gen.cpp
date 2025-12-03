@@ -1165,7 +1165,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
                 writeDocCommentLines(out, q->second);
             }
         }
-        out << nl << " * @param " << currentParamName << " The Current object of the incoming request.";
+        out << nl << " * @param " << currentParamName << " the Current object of the incoming request";
         out << nl << " */";
     }
 
@@ -1235,7 +1235,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
                     writeDocCommentLines(out, q->second);
                 }
             }
-            out << nl << " * @param " << currentParamName << " The Current object of the incoming request.";
+            out << nl << " * @param " << currentParamName << " the Current object of the incoming request";
             out << nl << " */";
         }
 
@@ -1338,7 +1338,7 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
     const string resultType = getResultType(p, package, false);
 
     const string contextParamName = getEscapedParamName(p->parameters(), "context");
-    const string contextDoc = "@param " + contextParamName + " The Context map to send with the invocation.";
+    const string contextDoc = "@param " + contextParamName + " the Context map to send with the invocation";
     const string contextParam = "java.util.Map<java.lang.String, java.lang.String> " + contextParamName;
     const string noExplicitContextArg = "com.zeroc.Ice.ObjectPrx.noExplicitContext";
 
@@ -1425,7 +1425,7 @@ Slice::JavaVisitor::writeAsyncIceInvokeMethods(
     const string futureType = "java.util.concurrent.CompletableFuture<" + resultType + ">";
 
     const string contextParamName = getEscapedParamName(p->parameters(), "context");
-    const string contextDoc = "@param " + contextParamName + " The Context map to send with the invocation.";
+    const string contextDoc = "@param " + contextParamName + " the Context map to send with the invocation";
     const string contextParam = "java.util.Map<java.lang.String, java.lang.String> " + contextParamName;
     const string noExplicitContextArg = "com.zeroc.Ice.ObjectPrx.noExplicitContext";
     const vector<string> args = getInArgs(p);
@@ -1942,7 +1942,6 @@ Slice::JavaVisitor::writeRemarksDocComment(Output& out, const DocComment& commen
     out << nl << " * <p><b>Remarks:</b>";
     out << nl << " * ";
     writeDocCommentLines(out, remarks);
-    out << "</p>";
 }
 
 void
@@ -2116,11 +2115,11 @@ Slice::JavaVisitor::writeProxyOpDocComment(
         const string r = getResultType(p, package, true);
         if (async)
         {
-            out << nl << " * @return A future that will be completed with an instance of " << r << '.';
+            out << nl << " * @return a future that will be completed with an instance of " << r;
         }
         else
         {
-            out << nl << " * @return An instance of " << r << '.';
+            out << nl << " * @return an instance of " << r;
         }
     }
     else if (p->returnType())
@@ -2133,7 +2132,7 @@ Slice::JavaVisitor::writeProxyOpDocComment(
         }
         else if (async)
         {
-            out << nl << " * @return A future that will be completed with the result.";
+            out << nl << " * @return a future that will be completed with the result";
         }
     }
     else if (!p->outParameters().empty())
@@ -2148,20 +2147,16 @@ Slice::JavaVisitor::writeProxyOpDocComment(
         }
         else if (async)
         {
-            out << nl << " * @return A future that will be completed with the result.";
+            out << nl << " * @return a future that will be completed with the result";
         }
     }
     else if (async)
     {
-        //
         // No results but an async proxy operation still returns a future.
-        //
-        out << nl << " * @return A future that will be completed when the invocation completes.";
+        out << nl << " * @return a future that will be completed when the invocation completes";
     }
 
-    //
     // Async proxy methods don't declare user exceptions.
-    //
     if (!async)
     {
         writeExceptionDocComment(out, p, *dc);
@@ -2194,7 +2189,7 @@ Slice::JavaVisitor::writeServantOpDocComment(Output& out, const OperationPtr& p,
 
     const map<string, StringList>& paramDocs = dc->parameters();
     const string currentParamName = getEscapedParamName(p->parameters(), "current");
-    const string currentParam = " * @param " + currentParamName + " The Current object of the incoming request.";
+    const string currentParam = " * @param " + currentParamName + " the Current object of the incoming request";
 
     out << nl << "/**";
     const StringList& overview = dc->overview();
@@ -2223,12 +2218,11 @@ Slice::JavaVisitor::writeServantOpDocComment(Output& out, const OperationPtr& p,
         const string r = getResultType(p, package, true);
         if (async)
         {
-            out << nl << " * @return A completion stage that the servant will complete with an instance of " << r
-                << '.';
+            out << nl << " * @return a completion stage that the servant will complete with an instance of " << r;
         }
         else
         {
-            out << nl << " * @return An instance of " << r << '.';
+            out << nl << " * @return an instance of " << r;
         }
     }
     else if (p->returnType())
@@ -2241,7 +2235,7 @@ Slice::JavaVisitor::writeServantOpDocComment(Output& out, const OperationPtr& p,
         }
         else if (async)
         {
-            out << nl << " * @return A completion stage that the servant will complete with the result.";
+            out << nl << " * @return a completion stage that the servant will complete with the result";
         }
     }
     else if (!p->outParameters().empty())
@@ -2256,15 +2250,13 @@ Slice::JavaVisitor::writeServantOpDocComment(Output& out, const OperationPtr& p,
         }
         else if (async)
         {
-            out << nl << " * @return A completion stage that the servant will complete with the result.";
+            out << nl << " * @return a completion stage that the servant will complete with the result";
         }
     }
     else if (async)
     {
-        //
         // No results but an async operation still returns a completion stage.
-        //
-        out << nl << " * @return A completion stage that the servant will complete when the invocation completes.";
+        out << nl << " * @return a completion stage that the servant will complete when the invocation completes";
     }
 
     writeExceptionDocComment(out, p, *dc);
@@ -4131,9 +4123,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         out,
         "Creates a new proxy that implements {@link " + prxName +
             "}.\n"
-            "@param communicator The communicator of the new proxy.\n"
-            "@param proxyString The string representation of the proxy.\n"
-            "@return The new proxy.");
+            "@param communicator the communicator of the new proxy\n"
+            "@param proxyString the string representation of the proxy\n"
+            "@return the new proxy\n");
     out << nl << "static " << prxName
         << " createProxy(com.zeroc.Ice.Communicator communicator, java.lang.String proxyString)";
     out << sb;
@@ -4145,9 +4137,8 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         out,
         "Creates a new proxy from an existing proxy after confirming the target object's type via a remote "
         "invocation.\n"
-        "Throws a local exception if a communication error occurs.\n"
-        "@param obj The source proxy.\n"
-        "@return A proxy for this type, or null if the object does not support this type.");
+        "@param obj the source proxy\n"
+        "@return a proxy for this type, or {@code null} if the target object does not support this type");
     out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj)";
     out << sb;
     out << nl << "return checkedCast(obj, noExplicitContext);";
@@ -4158,10 +4149,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         out,
         "Creates a new proxy from an existing proxy after confirming the target object's type via a remote "
         "invocation.\n"
-        "Throws a local exception if a communication error occurs.\n"
-        "@param obj The source proxy.\n"
-        "@param context The Context map to send with the invocation.\n"
-        "@return A new proxy for this type, or null if the object does not support this type.");
+        "@param obj the source proxy\n"
+        "@param context the Context map to send with the invocation\n"
+        "@return a new proxy for this type, or {@code null} if the target object does not support this type");
     out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj, " << contextParam << ')';
     out << sb;
     out << nl << "return (obj != null && obj.ice_isA(ice_staticId(), context)) ? new " << prxIName << "(obj) : null;";
@@ -4172,10 +4162,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         out,
         "Creates a new proxy from an existing proxy after confirming the target object's type via a remote "
         "invocation.\n"
-        "Throws a local exception if a communication error occurs.\n"
-        "@param obj The source proxy.\n"
-        "@param facet The name of the desired facet.\n"
-        "@return A new proxy for this type, or null if the facet does not support this type.");
+        "@param obj the source proxy\n"
+        "@param facet the name of the desired facet\n"
+        "@return a new proxy for this type, or {@code null} if the facet does not support this type.");
     out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj, java.lang.String facet)";
     out << sb;
     out << nl << "return checkedCast(obj, facet, noExplicitContext);";
@@ -4186,11 +4175,10 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         out,
         "Creates a new proxy from an existing proxy after confirming the target object's type via a remote "
         "invocation.\n"
-        "Throws a local exception if a communication error occurs.\n"
-        "@param obj The source proxy.\n"
-        "@param facet The name of the desired facet.\n"
-        "@param context The Context map to send with the invocation.\n"
-        "@return A new proxy for this type, or null if the object does not support this type.");
+        "@param obj the source proxy\n"
+        "@param facet the name of the desired facet\n"
+        "@param context the Context map to send with the invocation\n"
+        "@return a new proxy for this type, or {@code null} if the target object does not support this type.");
     out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj, java.lang.String facet, "
         << contextParam << ')';
     out << sb;
@@ -4201,8 +4189,8 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocComment(
         out,
         "Creates a new proxy from an existing proxy.\n"
-        "@param obj The untyped proxy.\n"
-        "@return A new proxy for this type.");
+        "@param obj the source proxy\n"
+        "@return a new proxy with this type or {@code null} if {@code obj} is {@code null}");
     out << nl << "static " << prxName << " uncheckedCast(com.zeroc.Ice.ObjectPrx obj)";
     out << sb;
     out << nl << "return (obj == null) ? null : new " << prxIName << "(obj);";
@@ -4212,9 +4200,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocComment(
         out,
         "Creates a new proxy from an existing proxy.\n"
-        "@param obj The untyped proxy.\n"
-        "@param facet The name of the desired facet.\n"
-        "@return A new proxy for this type.");
+        "@param obj the source proxy\n"
+        "@param facet the name of the desired facet\n"
+        "@return a new proxy with this type or {@code null} if {@code obj} is {@code null}");
     out << nl << "static " << prxName << " uncheckedCast(com.zeroc.Ice.ObjectPrx obj, java.lang.String facet)";
     out << sb;
     out << nl << "return (obj == null) ? null : new " << prxIName << "(obj.ice_facet(facet));";

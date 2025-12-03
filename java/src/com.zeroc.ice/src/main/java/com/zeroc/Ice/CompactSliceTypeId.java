@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * Assigns a compact Slice type ID to a class.
  *
  * <p>The Slice compiler assigns both a Slice type ID and a compact Slice type ID to the mapped class of a Slice class
- * that specifies a compact type ID.</p>
+ * that specifies a compact type ID.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})

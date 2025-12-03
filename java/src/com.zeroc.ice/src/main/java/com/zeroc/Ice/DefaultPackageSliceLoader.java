@@ -5,9 +5,7 @@ package com.zeroc.Ice;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Implements SliceLoader using a default package.
- */
+/** Implements SliceLoader using a default package. */
 public final class DefaultPackageSliceLoader implements SliceLoader {
     private final String _packagePrefix;
     private final ClassLoader _classLoader;
@@ -19,8 +17,8 @@ public final class DefaultPackageSliceLoader implements SliceLoader {
     /**
      * Creates a DefaultPackageSliceLoader.
      *
-     * @param defaultPackage The package that holds all Slice classes and exceptions. Can be empty.
-     * @param classLoader The class loader to use to load the classes. Can be null.
+     * @param defaultPackage the package that holds all Slice classes and exceptions. Can be empty.
+     * @param classLoader the class loader to use to load the classes. Can be null.
      */
     public DefaultPackageSliceLoader(String defaultPackage, ClassLoader classLoader) {
         _packagePrefix = defaultPackage.isEmpty() ? "" : defaultPackage + ".";

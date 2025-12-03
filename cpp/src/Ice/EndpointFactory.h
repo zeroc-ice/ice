@@ -32,10 +32,8 @@ namespace IceInternal
         [[nodiscard]] virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const = 0;
     };
 
-    //
-    // The endpoint factory with underlying create endpoints that delegate to an underlying
-    // endpoint (e.g.: the SSL/WS endpoints are endpoints with underlying endpoints).
-    //
+    /// This factory is used to create endpoints that delegate to an underlying endpoint.
+    /// For example, the SSL/WS endpoints are endpoints that always delegate to underlying endpoints.
     class ICE_API EndpointFactoryWithUnderlying : public EndpointFactory
     {
     public:

@@ -77,7 +77,7 @@ namespace Ice
         virtual void waitForDeactivate() noexcept = 0;
 
         /// Checks whether or not #deactivate was called on this object adapter.
-        /// @return `true` if #deactivate was called on this objet adapter, `false` otherwise.
+        /// @return `true` if #deactivate was called on this object adapter, `false` otherwise.
         [[nodiscard]] virtual bool isDeactivated() const noexcept = 0;
 
         /// Destroys this object adapter and cleans up all resources associated with it. Once this function has
@@ -94,12 +94,12 @@ namespace Ice
         /// @remark The middleware are executed in the order they are installed.
         virtual ObjectAdapterPtr use(std::function<ObjectPtr(ObjectPtr)> middlewareFactory) = 0;
 
-        /// Adds a servant to this object adapter's Active Servant Map (ASM). The ASM is a map {identity, facet} ->
-        /// servant.
+        /// Adds a servant to this object adapter's Active Servant Map (ASM).
+        /// The ASM is a map {identity, facet} -> servant.
         /// @tparam Prx The type of the proxy to return.
         /// @param servant The servant to add.
         /// @param id The identity of the Ice object that is implemented by the servant.
-        /// @return A proxy for @p id created by this object adapter.
+        /// @return A proxy for @p id, created by this object adapter.
         /// @throws AlreadyRegisteredException Thrown when a servant with the same identity is already registered.
         /// @remark This function is equivalent to calling #addFacet with an empty facet.
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
@@ -108,13 +108,13 @@ namespace Ice
             return uncheckedCast<Prx>(_add(servant, id));
         }
 
-        /// Adds a servant to this object adapter's Active Servant Map (ASM), while specifying a facet. The ASM is a map
-        /// {identity, facet} -> servant.
+        /// Adds a servant to this object adapter's Active Servant Map (ASM), while specifying a facet.
+        /// The ASM is a map {identity, facet} -> servant.
         /// @tparam Prx The type of the proxy to return.
         /// @param servant The servant to add.
         /// @param id The identity of the Ice object that is implemented by the servant.
         /// @param facet The facet of the Ice object that is implemented by the servant.
-        /// @return A proxy for @p id and @p facet created by this object adapter.
+        /// @return A proxy for @p id and @p facet, created by this object adapter.
         /// @throws AlreadyRegisteredException Thrown when a servant with the same identity and facet is already
         /// registered.
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
@@ -163,6 +163,8 @@ namespace Ice
         /// @param servant The default servant to add.
         /// @param category The category for which the default servant is registered. The empty category means it
         /// handles all categories.
+        /// @throws AlreadyRegisteredException Thrown when a default servant with the same category is already
+        /// registered.
         virtual void addDefaultServant(ObjectPtr servant, std::string category) = 0;
 
         /// Removes a servant from the object adapter's Active Servant Map.
@@ -193,8 +195,8 @@ namespace Ice
 
         /// Looks up a servant.
         /// @param id The identity of an Ice object.
-        /// @return The servant that implements the Ice object with the given identity, or nullptr if no such servant
-        /// has been found.
+        /// @return The servant that implements the Ice object with the given identity,
+        /// or nullptr if no such servant has been found.
         /// @remark This function only tries to find the servant in the ASM and among the default servants. It does not
         /// attempt to locate a servant using servant locators.
         [[nodiscard]] virtual ObjectPtr find(const Identity& id) const = 0;
@@ -202,6 +204,8 @@ namespace Ice
         /// Looks up a servant with an identity and facet.
         /// @param id The identity of an Ice object.
         /// @param facet The facet of an Ice object. An empty facet means the default facet.
+        /// @return The servant that implements the Ice object with the given identity and facet,
+        /// or nullptr if no such servant has been found.
         /// @remark This function only tries to find the servant in the ASM and among the default servants. It does not
         /// attempt to locate a servant using servant locators.
         [[nodiscard]] virtual ObjectPtr findFacet(const Identity& id, std::string_view facet) const = 0;
@@ -298,8 +302,8 @@ namespace Ice
         [[nodiscard]] virtual EndpointSeq getPublishedEndpoints() const = 0;
 
         /// Sets the endpoints that proxies created by this object adapter will contain.
-        /// @param newEndpoints The new set of endpoints that the object adapter will embed in proxies. Must contain
-        /// at least one endpoint.
+        /// @param newEndpoints The new set of endpoints that the object adapter will embed in proxies.
+        /// @throws invalid_argument Thrown when @p newEndpoints is empty or this adapter is associated with a router.
         virtual void setPublishedEndpoints(EndpointSeq newEndpoints) = 0;
 
     protected:

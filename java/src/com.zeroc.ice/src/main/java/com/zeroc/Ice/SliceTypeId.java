@@ -11,15 +11,15 @@ import java.lang.annotation.Target;
  * Assigns a Slice type ID to a class or to an interface.
  *
  * <p>The Slice compiler assigns Slice type IDs to the classes and interfaces it generates from Slice classes,
- * exceptions, and interfaces.</p>
+ * exceptions, and interfaces.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 public @interface SliceTypeId {
     /**
-     * The Slice type ID of this class or interface.
+     * Returns the Slice type ID assigned to this class or interface.
      *
-     * @return the Slice type ID of this class or interface
+     * @return the Slice type ID
     */
     String value();
 }

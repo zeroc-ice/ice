@@ -3,14 +3,14 @@
 package com.zeroc.Ice;
 
 /**
- * This exception is raised if an attempt is made to use a deactivated {@link ObjectAdapter}.
+ * The exception that is thrown when attempting to use an {@link ObjectAdapter} that has been deactivated.
  *
  * @see ObjectAdapter#deactivate
  * @see Communicator#shutdown
  */
 public final class ObjectAdapterDeactivatedException extends LocalException {
     /**
-     * Constructs an ObjectAdapterDeactivatedException with the object adapter name.
+     * Constructs an ObjectAdapterDeactivatedException.
      *
      * @param name the name of the deactivated object adapter
      */

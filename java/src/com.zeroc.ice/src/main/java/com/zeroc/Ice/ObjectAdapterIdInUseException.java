@@ -3,12 +3,12 @@
 package com.zeroc.Ice;
 
 /**
- * This exception is raised if an {@link ObjectAdapter} cannot be activated. This happens if the
- * {@link Locator} detects another active {@link ObjectAdapter} with the same adapter id.
+ * The exception that is thrown when an {@link ObjectAdapter} cannot be activated. This can happen when a
+ * {@link Locator} implementation detects another active {@link ObjectAdapter} with the same adapter ID.
  */
 public final class ObjectAdapterIdInUseException extends LocalException {
     /**
-     * Constructs an ObjectAdapterIdInUseException with the adapter ID.
+     * Constructs an ObjectAdapterIdInUseException.
      *
      * @param id the adapter ID that is already in use
      */

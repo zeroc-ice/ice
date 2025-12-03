@@ -3,7 +3,7 @@
 package com.zeroc.Ice;
 
 /**
- * Provides access to the address details of a IP endpoint.
+ * Provides access to the address details of an IP endpoint.
  *
  * @see Endpoint
  */
@@ -18,7 +18,7 @@ public class IPEndpointInfo extends EndpointInfo {
     public final String sourceAddress;
 
     /**
-     * Constructs an IPEndpointInfo with the specified parameters.
+     * Constructs an IPEndpointInfo.
      *
      * @param compress whether to compress the endpoint
      * @param host the host or address configured with the endpoint

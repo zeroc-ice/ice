@@ -14,7 +14,7 @@ public final class FacetNotExistException extends RequestFailedException {
     }
 
     /**
-     * Constructs a FacetNotExistException with the specified identity, facet, and operation.
+     * Constructs a FacetNotExistException with details about the facet that couldn't be found.
      *
      * @param id the identity of the Ice Object to which the request was sent
      * @param facet the facet to which the request was sent

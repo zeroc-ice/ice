@@ -7,7 +7,7 @@ public final class SliceInfo {
     /** The Slice type ID for this slice. It's empty when {@link #compactId} is set (not {@code -1}). */
     public final String typeId;
 
-    /** The Slice compact type ID for this slice. If no compact ID is set, it's encoded as {@code -1}. */
+    /** The Slice compact type ID for this slice, or {@code -1} if the slice has no compact ID. */
     public final int compactId;
 
     /** The encoded bytes for this slice, including the leading size integer. */

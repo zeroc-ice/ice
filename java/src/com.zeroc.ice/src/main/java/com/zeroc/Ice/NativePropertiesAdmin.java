@@ -140,10 +140,9 @@ public class NativePropertiesAdmin implements PropertiesAdmin {
     }
 
     /**
-     * Adds a new update callback. The callback receives the updated properties each time the
-     * properties are updated.
+     * Registers an update callback that will be invoked when a property update occurs.
      *
-     * @param cb The new callback.
+     * @param cb the callback
      */
     public synchronized void addUpdateCallback(Consumer<Map<String, String>> cb) {
         _updateCallbacks.add(cb);
@@ -152,7 +151,7 @@ public class NativePropertiesAdmin implements PropertiesAdmin {
     /**
      * Removes a previously registered update callback.
      *
-     * @param cb The callback to remove.
+     * @param cb the callback to remove
      */
     public synchronized void removeUpdateCallback(Consumer<Map<String, String>> cb) {
         _updateCallbacks.remove(cb);

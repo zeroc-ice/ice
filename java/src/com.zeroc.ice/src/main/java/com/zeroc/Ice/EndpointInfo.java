@@ -2,36 +2,36 @@
 
 package com.zeroc.Ice;
 
-/** Base class providing access to the endpoint details. */
+/** Base class for the endpoint info classes. */
 public class EndpointInfo {
-    /** The information of the underlying endpoint or null if there's no underlying endpoint. */
+    /** The information of the underlying endpoint or {@code null} if there's no underlying endpoint. */
     public final EndpointInfo underlying;
 
-    /**
-     * Specifies whether or not compression should be used if available when using this endpoint.
-     */
+    /** Specifies whether or not compression should be used if available when using this endpoint. */
     public final boolean compress;
 
     /**
      * Returns the type of the endpoint.
      *
-     * @return The endpoint type.
+     * @return the endpoint type
      */
     public short type() {
         return underlying != null ? underlying.type() : -1;
     }
 
     /**
-     * Returns true if this endpoint is a datagram endpoint.
+     * Returns whether this endpoint is a datagram endpoint.
      *
-     * @return True for a datagram endpoint.
+     * @return {@code true} for a UDP endpoint, {@code false} otherwise
      */
     public boolean datagram() {
         return underlying != null ? underlying.datagram() : false;
     }
 
     /**
-     * @return True for a secure endpoint.
+     * Returns whether this endpoint uses SSL.
+     *
+     * @return {@code true} if this endpoint's transport uses SSL, {@code false} otherwise
      */
     public boolean secure() {
         return underlying != null ? underlying.secure() : false;
@@ -40,7 +40,7 @@ public class EndpointInfo {
     /**
      * Constructs an EndpointInfo with an underlying endpoint.
      *
-     * @param underlying The underlying EndpointInfo. Must not be null.
+     * @param underlying the underlying EndpointInfo. Must not be null.
      */
     protected EndpointInfo(EndpointInfo underlying) {
         assert underlying != null;
@@ -51,7 +51,7 @@ public class EndpointInfo {
     /**
      * Constructs an EndpointInfo with the specified compression flag.
      *
-     * @param compress True if compression should be used if available.
+     * @param compress {@code true} if compression should be used when available
      */
     protected EndpointInfo(boolean compress) {
         this.underlying = null;

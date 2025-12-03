@@ -157,7 +157,6 @@ namespace Ice
         /// @param serverAuthenticationOptions The SSL options for server connections.
         /// @return The new object adapter.
         /// @see #createObjectAdapter
-        /// @see ObjectAdapter
         /// @see Properties
         /// @see SSL::OpenSSLServerAuthenticationOptions
         /// @see SSL::SecureTransportServerAuthenticationOptions
@@ -173,7 +172,6 @@ namespace Ice
         /// @param rtr The router.
         /// @return The new object adapter.
         /// @see #createObjectAdapter
-        /// @see ObjectAdapter
         /// @see Properties
         ObjectAdapterPtr createObjectAdapterWithRouter(std::string name, RouterPrx rtr);
 
@@ -394,11 +392,11 @@ namespace Ice
         ~CommunicatorHolder();
 
         /// Gets the communicator.
-        /// @return The communicator held by this holder, or null if the holder is empty.
+        /// @return The communicator held by this holder, or nullptr if the holder is empty.
         [[nodiscard]] const CommunicatorPtr& communicator() const noexcept { return _communicator; }
 
         /// Gets the communicator.
-        /// @return The communicator held by this holder, or null if the holder is empty.
+        /// @return The communicator held by this holder, or nullptr if the holder is empty.
         const CommunicatorPtr& operator->() const noexcept { return _communicator; }
 
         /// Gets the communicator and clears the reference held by the holder.
