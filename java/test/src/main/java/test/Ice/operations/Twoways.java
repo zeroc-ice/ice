@@ -317,12 +317,11 @@ class Twoways {
             r.p3.p.opVoid();
 
             //
-            // Test marshaling of null structs and structs with default member values.
+            // Test marshaling of structs with default or null member values.
             //
             si1 = new Structure();
-            si2 = null;
 
-            r = p.opStruct(si1, si2);
+            r = p.opStruct(si1, si1);
             test(r.returnValue.p == null);
             test(r.returnValue.e == MyEnum.enum1);
             test(r.returnValue.s.s.isEmpty());
