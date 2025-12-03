@@ -118,11 +118,24 @@ endpointGetInfo(EndpointObject* self, PyObject* /*args*/)
 }
 
 static PyMethodDef EndpointMethods[] = {
-    {"toString", reinterpret_cast<PyCFunction>(endpointToString), METH_NOARGS, PyDoc_STR("toString() -> string")},
+    {"toString",
+     reinterpret_cast<PyCFunction>(endpointToString),
+     METH_NOARGS,
+     PyDoc_STR("toString() -> str\n\n"
+               "Returns a string representation of this endpoint.\n\n"
+               "Returns\n"
+               "-------\n"
+               "str\n"
+               "    The string representation of this endpoint.")},
     {"getInfo",
      reinterpret_cast<PyCFunction>(endpointGetInfo),
      METH_NOARGS,
-     PyDoc_STR("getInfo() -> Ice.EndpointInfo")},
+     PyDoc_STR("getInfo() -> Ice.EndpointInfo\n\n"
+               "Returns the endpoint information.\n\n"
+               "Returns\n"
+               "-------\n"
+               "Ice.EndpointInfo\n"
+               "    The endpoint information class.")},
     {} /* sentinel */
 };
 
@@ -136,6 +149,7 @@ namespace IcePy
         .tp_dealloc = reinterpret_cast<destructor>(endpointDealloc),
         .tp_repr = reinterpret_cast<reprfunc>(endpointRepr),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+        .tp_doc = PyDoc_STR("IcePy.Endpoint"),
         .tp_richcompare = reinterpret_cast<richcmpfunc>(endpointCompare),
         .tp_methods = EndpointMethods,
         .tp_new = reinterpret_cast<newfunc>(endpointNew),

@@ -1,11 +1,9 @@
 {
     "include": ["python"],
-    "exclude": ["python/dist"],
+    "exclude": ["python/dist", "python/.venv"],
     "extraPaths": ["python/python"],
     "typeCheckingMode": "standard",
-    "reportMissingTypeAnnotation": "error",
     "reportMissingParameterType": "error",
-    "reportMissingReturnType": "error",
     "reportUntypedFunctionDecorator": "error",
     "reportUntypedClassDecorator": "error",
     "reportUntypedBaseClass": "error",

@@ -860,10 +860,7 @@ static PyMethodDef DispatchCallbackMethods[] = {
 };
 
 static PyMethodDef AsyncInvocationContextMethods[] = {
-    {"cancel",
-     reinterpret_cast<PyCFunction>(asyncInvocationContextCancel),
-     METH_NOARGS,
-     PyDoc_STR("cancels the invocation")},
+    {"cancel", reinterpret_cast<PyCFunction>(asyncInvocationContextCancel), METH_NOARGS, PyDoc_STR("cancel() -> None")},
     {} /* sentinel */
 };
 
@@ -876,6 +873,7 @@ namespace IcePy
         .tp_basicsize = sizeof(OperationObject),
         .tp_dealloc = reinterpret_cast<destructor>(operationDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT,
+        .tp_doc = PyDoc_STR("IcePy.Operation"),
         .tp_methods = OperationMethods,
         .tp_init = reinterpret_cast<initproc>(operationInit),
         .tp_new = reinterpret_cast<newfunc>(operationNew),
@@ -887,6 +885,7 @@ namespace IcePy
         .tp_basicsize = sizeof(DispatchCallbackObject),
         .tp_dealloc = reinterpret_cast<destructor>(dispatchCallbackDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT,
+        .tp_doc = PyDoc_STR("IcePy.DispatchCallback"),
         .tp_methods = DispatchCallbackMethods,
         .tp_new = reinterpret_cast<newfunc>(dispatchCallbackNew),
     };
@@ -897,6 +896,7 @@ namespace IcePy
         .tp_basicsize = sizeof(AsyncInvocationContextObject),
         .tp_dealloc = reinterpret_cast<destructor>(asyncInvocationContextDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT,
+        .tp_doc = PyDoc_STR("IcePy.AsyncInvocationContext"),
         .tp_methods = AsyncInvocationContextMethods,
         .tp_new = reinterpret_cast<newfunc>(asyncInvocationContextNew),
     };

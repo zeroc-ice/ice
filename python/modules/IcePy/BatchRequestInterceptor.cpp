@@ -120,16 +120,38 @@ batchRequestEnqueue(BatchRequestObject* self, PyObject* /*args*/)
 }
 
 static PyMethodDef BatchRequestMethods[] = {
-    {"getSize", reinterpret_cast<PyCFunction>(batchRequestGetSize), METH_NOARGS, PyDoc_STR("getSize() -> int")},
+    {"getSize",
+     reinterpret_cast<PyCFunction>(batchRequestGetSize),
+     METH_NOARGS,
+     PyDoc_STR("getSize() -> int\n\n"
+               "Gets the size of the request.\n\n"
+               "Returns\n"
+               "-------\n"
+               "int\n"
+               "    The number of bytes consumed by the request.")},
     {"getOperation",
      reinterpret_cast<PyCFunction>(batchRequestGetOperation),
      METH_NOARGS,
-     PyDoc_STR("getOperation() -> string")},
+     PyDoc_STR("getOperation() -> str\n\n"
+               "Gets the name of the operation.\n\n"
+               "Returns\n"
+               "-------\n"
+               "str\n"
+               "    The operation name.")},
     {"getProxy",
      reinterpret_cast<PyCFunction>(batchRequestGetProxy),
      METH_NOARGS,
-     PyDoc_STR("getProxy() -> Ice.ObjectPrx")},
-    {"enqueue", reinterpret_cast<PyCFunction>(batchRequestEnqueue), METH_NOARGS, PyDoc_STR("enqueue() -> None")},
+     PyDoc_STR("getProxy() -> Ice.ObjectPrx\n\n"
+               "Gets the proxy used to create this batch request.\n\n"
+               "Returns\n"
+               "-------\n"
+               "Ice.ObjectPrx\n"
+               "    The proxy.")},
+    {"enqueue",
+     reinterpret_cast<PyCFunction>(batchRequestEnqueue),
+     METH_NOARGS,
+     PyDoc_STR("enqueue() -> None\n\n"
+               "Queues this request.")},
     {} /* sentinel */
 };
 
@@ -142,6 +164,8 @@ namespace IcePy
         .tp_basicsize = sizeof(BatchRequestObject),
         .tp_dealloc = (destructor)batchRequestDealloc,
         .tp_flags = Py_TPFLAGS_DEFAULT,
+        .tp_doc = PyDoc_STR("Represents a batch request. A batch request is created by invoking an operation on a batch-oneway or\n"
+                           "batch-datagram proxy."),
         .tp_methods = BatchRequestMethods,
         .tp_new = (newfunc)batchRequestNew,
     };
