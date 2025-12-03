@@ -53,16 +53,12 @@ export function defineEnum(enumerators) {
 
     const enums = [];
     let maxValue = 0;
-    let firstEnum = null;
 
     for (const idx in enumerators) {
         const e = enumerators[idx][0];
         const value = enumerators[idx][1];
         const enumerator = new type(e, value);
         enums[value] = enumerator;
-        if (!firstEnum) {
-            firstEnum = enumerator;
-        }
         Object.defineProperty(type, e, {
             enumerable: true,
             value: enumerator,
@@ -75,11 +71,7 @@ export function defineEnum(enumerators) {
     Object.defineProperty(type, "minWireSize", { get: () => 1 });
 
     type._write = function (os, v) {
-        if (v) {
-            os.writeEnum(v);
-        } else {
-            os.writeEnum(firstEnum);
-        }
+        os.writeEnum(v);
     };
 
     type._read = function (is) {

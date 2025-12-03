@@ -96,12 +96,6 @@ export function defineStruct(obj, legalKeyType, variableLength) {
 
     if (obj.prototype._write && obj.prototype._read) {
         obj.write = function (os, v) {
-            if (!v) {
-                if (!obj.prototype._nullMarshalValue) {
-                    obj.prototype._nullMarshalValue = new this();
-                }
-                v = obj.prototype._nullMarshalValue;
-            }
             v._write(os);
         };
 

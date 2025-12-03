@@ -238,7 +238,6 @@ namespace IcePHP
     private:
         bool _variableLength;
         int _wireSize;
-        zval _nullMarshalValue;
     };
     using StructInfoPtr = std::shared_ptr<StructInfo>;
 

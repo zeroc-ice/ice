@@ -448,8 +448,6 @@ function allTests($helper)
     $p1 = new Test\SmallStruct(56);
     $p3 = $initial->opSmallStruct($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
-    $p3 = $initial->opSmallStruct(null, $p2); // Testing null struct
-    test($p2->m == 0 && $p3->m == 0);
 
     $p3 = $initial->opFixedStruct(Ice\None, $p2);
     test($p2 == Ice\None && $p3 == Ice\None);
