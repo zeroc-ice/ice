@@ -303,7 +303,7 @@ namespace Ice
 
         /// Sets the endpoints that proxies created by this object adapter will contain.
         /// @param newEndpoints The new set of endpoints that the object adapter will embed in proxies.
-        /// Must contain at least one endpoint.
+        /// @throws invalid_argument Thrown when @p newEndpoints is empty or this adapter is associated with a router.
         virtual void setPublishedEndpoints(EndpointSeq newEndpoints) = 0;
 
     protected:

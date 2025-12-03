@@ -808,7 +808,7 @@ public final class ObjectAdapter {
      * Sets the endpoints that proxies created by this object adapter will contain.
      *
      * @param newEndpoints the new set of endpoints that the object adapter will embed in proxies.
-     *     Must contain at least one endpoint.
+     * @throws IllegalArgumentException if {@code newEndpoints} is empty or if this adapter is associated with a router
      */
     public void setPublishedEndpoints(Endpoint[] newEndpoints) {
         LocatorInfo locatorInfo = null;

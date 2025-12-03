@@ -69,7 +69,7 @@ public interface ObjectPrx {
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @return a future that completes when the ping is successfully dispatched
+     * @return a future that completes when a response is received from the target object
      */
     CompletableFuture<Void> ice_pingAsync();
 
@@ -77,7 +77,7 @@ public interface ObjectPrx {
      * Tests whether the target object of this proxy can be reached.
      *
      * @param context the request context
-     * @return a future that completes when the ping is successfully dispatched
+     * @return a future that completes when a response is received from the target object
      */
     CompletableFuture<Void> ice_pingAsync(Map<String, String> context);
 
@@ -620,7 +620,7 @@ public interface ObjectPrx {
      * Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
      *
      * @param obj the source proxy
-     * @return a new proxy or {@code null} if the target object does not support the specified type
+     * @return a new proxy or {@code null} if the target object does not support this proxy's type
      */
     static ObjectPrx checkedCast(ObjectPrx obj) {
         return checkedCast(obj, noExplicitContext);
@@ -631,7 +631,7 @@ public interface ObjectPrx {
      *
      * @param obj the source proxy
      * @param context the request context
-     * @return a new proxy or {@code null} if the target object does not support the specified type
+     * @return a new proxy or {@code null} if the target object does not support this proxy's type
      */
     static ObjectPrx checkedCast(ObjectPrx obj, Map<String, String> context) {
         return obj != null && obj.ice_isA(ice_staticId, context) ? obj : null;
