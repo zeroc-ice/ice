@@ -61,7 +61,7 @@ class LoggerI implements Logger {
         }
         s.append(' ');
         s.append(_formattedPrefix);
-        s.append("warning: ");
+        s.append("warning in thread ");
         s.append(Thread.currentThread().getName());
         s.append(": ");
         s.append(message);
@@ -78,7 +78,7 @@ class LoggerI implements Logger {
         }
         s.append(' ');
         s.append(_formattedPrefix);
-        s.append("error: ");
+        s.append("error in thread ");
         s.append(Thread.currentThread().getName());
         s.append(": ");
         s.append(message);
