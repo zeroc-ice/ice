@@ -309,7 +309,7 @@ namespace IceInternal
         {
             _read = [](Ice::InputStream* stream)
             {
-                T v;
+                T v{};
                 stream->read(v);
                 return v;
             };
