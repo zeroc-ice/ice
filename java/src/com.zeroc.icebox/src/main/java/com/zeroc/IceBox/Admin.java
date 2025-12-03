@@ -82,7 +82,7 @@ final class Admin {
                 manager.shutdown();
             } else if ("status".equals(command)) {
                 if (++i >= commands.size()) {
-                    System.err.println("IceBox.Admin: no service name specified.");
+                    System.err.println("IceBox.Admin: no service name specified");
                     return 1;
                 }
                 String service = commands.get(i);
