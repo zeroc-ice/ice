@@ -94,7 +94,7 @@ final class Admin {
                         System.out.println("stopped");
                     }
                 } catch (NoSuchServiceException ex) {
-                    System.err.println("IceBox.Admin: unknown service '" + service + "'");;
+                    System.err.println("IceBox.Admin: unknown service '" + service + "'");
                     return 1;
                 }
             } else if ("start".equals(command)) {
