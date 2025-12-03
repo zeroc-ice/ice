@@ -1130,7 +1130,7 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Added a new operation on `IceBox::ServiceManager`: `isServiceRunning`.
 
-- Added a new "status SERVICE" command to `iceboxadmin` and `com.zeroc.IceBox.Admin`.
+- Added a new command called "status SERVICE" to `iceboxadmin` and `com.zeroc.IceBox.Admin`.
 
 - Added a new "service status SERVER SERVICE" command to `icegridadmin`.
 
