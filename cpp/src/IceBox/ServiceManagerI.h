@@ -20,6 +20,7 @@ namespace IceBox
 
         void startService(std::string, const Ice::Current&) final;
         void stopService(std::string, const Ice::Current&) final;
+        bool isServiceRunning(std::string, const Ice::Current&) final;
 
         void addObserver(std::optional<ServiceObserverPrx>, const Ice::Current&) final;
 

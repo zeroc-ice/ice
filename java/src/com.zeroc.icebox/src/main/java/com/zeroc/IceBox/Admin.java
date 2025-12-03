@@ -21,6 +21,7 @@ final class Admin {
                 + "-v, --version       Display the Ice version.\n"
                 + "\n"
                 + "Commands:\n"
+                + "status SERVICE      Get the status of a service.\n"
                 + "start SERVICE       Start a service.\n"
                 + "stop SERVICE        Stop a service.\n"
                 + "shutdown            Shutdown the server.");
@@ -56,7 +57,7 @@ final class Admin {
                 System.out.println(Util.stringVersion());
                 return 0;
             } else if (command.startsWith("-")) {
-                System.err.println("IceBox.Admin: unknown option `" + command + "'");
+                System.err.println("IceBox.Admin: unknown option '" + command + "'");
                 usage();
                 return 1;
             }
@@ -79,6 +80,23 @@ final class Admin {
             String command = commands.get(i);
             if ("shutdown".equals(command)) {
                 manager.shutdown();
+            } else if ("status".equals(command)) {
+                if (++i >= commands.size()) {
+                    System.err.println("IceBox.Admin: no service name specified.");
+                    return 1;
+                }
+                String service = commands.get(i);
+                try {
+                    boolean running = manager.isServiceRunning(service);
+                    if (running) {
+                        System.out.println("Service '" + service + "' is running.");
+                    } else {
+                        System.out.println("Service '" + service + "' is stopped.");
+                    }
+                } catch (NoSuchServiceException ex) {
+                    System.err.println("IceBox.Admin: unknown service '" + service + "'");;
+                    return 1;
+                }
             } else if ("start".equals(command)) {
                 if (++i >= commands.size()) {
                     System.err.println("IceBox.Admin: no service name specified.");
@@ -89,7 +107,7 @@ final class Admin {
                 try {
                     manager.startService(service);
                 } catch (NoSuchServiceException ex) {
-                    System.err.println("IceBox.Admin: unknown service `" + service + "'");
+                    System.err.println("IceBox.Admin: unknown service '" + service + "'");
                     return 1;
                 } catch (AlreadyStartedException ex) {
                     System.err.println("IceBox.Admin: service already started.");
@@ -104,13 +122,13 @@ final class Admin {
                 try {
                     manager.stopService(service);
                 } catch (NoSuchServiceException ex) {
-                    System.err.println("IceBox.Admin: unknown service `" + service + "'");
+                    System.err.println("IceBox.Admin: unknown service '" + service + "'");
                     return 1;
                 } catch (AlreadyStoppedException ex) {
                     System.err.println("IceBox.Admin: service already stopped.");
                 }
             } else {
-                System.err.println("IceBox.Admin: unknown command `" + command + "'");
+                System.err.println("IceBox.Admin: unknown command '" + command + "'");
                 usage();
                 return 1;
             }
