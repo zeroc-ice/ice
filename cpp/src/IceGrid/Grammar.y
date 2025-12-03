@@ -748,7 +748,6 @@ keyword
 | ICEGRID_STOP
 {
 }
-|
 | ICEGRID_STATUS
 {
 }
