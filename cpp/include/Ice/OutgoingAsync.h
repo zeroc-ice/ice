@@ -19,7 +19,11 @@
 #include <exception>
 #include <string_view>
 
-#if defined(__clang__)
+#if defined(_MSC_VER)
+#    pragma warning(push)
+#    pragma warning(disable : 4250) // ... : inherits ... via dominance
+#    pragma warning(disable : 4251) // class ... needs to have dll-interface to be used by clients of class ...
+#elif defined(__clang__)
 #    pragma clang diagnostic push
 // See #2747
 #    pragma clang diagnostic ignored "-Wshadow-uncaptured-local"
@@ -305,7 +309,7 @@ namespace IceInternal
         {
             _read = [](Ice::InputStream* stream)
             {
-                T v;
+                T v{};
                 stream->read(v);
                 return v;
             };
@@ -499,7 +503,9 @@ namespace IceInternal
     }
 }
 
-#if defined(__clang__)
+#if defined(_MSC_VER)
+#    pragma warning(pop)
+#elif defined(__clang__)
 #    pragma clang diagnostic pop
 #endif
 
