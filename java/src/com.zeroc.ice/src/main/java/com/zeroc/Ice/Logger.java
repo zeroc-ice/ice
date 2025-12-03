@@ -4,7 +4,7 @@ package com.zeroc.Ice;
 
 /**
  * Represents Ice's abstraction for logging and tracing.
- * Applications can provide their own logger by implementing this abstraction and setting a logger on the communicator.
+ * Applications can provide their own logger by implementing this interface and setting a logger on the communicator.
  */
 public interface Logger extends AutoCloseable {
     /**
