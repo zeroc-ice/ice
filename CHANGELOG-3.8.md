@@ -825,6 +825,12 @@ initialization. See `InitializationData.pluginFactories`.
   by a WebSocket connection. Once the WebSocket `bufferedAmount` reaches this limit, sending additional data
   is delayed until it drops below the threshold.
 
+- Marshaling a `null` enum value will now result in a `NullPointerException` instead of marshaling the first enumerator
+  of the enum.
+
+- Marshaling a `null` struct will now result in a `NullPointerException` instead of marshaling a default initialized
+  instance of that struct.
+
 - The Ice runtime terminates the Java Virtual Machine after receiving a selector internal error.
   This typically indicates an application bug or a malfunctioning system.
   The underlying platform selectors — IOCP, kqueue, or epoll — can fail with internal errors that represent fatal

@@ -3149,17 +3149,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << " * Marshals " << getArticleFor(name) << " {@code " << name << "} into an output stream.";
     out << nl << " *";
     out << nl << " * @param ostr the output stream";
-    out << nl << " * @param v the {@code " << name << "} to marshal; can be null";
+    out << nl << " * @param v the {@code " << name << "} to marshal";
     out << nl << " */";
     out << nl << "static public void ice_write(com.zeroc.Ice.OutputStream ostr, " << name << " v)";
     out << sb;
-    out << nl << "if (v == null)";
-    out << sb;
-    out << nl << "_nullMarshalValue.ice_writeMembers(ostr);";
-    out << eb << " else";
-    out << sb;
     out << nl << "v.ice_writeMembers(ostr);";
-    out << eb;
     out << eb;
 
     out << sp;
@@ -3245,8 +3239,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "return java.util.Optional.empty();";
     out << eb;
     out << eb;
-
-    out << sp << nl << "private static final " << name << " _nullMarshalValue = new " << name << "();";
 
     out << sp;
     out << nl << getSerialVersionUID(p);
@@ -3632,14 +3624,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << " */";
     out << nl << "public static void ice_write(com.zeroc.Ice.OutputStream ostr, " << name << " v)";
     out << sb;
-    out << nl << "if (v == null)";
-    out << sb;
-    string firstEnum = enumerators.front()->mappedName();
-    out << nl << "ostr.writeEnum(" << absolute << '.' << firstEnum << ".value(), " << p->maxValue() << ");";
-    out << eb << " else";
-    out << sb;
     out << nl << "ostr.writeEnum(v.value(), " << p->maxValue() << ");";
-    out << eb;
     out << eb;
 
     out << sp;
