@@ -3,7 +3,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <!-- default values -->
     <Choose>
-        <When Condition="Exists('$(MSBuildThisFileDirectory)..\ZeroC.Ice.Cpp.nuspec')">
+        <When Condition="Exists('$(MSBuildThisFileDirectory)..\tools\slice2cpp.exe')">
             <!-- Use the Slice compiler from this NuGet package -->
             <PropertyGroup>
                 <IceToolsPath>$(MSBuildThisFileDirectory)..\tools\</IceToolsPath>
@@ -12,7 +12,7 @@
         <Otherwise>
             <PropertyGroup >
                 <!-- Use the Slice compiler from this Source distribution -->
-                <IceToolsPath>$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\Configuration</IceToolsPath>
+                <IceToolsPath>$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\$(Configuration)</IceToolsPath>
             </PropertyGroup>
         </Otherwise>
     </Choose>
@@ -26,7 +26,7 @@
     </ItemDefinitionGroup>
 
     <Choose>
-        <When Condition="Exists('$(MSBuildThisFileDirectory)..\ZeroC.Ice.Cpp.nuspec')">
+        <When Condition="Exists('$(MSBuildThisFileDirectory)..\tools\slice2cpp.exe')">
             <!-- Default SliceCompile settings for NuGet package -->
             <ItemDefinitionGroup>
                 <SliceCompile>
