@@ -64,7 +64,7 @@ module IceBox
 
         /// Returns whether a service is running.
         /// @param service The name of the service to check.
-        /// @return @c true if the service was started and not stopped; otherwise @c false.
+        /// @return `true` if the service was started and not stopped; otherwise `false`.
         /// @throws NoSuchServiceException Thrown when IceBox does not know a service named @p service.
         bool isServiceRunning(string service)
             throws NoSuchServiceException;
