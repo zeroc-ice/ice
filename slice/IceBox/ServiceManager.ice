@@ -63,7 +63,7 @@ module IceBox
             throws AlreadyStoppedException, NoSuchServiceException;
 
         /// Returns whether a service is running.
-        /// @param service The service name.
+        /// @param service The name of the service to check.
         /// @return @c true if the service was started and not stopped; otherwise @c false.
         /// @throws NoSuchServiceException Thrown when IceBox does not know a service named @p service.
         bool isServiceRunning(string service)
