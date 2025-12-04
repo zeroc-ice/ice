@@ -494,7 +494,7 @@ namespace Ice
             ErrorCode error,
             std::optional<std::string> address = std::nullopt);
 
-        /// Constructs a ConnectFailedException.
+        /// Constructs a ConnectFailedException with a generic message and an error code.
         /// @param file The file where this exception is constructed. This C string is not copied.
         /// @param line The line where this exception is constructed.
         /// @param error The error code.
@@ -505,6 +505,15 @@ namespace Ice
             ErrorCode error,
             std::optional<std::string> address = std::nullopt)
             : ConnectFailedException{file, line, "connect failed", error, std::move(address)}
+        {
+        }
+
+        /// Constructs a ConnectFailedException without an error code.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
+        /// @param message The message returned by what().
+        ConnectFailedException(const char* file, int line, std::string message)
+            : SocketException(file, line, std::move(message))
         {
         }
 

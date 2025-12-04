@@ -348,7 +348,7 @@ namespace
     {
         if (error == 0)
         {
-            return "unknown error";
+            return "no error code";
         }
         return IceInternal::errorToString(error);
     }
@@ -398,7 +398,7 @@ namespace
     {
         if (error == 0)
         {
-            return "recv() returned zero";
+            return "no error code";
         }
         else
         {
