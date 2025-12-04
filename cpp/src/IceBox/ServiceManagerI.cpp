@@ -258,6 +258,21 @@ IceBox::ServiceManagerI::stopService(string name, const Current&)
     }
 }
 
+bool
+IceBox::ServiceManagerI::isServiceRunning(string name, const Current&)
+{
+    lock_guard<mutex> lock(_mutex);
+
+    for (const auto& service : _services)
+    {
+        if (service.name == name)
+        {
+            return service.status == Started;
+        }
+    }
+    throw NoSuchServiceException();
+}
+
 void
 IceBox::ServiceManagerI::addObserver(optional<ServiceObserverPrx> observer, const Current&)
 {

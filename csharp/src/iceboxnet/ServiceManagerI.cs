@@ -55,7 +55,7 @@ internal class ServiceManagerI : ServiceManagerDisp_, IDisposable
             for (i = 0; i < _services.Count; ++i)
             {
                 info = _services[i];
-                if (info.name.Equals(name, StringComparison.Ordinal))
+                if (info.name == name)
                 {
                     if (_services[i].status != ServiceStatus.Stopped)
                     {
@@ -166,7 +166,7 @@ internal class ServiceManagerI : ServiceManagerDisp_, IDisposable
             for (i = 0; i < _services.Count; ++i)
             {
                 info = _services[i];
-                if (info.name.Equals(name, StringComparison.Ordinal))
+                if (info.name == name)
                 {
                     if (stopped)
                     {
@@ -189,6 +189,21 @@ internal class ServiceManagerI : ServiceManagerDisp_, IDisposable
             _pendingStatusChanges = false;
             Monitor.PulseAll(_mutex);
         }
+    }
+
+    public override bool isServiceRunning(string name, Ice.Current current)
+    {
+        lock (_mutex)
+        {
+            foreach (ServiceInfo info in _services)
+            {
+                if (info.name == name)
+                {
+                    return info.status == ServiceStatus.Started;
+                }
+            }
+        }
+        throw new NoSuchServiceException();
     }
 
     public override void addObserver(ServiceObserverPrx observer, Ice.Current current)
