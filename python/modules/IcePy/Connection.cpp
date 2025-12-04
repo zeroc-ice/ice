@@ -599,11 +599,11 @@ static PyMethodDef ConnectionMethods[] = {
     {"close",
      reinterpret_cast<PyCFunction>(connectionClose),
      METH_NOARGS,
-     PyDoc_STR("close() -> Ice.Future[None]\n\n"
+     PyDoc_STR("close() -> Awaitable[None]\n\n"
                "Starts a graceful closure of this connection once all outstanding invocations have completed.\n\n"
                "Returns\n"
                "-------\n"
-               "Ice.Future[None]\n"
+               "Awaitable[None]\n"
                "    A future that becomes available when the connection is closed.")},
     {"createProxy",
      reinterpret_cast<PyCFunction>(connectionCreateProxy),
@@ -635,7 +635,7 @@ static PyMethodDef ConnectionMethods[] = {
                "the connection rejects any incoming request with an ObjectNotExistException.\n\n"
                "Parameters\n"
                "----------\n"
-               "adapter : Ice.ObjectAdapter | None\n"
+               "adapter : Ice.ObjectAdapter or None\n"
                "    The object adapter to associate with this connection.")},
     {"getAdapter",
      reinterpret_cast<PyCFunction>(connectionGetAdapter),
@@ -672,7 +672,7 @@ static PyMethodDef ConnectionMethods[] = {
                "    compressed before being sent over the wire.\n\n"
                "Returns\n"
                "-------\n"
-               "Ice.Future[None]\n"
+               "Awaitable[None]\n"
                "    A future that becomes available when the flush completes.")},
     {"setCloseCallback",
      reinterpret_cast<PyCFunction>(connectionSetCloseCallback),
