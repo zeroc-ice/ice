@@ -1787,7 +1787,7 @@ namespace IceGrid
         keywordMap["describe"] = ICEGRID_DESCRIBE;
         keywordMap["properties"] = ICEGRID_PROPERTIES;
         keywordMap["property"] = ICEGRID_PROPERTY;
-        keywordMap["state"] = ICEGRID_STATE;
+        keywordMap["status"] = ICEGRID_STATUS;
         keywordMap["pid"] = ICEGRID_PID;
         keywordMap["endpoints"] = ICEGRID_ENDPOINTS;
         keywordMap["start"] = ICEGRID_START;

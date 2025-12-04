@@ -103,7 +103,7 @@ namespace
         {"server", "describe", "server describe ID        Describe server ID.\n"},
         {"server", "properties", "server properties ID      Get the run-time properties of server ID.\n"},
         {"server", "property", "server property ID NAME   Get the run-time property NAME of server ID.\n"},
-        {"server", "state", "server state ID           Get the state of server ID.\n"},
+        {"server", "status", "server status ID           Get the status of server ID.\n"},
         {"server", "pid", "server pid ID             Get the process id of server ID.\n"},
         {"server", "start", "server start ID           Start server ID.\n"},
         {"server", "stop", "server stop ID            Stop server ID.\n"},
@@ -1322,11 +1322,11 @@ Parser::describeServer(const list<string>& args)
 }
 
 void
-Parser::stateServer(const list<string>& args)
+Parser::statusServer(const list<string>& args)
 {
     if (args.size() != 1)
     {
-        invalidCommand("server state", "requires exactly one argument");
+        invalidCommand("server status", "requires exactly one argument");
         return;
     }
 
@@ -1583,7 +1583,7 @@ Parser::stopService(const list<string>& args)
 }
 
 void
-Parser::serviceStatus(const list<string>& args)
+Parser::statusService(const list<string>& args)
 {
     if (args.size() != 2)
     {

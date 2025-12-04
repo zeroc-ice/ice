@@ -1142,6 +1142,9 @@ initialization. See `InitializationData.pluginFactories`.
 
 #### IceGrid
 
+- Renamed the icegridadmin command "server state SERVER" to "server status SERVER" for consistency with the
+  new "service status SERVER SERVICE" command.
+
 - Removed deprecated server and application distributions in IceGrid. These distributions relied on the IcePatch2
 service.
 

@@ -106,7 +106,6 @@ yyerror(const char* s)
 %token ICEGRID_DESCRIBE
 %token ICEGRID_PROPERTIES
 %token ICEGRID_PROPERTY
-%token ICEGRID_STATE
 %token ICEGRID_PID
 %token ICEGRID_ENDPOINTS
 %token ICEGRID_ACTIVATION
@@ -399,13 +398,13 @@ command
 {
     parser->usage("server", "stderr");
 }
-| ICEGRID_SERVER ICEGRID_STATE strings ';'
+| ICEGRID_SERVER ICEGRID_STATUS strings ';'
 {
-    parser->stateServer($3);
+    parser->statusServer($3);
 }
-| ICEGRID_SERVER ICEGRID_STATE ICEGRID_HELP ';'
+| ICEGRID_SERVER ICEGRID_STATUS ICEGRID_HELP ';'
 {
-    parser->usage("server", "start");
+    parser->usage("server", "status");
 }
 | ICEGRID_SERVER ICEGRID_PID strings ';'
 {
@@ -481,7 +480,7 @@ command
 }
 | ICEGRID_SERVICE ICEGRID_STATUS strings ';'
 {
-    parser->serviceStatus($3);
+    parser->statusService($3);
 }
 | ICEGRID_SERVICE ICEGRID_STATUS ICEGRID_HELP ';'
 {
@@ -755,9 +754,6 @@ keyword
 {
 }
 | ICEGRID_DESCRIBE
-{
-}
-| ICEGRID_STATE
 {
 }
 | ICEGRID_PID
