@@ -332,7 +332,7 @@ IceObjC::iAPTransceiver::read(Buffer& buf)
         NSInteger ret = [_readStream read:reinterpret_cast<UInt8*>(&*buf.i) maxLength:packetSize];
         if (ret == 0)
         {
-            throw ConnectionLostException{__FILE__, __LINE__, 0};
+            throw ConnectionLostException{__FILE__, __LINE__};
         }
 
         if (ret == SOCKET_ERROR)
@@ -434,7 +434,7 @@ IceObjC::iAPTransceiver::checkErrorStatus(NSStream* stream, const char* file, in
     NSStreamStatus status = [stream streamStatus];
     if (status == NSStreamStatusAtEnd || status == NSStreamStatusClosed)
     {
-        throw ConnectionLostException{file, line, 0};
+        throw ConnectionLostException{file, line};
     }
 
     assert(status == NSStreamStatusError);

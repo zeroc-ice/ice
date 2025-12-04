@@ -394,7 +394,7 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
 
         if (ret == 0)
         {
-            throw ConnectionLostException(__FILE__, __LINE__, 0);
+            throw ConnectionLostException(__FILE__, __LINE__);
         }
 
         if (ret == SOCKET_ERROR)
@@ -538,7 +538,7 @@ IceObjC::StreamTransceiver::checkErrorStatus(
 
     if (status == kCFStreamStatusAtEnd || status == kCFStreamStatusClosed)
     {
-        throw ConnectionLostException(file, line, 0);
+        throw ConnectionLostException(file, line);
     }
 
     assert(status == kCFStreamStatusError);

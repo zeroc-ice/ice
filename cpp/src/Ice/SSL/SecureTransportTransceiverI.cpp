@@ -233,7 +233,7 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
         }
         else if (err == errSSLClosedGraceful || err == errSSLClosedAbort)
         {
-            throw ConnectionLostException(__FILE__, __LINE__, 0);
+            throw ConnectionLostException(__FILE__, __LINE__);
         }
 
         ostringstream os;
@@ -341,7 +341,7 @@ Ice::SSL::SecureTransport::TransceiverI::write(IceInternal::Buffer& buf)
 
             if (err == errSSLClosedGraceful)
             {
-                throw ConnectionLostException(__FILE__, __LINE__, 0);
+                throw ConnectionLostException(__FILE__, __LINE__);
             }
 
             //
@@ -414,7 +414,7 @@ Ice::SSL::SecureTransport::TransceiverI::read(IceInternal::Buffer& buf)
 
             if (err == errSSLClosedGraceful || err == errSSLClosedAbort)
             {
-                throw ConnectionLostException(__FILE__, __LINE__, 0);
+                throw ConnectionLostException(__FILE__, __LINE__);
             }
 
             //

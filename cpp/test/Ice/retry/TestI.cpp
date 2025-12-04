@@ -19,7 +19,7 @@ RetryI::op(bool kill, const Ice::Current& current)
         }
         else
         {
-            throw Ice::ConnectionLostException{__FILE__, __LINE__, 0};
+            throw Ice::ConnectionLostException{__FILE__, __LINE__};
         }
     }
 }
@@ -36,7 +36,7 @@ RetryI::opIdempotent(int nRetry, const Ice::Current&)
     if (nRetry > _counter)
     {
         ++_counter;
-        throw Ice::ConnectionLostException{__FILE__, __LINE__, 0};
+        throw Ice::ConnectionLostException{__FILE__, __LINE__};
     }
     int counter = _counter;
     _counter = 0;
@@ -46,7 +46,7 @@ RetryI::opIdempotent(int nRetry, const Ice::Current&)
 void
 RetryI::opNotIdempotent(const Ice::Current&)
 {
-    throw Ice::ConnectionLostException{__FILE__, __LINE__, 0};
+    throw Ice::ConnectionLostException{__FILE__, __LINE__};
 }
 
 void

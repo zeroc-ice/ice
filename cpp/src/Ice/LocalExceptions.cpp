@@ -348,9 +348,21 @@ namespace
     {
         if (error == 0)
         {
-            return "unknown error";
+            return "no error code";
         }
         return IceInternal::errorToString(error);
+    }
+
+    string makePrefixWithAddress(string messagePrefix, optional<string> address)
+    {
+        if (address.has_value() && !address->empty())
+        {
+            return std::move(messagePrefix) + " (remote address = " + *address + ")";
+        }
+        else
+        {
+            return messagePrefix;
+        }
     }
 }
 
@@ -365,6 +377,16 @@ Ice::SocketException::ice_id() const noexcept
     return "::Ice::SocketException";
 }
 
+Ice::ConnectFailedException::ConnectFailedException(
+    const char* file,
+    int line,
+    string messagePrefix,
+    ErrorCode error,
+    optional<string> address)
+    : SocketException(file, line, makePrefixWithAddress(std::move(messagePrefix), std::move(address)), error)
+{
+}
+
 const char*
 Ice::ConnectFailedException::ice_id() const noexcept
 {
@@ -376,7 +398,7 @@ namespace
     {
         if (error == 0)
         {
-            return "recv() returned zero";
+            return "no error code";
         }
         else
         {
@@ -385,8 +407,22 @@ namespace
     }
 }
 
-Ice::ConnectionLostException::ConnectionLostException(const char* file, int line, ErrorCode error)
-    : SocketException(file, line, "connection lost", error, connectionLostErrorToString)
+Ice::ConnectionLostException::ConnectionLostException(
+    const char* file,
+    int line,
+    ErrorCode error,
+    optional<string> address)
+    : SocketException(
+          file,
+          line,
+          makePrefixWithAddress("connection lost", std::move(address)),
+          error,
+          connectionLostErrorToString)
+{
+}
+
+Ice::ConnectionLostException::ConnectionLostException(const char* file, int line, optional<string> address)
+    : SocketException(file, line, makePrefixWithAddress("connection lost", std::move(address)))
 {
 }
 
@@ -394,6 +430,11 @@ const char*
 Ice::ConnectionLostException::ice_id() const noexcept
 {
     return "::Ice::ConnectionLostException";
+}
+
+Ice::ConnectionRefusedException::ConnectionRefusedException(const char* file, int line, optional<string> address)
+    : ConnectFailedException(file, line, makePrefixWithAddress("connection refused", std::move(address)))
+{
 }
 
 const char*

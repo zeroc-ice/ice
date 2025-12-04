@@ -238,7 +238,7 @@ IceObjC::iAPEndpointI::connectorsAsync(
         EAAccessoryManager* manager = [EAAccessoryManager sharedAccessoryManager];
         if (manager == nil)
         {
-            throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
+            throw Ice::ConnectFailedException(__FILE__, __LINE__, "failed to get EAAccessoryManager");
         }
 
         NSString* protocol =
@@ -275,7 +275,7 @@ IceObjC::iAPEndpointI::connectorsAsync(
 #    endif
         if (connectors.empty())
         {
-            throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
+            throw Ice::ConnectFailedException(__FILE__, __LINE__, "no matching iAP accessory found");
         }
         response(std::move(connectors));
     }
