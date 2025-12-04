@@ -16,6 +16,7 @@ public final class ConnectionLostException extends SocketException {
     /**
      * Constructs a ConnectionLostException with a peer address and a cause.
      *
+     * @param peerAddress the peer address (may be null)
      * @param cause the cause
      */
     public ConnectionLostException(InetSocketAddress peerAddress, Throwable cause) {
