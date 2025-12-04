@@ -54,7 +54,7 @@ namespace IceGrid
         void signalServer(const std::list<std::string>&);
         void writeMessage(const std::list<std::string>&, int fd);
         void describeServer(const std::list<std::string>&);
-        void stateServer(const std::list<std::string>&);
+        void statusServer(const std::list<std::string>&);
         void enableServer(const std::list<std::string>&, bool);
         void pidServer(const std::list<std::string>&);
         void propertiesServer(const std::list<std::string>&, bool);
@@ -62,7 +62,7 @@ namespace IceGrid
 
         void startService(const std::list<std::string>&);
         void stopService(const std::list<std::string>&);
-        void serviceStatus(const std::list<std::string>&);
+        void statusService(const std::list<std::string>&);
         void propertiesService(const std::list<std::string>&, bool);
         void describeService(const std::list<std::string>&);
         void listServices(const std::list<std::string>&);

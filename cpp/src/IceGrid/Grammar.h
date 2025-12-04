@@ -98,22 +98,21 @@ extern int yydebug;
     ICEGRID_DESCRIBE = 279,        /* ICEGRID_DESCRIBE  */
     ICEGRID_PROPERTIES = 280,      /* ICEGRID_PROPERTIES  */
     ICEGRID_PROPERTY = 281,        /* ICEGRID_PROPERTY  */
-    ICEGRID_STATE = 282,           /* ICEGRID_STATE  */
-    ICEGRID_PID = 283,             /* ICEGRID_PID  */
-    ICEGRID_ENDPOINTS = 284,       /* ICEGRID_ENDPOINTS  */
-    ICEGRID_ACTIVATION = 285,      /* ICEGRID_ACTIVATION  */
-    ICEGRID_OBJECT = 286,          /* ICEGRID_OBJECT  */
-    ICEGRID_FIND = 287,            /* ICEGRID_FIND  */
-    ICEGRID_SHOW = 288,            /* ICEGRID_SHOW  */
-    ICEGRID_COPYING = 289,         /* ICEGRID_COPYING  */
-    ICEGRID_WARRANTY = 290,        /* ICEGRID_WARRANTY  */
-    ICEGRID_DIFF = 291,            /* ICEGRID_DIFF  */
-    ICEGRID_UPDATE = 292,          /* ICEGRID_UPDATE  */
-    ICEGRID_INSTANTIATE = 293,     /* ICEGRID_INSTANTIATE  */
-    ICEGRID_TEMPLATE = 294,        /* ICEGRID_TEMPLATE  */
-    ICEGRID_SERVICE = 295,         /* ICEGRID_SERVICE  */
-    ICEGRID_ENABLE = 296,          /* ICEGRID_ENABLE  */
-    ICEGRID_DISABLE = 297          /* ICEGRID_DISABLE  */
+    ICEGRID_PID = 282,             /* ICEGRID_PID  */
+    ICEGRID_ENDPOINTS = 283,       /* ICEGRID_ENDPOINTS  */
+    ICEGRID_ACTIVATION = 284,      /* ICEGRID_ACTIVATION  */
+    ICEGRID_OBJECT = 285,          /* ICEGRID_OBJECT  */
+    ICEGRID_FIND = 286,            /* ICEGRID_FIND  */
+    ICEGRID_SHOW = 287,            /* ICEGRID_SHOW  */
+    ICEGRID_COPYING = 288,         /* ICEGRID_COPYING  */
+    ICEGRID_WARRANTY = 289,        /* ICEGRID_WARRANTY  */
+    ICEGRID_DIFF = 290,            /* ICEGRID_DIFF  */
+    ICEGRID_UPDATE = 291,          /* ICEGRID_UPDATE  */
+    ICEGRID_INSTANTIATE = 292,     /* ICEGRID_INSTANTIATE  */
+    ICEGRID_TEMPLATE = 293,        /* ICEGRID_TEMPLATE  */
+    ICEGRID_SERVICE = 294,         /* ICEGRID_SERVICE  */
+    ICEGRID_ENABLE = 295,          /* ICEGRID_ENABLE  */
+    ICEGRID_DISABLE = 296          /* ICEGRID_DISABLE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
