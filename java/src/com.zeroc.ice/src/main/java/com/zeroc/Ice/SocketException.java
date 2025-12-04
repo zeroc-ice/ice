@@ -20,6 +20,16 @@ public class SocketException extends SyscallException {
         super(cause);
     }
 
+    /**
+     * Constructs a SocketException with a message and a cause.
+     *
+     * @param message the detail message
+     * @param cause the cause
+     */
+    protected SocketException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
     @Override
     public String ice_id() {
         return "::Ice::SocketException";

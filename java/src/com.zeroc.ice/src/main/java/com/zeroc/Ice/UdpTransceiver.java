@@ -93,9 +93,9 @@ final class UdpTransceiver implements Transceiver {
                 }
                 break;
             } catch (AsynchronousCloseException ex) {
-                throw new ConnectionLostException(ex);
+                throw new ConnectionLostException(_addr, ex);
             } catch (PortUnreachableException ex) {
-                throw new ConnectionLostException(ex);
+                throw new ConnectionLostException(_addr, ex);
             } catch (IOException ex) {
                 throw new SocketException(ex);
             }
@@ -134,11 +134,11 @@ final class UdpTransceiver implements Transceiver {
                 ret = buf.b.position();
                 break;
             } catch (AsynchronousCloseException ex) {
-                throw new ConnectionLostException(ex);
+                throw new ConnectionLostException(_addr, ex);
             } catch (PortUnreachableException ex) {
-                throw new ConnectionLostException(ex);
+                throw new ConnectionLostException(_addr, ex);
             } catch (IOException ex) {
-                throw new ConnectionLostException(ex);
+                throw new ConnectionLostException(_addr, ex);
             }
         }
 

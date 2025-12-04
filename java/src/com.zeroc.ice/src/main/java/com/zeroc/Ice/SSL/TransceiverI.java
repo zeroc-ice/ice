@@ -190,7 +190,7 @@ final class TransceiverI implements Transceiver {
                 assert status != Status.BUFFER_OVERFLOW;
 
                 if (status == Status.CLOSED) {
-                    throw new ConnectionLostException();
+                    throw new ConnectionLostException(null, null);
                 } else if (status == Status.BUFFER_UNDERFLOW
                     || (_appInput.position() == 0 && _netInput.b.position() == 0)) {
                     int s = _delegate.read(_netInput);
@@ -319,7 +319,7 @@ final class TransceiverI implements Transceiver {
                                     return s;
                                 }
                             }
-                            case CLOSED -> throw new ConnectionLostException();
+                            case CLOSED -> throw new ConnectionLostException(null, null);
                             case OK -> {}
 
                             // 1.9 introduced NEEDS_UNWRAP_AGAIN for DTLS
@@ -351,7 +351,7 @@ final class TransceiverI implements Transceiver {
                             assert (status == HandshakeStatus.NEED_UNWRAP);
                             break;
                         case CLOSED:
-                            throw new ConnectionLostException();
+                            throw new ConnectionLostException(null, null);
                         case OK:
                             break;
                     }
@@ -379,7 +379,7 @@ final class TransceiverI implements Transceiver {
                             assert false;
                             break;
                         case CLOSED:
-                            throw new ConnectionLostException();
+                            throw new ConnectionLostException(null, null);
                         case OK:
                             break;
                     }
@@ -413,7 +413,7 @@ final class TransceiverI implements Transceiver {
                 return s;
             }
         } catch (SocketException ex) {
-            throw new ConnectionLostException(ex);
+            throw new ConnectionLostException(null, ex);
         }
         // Cast to java.nio.Buffer to avoid incompatible covariant return type used in Java 9 java.nio.ByteBuffer
         ((java.nio.Buffer) _netOutput.b).clear();

@@ -16,7 +16,7 @@ public final class RetryI implements Retry {
             if (current.con != null) {
                 current.con.abort();
             } else {
-                throw new ConnectionLostException();
+                throw new ConnectionLostException(null, null);
             }
         }
     }
@@ -30,7 +30,7 @@ public final class RetryI implements Retry {
 
         if (nRetry > _counter) {
             ++_counter;
-            throw new ConnectionLostException();
+            throw new ConnectionLostException(null, null);
         }
 
         int counter = _counter;
@@ -40,7 +40,7 @@ public final class RetryI implements Retry {
 
     @Override
     public void opNotIdempotent(Current current) {
-        throw new ConnectionLostException();
+        throw new ConnectionLostException(null, null);
     }
 
     @Override

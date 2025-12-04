@@ -303,9 +303,9 @@ public final class Network {
             closeSocketNoThrow(fd);
 
             if (connectionRefused(ex)) {
-                throw new ConnectionRefusedException(ex);
+                throw new ConnectionRefusedException(addr, ex);
             } else {
-                throw new ConnectFailedException(ex);
+                throw new ConnectFailedException(addr, ex);
             }
         } catch (IOException ex) {
             closeSocketNoThrow(fd);
@@ -344,9 +344,9 @@ public final class Network {
             }
         } catch (ConnectException ex) {
             if (connectionRefused(ex)) {
-                throw new ConnectionRefusedException(ex);
+                throw new ConnectionRefusedException(null, ex);
             } else {
-                throw new ConnectFailedException(ex);
+                throw new ConnectFailedException(null, ex);
             }
         } catch (IOException ex) {
             throw new SocketException(ex);
@@ -364,9 +364,9 @@ public final class Network {
             closeSocketNoThrow(fd);
 
             if (connectionRefused(ex)) {
-                throw new ConnectionRefusedException(ex);
+                throw new ConnectionRefusedException(addr, ex);
             } else {
-                throw new ConnectFailedException(ex);
+                throw new ConnectFailedException(addr, ex);
             }
         } catch (IOException ex) {
             closeSocketNoThrow(fd);

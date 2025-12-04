@@ -191,14 +191,14 @@ class StreamSocket {
             try {
                 int ret = _fd.read(buf);
                 if (ret == -1) {
-                    throw new ConnectionLostException();
+                    throw new ConnectionLostException(_addr, null);
                 } else if (ret == 0) {
                     return read;
                 }
 
                 read += ret;
             } catch (IOException ex) {
-                throw new ConnectionLostException(ex);
+                throw new ConnectionLostException(_addr, ex);
             }
         }
         return read;
@@ -220,7 +220,7 @@ class StreamSocket {
             try {
                 int ret = _fd.write(buf);
                 if (ret == -1) {
-                    throw new ConnectionLostException();
+                    throw new ConnectionLostException(_addr, null);
                 } else if (ret == 0) {
                     return sent;
                 }
