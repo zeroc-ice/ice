@@ -421,6 +421,11 @@ Ice::ConnectionLostException::ConnectionLostException(
 {
 }
 
+Ice::ConnectionLostException::ConnectionLostException(const char* file, int line, optional<string> address)
+    : SocketException(file, line, makePrefixWithAddress("connection lost", std::move(address)))
+{
+}
+
 const char*
 Ice::ConnectionLostException::ice_id() const noexcept
 {

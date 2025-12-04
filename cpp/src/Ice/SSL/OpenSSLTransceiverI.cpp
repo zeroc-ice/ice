@@ -166,7 +166,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
 #if defined(SSL_R_UNEXPECTED_EOF_WHILE_READING)
                     if (SSL_R_UNEXPECTED_EOF_WHILE_READING == ERR_GET_REASON(ERR_peek_error()))
                     {
-                        throw ConnectionLostException(__FILE__, __LINE__, 0);
+                        throw ConnectionLostException(__FILE__, __LINE__);
                     }
                     else
                     {
@@ -401,7 +401,7 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
                 }
                 case SSL_ERROR_ZERO_RETURN:
                 {
-                    throw ConnectionLostException(__FILE__, __LINE__, 0);
+                    throw ConnectionLostException(__FILE__, __LINE__);
                 }
                 case SSL_ERROR_WANT_READ:
                 {
@@ -446,7 +446,7 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
                     if (SSL_R_UNEXPECTED_EOF_WHILE_READING == ERR_GET_REASON(ERR_peek_error()))
                     {
                         ERR_clear_error();
-                        throw ConnectionLostException(__FILE__, __LINE__, 0);
+                        throw ConnectionLostException(__FILE__, __LINE__);
                     }
                     else
                     {

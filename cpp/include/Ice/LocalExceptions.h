@@ -536,6 +536,12 @@ namespace Ice
             ErrorCode error,
             std::optional<std::string> address = std::nullopt);
 
+        /// Constructs a ConnectionLostException without an error code.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
+        /// @param address The address of the remote peer, if available.
+        ConnectionLostException(const char* file, int line, std::optional<std::string> address = std::nullopt);
+
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
