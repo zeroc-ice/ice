@@ -227,7 +227,8 @@ static PyMethodDef methods[] = {
          "Parameters\n"
          "----------\n"
          "args : list[str]\n"
-         "    List of command-line arguments for Slice compilation.")},
+         "    List of command-line arguments for Slice compilation, following\n"
+         "    the same syntax as the slice2py compiler.")},
     {"compileSlice",
      reinterpret_cast<PyCFunction>(IcePy_compileSlice),
      METH_VARARGS,
