@@ -1127,7 +1127,7 @@ IcePy::StructInfo::getId() const
 bool
 IcePy::StructInfo::validate(PyObject* val)
 {
-    return val == Py_None || PyObject_IsInstance(val, pythonType) == 1;
+    return PyObject_IsInstance(val, pythonType) == 1;
 }
 
 bool
