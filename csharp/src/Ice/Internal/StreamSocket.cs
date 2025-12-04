@@ -53,11 +53,11 @@ internal sealed class StreamSocket
                 var ex = new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
                 if (Network.connectionRefused(ex))
                 {
-                    throw new Ice.ConnectionRefusedException(ex);
+                    throw new Ice.ConnectionRefusedException(_addr, ex);
                 }
                 else
                 {
-                    throw new Ice.ConnectFailedException(ex);
+                    throw new Ice.ConnectFailedException(_addr, ex);
                 }
             }
             _desc = Network.fdToString(_fd, _proxy, _addr);
@@ -152,7 +152,7 @@ internal sealed class StreamSocket
         {
             if (Network.connectionLost(ex))
             {
-                throw new Ice.ConnectionLostException(ex);
+                throw new Ice.ConnectionLostException(_addr, ex);
             }
             throw new Ice.SocketException(ex);
         }
@@ -177,7 +177,7 @@ internal sealed class StreamSocket
 
             if (ret == 0)
             {
-                throw new Ice.ConnectionLostException();
+                throw new Ice.ConnectionLostException(_addr);
             }
 
             Debug.Assert(ret > 0);
@@ -192,13 +192,13 @@ internal sealed class StreamSocket
         {
             if (Network.connectionLost(ex))
             {
-                throw new Ice.ConnectionLostException(ex);
+                throw new Ice.ConnectionLostException(_addr, ex);
             }
             throw new Ice.SocketException(ex);
         }
         catch (ObjectDisposedException ex)
         {
-            throw new Ice.ConnectionLostException(ex);
+            throw new Ice.ConnectionLostException(_addr, ex);
         }
     }
 
@@ -239,13 +239,13 @@ internal sealed class StreamSocket
         {
             if (Network.connectionLost(ex))
             {
-                throw new Ice.ConnectionLostException(ex);
+                throw new Ice.ConnectionLostException(_addr, ex);
             }
             throw new Ice.SocketException(ex);
         }
         catch (ObjectDisposedException ex)
         {
-            throw new Ice.ConnectionLostException(ex);
+            throw new Ice.ConnectionLostException(_addr, ex);
         }
     }
 
@@ -274,7 +274,7 @@ internal sealed class StreamSocket
             _writeEventArgs.SetBuffer(null, 0, 0);
             if (ret == 0)
             {
-                throw new Ice.ConnectionLostException();
+                throw new Ice.ConnectionLostException(_addr);
             }
 
             Debug.Assert(ret > 0);
@@ -289,14 +289,14 @@ internal sealed class StreamSocket
         {
             if (Network.connectionLost(ex))
             {
-                throw new Ice.ConnectionLostException(ex);
+                throw new Ice.ConnectionLostException(_addr, ex);
             }
 
             throw new Ice.SocketException(ex);
         }
         catch (ObjectDisposedException ex)
         {
-            throw new Ice.ConnectionLostException(ex);
+            throw new Ice.ConnectionLostException(_addr, ex);
         }
     }
 
@@ -333,7 +333,7 @@ internal sealed class StreamSocket
                 int ret = _fd.Receive(buf.rawBytes(), buf.position(), buf.remaining(), SocketFlags.None);
                 if (ret == 0)
                 {
-                    throw new Ice.ConnectionLostException();
+                    throw new Ice.ConnectionLostException(_addr);
                 }
                 read += ret;
                 buf.position(buf.position() + ret);
@@ -350,7 +350,7 @@ internal sealed class StreamSocket
                 }
                 else if (Network.connectionLost(ex))
                 {
-                    throw new ConnectionLostException(ex);
+                    throw new ConnectionLostException(_addr, ex);
                 }
 
                 throw new SocketException(ex);
@@ -381,7 +381,7 @@ internal sealed class StreamSocket
                 }
                 else if (Network.connectionLost(ex))
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    throw new Ice.ConnectionLostException(_addr, ex);
                 }
                 throw new Ice.SocketException(ex);
             }

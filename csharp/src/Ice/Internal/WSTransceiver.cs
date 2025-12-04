@@ -1135,7 +1135,7 @@ internal sealed class WSTransceiver : Transceiver
                         }
                         else
                         {
-                            throw new Ice.ConnectionLostException();
+                            throw new Ice.ConnectionLostException(peerAddress: null);
                         }
                     }
                     case OP_PING:
@@ -1454,7 +1454,7 @@ internal sealed class WSTransceiver : Transceiver
                     }
                     else
                     {
-                        throw new Ice.ConnectionLostException();
+                        throw new Ice.ConnectionLostException(peerAddress: null);
                     }
                 }
                 else if (_state == StateClosed)
