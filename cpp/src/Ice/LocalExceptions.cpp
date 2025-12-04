@@ -355,7 +355,7 @@ namespace
 
     string makePrefixWithAddress(string messagePrefix, optional<string> address)
     {
-        if (address.has_value())
+        if (address.has_value() && !address->empty())
         {
             return std::move(messagePrefix) + " (remote address = " + std::move(*address) + ")";
         }
