@@ -252,7 +252,7 @@ static PyMethodDef ImplicitContextMethods[] = {
     {"setContext",
      reinterpret_cast<PyCFunction>(implicitContextSetContext),
      METH_VARARGS,
-     PyDoc_STR("setContext(ctx: Ice.Context) -> str")},
+     PyDoc_STR("setContext(ctx: Ice.Context) -> None")},
     {"containsKey",
      reinterpret_cast<PyCFunction>(implicitContextContainsKey),
      METH_VARARGS,
