@@ -172,6 +172,18 @@ final class ServiceManagerI implements ServiceManager {
     }
 
     @Override
+    public boolean isServiceRunning(String name, Current current) throws NoSuchServiceException {
+        synchronized (this) {
+            for (ServiceInfo p : _services) {
+                if (p.name.equals(name)) {
+                    return p.status == StatusStarted;
+                }
+            }
+        }
+        throw new NoSuchServiceException();
+    }
+
+    @Override
     public void addObserver(final ServiceObserverPrx observer, Current current) {
         List<String> activeServices = new LinkedList<>();
 

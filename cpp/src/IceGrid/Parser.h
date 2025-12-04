@@ -62,6 +62,7 @@ namespace IceGrid
 
         void startService(const std::list<std::string>&);
         void stopService(const std::list<std::string>&);
+        void serviceStatus(const std::list<std::string>&);
         void propertiesService(const std::list<std::string>&, bool);
         void describeService(const std::list<std::string>&);
         void listServices(const std::list<std::string>&);

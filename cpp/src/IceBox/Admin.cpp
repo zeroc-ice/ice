@@ -50,6 +50,7 @@ usage(const string& name)
                   "-v, --version        Display the Ice version.\n"
                   "\n"
                   "Commands:\n"
+                  "status SERVICE       Get the status of a service.\n"
                   "start SERVICE        Start a service.\n"
                   "stop SERVICE         Stop a service.\n"
                   "shutdown             Shutdown the server.\n";
@@ -103,6 +104,24 @@ run(const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& args)
         if ((*r) == "shutdown")
         {
             manager->shutdown();
+        }
+        else if ((*r) == "status")
+        {
+            if (++r == commands.end())
+            {
+                consoleErr << args[0] << ": no service name specified." << endl;
+                return 1;
+            }
+            try
+            {
+                bool running = manager->isServiceRunning(*r);
+                consoleOut << (running ? "running" : "stopped") << endl;
+            }
+            catch (const IceBox::NoSuchServiceException&)
+            {
+                consoleErr << args[0] << ": unknown service '" << *r << "'" << endl;
+                return 1;
+            }
         }
         else if ((*r) == "start")
         {
