@@ -304,11 +304,10 @@ def twoways(helper: TestHelper, p: Test.MyClassPrx) -> None:
     assert so.p is not None
     so.p.opVoid()
 
-    # Test marshaling of null structs and structs with null members.
+    # Test marshaling of default initialized structs.
     si1 = Test.Structure()
-    si2 = None
 
-    rso, so = p.opStruct(si1, si2)  # pyright: ignore
+    rso, so = p.opStruct(si1, si1)
     test(rso.p is None)
     test(rso.e == Test.MyEnum.enum1)
     test(rso.s.s == "")
