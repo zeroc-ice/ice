@@ -427,6 +427,11 @@ Ice::ConnectionLostException::ice_id() const noexcept
     return "::Ice::ConnectionLostException";
 }
 
+Ice::ConnectionRefusedException::ConnectionRefusedException(const char* file, int line, optional<string> address)
+    : ConnectFailedException(file, line, makePrefixWithAddress("connection refused", std::move(address)))
+{
+}
+
 const char*
 Ice::ConnectionRefusedException::ice_id() const noexcept
 {

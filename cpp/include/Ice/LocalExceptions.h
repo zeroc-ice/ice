@@ -548,10 +548,7 @@ namespace Ice
         /// @param file The file where this exception is constructed. This C string is not copied.
         /// @param line The line where this exception is constructed.
         /// @param address The address of the remote peer, if available.
-        ConnectionRefusedException(const char* file, int line, std::optional<std::string> address = std::nullopt)
-            : ConnectFailedException(file, line, "connection refused", 0, std::move(address))
-        {
-        }
+        ConnectionRefusedException(const char* file, int line, std::optional<std::string> address = std::nullopt);
 
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
