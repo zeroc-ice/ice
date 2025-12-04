@@ -635,7 +635,7 @@ static PyMethodDef ConnectionMethods[] = {
                "the connection rejects any incoming request with an ObjectNotExistException.\n\n"
                "Parameters\n"
                "----------\n"
-               "adapter : Ice.ObjectAdapter or None\n"
+               "adapter : Ice.ObjectAdapter | None\n"
                "    The object adapter to associate with this connection.")},
     {"getAdapter",
      reinterpret_cast<PyCFunction>(connectionGetAdapter),
