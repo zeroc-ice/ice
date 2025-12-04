@@ -94,7 +94,7 @@ class IceGridAdminTestCase(IceGridTestCase):
             expect(admin, ">>> ")
             admin.sendline(current, "server start server")
             expect(admin, ">>> ")
-            admin.sendline(current, "server state server")
+            admin.sendline(current, "server status server")
             expect(admin, "^active \\(.*\\)")
             expect(admin, ">>> ")
             admin.sendline(current, "server pid server")
