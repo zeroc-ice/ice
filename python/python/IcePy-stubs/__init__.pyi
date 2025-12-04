@@ -98,7 +98,7 @@ class Communicator:
     def setDefaultObjectAdapter(self, adapter: Ice.ObjectAdapter | None) -> None: ...
     def setDefaultRouter(self, router: Ice.RouterPrx | None) -> None: ...
     def shutdown(self) -> None: ...
-    def shutdownCompleted(self) -> Ice.Future[None]: ...
+    def shutdownCompleted(self) -> Awaitable[None]: ...
     def stringToProxy(self, str: str) -> Ice.ObjectPrx: ...
     def waitForShutdown(self, timeout: int) -> bool: ...
 
@@ -109,13 +109,13 @@ class Connection:
         """Aborts this connection."""
         ...
 
-    def close(self) -> Ice.Future[None]:
+    def close(self) -> Awaitable[None]:
         """
         Starts a graceful closure of this connection once all outstanding invocations have completed.
 
         Returns
         -------
-        Ice.Future[None]
+        Awaitable[None]
             A future that becomes available when the connection is closed.
         """
         ...
@@ -178,7 +178,7 @@ class Connection:
 
         Returns
         -------
-        Ice.Future[None]
+        Awaitable[None]
             A future that becomes available when the flush completes.
         """
         ...
@@ -361,9 +361,8 @@ class EndpointInfo:
     """
     Base class for all endpoint info classes.
 
-    Provides access to the endpoint details. Endpoint info classes are
-    used to get information about the endpoints that a connection or
-    proxy uses.
+    Provides access to the endpoint details. Endpoint info classes are used to get information about the endpoints
+    that a connection or proxy uses.
     """
 
     underlying: EndpointInfo | None
