@@ -2,7 +2,7 @@
 
 import threading
 import time
-from typing import override
+from typing import cast, override
 
 from generated.test.Ice.ami import Test
 from generated.test.Ice.ami.Test.Outer.Inner import TestIntf as Inner_TestIntf
@@ -63,7 +63,7 @@ class TestIntfI(Test.TestIntf):
                 print("closeConnection failed: ", ex)
 
         assert current.con is not None
-        current.con.close().add_done_callback(close_connection)
+        cast(Ice.Future[None], current.con.close()).add_done_callback(close_connection)
 
     @override
     def abortConnection(self, current: Ice.Current):

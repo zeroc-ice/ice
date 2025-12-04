@@ -56,7 +56,9 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator, collocated: boo
     if collocated:
         test(7 == proxy.getRequestId())
     else:
-        cast(Ice.Connection, proxy.ice_getConnection()).close().result()
+        connection = proxy.ice_getConnection()
+        assert connection is not None
+        cast(Ice.Future[None], connection.close()).result()
         test(1 == proxy.getRequestId())
     print("ok")
 

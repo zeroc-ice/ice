@@ -158,7 +158,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator, collocated: boo
         f = p.startDispatchAsync()
         assert isinstance(f, Ice.InvocationFuture)
         f.sent()  # Ensure the request was sent before we close the connection.
-        closeConnectionFuture = con.close()
+        closeConnectionFuture = cast(Ice.Future[None], con.close())
 
         # give time for startDispatch to start in the server before we call finishDispatch
         time.sleep(0.1)  # 100ms
@@ -181,7 +181,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator, collocated: boo
         # Wait until the connection is gracefully closed.
         con = p.ice_getCachedConnection()
         assert con is not None
-        con.close().result()
+        cast(Ice.Future[None], con.close()).result()
         test(closeConnectionFuture.done())
 
         print("ok")
@@ -476,7 +476,7 @@ def allTestsFuture(helper: TestHelper, communicator: Ice.Communicator, collocate
         # Wait until the connection is gracefully closed.
         con = b1.ice_getConnection()
         assert con is not None
-        con.close().result()
+        cast(Ice.Future[None], con.close()).result()
         cb = FutureFlushCallback()
         f = b1.ice_flushBatchRequestsAsync()
         assert isinstance(f, Ice.InvocationFuture)
@@ -517,7 +517,7 @@ def allTestsFuture(helper: TestHelper, communicator: Ice.Communicator, collocate
         # Wait until the connection is gracefully closed.
         con = b1.ice_getConnection()
         assert con is not None
-        con.close().result()
+        cast(Ice.Future[None], con.close()).result()
         cb = FutureFlushExCallback()
         f = con.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         assert isinstance(f, Ice.InvocationFuture)
@@ -563,7 +563,7 @@ def allTestsFuture(helper: TestHelper, communicator: Ice.Communicator, collocate
         # Wait until the connection is gracefully closed.
         con = b1.ice_getConnection()
         assert con is not None
-        con.close().result()
+        cast(Ice.Future[None], con.close()).result()
         cb = FutureFlushCallback()
         f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         assert isinstance(f, Ice.InvocationFuture)
@@ -620,7 +620,7 @@ def allTestsFuture(helper: TestHelper, communicator: Ice.Communicator, collocate
         b1.opBatch()
         b2.opBatch()
         # Wait until the connection is gracefully closed.
-        cast(Ice.Connection, b1.ice_getConnection()).close().result()
+        cast(Ice.Future[None], cast(Ice.Connection, b1.ice_getConnection()).close()).result()
         cb = FutureFlushCallback()
         f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         assert isinstance(f, Ice.InvocationFuture)
@@ -649,8 +649,8 @@ def allTestsFuture(helper: TestHelper, communicator: Ice.Communicator, collocate
         b1.opBatch()
         b2.opBatch()
         # Wait until the connections are gracefully closed.
-        cast(Ice.Connection, b1.ice_getConnection()).close().result()
-        cast(Ice.Connection, b2.ice_getConnection()).close().result()
+        cast(Ice.Future[None], cast(Ice.Connection, b1.ice_getConnection()).close()).result()
+        cast(Ice.Future[None], cast(Ice.Connection, b2.ice_getConnection()).close()).result()
         cb = FutureFlushCallback()
         f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         assert isinstance(f, Ice.InvocationFuture)
