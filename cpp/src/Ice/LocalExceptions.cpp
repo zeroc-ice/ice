@@ -357,7 +357,7 @@ namespace
     {
         if (address.has_value() && !address->empty())
         {
-            return std::move(messagePrefix) + " (remote address = " + std::move(*address) + ")";
+            return std::move(messagePrefix) + " (remote address = " + *address + ")";
         }
         else
         {
