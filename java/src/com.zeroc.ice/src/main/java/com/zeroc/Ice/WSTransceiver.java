@@ -742,7 +742,7 @@ final class WSTransceiver implements Transceiver {
                             }
                             return false; // No longer interested in reading
                         } else {
-                            throw new ConnectionLostException(null, null);
+                            throw new ConnectionLostException();
                         }
                     }
 
@@ -1014,7 +1014,7 @@ final class WSTransceiver implements Transceiver {
                         _state = StateClosingResponsePending;
                         return false;
                     } else {
-                        throw new ConnectionLostException(null, null);
+                        throw new ConnectionLostException();
                     }
                 } else if (_state == StateClosed) {
                     return false;
