@@ -1488,7 +1488,7 @@ static PyMethodDef AdapterMethods[] = {
     {"find",
      reinterpret_cast<PyCFunction>(adapterFind),
      METH_VARARGS,
-     PyDoc_STR("find(identity: Ice.Identity) -> Ice.Object")},
+     PyDoc_STR("find(identity: Ice.Identity) -> Ice.Object | None")},
     {"findFacet",
      reinterpret_cast<PyCFunction>(adapterFindFacet),
      METH_VARARGS,
