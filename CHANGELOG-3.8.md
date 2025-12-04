@@ -861,6 +861,12 @@ initialization. See `InitializationData.pluginFactories`.
 - Dictionaries with `long` keys now use the built-in `Map` type.
   Previously, `Ice.HashMap` was required because `Ice.Long` objects could not be used as keys in a `Map`.
 
+- Marshaling `null` for a non-optional enum value will now result in an error, instead of marshaling the first
+  enumerator of the enum.
+
+- Marshaling `null` for a non-optional struct will now result in an error, instead of marshaling a default
+  initialized instance of that struct.
+
 - The WebSocket transport is now supported with Node.js 24 and higher. In Node.js 23 and earlier, WebSocket connections
   do not reliably report errors during connection establishment. We advise against using the WebSocket transport on
   these versions.
@@ -930,6 +936,9 @@ initialization. See `InitializationData.pluginFactories`.
   `ice_postunmarshal` only makes sense if the application can register a custom Slice loader and Ice for PHP does not
   provide custom Slice loaders.
 
+- Marshaling `null` for a struct will now result in an error, instead of marshaling a default initialized instance of
+  that struct.
+
 ### Python Changes
 
 - Upgrade to Python 3.12.
@@ -983,6 +992,9 @@ initialization. See `InitializationData.pluginFactories`.
 - The default value for struct, sequence, and dictionary Slice fields has been changed from `None` to a default
   initialized instance.
 
+- Marshaling `None` for a non-optional struct will now result in an error, instead of marshaling a default
+  initialized instance of that struct.
+
 - Removed support for the `python:pkgdir` Slice metadata. Generated code is now always placed in the corresponding
   package directory relative to the specified output directory.
 
@@ -1026,11 +1038,11 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Removed support for the `python:seq` metadata. Use `python:list` and `python:tuple` instead.
 
-- Added type hints to the Ice package and generated code.
-
 - Added additional (optional) argument to `python:memoryview` metadata directive which is used to specify a type hint.
   For example, `["python:memoryview:CustomFactory.myByteSeq:array.array"]` indicates that the factory function
   will return an `array.array`.
+
+- Added type hints to the Ice package and generated code.
 
 - The `Ice.loadSlice` function for dynamically loading Slice files at run time now accepts only a list of compiler
   arguments (strings). Previously, it accepted both a command string and an optional list of arguments (which served
