@@ -141,33 +141,30 @@ static PyMethodDef EndpointInfoMethods[] = {
     {"type",
      reinterpret_cast<PyCFunction>(endpointInfoType),
      METH_NOARGS,
-     PyDoc_STR(
-         "type() -> int\n\n"
-         "Returns the type of the endpoint.\n\n"
-         "Returns\n"
-         "-------\n"
-         "int\n"
-         "    The endpoint type.")},
+     PyDoc_STR("type() -> int\n\n"
+               "Returns the type of the endpoint.\n\n"
+               "Returns\n"
+               "-------\n"
+               "int\n"
+               "    The endpoint type.")},
     {"datagram",
      reinterpret_cast<PyCFunction>(endpointInfoDatagram),
      METH_NOARGS,
-     PyDoc_STR(
-         "datagram() -> bool\n\n"
-         "Returns True if this endpoint's transport is a datagram transport (namely, UDP), False otherwise.\n\n"
-         "Returns\n"
-         "-------\n"
-         "bool\n"
-         "    True for a UDP endpoint, False otherwise.")},
+     PyDoc_STR("datagram() -> bool\n\n"
+               "Returns True if this endpoint's transport is a datagram transport (namely, UDP), False otherwise.\n\n"
+               "Returns\n"
+               "-------\n"
+               "bool\n"
+               "    True for a UDP endpoint, False otherwise.")},
     {"secure",
      reinterpret_cast<PyCFunction>(endpointInfoSecure),
      METH_NOARGS,
-     PyDoc_STR(
-         "secure() -> bool\n\n"
-         "Returns True if this endpoint's transport uses SSL, False otherwise.\n\n"
-         "Returns\n"
-         "-------\n"
-         "bool\n"
-         "    True for SSL and SSL-based transports, False otherwise.")},
+     PyDoc_STR("secure() -> bool\n\n"
+               "Returns True if this endpoint's transport uses SSL, False otherwise.\n\n"
+               "Returns\n"
+               "-------\n"
+               "bool\n"
+               "    True for SSL and SSL-based transports, False otherwise.")},
     {} /* sentinel */
 };
 
