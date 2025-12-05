@@ -356,7 +356,7 @@ internal sealed class UdpTransceiver : Transceiver
 
         if (ret == 0)
         {
-            throw new Ice.ConnectionLostException(peerAddress: null);
+            throw new Ice.ConnectionLostException(_addr);
         }
 
         Debug.Assert(_state != StateNeedConnect);
