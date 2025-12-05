@@ -32,7 +32,9 @@
     ],
     "resource": [
       {
-        "files": ["images/**"]
+        "src": "../../assets",
+        "files": [ "logo.svg" ],
+        "dest": "images"
       }
     ],
     "sitemap": {
