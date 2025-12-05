@@ -496,7 +496,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         {
             //
             // Create was interrupted, return true as if the service was
-            // correctly initiliazed to make sure it's properly stopped.
+            // correctly initialized to make sure it's properly stopped.
             //
             return true;
         }
@@ -579,7 +579,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
     if (!bundleName.empty())
     {
-        print(bundleName + " ready");
+        consoleOut << bundleName << " ready" << endl;
     }
 
     return true;
