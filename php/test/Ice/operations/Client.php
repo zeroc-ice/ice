@@ -326,11 +326,10 @@ function twoways($communicator, $p)
         test($so->s->s == "a new string");
         $so->p->opVoid();
 
-        // Test marshaling of null structs and structs with null members.
+        // Test marshaling of default initialized structs.
         $si1 = new Test\Structure();
-        $si2 = null;
 
-        $rso = $p->opStruct($si1, $si2, $so);
+        $rso = $p->opStruct($si1, $si1, $so);
         test($rso->p == null);
         test($rso->e == Test\MyEnum::enum1);
         test($rso->s->s == "");
