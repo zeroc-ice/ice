@@ -810,6 +810,15 @@ export class Client extends TestHelper {
             test(ex instanceof Ice.MarshalException, ex as Error);
         }
 
+        let ref13 = `test -e 1.3:${this.getTestEndpoint()}`;
+        let cl13 = new Test.MyClassPrx(communicator, ref13);
+        try {
+            await cl13.ice_ping();
+            test(false);
+        } catch (ex) {
+            test(ex instanceof Ice.MarshalException, ex as Error);
+        }
+
         let ref10 = `test -e 1.0:${this.getTestEndpoint()}`;
         let cl10 = new Test.MyClassPrx(communicator, ref10);
 
@@ -817,11 +826,6 @@ export class Client extends TestHelper {
         await cl10.ice_encodingVersion(Ice.Encoding_1_0).ice_ping();
         await cl.ice_encodingVersion(Ice.Encoding_1_0).ice_ping();
 
-        // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
-        // call will use the 1.1 encoding
-        let ref13 = `test -e 1.3:${this.getTestEndpoint()}`;
-        let cl13 = new Test.MyClassPrx(communicator, ref13);
-        await cl13.ice_ping();
         out.writeLine("ok");
 
         out.write("testing protocol versioning... ");
@@ -835,15 +839,19 @@ export class Client extends TestHelper {
             test(ex instanceof Ice.FeatureNotSupportedException, ex as Error);
         }
 
+        ref13 = `test -p 1.3:${this.getTestEndpoint()}`;
+        cl13 = new Test.MyClassPrx(communicator, ref13);
+        try {
+            await cl13.ice_ping();
+            test(false);
+        } catch (ex) {
+            test(ex instanceof Ice.FeatureNotSupportedException, ex as Error);
+        }
+
         ref10 = `test -p 1.0:${this.getTestEndpoint()}`;
         cl10 = new Test.MyClassPrx(communicator, ref10);
         await cl10.ice_ping();
 
-        // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
-        // call will use the 1.1 protocol
-        ref13 = `test -p 1.3:${this.getTestEndpoint()}`;
-        cl13 = new Test.MyClassPrx(communicator, ref13);
-        await cl13.ice_ping();
         out.writeLine("ok");
 
         out.write("testing opaque endpoints... ");

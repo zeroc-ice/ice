@@ -896,18 +896,20 @@ public class AllTests {
             // Cannot marshal with the 2.0 encoding version.
         }
 
+        String ref13 = "test -e 1.3:" + helper.getTestEndpoint(0);
+        var cl13 = MyClassPrx.createProxy(communicator, ref13);
+        try {
+            cl13.ice_ping();
+            test(false);
+        } catch (MarshalException ex) {
+            // Same with 1.3.
+        }
+
         String ref10 = "test -e 1.0:" + helper.getTestEndpoint(0);
         var cl10 = MyClassPrx.createProxy(communicator, ref10);
         cl10.ice_ping();
         cl10.ice_encodingVersion(Util.Encoding_1_0).ice_ping();
         cl.ice_encodingVersion(Util.Encoding_1_0).ice_ping();
-
-        // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
-        // call will use the 1.1 encoding
-        String ref13 = "test -e 1.3:" + helper.getTestEndpoint(0);
-        var cl13 = MyClassPrx.createProxy(communicator, ref13);
-        cl13.ice_ping();
-        cl13.ice_pingAsync().join();
 
         try {
             // Send request with bogus 1.2 encoding.
@@ -958,16 +960,19 @@ public class AllTests {
             // Server 2.0 proxy doesn't support 1.0 version.
         }
 
+        ref13 = "test -p 1.3:" + helper.getTestEndpoint(0);
+        cl13 = MyClassPrx.createProxy(communicator, ref13);
+        try {
+            cl13.ice_ping();
+            test(false);
+        } catch (FeatureNotSupportedException ex) {
+            // Same for 1.3.
+        }
+
         ref10 = "test -p 1.0:" + helper.getTestEndpoint(0);
         cl10 = MyClassPrx.createProxy(communicator, ref10);
         cl10.ice_ping();
 
-        // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
-        // call will use the 1.1 protocol
-        ref13 = "test -p 1.3:" + helper.getTestEndpoint(0);
-        cl13 = MyClassPrx.createProxy(communicator, ref13);
-        cl13.ice_ping();
-        cl13.ice_pingAsync().join();
         out.println("ok");
 
         out.print("testing opaque endpoints... ");

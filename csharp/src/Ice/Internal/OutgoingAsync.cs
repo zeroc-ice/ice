@@ -793,7 +793,7 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
 
     public void prepare(string operation, Ice.OperationMode mode, Dictionary<string, string> context)
     {
-        if (proxy_.iceReference().getProtocol().major != Protocol.currentProtocol.major)
+        if (proxy_.iceReference().getProtocol() != Protocol.currentProtocol)
         {
             throw new FeatureNotSupportedException(
                 $"Cannot send request using protocol version {proxy_.iceReference().getProtocol()}.");
