@@ -143,18 +143,21 @@ jobs:
             msbuild_project: "msbuild/ice.proj"
             build_cpp_and_python: true
             python_version: "3.12"
+            python_tests: true
 
           - os: macos-26
             config: "Python312"
             working_directory: "python"
             build_cpp_and_python: true
             python_version: "3.12"
+            python_tests: true
 
           - os: ubuntu-24.04
             config: "Python312"
             working_directory: "python"
             build_cpp_and_python: true
             python_version: "3.12"
+            python_tests: true
 
           # Python 3.13 testing
           - os: windows-2025
@@ -164,18 +167,21 @@ jobs:
             msbuild_project: "msbuild/ice.proj"
             build_cpp_and_python: true
             python_version: "3.13"
+            python_tests: true
 
           - os: macos-26
             config: "Python313"
             working_directory: "python"
             build_cpp_and_python: true
             python_version: "3.13"
+            python_tests: true
 
           - os: ubuntu-24.04
             config: "Python313"
             working_directory: "python"
             build_cpp_and_python: true
             python_version: "3.13"
+            python_tests: true
 
     runs-on: ${{ matrix.os }}
     steps:
