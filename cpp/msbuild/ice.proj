@@ -13,7 +13,6 @@
         <!-- The version for all NuGet packages built with this distribution. -->
         <!-- Defaults to IcePackageVersion, which is set in ice.version.props imported above. -->
         <PackageVersion>$(IcePackageVersion)</PackageVersion>
-        <VCTargetsPath Condition="'$(VCTargetsPath)' == ''">C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0</VCTargetsPath>
         <IceTestSolution>ice.test.sln</IceTestSolution>
         <IceDoxygenExamplesSolution>ice.doxygen.examples.sln</IceDoxygenExamplesSolution>
         <SymbolServer Condition="'$(SymbolServer)' == ''">SRV*%TEMP%\SymbolCache*https://symbols.zeroc.com</SymbolServer>
