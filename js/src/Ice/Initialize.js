@@ -12,14 +12,6 @@ export function createProperties(args, defaults) {
     return new Properties(args, defaults);
 }
 
-export function currentProtocol() {
-    return Protocol.currentProtocol.clone();
-}
-
-export function currentEncoding() {
-    return Protocol.currentEncoding.clone();
-}
-
 export function stringVersion() {
     return "3.8.0-alpha.0"; // "A.B.C", with A=major, B=minor, C=patch
 }

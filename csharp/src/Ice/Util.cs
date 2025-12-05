@@ -372,17 +372,6 @@ public sealed class Util
 
     private static string majorMinorToString(byte major, byte minor) => $"{major}.{minor}";
 
-    public static readonly ProtocolVersion currentProtocol =
-        new ProtocolVersion(Ice.Internal.Protocol.protocolMajor, Ice.Internal.Protocol.protocolMinor);
-
-    public static readonly EncodingVersion currentProtocolEncoding =
-        new EncodingVersion(
-            Ice.Internal.Protocol.protocolEncodingMajor,
-            Ice.Internal.Protocol.protocolEncodingMinor);
-
-    public static readonly EncodingVersion currentEncoding =
-        new EncodingVersion(Ice.Internal.Protocol.encodingMajor, Ice.Internal.Protocol.encodingMinor);
-
     public static readonly ProtocolVersion Protocol_1_0 = new ProtocolVersion(1, 0);
 
     public static readonly EncodingVersion Encoding_1_0 = new EncodingVersion(1, 0);

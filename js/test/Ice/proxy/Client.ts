@@ -309,7 +309,7 @@ export class Client extends TestHelper {
 
         b1 = communicator.stringToProxy("test -s"); // does nothing
 
-        test(b1 !== null && b1.ice_getEncodingVersion().equals(Ice.currentEncoding()));
+        test(b1 !== null && b1.ice_getEncodingVersion().equals(Ice.Encoding_1_1));
 
         b1 = communicator.stringToProxy("test -e 1.0");
         test(b1 !== null && b1.ice_getEncodingVersion().major === 1 && b1.ice_getEncodingVersion().minor === 0);

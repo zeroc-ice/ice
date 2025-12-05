@@ -921,24 +921,6 @@ IcePy_intVersion(PyObject* /*self*/, PyObject* /*args*/)
 }
 
 extern "C" PyObject*
-IcePy_currentProtocol(PyObject* /*self*/, PyObject* /*args*/)
-{
-    return IcePy::createProtocolVersion(Ice::currentProtocol);
-}
-
-extern "C" PyObject*
-IcePy_currentProtocolEncoding(PyObject* /*self*/, PyObject* /*args*/)
-{
-    return IcePy::createEncodingVersion(Ice::currentProtocolEncoding);
-}
-
-extern "C" PyObject*
-IcePy_currentEncoding(PyObject* /*self*/, PyObject* /*args*/)
-{
-    return IcePy::createEncodingVersion(Ice::currentEncoding);
-}
-
-extern "C" PyObject*
 IcePy_protocolVersionToString(PyObject* /*self*/, PyObject* args)
 {
     return IcePy::versionToString<Ice::ProtocolVersion>(args, IcePy::Ice_ProtocolVersion);

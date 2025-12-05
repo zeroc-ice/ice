@@ -208,8 +208,8 @@ public abstract class OutgoingAsyncBase
         _doneInSent = false;
         _alreadySent = false;
         state_ = 0;
-        os_ = os ?? new OutputStream(Ice.Util.currentProtocolEncoding, instance.defaultsAndOverrides().defaultFormat);
-        is_ = iss ?? new Ice.InputStream(instance, Ice.Util.currentProtocolEncoding);
+        os_ = os ?? new OutputStream(Protocol.currentProtocolEncoding, instance.defaultsAndOverrides().defaultFormat);
+        is_ = iss ?? new Ice.InputStream(instance, Protocol.currentProtocolEncoding);
         _completionCallback = completionCallback;
         _completionCallback?.init(this);
     }
@@ -787,13 +787,13 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
         Ice.InputStream iss = null)
         : base(prx, completionCallback, os, iss)
     {
-        encoding_ = Protocol.getCompatibleEncoding(proxy_.iceReference().getEncoding());
+        encoding_ = proxy_.iceReference().getEncoding();
         synchronous_ = false;
     }
 
     public void prepare(string operation, Ice.OperationMode mode, Dictionary<string, string> context)
     {
-        if (proxy_.iceReference().getProtocol().major != Ice.Util.currentProtocol.major)
+        if (proxy_.iceReference().getProtocol().major != Protocol.currentProtocol.major)
         {
             throw new FeatureNotSupportedException(
                 $"Cannot send request using protocol version {proxy_.iceReference().getProtocol()}.");
@@ -1176,7 +1176,7 @@ internal class ProxyFlushBatchAsync : ProxyOutgoingAsyncBase
 
     public void invoke(string operation, bool synchronous)
     {
-        if (proxy_.iceReference().getProtocol().major != Ice.Util.currentProtocol.major)
+        if (proxy_.iceReference().getProtocol().major != Protocol.currentProtocol.major)
         {
             throw new FeatureNotSupportedException(
                 $"Cannot send request using protocol version {proxy_.iceReference().getProtocol()}.");

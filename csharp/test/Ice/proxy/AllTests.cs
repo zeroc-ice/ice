@@ -206,7 +206,7 @@ public class AllTests : global::Test.AllTests
         test(b1.ice_isBatchDatagram());
         b1 = communicator.stringToProxy("test -s"); // doesn't do anything
 
-        test(b1.ice_getEncodingVersion().Equals(Ice.Util.currentEncoding));
+        test(b1.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_1));
 
         b1 = communicator.stringToProxy("test -e 1.0");
         test(b1.ice_getEncodingVersion().major == 1 && b1.ice_getEncodingVersion().minor == 0);

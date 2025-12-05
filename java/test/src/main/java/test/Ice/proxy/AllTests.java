@@ -275,7 +275,7 @@ public class AllTests {
         test(b1.ice_isBatchDatagram());
         b1 = communicator.stringToProxy("test -s"); // does nothing
 
-        test(b1.ice_getEncodingVersion().equals(Util.currentEncoding()));
+        test(b1.ice_getEncodingVersion().equals(Util.Encoding_1_1));
 
         b1 = communicator.stringToProxy("test -e 1.0");
         test(b1.ice_getEncodingVersion().major == 1 && b1.ice_getEncodingVersion().minor == 0);

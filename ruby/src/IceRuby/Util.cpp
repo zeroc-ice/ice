@@ -123,30 +123,6 @@ IceRuby_intVersion(int /*argc*/, VALUE* /*argv*/, VALUE /*self*/)
 }
 
 extern "C" VALUE
-IceRuby_currentProtocol(int /*argc*/, VALUE* /*argv*/, VALUE /*self*/)
-{
-    ICE_RUBY_TRY { return createProtocolVersion(Ice::currentProtocol); }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C" VALUE
-IceRuby_currentProtocolEncoding(int /*argc*/, VALUE* /*argv*/, VALUE /*self*/)
-{
-    ICE_RUBY_TRY { return createEncodingVersion(Ice::currentProtocolEncoding); }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C" VALUE
-IceRuby_currentEncoding(int /*argc*/, VALUE* /*argv*/, VALUE /*self*/)
-{
-    ICE_RUBY_TRY { return createEncodingVersion(Ice::currentEncoding); }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C" VALUE
 IceRuby_protocolVersionToString(VALUE /*self*/, VALUE v)
 {
     return versionToString<Ice::ProtocolVersion>(v, Ice_ProtocolVersion);
@@ -175,9 +151,6 @@ IceRuby::initUtil(VALUE iceModule)
 {
     rb_define_module_function(iceModule, "stringVersion", CAST_METHOD(IceRuby_stringVersion), -1);
     rb_define_module_function(iceModule, "intVersion", CAST_METHOD(IceRuby_intVersion), -1);
-    rb_define_module_function(iceModule, "currentProtocol", CAST_METHOD(IceRuby_currentProtocol), -1);
-    rb_define_module_function(iceModule, "currentProtocolEncoding", CAST_METHOD(IceRuby_currentProtocolEncoding), -1);
-    rb_define_module_function(iceModule, "currentEncoding", CAST_METHOD(IceRuby_currentEncoding), -1);
     rb_define_module_function(iceModule, "protocolVersionToString", CAST_METHOD(IceRuby_protocolVersionToString), 1);
     rb_define_module_function(iceModule, "stringToProtocolVersion", CAST_METHOD(IceRuby_stringToProtocolVersion), 1);
     rb_define_module_function(iceModule, "encodingVersionToString", CAST_METHOD(IceRuby_encodingVersionToString), 1);

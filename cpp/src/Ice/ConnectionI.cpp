@@ -2283,7 +2283,7 @@ Ice::ConnectionI::initiateShutdown()
         //
         // Before we shut down, we send a close connection message.
         //
-        OutputStream os{Ice::currentProtocolEncoding};
+        OutputStream os{currentProtocolEncoding};
         os.writeBlob(magic, sizeof(magic));
         os.write(currentProtocol);
         os.write(currentProtocolEncoding);
@@ -2415,7 +2415,7 @@ Ice::ConnectionI::sendHeartbeat() noexcept
         // _sendStreams message.
         if (_sendStreams.empty())
         {
-            OutputStream os{Ice::currentProtocolEncoding};
+            OutputStream os{currentProtocolEncoding};
             os.writeBlob(magic, sizeof(magic));
             os.write(currentProtocol);
             os.write(currentProtocolEncoding);

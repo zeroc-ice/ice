@@ -241,7 +241,7 @@ allTests(TestHelper* helper)
     test(b1->ice_isBatchDatagram());
     b1 = communicator->stringToProxy("test -s"); // does nothing
 
-    test(b1->ice_getEncodingVersion() == Ice::currentEncoding);
+    test(b1->ice_getEncodingVersion() == Ice::Encoding_1_1);
 
     b1 = communicator->stringToProxy("test -e 1.0");
     test(b1->ice_getEncodingVersion().major == 1 && b1->ice_getEncodingVersion().minor == 0);

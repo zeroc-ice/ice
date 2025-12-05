@@ -14,6 +14,5 @@ classdef (Hidden) Protocol
 
         Encoding_1_0 = Ice.EncodingVersion(1, 0)
         Encoding_1_1 = Ice.EncodingVersion(1, 1)
-        CurrentEncoding = Ice.EncodingVersion(1, 1)
     end
 end

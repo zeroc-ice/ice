@@ -44,33 +44,6 @@ static PyMethodDef methods[] = {
                "-------\n"
                "int\n"
                "    The Ice version as an integer for version comparison.")},
-    {"currentProtocol",
-     reinterpret_cast<PyCFunction>(IcePy_currentProtocol),
-     METH_NOARGS,
-     PyDoc_STR("currentProtocol() -> Ice.ProtocolVersion\n\n"
-               "Returns the latest protocol version.\n\n"
-               "Returns\n"
-               "-------\n"
-               "Ice.ProtocolVersion\n"
-               "    The latest protocol version supported by this Ice version.")},
-    {"currentProtocolEncoding",
-     reinterpret_cast<PyCFunction>(IcePy_currentProtocolEncoding),
-     METH_NOARGS,
-     PyDoc_STR("currentProtocolEncoding() -> Ice.EncodingVersion\n\n"
-               "Returns the latest protocol encoding version.\n\n"
-               "Returns\n"
-               "-------\n"
-               "Ice.EncodingVersion\n"
-               "    The latest protocol encoding version.")},
-    {"currentEncoding",
-     reinterpret_cast<PyCFunction>(IcePy_currentEncoding),
-     METH_NOARGS,
-     PyDoc_STR("currentEncoding() -> Ice.EncodingVersion\n\n"
-               "Returns the latest encoding version.\n\n"
-               "Returns\n"
-               "-------\n"
-               "Ice.EncodingVersion\n"
-               "    The latest encoding version.")},
     {"stringToProtocolVersion",
      reinterpret_cast<PyCFunction>(IcePy_stringToProtocolVersion),
      METH_VARARGS,

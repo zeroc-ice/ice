@@ -177,7 +177,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
             string type;
             int version;
 
-            Ice::InputStream stream(communicator, Ice::currentEncoding, buf);
+            Ice::InputStream stream(communicator, Ice::Encoding_1_1, buf);
             stream.read(type);
             if (type != "IceStorm")
             {
@@ -299,7 +299,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
                 env.close();
             }
 
-            Ice::OutputStream stream{Ice::currentEncoding};
+            Ice::OutputStream stream{Ice::Encoding_1_1};
             stream.write("IceStorm");
             stream.write(ICE_INT_VERSION);
             stream.write(data);

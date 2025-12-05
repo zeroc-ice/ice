@@ -306,7 +306,7 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
     constructor(prx, operation, completed) {
         super(prx, operation);
         if (prx) {
-            this._encoding = Protocol.getCompatibleEncoding(this._proxy._getReference().getEncoding());
+            this._encoding = this._proxy._getReference().getEncoding();
             this._completed = completed;
         }
     }

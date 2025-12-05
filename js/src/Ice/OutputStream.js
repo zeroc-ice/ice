@@ -511,7 +511,7 @@ export class OutputStream {
             this._format = instance.defaultsAndOverrides().defaultFormat;
         } else {
             if (this._encoding === null) {
-                this._encoding = Protocol.currentEncoding;
+                this._encoding = Protocol.Encoding_1_1;
             }
             this._format = FormatType.CompactFormat;
         }
