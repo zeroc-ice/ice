@@ -23,9 +23,9 @@ Client::run(int argc, char** argv)
     initData.properties->setProperty("Ice.Admin.InstanceName", "client");
     initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
     initData.properties->setProperty("Ice.Warn.Connections", "0");
-    initData.properties->setProperty(
-        "Ice.Connection.Client.ConnectTimeout",
-        "1"); // speed up connection establishment test
+
+    // speed up connection establishment test
+    initData.properties->setProperty("Ice.Connection.Client.ConnectTimeout", "2");
     CommunicatorObserverIPtr observer = make_shared<CommunicatorObserverI>();
     initData.observer = observer;
     Ice::CommunicatorHolder communicator = initialize(initData);
