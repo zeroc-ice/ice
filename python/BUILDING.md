@@ -67,13 +67,13 @@ MSBuild msbuild\ice.proj
 
 By default, the Windows build uses the Python installation located at:
 
-* `C:\Program Files\Python312` for `x64` builds
-* `C:\Program Files (x86)\Python312-32` for `Win32` builds
+* `C:\Program Files\Python314` for `x64` builds
+* `C:\Program Files (x86)\Python314-32` for `Win32` builds
 
 If your Python installation is in a different location, set the `PythonHome` MSBuild property:
 
 ```shell
-MSBuild msbuild\ice.proj /p:PythonHome=C:\Python312
+MSBuild msbuild\ice.proj /p:PythonHome=C:\Python314
 ```
 
 To build a debug version for use with `python_d`, set the `Configuration` property to `Debug`:
