@@ -298,7 +298,7 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocSummary(out, p);
+    writeDocSummary(out, p, "class");
     writeSwiftAttributes(out, p->getMetadata());
     out << nl << "open class " << name << ": ";
     if (base)
@@ -435,7 +435,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << eb;
 
     out << sp;
-    writeDocSummary(out, p);
+    writeDocSummary(out, p, "exception class");
     writeSwiftAttributes(out, p->getMetadata());
     out << nl << "open class " << name << ": ";
     if (base)
@@ -544,7 +544,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     bool usesClasses = p->usesClasses();
     out << sp;
-    writeDocSummary(out, p);
+    writeDocSummary(out, p, usesClasses ? "class" : "struct");
     writeSwiftAttributes(out, p->getMetadata());
     out << nl << "public " << (usesClasses ? "final class " : "struct ") << name;
 
@@ -988,7 +988,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     const string optionalFormat = getOptionalFormat(p);
 
     out << sp;
-    writeDocSummary(out, p);
+    writeDocSummary(out, p, "enum");
     writeSwiftAttributes(out, p->getMetadata());
     out << nl << "public enum " << name << ": " << enumType << ", Swift.Sendable";
     out << sb;
@@ -1081,7 +1081,7 @@ Gen::TypesVisitor::visitConst(const ConstPtr& p)
     const string mappedName = getRelativeTypeString(p, swiftModule);
 
     out << sp;
-    writeDocSummary(out, p);
+    writeDocSummary(out, p, "constant");
     out << nl << "public let " << mappedName << ": " << typeToString(type, p) << " = ";
     writeConstantValue(out, type, p->valueType(), p->value(), swiftModule);
 }
@@ -1376,7 +1376,7 @@ Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     out << sp;
-    writeDocSummary(out, p);
+    writeDocSummary(out, p, "server-side protocol");
     out << nl << "public protocol " << servant << ": ";
     if (baseNames.empty())
     {

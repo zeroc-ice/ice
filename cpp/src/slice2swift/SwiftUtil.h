@@ -26,7 +26,11 @@ namespace Slice::Swift
     /// Removes any Swift escaping from the provided identifier (any leading or trailing backticks will be removed).
     std::string removeEscaping(std::string ident);
 
-    void writeDocSummary(IceInternal::Output&, const ContainedPtr&);
+    void writeDocSummary(
+        IceInternal::Output&,
+        const ContainedPtr&,
+        const std::optional<std::string>& generatedType = std::nullopt);
+
     void writeOpDocSummary(IceInternal::Output&, const OperationPtr&, bool);
 
     void writeProxyDocSummary(IceInternal::Output&, const InterfaceDefPtr&, const std::string&);

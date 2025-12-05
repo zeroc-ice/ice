@@ -78,34 +78,47 @@ Slice::Swift::getSwiftModule(const ModulePtr& module)
 }
 
 void
-Slice::Swift::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
+Slice::Swift::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p, const optional<string>& generatedType)
 {
-    const optional<DocComment>& doc = p->docComment();
-    if (!doc)
-    {
-        return;
-    }
+    const optional<DocComment>& comment = p->docComment();
+    StringList remarks;
 
     bool hasStarted{false};
 
-    const StringList& docOverview = doc->overview();
-    if (!docOverview.empty())
+    if (comment)
     {
-        writeDocLines(out, docOverview);
-        hasStarted = true;
-    }
-
-    if (doc->isDeprecated())
-    {
-        if (hasStarted)
+        const StringList& docOverview = comment->overview();
+        if (!docOverview.empty())
         {
-            out << nl << "///";
+            writeDocLines(out, docOverview);
+            hasStarted = true;
         }
-        writeDeprecatedDocComment(out, *doc);
-        hasStarted = true;
+
+        if (comment->isDeprecated())
+        {
+            if (hasStarted)
+            {
+                out << nl << "///";
+            }
+            writeDeprecatedDocComment(out, *comment);
+            hasStarted = true;
+        }
+        remarks = comment->remarks();
     }
 
-    const StringList& remarks = doc->remarks();
+    if (generatedType)
+    {
+        // If there's user-provided remarks, and a generated-type message, we insert and empty line between them.
+        if (!remarks.empty())
+        {
+            remarks.emplace_back("");
+        }
+
+        remarks.push_back(
+            "The Slice compiler generated this " + *generatedType + " from Slice " + p->kindOf() + " `" + p->scoped() +
+            "`.");
+    }
+
     if (!remarks.empty())
     {
         if (hasStarted)
@@ -116,15 +129,18 @@ Slice::Swift::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
         writeDocLines(out, remarks);
     }
 
-    const StringList& seeAlso = doc->seeAlso();
-    if (!seeAlso.empty())
+    if (comment)
     {
-        if (hasStarted)
+        const StringList& seeAlso = comment->seeAlso();
+        if (!seeAlso.empty())
         {
-            out << nl << "///";
+            if (hasStarted)
+            {
+                out << nl << "///";
+            }
+            out << nl << "/// - See Also:";
+            writeDocLines(out, seeAlso);
         }
-        out << nl << "/// - See Also:";
-        writeDocLines(out, seeAlso);
     }
 }
 
@@ -283,6 +299,8 @@ Slice::Swift::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p,
 void
 Slice::Swift::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
+    // TODO: reuse writeDocSummary.
+
     const optional<DocComment>& doc = p->docComment();
     if (!doc)
     {
@@ -305,6 +323,8 @@ Slice::Swift::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefP
 void
 Slice::Swift::writeServantDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
+    // TODO: reuse writeDocSummary.
+
     const optional<DocComment>& doc = p->docComment();
     if (!doc)
     {
