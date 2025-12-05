@@ -2058,9 +2058,10 @@ Slice::JavaVisitor::writeDocComment(Output& out, const ContainedPtr& p, const op
             p->scoped() + "}.");
     }
 
+    writeRemarksDocComment(out, remarks);
+
     if (comment)
     {
-        writeRemarksDocComment(out, remarks);
         writeSeeAlso(out, comment->seeAlso());
 
         const StringList& deprecated = comment->deprecated();
