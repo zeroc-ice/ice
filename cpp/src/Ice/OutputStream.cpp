@@ -117,7 +117,7 @@ Ice::OutputStream::OutputStream(OutputStream&& other) noexcept
 {
     // Reset other to its default state.
     other._closure = nullptr;
-    other._encoding = currentEncoding;
+    other._encoding = Encoding_1_1;
     other._format = FormatType::CompactFormat;
     other._currentEncaps = nullptr;
     other._preAllocatedEncaps.reset();
@@ -141,7 +141,7 @@ Ice::OutputStream::operator=(OutputStream&& other) noexcept
 
         // Reset other to its default state.
         other._closure = nullptr;
-        other._encoding = currentEncoding;
+        other._encoding = Encoding_1_1;
         other._format = FormatType::CompactFormat;
         other._currentEncaps = nullptr;
         other._preAllocatedEncaps.reset();

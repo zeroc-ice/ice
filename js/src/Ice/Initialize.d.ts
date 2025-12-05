@@ -52,20 +52,6 @@ declare module "@zeroc/ice" {
         function createProperties(args?: string[], defaults?: Properties): Properties;
 
         /**
-         * Gets the latest protocol encoding version, which is currently 1.0.
-         *
-         * @returns The latest protocol encoding version.
-         */
-        function currentProtocol(): ProtocolVersion;
-
-        /**
-         * Gets the latest encoding version, which is currently 1.1.
-         *
-         * @returns The latest encoding version.
-         */
-        function currentEncoding(): EncodingVersion;
-
-        /**
          * Returns the Ice version as a string in the format "A.B.C", where:
          * - A: major version
          * - B: minor version

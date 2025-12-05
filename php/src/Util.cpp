@@ -740,45 +740,6 @@ ZEND_FUNCTION(Ice_generateUUID)
     RETURN_STRINGL(uuid.c_str(), static_cast<int>(uuid.size()));
 }
 
-ZEND_FUNCTION(Ice_currentProtocol)
-{
-    if (ZEND_NUM_ARGS() > 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    if (!createProtocolVersion(return_value, Ice::currentProtocol))
-    {
-        RETURN_NULL();
-    }
-}
-
-ZEND_FUNCTION(Ice_currentProtocolEncoding)
-{
-    if (ZEND_NUM_ARGS() > 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    if (!createEncodingVersion(return_value, Ice::currentProtocolEncoding))
-    {
-        RETURN_NULL();
-    }
-}
-
-ZEND_FUNCTION(Ice_currentEncoding)
-{
-    if (ZEND_NUM_ARGS() > 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    if (!createEncodingVersion(return_value, Ice::currentEncoding))
-    {
-        RETURN_NULL();
-    }
-}
-
 ZEND_FUNCTION(Ice_protocolVersionToString)
 {
     zend_class_entry* versionClass = nameToClass(Ice_ProtocolVersionType);

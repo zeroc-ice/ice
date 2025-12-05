@@ -19,15 +19,6 @@ namespace Ice
     /// Identifies encoding version 1.1.
     constexpr EncodingVersion Encoding_1_1{1, 1};
 
-    /// Identifies the latest protocol version.
-    constexpr ProtocolVersion currentProtocol{Protocol_1_0};
-
-    /// Identifies the latest protocol encoding version.
-    constexpr EncodingVersion currentProtocolEncoding{Encoding_1_0};
-
-    /// Identifies the latest encoding version.
-    constexpr EncodingVersion currentEncoding{Encoding_1_1};
-
     /// Converts a protocol version into a string.
     /// @param v The protocol version.
     /// @return A string representing the protocol version.

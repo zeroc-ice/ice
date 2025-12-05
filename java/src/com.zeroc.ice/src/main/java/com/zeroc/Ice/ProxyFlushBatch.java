@@ -39,7 +39,7 @@ class ProxyFlushBatch extends ProxyOutgoingAsyncBase<Void> {
     }
 
     public void invoke() {
-        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_proxy._getReference().getProtocol()));
+        Protocol.checkSupportedProtocol(_proxy._getReference().getProtocol());
         try {
             invokeImpl(true); // userThread = true
         } catch (LocalException ex) {

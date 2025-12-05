@@ -9,6 +9,12 @@
 
 namespace IceInternal
 {
+    /// Identifies the latest protocol version.
+    constexpr Ice::ProtocolVersion currentProtocol{Ice::Protocol_1_0};
+
+    /// Identifies the latest protocol encoding version.
+    constexpr Ice::EncodingVersion currentProtocolEncoding{Ice::Encoding_1_0};
+
     //
     // Size of the Ice protocol header
     //
@@ -71,7 +77,7 @@ namespace IceInternal
 
     inline void checkSupportedEncoding(const Ice::EncodingVersion& v)
     {
-        if (!isSupported(v, Ice::currentEncoding))
+        if (!isSupported(v, Ice::Encoding_1_1))
         {
             throw Ice::MarshalException{
                 __FILE__,

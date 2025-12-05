@@ -172,9 +172,6 @@ ZEND_END_ARG_INFO()
     ZEND_NS_NAMED_FE("Ice", stringVersion, ZEND_FN(Ice_stringVersion), ice_void_arginfo)                               \
     ZEND_NS_NAMED_FE("Ice", intVersion, ZEND_FN(Ice_intVersion), ice_void_arginfo)                                     \
     ZEND_NS_NAMED_FE("Ice", generateUUID, ZEND_FN(Ice_generateUUID), ice_void_arginfo)                                 \
-    ZEND_NS_NAMED_FE("Ice", currentProtocol, ZEND_FN(Ice_currentProtocol), ice_void_arginfo)                           \
-    ZEND_NS_NAMED_FE("Ice", currentProtocolEncoding, ZEND_FN(Ice_currentProtocolEncoding), ice_void_arginfo)           \
-    ZEND_NS_NAMED_FE("Ice", currentEncoding, ZEND_FN(Ice_currentEncoding), ice_void_arginfo)                           \
     ZEND_NS_NAMED_FE(                                                                                                  \
         "Ice",                                                                                                         \
         protocolVersionToString,                                                                                       \

@@ -306,14 +306,14 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
     constructor(prx, operation, completed) {
         super(prx, operation);
         if (prx) {
-            this._encoding = Protocol.getCompatibleEncoding(this._proxy._getReference().getEncoding());
+            this._encoding = this._proxy._getReference().getEncoding();
             this._completed = completed;
         }
     }
 
     prepare(mode, ctx) {
         const protocol = this._proxy._getReference().getProtocol();
-        if (protocol.major != Protocol.currentProtocol.major) {
+        if (!protocol.equals(Protocol.currentProtocol)) {
             throw new FeatureNotSupportedException(
                 `Cannot send request using protocol version ${protocol.major}.${protocol.minor}`,
             );

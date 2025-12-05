@@ -88,7 +88,7 @@ classdef Communicator < IceInternal.WrapperObject
 
             enc = options.Properties.getProperty('Ice.Default.EncodingVersion');
             if isempty(enc)
-                obj.encoding = IceInternal.Protocol.CurrentEncoding;
+                obj.encoding = IceInternal.Protocol.Encoding_1_1;
             else
                 arr = sscanf(enc, '%u.%u');
                 if length(arr) ~= 2
