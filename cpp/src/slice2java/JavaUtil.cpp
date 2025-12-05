@@ -801,10 +801,10 @@ Slice::Java::validateJavaMetadata(const UnitPtr& u)
     Slice::validateMetadata(u, "java", std::move(knownMetadata));
 }
 
-Slice::JavaOutput::JavaOutput() : Output(false, false) {}
+Slice::Java::JavaOutput::JavaOutput() : Output(false, false) {}
 
 void
-Slice::JavaOutput::openClass(const string& cls, const string& prefix, const string& sliceFile)
+Slice::Java::JavaOutput::openClass(const string& cls, const string& prefix, const string& sliceFile)
 {
     string::size_type pos = cls.rfind('.');
     // The generated classes are always in a package corresponding to the Slice module.
@@ -844,15 +844,15 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
 }
 
 void
-Slice::JavaOutput::printHeader()
+Slice::Java::JavaOutput::printHeader()
 {
     print("// Copyright (c) ZeroC, Inc.\n");
     print("\n// slice2java version " ICE_STRING_VERSION);
 }
 
-Slice::JavaGenerator::JavaGenerator(string dir) : _dir(std::move(dir)) {}
+Slice::Java::JavaGenerator::JavaGenerator(string dir) : _dir(std::move(dir)) {}
 
-Slice::JavaGenerator::~JavaGenerator()
+Slice::Java::JavaGenerator::~JavaGenerator()
 {
     // If open throws an exception other generators could be left open
     // during the stack unwind.
@@ -864,7 +864,7 @@ Slice::JavaGenerator::~JavaGenerator()
 }
 
 void
-Slice::JavaGenerator::open(const string& qualifiedEntity, const string& sliceFile)
+Slice::Java::JavaGenerator::open(const string& qualifiedEntity, const string& sliceFile)
 {
     assert(_out == nullptr);
 
@@ -882,7 +882,7 @@ Slice::JavaGenerator::open(const string& qualifiedEntity, const string& sliceFil
 }
 
 void
-Slice::JavaGenerator::close()
+Slice::Java::JavaGenerator::close()
 {
     assert(_out != nullptr);
     *_out << nl;
@@ -891,7 +891,7 @@ Slice::JavaGenerator::close()
 }
 
 Output&
-Slice::JavaGenerator::output() const
+Slice::Java::JavaGenerator::output() const
 {
     assert(_out != nullptr);
     return *_out;
