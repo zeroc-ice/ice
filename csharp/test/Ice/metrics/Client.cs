@@ -25,7 +25,7 @@ public class Client : Test.TestHelper
         initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
 
         // speed up connection establishment test
-        initData.properties.setProperty("Ice.Connection.Client.ConnectTimeout", "1");
+        initData.properties.setProperty("Ice.Connection.Client.ConnectTimeout", "2");
 
         await using Communicator communicator = initialize(initData);
         Test.MetricsPrx metrics = await AllTests.allTests(this, observer);
