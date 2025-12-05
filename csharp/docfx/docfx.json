@@ -55,8 +55,8 @@
     "globalMetadata": {
       "_appTitle": "Ice API",
       "_appName": "Docs",
-      "_appFaviconPath": "images/favicon.ico",
-      "_appLogoPath": "images/logo.png",
+      "_appFaviconPath": "images/logo.svg",
+      "_appLogoPath": "images/logo.svg",
       "_appLogoUrl": "https://code.zeroc.com/ice/main/api/csharp/index.html",
       "_appFooter": "© 2025 ZeroC",
       "_enableSearch": true,
