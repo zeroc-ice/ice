@@ -19,7 +19,7 @@ IceObjC::iAPConnector::connect()
     EASession* session = [[EASession alloc] initWithAccessory:_accessory forProtocol:_protocol];
     if (!session)
     {
-        throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
+        throw Ice::ConnectFailedException(__FILE__, __LINE__, "failed to create EASession");
     }
     auto transceiver = make_shared<iAPTransceiver>(_instance, session);
 #    if defined(__clang__) && !__has_feature(objc_arc)

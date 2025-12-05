@@ -41,8 +41,12 @@ jobs:
       - name: Setup Python
         uses: ./.github/actions/setup-python
 
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v7
+
       - name: Install Python dependencies
-        run: python -m pip install pyright numpy cryptography setuptools
+        working-directory: python
+        run: uv sync --group dev
 
       - name: Build Ice for Python
         run: |
@@ -50,5 +54,6 @@ jobs:
           make -C python
 
       - name: Pyright check
-        run: |-
-          pyright python
+        working-directory: python
+        run: |
+          uv run pyright .

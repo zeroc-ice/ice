@@ -305,11 +305,14 @@ loggerCloneWithPrefix(LoggerObject* self, PyObject* args)
 }
 
 static PyMethodDef LoggerMethods[] = {
-    {"print", reinterpret_cast<PyCFunction>(loggerPrint), METH_VARARGS, PyDoc_STR("print(message) -> None")},
-    {"trace", reinterpret_cast<PyCFunction>(loggerTrace), METH_VARARGS, PyDoc_STR("trace(category, message) -> None")},
-    {"warning", reinterpret_cast<PyCFunction>(loggerWarning), METH_VARARGS, PyDoc_STR("warning(message) -> None")},
-    {"error", reinterpret_cast<PyCFunction>(loggerError), METH_VARARGS, PyDoc_STR("error(message) -> None")},
-    {"getPrefix", reinterpret_cast<PyCFunction>(loggerGetPrefix), METH_NOARGS, PyDoc_STR("getPrefix() -> string")},
+    {"print", reinterpret_cast<PyCFunction>(loggerPrint), METH_VARARGS, PyDoc_STR("print(message: str) -> None")},
+    {"trace",
+     reinterpret_cast<PyCFunction>(loggerTrace),
+     METH_VARARGS,
+     PyDoc_STR("trace(category: str, message: str) -> None")},
+    {"warning", reinterpret_cast<PyCFunction>(loggerWarning), METH_VARARGS, PyDoc_STR("warning(message: str) -> None")},
+    {"error", reinterpret_cast<PyCFunction>(loggerError), METH_VARARGS, PyDoc_STR("error(message: str) -> None")},
+    {"getPrefix", reinterpret_cast<PyCFunction>(loggerGetPrefix), METH_NOARGS, PyDoc_STR("getPrefix() -> str")},
     {"cloneWithPrefix",
      reinterpret_cast<PyCFunction>(loggerCloneWithPrefix),
      METH_VARARGS,
@@ -326,6 +329,7 @@ namespace IcePy
         .tp_basicsize = sizeof(LoggerObject),
         .tp_dealloc = reinterpret_cast<destructor>(loggerDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT,
+        .tp_doc = PyDoc_STR("IcePy.Logger"),
         .tp_methods = LoggerMethods,
         .tp_new = reinterpret_cast<newfunc>(loggerNew),
     };

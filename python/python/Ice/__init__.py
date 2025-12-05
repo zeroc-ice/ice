@@ -4,35 +4,6 @@
 Ice module
 """
 
-from IcePy import (
-    BatchRequest,
-    Connection,
-    ConnectionInfo,
-    EndpointInfo,
-    IPConnectionInfo,
-    IPEndpointInfo,
-    NativePropertiesAdmin,
-    OpaqueEndpointInfo,
-    SSLConnectionInfo,
-    SSLEndpointInfo,
-    TCPConnectionInfo,
-    TCPEndpointInfo,
-    UDPConnectionInfo,
-    UDPEndpointInfo,
-    WSConnectionInfo,
-    WSEndpointInfo,
-    currentEncoding,
-    currentProtocol,
-    currentProtocolEncoding,
-    encodingVersionToString,
-    intVersion,
-    loadSlice,
-    protocolVersionToString,
-    stringToEncodingVersion,
-    stringToProtocolVersion,
-    stringVersion,
-)
-
 from . import asyncio
 
 #
@@ -69,6 +40,34 @@ from .FormatType import FormatType
 from .Future import Future, FutureLike, wrap_future
 from .iAPEndpointType import iAPEndpointType
 from .iAPSEndpointType import iAPSEndpointType
+from .IcePyTypes import (
+    BatchRequest,
+    Connection,
+    ConnectionInfo,
+    EndpointInfo,
+    IPConnectionInfo,
+    IPEndpointInfo,
+    NativePropertiesAdmin,
+    OpaqueEndpointInfo,
+    SSLConnectionInfo,
+    SSLEndpointInfo,
+    TCPConnectionInfo,
+    TCPEndpointInfo,
+    UDPConnectionInfo,
+    UDPEndpointInfo,
+    WSConnectionInfo,
+    WSEndpointInfo,
+    currentEncoding,
+    currentProtocol,
+    currentProtocolEncoding,
+    encodingVersionToString,
+    intVersion,
+    loadSlice,
+    protocolVersionToString,
+    stringToEncodingVersion,
+    stringToProtocolVersion,
+    stringVersion,
+)
 from .Identity import Identity, _Ice_Identity_t
 from .IdentitySeq import _Ice_IdentitySeq_t
 from .ImplicitContext import ImplicitContext

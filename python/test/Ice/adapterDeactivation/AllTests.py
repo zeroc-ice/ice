@@ -1,7 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
-from typing import Any
+from typing import Any, cast
 
 from generated.test.Ice.adapterDeactivation import Test
 from TestHelper import TestHelper
@@ -97,7 +97,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.TestInt
         # create new connection
         cachedConnection = obj.ice_getCachedConnection()
         assert cachedConnection is not None
-        cachedConnection.close().result()
+        cast(Ice.Future[None], cachedConnection.close()).result()
         obj.ice_ping()
 
         # TODO: compare underlying object adapter objects
@@ -109,7 +109,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.TestInt
         # create new connection
         cachedConnection = obj.ice_getCachedConnection()
         assert cachedConnection is not None
-        cachedConnection.close().result()
+        cast(Ice.Future[None], cachedConnection.close()).result()
         obj.ice_ping()
 
         cachedConnection = obj.ice_getCachedConnection()

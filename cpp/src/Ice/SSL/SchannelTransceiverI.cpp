@@ -572,7 +572,7 @@ Schannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
         else if (err == SEC_I_CONTEXT_EXPIRED)
         {
             // The message sender has finished using the connection and has initiated a shutdown.
-            throw ConnectionLostException(__FILE__, __LINE__, 0);
+            throw ConnectionLostException(__FILE__, __LINE__);
         }
         else if (err != SEC_E_OK)
         {
@@ -805,7 +805,7 @@ Schannel::TransceiverI::read(IceInternal::Buffer& buf)
                 _sslConnectionRenegotiating = false;
                 continue;
             }
-            throw ConnectionLostException(__FILE__, __LINE__, 0);
+            throw ConnectionLostException(__FILE__, __LINE__);
         }
 
         if (decrypted == 0)
@@ -909,7 +909,7 @@ Schannel::TransceiverI::finishRead(IceInternal::Buffer& buf)
                     }
                     break;
                 }
-                throw ConnectionLostException(__FILE__, __LINE__, 0);
+                throw ConnectionLostException(__FILE__, __LINE__);
             }
             break;
         }

@@ -1,5 +1,15 @@
 # Copyright (c) ZeroC, Inc.
 
+# IcePy contains (unfortunately) a mix of public and internal APIs.
+# The public APIs, things that get re-exported through Ice, must be documented; internal APIs do not.
+#
+# These doc comments must be synchronized with the documentation in the corresponding IcePy C++ files.
+# 1. Sphinx uses the doc comments from the IcePy native module directly.
+# 2. IcePy stubs (this file) are used by pyright and IDEs for type checking and code completion.
+#
+# It would be nice if this file could be generated automatically from the C++ files using `stubgen`,
+# but for now we maintain it manually since the generated stubs are incomplete for use with pyright.
+
 from collections.abc import Awaitable, Callable
 from typing import Any, Self, Type, TypeVar
 
@@ -11,10 +21,49 @@ class AsyncInvocationContext:
     def cancel(self) -> None: ...
 
 class BatchRequest:
-    def enqueue(self) -> None: ...
-    def getOperation(self) -> str: ...
-    def getProxy(self) -> Ice.ObjectPrx: ...
-    def getSize(self) -> int: ...
+    """
+    Represents a batch request. A batch request is created by invoking an operation on a batch-oneway or
+    batch-datagram proxy.
+    """
+
+    def enqueue(self) -> None:
+        """
+        Queues this request.
+        """
+        ...
+
+    def getOperation(self) -> str:
+        """
+        Gets the name of the operation.
+
+        Returns
+        -------
+        str
+            The operation name.
+        """
+        ...
+
+    def getProxy(self) -> Ice.ObjectPrx:
+        """
+        Gets the proxy used to create this batch request.
+
+        Returns
+        -------
+        Ice.ObjectPrx
+            The proxy.
+        """
+        ...
+
+    def getSize(self) -> int:
+        """
+        Gets the size of the request.
+
+        Returns
+        -------
+        int
+            The number of bytes consumed by the request.
+        """
+        ...
 
 class Communicator:
     @classmethod
@@ -49,30 +98,204 @@ class Communicator:
     def setDefaultObjectAdapter(self, adapter: Ice.ObjectAdapter | None) -> None: ...
     def setDefaultRouter(self, router: Ice.RouterPrx | None) -> None: ...
     def shutdown(self) -> None: ...
-    def shutdownCompleted(self) -> Ice.Future: ...
+    def shutdownCompleted(self) -> Awaitable[None]: ...
     def stringToProxy(self, str: str) -> Ice.ObjectPrx: ...
     def waitForShutdown(self, timeout: int) -> bool: ...
 
 class Connection:
-    ...
-    def abort(self) -> None: ...
-    def close(self) -> Ice.Future: ...
-    def createProxy(self, identity: Ice.Identity) -> Ice.ObjectPrx: ...
-    def disableInactivityCheck(self) -> None: ...
-    def flushBatchRequests(self, compress: Ice.CompressBatch) -> None: ...
+    """Represents a connection that uses the Ice protocol."""
+
+    def abort(self) -> None:
+        """Aborts this connection."""
+        ...
+
+    def close(self) -> Awaitable[None]:
+        """
+        Starts a graceful closure of this connection once all outstanding invocations have completed.
+
+        Returns
+        -------
+        Awaitable[None]
+            A future that becomes available when the connection is closed.
+        """
+        ...
+
+    def createProxy(self, identity: Ice.Identity) -> Ice.ObjectPrx:
+        """
+        Creates a special proxy (a 'fixed proxy') that always uses this connection.
+
+        Parameters
+        ----------
+        identity : Ice.Identity
+            The identity of the target object.
+
+        Returns
+        -------
+        Ice.ObjectPrx
+            A fixed proxy with the provided identity.
+        """
+        ...
+
+    def disableInactivityCheck(self) -> None:
+        """
+        Disables the inactivity check on this connection.
+
+        By default, Ice will close connections that remain idle for a
+        certain period. This method disables that behavior for this connection.
+        """
+        ...
+
+    def flushBatchRequests(self, compress: Ice.CompressBatch) -> None:
+        """
+        Flushes any pending batch requests for this connection.
+
+        This corresponds to all batch requests invoked on fixed proxies
+        associated with the connection.
+
+        Parameters
+        ----------
+        compress : Ice.CompressBatch
+            Specifies whether or not the queued batch requests should be
+            compressed before being sent over the wire.
+        """
+        ...
+
     def flushBatchRequestsAsync(
         self,
         compress: Ice.CompressBatch,
-    ) -> Awaitable[None]: ...
-    def getAdapter(self) -> Ice.ObjectAdapter | None: ...
-    def getEndpoint(self) -> Endpoint: ...
-    def getInfo(self) -> Ice.ConnectionInfo: ...
-    def setAdapter(self, adapter: Ice.ObjectAdapter | None): ...
-    def setBufferSize(self, rcvSize: int, sndSize: int): ...
-    def setCloseCallback(self, callback: Callable[[Connection], None]): ...
-    # def throwException(self) -> None: ...
-    def toString(self) -> str: ...
-    def type(self) -> str: ...
+    ) -> Awaitable[None]:
+        """
+        Flushes any pending batch requests for this connection asynchronously.
+
+        This corresponds to all batch requests invoked on fixed proxies
+        associated with the connection.
+
+        Parameters
+        ----------
+        compress : Ice.CompressBatch
+            Specifies whether or not the queued batch requests should be
+            compressed before being sent over the wire.
+
+        Returns
+        -------
+        Awaitable[None]
+            A future that becomes available when the flush completes.
+        """
+        ...
+
+    def getAdapter(self) -> Ice.ObjectAdapter | None:
+        """
+        Gets the object adapter associated with this connection.
+
+        Returns
+        -------
+        Ice.ObjectAdapter or None
+            The object adapter associated with this connection.
+        """
+        ...
+
+    def getEndpoint(self) -> Endpoint:
+        """
+        Gets the endpoint from which the connection was created.
+
+        Returns
+        -------
+        Ice.Endpoint
+            The endpoint from which the connection was created.
+        """
+        ...
+
+    def getInfo(self) -> Ice.ConnectionInfo:
+        """
+        Returns the connection information.
+
+        Returns
+        -------
+        Ice.ConnectionInfo
+            The connection information.
+        """
+        ...
+
+    def setAdapter(self, adapter: Ice.ObjectAdapter | None) -> None:
+        """
+        Associates an object adapter with this connection.
+
+        When a connection receives a request, it dispatches this request using
+        its associated object adapter. If the associated object adapter is None,
+        the connection rejects any incoming request with an ObjectNotExistException.
+
+        Parameters
+        ----------
+        adapter : Ice.ObjectAdapter or None
+            The object adapter to associate with this connection.
+        """
+        ...
+
+    def setBufferSize(self, rcvSize: int, sndSize: int) -> None:
+        """
+        Sets the size of the receive and send buffers.
+
+        Parameters
+        ----------
+        rcvSize : int
+            The size of the receive buffer.
+        sndSize : int
+            The size of the send buffer.
+        """
+        ...
+
+    def setCloseCallback(self, callback: Callable[[Connection], None]) -> None:
+        """
+        Sets a close callback on the connection.
+
+        The callback is called by the connection when it's closed. The callback
+        is called from the Ice thread pool associated with the connection.
+
+        Parameters
+        ----------
+        callback : Callable
+            The close callback function.
+        """
+        ...
+
+    def throwException(self) -> None:
+        """
+        Throws an exception that provides the reason for the closure of this connection.
+
+        For example, this function throws CloseConnectionException when the connection
+        was closed gracefully by the peer; it throws ConnectionAbortedException when
+        the connection is aborted. This function does nothing if the connection is
+        not yet closed.
+        """
+        ...
+
+    def toString(self) -> str:
+        """
+        Returns a description of the connection as human readable text.
+
+        This function is suitable for logging or error messages and remains
+        usable after the connection is closed or aborted.
+
+        Returns
+        -------
+        str
+            The description of the connection as human readable text.
+        """
+        ...
+
+    def type(self) -> str:
+        """
+        Returns the connection type.
+
+        This corresponds to the endpoint type, such as 'tcp', 'udp', etc.
+
+        Returns
+        -------
+        str
+            The type of the connection.
+        """
+        ...
+
     def __eq__(self, other: object) -> bool: ...
     def __ge__(self, other: object) -> bool: ...
     def __gt__(self, other: object) -> bool: ...
@@ -82,17 +305,51 @@ class Connection:
     def __ne__(self, other: object) -> bool: ...
 
 class ConnectionInfo:
+    """
+    Base class for all connection info classes.
+
+    Connection info classes provide access to the connection details.
+    They are used to get information about the connection, such as
+    whether it's incoming or outgoing, the adapter name, and connection ID.
+    """
+
     underlying: ConnectionInfo | None
+    """Ice.ConnectionInfo | None: underlying connection information"""
+
     adapterName: str
+    """str: adapter associated with the connection"""
+
     incoming: bool
+    """bool: whether connection is incoming"""
 
 class DispatchCallback:
     def response(self, *args: tuple) -> None: ...
     def exception(self, exception: BaseException) -> None: ...
 
 class Endpoint:
-    def getInfo(self) -> EndpointInfo: ...
-    def toString(self) -> str: ...
+    """IcePy.Endpoint"""
+
+    def getInfo(self) -> EndpointInfo:
+        """
+        Returns the endpoint information.
+
+        Returns
+        -------
+        Ice.EndpointInfo
+            The endpoint information class.
+        """
+        ...
+
+    def toString(self) -> str:
+        """
+        Returns a string representation of this endpoint.
+
+        Returns
+        -------
+        str
+            The string representation of this endpoint.
+        """
+        ...
     def __eq__(self, other: object) -> bool: ...
     def __ge__(self, other: object) -> bool: ...
     def __gt__(self, other: object) -> bool: ...
@@ -101,25 +358,81 @@ class Endpoint:
     def __ne__(self, other: object) -> bool: ...
 
 class EndpointInfo:
+    """
+    Base class for all endpoint info classes.
+
+    Provides access to the endpoint details. Endpoint info classes are used to get information about the endpoints
+    that a connection or proxy uses.
+    """
+
     underlying: EndpointInfo | None
+    """Ice.EndpointInfo | None: underlying endpoint information"""
+
     compress: bool
-    def datagram(self) -> bool: ...
-    def secure(self) -> bool: ...
-    def type(self) -> int: ...
+    """bool: compression status"""
+
+    def datagram(self) -> bool:
+        """
+        Returns True if this endpoint's transport is a datagram transport (namely, UDP), False otherwise.
+
+        Returns
+        -------
+        bool
+            True for a UDP endpoint, False otherwise.
+        """
+        ...
+
+    def secure(self) -> bool:
+        """
+        Returns True if this endpoint's transport uses SSL, False otherwise.
+
+        Returns
+        -------
+        bool
+            True for SSL and SSL-based transports, False otherwise.
+        """
+        ...
+
+    def type(self) -> int:
+        """
+        Returns the type of the endpoint.
+
+        Returns
+        -------
+        int
+            The endpoint type.
+        """
+        ...
 
 class ExceptionInfo: ...
 class ExecutorCall: ...
 
 class IPConnectionInfo(ConnectionInfo):
+    """Provides access to the connection details of an IP connection."""
+
     localAddress: str
+    """str: local address"""
+
     localPort: int
+    """int: local port"""
+
     remoteAddress: str
+    """str: remote address"""
+
     remotePort: int
+    """int: remote port"""
 
 class IPEndpointInfo(EndpointInfo):
+    """Provides access to the address details of an IP endpoint."""
+
     host: str
+    """str: host name or IP address"""
+
     port: int
+    """int: TCP port number"""
+
     sourceAddress: str
+    """str: source IP address"""
 
 class ImplicitContext:
     def containsKey(self, key: str) -> bool: ...
@@ -127,7 +440,7 @@ class ImplicitContext:
     def getContext(self) -> dict[str, str]: ...
     def put(self, key: str, value: str) -> str | None: ...
     def remove(self, key: str) -> str | None: ...
-    def setContext(self, newContext: dict[str, str]) -> str: ...
+    def setContext(self, newContext: dict[str, str]) -> None: ...
     def __eq__(self, other: object) -> bool: ...
     def __ge__(self, other: object) -> bool: ...
     def __gt__(self, other: object) -> bool: ...
@@ -144,8 +457,29 @@ class Logger:
     def warning(self, message: str) -> None: ...
 
 class NativePropertiesAdmin:
-    def addUpdateCallback(self, callback: Callable[[dict[str, str]], None]) -> None: ...
-    def removeUpdateCallback(self, callback: Callable[[dict[str, str]], None]) -> None: ...
+    """The default implementation for the 'Properties' admin facet."""
+
+    def addUpdateCallback(self, callback: Callable[[dict[str, str]], None]) -> None:
+        """
+        Registers an update callback that will be invoked when a property update occurs.
+
+        Parameters
+        ----------
+        callback : Callable
+            The callback function.
+        """
+        ...
+
+    def removeUpdateCallback(self, callback: Callable[[dict[str, str]], None]) -> None:
+        """
+        Removes a previously registered update callback.
+
+        Parameters
+        ----------
+        callback : Callable
+            The callback function to remove.
+        """
+        ...
 
 class ObjectAdapter:
     def activate(self) -> None: ...
@@ -160,7 +494,7 @@ class ObjectAdapter:
     def createProxy(self, identity: Ice.Identity) -> Ice.ObjectPrx: ...
     def deactivate(self) -> None: ...
     def destroy(self) -> None: ...
-    def find(self, identity: Ice.Identity) -> Ice.Object: ...
+    def find(self, identity: Ice.Identity) -> Ice.Object | None: ...
     def findAllFacets(self, id: Ice.Identity) -> dict[str, Ice.Object]: ...
     def findByProxy(self, proxy: Ice.ObjectPrx) -> Ice.Object | None: ...
     def findDefaultServant(self, category: str) -> Ice.Object | None: ...
@@ -198,26 +532,15 @@ class ObjectPrx:
     def ice_endpointSelection(self, newType: Ice.EndpointSelectionType) -> Self: ...
     def ice_endpoints(self, newEndpoints: tuple[Endpoint, ...] | list[Endpoint]) -> Self: ...
     def ice_facet(self, new_facet: str) -> Self: ...
-    def ice_fixed(self, connection: Connection) -> Self: ...
+    def ice_fixed(self, connection: Ice.Connection) -> Self: ...
     def ice_flushBatchRequests(self) -> None: ...
     def ice_flushBatchRequestsAsync(self) -> Awaitable[None]: ...
     def ice_getAdapterId(self) -> str: ...
-    def ice_getCachedConnection(self) -> Connection | None: ...
+    def ice_getCachedConnection(self) -> Ice.Connection | None: ...
     def ice_getCommunicator(self) -> Ice.Communicator: ...
     def ice_getCompress(self) -> bool | None: ...
-    def ice_getConnection(self) -> Connection | None: ...
-    def ice_getConnectionAsync(self) -> Awaitable[Connection | None]:
-        """
-        Returns the Connection for this proxy. If the proxy does not yet have an established connection,
-        it first attempts to create a connection.
-
-        Returns
-        -------
-        Awaitable[Connection | None]
-            An Awaitable that resolves to the Connection for this proxy.
-        """
-        ...
-
+    def ice_getConnection(self) -> Ice.Connection | None: ...
+    def ice_getConnectionAsync(self) -> Awaitable[Ice.Connection | None]: ...
     def ice_getConnectionId(self) -> str: ...
     def ice_getContext(self) -> dict[str, str] | None: ...
     def ice_getEncodingVersion(self) -> Ice.EncodingVersion: ...
@@ -262,8 +585,13 @@ class ObjectPrx:
     def __ne__(self, other: object) -> bool: ...
 
 class OpaqueEndpointInfo(EndpointInfo):
+    """Provides access to the details of an opaque endpoint."""
+
     rawBytes: bytes
+    """bytes: raw encoding"""
+
     rawEncoding: Ice.EncodingVersion
+    """Ice.EncodingVersion: raw encoding version"""
 
 class Operation:
     def __init__(
@@ -301,32 +629,65 @@ class Properties:
     def setProperty(self, key: str, value: str) -> None: ...
 
 class SSLConnectionInfo(ConnectionInfo):
-    ...
-    peerCertificate: str
+    """Provides access to the connection details of an SSL connection."""
 
-class SSLEndpointInfo(EndpointInfo): ...
+    peerCertificate: str
+    """str: peer certificate"""
+
+class SSLEndpointInfo(EndpointInfo):
+    """Provides access to an SSL endpoint information."""
+
+    ...
 
 class TCPConnectionInfo(IPConnectionInfo):
-    rcvSize: int
-    sndSize: int
+    """Provides access to the connection details of a TCP connection."""
 
-class TCPEndpointInfo(IPEndpointInfo): ...
+    rcvSize: int
+    """int: receive buffer size"""
+
+    sndSize: int
+    """int: send buffer size"""
+
+class TCPEndpointInfo(IPEndpointInfo):
+    """Provides access to a TCP endpoint information."""
+
+    ...
 
 class UDPConnectionInfo(IPConnectionInfo):
+    """Provides access to the connection details of a UDP connection."""
+
     mcastAddress: str
+    """str: multicast address"""
+
     mcastPort: int
+    """int: multicast port"""
+
     rcvSize: int
+    """int: receive buffer size"""
+
     sndSize: int
+    """int: send buffer size"""
 
 class UDPEndpointInfo(IPEndpointInfo):
+    """Provides access to an UDP endpoint information."""
+
     mcastInterface: str
+    """str: multicast interface"""
+
     mcastTtl: int
+    """int: multicast time-to-live"""
 
 class WSConnectionInfo(ConnectionInfo):
+    """Provides access to the connection details of a WebSocket connection."""
+
     headers: dict[str, str]
+    """dict[str, str]: request headers"""
 
 class WSEndpointInfo(EndpointInfo):
+    """Provides access to a WebSocket endpoint information."""
+
     resource: str
+    """str: resource"""
 
 def compileSlice(args: list[str]) -> int: ...
 def createProperties(args: list[str] | None, defaults: Ice.Properties | None): ...

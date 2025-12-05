@@ -811,9 +811,16 @@ IceInternal::closeSocket(SOCKET fd)
 string
 IceInternal::addrToString(const Address& addr)
 {
-    ostringstream s;
-    s << inetAddrToString(addr) << ':' << getPort(addr);
-    return s.str();
+    if (isAddressValid(addr))
+    {
+        ostringstream s;
+        s << inetAddrToString(addr) << ':' << getPort(addr);
+        return s.str();
+    }
+    else
+    {
+        return "";
+    }
 }
 
 void
@@ -1548,11 +1555,11 @@ repeatConnect:
         closeSocketNoThrow(fd);
         if (connectionRefused())
         {
-            throw ConnectionRefusedException{__FILE__, __LINE__};
+            throw ConnectionRefusedException{__FILE__, __LINE__, addrToString(addr)};
         }
         else if (connectFailed())
         {
-            throw ConnectFailedException(__FILE__, __LINE__, getSocketErrno());
+            throw ConnectFailedException(__FILE__, __LINE__, getSocketErrno(), addrToString(addr));
         }
         else
         {
@@ -1572,7 +1579,7 @@ repeatConnect:
         fdToLocalAddress(fd, localAddr);
         if (compareAddress(addr, localAddr) == 0)
         {
-            throw ConnectionRefusedException{__FILE__, __LINE__};
+            throw ConnectionRefusedException{__FILE__, __LINE__, addrToString(addr)};
         }
     }
     catch (const LocalException&)
@@ -1640,7 +1647,7 @@ IceInternal::doFinishConnect(SOCKET fd)
     Address remoteAddr;
     if (fdToRemoteAddress(fd, remoteAddr) && compareAddress(remoteAddr, localAddr) == 0)
     {
-        throw ConnectionRefusedException{__FILE__, __LINE__};
+        throw ConnectionRefusedException{__FILE__, __LINE__, addrToString(remoteAddr)};
     }
 #endif
 }
@@ -1828,11 +1835,11 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, const Address& sourc
         {
             if (connectionRefused())
             {
-                throw ConnectionRefusedException{__FILE__, __LINE__};
+                throw ConnectionRefusedException{__FILE__, __LINE__, addrToString(addr)};
             }
             else if (connectFailed())
             {
-                throw ConnectFailedException(__FILE__, __LINE__, getSocketErrno());
+                throw ConnectFailedException(__FILE__, __LINE__, getSocketErrno(), addrToString(addr));
             }
             else
             {
@@ -1846,7 +1853,7 @@ void
 IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
 {
     //
-    // NOTE: It's the caller's responsability to close the socket upon
+    // NOTE: It's the caller's responsibility to close the socket upon
     // failure to connect. The socket isn't closed by this method.
     //
 

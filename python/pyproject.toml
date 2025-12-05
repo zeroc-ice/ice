@@ -32,3 +32,6 @@ py-modules = ["slice2py"]
 
 [project.scripts]
 slice2py = "slice2py:main"
+
+[dependency-groups]
+dev = ["pyright", "cryptography", "numpy", "setuptools"]

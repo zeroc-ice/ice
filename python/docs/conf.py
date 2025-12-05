@@ -23,8 +23,9 @@ html_title = "Ice 3.8.0a"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.napoleon",
 ]
 
 templates_path = ["_templates"]
@@ -40,8 +41,13 @@ html_theme_options = {
     "dark_logo": "logo-dark.png",
 }
 
-## Autodoc configuration
+# Autodoc configuration
 autodoc_typehints = "both"
 autodoc_typehints_description_target = "all"
 add_module_names = True
 python_use_unqualified_type_names = False
+
+# Intersphinx configuration
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+}

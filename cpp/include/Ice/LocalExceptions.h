@@ -481,7 +481,41 @@ namespace Ice
     class ICE_API ConnectFailedException : public SocketException
     {
     public:
-        using SocketException::SocketException;
+        /// Constructs a ConnectFailedException.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
+        /// @param messagePrefix The start of the message returned by what().
+        /// @param error The error code.
+        /// @param address The address of the remote peer, if available.
+        ConnectFailedException(
+            const char* file,
+            int line,
+            std::string messagePrefix,
+            ErrorCode error,
+            std::optional<std::string> address = std::nullopt);
+
+        /// Constructs a ConnectFailedException with a generic message and an error code.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
+        /// @param error The error code.
+        /// @param address The address of the remote peer, if available.
+        ConnectFailedException(
+            const char* file,
+            int line,
+            ErrorCode error,
+            std::optional<std::string> address = std::nullopt)
+            : ConnectFailedException{file, line, "connect failed", error, std::move(address)}
+        {
+        }
+
+        /// Constructs a ConnectFailedException without an error code.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
+        /// @param message The message returned by what().
+        ConnectFailedException(const char* file, int line, std::string message)
+            : SocketException(file, line, std::move(message))
+        {
+        }
 
         [[nodiscard]] const char* ice_id() const noexcept override;
     };
@@ -495,7 +529,18 @@ namespace Ice
         /// @param file The file where this exception is constructed. This C string is not copied.
         /// @param line The line where this exception is constructed.
         /// @param error The error code.
-        ConnectionLostException(const char* file, int line, ErrorCode error);
+        /// @param address The address of the remote peer, if available.
+        ConnectionLostException(
+            const char* file,
+            int line,
+            ErrorCode error,
+            std::optional<std::string> address = std::nullopt);
+
+        /// Constructs a ConnectionLostException without an error code.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
+        /// @param address The address of the remote peer, if available.
+        ConnectionLostException(const char* file, int line, std::optional<std::string> address = std::nullopt);
 
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
@@ -508,10 +553,8 @@ namespace Ice
         /// Constructs a ConnectionRefusedException.
         /// @param file The file where this exception is constructed. This C string is not copied.
         /// @param line The line where this exception is constructed.
-        ConnectionRefusedException(const char* file, int line)
-            : ConnectFailedException(file, line, "connection refused")
-        {
-        }
+        /// @param address The address of the remote peer, if available.
+        ConnectionRefusedException(const char* file, int line, std::optional<std::string> address = std::nullopt);
 
         [[nodiscard]] const char* ice_id() const noexcept final;
     };

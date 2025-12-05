@@ -105,7 +105,7 @@ IceBT::StreamSocket::read(char* buf, size_t length)
         ssize_t ret = ::recv(_fd, buf, packetSize, 0);
         if (ret == 0)
         {
-            throw Ice::ConnectionLostException(__FILE__, __LINE__, 0);
+            throw Ice::ConnectionLostException(__FILE__, __LINE__);
         }
         else if (ret == SOCKET_ERROR)
         {
@@ -160,7 +160,7 @@ IceBT::StreamSocket::write(const char* buf, size_t length)
         ssize_t ret = ::send(_fd, buf, packetSize, 0);
         if (ret == 0)
         {
-            throw Ice::ConnectionLostException(__FILE__, __LINE__, 0);
+            throw Ice::ConnectionLostException(__FILE__, __LINE__);
         }
         else if (ret == SOCKET_ERROR)
         {

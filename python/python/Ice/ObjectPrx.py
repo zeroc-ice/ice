@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from .Communicator import Communicator
     from .EncodingVersion import EncodingVersion
     from .EndpointSelectionType import EndpointSelectionType
+    from .IcePyTypes import Connection
     from .Identity import Identity
     from .Locator import LocatorPrx
     from .Router import RouterPrx
@@ -870,14 +871,14 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getConnectionId()
 
-    def ice_fixed(self, connection: IcePy.Connection) -> Self:
+    def ice_fixed(self, connection: Connection) -> Self:
         """
         Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
         to the given connection.
 
         Parameters
         ----------
-        connection : IcePy.Connection
+        connection : Connection
             The fixed proxy connection.
 
         Returns
@@ -898,7 +899,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_isFixed()
 
-    def ice_getConnection(self) -> IcePy.Connection | None:
+    def ice_getConnection(self) -> Connection | None:
         """
         Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         it first attempts to create a connection.
@@ -910,7 +911,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getConnection()
 
-    def ice_getCachedConnection(self) -> IcePy.Connection | None:
+    def ice_getCachedConnection(self) -> Connection | None:
         """
         Returns the cached Connection for this proxy. If the proxy does not yet have an established
         connection, it does not attempt to create a connection.

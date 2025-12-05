@@ -113,11 +113,21 @@ static PyMethodDef NativePropertiesAdminMethods[] = {
     {"addUpdateCallback",
      reinterpret_cast<PyCFunction>(nativePropertiesAdminAddUpdateCB),
      METH_VARARGS,
-     PyDoc_STR("addUpdateCallback(callback) -> None")},
+     PyDoc_STR("addUpdateCallback(callback: Callable[[dict[str, str]], None]) -> None\n\n"
+               "Registers an update callback that will be invoked when a property update occurs.\n\n"
+               "Parameters\n"
+               "----------\n"
+               "callback : Callable\n"
+               "    The callback function.")},
     {"removeUpdateCallback",
      reinterpret_cast<PyCFunction>(nativePropertiesAdminRemoveUpdateCB),
      METH_VARARGS,
-     PyDoc_STR("removeUpdateCallback(callback) -> None")},
+     PyDoc_STR("removeUpdateCallback(callback: Callable[[dict[str, str]], None]) -> None\n\n"
+               "Removes a previously registered update callback.\n\n"
+               "Parameters\n"
+               "----------\n"
+               "callback : Callable\n"
+               "    The callback function to remove.")},
     {} /* sentinel */
 };
 
@@ -130,6 +140,7 @@ namespace IcePy
         .tp_basicsize = sizeof(NativePropertiesAdminObject),
         .tp_dealloc = reinterpret_cast<destructor>(nativePropertiesAdminDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT,
+        .tp_doc = PyDoc_STR("The default implementation for the 'Properties' admin facet."),
         .tp_methods = NativePropertiesAdminMethods,
         .tp_new = reinterpret_cast<newfunc>(nativePropertiesAdminNew),
     };
