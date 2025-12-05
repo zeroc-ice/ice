@@ -277,7 +277,7 @@ namespace
 
         if (options.generatedType)
         {
-            // If there's user-provided remarks, and a generated-type message, we insert and empty line between them.
+            // If there's user-provided remarks, and a generated-type message, we insert an empty line between them.
             if (!remarks.empty())
             {
                 remarks.emplace_back("");
