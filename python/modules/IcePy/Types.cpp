@@ -938,9 +938,7 @@ IcePy::EnumInfo::optionalFormat() const
 void
 IcePy::EnumInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bool /*optional*/, const Ice::StringSeq*)
 {
-    //
     // Validate value.
-    //
     const int32_t val = valueForEnumerator(p);
     if (val < 0)
     {
@@ -1129,7 +1127,7 @@ IcePy::StructInfo::getId() const
 bool
 IcePy::StructInfo::validate(PyObject* val)
 {
-    return val == Py_None || PyObject_IsInstance(val, pythonType) == 1;
+    return PyObject_IsInstance(val, pythonType) == 1;
 }
 
 bool
@@ -1172,21 +1170,7 @@ IcePy::StructInfo::marshal(
     bool optional,
     const Ice::StringSeq*)
 {
-    assert(p == Py_None || PyObject_IsInstance(p, pythonType) == 1); // validate() should have caught this.
-
-    if (p == Py_None)
-    {
-        if (!_nullMarshalValue.get())
-        {
-            PyObjectHandle emptyArgs{PyTuple_New(0)};
-            auto* type = reinterpret_cast<PyTypeObject*>(pythonType);
-            // Create a new instance of the type
-            _nullMarshalValue = type->tp_new(type, emptyArgs.get(), nullptr);
-            // Call the instance __init__ method
-            type->tp_init(_nullMarshalValue.get(), emptyArgs.get(), nullptr);
-        }
-        p = _nullMarshalValue.get();
-    }
+    assert(PyObject_IsInstance(p, pythonType) == 1); // validate() should have caught this.
 
     Ice::OutputStream::size_type sizePos = 0;
     if (optional)
@@ -1274,7 +1258,6 @@ void
 IcePy::StructInfo::destroy()
 {
     const_cast<DataMemberList&>(members).clear();
-    _nullMarshalValue = nullptr;
 }
 
 PyObject*

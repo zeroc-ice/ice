@@ -32,11 +32,11 @@ internal sealed class UdpTransceiver : Transceiver
                 {
                     return SocketOperation.Connect;
                 }
-                throw new Ice.ConnectFailedException(ex);
+                throw new Ice.ConnectFailedException(_addr, ex);
             }
             catch (System.Exception ex)
             {
-                throw new Ice.ConnectFailedException(ex);
+                throw new Ice.ConnectFailedException(_addr, ex);
             }
             _state = StateConnected;
         }
@@ -148,7 +148,7 @@ internal sealed class UdpTransceiver : Transceiver
 
                 if (Network.connectionLost(ex))
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    throw new Ice.ConnectionLostException(_addr, ex);
                 }
                 else
                 {
@@ -234,7 +234,7 @@ internal sealed class UdpTransceiver : Transceiver
 
                 if (Network.connectionLost(e))
                 {
-                    throw new ConnectionLostException(e);
+                    throw new ConnectionLostException(_addr, e);
                 }
                 else
                 {
@@ -249,7 +249,7 @@ internal sealed class UdpTransceiver : Transceiver
 
         if (ret == 0)
         {
-            throw new Ice.ConnectionLostException();
+            throw new Ice.ConnectionLostException(_addr);
         }
 
         Debug.Assert(_state != StateNeedConnect);
@@ -297,7 +297,7 @@ internal sealed class UdpTransceiver : Transceiver
             {
                 if (Network.connectionLost(ex))
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    throw new Ice.ConnectionLostException(_addr, ex);
                 }
                 else
                 {
@@ -340,12 +340,12 @@ internal sealed class UdpTransceiver : Transceiver
             {
                 if (Network.connectionLost(ex))
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    throw new Ice.ConnectionLostException(_addr, ex);
                 }
 
                 if (Network.connectionRefused(ex))
                 {
-                    throw new Ice.ConnectionRefusedException(ex);
+                    throw new Ice.ConnectionRefusedException(_addr, ex);
                 }
                 else
                 {
@@ -356,7 +356,7 @@ internal sealed class UdpTransceiver : Transceiver
 
         if (ret == 0)
         {
-            throw new Ice.ConnectionLostException();
+            throw new Ice.ConnectionLostException(_addr);
         }
 
         Debug.Assert(_state != StateNeedConnect);
@@ -412,7 +412,7 @@ internal sealed class UdpTransceiver : Transceiver
         {
             if (Network.connectionLost(ex))
             {
-                throw new Ice.ConnectionLostException(ex);
+                throw new Ice.ConnectionLostException(_addr, ex);
             }
             else
             {
@@ -441,11 +441,11 @@ internal sealed class UdpTransceiver : Transceiver
                     new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
                 if (Network.connectionRefused(ex))
                 {
-                    throw new Ice.ConnectionRefusedException(ex);
+                    throw new Ice.ConnectionRefusedException(_addr, ex);
                 }
                 else
                 {
-                    throw new Ice.ConnectFailedException(ex);
+                    throw new Ice.ConnectFailedException(_addr, ex);
                 }
             }
             return;
@@ -464,7 +464,7 @@ internal sealed class UdpTransceiver : Transceiver
         {
             if (Network.connectionLost(ex))
             {
-                throw new Ice.ConnectionLostException(ex);
+                throw new Ice.ConnectionLostException(_addr, ex);
             }
             else
             {
@@ -474,7 +474,7 @@ internal sealed class UdpTransceiver : Transceiver
 
         if (ret == 0)
         {
-            throw new Ice.ConnectionLostException();
+            throw new Ice.ConnectionLostException(_addr);
         }
 
         Debug.Assert(ret > 0);

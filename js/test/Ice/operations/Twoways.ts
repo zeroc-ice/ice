@@ -214,13 +214,6 @@ export async function twoways(
     }
 
     {
-        // Test null enum
-        const [retval, p2] = await prx.opMyEnum(null!);
-        test(p2 === Test.MyEnum.enum1);
-        test(retval === Test.MyEnum.enum3);
-    }
-
-    {
         const [retval, p2, p3] = await prx.opMyClass(prx);
 
         test(p2 !== null);
@@ -256,8 +249,7 @@ export async function twoways(
 
     {
         const si1 = new Test.Structure();
-        // Test null struct
-        const [retval, p3] = await prx.opStruct(si1, null!);
+        const [retval, p3] = await prx.opStruct(si1, si1);
 
         test(retval.p === null);
         test(retval.e === Test.MyEnum.enum1);

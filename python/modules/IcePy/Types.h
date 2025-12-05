@@ -291,7 +291,6 @@ namespace IcePy
     private:
         bool _variableLength;
         int _wireSize;
-        PyObjectHandle _nullMarshalValue;
     };
     using StructInfoPtr = std::shared_ptr<StructInfo>;
 
