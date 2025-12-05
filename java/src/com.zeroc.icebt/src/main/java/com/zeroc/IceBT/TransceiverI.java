@@ -312,7 +312,7 @@ final class TransceiverI implements Transceiver {
                 startReadWriteThreads();
             }
         } catch (IOException ex) {
-            exception(new ConnectFailedException(ex));
+            exception(new ConnectFailedException(null, ex));
         } catch (Exception ex) {
             exception(new SocketException(ex));
         } finally {

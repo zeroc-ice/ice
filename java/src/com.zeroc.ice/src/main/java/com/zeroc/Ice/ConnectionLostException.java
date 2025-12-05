@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.net.InetSocketAddress;
+
 /** The exception that is thrown when an established connection is lost. */
 public final class ConnectionLostException extends SocketException {
     /**
@@ -12,12 +14,13 @@ public final class ConnectionLostException extends SocketException {
     }
 
     /**
-     * Constructs a ConnectionLostException with a cause.
+     * Constructs a ConnectionLostException with a peer address and a cause.
      *
+     * @param peerAddress the peer address (may be null)
      * @param cause the cause
      */
-    public ConnectionLostException(Throwable cause) {
-        super(cause);
+    public ConnectionLostException(InetSocketAddress peerAddress, Throwable cause) {
+        super(peerAddress != null ? "Lost connection to " + peerAddress + "." : null, cause);
     }
 
     @Override

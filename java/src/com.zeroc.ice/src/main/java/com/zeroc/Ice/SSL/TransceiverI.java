@@ -413,7 +413,7 @@ final class TransceiverI implements Transceiver {
                 return s;
             }
         } catch (SocketException ex) {
-            throw new ConnectionLostException(ex);
+            throw new ConnectionLostException(null, ex);
         }
         // Cast to java.nio.Buffer to avoid incompatible covariant return type used in Java 9 java.nio.ByteBuffer
         ((java.nio.Buffer) _netOutput.b).clear();
