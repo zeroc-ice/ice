@@ -122,7 +122,7 @@ public sealed class SOCKSNetworkProxy : NetworkProxy
         byte b2 = readBuffer.b.get();
         if (b1 != 0x00 || b2 != 0x5a)
         {
-            throw new Ice.ConnectFailedException();
+            throw new Ice.ConnectFailedException(_address);
         }
     }
 
@@ -227,7 +227,7 @@ public sealed class HTTPNetworkProxy : NetworkProxy
         parser.parse(readBuffer.b, 0, readBuffer.b.position());
         if (parser.status() != 200)
         {
-            throw new Ice.ConnectFailedException();
+            throw new Ice.ConnectFailedException(_address);
         }
     }
 

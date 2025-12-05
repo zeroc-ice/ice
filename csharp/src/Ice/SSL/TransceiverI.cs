@@ -40,7 +40,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
             {
                 if (Ice.Internal.Network.connectionLost(ex))
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    throw new Ice.ConnectionLostException(peerAddress: null, ex);
                 }
                 else
                 {
@@ -120,7 +120,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         {
             if (Ice.Internal.Network.connectionLost(ex))
             {
-                throw new Ice.ConnectionLostException(ex);
+                throw new Ice.ConnectionLostException(peerAddress: null, ex);
             }
             if (Ice.Internal.Network.timeout(ex))
             {
@@ -130,7 +130,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         }
         catch (ObjectDisposedException ex)
         {
-            throw new Ice.ConnectionLostException(ex);
+            throw new Ice.ConnectionLostException(peerAddress: null, ex);
         }
         catch (Exception ex)
         {
@@ -166,7 +166,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
 
             if (ret == 0)
             {
-                throw new Ice.ConnectionLostException();
+                throw new Ice.ConnectionLostException(peerAddress: null);
             }
             Debug.Assert(ret > 0);
             buf.b.position(buf.b.position() + ret);
@@ -179,7 +179,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         {
             if (Ice.Internal.Network.connectionLost(ex))
             {
-                throw new Ice.ConnectionLostException(ex);
+                throw new Ice.ConnectionLostException(peerAddress: null, ex);
             }
             if (Ice.Internal.Network.timeout(ex))
             {
@@ -189,7 +189,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         }
         catch (ObjectDisposedException ex)
         {
-            throw new Ice.ConnectionLostException(ex);
+            throw new Ice.ConnectionLostException(peerAddress: null, ex);
         }
         catch (Exception ex)
         {
@@ -222,7 +222,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         {
             if (Ice.Internal.Network.connectionLost(ex))
             {
-                throw new Ice.ConnectionLostException(ex);
+                throw new Ice.ConnectionLostException(peerAddress: null, ex);
             }
             if (Ice.Internal.Network.timeout(ex))
             {
@@ -232,7 +232,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         }
         catch (ObjectDisposedException ex)
         {
-            throw new Ice.ConnectionLostException(ex);
+            throw new Ice.ConnectionLostException(peerAddress: null, ex);
         }
         catch (Exception ex)
         {
@@ -276,7 +276,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         {
             if (Ice.Internal.Network.connectionLost(ex))
             {
-                throw new Ice.ConnectionLostException(ex);
+                throw new Ice.ConnectionLostException(peerAddress: null, ex);
             }
             if (Ice.Internal.Network.timeout(ex))
             {
@@ -286,7 +286,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         }
         catch (ObjectDisposedException ex)
         {
-            throw new Ice.ConnectionLostException(ex);
+            throw new Ice.ConnectionLostException(peerAddress: null, ex);
         }
         catch (Exception ex)
         {
@@ -393,7 +393,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
             if (Ice.Internal.Network.connectionLost(ex))
             {
                 // This situation occurs when connectToSelf is called; the "remote" end closes the socket immediately.
-                throw new ConnectionLostException(ex);
+                throw new ConnectionLostException(peerAddress: null, ex);
             }
             throw new SocketException(ex);
         }
@@ -434,7 +434,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
             if (Ice.Internal.Network.connectionLost(ex))
             {
                 // This situation occurs when connectToSelf is called; the "remote" end closes the socket immediately.
-                throw new Ice.ConnectionLostException();
+                throw new Ice.ConnectionLostException(peerAddress: null);
             }
             throw new Ice.SocketException(ex);
         }
