@@ -54,7 +54,9 @@ def batchOneways(p: Test.MyClassPrx):
         batch1.ice_pingAsync()
         batch2.ice_pingAsync()
         cast(Ice.InvocationFuture, batch1.ice_flushBatchRequestsAsync()).result()
-        cast(Ice.Connection, batch1.ice_getConnection()).close().result()
+        connection = batch1.ice_getConnection()
+        assert connection is not None
+        cast(Ice.Future[None], connection.close()).result()
         batch1.ice_pingAsync()
         batch2.ice_pingAsync()
 
@@ -62,7 +64,9 @@ def batchOneways(p: Test.MyClassPrx):
         batch2.ice_getConnection()
 
         batch1.ice_pingAsync()
-        cast(Ice.Connection, batch1.ice_getConnection()).close().result()
+        connection = batch1.ice_getConnection()
+        assert connection is not None
+        cast(Ice.Future[None], connection.close()).result()
 
         test(
             cast(Ice.InvocationFuture, batch1.ice_pingAsync()).done()

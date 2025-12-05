@@ -209,7 +209,9 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     sys.stdout.flush()
     hello = Test.HelloPrx(communicator, "hello")
     obj.migrateHello()
-    cast(Ice.Connection, hello.ice_getConnection()).close().result()
+    connection = hello.ice_getConnection()
+    assert connection is not None
+    cast(Ice.Future[None], connection.close()).result()
     hello.sayHello()
     obj.migrateHello()
     hello.sayHello()
