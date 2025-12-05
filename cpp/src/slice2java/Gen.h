@@ -8,7 +8,7 @@
 
 namespace Slice
 {
-    class JavaVisitor : public JavaGenerator, public ParserVisitor
+    class JavaVisitor : public Java::JavaGenerator, public ParserVisitor
     {
     public:
         ~JavaVisitor() override;
@@ -149,11 +149,14 @@ namespace Slice
         // Handle doc comments.
         //
         static void writeExceptionDocComment(IceInternal::Output& out, const OperationPtr& op, const DocComment& dc);
-        static void writeRemarksDocComment(IceInternal::Output& out, const DocComment& comment);
+        static void writeRemarksDocComment(IceInternal::Output& out, const StringList& remarks);
         static void writeHiddenDocComment(IceInternal::Output&);
         static void writeDocCommentLines(IceInternal::Output&, const StringList&);
         static void writeDocCommentLines(IceInternal::Output&, const std::string&);
-        static void writeDocComment(IceInternal::Output&, const std::optional<DocComment>&);
+        static void writeDocComment(
+            IceInternal::Output&,
+            const ContainedPtr&,
+            const std::optional<std::string>& generatedType = std::nullopt);
         static void writeDocComment(IceInternal::Output&, const std::string&);
         static void writeProxyOpDocComment(
             IceInternal::Output&,
