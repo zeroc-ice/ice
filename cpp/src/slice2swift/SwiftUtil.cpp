@@ -296,54 +296,6 @@ Slice::Swift::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p,
     }
 }
 
-void
-Slice::Swift::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
-{
-    // TODO: reuse writeDocSummary.
-
-    const optional<DocComment>& doc = p->docComment();
-    if (!doc)
-    {
-        return;
-    }
-
-    const string prx = removeEscaping(getRelativeTypeString(p, swiftModule)) + "Prx";
-
-    const StringList& docOverview = doc->overview();
-    if (docOverview.empty())
-    {
-        out << nl << "/// " << prx << " overview.";
-    }
-    else
-    {
-        writeDocLines(out, docOverview);
-    }
-}
-
-void
-Slice::Swift::writeServantDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
-{
-    // TODO: reuse writeDocSummary.
-
-    const optional<DocComment>& doc = p->docComment();
-    if (!doc)
-    {
-        return;
-    }
-
-    const string name = removeEscaping(getRelativeTypeString(p, swiftModule));
-
-    const StringList& docOverview = doc->overview();
-    if (docOverview.empty())
-    {
-        out << nl << "/// " << name << " overview.";
-    }
-    else
-    {
-        writeDocLines(out, docOverview);
-    }
-}
-
 string
 Slice::Swift::swiftLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
 {

@@ -1122,7 +1122,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     // Proxy class
     out << sp;
-    writeProxyDocSummary(out, p, swiftModule);
+    writeDocSummary(out, p, "client-side proxy protocol");
     out << nl << "public protocol " << prx << ": ";
     if (bases.size() == 0)
     {
@@ -1269,7 +1269,6 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << eb;
 
     out << sp;
-    writeProxyDocSummary(out, p, swiftModule);
     out << nl << "public extension " << prx;
     out << sb;
 
@@ -1437,7 +1436,6 @@ Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string traits = unescapedName + "Traits";
 
     out << sp;
-    writeServantDocSummary(out, p, swiftModule);
     out << nl << "extension " << servant;
     out << sb;
     out << nl << "private static var defaultObject: " << getUnqualified("Ice.Object", swiftModule) << sb;

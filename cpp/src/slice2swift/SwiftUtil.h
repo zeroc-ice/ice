@@ -33,9 +33,6 @@ namespace Slice::Swift
 
     void writeOpDocSummary(IceInternal::Output&, const OperationPtr&, bool);
 
-    void writeProxyDocSummary(IceInternal::Output&, const InterfaceDefPtr&, const std::string&);
-    void writeServantDocSummary(IceInternal::Output&, const InterfaceDefPtr&, const std::string&);
-
     std::string paramLabel(const std::string&, const ParameterList&);
     std::string operationReturnType(const OperationPtr&);
     std::string operationReturnDeclaration(const OperationPtr&);
