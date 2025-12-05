@@ -372,10 +372,9 @@ public sealed class Util
 
     private static string majorMinorToString(byte major, byte minor) => $"{major}.{minor}";
 
-    public static readonly ProtocolVersion Protocol_1_0 = new ProtocolVersion(1, 0);
-
-    public static readonly EncodingVersion Encoding_1_0 = new EncodingVersion(1, 0);
-    public static readonly EncodingVersion Encoding_1_1 = new EncodingVersion(1, 1);
+    public static readonly ProtocolVersion Protocol_1_0 = new(1, 0);
+    public static readonly EncodingVersion Encoding_1_0 = new(1, 0);
+    public static readonly EncodingVersion Encoding_1_1 = new(1, 1);
 
     private static readonly object _processLoggerMutex = new object();
     private static Logger? _processLogger;

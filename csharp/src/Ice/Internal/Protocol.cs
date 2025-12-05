@@ -89,7 +89,7 @@ public sealed class Protocol
 
     internal static void checkSupportedEncoding(Ice.EncodingVersion v)
     {
-        if (v.major != Util.Encoding_1_1.major || v.minor > Util.Encoding_1_1.minor)
+        if (v.major != Ice.Util.Encoding_1_1.major || v.minor > Ice.Util.Encoding_1_1.minor)
         {
             throw new MarshalException(
                 $"This Ice runtime does not support encoding version {v.major}.{v.minor}");

@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import { Communicator } from "./Communicator.js";
-import { Protocol } from "./Protocol.js";
 import { Properties } from "./Properties.js";
 
 export function initialize() {
