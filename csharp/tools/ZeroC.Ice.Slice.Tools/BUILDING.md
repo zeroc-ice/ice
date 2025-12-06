@@ -36,13 +36,13 @@ This command creates the `ZeroC.Ice.Slice.Tools` NuGet package in the project ou
 On Linux and macOS, the NuGet package is located at:
 
 ```shell
-bin/Release/ZeroC.Ice.Slice.Tools.3.8.0-alpha0.nupkg
+bin/Release/ZeroC.Ice.Slice.Tools.3.8.0.nupkg
 ```
 
 On Windows, the NuGet package is located at:
 
 ```shell
-bin\Release\ZeroC.Ice.Slice.Tools.3.8.0-alpha0.nupkg
+bin\Release\ZeroC.Ice.Slice.Tools.3.8.0.nupkg
 ```
 
 By default, the NuGet package includes the Slice-to-CSharp compiler (`slice2cs`) for the current platform. To include
