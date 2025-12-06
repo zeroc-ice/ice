@@ -2914,58 +2914,6 @@ class BrowserProcessController(RemoteProcessController):
             cwd = current.testcase.getMapping().getPath()
             self.httpsServer = Expect.Expect(httpsServerCmd, cwd=cwd)
             self.httpsServer.expect("Available on:")
-
-            if current.config.browser.startswith("Remote:"):
-                from selenium import webdriver
-                from selenium.webdriver.common.desired_capabilities import (
-                    DesiredCapabilities,
-                )
-
-                (driver, capabilities, port) = current.config.browser.split(":")
-                self.driver = webdriver.Remote(
-                    "http://localhost:{0}".format(port),
-                    desired_capabilities=getattr(DesiredCapabilities, capabilities),
-                    keep_alive=True,
-                )
-            elif current.config.browser != "Manual":
-                from selenium import webdriver
-
-                if current.config.browser.find(":") > 0:
-                    (driver, port) = current.config.browser.split(":")
-                else:
-                    (driver, port) = (current.config.browser, 0)
-
-                if not hasattr(webdriver, driver):
-                    raise RuntimeError("unknown browser `{0}'".format(driver))
-
-                if driver == "Firefox":
-                    if (
-                        isinstance(platform, Linux)
-                        and os.environ.get("DISPLAY", "") != ":1"
-                        and os.environ.get("USER", "") == "ubuntu"
-                    ):
-                        current.writeln("error: DISPLAY is unset, setting it to :1")
-                        os.environ["DISPLAY"] = ":1"
-
-                    #
-                    # We need to specify a profile for Firefox. This profile only provides the cert8.db which
-                    # contains our Test CA cert. It should be possible to avoid this by setting the webdriver
-                    # acceptInsecureCerts capability but it's only supported by latest Firefox releases.
-                    #
-                    profilepath = os.path.join(
-                        current.driver.getComponent().getSourceDir(),
-                        "scripts",
-                        "selenium",
-                        "firefox",
-                    )
-                    options = webdriver.FirefoxOptions()
-                    options.set_preference("profile", profilepath)
-                    self.driver = webdriver.Firefox(options=options)
-                elif driver == "Safari" and int(port) > 0:
-                    service = webdriver.SafariService(port=port, reuse_service=True)
-                    self.driver = webdriver.Safari(service=service)
-                else:
-                    self.driver = getattr(webdriver, driver)()
         except Exception:
             self.destroy(current.driver)
             raise
