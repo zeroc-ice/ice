@@ -3365,7 +3365,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         if (isOptional)
         {
             out << sp;
-            // TODO: all these doc-comments should be customized with has, get, set etc. writeDocComment is not correct.
             writeDocComment(out, p);
             if (dc && dc->isDeprecated())
             {
