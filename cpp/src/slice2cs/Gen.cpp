@@ -1620,7 +1620,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     ostringstream notes;
     notes << "Use the methods of this interface to invoke operations on a remote Ice object that implements <c>"
           << p->name() << "</c>.";
-    writeDocComment(p, "client-side interface", notes.str());
+    writeDocComment(p, "proxy interface", notes.str());
     _out << nl << "public partial interface " << p->mappedName() << "Prx : ";
 
     vector<string> baseInterfaces;
@@ -2298,7 +2298,7 @@ Slice::Gen::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     notes << "Your servant class implements this interface by deriving from"
           << "<see cref=\"" << name << "Disp_\" /> or from the Disp_ class for a derived interface.";
 
-    writeDocComment(p, "server-side interface", notes.str());
+    writeDocComment(p, "skeleton interface", notes.str());
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << "public partial interface " << name << " : ";
 

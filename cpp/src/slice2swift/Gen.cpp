@@ -1122,7 +1122,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     // Proxy class
     out << sp;
-    writeDocSummary(out, p, "client-side proxy protocol");
+    writeDocSummary(out, p, "proxy protocol");
     out << nl << "public protocol " << prx << ": ";
     if (bases.size() == 0)
     {
@@ -1375,7 +1375,7 @@ Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     out << sp;
-    writeDocSummary(out, p, "server-side protocol");
+    writeDocSummary(out, p, "skeleton protocol");
     out << nl << "public protocol " << servant << ": ";
     if (baseNames.empty())
     {

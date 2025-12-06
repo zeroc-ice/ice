@@ -4093,7 +4093,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // Generate a Java interface as the user-visible type
     out << sp;
 
-    writeDocComment(out, p, "client-side interface");
+    writeDocComment(out, p, "proxy interface");
     const optional<DocComment>& dc = p->docComment();
     if (dc && dc->isDeprecated())
     {
@@ -4386,7 +4386,7 @@ Slice::Gen::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     out << sp;
 
-    writeDocComment(out, p, "server-side interface");
+    writeDocComment(out, p, "skeleton interface");
 
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     out << nl << "public interface " << name << " extends ";

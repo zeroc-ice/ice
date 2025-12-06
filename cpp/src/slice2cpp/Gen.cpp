@@ -1233,7 +1233,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string scopedPrx = p->mappedScoped("::") + "Prx";
     const InterfaceList bases = p->bases();
 
-    writeDocSummary(H, p, {.includeHeaderFile = true, .generatedType = "client-side class"});
+    writeDocSummary(H, p, {.includeHeaderFile = true, .generatedType = "proxy class"});
     H << nl << "class " << _dllExport << getDeprecatedAttribute(p) << prx << " : public Ice::Proxy";
     H.spar("<");
     H << prx;
@@ -2524,7 +2524,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     writeDocSummary(
         H,
         p,
-        {.generateDeprecated = false, .includeHeaderFile = true, .generatedType = "server-side class"});
+        {.generateDeprecated = false, .includeHeaderFile = true, .generatedType = "skeleton class"});
     H << nl << "class " << _dllExport << name << " : ";
     H.spar("");
     if (bases.empty())

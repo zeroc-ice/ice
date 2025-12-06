@@ -45,7 +45,7 @@ namespace Slice
 
         /// Writes a doc-comment for the given Slice element, using this element's doc-comment, if any.
         /// @param p The Slice element.
-        /// @param generatedType The kind of mapped element, used for the remarks. For example, server-side interface.
+        /// @param generatedType The kind of mapped element, used for the remarks. For example, "skeleton interface".
         /// This function does not write any remarks when this argument is empty.
         /// @param notes Optional notes included at the end of the remarks.
         void
