@@ -327,7 +327,7 @@ public final class Util {
      * @return The Ice version.
      */
     public static String stringVersion() {
-        return "3.8.0-alpha.0"; // "A.B.C", with A=major, B=minor, C=patch
+        return "3.8.0"; // "A.B.C", with A=major, B=minor, C=patch
     }
 
     /**
@@ -338,7 +338,7 @@ public final class Util {
      * @return The Ice version.
      */
     public static int intVersion() {
-        return 30850; // AABBCC, with AA=major, BB=minor, CC=patch
+        return 30800; // AABBCC, with AA=major, BB=minor, CC=patch
     }
 
     /**

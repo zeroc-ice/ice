@@ -90,9 +90,9 @@ $(icetoolbox_file):: $(icethunk_target) $(slice2matlab_path) $(lang_srcdir)/lib/
 	cp -rf $(lang_srcdir)/lib/+* $(lang_srcdir)/toolbox/build
 	cp -rf $(lang_srcdir)/lib/generated/+* $(lang_srcdir)/toolbox/build
 	cp -rf $(lang_srcdir)/lib/x86_64-linux-gnu/* $(lang_srcdir)/toolbox/build
-	cp -rLf $(cpp_libdir)/libIce.so.38a0 $(lang_srcdir)/toolbox/build
-	cp -rLf $(cpp_libdir)/libIceDiscovery.so.38a0 $(lang_srcdir)/toolbox/build
-	cp -rLf $(cpp_libdir)/libIceLocatorDiscovery.so.38a0 $(lang_srcdir)/toolbox/build
+	cp -rLf $(cpp_libdir)/libIce.so.38 $(lang_srcdir)/toolbox/build
+	cp -rLf $(cpp_libdir)/libIceDiscovery.so.38 $(lang_srcdir)/toolbox/build
+	cp -rLf $(cpp_libdir)/libIceLocatorDiscovery.so.38 $(lang_srcdir)/toolbox/build
 	# Slice files
 	mkdir -p $(lang_srcdir)/toolbox/build/slice
 	cp -rf $(top_srcdir)/slice/Glacier2 $(lang_srcdir)/toolbox/build/slice

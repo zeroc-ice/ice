@@ -16,8 +16,8 @@ if sys.platform == "win32":
 project = "Ice"
 copyright = "ZeroC Inc."
 author = "ZeroC Inc."
-release = "3.8.0a"
-html_title = "Ice 3.8.0a"
+release = "3.8.0"
+html_title = "Ice 3.8.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

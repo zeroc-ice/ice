@@ -35,9 +35,9 @@
 #endif
 
 // The Ice version.
-#define ICE_STRING_VERSION "3.8.0-alpha.0" // "A.B.C", with A=major, B=minor, C=patch
-#define ICE_INT_VERSION 30850              // AABBCC, with AA=major, BB=minor, CC=patch
-#define ICE_SO_VERSION "38a0"              // "ABC", with A=major, B=minor, C=patch
+#define ICE_STRING_VERSION "3.8.0" // "A.B.C", with A=major, B=minor, C=patch
+#define ICE_INT_VERSION 30800              // AABBCC, with AA=major, BB=minor, CC=patch
+#define ICE_SO_VERSION "38"              // "ABC", with A=major, B=minor, C=patch
 
 #if defined(_MSC_VER) && !defined(ICE_BUILDING_SLICE_COMPILERS) // Not using the IceUtil static build
 #    if !defined(_DLL) || !defined(_MT)
