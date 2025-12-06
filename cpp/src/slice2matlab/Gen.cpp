@@ -394,7 +394,8 @@ namespace
 
     // The main doc-comment for a class, struct, exception, enum, enumerator, and const.
     // Per MATLAB conventions, it's the first comment inside the class.
-    void writeDocSummary(IceInternal::Output& out, const ContainedPtr& p, const optional<string>& generatedType = nullopt)
+    void
+    writeDocSummary(IceInternal::Output& out, const ContainedPtr& p, const optional<string>& generatedType = nullopt)
     {
         const string name = p->mappedName();
         // No space and upper-case, per MATLAB conventions.
