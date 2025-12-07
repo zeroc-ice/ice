@@ -76,6 +76,7 @@ function client(args)
     fprintf('testing Ice.ProgramName default... ');
     communicator = Ice.initialize();
     programName = communicator.getProperties().getIceProperty('Ice.ProgramName');
+    display(communicator.getProperties());
     assert(strcmp(programName, 'matlab') || strcmp(programName, 'MATLAB.exe'));
     communicator.destroy();
     fprintf('ok\n');
