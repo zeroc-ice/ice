@@ -39,9 +39,6 @@ Protocol.protocolMinor = 0;
 Protocol.protocolEncodingMajor = 1;
 Protocol.protocolEncodingMinor = 0;
 
-Protocol.encodingMajor = 1;
-Protocol.encodingMinor = 1;
-
 //
 // The Ice protocol message types
 //
@@ -113,47 +110,9 @@ Protocol.replyHdr = new Uint8Array([
 Protocol.currentProtocol = new ProtocolVersion(Protocol.protocolMajor, Protocol.protocolMinor);
 Protocol.currentProtocolEncoding = new EncodingVersion(Protocol.protocolEncodingMajor, Protocol.protocolEncodingMinor);
 
-Protocol.currentEncoding = new EncodingVersion(Protocol.encodingMajor, Protocol.encodingMinor);
-
 Protocol.checkSupportedEncoding = function (v) {
-    if (v.major !== Protocol.currentEncoding.major || v.minor > Protocol.currentEncoding.minor) {
+    if (v.major !== Encoding_1_1.major || v.minor > Encoding_1_1.minor) {
         throw new MarshalException(`This Ice runtime does not support encoding version ${v.major}.${v.minor}`);
-    }
-};
-
-//
-// Either return the given protocol if not compatible, or the greatest
-// supported protocol otherwise.
-//
-Protocol.getCompatibleProtocol = function (v) {
-    if (v.major !== Protocol.currentProtocol.major) {
-        return v; // Unsupported protocol, return as is.
-    } else if (v.minor < Protocol.currentProtocol.minor) {
-        return v; // Supported protocol.
-    } else {
-        //
-        // Unsupported but compatible, use the currently supported
-        // protocol, that's the best we can do.
-        //
-        return Protocol.currentProtocol;
-    }
-};
-
-//
-// Either return the given encoding if not compatible, or the greatest
-// supported encoding otherwise.
-//
-Protocol.getCompatibleEncoding = function (v) {
-    if (v.major !== Protocol.currentEncoding.major) {
-        return v; // Unsupported encoding, return as is.
-    } else if (v.minor < Protocol.currentEncoding.minor) {
-        return v; // Supported encoding.
-    } else {
-        //
-        // Unsupported but compatible, use the currently supported
-        // encoding, that's the best we can do.
-        //
-        return Protocol.currentEncoding;
     }
 };
 

@@ -22,7 +22,7 @@ public sealed class OutputStream
     public OutputStream(EncodingVersion? encoding = null, FormatType format = FormatType.CompactFormat)
     {
         _buf = new Internal.Buffer();
-        _encoding = encoding ?? Util.currentEncoding;
+        _encoding = encoding ?? Util.Encoding_1_1;
         _format = format;
     }
 

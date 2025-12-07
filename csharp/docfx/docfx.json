@@ -32,7 +32,9 @@
     ],
     "resource": [
       {
-        "files": ["images/**"]
+        "src": "../../assets",
+        "files": [ "logo.svg", "favicon-96.png" ],
+        "dest": "assets"
       }
     ],
     "sitemap": {
@@ -55,8 +57,8 @@
     "globalMetadata": {
       "_appTitle": "Ice API",
       "_appName": "Docs",
-      "_appFaviconPath": "images/favicon.ico",
-      "_appLogoPath": "images/logo.png",
+      "_appFaviconPath": "assets/favicon-96.png",
+      "_appLogoPath": "assets/logo.svg",
       "_appLogoUrl": "https://code.zeroc.com/ice/main/api/csharp/index.html",
       "_appFooter": "© 2025 ZeroC",
       "_enableSearch": true,

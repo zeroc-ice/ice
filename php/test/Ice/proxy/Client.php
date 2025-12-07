@@ -3,11 +3,6 @@
 
 require_once('Test.php');
 
-function currentEncodingToString()
-{
-    return Ice\encodingVersionToString(Ice\currentEncoding());
-}
-
 function allTests($helper)
 {
     global $Ice_Encoding_1_0;

@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import { Communicator } from "./Communicator.js";
-import { Protocol } from "./Protocol.js";
 import { Properties } from "./Properties.js";
 
 export function initialize() {
@@ -10,14 +9,6 @@ export function initialize() {
 
 export function createProperties(args, defaults) {
     return new Properties(args, defaults);
-}
-
-export function currentProtocol() {
-    return Protocol.currentProtocol.clone();
-}
-
-export function currentEncoding() {
-    return Protocol.currentEncoding.clone();
 }
 
 export function stringVersion() {

@@ -382,24 +382,6 @@ public final class Util {
     }
 
     /**
-     * Returns the supported Ice protocol version.
-     *
-     * @return The Ice protocol version.
-     */
-    public static ProtocolVersion currentProtocol() {
-        return Protocol.currentProtocol.clone();
-    }
-
-    /**
-     * Returns the supported Slice encoding version.
-     *
-     * @return The Slice encoding version.
-     */
-    public static EncodingVersion currentEncoding() {
-        return Protocol.currentEncoding.clone();
-    }
-
-    /**
      * Downcasts a {@code CompletableFuture<T>} to an {@code InvocationFuture<T>} object.
      *
      * @param f The CompletableFuture returned by an asynchronous invocation.

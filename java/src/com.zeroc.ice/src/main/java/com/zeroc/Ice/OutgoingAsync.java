@@ -45,7 +45,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
         _mode = mode == null ? OperationMode.Normal : mode;
         _synchronous = synchronous;
         _userExceptions = userExceptions;
-        _encoding = Protocol.getCompatibleEncoding(_proxy._getReference().getEncoding());
+        _encoding = _proxy._getReference().getEncoding();
 
         if (_instance.cacheMessageBuffers() > 0) {
             _ObjectPrxI.StreamPair p = _proxy._getCachedMessageBuffers();

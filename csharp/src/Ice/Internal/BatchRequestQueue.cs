@@ -38,7 +38,7 @@ internal sealed class BatchRequestQueue
         _batchStreamInUse = false;
         _batchRequestNum = 0;
         _batchStream =
-            new OutputStream(Ice.Util.currentProtocolEncoding, instance.defaultsAndOverrides().defaultFormat);
+            new OutputStream(Protocol.currentProtocolEncoding, instance.defaultsAndOverrides().defaultFormat);
         _batchStream.writeBlob(Protocol.requestBatchHdr);
         _batchMarker = _batchStream.size();
         _request = new BatchRequestI(this);

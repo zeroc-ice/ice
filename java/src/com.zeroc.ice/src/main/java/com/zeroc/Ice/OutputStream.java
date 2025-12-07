@@ -36,7 +36,7 @@ public final class OutputStream {
      * uses the 1.1 encoding, and compact class format.
      */
     public OutputStream() {
-        this(Util.currentEncoding(), FormatType.CompactFormat, false);
+        this(Util.Encoding_1_1, FormatType.CompactFormat, false);
     }
 
     /**
@@ -98,7 +98,7 @@ public final class OutputStream {
      */
     OutputStream(Buffer buf, EncodingVersion encoding) {
         _buf = buf;
-        _encoding = encoding != null ? encoding : Protocol.currentEncoding;
+        _encoding = encoding != null ? encoding : Util.Encoding_1_1;
         _format = FormatType.CompactFormat;
     }
 

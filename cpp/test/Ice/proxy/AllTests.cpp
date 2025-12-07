@@ -241,7 +241,7 @@ allTests(TestHelper* helper)
     test(b1->ice_isBatchDatagram());
     b1 = communicator->stringToProxy("test -s"); // does nothing
 
-    test(b1->ice_getEncodingVersion() == Ice::currentEncoding);
+    test(b1->ice_getEncodingVersion() == Ice::Encoding_1_1);
 
     b1 = communicator->stringToProxy("test -e 1.0");
     test(b1->ice_getEncodingVersion().major == 1 && b1->ice_getEncodingVersion().minor == 0);
@@ -1010,7 +1010,15 @@ allTests(TestHelper* helper)
 
     ref13 = "test -p 1.3:" + endp;
     cl13 = MyClassPrx(communicator, ref13);
-    cl13->ice_ping(); // use protocol 1.0
+    try
+    {
+        cl13->ice_ping();
+        test(false);
+    }
+    catch (const Ice::FeatureNotSupportedException&)
+    {
+        // Same for 1.3.
+    }
 
     ref10 = "test -p 1.0:" + endp;
     cl10 = MyClassPrx(communicator, ref10);

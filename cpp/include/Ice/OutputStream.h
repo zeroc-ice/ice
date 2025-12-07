@@ -40,7 +40,7 @@ namespace Ice
         /// @param stringConverter The narrow string converter to use.
         /// @param wstringConverter The wide string converter to use.
         OutputStream(
-            EncodingVersion encoding = currentEncoding,
+            EncodingVersion encoding = Encoding_1_1,
             FormatType format = FormatType::CompactFormat,
             StringConverterPtr stringConverter = nullptr,
             WstringConverterPtr wstringConverter = nullptr);
@@ -65,7 +65,7 @@ namespace Ice
         /// @param wstringConverter The wide string converter to use.
         OutputStream(
             std::pair<const std::byte*, const std::byte*> bytes,
-            EncodingVersion encoding = currentEncoding,
+            EncodingVersion encoding = Encoding_1_1,
             FormatType format = FormatType::CompactFormat,
             StringConverterPtr stringConverter = nullptr,
             WstringConverterPtr wstringConverter = nullptr);

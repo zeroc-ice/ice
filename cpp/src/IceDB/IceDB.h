@@ -346,14 +346,14 @@ namespace IceDB
             std::pair<const std::byte*, const std::byte*> p(
                 static_cast<const std::byte*>(val.mv_data),
                 static_cast<const std::byte*>(val.mv_data) + val.mv_size);
-            Ice::InputStream in(ctx.communicator, Ice::currentEncoding, p);
+            Ice::InputStream in(ctx.communicator, Ice::Encoding_1_1, p);
             in.read(t);
         }
 
         static void write(const T& t, MDB_val& val, Ice::OutputStream& holder)
         {
             // Since we use an OutputStream constructed with the default constructor, the encoding is 1.1
-            // (aka currentEncoding) and the class format is Compact.
+            // and the class format is Compact.
             holder.write(t);
             val.mv_size = holder.b.size();
             val.mv_data = &holder.b[0];

@@ -45,7 +45,7 @@ BatchRequest::~BatchRequest() = default; // avoid weak vtable
 
 BatchRequestQueue::BatchRequestQueue(const InstancePtr& instance, bool datagram)
     : _interceptor(instance->initializationData().batchRequestInterceptor),
-      _batchStream(instance.get(), Ice::currentProtocolEncoding)
+      _batchStream(instance.get(), currentProtocolEncoding)
 {
     _batchStream.writeBlob(requestBatchHdr, sizeof(requestBatchHdr));
     _batchMarker = _batchStream.b.size();

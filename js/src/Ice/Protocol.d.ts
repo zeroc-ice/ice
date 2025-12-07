@@ -35,9 +35,6 @@ declare module "@zeroc/ice" {
             static readonly protocolEncodingMajor: number;
             static readonly protocolEncodingMinor: number;
 
-            static readonly encodingMajor: number;
-            static readonly encodingMinor: number;
-
             //
             // The Ice protocol message types
             //
@@ -56,21 +53,7 @@ declare module "@zeroc/ice" {
             static readonly currentProtocol: ProtocolVersion;
             static readonly currentProtocolEncoding: EncodingVersion;
 
-            static currentEncoding: EncodingVersion;
-
             static checkSupportedEncoding(version: EncodingVersion): void;
-
-            //
-            // Either return the given protocol if not compatible, or the greatest
-            // supported protocol otherwise.
-            //
-            static getCompatibleProtocol(version: ProtocolVersion): ProtocolVersion;
-
-            //
-            // Either return the given encoding if not compatible, or the greatest
-            // supported encoding otherwise.
-            //
-            static getCompatibleEncoding(version: EncodingVersion): EncodingVersion;
 
             static isSupported(version: ProtocolVersion, supported: ProtocolVersion): boolean;
             static isSupported(version: EncodingVersion, supported: EncodingVersion): boolean;
