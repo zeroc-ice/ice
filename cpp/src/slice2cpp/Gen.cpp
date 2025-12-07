@@ -2521,10 +2521,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string scoped = p->mappedScope("::") + name;
     const InterfaceList bases = p->bases();
 
-    writeDocSummary(
-        H,
-        p,
-        {.generateDeprecated = false, .includeHeaderFile = true, .generatedType = "skeleton class"});
+    writeDocSummary(H, p, {.generateDeprecated = false, .includeHeaderFile = true, .generatedType = "skeleton class"});
     H << nl << "class " << _dllExport << name << " : ";
     H.spar("");
     if (bases.empty())
