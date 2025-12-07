@@ -253,7 +253,7 @@ run(const Ice::StringSeq& args, const CustomSliceLoaderPtr& customSliceLoader)
             fs.read(reinterpret_cast<char*>(buf.data()), fileSize);
             fs.close();
 
-            Ice::InputStream stream(communicator, Ice::currentEncoding, buf);
+            Ice::InputStream stream(communicator, Ice::Encoding_1_1, buf);
 
             string type;
             int version;
@@ -512,7 +512,7 @@ run(const Ice::StringSeq& args, const CustomSliceLoaderPtr& customSliceLoader)
                 env.close();
             }
 
-            Ice::OutputStream stream{Ice::currentEncoding};
+            Ice::OutputStream stream{Ice::Encoding_1_1};
             stream.write("IceGrid");
             stream.write(ICE_INT_VERSION);
             stream.write(data);

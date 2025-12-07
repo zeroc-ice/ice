@@ -780,7 +780,7 @@ OutgoingAsync::OutgoingAsync(ObjectPrx proxy, bool synchronous)
 void
 OutgoingAsync::prepare(string_view operation, OperationMode mode, const Context& context)
 {
-    if (_proxy._getReference()->getProtocol().major != currentProtocol.major)
+    if (_proxy._getReference()->getProtocol() != currentProtocol)
     {
         throw FeatureNotSupportedException{
             __FILE__,

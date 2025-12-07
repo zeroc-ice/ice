@@ -156,7 +156,7 @@ def allTests(helper, communicator)
     b1 = communicator.stringToProxy("test -D")
     test(b1.ice_isBatchDatagram())
 
-    test(b1.ice_getEncodingVersion() == Ice::currentEncoding());
+    test(b1.ice_getEncodingVersion() == Ice::Encoding_1_1);
 
     b1 = communicator.stringToProxy("test -e 1.0");
     test(b1.ice_getEncodingVersion().major == 1 && b1.ice_getEncodingVersion().minor == 0);

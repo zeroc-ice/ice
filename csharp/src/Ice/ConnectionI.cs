@@ -846,13 +846,13 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                                 }
 
                                 var pv = new ProtocolVersion(_readStream);
-                                if (pv != Util.currentProtocol)
+                                if (pv != Protocol.currentProtocol)
                                 {
                                     throw new MarshalException(
                                         $"Invalid protocol version in message header: {pv.major}.{pv.minor}");
                                 }
                                 var ev = new EncodingVersion(_readStream);
-                                if (ev != Util.currentProtocolEncoding)
+                                if (ev != Protocol.currentProtocolEncoding)
                                 {
                                     throw new MarshalException(
                                         $"Invalid protocol encoding version in message header: {ev.major}.{ev.minor}");
@@ -1377,7 +1377,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         _nextRequestId = 1;
         _messageSizeMax = connector is null ? adapter.messageSizeMax() : instance.messageSizeMax();
         _batchRequestQueue = new BatchRequestQueue(instance, _endpoint.datagram());
-        _readStream = new InputStream(instance, Util.currentProtocolEncoding);
+        _readStream = new InputStream(instance, Protocol.currentProtocolEncoding);
         _readHeader = false;
         _readStreamPos = -1;
         _writeStream = new OutputStream(); // temporary stream
@@ -1490,10 +1490,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 // _sendStreams message.
                 if (_sendStreams.Count == 0)
                 {
-                    var os = new OutputStream(Util.currentProtocolEncoding);
+                    var os = new OutputStream(Protocol.currentProtocolEncoding);
                     os.writeBlob(Protocol.magic);
-                    ProtocolVersion.ice_write(os, Util.currentProtocol);
-                    EncodingVersion.ice_write(os, Util.currentProtocolEncoding);
+                    ProtocolVersion.ice_write(os, Protocol.currentProtocol);
+                    EncodingVersion.ice_write(os, Protocol.currentProtocolEncoding);
                     os.writeByte(Protocol.validateConnectionMsg);
                     os.writeByte(0);
                     os.writeInt(Protocol.headerSize); // Message size.
@@ -1768,10 +1768,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             //
             // Before we shut down, we send a close connection message.
             //
-            var os = new OutputStream(Util.currentProtocolEncoding);
+            var os = new OutputStream(Protocol.currentProtocolEncoding);
             os.writeBlob(Protocol.magic);
-            ProtocolVersion.ice_write(os, Util.currentProtocol);
-            EncodingVersion.ice_write(os, Util.currentProtocolEncoding);
+            ProtocolVersion.ice_write(os, Protocol.currentProtocol);
+            EncodingVersion.ice_write(os, Protocol.currentProtocolEncoding);
             os.writeByte(Protocol.closeConnectionMsg);
             os.writeByte(0); // Compression status: always zero for close connection.
             os.writeInt(Protocol.headerSize); // Message size.
@@ -1822,8 +1822,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 if (_writeStream.size() == 0)
                 {
                     _writeStream.writeBlob(Protocol.magic);
-                    ProtocolVersion.ice_write(_writeStream, Util.currentProtocol);
-                    EncodingVersion.ice_write(_writeStream, Util.currentProtocolEncoding);
+                    ProtocolVersion.ice_write(_writeStream, Protocol.currentProtocol);
+                    EncodingVersion.ice_write(_writeStream, Protocol.currentProtocolEncoding);
                     _writeStream.writeByte(Protocol.validateConnectionMsg);
                     _writeStream.writeByte(0); // Compression status (always zero for validate connection).
                     _writeStream.writeInt(Protocol.headerSize); // Message size.
@@ -1892,13 +1892,13 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 }
 
                 var pv = new ProtocolVersion(_readStream);
-                if (pv != Util.currentProtocol)
+                if (pv != Protocol.currentProtocol)
                 {
                     throw new MarshalException(
                         $"Invalid protocol version in message header: {pv.major}.{pv.minor}");
                 }
                 var ev = new EncodingVersion(_readStream);
-                if (ev != Util.currentProtocolEncoding)
+                if (ev != Protocol.currentProtocolEncoding)
                 {
                     throw new MarshalException(
                         $"Invalid protocol encoding version in message header: {ev.major}.{ev.minor}");
@@ -2208,7 +2208,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     {
         Debug.Assert(_state > StateNotValidated && _state < StateClosed);
 
-        info.stream = new InputStream(_instance, Util.currentProtocolEncoding);
+        info.stream = new InputStream(_instance, Protocol.currentProtocolEncoding);
         _readStream.swap(info.stream);
         _readStream.resize(Protocol.headerSize);
         _readStream.pos(0);

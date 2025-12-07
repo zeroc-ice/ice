@@ -120,11 +120,11 @@ public sealed class EndpointFactoryManager
                 // and ask the factory to read the endpoint data from that stream to create
                 // the actual endpoint.
                 //
-                var os = new Ice.OutputStream(Ice.Util.currentProtocolEncoding);
+                var os = new Ice.OutputStream(Protocol.currentProtocolEncoding);
                 os.writeShort(ue.type());
                 ue.streamWrite(os);
                 var iss =
-                    new Ice.InputStream(_instance, Ice.Util.currentProtocolEncoding, os.getBuffer(), true);
+                    new Ice.InputStream(_instance, Protocol.currentProtocolEncoding, os.getBuffer(), true);
                 iss.pos(0);
                 iss.readShort(); // type
                 iss.startEncapsulation();

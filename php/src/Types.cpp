@@ -1176,9 +1176,6 @@ convertDataMembers(zval* zv, DataMemberList& reqMembers, DataMemberList& optMemb
 // StructInfo implementation.
 IcePHP::StructInfo::StructInfo(string ident, const string& n, zval* m) : id(std::move(ident)), name(n)
 {
-    // Set to undefined
-    ZVAL_UNDEF(&_nullMarshalValue);
-
     DataMemberList opt;
     convertDataMembers(m, const_cast<DataMemberList&>(members), opt, false);
     assert(opt.empty());
@@ -1208,7 +1205,13 @@ IcePHP::StructInfo::validate(zval* zv, bool throwException)
 {
     if (Z_TYPE_P(zv) == IS_NULL)
     {
-        return true;
+        if (throwException)
+        {
+            ostringstream os;
+            os << "expected struct value of type " << zce->name->val << " but received null";
+            invalidArgument(os.str());
+        }
+        return false;
     }
     else if (Z_TYPE_P(zv) != IS_OBJECT)
     {
@@ -1269,28 +1272,7 @@ IcePHP::StructInfo::usesClasses() const
 void
 IcePHP::StructInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMap, bool optional)
 {
-    assert(Z_TYPE_P(zv) == IS_NULL || (Z_TYPE_P(zv) == IS_OBJECT && Z_OBJCE_P(zv) == zce));
-
-    if (Z_TYPE_P(zv) == IS_NULL)
-    {
-        if (Z_ISUNDEF(_nullMarshalValue))
-        {
-            if (object_init_ex(&_nullMarshalValue, const_cast<zend_class_entry*>(zce)) != SUCCESS)
-            {
-                ostringstream os;
-                os << "unable to initialize object of type " << zce->name->val;
-                runtimeError(os.str());
-                throw AbortMarshaling();
-            }
-
-            if (!invokeMethod(&_nullMarshalValue, ZEND_CONSTRUCTOR_FUNC_NAME))
-            {
-                assert(false);
-            }
-        }
-        assert(!Z_ISUNDEF(_nullMarshalValue));
-        ZVAL_COPY_VALUE(zv, &_nullMarshalValue);
-    }
+    assert(Z_TYPE_P(zv) == IS_OBJECT && Z_OBJCE_P(zv) == zce); // validate() should have caught this.
 
     Ice::OutputStream::size_type sizePos = 0;
     if (optional)
@@ -1419,10 +1401,6 @@ IcePHP::StructInfo::destroy()
         p->type->destroy();
     }
     const_cast<DataMemberList&>(members).clear();
-    if (!Z_ISUNDEF(_nullMarshalValue))
-    {
-        zval_ptr_dtor(&_nullMarshalValue);
-    }
 }
 
 // SequenceInfo implementation.

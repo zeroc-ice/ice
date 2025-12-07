@@ -3,6 +3,7 @@
 #nullable enable
 
 using System.Diagnostics;
+using System.Net;
 
 namespace Ice;
 
@@ -503,6 +504,16 @@ public class SocketException : SyscallException
     /// <summary>
     /// Initializes a new instance of the <see cref="SocketException" /> class.
     /// </summary>
+    /// <param name="message">The exception message.</param>
+    /// <param name="innerException">The inner exception.</param>
+    public SocketException(string? message, System.Exception? innerException = null)
+        : base(message, innerException)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SocketException" /> class.
+    /// </summary>
     /// <param name="innerException">The inner exception.</param>
     public SocketException(System.Exception? innerException = null)
         : base(message: null, innerException)
@@ -521,9 +532,10 @@ public class ConnectFailedException : SocketException
     /// <summary>
     /// Initializes a new instance of the <see cref="ConnectFailedException" /> class.
     /// </summary>
+    /// <param name="peerAddress">The address of the remote peer, if known.</param>
     /// <param name="innerException">The inner exception.</param>
-    public ConnectFailedException(System.Exception? innerException = null)
-        : base(innerException)
+    public ConnectFailedException(EndPoint? peerAddress, System.Exception? innerException = null)
+        : base(peerAddress is not null ? $"Failed to connect to {peerAddress}." : null, innerException)
     {
     }
 
@@ -539,9 +551,10 @@ public sealed class ConnectionLostException : SocketException
     /// <summary>
     /// Initializes a new instance of the <see cref="ConnectionLostException" /> class.
     /// </summary>
+    /// <param name="peerAddress">The address of the remote peer, if known.</param>
     /// <param name="innerException">The inner exception.</param>
-    public ConnectionLostException(System.Exception? innerException = null)
-        : base(innerException)
+    public ConnectionLostException(EndPoint? peerAddress, System.Exception? innerException = null)
+        : base(peerAddress is not null ? $"Lost connection to {peerAddress}." : null, innerException)
     {
     }
 
@@ -557,9 +570,10 @@ public sealed class ConnectionRefusedException : ConnectFailedException
     /// <summary>
     /// Initializes a new instance of the <see cref="ConnectionRefusedException" /> class.
     /// </summary>
+    /// <param name="serverAddress">The address of the remote server, if known.</param>
     /// <param name="innerException">The inner exception.</param>
-    public ConnectionRefusedException(System.Exception? innerException = null)
-        : base(innerException)
+    public ConnectionRefusedException(EndPoint? serverAddress, System.Exception? innerException = null)
+        : base(serverAddress, innerException)
     {
     }
 

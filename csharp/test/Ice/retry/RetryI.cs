@@ -18,7 +18,7 @@ public sealed class RetryI : Test.RetryDisp_
             }
             else
             {
-                throw new Ice.ConnectionLostException();
+                throw new Ice.ConnectionLostException(peerAddress: null);
             }
         }
     }
@@ -28,14 +28,14 @@ public sealed class RetryI : Test.RetryDisp_
         if (c > _counter)
         {
             ++_counter;
-            throw new Ice.ConnectionLostException();
+            throw new Ice.ConnectionLostException(peerAddress: null);
         }
         int counter = _counter;
         _counter = 0;
         return counter;
     }
 
-    public override void opNotIdempotent(Ice.Current current) => throw new Ice.ConnectionLostException();
+    public override void opNotIdempotent(Ice.Current current) => throw new Ice.ConnectionLostException(peerAddress: null);
 
     public override void sleep(int delay, Ice.Current current) => Thread.Sleep(delay);
 

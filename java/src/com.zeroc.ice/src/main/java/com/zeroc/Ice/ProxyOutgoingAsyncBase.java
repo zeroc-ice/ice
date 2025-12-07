@@ -449,7 +449,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
     protected void prepare(Map<String, String> ctx) {
         Reference ref = _proxy._getReference();
 
-        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(ref.getProtocol()));
+        Protocol.checkSupportedProtocol(ref.getProtocol());
 
         _observer = ObserverHelper.get(_proxy, _operation, ctx == null ? _emptyContext : ctx);
 

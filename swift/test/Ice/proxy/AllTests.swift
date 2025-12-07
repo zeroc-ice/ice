@@ -210,7 +210,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     b1 = try communicator.stringToProxy("test -D")!
     try test(b1.ice_isBatchDatagram())
 
-    try test(b1.ice_getEncodingVersion() == Ice.currentEncoding)
+    try test(b1.ice_getEncodingVersion() == Ice.Encoding_1_1)
 
     b1 = try communicator.stringToProxy("test -e 1.0")!
     try test(b1.ice_getEncodingVersion().major == 1 && b1.ice_getEncodingVersion().minor == 0)

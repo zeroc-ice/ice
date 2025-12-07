@@ -7,7 +7,7 @@ import { InitializationException, MarshalException } from "./LocalExceptions.js"
 import { Buffer } from "./Buffer.js";
 import { Ice as Ice_Identity } from "./Identity.js";
 const { Identity } = Ice_Identity;
-import { Encoding_1_0, Protocol } from "./Protocol.js";
+import { Encoding_1_0, Encoding_1_1, Protocol } from "./Protocol.js";
 import { SliceType } from "./SliceType.js";
 import { Value } from "./Value.js";
 import { OptionalFormat } from "./OptionalFormat.js";
@@ -511,7 +511,7 @@ export class OutputStream {
             this._format = instance.defaultsAndOverrides().defaultFormat;
         } else {
             if (this._encoding === null) {
-                this._encoding = Protocol.currentEncoding;
+                this._encoding = Encoding_1_1;
             }
             this._format = FormatType.CompactFormat;
         }

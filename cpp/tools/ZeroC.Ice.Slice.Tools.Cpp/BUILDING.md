@@ -4,7 +4,7 @@ This page describes how to build the Slice Tools for Ice and C++ from source and
 
 - [Prerequisites](#prerequisites)
 - [Building](#building)
-- [Building Slice Tools for Ice C++](#building-slice-tools-for-ice-c)
+- [NuGet Packages](#nuget-packages)
 
 ## Prerequisites
 

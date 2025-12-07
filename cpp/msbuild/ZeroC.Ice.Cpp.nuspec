@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>ZeroC.Ice.Cpp</id>
-    <title>ZeroC Ice C++ for Visual Studio 2022</title>
+    <title>Ice for C++ Windows developer kit.</title>
     <version>3.8.0-alpha0</version>
     <authors>ZeroC</authors>
     <copyright>Copyright (c) ZeroC, Inc.</copyright>

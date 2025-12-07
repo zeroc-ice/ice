@@ -10,7 +10,7 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
         super((_ObjectPrxI) prx, operation);
         _mode = mode == null ? OperationMode.Normal : mode;
         _synchronous = synchronous;
-        _encoding = Protocol.getCompatibleEncoding(_proxy._getReference().getEncoding());
+        _encoding = _proxy._getReference().getEncoding();
         _is = null;
     }
 

@@ -4,6 +4,11 @@ namespace Ice.Internal;
 
 public sealed class Protocol
 {
+    internal static readonly ProtocolVersion currentProtocol = new(protocolMajor, protocolMinor);
+
+    internal static readonly EncodingVersion currentProtocolEncoding =
+        new(protocolEncodingMajor, protocolEncodingMinor);
+
     //
     // Size of the Ice protocol header
     //
@@ -30,9 +35,6 @@ public sealed class Protocol
     internal const byte protocolMinor = 0;
     internal const byte protocolEncodingMajor = 1;
     internal const byte protocolEncodingMinor = 0;
-
-    internal const byte encodingMajor = 1;
-    internal const byte encodingMinor = 1;
 
     public const byte OPTIONAL_END_MARKER = 0xFF;
 
@@ -87,35 +89,10 @@ public sealed class Protocol
 
     internal static void checkSupportedEncoding(Ice.EncodingVersion v)
     {
-        if (v.major != encodingMajor || v.minor > encodingMinor)
+        if (v.major != Ice.Util.Encoding_1_1.major || v.minor > Ice.Util.Encoding_1_1.minor)
         {
             throw new MarshalException(
                 $"This Ice runtime does not support encoding version {v.major}.{v.minor}");
-        }
-    }
-
-    //
-    // Either return the given encoding if not compatible, or the greatest
-    // supported encoding otherwise.
-    //
-    internal static Ice.EncodingVersion
-    getCompatibleEncoding(Ice.EncodingVersion v)
-    {
-        if (v.major != Ice.Util.currentEncoding.major)
-        {
-            return v; // Unsupported encoding, return as is.
-        }
-        else if (v.minor < Ice.Util.currentEncoding.minor)
-        {
-            return v; // Supported encoding.
-        }
-        else
-        {
-            //
-            // Unsupported but compatible, use the currently supported
-            // encoding, that's the best we can do.
-            //
-            return Ice.Util.currentEncoding;
         }
     }
 

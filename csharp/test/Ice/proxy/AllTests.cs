@@ -206,7 +206,7 @@ public class AllTests : global::Test.AllTests
         test(b1.ice_isBatchDatagram());
         b1 = communicator.stringToProxy("test -s"); // doesn't do anything
 
-        test(b1.ice_getEncodingVersion().Equals(Ice.Util.currentEncoding));
+        test(b1.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_1));
 
         b1 = communicator.stringToProxy("test -e 1.0");
         test(b1.ice_getEncodingVersion().major == 1 && b1.ice_getEncodingVersion().minor == 0);
@@ -789,18 +789,23 @@ public class AllTests : global::Test.AllTests
             // Cannot marshal with the 2.0 encoding version.
         }
 
+        string ref13 = "test -e 1.3:" + helper.getTestEndpoint(0);
+        Test.MyClassPrx cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
+        try
+        {
+            await cl13.ice_pingAsync();
+            test(false);
+        }
+        catch (MarshalException)
+        {
+            // Same for 1.3.
+        }
+
         string ref10 = "test -e 1.0:" + helper.getTestEndpoint(0);
         Test.MyClassPrx cl10 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
         cl10.ice_ping();
         cl10.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
         cl.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
-
-        // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
-        // call will use the 1.1 encoding
-        string ref13 = "test -e 1.3:" + helper.getTestEndpoint(0);
-        Test.MyClassPrx cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
-        cl13.ice_ping();
-        await cl13.ice_pingAsync();
 
         try
         {
@@ -858,16 +863,23 @@ public class AllTests : global::Test.AllTests
             // Server 2.0 proxy doesn't support 1.0 version.
         }
 
+        ref13 = "test -p 1.3:" + helper.getTestEndpoint(0);
+        cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
+
+        try
+        {
+            await cl13.ice_pingAsync();
+            test(false);
+        }
+        catch (FeatureNotSupportedException)
+        {
+            // Same for 1.3.
+        }
+
         ref10 = "test -p 1.0:" + helper.getTestEndpoint(0);
         cl10 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
         cl10.ice_ping();
 
-        // 1.3 isn't supported but since a 1.3 proxy supports 1.0, the
-        // call will use the 1.0 protocol
-        ref13 = "test -p 1.3:" + helper.getTestEndpoint(0);
-        cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
-        cl13.ice_ping();
-        await cl13.ice_pingAsync();
         output.WriteLine("ok");
 
         output.Write("testing opaque endpoints... ");

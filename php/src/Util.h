@@ -10,9 +10,6 @@ extern "C"
     ZEND_FUNCTION(Ice_stringVersion);
     ZEND_FUNCTION(Ice_intVersion);
     ZEND_FUNCTION(Ice_generateUUID);
-    ZEND_FUNCTION(Ice_currentProtocol);
-    ZEND_FUNCTION(Ice_currentProtocolEncoding);
-    ZEND_FUNCTION(Ice_currentEncoding);
     ZEND_FUNCTION(Ice_protocolVersionToString);
     ZEND_FUNCTION(Ice_stringToProtocolVersion);
     ZEND_FUNCTION(Ice_encodingVersionToString);
