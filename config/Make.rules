@@ -88,7 +88,7 @@ default-configs         ?= $(firstword $(supported-configs))
 
 version                 = 3.8.0
 mmversion               = 3.8
-soversion               = 38a0
+soversion               = 38
 
 #
 # The compatversion is the lowest patch release with the same API.
