@@ -33,7 +33,7 @@
     "resource": [
       {
         "src": "../../assets",
-        "files": [ "logo.svg", "favicon-96.png" ],
+        "files": [ "logo.svg", "favicon-96x96.png" ],
         "dest": "assets"
       }
     ],
@@ -57,7 +57,7 @@
     "globalMetadata": {
       "_appTitle": "Ice API",
       "_appName": "Docs",
-      "_appFaviconPath": "assets/favicon-96.png",
+      "_appFaviconPath": "assets/favicon-96x96.png",
       "_appLogoPath": "assets/logo.svg",
       "_appLogoUrl": "https://code.zeroc.com/ice/main/api/csharp/index.html",
       "_appFooter": "© 2025 ZeroC",
