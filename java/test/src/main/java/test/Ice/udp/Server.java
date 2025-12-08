@@ -20,15 +20,6 @@ public class Server extends TestHelper {
         properties.setProperty("Ice.UDP.SndSize", "16384");
 
         boolean isIpv6 = "1".equals(properties.getIceProperty("Ice.IPv6"));
-        {
-            String endpoint;
-            if (isIpv6) {
-                endpoint = "udp -h \"ff15::1:1\" -p 12020";
-            } else {
-                endpoint = "udp -h 239.255.1.1 -p 12020";
-            }
-            properties.setProperty("McastTestAdapter.Endpoints", endpoint);
-        }
 
         try (Communicator communicator = initialize(properties)) {
             int num = remainingArgs.size() == 1 ? Integer.parseInt(remainingArgs.get(0)) : 0;
