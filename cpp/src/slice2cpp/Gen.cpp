@@ -257,54 +257,71 @@ namespace
     {
         bool generateDeprecated{true};
         bool includeHeaderFile{false};
+        optional<string> generatedType{nullopt};
     };
 
-    void writeDocSummary(Output& out, const ContainedPtr& p, DocSummaryOptions options = {})
+    void writeDocSummary(Output& out, const ContainedPtr& p, const DocSummaryOptions& options = {})
     {
-        const optional<DocComment>& doc = p->docComment();
-        if (!doc)
+        const optional<DocComment>& comment = p->docComment();
+        StringList remarks;
+
+        if (comment)
         {
-            return;
+            const StringList& overview = comment->overview();
+            if (!overview.empty())
+            {
+                writeDocLines(out, overview, true);
+            }
+            remarks = comment->remarks();
         }
 
-        const StringList& overview = doc->overview();
-        if (!overview.empty())
+        if (options.generatedType)
         {
-            writeDocLines(out, overview, true);
+            // If there's user-provided remarks, and a generated-type message, we insert an empty line between them.
+            if (!remarks.empty())
+            {
+                remarks.emplace_back("");
+            }
+
+            remarks.push_back(
+                "The Slice compiler generated this " + *options.generatedType + " from Slice " + p->kindOf() + " `" +
+                p->scoped() + "`.");
         }
 
-        const StringList& remarks = doc->remarks();
         if (!remarks.empty())
         {
             out << nl << "/// @remarks ";
             writeDocLines(out, remarks, false);
         }
 
-        writeSeeAlso(out, doc->seeAlso());
-
-        if (options.generateDeprecated)
+        if (comment)
         {
-            const StringList& deprecated = doc->deprecated();
-            if (!deprecated.empty())
+            writeSeeAlso(out, comment->seeAlso());
+
+            if (options.generateDeprecated)
             {
-                out << nl << "///";
-                out << nl << "/// @deprecated ";
-                writeDocLines(out, deprecated, false);
-            }
-            else if (doc->isDeprecated())
-            {
-                out << nl << "///";
-                out << nl << "/// @deprecated";
+                const StringList& deprecated = comment->deprecated();
+                if (!deprecated.empty())
+                {
+                    out << nl << "///";
+                    out << nl << "/// @deprecated ";
+                    writeDocLines(out, deprecated, false);
+                }
+                else if (comment->isDeprecated())
+                {
+                    out << nl << "///";
+                    out << nl << "/// @deprecated";
+                }
             }
         }
 
-        string_view file = p->file();
-        assert(!file.empty());
-        DefinitionContextPtr dc = p->unit()->findDefinitionContext(file);
-        assert(dc);
-
         if (options.includeHeaderFile)
         {
+            string_view file = p->file();
+            assert(!file.empty());
+            DefinitionContextPtr dc = p->unit()->findDefinitionContext(file);
+            assert(dc);
+
             // The metadata directive is cpp:doxygen, not cpp:doxygen:include. The arg of cpp:doxygen is something like
             // include:Ice/Ice.h.
             if (auto headerFile = dc->getMetadataArgs("cpp:doxygen"))
@@ -424,7 +441,7 @@ namespace
         const DocComment& doc,
         OpDocParamType type,
         bool showExceptions,
-        DocSummaryOptions options = {},
+        const DocSummaryOptions& options = {},
         const StringList& preParams = StringList(),
         const StringList& postParams = StringList(),
         const StringList& returns = StringList())
@@ -933,7 +950,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
 
     string mappedName = p->mappedName();
 
-    writeDocSummary(H, p);
+    writeDocSummary(H, p, {.generatedType = "enum class"});
     H << nl << "enum class " << getDeprecatedAttribute(p) << mappedName;
     H << " : std::" << (p->maxValue() <= numeric_limits<uint8_t>::max() ? "uint8_t" : "int32_t");
 
@@ -1103,7 +1120,7 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
 
     const string name = p->mappedName();
     const string scope = p->mappedScope("::", true);
-    writeDocSummary(H, p);
+    writeDocSummary(H, p, {.generatedType = "constant"});
     H << nl << (isConstexprType(p->type()) ? "constexpr " : "const ")
       << typeToString(p->type(), false, scope, p->typeMetadata(), _useWstring) << " " << name << " "
       << getDeprecatedAttribute(p) << "= ";
@@ -1216,7 +1233,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string scopedPrx = p->mappedScoped("::") + "Prx";
     const InterfaceList bases = p->bases();
 
-    writeDocSummary(H, p, {.includeHeaderFile = true});
+    writeDocSummary(H, p, {.includeHeaderFile = true, .generatedType = "proxy class"});
     H << nl << "class " << _dllExport << getDeprecatedAttribute(p) << prx << " : public Ice::Proxy";
     H.spar("<");
     H << prx;
@@ -1792,7 +1809,7 @@ Slice::Gen::DataDefVisitor::visitStructStart(const StructPtr& p)
 
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
-    writeDocSummary(H, p, {.includeHeaderFile = true});
+    writeDocSummary(H, p, {.includeHeaderFile = true, .generatedType = "struct"});
     H << nl << "struct " << getDeprecatedAttribute(p) << p->mappedName();
     H << sb;
 
@@ -1903,7 +1920,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string baseClass = base ? getUnqualified(base->mappedScoped("::", true), scope) : "Ice::UserException";
     const string baseName = base ? base->mappedName() : "UserException";
 
-    writeDocSummary(H, p, {.includeHeaderFile = true});
+    writeDocSummary(H, p, {.includeHeaderFile = true, .generatedType = "exception class"});
     H << nl << "class " << _dllExport << getDeprecatedAttribute(p) << name << " : public " << baseClass;
     H << sb;
 
@@ -2136,7 +2153,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList allDataMembers = p->allDataMembers();
     const string baseClass = base ? getUnqualified(base->mappedScoped("::", true), scope) : "Ice::Value";
 
-    writeDocSummary(H, p, {.includeHeaderFile = true});
+    writeDocSummary(H, p, {.includeHeaderFile = true, .generatedType = "class"});
     H << nl << "class " << _dllExport << getDeprecatedAttribute(p) << name << " : public " << baseClass;
     H << sb;
     H.dec();
@@ -2504,7 +2521,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string scoped = p->mappedScope("::") + name;
     const InterfaceList bases = p->bases();
 
-    writeDocSummary(H, p, {.generateDeprecated = false, .includeHeaderFile = true});
+    writeDocSummary(H, p, {.generateDeprecated = false, .includeHeaderFile = true, .generatedType = "skeleton class"});
     H << nl << "class " << _dllExport << name << " : ";
     H.spar("");
     if (bases.empty())

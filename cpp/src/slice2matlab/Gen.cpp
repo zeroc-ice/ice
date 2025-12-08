@@ -39,7 +39,7 @@ namespace
         {
             file = file.substr(pos + 1);
         }
-        out << nl << "%";
+        out << sp; // Empty line to exclude from help block.
         out << nl << "%   Generated from " << file << " by slice2matlab version " << ICE_STRING_VERSION;
         out << sp;
     }
@@ -335,13 +335,8 @@ namespace
         }
     }
 
-    void writeRemarks(IceInternal::Output& out, const optional<DocComment>& doc)
+    void writeRemarks(IceInternal::Output& out, const StringList& remarks)
     {
-        if (!doc)
-        {
-            return;
-        }
-        const StringList& remarks = doc->remarks();
         if (remarks.empty())
         {
             return;
@@ -399,7 +394,8 @@ namespace
 
     // The main doc-comment for a class, struct, exception, enum, enumerator, and const.
     // Per MATLAB conventions, it's the first comment inside the class.
-    void writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
+    void
+    writeDocSummary(IceInternal::Output& out, const ContainedPtr& p, const optional<string>& generatedType = nullopt)
     {
         const string name = p->mappedName();
         // No space and upper-case, per MATLAB conventions.
@@ -407,9 +403,11 @@ namespace
 
         const optional<DocComment>& doc = p->docComment();
         StringList docOverview;
+        StringList remarks;
         if (doc)
         {
             docOverview = doc->overview();
+            remarks = doc->remarks();
         }
         if (!docOverview.empty())
         {
@@ -444,7 +442,18 @@ namespace
 
         writeDeprecated(out, doc, p);
         writeSeeAlso(out, doc);
-        writeRemarks(out, doc);
+
+        if (generatedType)
+        {
+            if (!remarks.empty())
+            {
+                remarks.emplace_back(""); // empty line
+            }
+            remarks.emplace_back(
+                "The Slice compiler generated this " + *generatedType + " from Slice " + p->kindOf() + " '" +
+                p->scoped() + "'.");
+        }
+        writeRemarks(out, remarks);
     }
 
     void writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool async)
@@ -562,7 +571,10 @@ namespace
         }
 
         writeSeeAlso(out, doc);
-        writeRemarks(out, doc);
+        if (doc)
+        {
+            writeRemarks(out, doc->remarks());
+        }
 
         out << nl;
     }
@@ -574,9 +586,11 @@ namespace
 
         const optional<DocComment>& doc = p->docComment();
         StringList docOverview;
+        StringList remarks;
         if (doc)
         {
             docOverview = doc->overview();
+            remarks = doc->remarks();
         }
         if (!docOverview.empty())
         {
@@ -636,7 +650,15 @@ namespace
 
         writeDeprecated(out, doc, p);
         writeSeeAlso(out, doc);
-        writeRemarks(out, doc);
+
+        if (!remarks.empty())
+        {
+            remarks.emplace_back("");
+        }
+        remarks.emplace_back(
+            "The Slice compiler generated this proxy class from Slice interface '" + p->scoped() + "'.");
+
+        writeRemarks(out, remarks);
     }
 
     void declareArgument(IceInternal::Output& out, const ParameterPtr& param)
@@ -848,7 +870,10 @@ namespace
 
         writeDeprecated(out, doc, field);
         writeSeeAlso(out, doc);
-        writeRemarks(out, doc);
+        if (doc)
+        {
+            writeRemarks(out, doc->remarks());
+        }
     }
 
     void writeArguments(
@@ -896,7 +921,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     out.inc();
-    writeDocSummary(out, p);
+    writeDocSummary(out, p, "class");
     writeGeneratedFrom(out, p->file());
 
     if (!p->dataMembers().empty())
@@ -1621,7 +1646,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     out.inc();
-    writeDocSummary(out, p);
+    writeDocSummary(out, p, "exception class");
     writeGeneratedFrom(out, p->file());
 
     if (!p->dataMembers().empty())
@@ -1807,7 +1832,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out << "classdef (Sealed) " << name;
 
     out.inc();
-    writeDocSummary(out, p);
+    writeDocSummary(out, p, "sealed class");
     writeGeneratedFrom(out, p->file());
 
     out << nl << "properties";
@@ -2563,7 +2588,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     }
 
     out.inc();
-    writeDocSummary(out, p);
+    writeDocSummary(out, p, "enumeration");
     writeGeneratedFrom(out, p->file());
 
     out << nl << "enumeration";
@@ -2665,9 +2690,9 @@ CodeVisitor::visitConst(const ConstPtr& p)
     openClass(p->mappedScoped("."), _dir);
     IceInternal::Output& out = *_out;
 
-    out << "classdef " << p->mappedName();
+    out << "classdef (Sealed) " << p->mappedName();
     out.inc();
-    writeDocSummary(out, p);
+    writeDocSummary(out, p, "constant");
     writeGeneratedFrom(out, p->file());
 
     out << nl << "properties (Constant)";

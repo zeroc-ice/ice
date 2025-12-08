@@ -163,7 +163,7 @@ namespace Slice
             bool _firstElement{true};
         };
 
-        /// Generates the server-side classes that applications use to implement Ice objects.
+        /// Generates the skeleton classes that applications use to implement Ice objects.
         class InterfaceVisitor final : public ParserVisitor
         {
         public:

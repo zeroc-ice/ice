@@ -7,7 +7,6 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.DatagramLimitException;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.SocketException;
 
 import test.Ice.udp.Test.PingReply;
@@ -69,9 +68,7 @@ public class AllTests {
 
         out.print("testing udp... ");
         out.flush();
-        ObjectPrx base =
-            communicator.stringToProxy("test -d:" + helper.getTestEndpoint(0, "udp"));
-        TestIntfPrx obj = TestIntfPrx.uncheckedCast(base);
+        TestIntfPrx obj = TestIntfPrx.createProxy(communicator, "test -d:" + helper.getTestEndpoint(0, "udp"));
 
         int nRetry = 5;
         boolean ret = false;
@@ -145,6 +142,9 @@ public class AllTests {
                     if (System.getProperty("os.name").contains("OS X")) {
                         // Use loopback on macOS to run successfully on GitHub runners.
                         endpoint.append(" --interface \"::1\"");
+                    } else if (TestHelper.isAndroid()) {
+                        // For Android we need to specify the Wi-Fi interface.
+                        endpoint.append(" --interface wlan0");
                     }
                 } else {
                     endpoint.append("udp -h 239.255.1.1 -p ");
@@ -154,8 +154,7 @@ public class AllTests {
                         endpoint.append(" --interface 127.0.0.1");
                     }
                 }
-                base = communicator.stringToProxy("test -d:" + endpoint.toString());
-                TestIntfPrx objMcast = TestIntfPrx.uncheckedCast(base);
+                TestIntfPrx objMcast = TestIntfPrx.createProxy(communicator, "test -d:" + endpoint.toString());
 
                 //
                 // On Android, the test suite driver only starts one server instance. Otherwise, we
