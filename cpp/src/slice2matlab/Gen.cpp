@@ -2690,7 +2690,7 @@ CodeVisitor::visitConst(const ConstPtr& p)
     openClass(p->mappedScoped("."), _dir);
     IceInternal::Output& out = *_out;
 
-    out << "classdef (Sealed)" << p->mappedName();
+    out << "classdef (Sealed) " << p->mappedName();
     out.inc();
     writeDocSummary(out, p, "constant");
     writeGeneratedFrom(out, p->file());
