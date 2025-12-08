@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 class Ex {
-    public static <T extends Value> void throwUOE(Class<T> expectedType, Value v) {
+    static <T extends Value> void throwUOE(Class<T> expectedType, Value v) {
         if (v instanceof UnknownSlicedValue) {
             var usv = (UnknownSlicedValue) v;
             throw new MarshalException("The Slice loader did not find a class for type ID '" + usv.ice_id() + "'.");
