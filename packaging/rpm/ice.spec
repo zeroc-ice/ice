@@ -42,7 +42,7 @@
 %endif
 
 Name: %{?nameprefix}ice
-Version: 3.8.0~alpha0
+Version: 3.8.0
 Release: 1%{?dist}
 Summary: Comprehensive RPC framework with support for C++, Java, JavaScript, Python and more.
 %if "%{?ice_license}"
@@ -704,8 +704,8 @@ exit 0
 %{_mandir}/man1/slice2py.1*
 
 %changelog
-* Wed Feb 5 2025 José Gutiérrez de la Concha <jose@zeroc.com> 3.8a0
-- The 3.8.0-alpha0 release
+* Wed Feb 5 2025 José Gutiérrez de la Concha <jose@zeroc.com> 3.8.0
+- The 3.8.0 release
 
 * Thu Nov 21 2024 José Gutiérrez de la Concha <jose@zeroc.com> 3.7.10-3
 - Fix RHEL 9 x86 builds https://github.com/zeroc-ice/ice/issues/3168

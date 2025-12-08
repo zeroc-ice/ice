@@ -3,7 +3,7 @@
   <metadata>
     <id>ZeroC.Ice.Cpp</id>
     <title>Ice for C++ Windows developer kit.</title>
-    <version>3.8.0-alpha0</version>
+    <version>3.8.0</version>
     <authors>ZeroC</authors>
     <copyright>Copyright (c) ZeroC, Inc.</copyright>
     <license type="expression">GPL-2.0-only</license>
@@ -11,7 +11,7 @@
     <icon>logo-128x128.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>The Ice framework provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.</description>
-    <releaseNotes>https://docs.zeroc.com/ice/latest/cpp/ice-3-8-0-preview</releaseNotes>
+    <releaseNotes>https://docs.zeroc.com/ice/3.8/cpp/ice-3-8-0</releaseNotes>
     <tags>ice native rpc zeroc</tags>
     <readme>README.md</readme>
   </metadata>
