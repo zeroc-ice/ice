@@ -34,7 +34,7 @@ namespace Slice
 
         std::string writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
 
-        /// Generates and outputs a doc-comment for Slice definition @p p.
+        /// Generates and outputs a doc-summary for Slice definition @p p.
         /// @param p The Slice definition to be documented.
         /// @param options Options that control how the doc-summary is generated.
         void writeDocSummary(const ContainedPtr& p, const DocSummaryOptions& options = {});
