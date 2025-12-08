@@ -9,11 +9,7 @@ import java.util.Objects;
 final class UdpConnector implements Connector {
     @Override
     public Transceiver connect() {
-        if (Util.isAndroid() && _addr.getAddress().isMulticastAddress()) {
-            return new UdpMulticastClientTransceiver(_instance, _addr, _mcastInterface, _mcastTtl);
-        } else {
-            return new UdpTransceiver(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
-        }
+        return new UdpTransceiver(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
     }
 
     public SelectableChannel fd() {
