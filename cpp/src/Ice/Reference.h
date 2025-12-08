@@ -13,7 +13,6 @@
 #include "Ice/ReferenceF.h"
 #include "Ice/RequestHandlerF.h"
 #include "Ice/Router.h"
-#include "Ice/VersionFunctions.h"
 #include "LocatorInfoF.h"
 #include "ReferenceFactoryF.h"
 #include "RouterInfoF.h"

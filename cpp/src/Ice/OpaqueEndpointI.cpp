@@ -346,7 +346,7 @@ IceInternal::OpaqueEndpointI::checkOption(const string& option, const string& ar
 
             try
             {
-                _rawEncoding = Ice::stringToEncodingVersion(argument);
+                _rawEncoding = stringToEncodingVersion(argument);
             }
             catch (const Ice::ParseException& ex)
             {

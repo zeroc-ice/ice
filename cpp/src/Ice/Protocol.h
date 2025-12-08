@@ -5,12 +5,55 @@
 
 #include "Ice/Config.h"
 #include "Ice/LocalExceptions.h"
-#include "Ice/VersionFunctions.h"
+#include "Ice/Version.h"
+
+#include <sstream>
 
 namespace IceInternal
 {
+    /// Identifies protocol version 1.0.
+    constexpr Ice::ProtocolVersion Protocol_1_0{1, 0};
+
+    /// Converts a protocol version into a string.
+    /// @param v The protocol version.
+    /// @return A string representing the protocol version.
+    ICE_API std::string protocolVersionToString(const Ice::ProtocolVersion& v);
+
+    /// Converts a string into a protocol version.
+    /// @param v The string containing a stringified protocol version.
+    /// @return The protocol version.
+    /// @throws ParseException If the given string is not in the X.Y format.
+    ICE_API Ice::ProtocolVersion stringToProtocolVersion(std::string_view v);
+
+    /// Converts an encoding version into a string.
+    /// @param v The encoding version.
+    /// @return A string representing the encoding version.
+    ICE_API std::string encodingVersionToString(const Ice::EncodingVersion& v);
+
+    /// Converts a string into an encoding version.
+    /// @param v The string containing a stringified encoding version.
+    /// @return The encoding version.
+    /// @throws ParseException If the given string is not in the X.Y format.
+    ICE_API Ice::EncodingVersion stringToEncodingVersion(std::string_view v);
+
+    ICE_API void stringToMajorMinor(std::string_view, std::uint8_t&, std::uint8_t&);
+
+    template<typename T> std::string versionToString(const T& v)
+    {
+        std::ostringstream os;
+        os << v;
+        return os.str();
+    }
+
+    template<typename T> T stringToVersion(std::string_view str)
+    {
+        T v;
+        stringToMajorMinor(str, v.major, v.minor);
+        return v;
+    }
+
     /// Identifies the latest protocol version.
-    constexpr Ice::ProtocolVersion currentProtocol{Ice::Protocol_1_0};
+    constexpr Ice::ProtocolVersion currentProtocol{Protocol_1_0};
 
     /// Identifies the latest protocol encoding version.
     constexpr Ice::EncodingVersion currentProtocolEncoding{Ice::Encoding_1_0};
@@ -82,7 +125,7 @@ namespace IceInternal
             throw Ice::MarshalException{
                 __FILE__,
                 __LINE__,
-                "this Ice runtime does not support encoding version " + Ice::encodingVersionToString(v)};
+                "this Ice runtime does not support encoding version " + encodingVersionToString(v)};
         }
     }
 }

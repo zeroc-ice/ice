@@ -49,7 +49,8 @@ namespace
                     make_exception_ptr(Ice::FeatureNotSupportedException{
                         __FILE__,
                         __LINE__,
-                        "server doesn't support requested encoding " + Ice::encodingVersionToString(_encoding)}));
+                        "server doesn't support requested encoding " +
+                            IceInternal::encodingVersionToString(_encoding)}));
                 return;
             }
 
@@ -218,7 +219,8 @@ namespace
                     make_exception_ptr(Ice::FeatureNotSupportedException{
                         __FILE__,
                         __LINE__,
-                        "server doesn't support requested encoding " + Ice::encodingVersionToString(_encoding)}));
+                        "server doesn't support requested encoding " +
+                            IceInternal::encodingVersionToString(_encoding)}));
                 return;
             }
 
@@ -363,7 +365,8 @@ namespace
                     make_exception_ptr(Ice::FeatureNotSupportedException{
                         __FILE__,
                         __LINE__,
-                        "server doesn't support requested encoding " + Ice::encodingVersionToString(_encoding)}));
+                        "server doesn't support requested encoding " +
+                            IceInternal::encodingVersionToString(_encoding)}));
                 return;
             }
 
