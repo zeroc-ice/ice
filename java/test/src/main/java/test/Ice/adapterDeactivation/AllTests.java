@@ -133,11 +133,11 @@ public class AllTests {
         }
         out.println("ok");
 
-        if (!TestHelper.isAndroid()) {
+        out.print("testing object adapter published host... ");
+        out.flush();
+        {
             // Android device doesn't have a proper network setup to test published host.
             // The call to `InetAddress.getLocalHost().getHostName()` will throw an exception.
-            out.print("testing object adapter published host... ");
-            out.flush();
             communicator.getProperties().setProperty("PHAdapter.Endpoints", "default -h *");
 
             // PublishedHost not set
@@ -272,8 +272,8 @@ public class AllTests {
                         && ipEndpointInfo1.port != 12345);
                 adapter.destroy();
             }
-            out.println("ok");
         }
+        out.println("ok");
 
         if (obj.ice_getConnection() != null) {
             out.print("testing object adapter with bi-dir connection... ");
