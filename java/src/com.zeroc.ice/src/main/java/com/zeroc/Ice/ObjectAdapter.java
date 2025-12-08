@@ -1290,7 +1290,7 @@ public final class ObjectAdapter {
                         if (Util.isAndroid()) {
                             // Android cannot reliably resolve the local hostname via InetAddress.getLocalHost().
                             // Use a placeholder to force the application to explicitly set PublishedHost.
-                            publishedHost = "FixMeBySettingPublishedHost";
+                            publishedHost = "published-host-property-required.invalid";
                         } else {
                             try {
                                 publishedHost = InetAddress.getLocalHost().getHostName();
