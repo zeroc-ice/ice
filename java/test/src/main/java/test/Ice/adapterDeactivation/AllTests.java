@@ -136,8 +136,6 @@ public class AllTests {
         out.print("testing object adapter published host... ");
         out.flush();
         {
-            // Android device doesn't have a proper network setup to test published host.
-            // The call to `InetAddress.getLocalHost().getHostName()` will throw an exception.
             communicator.getProperties().setProperty("PHAdapter.Endpoints", "default -h *");
 
             // PublishedHost not set
