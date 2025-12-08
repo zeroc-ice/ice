@@ -2,7 +2,6 @@
 
 #include "Util.h"
 #include "Ice/LocalExceptions.h"
-#include "Ice/Protocol.h"
 #include <stdarg.h>
 
 using namespace std;
@@ -59,43 +58,6 @@ namespace
         }
 
         return obj;
-    }
-
-    template<typename T> VALUE versionToString(VALUE p, const char* type)
-    {
-        volatile VALUE rbType = callRuby(rb_path2class, type);
-        assert(!NIL_P(rbType));
-        if (callRuby(rb_obj_is_instance_of, p, rbType) != Qtrue)
-        {
-            throw RubyException(rb_eTypeError, "argument is not an instance of %s", type);
-        }
-
-        T v;
-        if (!getVersion<T>(p, v))
-        {
-            return Qnil;
-        }
-
-        ICE_RUBY_TRY
-        {
-            string s = IceInternal::versionToString<T>(v);
-            return createString(s);
-        }
-        ICE_RUBY_CATCH
-        return Qnil;
-    }
-
-    template<typename T> VALUE stringToVersion(VALUE p, const char* type)
-    {
-        string str = getString(p);
-
-        ICE_RUBY_TRY
-        {
-            T v = IceInternal::stringToVersion<T>(str);
-            return createVersion<T>(v, type);
-        }
-        ICE_RUBY_CATCH
-        return Qnil;
     }
 
     char Ice_EncodingVersion[] = "Ice::EncodingVersion";

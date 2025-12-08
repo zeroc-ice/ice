@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Util.h"
-#include "Ice/Protocol.h"
 #include "Ice/UUID.h"
 
 #include <algorithm>
@@ -146,43 +145,6 @@ namespace
         zendUpdatePropertyLong(cls, zv, const_cast<char*>("minor"), sizeof("minor") - 1, version.minor);
 
         return true;
-    }
-
-    template<typename T> bool versionToString(zval* zv, zval* s, const char* type)
-    {
-        T v;
-        if (!getVersion<T>(zv, v, type))
-        {
-            return false;
-        }
-
-        try
-        {
-            string str = IceInternal::versionToString<T>(v);
-            ZVAL_STRINGL(s, str.c_str(), static_cast<int>(str.length()));
-        }
-        catch (...)
-        {
-            throwException(current_exception());
-            return false;
-        }
-
-        return true;
-    }
-
-    template<typename T> bool stringToVersion(const string& s, zval* zv, const char* type)
-    {
-        try
-        {
-            T v = IceInternal::stringToVersion<T>(s);
-            return createVersion<T>(zv, v, type);
-        }
-        catch (...)
-        {
-            throwException(current_exception());
-        }
-
-        return false;
     }
 
     char Ice_EncodingVersionType[] = "\\Ice\\EncodingVersion";

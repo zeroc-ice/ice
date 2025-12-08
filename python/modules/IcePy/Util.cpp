@@ -2,7 +2,6 @@
 
 #include "Util.h"
 #include "Ice/DisableWarnings.h"
-#include "Ice/Protocol.h"
 #include "Thread.h"
 #include "slice2py/PythonUtil.h"
 
@@ -96,57 +95,6 @@ namespace IcePy
         return obj.release();
     }
 
-    template<typename T> PyObject* versionToString(PyObject* args, const char* type)
-    {
-        PyObject* versionType{lookupType(type)};
-        PyObject* p{nullptr};
-        if (!PyArg_ParseTuple(args, "O!", versionType, &p))
-        {
-            return nullptr;
-        }
-
-        T v;
-        if (!getVersion<T>(p, v))
-        {
-            return nullptr;
-        }
-
-        string s;
-        try
-        {
-            s = IceInternal::versionToString<T>(v);
-        }
-        catch (...)
-        {
-            IcePy::setPythonException(current_exception());
-            return nullptr;
-        }
-        return createString(s);
-    }
-
-    template<typename T> PyObject* stringToVersion(PyObject* args, const char* type)
-    {
-        char* str{nullptr};
-        if (!PyArg_ParseTuple(args, "s", &str))
-        {
-            return nullptr;
-        }
-
-        T v;
-        try
-        {
-            v = IceInternal::stringToVersion<T>(str);
-        }
-        catch (...)
-        {
-            IcePy::setPythonException(current_exception());
-            return nullptr;
-        }
-
-        return createVersion<T>(v, type);
-    }
-
-    char Ice_ProtocolVersion[] = "Ice.ProtocolVersion";
     char Ice_EncodingVersion[] = "Ice.EncodingVersion";
 }
 
