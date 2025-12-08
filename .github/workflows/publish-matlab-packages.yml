@@ -1,0 +1,52 @@
+name: "Publish MATLAB Packages"
+# This workflow publishes various packages (MSI, MATLAB, XCFramework, Swift, Brew) to S3.
+# We use a single workflow to avoid exceeding the reusable workflow limit in GitHub Actions.
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The channel to publish to (e.g., 3.8, nightly)"
+        required: true
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+
+  publish-matlab-packages:
+    name: "Publish MATLAB Packages"
+    runs-on: "ubuntu-24.04"
+    steps:
+      - name: Download MATLAB artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "matlab-packages-*" --dir staging
+
+      - name: Publish MATLAB Packages
+        run: |
+          set -euo pipefail
+          if [ "${CHANNEL}" = "nightly" ]; then
+            # Rename the Toolbox files to ice-nightly-R2025a-<os>.mltbx if it's the nightly channel
+            aws s3 cp staging/matlab-packages-windows-*/ice-*-R2025a-win.mltbx "s3://zeroc-downloads/ice/${CHANNEL}/ice-nightly-R2025a-win.mltbx"
+            aws s3 cp staging/matlab-packages-ubuntu-*/ice-*-R2025a-linux.mltbx "s3://zeroc-downloads/ice/${CHANNEL}/ice-nightly-R2025a-linux.mltbx"
+          else
+            aws s3 cp staging/matlab-packages-windows-*/ice-*-win.mltbx "s3://zeroc-downloads/ice/${CHANNEL}/"
+            aws s3 cp staging/matlab-packages-ubuntu-*/ice-*-linux.mltbx "s3://zeroc-downloads/ice/${CHANNEL}/"
+          fi
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          CHANNEL: ${{ inputs.channel }}

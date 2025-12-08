@@ -1,0 +1,83 @@
+name: "Upload Release Assets"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The release channel (e.g., 3.8, nightly)"
+        required: false
+        default: "nightly"
+      run_id:
+        description: "The GitHub run ID to use for artifacts"
+        required: true
+
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+
+  upload-release-assets:
+    # For stable channels if running on a tag, we upload the release assets to the tag.
+    if: ${{ inputs.channel != 'nightly' && startsWith(github.ref, 'refs/tags/') }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Ensure tag matches channel
+        run: |
+          case "${GITHUB_REF}" in
+            refs/tags/v${{ inputs.channel }}*)
+              echo "Tag matches channel"
+              ;;
+            *)
+              echo "❌ Tag '${GITHUB_REF}' does not match channel '${{ inputs.channel }}'"
+              exit 1
+              ;;
+          esac
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "deb-packages-*" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "dotnet-nuget-packages" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "gem-packages" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "xcframework-packages" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "homebrew-bottle" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "matlab-packages-*" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "windows-msi" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "java-packages" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "js-npm-packages" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "pip-packages-*" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "rpm-packages-*" --dir staging
+
+      - name: Prepare Release Assets
+        run: ./packaging/release/create-release-assets.sh
+        env:
+          STAGING_DIR: ${{ github.workspace }}/staging
+
+      - name: Upload Release Assets
+        run: |
+          set -euo pipefail
+
+          TAG="${GITHUB_REF#refs/tags/}"
+          TITLE="Ice ${TAG}"
+
+          # Check if the release already exists
+          if ! gh release view "$TAG" &>/dev/null; then
+            echo "Creating draft release for $TAG..."
+            gh release create "$TAG" --title "$TITLE" --notes "" --draft
+          fi
+
+          # Upload artifacts to the release
+          echo "Uploading artifacts to release $TAG..."
+          gh release upload "$TAG" release/* --clobber
