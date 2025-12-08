@@ -140,7 +140,7 @@ public class AllTests {
                 if (isIpv6) {
                     endpoint.append("udp -h \"ff15::1:1\" -p ");
                     endpoint.append(TestHelper.getTestPort(communicator.getProperties(), 10));
-                    if (System.getProperty("os.name").contains("OS X") ) {
+                    if (System.getProperty("os.name").contains("OS X")) {
                         // Use loopback on macOS to run successfully on GitHub runners.
                         endpoint.append(" --interface \"::1\"");
                     } else if (TestHelper.isAndroid()) {
