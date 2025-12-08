@@ -150,14 +150,14 @@ namespace
         }
     }
 
-    void writeRemarks(Output& out, const DocComment& comment)
+    void writeRemarks(Output& out, const StringList& remarks)
     {
-        const StringList& remarks = comment.remarks();
         if (remarks.empty())
         {
             return;
         }
 
+        out << nl << " *";
         out << nl << " * @remarks";
         writeDocLines(out, remarks, true);
     }
@@ -354,11 +354,11 @@ Slice::JsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
 }
 
 void
-Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeRemarks, bool includeDeprecated)
+Slice::JsVisitor::writeDocSummary(const ContainedPtr& p, const DocSummaryOptions& options)
 {
     assert(!dynamic_pointer_cast<Operation>(p));
     const optional<DocComment>& comment = p->docComment();
-    if (!comment && (!includeDeprecated || !p->isDeprecated()))
+    if (!comment && (!options.generateDeprecated || !p->isDeprecated()) && !options.generatedType.has_value())
     {
         // There's nothing to write for this doc-comment.
         return;
@@ -366,6 +366,7 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeRemarks,
 
     _out << nl << "/**";
 
+    StringList remarks;
     if (comment)
     {
         const StringList& overview = comment->overview();
@@ -378,16 +379,30 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeRemarks,
         {
             _out << nl << " * " << line;
         }
+        remarks = comment->remarks();
     }
 
-    if (includeDeprecated)
+    if (options.generateDeprecated)
     {
         writeDeprecated(_out, comment, p);
     }
 
-    if (comment && includeRemarks)
+    if (options.includeRemarks)
     {
-        writeRemarks(_out, *comment);
+        if (options.generatedType)
+        {
+            // If there's user-provided remarks, and a generated-type message, we insert an empty line between them.
+            if (!remarks.empty())
+            {
+                remarks.emplace_back("");
+            }
+
+            remarks.push_back(
+                "The Slice compiler generated this " + *options.generatedType + " from Slice " + p->kindOf() + " `" +
+                p->scoped() + "`.");
+        }
+
+        writeRemarks(_out, remarks);
     }
 
     _out << nl << " */";
@@ -983,7 +998,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     _out << sp;
-    writeDocCommentFor(p, false);
+    writeDocSummary(p, {.includeRemarks = false});
     _out << nl << scopedName << " = class";
     _out << " extends " << baseRef;
 
@@ -1079,7 +1094,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
 
     _out << sp;
-    writeDocCommentFor(p, false, false);
+    writeDocSummary(p, {.generateDeprecated = false, .includeRemarks = false});
     _out << nl << serviceType << " = class extends Ice.Object";
     _out << sb;
 
@@ -1109,7 +1124,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // Generate a proxy class for interfaces
     //
     _out << sp;
-    writeDocCommentFor(p, false);
+    writeDocSummary(p, {.includeRemarks = false});
     _out << nl << proxyType << " = class extends Ice.ObjectPrx";
     _out << sb;
 
@@ -1383,7 +1398,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
     _out << sp;
-    writeDocCommentFor(p, false);
+    writeDocSummary(p, {.includeRemarks = false});
     _out << nl << scopedName << " = class extends " << baseRef;
     _out << sb;
 
@@ -1480,7 +1495,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     const DataMemberList dataMembers = p->dataMembers();
 
     _out << sp;
-    writeDocCommentFor(p, false);
+    writeDocSummary(p, {.includeRemarks = false});
     _out << nl << scopedName << " = class";
     _out << sb;
 
@@ -1566,7 +1581,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     const string scopedName = p->mappedScoped(".");
     _out << sp;
-    writeDocCommentFor(p, false);
+    writeDocSummary(p, {.includeRemarks = false});
     _out << nl << scopedName << " = Ice.defineEnum([";
     _out.inc();
     _out << nl;
@@ -2121,7 +2136,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList allDataMembers = p->allDataMembers();
     _out << sp;
-    writeDocCommentFor(p);
+    writeDocSummary(p, {.generatedType = "class"});
     _out << nl << "export class " << p->mappedName() << " extends ";
     ClassDefPtr base = p->base();
     if (base)
@@ -2156,7 +2171,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
         for (const auto& dataMember : dataMembers)
         {
             _out << sp;
-            writeDocCommentFor(dataMember);
+            writeDocSummary(dataMember);
             const string optionalModifier = dataMember->optional() ? "?" : "";
             _out << nl << dataMember->mappedName() << optionalModifier << ": "
                  << typeToTsString(dataMember->type(), true) << ";";
@@ -2277,7 +2292,7 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr
 
     if (comment)
     {
-        writeRemarks(_out, *comment);
+        writeRemarks(_out, comment->remarks());
     }
 
     out << nl << " */";
@@ -2292,7 +2307,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string prxName = p->mappedName() + "Prx";
     InterfaceList bases = p->bases();
     _out << sp;
-    writeDocCommentFor(p);
+    writeDocSummary(p, {.generatedType = "proxy class"});
     _out << nl << "export class " << prxName << " extends " << _iceImportPrefix << "Ice.ObjectPrx";
     if (!bases.empty())
     {
@@ -2424,7 +2439,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << eb;
 
     _out << sp;
-    writeDocCommentFor(p, true, false);
+    writeDocSummary(p, {.generateDeprecated = false, .generatedType = "skeleton class"});
     _out << nl << "export abstract class " << p->mappedName() << " extends " << _iceImportPrefix << "Ice.Object";
     if (!bases.empty())
     {
@@ -2538,7 +2553,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     _out << sp;
-    writeDocCommentFor(p);
+    writeDocSummary(p, {.generatedType = "exception class"});
     _out << nl << "export class " << p->mappedName() << " extends " << baseRef << sb;
     if (!dataMembers.empty())
     {
@@ -2562,7 +2577,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
         for (const auto& dataMember : dataMembers)
         {
             _out << sp;
-            writeDocCommentFor(dataMember);
+            writeDocSummary(dataMember);
             const string optionalModifier = dataMember->optional() ? "?" : "";
             _out << nl << dataMember->mappedName() << optionalModifier << ": "
                  << typeToTsString(dataMember->type(), true) << ";";
@@ -2581,7 +2596,7 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     const DataMemberList dataMembers = p->dataMembers();
 
     _out << sp;
-    writeDocCommentFor(p);
+    writeDocSummary(p, {.generatedType = "class"});
     _out << nl << "export class " << name << sb;
     _out << nl << "constructor" << spar;
     for (const auto& dataMember : dataMembers)
@@ -2641,7 +2656,7 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     for (const auto& dataMember : dataMembers)
     {
         _out << sp;
-        writeDocCommentFor(dataMember);
+        writeDocSummary(dataMember);
         _out << nl << dataMember->mappedName() << ": " << typeToTsString(dataMember->type(), true) << ";";
     }
     _out << eb;
@@ -2655,7 +2670,7 @@ Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
     const string name = p->mappedName();
 
     _out << sp;
-    writeDocCommentFor(p);
+    writeDocSummary(p);
     _out << nl << "export type " << name << " = " << typeToTsString(p) << ";";
 
     _out << sp;
@@ -2690,7 +2705,7 @@ Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
 {
     const string name = p->mappedName();
     _out << sp;
-    writeDocCommentFor(p);
+    writeDocSummary(p);
     string dictionaryType = typeToTsString(p);
     if (dictionaryType.find("Ice.") == 0)
     {
@@ -2733,13 +2748,13 @@ Slice::Gen::TypeScriptVisitor::visitEnum(const EnumPtr& p)
     const string name = p->mappedName();
 
     _out << sp;
-    writeDocCommentFor(p);
+    writeDocSummary(p, {.generatedType = "enum class"});
     _out << nl << "export class " << name << " extends " << _iceImportPrefix << "Ice.EnumBase";
     _out << sb;
     for (const auto& enumerator : p->enumerators())
     {
         _out << sp;
-        writeDocCommentFor(enumerator);
+        writeDocSummary(enumerator);
         _out << nl << "static readonly " << enumerator->mappedName() << ": " << name << ";";
     }
     _out << nl;
@@ -2757,6 +2772,6 @@ void
 Slice::Gen::TypeScriptVisitor::visitConst(const ConstPtr& p)
 {
     _out << sp;
-    writeDocCommentFor(p);
+    writeDocSummary(p, {.generatedType = "constant"});
     _out << nl << "export const " << p->mappedName() << ": " << typeToTsString(p->type()) << ";";
 }
