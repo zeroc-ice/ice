@@ -176,8 +176,8 @@ jobs:
       channel: ${{ inputs.channel }}
     secrets: inherit
 
-  publish-release:
-    name: Publish Release
+  prune-nightly-artifacts:
+    name: Prune Nightly Artifacts
     if: ${{ inputs.publish == true }}
     needs:
       - build-brew-packages
@@ -191,6 +191,14 @@ jobs:
       - build-rpm-packages
       - build-windows-packages
       - build-xcframework-packages
+    uses: ./.github/workflows/prune-nightly-artifacts.yml
+    secrets: inherit
+
+  publish-release:
+    name: Publish Release
+    if: ${{ inputs.publish == true }}
+    needs:
+      - prune-nightly-artifacts
     uses: ./.github/workflows/publish-release.yml
     with:
       channel: ${{ inputs.channel }}
