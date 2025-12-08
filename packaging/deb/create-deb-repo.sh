@@ -11,16 +11,12 @@
 # The GPG key used to sign the repository must be provided via the GPG_KEY environment variable,
 # and the key ID via GPG_KEY_ID.
 #
-# When building the "nightly" channel, the script prunes packages older than a specified threshold.
-# This threshold is controlled by the DAYS_TO_KEEP variable (default: 3 days).
-#
 # The publish-deb-packages GitHub Actions workflow in this repository uses this script together
 # with the ghcr.io/zeroc-ice/deb-repo-builder Docker image to create and update the repository.
 
 set -euo pipefail
 
 # Default values
-DAYS_TO_KEEP=3
 DISTRIBUTION=""
 CHANNEL=""
 STAGING=""
@@ -121,45 +117,6 @@ SignWith: $GPG_KEY_ID
 EOF
 
 echo "✓ Repository config created at $CONF_DIR"
-
-# Cleanup old nightly packages
-if [[ "$CHANNEL" == "nightly" ]]; then
-    today_sec=$(date +%s)
-    declare -A seen_versions=()
-
-    echo "🔍 Scanning for nightly versions older than $DAYS_TO_KEEP days..."
-
-    while read -r line; do
-        version=$(echo "$line" | awk -F'[|: ]+' '{print $5}')
-        if [[ "$version" =~ nightly([0-9]{8}) ]]; then
-            date_part="${BASH_REMATCH[1]}"
-            pkg_date_sec=$(date -d "$date_part" +%s 2>/dev/null || echo 0)
-
-            if (( pkg_date_sec <= 0 )); then
-                echo "⚠️ Skipping version $version (invalid date: $date_part)"
-                continue
-            fi
-
-            age_days=$(( (today_sec - pkg_date_sec) / 86400 ))
-            if (( age_days > DAYS_TO_KEEP )); then
-                if [[ -z "${seen_versions[$version]+_}" ]]; then
-                    seen_versions["$version"]=1
-                fi
-            fi
-        fi
-    done < <(reprepro -b "$DIST_DIR" list "$CODENAME")
-
-    if (( ${#seen_versions[@]} > 0 )); then
-        echo "🧹 Removing ${#seen_versions[@]} outdated nightly version(s):"
-        for version in "${!seen_versions[@]}"; do
-            echo "   - $version"
-            reprepro -b "$DIST_DIR" removefilter "$CODENAME" "Version (== $version)"
-        done
-    else
-        echo "✅ No old nightly versions to prune."
-    fi
-fi
-
 # Collect binary packages
 packages=()
 while IFS= read -r file;

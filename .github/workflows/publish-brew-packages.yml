@@ -1,0 +1,68 @@
+name: "Publish Brew Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The channel to publish to (e.g., 3.8, nightly)"
+        required: true
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+  publish-brew-packages:
+    name: "Publish Brew Packages"
+    runs-on: macos-26
+    # Stable Brew releases must be published manually.
+    if: ${{ inputs.channel == 'nightly' }}
+    env:
+      CHANNEL: ${{ inputs.channel }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Homebrew Bottle XCFramework artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "homebrew-bottle" --dir staging
+
+      - name: Publish Homebrew Bottle Packages
+        run: |
+          set -euo pipefail
+          mkdir -p "${CHANNEL}"
+          # Copy all .tar.gz files from staging/homebrew-bottle to the channel directory
+          # Preserve file attributes; do not overwrite existing files.
+          cp -npv staging/homebrew-bottle/*.tar.gz "${CHANNEL}/"
+          aws s3 sync "${CHANNEL}/" "s3://zeroc-downloads/ice/${CHANNEL}/" --exclude "*" --include "*.tar.gz"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Clone Repository
+        run: |
+          git clone "https://x-access-token:${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}@github.com/zeroc-ice/homebrew-nightly.git" -b main
+
+      - name: Publish Homebrew Patch
+        run: |
+          set -euo pipefail
+          # Configure git for pushing the patch
+          git config user.name "ZeroC"
+          git config user.email "git@zeroc.com"
+          # Apply and commit the patch created during the brew package build
+          git am "${GITHUB_WORKSPACE}/staging/homebrew-bottle/"ice-*.patch
+          # Push the updated formula
+          git push origin main || { echo "Push failed"; exit 1; }
+        working-directory: homebrew-nightly

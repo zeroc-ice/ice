@@ -9,16 +9,12 @@
 # The GPG key used to sign the repository must be provided via the GPG_KEY environment variable,
 # and the key ID via GPG_KEY_ID.
 #
-# When building the "nightly" channel, the script prunes packages older than a specified threshold.
-# This threshold is controlled by the DAYS_TO_KEEP variable (default: 3 days).
-#
 # The publish-rpm-packages GitHub Actions workflow in this repository uses this script together
 # with the ghcr.io/zeroc-ice/rpm-repo-builder Docker image to create and update the repository.
 
 set -euo pipefail
 
 # Default values
-DAYS_TO_KEEP=3
 CHANNEL=""
 STAGING=""
 REPODIR=""
@@ -81,15 +77,6 @@ EOF
 
 ARCHES=(x86_64 aarch64)
 NOARCH_RPMS=()
-
-if [ "${CHANNEL}" = "nightly" ]; then
-  echo "Pruning RPMs older than ${DAYS_TO_KEEP} days..."
-  for arch in x86_64 aarch64 SRPMS; do
-    if [[ -d "${REPODIR}/${arch}" ]]; then
-      find "${REPODIR}/${arch}" -type f -name "*.rpm" -mtime +${DAYS_TO_KEEP} -exec rm -v {} \;
-    fi
-  done
-fi
 
 echo "Syncing RPMs from '$STAGING' to '$REPODIR'..."
 
