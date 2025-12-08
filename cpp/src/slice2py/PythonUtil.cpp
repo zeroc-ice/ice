@@ -2345,7 +2345,7 @@ Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, c
         out << nl << line;
     }
 
-    // Only emit members if there's a docstring for at least one member.
+    // Only emit Attributes if there's a docstring for at least one field.
     if (!fieldDocs.empty())
     {
         if (!overview.empty())
