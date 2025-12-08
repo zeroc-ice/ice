@@ -1,6 +1,4 @@
 name: "Publish MATLAB Packages"
-# This workflow publishes various packages (MSI, MATLAB, XCFramework, Swift, Brew) to S3.
-# We use a single workflow to avoid exceeding the reusable workflow limit in GitHub Actions.
 
 on:
   workflow_dispatch:

@@ -25,12 +25,6 @@ The `publish-release` workflow orchestrates the publishing of all packages to th
 the `publish-xxx-package` workflows. You can also run it manually by providing a `run_id` and `channel`; in this case,
 it will publish the artifacts from the specified run to the specified channel.
 
-GitHub allows a maximum of 20 reusable workflows, and the release pipeline is close to this limit. To avoid exceeding
-it, some workflows were merged into single jobs.
-
-For example, `build-macos-packages` builds both the `xcframework` and `brew` packages, and `publish-misc-packages` is
-used to publish `msi`, `matlab`, `xcframework`, `swift`, and `brew` packages.
-
 The RPM and DEB packaging workflows use Docker images from `packaging/rpm/docker` and `packaging/deb/docker`.
 
 The release pipeline is configured to use `ghcr.io`. These images can be built using the `build-container-images`
