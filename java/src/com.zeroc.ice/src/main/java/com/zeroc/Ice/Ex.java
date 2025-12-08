@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 class Ex {
-    public static <T extends Value> void throwUOE(Class<T> expectedType, Value v) {
+    static <T extends Value> void throwUOE(Class<T> expectedType, Value v) {
         if (v instanceof UnknownSlicedValue) {
             var usv = (UnknownSlicedValue) v;
             throw new MarshalException("The Slice loader did not find a class for type ID '" + usv.ice_id() + "'.");
@@ -28,22 +28,7 @@ class Ex {
                 + "'.");
     }
 
-    public static void throwUOE(String expectedType, Value v) {
-        if (v instanceof UnknownSlicedValue) {
-            var usv = (UnknownSlicedValue) v;
-            throw new MarshalException("The Slice loader did not find a class for type ID '" + usv.ice_id() + "'.");
-        }
-
-        String type = v.ice_id();
-        throw new MarshalException(
-            "Failed to unmarshal class with type ID '"
-                + expectedType
-                + "': the Slice loader returned class with type ID '"
-                + type
-                + "'.");
-    }
-
-    public static void throwMemoryLimitException(int requested, int maximum) {
+    static void throwMemoryLimitException(int requested, int maximum) {
         throw new MarshalException(
             "Cannot unmarshal Ice message: the message size of "
                 + requested
