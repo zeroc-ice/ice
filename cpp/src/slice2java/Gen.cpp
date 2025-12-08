@@ -1931,9 +1931,8 @@ Slice::JavaVisitor::writeExceptionDocComment(Output& out, const OperationPtr& op
 }
 
 void
-Slice::JavaVisitor::writeRemarksDocComment(Output& out, const DocComment& comment)
+Slice::JavaVisitor::writeRemarksDocComment(Output& out, const StringList& remarks)
 {
-    const StringList& remarks = comment.remarks();
     if (remarks.empty())
     {
         return;
@@ -2022,32 +2021,59 @@ Slice::JavaVisitor::writeDocCommentLines(Output& out, const string& text)
 }
 
 void
-Slice::JavaVisitor::writeDocComment(Output& out, const optional<DocComment>& dc)
+Slice::JavaVisitor::writeDocComment(Output& out, const ContainedPtr& p, const optional<string>& generatedType)
 {
-    if (!dc)
+    const optional<DocComment>& comment = p->docComment();
+    if (!comment && !generatedType)
     {
         return;
     }
 
-    out << nl << "/**";
-    const StringList& overview = dc->overview();
-    if (!overview.empty())
-    {
-        out << nl << " * ";
-        writeDocCommentLines(out, overview);
-    }
-    writeRemarksDocComment(out, *dc);
-    writeSeeAlso(out, dc->seeAlso());
+    StringList remarks;
 
-    const StringList& deprecated = dc->deprecated();
-    if (!deprecated.empty())
+    out << nl << "/**";
+
+    if (comment)
     {
-        out << nl << " * @deprecated ";
-        writeDocCommentLines(out, deprecated);
+        const StringList& overview = comment->overview();
+
+        if (!overview.empty())
+        {
+            out << nl << " * ";
+            writeDocCommentLines(out, overview);
+        }
+
+        remarks = comment->remarks();
     }
-    else if (dc->isDeprecated())
+
+    if (generatedType)
     {
-        out << nl << " * @deprecated";
+        if (!remarks.empty())
+        {
+            remarks.emplace_back("<p>");
+        }
+
+        remarks.push_back(
+            "The Slice compiler generated this " + *generatedType + " from Slice " + p->kindOf() + " {@code " +
+            p->scoped() + "}.");
+    }
+
+    writeRemarksDocComment(out, remarks);
+
+    if (comment)
+    {
+        writeSeeAlso(out, comment->seeAlso());
+
+        const StringList& deprecated = comment->deprecated();
+        if (!deprecated.empty())
+        {
+            out << nl << " * @deprecated ";
+            writeDocCommentLines(out, deprecated);
+        }
+        else if (comment->isDeprecated())
+        {
+            out << nl << " * @deprecated";
+        }
     }
 
     out << nl << " */";
@@ -2086,7 +2112,7 @@ Slice::JavaVisitor::writeProxyOpDocComment(
         out << nl << " * ";
         writeDocCommentLines(out, overview);
     }
-    writeRemarksDocComment(out, *dc);
+    writeRemarksDocComment(out, dc->remarks());
 
     //
     // Show in-params in order of declaration, but only those with docs.
@@ -2198,7 +2224,7 @@ Slice::JavaVisitor::writeServantOpDocComment(Output& out, const OperationPtr& p,
         out << nl << " * ";
         writeDocCommentLines(out, overview);
     }
-    writeRemarksDocComment(out, *dc);
+    writeRemarksDocComment(out, dc->remarks());
 
     // Show in-params in order of declaration, but only those with docs.
     for (const auto& param : p->inParameters())
@@ -2351,10 +2377,9 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     open(getUnqualified(p), p->file());
     Output& out = output();
 
-    // Slice interfaces map to Java interfaces.
     out << sp;
+    writeDocComment(out, p, "class");
     const optional<DocComment>& dc = p->docComment();
-    writeDocComment(out, dc);
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -2643,8 +2668,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     out << sp;
 
+    writeDocComment(out, p, "exception class");
     const optional<DocComment>& dc = p->docComment();
-    writeDocComment(out, dc);
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -2913,8 +2938,8 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     Output& out = output();
     out << sp;
 
+    writeDocComment(out, p, "class");
     const optional<DocComment>& dc = p->docComment();
-    writeDocComment(out, dc);
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -3266,8 +3291,8 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     out << sp;
 
+    writeDocComment(out, p);
     const optional<DocComment>& dc = p->docComment();
-    writeDocComment(out, dc);
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -3299,7 +3324,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         // Getter.
         //
         out << sp;
-        writeDocComment(out, dc);
+        writeDocComment(out, p);
         if (dc && dc->isDeprecated())
         {
             out << nl << "@Deprecated";
@@ -3320,7 +3345,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         // Setter.
         //
         out << sp;
-        writeDocComment(out, dc);
+        writeDocComment(out, p);
         if (dc && dc->isDeprecated())
         {
             out << nl << "@Deprecated";
@@ -3340,7 +3365,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         if (isOptional)
         {
             out << sp;
-            writeDocComment(out, dc);
+            writeDocComment(out, p);
             if (dc && dc->isDeprecated())
             {
                 out << nl << "@Deprecated";
@@ -3351,7 +3376,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             out << eb;
 
             out << sp;
-            writeDocComment(out, dc);
+            writeDocComment(out, p);
             if (dc && dc->isDeprecated())
             {
                 out << nl << "@Deprecated";
@@ -3364,7 +3389,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             const string optType = typeToString(type, TypeModeMember, getPackage(contained), metadata, true, true);
 
             out << sp;
-            writeDocComment(out, dc);
+            writeDocComment(out, p);
             if (dc && dc->isDeprecated())
             {
                 out << nl << "@Deprecated";
@@ -3397,7 +3422,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             out << eb;
 
             out << sp;
-            writeDocComment(out, dc);
+            writeDocComment(out, p);
             if (dc && dc->isDeprecated())
             {
                 out << nl << "@Deprecated";
@@ -3540,8 +3565,8 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp;
 
+    writeDocComment(out, p, "enum");
     const optional<DocComment>& dc = p->docComment();
-    writeDocComment(out, dc);
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -3556,8 +3581,8 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         {
             out << ',';
         }
+        writeDocComment(out, *en);
         const optional<DocComment>& edc = (*en)->docComment();
-        writeDocComment(out, edc);
         if (edc && edc->isDeprecated())
         {
             out << nl << "@Deprecated";
@@ -4039,8 +4064,8 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 
     out << sp;
 
+    writeDocComment(out, p, "constant");
     const optional<DocComment>& dc = p->docComment();
-    writeDocComment(out, dc);
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -4067,8 +4092,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     // Generate a Java interface as the user-visible type
     out << sp;
+
+    writeDocComment(out, p, "proxy interface");
     const optional<DocComment>& dc = p->docComment();
-    writeDocComment(out, dc);
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -4359,8 +4385,8 @@ Slice::Gen::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     Output& out = output();
 
     out << sp;
-    const optional<DocComment>& dc = p->docComment();
-    writeDocComment(out, dc);
+
+    writeDocComment(out, p, "skeleton interface");
 
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     out << nl << "public interface " << name << " extends ";
