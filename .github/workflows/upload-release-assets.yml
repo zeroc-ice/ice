@@ -66,6 +66,8 @@ jobs:
           STAGING_DIR: ${{ github.workspace }}/staging
 
       - name: Upload Release Assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
 
