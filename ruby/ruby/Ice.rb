@@ -32,7 +32,6 @@ require_relative 'Ice/RemoteLogger.rb'
 require_relative 'Ice/Router.rb'
 
 module Ice
-    Protocol_1_0 = ProtocolVersion.new(1, 0)
     Encoding_1_0 = EncodingVersion.new(1, 0)
     Encoding_1_1 = EncodingVersion.new(1, 1)
 end

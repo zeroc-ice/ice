@@ -820,12 +820,6 @@ IcePy::getIdentity(PyObject* p, Ice::Identity& ident)
 }
 
 PyObject*
-IcePy::createProtocolVersion(const Ice::ProtocolVersion& v)
-{
-    return createVersion<Ice::ProtocolVersion>(v, Ice_ProtocolVersion);
-}
-
-PyObject*
 IcePy::createEncodingVersion(const Ice::EncodingVersion& v)
 {
     return createVersion<Ice::EncodingVersion>(v, Ice_EncodingVersion);
@@ -901,28 +895,4 @@ extern "C" PyObject*
 IcePy_intVersion(PyObject* /*self*/, PyObject* /*args*/)
 {
     return PyLong_FromLong(ICE_INT_VERSION);
-}
-
-extern "C" PyObject*
-IcePy_protocolVersionToString(PyObject* /*self*/, PyObject* args)
-{
-    return IcePy::versionToString<Ice::ProtocolVersion>(args, IcePy::Ice_ProtocolVersion);
-}
-
-extern "C" PyObject*
-IcePy_stringToProtocolVersion(PyObject* /*self*/, PyObject* args)
-{
-    return IcePy::stringToVersion<Ice::ProtocolVersion>(args, IcePy::Ice_ProtocolVersion);
-}
-
-extern "C" PyObject*
-IcePy_encodingVersionToString(PyObject* /*self*/, PyObject* args)
-{
-    return IcePy::versionToString<Ice::EncodingVersion>(args, IcePy::Ice_EncodingVersion);
-}
-
-extern "C" PyObject*
-IcePy_stringToEncodingVersion(PyObject* /*self*/, PyObject* args)
-{
-    return IcePy::stringToVersion<Ice::EncodingVersion>(args, IcePy::Ice_EncodingVersion);
 }

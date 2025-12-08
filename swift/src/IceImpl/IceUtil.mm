@@ -154,9 +154,4 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     return toNSString(Ice::identityToString(identity, static_cast<Ice::ToStringMode>(mode)));
 }
 
-+ (NSString*)encodingVersionToString:(UInt8)major minor:(UInt8)minor
-{
-    Ice::EncodingVersion v{major, minor};
-    return toNSString(Ice::encodingVersionToString(v));
-}
 @end

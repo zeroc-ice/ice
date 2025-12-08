@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Util.h"
+#include "Ice/Protocol.h"
 #include "Ice/UUID.h"
-#include "Ice/VersionFunctions.h"
 
 #include <algorithm>
 #include <ctype.h>
@@ -185,7 +185,6 @@ namespace
         return false;
     }
 
-    char Ice_ProtocolVersionType[] = "\\Ice\\ProtocolVersion";
     char Ice_EncodingVersionType[] = "\\Ice\\EncodingVersion";
 }
 
@@ -385,12 +384,6 @@ IcePHP::extractStringArray(zval* zv, Ice::StringSeq& seq)
     ZEND_HASH_FOREACH_END();
 
     return true;
-}
-
-bool
-IcePHP::createProtocolVersion(zval* zv, const Ice::ProtocolVersion& v)
-{
-    return createVersion<Ice::ProtocolVersion>(zv, v, Ice_ProtocolVersionType);
 }
 
 bool
@@ -738,70 +731,4 @@ ZEND_FUNCTION(Ice_generateUUID)
 
     string uuid = Ice::generateUUID();
     RETURN_STRINGL(uuid.c_str(), static_cast<int>(uuid.size()));
-}
-
-ZEND_FUNCTION(Ice_protocolVersionToString)
-{
-    zend_class_entry* versionClass = nameToClass(Ice_ProtocolVersionType);
-    assert(versionClass);
-
-    zval zv;
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("O"), &zv, versionClass) != SUCCESS)
-    {
-        RETURN_NULL();
-    }
-
-    if (!versionToString<Ice::ProtocolVersion>(&zv, return_value, Ice_ProtocolVersionType))
-    {
-        RETURN_NULL();
-    }
-}
-
-ZEND_FUNCTION(Ice_stringToProtocolVersion)
-{
-    char* str;
-    size_t strLen;
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &str, &strLen) != SUCCESS)
-    {
-        RETURN_NULL();
-    }
-    string s(str, strLen);
-
-    if (!stringToVersion<Ice::ProtocolVersion>(s, return_value, Ice_ProtocolVersionType))
-    {
-        RETURN_NULL();
-    }
-}
-
-ZEND_FUNCTION(Ice_encodingVersionToString)
-{
-    zend_class_entry* versionClass = nameToClass(Ice_EncodingVersionType);
-    assert(versionClass);
-
-    zval* zv;
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("O"), &zv, versionClass) != SUCCESS)
-    {
-        RETURN_NULL();
-    }
-
-    if (!versionToString<Ice::EncodingVersion>(zv, return_value, Ice_EncodingVersionType))
-    {
-        RETURN_NULL();
-    }
-}
-
-ZEND_FUNCTION(Ice_stringToEncodingVersion)
-{
-    char* str;
-    size_t strLen;
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &str, &strLen) != SUCCESS)
-    {
-        RETURN_NULL();
-    }
-    string s(str, strLen);
-
-    if (!stringToVersion<Ice::EncodingVersion>(s, return_value, Ice_EncodingVersionType))
-    {
-        RETURN_NULL();
-    }
 }

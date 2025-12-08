@@ -2,7 +2,7 @@
 
 #include "Util.h"
 #include "Ice/LocalExceptions.h"
-#include "Ice/VersionFunctions.h"
+#include "Ice/Protocol.h"
 #include <stdarg.h>
 
 using namespace std;
@@ -98,7 +98,6 @@ namespace
         return Qnil;
     }
 
-    char Ice_ProtocolVersion[] = "Ice::ProtocolVersion";
     char Ice_EncodingVersion[] = "Ice::EncodingVersion";
 }
 
@@ -122,39 +121,11 @@ IceRuby_intVersion(int /*argc*/, VALUE* /*argv*/, VALUE /*self*/)
     return Qnil;
 }
 
-extern "C" VALUE
-IceRuby_protocolVersionToString(VALUE /*self*/, VALUE v)
-{
-    return versionToString<Ice::ProtocolVersion>(v, Ice_ProtocolVersion);
-}
-
-extern "C" VALUE
-IceRuby_stringToProtocolVersion(VALUE /*self*/, VALUE v)
-{
-    return stringToVersion<Ice::ProtocolVersion>(v, Ice_ProtocolVersion);
-}
-
-extern "C" VALUE
-IceRuby_encodingVersionToString(VALUE /*self*/, VALUE v)
-{
-    return versionToString<Ice::EncodingVersion>(v, Ice_EncodingVersion);
-}
-
-extern "C" VALUE
-IceRuby_stringToEncodingVersion(VALUE /*self*/, VALUE v)
-{
-    return stringToVersion<Ice::EncodingVersion>(v, Ice_EncodingVersion);
-}
-
 void
 IceRuby::initUtil(VALUE iceModule)
 {
     rb_define_module_function(iceModule, "stringVersion", CAST_METHOD(IceRuby_stringVersion), -1);
     rb_define_module_function(iceModule, "intVersion", CAST_METHOD(IceRuby_intVersion), -1);
-    rb_define_module_function(iceModule, "protocolVersionToString", CAST_METHOD(IceRuby_protocolVersionToString), 1);
-    rb_define_module_function(iceModule, "stringToProtocolVersion", CAST_METHOD(IceRuby_stringToProtocolVersion), 1);
-    rb_define_module_function(iceModule, "encodingVersionToString", CAST_METHOD(IceRuby_encodingVersionToString), 1);
-    rb_define_module_function(iceModule, "stringToEncodingVersion", CAST_METHOD(IceRuby_stringToEncodingVersion), 1);
 }
 
 IceRuby::RubyException::RubyException() { ex = rb_gv_get("$!"); }
@@ -456,12 +427,6 @@ IceRuby::createIdentity(const Ice::Identity& id)
     callRuby(rb_iv_set, result, "@name", name);
     callRuby(rb_iv_set, result, "@category", category);
     return result;
-}
-
-VALUE
-IceRuby::createProtocolVersion(const Ice::ProtocolVersion& v)
-{
-    return createVersion<Ice::ProtocolVersion>(v, Ice_ProtocolVersion);
 }
 
 VALUE
