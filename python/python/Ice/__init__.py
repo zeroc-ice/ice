@@ -29,7 +29,6 @@ from .Communicator import Communicator
 from .CompressBatch import CompressBatch
 from .Context import _Ice_Context_t
 from .Current import Current
-from .Dispatch import dispatch
 from .DoubleSeq import _Ice_DoubleSeq_t
 from .EncodingVersion import EncodingVersion, _Ice_EncodingVersion_t
 from .EndpointSelectionType import EndpointSelectionType
@@ -353,7 +352,6 @@ __all__ = [
     "_Ice_StringSeq_t",
     "asyncio",
     "createProperties",
-    "dispatch",
     "encodingVersionToString",
     "getProcessLogger",
     "getSliceDir",

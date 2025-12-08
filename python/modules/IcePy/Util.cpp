@@ -555,31 +555,14 @@ IcePy::lookupType(const string& typeName)
     string moduleName = typeName.substr(0, dot);
     string name = typeName.substr(dot + 1);
 
-    //
-    // First search for the module in sys.modules.
-    //
-    PyObject* sysModules{PyImport_GetModuleDict()};
-    assert(sysModules);
-
-    PyObject* module = PyDict_GetItemString(sysModules, const_cast<char*>(moduleName.c_str()));
-    PyObject* dict{nullptr};
-    if (!module)
+    PyObjectHandle pyModule{PyImport_ImportModule(const_cast<char*>(moduleName.c_str()))};
+    if (!pyModule.get())
     {
-        // Not found, so we need to import the module.
-        PyObjectHandle h{PyImport_ImportModule(const_cast<char*>(moduleName.c_str()))};
-        if (!h.get())
-        {
-            PyErr_Print(); // Print full Python exception and traceback
-            return nullptr;
-        }
-
-        dict = PyModule_GetDict(h.get());
-    }
-    else
-    {
-        dict = PyModule_GetDict(module);
+        PyErr_Print(); // Print full Python exception and traceback
+        return nullptr;
     }
 
+    PyObject* dict = PyModule_GetDict(pyModule.get());
     assert(dict);
     return PyDict_GetItemString(dict, const_cast<char*>(name.c_str()));
 }
