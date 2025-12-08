@@ -260,7 +260,7 @@ namespace
         optional<string> generatedType{nullopt};
     };
 
-    void writeDocSummary(Output& out, const ContainedPtr& p, DocSummaryOptions options = {})
+    void writeDocSummary(Output& out, const ContainedPtr& p, const DocSummaryOptions& options = {})
     {
         const optional<DocComment>& comment = p->docComment();
         StringList remarks;
@@ -441,7 +441,7 @@ namespace
         const DocComment& doc,
         OpDocParamType type,
         bool showExceptions,
-        DocSummaryOptions options = {},
+        const DocSummaryOptions& options = {},
         const StringList& preParams = StringList(),
         const StringList& postParams = StringList(),
         const StringList& returns = StringList())
