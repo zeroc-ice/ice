@@ -417,21 +417,24 @@ allTests(TestHelper* helper)
     //
     // Test proxies with duplicated endpoint option.
     //
-    string goodBase = "hello:default -h host1 -p 4061 --sourceAddress 127.0.0.1";
-    test(communicator->stringToProxy(goodBase));
-
-    array<string, 3> dupOptions = {" -h host2", " -p 4062", " --sourceAddress 10.0.0.1"};
-
-    for (const string& opt : dupOptions)
+    if (protocol != "bt")
     {
-        try
+        string goodBase = "hello:default -h host1 -p 4061 --sourceAddress 127.0.0.1";
+        test(communicator->stringToProxy(goodBase));
+
+        array<string, 3> dupOptions = {" -h host2", " -p 4062", " --sourceAddress 10.0.0.1"};
+
+        for (const string& opt : dupOptions)
         {
-            communicator->stringToProxy(goodBase + opt);
-            test(false);
-        }
-        catch (const ParseException&)
-        {
-            // expected
+            try
+            {
+                communicator->stringToProxy(goodBase + opt);
+                test(false);
+            }
+            catch (const ParseException&)
+            {
+                // expected
+            }
         }
     }
 
