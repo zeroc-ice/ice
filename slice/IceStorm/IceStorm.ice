@@ -161,6 +161,12 @@ module IceStorm
         /// @throws NoSuchTopic Thrown when there is no topic named @p name.
         idempotent Topic* retrieve(string name) throws NoSuchTopic;
 
+        /// Creates a new topic with the given name, or retrieves the existing topic with this name if it already
+        /// exists.
+        /// @param name The name of the topic.
+        /// @return A proxy to the topic object. The returned proxy is never null.
+        Topic* createOrRetrieve(string name);
+
         /// Retrieves all topics managed by this topic manager.
         /// @return A dictionary of string, topic proxy pairs.
         idempotent TopicDict retrieveAll();

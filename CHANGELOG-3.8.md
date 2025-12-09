@@ -1184,5 +1184,8 @@ service.
 
 - The IceStorm configuration now uses the `IceStorm` prefix instead of the IceBox service name as prefix.
 
+- Added a new operation on `TopicManager`: `createOrRetrieve` creates or retrieves topic with the specified name, and
+  returns the corresponding proxy (the returned proxy is never null).
+
 [IceRPC]: https://github.com/icerpc
 [Slice/print]: cpp/test/Slice/print
