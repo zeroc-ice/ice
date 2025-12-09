@@ -24,8 +24,8 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder ich = initialize(argc, argv, make_shared<Ice::Properties>("IceStormAdmin"));
-    const auto& communicator = ich.communicator();
+    Ice::CommunicatorPtr communicator = initialize(argc, argv, make_shared<Ice::Properties>("IceStormAdmin"));
+    Ice::CommunicatorHolder communicatorHolder{communicator};
     auto properties = communicator->getProperties();
     auto managerProxy = properties->getIceProperty("IceStormAdmin.TopicManager.Default");
     if (managerProxy.empty())
@@ -148,12 +148,13 @@ Client::run(int argc, char** argv)
         }
 
         // Verify only one topic was actually created
-        auto finalTopic = manager->retrieve(topicName);
-        test(finalTopic);
-        test(finalTopic->getName() == topicName);
+        auto allTopics = manager->retrieveAll();
+        test(allTopics.size() == 1);
+        test(allTopics.find(topicName) != allTopics.end());
+        test(allTopics[topicName]->getName() == topicName);
 
         // Clean up
-        finalTopic->destroy();
+        allTopics[topicName]->destroy();
     }
 
     //
