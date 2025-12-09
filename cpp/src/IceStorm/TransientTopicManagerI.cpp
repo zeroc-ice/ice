@@ -26,29 +26,7 @@ TransientTopicManagerImpl::create(string name, const Ice::Current&)
         throw TopicExists(name);
     }
 
-    Ice::Identity id = IceStormInternal::nameToIdentity(_instance, name);
-
-    //
-    // Called by constructor or with 'this' mutex locked.
-    //
-    auto traceLevels = _instance->traceLevels();
-    if (traceLevels->topicMgr > 0)
-    {
-        Ice::Trace out(traceLevels->logger, traceLevels->topicMgrCat);
-        out << "creating new topic \"" << name << "\". id: " << _instance->communicator()->identityToString(id);
-    }
-
-    //
-    // Create topic implementation
-    //
-    auto topicImpl = TransientTopicImpl::create(_instance, name, id);
-
-    //
-    // The identity is the name of the Topic.
-    //
-    auto prx = _instance->topicAdapter()->add<TopicPrx>(topicImpl, id);
-    _topics.insert({name, topicImpl});
-    return prx;
+    return createImpl(std::move(name));
 }
 
 optional<TopicPrx>
@@ -64,9 +42,22 @@ TransientTopicManagerImpl::retrieve(string name, const Ice::Current&)
         throw NoSuchTopic(name);
     }
 
-    // Here we cannot just reconstruct the identity since the
-    // identity could be either instanceName/topic name, or if
-    // created with pre-3.2 IceStorm / topic name.
+    return _instance->topicAdapter()->createProxy<TopicPrx>(p->second->id());
+}
+
+optional<TopicPrx>
+TransientTopicManagerImpl::createOrRetrieve(string name, const Ice::Current&)
+{
+    lock_guard lock(_mutex);
+
+    reap();
+
+    auto p = _topics.find(name);
+    if (p == _topics.end())
+    {
+        return createImpl(std::move(name));
+    }
+
     return _instance->topicAdapter()->createProxy<TopicPrx>(p->second->id());
 }
 
@@ -80,11 +71,6 @@ TransientTopicManagerImpl::retrieveAll(const Ice::Current&)
     TopicDict all;
     for (const auto& topic : _topics)
     {
-        //
-        // Here we cannot just reconstruct the identity since the
-        // identity could be either "<instanceName>/topic.<topicname>"
-        // name, or if created with pre-3.2 IceStorm "/<topicname>".
-        //
         all.insert({topic.first, _instance->topicAdapter()->createProxy<TopicPrx>(topic.second->id())});
     }
 
@@ -138,4 +124,31 @@ TransientTopicManagerImpl::shutdown()
     {
         topic.second->shutdown();
     }
+}
+
+optional<TopicPrx>
+TransientTopicManagerImpl::createImpl(string name)
+{
+    // Called with _mutex locked.
+
+    Ice::Identity id = IceStormInternal::nameToIdentity(_instance, name);
+
+    auto traceLevels = _instance->traceLevels();
+    if (traceLevels->topicMgr > 0)
+    {
+        Ice::Trace out(traceLevels->logger, traceLevels->topicMgrCat);
+        out << "creating new topic \"" << name << "\". id: " << _instance->communicator()->identityToString(id);
+    }
+
+    //
+    // Create topic implementation
+    //
+    auto topicImpl = TransientTopicImpl::create(_instance, name, id);
+
+    //
+    // The identity is the name of the Topic.
+    //
+    auto prx = _instance->topicAdapter()->add<TopicPrx>(topicImpl, id);
+    _topics.insert({std::move(name), std::move(topicImpl)});
+    return prx;
 }
