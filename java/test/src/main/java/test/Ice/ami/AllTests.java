@@ -1095,9 +1095,9 @@ public class AllTests {
             out.flush();
             try {
                 // Keep the 3 server thread pool threads busy.
-                CompletableFuture<Void> sleep1Future = p.sleepAsync(1000);
-                CompletableFuture<Void> sleep2Future = p.sleepAsync(1000);
-                CompletableFuture<Void> sleep3Future = p.sleepAsync(1000);
+                CompletableFuture<Void> sleep1Future = p.sleepAsync(1500);
+                CompletableFuture<Void> sleep2Future = p.sleepAsync(1500);
+                CompletableFuture<Void> sleep3Future = p.sleepAsync(1500);
                 TestIntfPrx onewayProxy = p.ice_oneway();
 
                 // Sending should block because the TCP send/receive buffer size on the server is set to 50KB.
