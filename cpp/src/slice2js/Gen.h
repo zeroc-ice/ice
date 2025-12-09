@@ -7,6 +7,18 @@
 
 namespace Slice
 {
+    struct DocSummaryOptions
+    {
+        /// If false, `@@deprecated` tags in the Slice doc-comment will be ignored.
+        bool generateDeprecated{true};
+
+        /// If false, `@@remarks` tags in the Slice doc-comment will be ignored. This should always be 'true' for
+        /// typescript generated code, and 'false' for javascript generated code.
+        bool includeRemarks{true};
+
+        std::optional<std::string> generatedType{std::nullopt};
+    };
+
     class JsVisitor : public ParserVisitor
     {
     public:
@@ -22,12 +34,10 @@ namespace Slice
 
         std::string writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
 
-        /// Generates and outputs a doc-comment for Slice definition @p p.
+        /// Generates and outputs a doc-summary for Slice definition @p p.
         /// @param p The Slice definition to be documented.
-        /// @param includeRemarks If false, `@@remarks` tags in @p p's doc-comment will be ignored.
-        ///     This should always be 'true' for typescript generated code, and 'false' for javascript generated code.
-        /// @param includeDeprecated If false, `@@deprecated` tags in @p p's doc-comment will be ignored.
-        void writeDocCommentFor(const ContainedPtr& p, bool includeRemarks = true, bool includeDeprecated = true);
+        /// @param options Options that control how the doc-summary is generated.
+        void writeDocSummary(const ContainedPtr& p, const DocSummaryOptions& options = {});
 
         ::IceInternal::Output& _out;
     };
