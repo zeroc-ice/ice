@@ -34,8 +34,8 @@ while IFS= read -r key; do
     if [[ "$key" =~ nightly[.-]?([0-9]{8}) ]]; then
         date_part="${BASH_REMATCH[1]}"
 
-        # Convert YYYYMMDD to epoch seconds (GNU date or gdate)
-        pkg_date_sec=$(gdate -d "$date_part" +%s 2>/dev/null || echo 0)
+        # Convert YYYYMMDD to epoch seconds (GNU date)
+        pkg_date_sec=$(date -d "$date_part" +%s 2>/dev/null || echo 0)
         if (( pkg_date_sec <= 0 )); then
             echo "⚠️  Skipping $key (invalid date: $date_part)"
             ((ignored++))
