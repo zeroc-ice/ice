@@ -17,6 +17,7 @@ from Util import (
     runTests,
     toplevel,
     traceback,
+    compileControllerDefinitions
 )
 
 
@@ -84,12 +85,11 @@ class ControllerDriver(Driver):
                     print("run " + sys.argv[0] + " --clean to remove the trust setting")
 
         self.initCommunicator()
-        import Ice
+        compileControllerDefinitions()
 
-        Ice.loadSlice([os.path.join(toplevel, "scripts", "Controller.ice")])
-        import Test
+        from Test import Common as Test_Common
 
-        class TestCaseI(Test.Common.TestCase):
+        class TestCaseI(Test_Common.TestCase):
             def __init__(self, driver, current):
                 self.driver = driver
                 self.current = current
@@ -102,7 +102,7 @@ class ControllerDriver(Driver):
                     return self.current.serverTestCase._startServerSide(self.current)
                 except Exception:
                     self.serverSideRunning = False
-                    raise Test.Common.TestCaseFailedException(
+                    raise Test_Common.TestCaseFailedException(
                         self.current.result.getOutput() + "\n" + traceback.format_exc()
                     )
 
@@ -112,7 +112,7 @@ class ControllerDriver(Driver):
                         self.current.serverTestCase._stopServerSide(self.current, success)
                         return self.current.result.getOutput()
                     except Exception as ex:
-                        raise Test.Common.TestCaseFailedException(self.current.result.getOutput() + "\n" + str(ex))
+                        raise Test_Common.TestCaseFailedException(self.current.result.getOutput() + "\n" + str(ex))
 
             def runClientSide(self, host, config, c):
                 self.updateCurrent(config)
@@ -120,7 +120,7 @@ class ControllerDriver(Driver):
                     self.current.clientTestCase._runClientSide(self.current, host)
                     return self.current.result.getOutput()
                 except Exception as ex:
-                    raise Test.Common.TestCaseFailedException(self.current.result.getOutput() + "\n" + str(ex))
+                    raise Test_Common.TestCaseFailedException(self.current.result.getOutput() + "\n" + str(ex))
 
             def destroy(self, c):
                 if self.serverSideRunning:
@@ -142,12 +142,12 @@ class ControllerDriver(Driver):
                 ]
                 for a in attrs:
                     v = getattr(config, a)
-                    if v is not Ice.Unset:
+                    if v is not None:
                         if a not in self.current.config.parsedOptions:
                             self.current.config.parsedOptions.append(a)
                         setattr(self.current.config, a, v)
 
-        class ControllerI(Test.Common.Controller):
+        class ControllerI(Test_Common.Controller):
             def __init__(self, driver):
                 self.driver = driver
                 self.testcase = None
@@ -162,7 +162,7 @@ class ControllerDriver(Driver):
 
                 current = self.driver.getCurrent(mapping, testsuite, testcase, cross)
                 prx = c.adapter.addWithUUID(TestCaseI(self.driver, current))
-                self.testcase = Test.Common.TestCasePrx.uncheckedCast(
+                self.testcase = Test_Common.TestCasePrx.uncheckedCast(
                     c.adapter.createDirectProxy(prx.ice_getIdentity())
                 )
                 return self.testcase
@@ -173,8 +173,12 @@ class ControllerDriver(Driver):
                 return [str(t) for t in mapping.getTestSuites() if not mapping.filterTestSuite(t.getId(), config)]
 
             def getOptionOverrides(self, c):
-                return Test.Common.OptionOverrides(ipv6=([False] if not self.driver.hostIPv6 else [False, True]))
+                return Test_Common.OptionOverrides(ipv6=([False] if not self.driver.hostIPv6 else [False, True]))
 
+            def getHost(self, name, ipv6, c):
+                pass
+
+        import Ice
         self.initCommunicator()
         self.communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.endpoints)
         self.communicator.getProperties().setProperty("ControllerAdapter.AdapterId", str(uuid.uuid4()))
@@ -184,24 +188,24 @@ class ControllerDriver(Driver):
         self.communicator.waitForShutdown()
 
     def getCurrent(self, mapping, testsuite, testcase, cross, protocol=None, host=None, args=[]):
-        import Test
+        from Test import Common as Test_Common
 
         mapping = Mapping.getByName(mapping)
         if not mapping:
-            raise Test.Common.TestCaseNotExistException("unknown mapping {0}".format(mapping))
+            raise Test_Common.TestCaseNotExistException("unknown mapping {0}".format(mapping))
 
         if cross:
             cross = Mapping.getByName(cross)
             if not cross:
-                raise Test.Common.TestCaseNotExistException("unknown mapping {0} for cross testing".format(cross))
+                raise Test_Common.TestCaseNotExistException("unknown mapping {0} for cross testing".format(cross))
 
         ts = mapping.findTestSuite(testsuite)
         if not ts:
-            raise Test.Common.TestCaseNotExistException("unknown testsuite {0}".format(testsuite))
+            raise Test_Common.TestCaseNotExistException("unknown testsuite {0}".format(testsuite))
 
         tc = ts.findTestCase("server" if ts.getId() == "Ice/echo" else (testcase or "client/server"))
         if not tc or not tc.getServerTestCase():
-            raise Test.Common.TestCaseNotExistException("unknown testcase {0}".format(testcase))
+            raise Test_Common.TestCaseNotExistException("unknown testcase {0}".format(testcase))
 
         return ControllerDriver.Current(self, ts, tc, cross, protocol, host, args)
 

@@ -210,11 +210,11 @@ class TestCaseRunner:
 
 class RemoteTestCaseRunner(TestCaseRunner):
     def __init__(self, communicator, clientPrx, serverPrx):
-        import Test
+        from Test import Common as Test_Common
 
         if clientPrx:
             self.clientController = communicator.stringToProxy(clientPrx)
-            self.clientController = Test.Common.ControllerPrx.checkedCast(self.clientController)
+            self.clientController = Test_Common.ControllerPrx.checkedCast(self.clientController)
             self.clientOptions = self.clientController.getOptionOverrides()
         else:
             self.clientController = None
@@ -222,7 +222,7 @@ class RemoteTestCaseRunner(TestCaseRunner):
 
         if serverPrx:
             self.serverController = communicator.stringToProxy(serverPrx)
-            self.serverController = Test.Common.ControllerPrx.checkedCast(self.serverController)
+            self.serverController = Test_Common.ControllerPrx.checkedCast(self.serverController)
             self.serverOptions = self.serverController.getOptionOverrides()
         else:
             self.serverController = None
@@ -257,7 +257,7 @@ class RemoteTestCaseRunner(TestCaseRunner):
         options = options.copy()
         for key, values in options.items():
             for opts in [self.serverOptions, self.clientOptions]:
-                if hasattr(opts, key) and getattr(opts, key) is not Ice.Unset:
+                if hasattr(opts, key) and getattr(opts, key) is not None:
                     options[key] = [v for v in values if v in getattr(opts, key)]
         return options
 
@@ -265,7 +265,7 @@ class RemoteTestCaseRunner(TestCaseRunner):
         if not self.serverController:
             return TestCaseRunner.startServerSide(self, testcase, current)
 
-        import Test
+        from Test import Common as Test_Common
 
         current.serverTestCase = self.serverController.runTestCase(
             str(testcase.getMapping()),
@@ -276,7 +276,7 @@ class RemoteTestCaseRunner(TestCaseRunner):
         try:
             try:
                 return current.serverTestCase.startServerSide(self.getConfig(current))
-            except Test.Common.TestCaseFailedException as ex:
+            except Test_Common.TestCaseFailedException as ex:
                 current.result.writeln(ex.output)
                 raise RuntimeError("test failed:\n" + str(ex))
         except Exception:
@@ -289,19 +289,19 @@ class RemoteTestCaseRunner(TestCaseRunner):
             TestCaseRunner.stopServerSide(self, testcase, current, success)
             return
 
-        import Test
+        from Test import Common as Test_Common
 
         try:
             current.result.write(current.serverTestCase.stopServerSide(success))
             current.host = None
-        except Test.Common.TestCaseFailedException as ex:
+        except Test_Common.TestCaseFailedException as ex:
             current.result.writeln(ex.output)
             raise RuntimeError("test failed")
         finally:
             current.serverTestCase = None
 
     def runClientSide(self, testcase, current, host):
-        import Test
+        from Test import Common as Test_Common
 
         if not self.clientController:
             TestCaseRunner.runClientSide(self, testcase, current, host)
@@ -315,16 +315,16 @@ class RemoteTestCaseRunner(TestCaseRunner):
         )
         try:
             current.result.write(clientTestCase.runClientSide(host, self.getConfig(current)))
-        except Test.Common.TestCaseFailedException as ex:
+        except Test_Common.TestCaseFailedException as ex:
             current.result.writeln(ex.output)
             raise RuntimeError("test failed")
         finally:
             clientTestCase.destroy()
 
     def getConfig(self, current):
-        import Test
+        from Test import Common as Test_Common
 
-        return Test.Common.Config(
+        return Test_Common.Config(
             current.config.protocol,
             current.config.mx,
             current.config.serialize,
