@@ -20,5 +20,3 @@ jobs:
             run: |
               chmod +x ./packaging/release/prune-nightly-artifacts.sh
               ./packaging/release/prune-nightly-artifacts.sh
-            # Allow the release to proceed even if pruning fails
-            continue-on-error: true
