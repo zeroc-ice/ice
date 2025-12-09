@@ -46,6 +46,9 @@ public class ControllerActivity extends Activity {
             throw new IllegalStateException("Layout must include a View with android:id=\"@+id/outputList\"");
         }
 
+        _outputAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, _output);
+        _outputListView.setAdapter(_outputAdapter);
+
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         _multicastLock = wifiManager.createMulticastLock("com.zeroc.testcontroller");
         _multicastLock.acquire();
@@ -65,6 +68,13 @@ public class ControllerActivity extends Activity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == REQ_CODE_BT_PERMISSIONS) {
+
+            if (grantResults.length == 0) {
+                showBluetoothError(R.string.no_bluetooth);
+                completeSetup(false);
+                return;
+            }
+
             boolean allGranted = true;
             for (int result : grantResults) {
                 if (result != PackageManager.PERMISSION_GRANTED) {
@@ -76,7 +86,7 @@ public class ControllerActivity extends Activity {
             if (allGranted) {
                 enableBluetoothIfNeeded();
             } else {
-                showBluetoothError(R.string.no_bluetooth);
+                showBluetoothError(R.string.bluetooth_permission_denied);
                 completeSetup(false);
             }
         }
@@ -84,7 +94,9 @@ public class ControllerActivity extends Activity {
 
     public synchronized void println(String data) {
         _output.add(data);
-        _outputAdapter.notifyDataSetChanged();
+        if (_outputAdapter != null) {
+            _outputAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -125,8 +137,6 @@ public class ControllerActivity extends Activity {
         _isSetupComplete = true;
         var spinnerDropdownItem = android.R.layout.simple_spinner_dropdown_item;
 
-        _outputAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, _output);
-        _outputListView.setAdapter(_outputAdapter);
         final ControllerApp app = (ControllerApp) getApplication();
         final java.util.List<String> ipv4Addresses = app.getAddresses(false);
         ArrayAdapter<String> ipv4Adapter = new ArrayAdapter<>(this, spinnerDropdownItem, ipv4Addresses);
@@ -175,16 +185,19 @@ public class ControllerActivity extends Activity {
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter adapter = bluetoothManager.getAdapter();
         
-        if (adapter != null && !adapter.isEnabled()) {
+        if (adapter == null) {
+            showBluetoothError(R.string.no_bluetooth);
+            completeSetup(false);
+        } else if (adapter.isEnabled()) {
+            completeSetup(true);
+        } else {
             try {
                 Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableIntent, REQ_CODE_BT_ENABLE);
             } catch (SecurityException ex) {
-                Toast.makeText(this, ex.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, ex.toString(), Toast.LENGTH_LONG).show();
                 completeSetup(false);
             }
-        } else {
-            completeSetup(true);
         }
     }
 
@@ -226,6 +239,6 @@ public class ControllerActivity extends Activity {
     }
 
     private void showBluetoothError(int messageResId) {
-        Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, messageResId, Toast.LENGTH_LONG).show();
     }
 }
