@@ -94,7 +94,7 @@
       <PreprocessorDefinitions>ICEBOX_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Label="IceBuilder">
+  <ItemDefinitionGroup>
     <SliceCompile>
       <HeaderOutputDir>$(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\IceBox\</HeaderOutputDir>
       <BaseDirectoryForGeneratedInclude>IceBox</BaseDirectoryForGeneratedInclude>

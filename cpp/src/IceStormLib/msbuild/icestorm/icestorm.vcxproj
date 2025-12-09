@@ -81,7 +81,7 @@
       <PreprocessorDefinitions>ICESTORM_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Label="IceBuilder">
+  <ItemDefinitionGroup>
     <SliceCompile>
       <HeaderOutputDir>$(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\IceStorm\</HeaderOutputDir>
       <BaseDirectoryForGeneratedInclude>IceStorm</BaseDirectoryForGeneratedInclude>

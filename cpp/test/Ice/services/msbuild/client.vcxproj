@@ -80,9 +80,6 @@
       <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Label="IceBuilder">
-    <SliceCompile />
-  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\AllTests.cpp" />
     <ClCompile Include="..\Client.cpp" />

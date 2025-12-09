@@ -92,7 +92,7 @@
     <ClCompile>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Label="IceBuilder">
+  <ItemDefinitionGroup>
     <SliceCompile>
       <IncludeDirectories>..\..;%(IncludeDirectories)</IncludeDirectories>
     </SliceCompile>
