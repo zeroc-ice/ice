@@ -12,12 +12,12 @@ from Util import (
     IceProcess,
     Mapping,
     Result,
+    compileControllerDefinitions,
     parseOptions,
     platform,
     runTests,
     toplevel,
     traceback,
-    compileControllerDefinitions,
 )
 
 
