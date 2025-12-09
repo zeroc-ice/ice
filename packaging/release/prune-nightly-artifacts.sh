@@ -17,13 +17,9 @@ deleted=0
 kept=0
 ignored=0
 
-# List all object keys under prefix (no PRE lines, just keys)
-aws s3api list-objects-v2 \
-  --bucket "$BUCKET" \
-  --prefix "$PREFIX" \
-  --query 'Contents[].Key' \
-  --output text |
-  tr '\t' '\n' | while read -r key; do
+# The while loop runs in the *current* shell thanks to the
+# process substitution `< <(...)`, not in a subshell.
+while IFS= read -r key; do
     # empty line guard
     [[ -z "$key" ]] && continue
 
@@ -58,7 +54,12 @@ aws s3api list-objects-v2 \
         if (( age_days > DAYS_TO_KEEP )); then
             echo "🧹 Deleting (age ${age_days}d): s3://$BUCKET/$key"
             if [[ "$DRY_RUN" != "1" ]]; then
-                aws s3 rm "s3://$BUCKET/$key"
+                # Treat aws s3 rm failures as non-fatal: log and continue
+                if ! aws s3 rm "s3://$BUCKET/$key"; then
+                    echo "⚠️  Failed to delete s3://$BUCKET/$key, continuing" >&2
+                    ((ignored++))
+                    continue
+                fi
             fi
             ((deleted++))
         else
@@ -70,7 +71,14 @@ aws s3api list-objects-v2 \
         #echo "ℹ️  Ignoring (no nightly.YYYYMMDD date part): $key"
         ((ignored++))
     fi
-done
+done < <(
+    aws s3api list-objects-v2 \
+        --bucket "$BUCKET" \
+        --prefix "$PREFIX" \
+        --query 'Contents[].Key' \
+        --output text |
+    tr '\t' '\n'
+)
 
 echo "Finished S3 nightly prune:"
 echo "  Deleted : $deleted"

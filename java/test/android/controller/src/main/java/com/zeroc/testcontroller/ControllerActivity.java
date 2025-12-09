@@ -16,17 +16,25 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ControllerActivity extends Activity {
+    private static final int REQ_CODE_BT_PERMISSIONS = 1001;
+    private static final int REQ_CODE_BT_ENABLE = 1002;
+
     private final LinkedList<String> _output = new LinkedList<>();
     private ArrayAdapter<String> _outputAdapter;
     private ListView _outputListView;
     private WifiManager.MulticastLock _multicastLock;
-
-    private static final int REQUEST_ENABLE_BT = 1;
+    private boolean _isSetupComplete = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,6 +46,9 @@ public class ControllerActivity extends Activity {
             throw new IllegalStateException("Layout must include a View with android:id=\"@+id/outputList\"");
         }
 
+        _outputAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, _output);
+        _outputListView.setAdapter(_outputAdapter);
+
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         _multicastLock = wifiManager.createMulticastLock("com.zeroc.testcontroller");
         _multicastLock.acquire();
@@ -47,22 +58,58 @@ public class ControllerActivity extends Activity {
     public void onStart() {
         super.onStart();
 
-        // Enable Bluetooth if necessary.
-        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        BluetoothAdapter adapter = bluetoothManager.getAdapter();
-        if (adapter == null) {
-            Toast.makeText(this, R.string.no_bluetooth, Toast.LENGTH_SHORT).show();
-            setup(false);
-        } else if (!adapter.isEnabled()) {
-            try {
-                Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-            } catch (java.lang.SecurityException ex) {
-                // The user didn't grant the required permissions.
-                Toast.makeText(this, ex.toString(), Toast.LENGTH_SHORT).show();
+        if (!_isSetupComplete) {
+            initializeBluetooth();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQ_CODE_BT_PERMISSIONS) {
+
+            if (grantResults.length == 0) {
+                showBluetoothError(R.string.no_bluetooth);
+                completeSetup(false);
+                return;
             }
-        } else {
-            setup(true);
+
+            boolean allGranted = true;
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    allGranted = false;
+                    break;
+                }
+            }
+
+            if (allGranted) {
+                enableBluetoothIfNeeded();
+            } else {
+                showBluetoothError(R.string.bluetooth_permission_denied);
+                completeSetup(false);
+            }
+        }
+    }
+
+    public synchronized void println(String data) {
+        _output.add(data);
+        if (_outputAdapter != null) {
+            _outputAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQ_CODE_BT_ENABLE) {
+            if (resultCode == Activity.RESULT_OK) {
+                completeSetup(true);
+            } else {
+                showBluetoothError(R.string.no_bluetooth);
+                completeSetup(false);
+            }
         }
     }
 
@@ -82,23 +129,14 @@ public class ControllerActivity extends Activity {
         }
     }
 
-    @Override
-    protected void onActivityResult(int req, int res, Intent data) {
-        if (req == REQUEST_ENABLE_BT && _outputAdapter == null) {
-            if (res == Activity.RESULT_OK) {
-                setup(true);
-            } else {
-                Toast.makeText(this, R.string.no_bluetooth, Toast.LENGTH_SHORT).show();
-                setup(false);
-            }
+    private synchronized void completeSetup(boolean bluetooth) {
+        if (_isSetupComplete) {
+            return;
         }
-    }
 
-    private synchronized void setup(boolean bluetooth) {
+        _isSetupComplete = true;
         var spinnerDropdownItem = android.R.layout.simple_spinner_dropdown_item;
 
-        _outputAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, _output);
-        _outputListView.setAdapter(_outputAdapter);
         final ControllerApp app = (ControllerApp) getApplication();
         final java.util.List<String> ipv4Addresses = app.getAddresses(false);
         ArrayAdapter<String> ipv4Adapter = new ArrayAdapter<>(this, spinnerDropdownItem, ipv4Addresses);
@@ -143,8 +181,64 @@ public class ControllerActivity extends Activity {
         executor.shutdown();
     }
 
-    public synchronized void println(String data) {
-        _output.add(data);
-        _outputAdapter.notifyDataSetChanged();
+    private void enableBluetoothIfNeeded() {
+        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter adapter = bluetoothManager.getAdapter();
+
+        if (adapter == null) {
+            showBluetoothError(R.string.no_bluetooth);
+            completeSetup(false);
+        } else if (adapter.isEnabled()) {
+            completeSetup(true);
+        } else {
+            try {
+                Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableIntent, REQ_CODE_BT_ENABLE);
+            } catch (SecurityException ex) {
+                Toast.makeText(this, ex.toString(), Toast.LENGTH_LONG).show();
+                completeSetup(false);
+            }
+        }
+    }
+
+    private void initializeBluetooth() {
+        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter adapter = bluetoothManager.getAdapter();
+
+        if (adapter == null) {
+            showBluetoothError(R.string.no_bluetooth);
+            completeSetup(false);
+            return;
+        }
+
+        requestBluetoothPermissionsIfNeeded();
+    }
+
+    private void requestBluetoothPermissionsIfNeeded() {
+        java.util.List<String> neededPermissions = new java.util.ArrayList<>();
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN)
+                != PackageManager.PERMISSION_GRANTED) {
+            neededPermissions.add(Manifest.permission.BLUETOOTH_SCAN);
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                != PackageManager.PERMISSION_GRANTED) {
+            neededPermissions.add(Manifest.permission.BLUETOOTH_CONNECT);
+        }
+
+        if (!neededPermissions.isEmpty()) {
+            ActivityCompat.requestPermissions(
+                    this,
+                    neededPermissions.toArray(new String[0]),
+                    REQ_CODE_BT_PERMISSIONS
+            );
+        } else {
+            enableBluetoothIfNeeded();
+        }
+    }
+
+    private void showBluetoothError(int messageResId) {
+        Toast.makeText(this, messageResId, Toast.LENGTH_LONG).show();
     }
 }
