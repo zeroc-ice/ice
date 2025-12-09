@@ -8,7 +8,7 @@
     <PythonHome Condition="'$(PythonHome)' == ''">C:\Program Files (x86)\Python314-32</PythonHome>
   </PropertyGroup>
   <PropertyGroup Label="UserMacros" Condition="'$(Platform)'=='x64'">
-    <PythonHome Condition="'$(PythonHome)' == ''">C:\Program Files\Python313</PythonHome>
+    <PythonHome Condition="'$(PythonHome)' == ''">C:\Program Files\Python314</PythonHome>
   </PropertyGroup>
   <ItemGroup>
     <BuildMacro Include="PythonHome">
