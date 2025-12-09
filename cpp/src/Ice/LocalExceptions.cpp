@@ -6,6 +6,8 @@
 #include "Ice/StringUtil.h"
 #include "Network.h"
 
+#include <sstream>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
