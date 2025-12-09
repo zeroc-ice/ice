@@ -474,9 +474,6 @@
     <ClCompile Include="..\..\Value.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\VersionFunctions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\WSAcceptor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
