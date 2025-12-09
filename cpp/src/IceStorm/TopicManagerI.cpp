@@ -71,6 +71,31 @@ namespace
             return _impl->retrieve(id);
         }
 
+        optional<TopicPrx> createOrRetrieve(string id, const Ice::Current& current) final
+        {
+            // Retrieve then create until it succeeds.
+            while (true)
+            {
+                try
+                {
+                    return retrieve(id, current);
+                }
+                catch (const NoSuchTopic&)
+                {
+                    // Try to create the topic.
+                    try
+                    {
+                        return create(id, current);
+                    }
+                    catch (const TopicExists&)
+                    {
+                        // Someone else created the topic, retry retrieve.
+                        continue;
+                    }
+                }
+            }
+        }
+
         TopicDict retrieveAll(const Ice::Current&) final
         {
             // Use cached reads.

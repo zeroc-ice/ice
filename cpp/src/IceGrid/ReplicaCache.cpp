@@ -14,17 +14,8 @@ namespace
 {
     IceStorm::TopicPrx createOrRetrieveReplicaObserverTopic(const IceStorm::TopicManagerPrx& topicManager)
     {
-        optional<IceStorm::TopicPrx> topic;
-        try
-        {
-            topic = topicManager->create("ReplicaObserverTopic");
-        }
-        catch (const IceStorm::TopicExists&)
-        {
-            topic = topicManager->retrieve("ReplicaObserverTopic");
-        }
-
-        return topic.value()->ice_endpoints(Ice::EndpointSeq());
+        optional<IceStorm::TopicPrx> topic = topicManager->createOrRetrieve("ReplicaObserverTopic");
+        return topic->ice_endpoints(Ice::EndpointSeq());
     }
 }
 
