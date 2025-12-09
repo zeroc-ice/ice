@@ -7,6 +7,7 @@
 #include "Ice/UserException.h"
 #include "Protocol.h"
 
+#include <sstream>
 #include <typeinfo>
 
 using namespace std;
