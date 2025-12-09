@@ -1222,7 +1222,6 @@ bool
 Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 {
     const string name = p->mappedName();
-    const DataMemberList members = p->dataMembers();
 
     _out = std::make_unique<BufferedOutput>();
     auto& out = *_out;
@@ -1237,7 +1236,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     out << nl << "class " << name << ":";
     out.inc();
 
-    writeDocstring(p->docComment(), members, out);
+    writeDocstring(p, out, "dataclass");
     return true;
 }
 
@@ -1303,7 +1302,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         << (base ? getImportAlias(p, base) : getImportAlias(p, "Ice.Value", "Value")) << "):";
     out.inc();
 
-    writeDocstring(p->docComment(), members, out);
+    writeDocstring(p, out, "dataclass");
     return true;
 }
 
@@ -1368,14 +1367,12 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out = std::make_unique<BufferedOutput>();
     auto& out = *_out;
 
-    const DataMemberList members = p->dataMembers();
-
     out << sp;
     out << nl << "@" << getImportAlias(p, "dataclasses", "dataclass");
     out << nl << "class " << name << '('
         << (base ? getImportAlias(p, base) : getImportAlias(p, "Ice.UserException", "UserException")) << "):";
     out.inc();
-    writeDocstring(p->docComment(), members, out);
+    writeDocstring(p, out, "exception dataclass");
 
     return true;
 }
@@ -1579,6 +1576,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     out << epar << ":";
     out.inc();
+    writeDocstring(p, out, "proxy class");
 
     const string communicatorAlias = getImportAlias(p, "Ice.Communicator", "Communicator");
     const string objectPrxAlias = getImportAlias(p, "Ice.ObjectPrx", "ObjectPrx");
@@ -1753,6 +1751,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     out << getImportAlias(p, "abc", "ABC") << epar << ':';
     out.inc();
+    writeDocstring(p, out, "skeleton class");
 
     out << sp;
     // Declare _ice_ids class variable to hold the ice_ids.
@@ -1990,7 +1989,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     out << nl << "class " << name << "(" << getImportAlias(p, "enum", "Enum") << "):";
     out.inc();
 
-    writeDocstring(p->docComment(), p, out);
+    writeDocstring(p, out);
 
     out << nl;
     for (const auto& enumerator : enumerators)
@@ -2277,73 +2276,72 @@ Slice::Python::CodeVisitor::writeSeeAlso(const StringList& seeAlso, bool needsNe
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, const string& prefix, Output& out)
+Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, const optional<string>& generatedType)
 {
-    if (!comment)
+    const optional<DocComment>& comment = p->docComment();
+
+    // Collect docstrings (if any) for the fields.
+    map<string, list<string>> fieldDocs;
+    DataMemberList fields;
+    if (auto structPtr = dynamic_pointer_cast<Struct>(p))
     {
-        return;
+        fields = structPtr->dataMembers();
+    }
+    else if (auto classPtr = dynamic_pointer_cast<ClassDef>(p))
+    {
+        fields = classPtr->dataMembers();
+    }
+    else if (auto exceptionPtr = dynamic_pointer_cast<Exception>(p))
+    {
+        fields = exceptionPtr->dataMembers();
     }
 
-    const StringList& overview = comment->overview();
-    const StringList& remarks = comment->remarks();
-    if (overview.empty() && remarks.empty())
+    for (const auto& field : fields)
     {
-        return;
-    }
-
-    out << nl << prefix << tripleQuotes;
-    for (const auto& line : overview)
-    {
-        out << nl << line;
-    }
-
-    writeRemarksDocComment(remarks, !overview.empty(), out);
-
-    out << nl << tripleQuotes;
-}
-
-void
-Slice::Python::CodeVisitor::writeDocstring(
-    const optional<DocComment>& comment,
-    const DataMemberList& members,
-    Output& out)
-{
-    if (!comment)
-    {
-        return;
-    }
-
-    // Collect docstrings (if any) for the members.
-    map<string, list<string>> docs;
-    for (const auto& member : members)
-    {
-        if (const auto& memberDoc = member->docComment())
+        if (const auto& memberDoc = field->docComment())
         {
             const StringList& memberOverview = memberDoc->overview();
             if (!memberOverview.empty())
             {
-                docs[member->name()] = memberOverview;
+                fieldDocs[field->name()] = memberOverview;
             }
         }
     }
 
-    const StringList& overview = comment->overview();
-    const StringList& remarks = comment->remarks();
-    const StringList& seeAlso = comment->seeAlso();
-    if (overview.empty() && remarks.empty() && docs.empty() && seeAlso.empty())
+    if (!comment && !generatedType && fieldDocs.empty())
     {
         return;
     }
 
     out << nl << tripleQuotes;
 
-    for (const auto& line : overview)
+    StringList overview;
+    StringList remarks;
+    StringList seeAlso;
+    if (comment)
     {
-        out << nl << line;
+        overview = comment->overview();
+        for (const auto& line : overview)
+        {
+            out << nl << line;
+        }
+        remarks = comment->remarks();
+        seeAlso = comment->seeAlso();
     }
 
-    // Only emit members if there's a docstring for at least one member.
-    if (!docs.empty())
+    if (generatedType)
+    {
+        if (!remarks.empty())
+        {
+            remarks.emplace_back(""); // empty line
+        }
+        remarks.push_back(
+            "The Slice compiler generated this " + *generatedType + " from Slice " + p->kindOf() + " ``" + p->scoped() +
+            "``.");
+    }
+
+    // Only emit Attributes if there's a docstring for at least one field.
+    if (!fieldDocs.empty())
     {
         if (!overview.empty())
         {
@@ -2351,18 +2349,14 @@ Slice::Python::CodeVisitor::writeDocstring(
         }
         out << nl << "Attributes";
         out << nl << "----------";
-        for (const auto& member : members)
+        for (const auto& field : fields)
         {
-            out << nl << member->mappedName() << " : "
-                << typeToTypeHintString(
-                       member->type(),
-                       member->optional(),
-                       dynamic_pointer_cast<Contained>(member->container()),
-                       false);
-            auto p = docs.find(member->name());
-            if (p != docs.end())
+            out << nl << field->mappedName() << " : "
+                << typeToTypeHintString(field->type(), field->optional(), p, false);
+            auto q = fieldDocs.find(field->name());
+            if (q != fieldDocs.end())
             {
-                for (const auto& line : p->second)
+                for (const auto& line : q->second)
                 {
                     out << nl << "    " << line;
                 }
@@ -2370,23 +2364,18 @@ Slice::Python::CodeVisitor::writeDocstring(
         }
     }
 
-    writeRemarksDocComment(remarks, !overview.empty() || !docs.empty(), out);
-
-    writeSeeAlso(seeAlso, !overview.empty() || !docs.empty() || !remarks.empty(), out);
-
+    writeRemarksDocComment(remarks, !overview.empty() || !fieldDocs.empty(), out);
+    writeSeeAlso(seeAlso, !overview.empty() || !fieldDocs.empty() || !remarks.empty(), out);
     out << nl << tripleQuotes;
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, const EnumPtr& enumeration, Output& out)
+Slice::Python::CodeVisitor::writeDocstring(const EnumPtr& p, Output& out)
 {
-    if (!comment)
-    {
-        return;
-    }
+    const optional<DocComment>& comment = p->docComment();
 
     // Collect docstrings (if any) for the enumerators.
-    const EnumeratorList& enumerators = enumeration->enumerators();
+    const EnumeratorList& enumerators = p->enumerators();
     map<string, list<string>> docs;
     for (const auto& enumerator : enumerators)
     {
@@ -2400,13 +2389,22 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
         }
     }
 
-    const StringList& overview = comment->overview();
-    const StringList& remarks = comment->remarks();
-    const StringList& seeAlso = comment->seeAlso();
-    if (overview.empty() && remarks.empty() && docs.empty() && seeAlso.empty())
+    StringList overview;
+    StringList remarks;
+    StringList seeAlso;
+
+    if (comment)
     {
-        return;
+        overview = comment->overview();
+        remarks = comment->remarks();
+        seeAlso = comment->seeAlso();
     }
+    if (!remarks.empty())
+    {
+        remarks.emplace_back(""); // empty line
+    }
+    remarks.push_back(
+        "The Slice compiler generated this enum class from Slice " + p->kindOf() + " ``" + p->scoped() + "``.");
 
     out << nl << tripleQuotes;
 
@@ -2426,11 +2424,11 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
         for (const auto& enumerator : enumerators)
         {
             out << nl << nl << "- " << enumerator->mappedName();
-            auto p = docs.find(enumerator->name());
-            if (p != docs.end())
+            auto q = docs.find(enumerator->name());
+            if (q != docs.end())
             {
                 out << ":"; // Only emit a trailing ':' if there's documentation to emit for it.
-                for (const auto& line : p->second)
+                for (const auto& line : q->second)
                 {
                     out << nl << "    " << line;
                 }
@@ -2439,9 +2437,7 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
     }
 
     writeRemarksDocComment(remarks, !overview.empty() || !docs.empty(), out);
-
     writeSeeAlso(seeAlso, !overview.empty() || !docs.empty() || !remarks.empty(), out);
-
     out << nl << tripleQuotes;
 }
 
