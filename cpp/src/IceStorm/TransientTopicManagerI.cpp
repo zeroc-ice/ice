@@ -53,14 +53,12 @@ TransientTopicManagerImpl::createOrRetrieve(string name, const Ice::Current&)
     reap();
 
     auto p = _topics.find(name);
-    if (p != _topics.end())
-    {
-        return _instance->topicAdapter()->createProxy<TopicPrx>(p->second->id());
-    }
-    else
+    if (p == _topics.end())
     {
         return createImpl(std::move(name));
     }
+
+    return _instance->topicAdapter()->createProxy<TopicPrx>(p->second->id());
 }
 
 TopicDict
