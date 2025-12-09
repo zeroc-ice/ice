@@ -633,7 +633,8 @@ Ice::SSL::encodeCertificate(X509* certificate)
     BIO_free(out);
     return result;
 }
-ICE_API X509*
+
+X509*
 Ice::SSL::decodeCertificate(const string& data)
 {
     BIO* cert = BIO_new_mem_buf(static_cast<void*>(const_cast<char*>(&data[0])), static_cast<int>(data.size()));

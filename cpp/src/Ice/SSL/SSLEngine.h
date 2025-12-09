@@ -19,7 +19,7 @@
 
 namespace Ice::SSL
 {
-    class ICE_API SSLEngine
+    class SSLEngine
     {
     public:
         SSLEngine(const IceInternal::InstancePtr&);
