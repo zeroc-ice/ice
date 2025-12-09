@@ -3,7 +3,7 @@
 #
 # the location of the MATLAB installation.
 #
-MATLAB_VERSION ?= R2025a
+MATLAB_VERSION ?= R2025b
 MATLAB_HOME    ?= /usr/local/MATLAB/$(MATLAB_VERSION)
 ICE_TOOLBOX_VERSION ?= 3.8.0.0
 
