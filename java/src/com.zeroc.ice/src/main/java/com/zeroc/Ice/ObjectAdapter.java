@@ -1286,10 +1286,17 @@ public final class ObjectAdapter {
                     // For non-loopback/multicast endpoints, we use the fully qualified name of the
                     // local host as default for publishedHost.
                     if (publishedHost.isEmpty()) {
-                        try {
-                            publishedHost = InetAddress.getLocalHost().getHostName();
-                        } catch (UnknownHostException e) {
-                            throw new InitializationException("failed to get the local host name", e);
+
+                        if (Util.isAndroid()) {
+                            // Android cannot reliably resolve the local hostname via InetAddress.getLocalHost().
+                            // Use a placeholder to force the application to explicitly set PublishedHost.
+                            publishedHost = "published-host-property-required.invalid";
+                        } else {
+                            try {
+                                publishedHost = InetAddress.getLocalHost().getHostName();
+                            } catch (UnknownHostException e) {
+                                throw new InitializationException("failed to get the local host name", e);
+                            }
                         }
                     }
                 }

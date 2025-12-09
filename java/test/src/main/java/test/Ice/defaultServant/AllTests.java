@@ -26,7 +26,7 @@ public class AllTests {
         PrintWriter out = helper.getWriter();
 
         ObjectAdapter oa =
-            communicator.createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
+            communicator.createObjectAdapterWithEndpoints("MyOA", helper.getTestEndpoint(1));
         oa.activate();
 
         Object servant = new MyObjectI();
