@@ -25,7 +25,7 @@ namespace Ice::SSL::RFC2253
 {
     using RDNSeq = std::list<std::pair<std::string, std::string>>;
 
-    struct ICE_API RDNEntry
+    struct RDNEntry
     {
         RDNSeq rdn;
         bool negate;
@@ -38,7 +38,7 @@ namespace Ice::SSL::RFC2253
     // The function returns a list of RDNEntry structures. Any failure in
     // parsing results in a ParseException being thrown.
     //
-    ICE_API RDNEntrySeq parse(const std::string&);
+    RDNEntrySeq parse(const std::string&);
 
     //
     // RDNs are separated with ',' and ';'.
@@ -46,12 +46,12 @@ namespace Ice::SSL::RFC2253
     // This function returns a list of RDN pairs. Any failure in parsing
     // results in a ParseException being thrown.
     //
-    ICE_API RDNSeq parseStrict(const std::string&);
+    RDNSeq parseStrict(const std::string&);
 
     //
     // Unescape the string.
     //
-    ICE_API std::string unescape(const std::string&);
+    std::string unescape(const std::string&);
 
 }
 

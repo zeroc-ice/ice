@@ -10,7 +10,7 @@
 
 namespace IceInternal
 {
-    class ICE_API Base64
+    class Base64
     {
     public:
         static std::string encode(const std::vector<std::byte>&);

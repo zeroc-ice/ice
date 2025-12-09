@@ -8,7 +8,7 @@
 
 namespace IceInternal
 {
-    class ICE_API NetworkProxy
+    class NetworkProxy
     {
     public:
         virtual ~NetworkProxy();
