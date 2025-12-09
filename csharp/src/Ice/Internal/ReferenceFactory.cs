@@ -65,7 +65,7 @@ internal class ReferenceFactory
             "", // Facet
             connection.endpoint().datagram() ? Reference.Mode.ModeDatagram : Reference.Mode.ModeTwoway,
             compress: null,
-            Ice.Util.Protocol_1_0,
+            Protocol.Protocol_1_0,
             _instance.defaultsAndOverrides().defaultEncoding,
             connection,
             TimeSpan.FromMilliseconds(-1),
@@ -166,7 +166,7 @@ internal class ReferenceFactory
         string facet = "";
         Reference.Mode mode = Reference.Mode.ModeTwoway;
         Ice.EncodingVersion encoding = _instance.defaultsAndOverrides().defaultEncoding;
-        Ice.ProtocolVersion protocol = Ice.Util.Protocol_1_0;
+        Ice.ProtocolVersion protocol = Protocol.Protocol_1_0;
         while (true)
         {
             beg = Ice.UtilInternal.StringUtil.findFirstNotOf(s, delim, end);
@@ -333,7 +333,7 @@ internal class ReferenceFactory
 
                     try
                     {
-                        encoding = Ice.Util.stringToEncodingVersion(argument);
+                        encoding = Protocol.stringToEncodingVersion(argument);
                     }
                     catch (ParseException e)
                     {
@@ -351,7 +351,7 @@ internal class ReferenceFactory
 
                     try
                     {
-                        protocol = Ice.Util.stringToProtocolVersion(argument);
+                        protocol = Protocol.stringToProtocolVersion(argument);
                     }
                     catch (ParseException e)
                     {
@@ -561,7 +561,7 @@ internal class ReferenceFactory
         }
         else
         {
-            protocol = Ice.Util.Protocol_1_0;
+            protocol = Protocol.Protocol_1_0;
             encoding = Ice.Util.Encoding_1_0;
         }
 

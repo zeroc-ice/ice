@@ -89,7 +89,7 @@ public sealed class DefaultsAndOverrides
         }
 
         val = properties.getIceProperty("Ice.Default.EncodingVersion");
-        defaultEncoding = Ice.Util.stringToEncodingVersion(val);
+        defaultEncoding = Protocol.stringToEncodingVersion(val);
         Protocol.checkSupportedEncoding(defaultEncoding);
 
         bool slicedFormat = properties.getIcePropertyAsInt("Ice.Default.SlicedFormat") > 0;

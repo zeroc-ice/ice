@@ -202,7 +202,7 @@ final class UdpEndpointI extends IPEndpointI {
     public void streamWriteImpl(OutputStream s) {
         super.streamWriteImpl(s);
         if (s.getEncoding().equals(Util.Encoding_1_0)) {
-            Util.Protocol_1_0.ice_writeMembers(s);
+            Protocol.Protocol_1_0.ice_writeMembers(s);
             Util.Encoding_1_0.ice_writeMembers(s);
         }
         s.writeBool(_compress);
@@ -250,7 +250,7 @@ final class UdpEndpointI extends IPEndpointI {
             }
 
             try {
-                EncodingVersion v = Util.stringToEncodingVersion(argument);
+                EncodingVersion v = Protocol.stringToEncodingVersion(argument);
                 if (v.major != 1 || v.minor != 0) {
                     _instance.logger().warning("deprecated udp endpoint option: " + option);
                 }

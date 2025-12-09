@@ -524,10 +524,10 @@ public abstract class Reference implements Cloneable {
             case ModeBatchDatagram -> s.append(" -D");
         }
 
-        if (!_protocol.equals(Util.Protocol_1_0)) {
+        if (!_protocol.equals(Protocol.Protocol_1_0)) {
             // We print the protocol unless it's 1.0.
             s.append(" -p ");
-            s.append(Util.protocolVersionToString(_protocol));
+            s.append(Protocol.protocolVersionToString(_protocol));
         }
 
         // We print the encoding if it's not 1.1 or if Ice.Default.EncodingVersion is set to
@@ -535,7 +535,7 @@ public abstract class Reference implements Cloneable {
         if (!_encoding.equals(Util.Encoding_1_1)
             || !_instance.defaultsAndOverrides().defaultEncoding.equals(Util.Encoding_1_1)) {
             s.append(" -e ");
-            s.append(Util.encodingVersionToString(_encoding));
+            s.append(Protocol.encodingVersionToString(_encoding));
         }
 
         return s.toString();
