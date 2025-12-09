@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-from IceStormUtil import IceStorm, IceStormTestCase, IceStormProcess
+from IceStormUtil import IceStorm, IceStormProcess, IceStormTestCase
 from Util import Client, ClientTestCase, TestSuite
 
 props = {}
