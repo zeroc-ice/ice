@@ -26,7 +26,6 @@ namespace IceMatlab
     /// Converts a MATLAB dictionary into a C++ context (string map).
     void getContext(mxArray*, Ice::Context&);
 
-    mxArray* createProtocolVersion(const Ice::ProtocolVersion&);
     mxArray* createEncodingVersion(const Ice::EncodingVersion&);
     void getEncodingVersion(mxArray*, Ice::EncodingVersion&);
     mxArray* convertException(std::exception_ptr);

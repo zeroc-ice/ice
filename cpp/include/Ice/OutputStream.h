@@ -8,7 +8,6 @@
 #include "Ice/Format.h"
 #include "Ice/StringConverter.h"
 #include "Ice/Version.h"
-#include "Ice/VersionFunctions.h"
 #include "InstanceF.h"
 #include "SlicedDataF.h"
 #include "StreamableTraits.h"
@@ -25,6 +24,12 @@
 namespace Ice
 {
     class ObjectPrx;
+
+    /// Identifies Slice encoding version 1.0.
+    constexpr EncodingVersion Encoding_1_0{1, 0};
+
+    /// Identifies Slice encoding version 1.1.
+    constexpr EncodingVersion Encoding_1_1{1, 1};
 
     /// Represents a byte buffer used for marshaling data using the Slice encoding.
     /// @headerfile Ice/Ice.h

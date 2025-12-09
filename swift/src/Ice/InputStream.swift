@@ -94,7 +94,7 @@ public final class InputStream {
 
         let encoding: EncodingVersion = try read()
 
-        try checkSupportedEncoding(encoding)
+        try InputStream.checkSupportedEncoding(encoding)
 
         encaps = Encaps(start: start, size: Int(sz), encoding: encoding)
 
@@ -139,7 +139,7 @@ public final class InputStream {
         }
 
         let encoding: EncodingVersion = try read()
-        try checkSupportedEncoding(encoding)  // Make sure the encoding is supported.
+        try InputStream.checkSupportedEncoding(encoding)  // Make sure the encoding is supported.
 
         if encoding == Encoding_1_0 {
             if sz != 6 {
@@ -367,6 +367,14 @@ public final class InputStream {
         throw MarshalException(
             "Failed to unmarshal class with type ID '\(expectedType.ice_staticId())': the Slice loader returned a class with type ID '\(v.ice_id())'."
         )
+    }
+
+    private static func checkSupportedEncoding(_ v: EncodingVersion) throws {
+        let c = Encoding_1_1
+        if v.major != c.major || v.minor > c.minor {
+            throw MarshalException(
+                "this Ice runtime does not support encoding version \(v.major).\(v.minor)")
+        }
     }
 }
 

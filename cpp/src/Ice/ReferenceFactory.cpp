@@ -78,7 +78,7 @@ IceInternal::ReferenceFactory::create(Identity ident, Ice::ConnectionIPtr connec
         "", // Facet
         mode,
         nullopt,
-        Ice::Protocol_1_0,
+        Protocol_1_0,
         _instance->defaultsAndOverrides()->defaultEncoding,
         std::move(connection),
         -1ms,
@@ -354,7 +354,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
 
                 try
                 {
-                    encoding = Ice::stringToEncodingVersion(argument);
+                    encoding = stringToEncodingVersion(argument);
                 }
                 catch (const Ice::ParseException& ex)
                 {
@@ -378,7 +378,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
 
                 try
                 {
-                    protocol = Ice::stringToProtocolVersion(argument);
+                    protocol = stringToProtocolVersion(argument);
                 }
                 catch (const Ice::ParseException& ex)
                 {
@@ -603,7 +603,7 @@ IceInternal::ReferenceFactory::create(Identity ident, InputStream* s)
     }
     else
     {
-        protocol = Ice::Protocol_1_0;
+        protocol = Protocol_1_0;
         encoding = Ice::Encoding_1_0;
     }
 

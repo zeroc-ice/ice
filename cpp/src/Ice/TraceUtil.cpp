@@ -10,7 +10,6 @@
 #include "Ice/Proxy.h"
 #include "Ice/ReplyStatus.h"
 #include "Ice/StringUtil.h"
-#include "Ice/VersionFunctions.h"
 #include "Instance.h"
 #include "TraceLevels.h"
 

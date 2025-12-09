@@ -253,7 +253,7 @@ internal sealed class UdpEndpointI : IPEndpointI
         base.streamWriteImpl(s);
         if (s.getEncoding().Equals(Ice.Util.Encoding_1_0))
         {
-            ProtocolVersion.ice_write(s, Ice.Util.Protocol_1_0);
+            ProtocolVersion.ice_write(s, Protocol.Protocol_1_0);
             EncodingVersion.ice_write(s, Ice.Util.Encoding_1_0);
         }
         s.writeBool(_compress);
@@ -298,7 +298,7 @@ internal sealed class UdpEndpointI : IPEndpointI
 
             try
             {
-                Ice.EncodingVersion v = Ice.Util.stringToEncodingVersion(argument);
+                Ice.EncodingVersion v = Protocol.stringToEncodingVersion(argument);
                 if (v.major != 1 || v.minor != 0)
                 {
                     instance_.logger().warning("deprecated udp endpoint option: " + option);

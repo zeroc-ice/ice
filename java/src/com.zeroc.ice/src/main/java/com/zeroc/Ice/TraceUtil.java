@@ -123,7 +123,7 @@ final class TraceUtil {
                     EncodingVersion v = str.skipEncapsulation();
                     if (!v.equals(Util.Encoding_1_0)) {
                         s.write("\nencoding = ");
-                        s.write(Util.encodingVersionToString(v));
+                        s.write(Protocol.encodingVersionToString(v));
                     }
                 }
 
@@ -165,7 +165,7 @@ final class TraceUtil {
             EncodingVersion v = stream.skipEncapsulation();
             if (!v.equals(Util.Encoding_1_0)) {
                 out.write("\nencoding = ");
-                out.write(Util.encodingVersionToString(v));
+                out.write(Protocol.encodingVersionToString(v));
             }
         } catch (IOException ex) {
             assert false;

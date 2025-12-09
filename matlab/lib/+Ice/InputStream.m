@@ -388,8 +388,8 @@ classdef InputStream < handle
             %
             if obj.encoding.major ~= 1 || (obj.encoding.minor ~= 0 && obj.encoding.minor ~= 1)
                 throw(Ice.MarshalException(...
-                    sprintf('this Ice runtime does not support encoding version ''%s''', ...
-                        Ice.encodingVersionToString(obj.encoding.major, obj.encoding.minor))));
+                    sprintf('this Ice runtime does not support encoding version ''%d.%d''', ...
+                        obj.encoding.major, obj.encoding.minor)));
             end
 
             obj.encapsStack.setEncoding(obj.encoding);
@@ -465,8 +465,7 @@ classdef InputStream < handle
             %
             if major ~= 1 || (minor ~= 0 && minor ~= 1)
                 throw(Ice.MarshalException(...
-                    sprintf('this Ice runtime does not support encoding version ''%s''', ...
-                        Ice.encodingVersionToString(major, minor))));
+                    sprintf('this Ice runtime does not support encoding version ''%d.%d''', major, minor)));
             end
 
             if major == 1 && minor == 0

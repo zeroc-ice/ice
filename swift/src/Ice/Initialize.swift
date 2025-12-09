@@ -204,11 +204,3 @@ public func identityToString(id: Identity, mode: ToStringMode = .Unicode) -> Str
     precondition(!id.name.isEmpty, "Invalid identity with an empty name")
     return ICEUtil.identityToString(name: id.name, category: id.category, mode: mode.rawValue)
 }
-
-/// Converts an encoding version to a string.
-///
-/// - Parameter encoding: The encoding version to convert.
-/// - Returns: The converted string.
-public func encodingVersionToString(_ encoding: EncodingVersion) -> String {
-    return ICEUtil.encodingVersionToString(major: encoding.major, minor: encoding.minor)
-}

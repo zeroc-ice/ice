@@ -342,46 +342,6 @@ public final class Util {
     }
 
     /**
-     * Converts a string to a protocol version.
-     *
-     * @param version The string to convert.
-     * @return The converted protocol version.
-     */
-    public static ProtocolVersion stringToProtocolVersion(String version) {
-        return new ProtocolVersion(stringToMajor(version), stringToMinor(version));
-    }
-
-    /**
-     * Converts a string to an encoding version.
-     *
-     * @param version The string to convert.
-     * @return The converted encoding version.
-     */
-    public static EncodingVersion stringToEncodingVersion(String version) {
-        return new EncodingVersion(stringToMajor(version), stringToMinor(version));
-    }
-
-    /**
-     * Converts a protocol version to a string.
-     *
-     * @param v The protocol version to convert.
-     * @return The converted string.
-     */
-    public static String protocolVersionToString(ProtocolVersion v) {
-        return majorMinorToString(v.major, v.minor);
-    }
-
-    /**
-     * Converts an encoding version to a string.
-     *
-     * @param v The encoding version to convert.
-     * @return The converted string.
-     */
-    public static String encodingVersionToString(EncodingVersion v) {
-        return majorMinorToString(v.major, v.minor);
-    }
-
-    /**
      * Downcasts a {@code CompletableFuture<T>} to an {@code InvocationFuture<T>} object.
      *
      * @param f The CompletableFuture returned by an asynchronous invocation.
@@ -585,59 +545,6 @@ public final class Util {
     public static boolean isAndroid() {
         return System.getProperty("java.vm.name").startsWith("Dalvik");
     }
-
-    private static byte stringToMajor(String str) {
-        int pos = str.indexOf('.');
-        if (pos == -1) {
-            throw new ParseException("malformed version value in '" + str + "'");
-        }
-
-        String majStr = str.substring(0, pos);
-        int majVersion;
-        try {
-            majVersion = Integer.parseInt(majStr);
-        } catch (NumberFormatException ex) {
-            throw new ParseException("invalid version value in '" + str + "'", ex);
-        }
-
-        if (majVersion < 1 || majVersion > 255) {
-            throw new ParseException("range error in version '" + str + "'");
-        }
-
-        return (byte) majVersion;
-    }
-
-    private static byte stringToMinor(String str) {
-        int pos = str.indexOf('.');
-        if (pos == -1) {
-            throw new ParseException("malformed version value in '" + str + "'");
-        }
-
-        String minStr = str.substring(pos + 1, str.length());
-        int minVersion;
-        try {
-            minVersion = Integer.parseInt(minStr);
-        } catch (NumberFormatException ex) {
-            throw new ParseException("invalid version value in '" + str + "'", ex);
-        }
-
-        if (minVersion < 0 || minVersion > 255) {
-            throw new ParseException("range error in version '" + str + "'");
-        }
-
-        return (byte) minVersion;
-    }
-
-    private static String majorMinorToString(byte major, byte minor) {
-        StringBuilder str = new StringBuilder();
-        str.append(major < 0 ? major + 255 : (int) major);
-        str.append(".");
-        str.append(minor < 0 ? minor + 255 : (int) minor);
-        return str.toString();
-    }
-
-    /** The protocol version 1.0. */
-    public static final ProtocolVersion Protocol_1_0 = new ProtocolVersion((byte) 1, (byte) 0);
 
     /** The encoding version 1.0. */
     public static final EncodingVersion Encoding_1_0 = new EncodingVersion((byte) 1, (byte) 0);

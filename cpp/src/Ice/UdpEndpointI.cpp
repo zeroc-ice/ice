@@ -88,7 +88,7 @@ IceInternal::UdpEndpointI::streamWriteImpl(OutputStream* s) const
     IPEndpointI::streamWriteImpl(s);
     if (s->getEncoding() == Ice::Encoding_1_0)
     {
-        s->write(Ice::Protocol_1_0);
+        s->write(Protocol_1_0);
         s->write(Ice::Encoding_1_0);
     }
     s->write(_compress);

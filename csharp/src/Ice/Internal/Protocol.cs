@@ -1,9 +1,49 @@
 // Copyright (c) ZeroC, Inc.
 
+using System.Globalization;
+
 namespace Ice.Internal;
 
 public sealed class Protocol
 {
+    /// <summary>
+    /// Converts a string to a protocol version.
+    /// </summary>
+    /// <param name="version">The string to convert.</param>
+    /// <returns>The converted protocol version.</returns>
+    internal static ProtocolVersion stringToProtocolVersion(string version)
+    {
+        stringToMajorMinor(version, out byte major, out byte minor);
+        return new ProtocolVersion(major, minor);
+    }
+
+    /// <summary>
+    /// Converts a string to an encoding version.
+    /// </summary>
+    /// <param name="version">The string to convert.</param>
+    /// <returns>The converted encoding version.</returns>
+    internal static EncodingVersion stringToEncodingVersion(string version)
+    {
+        stringToMajorMinor(version, out byte major, out byte minor);
+        return new EncodingVersion(major, minor);
+    }
+
+    /// <summary>
+    /// Converts a protocol version to a string.
+    /// </summary>
+    /// <param name="v">The protocol version to convert.</param>
+    /// <returns>The converted string.</returns>
+    internal static string protocolVersionToString(Ice.ProtocolVersion v) => majorMinorToString(v.major, v.minor);
+
+    /// <summary>
+    /// Converts an encoding version to a string.
+    /// </summary>
+    /// <param name="v">The encoding version to convert.</param>
+    /// <returns>The converted string.</returns>
+    internal static string encodingVersionToString(Ice.EncodingVersion v) => majorMinorToString(v.major, v.minor);
+
+    internal static readonly ProtocolVersion Protocol_1_0 = new(1, 0);
+
     internal static readonly ProtocolVersion currentProtocol = new(protocolMajor, protocolMinor);
 
     internal static readonly EncodingVersion currentProtocolEncoding =
@@ -99,6 +139,39 @@ public sealed class Protocol
     internal static bool
     isSupported(Ice.EncodingVersion version, Ice.EncodingVersion supported) =>
         version.major == supported.major && version.minor <= supported.minor;
+
+    private static void stringToMajorMinor(string str, out byte major, out byte minor)
+    {
+        int pos = str.IndexOf('.', StringComparison.Ordinal);
+        if (pos == -1)
+        {
+            throw new ParseException($"malformed version value in '{str}'");
+        }
+
+        string majStr = str[..pos];
+        string minStr = str[(pos + 1)..];
+        int majVersion;
+        int minVersion;
+        try
+        {
+            majVersion = int.Parse(majStr, CultureInfo.InvariantCulture);
+            minVersion = int.Parse(minStr, CultureInfo.InvariantCulture);
+        }
+        catch (FormatException ex)
+        {
+            throw new ParseException($"invalid version value in '{str}'", ex);
+        }
+
+        if (majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
+        {
+            throw new ParseException($"range error in version '{str}'");
+        }
+
+        major = (byte)majVersion;
+        minor = (byte)minVersion;
+    }
+
+    private static string majorMinorToString(byte major, byte minor) => $"{major}.{minor}";
 
     private Protocol()
     {

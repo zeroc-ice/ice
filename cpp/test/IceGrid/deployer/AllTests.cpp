@@ -439,11 +439,13 @@ allTests(Test::TestHelper* helper)
     test(query->findObjectById(encoding10_secure)->ice_getEncodingVersion() == Ice::Encoding_1_0);
     Ice::Identity oaoptions;
     oaoptions.name = "oaoptions";
-    test(query->findObjectById(oaoptions)->ice_getEncodingVersion() == Ice::stringToEncodingVersion("1.2"));
+    Ice::EncodingVersion encodingVersion{1, 2};
+    test(query->findObjectById(oaoptions)->ice_getEncodingVersion() == encodingVersion);
     test(query->findObjectById(oaoptions)->ice_isTwoway());
     Ice::Identity comoptions;
     comoptions.name = "communicatoroptions";
-    test(query->findObjectById(comoptions)->ice_getEncodingVersion() == Ice::stringToEncodingVersion("1.3"));
+    encodingVersion = {1, 3};
+    test(query->findObjectById(comoptions)->ice_getEncodingVersion() == encodingVersion);
     test(query->findObjectById(comoptions)->ice_isTwoway());
     Ice::Identity options34;
     options34.name = "34options";
@@ -453,10 +455,12 @@ allTests(Test::TestHelper* helper)
     test(query->findObjectById(simpleServer)->ice_getEncodingVersion() == Ice::Encoding_1_1);
     Ice::Identity replicated15;
     replicated15.name = "ReplicatedObject15";
-    test(query->findObjectById(replicated15)->ice_getEncodingVersion() == Ice::stringToEncodingVersion("1.5"));
+    encodingVersion = {1, 5};
+    test(query->findObjectById(replicated15)->ice_getEncodingVersion() == encodingVersion);
     Ice::Identity replicated14;
     replicated14.name = "ReplicatedObject14";
-    test(query->findObjectById(replicated14)->ice_getEncodingVersion() == Ice::stringToEncodingVersion("1.4"));
+    encodingVersion = {1, 4};
+    test(query->findObjectById(replicated14)->ice_getEncodingVersion() == encodingVersion);
 
     optional<Ice::LocatorPrx> locator = comm->getDefaultLocator();
     test(locator);

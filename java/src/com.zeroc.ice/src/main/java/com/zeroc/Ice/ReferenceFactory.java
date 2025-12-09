@@ -56,7 +56,7 @@ final class ReferenceFactory {
             "", // Facet
             fixedConnection.endpoint().datagram() ? Reference.ModeDatagram : Reference.ModeTwoway,
             Optional.empty(),
-            Util.Protocol_1_0,
+            Protocol.Protocol_1_0,
             _instance.defaultsAndOverrides().defaultEncoding,
             fixedConnection,
             Duration.ofMillis(-1),
@@ -124,7 +124,7 @@ final class ReferenceFactory {
         String facet = "";
         int mode = Reference.ModeTwoway;
         EncodingVersion encoding = _instance.defaultsAndOverrides().defaultEncoding;
-        ProtocolVersion protocol = Util.Protocol_1_0;
+        ProtocolVersion protocol = Protocol.Protocol_1_0;
         String adapter = "";
 
         while (true) {
@@ -259,7 +259,7 @@ final class ReferenceFactory {
                     }
 
                     try {
-                        encoding = Util.stringToEncodingVersion(argument);
+                        encoding = Protocol.stringToEncodingVersion(argument);
                     } catch (ParseException ex) {
                         String msg = "invalid encoding version '" + argument + "' in proxy string '" + s + "'";
                         throw new ParseException(msg, ex);
@@ -273,7 +273,7 @@ final class ReferenceFactory {
                     }
 
                     try {
-                        protocol = Util.stringToProtocolVersion(argument);
+                        protocol = Protocol.stringToProtocolVersion(argument);
                     } catch (ParseException ex) {
                         String msg = "invalid protocol version '" + argument + "' in proxy string '" + s + "'";
                         throw new ParseException(msg, ex);
@@ -429,7 +429,7 @@ final class ReferenceFactory {
             protocol = ProtocolVersion.ice_read(s);
             encoding = EncodingVersion.ice_read(s);
         } else {
-            protocol = Util.Protocol_1_0;
+            protocol = Protocol.Protocol_1_0;
             encoding = Util.Encoding_1_0;
         }
 

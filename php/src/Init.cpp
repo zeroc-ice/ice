@@ -125,22 +125,6 @@ ZEND_ARG_INFO(0, value)
 ZEND_ARG_INFO(0, type)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_protocolVersionToString_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-ZEND_ARG_INFO(0, protocolVersion)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(Ice_stringToProtocolVersion_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-ZEND_ARG_INFO(0, str)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(Ice_encodingVersionToString_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-ZEND_ARG_INFO(0, encodingVersion)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(Ice_stringToEncodingVersion_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-ZEND_ARG_INFO(0, str)
-ZEND_END_ARG_INFO()
-
 #define ICEPHP_COMMUNICATOR_FUNCTIONS                                                                                  \
     ZEND_NS_NAMED_FE("Ice", initialize, ZEND_FN(Ice_initialize), Ice_initialize_arginfo)                               \
     ZEND_NS_NAMED_FE("Ice", register, ZEND_FN(Ice_register), Ice_register_arginfo)                                     \
@@ -171,27 +155,7 @@ ZEND_END_ARG_INFO()
 #define ICEPHP_UTIL_FUNCTIONS                                                                                          \
     ZEND_NS_NAMED_FE("Ice", stringVersion, ZEND_FN(Ice_stringVersion), ice_void_arginfo)                               \
     ZEND_NS_NAMED_FE("Ice", intVersion, ZEND_FN(Ice_intVersion), ice_void_arginfo)                                     \
-    ZEND_NS_NAMED_FE("Ice", generateUUID, ZEND_FN(Ice_generateUUID), ice_void_arginfo)                                 \
-    ZEND_NS_NAMED_FE(                                                                                                  \
-        "Ice",                                                                                                         \
-        protocolVersionToString,                                                                                       \
-        ZEND_FN(Ice_protocolVersionToString),                                                                          \
-        Ice_protocolVersionToString_arginfo)                                                                           \
-    ZEND_NS_NAMED_FE(                                                                                                  \
-        "Ice",                                                                                                         \
-        stringToProtocolVersion,                                                                                       \
-        ZEND_FN(Ice_stringToProtocolVersion),                                                                          \
-        Ice_stringToProtocolVersion_arginfo)                                                                           \
-    ZEND_NS_NAMED_FE(                                                                                                  \
-        "Ice",                                                                                                         \
-        encodingVersionToString,                                                                                       \
-        ZEND_FN(Ice_encodingVersionToString),                                                                          \
-        Ice_encodingVersionToString_arginfo)                                                                           \
-    ZEND_NS_NAMED_FE(                                                                                                  \
-        "Ice",                                                                                                         \
-        stringToEncodingVersion,                                                                                       \
-        ZEND_FN(Ice_stringToEncodingVersion),                                                                          \
-        Ice_stringToEncodingVersion_arginfo)
+    ZEND_NS_NAMED_FE("Ice", generateUUID, ZEND_FN(Ice_generateUUID), ice_void_arginfo)
 
 //
 // Entries for all global functions.

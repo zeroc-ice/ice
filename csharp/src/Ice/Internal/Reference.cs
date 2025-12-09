@@ -313,11 +313,11 @@ public abstract class Reference : IEquatable<Reference>
             }
         }
 
-        if (_protocol != Ice.Util.Protocol_1_0)
+        if (_protocol != Protocol.Protocol_1_0)
         {
             // We print the protocol unless it's 1.0.
             s.Append(" -p ");
-            s.Append(Ice.Util.protocolVersionToString(_protocol));
+            s.Append(Protocol.protocolVersionToString(_protocol));
         }
 
         // We print the encoding if it's not 1.1 or if Ice.Default.EncodingVersion is set to something other than 1.1.
@@ -325,7 +325,7 @@ public abstract class Reference : IEquatable<Reference>
             _instance.defaultsAndOverrides().defaultEncoding != Ice.Util.Encoding_1_1)
         {
             s.Append(" -e ");
-            s.Append(Ice.Util.encodingVersionToString(_encoding));
+            s.Append(Protocol.encodingVersionToString(_encoding));
         }
 
         return s.ToString();

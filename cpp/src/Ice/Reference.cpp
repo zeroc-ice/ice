@@ -236,7 +236,7 @@ IceInternal::Reference::toString() const
         }
     }
 
-    if (_protocol != Ice::Protocol_1_0)
+    if (_protocol != Protocol_1_0)
     {
         // We print the protocol unless it's 1.0.
         s << " -p " << _protocol;
