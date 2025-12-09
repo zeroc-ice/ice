@@ -26,6 +26,7 @@ import Expect
 
 toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
+
 def compileControllerDefinitions():
     import IcePy
 
@@ -34,7 +35,8 @@ def compileControllerDefinitions():
             "IcePy.compileSlice",
             "--output-dir",
             os.path.join(toplevel, "scripts"),
-            os.path.join(toplevel, "scripts", "Controller.ice")]
+            os.path.join(toplevel, "scripts", "Controller.ice"),
+        ]
         IcePy.compileSlice(args)
 
 
@@ -2318,7 +2320,6 @@ class RemoteProcessController(ProcessController):
                 self.remoteProcessController = remoteProcessController
 
             def setProcessController(self, proxy, current):
-
                 proxy = Test_Common.ProcessControllerPrx.uncheckedCast(current.con.createProxy(proxy.ice_getIdentity()))
                 self.remoteProcessController.setProcessController(proxy)
 

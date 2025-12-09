@@ -17,7 +17,7 @@ from Util import (
     runTests,
     toplevel,
     traceback,
-    compileControllerDefinitions
+    compileControllerDefinitions,
 )
 
 
@@ -179,6 +179,7 @@ class ControllerDriver(Driver):
                 pass
 
         import Ice
+
         self.initCommunicator()
         self.communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.endpoints)
         self.communicator.getProperties().setProperty("ControllerAdapter.AdapterId", str(uuid.uuid4()))
