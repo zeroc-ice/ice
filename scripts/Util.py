@@ -27,6 +27,19 @@ import Expect
 toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 
+def compileControllerDefinitions():
+    import IcePy
+
+    if not os.path.exists(os.path.join(toplevel, "scripts", "Test", "__init__.py")):
+        args = [
+            "IcePy.compileSlice",
+            "--output-dir",
+            os.path.join(toplevel, "scripts"),
+            os.path.join(toplevel, "scripts", "Controller.ice"),
+        ]
+        IcePy.compileSlice(args)
+
+
 def run(cmd, cwd=None, expectErr=False, stdout=False, stdin=None, stdinRepeat=True):
     p = subprocess.Popen(
         cmd,
@@ -2300,16 +2313,14 @@ class RemoteProcessController(ProcessController):
         self.adapter = None
 
         comm = current.driver.getCommunicator()
-        import Test
+        from Test import Common as Test_Common
 
-        class ProcessControllerRegistryI(Test.Common.ProcessControllerRegistry):
+        class ProcessControllerRegistryI(Test_Common.ProcessControllerRegistry):
             def __init__(self, remoteProcessController):
                 self.remoteProcessController = remoteProcessController
 
             def setProcessController(self, proxy, current):
-                import Test
-
-                proxy = Test.Common.ProcessControllerPrx.uncheckedCast(current.con.createProxy(proxy.ice_getIdentity()))
+                proxy = Test_Common.ProcessControllerPrx.uncheckedCast(current.con.createProxy(proxy.ice_getIdentity()))
                 self.remoteProcessController.setProcessController(proxy)
 
         import Ice
@@ -2342,7 +2353,7 @@ class RemoteProcessController(ProcessController):
         return None
 
     def getController(self, current):
-        import Test
+        from Test import Common as Test_Common
 
         import Ice
 
@@ -2377,10 +2388,10 @@ class RemoteProcessController(ProcessController):
         controllerEndpoints = self.getControllerEndpoints(current)
 
         if controllerEndpoints is not None:
-            proxy = Test.Common.ProcessControllerPrx(comm, f"{comm.identityToString(ident)}:{controllerEndpoints}")
+            proxy = Test_Common.ProcessControllerPrx(comm, f"{comm.identityToString(ident)}:{controllerEndpoints}")
         else:
             # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
-            proxy = Test.Common.ProcessControllerPrx(comm, comm.identityToString(ident))
+            proxy = Test_Common.ProcessControllerPrx(comm, comm.identityToString(ident))
 
         # First try to discover the process controller with IceDiscovery, if this doesn't
         # work we'll wait for 10s for the process controller to register with the registry.
@@ -2482,9 +2493,9 @@ class RemoteProcessController(ProcessController):
         # Create bi-dir proxy in case we're talking to a bi-bir process controller.
         if self.adapter:
             prx = processController.ice_getConnection().createProxy(prx.ice_getIdentity())
-        import Test
+        from Test import Common as Test_Common
 
-        return RemoteProcessController.RemoteProcess(exe, Test.Common.ProcessPrx.uncheckedCast(prx))
+        return RemoteProcessController.RemoteProcess(exe, Test_Common.ProcessPrx.uncheckedCast(prx))
 
     def destroy(self, driver):
         if driver.controllerApp:
@@ -2971,9 +2982,9 @@ class BrowserProcessController(RemoteProcessController):
                         self.cond.wait(5)
 
                 try:
-                    import Test
+                    from Test import Common as Test_Common
 
-                    Test.Common.BrowserProcessControllerPrx.uncheckedCast(prx).redirect(url)
+                    Test_Common.BrowserProcessControllerPrx.uncheckedCast(prx).redirect(url)
                 except Exception:
                     pass
                 finally:
@@ -3285,7 +3296,7 @@ class Driver:
 
         import Ice
 
-        Ice.loadSlice([os.path.join(self.component.getSourceDir(), "scripts", "Controller.ice")])
+        compileControllerDefinitions()
 
         initData = Ice.InitializationData()
         initData.properties = Ice.createProperties()
@@ -3294,8 +3305,7 @@ class Driver:
         initData.properties.setProperty("Ice.Warn.Connections", "1")
         initData.properties.setProperty("Ice.PrintStackTraces", "0")
 
-        # Load IceSSL, this is useful to talk with WSS for JavaScript
-        initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
+        # Configure IceSSL, this is useful to talk with WSS for JavaScript
         caDir = os.path.join(self.component.getSourceDir(), "certs/common/ca")
         initData.properties.setProperty("IceSSL.DefaultDir", caDir)
         initData.properties.setProperty("IceSSL.CertFile", "server.p12")
