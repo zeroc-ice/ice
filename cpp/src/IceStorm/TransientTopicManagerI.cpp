@@ -151,6 +151,6 @@ TransientTopicManagerImpl::createImpl(string name)
     // The identity is the name of the Topic.
     //
     auto prx = _instance->topicAdapter()->add<TopicPrx>(topicImpl, id);
-    _topics.insert({name, topicImpl});
+    _topics.insert({std::move(name), std::move(topicImpl)});
     return prx;
 }
