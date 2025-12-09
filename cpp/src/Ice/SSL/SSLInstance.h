@@ -9,7 +9,7 @@
 
 namespace Ice::SSL
 {
-    class ICE_API Instance final : public IceInternal::ProtocolInstance
+    class Instance final : public IceInternal::ProtocolInstance
     {
     public:
         Instance(const SSLEnginePtr&, std::int16_t, const std::string&);

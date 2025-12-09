@@ -11,7 +11,7 @@
 
 namespace IceInternal
 {
-    class ICE_API StreamSocket : public NativeInfo
+    class StreamSocket : public NativeInfo
     {
     public:
         StreamSocket(ProtocolInstancePtr, const NetworkProxyPtr&, const Address&, const Address&);

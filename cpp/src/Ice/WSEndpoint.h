@@ -66,7 +66,7 @@ namespace IceInternal
         const std::string _resource;
     };
 
-    class ICE_API WSEndpointFactory final : public EndpointFactoryWithUnderlying
+    class WSEndpointFactory final : public EndpointFactoryWithUnderlying
     {
     public:
         WSEndpointFactory(const ProtocolInstancePtr&, std::int16_t);

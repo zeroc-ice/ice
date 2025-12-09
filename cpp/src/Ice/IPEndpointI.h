@@ -16,7 +16,7 @@
 
 namespace IceInternal
 {
-    class ICE_API IPEndpointI : public EndpointI, public std::enable_shared_from_this<IPEndpointI>
+    class IPEndpointI : public EndpointI, public std::enable_shared_from_this<IPEndpointI>
     {
     public:
         void streamWriteImpl(Ice::OutputStream*) const override;
@@ -65,7 +65,7 @@ namespace IceInternal
         const std::string _connectionId;
     };
 
-    class ICE_API EndpointHostResolver final
+    class EndpointHostResolver final
     {
     public:
         EndpointHostResolver(const InstancePtr&);
