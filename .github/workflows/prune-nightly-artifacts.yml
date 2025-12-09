@@ -13,6 +13,10 @@ jobs:
             uses: actions/checkout@v4
 
           - name: Prune nightly artifacts
+            env:
+              DRY_RUN: '0'
+              AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+              AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             run: |
               chmod +x ./packaging/release/prune-nightly-artifacts.sh
               ./packaging/release/prune-nightly-artifacts.sh

@@ -178,7 +178,7 @@ jobs:
 
   prune-nightly-artifacts:
     name: Prune Nightly Artifacts
-    if: ${{ inputs.publish == true }}
+    if: ${{ inputs.publish == true && inputs.channel == 'nightly' }}
     needs:
       - build-brew-packages
       - build-deb-packages
