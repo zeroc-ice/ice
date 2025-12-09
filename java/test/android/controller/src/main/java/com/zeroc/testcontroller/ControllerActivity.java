@@ -57,7 +57,7 @@ public class ControllerActivity extends Activity {
     @Override
     public void onStart() {
         super.onStart();
-        
+
         if (!_isSetupComplete) {
             initializeBluetooth();
         }
@@ -82,7 +82,7 @@ public class ControllerActivity extends Activity {
                     break;
                 }
             }
-            
+
             if (allGranted) {
                 enableBluetoothIfNeeded();
             } else {
@@ -102,7 +102,7 @@ public class ControllerActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        
+
         if (requestCode == REQ_CODE_BT_ENABLE) {
             if (resultCode == Activity.RESULT_OK) {
                 completeSetup(true);
@@ -133,7 +133,7 @@ public class ControllerActivity extends Activity {
         if (_isSetupComplete) {
             return;
         }
-        
+
         _isSetupComplete = true;
         var spinnerDropdownItem = android.R.layout.simple_spinner_dropdown_item;
 
@@ -184,7 +184,7 @@ public class ControllerActivity extends Activity {
     private void enableBluetoothIfNeeded() {
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter adapter = bluetoothManager.getAdapter();
-        
+
         if (adapter == null) {
             showBluetoothError(R.string.no_bluetooth);
             completeSetup(false);
@@ -204,7 +204,7 @@ public class ControllerActivity extends Activity {
     private void initializeBluetooth() {
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter adapter = bluetoothManager.getAdapter();
-        
+
         if (adapter == null) {
             showBluetoothError(R.string.no_bluetooth);
             completeSetup(false);
@@ -217,12 +217,12 @@ public class ControllerActivity extends Activity {
     private void requestBluetoothPermissionsIfNeeded() {
         java.util.List<String> neededPermissions = new java.util.ArrayList<>();
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN)
                 != PackageManager.PERMISSION_GRANTED) {
             neededPermissions.add(Manifest.permission.BLUETOOTH_SCAN);
         }
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                 != PackageManager.PERMISSION_GRANTED) {
             neededPermissions.add(Manifest.permission.BLUETOOTH_CONNECT);
         }
