@@ -21,6 +21,9 @@
   <ItemGroup>
     <ClCompile Include="..\..\Client.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\Test.ice" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C6FA541F-A36C-41BD-915C-95796319689F}</ProjectGuid>
   </PropertyGroup>
