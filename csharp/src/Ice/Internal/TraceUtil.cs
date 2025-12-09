@@ -147,7 +147,7 @@ internal sealed class TraceUtil
                 if (v != Ice.Util.Encoding_1_0)
                 {
                     s.Write("\nencoding = ");
-                    s.Write(Ice.Util.encodingVersionToString(v));
+                    s.Write(Protocol.encodingVersionToString(v));
                 }
                 break;
 
@@ -191,7 +191,7 @@ internal sealed class TraceUtil
             if (!v.Equals(Ice.Util.Encoding_1_0))
             {
                 s.Write("\nencoding = ");
-                s.Write(Ice.Util.encodingVersionToString(v));
+                s.Write(Protocol.encodingVersionToString(v));
             }
         }
         catch (System.IO.IOException)

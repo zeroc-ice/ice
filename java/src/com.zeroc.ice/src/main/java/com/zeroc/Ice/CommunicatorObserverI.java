@@ -374,7 +374,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
         }
 
         public String getEncodingVersion() {
-            return Util.encodingVersionToString(_proxy.ice_getEncodingVersion());
+            return Protocol.encodingVersionToString(_proxy.ice_getEncodingVersion());
         }
 
         private final ObjectPrx _proxy;

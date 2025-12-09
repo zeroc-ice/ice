@@ -135,11 +135,6 @@ namespace IceRuby
     VALUE createIdentity(const Ice::Identity&);
 
     //
-    // Create a Ruby instance of Ice.ProtocolVersion.
-    //
-    VALUE createProtocolVersion(const Ice::ProtocolVersion&);
-
-    //
     // Create a Ruby instance of Ice.EncodingVersion.
     //
     VALUE createEncodingVersion(const Ice::EncodingVersion&);

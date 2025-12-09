@@ -166,7 +166,7 @@ final class OpaqueEndpointI extends EndpointI {
         if (_type > -1) {
             s += " -t " + _type;
         }
-        s += " -e " + Util.encodingVersionToString(_rawEncoding);
+        s += " -e " + Protocol.encodingVersionToString(_rawEncoding);
         if (_rawBytes.length > 0) {
             s += " -v " + Base64.encode(_rawBytes);
         }
@@ -269,7 +269,7 @@ final class OpaqueEndpointI extends EndpointI {
                 }
 
                 try {
-                    _rawEncoding = Util.stringToEncodingVersion(argument);
+                    _rawEncoding = Protocol.stringToEncodingVersion(argument);
                 } catch (ParseException ex) {
                     String msg = "invalid encoding version '" + argument + "' in endpoint '" + endpoint + "'";
                     throw new ParseException(msg, ex);

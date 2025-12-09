@@ -44,66 +44,6 @@ static PyMethodDef methods[] = {
                "-------\n"
                "int\n"
                "    The Ice version as an integer for version comparison.")},
-    {"stringToProtocolVersion",
-     reinterpret_cast<PyCFunction>(IcePy_stringToProtocolVersion),
-     METH_VARARGS,
-     PyDoc_STR("stringToProtocolVersion(version: str) -> Ice.ProtocolVersion\n\n"
-               "Converts a string into a protocol version.\n\n"
-               "Parameters\n"
-               "----------\n"
-               "version : str\n"
-               "    The string containing a stringified protocol version in X.Y format.\n\n"
-               "Returns\n"
-               "-------\n"
-               "Ice.ProtocolVersion\n"
-               "    The protocol version.\n\n"
-               "Raises\n"
-               "------\n"
-               "ParseException\n"
-               "    If the given string is not in the X.Y format.")},
-    {"protocolVersionToString",
-     reinterpret_cast<PyCFunction>(IcePy_protocolVersionToString),
-     METH_VARARGS,
-     PyDoc_STR("protocolVersionToString(version: Ice.ProtocolVersion) -> str\n\n"
-               "Converts a protocol version into a string.\n\n"
-               "Parameters\n"
-               "----------\n"
-               "version : Ice.ProtocolVersion\n"
-               "    The protocol version.\n\n"
-               "Returns\n"
-               "-------\n"
-               "str\n"
-               "    A string representing the protocol version.")},
-    {"stringToEncodingVersion",
-     reinterpret_cast<PyCFunction>(IcePy_stringToEncodingVersion),
-     METH_VARARGS,
-     PyDoc_STR("stringToEncodingVersion(version: str) -> Ice.EncodingVersion\n\n"
-               "Converts a string into an encoding version.\n\n"
-               "Parameters\n"
-               "----------\n"
-               "version : str\n"
-               "    The string containing a stringified encoding version in X.Y format.\n\n"
-               "Returns\n"
-               "-------\n"
-               "Ice.EncodingVersion\n"
-               "    The encoding version.\n\n"
-               "Raises\n"
-               "------\n"
-               "ParseException\n"
-               "    If the given string is not in the X.Y format.")},
-    {"encodingVersionToString",
-     reinterpret_cast<PyCFunction>(IcePy_encodingVersionToString),
-     METH_VARARGS,
-     PyDoc_STR("encodingVersionToString(version: Ice.EncodingVersion) -> str\n\n"
-               "Converts an encoding version into a string.\n\n"
-               "Parameters\n"
-               "----------\n"
-               "version : Ice.EncodingVersion\n"
-               "    The encoding version.\n\n"
-               "Returns\n"
-               "-------\n"
-               "str\n"
-               "    A string representing the encoding version.")},
     {"createProperties",
      reinterpret_cast<PyCFunction>(IcePy_createProperties),
      METH_VARARGS,

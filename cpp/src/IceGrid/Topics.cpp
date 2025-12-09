@@ -24,7 +24,7 @@ ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrx& topicManager, cons
     for (const auto& encoding : encodings)
     {
         ostringstream os;
-        os << name << "-" << Ice::encodingVersionToString(encoding);
+        os << name << "-" << encoding;
 
         optional<IceStorm::TopicPrx> topic;
         try

@@ -68,7 +68,7 @@ final class DefaultsAndOverrides {
         defaultInvocationTimeout = Duration.ofMillis(intValue);
 
         value = properties.getIceProperty("Ice.Default.EncodingVersion");
-        defaultEncoding = Util.stringToEncodingVersion(value);
+        defaultEncoding = Protocol.stringToEncodingVersion(value);
         Protocol.checkSupportedEncoding(defaultEncoding);
 
         boolean slicedFormat = properties.getIcePropertyAsInt("Ice.Default.SlicedFormat") > 0;

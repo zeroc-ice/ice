@@ -43,9 +43,6 @@ ICEIMPL_API @interface ICEUtil : NSObject
 + (NSString*)identityToString:(NSString*)name
                      category:(NSString*)category
                          mode:(uint8_t)mode NS_SWIFT_NAME(identityToString(name:category:mode:));
-
-+ (NSString*)encodingVersionToString:(UInt8)major
-                               minor:(UInt8)minor NS_SWIFT_NAME(encodingVersionToString(major:minor:));
 @end
 
 NS_ASSUME_NONNULL_END

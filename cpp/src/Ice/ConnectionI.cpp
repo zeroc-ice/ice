@@ -1288,7 +1288,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                             throw ProtocolException{
                                 __FILE__,
                                 __LINE__,
-                                "invalid protocol version in message header: " + Ice::protocolVersionToString(pv)};
+                                "invalid protocol version in message header: " + protocolVersionToString(pv)};
                         }
                         EncodingVersion ev;
                         _readStream.read(ev);
@@ -1297,8 +1297,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                             throw ProtocolException{
                                 __FILE__,
                                 __LINE__,
-                                "invalid protocol encoding version in message header: " +
-                                    Ice::encodingVersionToString(ev)};
+                                "invalid protocol encoding version in message header: " + encodingVersionToString(ev)};
                         }
                         uint8_t messageType;
                         _readStream.read(messageType);
@@ -2617,7 +2616,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 throw ProtocolException{
                     __FILE__,
                     __LINE__,
-                    "invalid protocol version in message header: " + Ice::protocolVersionToString(pv)};
+                    "invalid protocol version in message header: " + protocolVersionToString(pv)};
             }
             EncodingVersion ev;
             _readStream.read(ev);
@@ -2626,7 +2625,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 throw ProtocolException{
                     __FILE__,
                     __LINE__,
-                    "invalid protocol encoding version in message header: " + Ice::encodingVersionToString(ev)};
+                    "invalid protocol encoding version in message header: " + encodingVersionToString(ev)};
             }
             uint8_t messageType;
             _readStream.read(messageType);

@@ -255,20 +255,6 @@ IceMatlab::getEncodingVersion(mxArray* p, Ice::EncodingVersion& v)
     getMajorMinor(p, v.major, v.minor);
 }
 
-mxArray*
-IceMatlab::createProtocolVersion(const Ice::ProtocolVersion& v)
-{
-    mxArray* params[2];
-    params[0] = mxCreateDoubleScalar(v.major);
-    params[1] = mxCreateDoubleScalar(v.minor);
-    mxArray* r;
-    mexCallMATLAB(1, &r, 2, params, "Ice.ProtocolVersion");
-
-    mxDestroyArray(params[0]);
-    mxDestroyArray(params[1]);
-    return r;
-}
-
 namespace
 {
     template<size_t N> void destroyParams(std::array<mxArray*, N> params)

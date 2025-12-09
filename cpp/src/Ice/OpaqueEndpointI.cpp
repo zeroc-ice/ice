@@ -8,6 +8,8 @@
 #include "Ice/LocalExceptions.h"
 #include "Ice/OutputStream.h"
 
+#include <sstream>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -346,7 +348,7 @@ IceInternal::OpaqueEndpointI::checkOption(const string& option, const string& ar
 
             try
             {
-                _rawEncoding = Ice::stringToEncodingVersion(argument);
+                _rawEncoding = stringToEncodingVersion(argument);
             }
             catch (const Ice::ParseException& ex)
             {

@@ -9,12 +9,21 @@
 #include "Util.h"
 #include "WellKnownObjectsManager.h"
 
+#include <sstream>
+
 using namespace std;
 using namespace std::chrono;
 using namespace IceGrid;
 
 namespace
 {
+    string encodingVersionToString(const Ice::EncodingVersion& v)
+    {
+        ostringstream os;
+        os << v;
+        return os.str();
+    }
+
     class AdapterRequest final : public LocatorI::Request
     {
     public:
@@ -49,7 +58,7 @@ namespace
                     make_exception_ptr(Ice::FeatureNotSupportedException{
                         __FILE__,
                         __LINE__,
-                        "server doesn't support requested encoding " + Ice::encodingVersionToString(_encoding)}));
+                        "server doesn't support requested encoding " + encodingVersionToString(_encoding)}));
                 return;
             }
 
@@ -218,7 +227,7 @@ namespace
                     make_exception_ptr(Ice::FeatureNotSupportedException{
                         __FILE__,
                         __LINE__,
-                        "server doesn't support requested encoding " + Ice::encodingVersionToString(_encoding)}));
+                        "server doesn't support requested encoding " + encodingVersionToString(_encoding)}));
                 return;
             }
 
@@ -363,7 +372,7 @@ namespace
                     make_exception_ptr(Ice::FeatureNotSupportedException{
                         __FILE__,
                         __LINE__,
-                        "server doesn't support requested encoding " + Ice::encodingVersionToString(_encoding)}));
+                        "server doesn't support requested encoding " + encodingVersionToString(_encoding)}));
                 return;
             }
 

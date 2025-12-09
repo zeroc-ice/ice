@@ -3,6 +3,46 @@
 package com.zeroc.Ice;
 
 final class Protocol {
+    /**
+     * Converts a string to a protocol version.
+     *
+     * @param version The string to convert.
+     * @return The converted protocol version.
+     */
+    static ProtocolVersion stringToProtocolVersion(String version) {
+        return new ProtocolVersion(stringToMajor(version), stringToMinor(version));
+    }
+
+    /**
+     * Converts a string to an encoding version.
+     *
+     * @param version The string to convert.
+     * @return The converted encoding version.
+     */
+    static EncodingVersion stringToEncodingVersion(String version) {
+        return new EncodingVersion(stringToMajor(version), stringToMinor(version));
+    }
+
+    /**
+     * Converts a protocol version to a string.
+     *
+     * @param v The protocol version to convert.
+     * @return The converted string.
+     */
+    static String protocolVersionToString(ProtocolVersion v) {
+        return majorMinorToString(v.major, v.minor);
+    }
+
+    /**
+     * Converts an encoding version to a string.
+     *
+     * @param v The encoding version to convert.
+     * @return The converted string.
+     */
+    static String encodingVersionToString(EncodingVersion v) {
+        return majorMinorToString(v.major, v.minor);
+    }
+
     //
     // Size of the Ice protocol header
     //
@@ -98,6 +138,9 @@ final class Protocol {
         (byte) 0 // Message size (placeholder).
     };
 
+    /** The protocol version 1.0. */
+    public static final ProtocolVersion Protocol_1_0 = new ProtocolVersion(protocolMajor, protocolMinor);
+
     public static final ProtocolVersion currentProtocol = new ProtocolVersion(protocolMajor, protocolMinor);
     public static final EncodingVersion currentProtocolEncoding =
         new EncodingVersion(protocolEncodingMajor, protocolEncodingMinor);
@@ -134,6 +177,56 @@ final class Protocol {
     public static final byte FLAG_HAS_INDIRECTION_TABLE = (byte) (1 << 3);
     public static final byte FLAG_HAS_SLICE_SIZE = (byte) (1 << 4);
     public static final byte FLAG_IS_LAST_SLICE = (byte) (1 << 5);
+
+    private static byte stringToMajor(String str) {
+        int pos = str.indexOf('.');
+        if (pos == -1) {
+            throw new ParseException("malformed version value in '" + str + "'");
+        }
+
+        String majStr = str.substring(0, pos);
+        int majVersion;
+        try {
+            majVersion = Integer.parseInt(majStr);
+        } catch (NumberFormatException ex) {
+            throw new ParseException("invalid version value in '" + str + "'", ex);
+        }
+
+        if (majVersion < 1 || majVersion > 255) {
+            throw new ParseException("range error in version '" + str + "'");
+        }
+
+        return (byte) majVersion;
+    }
+
+    private static byte stringToMinor(String str) {
+        int pos = str.indexOf('.');
+        if (pos == -1) {
+            throw new ParseException("malformed version value in '" + str + "'");
+        }
+
+        String minStr = str.substring(pos + 1, str.length());
+        int minVersion;
+        try {
+            minVersion = Integer.parseInt(minStr);
+        } catch (NumberFormatException ex) {
+            throw new ParseException("invalid version value in '" + str + "'", ex);
+        }
+
+        if (minVersion < 0 || minVersion > 255) {
+            throw new ParseException("range error in version '" + str + "'");
+        }
+
+        return (byte) minVersion;
+    }
+
+    private static String majorMinorToString(byte major, byte minor) {
+        StringBuilder str = new StringBuilder();
+        str.append(major < 0 ? major + 255 : (int) major);
+        str.append(".");
+        str.append(minor < 0 ? minor + 255 : (int) minor);
+        return str.toString();
+    }
 
     private Protocol() {}
 }

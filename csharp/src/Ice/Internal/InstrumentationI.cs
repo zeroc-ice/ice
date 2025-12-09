@@ -468,7 +468,7 @@ internal class InvocationHelper : MetricsHelper<InvocationMetrics>
 
     public Ice.ObjectPrx getProxy() => _proxy;
 
-    public string getEncodingVersion() => Ice.Util.encodingVersionToString(_proxy.ice_getEncodingVersion());
+    public string getEncodingVersion() => Protocol.encodingVersionToString(_proxy.ice_getEncodingVersion());
 
     public string getIdentity()
     {

@@ -172,11 +172,6 @@ namespace IcePy
     bool getIdentity(PyObject*, Ice::Identity&);
 
     //
-    // Create a Python instance of Ice.ProtocolVersion.
-    //
-    PyObject* createProtocolVersion(const Ice::ProtocolVersion&);
-
-    //
     // Create a Python instance of Ice.EncodingVersion.
     //
     PyObject* createEncodingVersion(const Ice::EncodingVersion&);
@@ -200,9 +195,5 @@ namespace IcePy
 
 extern "C" PyObject* IcePy_stringVersion(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_intVersion(PyObject*, PyObject*);
-extern "C" PyObject* IcePy_protocolVersionToString(PyObject*, PyObject*);
-extern "C" PyObject* IcePy_stringToProtocolVersion(PyObject*, PyObject*);
-extern "C" PyObject* IcePy_encodingVersionToString(PyObject*, PyObject*);
-extern "C" PyObject* IcePy_stringToEncodingVersion(PyObject*, PyObject*);
 
 #endif

@@ -5,6 +5,7 @@
 #include "TestHelper.h"
 
 #include <fstream>
+#include <sstream>
 
 using namespace Ice;
 using namespace std;

@@ -2,7 +2,6 @@
 
 #include "Util.h"
 #include "Ice/DisableWarnings.h"
-#include "Ice/Protocol.h"
 #include "Thread.h"
 #include "slice2py/PythonUtil.h"
 
@@ -96,57 +95,6 @@ namespace IcePy
         return obj.release();
     }
 
-    template<typename T> PyObject* versionToString(PyObject* args, const char* type)
-    {
-        PyObject* versionType{lookupType(type)};
-        PyObject* p{nullptr};
-        if (!PyArg_ParseTuple(args, "O!", versionType, &p))
-        {
-            return nullptr;
-        }
-
-        T v;
-        if (!getVersion<T>(p, v))
-        {
-            return nullptr;
-        }
-
-        string s;
-        try
-        {
-            s = IceInternal::versionToString<T>(v);
-        }
-        catch (...)
-        {
-            IcePy::setPythonException(current_exception());
-            return nullptr;
-        }
-        return createString(s);
-    }
-
-    template<typename T> PyObject* stringToVersion(PyObject* args, const char* type)
-    {
-        char* str{nullptr};
-        if (!PyArg_ParseTuple(args, "s", &str))
-        {
-            return nullptr;
-        }
-
-        T v;
-        try
-        {
-            v = IceInternal::stringToVersion<T>(str);
-        }
-        catch (...)
-        {
-            IcePy::setPythonException(current_exception());
-            return nullptr;
-        }
-
-        return createVersion<T>(v, type);
-    }
-
-    char Ice_ProtocolVersion[] = "Ice.ProtocolVersion";
     char Ice_EncodingVersion[] = "Ice.EncodingVersion";
 }
 
@@ -820,12 +768,6 @@ IcePy::getIdentity(PyObject* p, Ice::Identity& ident)
 }
 
 PyObject*
-IcePy::createProtocolVersion(const Ice::ProtocolVersion& v)
-{
-    return createVersion<Ice::ProtocolVersion>(v, Ice_ProtocolVersion);
-}
-
-PyObject*
 IcePy::createEncodingVersion(const Ice::EncodingVersion& v)
 {
     return createVersion<Ice::EncodingVersion>(v, Ice_EncodingVersion);
@@ -901,28 +843,4 @@ extern "C" PyObject*
 IcePy_intVersion(PyObject* /*self*/, PyObject* /*args*/)
 {
     return PyLong_FromLong(ICE_INT_VERSION);
-}
-
-extern "C" PyObject*
-IcePy_protocolVersionToString(PyObject* /*self*/, PyObject* args)
-{
-    return IcePy::versionToString<Ice::ProtocolVersion>(args, IcePy::Ice_ProtocolVersion);
-}
-
-extern "C" PyObject*
-IcePy_stringToProtocolVersion(PyObject* /*self*/, PyObject* args)
-{
-    return IcePy::stringToVersion<Ice::ProtocolVersion>(args, IcePy::Ice_ProtocolVersion);
-}
-
-extern "C" PyObject*
-IcePy_encodingVersionToString(PyObject* /*self*/, PyObject* args)
-{
-    return IcePy::versionToString<Ice::EncodingVersion>(args, IcePy::Ice_EncodingVersion);
-}
-
-extern "C" PyObject*
-IcePy_stringToEncodingVersion(PyObject* /*self*/, PyObject* args)
-{
-    return IcePy::stringToVersion<Ice::EncodingVersion>(args, IcePy::Ice_EncodingVersion);
 }

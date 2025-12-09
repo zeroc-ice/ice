@@ -6,7 +6,6 @@
 #include "Ice/Endpoint.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/ObjectAdapter.h"
-#include "Ice/VersionFunctions.h"
 
 using namespace std;
 using namespace Ice;

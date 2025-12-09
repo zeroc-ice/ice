@@ -786,7 +786,7 @@ OutgoingAsync::prepare(string_view operation, OperationMode mode, const Context&
             __FILE__,
             __LINE__,
             "cannot send request using protocol version " +
-                Ice::protocolVersionToString(_proxy._getReference()->getProtocol())};
+                protocolVersionToString(_proxy._getReference()->getProtocol())};
     }
 
     _mode = mode;

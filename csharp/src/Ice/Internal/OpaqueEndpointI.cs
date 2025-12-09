@@ -53,7 +53,7 @@ internal sealed class OpaqueEndpointI : EndpointI
     public override string ToString()
     {
         string val = System.Convert.ToBase64String(_rawBytes);
-        return "opaque -t " + _type + " -e " + Ice.Util.encodingVersionToString(_rawEncoding) + " -v " + val;
+        return "opaque -t " + _type + " -e " + Protocol.encodingVersionToString(_rawEncoding) + " -v " + val;
     }
 
     //
@@ -164,7 +164,7 @@ internal sealed class OpaqueEndpointI : EndpointI
         {
             s += " -t " + _type;
         }
-        s += " -e " + Ice.Util.encodingVersionToString(_rawEncoding);
+        s += " -e " + Protocol.encodingVersionToString(_rawEncoding);
         if (_rawBytes.Length > 0)
         {
             s += " -v " + System.Convert.ToBase64String(_rawBytes);
@@ -304,7 +304,7 @@ internal sealed class OpaqueEndpointI : EndpointI
 
                 try
                 {
-                    _rawEncoding = Ice.Util.stringToEncodingVersion(argument);
+                    _rawEncoding = Protocol.stringToEncodingVersion(argument);
                 }
                 catch (ParseException e)
                 {

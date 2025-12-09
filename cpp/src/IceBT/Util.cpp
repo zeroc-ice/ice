@@ -5,6 +5,8 @@
 #include "Ice/LocalExceptions.h"
 #include "Ice/StringUtil.h"
 
+#include <sstream>
+
 using namespace std;
 using namespace Ice;
 using namespace IceBT;
