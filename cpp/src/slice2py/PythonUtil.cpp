@@ -2340,11 +2340,6 @@ Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, c
             "``.");
     }
 
-    for (const auto& line : overview)
-    {
-        out << nl << line;
-    }
-
     // Only emit Attributes if there's a docstring for at least one field.
     if (!fieldDocs.empty())
     {
