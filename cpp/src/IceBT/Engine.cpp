@@ -1209,6 +1209,8 @@ namespace IceBT
 
                 if (p != _connectThreads.end()) // May be missing if destroy() was called.
                 {
+                    // We are about to remove the current thread from the list, so detach it.
+                    // This prevents std::terminate() from being called when the thread object is destroyed.
                     if (p->joinable())
                     {
                         p->detach();
