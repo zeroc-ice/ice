@@ -38,17 +38,6 @@ allTests(Test::TestHelper* helper)
     communicator->getProperties()->setProperty("Ice.Admin.Facets", "");
     cout << "ok" << endl;
 
-    cout << "testing add facet with uuid... " << flush;
-    {
-        ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter2", "default");
-        ObjectPtr obj = std::make_shared<EmptyI>();
-        ObjectPrx prx = adapter->addFacetWithUUID(obj, "facetABCD");
-        test(prx->ice_getFacet() == "facetABCD");
-        adapter->destroy();
-    }
-    cout << "ok" << endl;
-
-    cout << "testing facet registration exceptions... " << flush;
     string localOAEndpoint;
     {
         ostringstream ostr;
@@ -62,6 +51,18 @@ allTests(Test::TestHelper* helper)
         }
         localOAEndpoint = ostr.str();
     }
+
+    cout << "testing add facet with uuid... " << flush;
+    {
+        ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter2", localOAEndpoint);
+        ObjectPtr obj = std::make_shared<EmptyI>();
+        ObjectPrx prx = adapter->addFacetWithUUID(obj, "facetABCD");
+        test(prx->ice_getFacet() == "facetABCD");
+        adapter->destroy();
+    }
+    cout << "ok" << endl;
+
+    cout << "testing facet registration exceptions... " << flush;
 
     communicator->getProperties()->setProperty("FacetExceptionTestAdapter.Endpoints", localOAEndpoint);
     if (communicator->getProperties()->getIceProperty("Ice.Default.Protocol") != "ssl" &&
