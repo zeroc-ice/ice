@@ -13,6 +13,7 @@ class CreateOrRetrieveTestCase(IceStormTestCase):
     def teardownClientSide(self, current, success):
         self.shutdown(current)
 
+
 class IceStormClient(IceStormProcess, Client):
     processType = "client"
 
@@ -22,18 +23,13 @@ class IceStormClient(IceStormProcess, Client):
 
     getParentProps = Client.getProps  # Used by IceStormProcess to get the client properties
 
+
 TestSuite(
     __file__,
     [
-        CreateOrRetrieveTestCase(
-            "persistent", icestorm=persistent, client=ClientTestCase(client=IceStormClient())
-        ),
-        CreateOrRetrieveTestCase(
-            "transient", icestorm=transient, client=ClientTestCase(client=IceStormClient())
-        ),
-        CreateOrRetrieveTestCase(
-            "replicated", icestorm=replicated, client=ClientTestCase(client=IceStormClient())
-        ),
+        CreateOrRetrieveTestCase("persistent", icestorm=persistent, client=ClientTestCase(client=IceStormClient())),
+        CreateOrRetrieveTestCase("transient", icestorm=transient, client=ClientTestCase(client=IceStormClient())),
+        CreateOrRetrieveTestCase("replicated", icestorm=replicated, client=ClientTestCase(client=IceStormClient())),
     ],
     multihost=False,
 )

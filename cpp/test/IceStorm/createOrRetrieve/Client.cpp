@@ -48,8 +48,8 @@ Client::run(int argc, char** argv)
         // Ensure topic doesn't exist
         try
         {
-            auto existingTopic = manager->retrieve(topicName);
-            existingTopic->destroy();
+            manager->retrieve(topicName);
+            test(false); // Topic should not exist
         }
         catch (const NoSuchTopic&)
         {
@@ -101,8 +101,8 @@ Client::run(int argc, char** argv)
         // Ensure topic doesn't exist
         try
         {
-            auto existingTopic = manager->retrieve(topicName);
-            existingTopic->destroy();
+            manager->retrieve(topicName);
+            test(false); // Topic should not exist
         }
         catch (const NoSuchTopic&)
         {
@@ -112,6 +112,7 @@ Client::run(int argc, char** argv)
         // Launch multiple concurrent createOrRetrieve calls
         const int numThreads = 10;
         vector<future<optional<TopicPrx>>> futures;
+        futures.reserve(numThreads);
 
         for (int i = 0; i < numThreads; ++i)
         {
@@ -132,18 +133,10 @@ Client::run(int argc, char** argv)
         }
 
         // Collect all results
-        vector<optional<TopicPrx>> topics;
         for (auto& f : futures)
         {
             auto topic = f.get();
             test(topic);
-            test(topic->getName() == topicName);
-            topics.push_back(topic);
-        }
-
-        // All topics should have the same name
-        for (const auto& topic : topics)
-        {
             test(topic->getName() == topicName);
         }
 
@@ -155,36 +148,6 @@ Client::run(int argc, char** argv)
 
         // Clean up
         allTopics[topicName]->destroy();
-    }
-
-    //
-    // Test 4: Verify createOrRetrieve doesn't throw exceptions
-    //
-    {
-        const string topicName = "createOrRetrieve-topic4";
-
-        // Ensure topic doesn't exist
-        try
-        {
-            auto existingTopic = manager->retrieve(topicName);
-            existingTopic->destroy();
-        }
-        catch (const NoSuchTopic&)
-        {
-            // Expected
-        }
-
-        // First call should create
-        auto topic1 = manager->createOrRetrieve(topicName);
-        test(topic1);
-
-        // Second call should retrieve (no TopicExists exception)
-        auto topic2 = manager->createOrRetrieve(topicName);
-        test(topic2);
-        test(topic1->getName() == topic2->getName());
-
-        // Clean up
-        topic1->destroy();
     }
 
     cout << "ok" << endl;
