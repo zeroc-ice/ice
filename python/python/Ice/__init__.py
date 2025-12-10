@@ -57,7 +57,6 @@ from .IcePyTypes import (
     WSConnectionInfo,
     WSEndpointInfo,
     intVersion,
-    loadSlice,
     stringVersion,
 )
 from .Identity import Identity, _Ice_Identity_t
@@ -153,6 +152,7 @@ from .RouterFinder_forward import _Ice_RouterFinderPrx_t
 from .ServantLocator import ServantLocator
 from .ServerNotFoundException import ServerNotFoundException, _Ice_ServerNotFoundException_t
 from .ShortSeq import _Ice_ShortSeq_t
+from .Slice import compileSlice, loadSlice
 from .SliceChecksumDict import _Ice_SliceChecksumDict_t
 from .SlicedData import SlicedData
 from .SliceInfo import SliceInfo
@@ -347,6 +347,7 @@ __all__ = [
     "_Ice_SliceChecksumDict_t",
     "_Ice_StringSeq_t",
     "asyncio",
+    "compileSlice",
     "createProperties",
     "getProcessLogger",
     "getSliceDir",

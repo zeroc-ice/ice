@@ -28,16 +28,15 @@ toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 
 def compileControllerDefinitions():
-    import IcePy
+    import Ice
 
     if not os.path.exists(os.path.join(toplevel, "scripts", "Test", "__init__.py")):
         args = [
-            "IcePy.compileSlice",
             "--output-dir",
             os.path.join(toplevel, "scripts"),
             os.path.join(toplevel, "scripts", "Controller.ice"),
         ]
-        IcePy.compileSlice(args)
+        Ice.compileSlice(args)
 
 
 def run(cmd, cwd=None, expectErr=False, stdout=False, stdin=None, stdinRepeat=True):
