@@ -28,7 +28,7 @@ Where:
 Then from the `cpp` directory, start the C++ test suite to run against the Android servers:
 
 ```bash
-python3 ./allTests.py --server=server --protocol=bt --debug --cross=java
+python3 ./allTests.py --server=server --protocol=bt --cross=java
 ```
 
 Where:
