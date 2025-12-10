@@ -6,7 +6,6 @@
 #include "TestHelper.h"
 
 #include <future>
-#include <sstream>
 
 using namespace std;
 using namespace Ice;
@@ -26,20 +25,14 @@ Client::run(int argc, char** argv)
     Ice::CommunicatorHolder communicatorHolder{communicator};
     auto properties = communicator->getProperties();
     auto managerProxy = properties->getIceProperty("IceStormAdmin.TopicManager.Default");
-    if (managerProxy.empty())
-    {
-        ostringstream os;
-        os << argv[0] << ": property `IceStormAdmin.TopicManager.Default' is not set";
-        throw invalid_argument(os.str());
-    }
+    test(!managerProxy.empty());
 
-    IceStorm::TopicManagerPrx manager(communicator, managerProxy);
-
-    cout << "testing createOrRetrieve operation... " << flush;
+    IceStorm::TopicManagerPrx manager{communicator, managerProxy};
 
     //
-    // Test 1: Creating a topic via createOrRetrieve when it doesn't exist
+    // Creating a topic via createOrRetrieve when it doesn't exist
     //
+    cout << "testing create path... " << flush;
     {
         const string topicName = "createOrRetrieve-topic1";
 
@@ -67,10 +60,12 @@ Client::run(int argc, char** argv)
         // Clean up
         topic1->destroy();
     }
+    cout << "ok" << endl;
 
     //
-    // Test 2: Retrieving an existing topic via createOrRetrieve
+    // Retrieving an existing topic via createOrRetrieve
     //
+    cout << "testing retrieve path... " << flush;
     {
         const string topicName = "createOrRetrieve-topic2";
 
@@ -89,10 +84,12 @@ Client::run(int argc, char** argv)
         // Clean up
         originalTopic->destroy();
     }
+    cout << "ok" << endl;
 
     //
-    // Test 3: Concurrent calls to createOrRetrieve for the same topic name
+    // Concurrent calls to createOrRetrieve for the same topic name
     //
+    cout << "testing concurrent calls... " << flush;
     {
         const string topicName = "createOrRetrieve-topic3";
 
