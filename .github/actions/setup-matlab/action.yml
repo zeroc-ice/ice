@@ -10,18 +10,18 @@ runs:
       id: setup-matlab
       uses: matlab-actions/setup-matlab@v2
       with:
-        release: "R2025a"
+        release: "R2025b"
 
     - name: Set MATLAB_HOME and MATLAB_VERSION
       run: |
-        echo "MATLAB_VERSION=R2025a" >> $GITHUB_ENV
+        echo "MATLAB_VERSION=R2025b" >> $GITHUB_ENV
         echo "MATLAB_HOME=${{ steps.setup-matlab.outputs.matlabroot }}" >> $GITHUB_ENV
       shell: bash
       if: runner.os == 'Linux'
 
     - name: Set MATLAB_HOME and MATLAB_VERSION
       run: |
-        echo "MATLAB_VERSION=R2025a" >> $env:GITHUB_ENV
+        echo "MATLAB_VERSION=R2025b" >> $env:GITHUB_ENV
         echo "MATLAB_HOME=${{ steps.setup-matlab.outputs.matlabroot }}" >> $env:GITHUB_ENV
       shell: powershell
       if: runner.os == 'Windows'

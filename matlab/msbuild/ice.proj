@@ -6,7 +6,7 @@
         <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
         <RootDir>$([System.IO.Path]::GetFullPath( $(MSBuildThisFileDirectory)..\msbuild ))</RootDir>
         <ToolboxDir>$(MSBuildThisFileDirectory)..\toolbox\build</ToolboxDir>
-        <MatlabVersion Condition="'$(MatlabVersion)' == ''">R2025a</MatlabVersion>
+        <MatlabVersion Condition="'$(MatlabVersion)' == ''">R2025b</MatlabVersion>
         <MatlabVersion Condition="'$(MATLAB_VERSION)' != ''">$(MATLAB_VERSION)</MatlabVersion>
         <MatlabHome Condition="'$(MatlabHome)' == ''">C:\Program Files\MATLAB\$(MatlabVersion)</MatlabHome>
         <MatlabHome Condition="'$(MATLAB_HOME)' != ''">$(MATLAB_HOME)</MatlabHome>
