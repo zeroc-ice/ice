@@ -2,11 +2,17 @@
 
 package com.zeroc.testcontroller;
 
+import java.util.LinkedList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.view.View;
@@ -16,15 +22,8 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
-
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
-import java.util.LinkedList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class ControllerActivity extends Activity {
     private static final int REQ_CODE_BT_PERMISSIONS = 1001;
@@ -34,7 +33,7 @@ public class ControllerActivity extends Activity {
     private ArrayAdapter<String> _outputAdapter;
     private ListView _outputListView;
     private WifiManager.MulticastLock _multicastLock;
-    private boolean _isSetupComplete = false;
+    private boolean _isSetupComplete;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -218,20 +217,20 @@ public class ControllerActivity extends Activity {
         java.util.List<String> neededPermissions = new java.util.ArrayList<>();
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN)
-                != PackageManager.PERMISSION_GRANTED) {
+            != PackageManager.PERMISSION_GRANTED) {
             neededPermissions.add(Manifest.permission.BLUETOOTH_SCAN);
         }
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
-                != PackageManager.PERMISSION_GRANTED) {
+            != PackageManager.PERMISSION_GRANTED) {
             neededPermissions.add(Manifest.permission.BLUETOOTH_CONNECT);
         }
 
         if (!neededPermissions.isEmpty()) {
             ActivityCompat.requestPermissions(
-                    this,
-                    neededPermissions.toArray(new String[0]),
-                    REQ_CODE_BT_PERMISSIONS
+                this,
+                neededPermissions.toArray(new String[0]),
+                REQ_CODE_BT_PERMISSIONS
             );
         } else {
             enableBluetoothIfNeeded();

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+trap 'echo "🔥 ERROR: command \"$BASH_COMMAND\" exited with code $?" >&2' ERR
+
 # Config (override via env or CLI if you like)
 BUCKET="${BUCKET:-zeroc-downloads}"
 PREFIX="${PREFIX:-ice/nightly/}"   # no leading slash
@@ -17,35 +19,48 @@ deleted=0
 kept=0
 ignored=0
 
-# The while loop runs in the *current* shell thanks to the
-# process substitution `< <(...)`, not in a subshell.
-while IFS= read -r key; do
-    # empty line guard
+# Get all keys in one go. If this fails, we skip prune but don't kill CI.
+if ! keys=$(aws s3api list-objects-v2 \
+        --bucket "$BUCKET" \
+        --prefix "$PREFIX" \
+        --query 'Contents[].Key' \
+        --output text 2>aws-list-error.log); then
+    echo "⚠️  Failed to list S3 objects for pruning, skipping prune (non-fatal)" >&2
+    cat aws-list-error.log >&2 || true
+    echo "Finished S3 nightly prune:"
+    echo "  Deleted : 0"
+    echo "  Kept    : 0"
+    echo "  Ignored : 0"
+    exit 0
+fi
+
+# Iterate over keys (split on whitespace). This avoids any pipe/`tr` → no broken pipe.
+for key in $keys; do
+    # empty guard (just in case)
     [[ -z "$key" ]] && continue
 
     # ignore "directories"
     if [[ "$key" == */ ]]; then
         echo "📁 Ignoring directory-like key: $key"
-        ((ignored++))
+        ((++ignored))
         continue
     fi
 
     # Extract nightly date part: nightly.20250821
     if [[ "$key" =~ nightly[.-]?([0-9]{8}) ]]; then
         date_part="${BASH_REMATCH[1]}"
-
-        # Convert YYYYMMDD to epoch seconds (GNU date)
+        # Convert YYYYMMDD to epoch seconds (GNU date); handle failure
         pkg_date_sec=$(date -d "$date_part" +%s 2>/dev/null || echo 0)
         if (( pkg_date_sec <= 0 )); then
             echo "⚠️  Skipping $key (invalid date: $date_part)"
-            ((ignored++))
+            ((++ignored))
             continue
         fi
 
         # Don't delete “future” objects if clock skew or typo
         if (( pkg_date_sec > today_sec )); then
             echo "⚠️  Skipping $key (date $date_part is in the future)"
-            ((ignored++))
+            ((++ignored))
             continue
         fi
 
@@ -57,28 +72,21 @@ while IFS= read -r key; do
                 # Treat aws s3 rm failures as non-fatal: log and continue
                 if ! aws s3 rm "s3://$BUCKET/$key"; then
                     echo "⚠️  Failed to delete s3://$BUCKET/$key, continuing" >&2
-                    ((ignored++))
+                    ((++ignored))
                     continue
                 fi
             fi
-            ((deleted++))
+            ((++deleted))
         else
             #echo "✅ Keeping (age ${age_days}d): s3://$BUCKET/$key"
-            ((kept++))
+            ((++kept))
         fi
     else
         # No nightly.YYYYMMDD → ignore
         #echo "ℹ️  Ignoring (no nightly.YYYYMMDD date part): $key"
-        ((ignored++))
+        ((++ignored))
     fi
-done < <(
-    aws s3api list-objects-v2 \
-        --bucket "$BUCKET" \
-        --prefix "$PREFIX" \
-        --query 'Contents[].Key' \
-        --output text |
-    tr '\t' '\n'
-)
+done
 
 echo "Finished S3 nightly prune:"
 echo "  Deleted : $deleted"

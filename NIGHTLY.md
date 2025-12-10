@@ -133,10 +133,10 @@ npm install @zeroc/ice
 
 ### Ice for MATLAB
 
-Ice toolbox for MATLAB R2025a:
+Ice toolbox for MATLAB R2025b:
 
-- Windows: [ice-nightly-R2025a-win.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025a-win.mltbx)
-- Ubuntu 24.04: [ice-nightly-R2025a-linux.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025a-linux.mltbx)
+- Windows: [ice-nightly-R2025b-win.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025b-win.mltbx)
+- Ubuntu 24.04: [ice-nightly-R2025b-linux.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025b-linux.mltbx)
 
 To install a toolbox, download the package corresponding to your platform and simply double-click on the `.mltbx` file
 from MATLAB.
