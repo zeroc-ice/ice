@@ -4,8 +4,9 @@ This document describes how to run the Ice test suite over Bluetooth connections
 
 ## Prerequisites
 
+- C++ and Java source builds, refer to the [cpp/BUILDING.md] and [java/BUILDING.md] for details
 - An Android device with Bluetooth capability
-- The Android test controller application installed and running on the device
+- The [Android test controller] application installed and running on the device
 - Bluetooth adapters on both client and server machines
 - Paired Bluetooth devices (the Android device and the machine running the C++ tests)
 
@@ -81,3 +82,7 @@ On Android, go to Settings → About phone → Status (or Settings → System �
 - Check that the Android test controller application is running and visible
 - Ensure IP addresses and Bluetooth addresses are correct
 - Use `--debug` flag for verbose output to diagnose connection issues
+
+[Android test controller]: java/test//android/controller/
+[cpp/BUILDING.md]: cpp/BUILDING.md
+[java/BUILDING.md]: java/BUILDING.md
