@@ -54,7 +54,7 @@ Where:
 Then from the `java` directory, start the Java/Android test suite to run against the C++ servers:
 
 ```bash
-python3 ./allTests.py --server=server --protocol=bt --debug --cross=cpp --android Ice/proxy
+python3 ./allTests.py --server=server --protocol=bt --cross=cpp --android Ice/proxy
 ```
 
 Where:
