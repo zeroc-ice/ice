@@ -25,7 +25,7 @@ using namespace IceInternal;
 
 namespace
 {
-    // Track loaded fragments to avoid recompilation
+    // Track loaded fragments to avoid redefining types that were already loaded.
     unordered_set<string> loadedFragments;
 }
 
@@ -115,7 +115,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 
     for (const auto& fragment : compilationResult.fragments)
     {
-        // Skip if this fragment was already loaded
+        // Skip if the Python module for this fragment was already loaded
         if (loadedFragments.find(fragment.moduleName) != loadedFragments.end())
         {
             continue;
