@@ -85,6 +85,7 @@ class ControllerDriver(Driver):
 
         self.initCommunicator()
         import Ice
+
         Ice.loadSlice([os.path.join(toplevel, "scripts", "Controller.ice")])
 
         from Test import Common as Test_Common
