@@ -48,6 +48,17 @@ for key in $keys; do
     if [[ "$key" =~ nightly[.-]?([0-9]{8}) ]]; then
         date_part="${BASH_REMATCH[1]}"
 
+        echo "DEBUG: date binary: $(command -v date)"
+        date --version || date
+
+        echo "DEBUG: raw key: [$key]"
+        printf 'DEBUG: date_part bytes: ' >&2
+        printf '%s' "$date_part" | hexdump -C >&2 || true
+
+        echo "DEBUG: running: date -d \"$date_part\" +%s" >&2
+        pkg_date_sec=$(date -d "$date_part" +%s 2>&1)
+        echo "DEBUG: date output: [$pkg_date_sec]" >&2
+
         # Convert YYYYMMDD to epoch seconds (GNU date); handle failure
         pkg_date_sec=$(gdate -d "$date_part" +%s 2>/dev/null || echo 0)
         if (( pkg_date_sec <= 0 )); then
