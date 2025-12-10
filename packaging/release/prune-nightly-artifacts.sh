@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-set -euox pipefail
+set -euo pipefail
+
+trap 'echo "🔥 ERROR: command \"$BASH_COMMAND\" exited with code $?" >&2' ERR
 
 # Config (override via env or CLI if you like)
 BUCKET="${BUCKET:-zeroc-downloads}"
