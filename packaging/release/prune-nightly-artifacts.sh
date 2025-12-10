@@ -42,7 +42,7 @@ for key in $keys; do
     # ignore "directories"
     if [[ "$key" == */ ]]; then
         echo "📁 Ignoring directory-like key: $key"
-        ((ignored++))
+        ((++ignored))
         continue
     fi
 
@@ -65,14 +65,14 @@ for key in $keys; do
         pkg_date_sec=$(date -d "$date_part" +%s 2>/dev/null || echo 0)
         if (( pkg_date_sec <= 0 )); then
             echo "⚠️  Skipping $key (invalid date: $date_part)"
-            ((ignored++))
+            ((++ignored))
             continue
         fi
 
         # Don't delete “future” objects if clock skew or typo
         if (( pkg_date_sec > today_sec )); then
             echo "⚠️  Skipping $key (date $date_part is in the future)"
-            ((ignored++))
+            ((++ignored))
             continue
         fi
 
@@ -84,19 +84,19 @@ for key in $keys; do
                 # Treat aws s3 rm failures as non-fatal: log and continue
                 if ! aws s3 rm "s3://$BUCKET/$key"; then
                     echo "⚠️  Failed to delete s3://$BUCKET/$key, continuing" >&2
-                    ((ignored++))
+                    ((++ignored))
                     continue
                 fi
             fi
-            ((deleted++))
+            ((++deleted))
         else
             #echo "✅ Keeping (age ${age_days}d): s3://$BUCKET/$key"
-            ((kept++))
+            ((++kept))
         fi
     else
         # No nightly.YYYYMMDD → ignore
         #echo "ℹ️  Ignoring (no nightly.YYYYMMDD date part): $key"
-        ((ignored++))
+        ((++ignored))
     fi
 done
 
