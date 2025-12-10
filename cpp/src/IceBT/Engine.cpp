@@ -533,7 +533,7 @@ namespace IceBT
             // Start a thread to establish the connection.
             //
             _connectThreads.emplace_back([self = shared_from_this(), addr, uuid, cb]
-                                         { self->runConnectThread(this_thread::get_id(), addr, uuid, cb); });
+                                         { self->runConnectThread(addr, uuid, cb); });
         }
 
         void startDiscovery(const string& addr, function<void(const string&, const PropertyMap&)> cb)
@@ -1070,11 +1070,7 @@ namespace IceBT
             }
         }
 
-        void runConnectThread(
-            const thread::id& threadId,
-            const string& addr,
-            const string& uuid,
-            const ConnectCallbackPtr& cb)
+        void runConnectThread(const string& addr, const string& uuid, const ConnectCallbackPtr& cb)
         {
             //
             // Establishing a connection is a complicated process.
@@ -1205,10 +1201,13 @@ namespace IceBT
                 auto p = find_if(
                     _connectThreads.begin(),
                     _connectThreads.end(),
-                    [threadId](const thread& t) { return t.get_id() == threadId; });
+                    [threadId = this_thread::get_id()](const thread& t) { return t.get_id() == threadId; });
 
                 if (p != _connectThreads.end()) // May be missing if destroy() was called.
                 {
+                    // We are about to remove the current thread from the list, so detach it.
+                    // This prevents std::terminate() from being called when the thread object is destroyed.
+                    p->detach();
                     _connectThreads.erase(p);
                 }
             }
