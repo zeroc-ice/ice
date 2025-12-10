@@ -12,7 +12,6 @@ from Util import (
     IceProcess,
     Mapping,
     Result,
-    compileControllerDefinitions,
     parseOptions,
     platform,
     runTests,
@@ -85,7 +84,8 @@ class ControllerDriver(Driver):
                     print("run " + sys.argv[0] + " --clean to remove the trust setting")
 
         self.initCommunicator()
-        compileControllerDefinitions()
+        import Ice
+        Ice.loadSlice([os.path.join(toplevel, "scripts", "Controller.ice")])
 
         from Test import Common as Test_Common
 
