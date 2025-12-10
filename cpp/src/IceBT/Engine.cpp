@@ -787,32 +787,28 @@ namespace IceBT
             auto options = make_shared<DBus::ArrayValue>(t);
             if (!name.empty())
             {
-                options->elements.push_back(
-                    make_shared<DBus::DictEntryValue>(
-                        dt,
-                        make_shared<DBus::StringValue>("Name"),
-                        make_shared<DBus::VariantValue>(make_shared<DBus::StringValue>(name))));
+                options->elements.push_back(make_shared<DBus::DictEntryValue>(
+                    dt,
+                    make_shared<DBus::StringValue>("Name"),
+                    make_shared<DBus::VariantValue>(make_shared<DBus::StringValue>(name))));
             }
             if (channel != -1)
             {
-                options->elements.push_back(
-                    make_shared<DBus::DictEntryValue>(
-                        dt,
-                        make_shared<DBus::StringValue>("Channel"),
-                        make_shared<DBus::VariantValue>(make_shared<DBus::Uint16Value>(channel))));
-                options->elements.push_back(
-                    make_shared<DBus::DictEntryValue>(
-                        dt,
-                        make_shared<DBus::StringValue>("Role"),
-                        make_shared<DBus::VariantValue>(make_shared<DBus::StringValue>("server"))));
+                options->elements.push_back(make_shared<DBus::DictEntryValue>(
+                    dt,
+                    make_shared<DBus::StringValue>("Channel"),
+                    make_shared<DBus::VariantValue>(make_shared<DBus::Uint16Value>(channel))));
+                options->elements.push_back(make_shared<DBus::DictEntryValue>(
+                    dt,
+                    make_shared<DBus::StringValue>("Role"),
+                    make_shared<DBus::VariantValue>(make_shared<DBus::StringValue>("server"))));
             }
             else
             {
-                options->elements.push_back(
-                    make_shared<DBus::DictEntryValue>(
-                        dt,
-                        make_shared<DBus::StringValue>("Role"),
-                        make_shared<DBus::VariantValue>(make_shared<DBus::StringValue>("client"))));
+                options->elements.push_back(make_shared<DBus::DictEntryValue>(
+                    dt,
+                    make_shared<DBus::StringValue>("Role"),
+                    make_shared<DBus::VariantValue>(make_shared<DBus::StringValue>("client"))));
             }
             args.push_back(options);
             msg->write(args);
