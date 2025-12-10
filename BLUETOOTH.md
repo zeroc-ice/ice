@@ -16,7 +16,7 @@ First, start the Android test controller application on your device.
 From the `java` directory, start the Python controller to manage the Android server:
 
 ```bash
-python3 ../scripts/Controller.py --host-bt="A4:FF:9F:A6:48:C1" --host=192.168.1.51 --id=server --debug --android
+python3 ../scripts/Controller.py --host-bt="A4:FF:9F:A6:48:C1" --host=192.168.1.51 --id=server --android
 ```
 
 Where:
