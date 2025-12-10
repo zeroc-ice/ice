@@ -703,19 +703,22 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         PyObject* arg = PyTuple_GET_ITEM(resultTuple.get(), info->pos);
         if ((!info->optional || arg != Py_None) && !info->type->validate(arg))
         {
-            try
+            // TODO: Provide the parameter name instead?
+            ostringstream ostr;
+            ostr << "cannot marshal result: invalid value for out argument " << (info->pos + 1) << " in operation '"
+                 << mappedName << "'";
+            if (PyErr_Occurred())
             {
-                throwPythonException();
+                try
+                {
+                    throwPythonException();
+                }
+                catch (const Ice::LocalException& ex)
+                {
+                    ostr << "':\n" << ex.what();
+                }
             }
-            catch (const Ice::UnknownException& ex)
-            {
-                // TODO: Provide the parameter name instead?
-                ostringstream ostr;
-                ostr << "cannot marshal result: invalid value for out argument " << (info->pos + 1) << " in operation '"
-                     << mappedName;
-                ostr << "':\n" << ex.what();
-                throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
-            }
+            throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
         }
     }
 
@@ -724,17 +727,20 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         PyObject* res = PyTuple_GET_ITEM(resultTuple.get(), 0);
         if ((!returnType->optional || res != Py_None) && !returnType->type->validate(res))
         {
-            try
+            ostringstream ostr;
+            ostr << "cannot marshal result: invalid return value for operation '" << mappedName << "'";
+            if (PyErr_Occurred())
             {
-                throwPythonException();
+                try
+                {
+                    throwPythonException();
+                }
+                catch (const Ice::LocalException& ex)
+                {
+                    ostr << ":\n" << ex.what();
+                }
             }
-            catch (const Ice::UnknownException& ex)
-            {
-                ostringstream ostr;
-                ostr << "cannot marshal result: invalid return value for operation '" << mappedName << "':\n"
-                     << ex.what();
-                throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
-            }
+            throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
         }
     }
 
