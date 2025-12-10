@@ -8,7 +8,7 @@
     xmlns="http://schemas.microsoft.com/build/2009/properties">
 
     <Rule.DataSource>
-        <DataSource Persistence="ProjectFile" Label="IceBuilder" HasConfigurationCondition="false" ItemType="SliceCompile" SourceOfDefaultValue="AfterContext"/>
+        <DataSource Persistence="ProjectFile" Label="SliceTools" HasConfigurationCondition="false" ItemType="SliceCompile" SourceOfDefaultValue="AfterContext"/>
     </Rule.DataSource>
 
     <Rule.Categories>

@@ -2,17 +2,17 @@
 <!-- Copyright (c) ZeroC, Inc. All rights reserved. -->
 <Rule
     Name="SliceCompile"
-    DisplayName="Ice Builder"
+    DisplayName="Slice Tools for C#"
     PageTemplate="generic"
     Order="201"
-    Description="Ice Builder project settings"
+    Description="Slice Tools for C# project settings"
     xmlns="http://schemas.microsoft.com/build/2009/properties">
 
     <Rule.DataSource>
         <DataSource
             Persistence="ProjectFile"
             ItemType=""
-            Label="IceBuilder"
+            Label="SliceTools"
             HasConfigurationCondition="false"
             SourceOfDefaultValue="AfterContext"/>
     </Rule.DataSource>
@@ -27,7 +27,7 @@
             <DataSource
                 Persistence="ProjectFile"
                 ItemType="SliceCompile"
-                Label="IceBuilder"
+                Label="SliceTools"
                 HasConfigurationCondition="false"
                 SourceOfDefaultValue="AfterContext"/>
         </StringProperty.DataSource>
@@ -43,7 +43,7 @@
             <DataSource
                 Persistence="ProjectFile"
                 ItemType="SliceCompile"
-                Label="IceBuilder"
+                Label="SliceTools"
                 HasConfigurationCondition="false"
                 SourceOfDefaultValue="AfterContext"/>
         </StringListProperty.DataSource>
@@ -57,7 +57,7 @@
             <DataSource
                 Persistence="ProjectFile"
                 ItemType="SliceCompile"
-                Label="IceBuilder"
+                Label="SliceTools"
                 HasConfigurationCondition="false"
                 SourceOfDefaultValue="AfterContext"/>
         </StringListProperty.DataSource>

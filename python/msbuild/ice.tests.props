@@ -3,9 +3,6 @@
     <PropertyGroup Condition="'$(UseBinDist)' != 'yes' and '$(ICE_HOME)' == ''">
         <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
     </PropertyGroup>
-    <PropertyGroup Label="IceBuilder">
-        <IceBuilderOutputDir>..</IceBuilderOutputDir>
-    </PropertyGroup>
     <Target Name="Build"/>
     <Target Name="Clean"/>
 </Project>

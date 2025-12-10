@@ -16,13 +16,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;3005</NoWarn>
   </PropertyGroup>
-  <ItemDefinitionGroup Label="IceBuilder">
-    <SliceCompile>
-      <OutputDir>$(MSBuildProjectDirectory)\generated</OutputDir>
-      <IncludeDirectories>..\..</IncludeDirectories>
-      <AdditionalOptions></AdditionalOptions>
-    </SliceCompile>
-  </ItemDefinitionGroup>
   <ItemGroup>
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../InitialI.cs" />
