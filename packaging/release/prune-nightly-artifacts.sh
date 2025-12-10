@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -euox pipefail
 
 # Config (override via env or CLI if you like)
 BUCKET="${BUCKET:-zeroc-downloads}"
