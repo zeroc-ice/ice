@@ -60,7 +60,7 @@ for key in $keys; do
         echo "DEBUG: date output: [$pkg_date_sec]" >&2
 
         # Convert YYYYMMDD to epoch seconds (GNU date); handle failure
-        pkg_date_sec=$(gdate -d "$date_part" +%s 2>/dev/null || echo 0)
+        pkg_date_sec=$(date -d "$date_part" +%s 2>/dev/null || echo 0)
         if (( pkg_date_sec <= 0 )); then
             echo "⚠️  Skipping $key (invalid date: $date_part)"
             ((ignored++))
