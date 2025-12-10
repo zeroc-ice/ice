@@ -84,9 +84,6 @@
       <AdditionalIncludeDirectories>..\..;..\..\..\..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Label="IceBuilder">
-    <SliceCompile />
-  </ItemDefinitionGroup>
   <ItemGroup>
     <SliceCompile Include="..\..\Test.ice" />
   </ItemGroup>

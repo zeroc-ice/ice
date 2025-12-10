@@ -97,7 +97,7 @@
       <AdditionalDependencies>crypt32.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Label="IceBuilder">
+  <ItemDefinitionGroup>
     <SliceCompile>
       <HeaderOutputDir>$(Platform)\$(Configuration)\Glacier2</HeaderOutputDir>
       <BaseDirectoryForGeneratedInclude>Glacier2</BaseDirectoryForGeneratedInclude>

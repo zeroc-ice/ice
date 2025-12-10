@@ -93,9 +93,6 @@
       <AdditionalDependencies>advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Label="IceBuilder">
-    <SliceCompile />
-  </ItemDefinitionGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\IceStormDB.rc" />
   </ItemGroup>

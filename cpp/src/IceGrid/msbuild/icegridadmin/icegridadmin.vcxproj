@@ -86,9 +86,6 @@
       <AdditionalIncludeDirectories>$(Platform)\$(Configuration)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Label="IceBuilder">
-    <SliceCompile />
-  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Client.cpp" />
     <ClCompile Include="..\..\DescriptorBuilder.cpp" />

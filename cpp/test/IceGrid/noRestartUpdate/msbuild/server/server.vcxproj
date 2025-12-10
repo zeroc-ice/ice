@@ -58,9 +58,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <ItemDefinitionGroup Label="IceBuilder">
-    <SliceCompile />
-  </ItemDefinitionGroup>
   <ItemGroup>
     <SliceCompile Include="..\..\Test.ice" />
   </ItemGroup>

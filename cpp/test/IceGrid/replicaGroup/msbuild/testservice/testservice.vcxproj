@@ -70,9 +70,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
-  <ItemDefinitionGroup Label="IceBuilder">
-    <SliceCompile />
-  </ItemDefinitionGroup>
   <ItemGroup>
     <SliceCompile Include="..\..\Test.ice" />
   </ItemGroup>

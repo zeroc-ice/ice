@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (c) 2009-2018 ZeroC, Inc. All rights reserved. -->
+<!-- Copyright (c) ZeroC, Inc. -->
 <Rule
     Name="SliceCompile"
-    DisplayName="Ice Builder"
+    DisplayName="Slice Tools for C++"
     PageTemplate="generic"
-    Description="Ice Builder project settings"
+    Description="Slice Tools for C++ project settings"
     xmlns="http://schemas.microsoft.com/build/2009/properties">
 
     <Rule.DataSource>
         <DataSource Persistence="ProjectFile"
                     ItemType=""
-                    Label="IceBuilder"
+                    Label="SliceTools"
                     HasConfigurationCondition="false"/>
     </Rule.DataSource>
 
@@ -23,7 +23,7 @@
         <StringProperty.DataSource>
             <DataSource Persistence="ProjectFile"
                         ItemType="SliceCompile"
-                        Label="IceBuilder"
+                        Label="SliceTools"
                         HasConfigurationCondition="false"/>
         </StringProperty.DataSource>
     </StringProperty>
@@ -37,7 +37,7 @@
         <StringProperty.DataSource>
             <DataSource Persistence="ProjectFile"
                         ItemType="SliceCompile"
-                        Label="IceBuilder"
+                        Label="SliceTools"
                         HasConfigurationCondition="false"/>
         </StringProperty.DataSource>
     </StringProperty>
@@ -52,7 +52,7 @@
         <StringListProperty.DataSource>
             <DataSource Persistence="ProjectFile"
                         ItemType="SliceCompile"
-                        Label="IceBuilder"
+                        Label="SliceTools"
                         HasConfigurationCondition="false"/>
         </StringListProperty.DataSource>
     </StringListProperty>
@@ -66,7 +66,7 @@
         <StringProperty.DataSource>
             <DataSource Persistence="ProjectFile"
                         ItemType="SliceCompile"
-                        Label="IceBuilder"
+                        Label="SliceTools"
                         HasConfigurationCondition="false"/>
         </StringProperty.DataSource>
     </StringProperty>
@@ -91,7 +91,7 @@
         <EnumProperty.DataSource>
             <DataSource Persistence="ProjectFile"
                         ItemType="SliceCompile"
-                        Label="IceBuilder"
+                        Label="SliceTools"
                         HasConfigurationCondition="false"/>
         </EnumProperty.DataSource>
     </EnumProperty>
@@ -113,7 +113,7 @@
         <EnumProperty.DataSource>
             <DataSource Persistence="ProjectFile"
                         ItemType="SliceCompile"
-                        Label="IceBuilder"
+                        Label="SliceTools"
                         HasConfigurationCondition="false"/>
         </EnumProperty.DataSource>
     </EnumProperty>
@@ -125,7 +125,7 @@
         <StringListProperty.DataSource>
             <DataSource Persistence="ProjectFile"
                         ItemType="SliceCompile"
-                        Label="IceBuilder"
+                        Label="SliceTools"
                         HasConfigurationCondition="false"/>
         </StringListProperty.DataSource>
     </StringListProperty>
@@ -138,7 +138,7 @@
         <StringProperty.DataSource>
             <DataSource Persistence="ProjectFile"
                         ItemType="SliceCompile"
-                        Label="IceBuilder"
+                        Label="SliceTools"
                         HasConfigurationCondition="true"/>
         </StringProperty.DataSource>
     </StringProperty>

@@ -83,9 +83,6 @@
       <PreprocessorDefinitions>NDEBUG;ICE_UNALIGNED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Label="IceBuilder">
-    <SliceCompile />
-  </ItemDefinitionGroup>
   <ItemGroup>
     <SliceCompile Include="..\..\Test.ice" />
     <SliceCompile Include="..\..\Wstring.ice" />
