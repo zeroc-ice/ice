@@ -4,6 +4,10 @@
 
 package com.zeroc.testcontroller;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
 import android.app.Application;
 import android.content.Context;
 import android.os.Build;
@@ -14,9 +18,6 @@ import com.zeroc.Ice.Time;
 
 import java.io.File;
 import java.io.Writer;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
 
 public class ControllerApp extends Application {
     private final String TAG = "ControllerApp";
