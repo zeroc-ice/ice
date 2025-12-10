@@ -713,7 +713,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
                 {
                     throwPythonException();
                 }
-                catch (const Ice::UnknownException& ex)
+                catch (const Ice::LocalException& ex)
                 {
                     ostr << "':\n" << ex.what();
                 }
@@ -735,7 +735,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
                 {
                     throwPythonException();
                 }
-                catch (const Ice::UnknownException& ex)
+                catch (const Ice::LocalException& ex)
                 {
                     ostr << ":\n" << ex.what();
                 }
