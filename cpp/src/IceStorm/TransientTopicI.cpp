@@ -353,6 +353,8 @@ TransientTopicImpl::destroy(const Ice::Current&)
         // Ignore -- this could occur on shutdown.
     }
 
+    _instance->topicReaper()->add(_name);
+
     // Destroy all of the subscribers.
     for (const auto& subscriber : _subscribers)
     {
