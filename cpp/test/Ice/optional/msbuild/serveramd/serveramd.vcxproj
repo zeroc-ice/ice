@@ -79,9 +79,6 @@
       <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Label="IceBuilder">
-    <SliceCompile />
-  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ServerAMD.cpp" />
     <ClCompile Include="..\..\TestAMDI.cpp" />

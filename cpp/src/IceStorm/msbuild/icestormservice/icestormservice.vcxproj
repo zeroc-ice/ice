@@ -99,9 +99,6 @@
       <AdditionalDependencies>advapi32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Label="IceBuilder">
-    <SliceCompile />
-  </ItemDefinitionGroup>
   <ItemGroup>
     <SliceCompile Include="..\..\Election.ice" />
     <SliceCompile Include="..\..\IceStormInternal.ice" />

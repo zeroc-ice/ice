@@ -97,7 +97,7 @@
       <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib;secur32.lib;crypt32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Label="IceBuilder">
+  <ItemDefinitionGroup>
     <SliceCompile>
       <HeaderOutputDir>$(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\Ice\</HeaderOutputDir>
       <BaseDirectoryForGeneratedInclude>Ice</BaseDirectoryForGeneratedInclude>
