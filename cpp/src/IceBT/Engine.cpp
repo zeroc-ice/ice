@@ -1209,6 +1209,10 @@ namespace IceBT
 
                 if (p != _connectThreads.end()) // May be missing if destroy() was called.
                 {
+                    if (p->joinable())
+                    {
+                        p->detach();
+                    }
                     _connectThreads.erase(p);
                 }
             }

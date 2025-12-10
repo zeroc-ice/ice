@@ -718,8 +718,8 @@ allTests(TestHelper* helper)
     test(compObj->ice_compress(true)->ice_getCompress() == optional<bool>(true));
     test(compObj->ice_compress(false)->ice_getCompress() == optional<bool>(false));
 
-    Ice::LocatorPrx loc1(communicator, "loc1:default -p 10000");
-    Ice::LocatorPrx loc2(communicator, "loc2:default -p 10000");
+    Ice::LocatorPrx loc1(communicator, "loc1:tcp -p 10000");
+    Ice::LocatorPrx loc2(communicator, "loc2:tcp -p 10000");
 
     test(compObj->ice_locator(nullopt) == compObj->ice_locator(nullopt));
     test(compObj->ice_locator(loc1) == compObj->ice_locator(loc1));
@@ -731,8 +731,8 @@ allTests(TestHelper* helper)
     test(compObj->ice_locator(loc1) < compObj->ice_locator(loc2));
     test(compObj->ice_locator(loc2) >= compObj->ice_locator(loc1));
 
-    Ice::RouterPrx rtr1(communicator, "rtr1:default -p 10000");
-    Ice::RouterPrx rtr2(communicator, "rtr2:default -p 10000");
+    Ice::RouterPrx rtr1(communicator, "rtr1:tcp -p 10000");
+    Ice::RouterPrx rtr2(communicator, "rtr2:tcp -p 10000");
 
     test(compObj->ice_router(nullopt) == compObj->ice_router(nullopt));
     test(compObj->ice_router(rtr1) == compObj->ice_router(rtr1));
