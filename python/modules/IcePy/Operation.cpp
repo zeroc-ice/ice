@@ -706,7 +706,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
             // TODO: Provide the parameter name instead?
             ostringstream ostr;
             ostr << "cannot marshal result: invalid value for out argument " << (info->pos + 1) << " in operation '"
-                 << mappedName;
+                 << mappedName << "'";
             if (PyErr_Occurred())
             {
                 try
