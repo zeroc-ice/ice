@@ -5,10 +5,8 @@
 #include "Test.h"
 #include "TestHelper.h"
 
-#include <chrono>
 #include <future>
-#include <stdexcept>
-#include <thread>
+#include <sstream>
 
 using namespace std;
 using namespace Ice;
@@ -124,7 +122,7 @@ Client::run(int argc, char** argv)
                     {
                         return manager->createOrRetrieve(topicName);
                     }
-                    catch (const exception& ex)
+                    catch (const std::exception& ex)
                     {
                         cerr << "Exception in concurrent createOrRetrieve: " << ex.what() << endl;
                         throw;
