@@ -25,8 +25,7 @@ def compileSlice(args: list[str]) -> int:
     int
         The exit code returned by the Slice for Python compiler.
     """
-    args.insert(0, "compileSlice")
-    return IcePy.compileSlice(args)
+    return IcePy.compileSlice(["Ice.compileSlice", *args])
 
 
 def loadSlice(args: list[str]) -> None:
@@ -56,7 +55,6 @@ def loadSlice(args: list[str]) -> None:
     values using these stale instances may fail or raise exceptions, because their types no longer
     match the currently loaded definitions.
     """
-    args.insert(0, "loadSlice")
     IcePy.loadSlice(args)
 
 
