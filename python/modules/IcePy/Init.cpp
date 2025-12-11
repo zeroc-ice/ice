@@ -157,7 +157,7 @@ Compiles Slice definitions. The behavior is identical to that of the `slice2py` 
 
 Slice compilation errors and warnings are printed to standard error (stderr).
 
-This is an internal function used in the implementation of the `slice2py` Python script included in the Ice PIP package.
+This is an internal function used in the implementation of the `slice2py` Python script included in the Ice Python package.
 
 Parameters
 ----------
