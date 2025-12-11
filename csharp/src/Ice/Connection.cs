@@ -133,7 +133,7 @@ public interface Connection
 
     /// <summary>
     /// Throws an exception that provides the reason for the closure of this connection. For example,
-    /// this method throws <see cref="CloseConnectionException"/> when the connection was closed gracefully by the peer;
+    /// this method throws <see cref="CloseConnectionException"/> when the connection was closed gracefully by the peer.
     /// It throws <see cref="ConnectionAbortedException">/<see cref="ConnectionClosedException"/> when the connection is aborted.
     /// This method does nothing if the connection is not yet closed.
     /// </summary>
