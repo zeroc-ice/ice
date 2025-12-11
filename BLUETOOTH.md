@@ -63,7 +63,6 @@ Where:
 - `--protocol=bt` specifies to use Bluetooth transport, use `--protocol=bts` to test Bluetooth over SSL
 - `--cross=cpp` indicates cross-language testing with C++ servers
 - `--android` runs the Android client tests
-- `Ice/proxy` specifies which test(s) to run (optional, omit to run all tests)
 
 ## Finding Bluetooth Addresses
 
