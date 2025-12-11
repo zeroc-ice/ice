@@ -27,7 +27,6 @@ allTests(TestHelper* helper)
     const string protocol{communicator->getProperties()->getIceProperty("Ice.Default.Protocol")};
     bool bluetooth = protocol == "bt" || protocol == "bts";
 
-
     const string endp = helper->getTestEndpoint();
     cout << "testing stringToProxy... " << flush;
 
