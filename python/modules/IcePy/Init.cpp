@@ -141,10 +141,12 @@ args : list[str]
     the Slice files to compile.
 
     Supported compiler options:
-        - `-DNAME` (preprocessor define)
-        - `-UNAME` (preprocessor undefine)
-        - `-IDIR` (include path)
-        - `-d` or `--debug` (enable debug mode)
+
+        - `-DNAME` Define NAME as 1.
+        - `-DNAME=DEF` Define NAME as DEF.
+        - `-UNAME` Remove any definition for NAME.
+        - `-IDIR` Put DIR in the include file search path.
+        - `-d`, `--debug`  Print debug messages.
 
 Raises
 ------
