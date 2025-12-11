@@ -16,7 +16,13 @@
                 <SliceToolsAssembly>$(MSBuildThisFileDirectory)..\tasks\ZeroC.Ice.Slice.Tools.dll</SliceToolsAssembly>
             </PropertyGroup>
         </When>
+        <When Condition="Exists('$(MSBuildThisFileDirectory)bin\Any CPU\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.dll')">
+            <PropertyGroup>
+                <SliceToolsAssembly>$(MSBuildThisFileDirectory)bin\Any CPU\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.dll</SliceToolsAssembly>
+            </PropertyGroup>
+        </When>
         <Otherwise>
+            <!-- Fallback to bin directory without "Any CPU" subdirectory -->
             <PropertyGroup>
                 <SliceToolsAssembly>$(MSBuildThisFileDirectory)bin\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.dll</SliceToolsAssembly>
             </PropertyGroup>
