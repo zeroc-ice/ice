@@ -4,7 +4,6 @@ package com.zeroc.Ice;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.security.Identity;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletionException;
