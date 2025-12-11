@@ -205,7 +205,7 @@ public class IPConnectionInfo : ConnectionInfo
     /// The remote port.
     /// </summary>
     public readonly int remotePort;
-    
+
     protected IPConnectionInfo(
         bool incoming,
         string adapterName,
