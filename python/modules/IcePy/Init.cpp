@@ -132,15 +132,19 @@ responsibility to load all necessary Slice definitions. This can be done in a si
 providing all Slice files (including included files) in the `args` parameter, or by making multiple calls to
 :func:`loadSlice`.
 
-When :func:`loadSlice` is called multiple times, the definitions that are already loaded are reused and only new
-definitions are compiled.
+When :func:`loadSlice` is called multiple times with the same Slice file, the corresponding Python code is not reloaded.
 
 Parameters
 ----------
 args : list[str]
-    The list of command-line arguments to pass to the Slice loader.
-    The accepted arguments are the same as those supported by the `slice2py` tool, except that
-    the `--output-dir`, `--depend`, `--depend-xml`, and `--depend-file` options are ignored.
+    The list of command-line arguments for the Slice loader. These arguments may include both compiler options and
+    the Slice files to compile.
+
+    Supported compiler options:
+        - `-DNAME` (preprocessor define)
+        - `-UNAME` (preprocessor undefine)
+        - `-IDIR` (include path)
+        - `-d` or `--debug` (enable debug mode)
 
 Raises
 ------
