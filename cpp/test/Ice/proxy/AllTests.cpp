@@ -25,11 +25,15 @@ allTests(TestHelper* helper)
 
     // NOLINTNEXTLINE(clang-analyzer-deadcode.DeadStores): odd clang-tidy bug
     const string protocol{communicator->getProperties()->getIceProperty("Ice.Default.Protocol")};
+    bool bluetooth = protocol == "bt" || protocol == "bts";
+
+    cerr << "Running proxy tests with protocol: " << protocol << " is " << (bluetooth ? "bluetooth" : "not bluetooth") << endl;
 
     const string endp = helper->getTestEndpoint();
     cout << "testing stringToProxy... " << flush;
 
     string ref = "test:" + endp;
+    cerr << "ref: " << ref << endl;
     Ice::ObjectPrx base(communicator, ref);
 
     optional<ObjectPrx> b1 = communicator->stringToProxy("test");
@@ -417,7 +421,7 @@ allTests(TestHelper* helper)
     //
     // Test proxies with duplicated endpoint option.
     //
-    if (protocol != "bt")
+    if (!bluetooth)
     {
         string goodBase = "hello:default -h host1 -p 4061 --sourceAddress 127.0.0.1";
         test(communicator->stringToProxy(goodBase));
@@ -441,7 +445,9 @@ allTests(TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing proxyToString... " << flush;
+    cerr << "ref: " << ref << endl;
     b1 = communicator->stringToProxy(ref);
+    cerr << "b1: " << communicator->proxyToString(b1) << endl;
     optional<ObjectPrx> b2 = communicator->stringToProxy(communicator->proxyToString(b1));
     test(b1 == b2);
 
@@ -816,7 +822,7 @@ allTests(TestHelper* helper)
     test(compObj->ice_encodingVersion(Ice::Encoding_1_1) >= compObj->ice_encodingVersion(Ice::Encoding_1_0));
 
     Ice::ConnectionPtr baseConnection = base->ice_getConnection();
-    if (baseConnection && protocol != "bt")
+    if (baseConnection && !bluetooth)
     {
         Ice::ConnectionPtr baseConnection2 = base->ice_connectionId("base2")->ice_getConnection();
         compObj1 = compObj1->ice_fixed(baseConnection);
@@ -869,7 +875,7 @@ allTests(TestHelper* helper)
     //
     cout << "ok" << endl;
 
-    if (protocol != "bt")
+    if (!bluetooth)
     {
         cout << "testing ice_fixed... " << flush;
         {

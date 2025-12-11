@@ -49,6 +49,9 @@ namespace
 void
 twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
+    const string protocol{communicator->getProperties()->getIceProperty("Ice.Default.Protocol")};
+    bool bluetooth = protocol == "bt" || protocol == "bts";
+
     Test::StringS literals = p->opStringLiterals();
 
     test(Test::s0 == "\\" && Test::s0 == Test::sw0 && Test::s0 == literals[0] && Test::s0 == literals[11]);
@@ -1661,7 +1664,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
             }
         }
 
-        if (p->ice_getConnection() && communicator->getProperties()->getIceProperty("Ice.Default.Protocol") != "bt")
+        if (p->ice_getConnection() && !bluetooth)
         {
             //
             // Test implicit context propagation

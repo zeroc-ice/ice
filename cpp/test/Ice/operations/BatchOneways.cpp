@@ -93,8 +93,9 @@ batchOneways(const MyClassPrx& p)
         this_thread::sleep_for(chrono::milliseconds(10));
     }
 
-    if (batch->ice_getConnection() &&
-        p->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Default.Protocol") != "bt")
+    const string protocol{p->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Default.Protocol")};
+    bool bluetooth = protocol == "bt" || protocol == "bts";
+    if (batch->ice_getConnection() && !bluetooth)
     {
         MyClassPrx batch1 = p->ice_batchOneway();
         MyClassPrx batch2 = p->ice_batchOneway();
@@ -128,8 +129,7 @@ batchOneways(const MyClassPrx& p)
         batch->ice_ping();
     }
 
-    if (batch->ice_getConnection() &&
-        p->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Default.Protocol") != "bt")
+    if (batch->ice_getConnection() && !bluetooth)
     {
         InitializationData initData;
         initData.properties = p->ice_getCommunicator()->getProperties()->clone();

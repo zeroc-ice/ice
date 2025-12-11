@@ -36,8 +36,10 @@ batchOnewaysAMI(const Test::MyClassPrx& p)
         this_thread::sleep_for(chrono::milliseconds(10));
     }
 
-    if (batch->ice_getConnection() &&
-        p->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Default.Protocol") != "bt")
+    const string protocol{p->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Default.Protocol")};
+    bool bluetooth = protocol == "bt" || protocol == "bts";
+
+    if (batch->ice_getConnection() && !bluetooth)
     {
         Test::MyClassPrx batch1 = p->ice_batchOneway();
         Test::MyClassPrx batch2 = p->ice_batchOneway();
