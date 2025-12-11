@@ -15,12 +15,19 @@
 #include <compile.h>
 
 #include <iostream>
+#include <unordered_set>
 
 using namespace std;
 using namespace IcePy;
 using namespace Slice;
 using namespace Slice::Python;
 using namespace IceInternal;
+
+namespace
+{
+    // Track loaded fragments to avoid redefining types that were already loaded.
+    unordered_set<string> loadedFragments;
+}
 
 extern "C" PyObject*
 IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
@@ -108,6 +115,12 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 
     for (const auto& fragment : compilationResult.fragments)
     {
+        // Skip if the Python module for this fragment was already loaded
+        if (loadedFragments.find(fragment.moduleName) != loadedFragments.end())
+        {
+            continue;
+        }
+
         PyObject* moduleRef = PyImport_AddModule(fragment.moduleName.c_str());
         if (!moduleRef)
         {
@@ -160,6 +173,9 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         {
             return nullptr;
         }
+
+        // Mark this fragment as loaded
+        loadedFragments.insert(fragment.moduleName);
     }
 
     return Py_None;

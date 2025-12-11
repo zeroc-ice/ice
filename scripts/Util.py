@@ -27,19 +27,6 @@ import Expect
 toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 
-def compileControllerDefinitions():
-    import IcePy
-
-    if not os.path.exists(os.path.join(toplevel, "scripts", "Test", "__init__.py")):
-        args = [
-            "IcePy.compileSlice",
-            "--output-dir",
-            os.path.join(toplevel, "scripts"),
-            os.path.join(toplevel, "scripts", "Controller.ice"),
-        ]
-        IcePy.compileSlice(args)
-
-
 def run(cmd, cwd=None, expectErr=False, stdout=False, stdin=None, stdinRepeat=True):
     p = subprocess.Popen(
         cmd,
@@ -3296,7 +3283,7 @@ class Driver:
 
         import Ice
 
-        compileControllerDefinitions()
+        Ice.loadSlice([os.path.join(toplevel, "scripts", "Controller.ice")])
 
         initData = Ice.InitializationData()
         initData.properties = Ice.createProperties()
