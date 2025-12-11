@@ -90,7 +90,7 @@ Backup*/
 UpgradeLog*.XML
 UpgradeLog*.htm
 
-# IceBuilder dependency files
+# SliceCompile dependency files
 SliceCompile.d
 
 xcuserdata
