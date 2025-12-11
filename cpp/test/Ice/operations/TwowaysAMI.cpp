@@ -1996,7 +1996,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             }
         }
 
-        if (p->ice_getConnection() && communicator->getProperties()->getIceProperty("Ice.Default.Protocol") != "bt")
+        const string protocol{communicator->getProperties()->getIceProperty("Ice.Default.Protocol")};
+        bool bluetooth = protocol == "bt" || protocol == "bts";
+        if (p->ice_getConnection() && !bluetooth)
         {
             //
             // Test implicit context propagation

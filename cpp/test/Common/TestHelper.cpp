@@ -180,7 +180,7 @@ Test::TestHelper::getTestEndpoint(const Ice::PropertiesPtr& properties, int num,
 
     int basePort = properties->getPropertyAsIntWithDefault("Test.BasePort", 12010);
 
-    if (protocol == "bt")
+    if (protocol == "bt" || protocol == "bts")
     {
         //
         // For Bluetooth, there's no need to specify a port (channel) number.

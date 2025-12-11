@@ -13,13 +13,15 @@ RemoteCommunicatorI::createObjectAdapter(string name, string endpts, const Curre
 {
     CommunicatorPtr com = current.adapter->getCommunicator();
     const string defaultProtocol = com->getProperties()->getIceProperty("Ice.Default.Protocol");
+    bool bluetooth = defaultProtocol == "bt" || defaultProtocol == "bts";
+
     int retry = 5;
     while (true)
     {
         try
         {
             string endpoints = endpts;
-            if (defaultProtocol != "bt")
+            if (!bluetooth)
             {
                 if (endpoints.find("-p") == string::npos)
                 {

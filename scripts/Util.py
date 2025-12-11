@@ -3216,7 +3216,7 @@ class Driver:
         return (self.filters + filters, self.rfilters + rfilters)
 
     def getHost(self, protocol, ipv6):
-        if protocol == "bt":
+        if protocol in ["bt", "bts"]:
             if not self.hostBT:
                 raise RuntimeError("no Bluetooth address set with --host-bt")
             return self.hostBT

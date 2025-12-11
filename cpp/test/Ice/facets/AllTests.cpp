@@ -17,6 +17,9 @@ allTests(Test::TestHelper* helper)
 {
     CommunicatorPtr communicator = helper->communicator();
 
+    const string protocol{communicator->getProperties()->getIceProperty("Ice.Default.Protocol")};
+    bool bluetooth = protocol == "bt" || protocol == "bts";
+
     cout << "testing Ice.Admin.Facets property... " << flush;
     test(communicator->getProperties()->getIcePropertyAsList("Ice.Admin.Facets").empty());
     communicator->getProperties()->setProperty("Ice.Admin.Facets", "foobar");
@@ -41,7 +44,7 @@ allTests(Test::TestHelper* helper)
     string localOAEndpoint;
     {
         ostringstream ostr;
-        if (communicator->getProperties()->getIceProperty("Ice.Default.Protocol") == "bt")
+        if (bluetooth)
         {
             ostr << "default -a *";
         }
