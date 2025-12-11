@@ -11,7 +11,7 @@ namespace Ice;
 public interface MarshaledResult
 {
     /// <summary>
-    /// The output stream used to marshal the results.
+    /// Gets the output stream used to marshal the results.
     /// </summary>
     OutputStream outputStream { get; }
 }

@@ -94,6 +94,8 @@ public interface Connection
     /// </summary>
     /// <param name="compress">Specifies whether or not the queued batch requests should be compressed before being sent
     /// over the wire.</param>
+    /// <param name="progress">Sent progress provider.</param>
+    /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>A task that completes when the flush completes.</returns>
     System.Threading.Tasks.Task flushBatchRequestsAsync(
         CompressBatch compress,
