@@ -7,7 +7,6 @@
     <TargetFramework>$(AppTargetFramework)</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <IceBuilderOutputDir>generated</IceBuilderOutputDir>
     <OutputPath>.</OutputPath>
   </PropertyGroup>
   <ItemGroup>
