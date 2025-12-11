@@ -1,0 +1,818 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Win32" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/Common/">
+    <Project Path="../test/Common/msbuild/testcommon.vcxproj" />
+  </Folder>
+  <Folder Name="/DataStorm/" />
+  <Folder Name="/DataStorm/api/">
+    <Project Path="../test/DataStorm/api/msbuild/writer/writer.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/DataStorm/callbacks/">
+    <Project Path="../test/DataStorm/callbacks/msbuild/reader/reader.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/DataStorm/callbacks/msbuild/writer/writer.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/DataStorm/config/">
+    <Project Path="../test/DataStorm/config/msbuild/reader/reader.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/DataStorm/config/msbuild/writer/writer.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/DataStorm/events/">
+    <Project Path="../test/DataStorm/events/msbuild/reader/reader.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/DataStorm/events/msbuild/writer/writer.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/DataStorm/partial/">
+    <Project Path="../test/DataStorm/partial/msbuild/reader/reader.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/DataStorm/partial/msbuild/writer/writer.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/DataStorm/reliability/">
+    <Project Path="../test/DataStorm/reliability/msbuild/reader/reader.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/DataStorm/reliability/msbuild/writer/writer.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/DataStorm/types/">
+    <Project Path="../test/DataStorm/types/msbuild/reader/reader.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/DataStorm/types/msbuild/writer/writer.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Glacier2/" />
+  <Folder Name="/Glacier2/attack/">
+    <Project Path="../test/Glacier2/attack/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Glacier2/attack/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Glacier2/dynamicFiltering/">
+    <Project Path="../test/Glacier2/dynamicFiltering/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Glacier2/dynamicFiltering/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Glacier2/router/">
+    <Project Path="../test/Glacier2/router/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Glacier2/router/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Glacier2/sessionControl/">
+    <Project Path="../test/Glacier2/sessionControl/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Glacier2/sessionControl/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Glacier2/ssl/">
+    <Project Path="../test/Glacier2/ssl/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Glacier2/ssl/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Glacier2/staticFiltering/">
+    <Project Path="../test/Glacier2/staticFiltering/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Glacier2/staticFiltering/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/" />
+  <Folder Name="/Ice/adapterDeactivation/">
+    <Project Path="../test/Ice/adapterDeactivation/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/adapterDeactivation/msbuild/collocated/collocated.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/adapterDeactivation/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/admin/">
+    <Project Path="../test/Ice/admin/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/admin/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/ami/">
+    <Project Path="../test/Ice/ami/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/ami/msbuild/collocated/collocated.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/ami/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/background/">
+    <Project Path="../test/Ice/background/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+      <BuildDependency Project="../test/Ice/background/msbuild/testtransport/testtransport.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/background/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+      <BuildDependency Project="../test/Ice/background/msbuild/testtransport/testtransport.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/background/msbuild/testtransport/testtransport.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/binding/">
+    <Project Path="../test/Ice/binding/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/binding/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/custom/">
+    <Project Path="../test/Ice/custom/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/custom/msbuild/collocated/collocated.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/custom/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/custom/msbuild/serveramd/serveramd.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/defaultServant/">
+    <Project Path="../test/Ice/defaultServant/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/defaultValue/">
+    <Project Path="../test/Ice/defaultValue/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/echo/">
+    <Project Path="../test/Ice/echo/msbuild/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/enums/">
+    <Project Path="../test/Ice/enums/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/enums/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/exceptions/">
+    <Project Path="../test/Ice/exceptions/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/exceptions/msbuild/collocated/collocated.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/exceptions/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/exceptions/msbuild/serveramd/serveramd.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/executor/">
+    <Project Path="../test/Ice/executor/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/executor/msbuild/collocated/collocated.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/executor/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/facets/">
+    <Project Path="../test/Ice/facets/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/facets/msbuild/collocated/collocated.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/facets/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/faultTolerance/">
+    <Project Path="../test/Ice/faultTolerance/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/faultTolerance/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/hash/">
+    <Project Path="../test/Ice/hash/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/hold/">
+    <Project Path="../test/Ice/hold/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/hold/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/idleTimeout/">
+    <Project Path="../test/Ice/idleTimeout/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/idleTimeout/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/inactivityTimeout/">
+    <Project Path="../test/Ice/inactivityTimeout/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/inactivityTimeout/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/info/">
+    <Project Path="../test/Ice/info/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/info/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/inheritance/">
+    <Project Path="../test/Ice/inheritance/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/inheritance/msbuild/collocated/collocated.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/inheritance/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/invoke/">
+    <Project Path="../test/Ice/invoke/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/invoke/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/library/">
+    <Project Path="../test/Ice/library/msbuild/alltests/alltests.vcxproj">
+      <BuildDependency Project="../test/Ice/library/msbuild/consumer/consumer.vcxproj" />
+      <BuildDependency Project="../test/Ice/library/msbuild/gencode/gencode.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/library/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+      <BuildDependency Project="../test/Ice/library/msbuild/alltests/alltests.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/library/msbuild/consumer/consumer.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+      <BuildDependency Project="../test/Ice/library/msbuild/gencode/gencode.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/library/msbuild/gencode/gencode.vcxproj" />
+  </Folder>
+  <Folder Name="/Ice/location/">
+    <Project Path="../test/Ice/location/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/location/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/logger/">
+    <Project Path="../test/Ice/logger/msbuild/client1/client1.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/logger/msbuild/client2/client2.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/logger/msbuild/client3/client3.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/logger/msbuild/client4/client4.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/logger/msbuild/client5/client5.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/maxConnections/">
+    <Project Path="../test/Ice/maxConnections/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/maxConnections/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/maxDispatches/">
+    <Project Path="../test/Ice/maxDispatches/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/maxDispatches/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/metrics/">
+    <Project Path="../test/Ice/metrics/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/metrics/msbuild/collocated/collocated.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/metrics/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/metrics/msbuild/serveramd/serveramd.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/middleware/">
+    <Project Path="../test/Ice/middleware/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/networkProxy/">
+    <Project Path="../test/Ice/networkProxy/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/networkProxy/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/objects/">
+    <Project Path="../test/Ice/objects/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/objects/msbuild/collocated/collocated.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/objects/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/operations/">
+    <Project Path="../test/Ice/operations/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/operations/msbuild/collocated/collocated.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/operations/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/operations/msbuild/serveramd/serveramd.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/optional/">
+    <Project Path="../test/Ice/optional/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/optional/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/optional/msbuild/serveramd/serveramd.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/plugin/">
+    <Project Path="../test/Ice/plugin/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/plugin/msbuild/testplugin/testplugin.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/properties/">
+    <Project Path="../test/Ice/properties/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/proxy/">
+    <Project Path="../test/Ice/proxy/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/proxy/msbuild/collocated/collocated.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/proxy/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/retry/">
+    <Project Path="../test/Ice/retry/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/retry/msbuild/collocated/collocated.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/retry/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/scope/">
+    <Project Path="../test/Ice/scope/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/scope/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/servantLocator/">
+    <Project Path="../test/Ice/servantLocator/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/servantLocator/msbuild/collocated/collocated.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/servantLocator/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/servantLocator/msbuild/serveramd/serveramd.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/services/">
+    <Project Path="../test/Ice/services/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/slicing/" />
+  <Folder Name="/Ice/slicing/exceptions/">
+    <Project Path="../test/Ice/slicing/exceptions/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/slicing/exceptions/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/slicing/exceptions/msbuild/serveramd/serveramd.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/slicing/objects/">
+    <Project Path="../test/Ice/slicing/objects/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/slicing/objects/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/slicing/objects/msbuild/serveramd/serveramd.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/span/">
+    <Project Path="../test/Ice/span/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/span/msbuild/collocated/collocated.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/span/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/span/msbuild/serveramd/serveramd.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/stream/">
+    <Project Path="../test/Ice/stream/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/stringConverter/">
+    <Project Path="../test/Ice/stringConverter/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/stringConverter/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/timeout/">
+    <Project Path="../test/Ice/timeout/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/timeout/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/udp/">
+    <Project Path="../test/Ice/udp/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/Ice/udp/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceBox/" />
+  <Folder Name="/IceBox/admin/">
+    <Project Path="../test/IceBox/admin/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceBox/admin/msbuild/testservice/testservice.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceBox/configuration/">
+    <Project Path="../test/IceBox/configuration/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceBox/configuration/msbuild/testservice/testservice.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceBridge/" />
+  <Folder Name="/IceBridge/simple/">
+    <Project Path="../test/IceBridge/simple/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceBridge/simple/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceDiscovery/" />
+  <Folder Name="/IceDiscovery/simple/">
+    <Project Path="../test/IceDiscovery/simple/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceDiscovery/simple/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceGrid/" />
+  <Folder Name="/IceGrid/activation/">
+    <Project Path="../test/IceGrid/activation/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceGrid/activation/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceGrid/admin/">
+    <Project Path="../test/IceGrid/admin/msbuild/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceGrid/allocation/">
+    <Project Path="../test/IceGrid/allocation/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceGrid/allocation/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceGrid/allocation/msbuild/verifier/verifier.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceGrid/deployer/">
+    <Project Path="../test/IceGrid/deployer/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceGrid/deployer/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceGrid/deployer/msbuild/testservice/testservice.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceGrid/noRestartUpdate/">
+    <Project Path="../test/IceGrid/noRestartUpdate/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceGrid/noRestartUpdate/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceGrid/noRestartUpdate/msbuild/testservice/testservice.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceGrid/replicaGroup/">
+    <Project Path="../test/IceGrid/replicaGroup/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceGrid/replicaGroup/msbuild/registryplugin/registryplugin.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceGrid/replicaGroup/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceGrid/replicaGroup/msbuild/testservice/testservice.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceGrid/replication/">
+    <Project Path="../test/IceGrid/replication/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceGrid/replication/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceGrid/session/">
+    <Project Path="../test/IceGrid/session/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceGrid/session/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceGrid/session/msbuild/verifier/verifier.vcxproj">
+      <BuildDependency Project="../test/IceGrid/allocation/msbuild/verifier/verifier.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceGrid/simple/">
+    <Project Path="../test/IceGrid/simple/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceGrid/simple/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceGrid/update/">
+    <Project Path="../test/IceGrid/update/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceGrid/update/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceSSL/" />
+  <Folder Name="/IceSSL/configuration/">
+    <Project Path="../test/IceSSL/configuration/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceSSL/configuration/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceStorm/" />
+  <Folder Name="/IceStorm/createOrRetrieve/">
+    <Project Path="../test/IceStorm/createOrRetrieve/msbuild/client/client.vcxproj" />
+  </Folder>
+  <Folder Name="/IceStorm/federation/">
+    <Project Path="../test/IceStorm/federation/msbuild/publisher/publisher.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceStorm/federation/msbuild/subscriber/subscriber.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceStorm/federation2/">
+    <Project Path="../test/IceStorm/federation2/msbuild/publisher/publisher.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceStorm/federation2/msbuild/subscriber/subscriber.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceStorm/persistent/">
+    <Project Path="../test/IceStorm/persistent/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceStorm/rep1/">
+    <Project Path="../test/IceStorm/rep1/msbuild/publisher/publisher.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceStorm/rep1/msbuild/sub/sub.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceStorm/rep1/msbuild/subscriber/subscriber.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceStorm/repgrid/">
+    <Project Path="../test/IceStorm/repgrid/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceStorm/repstress/">
+    <Project Path="../test/IceStorm/repstress/msbuild/control/control.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceStorm/repstress/msbuild/publisher/publisher.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceStorm/repstress/msbuild/subscriber/subscriber.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceStorm/single/">
+    <Project Path="../test/IceStorm/single/msbuild/publisher/publisher.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceStorm/single/msbuild/subscriber/subscriber.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceStorm/stress/">
+    <Project Path="../test/IceStorm/stress/msbuild/publisher/publisher.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/IceStorm/stress/msbuild/subscriber/subscriber.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceUtil/" />
+  <Folder Name="/IceUtil/ctrlHandler/">
+    <Project Path="../test/IceUtil/ctrlCHandler/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceUtil/sha1/">
+    <Project Path="../test/IceUtil/sha1/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceUtil/stackTrace/">
+    <Project Path="../test/IceUtil/stacktrace/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceUtil/timer/">
+    <Project Path="../test/IceUtil/timer/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceUtil/unicode/">
+    <Project Path="../test/IceUtil/unicode/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/IceUtil/uuid/">
+    <Project Path="../test/IceUtil/uuid/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Slice/" />
+  <Folder Name="/Slice/deprecated/">
+    <Project Path="../test/Slice/deprecated/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Slice/escape/">
+    <Project Path="../test/Slice/escape/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Slice/macros/">
+    <Project Path="../test/Slice/macros/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Slice/parser/">
+    <Project Path="../test/Slice/parser/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Slice/print/">
+    <Project Path="../test/Slice/print/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Slice/structure/">
+    <Project Path="../test/Slice/structure/msbuild/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+</Solution>

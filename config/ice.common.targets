@@ -3,8 +3,8 @@
     <!-- Custom task to download files -->
     <!-- Nuget executable -->
     <PropertyGroup>
-        <NugetExe>$(MSBuildThisFileDirectory)NuGet-6.7.0.exe</NugetExe>
-        <NugetURL>https://dist.nuget.org/win-x86-commandline/v6.7.0/nuget.exe</NugetURL>
+        <NugetExe>$(MSBuildThisFileDirectory)NuGet-7.0.1.exe</NugetExe>
+        <NugetURL>https://dist.nuget.org/win-x86-commandline/v7.0.1/nuget.exe</NugetURL>
     </PropertyGroup>
 
     <!-- Download nuget.exe if not present -->

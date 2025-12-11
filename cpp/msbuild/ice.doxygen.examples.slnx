@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Win32" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="../doxygen/examples/Ice/msbuild/IceExamples.vcxproj" />
+</Solution>

@@ -187,13 +187,13 @@ class CustomSdistCommand(_sdist):
             # Build ZeroC.Ice.Slice.Tools.Cpp MSBuild tasks require to build the generated sources
             msbuild_args = f'/p:Configuration={configuration} /p:Platform="Any CPU"'
             os.system(
-                f"MSBuild ../cpp/tools/ZeroC.Ice.Slice.Tools.Cpp/ZeroC.Ice.Slice.Tools.Cpp.sln {msbuild_args} /t:Restore"
+                f"MSBuild ../cpp/tools/ZeroC.Ice.Slice.Tools.Cpp/ZeroC.Ice.Slice.Tools.Cpp.slnx {msbuild_args} /t:Restore"
             )
-            os.system(f"MSBuild ../cpp/tools/ZeroC.Ice.Slice.Tools.Cpp/ZeroC.Ice.Slice.Tools.Cpp.sln {msbuild_args}")
+            os.system(f"MSBuild ../cpp/tools/ZeroC.Ice.Slice.Tools.Cpp/ZeroC.Ice.Slice.Tools.Cpp.slnx {msbuild_args}")
             # Build slice2cpp and slice2py required to generate the C++ and Python sources included in the pip source dist
             msbuild_args = f"/p:Configuration={configuration} /p:Platform={platform}"
             os.system(f"MSBuild /m ../cpp/msbuild/ice.proj {msbuild_args} /t:NuGetRestore")
-            os.system(f"MSBuild /m ../cpp/msbuild/ice.sln {msbuild_args} /t:slice2cpp;slice2py")
+            os.system(f"MSBuild /m ../cpp/msbuild/ice.slnx {msbuild_args} /t:slice2cpp;slice2py")
             # Build the SliceCompile target to generate the Ice, IceDiscovery, and IceLocatorDiscovery
             # sources included in the pip source dist
             for project in ["Ice", "IceDiscovery", "IceLocatorDiscovery"]:
