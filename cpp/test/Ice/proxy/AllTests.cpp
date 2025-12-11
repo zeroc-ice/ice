@@ -443,9 +443,7 @@ allTests(TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing proxyToString... " << flush;
-    cerr << "ref: " << ref << endl;
     b1 = communicator->stringToProxy(ref);
-    cerr << "b1: " << communicator->proxyToString(b1) << endl;
     optional<ObjectPrx> b2 = communicator->stringToProxy(communicator->proxyToString(b1));
     test(b1 == b2);
 
