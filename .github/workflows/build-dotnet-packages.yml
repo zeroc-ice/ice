@@ -83,7 +83,7 @@ jobs:
 
       # The .NET NuGet package includes bzip2 DLLs from the C++ Windows distribution for protocol compression
       - name: Restore C++ dependencies
-        run: nuget restore cpp/msbuild/ice.sln
+        run: nuget restore cpp/msbuild/ice.slnx
 
       - name: Ice Package Version
         if: ${{ inputs.ice_version != '' }}

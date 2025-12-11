@@ -13,8 +13,8 @@
         <!-- The version for all NuGet packages built with this distribution. -->
         <!-- Defaults to IcePackageVersion, which is set in ice.version.props imported above. -->
         <PackageVersion>$(IcePackageVersion)</PackageVersion>
-        <IceTestSolution>ice.test.sln</IceTestSolution>
-        <IceDoxygenExamplesSolution>ice.doxygen.examples.sln</IceDoxygenExamplesSolution>
+        <IceTestSolution>ice.test.slnx</IceTestSolution>
+        <IceDoxygenExamplesSolution>ice.doxygen.examples.slnx</IceDoxygenExamplesSolution>
         <SymbolServer Condition="'$(SymbolServer)' == ''">SRV*%TEMP%\SymbolCache*https://symbols.zeroc.com</SymbolServer>
     </PropertyGroup>
 
@@ -24,10 +24,10 @@
     <!-- Restore NuGet packages. -->
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
         <MSBuild
-            Projects="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.sln"
+            Projects="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.slnx"
             Properties="Platform=Any CPU"
             Targets="Restore" />
-        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.sln"/>
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.slnx"/>
     </Target>
 
     <Target Name="RemovePackages">
@@ -45,24 +45,24 @@
 
             <ItemGroup>
                 <!-- Tools Solution in Release and Debug -->
-                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.sln">
+                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.slnx">
                     <Properties>Configuration=Debug;Platform=Any CPU</Properties>
                 </ToolsSolution>
-                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.sln">
+                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.slnx">
                     <Properties>Configuration=Release;Platform=Any CPU</Properties>
                 </ToolsSolution>
 
                 <!-- Ice for C++ configurations -->
-                <DistSolution Include="ice.sln">
+                <DistSolution Include="ice.slnx">
                     <Properties>Configuration=Debug;Platform=Win32</Properties>
                 </DistSolution>
-                <DistSolution Include="ice.sln">
+                <DistSolution Include="ice.slnx">
                     <Properties>Configuration=Debug;Platform=x64</Properties>
                 </DistSolution>
-                <DistSolution Include="ice.sln">
+                <DistSolution Include="ice.slnx">
                     <Properties>Configuration=Release;Platform=Win32</Properties>
                 </DistSolution>
-                <DistSolution Include="ice.sln">
+                <DistSolution Include="ice.slnx">
                     <Properties>Configuration=Release;Platform=x64</Properties>
                 </DistSolution>
             </ItemGroup>
@@ -72,13 +72,13 @@
                 <DefaultBuild>$(Platform)|$(Configuration)</DefaultBuild>
             </PropertyGroup>
             <ItemGroup>
-                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.sln">
+                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.slnx">
                     <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
                 </ToolsSolution>
             </ItemGroup>
             <!-- Ice for C++ configurations -->
             <ItemGroup>
-                <DistSolution Include="ice.sln">
+                <DistSolution Include="ice.slnx">
                     <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
                 </DistSolution>
 

@@ -1,0 +1,9 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="../src/msbuild/ice/ice.vcxproj" />
+  <Project Path="../src/msbuild/icethunk/icethunk.vcxproj">
+    <BuildDependency Project="../src/msbuild/ice/ice.vcxproj" />
+  </Project>
+</Solution>
