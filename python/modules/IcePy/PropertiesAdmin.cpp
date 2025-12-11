@@ -11,6 +11,29 @@
 using namespace std;
 using namespace IcePy;
 
+namespace
+{
+    constexpr const char* nativePropertiesAdminAddUpdateCB_doc =
+        R"(addUpdateCallback(callback: Callable[[dict[str, str]], None]) -> None
+
+Registers an update callback that will be invoked when a property update occurs.
+
+Parameters
+----------
+callback : Callable
+    The callback function.)";
+
+    constexpr const char* nativePropertiesAdminRemoveUpdateCB_doc =
+        R"(removeUpdateCallback(callback: Callable[[dict[str, str]], None]) -> None
+
+Removes a previously registered update callback.
+
+Parameters
+----------
+callback : Callable
+    The callback function to remove.)";
+}
+
 namespace IcePy
 {
     struct NativePropertiesAdminObject
@@ -113,21 +136,11 @@ static PyMethodDef NativePropertiesAdminMethods[] = {
     {"addUpdateCallback",
      reinterpret_cast<PyCFunction>(nativePropertiesAdminAddUpdateCB),
      METH_VARARGS,
-     PyDoc_STR("addUpdateCallback(callback: Callable[[dict[str, str]], None]) -> None\n\n"
-               "Registers an update callback that will be invoked when a property update occurs.\n\n"
-               "Parameters\n"
-               "----------\n"
-               "callback : Callable\n"
-               "    The callback function.")},
+     PyDoc_STR(nativePropertiesAdminAddUpdateCB_doc)},
     {"removeUpdateCallback",
      reinterpret_cast<PyCFunction>(nativePropertiesAdminRemoveUpdateCB),
      METH_VARARGS,
-     PyDoc_STR("removeUpdateCallback(callback: Callable[[dict[str, str]], None]) -> None\n\n"
-               "Removes a previously registered update callback.\n\n"
-               "Parameters\n"
-               "----------\n"
-               "callback : Callable\n"
-               "    The callback function to remove.")},
+     PyDoc_STR(nativePropertiesAdminRemoveUpdateCB_doc)},
     {} /* sentinel */
 };
 

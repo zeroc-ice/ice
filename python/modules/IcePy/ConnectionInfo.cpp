@@ -9,6 +9,15 @@
 using namespace std;
 using namespace IcePy;
 
+namespace
+{
+    constexpr const char* ConnectionInfoType_doc = R"(Base class for all connection info classes.
+
+Connection info classes provide access to the connection details.
+They are used to get information about the connection, such as
+whether it's incoming or outgoing, the adapter name, and connection ID.)";
+}
+
 namespace IcePy
 {
     struct ConnectionInfoObject
@@ -273,10 +282,7 @@ namespace IcePy
         .tp_basicsize = sizeof(ConnectionInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(connectionInfoDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = PyDoc_STR("Base class for all connection info classes.\n\n"\
-                           "Connection info classes provide access to the connection details.\n"\
-                           "They are used to get information about the connection, such as\n"\
-                           "whether it's incoming or outgoing, the adapter name, and connection ID."),
+        .tp_doc = PyDoc_STR(ConnectionInfoType_doc),
         .tp_getset = ConnectionInfoGetters,
         .tp_new = reinterpret_cast<newfunc>(connectionInfoNew),
     };
