@@ -214,10 +214,12 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// <returns>The "stringified" identity.</returns>
     public string identityToString(Identity ident) => Util.identityToString(ident, instance.toStringMode());
 
-    /// <summary>Creates a new object adapter. The endpoints for the object adapter are taken from the property
+    /// <summary>
+    /// Creates a new object adapter. The endpoints for the object adapter are taken from the property
     /// <c>name.Endpoints</c>.
     /// It is legal to create an object adapter with the empty string as its name. Such an object
     /// adapter is accessible via bidirectional connections or by collocated invocations.
+    /// </summary>
     /// <param name="name">The object adapter name.</param>
     /// <param name="serverAuthenticationOptions">The SSL options for server connections.</param>
     /// <returns>The new object adapter.</returns>
@@ -228,9 +230,11 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
         SslServerAuthenticationOptions? serverAuthenticationOptions = null) =>
         instance.objectAdapterFactory().createObjectAdapter(name, null, serverAuthenticationOptions);
 
-    /// <summary>Creates a new object adapter with endpoints. This method sets the property <c>name.Endpoints</c>,
+    /// <summary>
+    /// Creates a new object adapter with endpoints. This method sets the property <c>name.Endpoints</c>,
     /// and then calls <see cref="createObjectAdapter"/>. It is provided as a convenience method.
-    /// Calling this method with an empty name will result in a UUID being generated for the name.</summary>
+    /// Calling this method with an empty name will result in a UUID being generated for the name.
+    /// </summary>
     /// <param name="name">The object adapter name.</param>
     /// <param name="endpoints">The endpoints of the object adapter.</param>
     /// <param name="serverAuthenticationOptions">The SSL options for server connections.</param>

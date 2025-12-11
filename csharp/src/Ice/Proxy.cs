@@ -279,7 +279,9 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <returns>The new proxy with the specified encoding version.</returns>
     ObjectPrx ice_encodingVersion(EncodingVersion encodingVersion);
 
-    /// <summary>Gets the encoding version used to marshal requests parameters.</summary>
+    /// <summary>
+    /// Gets the encoding version used to marshal requests parameters.
+    /// </summary>
     /// <returns>The encoding version.</returns>
     EncodingVersion ice_getEncodingVersion();
 
@@ -1105,7 +1107,9 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         }
     }
 
-    /// <summary>Gets the encoding version used to marshal requests parameters.</summary>
+    /// <summary>
+    /// Gets the encoding version used to marshal requests parameters.
+    /// </summary>
     /// <returns>The encoding version.</returns>
     public EncodingVersion ice_getEncodingVersion() => _reference.getEncoding();
 

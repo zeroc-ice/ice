@@ -9,7 +9,7 @@ namespace Ice;
 /// additional transport.
 /// </summary>
 /// <remarks>The communicator loads its plug-ins in two stages: the first stage creates the plug-ins, and the second
-/// stage calls <see cref="initialize"/> on each one.</remarks>
+/// stage calls <see cref="initialize" /> on each one.</remarks>
 public interface Plugin
 {
     /// <summary>
@@ -33,7 +33,7 @@ public interface PluginManager
     /// an application may need to interact directly with a plug-in prior to initialization. In this case, the
     /// application must set <c>Ice.InitPlugins=0</c> and then invoke <c>initializePlugins</c> manually. The plug-ins
     /// are initialized in the order in which they are loaded. If a plug-in throws an exception during initialization,
-    /// the communicator calls <see cref="Plugin.destroy"/> on the plug-ins that have already been initialized.
+    /// the communicator calls <see cref="Plugin.destroy" /> on the plug-ins that have already been initialized.
     /// </summary>
     /// <exception cref="InitializationException">Thrown when the plug-ins have already been initialized.</exception>
     void initializePlugins();

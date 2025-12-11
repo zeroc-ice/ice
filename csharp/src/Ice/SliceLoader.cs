@@ -22,7 +22,8 @@ public interface SliceLoader
     /// </exception>
     object? newInstance(string typeId);
 
-    /// <summary>Retrieves a <see cref="SliceLoader"/> for the generated classes in the specified assemblies.
+    /// <summary>
+    /// Retrieves a <see cref="SliceLoader" /> for the generated classes in the specified assemblies.
     /// </summary>
     /// <param name="assemblies">The assemblies to search.</param>
     /// <returns>A Slice loader for the specified assemblies.</returns>
@@ -32,7 +33,8 @@ public interface SliceLoader
     public static SliceLoader fromAssemblies(params Assembly[] assemblies) =>
         AssemblySliceLoader.Merge(assemblies.Select(AssemblySliceLoaderFactory.Instance.Get));
 
-    /// <summary>Retrieves the <see cref="SliceLoader"/> for the generated classes in the specified assembly.
+    /// <summary>
+    /// Retrieves the <see cref="SliceLoader" /> for the generated classes in the specified assembly.
     /// </summary>
     /// <param name="assembly">The assembly to search.</param>
     /// <returns>A Slice loader for the specified assembly.</returns>

@@ -4,7 +4,9 @@
 
 namespace Ice;
 
-/// <summary>The default implementation of the "Properties" admin facet.</summary>
+/// <summary>
+/// The default implementation of the "Properties" admin facet.
+/// </summary>
 public sealed class NativePropertiesAdmin : PropertiesAdminDisp_
 {
     private readonly Properties _properties;
@@ -168,7 +170,9 @@ public sealed class NativePropertiesAdmin : PropertiesAdminDisp_
         }
     }
 
-    /// <summary>Registers an update callback that will be invoked when a property update occurs.</summary>
+    /// <summary>
+    /// Registers an update callback that will be invoked when a property update occurs.
+    /// </summary>
     /// <param name="cb">The callback.</param>
     public void addUpdateCallback(System.Action<Dictionary<string, string>> cb)
     {
@@ -178,7 +182,9 @@ public sealed class NativePropertiesAdmin : PropertiesAdminDisp_
         }
     }
 
-    /// <summary>Unregisters an update callback previously registered with <see cref="addUpdateCallback" /> .</summary>
+    /// <summary>
+    /// Unregisters an update callback previously registered with <see cref="addUpdateCallback" /> .
+    /// </summary>
     /// <param name="cb">The callback.</param>
     public void removeUpdateCallback(System.Action<Dictionary<string, string>> cb)
     {

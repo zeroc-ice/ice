@@ -360,7 +360,9 @@ public sealed class MarshalException : ProtocolException
 // Timeout exceptions
 //
 
-/// <summary>This exception indicates a timeout condition.</summary>
+/// <summary>
+/// This exception indicates a timeout condition.
+/// </summary>
 public class TimeoutException : LocalException
 {
     /// <summary>
@@ -376,7 +378,9 @@ public class TimeoutException : LocalException
     public override string ice_id() => "::Ice::TimeoutException";
 }
 
-/// <summary>This exception indicates a connection closure timeout condition.</summary>
+/// <summary>
+/// This exception indicates a connection closure timeout condition.
+/// </summary>
 public sealed class CloseTimeoutException : TimeoutException
 {
     /// <summary>
@@ -476,7 +480,9 @@ public sealed class DNSException : SyscallException
     public override string ice_id() => "::Ice::DNSException";
 }
 
-/// <summary>This exception indicates a file error occurred.</summary>
+/// <summary>
+/// This exception indicates a file error occurred.
+/// </summary>
 public sealed class FileException : SyscallException
 {
     /// <summary>

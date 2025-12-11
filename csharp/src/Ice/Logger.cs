@@ -4,8 +4,10 @@
 
 namespace Ice;
 
-/// <summary>Represents Ice's abstraction for logging and tracing. Applications can provide their own logger by
-/// implementing this abstraction and setting a logger on the communicator.</summary>
+/// <summary>
+/// Represents Ice's abstraction for logging and tracing. Applications can provide their own logger by
+/// implementing this abstraction and setting a logger on the communicator.
+/// </summary>
 public interface Logger : IDisposable
 {
     /// <summary>

@@ -7,7 +7,7 @@ namespace IceBox;
 /// <summary>
 /// The exception that is thrown when an IceBox service fails to start.
 /// </summary>
-/// <remarks>You can throw any exception from your implementation of <see cref="Service.start"/>. This exception is
+/// <remarks>You can throw any exception from your implementation of <see cref="Service.start" />. This exception is
 /// provided for backward compatibility with earlier versions of IceBox.</remarks>
 public sealed class FailureException : Ice.LocalException
 {

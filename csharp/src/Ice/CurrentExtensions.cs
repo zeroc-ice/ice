@@ -12,7 +12,9 @@ namespace Ice;
 /// </summary>
 public static class CurrentExtensions
 {
-    /// <summary>Ensures the operation mode of an incoming request is not idempotent.</summary>
+    /// <summary>
+    /// Ensures the operation mode of an incoming request is not idempotent.
+    /// </summary>
     /// <param name="current">The current object of the corresponding incoming request.</param>
     /// <exception cref="MarshalException">Thrown when the request's operation mode is
     /// <see cref="OperationMode.Idempotent" /> or <see cref="OperationMode.Nonmutating" />.</exception>

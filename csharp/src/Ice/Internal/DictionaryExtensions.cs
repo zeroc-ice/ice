@@ -4,11 +4,14 @@
 
 namespace Ice.Internal;
 
-/// <summary>Extension methods for dictionaries.</summary>
+/// <summary>
+/// Extension methods for dictionaries.
+/// </summary>
 public static class DictionaryExtensions
 {
-    /// <summary>Checks if two dictionaries are equal. The order of the elements in the dictionaries does not
-    /// matter.</summary>
+    /// <summary>
+    /// Checks if two dictionaries are equal. The order of the elements in the dictionaries does not matter.
+    /// </summary>
     /// <typeparam name="TKey">The type of the keys in the dictionaries.</typeparam>
     /// <typeparam name="TValue">The type of the values in the dictionaries.</typeparam>
     /// <param name="lhs">The first dictionary to compare.</param>

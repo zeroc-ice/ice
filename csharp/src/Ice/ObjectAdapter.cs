@@ -15,9 +15,9 @@ namespace Ice;
 /// An object adapter is the main server-side Ice API. It has two main purposes:
 /// <list type="bullet">
 /// <item>accept incoming connections from clients and dispatch requests received over these connections (see
-/// <see cref="activate"/>); and</item>
-/// <item>maintain a dispatch pipeline and servants that handle the requests (see <see cref="add"/>,
-/// <see cref="addDefaultServant"/>, and <see cref="use"/>).</item>
+/// <see cref="activate" />); and</item>
+/// <item>maintain a dispatch pipeline and servants that handle the requests (see <see cref="add" />,
+/// <see cref="addDefaultServant" />, and <see cref="use" />).</item>
 /// </list>
 /// An object adapter can dispatch "bidirectional requests"--requests it receives over an outgoing connection
 /// instead of a more common incoming connection. It can also dispatch collocated requests (with no connection at
@@ -631,7 +631,8 @@ public sealed class ObjectAdapter
     /// <summary>
     /// Look up a servant in this object adapter's Active Servant Map, given a proxy.
     /// This operation only tries to lookup a servant in the Active Servant Map. It does not attempt to find a servant
-    /// by using any installed ServantLocator.</summary>
+    /// by using any installed ServantLocator.
+    /// </summary>
     /// <param name="proxy">The proxy for which the servant should be returned.</param>
     /// <returns>The servant that matches the proxy, or null if no such servant has been found.</returns>
     public Object? findByProxy(ObjectPrx proxy)

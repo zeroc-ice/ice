@@ -31,7 +31,7 @@ public abstract class UserException : Ice.Exception
     public virtual bool iceUsesClasses() => false;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="UserException"/> class.
+    /// Initializes a new instance of the <see cref="UserException" /> class.
     /// </summary>
     protected UserException()
         : base(message: null, innerException: null)
