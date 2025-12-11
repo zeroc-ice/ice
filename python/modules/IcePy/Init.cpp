@@ -122,31 +122,48 @@ logger : Ice.Logger
 
     constexpr const char* IcePy_loadSlice_doc = R"(loadSlice(args: list[str]) -> None
 
-Dynamically loads Slice definitions from one or more files and generates the corresponding Python code.
+Compiles Slice definitions and loads the generated code directly into the current Python environment.
+
+This function does not generate any Python source files. Instead, the generated Python code is loaded directly into the
+running interpreter.
+
+This function does not generate any code for Slice files included by the Slice files being loaded. It is the caller's
+responsibility to load all necessary Slice definitions. This can be done in a single call to :func:`loadSlice` by
+providing all Slice files (including included files) in the `args` parameter, or by making multiple calls to
+:func:`loadSlice`.
+
+When :func:`loadSlice` is called multiple times, the definitions that are already loaded are reused and only new
+definitions are compiled.
 
 Parameters
 ----------
 args : list[str]
-    List of command-line arguments for Slice compilation, following
-    the same syntax as the slice2py compiler.)";
+    The list of command-line arguments to pass to the Slice loader.
+    The accepted arguments are the same as those supported by the `slice2py` tool, except that
+    the `--output-dir`, `--depend`, `--depend-xml`, and `--depend-file` options are ignored.
+
+Raises
+------
+RuntimeError
+    If an error occurs during Slice parsing or compilation.)";
 
     constexpr const char* IcePy_compileSlice_doc = R"(compileSlice(args: list[str]) -> int
 
-Compiles Slice definitions. The behavior is identical to the
-slice2py compiler. This function does not generate Python code
-dynamically; it only processes Slice files according to the
-compilation options provided.
+Compiles Slice definitions. The behavior is identical to that of the `slice2py` compiler.
+
+Slice compilation errors and warnings are printed to standard error (stderr).
+
+This is an internal function used in the implementation of the `slice2py` Python script included in the Ice PIP package.
 
 Parameters
 ----------
 args : list[str]
-    List of command-line arguments for Slice compilation, following
-    the same syntax as the slice2py compiler.
+    The list of command-line arguments for Slice compilation, following the same syntax as the `slice2py` compiler.
 
 Returns
 -------
 int
-    Exit code. 0 indicates success, non-zero indicates failure.)";
+    The exit code: 0 indicates success, and a non-zero value indicates failure.)";
 
     unsigned long mainThreadId;
 }
