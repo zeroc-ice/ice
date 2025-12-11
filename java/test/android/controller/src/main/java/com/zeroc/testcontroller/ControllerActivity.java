@@ -58,7 +58,11 @@ public class ControllerActivity extends Activity {
         super.onStart();
 
         if (!_isSetupComplete) {
-            initializeBluetooth();
+            if (ControllerApp.isEmulator()) {
+                completeSetup(false);
+            } else {
+                initializeBluetooth();
+            }
         }
     }
 
