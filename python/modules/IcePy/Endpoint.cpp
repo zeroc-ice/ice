@@ -8,6 +8,27 @@
 using namespace std;
 using namespace IcePy;
 
+namespace
+{
+    constexpr const char* endpointToString_doc = R"(toString() -> str
+
+Returns a string representation of this endpoint.
+
+Returns
+-------
+str
+    The string representation of this endpoint.)";
+
+    constexpr const char* endpointGetInfo_doc = R"(getInfo() -> Ice.EndpointInfo
+
+Returns the endpoint information.
+
+Returns
+-------
+Ice.EndpointInfo
+    The endpoint information class.)";
+}
+
 namespace IcePy
 {
     struct EndpointObject
@@ -118,24 +139,8 @@ endpointGetInfo(EndpointObject* self, PyObject* /*args*/)
 }
 
 static PyMethodDef EndpointMethods[] = {
-    {"toString",
-     reinterpret_cast<PyCFunction>(endpointToString),
-     METH_NOARGS,
-     PyDoc_STR("toString() -> str\n\n"
-               "Returns a string representation of this endpoint.\n\n"
-               "Returns\n"
-               "-------\n"
-               "str\n"
-               "    The string representation of this endpoint.")},
-    {"getInfo",
-     reinterpret_cast<PyCFunction>(endpointGetInfo),
-     METH_NOARGS,
-     PyDoc_STR("getInfo() -> Ice.EndpointInfo\n\n"
-               "Returns the endpoint information.\n\n"
-               "Returns\n"
-               "-------\n"
-               "Ice.EndpointInfo\n"
-               "    The endpoint information class.")},
+    {"toString", reinterpret_cast<PyCFunction>(endpointToString), METH_NOARGS, PyDoc_STR(endpointToString_doc)},
+    {"getInfo", reinterpret_cast<PyCFunction>(endpointGetInfo), METH_NOARGS, PyDoc_STR(endpointGetInfo_doc)},
     {} /* sentinel */
 };
 

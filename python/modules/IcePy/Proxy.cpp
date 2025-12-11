@@ -1428,8 +1428,9 @@ static PyMethodDef ProxyMethods[] = {
     {"ice_invoke",
      reinterpret_cast<PyCFunction>(proxyIceInvoke),
      METH_VARARGS,
-     PyDoc_STR("ice_invoke(operation: str, mode: Ice.OperationMode, inParams: bytes, ctx: dict[str, str] | None) -> "
-               "tuple[bool, bytes]")},
+     PyDoc_STR(
+         "ice_invoke(operation: str, mode: Ice.OperationMode, inParams: bytes, ctx: dict[str, str] | None) -> "
+         "tuple[bool, bytes]")},
     {"ice_invokeAsync",
      reinterpret_cast<PyCFunction>(proxyIceInvokeAsync),
      METH_VARARGS | METH_KEYWORDS,

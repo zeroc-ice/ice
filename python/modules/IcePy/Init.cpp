@@ -24,95 +24,159 @@ using namespace IcePy;
 
 extern "C" void IcePy_cleanup(void*);
 
+namespace
+{
+    constexpr const char* IcePy_stringVersion_doc = R"(stringVersion() -> str
+
+Returns the Ice version as a string.
+
+Returns
+-------
+str
+    The Ice version in the format 'A.B.C' where A is the major version,
+    B is the minor version, and C is the patch version.)";
+
+    constexpr const char* IcePy_intVersion_doc = R"(intVersion() -> int
+
+Returns the Ice version as an integer.
+
+Returns
+-------
+int
+    The Ice version as an integer for version comparison.)";
+
+    constexpr const char* IcePy_createProperties_doc =
+        R"(createProperties(args: list[str] | None = None) -> Ice.Properties
+
+Creates a new Properties instance.
+
+Parameters
+----------
+args : list or None, optional
+    Command-line arguments used to set properties. If provided, these
+    are parsed to extract property settings.
+
+Returns
+-------
+Ice.Properties
+    A new Properties object.)";
+
+    constexpr const char* IcePy_stringToIdentity_doc = R"(stringToIdentity(s: str) -> Ice.Identity
+
+Converts a string into an identity.
+
+Parameters
+----------
+s : str
+    The string representation of an identity.
+
+Returns
+-------
+Ice.Identity
+    The identity.
+
+Raises
+------
+IdentityParseException
+    If the string is not a valid identity.)";
+
+    constexpr const char* IcePy_identityToString_doc =
+        R"(identityToString(ident: Ice.Identity, mode: Ice.ToStringMode = Ice.ToStringMode.Unicode) -> str
+
+Converts an identity into a string.
+
+Parameters
+----------
+ident : Ice.Identity
+    The identity to convert.
+mode : Ice.ToStringMode, optional
+    Specifies how to encode non-ASCII characters. The default is
+    Ice.ToStringMode.Unicode.
+
+Returns
+-------
+str
+    The string representation of the identity.)";
+
+    constexpr const char* IcePy_getProcessLogger_doc = R"(getProcessLogger() -> Ice.Logger
+
+Returns the process logger. This is the logger used by the Ice
+run time unless the application sets a different logger in
+InitializationData for a communicator.
+
+Returns
+-------
+Ice.Logger
+    The process logger.)";
+
+    constexpr const char* IcePy_setProcessLogger_doc = R"(setProcessLogger(logger: Ice.Logger) -> None
+
+Sets the process logger. This logger is used by the Ice run time
+unless the application sets a different logger in
+InitializationData for a communicator.
+
+Parameters
+----------
+logger : Ice.Logger
+    The new process logger.)";
+
+    constexpr const char* IcePy_loadSlice_doc = R"(loadSlice(args: list[str]) -> None
+
+Dynamically loads Slice definitions from one or more files and generates the corresponding Python code.
+
+Parameters
+----------
+args : list[str]
+    List of command-line arguments for Slice compilation, following
+    the same syntax as the slice2py compiler.)";
+
+    constexpr const char* IcePy_compileSlice_doc = R"(compileSlice(args: list[str]) -> int
+
+Compiles Slice definitions. The behavior is identical to the
+slice2py compiler. This function does not generate Python code
+dynamically; it only processes Slice files according to the
+compilation options provided.
+
+Parameters
+----------
+args : list[str]
+    List of command-line arguments for Slice compilation, following
+    the same syntax as the slice2py compiler.
+
+Returns
+-------
+int
+    Exit code. 0 indicates success, non-zero indicates failure.)";
+
+    unsigned long mainThreadId;
+}
+
 static PyMethodDef methods[] = {
     {"stringVersion",
      reinterpret_cast<PyCFunction>(IcePy_stringVersion),
      METH_NOARGS,
-     PyDoc_STR("stringVersion() -> str\n\n"
-               "Returns the Ice version as a string.\n\n"
-               "Returns\n"
-               "-------\n"
-               "str\n"
-               "    The Ice version in the format 'A.B.C' where A is the major version,\n"
-               "    B is the minor version, and C is the patch version.")},
-    {"intVersion",
-     reinterpret_cast<PyCFunction>(IcePy_intVersion),
-     METH_NOARGS,
-     PyDoc_STR("intVersion() -> int\n\n"
-               "Returns the Ice version as an integer.\n\n"
-               "Returns\n"
-               "-------\n"
-               "int\n"
-               "    The Ice version as an integer for version comparison.")},
+     PyDoc_STR(IcePy_stringVersion_doc)},
+    {"intVersion", reinterpret_cast<PyCFunction>(IcePy_intVersion), METH_NOARGS, PyDoc_STR(IcePy_intVersion_doc)},
     {"createProperties",
      reinterpret_cast<PyCFunction>(IcePy_createProperties),
      METH_VARARGS,
-     PyDoc_STR("createProperties(args: list[str] | None = None) -> Ice.Properties\n\n"
-               "Creates a new Properties instance.\n\n"
-               "Parameters\n"
-               "----------\n"
-               "args : list or None, optional\n"
-               "    Command-line arguments used to set properties. If provided, these\n"
-               "    are parsed to extract property settings.\n\n"
-               "Returns\n"
-               "-------\n"
-               "Ice.Properties\n"
-               "    A new Properties object.")},
+     PyDoc_STR(IcePy_createProperties_doc)},
     {"stringToIdentity",
      reinterpret_cast<PyCFunction>(IcePy_stringToIdentity),
      METH_O,
-     PyDoc_STR("stringToIdentity(s: str) -> Ice.Identity\n\n"
-               "Converts a string into an identity.\n\n"
-               "Parameters\n"
-               "----------\n"
-               "s : str\n"
-               "    The string representation of an identity.\n\n"
-               "Returns\n"
-               "-------\n"
-               "Ice.Identity\n"
-               "    The identity.\n\n"
-               "Raises\n"
-               "------\n"
-               "IdentityParseException\n"
-               "    If the string is not a valid identity.")},
+     PyDoc_STR(IcePy_stringToIdentity_doc)},
     {"identityToString",
      reinterpret_cast<PyCFunction>(IcePy_identityToString),
      METH_VARARGS,
-     PyDoc_STR("identityToString(ident: Ice.Identity, mode: Ice.ToStringMode = Ice.ToStringMode.Unicode) -> str\n\n"
-               "Converts an identity into a string.\n\n"
-               "Parameters\n"
-               "----------\n"
-               "ident : Ice.Identity\n"
-               "    The identity to convert.\n"
-               "mode : Ice.ToStringMode, optional\n"
-               "    Specifies how to encode non-ASCII characters. The default is\n"
-               "    Ice.ToStringMode.Unicode.\n\n"
-               "Returns\n"
-               "-------\n"
-               "str\n"
-               "    The string representation of the identity.")},
+     PyDoc_STR(IcePy_identityToString_doc)},
     {"getProcessLogger",
      reinterpret_cast<PyCFunction>(IcePy_getProcessLogger),
      METH_NOARGS,
-     PyDoc_STR("getProcessLogger() -> Ice.Logger\n\n"
-               "Returns the process logger. This is the logger used by the Ice\n"
-               "run time unless the application sets a different logger in\n"
-               "InitializationData for a communicator.\n\n"
-               "Returns\n"
-               "-------\n"
-               "Ice.Logger\n"
-               "    The process logger.")},
+     PyDoc_STR(IcePy_getProcessLogger_doc)},
     {"setProcessLogger",
      reinterpret_cast<PyCFunction>(IcePy_setProcessLogger),
      METH_VARARGS,
-     PyDoc_STR("setProcessLogger(logger: Ice.Logger) -> None\n\n"
-               "Sets the process logger. This logger is used by the Ice run time\n"
-               "unless the application sets a different logger in\n"
-               "InitializationData for a communicator.\n\n"
-               "Parameters\n"
-               "----------\n"
-               "logger : Ice.Logger\n"
-               "    The new process logger.")},
+     PyDoc_STR(IcePy_setProcessLogger_doc)},
     {"defineEnum", reinterpret_cast<PyCFunction>(IcePy_defineEnum), METH_VARARGS, PyDoc_STR("internal function")},
     {"defineStruct", reinterpret_cast<PyCFunction>(IcePy_defineStruct), METH_VARARGS, PyDoc_STR("internal function")},
     {"defineSequence",
@@ -131,34 +195,11 @@ static PyMethodDef methods[] = {
      reinterpret_cast<PyCFunction>(IcePy_defineException),
      METH_VARARGS,
      PyDoc_STR("internal function")},
-    {"loadSlice",
-     reinterpret_cast<PyCFunction>(IcePy_loadSlice),
-     METH_VARARGS,
-     PyDoc_STR(
-         "loadSlice(args: list[str]) -> None\n\n"
-         "Dynamically loads Slice definitions from one or more files and generates the corresponding Python code.\n\n"
-         "Parameters\n"
-         "----------\n"
-         "args : list[str]\n"
-         "    List of command-line arguments for Slice compilation, following\n"
-         "    the same syntax as the slice2py compiler.")},
+    {"loadSlice", reinterpret_cast<PyCFunction>(IcePy_loadSlice), METH_VARARGS, PyDoc_STR(IcePy_loadSlice_doc)},
     {"compileSlice",
      reinterpret_cast<PyCFunction>(IcePy_compileSlice),
      METH_VARARGS,
-     PyDoc_STR("compileSlice(args: list[str]) -> int\n\n"
-               "Compiles Slice definitions. The behavior is identical to the\n"
-               "slice2py compiler. This function does not generate Python code\n"
-               "dynamically; it only processes Slice files according to the\n"
-               "compilation options provided.\n\n"
-               "Parameters\n"
-               "----------\n"
-               "args : list[str]\n"
-               "    List of command-line arguments for Slice compilation, following\n"
-               "    the same syntax as the slice2py compiler.\n\n"
-               "Returns\n"
-               "-------\n"
-               "int\n"
-               "    Exit code. 0 indicates success, non-zero indicates failure.")},
+     PyDoc_STR(IcePy_compileSlice_doc)},
     {} /* sentinel */
 };
 
@@ -172,11 +213,6 @@ static struct PyModuleDef iceModule = {
     nullptr,
     nullptr,
     IcePy_cleanup};
-
-namespace
-{
-    unsigned long mainThreadId;
-}
 
 #if defined(__GNUC__)
 extern "C" __attribute__((visibility("default"))) PyObject*
