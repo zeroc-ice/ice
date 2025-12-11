@@ -687,7 +687,9 @@
   </Folder>
   <Folder Name="/IceStorm/" />
   <Folder Name="/IceStorm/createOrRetrieve/">
-    <Project Path="../test/IceStorm/createOrRetrieve/msbuild/client/client.vcxproj" />
+    <Project Path="../test/IceStorm/createOrRetrieve/msbuild/client/client.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
   </Folder>
   <Folder Name="/IceStorm/federation/">
     <Project Path="../test/IceStorm/federation/msbuild/publisher/publisher.vcxproj">
