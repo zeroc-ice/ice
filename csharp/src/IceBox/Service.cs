@@ -5,10 +5,10 @@
 namespace IceBox;
 
 /// <summary>
-/// This exception is a general failure notification.
-/// It is thrown for errors such as a service encountering an error during initialization, or the service manager
-/// being unable to load a service executable.
+/// The exception that is thrown when an IceBox service fails to start.
 /// </summary>
+/// <remarks>You can throw any exception from your implementation of <see cref="Service.start"/>. This exception is
+/// provided for backward compatibility with earlier versions of IceBox.</remarks>
 public sealed class FailureException : Ice.LocalException
 {
     public string reason => Message;
@@ -21,25 +21,23 @@ public sealed class FailureException : Ice.LocalException
     public override string ice_id() => "::IceBox::FailureException";
 }
 
+/// <summary>
+/// Represents an IceBox service that you implement and that the IceBox service manager starts and later stops.
+/// The same service can be started and stopped multiple times.
+/// </summary>
 public interface Service
 {
     /// <summary>
-    /// Start the service.
-    /// The given communicator is created by the ServiceManager for use by the service. This
-    /// communicator may also be used by other services, depending on the service configuration.
-    /// &lt;p class="Note"&gt;The ServiceManager owns this communicator, and is responsible for destroying it.
+    /// Starts the service.
     /// </summary>
-    /// <param name="name">The service's name, as determined by the configuration.
-    /// </param>
-    /// <param name="communicator">A communicator for use by the service.
-    /// </param>
-    /// <param name="args">The service arguments that were not converted into properties.
-    /// </param>
-    /// <exception name="FailureException">Raised if start failed.</exception>
+    /// <param name="name">The service's name, as specified in configuration.</param>
+    /// <param name="communicator">A communicator for use by the service. The IceBox service manager creates this
+    /// communicator when it starts, and destroys this communicator when it shuts down.</param>
+    /// <param name="args">The service arguments that were not converted into properties of <paramref name="communicator"/>.</param>
     void start(string name, Ice.Communicator communicator, string[] args);
 
     /// <summary>
-    /// Stop the service.
+    /// Stops the service.
     /// </summary>
     void stop();
 }

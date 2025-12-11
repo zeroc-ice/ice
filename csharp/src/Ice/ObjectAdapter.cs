@@ -11,6 +11,19 @@ using System.Text;
 
 namespace Ice;
 
+/// <summary>
+/// An object adapter is the main server-side Ice API. It has two main purposes:
+/// <list type="bullet">
+/// <item>accept incoming connections from clients and dispatch requests received over these connections (see
+/// <see cref="activate"/>); and</item>
+/// <item>maintain a dispatch pipeline and servants that handle the requests (see <see cref="add"/>,
+/// <see cref="addDefaultServant"/>, and <see cref="use"/>).</item>
+/// </list>
+/// An object adapter can dispatch "bidirectional requests"--requests it receives over an outgoing connection
+/// instead of a more common incoming connection. It can also dispatch collocated requests (with no connection at
+/// all).
+/// </summary>
+/// <seealso cref="Communicator.createObjectAdapter"/>
 public sealed class ObjectAdapter
 {
     private const int StateUninitialized = 0; // Just constructed.
@@ -47,23 +60,25 @@ public sealed class ObjectAdapter
     private readonly object _mutex = new();
 
     /// <summary>
-    /// Get the name of this object adapter.
+    /// Gets the name of this object adapter.
     /// </summary>
     /// <returns>This object adapter's name.</returns>
     public string getName() => _noConfig ? "" : _name;
 
     /// <summary>
-    /// Get the communicator this object adapter belongs to.
+    /// Gets the communicator that created this object adapter.
     /// </summary>
-    /// <returns>This object adapter's communicator.
-    /// </returns>
+    /// <returns>This object adapter's communicator.</returns>
     public Communicator getCommunicator() => _communicator;
 
     /// <summary>
-    /// Activate all endpoints that belong to this object adapter.
-    /// After activation, the object adapter can dispatch
-    /// requests received through its endpoints.
+    /// Starts receiving and dispatching requests received over incoming connections.
     /// </summary>
+    /// <remarks>When this object adapter is an indirect object adapter configured with a locator proxy, this
+    /// method also registers the object adapter's published endpoints with this locator.</remarks>
+    /// <seealso cref="deactivate"/>
+    /// <seealso cref="getLocator"/>
+    /// <seealso cref="getPublishedEndpoints"/>
     public void activate()
     {
         LocatorInfo? locatorInfo = null;
@@ -149,12 +164,12 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Temporarily hold receiving and dispatching requests.
-    /// The object adapter can be reactivated with the
-    /// activate operation. &lt;p class="Note"&gt; Holding is not immediate, i.e., after hold returns, the
-    /// object adapter might still be active for some time. You can use waitForHold to wait until holding is
-    /// complete.
+    /// Stops reading requests from incoming connections. Outstanding dispatches are not affected. The object
+    /// adapter can be reactivated with <see cref="activate"/>.
     /// </summary>
+    /// <remarks>This method is provided for backward compatibility with older versions of Ice. Don't use it in
+    /// new applications. Holding is not immediate, i.e., after hold returns, the object adapter might still be
+    /// active for some time. You can use <see cref="waitForHold"/> to wait until holding is complete.</remarks>
     public void hold()
     {
         lock (_mutex)
@@ -169,10 +184,11 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Wait until the object adapter holds requests.
-    /// Calling hold initiates holding of requests, and
-    /// waitForHold only returns when holding of requests has been completed.
+    /// Waits until the object adapter is in the holding state (see <see cref="hold"/>) and the dispatch of requests
+    /// received over incoming connection has completed.
     /// </summary>
+    /// <remarks>This method is provided for backward compatibility with older versions of Ice. Don't use it in
+    /// new applications.</remarks>
     public void waitForHold()
     {
         List<IncomingConnectionFactory> incomingConnectionFactories;
@@ -189,13 +205,15 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Deactivates this object adapter: stop accepting new connections from clients and close gracefully all incoming
-    /// connections created by this object adapter once all outstanding dispatches have completed. If this object
-    /// adapter is indirect, this method also unregisters the object adapter from the Locator.
-    /// This method does not cancel outstanding dispatches--it lets them execute until completion. A new incoming
-    /// request on an existing connection will be accepted and can delay the closure of the connection.
+    /// Deactivates this object adapter: stops accepting new connections from clients and closes gracefully all
+    /// incoming connections created by this object adapter once all outstanding dispatches have completed. If this
+    /// object adapter is indirect, this method also unregisters the object adapter from the locator
+    /// (see <see cref="activate"/>).
+    /// This method does not cancel outstanding dispatches: it lets them execute until completion.
     /// A deactivated object adapter cannot be reactivated again; it can only be destroyed.
     /// </summary>
+    /// <seealso cref="waitForDeactivate"/>
+    /// <seealso cref="Communicator.shutdown"/>
     public void deactivate()
     {
         bool hasPublishedEndpoints = false;
@@ -245,10 +263,11 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Wait until <see cref="deactivate" /> is called on this object adapter and all connections accepted by this
+    /// Waits until <see cref="deactivate"/> is called on this object adapter and all connections accepted by this
     /// object adapter are closed. A connection is closed only after all outstanding dispatches on this connection have
     /// completed.
     /// </summary>
+    /// <seealso cref="Communicator.waitForShutdown"/>
     public void waitForDeactivate()
     {
         IncomingConnectionFactory[]? incomingConnectionFactories = null;
@@ -278,11 +297,10 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Checks if this object adapter has been deactivated.
+    /// Checks whether or not <see cref="deactivate"/> was called on this object adapter.
     /// </summary>
-    /// <returns><see langword="true" /> if <see cref="deactivate"/> has been called on this object adapter; otherwise,
-    /// <see langword="false" />.
-    /// </returns>
+    /// <returns><see langword="true"/> if <see cref="deactivate"/> was called on this object adapter,
+    /// <see langword="false"/> otherwise.</returns>
     public bool isDeactivated()
     {
         lock (_mutex)
@@ -292,9 +310,10 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Destroys this object adapter and cleans up all resources held by this object adapter.
-    /// Once this method has returned, it is possible to create another object adapter with the same name.
+    /// Destroys this object adapter and cleans up all resources associated with it. Once this method has
+    /// returned, you can recreate another object adapter with the same name.
     /// </summary>
+    /// <seealso cref="Communicator.destroy"/>
     public void destroy()
     {
         //
@@ -378,10 +397,15 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Install a middleware in this object adapter.
+    /// Adds a middleware to the dispatch pipeline of this object adapter.
     /// </summary>
-    /// <param name="middleware">The middleware to install.</param>
+    /// <param name="middleware">The middleware factory that creates the new middleware when this object adapter
+    /// creates its dispatch pipeline. A middleware factory is a function that takes an <see cref="Object"/> (the next
+    /// element in the dispatch pipeline) and returns a new <see cref="Object"/> (the middleware you want to install in
+    /// the pipeline).</param>
     /// <returns>This object adapter.</returns>
+    /// <remarks>All middleware must be installed before the first dispatch. The middleware are executed in the order
+    /// they are installed.</remarks>
     /// <exception cref="InvalidOperationException">Thrown if the object adapter's dispatch pipeline has already been
     /// created. This creation typically occurs the first time the object adapter dispatches an incoming request.
     /// </exception>
@@ -396,25 +420,28 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Add a servant to this object adapter's Active Servant Map.
-    /// Note that one servant can implement several Ice
-    /// objects by registering the servant with multiple identities. Adding a servant with an identity that is in the
-    /// map already throws AlreadyRegisteredException.
+    /// Adds a servant to this object adapter's Active Servant Map (ASM).
+    /// The ASM is a map {identity, facet} -> servant.
     /// </summary>
     /// <param name="servant">The servant to add.</param>
     /// <param name="id">The identity of the Ice object that is implemented by the servant.</param>
     /// <returns>A proxy that matches the given identity and this object adapter.</returns>
+    /// <exception cref="AlreadyRegisteredException">Thrown when a servant with the same identity is already
+    /// registered.</exception>
+    /// <remarks>This method is equivalent to calling <see cref="addFacet"/> with an empty facet.</remarks>
     public ObjectPrx add(Object servant, Identity id) => addFacet(servant, id, "");
 
     /// <summary>
-    /// Like add, but with a facet.
-    /// Calling add(servant, id) is equivalent to calling
-    /// addFacet with an empty facet.
+    /// Adds a servant to this object adapter's Active Servant Map (ASM), while specifying a facet.
+    /// The ASM is a map {identity, facet} -> servant.
     /// </summary>
     /// <param name="servant">The servant to add.</param>
     /// <param name="identity">The identity of the Ice object that is implemented by the servant.</param>
-    /// <param name="facet">The facet. An empty facet means the default facet.</param>
+    /// <param name="facet">The facet of the Ice object that is implemented by the servant. An empty facet means the
+    /// default facet.</param>
     /// <returns>A proxy that matches the given identity, facet, and this object adapter.</returns>
+    /// <exception cref="AlreadyRegisteredException">Thrown when a servant with the same identity and facet is already
+    /// registered.</exception>
     public ObjectPrx addFacet(Object servant, Identity identity, string facet)
     {
         lock (_mutex)
@@ -432,21 +459,21 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Add a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its
-    /// identity. Note that the generated UUID identity can be accessed using the proxy's ice_getIdentity operation.
+    /// Adds a servant to this object adapter's Active Servant Map (ASM), using an automatically generated UUID as its
+    /// identity.
     /// </summary>
     /// <param name="servant">The servant to add.</param>
-    /// <returns>A proxy that matches the generated UUID identity and this object adapter.</returns>
+    /// <returns>A proxy with the generated UUID identity created by this object adapter.</returns>
     public ObjectPrx addWithUUID(Object servant) => addFacetWithUUID(servant, "");
 
     /// <summary>
-    /// Like addWithUUID, but with a facet.
-    /// Calling addWithUUID(servant) is equivalent to calling
-    /// addFacetWithUUID with an empty facet.
+    /// Adds a servant to this object adapter's Active Servant Map (ASM), using an automatically generated UUID as
+    /// its identity. Also specifies a facet.
     /// </summary>
     /// <param name="servant">The servant to add.</param>
-    /// <param name="facet">The facet. An empty facet means the default facet.</param>
-    /// <returns>A proxy that matches the generated UUID identity, facet, and this object adapter.</returns>
+    /// <param name="facet">The facet of the Ice object that is implemented by the servant. An empty facet means the
+    /// default facet.</param>
+    /// <returns>A proxy with the generated UUID identity and the specified facet.</returns>
     public ObjectPrx addFacetWithUUID(Object servant, string facet)
     {
         var ident = new Identity(Guid.NewGuid().ToString(), "");
@@ -454,23 +481,32 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Add a default servant to handle requests for a specific category.
-    /// Adding a default servant for a category for
-    /// which a default servant is already registered throws AlreadyRegisteredException. To dispatch operation
-    /// calls on servants, the object adapter tries to find a servant for a given Ice object identity and facet in the
+    /// Adds a default servant to handle requests for a specific category. When an object adapter dispatches an
+    /// incoming request, it tries to find a servant for the identity and facet carried by the request in the
     /// following order:
-    ///
-    /// The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
-    /// If no servant has been found in the Active Servant Map, the object adapter tries to find a default servant
-    /// for the category component of the identity.
-    /// If no servant has been found by any of the preceding steps, the object adapter tries to find a default
-    /// servant for an empty category, regardless of the category contained in the identity.
-    /// If no servant has been found by any of the preceding steps, the object adapter gives up and the caller
-    /// receives ObjectNotExistException or FacetNotExistException.
+    /// <list type="bullet">
+    /// <item>The object adapter tries to find a servant for the identity and facet in the Active Servant Map.</item>
+    /// <item>If this fails, the object adapter tries to find a default servant for the category component of the
+    /// identity.</item>
+    /// <item>If this fails, the object adapter tries to find a default servant for the empty category, regardless of
+    /// the category contained in the identity.</item>
+    /// <item>If this fails, the object adapter tries to find a servant locator for the category component of the
+    /// identity. If there is no such servant locator, the object adapter tries to find a servant locator for the
+    /// empty category.
+    /// <list type="bullet">
+    /// <item>If a servant locator is found, the object adapter tries to find a servant using this servant locator.
+    /// </item>
+    /// </list>
+    /// </item>
+    /// <item>If all the previous steps fail, the object adapter gives up and the caller receives an
+    /// <see cref="ObjectNotExistException"/> or a <see cref="FacetNotExistException"/>.</item>
+    /// </list>
     /// </summary>
-    /// <param name="servant">The default servant.</param>
-    /// <param name="category">The category for which the default servant is registered. An empty category means it
-    /// will handle all categories.</param>
+    /// <param name="servant">The default servant to add.</param>
+    /// <param name="category">The category for which the default servant is registered. The empty category means it
+    /// handles all categories.</param>
+    /// <exception cref="AlreadyRegisteredException">Thrown when a default servant with the same category is already
+    /// registered.</exception>
     public void addDefaultServant(Ice.Object servant, string category)
     {
         ArgumentNullException.ThrowIfNull(servant);

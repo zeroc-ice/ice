@@ -7,6 +7,20 @@ using System.Net.Security;
 
 namespace Ice;
 
+/// <summary>
+/// Communicator is the central object in Ice. Its responsibilities include:
+/// <list type="bullet">
+/// <item>creating and managing outgoing connections</item>
+/// <item>executing callbacks in its client thread pool</item>
+/// <item>creating and destroying object adapters</item>
+/// <item>loading plug-ins</item>
+/// <item>managing properties (configuration), retries, logging, instrumentation, and more.</item>
+/// </list>
+/// You create a communicator with one of the <see cref="Communicator(InitializationData?)"/> constructors, and it's
+/// usually the first object you create when programming with Ice. You can create multiple communicators in a single
+/// program, but this is not common.
+/// </summary>
+/// <seealso cref="InitializationData"/>
 public sealed class Communicator : IDisposable, IAsyncDisposable
 {
     /// <summary>

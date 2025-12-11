@@ -5,7 +5,7 @@
 namespace Ice;
 
 /// <summary>
-/// The batch compression option when flushing queued batch requests.
+/// Represents batch compression options when flushing queued batch requests.
 /// </summary>
 public enum CompressBatch
 {
@@ -28,7 +28,7 @@ public enum CompressBatch
 public delegate void CloseCallback(Connection con);
 
 /// <summary>
-/// The user-level interface to a connection.
+/// Represents a connection that uses the Ice protocol.
 /// </summary>
 public interface Connection
 {
@@ -38,42 +38,41 @@ public interface Connection
     void abort();
 
     /// <summary>
-    /// Closes the connection gracefully after waiting for all outstanding invocations to complete.
+    /// Starts a graceful closure of this connection once all outstanding invocations have completed.
     /// </summary>
     /// <returns>A task that completes when the connection is closed.</returns>
-    /// <remarks>If this operation takes longer than the configured close timeout, the connection is aborted with a
-    /// <see cref="CloseTimeoutException"/>.</remarks>
+    /// <remarks>If closing the connection takes longer than the configured close timeout, the connection is aborted
+    /// with a <see cref="CloseTimeoutException"/>.</remarks>
     Task closeAsync();
 
     /// <summary>
-    /// Create a special proxy that always uses this connection.
-    /// This can be used for callbacks from a server to a
-    /// client if the server cannot directly establish a connection to the client, for example because of firewalls. In
-    /// this case, the server would create a proxy using an already established connection from the client.
+    /// Creates a special proxy (a "fixed proxy") that always uses this connection.
     /// </summary>
-    /// <param name="id">The identity for which a proxy is to be created.</param>
-    /// <returns>A proxy that matches the given identity and uses this connection.</returns>
+    /// <param name="id">The identity of the target object.</param>
+    /// <returns>A fixed proxy with the provided identity.</returns>
     ObjectPrx createProxy(Identity id);
 
     /// <summary>
     /// Associates an object adapter with this connection. When a connection receives a request, it dispatches this
     /// request using its associated object adapter. If the associated object adapter is null, the connection
-    /// rejects any incoming request with an <see cref="ObjectNotExistException" />.
+    /// rejects any incoming request with an <see cref="ObjectNotExistException"/>.
     /// The default object adapter of an incoming connection is the object adapter that created this connection;
     /// the default object adapter of an outgoing connection is the communicator's default object adapter.
     /// </summary>
     /// <param name="adapter">The object adapter to associate with this connection.</param>
     /// <seealso cref="Communicator.getDefaultObjectAdapter"/>
+    /// <seealso cref="getAdapter"/>
     void setAdapter(ObjectAdapter? adapter);
 
     /// <summary>
     /// Gets the object adapter associated with this connection.
     /// </summary>
     /// <returns>The object adapter associated with this connection.</returns>
+    /// <seealso cref="setAdapter"/>
     ObjectAdapter? getAdapter();
 
     /// <summary>
-    /// Get the endpoint from which the connection was created.
+    /// Gets the endpoint from which the connection was created.
     /// </summary>
     /// <returns>The endpoint from which the connection was created.</returns>
     Endpoint getEndpoint();
