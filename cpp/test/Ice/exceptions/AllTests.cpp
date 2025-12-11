@@ -39,6 +39,7 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     const string protocol = communicator->getProperties()->getIceProperty("Ice.Default.Protocol");
+    bool bluetooth = protocol == "bt" || protocol == "bts";
 
     cout << "testing ice_print()/what() for local exceptions... " << flush;
     {
@@ -73,7 +74,7 @@ allTests(Test::TestHelper* helper)
     string localOAEndpoint;
     {
         ostringstream ostr;
-        if (communicator->getProperties()->getIceProperty("Ice.Default.Protocol") == "bt")
+        if (bluetooth)
         {
             ostr << "default -a *";
         }
@@ -489,7 +490,7 @@ allTests(Test::TestHelper* helper)
         cout << "ok" << endl;
     }
 
-    if (thrower->ice_getConnection() && protocol != "bt")
+    if (thrower->ice_getConnection() && !bluetooth)
     {
         cout << "testing memory limit marshal exception..." << flush;
         try

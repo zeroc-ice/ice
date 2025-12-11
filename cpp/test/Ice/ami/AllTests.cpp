@@ -77,6 +77,7 @@ allTests(TestHelper* helper, bool collocated)
 {
     CommunicatorPtr communicator = helper->communicator();
     const string protocol = communicator->getProperties()->getIceProperty("Ice.Default.Protocol");
+    bool bluetooth = protocol == "bt" || protocol == "bts";
 
     TestIntfPrx p(communicator, "test:" + helper->getTestEndpoint());
     TestIntfControllerPrx testController(communicator, "testController:" + helper->getTestEndpoint(1));
@@ -474,7 +475,7 @@ allTests(TestHelper* helper, bool collocated)
         //
         // Check that CommunicatorDestroyedException is raised directly.
         //
-        if (p->ice_getConnection() && protocol != "bt")
+        if (p->ice_getConnection() && !bluetooth)
         {
             InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
@@ -812,7 +813,7 @@ allTests(TestHelper* helper, bool collocated)
             test(p->waitForBatch(2));
         }
 
-        if (p->ice_getConnection() && protocol != "bt")
+        if (p->ice_getConnection() && !bluetooth)
         {
             test(p->opBatchCount() == 0);
             auto b1 = p->ice_batchOneway();
@@ -880,7 +881,7 @@ allTests(TestHelper* helper, bool collocated)
                 promise.get_future().get();
             }
 
-            if (protocol != "bt")
+            if (!bluetooth)
             {
                 test(p->opBatchCount() == 0);
                 auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
@@ -946,7 +947,7 @@ allTests(TestHelper* helper, bool collocated)
                 test(p->waitForBatch(2));
             }
 
-            if (protocol != "bt")
+            if (!bluetooth)
             {
                 //
                 // Exception - 1 connection.
@@ -972,7 +973,7 @@ allTests(TestHelper* helper, bool collocated)
                 test(p->opBatchCount() == 0);
             }
 
-            if (protocol != "bt")
+            if (!bluetooth)
             {
                 //
                 // 2 connections.
@@ -1002,7 +1003,7 @@ allTests(TestHelper* helper, bool collocated)
                 test(p->waitForBatch(4));
             }
 
-            if (protocol != "bt")
+            if (!bluetooth)
             {
                 //
                 // 2 connections - 2 failures.
@@ -1090,7 +1091,7 @@ allTests(TestHelper* helper, bool collocated)
         }
         cout << "ok" << endl;
 
-        if (p->ice_getConnection() && protocol != "bt")
+        if (p->ice_getConnection() && !bluetooth)
         {
             cout << "testing connection close... " << flush;
             {

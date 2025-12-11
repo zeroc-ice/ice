@@ -17,7 +17,7 @@ First, start the Android test controller application on your device.
 From the `java` directory, start the Python controller to manage the Android server:
 
 ```bash
-python3 ../scripts/Controller.py --host-bt="A4:FF:9F:A6:48:C1" --host=192.168.1.51 --id=server --android
+python ../scripts/Controller.py --host-bt="A4:FF:9F:A6:48:C1" --host=192.168.1.51 --id=server --android
 ```
 
 Where:
@@ -29,12 +29,12 @@ Where:
 Then from the `cpp` directory, start the C++ test suite to run against the Android servers:
 
 ```bash
-python3 ./allTests.py --server=server --protocol=bt --cross=java
+python ./allTests.py --server=server --protocol=bt --cross=java
 ```
 
 Where:
 - `--server=server` indicates to use the remote server controller
-- `--protocol=bt` specifies to use Bluetooth transport
+- `--protocol=bt` specifies to use Bluetooth transport, use `--protocol=bts` to test Bluetooth over SSL
 - `--cross=java` indicates cross-language testing with Java servers
 
 ## Run Android Client Against C++ Server Over Bluetooth
@@ -44,7 +44,7 @@ First, start the Android test controller application on your device.
 From the `cpp` directory, start the Python controller to manage the C++ server:
 
 ```bash
-python3 ../scripts/Controller.py --host-bt="00:15:83:ED:D7:29" --host=192.168.1.48 --id=server --debug
+python ../scripts/Controller.py --host-bt="00:15:83:ED:D7:29" --host=192.168.1.48 --id=server
 ```
 
 Where:
@@ -55,15 +55,14 @@ Where:
 Then from the `java` directory, start the Java/Android test suite to run against the C++ servers:
 
 ```bash
-python3 ./allTests.py --server=server --protocol=bt --cross=cpp --android Ice/proxy
+python ./allTests.py --server=server --protocol=bt --cross=cpp --android
 ```
 
 Where:
 - `--server=server` indicates to use the remote server controller
-- `--protocol=bt` specifies to use Bluetooth transport
+- `--protocol=bt` specifies to use Bluetooth transport, use `--protocol=bts` to test Bluetooth over SSL
 - `--cross=cpp` indicates cross-language testing with C++ servers
 - `--android` runs the Android client tests
-- `Ice/proxy` specifies which test(s) to run (optional, omit to run all tests)
 
 ## Finding Bluetooth Addresses
 
