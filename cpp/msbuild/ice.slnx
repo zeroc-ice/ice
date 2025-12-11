@@ -1,0 +1,136 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Win32" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="../src/DataStorm/msbuild/datastorm/datastorm.vcxproj">
+    <BuildDependency Project="../src/Ice/msbuild/ice/ice.vcxproj" />
+    <BuildDependency Project="../src/slice2cpp/msbuild/slice2cpp.vcxproj" />
+  </Project>
+  <Project Path="../src/dsnode/msbuild/dsnode.vcxproj">
+    <BuildDependency Project="../src/DataStorm/msbuild/datastorm/datastorm.vcxproj" />
+  </Project>
+  <Project Path="../src/Glacier2/msbuild/glacier2router.vcxproj">
+    <BuildDependency Project="../src/Glacier2Lib/msbuild/glacier2/glacier2.vcxproj" />
+    <BuildDependency Project="../src/Ice/msbuild/ice/ice.vcxproj" />
+  </Project>
+  <Project Path="../src/Glacier2Lib/msbuild/glacier2/glacier2.vcxproj">
+    <BuildDependency Project="../src/Ice/msbuild/ice/ice.vcxproj" />
+    <BuildDependency Project="../src/slice2cpp/msbuild/slice2cpp.vcxproj" />
+  </Project>
+  <Project Path="../src/Ice/msbuild/ice/ice.vcxproj">
+    <BuildDependency Project="../src/slice2cpp/msbuild/slice2cpp.vcxproj" />
+  </Project>
+  <Project Path="../src/ice2slice/msbuild/ice2slice.vcxproj" />
+  <Project Path="../src/IceBox/msbuild/icebox/icebox.vcxproj">
+    <BuildDependency Project="../src/IceBox/msbuild/iceboxlib/iceboxlib.vcxproj" />
+  </Project>
+  <Project Path="../src/IceBox/msbuild/iceboxadmin/iceboxadmin.vcxproj">
+    <BuildDependency Project="../src/Ice/msbuild/ice/ice.vcxproj" />
+    <BuildDependency Project="../src/IceBox/msbuild/iceboxlib/iceboxlib.vcxproj" />
+  </Project>
+  <Project Path="../src/IceBox/msbuild/iceboxlib/iceboxlib.vcxproj">
+    <BuildDependency Project="../src/Ice/msbuild/ice/ice.vcxproj" />
+    <BuildDependency Project="../src/slice2cpp/msbuild/slice2cpp.vcxproj" />
+  </Project>
+  <Project Path="../src/IceBridge/msbuild/icebridge.vcxproj">
+    <BuildDependency Project="../src/Ice/msbuild/ice/ice.vcxproj" />
+  </Project>
+  <Project Path="../src/IceDiscovery/msbuild/icediscovery/icediscovery.vcxproj">
+    <BuildDependency Project="../src/Ice/msbuild/ice/ice.vcxproj" />
+    <BuildDependency Project="../src/slice2cpp/msbuild/slice2cpp.vcxproj" />
+  </Project>
+  <Project Path="../src/IceGrid/msbuild/icegridadmin/icegridadmin.vcxproj">
+    <BuildDependency Project="../src/Ice/msbuild/ice/ice.vcxproj" />
+    <BuildDependency Project="../src/IceBox/msbuild/icebox/icebox.vcxproj" />
+    <BuildDependency Project="../src/IceGridLib/msbuild/icegrid/icegrid.vcxproj" />
+    <BuildDependency Project="../src/IceLocatorDiscovery/msbuild/icelocatordiscovery/icelocatordiscovery.vcxproj" />
+    <BuildDependency Project="../src/slice2cpp/msbuild/slice2cpp.vcxproj" />
+  </Project>
+  <Project Path="../src/IceGrid/msbuild/icegridnode/icegridnode.vcxproj">
+    <BuildDependency Project="../src/Glacier2Lib/msbuild/glacier2/glacier2.vcxproj" />
+    <BuildDependency Project="../src/IceBox/msbuild/iceboxlib/iceboxlib.vcxproj" />
+    <BuildDependency Project="../src/IceGridLib/msbuild/icegrid/icegrid.vcxproj" />
+    <BuildDependency Project="../src/IceStorm/msbuild/icestormservice/icestormservice.vcxproj" />
+    <BuildDependency Project="../src/IceStormLib/msbuild/icestorm/icestorm.vcxproj" />
+    <BuildDependency Project="../src/slice2cpp/msbuild/slice2cpp.vcxproj" />
+  </Project>
+  <Project Path="../src/IceGrid/msbuild/icegridregistry/icegridregistry.vcxproj">
+    <BuildDependency Project="../src/Glacier2Lib/msbuild/glacier2/glacier2.vcxproj" />
+    <BuildDependency Project="../src/IceBox/msbuild/iceboxlib/iceboxlib.vcxproj" />
+    <BuildDependency Project="../src/IceGridLib/msbuild/icegrid/icegrid.vcxproj" />
+    <BuildDependency Project="../src/IceStorm/msbuild/icestormservice/icestormservice.vcxproj" />
+    <BuildDependency Project="../src/IceStormLib/msbuild/icestorm/icestorm.vcxproj" />
+    <BuildDependency Project="../src/slice2cpp/msbuild/slice2cpp.vcxproj" />
+  </Project>
+  <Project Path="../src/icegriddb/msbuild/icegriddb.vcxproj">
+    <BuildDependency Project="../src/Ice/msbuild/ice/ice.vcxproj" />
+    <BuildDependency Project="../src/IceGridLib/msbuild/icegrid/icegrid.vcxproj" />
+    <BuildDependency Project="../src/slice2cpp/msbuild/slice2cpp.vcxproj" />
+  </Project>
+  <Project Path="../src/IceGridLib/msbuild/icegrid/icegrid.vcxproj">
+    <BuildDependency Project="../src/Glacier2Lib/msbuild/glacier2/glacier2.vcxproj" />
+    <BuildDependency Project="../src/Ice/msbuild/ice/ice.vcxproj" />
+    <BuildDependency Project="../src/slice2cpp/msbuild/slice2cpp.vcxproj" />
+  </Project>
+  <Project Path="../src/IceLocatorDiscovery/msbuild/icelocatordiscovery/icelocatordiscovery.vcxproj">
+    <BuildDependency Project="../src/Ice/msbuild/ice/ice.vcxproj" />
+  </Project>
+  <Project Path="../src/iceserviceinstall/msbuild/iceserviceinstall.vcxproj">
+    <BuildDependency Project="../src/Ice/msbuild/ice/ice.vcxproj" />
+  </Project>
+  <Project Path="../src/IceStorm/msbuild/icestormadmin/icestormadmin.vcxproj">
+    <BuildDependency Project="../src/Glacier2Lib/msbuild/glacier2/glacier2.vcxproj" />
+    <BuildDependency Project="../src/IceBox/msbuild/iceboxlib/iceboxlib.vcxproj" />
+    <BuildDependency Project="../src/IceGridLib/msbuild/icegrid/icegrid.vcxproj" />
+    <BuildDependency Project="../src/IceStormLib/msbuild/icestorm/icestorm.vcxproj" />
+    <BuildDependency Project="../src/slice2cpp/msbuild/slice2cpp.vcxproj" />
+  </Project>
+  <Project Path="../src/IceStorm/msbuild/icestormdb/icestormdb.vcxproj">
+    <BuildDependency Project="../src/Glacier2Lib/msbuild/glacier2/glacier2.vcxproj" />
+    <BuildDependency Project="../src/IceBox/msbuild/iceboxlib/iceboxlib.vcxproj" />
+    <BuildDependency Project="../src/IceGridLib/msbuild/icegrid/icegrid.vcxproj" />
+    <BuildDependency Project="../src/IceStormLib/msbuild/icestorm/icestorm.vcxproj" />
+    <BuildDependency Project="../src/slice2cpp/msbuild/slice2cpp.vcxproj" />
+  </Project>
+  <Project Path="../src/IceStorm/msbuild/icestormservice/icestormservice.vcxproj">
+    <BuildDependency Project="../src/Glacier2Lib/msbuild/glacier2/glacier2.vcxproj" />
+    <BuildDependency Project="../src/IceBox/msbuild/iceboxlib/iceboxlib.vcxproj" />
+    <BuildDependency Project="../src/IceGridLib/msbuild/icegrid/icegrid.vcxproj" />
+    <BuildDependency Project="../src/IceStormLib/msbuild/icestorm/icestorm.vcxproj" />
+    <BuildDependency Project="../src/slice2cpp/msbuild/slice2cpp.vcxproj" />
+  </Project>
+  <Project Path="../src/IceStormLib/msbuild/icestorm/icestorm.vcxproj">
+    <BuildDependency Project="../src/Ice/msbuild/ice/ice.vcxproj" />
+    <BuildDependency Project="../src/slice2cpp/msbuild/slice2cpp.vcxproj" />
+  </Project>
+  <Project Path="../src/IceUtil/msbuild/iceutil/iceutil.vcxproj" />
+  <Project Path="../src/Slice/msbuild/slice.vcxproj">
+    <BuildDependency Project="../src/IceUtil/msbuild/iceutil/iceutil.vcxproj" />
+  </Project>
+  <Project Path="../src/slice2cpp/msbuild/slice2cpp.vcxproj">
+    <BuildDependency Project="../src/Slice/msbuild/slice.vcxproj" />
+  </Project>
+  <Project Path="../src/slice2cs/msbuild/slice2cs.vcxproj">
+    <BuildDependency Project="../src/Slice/msbuild/slice.vcxproj" />
+  </Project>
+  <Project Path="../src/slice2java/msbuild/slice2java.vcxproj">
+    <BuildDependency Project="../src/Slice/msbuild/slice.vcxproj" />
+  </Project>
+  <Project Path="../src/slice2js/msbuild/slice2js.vcxproj">
+    <BuildDependency Project="../src/Slice/msbuild/slice.vcxproj" />
+  </Project>
+  <Project Path="../src/slice2matlab/msbuild/slice2matlab.vcxproj">
+    <BuildDependency Project="../src/Slice/msbuild/slice.vcxproj" />
+  </Project>
+  <Project Path="../src/slice2php/msbuild/slice2php.vcxproj">
+    <BuildDependency Project="../src/Slice/msbuild/slice.vcxproj" />
+  </Project>
+  <Project Path="../src/slice2py/msbuild/slice2py.vcxproj">
+    <BuildDependency Project="../src/Slice/msbuild/slice.vcxproj" />
+  </Project>
+  <Project Path="../src/slice2rb/msbuild/slice2rb.vcxproj" />
+  <Project Path="../src/slice2swift/msbuild/slice2swift.vcxproj">
+    <BuildDependency Project="../src/Slice/msbuild/slice.vcxproj" />
+  </Project>
+</Solution>

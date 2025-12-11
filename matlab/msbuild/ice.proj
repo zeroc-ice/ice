@@ -30,23 +30,23 @@
     <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.common.targets"/>
 
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.sln"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.slnx"
                  Properties="Platform=Any CPU;Configuration=$(Configuration)"
                  Targets="Restore" />
-        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln" />
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.slnx" />
     </Target>
 
     <Target Name="BuildCppDist" DependsOnTargets="NuGetRestore">
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.sln"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.slnx"
                  Properties="Platform=Any CPU;Configuration=$(Configuration)" />
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.slnx"
                  Targets="slice2matlab;ice;icediscovery;icelocatordiscovery"
                  BuildInParallel="true"
                  Properties="Platform=$(Platform);Configuration=$(Configuration)" />
     </Target>
 
     <Target Name="BuildDist" DependsOnTargets="BuildCppDist;NuGetRestore">
-        <MSBuild Projects="$(MSBuildThisFileDirectory)ice.sln"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)ice.slnx"
                  BuildInParallel="true"
                  Properties="Platform=$(Platform);Configuration=$(Configuration);MatlabHome=$(MatlabHome)" />
 
@@ -57,7 +57,7 @@
     </Target>
 
     <Target Name="CleanDist">
-        <MSBuild Projects="$(MSBuildThisFileDirectory)ice.sln"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)ice.slnx"
                  BuildInParallel="true"
                  Properties="Platform=$(Platform);Configuration=$(Configuration)"
                  Targets="Clean" />
