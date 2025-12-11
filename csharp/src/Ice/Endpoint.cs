@@ -5,8 +5,8 @@
 namespace Ice;
 
 /// <summary>
-/// An endpoint specifies the address of the server-end of an Ice connection: an object adapter listens on one or
-/// more endpoints and a client establishes a connection to an endpoint.
+/// An endpoint specifies the address of the server-end of an Ice connection.
+/// An object adapter listens on one or more endpoints and a client establishes a connection to an endpoint.
 /// </summary>
 public interface Endpoint
 {
@@ -67,17 +67,17 @@ public class EndpointInfo
 public class IPEndpointInfo : EndpointInfo
 {
     /// <summary>
-    /// Gets the host or address configured with the endpoint.
+    /// The host or address configured with the endpoint.
     /// </summary>
     public readonly string host;
 
     /// <summary>
-    /// Gets the endpoint's port number.
+    /// The port number.
     /// </summary>
     public readonly int port;
 
     /// <summary>
-    /// Gets the source IP address.
+    /// The source IP address.
     /// </summary>
     public readonly string sourceAddress;
 
@@ -90,6 +90,9 @@ public class IPEndpointInfo : EndpointInfo
     }
 }
 
+/// <summary>
+/// Provides access to a TCP endpoint information.
+/// </summary>
 public sealed class TCPEndpointInfo : IPEndpointInfo
 {
     private readonly bool _secure;
@@ -118,8 +121,14 @@ public sealed class TCPEndpointInfo : IPEndpointInfo
 /// </summary>
 public sealed class UDPEndpointInfo : IPEndpointInfo
 {
+    /// <summary>
+    /// The multicast interface.
+    /// </summary>
     public readonly string mcastInterface;
 
+    /// <summary>
+    /// The multicast time-to-live (or hops).
+    /// </summary>
     public readonly int mcastTtl;
 
     public override short type() => UDPEndpointType.value;
@@ -146,7 +155,7 @@ public sealed class UDPEndpointInfo : IPEndpointInfo
 public sealed class WSEndpointInfo : EndpointInfo
 {
     /// <summary>
-    /// Gets the URI configured for this endpoint.
+    /// The URI configured with the endpoint.
     /// </summary>
     public readonly string resource;
 
@@ -160,12 +169,12 @@ public sealed class WSEndpointInfo : EndpointInfo
 public sealed class OpaqueEndpointInfo : EndpointInfo
 {
     /// <summary>
-    /// Gets the raw encoding (to decode the rawBytes).
+    /// The raw encoding of the opaque endpoint.
     /// </summary>
     public readonly EncodingVersion rawEncoding;
 
     /// <summary>
-    /// Gets the raw bytes of the opaque endpoint.
+    /// The encoding version of the opaque endpoint (to decode or encode the rawBytes).
     /// </summary>
     public readonly byte[] rawBytes;
 

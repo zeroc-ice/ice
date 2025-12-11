@@ -36,7 +36,8 @@ public interface ImplicitContext
     /// Gets the value associated with the specified key in the request context.
     /// </summary>
     /// <param name="key">The key.</param>
-    /// <returns>The value associated with the key, or the empty string if no value is associated with the key.</returns>
+    /// <returns>The value associated with the key, or the empty string if no value is associated with the key.
+    /// <see cref="containsKey"/> allows you to distinguish between an empty-string value and no value at all.</returns>
     string get(string key);
 
     /// <summary>

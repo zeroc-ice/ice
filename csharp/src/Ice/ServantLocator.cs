@@ -16,11 +16,11 @@ public interface ServantLocator
     /// <summary>
     /// Asks this servant locator to find and return a servant.
     /// </summary>
-    /// <param name="curr">Information about the incoming request being dispatched.</param>
+    /// <param name="curr">Information about the incoming request for which a servant is required.</param>
     /// <param name="cookie">A "cookie" that will be passed to <see cref="finished"/>.</param>
     /// <returns>The located servant, or null if no suitable servant was found.</returns>
     /// <remarks>The caller (the object adapter) does not insert the returned servant into its Active Servant Map.
-    /// The implementation can throw any exception, including user exceptions. The Ice runtime marshals this
+    /// The implementation can throw any exception, including UserException. The Ice runtime marshals this
     /// exception in the response.</remarks>
     Object? locate(Current curr, out object? cookie);
 
@@ -28,7 +28,7 @@ public interface ServantLocator
     /// Notifies this servant locator that the dispatch on the servant returned by <see cref="locate"/> is complete.
     /// The object adapter calls this method only when <see cref="locate"/> returns a non-null servant.
     /// </summary>
-    /// <param name="curr">Information about the incoming request being dispatched.</param>
+    /// <param name="curr">Information about the incoming request for which a servant is required.</param>
     /// <param name="servant">The servant that was returned by <see cref="locate"/>.</param>
     /// <param name="cookie">The cookie that was returned by <see cref="locate"/>.</param>
     /// <remarks>The implementation can throw any exception, including user exceptions. The Ice runtime marshals this

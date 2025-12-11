@@ -18,8 +18,7 @@ public interface Logger : IDisposable
     /// <summary>
     /// Logs a trace message.
     /// </summary>
-    /// <param name="category">The trace category.
-    /// </param>
+    /// <param name="category">The trace category.</param>
     /// <param name="message">The trace message to log.</param>
     void trace(string category, string message);
 

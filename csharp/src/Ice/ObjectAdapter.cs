@@ -693,8 +693,7 @@ public sealed class ObjectAdapter
     /// Find a Servant Locator installed with this object adapter.
     /// </summary>
     /// <param name="category">The category for which the Servant Locator can locate servants, or an empty string if the
-    /// Servant Locator does not belong to any specific category.
-    /// </param>
+    /// Servant Locator does not belong to any specific category.</param>
     /// <returns>The servant locator, or null if no servant locator was found for the given category.</returns>
     public ServantLocator? findServantLocator(string category)
     {
@@ -832,8 +831,7 @@ public sealed class ObjectAdapter
     /// <summary>
     /// Get the set of endpoints that proxies created by this object adapter will contain.
     /// </summary>
-    /// <returns>The set of published endpoints.
-    /// </returns>
+    /// <returns>The set of published endpoints.</returns>
     public Endpoint[] getPublishedEndpoints()
     {
         lock (_mutex)

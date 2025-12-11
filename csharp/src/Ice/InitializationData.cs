@@ -15,7 +15,7 @@ public sealed record class InitializationData
     /// <summary>
     /// The properties for the communicator.
     /// </summary>
-    /// <remarks>When not null, this corresponds to the object returned by the <see cref="Communicator.getProperties"/>
+    /// <remarks>When non-null, this corresponds to the object returned by the <see cref="Communicator.getProperties"/>
     /// method.</remarks>
     public Properties? properties { get; set; }
 

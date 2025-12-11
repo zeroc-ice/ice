@@ -57,7 +57,7 @@ namespace Ice
 
         /// Gets the number of bytes in the request.
         /// @return The number of bytes in the request. These are all the bytes starting with the identity of the
-        /// target.
+        /// target object.
         [[nodiscard]] std::int32_t size() const { return _requestSize; }
 
         /// Gets the request count.

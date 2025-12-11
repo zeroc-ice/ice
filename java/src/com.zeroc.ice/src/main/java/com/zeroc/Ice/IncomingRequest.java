@@ -17,7 +17,7 @@ public final class IncomingRequest {
     /** The input stream buffer of the request. */
     public final InputStream inputStream;
 
-    /** The number of bytes in the request. These are all the bytes starting with the identity of the target. */
+    /** The number of bytes in the request. These are all the bytes starting with the identity of the target object. */
     public final int size;
 
     /**
@@ -28,7 +28,7 @@ public final class IncomingRequest {
      * @param adapter the object adapter to set in {@link #current}.
      * @param inputStream the input stream buffer over the incoming Ice protocol request message.
      *     The stream is positioned at the beginning of the request header - the next data to read
-     *     is the identity of the target.
+     *     is the identity of the target object.
      */
     public IncomingRequest(int requestId, Connection connection, ObjectAdapter adapter, InputStream inputStream) {
         this.inputStream = inputStream;

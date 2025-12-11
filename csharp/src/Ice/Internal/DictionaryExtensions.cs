@@ -15,7 +15,7 @@ public static class DictionaryExtensions
     /// <param name="rhs">The second dictionary to compare.</param>
     /// <param name="valueComparer">The comparer to use to compare the values in the dictionaries or null to use the
     /// value's default equality comparer.</param>
-    /// <returns>True if the dictionaries are equal; false, otherwise.</returns>
+    /// <returns><see langword="true"/> if the dictionaries are equal; <see langword="false"/>, otherwise.</returns>
     public static bool DictionaryEqual<TKey, TValue>(
         this IReadOnlyDictionary<TKey, TValue> lhs,
         IReadOnlyDictionary<TKey, TValue> rhs,

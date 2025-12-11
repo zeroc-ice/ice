@@ -34,7 +34,7 @@ public interface Object
     ///
     /// <param name="s">The type ID of the Slice interface to test against.</param>
     /// <param name="current">The Current object for the dispatch.</param>
-    /// <returns>True if this object has the interface
+    /// <returns><see langword="true"/> if this object has the interface
     /// specified by s or derives from the interface specified by s.</returns>
     public bool ice_isA(string s, Current current)
     {
@@ -142,8 +142,8 @@ public abstract class Blobject : Object
     /// for the operation. The return value follows any out-parameters.</param>
     /// <param name="current">The Current object to pass to the operation.</param>
     /// <returns>If the operation completed successfully, the return value
-    /// is true. If the operation raises a user exception,
-    /// the return value is false; in this case, outParams
+    /// is <see langword="true"/>. If the operation raises a user exception,
+    /// the return value is <see langword="false"/>; in this case, outParams
     /// must contain the encoded user exception. If the operation raises an
     /// Ice run-time exception, it must throw it directly.</returns>
     public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);

@@ -7,7 +7,7 @@ using System.ComponentModel;
 namespace Ice;
 
 /// <summary>
-/// Base class for exceptions defined in Slice.
+/// Base class for all exceptions defined in Slice.
 /// </summary>
 public abstract class UserException : Ice.Exception
 {

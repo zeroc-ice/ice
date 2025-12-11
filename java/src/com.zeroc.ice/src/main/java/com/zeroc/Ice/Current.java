@@ -4,6 +4,7 @@ package com.zeroc.Ice;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.security.Identity;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletionException;
@@ -14,7 +15,7 @@ public final class Current implements Cloneable {
     /** The object adapter that received the request. */
     public final ObjectAdapter adapter;
 
-    /** The connection that received the request. It's null when the invocation and dispatch are collocated. */
+    /** The connection that received the request. It's null for collocation-optimized dispatches. */
     public final Connection con;
 
     /** The identity of the target Ice object. */
@@ -32,10 +33,10 @@ public final class Current implements Cloneable {
     /** The request context. */
     public final Map<String, String> ctx;
 
-    /** The request ID. 0 means the request is a one-way request. */
+    /** The request ID. 0 means the request is one-way. */
     public final int requestId;
 
-    /** The encoding of the request payload. */
+    /** The Slice encoding version used to marshal the payload of the request. */
     public EncodingVersion encoding;
 
     /**

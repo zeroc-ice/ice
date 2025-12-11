@@ -12,7 +12,7 @@ namespace Ice;
 /// </summary>
 public static class CurrentExtensions
 {
-    /// <summary>Makes sure the operation mode of an incoming request is not idempotent.</summary>
+    /// <summary>Ensures the operation mode of an incoming request is not idempotent.</summary>
     /// <param name="current">The current object of the corresponding incoming request.</param>
     /// <exception cref="MarshalException">Thrown when the request's operation mode is
     /// <see cref="OperationMode.Idempotent" /> or <see cref="OperationMode.Nonmutating" />.</exception>
@@ -90,8 +90,8 @@ public static class CurrentExtensions
     /// Creates an outgoing response with the specified payload.
     /// </summary>
     /// <param name="current">The current object of the corresponding incoming request.</param>
-    /// <param name="ok">When true, the reply status of the response is <see cref="ReplyStatus.Ok" />; otherwise, it's
-    /// <see cref="ReplyStatus.UserException" />.</param>
+    /// <param name="ok">When <see langword="true"/>, the reply status of the response is <see cref="ReplyStatus.Ok" />;
+    /// otherwise, it's <see cref="ReplyStatus.UserException" />.</param>
     /// <param name="encapsulation">The payload of the response.</param>
     /// <returns>A new outgoing response.</returns>
     public static OutgoingResponse createOutgoingResponse(this Current current, bool ok, byte[] encapsulation)
@@ -251,8 +251,8 @@ public static class CurrentExtensions
     }
 
     /// <summary>
-    /// Starts the output stream for a reply, with everything up to and including the reply status. When the request ID
-    /// is 0 (one-way request), the returned output stream is empty.
+    /// Starts the output stream for a reply, with everything up to and including the reply status.
+    /// When the request ID is 0 (one-way request), the returned output stream is empty.
     /// </summary>
     /// <param name="current">The current object of the corresponding incoming request.</param>
     /// <param name="replyStatus">The reply status.</param>

@@ -5,17 +5,17 @@
 namespace Ice;
 
 /// <summary>
-/// Determines the order in which the Ice run time uses the endpoints in a proxy when establishing a connection.
+/// Determines how the Ice runtime sorts proxy endpoints when establishing a connection.
 /// </summary>
 public enum EndpointSelectionType
 {
     /// <summary>
-    /// Random causes the endpoints to be arranged in a random order.
+    /// The Ice runtime shuffles the endpoints in a random order.
     /// </summary>
     Random,
 
     /// <summary>
-    /// Ordered forces the Ice run time to use the endpoints in the order they appeared in the proxy.
+    /// The Ice runtime uses the endpoints in the order they appear in the proxy.
     /// </summary>
     Ordered
 }

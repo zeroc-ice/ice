@@ -16,11 +16,12 @@ namespace Ice;
 /// <item>loading plug-ins</item>
 /// <item>managing properties (configuration), retries, logging, instrumentation, and more.</item>
 /// </list>
-/// You create a communicator with one of the <see cref="Communicator(InitializationData?)"/> constructors, and it's
-/// usually the first object you create when programming with Ice. You can create multiple communicators in a single
-/// program, but this is not common.
+/// A Communicator is usually the first object you create when programming with Ice.
+/// You can create multiple communicators in a single program, but this is not common.
 /// </summary>
-/// <seealso cref="InitializationData"/>
+/// <seealso cref="Logger"/>
+/// <seealso cref="ObjectAdapter"/>
+/// <seealso cref="Properties"/>
 public sealed class Communicator : IDisposable, IAsyncDisposable
 {
     /// <summary>
@@ -71,10 +72,11 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Communicator" /> class.
+    /// Initializes a new instance of the <see cref="Communicator" /> class, using Ice properties parsed from
+    /// command-line arguments. This constructor uses <paramref name="args"/> to create the <see cref="Properties"/>
+    /// of the new communicator.
     /// </summary>
-    /// <param name="args">The command-line arguments. This constructor uses <paramref name="args"/> to create
-    /// the <see cref="Properties"/> of the new communicator.</param>
+    /// <param name="args">The command-line arguments.</param>
     public Communicator(ref string[] args)
         : this(new InitializationData { properties = new Properties(ref args) })
     {
@@ -104,16 +106,17 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     }
 
     /// <summary>
-    /// Destroys the communicator. This method calls <see cref="shutdown" /> implicitly. Calling destroy destroys all
+    /// Destroys this communicator. This method calls <see cref="shutdown" /> implicitly. Calling destroy destroys all
     /// object adapters, and closes all outgoing connections. This method waits for all outstanding dispatches to
     /// complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
     /// </summary>
     public void destroy() => instance.destroy();
 
     /// <summary>
-    /// Shuts down this communicator: call <see cref="ObjectAdapter.deactivate"/> on all object adapters created by
-    /// this communicator. Shutting down a communicator has no effect on outgoing connections.
+    /// Shuts down this communicator. This method calls <see cref="ObjectAdapter.deactivate"/> on all object adapters
+    /// created by this communicator. Shutting down a communicator has no effect on outgoing connections.
     /// </summary>
+    /// <see cref="waitForShutdown" />
     public void shutdown()
     {
         try
@@ -147,7 +150,8 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// <summary>
     /// Checks whether or not <see cref="shutdown" /> was called on this communicator.
     /// </summary>
-    /// <returns>True if shutdown was called on this communicator; false otherwise.</returns>
+    /// <returns><see langword="true"/> if shutdown was called on this communicator;
+    /// <see langword="false"/> otherwise.</returns>
     public bool isShutdown()
     {
         try
@@ -162,13 +166,10 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
 
     /// <summary>
     /// Converts a stringified proxy into a proxy.
-    /// For example, "MyCategory/MyObject:tcp -h some_host -p 10000" creates a proxy that refers to the Ice object
-    /// having an identity with a name "MyObject" and a category "MyCategory", with the server running on host
-    /// "some_host", port 10000. If the stringified proxy does not parse correctly, this method throws ParseException.
-    /// Refer to the Ice manual for a detailed description of the syntax supported by stringified proxies.
     /// </summary>
     /// <param name="str">The stringified proxy to convert into a proxy.</param>
-    /// <returns>The proxy, or null if str is an empty string.</returns>
+    /// <returns>The proxy, or null if <paramref name="str" /> is an empty string.</returns>
+    /// <exception cref="ParseException">Thrown when <paramref name="str" /> is not a valid proxy string.</exception>
     public ObjectPrx? stringToProxy(string str)
     {
         Reference? reference = instance.referenceFactory().create(str, "");
@@ -188,7 +189,6 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// argument refers to a property containing a stringified proxy, such as `MyProxy=id:tcp -h localhost -p 10000`.
     /// Additional properties configure local settings for the proxy.
     /// </summary>
-    ///
     /// <param name="property">The base property name.</param>
     /// <returns>The proxy, or <c>null</c> if the property is not set.</returns>
     public ObjectPrx? propertyToProxy(string property)
@@ -199,7 +199,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     }
 
     /// <summary>
-    /// Converts a proxy to a set of proxy properties.
+    /// Converts a proxy into a set of proxy properties.
     /// </summary>
     /// <param name="proxy">The proxy.</param>
     /// <param name="prefix">The base property name.</param>
@@ -215,33 +215,25 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     public string identityToString(Identity ident) => Util.identityToString(ident, instance.toStringMode());
 
     /// <summary>Creates a new object adapter. The endpoints for the object adapter are taken from the property
-    /// name.Endpoints. It is legal to create an object adapter with the empty string as its name. Such an object
-    /// adapter is accessible via bidirectional connections or by collocated invocations that originate from the
-    /// same communicator as is used by the adapter. Attempts to create a named object adapter for which no
-    /// configuration can be found raise InitializationException.</summary>
+    /// <c>name.Endpoints</c>.
+    /// It is legal to create an object adapter with the empty string as its name. Such an object
+    /// adapter is accessible via bidirectional connections or by collocated invocations.
     /// <param name="name">The object adapter name.</param>
-    /// <param name="serverAuthenticationOptions">The authentication options used by the SSL transport. Pass null
-    /// if the adapter doesn't have any secure endpoints or if the SSL transport is configured using IceSSL properties.
-    /// When <paramref name="serverAuthenticationOptions"/> is set to a non-null value, all IceSSL properties are
-    /// ignored, and all the required configuration must be set using the <see cref="SslServerAuthenticationOptions"/>
-    /// object.
-    /// </param>
+    /// <param name="serverAuthenticationOptions">The SSL options for server connections.</param>
     /// <returns>The new object adapter.</returns>
+    /// <exception cref="InitializationException">Thrown when a named object adapter is created for which no
+    /// configuration can be found.</exception>
     public ObjectAdapter createObjectAdapter(
         string name,
         SslServerAuthenticationOptions? serverAuthenticationOptions = null) =>
         instance.objectAdapterFactory().createObjectAdapter(name, null, serverAuthenticationOptions);
 
-    /// <summary>Creates a new object adapter with endpoints. This method sets the property name.Endpoints, and
-    /// then calls createObjectAdapter. It is provided as a convenience function. Calling this operation with an
-    /// empty name will result in a UUID being generated for the name.</summary>
+    /// <summary>Creates a new object adapter with endpoints. This method sets the property <c>name.Endpoints</c>,
+    /// and then calls <see cref="createObjectAdapter"/>. It is provided as a convenience method.
+    /// Calling this method with an empty name will result in a UUID being generated for the name.</summary>
     /// <param name="name">The object adapter name.</param>
-    /// <param name="endpoints">The endpoints for the object adapter.</param>
-    /// <param name="serverAuthenticationOptions">The authentication options used by the SSL transport. Pass null
-    /// if the adapter doesn't have any secure endpoints or if the SSL transport is configured using IceSSL properties.
-    /// When <paramref name="serverAuthenticationOptions"/> is set to a non-null value, all IceSSL properties are
-    /// ignored, and all the required configuration must be set using the <see cref="SslServerAuthenticationOptions"/>
-    /// object.</param>
+    /// <param name="endpoints">The endpoints of the object adapter.</param>
+    /// <param name="serverAuthenticationOptions">The SSL options for server connections.</param>
     /// <returns>The new object adapter.</returns>
     public ObjectAdapter createObjectAdapterWithEndpoints(
         string name,
@@ -259,7 +251,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
 
     /// <summary>
     /// Creates a new object adapter with a router.
-    /// This method creates a routed object adapter. Calling this operation with an empty name will result in a UUID
+    /// This method creates a routed object adapter. Calling this method with an empty name will result in a UUID
     /// being generated for the name.
     /// </summary>
     /// <param name="name">The object adapter name.</param>
