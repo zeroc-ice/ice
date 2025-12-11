@@ -46,7 +46,7 @@ public sealed class OutgoingResponse
     /// Initializes a new instance of the <see cref="OutgoingResponse" /> class.
     /// </summary>
     /// <param name="replyStatus">The reply status.</param>
-    /// <param name="exceptionId">The ID of the exception, when the response carries an exception other than a user
+    /// <param name="exceptionId">The type ID of the exception, when the response carries an exception other than a user
     /// exception.</param>
     /// <param name="exceptionDetails">The full details of the exception, when the response carries an exception other
     /// than a user exception.</param>
