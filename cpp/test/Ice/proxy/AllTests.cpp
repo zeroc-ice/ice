@@ -32,7 +32,6 @@ allTests(TestHelper* helper)
     cout << "testing stringToProxy... " << flush;
 
     string ref = "test:" + endp;
-    cerr << "ref: " << ref << endl;
     Ice::ObjectPrx base(communicator, ref);
 
     optional<ObjectPrx> b1 = communicator->stringToProxy("test");
