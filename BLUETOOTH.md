@@ -44,7 +44,7 @@ First, start the Android test controller application on your device.
 From the `cpp` directory, start the Python controller to manage the C++ server:
 
 ```bash
-python ../scripts/Controller.py --host-bt="00:15:83:ED:D7:29" --host=192.168.1.48 --id=server --debug
+python ../scripts/Controller.py --host-bt="00:15:83:ED:D7:29" --host=192.168.1.48 --id=server
 ```
 
 Where:
