@@ -7,6 +7,44 @@
 using namespace std;
 using namespace IcePy;
 
+namespace
+{
+    constexpr const char* batchRequestGetSize_doc = R"(getSize() -> int
+
+Gets the size of the request.
+
+Returns
+-------
+int
+    The number of bytes consumed by the request.)";
+
+    constexpr const char* batchRequestGetOperation_doc = R"(getOperation() -> str
+
+Gets the name of the operation.
+
+Returns
+-------
+str
+    The operation name.)";
+
+    constexpr const char* batchRequestGetProxy_doc = R"(getProxy() -> Ice.ObjectPrx
+
+Gets the proxy used to create this batch request.
+
+Returns
+-------
+Ice.ObjectPrx
+    The proxy.)";
+
+    constexpr const char* batchRequestEnqueue_doc = R"(enqueue() -> None
+
+Queues this request.)";
+
+    constexpr const char* BatchRequestType_doc =
+        R"(Represents a batch request. A batch request is created by invoking an operation on a batch-oneway or
+batch-datagram proxy.)";
+}
+
 namespace IcePy
 {
     struct BatchRequestObject
@@ -120,38 +158,13 @@ batchRequestEnqueue(BatchRequestObject* self, PyObject* /*args*/)
 }
 
 static PyMethodDef BatchRequestMethods[] = {
-    {"getSize",
-     reinterpret_cast<PyCFunction>(batchRequestGetSize),
-     METH_NOARGS,
-     PyDoc_STR("getSize() -> int\n\n"
-               "Gets the size of the request.\n\n"
-               "Returns\n"
-               "-------\n"
-               "int\n"
-               "    The number of bytes consumed by the request.")},
+    {"getSize", reinterpret_cast<PyCFunction>(batchRequestGetSize), METH_NOARGS, PyDoc_STR(batchRequestGetSize_doc)},
     {"getOperation",
      reinterpret_cast<PyCFunction>(batchRequestGetOperation),
      METH_NOARGS,
-     PyDoc_STR("getOperation() -> str\n\n"
-               "Gets the name of the operation.\n\n"
-               "Returns\n"
-               "-------\n"
-               "str\n"
-               "    The operation name.")},
-    {"getProxy",
-     reinterpret_cast<PyCFunction>(batchRequestGetProxy),
-     METH_NOARGS,
-     PyDoc_STR("getProxy() -> Ice.ObjectPrx\n\n"
-               "Gets the proxy used to create this batch request.\n\n"
-               "Returns\n"
-               "-------\n"
-               "Ice.ObjectPrx\n"
-               "    The proxy.")},
-    {"enqueue",
-     reinterpret_cast<PyCFunction>(batchRequestEnqueue),
-     METH_NOARGS,
-     PyDoc_STR("enqueue() -> None\n\n"
-               "Queues this request.")},
+     PyDoc_STR(batchRequestGetOperation_doc)},
+    {"getProxy", reinterpret_cast<PyCFunction>(batchRequestGetProxy), METH_NOARGS, PyDoc_STR(batchRequestGetProxy_doc)},
+    {"enqueue", reinterpret_cast<PyCFunction>(batchRequestEnqueue), METH_NOARGS, PyDoc_STR(batchRequestEnqueue_doc)},
     {} /* sentinel */
 };
 
@@ -164,8 +177,7 @@ namespace IcePy
         .tp_basicsize = sizeof(BatchRequestObject),
         .tp_dealloc = (destructor)batchRequestDealloc,
         .tp_flags = Py_TPFLAGS_DEFAULT,
-        .tp_doc = PyDoc_STR("Represents a batch request. A batch request is created by invoking an operation on a batch-oneway or\n"
-                           "batch-datagram proxy."),
+        .tp_doc = PyDoc_STR(BatchRequestType_doc),
         .tp_methods = BatchRequestMethods,
         .tp_new = (newfunc)batchRequestNew,
     };
