@@ -169,12 +169,12 @@ public sealed class WSEndpointInfo : EndpointInfo
 public sealed class OpaqueEndpointInfo : EndpointInfo
 {
     /// <summary>
-    /// The raw encoding of the opaque endpoint.
+    /// The encoding version of the opaque endpoint (to decode or encode the rawBytes).
     /// </summary>
     public readonly EncodingVersion rawEncoding;
 
     /// <summary>
-    /// The encoding version of the opaque endpoint (to decode or encode the rawBytes).
+    /// The raw encoding of the opaque endpoint.
     /// </summary>
     public readonly byte[] rawBytes;
 
