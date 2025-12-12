@@ -162,12 +162,9 @@ public abstract class BlobjectAsync : Object
     /// <summary>
     /// Dispatches an incoming request.
     /// </summary>
-    /// <param name="inParams">An encapsulation containing the encoded in-parameters for the operation.</param>
-    /// <param name="outParams">An encapsulation containing the encoded result for the operation.</param>
+    /// <param name="inEncaps">An encapsulation containing the encoded in-parameters for the operation.</param>
     /// <param name="current">The Current object of the incoming request.</param>
-    /// <returns>A task that will complete with <see langword="true"/> if the dispatch completes successfully and
-    /// <see langword="false"/> if the dispatch completes with a user exception encoded in
-    /// <paramref name="outParams"/>.</returns>
+    /// <returns>A task that will complete an instance of <see cref="Object_Ice_invokeResult"/>.</returns>
     public abstract Task<Object_Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current);
 
     public async ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)
