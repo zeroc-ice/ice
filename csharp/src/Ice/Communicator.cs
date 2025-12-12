@@ -116,7 +116,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// Shuts down this communicator. This method calls <see cref="ObjectAdapter.deactivate"/> on all object adapters
     /// created by this communicator. Shutting down a communicator has no effect on outgoing connections.
     /// </summary>
-    /// <see cref="waitForShutdown" />
+    /// <seealso cref="waitForShutdown" />
     public void shutdown()
     {
         try
