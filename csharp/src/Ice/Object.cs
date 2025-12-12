@@ -17,7 +17,7 @@ public interface Object
     /// </summary>
     /// <param name="request">The incoming request.</param>
     /// <returns>A value task that holds the outgoing response.</returns>
-    /// <remarks>Ice marshals any exception thrown by this method into the response.</remarks>
+    /// <remarks>If an exception is thrown, Ice will marshal it as the response payload.</remarks>
     public ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request) =>
         request.current.operation switch
         {
@@ -33,9 +33,9 @@ public interface Object
     /// </summary>
     ///
     /// <param name="s">The type ID of the Slice interface to test against.</param>
-    /// <param name="current">The Current object for the dispatch.</param>
-    /// <returns><see langword="true"/> if this object has the interface
-    /// specified by s or derives from the interface specified by s.</returns>
+    /// <param name="current">The Current object of the incoming request.</param>
+    /// <returns><see langword="true"/> if this object implements the Slice interface specified by <paramref name="s"/>
+    /// or implements a derived interface, <see langword="false"/> otherwise.</returns>
     public bool ice_isA(string s, Current current)
     {
         foreach (Type type in GetType().GetInterfaces())
@@ -51,16 +51,16 @@ public interface Object
     /// <summary>
     /// Tests whether this object can be reached.
     /// </summary>
-    /// <param name="current">The Current object for the dispatch.</param>
+    /// <param name="current">The Current object of the incoming request.</param>
     public void ice_ping(Current current)
     {
         // does nothing
     }
 
     /// <summary>
-    /// Gets the Slice type IDs of the interfaces supported by this object.
+    /// Returns the Slice interfaces supported by this object as a list of Slice type IDs.
     /// </summary>
-    /// <param name="current">The Current object for the dispatch.</param>
+    /// <param name="current">The Current object of the incoming request.</param>
     /// <returns>The Slice type IDs of the interfaces supported by this object, in alphabetical order.</returns>
     public string[] ice_ids(Current current)
     {
@@ -76,16 +76,16 @@ public interface Object
     }
 
     /// <summary>
-    /// Gets the Slice type ID of the most-derived interface supported by this object.
+    /// Returns the type ID of the most-derived Slice interface supported by this object.
     /// </summary>
-    /// <param name="current">The Current object for the dispatch.</param>
+    /// <param name="current">The Current object of the incoming request.</param>
     /// <returns>The Slice type ID of the most-derived interface.</returns>
     public string ice_id(Current current) => ice_staticId();
 
     /// <summary>
-    /// Gets the Slice type ID of the interface supported by this object.
+    /// Returns the type ID of the associated Slice interface.
     /// </summary>
-    /// <returns>The return value is always ::Ice::Object.</returns>
+    /// <returns>The return value is always <c>"::Ice::Object"</c>.</returns>
     public static string ice_staticId() => "::Ice::Object";
 
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -128,24 +128,20 @@ public interface Object
 }
 
 /// <summary>
-/// Base class for dynamic dispatch servants. A server application
-/// derives a concrete servant class from Blobject that
-/// implements the Blobject.ice_invoke method.
+/// Base class for dynamic dispatch servants.
 /// </summary>
+/// <remarks>This class is provided for backward compatibility. You should consider deriving directly from
+/// <see cref="Object"/> and overriding the <see cref="Object.dispatchAsync"/> method.</remarks>
 public abstract class Blobject : Object
 {
     /// <summary>
-    /// Dispatch an incoming request.
+    /// Dispatches an incoming request.
     /// </summary>
-    /// <param name="inParams">The encoded in-parameters for the operation.</param>
-    /// <param name="outParams">The encoded out-parameters and return value
-    /// for the operation. The return value follows any out-parameters.</param>
-    /// <param name="current">The Current object to pass to the operation.</param>
-    /// <returns>If the operation completed successfully, the return value
-    /// is <see langword="true"/>. If the operation raises a user exception,
-    /// the return value is <see langword="false"/>; in this case, outParams
-    /// must contain the encoded user exception. If the operation raises an
-    /// Ice run-time exception, it must throw it directly.</returns>
+    /// <param name="inParams">An encapsulation containing the encoded in-parameters for the operation.</param>
+    /// <param name="outParams">An encapsulation containing the encoded result for the operation.</param>
+    /// <param name="current">The Current object of the incoming request.</param>
+    /// <returns><see langword="true"/> if the dispatch completes successfully, <see langword="false"/> if the dispatch
+    /// completes with a user exception encoded in <paramref name="outParams"/>.</returns>
     public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);
 
     public ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)
@@ -156,8 +152,22 @@ public abstract class Blobject : Object
     }
 }
 
+/// <summary>
+/// Base class for asynchronous dynamic dispatch servants.
+/// </summary>
+/// <remarks>This class is provided for backward compatibility. You should consider deriving directly from
+/// <see cref="Object"/> and overriding the <see cref="Object.dispatchAsync"/> method.</remarks>
 public abstract class BlobjectAsync : Object
 {
+    /// <summary>
+    /// Dispatches an incoming request.
+    /// </summary>
+    /// <param name="inParams">An encapsulation containing the encoded in-parameters for the operation.</param>
+    /// <param name="outParams">An encapsulation containing the encoded result for the operation.</param>
+    /// <param name="current">The Current object of the incoming request.</param>
+    /// <returns>A task that will complete with <see langword="true"/> if the dispatch completes successfully and
+    /// <see langword="false"/> if the dispatch completes with a user exception encoded in
+    /// <paramref name="outParams"/>.</returns>
     public abstract Task<Object_Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current);
 
     public async ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)
