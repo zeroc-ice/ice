@@ -56,11 +56,11 @@
     "disableGitFeatures": false,
     "globalMetadata": {
       "_appTitle": "Ice API",
-      "_appName": "Docs",
+      "_appName": "Ice 3.8",
       "_appFaviconPath": "assets/favicon-96x96.png",
       "_appLogoPath": "assets/logo.svg",
       "_appLogoUrl": "https://code.zeroc.com/ice/main/api/csharp/index.html",
-      "_appFooter": "© 2025 ZeroC",
+      "_appFooter": "© ZeroC",
       "_enableSearch": true,
       "_gitContribute": {
         "repo": "https://github.com/zeroc-ice/ice",
