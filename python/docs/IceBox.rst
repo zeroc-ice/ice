@@ -3,9 +3,10 @@ IceBox package
 
 .. currentmodule:: IceBox
 
-Module contents
----------------
+The IceBox client side package.
 
-.. automodule:: IceBox
-   :members:
-   :show-inheritance:
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   api/IceBox/IceBox.*

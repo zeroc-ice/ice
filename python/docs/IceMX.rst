@@ -3,9 +3,10 @@ IceMX package
 
 .. currentmodule:: IceMX
 
-Module contents
----------------
+IceMX package.
 
-.. automodule:: IceMX
-   :members:
-   :show-inheritance:
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   api/IceMX/IceMX.*

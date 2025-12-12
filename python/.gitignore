@@ -1,3 +1,4 @@
 dist
 docs/_build
 docs/.venv
+docs/api

@@ -3,9 +3,10 @@ IceGrid package
 
 .. currentmodule:: IceGrid
 
-Module contents
----------------
+IceGrid client side package.
 
-.. automodule:: IceGrid
-   :members:
-   :show-inheritance:
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   api/IceGrid/IceGrid.*

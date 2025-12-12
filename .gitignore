@@ -156,3 +156,6 @@ packaging/msi/staging
 *.tar.gz
 
 .kotlin
+
+# Generated Python API docs
+python/docs/_generated/
