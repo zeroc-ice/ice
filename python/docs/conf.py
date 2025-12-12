@@ -37,9 +37,9 @@ html_title = "Ice 3.8.0a"
 # =============================================================================
 
 extensions = [
-    "sphinx.ext.autodoc",      # Auto-generate docs from docstrings
+    "sphinx.ext.autodoc",  # Auto-generate docs from docstrings
     "sphinx.ext.intersphinx",  # Link to external documentation (e.g., Python stdlib)
-    "sphinx.ext.napoleon",     # Support NumPy and Google style docstrings
+    "sphinx.ext.napoleon",  # Support NumPy and Google style docstrings
 ]
 
 # =============================================================================
@@ -226,7 +226,9 @@ def _generate_module_pages(_app: Any) -> None:
             rst_file.write_text(_generate_rst_page(package, name, kind, exclude_members), encoding="utf-8")
 
 
-def _suppress_builtin_docstrings(_app: Any, what: str, _name: str, obj: object, _options: Any, lines: list[str]) -> None:
+def _suppress_builtin_docstrings(
+    _app: Any, what: str, _name: str, obj: object, _options: Any, lines: list[str]
+) -> None:
     """
     Remove built-in docstrings for simple data constants.
 
@@ -240,8 +242,8 @@ def _suppress_builtin_docstrings(_app: Any, what: str, _name: str, obj: object, 
 # Sphinx Setup
 # =============================================================================
 
+
 def setup(app: Any) -> None:
     """Register Sphinx event handlers."""
     app.connect("builder-inited", _generate_module_pages)
     app.connect("autodoc-process-docstring", _suppress_builtin_docstrings)
-
