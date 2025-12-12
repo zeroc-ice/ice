@@ -9,4 +9,4 @@ IceMX package.
    :maxdepth: 1
    :glob:
 
-   api/IceMX/IceMX.*
+   IceMX.*

@@ -9,4 +9,4 @@ The IceBox client side package.
    :maxdepth: 1
    :glob:
 
-   api/IceBox/IceBox.*
+   IceBox.*

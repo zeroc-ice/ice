@@ -9,4 +9,4 @@ The Ice framework.
    :maxdepth: 1
    :glob:
 
-   api/Ice/Ice.*
+   Ice.*

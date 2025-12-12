@@ -9,4 +9,4 @@ Glacier2 client side package.
    :maxdepth: 1
    :glob:
 
-   api/Glacier2/Glacier2.*
+   Glacier2.*

@@ -1,0 +1,4 @@
+/* Hide prev/next navigation buttons */
+.related-pages {
+    display: none;
+}

@@ -9,4 +9,4 @@ IceGrid client side package.
    :maxdepth: 1
    :glob:
 
-   api/IceGrid/IceGrid.*
+   IceGrid.*

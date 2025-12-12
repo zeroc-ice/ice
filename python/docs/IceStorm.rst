@@ -9,4 +9,4 @@ IceStorm client side package.
    :maxdepth: 1
    :glob:
 
-   api/IceStorm/IceStorm.*
+   IceStorm.*

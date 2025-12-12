@@ -11,7 +11,6 @@ import ast
 import importlib
 import inspect
 import os
-import shutil
 import sys
 from dataclasses import fields, is_dataclass
 from pathlib import Path
@@ -60,6 +59,7 @@ html_theme_options = {
     "dark_logo": "logo-dark.png",
 }
 html_favicon = "../../assets/favicon-96x96.png"
+html_css_files = ["custom.css"]
 
 # =============================================================================
 # Autodoc Configuration
@@ -83,21 +83,17 @@ intersphinx_mapping = {
 # =============================================================================
 #
 # This section generates one RST file per public symbol (class, function, data)
-# exported from each Ice package. The generated files are placed in api/<package>/
-# and are recreated on every build.
+# exported from each Ice package. The generated files are placed directly in
+# the docs root and are recreated on every build.
 #
 # Structure:
-#   api/
-#     Ice/
-#       Ice.Communicator.rst
-#       Ice.ObjectPrx.rst
-#       ...
-#     Glacier2/
-#       ...
+#   Ice.Communicator.rst
+#   Ice.ObjectPrx.rst
+#   Glacier2.PermissionDeniedException.rst
+#   ...
 
 DOCS_ROOT = Path(__file__).parent.resolve()
 PYTHON_SRC = DOCS_ROOT.parent / "python"
-GENERATED_ROOT = DOCS_ROOT / "api"
 
 # Ice packages to document
 PACKAGES = ("Ice", "Glacier2", "IceBox", "IceGrid", "IceMX", "IceStorm")
@@ -205,25 +201,30 @@ def _generate_rst_page(package: str, name: str, kind: str, exclude_members: list
         return f"{title}\n{underline}\n\n.. autodata:: {package}.{name}\n"
 
 
+# Track generated files so we can clean them up on rebuild
+_generated_files: list[Path] = []
+
+
 def _generate_module_pages(_app: Any) -> None:
     """Generate RST files for all public exports in each Ice package."""
-    GENERATED_ROOT.mkdir(exist_ok=True)
+    global _generated_files
+
+    # Clean up previously generated files
+    for f in _generated_files:
+        if f.exists():
+            f.unlink()
+    _generated_files.clear()
 
     for package in PACKAGES:
         exports = _get_package_exports(package)
         if not exports:
             continue
 
-        # Clean and recreate the package directory
-        package_dir = GENERATED_ROOT / package
-        if package_dir.exists():
-            shutil.rmtree(package_dir)
-        package_dir.mkdir(parents=True)
-
-        # Generate one RST file per export
+        # Generate one RST file per export directly in the docs root
         for name, kind, exclude_members in exports:
-            rst_file = package_dir / f"{package}.{name}.rst"
+            rst_file = DOCS_ROOT / f"{package}.{name}.rst"
             rst_file.write_text(_generate_rst_page(package, name, kind, exclude_members), encoding="utf-8")
+            _generated_files.append(rst_file)
 
 
 def _suppress_builtin_docstrings(
