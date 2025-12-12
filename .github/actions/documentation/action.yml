@@ -70,7 +70,7 @@ runs:
           --enable-experimental-combined-documentation \
           --fallback-display-name "Ice for Swift" \
           --target Ice --target IceStorm --target Glacier2 --target IceGrid \
-          --output-path ./swift/docs --transform-for-static-hosting --hosting-base-path /ice/main/api/swift 2>&1 | tee -a doc_output.log
+          --output-path ./swift/docs --transform-for-static-hosting --hosting-base-path /ice/3.8/api/swift 2>&1 | tee -a doc_output.log
 
         # Check if the documentation generation had any warnings
         if grep -q "^warning:" doc_output.log; then
@@ -115,25 +115,25 @@ runs:
     # Additionally, we do not cache the doxygen output since it does not remove files old files.
     - name: Sync Documentation to S3
       run: |
-        aws s3 sync ./doxygen/slice s3://${AWS_S3_CODE_BUCKET}/ice/main/api/slice --delete
-        aws s3 cp ./doxygen/slice.tag s3://${AWS_S3_CODE_BUCKET}/ice/main/api/slice.tag
+        aws s3 sync ./doxygen/slice s3://${AWS_S3_CODE_BUCKET}/ice/3.8/api/slice --delete
+        aws s3 cp ./doxygen/slice.tag s3://${AWS_S3_CODE_BUCKET}/ice/3.8/api/slice.tag
 
-        aws s3 sync ./cpp/doxygen/cpp s3://${AWS_S3_CODE_BUCKET}/ice/main/api/cpp --delete
-        aws s3 cp ./cpp/doxygen/icecpp.tag s3://${AWS_S3_CODE_BUCKET}/ice/main/api/icecpp.tag
+        aws s3 sync ./cpp/doxygen/cpp s3://${AWS_S3_CODE_BUCKET}/ice/3.8/api/cpp --delete
+        aws s3 cp ./cpp/doxygen/icecpp.tag s3://${AWS_S3_CODE_BUCKET}/ice/3.8/api/icecpp.tag
 
-        aws s3 sync ./csharp/docfx/_site s3://${AWS_S3_CODE_BUCKET}/ice/main/api/csharp --delete
+        aws s3 sync ./csharp/docfx/_site s3://${AWS_S3_CODE_BUCKET}/ice/3.8/api/csharp --delete
 
-        aws s3 sync ./js/docs s3://${AWS_S3_CODE_BUCKET}/ice/main/api/javascript --delete
+        aws s3 sync ./js/docs s3://${AWS_S3_CODE_BUCKET}/ice/3.8/api/javascript --delete
 
-        aws s3 sync ./python/docs/_build/html s3://${AWS_S3_CODE_BUCKET}/ice/main/api/python --delete
+        aws s3 sync ./python/docs/_build/html s3://${AWS_S3_CODE_BUCKET}/ice/3.8/api/python --delete
 
-        aws s3 sync ./swift/docs s3://${AWS_S3_CODE_BUCKET}/ice/main/api/swift --delete
+        aws s3 sync ./swift/docs s3://${AWS_S3_CODE_BUCKET}/ice/3.8/api/swift --delete
 
-        aws s3 sync ./java/build/docs/javadoc s3://${AWS_S3_CODE_BUCKET}/ice/main/api/java --delete
+        aws s3 sync ./java/build/docs/javadoc s3://${AWS_S3_CODE_BUCKET}/ice/3.8/api/java --delete
 
-        aws s3 sync ./ruby/doc s3://${AWS_S3_CODE_BUCKET}/ice/main/api/ruby --delete
+        aws s3 sync ./ruby/doc s3://${AWS_S3_CODE_BUCKET}/ice/3.8/api/ruby --delete
 
-        aws s3 sync ./php/doc/api s3://${AWS_S3_CODE_BUCKET}/ice/main/api/php --delete
+        aws s3 sync ./php/doc/api s3://${AWS_S3_CODE_BUCKET}/ice/3.8/api/php --delete
 
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
@@ -141,4 +141,4 @@ runs:
         AWS_S3_CODE_BUCKET: ${{ inputs.aws-s3-code-bucket }}
         AWS_DEFAULT_REGION: us-east-1
       shell: bash
-      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && github.repository == 'zeroc-ice/ice'
+      if: github.ref == 'refs/heads/3.8' && github.event_name != 'pull_request' && github.repository == 'zeroc-ice/ice'
