@@ -3,9 +3,10 @@ Glacier2 package
 
 .. currentmodule:: Glacier2
 
-Module contents
----------------
+Glacier2 client side package.
 
-.. automodule:: Glacier2
-   :members:
-   :show-inheritance:
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   Glacier2.*

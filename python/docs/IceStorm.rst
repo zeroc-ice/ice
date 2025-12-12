@@ -3,9 +3,10 @@ IceStorm package
 
 .. currentmodule:: IceStorm
 
-Module contents
----------------
+IceStorm client side package.
 
-.. automodule:: IceStorm
-   :members:
-   :show-inheritance:
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   IceStorm.*

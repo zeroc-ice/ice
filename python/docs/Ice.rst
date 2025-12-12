@@ -3,9 +3,10 @@ Ice package
 
 .. currentmodule:: Ice
 
-Module contents
----------------
+The Ice framework.
 
-.. automodule:: Ice
-   :members:
-   :show-inheritance:
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   Ice.*

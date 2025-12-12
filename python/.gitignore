@@ -1,3 +1,11 @@
 dist
 docs/_build
 docs/.venv
+docs/api
+
+docs/Glacier2.*.rst
+docs/Ice.*.rst
+docs/IceBox.*.rst
+docs/IceGrid.*.rst
+docs/IceMX.*.rst
+docs/IceStorm.*.rst
