@@ -52,7 +52,8 @@ flowchart LR
 Install the required third-party libraries:
 
 ```shell
-sudo apt-get install libedit-dev libexpat1-dev liblmdb-dev libmcpp-dev libssl-dev libsystemd-dev
+sudo apt-get install libbluetooth-dev libbz2-dev libdbus-1-dev libedit-dev libexpat1-dev liblmdb-dev libmcpp-dev \
+  libssl-dev libsystemd-dev
 ```
 
 #### On RHEL
