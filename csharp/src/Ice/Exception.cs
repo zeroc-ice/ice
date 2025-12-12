@@ -12,7 +12,7 @@ public abstract class Exception : System.Exception
 {
     /// <summary>
     /// Returns the type ID of this exception. This corresponds to the Slice type ID for Slice-defined exceptions,
-    /// and to a similar fully scoped name for other exceptions.
+    /// and to a fully scoped name for other exceptions.
     /// </summary>
     /// <returns>The type ID of this exception.</returns>
     public abstract string ice_id();

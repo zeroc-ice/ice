@@ -41,7 +41,7 @@ public interface Connection
     void abort();
 
     /// <summary>
-    /// Starts a graceful closure of this connection once all outstanding invocations have completed.
+    /// Closes the connection gracefully after waiting for all outstanding invocations to complete.
     /// </summary>
     /// <returns>A task that completes when the connection is closed.</returns>
     /// <remarks>If closing the connection takes longer than the configured close timeout, the connection is aborted
@@ -58,7 +58,7 @@ public interface Connection
     /// <summary>
     /// Associates an object adapter with this connection. When a connection receives a request, it dispatches this
     /// request using its associated object adapter. If the associated object adapter is null, the connection
-    /// rejects any incoming request with an <see cref="ObjectNotExistException"/>.
+    /// rejects any incoming request with an <see cref="ObjectNotExistException" />.
     /// The default object adapter of an incoming connection is the object adapter that created this connection;
     /// the default object adapter of an outgoing connection is the communicator's default object adapter.
     /// </summary>
