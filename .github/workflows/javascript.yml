@@ -2,10 +2,10 @@ name: JavaScript
 
 on:
   push:
-    branches: ["main"]
+    branches: ["3.8"]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: ["main"]
+    branches: ["3.8"]
 
 jobs:
   prettier:

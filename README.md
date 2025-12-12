@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/zeroc-ice/ice/3.7/.github/assets/ice-banner.svg" height="150" width="150" />
+  <img src="https://raw.githubusercontent.com/zeroc-ice/ice/3.8/.github/assets/ice-banner.svg" height="150" width="150" />
 </p>
 
 [![Join the chat at https://gitter.im/zeroc-ice/ice](https://badges.gitter.im/zeroc-ice/ice.svg)][gitter]
