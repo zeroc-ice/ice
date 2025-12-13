@@ -558,7 +558,7 @@ public sealed class InputStream
     /// </summary>
     /// <param name="tag">The tag associated with the value.</param>
     /// <param name="expectedFormat">The optional format for the value.</param>
-    /// <returns>True if the value is present, false otherwise.</returns>
+    /// <returns><see langword="true"/> if the value is present, <see langword="false"/> otherwise.</returns>
     public bool readOptional(int tag, OptionalFormat expectedFormat)
     {
         Debug.Assert(_encapsStack != null);
@@ -1831,7 +1831,7 @@ public sealed class InputStream
     /// <summary>
     /// Determines whether the stream is empty.
     /// </summary>
-    /// <returns>True if the internal buffer has no data, false otherwise.</returns>
+    /// <returns><see langword="true"/> if the internal buffer has no data, <see langword="false"/> otherwise.</returns>
     public bool isEmpty() => _buf.empty();
 
     private bool readOptImpl(int readTag, OptionalFormat expectedFormat)

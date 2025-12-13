@@ -2,7 +2,9 @@
 
 namespace Ice.Internal;
 
-/// <summary>Provides limited access to the internal endpoint factory manager. Used by transport plug-ins.</summary>
+/// <summary>
+/// Provides limited access to the internal endpoint factory manager. Used by transport plug-ins.
+/// </summary>
 public sealed class ProtocolPluginFacade
 {
     private readonly Instance _instance;

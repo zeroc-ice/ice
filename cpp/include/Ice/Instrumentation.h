@@ -102,7 +102,7 @@ namespace Ice::Instrumentation
         ConnectionStateClosed
     };
 
-    /// Represents the base class for Ice observers.
+    /// The base class for Ice observers.
     /// @headerfile Ice/Ice.h
     class Observer
     {

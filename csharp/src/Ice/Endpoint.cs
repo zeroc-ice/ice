@@ -5,45 +5,50 @@
 namespace Ice;
 
 /// <summary>
-/// Base class for all endpoints.
+/// An endpoint specifies the address of the server-end of an Ice connection.
+/// An object adapter listens on one or more endpoints and a client establishes a connection to an endpoint.
 /// </summary>
 public interface Endpoint
 {
     /// <summary>
-    /// Returns the endpoint information.
+    /// Returns this endpoint's information.
     /// </summary>
-    /// <returns>The endpoint information class.</returns>
+    /// <returns>This endpoint's information class.</returns>
     EndpointInfo getInfo();
 }
 
 /// <summary>
-/// Base class providing access to the endpoint details.
+/// Base class for the endpoint info classes.
 /// </summary>
 public class EndpointInfo
 {
     /// <summary>
-    /// Gets the information for the underlying endpoint, or null if there's no underlying endpoint.
+    /// The information of the underlying endpoint or null if there's no underlying endpoint.
     /// </summary>
     public readonly EndpointInfo? underlying;
 
     /// <summary>
-    /// Gets a value indicating whether or not compression should be used if available when using this endpoint.
+    /// Specifies whether or not compression should be used if available when using this endpoint.
     /// </summary>
     public readonly bool compress;
 
-    /// <summary>Gets a 16-bit integer that identifies the transport of this endpoint.</summary>
+    /// <summary>
+    /// Returns the type of the endpoint.
+    /// </summary>
     /// <returns>The endpoint type.</returns>
-    /// <remarks>The type of an underlying endpoint is always the same as the type its enclosing endpoint.</remarks>
     public virtual short type() => underlying?.type() ?? -1;
 
-    /// <summary>Checks if this endpoint's transport is a datagram transport such as UDP.</summary>
-    /// <returns>True for a datagram endpoint; otherwise, false.</returns>
+    /// <summary>
+    /// Returns <see langword="true"/> if this endpoint's transport is a datagram transport (namely, UDP),
+    /// <see langword="false"/> otherwise.
+    /// </summary>
+    /// <returns><see langword="true"/> for a UDP endpoint, <see langword="false"/> otherwise.</returns>
     public virtual bool datagram() => underlying?.datagram() ?? false;
 
-    /// <summary>Checks if this endpoint's transport is secure.</summary>
-    /// <returns>True if the endpoint's transport is secure; otherwise, false.</returns>
-    /// <remarks>The value returned for an underlying endpoint is the same as the value returned for the enclosing
-    /// endpoint.</remarks>
+    /// <summary>
+    /// Returns <see langword="true"/> if this endpoint's transport uses SSL, <see langword="false"/> otherwise.
+    /// </summary>
+    /// <returns><see langword="true"/> for SSL and SSL-based transports, <see langword="false"/> otherwise.</returns>
     public virtual bool secure() => underlying?.secure() ?? false;
 
     protected EndpointInfo(EndpointInfo underlying)
@@ -56,22 +61,23 @@ public class EndpointInfo
 }
 
 /// <summary>
-/// Provides access to the details of an IP endpoint.
+/// Provides access to the address details of an IP endpoint.
 /// </summary>
+/// <seealso cref="Endpoint"/>
 public class IPEndpointInfo : EndpointInfo
 {
     /// <summary>
-    /// Gets the host or address configured with the endpoint.
+    /// The host or address configured with the endpoint.
     /// </summary>
     public readonly string host;
 
     /// <summary>
-    /// Gets the endpoint's port number.
+    /// The port number.
     /// </summary>
     public readonly int port;
 
     /// <summary>
-    /// Gets the source IP address.
+    /// The source IP address.
     /// </summary>
     public readonly string sourceAddress;
 
@@ -84,6 +90,9 @@ public class IPEndpointInfo : EndpointInfo
     }
 }
 
+/// <summary>
+/// Provides access to a TCP endpoint information.
+/// </summary>
 public sealed class TCPEndpointInfo : IPEndpointInfo
 {
     private readonly bool _secure;
@@ -112,8 +121,14 @@ public sealed class TCPEndpointInfo : IPEndpointInfo
 /// </summary>
 public sealed class UDPEndpointInfo : IPEndpointInfo
 {
+    /// <summary>
+    /// The multicast interface.
+    /// </summary>
     public readonly string mcastInterface;
 
+    /// <summary>
+    /// The multicast time-to-live (or hops).
+    /// </summary>
     public readonly int mcastTtl;
 
     public override short type() => UDPEndpointType.value;
@@ -140,7 +155,7 @@ public sealed class UDPEndpointInfo : IPEndpointInfo
 public sealed class WSEndpointInfo : EndpointInfo
 {
     /// <summary>
-    /// Gets the URI configured for this endpoint.
+    /// The URI configured with the endpoint.
     /// </summary>
     public readonly string resource;
 
@@ -154,12 +169,12 @@ public sealed class WSEndpointInfo : EndpointInfo
 public sealed class OpaqueEndpointInfo : EndpointInfo
 {
     /// <summary>
-    /// Gets the raw encoding (to decode the rawBytes).
+    /// The encoding version of the opaque endpoint (to decode or encode the rawBytes).
     /// </summary>
     public readonly EncodingVersion rawEncoding;
 
     /// <summary>
-    /// Gets the raw bytes of the opaque endpoint.
+    /// The raw encoding of the opaque endpoint.
     /// </summary>
     public readonly byte[] rawBytes;
 

@@ -7,19 +7,23 @@ using System.Reflection;
 
 namespace Ice;
 
-/// <summary>Creates class and exception instances from Slice type IDs.</summary>
+/// <summary>
+/// Creates class and exception instances from Slice type IDs.
+/// </summary>
 public interface SliceLoader
 {
-    /// <summary>Creates an instance of a class mapped from a Slice class or exception based on a Slice type ID.
+    /// <summary>
+    /// Creates an instance of a class mapped from a Slice class or exception based on a Slice type ID.
     /// </summary>
     /// <param name="typeId">The Slice type ID or compact type ID.</param>
-    /// <returns>A new instance of the class or exception identified by <paramref name="typeId"/>, or <c>null</c> if the
-    /// implementation cannot find the corresponding class.</returns>
+    /// <returns>A new instance of the class or exception identified by <paramref name="typeId"/>, or <see langword="null"/>
+    /// if the implementation cannot find the corresponding class.</returns>
     /// <exception cref="MarshalException">Thrown when the corresponding class was found but its instantiation failed.
     /// </exception>
     object? newInstance(string typeId);
 
-    /// <summary>Retrieves a <see cref="SliceLoader"/> for the generated classes in the specified assemblies.
+    /// <summary>
+    /// Retrieves a <see cref="SliceLoader" /> for the generated classes in the specified assemblies.
     /// </summary>
     /// <param name="assemblies">The assemblies to search.</param>
     /// <returns>A Slice loader for the specified assemblies.</returns>
@@ -29,7 +33,8 @@ public interface SliceLoader
     public static SliceLoader fromAssemblies(params Assembly[] assemblies) =>
         AssemblySliceLoader.Merge(assemblies.Select(AssemblySliceLoaderFactory.Instance.Get));
 
-    /// <summary>Retrieves the <see cref="SliceLoader"/> for the generated classes in the specified assembly.
+    /// <summary>
+    /// Retrieves the <see cref="SliceLoader" /> for the generated classes in the specified assembly.
     /// </summary>
     /// <param name="assembly">The assembly to search.</param>
     /// <returns>A Slice loader for the specified assembly.</returns>

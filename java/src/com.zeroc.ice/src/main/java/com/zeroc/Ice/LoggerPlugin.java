@@ -9,7 +9,7 @@ package com.zeroc.Ice;
 public class LoggerPlugin implements Plugin {
     /**
      * Constructs a logger plugin and installs a custom logger in the provided communicator. The communicator takes
-     * ownership of the logger and is responsible for closing it when the communicator is destroyed.
+     * ownership of the {@code logger} and is responsible for closing it when the communicator is destroyed.
      *
      * @param communicator the communicator in which to install the logger
      * @param logger the logger to install

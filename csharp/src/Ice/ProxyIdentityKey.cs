@@ -6,16 +6,15 @@ namespace Ice;
 
 /// <summary>
 /// This class allows a proxy to be used as the key for a hashed collection.
-/// The GetHashCode, Equals, and Compare methods are based on the object identity
-/// of the proxy.
+/// The <c>GetHashCode</c>, <c>Equals</c>, and <c>Compare</c> methods are based on the object identity of the proxy.
 /// </summary>
 public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Collections.IComparer
 {
     /// <summary>
-    /// Computes a hash value based on the object identity of the proxy.
+    /// Computes a hash value based on the object identity of the provided proxy.
     /// </summary>
     /// <param name="obj">The proxy whose hash value to compute.</param>
-    /// <returns>The hash value for the proxy based on the identity.</returns>
+    /// <returns>The hash value.</returns>
     public int GetHashCode(object obj) => ((ObjectPrx)obj).ice_getIdentity().GetHashCode();
 
     /// <summary>
@@ -23,7 +22,8 @@ public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Col
     /// </summary>
     /// <param name="x">The first proxy to compare.</param>
     /// <param name="y">The second proxy to compare.</param>
-    /// <returns>True if the passed proxies have the same object identity; false, otherwise.</returns>
+    /// <returns><see langword="true"/> if the passed proxies have the same object identity; <see langword="false"/>,
+    /// otherwise.</returns>
     public new bool Equals(object? x, object? y)
     {
         try
@@ -37,7 +37,7 @@ public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Col
     }
 
     /// <summary>
-    /// Compares two proxies using the object identity for comparison.
+    /// Compares two proxies based on their object identities.
     /// </summary>
     /// <param name="x">The first proxy to compare.</param>
     /// <param name="y">The second proxy to compare.</param>
@@ -61,16 +61,16 @@ public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Col
 
 /// <summary>
 /// This class allows a proxy to be used as the key for a hashed collection.
-/// The GetHashCode, Equals, and Compare methods are based on the object identity and
+/// The <c>GetHashCode</c>, <c>Equals</c>, and <c>Compare</c> methods are based on the object identity and
 /// the facet of the proxy.
 /// </summary>
 public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, System.Collections.IComparer
 {
     /// <summary>
-    /// Computes a hash value based on the object identity and facet of the proxy.
+    /// Computes a hash value based on the object identity and facet of the provided proxy.
     /// </summary>
     /// <param name="obj">The proxy whose hash value to compute.</param>
-    /// <returns>The hash value for the proxy based on the identity and facet.</returns>
+    /// <returns>The hash value.</returns>
     public int GetHashCode(object obj)
     {
         var o = (ObjectPrx)obj;
@@ -82,8 +82,8 @@ public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, Syste
     /// </summary>
     /// <param name="x">The first proxy to compare.</param>
     /// <param name="y">The second proxy to compare.</param>
-    /// <returns>True if the passed proxies have the same object
-    /// identity and facet; false, otherwise.</returns>
+    /// <returns><see langword="true"/> if the passed proxies have the same object identity and facet;
+    /// <see langword="false"/>, otherwise.</returns>
     public new bool Equals(object? x, object? y)
     {
         try
@@ -97,12 +97,11 @@ public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, Syste
     }
 
     /// <summary>
-    /// Compares two proxies using the object identity and facet for comparison.
+    /// Compares two proxies based on their object identities and facets.
     /// </summary>
     /// <param name="x">The first proxy to compare.</param>
     /// <param name="y">The second proxy to compare.</param>
-    /// <returns>&lt; 0 if x is less than y; &gt; 0 if x is greater than y;
-    /// 0, otherwise.</returns>
+    /// <returns>Less than zero if x is less than y; greater than zero if x is greater than y; otherwise zero.</returns>
     public int Compare(object? x, object? y)
     {
         var proxy1 = x as ObjectPrx;

@@ -261,7 +261,7 @@ public sealed class OutputStream
     /// <param name="typeId">The Slice type ID corresponding to this slice.</param>
     /// <param name="compactId">The Slice compact type ID corresponding to this slice or -1 if no compact ID
     /// is defined for the type ID.</param>
-    /// <param name="last">True if this is the last slice, false otherwise.</param>
+    /// <param name="last"><see langword="true"/> if this is the last slice, <see langword="false"/> otherwise.</param>
     public void startSlice(string typeId, int compactId, bool last)
     {
         Debug.Assert(_encapsStack != null && _encapsStack.encoder != null);
@@ -378,8 +378,8 @@ public sealed class OutputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <param name="format">The optional format of the value.</param>
-    /// <returns><c>true</c> if the encoding supports optional values and the header information was written to the stream;
-    /// <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the encoding supports optional values and the header information was written
+    /// to the stream; <see langword="false"/> otherwise.</returns>
     public bool writeOptional(int tag, OptionalFormat format)
     {
         Debug.Assert(_encapsStack != null);
@@ -1653,7 +1653,7 @@ public sealed class OutputStream
     /// <summary>
     /// Determines whether the stream is empty.
     /// </summary>
-    /// <returns>True if no data has been written yet, false otherwise.</returns>
+    /// <returns><see langword="true"/> if no data has been written yet, <see langword="false"/> otherwise.</returns>
     public bool isEmpty() => _buf.empty();
 
     /// <summary>

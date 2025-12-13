@@ -3,7 +3,7 @@
 package com.zeroc.Ice;
 
 /**
- * The exception that is thrown when a dispatch cannot find a servant for the identity carried by the request.
+ * The exception that is thrown when a dispatch could not find a servant for the identity carried by the request.
  */
 public final class ObjectNotExistException extends RequestFailedException {
     /**

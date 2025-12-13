@@ -4,6 +4,9 @@
 
 namespace Ice.Instrumentation;
 
+/// <summary>
+/// The base interface for Ice observers.
+/// </summary>
 public interface Observer
 {
     /// <summary>
@@ -19,7 +22,7 @@ public interface Observer
     void detach();
 
     /// <summary>
-    /// Notification of a failure.
+    /// Notifies the observer of a failure.
     /// </summary>
     /// <param name="exceptionName">The name of the exception.</param>
     void failed(string exceptionName);
@@ -37,15 +40,13 @@ public enum ThreadState
 
     /// <summary>
     /// The thread is in use performing reads or writes for Ice connections.
-    /// This state is only for threads from an Ice
-    /// thread pool.
+    /// This state is only for threads from an Ice thread pool.
     /// </summary>
     ThreadStateInUseForIO,
 
     /// <summary>
     /// The thread is calling user code (servant implementation, AMI callbacks).
-    /// This state is only for threads from an
-    /// Ice thread pool.
+    /// This state is only for threads from an Ice thread pool.
     /// </summary>
     ThreadStateInUseForUser,
 
@@ -55,13 +56,16 @@ public enum ThreadState
     ThreadStateInUseForOther
 }
 
+/// <summary>
+/// Represents an observer for Ice threads.
+/// This can be threads from the Ice thread pool or utility threads used by the Ice core.
+/// </summary>
 public interface ThreadObserver : Observer
 {
     /// <summary>
-    /// Notification of thread state change.
+    /// Notifies the observer of a thread state change.
     /// </summary>
-    /// <param name="oldState">The previous thread state.
-    /// </param>
+    /// <param name="oldState">The previous thread state.</param>
     /// <param name="newState">The new thread state.</param>
     void stateChanged(ThreadState oldState, ThreadState newState);
 }
@@ -159,26 +163,19 @@ public interface InvocationObserver : Observer
     /// <summary>
     /// Get a remote observer for this invocation.
     /// </summary>
-    /// <param name="con">The connection information.
-    /// </param>
-    /// <param name="endpt">The connection endpoint.
-    /// </param>
-    /// <param name="requestId">The ID of the invocation.
-    /// </param>
-    /// <param name="size">The size of the invocation.
-    /// </param>
+    /// <param name="con">The connection information.</param>
+    /// <param name="endpt">The connection endpoint.</param>
+    /// <param name="requestId">The ID of the invocation.</param>
+    /// <param name="size">The size of the invocation.</param>
     /// <returns>The observer to instrument the remote invocation.</returns>
     RemoteObserver getRemoteObserver(ConnectionInfo con, Endpoint endpt, int requestId, int size);
 
     /// <summary>
     /// Get a collocated observer for this invocation.
     /// </summary>
-    /// <param name="adapter">The object adapter hosting the collocated Ice object.
-    /// </param>
-    /// <param name="requestId">The ID of the invocation.
-    /// </param>
-    /// <param name="size">The size of the invocation.
-    /// </param>
+    /// <param name="adapter">The object adapter hosting the collocated Ice object.</param>
+    /// <param name="requestId">The ID of the invocation.</param>
+    /// <param name="size">The size of the invocation.</param>
     /// <returns>The observer to instrument the collocated invocation.</returns>
     CollocatedObserver getCollocatedObserver(ObjectAdapter adapter, int requestId, int size);
 }
@@ -210,11 +207,9 @@ public interface CommunicatorObserver
     /// The Ice run-time calls
     /// this method for each connection establishment attempt.
     /// </summary>
-    /// <param name="endpt">The endpoint.
-    /// </param>
+    /// <param name="endpt">The endpoint.</param>
     /// <param name="connector">The description of the connector. For IP transports, this is typically the IP address to
-    /// connect to.
-    /// </param>
+    /// connect to.</param>
     /// <returns>The observer to instrument the connection establishment.</returns>
     Observer getConnectionEstablishmentObserver(Endpoint endpt, string connector);
 
@@ -224,8 +219,7 @@ public interface CommunicatorObserver
     /// resolve an endpoint and obtain the list of connectors. For IP endpoints, this typically involves doing a DNS
     /// lookup to obtain the IP addresses associated with the DNS name.
     /// </summary>
-    /// <param name="endpt">The endpoint.
-    /// </param>
+    /// <param name="endpt">The endpoint.</param>
     /// <returns>The observer to instrument the endpoint lookup.</returns>
     Observer getEndpointLookupObserver(Endpoint endpt);
 
@@ -235,14 +229,10 @@ public interface CommunicatorObserver
     /// for each new connection and for all the Ice communicator connections when
     /// ObserverUpdater.updateConnectionObservers is called.
     /// </summary>
-    /// <param name="c">The connection information.
-    /// </param>
-    /// <param name="e">The connection endpoint.
-    /// </param>
-    /// <param name="s">The state of the connection.
-    /// </param>
-    /// <param name="o">The old connection observer if one is already set or a null reference otherwise.
-    /// </param>
+    /// <param name="c">The connection information.</param>
+    /// <param name="e">The connection endpoint.</param>
+    /// <param name="s">The state of the connection.</param>
+    /// <param name="o">The old connection observer if one is already set or a null reference otherwise.</param>
     /// <returns>The connection observer to instrument the connection.</returns>
     ConnectionObserver getConnectionObserver(ConnectionInfo c, Endpoint e, ConnectionState s, ConnectionObserver o);
 
@@ -252,14 +242,10 @@ public interface CommunicatorObserver
     /// new thread and for all the Ice communicator threads when ObserverUpdater.updateThreadObservers is
     /// called.
     /// </summary>
-    /// <param name="parent">The parent of the thread.
-    /// </param>
-    /// <param name="id">The ID of the thread to observe.
-    /// </param>
-    /// <param name="s">The state of the thread.
-    /// </param>
-    /// <param name="o">The old thread observer if one is already set or a null reference otherwise.
-    /// </param>
+    /// <param name="parent">The parent of the thread.</param>
+    /// <param name="id">The ID of the thread to observe.</param>
+    /// <param name="s">The state of the thread.</param>
+    /// <param name="o">The old thread observer if one is already set or a null reference otherwise.</param>
     /// <returns>The thread observer to instrument the thread.</returns>
     ThreadObserver getThreadObserver(string parent, string id, ThreadState s, ThreadObserver o);
 
@@ -268,12 +254,9 @@ public interface CommunicatorObserver
     /// The Ice run-time calls this method
     /// for each new invocation on a proxy.
     /// </summary>
-    /// <param name="prx">The proxy used for the invocation.
-    /// </param>
-    /// <param name="operation">The name of the operation.
-    /// </param>
-    /// <param name="ctx">The context specified by the user.
-    /// </param>
+    /// <param name="prx">The proxy used for the invocation.</param>
+    /// <param name="operation">The name of the operation.</param>
+    /// <param name="ctx">The context specified by the user.</param>
     /// <returns>The invocation observer to instrument the invocation.</returns>
     InvocationObserver getInvocationObserver(ObjectPrx prx, string operation, Dictionary<string, string> ctx);
 
@@ -282,10 +265,8 @@ public interface CommunicatorObserver
     /// The Ice run-time calls this method each
     /// time it receives an incoming invocation to be dispatched for an Ice object.
     /// </summary>
-    /// <param name="c">The current object as provided to the Ice servant dispatching the invocation.
-    /// </param>
-    /// <param name="size">The size of the dispatch.
-    /// </param>
+    /// <param name="c">The current object as provided to the Ice servant dispatching the invocation.</param>
+    /// <param name="size">The size of the dispatch.</param>
     /// <returns>The dispatch observer to instrument the dispatch.</returns>
     DispatchObserver getDispatchObserver(Current c, int size);
 

@@ -6,11 +6,13 @@ namespace Ice;
 
 /// <summary>
 /// Base class for all Ice exceptions.
+/// It has only two derived classes: <see cref="LocalException" /> and <see cref="UserException" />.
 /// </summary>
 public abstract class Exception : System.Exception
 {
     /// <summary>
-    /// Returns the type ID of this exception.
+    /// Returns the type ID of this exception. This corresponds to the Slice type ID for Slice-defined exceptions,
+    /// and to a fully scoped name for other exceptions.
     /// </summary>
     /// <returns>The type ID of this exception.</returns>
     public abstract string ice_id();

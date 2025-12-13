@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
  * - creating and destroying object adapters
  * - loading plug-ins
  * - managing properties (configuration), retries, logging, instrumentation, and more.
- * Communicators are usually the first object you create when programming with Ice.
+ * A communicator is usually the first object you create when programming with Ice.
  * You can create multiple communicators in a single program, but this is not common.
  *
  * @see Logger
@@ -75,9 +75,7 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Destroys the communicator.
-     *
-     * @see #destroy
+     * Closes this communicator. It's an alias for {@link #destroy}.
      */
     public void close() {
         // Don't allow destroy to be interrupted if called from try with statement.
@@ -86,7 +84,7 @@ public final class Communicator implements AutoCloseable {
 
     /**
      * Destroys this communicator. This method calls {@link #shutdown} implicitly. Calling {@code destroy} destroys
-     * all object adapters, and closes all outgoing connections. {@code destroy} waits for all outstanding dispatches
+     * all object adapters, and closes all outgoing connections. This method waits for all outstanding dispatches
      * to complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
      *
      * @see ObjectAdapter#destroy

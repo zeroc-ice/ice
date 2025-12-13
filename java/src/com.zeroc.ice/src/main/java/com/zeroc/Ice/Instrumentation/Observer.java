@@ -19,7 +19,7 @@ public interface Observer {
     void detach();
 
     /**
-     * Notification of a failure.
+     * Notifies the observer of a failure.
      *
      * @param exceptionName The name of the exception.
      */

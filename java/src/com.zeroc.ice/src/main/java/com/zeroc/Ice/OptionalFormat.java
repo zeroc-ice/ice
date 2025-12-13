@@ -4,8 +4,8 @@ package com.zeroc.Ice;
 
 /**
  * The optional format, used for marshaling optional fields and arguments.
- * It describes how the data is marshaled and how it can be skipped by the unmarshaling code if the optional isn't
- * known to the receiver.
+ * It describes how the data is marshaled and how it can be skipped by the unmarshaling code
+ * if the optional isn't known to the receiver.
  */
 public enum OptionalFormat {
     /** Fixed 1-byte encoding. */

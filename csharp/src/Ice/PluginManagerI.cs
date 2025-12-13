@@ -13,7 +13,9 @@ namespace Ice;
 /// </summary>
 public interface PluginFactory
 {
-    /// <summary>Gets the default and preferred name for plug-ins created by this factory.</summary>
+    /// <summary>
+    /// Gets the default and preferred name for plug-ins created by this factory.
+    /// </summary>
     string pluginName { get; }
 
     /// <summary>

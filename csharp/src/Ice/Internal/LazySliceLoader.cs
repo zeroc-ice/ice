@@ -4,7 +4,9 @@
 
 namespace Ice.Internal;
 
-/// <summary>Implements Slice loader over a lazily-created SliceLoader.</summary>
+/// <summary>
+/// Implements Slice loader over a lazily-created SliceLoader.
+/// </summary>
 internal sealed class LazySliceLoader : SliceLoader
 {
     private readonly Lazy<SliceLoader> _lazy;
