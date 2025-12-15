@@ -71,7 +71,7 @@ jobs:
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "homebrew-bottle" --dir staging
 
       - name: Prepare Release Assets
-        run: ./packaging/release/create-release-assets.sh
+        run: ./packaging/release/prepare-release-assets.sh
         env:
           STAGING_DIR: ${{ github.workspace }}/staging
 
