@@ -16,9 +16,8 @@ function buildToolbox(iceVersion)
     fprintf(f, '%% ice\r\n');
     fprintf(f, '%% Version %s (R%s) %s\r\n', iceVersion, version('-release'), date);
     fprintf(f, '%%\r\n');
-    fprintf(f, ['%% Please refer to the '...
-                '<a href="https://docs.zeroc.com/ice/3.8/cpp/ice-3-8-0">Ice Release Notes</a> '...
-                'for more information\r\n']);
+    fprintf(f, ['%% Please consult the '...
+                '<a href="https://docs.zeroc.com/ice/3.8/matlab">Ice Manual</a> to learn about Ice\r\n']);
     fclose(f);
     matlab.addons.toolbox.packageToolbox(projectFile, sprintf('ice-%s-R%s-%s.mltbx', iceVersion, version('-release'), os))
     fprintf(1, 'ok\r\n');
