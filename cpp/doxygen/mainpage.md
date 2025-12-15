@@ -20,5 +20,5 @@ Use this tag file to include links to this C++ API reference from your own Doxyg
 
 [icecpp.tag]: ../icecpp.tag
 [zeroc-ice/ice]: https://github.com/zeroc-ice/ice
-[C++ demos on GitHub]: https://github.com/zeroc-ice/ice-demos/tree/main/cpp
+[C++ demos on GitHub]: https://github.com/zeroc-ice/ice-demos/tree/3.8/cpp
 [Ice Manual]: https://docs.zeroc.com

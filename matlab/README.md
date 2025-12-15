@@ -50,7 +50,7 @@ function client(args)
 end
 ```
 
-[Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/matlab
-[Documentation]: https://docs.zeroc.com/ice/latest/matlab/
+[Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.8/matlab
+[Documentation]: https://docs.zeroc.com/ice/3.8/matlab/
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

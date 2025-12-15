@@ -38,7 +38,7 @@
       }
     ],
     "sitemap": {
-      "baseUrl": "https://code.zeroc.com/ice/main/api/csharp/index.html"
+      "baseUrl": "https://code.zeroc.com/ice/3.8/api/csharp/index.html"
     },
     "overwrite": [
       {
@@ -59,7 +59,7 @@
       "_appName": "Ice 3.8",
       "_appFaviconPath": "assets/favicon-96x96.png",
       "_appLogoPath": "assets/logo.svg",
-      "_appLogoUrl": "https://code.zeroc.com/ice/main/api/csharp/index.html",
+      "_appLogoUrl": "https://code.zeroc.com/ice/3.8/api/csharp/index.html",
       "_appFooter": "© ZeroC",
       "_enableSearch": true,
       "_gitContribute": {

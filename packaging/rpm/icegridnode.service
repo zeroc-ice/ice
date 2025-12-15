@@ -3,7 +3,7 @@
 [Unit]
 Description=IceGrid node daemon
 Documentation=man:icegridnode(1)
-Documentation=https://docs.zeroc.com/ice/latest/cpp/icegridnode
+Documentation=https://docs.zeroc.com/ice/3.8/cpp/icegridnode
 After=syslog.target network.target icegridregistry.service
 
 [Service]

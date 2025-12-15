@@ -81,8 +81,8 @@ internal class Chatbot : GreeterDisp_
 }
 ```
 
-[Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/csharp
-[Documentation]: https://docs.zeroc.com/ice/latest/csharp
-[API Reference]: https://code.zeroc.com/ice/main/api/csharp/index.html
+[Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.8/csharp
+[Documentation]: https://docs.zeroc.com/ice/3.8/csharp
+[API Reference]: https://code.zeroc.com/ice/3.8/api/csharp/index.html
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice
