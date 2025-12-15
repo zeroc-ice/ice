@@ -20,15 +20,17 @@ declare module "@zeroc/ice" {
              * If `locate` throws any exception, the Ice runtime does *not* call `finished`.
              *
              * @param current - Information about the current operation for which a servant is required.
-             * @param cookie - A "cookie" that will be passed to `finished`.
-             * @returns The located servant, or `null` if no suitable servant has been found.
+             * @returns [Object | null, object | null]
+             * An array where:
+             *  - [0]: The located servant, or `null` if no suitable servant has been found.
+             *  - [1]: The cookie that will be passed to `finished`.
              * @throws {@link UserException} - The implementation can raise a `UserException`, and the runtime will marshal it as the
              * result of the invocation.
              *
              * @see {@link ObjectAdapter}
              * @see {@link finished}
              */
-            locate(current: Current, cookie: Holder<object>): Ice.Object | null;
+            locate(current: Current): [Ice.Object | null, object | null];
 
             /**
              * Called by the object adapter after a request has been processed. This operation is only invoked if
@@ -49,7 +51,7 @@ declare module "@zeroc/ice" {
              * @see {@link ObjectAdapter}
              * @see {@link locate}
              */
-            finished(current: Current, servant: Ice.Object, cookie: object): void;
+            finished(current: Current, servant: Ice.Object, cookie: object | null): void;
 
             /**
              * Called when the object adapter in which this servant locator is installed is destroyed.
