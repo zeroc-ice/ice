@@ -36,10 +36,10 @@ cp -v "${STAGING_DIR}/windows-msi"/*.msi .
 
 # Create Java package archives (.zip and .tar.gz) with all Java artifacts.
 mkdir -p java-packages/lib
-cp -v "${STAGING_DIR}/java-packages/lib"/* java-packages/lib/
+cp -v "${STAGING_DIR}/java-packages"/* java-packages/lib/
 
 mkdir -p java-packages/tools
-cp -vr "${STAGING_DIR}/java-packages/tools/slice-tools/build/libs/." java-packages/tools/
+cp -vr "${STAGING_DIR}/slice-tools-packages"/* java-packages/tools/
 
 zip -r java-packages.zip java-packages
 tar -czf java-packages.tar.gz java-packages
