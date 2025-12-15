@@ -401,10 +401,10 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     ObjectPrx ice_compress(bool compress);
 
     /// <summary>
-    /// Obtains the compression override setting of this proxy.
+    /// Gets the compression override setting of this proxy.
     /// </summary>
-    /// <returns>The compression override setting. If no optional value is present, no override is
-    /// set. Otherwise, <see langword="true"/> if compression is enabled, <see langword="false"/> otherwise.</returns>
+    /// <returns>The compression override setting. If null is returned, no override is set. Otherwise, <see langword="true"/>
+    /// if compression is enabled, <see langword="false"/> otherwise.</returns>
     bool? ice_getCompress();
 
     /// <summary>

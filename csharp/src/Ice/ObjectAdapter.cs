@@ -519,22 +519,22 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Remove a servant (that is, the default facet) from the object adapter's Active Servant Map.
+    /// Removes a servant from the object adapter's Active Servant Map.
     /// </summary>
-    /// <param name="id">The identity of the Ice object that is implemented by the servant. If the servant implements multiple
-    /// Ice objects, remove has to be called for all those Ice objects. Removing an identity that is not in
-    /// the map throws NotRegisteredException.</param>
+    /// <param name="id">The identity of the Ice object that is implemented by the servant.</param>
     /// <returns>The removed servant.</returns>
+    /// <exception cref="NotRegisteredException">Thrown when no servant with the given identity is registered.
+    /// </exception>
     public Object remove(Identity id) => removeFacet(id, "");
 
     /// <summary>
-    /// Like remove, but with a facet.
-    /// Calling remove(id) is equivalent to calling
-    /// removeFacet with an empty facet.
+    /// Removes a servant from the object adapter's Active Servant Map, while specifying a facet.
     /// </summary>
     /// <param name="id">The identity of the Ice object that is implemented by the servant.</param>
     /// <param name="facet">The facet. An empty facet means the default facet.</param>
     /// <returns>The removed servant.</returns>
+    /// <exception cref="NotRegisteredException">Thrown when no servant with the given identity and facet is
+    /// registered.</exception>
     public Object removeFacet(Identity id, string facet)
     {
         lock (_mutex)
@@ -547,13 +547,13 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Remove all facets with the given identity from the Active Servant Map.
-    /// The operation completely removes the Ice
-    /// object, including its default facet. Removing an identity that is not in the map throws
-    /// NotRegisteredException.
+    /// Removes all facets with the given identity from the Active Servant Map. This method completely removes the
+    /// Ice object, including its default facet.
     /// </summary>
     /// <param name="id">The identity of the Ice object to be removed.</param>
     /// <returns>A collection containing all the facet names and servants of the removed Ice object.</returns>
+    /// <exception cref="NotRegisteredException">Thrown when no servant with the given identity is registered.
+    /// </exception>
     public Dictionary<string, Object> removeAllFacets(Identity id)
     {
         lock (_mutex)
@@ -566,12 +566,12 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Remove the default servant for a specific category.
-    /// Attempting to remove a default servant for a category that
-    /// is not registered throws NotRegisteredException.
+    /// Removes the default servant for a specific category.
     /// </summary>
     /// <param name="category">The category of the default servant to remove.</param>
     /// <returns>The default servant.</returns>
+    /// <exception cref="NotRegisteredException">Thrown when no default servant is registered for the given category.
+    /// </exception>
     public Object removeDefaultServant(string category)
     {
         lock (_mutex)
@@ -582,24 +582,24 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Look up a servant in this object adapter's Active Servant Map by the identity of the Ice object it implements.
-    /// This operation only tries to look up a servant in the Active Servant Map. It does not attempt to find a servant
-    /// by using any installed ServantLocator.
+    /// Looks up a servant.
     /// </summary>
-    /// <param name="id">The identity of the Ice object for which the servant should be returned.</param>
+    /// <param name="id">The identity of an Ice object.</param>
     /// <returns>The servant that implements the Ice object with the given identity, or null if no such servant has
     /// been found.</returns>
+    /// <remarks>This method only tries to find the servant in the ASM and among the default servants. It does not
+    /// attempt to locate a servant using servant locators.</remarks>
     public Object? find(Identity id) => findFacet(id, "");
 
     /// <summary>
-    /// Like find, but with a facet.
-    /// Calling find(id) is equivalent to calling findFacet
-    /// with an empty facet.
+    /// Looks up a servant with an identity and facet.
     /// </summary>
-    /// <param name="id">The identity of the Ice object for which the servant should be returned.</param>
-    /// <param name="facet">The facet. An empty facet means the default facet.</param>
-    /// <returns>The servant that implements the Ice object with the given identity and facet, or null if no such
-    /// servant has been found.</returns>
+    /// <param name="id">The identity of an Ice object.</param>
+    /// <param name="facet">The facet of an Ice object. An empty facet means the default facet.</param>
+    /// <returns>The servant that implements the Ice object with the given identity and facet,
+    /// or null if no such servant has been found.</returns>
+    /// <remarks>This method only tries to find the servant in the ASM and among the default servants. It does not
+    /// attempt to locate a servant using servant locators.</remarks>
     public Object? findFacet(Identity id, string facet)
     {
         lock (_mutex)
@@ -612,11 +612,10 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Find all facets with the given identity in the Active Servant Map.
+    /// Finds all facets for a given identity in the Active Servant Map.
     /// </summary>
-    /// <param name="id">The identity of the Ice object for which the facets should be returned.</param>
-    /// <returns>A collection containing all the facet names and servants that have been found, or an empty map if there
-    /// is no facet for the given identity.</returns>
+    /// <param name="id">The identity.</param>
+    /// <returns>A collection containing all the facet names and servants that have been found. Can be empty.</returns>
     public Dictionary<string, Object> findAllFacets(Identity id)
     {
         lock (_mutex)
@@ -629,12 +628,13 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Look up a servant in this object adapter's Active Servant Map, given a proxy.
-    /// This operation only tries to lookup a servant in the Active Servant Map. It does not attempt to find a servant
-    /// by using any installed ServantLocator.
+    /// Looks up a servant with an identity and a facet. It's equivalent to calling <see cref="findFacet"/>.
     /// </summary>
-    /// <param name="proxy">The proxy for which the servant should be returned.</param>
-    /// <returns>The servant that matches the proxy, or null if no such servant has been found.</returns>
+    /// <param name="proxy">The proxy that provides the identity and facet to search.</param>
+    /// <returns>The servant that matches the identity and facet carried by <paramref name="proxy"/>, or null if no
+    /// such servant has been found.</returns>
+    /// <remarks>This method only tries to find the servant in the ASM and among the default servants. It does not
+    /// attempt to locate a servant using servant locators.</remarks>
     public Object? findByProxy(ObjectPrx proxy)
     {
         lock (_mutex)
@@ -646,25 +646,14 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Add a Servant Locator to this object adapter.
-    ///
-    /// Adding a servant locator for a category for which a servant locator is already registered throws
-    /// <see cref="AlreadyRegisteredException" />. To dispatch operation calls on servants, the object adapter tries to
-    /// find a servant for a given Ice object identity and facet in the following order:
-    ///
-    /// The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
-    /// If no servant has been found in the Active Servant Map, the object adapter tries to find a servant locator
-    /// for the category component of the identity. If a locator is found, the object adapter tries to find a servant
-    /// using this locator.
-    /// If no servant has been found by any of the preceding steps, the object adapter tries to find a locator for
-    /// an empty category, regardless of the category contained in the identity. If a locator is found, the object
-    /// adapter tries to find a servant using this locator.
-    /// If no servant has been found by any of the preceding steps, the object adapter gives up and the caller
-    /// receives <see cref="ObjectNotExistException" /> or <see cref="FacetNotExistException" />.
+    /// Adds a ServantLocator to this object adapter for a specific category.
     /// </summary>
-    /// <param name="locator">The locator to add.</param>
-    /// <param name="category">The category for which the Servant Locator can locate servants, or an empty string if the
-    /// Servant Locator does not belong to any specific category.</param>
+    /// <param name="locator">The servant locator to add.</param>
+    /// <param name="category">The category. The empty category means <paramref name="locator"/> handles all
+    /// categories.</param>
+    /// <exception cref="AlreadyRegisteredException">Thrown when a servant locator with the same category is already
+    /// registered.</exception>
+    /// <seealso cref="addDefaultServant"/>
     public void addServantLocator(ServantLocator locator, string category)
     {
         lock (_mutex)
@@ -675,12 +664,12 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Remove a Servant Locator from this object adapter.
+    /// Removes a ServantLocator from this object adapter.
     /// </summary>
-    /// <param name="category">The category for which the Servant Locator can locate servants, or an empty string if the
-    /// servant locator does not belong to any specific category.</param>
-    /// <returns>The Servant Locator, or throws <see cref="NotRegisteredException"/> if no Servant Locator was found
-    /// for the given category.</returns>
+    /// <param name="category">The category.</param>
+    /// <returns>The servant locator.</returns>
+    /// <exception cref="NotRegisteredException">Thrown when no ServantLocator with the given category is registered.
+    /// </exception>
     public ServantLocator removeServantLocator(string category)
     {
         lock (_mutex)
@@ -691,11 +680,10 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Find a Servant Locator installed with this object adapter.
+    /// Finds a ServantLocator registered with this object adapter.
     /// </summary>
-    /// <param name="category">The category for which the Servant Locator can locate servants, or an empty string if the
-    /// Servant Locator does not belong to any specific category.</param>
-    /// <returns>The servant locator, or null if no servant locator was found for the given category.</returns>
+    /// <param name="category">The category.</param>
+    /// <returns>The servant locator, or null if not found.</returns>
     public ServantLocator? findServantLocator(string category)
     {
         lock (_mutex)
@@ -706,10 +694,10 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Find the default servant for a specific category.
+    /// Finds the default servant for a specific category.
     /// </summary>
-    /// <param name="category">The category of the default servant to find.</param>
-    /// <returns>The default servant or null if no default servant was registered for the category.</returns>
+    /// <param name="category">The category.</param>
+    /// <returns>The default servant, or nullptr if not found.</returns>
     public Object? findDefaultServant(string category)
     {
         lock (_mutex)
@@ -726,14 +714,13 @@ public sealed class ObjectAdapter
     public Object dispatchPipeline => _dispatchPipeline.Value;
 
     /// <summary>
-    /// Create a proxy for the object with the given identity.
-    /// If this object adapter is configured with an adapter id,
-    /// the return value is an indirect proxy that refers to the adapter id. If a replica group id is also defined, the
-    /// return value is an indirect proxy that refers to the replica group id. Otherwise, if no adapter id is defined,
-    /// the return value is a direct proxy containing this object adapter's published endpoints.
+    /// Creates a proxy from an Ice identity.
+    /// If this object adapter is configured with an adapter ID, the proxy is an indirect proxy that refers to this
+    /// adapter ID. If a replica group ID is also defined, the proxy is an indirect proxy that refers to this replica
+    /// group ID. Otherwise, the proxy is a direct proxy containing this object adapter's published endpoints.
     /// </summary>
-    /// <param name="id">The object's identity.</param>
-    /// <returns>A proxy for the object with the given identity.</returns>
+    /// <param name="id">An Ice identity.</param>
+    /// <returns>A proxy with the given identity.</returns>
     public ObjectPrx createProxy(Identity id)
     {
         lock (_mutex)
@@ -746,12 +733,10 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Create a direct proxy for the object with the given identity.
-    /// The returned proxy contains this object adapter's
-    /// published endpoints.
+    /// Creates a direct proxy from an Ice identity.
     /// </summary>
-    /// <param name="id">The object's identity.</param>
-    /// <returns>A proxy for the object with the given identity.</returns>
+    /// <param name="id">An Ice identity.</param>
+    /// <returns>A proxy with the given identity and this published endpoints of this object adapter.</returns>
     public ObjectPrx createDirectProxy(Identity id)
     {
         lock (_mutex)
@@ -764,13 +749,11 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Create an indirect proxy for the object with the given identity.
-    /// If this object adapter is configured with an
-    /// adapter id, the return value refers to the adapter id. Otherwise, the return value contains only the object
-    /// identity.
+    /// Creates an indirect proxy for an Ice identity.
     /// </summary>
-    /// <param name="id">The object's identity.</param>
-    /// <returns>A proxy for the object with the given identity.</returns>
+    /// <param name="id">An Ice identity.</param>
+    /// <returns>An indirect proxy with the given identity. If this object adapter is not configured with an adapter
+    /// ID or a replica group ID, the new proxy is a well-known proxy (i.e., an identity-only proxy).</returns>
     public ObjectPrx createIndirectProxy(Identity id)
     {
         lock (_mutex)
@@ -783,11 +766,7 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Set an Ice locator for this object adapter.
-    /// By doing so, the object adapter will register itself with the
-    /// locator registry when it is activated for the first time. Furthermore, the proxies created by this object
-    /// adapter will contain the adapter identifier instead of its endpoints. The adapter identifier must be configured
-    /// using the AdapterId property.
+    /// Sets an Ice locator on this object adapter.
     /// </summary>
     /// <param name="locator">The locator used by this object adapter.</param>
     public void setLocator(LocatorPrx? locator)
@@ -800,7 +779,7 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Get the Ice locator used by this object adapter.
+    /// Gets the Ice locator used by this object adapter.
     /// </summary>
     /// <returns>The locator used by this object adapter, or null if no locator is used by this object adapter.
     /// </returns>
@@ -813,9 +792,10 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Get the set of endpoints configured with this object adapter.
+    /// Gets the set of endpoints configured on this object adapter.
     /// </summary>
     /// <returns>The set of endpoints.</returns>
+    /// <remarks>This method remains usable after the object adapter has been deactivated.</remarks>
     public Endpoint[] getEndpoints()
     {
         lock (_mutex)
@@ -830,9 +810,10 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Get the set of endpoints that proxies created by this object adapter will contain.
+    /// Gets the set of endpoints that proxies created by this object adapter will contain.
     /// </summary>
     /// <returns>The set of published endpoints.</returns>
+    /// <remarks>This method remains usable after the object adapter has been deactivated.</remarks>
     public Endpoint[] getPublishedEndpoints()
     {
         lock (_mutex)
@@ -844,8 +825,9 @@ public sealed class ObjectAdapter
     /// <summary>
     /// Sets the endpoints that proxies created by this object adapter will contain.
     /// </summary>
-    /// <param name="newEndpoints">The new set of endpoints that the object adapter will embed in proxies. Must contain
-    /// at least one endpoint.</param>
+    /// <param name="newEndpoints">The new set of endpoints that the object adapter will embed in proxies.</param>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="newEndpoints"/> is empty or this adapter is
+    /// associated with a router.</exception>
     public void setPublishedEndpoints(Endpoint[] newEndpoints)
     {
         if (newEndpoints.Length == 0)
@@ -881,9 +863,7 @@ public sealed class ObjectAdapter
         {
             lock (_mutex)
             {
-                //
                 // Restore the old published endpoints.
-                //
                 _publishedEndpoints = oldPublishedEndpoints;
                 throw;
             }
@@ -899,18 +879,14 @@ public sealed class ObjectAdapter
 
         if (r.isWellKnown())
         {
-            //
             // Check the active servant map to see if the well-known
             // proxy is for a local object.
-            //
             return _servantManager.hasServant(r.getIdentity());
         }
         else if (r.isIndirect())
         {
-            //
             // Proxy is local if the reference adapter id matches this
             // adapter id or replica group id.
-            //
             return r.getAdapterId().Equals(_id, StringComparison.Ordinal) ||
                 r.getAdapterId().Equals(_replicaGroupId, StringComparison.Ordinal);
         }
@@ -997,8 +973,7 @@ public sealed class ObjectAdapter
     internal Ice.Internal.ThreadPool getThreadPool()
     {
         // No mutex lock necessary, _threadPool and _instance are
-        // immutable after creation until they are removed in
-        // destroy().
+        // immutable after creation until they are removed in destroy().
 
         // Not check for deactivation here!
 
@@ -1083,14 +1058,10 @@ public sealed class ObjectAdapter
         Properties properties = _instance.initializationData().properties!;
         Properties.validatePropertiesWithPrefix(_name, properties, PropertyNames.ObjectAdapterProps);
 
-        //
         // Make sure named adapter has configuration.
-        //
         if (router is null && properties.getPropertiesForPrefix($"{_name}.").Count == 0)
         {
-            //
             // These need to be set to prevent warnings/asserts in the destructor.
-            //
             _state = StateDestroyed;
             _incomingConnectionFactories = [];
 
@@ -1100,10 +1071,8 @@ public sealed class ObjectAdapter
         _id = properties.getProperty(_name + ".AdapterId");
         _replicaGroupId = properties.getProperty(_name + ".ReplicaGroupId");
 
-        //
         // Setup a reference to be used to get the default proxy options
         // when creating new proxies. By default, create twoway proxies.
-        //
         string proxyOptions = properties.getPropertyWithDefault(_name + ".ProxyOptions", "-t");
         try
         {
@@ -1157,9 +1126,7 @@ public sealed class ObjectAdapter
                         "An object adapter with a router cannot accept incoming connections.");
                 }
 
-                //
                 // Make sure this router is not already registered with another adapter.
-                //
                 if (_routerInfo.getAdapter() is not null)
                 {
                     throw new AlreadyRegisteredException(
@@ -1167,26 +1134,19 @@ public sealed class ObjectAdapter
                         Util.identityToString(router.ice_getIdentity(), _instance.toStringMode()));
                 }
 
-                //
                 // Associate this object adapter with the router. This way,
                 // new outgoing connections to the router's client proxy will
                 // use this object adapter for callbacks.
-                //
                 _routerInfo.setAdapter(this);
 
-                //
                 // Also modify all existing outgoing connections to the
-                // router's client proxy to use this object adapter for
-                // callbacks.
-                //
+                // router's client proxy to use this object adapter for callbacks.
                 _instance.outgoingConnectionFactory().setRouterInfo(_routerInfo);
             }
             else
             {
-                //
                 // Parse the endpoints, but don't store them in the adapter. The connection
                 // factory might change it, for example, to fill in the real port number.
-                //
                 List<EndpointI> endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
                 foreach (EndpointI endp in endpoints)
                 {
@@ -1208,9 +1168,7 @@ public sealed class ObjectAdapter
                 }
             }
 
-            //
             // Parse published endpoints.
-            //
             _publishedEndpoints = computePublishedEndpoints();
 
             if (properties.getProperty(_name + ".Locator").Length > 0)
@@ -1432,10 +1390,8 @@ public sealed class ObjectAdapter
             return; // Nothing to update.
         }
 
-        //
         // Call on the locator registry outside the synchronization to
         // blocking other threads that need to lock this OA.
-        //
         LocatorRegistryPrx locatorRegistry = locatorInfo.getLocatorRegistry();
         if (locatorRegistry is null)
         {
