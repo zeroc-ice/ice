@@ -10,20 +10,20 @@ namespace Ice;
 public sealed class IncomingRequest
 {
     /// <summary>
-    /// Gets the current object for the request.
+    /// Gets the current object of the request.
     /// </summary>
     public Current current { get; }
 
     /// <summary>
-    /// Gets the incoming stream buffer of the request.
+    /// Gets the input stream buffer of the request.
     /// </summary>
     public InputStream inputStream { get; }
 
     /// <summary>
     /// Gets the number of bytes in the request.
     /// </summary>
-    /// <value>The number of bytes in the request. These are all the bytes starting with the identity of the target.
-    /// </value>
+    /// <value>The number of bytes in the request. These are all the bytes starting with the identity of the target
+    /// object.</value>
     public int size { get; }
 
     /// <summary>

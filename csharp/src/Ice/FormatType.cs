@@ -5,7 +5,7 @@
 namespace Ice;
 
 /// <summary>
-/// This enumeration describes the possible formats for classes and exceptions.
+/// Specifies the format for marshaling classes and exceptions with the Slice 1.1 encoding.
 /// </summary>
 public enum FormatType
 {
@@ -18,8 +18,9 @@ public enum FormatType
     CompactFormat,
 
     /// <summary>
-    /// The Sliced format allows the receiver to slice off unknown slices. If an application receives a derived
-    /// class it does not know, it can create a base class while preserving the unknown derived slices.
+    /// Allows slicing-off unknown slices during unmarshaling, at the cost of some extra space in the marshaled data.
+    /// If an application receives a derived class it does not know, it can create a base class while preserving the
+    /// unknown derived slices.
     /// </summary>
     SlicedFormat
 }

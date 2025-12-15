@@ -4,8 +4,10 @@
 
 namespace Ice;
 
-/// <summary>Represents Ice's abstraction for logging and tracing. Applications can provide their own logger by
-/// implementing this abstraction and setting a logger on the communicator.</summary>
+/// <summary>
+/// Represents Ice's abstraction for logging and tracing. Applications can provide their own logger by
+/// implementing this interface and setting a logger on the communicator.
+/// </summary>
 public interface Logger : IDisposable
 {
     /// <summary>
@@ -18,8 +20,7 @@ public interface Logger : IDisposable
     /// <summary>
     /// Logs a trace message.
     /// </summary>
-    /// <param name="category">The trace category.
-    /// </param>
+    /// <param name="category">The trace category.</param>
     /// <param name="message">The trace message to log.</param>
     void trace(string category, string message);
 
@@ -42,9 +43,10 @@ public interface Logger : IDisposable
     string getPrefix();
 
     /// <summary>
-    /// Returns a clone of the logger with a new prefix. The caller is responsible for disposing the returned logger.
+    /// Returns a clone of the logger with a new prefix.
     /// </summary>
     /// <param name="prefix">The new prefix for the logger.</param>
     /// <returns>A logger instance.</returns>
+    /// <remarks>The caller is responsible for disposing the returned logger.</remarks>
     Logger cloneWithPrefix(string prefix);
 }

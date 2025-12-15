@@ -7,7 +7,9 @@ using System.Text;
 
 namespace Ice.Internal;
 
-/// <summary>A middleware that logs warnings for failed dispatches.</summary>
+/// <summary>
+/// A middleware that logs warnings for failed dispatches.
+/// </summary>
 internal sealed class LoggerMiddleware : Object
 {
     private readonly Object _next;

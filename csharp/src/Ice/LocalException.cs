@@ -5,7 +5,7 @@
 namespace Ice;
 
 /// <summary>
-/// Base class for Ice run-time exceptions.
+/// Base class for all Ice exceptions not defined in Slice.
 /// </summary>
 public class LocalException : Ice.Exception
 {

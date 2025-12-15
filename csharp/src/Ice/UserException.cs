@@ -7,7 +7,7 @@ using System.ComponentModel;
 namespace Ice;
 
 /// <summary>
-/// Base class for exceptions defined in Slice.
+/// Base class for all exceptions defined in Slice.
 /// </summary>
 public abstract class UserException : Ice.Exception
 {
@@ -31,7 +31,7 @@ public abstract class UserException : Ice.Exception
     public virtual bool iceUsesClasses() => false;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="UserException"/> class.
+    /// Initializes a new instance of the <see cref="UserException" /> class.
     /// </summary>
     protected UserException()
         : base(message: null, innerException: null)

@@ -37,7 +37,7 @@ namespace Ice
         ~Communicator();
 
         /// Destroys this communicator. This function calls #shutdown implicitly. Calling #destroy destroys all
-        /// object adapters, and closes all outgoing connections. `destroy` waits for all outstanding dispatches to
+        /// object adapters, and closes all outgoing connections. This method waits for all outstanding dispatches to
         /// complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
         /// @see CommunicatorHolder
         void destroy() noexcept;

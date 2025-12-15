@@ -5,7 +5,7 @@
 namespace Ice;
 
 /// <summary>
-/// The batch compression option when flushing queued batch requests.
+/// Represents batch compression options when flushing queued batch requests.
 /// </summary>
 public enum CompressBatch
 {
@@ -25,10 +25,13 @@ public enum CompressBatch
     BasedOnProxy
 }
 
+/// <summary>
+/// An application can use this delegate to receive notifications when a connection closes.
+/// </summary>
 public delegate void CloseCallback(Connection con);
 
 /// <summary>
-/// The user-level interface to a connection.
+/// Represents a connection that uses the Ice protocol.
 /// </summary>
 public interface Connection
 {
@@ -41,18 +44,15 @@ public interface Connection
     /// Closes the connection gracefully after waiting for all outstanding invocations to complete.
     /// </summary>
     /// <returns>A task that completes when the connection is closed.</returns>
-    /// <remarks>If this operation takes longer than the configured close timeout, the connection is aborted with a
-    /// <see cref="CloseTimeoutException"/>.</remarks>
+    /// <remarks>If closing the connection takes longer than the configured close timeout, the connection is aborted
+    /// with a <see cref="CloseTimeoutException"/>.</remarks>
     Task closeAsync();
 
     /// <summary>
-    /// Create a special proxy that always uses this connection.
-    /// This can be used for callbacks from a server to a
-    /// client if the server cannot directly establish a connection to the client, for example because of firewalls. In
-    /// this case, the server would create a proxy using an already established connection from the client.
+    /// Creates a special proxy (a "fixed proxy") that always uses this connection.
     /// </summary>
-    /// <param name="id">The identity for which a proxy is to be created.</param>
-    /// <returns>A proxy that matches the given identity and uses this connection.</returns>
+    /// <param name="id">The identity of the target object.</param>
+    /// <returns>A fixed proxy with the provided identity.</returns>
     ObjectPrx createProxy(Identity id);
 
     /// <summary>
@@ -64,38 +64,47 @@ public interface Connection
     /// </summary>
     /// <param name="adapter">The object adapter to associate with this connection.</param>
     /// <seealso cref="Communicator.getDefaultObjectAdapter"/>
+    /// <seealso cref="getAdapter"/>
     void setAdapter(ObjectAdapter? adapter);
 
     /// <summary>
     /// Gets the object adapter associated with this connection.
     /// </summary>
     /// <returns>The object adapter associated with this connection.</returns>
+    /// <seealso cref="setAdapter"/>
     ObjectAdapter? getAdapter();
 
     /// <summary>
-    /// Get the endpoint from which the connection was created.
+    /// Gets the endpoint from which the connection was created.
     /// </summary>
     /// <returns>The endpoint from which the connection was created.</returns>
     Endpoint getEndpoint();
 
     /// <summary>
-    /// Flush any pending batch requests for this connection.
+    /// Flushes any pending batch requests for this connection.
     /// This means all batch requests invoked on fixed proxies associated with the connection.
     /// </summary>
     /// <param name="compress">Specifies whether or not the queued batch requests should be compressed before being sent
     /// over the wire.</param>
     void flushBatchRequests(CompressBatch compress);
 
+    /// <summary>
+    /// Flushes any pending batch requests for this connection.
+    /// This means all batch requests invoked on fixed proxies associated with the connection.
+    /// </summary>
+    /// <param name="compress">Specifies whether or not the queued batch requests should be compressed before being sent
+    /// over the wire.</param>
+    /// <param name="progress">Sent progress provider.</param>
+    /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+    /// <returns>A task that completes when the flush completes.</returns>
     System.Threading.Tasks.Task flushBatchRequestsAsync(
         CompressBatch compress,
         System.IProgress<bool>? progress = null,
         System.Threading.CancellationToken cancel = default);
 
     /// <summary>
-    /// Set a close callback on the connection.
-    /// The callback is called by the connection when it's closed. The callback
-    /// is called from the Ice thread pool associated with the connection. If the callback needs more information about
-    /// the closure, it can call Connection.throwException.
+    /// Sets a close callback on the connection. The callback is called by the connection when it's closed.
+    /// The callback is called from the Ice thread pool associated with the connection.
     /// </summary>
     /// <param name="callback">The close callback object.</param>
     void setCloseCallback(CloseCallback callback);
@@ -106,8 +115,7 @@ public interface Connection
     void disableInactivityCheck();
 
     /// <summary>
-    /// Return the connection type.
-    /// This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
+    /// Returns the connection type. This corresponds to the endpoint type, such as "tcp", "udp", etc.
     /// </summary>
     /// <returns>The type of the connection.</returns>
     string type();
@@ -119,34 +127,33 @@ public interface Connection
     ConnectionInfo getInfo();
 
     /// <summary>
-    /// Set the connection buffer receive/send size.
+    /// Sets the size of the receive and send buffers.
     /// </summary>
-    /// <param name="rcvSize">The connection receive buffer size.</param>
-    /// <param name="sndSize">The connection send buffer size.</param>
+    /// <param name="rcvSize">The size of the receive buffer.</param>
+    /// <param name="sndSize">The size of the send buffer.</param>
     void setBufferSize(int rcvSize, int sndSize);
 
     /// <summary>
-    /// Throw an exception indicating the reason for connection closure.
-    /// For example,
-    /// CloseConnectionException is raised if the connection was closed gracefully, whereas
-    /// ConnectionAbortedException/ConnectionClosedException is raised if the connection was manually closed by
-    /// the application. This operation does nothing if the connection is not yet closed.
+    /// Throws an exception that provides the reason for the closure of this connection. For example,
+    /// this method throws <see cref="CloseConnectionException"/> when the connection was closed gracefully by the peer;
+    /// It throws <see cref="ConnectionAbortedException"/> or <see cref="ConnectionClosedException"/>
+    /// when the connection is aborted. This method does nothing if the connection is not yet closed.
     /// </summary>
     void throwException();
 }
 
 /// <summary>
-///  Base class providing access to the connection details.
+/// Base class for all connection info classes.
 /// </summary>
 public class ConnectionInfo
 {
     /// <summary>
-    /// The underlying connection information.
+    /// The information of the underlying transport or null if there's no underlying transport.
     /// </summary>
     public readonly ConnectionInfo? underlying;
 
     /// <summary>
-    /// Whether the connection is an incoming connection (<c>true</c>) or an outgoing connection (<c>false</c>).
+    /// <see langword="true"/> if this is an incoming connection, <see langword="false"/> otherwise.
     /// </summary>
     public readonly bool incoming;
 
@@ -156,7 +163,7 @@ public class ConnectionInfo
     public readonly string adapterName;
 
     /// <summary>
-    /// The connection id.
+    /// The connection ID.
     /// </summary>
     public readonly string connectionId;
 
@@ -176,11 +183,29 @@ public class ConnectionInfo
     }
 }
 
+/// <summary>
+/// Provides access to the connection details of an IP connection.
+/// </summary>
 public class IPConnectionInfo : ConnectionInfo
 {
+    /// <summary>
+    /// The local address.
+    /// </summary>
     public readonly string localAddress;
+
+    /// <summary>
+    /// The local port.
+    /// </summary>
     public readonly int localPort;
+
+    /// <summary>
+    /// The remote address.
+    /// </summary>
     public readonly string remoteAddress;
+
+    /// <summary>
+    /// The remote port.
+    /// </summary>
     public readonly int remotePort;
 
     protected IPConnectionInfo(
@@ -200,9 +225,19 @@ public class IPConnectionInfo : ConnectionInfo
     }
 }
 
+/// <summary>
+/// Provides access to the connection details of a TCP connection.
+/// </summary>
 public sealed class TCPConnectionInfo : IPConnectionInfo
 {
+    /// <summary>
+    /// The size of the receive buffer.
+    /// </summary>
     public readonly int rcvSize;
+
+    /// <summary>
+    /// The size of the send buffer.
+    /// </summary>
     public readonly int sndSize;
 
     internal TCPConnectionInfo(
@@ -236,11 +271,29 @@ public sealed class TCPConnectionInfo : IPConnectionInfo
     }
 }
 
+/// <summary>
+/// Provides access to the connection details of a UDP connection.
+/// </summary>
 public sealed class UDPConnectionInfo : IPConnectionInfo
 {
+    /// <summary>
+    /// The multicast address.
+    /// </summary>
     public readonly string mcastAddress;
+
+    /// <summary>
+    /// The multicast port.
+    /// </summary>
     public readonly int mcastPort;
+
+    /// <summary>
+    /// The size of the receive buffer.
+    /// </summary>
     public readonly int rcvSize;
+
+    /// <summary>
+    /// The size of the send buffer.
+    /// </summary>
     public readonly int sndSize;
 
     internal UDPConnectionInfo(
@@ -280,8 +333,14 @@ public sealed class UDPConnectionInfo : IPConnectionInfo
     }
 }
 
+/// <summary>
+/// Provides access to the connection details of a WebSocket connection.
+/// </summary>
 public sealed class WSConnectionInfo : ConnectionInfo
 {
+    /// <summary>
+    /// The headers from the HTTP upgrade request.
+    /// </summary>
     public readonly Dictionary<string, string> headers;
 
     internal WSConnectionInfo(ConnectionInfo underlying, Dictionary<string, string> headers)

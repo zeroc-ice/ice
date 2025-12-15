@@ -28,7 +28,7 @@ namespace Ice
         /// The facet of the target Ice object.
         std::string facet;
 
-        /// The operation name.
+        /// The name of the operation.
         std::string operation;
 
         /// The mode of the operation (see ::Ice::checkNonIdempotent).

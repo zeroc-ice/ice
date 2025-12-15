@@ -5,30 +5,31 @@
 namespace Ice;
 
 /// <summary>
-/// Represents an invocation on a proxy configured for batch-oneway or batch-datagram.
+/// Represents a batch request. A batch request is created by invoking an operation on a batch-oneway or
+/// batch-datagram proxy.
 /// </summary>
 public interface BatchRequest
 {
     /// <summary>
-    /// Queues the request for an eventual flush.
+    /// Queues this request.
     /// </summary>
     void enqueue();
 
     /// <summary>
-    /// Get the marshaled size of the request.
+    /// Gets the size of the request.
     /// </summary>
-    /// <returns>The request size.</returns>
+    /// <returns>The number of bytes consumed by the request.</returns>
     int getSize();
 
     /// <summary>
     /// Gets the name of the operation.
     /// </summary>
-    /// <returns>The request operation.</returns>
+    /// <returns>The operation name.</returns>
     string getOperation();
 
     /// <summary>
-    /// The proxy used to invoke the batch request.
+    /// Gets the proxy used to create this batch request.
     /// </summary>
-    /// <returns>The request proxy.</returns>
+    /// <returns>The proxy.</returns>
     ObjectPrx getProxy();
 }
