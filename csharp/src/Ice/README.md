@@ -91,4 +91,4 @@ internal class Chatbot : GreeterDisp_
 [ice]: https://github.com/zeroc-ice/ice
 [examples]: https://github.com/zeroc-ice/ice-demos/tree/3.8/csharp
 [package]: https://www.nuget.org/packages/ZeroC.Ice
-[source]: https://github.com/zeroc-ice/ice/tree/main/csharp/src/Ice
+[source]: https://github.com/zeroc-ice/ice/tree/3.8/csharp/src/Ice

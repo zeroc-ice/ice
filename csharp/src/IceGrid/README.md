@@ -11,4 +11,4 @@ definitions for IceGrid. The generated code for these definitions is included in
 [docs]:https://docs.zeroc.com/ice/3.8/csharp/
 [examples]: https://github.com/zeroc-ice/ice-demos/tree/3.8/csharp
 [package]: https://www.nuget.org/packages/ZeroC.IceGrid
-[source]: https://github.com/zeroc-ice/ice/tree/main/csharp/src/IceGrid
+[source]: https://github.com/zeroc-ice/ice/tree/3.8/csharp/src/IceGrid
