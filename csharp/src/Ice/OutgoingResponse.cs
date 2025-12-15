@@ -15,7 +15,7 @@ public sealed class OutgoingResponse
     /// Gets the exception ID of the response.
     /// </summary>
     /// <value>The exception ID of the response. It's null when replyStatus is <see cref="ReplyStatus.Ok" /> or
-    /// <see cref="ReplyStatus.UserException" /> . Otherwise, this ID is the value returned by
+    /// <see cref="ReplyStatus.UserException" />. Otherwise, this ID is the value returned by
     /// <see cref="LocalException.ice_id()" />. For other exceptions, this ID is the full name of the exception's type.
     /// </value>
     public string? exceptionId { get; }

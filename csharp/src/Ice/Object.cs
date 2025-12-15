@@ -164,7 +164,7 @@ public abstract class BlobjectAsync : Object
     /// </summary>
     /// <param name="inEncaps">An encapsulation containing the encoded in-parameters for the operation.</param>
     /// <param name="current">The Current object of the incoming request.</param>
-    /// <returns>A task that will complete an instance of <see cref="Object_Ice_invokeResult"/>.</returns>
+    /// <returns>A task that will complete with an instance of <see cref="Object_Ice_invokeResult"/>.</returns>
     public abstract Task<Object_Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current);
 
     public async ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)

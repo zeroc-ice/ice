@@ -510,7 +510,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
     /// </summary>
     /// <param name="other">The proxy to compare this proxy with.</param>
-    /// <returns><see langword="true"/> if this proxy is equal to r; <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if this proxy is equal to <paramref name="other"/>;
+    /// <see langword="false"/> otherwise.</returns>
     public bool Equals(ObjectPrx? other) =>
         other is not null && _reference == ((ObjectPrxHelperBase)other)._reference;
 

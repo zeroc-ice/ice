@@ -83,7 +83,9 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     }
 
     /// <summary>
-    /// Disposes this communicator. It's an alias for <see cref="destroy"/>.
+    /// Disposes this communicator. This method calls <see cref="shutdown" /> implicitly. Calling dispose destroys all
+    /// object adapters, and closes all outgoing connections. This method waits for all outstanding dispatches to
+    /// complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
     /// </summary>
     public void Dispose() => destroy();
 
@@ -106,9 +108,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     }
 
     /// <summary>
-    /// Destroys this communicator. This method calls <see cref="shutdown" /> implicitly. Calling destroy destroys all
-    /// object adapters, and closes all outgoing connections. This method waits for all outstanding dispatches to
-    /// complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
+    /// Destroys this communicator. It's an alias for <see cref="Dispose"/>.
     /// </summary>
     public void destroy() => instance.destroy();
 
@@ -133,7 +133,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// Waits for the shutdown of this communicator to complete.
     /// This method calls <see cref="ObjectAdapter.waitForDeactivate" /> on all object adapters created by this
     /// communicator. In a client application that does not accept incoming connections, this method returns as soon as
-    /// another thread calls <see cref="shutdown" /> or <see cref="destroy" /> on this communicator.
+    /// another thread calls <see cref="shutdown" /> or <see cref="Dispose" /> on this communicator.
     /// </summary>
     public void waitForShutdown()
     {

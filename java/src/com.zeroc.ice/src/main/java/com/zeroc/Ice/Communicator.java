@@ -75,7 +75,11 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Closes this communicator. It's an alias for {@link #destroy}.
+     * Closes this communicator. This method calls {@link #shutdown} implicitly. Calling this method destroys
+     * all object adapters, and closes all outgoing connections. This method waits for all outstanding dispatches
+     * to complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
+     *
+     * @see ObjectAdapter#destroy
      */
     public void close() {
         // Don't allow destroy to be interrupted if called from try with statement.
@@ -83,11 +87,7 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Destroys this communicator. This method calls {@link #shutdown} implicitly. Calling {@code destroy} destroys
-     * all object adapters, and closes all outgoing connections. This method waits for all outstanding dispatches
-     * to complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
-     *
-     * @see ObjectAdapter#destroy
+     * Destroys this communicator. It's an alias for {@link #close}.
      */
     public void destroy() {
         _instance.destroy(true); // Destroy is interruptible when call explicitly.
@@ -111,10 +111,8 @@ public final class Communicator implements AutoCloseable {
     /**
      * Waits for shutdown to complete. This method calls {@link ObjectAdapter#waitForDeactivate} on all object adapters
      * created by this communicator. In a client application that does not accept incoming connections, this
-     * method returns as soon as another thread calls {@link #shutdown} or {@link #destroy} on this communicator.
+     * method returns as soon as another thread calls {@link #shutdown} or {@link #close} on this communicator.
      *
-     * @see #shutdown
-     * @see #destroy
      * @see ObjectAdapter#waitForDeactivate
      */
     public void waitForShutdown() {

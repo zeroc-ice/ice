@@ -313,7 +313,7 @@ public sealed class ObjectAdapter
     /// Destroys this object adapter and cleans up all resources associated with it. Once this method has
     /// returned, you can recreate another object adapter with the same name.
     /// </summary>
-    /// <seealso cref="Communicator.destroy"/>
+    /// <seealso cref="Communicator.Dispose"/>
     public void destroy()
     {
         //

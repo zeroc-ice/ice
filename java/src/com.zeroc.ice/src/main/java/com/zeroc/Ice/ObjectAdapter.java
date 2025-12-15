@@ -301,7 +301,7 @@ public final class ObjectAdapter {
      * Destroys this object adapter and cleans up all resources associated with it.
      * Once this method has returned, you can recreate another object adapter with the same name.
      *
-     * @see Communicator#destroy
+     * @see Communicator#close
      */
     public void destroy() {
         // Deactivate and wait for completion.
