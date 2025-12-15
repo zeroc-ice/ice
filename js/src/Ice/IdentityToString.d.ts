@@ -3,11 +3,11 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * Converts an object identity to a string.
+         * Converts an Identity into a string using the specified mode.
          *
-         * @param ident - The object identity to convert.
-         * @param toStringMode - Specifies whether and how non-printable ASCII characters are escaped in the result.
-         * @returns The string representation of the object identity.
+         * @param ident - The identity.
+         * @param toStringMode - Specifies how to handle non-ASCII characters and non-printable ASCII characters.
+         * @returns The stringified identity.
          */
         function identityToString(ident: Identity, toStringMode?: ToStringMode): string;
     }

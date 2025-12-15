@@ -3,7 +3,7 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * A class that encapsulates data to initialize a communicator.
+         * Represents a set of options that you can specify when initializing a communicator.
          */
         class InitializationData {
             /**
@@ -20,6 +20,7 @@ declare module "@zeroc/ice" {
 
             /**
              * The properties for the communicator.
+             * When not-null, this corresponds to the object returned by the Communicator::getProperties function.
              */
             properties: Properties;
 

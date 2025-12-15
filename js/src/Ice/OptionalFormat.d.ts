@@ -7,42 +7,44 @@ declare module "@zeroc/ice" {
          */
         class OptionalFormat extends EnumBase {
             /**
-             * A fixed size numeric encoded on 1 byte.
+             * Fixed 1-byte encoding.
              */
             static readonly F1: OptionalFormat;
 
             /**
-             * A fixed size numeric encoded on 2 byte.
+             * Fixed 2-byte encoding.
              */
             static readonly F2: OptionalFormat;
 
             /**
-             * A fixed size numeric encoded on 4 byte.
+             * Fixed 4-byte encoding.
              */
             static readonly F4: OptionalFormat;
 
             /**
-             * A fixed size numeric encoded on 8 byte.
+             * Fixed 8-byte encoding.
              */
             static readonly F8: OptionalFormat;
 
             /**
-             * A variable-length size encoded on 1 or 5 bytes.
+             * "Size encoding" using either 1 or 5 bytes. Used by enums, class identifiers, etc.
              */
             static readonly Size: OptionalFormat;
 
             /**
-             * A variable-length size followed by size bytes.
+             * Variable "size encoding" using either 1 or 5 bytes followed by data.
+             * Used by strings, fixed size structs, and containers whose size can be computed prior to marshaling.
              */
             static readonly VSize: OptionalFormat;
 
             /**
-             * A fixed length size (encoded on 4 bytes) followed by size bytes.
+             * Fixed "size encoding" using 4 bytes followed by data.
+             * Used by variable-size structs, and containers whose sizes can't be computed prior to unmarshaling.
              */
             static readonly FSize: OptionalFormat;
 
             /**
-             * Represents a class, but is no longer encoded or decoded.
+             * Class instance. No longer supported.
              */
             static readonly Class: OptionalFormat;
 
