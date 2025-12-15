@@ -28,9 +28,6 @@ cp -v "${STAGING_DIR}/gem-packages"/*.gem .
 # Include XCFramework ZIP archives.
 cp -v "${STAGING_DIR}/xcframework-packages"/*.zip .
 
-# Include Homebrew bottle archives.
-cp -v "${STAGING_DIR}/homebrew-bottle"/*.tar.gz .
-
 # Include MATLAB toolbox packages (.mltbx).
 cp -v "${STAGING_DIR}"/matlab-packages-*/*.mltbx .
 
