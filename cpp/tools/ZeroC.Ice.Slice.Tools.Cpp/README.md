@@ -80,7 +80,7 @@ You can open this log file using the [MSBuild Structured Log Viewer] Visual Stud
 for `SliceCompile`.
 
 [package]: https://www.nuget.org/packages/ZeroC.Ice.Cpp
-[slice]: https://docs.zeroc.com/ice/latest/cpp/the-slice-language
-[slice2cpp]: https://docs.zeroc.com/ice/latest/cpp/using-the-slice-compilers
-[source]: https://github.com/zeroc-ice/ice/tree/main/cpp/tools/ZeroC.Ice.Slice.Tools.Cpp
+[slice]: https://docs.zeroc.com/ice/3.8/cpp/the-slice-language
+[slice2cpp]: https://docs.zeroc.com/ice/3.8/cpp/using-the-slice-compilers
+[source]: https://github.com/zeroc-ice/ice/tree/3.8/cpp/tools/ZeroC.Ice.Slice.Tools.Cpp
 [MSBuild Structured Log Viewer]: https://marketplace.visualstudio.com/items?itemName=lambdageek.msbuild-structured-log-viewer

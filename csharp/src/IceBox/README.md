@@ -9,9 +9,9 @@ generated code for these definitions is included in the IceBox assembly.
 
 [Package][package] | [Source code][source] | [Examples][examples] | [Documentation][docs] | [API reference][api]
 
-[api]: https://code.zeroc.com/ice/main/api/csharp/api/IceBox.html
-[docs]:https://docs.zeroc.com/ice/latest/csharp/
-[examples]: https://github.com/zeroc-ice/ice-demos/tree/main/csharp
+[api]: https://code.zeroc.com/ice/3.8/api/csharp/api/IceBox.html
+[docs]:https://docs.zeroc.com/ice/3.8/csharp/
+[examples]: https://github.com/zeroc-ice/ice-demos/tree/3.8/csharp
 [package]: https://www.nuget.org/packages/ZeroC.IceBox
 [IceBox server]: https://www.nuget.org/packages/iceboxnet
-[source]: https://github.com/zeroc-ice/ice/tree/main/csharp/src/IceBox
+[source]: https://github.com/zeroc-ice/ice/tree/3.8/csharp/src/IceBox

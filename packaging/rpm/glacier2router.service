@@ -3,7 +3,7 @@
 [Unit]
 Description=Glacier2 router daemon
 Documentation=man:glacier2router(1)
-Documentation=https://docs.zeroc.com/ice/latest/cpp/glacier2
+Documentation=https://docs.zeroc.com/ice/3.8/cpp/glacier2
 After=syslog.target network.target
 
 [Service]

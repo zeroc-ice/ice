@@ -54,10 +54,10 @@ remove such statements. Different module bundlers provide different options, for
 - If using WebPack the [TerserWebpackPlugin] plugin can be configured to drop `console.assert`; see `drop_console` in
 [terser options].
 
-[Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/js
-[NPM Packages]: ../NIGHTLY.md#ice-for-javascript
-[Documentation]: https://docs.zeroc.com/ice/latest/javascript/
-[API Reference]: https://code.zeroc.com/ice/main/api/javascript/index.html
+[Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.8/js
+[NPM Packages]: https://zeroc.com/ice/downloads/3.8/javascript
+[Documentation]: https://docs.zeroc.com/ice/3.8/javascript/
+[API Reference]: https://code.zeroc.com/ice/3.8/api/javascript/index.html
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice
 [esbuild]: https://esbuild.github.io/

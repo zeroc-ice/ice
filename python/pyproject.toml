@@ -19,7 +19,7 @@ classifiers = [
 [project.urls]
 Homepage = "https://zeroc.com/ice"
 Repository = "https://github.com/zeroc-ice/ice"
-Documentation = "https://code.zeroc.com/ice/main/api/python/index.html"
+Documentation = "https://code.zeroc.com/ice/3.8/api/python/index.html"
 Issues = "https://github.com/zeroc-ice/ice/issues"
 Changelog = "https://github.com/zeroc-ice/ice/blob/main/CHANGELOG-3.8.md"
 

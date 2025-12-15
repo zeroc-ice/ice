@@ -40,7 +40,7 @@ Ice::initialize(ARGV) do |communicator|
 end
 ```
 
-[Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/ruby
-[Documentation]: https://docs.zeroc.com/ice/latest/ruby/
+[Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.8/ruby
+[Documentation]: https://docs.zeroc.com/ice/3.8/ruby/
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

@@ -84,7 +84,7 @@ for `SliceCompile`.
 
 [default-items]: https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#enabledefaultitems
 [package]: https://www.nuget.org/packages/ZeroC.Ice.Slice.Tools
-[slice]: https://docs.zeroc.com/ice/latest/csharp/the-slice-language
-[slice2cs]: https://docs.zeroc.com/ice/latest/csharp/using-the-slice-compilers
-[source]: https://github.com/zeroc-ice/ice/tree/main/csharp/tools/ZeroC.Ice.Slice.Tools
+[slice]: https://docs.zeroc.com/ice/3.8/csharp/the-slice-language
+[slice2cs]: https://docs.zeroc.com/ice/3.8/csharp/using-the-slice-compilers
+[source]: https://github.com/zeroc-ice/ice/tree/3.8/csharp/tools/ZeroC.Ice.Slice.Tools
 [MSBuild Structured Log Viewer]: https://marketplace.visualstudio.com/items?itemName=lambdageek.msbuild-structured-log-viewer
