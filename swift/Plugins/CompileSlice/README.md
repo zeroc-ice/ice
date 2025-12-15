@@ -39,6 +39,3 @@ Example `slice-plugin.json`:
 > directory.
 >
 > Only one `slice-plugin.json` file is allowed per target.
->
-> To avoid warnings regarding unhandled files, the `slice-plugin.json` file and corresponding Slice files (if included
-> in the target source directory) should be explicitly declared as resources or excluded from the target.
