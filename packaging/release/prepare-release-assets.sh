@@ -52,7 +52,7 @@ cp -v "${STAGING_DIR}/js-npm-packages"/*.tgz .
 # Include Python wheels and PIP source distributions.
 cp -v "${STAGING_DIR}/pip-packages-windows-2022-"3.*/zeroc_ice-*.whl .
 cp -v "${STAGING_DIR}/pip-packages-macos-26-"3.*/zeroc_ice-*.whl .
-cp -v "${STAGING_DIR}/pip-packages-macos-26-"3.*/zeroc_ice-*.tar.gz .
+cp -v "${STAGING_DIR}/pip-packages-macos-26-3.14"/zeroc_ice-*.tar.gz .
 
 # Create RPM package archives (.zip and .tar.gz) for each distribution/arch
 for dir in "${STAGING_DIR}"/rpm-packages-*; do
