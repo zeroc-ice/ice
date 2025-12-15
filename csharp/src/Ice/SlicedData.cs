@@ -7,14 +7,14 @@ namespace Ice;
 /// <summary>
 /// Holds class slices that cannot be unmarshaled because their types are not known locally.
 /// </summary>
-/// <param name="slices">The details of each slice, in order of most-derived to least-derived.</param>
+/// <param name="slices">The slices of the unknown class, in order of most-derived to least-derived.</param>
 public sealed record class SlicedData(SliceInfo[] slices);
 
 /// <summary>
-/// Encapsulates the details of a slice with an unknown type.
+/// Encapsulates the details of a class slice with an unknown type.
 /// </summary>
 /// <param name="typeId">The Slice type ID for this slice.</param>
-/// <param name="compactId">The Slice compact type ID for this slice.</param>
+/// <param name="compactId">The Slice compact type ID for this slice, or -1 if the slice has no compact ID.</param>
 /// <param name="bytes">The encoded bytes for this slice, including the leading size integer.</param>
 /// <param name="hasOptionalMembers">Whether or not the slice contains optional members.</param>
 /// <param name="isLastSlice">Whether or not this is the last slice.</param>

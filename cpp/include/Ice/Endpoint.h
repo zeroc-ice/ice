@@ -155,7 +155,7 @@ namespace Ice
         const bool _secure;
     };
 
-    /// Provides access to an UDP endpoint information.
+    /// Provides access to a UDP endpoint information.
     /// @see Endpoint
     /// @headerfile Ice/Ice.h
     class ICE_API UDPEndpointInfo final : public IPEndpointInfo

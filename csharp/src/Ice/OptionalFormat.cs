@@ -5,51 +5,51 @@
 namespace Ice;
 
 /// <summary>
-/// The optional format.
-///
-/// An optional value is encoded with a specific optional format. This optional
-/// format describes how the data is encoded and how it can be skipped by the
-/// unmarshaling code if the optional is not known to the receiver.
+/// The optional format, used for marshaling optional fields and arguments.
+/// It describes how the data is marshaled and how it can be skipped by the unmarshaling code
+/// if the optional isn't known to the receiver.
 /// </summary>
 public enum OptionalFormat
 {
     /// <summary>
-    /// A fixed size numeric encoded on 1 byte.
+    /// Fixed 1-byte encoding.
     /// </summary>
     F1 = 0,
 
     /// <summary>
-    /// A fixed size numeric encoded on 2 byte.
+    /// Fixed 2-byte encoding.
     /// </summary>
     F2 = 1,
 
     /// <summary>
-    /// A fixed size numeric encoded on 4 byte.
+    /// Fixed 4-byte encoding.
     /// </summary>
     F4 = 2,
 
     /// <summary>
-    /// A fixed size numeric encoded on 8 byte.
+    /// Fixed 8-byte encoding.
     /// </summary>
     F8 = 3,
 
     /// <summary>
-    /// A variable-length size encoded on 1 or 5 bytes.
+    /// "Size encoding" using either 1 or 5 bytes. Used by enums, class identifiers, etc.
     /// </summary>
     Size = 4,
 
     /// <summary>
-    /// A variable-length size followed by size bytes.
+    /// Variable "size encoding" using either 1 or 5 bytes followed by data.
+    /// Used by strings, fixed size structs, and containers whose size can be computed prior to marshaling.
     /// </summary>
     VSize = 5,
 
     /// <summary>
-    /// A fixed length size (encoded on 4 bytes) followed by size bytes.
+    /// Fixed "size encoding" using 4 bytes followed by data.
+    /// Used by variable-size structs, and containers whose sizes can't be computed prior to unmarshaling.
     /// </summary>
     FSize = 6,
 
     /// <summary>
-    /// Represents a class, but is no longer encoded or decoded.
+    /// Class instance. No longer supported.
     /// </summary>
     Class = 7
 }

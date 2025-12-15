@@ -13,7 +13,7 @@ public final class CompositeSliceLoader implements SliceLoader {
     /**
      * Constructs a CompositeSliceLoader that combines the given SliceLoaders.
      *
-     * @param loaders the Slice loaders to use
+     * @param loaders the initial Slice loaders to use
      */
     public CompositeSliceLoader(SliceLoader... loaders) {
         _loaders = new ArrayList<>(Arrays.asList(loaders));

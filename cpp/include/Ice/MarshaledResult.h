@@ -9,8 +9,8 @@
 
 namespace Ice
 {
-    /// Base class for marshaled result structures, which are generated for operations having the marshaled-result
-    /// metadata tag.
+    /// Base class for marshaled result structures, which are generated for operations marked with
+    /// "marshaled-result" metadata.
     /// @headerfile Ice/Ice.h
     class ICE_API MarshaledResult
     {

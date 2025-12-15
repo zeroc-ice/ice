@@ -6,7 +6,9 @@ using Ice.Instrumentation;
 
 namespace Ice.Internal;
 
-/// <summary>A middleware that observes dispatches.</summary>
+/// <summary>
+/// A middleware that observes dispatches.
+/// </summary>
 internal sealed class ObserverMiddleware : Object
 {
     private readonly Object _next;

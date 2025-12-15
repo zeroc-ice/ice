@@ -16,11 +16,13 @@ namespace Ice;
 /// <summary>
 /// The dispatch failed. This is the base class for local exceptions that can be marshaled and transmitted "over the
 /// wire".
+/// You can throw this exception in the implementation of an operation, or in a middleware. The Ice runtime then
+/// logically rethrows this exception to the client.
 /// </summary>
 public class DispatchException : LocalException
 {
     /// <summary>
-    /// Gets the reply status of this exception.
+    /// Gets the reply status.
     /// </summary>
     public ReplyStatus replyStatus { get; }
 
@@ -44,7 +46,7 @@ public class DispatchException : LocalException
 }
 
 /// <summary>
-/// The base exception for the 3 NotExist exceptions. It cannot be instantiated directly.
+/// The base exception for the 3 NotExist exceptions.
 /// </summary>
 public class RequestFailedException : DispatchException
 {
@@ -191,8 +193,8 @@ public sealed class OperationNotExistException : RequestFailedException
 }
 
 /// <summary>
-/// The dispatch failed with an exception that does not map to a more specific <see cref="ReplyStatus" /> value.
-/// This is the fallback exception when reporting a dispatch failure.
+/// The exception that is thrown when a dispatch failed with an exception that is not a LocalException or a
+/// UserException. This is the fallback exception when reporting a dispatch failure.
 /// </summary>
 /// <remarks>This exception is equivalent to a <see cref="DispatchException" /> with reply status
 /// <see cref="ReplyStatus.UnknownException"/>.</remarks>
@@ -222,8 +224,7 @@ public class UnknownException : DispatchException
 }
 
 /// <summary>
-/// The dispatch failed with a <see cref="LocalException" /> that cannot be marshaled and that cannot converted into a
-/// more specific <see cref="ReplyStatus" />.
+/// The dispatch failed with a <see cref="LocalException" /> that is not a <see cref="DispatchException" /> .
 /// </summary>
 /// <remarks>This exception is equivalent to a <see cref="DispatchException" /> with reply status
 /// <see cref="ReplyStatus.UnknownLocalException"/>.</remarks>
@@ -243,7 +244,7 @@ public sealed class UnknownLocalException : UnknownException
 }
 
 /// <summary>
-/// The dispatch returned a <see cref="UserException" /> that was not declared in the operation's exception
+/// A client received a <see cref="UserException" /> that was not declared in the operation's exception
 /// specification.
 /// </summary>
 /// <remarks>This exception is thrown by the generated code for Slice proxies. The server-side generated code does not
@@ -255,7 +256,7 @@ public sealed class UnknownUserException : UnknownException
     /// <summary>
     /// Initializes a new instance of the <see cref="UnknownUserException" /> class from a user exception type ID.
     /// </summary>
-    /// <param name="typeId">The type ID of the user exception.</param>
+    /// <param name="typeId">The type ID.</param>
     /// <returns>The new instance of the <see cref="UnknownUserException" /> class.</returns>
     public static UnknownUserException fromTypeId(string typeId) =>
         new($"The reply carries a user exception that does not conform to the operation's exception specification: {typeId}");
@@ -278,7 +279,7 @@ public sealed class UnknownUserException : UnknownException
 //
 
 /// <summary>
-/// The base class for Ice protocol exceptions.
+/// The base class for exceptions related to the Ice protocol.
 /// </summary>
 public class ProtocolException : LocalException
 {
@@ -359,7 +360,9 @@ public sealed class MarshalException : ProtocolException
 // Timeout exceptions
 //
 
-/// <summary>This exception indicates a timeout condition.</summary>
+/// <summary>
+/// This exception indicates a timeout condition.
+/// </summary>
 public class TimeoutException : LocalException
 {
     /// <summary>
@@ -375,7 +378,9 @@ public class TimeoutException : LocalException
     public override string ice_id() => "::Ice::TimeoutException";
 }
 
-/// <summary>This exception indicates a connection closure timeout condition.</summary>
+/// <summary>
+/// This exception indicates a connection closure timeout condition.
+/// </summary>
 public sealed class CloseTimeoutException : TimeoutException
 {
     /// <summary>
@@ -475,7 +480,9 @@ public sealed class DNSException : SyscallException
     public override string ice_id() => "::Ice::DNSException";
 }
 
-/// <summary>This exception indicates a file error occurred.</summary>
+/// <summary>
+/// This exception indicates a file error occurred.
+/// </summary>
 public sealed class FileException : SyscallException
 {
     /// <summary>
@@ -643,7 +650,8 @@ public sealed class ConnectionAbortedException : LocalException
     /// <summary>
     /// Gets a value indicating whether the connection was aborted by the application.
     /// </summary>
-    /// <value><c>true</c> if the connection was aborted by the application; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true"/> if the connection was aborted by the application;
+    /// otherwise, <see langword="false"/>.</value>
     public bool closedByApplication { get; }
 
     /// <summary>
@@ -668,7 +676,8 @@ public sealed class ConnectionClosedException : LocalException
     /// <summary>
     /// Gets a value indicating whether the connection was closed by the application.
     /// </summary>
-    /// <value><c>true</c> if the connection was closed by the application; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true"/> if the connection was closed by the application;
+    /// otherwise, <see langword="false"/>.</value>
     public bool closedByApplication { get; }
 
     /// <summary>

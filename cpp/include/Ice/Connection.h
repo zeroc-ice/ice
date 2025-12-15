@@ -99,14 +99,14 @@ namespace Ice
         /// @return The endpoint from which the connection was created.
         [[nodiscard]] virtual EndpointPtr getEndpoint() const noexcept = 0;
 
-        /// Flushes any pending batch requests for this connection. This corresponds to all batch requests invoked on
-        /// fixed proxies associated with the connection.
+        /// Flushes any pending batch requests for this connection.
+        /// This means all batch requests invoked on fixed proxies associated with the connection.
         /// @param compress Specifies whether or not the queued batch requests should be compressed before being sent
         /// over the wire.
         void flushBatchRequests(CompressBatch compress);
 
-        /// Flushes any pending batch requests for this connection. This corresponds to all batch requests invoked on
-        /// fixed proxies associated with the connection.
+        /// Flushes any pending batch requests for this connection.
+        /// This means all batch requests invoked on fixed proxies associated with the connection.
         /// @param compress Specifies whether or not the queued batch requests should be compressed before being sent
         /// over the wire.
         /// @param exception The exception callback.
