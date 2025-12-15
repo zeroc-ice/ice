@@ -23,17 +23,17 @@ export class ServantLocatorI implements Ice.ServantLocator {
         this._requestId = -1;
     }
 
-    locate(current: Ice.Current, cookie: Ice.Holder<object>): Ice.Object | null {
+    locate(current: Ice.Current): [Ice.Object | null, object | null] {
         test(!this._deactivated);
 
         test(current.id.category == this._category || this._category.length == 0);
 
         if (current.id.name == "unknown") {
-            return null;
+            return [null, null];
         }
 
         if (current.id.name == "invalidReturnValue" || current.id.name == "invalidReturnType") {
-            return null;
+            return [null, null];
         }
 
         test(current.id.name == "locate" || current.id.name == "finished");
@@ -46,8 +46,7 @@ export class ServantLocatorI implements Ice.ServantLocator {
         //
         test(this._requestId == -1);
         this._requestId = current.requestId;
-        cookie.value = new Cookie();
-        return new TestI();
+        return [new TestI(), new Cookie()];
     }
 
     finished(current: Ice.Current, _: Ice.Object, cookie: object) {

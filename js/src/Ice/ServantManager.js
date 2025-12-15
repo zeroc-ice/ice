@@ -41,9 +41,9 @@ export class ServantManager {
         }
 
         if (locator !== null) {
-            const cookie = {};
+            let cookie = null;
             try {
-                servant = locator.locate(current, cookie);
+                [servant, cookie] = locator.locate(current);
             } catch (ex) {
                 // Skip the encapsulation. This allows the next batch requests in the same InputStream to proceed.
                 request.inputStream.skipEncapsulation();
@@ -54,7 +54,7 @@ export class ServantManager {
                 try {
                     return await servant.dispatch(request);
                 } finally {
-                    locator.finished(current, servant, cookie.value);
+                    locator.finished(current, servant, cookie);
                 }
             }
         }

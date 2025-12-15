@@ -51,7 +51,6 @@
 /// <reference path="./Locator.d.ts" />
 /// <reference path="./LocatorRegistry.d.ts" />
 /// <reference path="./Initialize.d.ts" />
-/// <reference path="./Holder.d.ts" />
 /// <reference path="./AsyncResult.d.ts" />
 /// <reference path="./ServantLocator.d.ts" />
 /// <reference path="./UnknownSlicedValue.d.ts" />
