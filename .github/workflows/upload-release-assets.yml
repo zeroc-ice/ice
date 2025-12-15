@@ -52,13 +52,23 @@ jobs:
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "dotnet-nuget-packages" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "gem-packages" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "xcframework-packages" --dir staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "homebrew-bottle" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "matlab-packages-*" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "windows-msi" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "java-packages" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "js-npm-packages" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "pip-packages-*" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "rpm-packages-*" --dir staging
+
+      - name: Download artifacts for Homebrew Bottle
+        # Homebrew bottles are only built for nightly releases
+        if: ${{ inputs.channel == 'nightly' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "homebrew-bottle" --dir staging
 
       - name: Prepare Release Assets
         run: ./packaging/release/create-release-assets.sh
