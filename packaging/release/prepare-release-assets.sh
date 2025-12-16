@@ -9,7 +9,6 @@ for dir in "${STAGING_DIR}"/deb-packages-*; do
   name=$(basename "$dir")
   mkdir -p "$name"
   cp -v "$dir"/* "$name/"
-  zip -r "${name}.zip" "$name"
   tar -czvf "${name}.tar.gz" "$name"
   rm -rf "$name"
 done
@@ -59,7 +58,6 @@ for dir in "${STAGING_DIR}"/rpm-packages-*; do
   name=$(basename "$dir")
   mkdir -p "$name"
   cp -rv "$dir"/* "$name/"
-  zip -r "${name}.zip" "$name"
   tar -czf "${name}.tar.gz" "$name"
   rm -rf "$name"
 done
