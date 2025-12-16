@@ -3,7 +3,8 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * The user-level interface to an endpoint.
+         * An endpoint specifies the address of the server-end of an Ice connection: an object adapter listens on one or
+         * more endpoints and a client establishes a connection to an endpoint.
          */
         interface Endpoint {
             /**
@@ -13,22 +14,22 @@ declare module "@zeroc/ice" {
             toString(): string;
 
             /**
-             * Returns the endpoint information.
-             * @returns The endpoint information class.
+             * Returns this endpoint's information.
+             * @returns This endpoint's information class
              */
             getInfo(): Ice.EndpointInfo;
 
             /**
-             * Determines whether the specified object is equal to this object.
+             * Checks if this endpoint is equal to the specified object.
              *
-             * @param other The object to compare with.
-             * @returns `true` if the specified object is equal to the this object, `false` otherwise.
+             * @param other The object to compare against.
+             * @returns `true` if the objects are equal, `false` otherwise.
              */
             equals(other: any): boolean;
         }
 
         /**
-         * Base class providing access to the endpoint details.
+         * Base class for the endpoint info classes.
          */
         class EndpointInfo {
             /**
@@ -53,7 +54,8 @@ declare module "@zeroc/ice" {
             type(): number;
 
             /**
-             * @returns True for a secure endpoint.
+             * Returns `true` if this endpoint's transport uses WSS, `false` otherwise.
+             * @returns `true` for WSS transport, `false` otherwise.
              */
             secure(): boolean;
         }

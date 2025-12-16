@@ -3,12 +3,8 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * Represents the identity of an Ice object. In a proxy, an empty {@link Identity#name} denotes a null proxy.
-         * An identity with an empty {@link Identity#name} and a non-empty {@link Identity#category} is illegal.
-         * Additionally, you cannot add a servant with an empty name to the Active Servant Map.
-         *
-         * @see {@link ServantLocator}
-         * @see {@link ObjectAdapter#addServantLocator}
+         * Represents the identity of an Ice object. It is comparable to the path of a URI. Its string representation
+         * is `name` when the category is empty, and `category/name` when the category is not empty.
          */
         class Identity {
             /**
@@ -42,12 +38,12 @@ declare module "@zeroc/ice" {
             hashCode(): number;
 
             /**
-             * The identity name.
+             * The name of the Ice object. An empty name is not valid.
              */
             name: string;
 
             /**
-             * The identity category.
+             * The category of the object.
              */
             category: string;
 

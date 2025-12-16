@@ -3,13 +3,13 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * The object adapter provides an up-call interface from the Ice run time to the implementation of Ice objects.
+         * An object adapter is the main server-side Ice API. It has two main purposes:
          *
-         * The object adapter is responsible for receiving requests from endpoints, and for mapping between servants,
-         * identities, and proxies.
+         * - dispatch requests received over outgoing connections associated with this object adapter, and
+         * - maintain a dispatch pipeline and servants that handle the requests (see {@link ObjectAdapter#add},
+         *   {@link ObjectAdapter#addDefaultServant}, and {@link ObjectAdapter#use}).
          *
-         * @see {@link Communicator}
-         * @see {@link ServantLocator}
+         * @see {@link Communicator#createObjectAdapter}
          */
         interface ObjectAdapter {
             /**
@@ -36,23 +36,24 @@ declare module "@zeroc/ice" {
             destroy(): void;
 
             /**
-             *  Install a middleware in this object adapter.
+             *  Adds a middleware to the dispatch pipeline of this object adapter.
              *
-             * @param middleware The middleware to install.
+             * @param middlewareFactory The middleware factory that creates the new middleware when this object adapter
+             * creates its dispatch pipeline. A middleware factory is a function that takes an Object (the next element
+             * in the dispatch pipeline) and returns a new Object (the middleware you want to install in the pipeline).
              * @returns This object adapter.
              * @throws `Error` Thrown if the object adapter's dispatch pipeline has already been
              * created. This creation typically occurs the first time the object adapter dispatches an incoming request.
              */
-            use(middleware: (next: Ice.Object) => Ice.Object): ObjectAdapter;
+            use(middlewareFactory: (next: Ice.Object) => Ice.Object): ObjectAdapter;
 
             /**
-             * Add a servant to this object adapter's Active Servant Map. Note that one servant can implement several
-             * Ice objects by registering the servant with multiple identities. Adding a servant with an identity that
-             * is in the map already throws {@link AlreadyRegisteredException}.
+             * Adds a servant to this object adapter's Active Servant Map (ASM).
+             * The ASM is a map {identity, facet} -> servant.
              *
              * @param servant The servant to add.
              * @param id The identity of the Ice object that is implemented by the servant.
-             * @returns A proxy that matches the given identity and this object adapter.
+             * @returns A proxy with the given id, created by this object adapter.
              *
              * @see {@link Identity}
              * @see {@link ObjectAdapter#addFacet}
@@ -63,150 +64,118 @@ declare module "@zeroc/ice" {
             add(servant: Ice.Object, id: Identity): Ice.ObjectPrx;
 
             /**
-             * Like {@link ObjectAdapter#add}, but with a facet.
+             * Adds a servant to this object adapter's Active Servant Map (ASM), while specifying a facet.
+             * The ASM is a map {identity, facet} -> servant.
              *
              * Calling `add(servant, id)` is equivalent to calling {@link ObjectAdapter#addFacet} with an empty facet.
              *
              * @param servant The servant to add.
              * @param id The identity of the Ice object that is implemented by the servant.
-             * @param facet The facet. An empty facet means the default facet.
-             * @returns A proxy that matches the given identity, facet, and this object adapter.
-             *
-             * @see {@link Identity}
-             * @see {@link ObjectAdapter#add}
-             * @see {@link ObjectAdapter#addFacetWithUUID}
-             * @see {@link ObjectAdapter#removeFacet}
-             * @see {@link ObjectAdapter#findFacet}
+             * @param facet The facet of the Ice object that is implemented by the servant.
+             * @returns A proxy with the given id and facet, created by this object adapter.
              */
             addFacet(servant: Ice.Object, id: Identity, facet: string): Ice.ObjectPrx;
 
             /**
-             * Add a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its
-             * identity.
+             * Adds a servant to this object adapter's Active Servant Map (ASM), using an automatically generated UUID
+             * as its identity.
              *
              * The generated UUID identity can be accessed using the {@link ObjectPrx#ice_getIdentity} operation.
              * @param servant The servant to add.
-             * @returns A proxy that matches the generated UUID identity and this object adapter.
-             *
-             * @see {@link Identity}
-             * @see {@link ObjectAdapter#add}
-             * @see {@link ObjectAdapter#addFacetWithUUID}
-             * @see {@link ObjectAdapter#remove}
-             * @see {@link ObjectAdapter#find}
+             * @returns A proxy with the generated UUID identity created by this object adapter.
              */
             addWithUUID(servant: Ice.Object): Ice.ObjectPrx;
 
             /**
-             * Like {@link ObjectAdapter#addWithUUID}, but with a facet.
-             *
-             * Calling `addWithUUID(servant)` is equivalent to calling `addFacetWithUUID` with an empty facet.
+             * Adds a servant to this object adapter's Active Servant Map (ASM), using an automatically generated UUID
+             * as its identity. Also specifies a facet.
              *
              * @param servant The servant to add.
-             * @param facet The facet. An empty facet means the default facet.
-             * @returns A proxy that matches the generated UUID identity, facet, and this object adapter.
-             *
-             * @see {@link Identity}
-             * @see {@link ObjectAdapter#addFacet}
-             * @see {@link ObjectAdapter#addWithUUID}
-             * @see {@link ObjectAdapter#removeFacet}
-             * @see {@link ObjectAdapter#findFacet}
+             * @param facet The facet of the Ice object that is implemented by the servant.
+             * @returns A proxy with the generated UUID identity and the specified facet.
              */
             addFacetWithUUID(servant: Ice.Object, facet: string): Ice.ObjectPrx;
 
             /**
-             * Add a default servant to handle requests for a specific category.
+             * Adds a default servant to handle requests for a specific category. When an object adapter dispatches an
+             * incoming request, it tries to find a servant for the identity and facet carried by the request in the
+             * following order:
              *
-             * Adding a default servant for a category for which a default servant is already registered throws
-             * {@link AlreadyRegisteredException}. To dispatch operation calls on servants, the object adapter tries to
-             * find a servant for a given Ice object identity and facet in the following order:
-             * <ol>
-             * <li>The object adapter tries to find a servant for the identity and facet in the Active Servant Map.</li>
-             * <li>If no servant has been found in the Active Servant Map, the object adapter tries to find a default servant
-             * for the category component of the identity.</li>
-             * <li>If no servant has been found by any of the preceding steps, the object adapter tries to find a default
-             * servant for an empty category, regardless of the category contained in the identity.</li>
-             * <li>If no servant has been found by any of the preceding steps, the object adapter gives up and the caller
-             * receives {@link ObjectNotExistException} or {@link FacetNotExistException}.</li>
-             * </ol>
+             *  - The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
+             *  - If this fails, the object adapter tries to find a default servant for the category component of the
+             *    identity.
+             *  - If this fails, the object adapter tries to find a default servant for the empty category, regardless of
+             *    the category contained in the identity.
+             *  - If this fails, the object adapter tries to find a servant locator for the category component of the
+             *    identity. If there is no such servant locator, the object adapter tries to find a servant locator for the
+             *    empty category.
+             *  - If a servant locator is found, the object adapter tries to find a servant using this servant locator.
+             *  - If all the previous steps fail, the object adapter gives up and the caller receives an
+             *    ObjectNotExistException or a FacetNotExistException.
              *
-             * @param servant The default servant.
-             * @param category The category for which the default servant is registered. An empty category means it will
+             * @param servant The default servant to add.
+             * @param category The category for which the default servant is registered. The empty category means it will
              * handle all categories.
-             *
-             * @see {@link ObjectAdapter#removeDefaultServant}
-             * @see {@link ObjectAdapter#findDefaultServant}
+             * @throws {@link AlreadyRegisteredException} Thrown when a default servant with the same category is
+             * already registered.
              */
             addDefaultServant(servant: Ice.Object, category: string): void;
 
             /**
-             * Remove a servant (that is, the default facet) from the object adapter's Active Servant Map.
-             * @param id The identity of the Ice object that is implemented by the servant. If the servant implements multiple
-             * Ice objects, {@link ObjectAdapter#remove} has to be called for all those Ice objects. Removing an identity that is not in
-             * the map throws {@link NotRegisteredException}.
+             * Removes a servant from the object adapter's Active Servant Map.
+             * @param id The identity of the Ice object that is implemented by the servant.
              * @returns The removed servant.
-             * @see {@link Identity}
-             * @see {@link ObjectAdapter#add}
-             * @see {@link ObjectAdapter#addWithUUID}
+             * @throws {@link NotRegisteredException} Thrown when no servant with the given identity is registered.
              */
             remove(id: Identity): Ice.Object;
 
             /**
-             * Like {@link ObjectAdapter#remove}, but with a facet. Calling <code>remove(id)</code> is equivalent to calling
-             * {@link ObjectAdapter#removeFacet} with an empty facet.
+             * Removes a servant from the object adapter's Active Servant Map, while specifying a facet.
              * @param id The identity of the Ice object that is implemented by the servant.
              * @param facet The facet. An empty facet means the default facet.
              * @returns The removed servant.
-             * @see {@link Identity}
-             * @see {@link ObjectAdapter#addFacet}
-             * @see {@link ObjectAdapter#addFacetWithUUID}
+             * @throws {@link NotRegisteredException} Thrown when no servant with the given identity and facet is
+             * registered.
              */
             removeFacet(id: Identity, facet: string): Ice.Object;
 
             /**
-             * Remove all facets with the given identity from the Active Servant Map. The operation completely removes the Ice
-             * object, including its default facet. Removing an identity that is not in the map throws
-             * {@link NotRegisteredException}.
+             * Removes all facets with the given identity from the Active Servant Map. The function completely removes
+             * the Ice object, including its default facet.
              * @param id The identity of the Ice object to be removed.
              * @returns A collection containing all the facet names and servants of the removed Ice object.
-             * @see {@link ObjectAdapter#remove}
-             * @see {@link ObjectAdapter#removeFacet}
+             * @throws {@link NotRegisteredException} Thrown when no servant with the given identity is registered.
              */
             removeAllFacets(id: Identity): Map<string, Ice.Object>;
 
             /**
-             * Remove the default servant for a specific category. Attempting to remove a default servant for a category that
-             * is not registered throws {@link NotRegisteredException}.
+             * Removes the default servant for a specific category.
              * @param category The category of the default servant to remove.
              * @returns The default servant.
-             * @see {@link ObjectAdapter#addDefaultServant}
-             * @see {@link ObjectAdapter#findDefaultServant}
+             * @throws {@link NotRegisteredException} Thrown when no default servant is registered for the given
+             * category.
              */
             removeDefaultServant(category: string): Ice.Object;
 
             /**
-             * Look up a servant in this object adapter's Active Servant Map by the identity of the Ice object it implements.
-             * <p class="Note">This operation only tries to look up a servant in the Active Servant Map. It does not attempt
-             * to find a servant by using any installed {@link ServantLocator}.
-             * @param id The identity of the Ice object for which the servant should be returned.
-             * @returns The servant that implements the Ice object with the given identity, or null if no such servant has been
-             * found.
-             *
-             * @see {@link ObjectAdapter#findFacet}
-             * @see {@link ObjectAdapter#findByProxy}
+             * Looks up a servant..
+             * @param id The identity of an Ice object.
+             * @returns The servant that implements the Ice object with the given identity, or null if no such servant
+             * has been found.
+             * @remarks This function only tries to find the servant in the ASM and among the default servants. It does
+             * not attempt to locate a servant using servant locators.
              */
             find(id: Identity): Ice.Object;
 
             /**
-             * Like {@link ObjectAdapter#find}, but with a facet.
+             * Looks up a servant with an identity and facet.
              *
-             * Calling `find(id)` is equivalent to calling {@link ObjectAdapter#findFacet} with an empty facet.
-             *
-             * @param id The identity of the Ice object for which the servant should be returned.
-             * @param facet The facet. An empty facet means the default facet.
-             * @returns The servant that implements the Ice object with the given identity and facet, or null if no such
-             * servant has been found.
-             *
-             * @see {@link ObjectAdapter#findByProxy}
+             * @param id The identity of an Ice object.
+             * @param facet The facet of an Ice object. An empty facet means the default facet.
+             * @returns The servant that implements the Ice object with the given identity and facet, or null if no
+             * such servant has been found.
+             * @remark This function only tries to find the servant in the ASM and among the default servants. It does
+             * not attempt to locate a servant using servant locators.
              */
             findFacet(id: Identity, facet: string): Ice.Object;
 
@@ -221,59 +190,31 @@ declare module "@zeroc/ice" {
             findAllFacets(id: Identity): Map<string, Ice.Object>;
 
             /**
-             * Look up a servant in this object adapter's Active Servant Map, given a proxy.
+             * Looks up a servant with an identity and a facet. It's equivalent to calling #findFacet.
              *
-             * This operation only tries to lookup a servant in the Active Servant Map. It does not attempt to find a
-             * servant by using any installed {@link ServantLocator}.
-             *
-             * @param proxy The proxy for which the servant should be returned.
-             * @returns The servant that matches the proxy, or null if no such servant has been found.
-             *
-             * @see {@link ObjectAdapter#find}
-             * @see {@link ObjectAdapter#findFacet}
+             * @param proxy The proxy that provides the identity and facet to search.
+             * @returns The servant that matches the identity and facet carried by the proxy, or null if no such
+             * servant has been found.
              */
             findByProxy(proxy: Ice.ObjectPrx): Ice.Object;
 
             /**
-             * Add a Servant Locator to this object adapter.
+             * Adds a ServantLocator to this object adapter for a specific category.
              *
-             * Adding a servant locator for a category for which a servant locator is already registered throws
-             * {@link AlreadyRegisteredException}. To dispatch operation calls on servants, the object adapter tries to
-             * find a servant for a given Ice object identity and facet in the following order:
-             * <ol>
-             * <li>The object adapter tries to find a servant for the identity and facet in the Active Servant Map.</li>
-             * <li>If no servant has been found in the Active Servant Map, the object adapter tries to find a servant locator
-             * for the category component of the identity. If a locator is found, the object adapter tries to find a servant
-             * using this locator.</li>
-             * <li>If no servant has been found by any of the preceding steps, the object adapter tries to find a locator for
-             * an empty category, regardless of the category contained in the identity. If a locator is found, the object
-             * adapter tries to find a servant using this locator.</li>
-             * <li>If no servant has been found by any of the preceding steps, the object adapter gives up and throws
-             * {@link ObjectNotExistException} or {@link FacetNotExistException}.</li>
-             * </ol>
-             * Only one locator for the empty category can be installed.
-             *
-             * @param locator The locator to add.
-             * @param category The category for which the Servant Locator can locate servants, or an empty string if the
-             * Servant Locator does not belong to any specific category.
-             *
-             * @see {@link ObjectAdapter#removeServantLocator}
-             * @see {@link ObjectAdapter#findServantLocator}
-             * @see {@link ServantLocator}
+             * @param locator The servant locator to add.
+             * @param category The category. The empty category means the locator handles all categories.
+             * @throws {@link AlreadyRegisteredException} Thrown when a servant locator with the same category is
+             * already registered.
              */
             addServantLocator(locator: Ice.ServantLocator, category: string): void;
 
             /**
-             * Remove a Servant Locator from this object adapter.
+             * Removes a ServantLocator from this object adapter.
              *
-             * @param category The category for which the Servant Locator can locate servants, or an empty string if the
-             * Servant Locator does not belong to any specific category.
-             * @returns The Servant Locator.
-             * @throws {@link NotRegisteredException} if no Servant Locator was found for the given category.
-             *
-             * @see {@link ObjectAdapter#addServantLocator}
-             * @see {@link ObjectAdapter#findServantLocator}
-             * @see {@link ServantLocator}
+             * @param category The category.
+             * @returns The servant locator.
+             * @throws {@link NotRegisteredException}Thrown when no ServantLocator with the given category is
+             * registered.
              */
             removeServantLocator(category: string): Ice.ServantLocator;
 
@@ -291,23 +232,18 @@ declare module "@zeroc/ice" {
             findServantLocator(category: string): Ice.ServantLocator;
 
             /**
-             * Find the default servant for a specific category.
+             * Finds a ServantLocator registered with this object adapter.
              *
-             * @param category The category of the default servant to find.
-             * @returns The default servant or null if no default servant was registered for the category.
-             *
-             * @see {@link ObjectAdapter#addDefaultServant}
-             * @see {@link ObjectAdapter#removeDefaultServant}
+             * @param category The category.
+             * @returns The servant locator, or null if not found.
              */
             findDefaultServant(category: string): Ice.Object;
 
             /**
-             * Create a proxy for the object with the given identity.
-             *
-             * If this object adapter is configured with an adapter id, the return value is an indirect proxy that
-             * refers to the adapter id. If a replica group id is also defined, the return value is an indirect proxy
-             * that refers to the replica group id. Otherwise, if no adapter id is defined, the return value is a
-             * direct proxy containing this object adapter's published endpoints.
+             * Creates a proxy from an Ice identity. If this object adapter is configured with an adapter ID, the proxy
+             * is an indirect proxy that refers to this adapter ID. If a replica group ID is also defined, the proxy is an
+             * indirect proxy that refers to this replica group ID. Otherwise, the proxy is a direct proxy containing this
+             * object adapter's published endpoints.
              *
              * @param id The object's identity.
              * @returns A proxy for the object with the given identity.
@@ -315,8 +251,7 @@ declare module "@zeroc/ice" {
             createProxy(id: Identity): Ice.ObjectPrx;
 
             /**
-             * Create a direct proxy for the object with the given identity. The returned proxy contains this object
-             * adapter's published endpoints.
+             * Creates a direct proxy from an Ice identity.
              *
              * @param id The object's identity.
              * @returns A proxy for the object with the given identity.
@@ -324,23 +259,23 @@ declare module "@zeroc/ice" {
             createDirectProxy(id: Identity): Ice.ObjectPrx;
 
             /**
-             * Get the set of endpoints configured with this object adapter.
+             * Gets the set of endpoints configured on this object adapter.
              *
              * @returns The set of endpoints.
              */
             getEndpoints(): Endpoint[];
 
             /**
-             * Get the set of endpoints that proxies created by this object adapter will contain.
+             * Gets the set of endpoints that proxies created by this object adapter will contain.
              * @returns The set of published endpoints.
              * @see {@link Endpoint}
              */
             getPublishedEndpoints(): Endpoint[];
 
             /**
-             * Set of the endpoints that proxies created by this object adapter will contain.
+             * Sets the endpoints that proxies created by this object adapter will contain.
              * @param newEndpoints The new set of endpoints that the object adapter will embed in proxies.
-             * @see {@link Endpoint}
+             * @throws `Error` Thrown when the `newEndpoints` is empty or this adapter is associated with a router.
              */
             setPublishedEndpoints(newEndpoints: Ice.Endpoint[]): void;
         }

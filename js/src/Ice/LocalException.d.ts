@@ -3,7 +3,7 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * Base class for Ice run-time exceptions.
+         * Base class for all Ice exceptions not defined in Slice.
          */
         abstract class LocalException extends Exception {}
     }

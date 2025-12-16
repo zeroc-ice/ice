@@ -7,16 +7,13 @@ declare module "@zeroc/ice" {
          */
         class FormatType extends Ice.EnumBase {
             /**
-             * The Compact format assumes the sender and receiver have the same Slice definitions for classes. If an
-             * application receives a derived class it does not know, it is not capable of decoding it into a known
-             * base class because there is not enough information in the encoded payload. The compact format is more
-             * space-efficient on the wire.
+             * Favors compactness, but does not support slicing-off unknown slices during unmarshaling.
              */
             static readonly CompactFormat: FormatType;
 
             /**
-             * The Sliced format allows the receiver to slice off unknown slices. If an application receives a derived
-             * class it does not know, it can create a base class while preserving the unknown derived slices.
+             * Allows slicing-off unknown slices during unmarshaling, at the cost of some extra space in the marshaled
+             * data.
              */
             static readonly SlicedFormat: FormatType;
 
