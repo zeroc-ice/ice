@@ -4,46 +4,42 @@
 
 namespace Ice;
 
+/// <summary>
+/// An application-provided class that an object adapter uses to locate servants.
+/// </summary>
+/// <remarks>Servant locators are provided for backward compatibility with earlier versions of Ice. You should
+/// consider using a default servant instead (see <see cref="ObjectAdapter.addDefaultServant"/>). For more advanced use
+/// cases, you can create a middleware (see <see cref="ObjectAdapter.use"/>).</remarks>
+/// <seealso cref="ObjectAdapter.addServantLocator"/>
 public interface ServantLocator
 {
     /// <summary>
-    /// Called before a request is dispatched if a servant cannot be found in the object adapter's active servant map.
-    /// Note that the object adapter does not automatically insert the returned servant into its active servant map.
-    /// This must be done by the servant locator implementation, if this is desired. locate can throw any
-    /// user exception. If it does, that exception is marshaled back to the client. If the Slice definition for the
-    /// corresponding operation includes that user exception, the client receives that user exception; otherwise, the
-    /// client receives UnknownUserException. If locate throws any exception, the Ice run time does not call finished.
-    /// If you call locate from your own code, you must also call finished when you have finished using the servant,
-    /// provided that locate returned a non-null servant.
+    /// Asks this servant locator to find and return a servant.
     /// </summary>
-    /// <param name="curr">Information about the current operation for which a servant is required.</param>
-    /// <param name="cookie">A "cookie" that will be passed to finished.</param>
-    /// <returns>The located servant, or null if no suitable servant has been found.</returns>
-    /// <exception name="UserException">The implementation can raise a UserException and the run time will marshal it as the
-    /// result of the invocation.</exception>
+    /// <param name="curr">Information about the incoming request for which a servant is required.</param>
+    /// <param name="cookie">A "cookie" that will be passed to <see cref="finished"/>.</param>
+    /// <returns>The located servant, or null if no suitable servant was found.</returns>
+    /// <remarks>The caller (the object adapter) does not insert the returned servant into its Active Servant Map.
+    /// The implementation can throw any exception, including UserException. The Ice runtime marshals this
+    /// exception in the response.</remarks>
     Object? locate(Current curr, out object? cookie);
 
     /// <summary>
-    /// Called by the object adapter after a request has been made.
-    ///
-    /// This operation is only called if locate was called prior to the request and returned a non-null servant. This
-    /// operation can be used for cleanup purposes after a request. finished can throw any user exception. If it does,
-    /// that exception is marshaled back to the client. If the Slice definition for the corresponding operation
-    /// includes that user exception, the client receives that user exception; otherwise, the client receives
-    /// <see cref="UnknownUserException"/>. If both the operation and finished throw an exception, the exception thrown by
-    /// finished is marshaled back to the client.
+    /// Notifies this servant locator that the dispatch on the servant returned by <see cref="locate"/> is complete.
+    /// The object adapter calls this method only when <see cref="locate"/> returns a non-null servant.
     /// </summary>
-    /// <param name="curr">Information about the current operation call for which a servant was located by
-    /// locate.</param>
-    /// <param name="servant">The servant that was returned by locate.</param>
-    /// <param name="cookie">The cookie that was returned by locate.</param>
-    /// <exception name="UserException">The implementation can raise a UserException and the run time will marshal it as the
-    /// result of the invocation.</exception>
+    /// <param name="curr">Information about the incoming request for which a servant is required.</param>
+    /// <param name="servant">The servant that was returned by <see cref="locate"/>.</param>
+    /// <param name="cookie">The cookie that was returned by <see cref="locate"/>.</param>
+    /// <remarks>The implementation can throw any exception, including user exceptions. The Ice runtime marshals this
+    /// exception in the response. If both the dispatch and <c>finished</c> throw an exception, the exception thrown by
+    /// <c>finished</c> prevails and is marshaled back to the client.</remarks>
     void finished(Current curr, Object servant, object? cookie);
 
     /// <summary>
-    /// Called when the object adapter in which this servant locator is installed is destroyed.
+    /// Notifies this servant locator that the object adapter in which it's installed is being deactivated.
     /// </summary>
-    /// <param name="category">Indicates for which category the servant locator is being deactivated.</param>
+    /// <param name="category">The category with which this servant locator was registered.</param>
+    /// <seealso cref="ObjectAdapter.destroy"/>
     void deactivate(string category);
 }

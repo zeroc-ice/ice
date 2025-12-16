@@ -180,7 +180,7 @@ namespace Ice
         /// @throws NotRegisteredException Thrown when no servant with the given identity and facet is registered.
         virtual ObjectPtr removeFacet(const Identity& id, std::string_view facet) = 0;
 
-        /// Removes all facets with the given identity from the Active Servant Map. The function completely removes the
+        /// Removes all facets with the given identity from the Active Servant Map. This function completely removes the
         /// Ice object, including its default facet.
         /// @param id The identity of the Ice object to be removed.
         /// @return A collection containing all the facet names and servants of the removed Ice object.
@@ -219,6 +219,8 @@ namespace Ice
         /// @param proxy The proxy that provides the identity and facet to search.
         /// @return The servant that matches the identity and facet carried by @p proxy, or nullptr if no such servant
         /// has been found.
+        /// @remark This function only tries to find the servant in the ASM and among the default servants. It does not
+        /// attempt to locate a servant using servant locators.
         [[nodiscard]] virtual ObjectPtr findByProxy(const ObjectPrx& proxy) const = 0;
 
         /// Adds a ServantLocator to this object adapter for a specific category.

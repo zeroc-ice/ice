@@ -3,7 +3,8 @@
 package com.zeroc.Ice;
 
 /**
- * Base class for marshaled-result classes, which are generated for operations with "marshaled-result" metadata.
+ * Base interface for marshaled result classes, which are generated for operations marked with
+ * "marshaled-result" metadata.
  *
  * @hidden
  */

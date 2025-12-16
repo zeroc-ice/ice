@@ -35,12 +35,12 @@ public final class OutgoingResponse {
     /**
      * Constructs an OutgoingResponse object.
      *
-     * @param replyStatus The status of the response, as an int.
-     * @param exceptionId The type ID of the exception, when the response carries an exception other than a
-     *     user exception.
-     * @param exceptionDetails The full details of the exception, when the response carries an exception other than a
-     *     user exception.
-     * @param outputStream The output stream that holds the response.
+     * @param replyStatus the reply status, as an int
+     * @param exceptionId the type ID of the exception, when the response carries an exception other than a
+     *     user exception
+     * @param exceptionDetails the full details of the exception, when the response carries an exception other than a
+     *     user exception
+     * @param outputStream the output stream that holds the response
      * @see ReplyStatus
      */
     public OutgoingResponse(int replyStatus, String exceptionId, String exceptionDetails, OutputStream outputStream) {
@@ -54,7 +54,7 @@ public final class OutgoingResponse {
     /**
      * Constructs an OutgoingResponse object with the {@link ReplyStatus#Ok} status.
      *
-     * @param outputStream The output stream that holds the response.
+     * @param outputStream the output stream that holds the response
      */
     public OutgoingResponse(OutputStream outputStream) {
         this(ReplyStatus.Ok.value(), null, null, outputStream);
