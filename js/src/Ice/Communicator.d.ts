@@ -73,11 +73,11 @@ declare module "@zeroc/ice" {
             waitForShutdown(): Promise<void>;
 
             /**
-             * Checks whether {@link #shutdown} has been called.
+             * Checks whether {@link Communicator#shutdown} has been called.
              *
-             * @returns {@code true} if {@link #shutdown} was called on this communicator; {@code false} otherwise.
+             * @returns {@code true} if {@link Communicator#shutdown} was called on this communicator; {@code false} otherwise.
              *
-             * @see {@link shutdown}
+             * @see {@link Communicator#shutdown}
              */
             isShutdown(): boolean;
 
