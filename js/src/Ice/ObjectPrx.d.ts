@@ -17,158 +17,156 @@ declare module "@zeroc/ice" {
             constructor(communicator: Communicator, proxyString: string);
 
             /**
-             * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+             * Returns the Slice type ID associated with this type.
              *
-             * @returns The Slice type ID of the most-derived interface supported by the target object.
+             * @returns The Slice type ID.
              */
             static ice_staticId(): string;
 
             /**
-             * Determines if this object supports a specific Slice interface.
+             * Tests whether this object supports a specific Slice interface.
              *
-             * @param id - The type ID of the Slice interface to check.
-             * @param context - An optional context map for the invocation.
-             * @returns An asynchronous result that resolves to `true` if this object supports the interface specified
-             *          by `id`, or if it derives from the specified interface. Otherwise, it resolves to `false`.
+             * @param typeId - The type ID of the Slice interface to test against.
+             * @param context - The request context.
+             * @returns An asynchronous result that resolves to `true` if the target object implements the Slice
+             * interface specified by `typeId` or implements a derived interface, `false` otherwise.
              */
-            ice_isA(id: string, context?: Map<string, string>): AsyncResult<boolean>;
+            ice_isA(typeId: string, context?: Map<string, string>): AsyncResult<boolean>;
 
             /**
-             * Retrieves the Slice type ID of the most-derived interface supported by the target object of this proxy.
+             * Gets the type ID of the most-derived Slice interface supported by this object.
              *
-             * @param context - An optional context map for the invocation.
-             * @returns An asynchronous result that resolves to the Slice type ID of the most-derived interface
-             *          supported by the target object.
+             * @param context - The request context.
+             * @returns An asynchronous result that resolves to the Slice type ID of the most-derived interface.
              */
             ice_id(context?: Map<string, string>): AsyncResult<string>;
 
             /**
-             * Retrieves the Slice type IDs of all interfaces supported by the target object of this proxy.
+             * Gets the Slice interfaces supported by this object as a list of Slice type IDs.
              *
-             * @param context - An optional context map for the invocation.
-             * @returns An asynchronous result that resolves to an array of Slice type IDs representing the interfaces
-             *          supported by the target object of this proxy.
+             * @param context - The request context.
+             * @returns An asynchronous result that resolves to an array of the Slice type IDs of the interfaces
+             * supported by this object, in alphabetical order
              */
             ice_ids(context?: Map<string, string>): AsyncResult<string[]>;
 
             /**
-             * Checks if the target object of this proxy is reachable.
+             * Tests whether the target object of this proxy can be reached.
              *
-             * @param context - An optional context map for the invocation.
+             * @param context - The request context.
              * @returns An asynchronous result that resolves when the ping operation completes.
-             *          If the target object is unreachable, the result is rejected with an error.
              */
             ice_ping(context?: Map<string, string>): AsyncResult<void>;
 
             /**
-             * Retrieves the communicator instance that created this proxy.
+             * Gets the communicator that created this proxy.
              *
-             * @returns The communicator instance that created this proxy.
+             * @returns The communicator that created this proxy.
              */
             ice_getCommunicator(): Communicator;
 
             /**
-             * Returns a string representation of this proxy.
+             * Creates a stringified version of this proxy.
              *
-             * @returns A string representing this proxy.
+             * @returns A stringified proxy.
              */
             ice_toString(): string;
 
             /**
-             * Creates a new proxy identical to this one, but with a different identity.
+             * Creates a proxy that is identical to this proxy, except for the identity.
              *
              * @param id - The identity for the new proxy.
-             * @returns A new proxy with the specified identity.
+             * @returns A proxy with the new identity.
              */
             ice_identity(id: Identity): this;
 
             /**
-             * Retrieves the identity embedded in this proxy.
+             * Gets the identity embedded in this proxy.
              *
-             * @returns The identity of the target object associated with this proxy.
+             * @returns The identity of the target object.
              */
             ice_getIdentity(): Identity;
 
             /**
-             * Creates a new proxy identical to this one, but with a different adapter ID.
+             * Creates a proxy that is identical to this proxy, except for the adapter ID.
              *
              * @param id - The adapter ID for the new proxy.
-             * @returns A new proxy with the specified adapter ID.
+             * @returns A proxy with the new adapter ID.
              */
             ice_adapterId(id: string): this;
 
             /**
-             * Retrieves the adapter ID associated with this proxy.
+             * Gets the adapter ID for this proxy.
              *
-             * @returns The adapter ID. If the proxy does not have an adapter ID, an empty string is returned.
+             * @returns The adapter ID. If the proxy does not have an adapter ID, the return value is the empty string.
              */
             ice_getAdapterId(): string;
 
             /**
-             * Creates a new proxy identical to this one, but with different endpoints.
+             * Creates a proxy that is identical to this proxy, except for the endpoints.
              *
              * @param endpoints - The endpoints for the new proxy.
-             * @returns A new proxy with the specified endpoints.
+             * @returns A proxy with the new endpoints.
              */
             ice_endpoints(endpoints: Endpoint[]): this;
 
             /**
-             * Retrieves the endpoints used by this proxy.
+             * Gets the endpoints used by this proxy.
              *
              * @returns The endpoints used by this proxy.
              */
             ice_getEndpoints(): Endpoint[];
 
             /**
-             * Creates a new proxy identical to this one, but with a different endpoint selection policy.
+             * Creates a proxy that is identical to this proxy, except for the endpoint selection policy.
              *
-             * @param type - The endpoint selection policy for the new proxy.
-             * @returns A new proxy with the specified endpoint selection policy.
+             * @param type - The new endpoint selection policy.
+             * @returns A proxy with the specified endpoint selection policy.
              */
             ice_endpointSelection(type: EndpointSelectionType): this;
 
             /**
-             * Retrieves the endpoint selection policy used by this proxy.
+             * Gets the endpoint selection policy for this proxy (randomly or ordered).
              *
-             * @returns The endpoint selection policy currently used by this proxy.
+             * @returns The endpoint selection policy.
              */
             ice_getEndpointSelection(): EndpointSelectionType;
 
             /**
-             * Creates a new proxy identical to this one, but with a different per-proxy context.
+             * Creates a proxy that is identical to this proxy, except for the per-proxy context.
              *
-             * @param context - The context map for the new proxy.
-             * @returns A new proxy with the specified per-proxy context.
+             * @param context - The context for the new proxy.
+             * @returns A proxy with the new per-proxy context.
              */
             ice_context(context: Map<string, string>): this;
 
             /**
-             * Retrieves the per-proxy context used by this proxy.
+             * Gets the per-proxy context for this proxy.
              *
-             * @returns The per-proxy context currently used by this proxy.
+             * @returns The per-proxy context.
              */
             ice_getContext(): Map<string, string>;
 
             /**
-             * Creates a new proxy identical to this one, but with a different facet.
+             * Creates a proxy that is identical to this proxy, except for the facet.
              *
              * @param facet The facet for the new proxy.
-             * @returns A new proxy with the specified facet.
+             * @returns A proxy with the new facet.
              */
             ice_facet(facet: string): this;
 
             /**
-             * Retrieves the facet used by this proxy.
+             * Gets the facet for this proxy.
              *
-             * @returns The facet currently used by this proxy. If the proxy uses the default facet, an empty string
-             *          is returned.
+             * @returns The facet for this proxy. If the proxy uses the default facet, the return value is the empty
+             * string.
              */
             ice_getFacet(): string;
 
             /**
-             * Creates a new proxy identical to this one, but configured to use twoway invocations.
+             * Creates a proxy that is identical to this proxy, but uses twoway invocations.
              *
-             * @returns A new proxy configured to uses twoway invocations.
+             * @returns A proxy that uses twoway invocations.
              */
             ice_twoway(): this;
 
@@ -180,9 +178,9 @@ declare module "@zeroc/ice" {
             ice_isTwoway(): boolean;
 
             /**
-             * Creates a new proxy identical to this one, but configured to use oneway invocations.
+             * Creates a proxy that is identical to this proxy, but uses oneway invocations.
              *
-             * @returns A new proxy configured to use oneway invocations.
+             * @returns A proxy that uses oneway invocations.
              */
             ice_oneway(): this;
 
@@ -194,9 +192,9 @@ declare module "@zeroc/ice" {
             ice_isOneway(): boolean;
 
             /**
-             * Creates a new proxy identical to this one, but configured to use batch oneway invocations.
+             * Creates a proxy that is identical to this proxy, but uses batch oneway invocations.
              *
-             * @returns A new proxy configured to use batch oneway invocations.
+             * @returns A proxy that uses batch oneway invocations.
              */
             ice_batchOneway(): this;
 
@@ -208,140 +206,138 @@ declare module "@zeroc/ice" {
             ice_isBatchOneway(): boolean;
 
             /**
-             * Retrieves the encoding version used to marshal request parameters.
+             * Gets the encoding version used to marshal request parameters.
              *
-             * @returns The encoding version currently used by this proxy.
+             * @returns The encoding version.
              */
             ice_getEncodingVersion(): EncodingVersion;
 
             /**
-             * Creates a new proxy identical to this one, but with a different encoding version used to marshal
-             * parameters.
+             * Creates a proxy that is identical to this proxy, except for the encoding used to marshal parameters.
              *
-             * @param encodingVersion - The encoding version to use for marshaling request parameters.
-             * @returns A new proxy configured with the specified encoding version.
+             * @param version - The encoding version to use to marshal request parameters.
+             * @returns A proxy with the specified encoding version.
              */
-            ice_encodingVersion(encodingVersion: EncodingVersion): this;
+            ice_encodingVersion(version: EncodingVersion): this;
 
             /**
-             * Creates a new proxy identical to this one, but with a different router.
+             * Creates a proxy that is identical to this proxy, except for the router.
              *
-             * @param router - The router to be used by the new proxy.
-             * @returns A new proxy configured with the specified router.
+             * @param router - The router for the new proxy.
+             * @returns A proxy with the specified router.
              */
             ice_router(router: RouterPrx | null): this;
 
             /**
-             * Retrieves the router used by this proxy.
+             * Gets the router for this proxy.
              *
-             * @returns The router currently used by this proxy. If no router is configured, `null` is returned.
+             * @returns The router for the proxy. If no router is configured for the proxy, the return value is `null`.
              */
             ice_getRouter(): RouterPrx | null;
 
             /**
-             * Creates a new proxy identical to this one, but with a different locator.
+             * Creates a proxy that is identical to this proxy, except for the locator.
              *
-             * @param locator - The locator to be used by the new proxy.
-             * @returns A new proxy configured with the specified locator.
+             * @param locator - The locator for the new proxy.
+             * @returns A proxy with the specified locator.
              */
             ice_locator(locator: LocatorPrx | null): this;
 
             /**
-             * Retrieves the locator used by this proxy.
+             * Gets the locator for this proxy.
              *
-             * @returns The locator currently used by this proxy. If no locator is configured, `null` is returned.
+             * @returns The locator for this proxy. If no locator is configured, the return value is `null`.
              */
             ice_getLocator(): LocatorPrx | null;
 
             /**
-             * Creates a new proxy identical to this one, but with a different locator cache timeout.
+             * Creates a proxy that is identical to this proxy, except for the locator cache timeout.
              *
-             * @param timeout - The locator cache timeout (in seconds) to be used by the new proxy.
-             * @returns A new proxy configured with the specified locator cache timeout.
+             * @param timeout - The new locator cache timeout (in seconds).
+             * @returns A proxy with the new timeout.
              */
             ice_locatorCacheTimeout(timeout: number): this;
 
             /**
-             * Retrieves the locator cache timeout used by this proxy.
+             * Gets the locator cache timeout of this proxy.
              *
-             * @returns The locator cache timeout value (in seconds) currently used by this proxy.
+             * @returns The locator cache timeout value.
              */
             ice_getLocatorCacheTimeout(): number;
 
             /**
-             * Creates a new proxy identical to this one, but with a different invocation timeout.
+             * Creates a proxy that is identical to this proxy, except for the invocation timeout.
              *
-             * @param timeout - The invocation timeout (in milliseconds) to be used by the new proxy.
-             * @returns A new proxy configured with the specified invocation timeout.
+             * @param timeout - The new invocation timeout (in milliseconds).
+             * @returns A proxy with the new timeout.
              */
             ice_invocationTimeout(timeout: number): this;
 
             /**
-             * Retrieves the invocation timeout used by this proxy.
+             * Gets the invocation timeout of this proxy.
              *
-             * @returns The invocation timeout value (in milliseconds) currently used by this proxy.
+             * @returns The invocation timeout value.
              */
             ice_getInvocationTimeout(): number;
 
             /**
-             * Creates a new proxy identical to this one, but with a different connection ID.
+             * Creates a proxy that is identical to this proxy, except for its connection ID.
              *
              * @param connectionId - The connection ID for the new proxy. An empty string removes the connection ID.
-             * @returns A new proxy configured with the specified connection ID.
+             * @returns A proxy with the specified connection ID.
              */
             ice_connectionId(connectionId: string): this;
 
             /**
-             * Retrieves the connection ID used by this proxy.
+             * Gets the connection ID of this proxy.
              *
-             * @returns The connection ID currently associated with this proxy.
+             * @returns The connection ID.
              */
             ice_getConnectionId(): string;
 
             /**
-             * Creates a new proxy identical to this one, but as a fixed proxy bound to the specified connection.
+             * Creates a proxy that is identical to this proxy, except it's a fixed proxy bound to the given connection.
              *
-             * @param connection - The connection to be used by the new fixed proxy.
-             * @returns A new fixed proxy bound to the specified connection.
+             * @param connection - The fixed proxy connection.
+             * @returns A fixed proxy bound to the given connection.
              */
             ice_fixed(connection: Connection): this;
 
             /**
-             * Checks whether this proxy is a fixed proxy.
+             * Determines whether this proxy is a fixed proxy.
              *
              * @returns `true` if this proxy is a fixed proxy, `false` otherwise.
              */
             ice_isFixed(): boolean;
 
             /**
-             * Retrieves the connection used by this proxy. If the proxy does not yet have an established connection,
-             * it attempts to create one.
+             * Gets the connection ID of this proxy.
              *
-             * @returns An asynchronous result that resolves to the connection used by this proxy. If the connection
-             *          establishment fails, the promise is rejected with an error.
+             * @returns An asynchronous result that resolves to the connection used by this proxy.
+             * @remarks You can call this function to establish a connection or associate the proxy with an existing
+             * connection.
              */
             ice_getConnection(): AsyncResult<Connection>;
 
             /**
-             * Retrieves the cached connection for this proxy.
+             * Gets the cached Connection for this proxy. If the proxy does not yet have an established connection,
+             * it does not attempt to create a connection.
              *
-             * If the proxy does not yet have an established connection, it does not attempt to create one.
-             *
-             * @returns The cached connection for this proxy, or `null` if no connection is established.
+             * @returns The cached connection for this proxy, or `null` if the proxy does not have an established
+             * connection.
              */
             ice_getCachedConnection(): Connection;
 
             /**
-             * Creates a new proxy identical to this one, but with a different connection caching configuration.
+             * Creates a proxy that is identical to this proxy, except for connection caching.
              *
-             * @param cache - The connection caching configuration for the new proxy: `true` if the new proxy should cache
-             *                connections, `false` otherwise.
-             * @returns A new proxy configured with the specified connection caching policy.
+             * @param cache - `true` if the new proxy should cache connections, `false` otherwise.
+             * @returns A proxy with the specified caching policy.
              */
             ice_connectionCached(cache: boolean): this;
 
             /**
-             * Checks whether this proxy caches connections.
+             * Determines whether this proxy caches connections.
              *
              * @returns `true` if this proxy caches connections, `false` otherwise.
              */
@@ -387,7 +383,7 @@ declare module "@zeroc/ice" {
              *
              * @param prx - The source proxy.
              * @param facet - An optional facet name.
-             * @param context - An optional context map for the invocation.
+             * @param context - The request context.
              * @returns An asynchronous result resolving to a proxy with the requested type and facet, or `null` if the
              *          target object does not support the requested type.
              */

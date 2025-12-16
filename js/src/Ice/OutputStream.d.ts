@@ -3,22 +3,21 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * The OutputStream class provides methods for encoding data using Slice encoding into a stream of bytes.
+         * Represents a byte buffer used for marshaling data using the Slice encoding.
          */
         class OutputStream {
             /**
-             * Constructs an empty output stream that uses the communicator's default encoding version and compact class
-             * format.
+             * Constructs an OutputStream using the encoding, and format provided by the communicator.
              *
-             * @param communicator The communicator that provides the encoding version and class format.
+             * @param communicator The communicator.
              */
             constructor(communicator: Communicator);
 
             /**
              * Constructs an empty output stream.
              *
-             * @param encoding The encoding version. `null` is equivalent to encoding 1.1.
-             * @param format The class format. `null` is equivalent to `FormatType.CompactFormat`.
+             * @param encoding The encoding version to use. `null` is equivalent to encoding 1.1.
+             * @param format The class format to use. `null` is equivalent to `FormatType.CompactFormat`.
              */
             constructor(encoding?: EncodingVersion, format?: FormatType);
 
@@ -28,7 +27,7 @@ declare module "@zeroc/ice" {
             clear(): void;
 
             /**
-             * Indicates that the marshaling of a request or reply is finished.
+             * Indicates that marshaling is complete. This function must only be called once.
              * @returns The `Uint8Array` containing the encoded request or reply
              */
             finished(): Uint8Array;

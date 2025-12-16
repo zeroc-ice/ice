@@ -1,4 +1,5 @@
-import * as Ice_Address from "./Address.js";
+// Copyright (c) ZeroC, Inc.
+
 import * as Ice_ArrayUtil from "./ArrayUtil.js";
 import * as Ice_AsyncResult from "./AsyncResult.js";
 import * as Ice_AsyncStatus from "./AsyncStatus.js";
@@ -88,7 +89,6 @@ import * as Ice_SSL_ConnectionInfo from "./SSL/ConnectionInfo.js";
 import * as Ice_SSL_EndpointInfo from "./SSL/EndpointInfo.js";
 
 export const Ice = {
-    ...Ice_Address,
     ...Ice_ArrayUtil,
     ...Ice_AsyncResult,
     ...Ice_AsyncStatus,

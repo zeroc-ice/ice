@@ -7,8 +7,10 @@ declare module "@zeroc/ice" {
         //
 
         /**
-         * The dispatch failed. This is the base class for local exceptions that can be marshaled and
-         * transmitted "over the wire".
+         * The exception that is thrown when a dispatch failed. This is the base class for local exceptions that can be
+         * marshaled and transmitted "over the wire".
+         * You can throw this exception in the implementation of an operation, or in a middleware. The Ice runtime then
+         * logically rethrows this exception to the client.
          */
         class DispatchException extends LocalException {
             constructor(replyStatus: ReplyStatus, message?: string);
@@ -16,7 +18,7 @@ declare module "@zeroc/ice" {
         }
 
         /**
-         * The base exception for the 3 NotExist exceptions.
+         * The base class for the 3 NotExist exceptions.
          */
         class RequestFailedException extends DispatchException {
             readonly id: Identity;
@@ -25,29 +27,32 @@ declare module "@zeroc/ice" {
         }
 
         /**
-         * The dispatch could not find a servant for the identity carried by the request.
+         * The exception that is thrown when a dispatch cannot find a servant for the identity carried by the request.
          */
         class ObjectNotExistException extends RequestFailedException {
             constructor(id?: Identity, facet?: string, operation?: string);
         }
 
         /**
-         * The dispatch could not find a servant for the identity + facet carried by the request.
+         * The exception that is thrown when a dispatch cannot find a servant for the identity + facet carried by the
+         * request.
          */
         class FacetNotExistException extends RequestFailedException {
             constructor(id?: Identity, facet?: string, operation?: string);
         }
 
         /**
-         * The dispatch could not find the operation carried by the request on the target servant. This is typically due
-         * to a mismatch in the Slice definitions, such as the client using Slice definitions newer than the server's.
+         * The exception that is thrown when a dispatch cannot find the operation carried by the request on the target
+         * servant. This is typically due to a mismatch in the Slice definitions, such as the client using Slice
+         * definitions newer than the server's.
          */
         class OperationNotExistException extends RequestFailedException {
             constructor(id?: Identity, facet?: string, operation?: string);
         }
 
         /**
-         * The dispatch failed with an exception that is not a {@link LocalException} or a {@link UserException}.
+         * The exception that is thrown when a dispatch failed with an exception that is not a {@link LocalException}
+         * or a {@link UserException}.
          */
         class UnknownException extends DispatchException {
             /**
@@ -59,7 +64,8 @@ declare module "@zeroc/ice" {
         }
 
         /**
-         * The dispatch failed with a {@link LocalException} that is not one of the special marshal-able local exceptions.
+         * The exception that is thrown when a dispatch failed with a {@link LocalException} that is not a
+         * {@link DispatchException}.
          */
         class UnknownLocalException extends UnknownException {
             /**
@@ -70,7 +76,8 @@ declare module "@zeroc/ice" {
         }
 
         /**
-         * The dispatch returned a {@link UserException} that was not declared in the operation's exception specification.
+         * The exception that is thrown when a client receives a {@link UserException} that was not declared in the
+         * operation's exception specification.
          */
         class UnknownUserException extends UnknownException {
             /**
@@ -85,23 +92,23 @@ declare module "@zeroc/ice" {
         //
 
         /**
-         * The base class for Ice protocol exceptions.
+         * The base class for exceptions related to the Ice protocol.
          */
         class ProtocolException extends LocalException {}
 
         /**
-         * This exception indicates that the connection has been gracefully closed by the server.
-         * The operation call that caused this exception has not been executed by the server. In most cases you will not get
-         * this exception because the client will automatically retry the operation call in case the server shut down the
-         * connection. However, if upon retry the server shuts down the connection again, and the retry limit has been reached,
-         * then this exception is propagated to the application code.
+         * The exception that is thrown when the connection has been gracefully shut down by the server. The request
+         * that returned this exception has not been executed by the server. In most cases you will not get this
+         * exception, because the client will automatically retry the invocation. However, if upon retry the server
+         * shuts down the connection again, and the retry limit has been reached, then this exception is propagated
+         * to the application code.
          */
         class CloseConnectionException extends ProtocolException {
             constructor();
         }
 
         /**
-         *  This exception reports an error during marshaling or unmarshaling.
+         *  The exception that is thrown when an error occurs during marshaling or unmarshaling.
          */
         class MarshalException extends ProtocolException {}
 
@@ -110,19 +117,19 @@ declare module "@zeroc/ice" {
         //
 
         /**
-         * This exception indicates a timeout condition.
+         * The exception that is thrown when a timeout occurs. This is the base class for all timeout exceptions.
          */
         class TimeoutException extends LocalException {}
 
         /**
-         * This exception indicates a connection closure timeout condition.
+         * The exception that is thrown when a graceful connection closure times out.
          */
         class CloseTimeoutException extends TimeoutException {
             constructor();
         }
 
         /**
-         * This exception indicates a connection establishment timeout condition.
+         * The exception that is thrown when a connection establishment times out.
          */
         class ConnectTimeoutException extends TimeoutException {
             constructor();
@@ -140,7 +147,7 @@ declare module "@zeroc/ice" {
         //
 
         /**
-         * This exception is raised if a system error occurred in the server or client process.
+         * The exception that is thrown to report the failure of a system call.
          */
         class SyscallException extends LocalException {}
 
@@ -149,22 +156,22 @@ declare module "@zeroc/ice" {
         //
 
         /**
-         * This exception indicates a socket error.
+         * The exception that is thrown to report a socket error.
          */
         class SocketException extends SyscallException {}
 
         /**
-         * This exception indicates a connection failure.
+         * The exception that is thrown when a connection establishment fails.
          */
         class ConnectFailedException extends SocketException {}
 
         /**
-         * This exception indicates a lost connection.
+         * The exception that is thrown when an established connection is lost.
          */
         class ConnectionLostException extends SocketException {}
 
         /**
-         * This exception indicates a connection failure for which the server host actively refuses a connection.
+         * The exception that is thrown when the server host actively refuses a connection.
          */
         class ConnectionRefusedException extends ConnectFailedException {}
 
@@ -173,9 +180,7 @@ declare module "@zeroc/ice" {
         //
 
         /**
-         * An attempt was made to register something more than once with the Ice run time.
-         * This exception is raised if an attempt is made to register a servant, servant locator, facet,
-         * plug-in, object adapter (etc.) more than once for the same ID.
+         * The exception that is thrown when you attempt to register an object more than once with the Ice runtime.
          */
         class AlreadyRegisteredException extends LocalException {
             constructor(kindOfObject: string, id: string);
@@ -184,12 +189,13 @@ declare module "@zeroc/ice" {
         }
 
         /**
-         * This exception is raised if the Communicator has been destroyed.
+         * The exception that is thrown when an operation fails because the communicator has been destroyed.
+         * @see {@link Communicator#destroy()}
          */
         class CommunicatorDestroyedException extends LocalException {}
 
         /**
-         * This exception indicates that a connection was closed forcefully.
+         * The exception that is thrown when an operation fails because the connection has been aborted.
          */
         class ConnectionAbortedException extends LocalException {
             constructor(message: string, closedByApplication: boolean);
@@ -197,7 +203,7 @@ declare module "@zeroc/ice" {
         }
 
         /**
-         * This exception indicates that a connection was closed gracefully.
+         * The exception that is thrown when an operation fails because the connection has been closed gracefully.
          */
         class ConnectionClosedException extends LocalException {
             constructor(message: string, closedByApplication: boolean);
@@ -205,19 +211,19 @@ declare module "@zeroc/ice" {
         }
 
         /**
-         * This exception is raised if an unsupported feature is used.
+         * The exception that is thrown when attempting to use an unsupported feature.
          */
         class FeatureNotSupportedException extends LocalException {
             constructor(message: string);
         }
 
         /**
-         * This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
+         * The exception that is thrown when attempting to change a connection-related property on a fixed proxy.
          */
         class FixedProxyException extends LocalException {}
 
         /**
-         * This exception is raised when a failure occurs during initialization.
+         * The exception that is thrown when communicator initialization fails.
          */
         class InitializationException extends LocalException {}
 
@@ -229,21 +235,22 @@ declare module "@zeroc/ice" {
         }
 
         /**
-         * This exception is raised if no suitable endpoint is available.
+         * The exception that is thrown when the Ice runtime cannot find a suitable endpoint to connect to.
          */
         class NoEndpointException extends LocalException {
             constructor(messageOrProxy: string | ObjectPrx);
         }
 
         /**
-         * An attempt was made to find or deregister something that is not registered with Ice.
+         * The exception that is thrown when attempting to find or deregister something that is not registered with
+         * Ice.
          */
         class NotRegisteredException extends LocalException {
             /**
              * Constructs a NotRegisteredException with the object kind and ID.
              *
-             * @param kindOfObject the kind of object that is not registered
-             * @param id           the ID of the object that is not registered
+             * @param kindOfObject The kind of object that is not registered.
+             * @param id           The ID (or name) of the object that is not registered.
              */
             constructor(kindOfObject?: string, id?: string);
 
@@ -259,29 +266,28 @@ declare module "@zeroc/ice" {
         }
 
         /**
-         * This exception is raised if an attempt is made to use a destroyed ObjectAdapter.
+         * The exception that is thrown when attempting to use an ObjectAdapter that has been destroyed.
          */
         class ObjectAdapterDestroyedException extends LocalException {
             constructor(name: string);
         }
 
         /**
-         * Reports a failure that occurred while parsing a string.
+         * The exception that is thrown when the parsing of a string fails.
          */
         class ParseException extends LocalException {}
 
         /**
-         * The operation can only be invoked with a two-way request.
-         * This exception is raised if an attempt is made to invoke an operation with ice_oneway or ice_batchOneway,
-         * and the operation has a return value, out-parameters, or an exception specification.
+         * The exception that is thrown when attempting to invoke an operation with `ice_oneway`, `ice_batchOneway`,
+         * and the operation has a return value, an out parameter, or an exception specification.
          */
         class TwowayOnlyException extends LocalException {
             constructor(operation: string);
         }
 
         /**
-         * This exception is raised when there is an error while getting or setting a property. For example, when
-         * trying to set an unknown Ice property.
+         * The exception that is thrown when a property cannot be set or retrieved. For example, this exception is
+         * thrown when attempting to set an unknown Ice property.
          */
         class PropertyException extends LocalException {
             constructor(message: string);

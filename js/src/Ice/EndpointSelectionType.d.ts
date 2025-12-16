@@ -3,16 +3,16 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * Determines the order in which the Ice runtime uses the endpoints in a proxy when establishing a connection.
+         * Determines how the Ice runtime sorts proxy endpoints when establishing a connection.
          */
         class EndpointSelectionType extends Ice.EnumBase {
             /**
-             * `Random` arranges the endpoints in a random order.
+             * The Ice runtime shuffles the endpoints in a random order.
              */
             static readonly Random: EndpointSelectionType;
 
             /**
-             * `Ordered` forces the Ice runtime to use the endpoints in the order they appear in the proxy.
+             * The Ice runtime uses the endpoints in the order they appear in the proxy.
              */
             static readonly Ordered: EndpointSelectionType;
 

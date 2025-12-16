@@ -3,24 +3,23 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * The InputStream class provides methods for decoding Slice encoded data from a stream of bytes.
+         * Represents a byte buffer used for unmarshaling data encoded using the Slice encoding.
          */
         class InputStream {
             /**
-             * Constructs input stream that uses the communicator's encoding version 1.1, and the given buffer.
+             * Constructs an InputStream using a communicator and this communicator's default encoding version.
              *
-             * @param communicator The communicator that provides the encoding version, the logger, and the value
-             * factory manager.
-             * @param buffer The buffer containing the encoded data.
+             * @param communicator The communicator to use for unmarshaling tasks.
+             * @param buffer The encoded data.
              */
             constructor(communicator: Communicator, buffer: Uint8Array);
 
             /**
-             * Constructs an input stream that uses the given encoding version, the given communicator, and the given buffer.
+             * Constructs an InputStream using a communicator and encoding version.
              *
-             * @param communicator The communicator that provides the logger.
-             * @param encoding The encoding version.
-             * @param buffer The buffer containing the encoded data.
+             * @param communicator The communicator to use for unmarshaling tasks.
+             * @param encoding The encoding version used to encode the data to be unmarshaled.
+             * @param buffer The encoded data.
              */
             constructor(communicator: Communicator, encoding: EncodingVersion, buffer: Uint8Array);
 

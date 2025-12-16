@@ -3,69 +3,67 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * A property set used to configure Ice applications. Properties are key/value pairs, with both keys and
-         * values being strings.
+         * Represents a set of properties used to configure Ice and Ice-based applications. A property is a key/value
+         * pair, where both the key and the value are strings. By convention, property keys should have the form
+         * `application-name[.category[.sub-category]].name`.
          */
         class Properties {
             /**
-             * Initializes a new instance of the Properties class. The property set is initialized from the provided
-             * argument vector.
+             * Constructs a property set.
              *
-             * @param args A command-line argument vector, possibly containing options to set properties. This method
-             * modifies the argument vector by removing any Ice-related options.
-             * @param defaults Default values for the property set. Settings in args override these defaults. May be null.
+             * @param args  The command-line arguments. This constructor parses arguments starting with `--` and one
+             * of the reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the vector.
+             * @param defaults Default values for the new Properties object. Settings in args override these defaults.
+             * May be null.
              */
             constructor(args?: string[], defaults?: Properties);
 
             /**
-             * Get a property by key. If the property is not set, an empty string is returned.
+             * Gets a property by key.
              *
              * @param key The property key.
-             * @returns The property value.
-             *
+             * @returns The property value, or the empty string if the property is not set.
              * @see {@link setProperty}
              */
             getProperty(key: string): string;
 
             /**
-             * Get an Ice property by key. If the property is not set, its default value is returned.
+             * Gets an Ice property by key.
              *
              * @param key - The property key.
-             * @returns The property value.
-             * @throws {@link PropertyException} - Thrown if the property is not a known Ice property.
-             *
+             * @returns The property value, or the default value for this property if the property is not set.
+             * @throws {@link PropertyException} - Thrown when the property is not a known Ice property.
              * @see {@link setProperty}
              */
             getIceProperty(key: string): string;
 
             /**
-             * Get a property by key. If the property is not set, the given default value is returned.
+             * Gets a property by key.
              *
              * @param key - The property key.
-             * @param value The default value to use if the property is not set.
-             * @returns The property value or the default value.
-             *
+             * @param value The default value to return if the property is not set.
+             * @returns The property value or the default value if the property is not set.
              * @see {@link setProperty}
              */
             getPropertyWithDefault(key: string, value: string): string;
 
             /**
-             * Get a property as an integer. If the property is not set, 0 is returned.
+             * Gets a property as an integer.
              *
              * @param key - The property key.
-             * @returns The property value interpreted as an integer.
-             * @throws {@link PropertyException} - Thrown if the property value is not a valid integer.
+             * @returns The property value interpreted as an integer, or 0 if the property is not set.
+             * @throws {@link PropertyException} - Thrown when the property value is not a valid integer.
              *
              * @see {@link setProperty}
              */
             getPropertyAsInt(key: string): number;
 
             /**
-             * Get an Ice property as an integer. If the property is not set, its default value is returned.
+             * Gets an Ice property as an integer.
              *
              * @param key - The property key.
-             * @returns The property value interpreted as an integer.
-             * @throws {@link PropertyException} - Thrown if the property is not a known Ice property or the value is
+             * @returns The property value interpreted as an integer, or the default value if the property is not set.
+             * @throws {@link PropertyException} - Thrown when the property is not a known Ice property or the value is
              * not a valid integer.
              *
              * @see {@link setProperty}
@@ -73,37 +71,35 @@ declare module "@zeroc/ice" {
             getIcePropertyAsInt(key: string): number;
 
             /**
-             * Get a property as an integer. If the property is not set, the given default value is returned.
+             * Gets a property as an integer.
              *
              * @param key The property key.
-             * @param defaultValue The default value to use if the property does not exist.
-             * @returns The property value interpreted as an integer, or the default value.
-             * @throws {@link PropertyException} - Thrown if the property value is not a valid integer.
-             *
+             * @param value The default value to return if the property does not exist.
+             * @returns The property value interpreted as an integer, or the default value if the property is not set.
+             * @throws {@link PropertyException} - Thrown when the property value is not a valid integer.
              * @see {@link setProperty}
              */
-            getPropertyAsIntWithDefault(key: string, defaultValue: number): number;
+            getPropertyAsIntWithDefault(key: string, value: number): number;
 
             /**
-             * Retrieves a property value as a list of strings. The strings must be separated by whitespace or commas.
-             * If the property is not set, an empty list is returned. The strings in the list can contain whitespace
-             * and commas if they are enclosed in single or double quotes. If quotes are mismatched, an empty list is
-             * returned. Within single or double quotes, the respective quote character can be escaped with a backslash.
-             * For example, O'Reilly can be written as O'Reilly, "O'Reilly", or 'O\'Reilly'.
+             * Gets a property as a list of strings. The strings must be separated by whitespace or comma. The strings
+             * in the list can contain whitespace and commas if they are enclosed in single or double quotes. If quotes
+             * are mismatched, an empty list is returned. Within single quotes or double quotes, you can escape the
+             * quote in question with a backslash, e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
              *
              * @param key - The property key.
-             * @returns The property value interpreted as a list of strings.
-             *
+             * @returns The property value interpreted as a list of strings, or an empty list if the property is not
+             * set.
              * @see {@link setProperty}
              */
             getPropertyAsList(key: string): StringSeq;
 
             /**
-             * Retrieves an Ice property value as a list of strings. The strings must be separated by whitespace or
-             * commas. If the property is not set, an empty list is returned. The strings in the list can contain
-             * whitespace and commas if they are enclosed in single or double quotes. If quotes are mismatched, an
-             * empty list is returned. Within single or double quotes, the respective quote character can be escaped
-             * with a backslash. For example, O'Reilly can be written as O'Reilly, "O'Reilly", or 'O\'Reilly'.
+             * Gets an Ice property as a list of strings. The strings must be separated by whitespace or comma. The
+             * strings in the list can contain whitespace and commas if they are enclosed in single or double quotes.
+             * If quotes are mismatched, the default list is returned.  Within single quotes or double quotes, you can
+             * escape the quote in question with a backslash, e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or
+             * 'O\'Reilly'.
              *
              * @param key - The property key.
              * @returns The property value interpreted as a list of strings.
@@ -123,57 +119,54 @@ declare module "@zeroc/ice" {
              * @param key - The property key.
              * @param value - The default value to use if the property is not set.
              * @returns The property value interpreted as a list of strings.
-             *
              * @see {@link setProperty}
              */
             getPropertyAsListWithDefault(key: string, value: StringSeq): StringSeq;
 
             /**
-             * Retrieves all properties whose keys begin with the specified `prefix`. If `prefix` is an empty string,
-             * all properties are returned.
+             * Gets all properties whose keys begin with `prefix`. If `prefix` is the empty string, then all properties
+             * are returned.
              *
-             * @param prefix - The prefix to search for, or an empty string to retrieve all properties.
-             * @returns A dictionary containing the matching properties.
+             * @param prefix - The prefix to search for.
+             * @returns The matching property set.
              */
             getPropertiesForPrefix(prefix: string): PropertyDict;
 
             /**
-             * Sets a property with the specified key and value. To unset a property, set its value to an empty string.
+             * Sets a property. To unset a property, set it to the empty string.
              *
              * @param key - The property key.
              * @param value - The property value.
-             *
              * @see {@link getProperty}
              */
             setProperty(key: string, value: string): void;
 
             /**
-             * Retrieves a sequence of command-line options that is equivalent to this property set.
-             * Each element of the returned sequence is a command-line option in the form `--<key>=<value>`.
+             * Gets a sequence of command-line options that is equivalent to this property set. Each element of the
+             * returned sequence is a command-line option of the form `--key=value`.
              *
              * @returns A sequence of command-line options representing this property set.
              */
             getCommandLineOptions(): StringSeq;
 
             /**
-             * Converts a sequence of command-line options into properties. All options that begin with `--<prefix>.`
-             * are converted into properties. If the prefix is empty, all options that begin with `--` are converted
-             * to properties.
+             * Converts a sequence of command-line options into properties. All options that start with `--prefix.` are
+             * converted into properties. If the prefix is empty, all options that begin with `--` are converted to
+             * properties.
              *
-             * @param prefix - The property prefix, or an empty string to convert all options starting with `--`.
-             * @param options - The command-line options to be converted.
+             * @param prefix - The property prefix, or the empty string to convert all options starting with `--`.
+             * @param options - The command-line options.
              * @returns The command-line options that do not start with the specified prefix, in their original order.
              */
             parseCommandLineOptions(prefix: string, options: StringSeq): StringSeq;
 
             /**
-             * Converts a sequence of command-line options into properties. All options that begin with one of the
-             * following prefixes are converted into properties: `--Ice`, `--IceBox`, `--IceGrid`, `--IceSSL`,
-             * `--IceStorm`, and `--Glacier2`.
+             * Converts a sequence of command-line options into properties. All options that start with one of the
+             * reserved Ice prefixes (`--Ice`, `--IceSSL`, etc.) are converted into properties.
              *
-             * @param options - The command-line options to be converted.
-             * @returns The command-line options that do not start with one of the listed prefixes, in their original
-             *          order.
+             * @param options - The command-line options.
+             * @returns The command-line options that do not start with one of the reserved prefixes, in their original
+             * order.
              */
             parseIceCommandLineOptions(options: StringSeq): StringSeq;
 
