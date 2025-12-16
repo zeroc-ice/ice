@@ -5,11 +5,11 @@ declare module "@zeroc/ice" {
         /**
          * An object adapter is the main server-side Ice API. It has two main purposes:
          *
-         * - dispatch requests received over outgoing connections and,
-         * - maintain a dispatch pipeline and servants that handle the requests (see #add, #addDefaultServant,
-         * and #use).
+         * - dispatch requests received over outgoing connections associated with this object adapter, and
+         * - maintain a dispatch pipeline and servants that handle the requests (see {@link ObjectAdapter#add},
+         *   {@link ObjectAdapter#addDefaultServant}, and {@link ObjectAdapter#use}).
          *
-         * @see {@link Communicator::createObjectAdapter}
+         * @see {@link Communicator#createObjectAdapter}
          */
         interface ObjectAdapter {
             /**
