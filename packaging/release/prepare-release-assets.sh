@@ -9,7 +9,6 @@ for dir in "${STAGING_DIR}"/deb-packages-*; do
   name=$(basename "$dir")
   mkdir -p "$name"
   cp -v "$dir"/* "$name/"
-  zip -r "${name}.zip" "$name"
   tar -czvf "${name}.tar.gz" "$name"
   rm -rf "$name"
 done
@@ -28,9 +27,6 @@ cp -v "${STAGING_DIR}/gem-packages"/*.gem .
 # Include XCFramework ZIP archives.
 cp -v "${STAGING_DIR}/xcframework-packages"/*.zip .
 
-# Include Homebrew bottle archives.
-cp -v "${STAGING_DIR}/homebrew-bottle"/*.tar.gz .
-
 # Include MATLAB toolbox packages (.mltbx).
 cp -v "${STAGING_DIR}"/matlab-packages-*/*.mltbx .
 
@@ -38,11 +34,9 @@ cp -v "${STAGING_DIR}"/matlab-packages-*/*.mltbx .
 cp -v "${STAGING_DIR}/windows-msi"/*.msi .
 
 # Create Java package archives (.zip and .tar.gz) with all Java artifacts.
-mkdir -p java-packages/lib
-cp -v "${STAGING_DIR}/java-packages/lib"/* java-packages/lib/
-
-mkdir -p java-packages/tools
-cp -vr "${STAGING_DIR}/java-packages/tools/slice-tools/build/libs/." java-packages/tools/
+mkdir -p java-packages/{lib,tools}
+cp -v "${STAGING_DIR}/java-packages"/* java-packages/lib/
+cp -vr "${STAGING_DIR}/slice-tools-packages"/* java-packages/tools/
 
 zip -r java-packages.zip java-packages
 tar -czf java-packages.tar.gz java-packages
@@ -53,16 +47,20 @@ rm -rf java-packages
 cp -v "${STAGING_DIR}/js-npm-packages"/*.tgz .
 
 # Include Python wheels and PIP source distributions.
-cp -v "${STAGING_DIR}/pip-packages-windows-latest"/zeroc_ice-*.whl .
-cp -v "${STAGING_DIR}/pip-packages-macos-26"/zeroc_ice-*.whl .
-cp -v "${STAGING_DIR}/pip-packages-macos-26"/zeroc_ice-*.tar.gz .
+cp -v "${STAGING_DIR}/pip-packages-windows-2022-3.12"/zeroc_ice-*.whl .
+cp -v "${STAGING_DIR}/pip-packages-windows-2022-3.13"/zeroc_ice-*.whl .
+cp -v "${STAGING_DIR}/pip-packages-windows-2022-3.14"/zeroc_ice-*.whl .
+
+cp -v "${STAGING_DIR}/pip-packages-macos-26-3.12"/zeroc_ice-*.whl .
+cp -v "${STAGING_DIR}/pip-packages-macos-26-3.13"/zeroc_ice-*.whl .
+cp -v "${STAGING_DIR}/pip-packages-macos-26-3.14"/zeroc_ice-*.whl .
+cp -v "${STAGING_DIR}/pip-packages-macos-26-3.14"/zeroc_ice-*.tar.gz .
 
 # Create RPM package archives (.zip and .tar.gz) for each distribution/arch
 for dir in "${STAGING_DIR}"/rpm-packages-*; do
   name=$(basename "$dir")
   mkdir -p "$name"
   cp -rv "$dir"/* "$name/"
-  zip -r "${name}.zip" "$name"
   tar -czf "${name}.tar.gz" "$name"
   rm -rf "$name"
 done
