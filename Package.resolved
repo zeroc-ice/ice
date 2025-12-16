@@ -1,12 +1,11 @@
 {
-  "originHash" : "991b4c69989550881bb66f6d88344cf2546f3d7df8dae7b9b9c3dcc14e546c27",
+  "originHash" : "d72d2a44fcc9daf3ed2aab8de0c3f952fda0f9fd0c6706471e8248e54b16211a",
   "pins" : [
     {
       "identity" : "mcpp",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zeroc-ice/mcpp.git",
       "state" : {
-        "branch" : "master",
         "revision" : "4137e39e62bd22c232b470c9516669fc3d1a1353"
       }
     },
