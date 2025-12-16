@@ -26,6 +26,7 @@ jobs:
       matrix:
         include:
           - distribution: debian12
+          - distribution: debian13
           - distribution: ubuntu24.04
     env:
       DISTRIBUTION: ${{ matrix.distribution }}
