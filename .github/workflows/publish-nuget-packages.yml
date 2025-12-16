@@ -52,13 +52,9 @@ jobs:
               ;;
           esac
 
-          # Collect all packages. It's important to process ".nupkg" files before ".snupkg" files
-          # because NuGet.org doesn't allow publishing symbol packages before their corresponding
-          # packages.
-          mapfile -t nupkgs < <(find staging -type f -name "*.nupkg")
-          mapfile -t snupkgs < <(find staging -type f -name "*.snupkg")
-
-          packages=( "${nupkgs[@]}" "${snupkgs[@]}" )
+          # Collect all packages. The symbol package ".snupkg" files are published automatically with the main package
+          # no need to push them separately.
+          mapfile -t packages < <(find staging -type f -name "*.nupkg")
 
           # Push each package to the appropriate NuGet repository
           for package in "${packages[@]}"; do
