@@ -16,7 +16,7 @@
                 Guid="618E2B68-1829-478A-AB46-47D65887F351">
                 <Shortcut
                     Id="IceGridGUIShortcut"
-                    Name="IceGrid GUI $(Version) Preview"
+                    Name="IceGrid GUI $(Version)"
                         Target="[BinFolder]icegridgui.jar"
                         WorkingDirectory="BinFolder"
                         Icon="IceGridGUIIcon"
