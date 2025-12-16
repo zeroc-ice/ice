@@ -3,29 +3,29 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * A servant locator is called by an object adapter to locate a servant that is not found in its active servant map.
-         * @see {@link ObjectAdapter}
+         * An application-provided class that an object adapter uses to locate servants.
+         *
+         * @remarks Servant locators are provided for backward compatibility with earlier versions of Ice. You should
+         * consider using a default servant instead (see {@link ObjectAdapter#addDefaultServant}). For more advanced
+         * use cases, you can create a middleware (see {@link ObjectAdapter#use}).
          * @see {@link ObjectAdapter#addServantLocator}
-         * @see {@link ObjectAdapter#findServantLocator}
          */
         interface ServantLocator {
             /**
-             * Called before a request is dispatched if a servant cannot be found in the object adapter's active servant map.
-             * Note that the object adapter does not automatically insert the returned servant into its active servant map.
-             * This must be done by the servant locator implementation, if desired. The `locate` method can throw any
-             * user exception. If it does, that exception is marshaled back to the client. If the Slice definition for the
-             * corresponding operation includes that user exception, the client receives it; otherwise, the client receives
-             * an {@link UnknownUserException}.
+             * Asks this servant locator to find and return a servant.
              *
-             * If `locate` throws any exception, the Ice runtime does *not* call `finished`.
+             * @remarks The caller (the object adapter) does not insert the returned servant into its Active Servant
+             * Map.
              *
-             * @param current - Information about the current operation for which a servant is required.
-             * @returns [Object | null, object | null]
-             * An array where:
-             *  - [0]: The located servant, or `null` if no suitable servant has been found.
-             *  - [1]: The cookie that will be passed to `finished`.
-             * @throws {@link UserException} - The implementation can raise a `UserException`, and the runtime will marshal it as the
-             * result of the invocation.
+             * The implementation can throw any exception, including UserException. The Ice runtime marshals this
+             * exception in the response.
+             *
+             * @param current - Information about the incoming request being dispatched.
+             * @returns An array where:
+             *  - [0]: The located servant, or `null` if no suitable servant was found.
+             *  - [1]: A "cookie" that will be passed to {@link finished}.
+             * @throws {@link UserException} - The implementation can raise a `UserException`, and the runtime will
+             * marshal it as the result of the invocation.
              *
              * @see {@link ObjectAdapter}
              * @see {@link finished}
@@ -33,16 +33,14 @@ declare module "@zeroc/ice" {
             locate(current: Current): [Ice.Object | null, object | null];
 
             /**
-             * Called by the object adapter after a request has been processed. This operation is only invoked if
-             * `locate` was called before the request and returned a non-null servant. The `finished` method can be used
-             * for cleanup purposes after a request.
+             * Notifies this servant locator that the dispatch on the servant returned by {@link locate} is complete.
+             * The object adapter calls this function only when {@link locate} returns a non-null servant.
              *
-             * The `finished` method can throw any user exception. If it does, that exception is marshaled back to the client.
-             * If the Slice definition for the corresponding operation includes that user exception, the client receives it;
-             * otherwise, the client receives an {@link UnknownUserException}.
-             * If both the operation and `finished` throw exceptions, the exception thrown by `finished` is marshaled back to the client.
+             * @remarks The implementation can throw any exception, including {@link UserException}. The Ice runtime
+             * marshals this  exception in the response. If both the dispatch and `finished` throw an exception, the
+             * exception thrown by `finished` prevails and is marshaled back to the client.
              *
-             * @param current - Information about the current operation call for which a servant was located by `locate`.
+             * @param current - Information about the incoming request being dispatched.
              * @param servant - The servant that was returned by `locate`.
              * @param cookie - The cookie that was returned by `locate`.
              * @throws {@link UserException} - The implementation can raise a `UserException`, and the runtime will marshal it as the
@@ -54,9 +52,9 @@ declare module "@zeroc/ice" {
             finished(current: Current, servant: Ice.Object, cookie: object | null): void;
 
             /**
-             * Called when the object adapter in which this servant locator is installed is destroyed.
+             * Notifies this servant locator that the object adapter in which it's installed is being deactivated.
              *
-             * @param category - The category for which the servant locator is being deactivated.
+             * @param category - The category with which this servant locator was registered.
              *
              * @see {@link ObjectAdapter#destroy}
              */
