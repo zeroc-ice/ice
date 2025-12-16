@@ -33,7 +33,7 @@ let package = Package(
         .plugin(name: "CompileSlice", targets: ["CompileSlice"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/zeroc-ice/mcpp.git", .upToNextMinor(from: "2.7.3")),
+        .package(url: "https://github.com/zeroc-ice/mcpp.git", revision: "4137e39e62bd22c232b470c9516669fc3d1a1353"),
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.3"),
     ],
     targets: [
