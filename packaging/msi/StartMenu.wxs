@@ -12,7 +12,7 @@
         <ComponentGroup Id="StartMenuComponents">
             <Component
                 Id="IceStartMenuShortcuts"
-                Directory="IceStartMenu"
+                Directory="ProgramMenuFolder"
                 Guid="618E2B68-1829-478A-AB46-47D65887F351">
                 <Shortcut
                     Id="IceGridGUIShortcut"
@@ -22,7 +22,6 @@
                         Icon="IceGridGUIIcon"
                         Advertise="no"/>
                 <RegistryValue Root="HKCU" Key="ZeroC\Ice-Services-$(Version)\Installed" Value="1" Type="string" KeyPath="yes" />
-                <RemoveFolder Id="IceStartMenu" On="uninstall"/>
             </Component>
         </ComponentGroup>
     </Fragment>
