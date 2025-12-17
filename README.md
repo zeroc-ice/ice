@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/zeroc-ice/ice/3.8/.github/assets/ice-banner.svg" height="150" width="150" />
 </p>
 
-[![Join the chat at https://gitter.im/zeroc-ice/ice](https://badges.gitter.im/zeroc-ice/ice.svg)][gitter]
+[![CI](https://github.com/zeroc-ice/ice/actions/workflows/ci.yml/badge.svg?query=branch%3A3.8)][ci-home]
 [![GPLv2](https://img.shields.io/github/license/zeroc-ice/ice?color=red)][license]
 [![Static Badge](https://img.shields.io/badge/license-Commercial-blue)][Commercial]
 
@@ -110,13 +110,13 @@ the associated license agreement; the GPLv2 terms and conditions do not apply.
 The Ice software itself remains the same: the only difference between an open-source Ice and a commercial Ice are the
 license terms.
 
+[ci-home]: https://github.com/zeroc-ice/ice/actions/workflows/ci.yml?query=branch%3A3.8
 [Commercial]: https://zeroc.com/ice/pricing
 [copyleft]: https://en.wikipedia.org/wiki/Copyleft
 [datastorm]: https://docs.zeroc.com/ice/3.8/cpp/datastorm
 [docs]: https://docs.zeroc.com/ice/3.8
 [downloads]: https://zeroc.com/ice/downloads/3.8
 [examples]: https://github.com/zeroc-ice/ice-demos
-[gitter]: https://gitter.im/zeroc-ice/ice?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 [glacier2]: https://docs.zeroc.com/ice/3.8/cpp/glacier2
 [ice-repo]: https://github.com/zeroc-ice/ice
 [icegrid]: https://docs.zeroc.com/ice/3.8/cpp/icegrid
