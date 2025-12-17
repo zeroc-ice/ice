@@ -26,9 +26,6 @@ public protocol ServantLocator: Sendable {
     /// Notifies this servant locator that the dispatch on the servant returned by ``locate`` is complete.
     /// The object adapter calls this method only when ``locate`` returns a non-nil servant.
     ///
-    /// - Remark: The implementation can throw any exception, including ``UserException``.
-    ///   The Ice runtime will marshal this exception in the response. 
-    ///
     /// - Parameters:
     ///   - curr: Information about the incoming request for which a servant was located.
     ///   - servant: The servant that was returned by ``locate``.
