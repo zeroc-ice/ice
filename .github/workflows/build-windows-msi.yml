@@ -33,7 +33,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-nuget-packages --dir cpp/msbuild/ZeroC.Ice.Cpp
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-binaries --dir cpp/bin/x64/Release
           gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name icegridgui-jar --dir java/lib
 
       # MSI packaging depends on VCInstallDir to locate The C++ merge modules

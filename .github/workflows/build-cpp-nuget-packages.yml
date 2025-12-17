@@ -61,3 +61,10 @@ jobs:
           name: windows-cpp-nuget-packages
           path: |
             cpp/msbuild/ZeroC.Ice.Cpp/*.nupkg
+
+      - name: Upload C++ Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-cpp-binaries
+          path: |
+            cpp/bin/x64/Release/
