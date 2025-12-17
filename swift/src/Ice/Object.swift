@@ -2,36 +2,36 @@
 
 import IceImpl
 
-/// A SliceTraits struct describes a Slice interface.
+/// Implementations of SliceTraits describe a Slice interface.
 public protocol SliceTraits {
-    /// List of all type-ids.
+    /// List of all an interface's type-ids.
     static var staticIds: [String] { get }
 
-    /// Most derived type-id.
+    /// The interface's most derived type-id.
     static var staticId: String { get }
 }
 
-/// The common interface implemented by all Ice objects.
-// Note that it does not inherit from Dispatcher on purpose.
+/// The base protocol for servants.
 public protocol Object {
-    /// Returns the Slice type ID of the most-derived interface supported by this object.
+    /// Returns the type ID of the most-derived Slice interface supported by this object.
     ///
     /// - Parameter current: The Current object for the dispatch.
     /// - Returns: The Slice type ID of the most-derived interface.
     func ice_id(current: Current) async throws -> String
 
-    /// Returns the Slice type IDs of the interfaces supported by this object.
+    /// Returns the Slice interfaces supported by this object as a list of type IDs.
     ///
     /// - Parameter current: The Current object for the dispatch.
-    /// - Returns: `[String]` The Slice type IDs of the interfaces supported by this object, in alphabetical order.
+    /// - Returns: The Slice type IDs of the interfaces supported by this object, in alphabetical order.
     func ice_ids(current: Current) async throws -> [String]
 
     /// Tests whether this object supports a specific Slice interface.
+    ///
     /// - Parameters:
     ///   - id: The type ID of the Slice interface to test against.
     ///   - current: The Current object for the dispatch.
-    /// - Returns: True if this object has the interface specified by s or
-    ///   derives from the interface specified by s.
+    /// - Returns: `true` if this object implements the Slice interface specified by `id` or implements a derived
+    ///   interface, `false` otherwise.
     func ice_isA(id: String, current: Current) async throws -> Bool
 
     /// Tests whether this object can be reached.
@@ -83,8 +83,8 @@ public struct ObjectTraits: SliceTraits {
     public static let staticId = "::Ice::Object"
 }
 
-/// DefaultObject provides the default implementation of Object operations (ice_id,
-/// ice_ping etc.) for a given Slice interface.
+/// `DefaultObject` provides a default implementation of the 4 ``Object`` operations
+/// (`ice_id`, `ice_ids`, `ice_isA`, `ice_ping`) for a given Slice interface.
 public struct DefaultObject<T: SliceTraits>: Object {
     public init() {}
 

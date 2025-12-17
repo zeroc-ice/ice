@@ -2,7 +2,7 @@
 
 /// Holds class slices that cannot be unmarshaled because their types are not known locally.
 public final class SlicedData {
-    /// The details of each slice, in order of most-derived to least-derived.
+    /// The slices of the unknown class, in order of most-derived to least-derived.
     public private(set) var slices: [SliceInfo]
 
     init(slices: [SliceInfo]) {

@@ -1,13 +1,15 @@
 // Copyright (c) ZeroC, Inc.
 
-/// Base class for Ice user exceptions. User exceptions are marked as "@unchecked Sendable" as the error
-/// protocol requires them to be Sendable. However, the generated exception classes are not thread safe, and users
-/// should not share instances of user exceptions between threads.
+/// Abstract base class for all exceptions defined in Slice.
+///
+/// User exceptions are marked as `@unchecked Sendable` as the error protocol requires them to be `Sendable`.
+/// However, generated exception classes are not thread-safe; do not share instances between threads.
 open class UserException: Exception, @unchecked Sendable {
     public required init() {}
 
-    /// Gets the type ID of the class.
-    /// - Returns: The type ID of the class.
+    /// Returns the Slice type ID of this user exception.
+    ///
+    /// - Returns: The return value is always `"::Ice::UserException"`.
     open class func ice_staticId() -> String { "::Ice::UserException" }
 
     open func _iceReadImpl(from _: InputStream) throws {}
@@ -29,7 +31,8 @@ open class UserException: Exception, @unchecked Sendable {
 }
 
 extension UserException {
-    /// Gets the type ID of this Ice user exception.
-    /// - Returns: The type ID of this Ice user exception.
+    /// Returns the Slice type ID of this user exception.
+    ///
+    /// - Returns: The Slice type ID.
     public func ice_id() -> String { type(of: self).ice_staticId() }
 }
