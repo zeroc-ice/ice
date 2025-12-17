@@ -1,4 +1,4 @@
-name: "Build Windows Packages"
+name: "Build C++ NuGet Packages"
 
 on:
   workflow_call:
@@ -13,7 +13,7 @@ on:
         required: false
 
 jobs:
-  build-cpp-nuget-package:
+  build-cpp-nuget-packages:
     runs-on: windows-2022
     steps:
       - name: Checkout repository
@@ -54,49 +54,6 @@ jobs:
       - name: Build C++ NuGet Packages
         run: msbuild /m ice.proj /t:Pack /p:BuildAllConfigurations=yes
         working-directory: cpp/msbuild
-
-      - name: Build IceGrid GUI
-        run: |
-          nuget restore ..\cpp\msbuild\ice.slnx
-          MSBuild ..\cpp\msbuild\ice.slnx /t:"slice2java;ice2slice" /p:Configuration=Release /p:Platform=x64
-          ./gradlew.bat dist -PcppPlatform=x64 -PcppConfiguration=Release
-        working-directory: java
-
-      # MSI packaging depends on VCInstallDir to locate The C++ merge modules
-      - name: Add VCInstallDir to Environment
-        run: |
-          $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
-          echo "VCInstallDir=$vsPath\VC" | Out-File -FilePath $env:GITHUB_ENV -Append
-        shell: powershell
-
-      - name: Build MSI
-        run: dotnet build -c Release -p:Platform=x64
-        working-directory: packaging/msi
-        env:
-          StagingDir: "${{ github.workspace }}\\staging"
-
-      - name: Sign MSI installer with Trusted Signing
-        uses: azure/trusted-signing-action@v0
-        with:
-          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          endpoint: https://eus.codesigning.azure.net/
-          trusted-signing-account-name: zeroc
-          certificate-profile-name: zeroc-ice
-          files-folder: ./packaging/msi/bin/x64/Release/
-          files-folder-filter: msi
-          file-digest: SHA256
-          timestamp-rfc3161: http://timestamp.acs.microsoft.com
-          timestamp-digest: SHA256
-
-      # Upload artifacts
-      - name: Upload MSI
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-msi
-          path: |
-            packaging/msi/bin/x64/Release/*.msi
 
       - name: Upload NuGet Packages
         uses: actions/upload-artifact@v4
