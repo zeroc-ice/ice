@@ -1,0 +1,72 @@
+name: "Build Windows MSI"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+
+jobs:
+  build-windows-msi:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Download Artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-binaries --dir cpp/bin/x64/Release
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name icegridgui-jar --dir java/lib
+
+      # MSI packaging depends on VCInstallDir to locate The C++ merge modules
+      - name: Add VCInstallDir to Environment
+        run: |
+          $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+          echo "VCInstallDir=$vsPath\VC" | Out-File -FilePath $env:GITHUB_ENV -Append
+        shell: powershell
+
+      - name: Build MSI
+        run: dotnet build -c Release -p:Platform=x64
+        working-directory: packaging/msi
+        env:
+          StagingDir: "${{ github.workspace }}\\staging"
+
+      - name: Sign MSI installer with Trusted Signing
+        uses: azure/trusted-signing-action@v0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          trusted-signing-account-name: zeroc
+          certificate-profile-name: zeroc-ice
+          files-folder: ./packaging/msi/bin/x64/Release/
+          files-folder-filter: msi
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Upload MSI
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msi
+          path: |
+            packaging/msi/bin/x64/Release/*.msi
