@@ -6,11 +6,18 @@ on:
       ice_version:
         required: false
         type: string
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       ice_version:
         description: "The Ice version to build"
         required: false
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
 
 jobs:
   build-cpp-nuget-packages:
@@ -22,28 +29,14 @@ jobs:
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
-      - name: Setup Java
-        uses: ./.github/actions/setup-java
-
-      - name: Build C++ Binaries
-        run: msbuild /m ice.proj /t:BuildDist /p:BuildAllConfigurations=yes
-        working-directory: cpp/msbuild
-
-      - name: Sign C++ Binaries with Trusted Signing
-        uses: azure/trusted-signing-action@v0
-        with:
-          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          endpoint: https://eus.codesigning.azure.net/
-          trusted-signing-account-name: zeroc
-          certificate-profile-name: zeroc-ice
-          files-folder: ./cpp/bin
-          files-folder-recurse: true
-          files-folder-filter: exe,dll
-          file-digest: SHA256
-          timestamp-rfc3161: http://timestamp.acs.microsoft.com
-          timestamp-digest: SHA256
+      - name: Download C++ Binaries
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-x64-Release-build --dir cpp
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-x64-Debug-build --dir cpp
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-Win32-Release-build --dir cpp
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-Win32-Debug-build --dir cpp
 
       - name: Ice Package Version
         if: ${{ inputs.ice_version != '' }}
@@ -61,10 +54,3 @@ jobs:
           name: windows-cpp-nuget-packages
           path: |
             cpp/msbuild/ZeroC.Ice.Cpp/*.nupkg
-
-      - name: Upload C++ Binaries
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-cpp-binaries
-          path: |
-            cpp/bin/x64/Release/

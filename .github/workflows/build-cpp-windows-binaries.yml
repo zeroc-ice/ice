@@ -1,0 +1,65 @@
+name: "Build C++ Windows Binaries"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+
+jobs:
+  build-cpp-windows-binaries:
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        include:
+          - platform: x64
+            configuration: Release
+          - platform: x64
+            configuration: Debug
+          - platform: Win32
+            configuration: Release
+          - platform: Win32
+            configuration: Debug
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Build C++ Binaries
+        run: |
+          msbuild /m ice.proj /t:BuildDist /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }}
+        working-directory: cpp/msbuild
+
+      - name: Sign C++ Binaries with Trusted Signing
+        uses: azure/trusted-signing-action@v0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          trusted-signing-account-name: zeroc
+          certificate-profile-name: zeroc-ice
+          files-folder: ./cpp/bin/${{ matrix.platform }}/${{ matrix.configuration }}
+          files-folder-filter: exe,dll
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Upload C++ Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-cpp-${{ matrix.platform }}-${{ matrix.configuration }}-build
+          path: |
+            cpp/bin/${{ matrix.platform }}/${{ matrix.configuration }}/
+            cpp/lib/${{ matrix.platform }}/${{ matrix.configuration }}/
+            cpp/include/generated/${{ matrix.platform }}/${{ matrix.configuration }}/
+            cpp/src/**/msbuild/**/${{ matrix.platform }}/${{ matrix.configuration }}/*.cpp
+            cpp/src/**/msbuild/**/${{ matrix.platform }}/${{ matrix.configuration }}/*.h
