@@ -10,9 +10,7 @@
                 <Directory Id="ConfigFolder" Name="config" />
             </Directory>
         </StandardDirectory>
-        <StandardDirectory Id="ProgramMenuFolder">
-            <Directory Id="IceStartMenu" Name="Ice $(Version)" />
-        </StandardDirectory>
+        <StandardDirectory Id="ProgramMenuFolder" />
 
         <Component Id="AddToPath" Guid="361FB9AF-3452-45F8-93E9-AAA1E97CB1AA" Condition="ADD_TO_PATH = 1">
             <Environment
