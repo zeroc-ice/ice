@@ -8,7 +8,7 @@ import Foundation
 /// The property `Ice.ImplicitContext` controls if your communicator has an associated implicit context,
 /// and when it does, whether this implicit context is per-thread or shared by all threads:
 /// - `None`: No implicit context at all.
-/// - `Thread`: The implementation maintains a context per thread.
+/// - `PerThread`: The implementation maintains a context per thread.
 /// - `Shared`: The implementation maintains a single context shared by all threads.
 public protocol ImplicitContext: AnyObject {
     /// Gets a copy of the request context maintained by this object.
@@ -31,7 +31,7 @@ public protocol ImplicitContext: AnyObject {
     ///
     /// - Parameter key: The key.
     /// - Returns: The value associated with the key, or the empty string if no value is associated with the key.
-    ///   ``containsKey`` allows you to distinguish between an empty-string value and no value at all.
+    ///   ``containsKey(_:)`` allows you to distinguish between an empty-string value and no value at all.
     func get(_ key: String) -> String
 
     /// Creates or updates a key/value entry in the request context.

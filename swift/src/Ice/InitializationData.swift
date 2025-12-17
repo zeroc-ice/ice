@@ -3,7 +3,7 @@
 /// Represents a set of options that you can specify when initializing a communicator.
 public struct InitializationData {
     /// The properties for the communicator.
-    /// When non-nil, this corresponds to the object returned by ``Communicator/getProperties``.
+    /// When non-nil, this corresponds to the object returned by ``Communicator/getProperties()``.
     public var properties: Properties?
 
     /// The logger for the communicator.

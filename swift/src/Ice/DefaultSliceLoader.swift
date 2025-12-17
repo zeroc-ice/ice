@@ -40,7 +40,7 @@ public final class DefaultSliceLoader: NSObject, SliceLoader {
         }
     }
 
-    /// Finds a generated class or exception dynamically, using a `resolveTypeId<prefix>_xxx`` extension method.
+    /// Finds a generated class or exception dynamically, using a `resolveTypeId<prefix>_xxx` extension method.
     private static func resolve(typeId: String, prefix: String) -> AnyObject.Type? {
         return autoreleasepool {
             // Regular type IDs start with "::", while compact IDs don't.

@@ -9,7 +9,7 @@ import IceImpl
 ///   empty string.
 public typealias PropertiesAdminUpdateCallback = (PropertyDict) -> Void
 
-/// Closure used to remove the a ``PropertiesAdminUpdateCallback``.
+/// Closure used to remove a ``PropertiesAdminUpdateCallback``.
 public typealias PropertiesAdminRemoveCallback = () -> Void
 
 /// The default implementation of the "Properties" admin facet.

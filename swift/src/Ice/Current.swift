@@ -14,7 +14,7 @@ public struct Current: Sendable {
     public let facet: String
     /// The name of the operation.
     public let operation: String
-    /// The mode of the operation (see ``Ice.checkNonIdempotent``).
+    /// The mode of the operation (see ``Current/checkNonIdempotent()``).
     public let mode: OperationMode
     /// The request context.
     public var ctx: Context

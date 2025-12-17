@@ -65,7 +65,7 @@ extension OutputStream {
 /// Represents a collection of HTTP headers.
 public typealias HeaderDict = [String: String]
 
-/// The callback function given to ``Connection.setCloseCallback``.
+/// The callback function given to ``Connection/setCloseCallback(_:)``.
 /// This callback is called by the connection when the connection is closed.
 ///
 /// - Parameter _: The connection that was closed. It's never `nil`.
@@ -115,7 +115,7 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
 
     /// Sets a close callback on the connection. The callback is called by the connection when it's closed. The
     /// callback is called from the Ice thread pool associated with the connection.
-    /// If the callback needs more information about the closure, it can call ``throwException``.
+    /// If the callback needs more information about the closure, it can call ``throwException()``.
     ///
     /// - Parameter callback: The close callback object.
     func setCloseCallback(_ callback: CloseCallback?) throws
@@ -148,7 +148,7 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
 
     /// Throws an exception that provides the reason for the closure of this connection. For example,
     /// this method throws ``CloseConnectionException`` when the connection was closed gracefully by the peer;
-    /// it throws ``ConnectionAbortedException`` when the connection is aborted with ``abort``.
+    /// it throws ``ConnectionAbortedException`` when the connection is aborted with ``abort()``.
     /// This method does nothing if the connection is not yet closed.
     func throwException() throws
 }
