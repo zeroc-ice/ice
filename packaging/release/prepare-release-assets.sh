@@ -57,7 +57,7 @@ cp -v "${STAGING_DIR}/pip-packages-macos-26-3.14"/zeroc_ice-*.whl .
 cp -v "${STAGING_DIR}/pip-packages-macos-26-3.14"/zeroc_ice-*.tar.gz .
 
 # IceGridGUI JAR package
-cp -v "${STAGING_DIR}/icegridgui-jar"/icegridgui-*.jar .
+cp -v "${STAGING_DIR}/icegridgui-jar/icegridgui.jar" .
 
 # Create RPM package archives (.zip and .tar.gz) for each distribution/arch
 for dir in "${STAGING_DIR}"/rpm-packages-*; do
