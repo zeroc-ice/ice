@@ -159,12 +159,32 @@ jobs:
       ice_version: ${{ needs.set-version.outputs.rpm_version }}
     secrets: inherit
 
-  build-windows-packages:
-    name: Build C++ NuGet Package
-    uses: ./.github/workflows/build-windows-packages.yml
+  build-cpp-nuget-packages:
+    name: Build C++ NuGet Packages
+    uses: ./.github/workflows/build-cpp-nuget-packages.yml
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
+    secrets: inherit
+
+  build-icegridgui-jar:
+    name: Build IceGrid GUI JAR
+    uses: ./.github/workflows/build-icegridgui-jar.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.semver_version }}
+    secrets: inherit
+
+  build-windows-msi:
+    name: Build Windows MSI
+    uses: ./.github/workflows/build-windows-msi.yml
+    needs:
+      - set-version
+      - build-cpp-nuget-packages
+      - build-icegridgui-jar
+    with:
+      ice_version: ${{ needs.set-version.outputs.semver_version }}
+      run_id: ${{ github.run_id }}
     secrets: inherit
 
   build-xcframework-packages:
@@ -189,7 +209,7 @@ jobs:
       - build-npm-packages
       - build-pip-packages
       - build-rpm-packages
-      - build-windows-packages
+      - build-windows-msi
       - build-xcframework-packages
     uses: ./.github/workflows/prune-nightly-artifacts.yml
     secrets: inherit
