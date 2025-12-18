@@ -2,13 +2,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../msbuild/ice.common.props" />
   <PropertyGroup>
+    <AssemblyName>IceBox</AssemblyName>
+    <Description>Client library for the IceBox service</Description>
+    <AssemblyTitle>$(Description)</AssemblyTitle>
     <TargetFramework>net8.0</TargetFramework>
     <!-- Packaging properties -->
     <PackageId>ZeroC.IceBox</PackageId>
-    <PackageTags>Ice</PackageTags>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
-    <PackageIcon>logo-128x128.png</PackageIcon>
+    <PackageTags>ice;icebox;rpc</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <SliceCompile Include="../../../slice/IceBox/*.ice" />
