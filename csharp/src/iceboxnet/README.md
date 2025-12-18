@@ -12,7 +12,7 @@ that can be dynamically loaded through configuration.
 To install **iceboxnet** as a .NET tool in the current project, run:
 
 ```shell
-dotnet tool install iceboxnet --prerelease --create-manifest-if-needed
+dotnet tool install iceboxnet --create-manifest-if-needed
 ```
 
 See the [dotnet tool install] documentation for additional install options.
