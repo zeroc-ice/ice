@@ -24,7 +24,7 @@ public class LocalException: Exception, CustomStringConvertible, @unchecked Send
         self.line = line
     }
 
-    /// Returns a type ID for this exception based on its fully scoped name.
+    /// Returns a type ID for this exception based on its fully qualified name.
     ///
     /// - Returns: The type ID of this exception.
     public func ice_id() -> String {
