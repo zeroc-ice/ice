@@ -69,9 +69,6 @@ for dir in "${STAGING_DIR}"/rpm-packages-*; do
 done
 
 # Create Windows symbols and sources archive (.zip)
-for dir in "${STAGING_DIR}"/windows-symbols-sources-*; do
-  name=$(basename "$dir")
-  zip -r "${name}.zip" "$dir"
-done
+zip -r "windows-symbols-sources.zip" "${STAGING_DIR}/windows-symbols-sources"
 
 popd

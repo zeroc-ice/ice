@@ -70,13 +70,13 @@ jobs:
       - name: Create Symbols Store
         run: |
           symstore add /3 /r /t "Ice for C++" `
-            /v ${{ inputs.ice_version }} `
-            /s ${{ github.workspace }}/symbols-sources/${{ inputs.ice_version }}/symbols `
-            /f ${{ github.workspace }}/symbols-sources/${{ inputs.ice_version }}/pdbs/*.pdb `
+            /v "${{ inputs.ice_version }}" `
+            /s "${{ github.workspace }}/symbols-sources/${{ inputs.ice_version }}/symbols" `
+            /f "${{ github.workspace }}/symbols-sources/${{ inputs.ice_version }}/pdbs/" `
             /compress
 
       - name: Upload Symbols and Sources
         uses: actions/upload-artifact@v4
         with:
-          name: windows-symbols-sources-${{ inputs.ice_version }}
+          name: windows-symbols-sources
           path: ${{ github.workspace }}/symbols-sources/
