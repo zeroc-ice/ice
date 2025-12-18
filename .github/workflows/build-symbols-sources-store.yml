@@ -52,9 +52,9 @@ jobs:
         id: source-url
         run: |
           if ("${{ inputs.channel }}" -eq "nightly") {
-            $url = "https://download.zeroc.com/ice/nightly/sources/${{ inputs.ice_version }}/"
+            $url = "https://download.zeroc.com/ice/nightly/sources/"
           } else {
-            $url = "https://symbols.zeroc.com/sources/ice/${{ inputs.ice_version }}/"
+            $url = "https://symbols.zeroc.com/sources/ice/"
           }
           echo "source_base_url=$url" >> $env:GITHUB_OUTPUT
         shell: pwsh

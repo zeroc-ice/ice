@@ -71,7 +71,7 @@ done
 # Create Windows symbols and sources archive (.zip)
 for dir in "${STAGING_DIR}"/windows-symbols-sources-*; do
   name=$(basename "$dir")
-  zip -r "${name}.zip" -j "$dir"
+  zip -r "${name}.zip" "$dir"
 done
 
 popd

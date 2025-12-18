@@ -17,15 +17,8 @@ jobs:
     runs-on: windows-2022
     strategy:
       matrix:
-        include:
-          - platform: x64
-            configuration: Release
-          - platform: x64
-            configuration: Debug
-          - platform: Win32
-            configuration: Release
-          - platform: Win32
-            configuration: Debug
+        platform: [x64, Win32]
+        configuration: [Release, Debug]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -66,6 +59,8 @@ jobs:
 
       - name: Upload C++ Slice Tools
         uses: actions/upload-artifact@v4
+        # We only need to upload the Slice Tools once (Release x64 build) which are included in the Nuget packages
+        if: ${{ matrix.configuration == 'Release' && matrix.platform == 'x64' }}
         with:
           name: windows-cpp-${{ matrix.platform }}-${{ matrix.configuration }}-slice-tools
           path: |
