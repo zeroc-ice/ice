@@ -1,11 +1,31 @@
 #!/usr/bin/env python3
 """
-Script to index source files from PDB files in Ice C++ builds.
+Index Ice C++ PDB files for source server debugging.
 
-This script runs `srctool -r` on each PDB file found in the Ice build directories
-and collects the indexed source files that are located within the source root.
+This script prepares Ice C++ builds for source server debugging by:
 
-Requires Python 3.12 or later.
+1. Scanning PDB files in cpp/bin/<platform>/<config>/ directories to discover referenced source files
+2. Copying all unique source files to an output directory preserving their relative paths
+3. Embedding srcsrv streams in each PDB that map source paths to HTTP URLs
+
+The output directory structure is:
+
+    <output>/<version>/sources/  - Copy of all source files referenced by PDBs
+    <output>/<version>/pdbs/     - PDB files with embedded srcsrv streams
+
+When a debugger loads these PDBs, it can automatically fetch source files from
+the configured HTTP server (e.g., https://sources.zeroc.com/ice/<version>/<path>).
+
+Requirements:
+
+    - Python 3.12 or later
+    - Windows SDK tools: srctool.exe (extracts source info from PDBs) and
+      pdbstr.exe (writes srcsrv streams to PDBs)
+
+Usage:
+
+    python index-ice-pdb-sources.py -s <ice-source-dir> --version <version> \\
+        --source-base-url <url> -o <output-dir>
 """
 
 import argparse
@@ -425,9 +445,8 @@ def main() -> int:
         return 1
 
     # Create output subdirectories with version
-    version_dir = output_dir / args.version
-    sources_dir = version_dir / "sources"
-    pdbs_dir = version_dir / "pdbs"
+    sources_dir = output_dir / "sources" / args.version
+    pdbs_dir = output_dir / "pdbs" / args.version
     sources_dir.mkdir(parents=True, exist_ok=True)
     pdbs_dir.mkdir(parents=True, exist_ok=True)
 
@@ -463,7 +482,7 @@ def main() -> int:
             if args.verbose:
                 print(f"\nProcessing: {pdb_info.pdb_path.name}")
 
-            output_path, error = copy_and_index_pdb(
+            _, error = copy_and_index_pdb(
                 pdb_info=pdb_info,
                 pdbs_dir=pdbs_dir,
                 source_root=source_dir,

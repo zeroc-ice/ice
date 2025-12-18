@@ -62,6 +62,6 @@ jobs:
         # We only need to upload the Slice Tools once (Release x64 build) which are included in the Nuget packages
         if: ${{ matrix.configuration == 'Release' && matrix.platform == 'x64' }}
         with:
-          name: windows-cpp-${{ matrix.platform }}-${{ matrix.configuration }}-slice-tools
+          name: windows-cpp-slice-tools
           path: |
             cpp/tools/ZeroC.Ice.Slice.Tools.Cpp/bin

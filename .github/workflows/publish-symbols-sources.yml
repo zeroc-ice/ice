@@ -30,14 +30,14 @@ jobs:
           RUN_ID: ${{ inputs.run_id }}
         run: |
           mkdir -p staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "windows-symbols-sources-*" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "windows-symbols-sources" --dir staging
 
       - name: Publish Symbols and Sources
         run: |
           # Upload sources to S3 (version is already in the directory structure)
-          aws s3 sync staging/windows-symbols-sources-*/sources/ "s3://zeroc-downloads/ice/nightly/sources/"
+          aws s3 sync "staging/windows-symbols-sources/sources/" "s3://zeroc-downloads/ice/nightly/sources/"
           # Upload symbol store to S3
-          aws s3 sync staging/windows-symbols-sources-*/symbols/ "s3://zeroc-downloads/ice/nightly/symbols/"
+          aws s3 sync "staging/windows-symbols-sources/symbols/" "s3://zeroc-downloads/ice/nightly/symbols/"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
