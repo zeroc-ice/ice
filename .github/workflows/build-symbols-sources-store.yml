@@ -1,0 +1,76 @@
+name: "Build Symbols and Sources Store"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: true
+        type: string
+      channel:
+        required: true
+        type: string
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version (e.g., 3.8.0)"
+        required: true
+      channel:
+        description: "Release channel (e.g., 3.8, nightly)"
+        required: true
+        default: "nightly"
+      run_id:
+        description: "The run ID of a successful build-cpp-windows-binaries workflow run"
+        required: true
+
+jobs:
+  build-symbols-sources-store:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download C++ Windows Binaries
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-x64-Release-build --dir cpp
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-x64-Debug-build --dir cpp
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-Win32-Release-build --dir cpp
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-Win32-Debug-build --dir cpp
+
+      - name: Compute Source Base URL
+        id: source-url
+        run: |
+          if ("${{ inputs.channel }}" -eq "nightly") {
+            $url = "https://download.zeroc.com/ice/nightly/sources/${{ inputs.ice_version }}/"
+          } else {
+            $url = "https://symbols.zeroc.com/sources/ice/${{ inputs.ice_version }}/"
+          }
+          echo "source_base_url=$url" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Index PDBs and Sources
+        run: |
+          python packaging/release/index-ice-pdb-sources.py `
+            --source-dir ${{ github.workspace }} `
+            --version ${{ inputs.ice_version }} `
+            --source-base-url ${{ steps.source-url.outputs.source_base_url }} `
+            --output-dir ${{ github.workspace }}/symbols-sources
+
+      - name: Create Symbols Store
+        run: |
+          symstore add /3 /r /t "Ice for C++" `
+            /v ${{ inputs.ice_version }} `
+            /s ${{ github.workspace }}/symbols-sources/${{ inputs.ice_version }}/symbols `
+            /f ${{ github.workspace }}/symbols-sources/${{ inputs.ice_version }}/pdbs/*.pdb `
+            /compress
+
+      - name: Upload Symbols and Sources
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-symbols-sources-${{ inputs.ice_version }}
+          path: ${{ github.workspace }}/symbols-sources/

@@ -1,0 +1,45 @@
+name: "Publish Symbols and Sources"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The channel to publish to (e.g., 3.8, nightly)"
+        required: true
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+  publish-symbols-sources:
+    name: "Publish Symbols and Sources"
+    if: ${{ inputs.channel == 'nightly' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download Symbols and Sources artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "windows-symbols-sources-*" --dir staging
+
+      - name: Publish Symbols and Sources
+        run: |
+          set -euo pipefail
+          # Upload sources to S3 (version is already in the directory structure)
+          aws s3 sync staging/windows-symbols-sources-*/sources/ "s3://zeroc-downloads/ice/nightly/sources/"
+          # Upload symbol store to S3
+          aws s3 sync staging/windows-symbols-sources-*/symbols/ "s3://zeroc-downloads/ice/nightly/symbols/"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

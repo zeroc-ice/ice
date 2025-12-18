@@ -59,6 +59,7 @@ jobs:
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "pip-packages-*" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "rpm-packages-*" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "icegridgui-jar" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "windows-symbols-sources-*" --dir staging
 
       - name: Download artifacts for Homebrew Bottle
         # Homebrew bottles are only built for nightly releases
