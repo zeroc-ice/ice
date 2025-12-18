@@ -3,13 +3,12 @@
   <Import Project="../../msbuild/ice.common.props" />
   <PropertyGroup>
     <AssemblyName>IceLocatorDiscovery</AssemblyName>
+    <Description>The IceLocatorDiscovery plug-in</Description>
+    <AssemblyTitle>$(Description)</AssemblyTitle>
     <TargetFramework>net8.0</TargetFramework>
     <!-- Packaging properties -->
     <PackageId>ZeroC.IceLocatorDiscovery</PackageId>
-    <PackageTags>Ice</PackageTags>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
-    <PackageIcon>logo-128x128.png</PackageIcon>
+    <PackageTags>ice;icelocatordiscovery;rpc</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />
