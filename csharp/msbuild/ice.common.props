@@ -11,8 +11,6 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <ImplicitUsings>true</ImplicitUsings>
     <LangVersion>12.0</LangVersion>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <RepositoryUrl>https://github.com/zeroc-ice/ice</RepositoryUrl>
     <RollForward>Major</RollForward>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningLevel>4</WarningLevel>
@@ -33,6 +31,7 @@
     <Product>Ice</Product>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/zeroc-ice/ice</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
