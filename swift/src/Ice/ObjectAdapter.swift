@@ -31,7 +31,7 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     func activate() throws
 
     /// Stops reading requests from incoming connections. Outstanding dispatches are not affected. The object adapter
-    /// can be reactivated with ``activate(_:)``.
+    /// can be reactivated with ``activate()``.
     ///
     /// - Remark: This method is provided for backward compatibility with older versions of Ice. Don't use it in
     /// new applications.

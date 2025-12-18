@@ -14,6 +14,7 @@ public class DispatchException: LocalException, @unchecked Sendable {
     public let replyStatus: UInt8
 
     /// Creates a DispatchException.
+    ///
     /// - Parameters:
     ///   - replyStatus: The reply status raw value. It may not correspond to a valid ``ReplyStatus`` enum value.
     ///   - message: The exception message.
@@ -86,6 +87,7 @@ public class RequestFailedException: DispatchException, @unchecked Sendable {
 /// The exception that is thrown when a dispatch could not find a servant for the identity carried by the request.
 public final class ObjectNotExistException: RequestFailedException, @unchecked Sendable {
     /// Creates an ObjectNotExistException.
+    ///
     /// - Parameters:
     ///   - id: The identity of the target Ice object carried by the request.
     ///   - facet: The facet of the target Ice object.
@@ -101,6 +103,7 @@ public final class ObjectNotExistException: RequestFailedException, @unchecked S
 
     /// Creates an ObjectNotExistException. The request details (id, facet, operation) will be filled-in by the Ice
     /// runtime when the exception is marshaled.
+    ///
     /// - Parameters:
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
@@ -112,6 +115,7 @@ public final class ObjectNotExistException: RequestFailedException, @unchecked S
 /// The dispatch could not find a servant for the identity + facet carried by the request.
 public final class FacetNotExistException: RequestFailedException, @unchecked Sendable {
     /// Creates a FacetNotExistException.
+    ///
     /// - Parameters:
     ///   - id: The identity of the target Ice object carried by the request.
     ///   - facet: The facet of the target Ice object.
@@ -127,6 +131,7 @@ public final class FacetNotExistException: RequestFailedException, @unchecked Se
 
     /// Creates a FacetNotExistException. The request details (id, facet, operation) will be filled-in by the Ice
     /// runtime when the exception is marshaled.
+    ///
     /// - Parameters:
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
@@ -139,6 +144,7 @@ public final class FacetNotExistException: RequestFailedException, @unchecked Se
 /// to a mismatch in the Slice definitions, such as the client using Slice definitions newer than the server's.
 public final class OperationNotExistException: RequestFailedException, @unchecked Sendable {
     /// Creates an OperationNotExistException.
+    ///
     /// - Parameters:
     ///   - id: The identity of the target Ice object carried by the request.
     ///   - facet: The facet of the target Ice object.
@@ -154,6 +160,7 @@ public final class OperationNotExistException: RequestFailedException, @unchecke
 
     /// Creates an OperationNotExistException. The request details (id, facet, operation) will be filled-in by the Ice
     /// runtime when the exception is marshaled.
+    ///
     /// - Parameters:
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
@@ -192,6 +199,7 @@ public final class UnknownUserException: UnknownException, @unchecked Sendable {
     }
 
     /// Creates an UnknownUserException.
+    ///
     /// - Parameters:
     ///   - badTypeId: The type ID of the user exception carried by the reply.
     ///   - file: The file where the exception was thrown.
@@ -281,6 +289,7 @@ public final class AlreadyRegisteredException: LocalException, @unchecked Sendab
     public let id: String
 
     /// Creates an AlreadyRegisteredException.
+    ///
     /// - Parameters:
     ///   - kindOfObject: The kind of object that is already registered.
     ///   - id: The ID (or name) of the object that is already registered.
@@ -375,6 +384,7 @@ public final class InitializationException: LocalException, @unchecked Sendable 
 /// This exception is raised if no suitable endpoint is available.
 public final class NoEndpointException: LocalException, @unchecked Sendable {
     /// Creates a NoEndpointException.
+    ///
     /// - Parameters:
     ///   - proxy: The proxy that carries the endpoints.
     ///   - file: The file where the exception was thrown.
@@ -393,6 +403,7 @@ public final class NotRegisteredException: LocalException, @unchecked Sendable {
     public let id: String
 
     /// Creates a NotRegisteredException.
+    ///
     /// - Parameters:
     ///   - kindOfObject: The kind of object that is not registered.
     ///   - id: The ID (or name) of the object that is not registered.
@@ -427,6 +438,7 @@ public final class ObjectAdapterDestroyedException: LocalException, @unchecked S
 /// detects another active ObjectAdapter with the same adapter id.
 public final class ObjectAdapterIdInUseException: LocalException, @unchecked Sendable {
     /// Creates an ObjectAdapterIdInUseException.
+    ///
     /// - Parameters:
     ///   - id: The adapter ID that is already active in the Locator.
     ///   - file: The file where the exception was thrown.
@@ -450,6 +462,7 @@ public final class SecurityException: LocalException, @unchecked Sendable {}
 /// ice_batchDatagram and the operation has a return value, out-parameters, or an exception specification.
 public final class TwowayOnlyException: LocalException, @unchecked Sendable {
     /// Creates a TwowayOnlyException.
+    ///
     /// - Parameters:
     ///   - operation: The name of the two-way only operation.
     ///   - file: The file where the exception was thrown.
