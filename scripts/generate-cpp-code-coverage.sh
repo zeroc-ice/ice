@@ -40,7 +40,7 @@ case "$arg" in
         echo "The llvm package must be installed."
         echo ""
         echo "example: generate code coverage report for libIce"
-        echo "  cd cpp && ../scripts/generate-code-coverage.sh lib/libIce.dylib"
+        echo "  cd cpp && ../scripts/generate-cpp-code-coverage.sh lib/libIce.dylib"
         echo "  open coverage/html/libIce.dylib/index.html"
         exit 0
         ;;
@@ -74,7 +74,7 @@ fi
 
 if [ -n "$arg" ]; then
     echo "Generating coverage for $arg"
-    ${CLI_TOOLS}/llvm-cov show "$arg" -instr-profile=default.profdata -format=html -o "./coverage/html/$(basename "$arg")"
+    ${CLI_TOOLS}/llvm-cov show "$arg" -instr-profile=default.profdata -format=html --ignore-filename-regex='.*/generated/.*' -o "./coverage/html/$(basename "$arg")"
     echo "Coverage report generated in coverage/html/$(basename "$arg")/index.html"
     exit 0
 else
