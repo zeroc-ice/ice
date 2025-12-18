@@ -63,4 +63,10 @@ jobs:
             cpp/include/generated/${{ matrix.platform }}/${{ matrix.configuration }}/
             cpp/src/**/msbuild/**/${{ matrix.platform }}/${{ matrix.configuration }}/*.cpp
             cpp/src/**/msbuild/**/${{ matrix.platform }}/${{ matrix.configuration }}/*.h
+
+      - name: Upload C++ Slice Tools
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-cpp-${{ matrix.platform }}-${{ matrix.configuration }}-slice-tools
+          path: |
             cpp/tools/ZeroC.Ice.Slice.Tools.Cpp/bin
