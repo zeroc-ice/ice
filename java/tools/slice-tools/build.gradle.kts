@@ -40,7 +40,7 @@ group = "com.zeroc"
 
 gradlePlugin {
     website = "https://zeroc.com"
-    vcsUrl = "https://github.com/zeroc-ice/ice.git"
+    vcsUrl = "https://github.com/zeroc-ice/ice"
     plugins {
         create("sliceTools") {
             id = "com.zeroc.slice-tools"
