@@ -17,6 +17,9 @@ plugins {
 
     // Automated code formatting based on Checkstyle with OpenRewrite
     id("org.openrewrite.rewrite") version "7.7.0"
+
+    // Plugin publishing plugin
+    id("com.gradle.plugin-publish") version "2.0.0"
 }
 
 repositories {
@@ -36,9 +39,14 @@ version = sliceToolsVersion
 group = "com.zeroc"
 
 gradlePlugin {
+    website = "https://zeroc.com"
+    vcsUrl = "https://github.com/zeroc-ice/ice.git"
     plugins {
         create("sliceTools") {
             id = "com.zeroc.slice-tools"
+            displayName = "Slice Tools Gradle Plugin"
+            description = "Generates Java code from Slice definitions and integrates with Java and Android Gradle builds."
+            tags = listOf("slice", "ice", "zeroc")
             implementationClass = "com.zeroc.slice.tools.SliceToolsPlugin"
         }
     }
