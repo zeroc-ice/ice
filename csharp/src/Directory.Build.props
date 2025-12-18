@@ -10,9 +10,16 @@
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <!-- Include PDB in the built .nupkg -->
         <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+        <!-- Enable package lock file to ensure consistent package versions across builds -->
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <RestoreLockedMode>true</RestoreLockedMode>
         <!-- TODO: move to common.props and fix analyzer warnings in tests -->
         <AnalysisMode>All</AnalysisMode>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     </PropertyGroup>
     <Import Project="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools\ZeroC.Ice.Slice.Tools.props"/>
     <ItemGroup>
