@@ -63,3 +63,4 @@ jobs:
             cpp/include/generated/${{ matrix.platform }}/${{ matrix.configuration }}/
             cpp/src/**/msbuild/**/${{ matrix.platform }}/${{ matrix.configuration }}/*.cpp
             cpp/src/**/msbuild/**/${{ matrix.platform }}/${{ matrix.configuration }}/*.h
+            cpp/tools/ZeroC.Ice.Slice.Tools.Cpp/bin

@@ -33,6 +33,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+
       - name: Download C++ Windows Binaries
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

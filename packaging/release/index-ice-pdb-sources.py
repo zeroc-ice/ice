@@ -12,12 +12,11 @@ import argparse
 import shutil
 import subprocess
 import sys
+import tempfile
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-import tempfile
-
 
 # Platform/configuration combinations to search for PDBs
 PLATFORM_CONFIGS = ["x64/Debug", "x64/Release", "Win32/Debug", "Win32/Release"]
