@@ -3,13 +3,12 @@
   <Import Project="../../msbuild/ice.common.props" />
   <PropertyGroup>
     <AssemblyName>IceGrid</AssemblyName>
+    <Description>Client library for the IceGrid service</Description>
+    <AssemblyTitle>$(Description)</AssemblyTitle>
     <TargetFrameworks>net8.0</TargetFrameworks>
     <!-- Packaging properties -->
     <PackageId>ZeroC.IceGrid</PackageId>
-    <PackageTags>Ice</PackageTags>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
-    <PackageIcon>logo-128x128.png</PackageIcon>
+    <PackageTags>ice;icegrid;rpc</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />

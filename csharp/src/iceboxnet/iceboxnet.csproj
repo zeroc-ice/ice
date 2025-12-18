@@ -3,15 +3,13 @@
   <Import Project="../../msbuild/ice.common.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <Description>The IceBox server for dotnet</Description>
     <TargetFramework>net8.0</TargetFramework>
     <!-- Packaging properties -->
     <PackageId>iceboxnet</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>iceboxnet</ToolCommandName>
-    <PackageTags>Ice</PackageTags>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
-    <PackageIcon>logo-128x128.png</PackageIcon>
+    <PackageTags>ice;icebox;rpc</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Ice/Ice.csproj" />

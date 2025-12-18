@@ -3,13 +3,12 @@
   <Import Project="../../msbuild/ice.common.props" />
   <PropertyGroup>
     <AssemblyName>IceStorm</AssemblyName>
+    <Description>Client library for the IceStorm service</Description>
+    <AssemblyTitle>$(Description)</AssemblyTitle>
     <TargetFramework>net8.0</TargetFramework>
     <!-- Packaging properties -->
     <PackageId>ZeroC.IceStorm</PackageId>
-    <PackageTags>Ice</PackageTags>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
-    <PackageIcon>logo-128x128.png</PackageIcon>
+    <PackageTags>ice;icestorm;rpc</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />
