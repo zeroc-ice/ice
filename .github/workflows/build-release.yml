@@ -159,12 +159,35 @@ jobs:
       ice_version: ${{ needs.set-version.outputs.rpm_version }}
     secrets: inherit
 
-  build-cpp-nuget-packages:
-    name: Build C++ NuGet Packages
-    uses: ./.github/workflows/build-cpp-nuget-packages.yml
+  build-cpp-windows-binaries:
+    name: Build C++ Windows Binaries
+    uses: ./.github/workflows/build-cpp-windows-binaries.yml
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
+    secrets: inherit
+
+  build-symbols-sources-store:
+    name: Build Symbols and Sources Store
+    uses: ./.github/workflows/build-symbols-sources-store.yml
+    needs:
+      - set-version
+      - build-cpp-windows-binaries
+    with:
+      ice_version: ${{ needs.set-version.outputs.semver_version }}
+      channel: ${{ inputs.channel }}
+      run_id: ${{ github.run_id }}
+    secrets: inherit
+
+  build-cpp-nuget-packages:
+    name: Build C++ NuGet Packages
+    uses: ./.github/workflows/build-cpp-nuget-packages.yml
+    needs:
+      - set-version
+      - build-cpp-windows-binaries
+    with:
+      ice_version: ${{ needs.set-version.outputs.semver_version }}
+      run_id: ${{ github.run_id }}
     secrets: inherit
 
   build-icegridgui-jar:
@@ -180,7 +203,7 @@ jobs:
     uses: ./.github/workflows/build-windows-msi.yml
     needs:
       - set-version
-      - build-cpp-nuget-packages
+      - build-cpp-windows-binaries
       - build-icegridgui-jar
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}

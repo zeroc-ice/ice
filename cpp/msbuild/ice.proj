@@ -117,7 +117,7 @@
     </Target>
 
     <!-- Create nuget packages -->
-    <Target Name="Pack">
+    <Target Name="Pack" DependsOnTargets="GetNuGet">
         <RemoveDir Directories="ZeroC.Ice.Cpp" />
 
         <MSBuild Projects="ice.nuget.targets"
