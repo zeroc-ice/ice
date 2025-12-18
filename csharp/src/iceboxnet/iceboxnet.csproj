@@ -3,7 +3,7 @@
   <Import Project="../../msbuild/ice.common.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <Description>The IceBox server for dotnet</Description>
+    <Description>The IceBox server for .NET</Description>
     <TargetFramework>net8.0</TargetFramework>
     <!-- Packaging properties -->
     <PackageId>iceboxnet</PackageId>
