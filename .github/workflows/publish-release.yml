@@ -21,7 +21,6 @@ on:
         type: string
 
 jobs:
-
   publish-brew-packages:
     uses: ./.github/workflows/publish-brew-packages.yml
     with:
@@ -106,6 +105,13 @@ jobs:
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
+  publish-symbols-sources:
+    uses: ./.github/workflows/publish-symbols-sources.yml
+    with:
+      channel: ${{ inputs.channel }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
+
   invalidate-cloudfront-cache:
     runs-on: ubuntu-24.04
     needs:
@@ -121,6 +127,7 @@ jobs:
       - publish-rpm-packages
       - publish-swift-packages
       - publish-xcframework-packages
+      - publish-symbols-sources
     steps:
       - name: Invalidate CloudFront Cache
         run: |
