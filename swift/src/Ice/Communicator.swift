@@ -79,7 +79,7 @@ public protocol Communicator: AnyObject, Sendable {
     func createObjectAdapter(_ name: String) throws -> ObjectAdapter
 
     /// Creates a new object adapter with endpoints. This method sets the property `name.Endpoints`, and then
-    /// calls `createObjectAdapter`. It is provided as a convenience method. Calling this method with an empty
+    /// calls ``createObjectAdapter(_:)``. It is provided as a convenience method. Calling this method with an empty
     /// name will result in a UUID being generated for the name.
     ///
     /// - Parameters:
@@ -100,7 +100,7 @@ public protocol Communicator: AnyObject, Sendable {
 
     /// Gets the object adapter that is associated by default with new outgoing connections created by this
     /// communicator. This method returns `nil` unless you set a non-`nil` default object adapter using
-    /// `setDefaultObjectAdapter`.
+    /// ``setDefaultObjectAdapter(_:)``.
     ///
     /// - Returns: The object adapter associated by default with new outgoing connections.
     func getDefaultObjectAdapter() -> ObjectAdapter?
@@ -111,41 +111,40 @@ public protocol Communicator: AnyObject, Sendable {
     /// - Parameter adapter: The object adapter to associate with new outgoing connections.
     func setDefaultObjectAdapter(_ adapter: ObjectAdapter?)
 
-    /// Get the implicit context associated with this communicator.
+    /// Gets the implicit context associated with this communicator.
     ///
     /// - Returns: The implicit context associated with this communicator; returns `nil` when the
-    ///            property `Ice.ImplicitContext` is not set or is set to `None`.
+    ///   property `Ice.ImplicitContext` is not set or is set to `None`.
     func getImplicitContext() -> ImplicitContext?
 
-    /// Get the properties for this communicator.
+    /// Gets the properties of this communicator.
     ///
     /// - Returns: This communicator's properties.
     func getProperties() -> Properties
 
-    /// Get the logger for this communicator.
+    /// Gets the logger of this communicator.
     ///
     /// - Returns: This communicator's logger.
     func getLogger() -> Logger
 
     /// Gets the default router of this communicator.
     ///
-    /// - Returns: The default router for this communicator.
+    /// - Returns: The default router of this communicator.
     func getDefaultRouter() -> RouterPrx?
 
-    /// Sets the default router of this communicator. All newly created proxies will use this default router. This
-    /// method has no effect on existing proxies.
+    /// Sets the default router of this communicator. All newly created proxies will use this default router.
+    /// This method has no effect on existing proxies.
     ///
     /// - Parameter rtr: The new default router. Use `nil` to remove the default router.
-    ///
     func setDefaultRouter(_ rtr: RouterPrx?)
 
     /// Gets the default locator of this communicator.
     ///
-    /// - Returns: The default locator for this communicator.
+    /// - Returns: The default locator of this communicator.
     func getDefaultLocator() -> LocatorPrx?
 
-    /// Sets the default locator of this communicator. All newly created proxies will use this default locator. This
-    /// method has no effect on existing proxies or object adapters.
+    /// Sets the default locator of this communicator. All newly created proxies will use this default locator.
+    /// This method has no effect on existing proxies or object adapters.
     ///
     /// - Parameter loc: The new default locator. Use `nil` to remove the default locator.
     func setDefaultLocator(_ loc: LocatorPrx?)
@@ -155,16 +154,16 @@ public protocol Communicator: AnyObject, Sendable {
     /// are ignored.
     ///
     /// - Parameter compress: Specifies whether or not the queued batch requests should be compressed before being
-    ///                       sent over the wire.
+    ///   sent over the wire.
     func flushBatchRequests(_ compress: CompressBatch) async throws
 
     /// Adds the Admin object with all its facets to the provided object adapter. If `Ice.Admin.ServerId`
     /// is set and the provided object adapter has a Locator, `createAdmin` registers the Admin's Process facet with
-    /// the Locator's LocatorRegistry. This method must only be called once.
+    /// the Locator's LocatorRegistry.
     ///
     /// - Parameters:
-    ///   - adminAdapter: The object adapter used to host the Admin object; if `nil` and `Ice.Admin.Endpoints`
-    ///                   is set, this method uses the `Ice.Admin` object adapter after creating and activating it.
+    ///   - adminAdapter: The object adapter used to host the Admin object; if it is `nil` and `Ice.Admin.Endpoints`
+    ///     is set, this method uses the `Ice.Admin` object adapter, after creating and activating it.
     ///   - adminId: The identity of the Admin object.
     /// - Returns: A proxy to the main ("") facet of the Admin object.
     /// - Throws: `InitializationException` when `createAdmin` is called more than once.
@@ -199,7 +198,7 @@ public protocol Communicator: AnyObject, Sendable {
     ///
     /// - Parameter facet: The name of the Admin facet.
     /// - Returns: The servant associated with this Admin facet, or nil if no facet is registered with the
-    ///            given name.
+    ///   given name.
     func findAdminFacet(_ facet: String) -> Dispatcher?
 
     /// Returns a map of all facets of the Admin object.

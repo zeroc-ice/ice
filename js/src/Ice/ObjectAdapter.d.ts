@@ -213,7 +213,7 @@ declare module "@zeroc/ice" {
              *
              * @param category The category.
              * @returns The servant locator.
-             * @throws {@link NotRegisteredException}Thrown when no ServantLocator with the given category is
+             * @throws {@link NotRegisteredException}Thrown when no servant locator with the given category is
              * registered.
              */
             removeServantLocator(category: string): Ice.ServantLocator;

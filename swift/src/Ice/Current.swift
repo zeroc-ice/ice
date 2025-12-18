@@ -4,7 +4,7 @@ import Foundation
 
 /// Provides information about an incoming request being dispatched.
 public struct Current: Sendable {
-    /// The object adapter. This value is never `nil` when this Current is provided by an object adapter.
+    /// The object adapter.
     public let adapter: ObjectAdapter
     /// The connection that received the request. It's `nil` for collocation-optimized dispatches.
     public let con: Connection?

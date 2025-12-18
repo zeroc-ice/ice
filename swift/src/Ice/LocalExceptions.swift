@@ -15,7 +15,7 @@ public class DispatchException: LocalException, @unchecked Sendable {
 
     /// Creates a DispatchException.
     /// - Parameters:
-    ///   - replyStatus: The reply status. It may not correspond to a valid ``ReplyStatus`` enum value.
+    ///   - replyStatus: The reply status raw value. It may not correspond to a valid ``ReplyStatus`` enum value.
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
