@@ -36,6 +36,9 @@ jobs:
       - name: Setup Python
         uses: ./.github/actions/setup-python
 
+      - name: Install Windows Debug Tools
+        uses: ./.github/actions/install-windows-debug-tools
+
       - name: Download C++ Windows Binaries
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

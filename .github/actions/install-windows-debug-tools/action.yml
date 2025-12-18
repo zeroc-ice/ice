@@ -16,6 +16,14 @@ runs:
         $args = '/quiet /norestart /features OptionId.WindowsDesktopDebuggers /log "{0}"' -f $logPath
         $p = Start-Process -FilePath $sdkPath -ArgumentList $args -PassThru -Wait
 
+    - name: Add Debug Tools to PATH
+      shell: pwsh
+      run: |
+        $debugToolsPath = "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64"
+        $srcsrvPath = "$debugToolsPath\srcsrv"
+        echo "$debugToolsPath" >> $env:GITHUB_PATH
+        echo "$srcsrvPath" >> $env:GITHUB_PATH
+
     - name: Upload SDK install log
       if: failure()
       uses: actions/upload-artifact@v4
