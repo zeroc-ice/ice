@@ -2,9 +2,12 @@
 
 import Foundation
 
-/// The object adapter provides an up-call interface from the Ice run time to the implementation of Ice objects. The
-/// object adapter is responsible for receiving requests from endpoints, and for mapping between servants, identities,
-/// and proxies.
+/// An object adapter is the main server-side Ice API. It has two main purposes:
+/// - accept incoming connections from clients and dispatch requests received over these connections (see `activate`)
+/// - maintain a dispatch pipeline and servants that handle the requests (see `add`, `addDefaultServant`, and `use`).
+///
+/// An object adapter can dispatch bidirectional requests (received over an outgoing connection) and collocated
+/// requests (no connection).
 public protocol ObjectAdapter: AnyObject, Sendable {
 
     /// Get the dispatch pipeline of this object adapter.
@@ -20,50 +23,53 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     /// - Returns: This object adapter's communicator.
     func getCommunicator() -> Communicator
 
-    /// Activate all endpoints that belong to this object adapter. After activation, the object adapter can dispatch
-    /// requests received through its endpoints.
+    /// Starts receiving and dispatching requests received over incoming connections. When this object adapter is an
+    /// indirect object adapter configured with a locator proxy, this function also registers the object adapter's
+    /// published endpoints with this locator.
     func activate() throws
 
-    /// Temporarily hold receiving and dispatching requests. The object adapter can be reactivated with the
-    /// activate operation.  Holding is not immediate, i.e., after hold returns, the
-    /// object adapter might still be active for some time. You can use waitForHold to wait until holding is
-    /// complete.
+    /// Stops reading requests from incoming connections. Outstanding dispatches are not affected. The object adapter
+    /// can be reactivated with `activate`.
+    ///
+    /// - Remark: Provided for backward compatibility; avoid in new applications.
     func hold()
 
-    /// Wait until the object adapter holds requests. Calling hold initiates holding of requests, and
-    /// waitForHold only returns when holding of requests has been completed.
+    /// Waits until the object adapter is in the holding state (see `hold`) and the dispatch of requests received over
+    /// incoming connections has completed.
+    ///
+    /// - Remark: Provided for backward compatibility; avoid in new applications.
     func waitForHold()
 
-    /// Deactivates this object adapter: stop accepting new connections from clients and close gracefully all incoming
-    /// connections created by this object adapter once all outstanding dispatches have completed. If this object
-    /// adapter is indirect, this function also unregisters the object adapter from the Locator.
-    /// This function does not cancel outstanding dispatches--it lets them execute until completion. A new incoming
-    /// request on an existing connection will be accepted and can delay the closure of the connection.
-    /// A deactivated object adapter cannot be reactivated again; it can only be destroyed.
+    /// Deactivates this object adapter: stops accepting new connections from clients and closes gracefully all
+    /// incoming connections created by this object adapter once all outstanding dispatches have completed. If this
+    /// object adapter is indirect, this function also unregisters the object adapter from the locator. This function
+    /// does not cancel outstanding dispatches: it lets them execute until completion. A new incoming request on an
+    /// existing connection is accepted and can delay the closure of the connection. A deactivated object adapter
+    /// cannot be reactivated again; it can only be destroyed.
     func deactivate()
 
     /// Wait until deactivate is called on this object adapter and all connections accepted by this object adapter are
     /// closed. A connection is closed only after all outstanding dispatches on this connection have completed.
     func waitForDeactivate()
 
-    /// Checks if this object adapter has been deactivated.
+    /// Checks whether or not `deactivate` was called on this object adapter.
     ///
-    /// - Returns: Whether adapter has been deactivated.
+    /// - Returns: `true` if `deactivate` was called on this object adapter, `false` otherwise.
     func isDeactivated() -> Bool
 
-    /// Destroys this object adapter and cleans up all resources held by this object adapter.
-    /// Once this function has returned, it is possible to create another object adapter with the same name.
+    /// Destroys this object adapter and cleans up all resources associated with it. Once this function has returned,
+    /// you can recreate another object adapter with the same name.
     func destroy()
 
-    /// Add a middleware to the dispatch pipeline of this object adapter.
+    /// Adds a middleware to the dispatch pipeline of this object adapter.
     ///
     /// - Parameter middlewareFactory: The middleware factory that creates the new middleware when this object adapter
-    /// creates its dispatch pipeline. A middleware factory is a function that takes a dispatcher (the next element in
-    /// the dispatch pipeline) and returns a new dispatcher (the middleware you want to install in the pipeline).
+    ///   creates its dispatch pipeline. A middleware factory is a function that takes a dispatcher (the next element
+    ///   in the dispatch pipeline) and returns a new dispatcher (the middleware you want to install in the pipeline).
     /// - Returns: This object adapter.
     ///
-    /// - Note: All middleware must be installed before the first dispatch.
-    /// - Note: The middleware are executed in the order they are installed.
+    /// - Remark: All middleware must be installed before the first dispatch and execute in the order they are
+    ///   installed.
     @discardableResult
     func use(_ middlewareFactory: @escaping (_ next: Dispatcher) -> Dispatcher) -> Self
 
@@ -108,18 +114,23 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     @discardableResult
     func addFacetWithUUID(servant: Dispatcher, facet: String) throws -> ObjectPrx
 
-    /// Add a default servant to handle requests for a specific category. Adding a default servant for a category for
-    /// which a default servant is already registered throws AlreadyRegisteredException. To dispatch operation
-    /// calls on servants, the object adapter tries to find a servant for a given Ice object identity and facet in the
+    /// Adds a default servant to handle requests for a specific category. When an object adapter dispatches an
+    /// incoming request, it tries to find a servant for the identity and facet carried by the request in the
     /// following order:
+    /// - A servant for the identity and facet in the Active Servant Map.
+    /// - If this fails, a default servant for the category component of the identity.
+    /// - If this fails, a default servant for the empty category, regardless of the category contained in the
+    ///   identity.
+    /// - If this fails, a servant locator for the category component of the identity. If there is no such servant
+    ///   locator, the object adapter tries to find a servant locator for the empty category. If a servant locator is
+    ///   found, the object adapter tries to find a servant using this servant locator.
+    /// - If all the previous steps fail, the object adapter gives up and the caller receives an `ObjectNotExistException`
+    ///   or a `FacetNotExistException`.
     ///
-    /// The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
-    /// If no servant has been found in the Active Servant Map, the object adapter tries to find a default servant
-    /// for the category component of the identity.
-    /// If no servant has been found by any of the preceding steps, the object adapter tries to find a default
-    /// servant for an empty category, regardless of the category contained in the identity.
-    /// If no servant has been found by any of the preceding steps, the object adapter gives up and the caller
-    /// receives ObjectNotExistException or FacetNotExistException.
+    /// - Parameters:
+    ///   - servant: The default servant.
+    ///   - category: The category for which the default servant is registered. The empty category means it handles all
+    ///     categories.
     ///
     /// - Parameters:
     ///   - servant: The default servant.
@@ -163,17 +174,15 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     @discardableResult
     func removeDefaultServant(_ category: String) throws -> Dispatcher
 
-    /// Look up a servant in this object adapter's Active Servant Map by the identity of the Ice object it implements.
-    /// This operation only tries to look up a servant in the Active Servant Map. It does not attempt
-    /// to find a servant by using any installed ServantLocator.
+    /// Looks up a servant by identity in the Active Servant Map or among the default servants. This operation does not
+    /// attempt to locate a servant using servant locators.
     ///
     /// - Parameter id: The identity of the Ice object for which the servant should be returned.
     /// - Returns: The servant that implements the Ice object with the given identity, or nil if no such
     ///            servant has been found.
     func find(_ id: Identity) -> Dispatcher?
 
-    /// Like find, but with a facet. Calling find(id) is equivalent to calling findFacet
-    /// with an empty facet.
+    /// Like `find`, but with a facet. Calling `find(id)` is equivalent to calling `findFacet` with an empty facet.
     ///
     /// - Parameters:
     ///   - id: The identity of the Ice object for which the servant should be returned.
@@ -189,30 +198,15 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     /// empty map if there is no facet for the given identity.
     func findAllFacets(_ id: Identity) -> FacetMap
 
-    /// Look up a servant in this object adapter's Active Servant Map, given a proxy.
-    /// This operation only tries to lookup a servant in the Active Servant Map. It does not attempt to
-    /// find a servant by using any installed ServantLocator.
+    /// Looks up a servant in this object adapter's Active Servant Map or among the default servants, given a proxy.
+    /// This operation does not attempt to locate a servant using servant locators.
     ///
     /// - Parameter proxy: The proxy for which the servant should be returned.
     /// - Returns: The servant that matches the proxy, or nil if no such servant has been found.
     func findByProxy(_ proxy: ObjectPrx) -> Dispatcher?
 
-    /// Add a Servant Locator to this object adapter. Adding a servant locator for a category for which a servant
-    /// locator is already registered throws AlreadyRegisteredException. To dispatch operation calls on
-    /// servants, the object adapter tries to find a servant for a given Ice object identity and facet in the following
-    /// order:
-    ///
-    /// The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
-    /// If no servant has been found in the Active Servant Map, the object adapter tries to find a servant locator
-    /// for the category component of the identity. If a locator is found, the object adapter tries to find a servant
-    /// using this locator.
-    /// If no servant has been found by any of the preceding steps, the object adapter tries to find a locator for
-    /// an empty category, regardless of the category contained in the identity. If a locator is found, the object
-    /// adapter tries to find a servant using this locator.
-    /// If no servant has been found by any of the preceding steps, the object adapter gives up and the caller
-    /// receives ObjectNotExistException or FacetNotExistException.
-    ///
-    /// Only one locator for the empty category can be installed.
+    /// Adds a `ServantLocator` to this object adapter for a specific category. Only one locator for the empty category
+    /// can be installed. See `addDefaultServant(servant:category:)` for the lookup order.
     ///
     /// - Parameters:
     ///   - locator: The locator to add.
@@ -239,16 +233,16 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     /// category.
     func findServantLocator(_ category: String) -> ServantLocator?
 
-    /// Find the default servant for a specific category.
+    /// Finds the default servant for a specific category.
     ///
     /// - Parameter category: The category of the default servant to find.
     /// - Returns: The default servant or nil if no default servant was registered for the category.
     func findDefaultServant(_ category: String) -> Dispatcher?
 
-    /// Create a proxy for the object with the given identity. If this object adapter is configured with an adapter id,
-    /// the return value is an indirect proxy that refers to the adapter id. If a replica group id is also defined, the
-    /// return value is an indirect proxy that refers to the replica group id. Otherwise, if no adapter id is defined,
-    /// the return value is a direct proxy containing this object adapter's published endpoints.
+    /// Creates a proxy from an Ice identity. If this object adapter is configured with an adapter ID, the proxy is an
+    /// indirect proxy that refers to this adapter ID. If a replica group ID is also defined, the proxy is an indirect
+    /// proxy that refers to this replica group ID. Otherwise, the proxy is a direct proxy containing this object
+    /// adapter's published endpoints.
     ///
     /// - Parameter id: The object's identity.
     /// - Returns: A proxy for the object with the given identity.
@@ -269,10 +263,10 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     /// - Returns: A proxy for the object with the given identity.
     func createIndirectProxy(_ id: Identity) throws -> ObjectPrx
 
-    /// Set an Ice locator for this object adapter. By doing so, the object adapter will register itself with the
+    /// Sets an Ice locator on this object adapter. By doing so, the object adapter will register itself with the
     /// locator registry when it is activated for the first time. Furthermore, the proxies created by this object
     /// adapter will contain the adapter identifier instead of its endpoints. The adapter identifier must be configured
-    /// using the AdapterId property.
+    /// using the `AdapterId` property.
     ///
     /// - Parameter loc: The locator used by this object adapter.
     func setLocator(_ loc: LocatorPrx?) throws
@@ -283,18 +277,19 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     /// object adapter.
     func getLocator() -> LocatorPrx?
 
-    /// Get the set of endpoints configured with this object adapter.
+    /// Gets the set of endpoints configured on this object adapter.
     ///
-    /// - Returns: The set of endpoints.
+    /// - Returns: The set of endpoints. Remains usable after this object adapter has been deactivated.
     func getEndpoints() -> EndpointSeq
 
-    /// Get the set of endpoints that proxies created by this object adapter will contain.
+    /// Gets the set of endpoints that proxies created by this object adapter will contain.
     ///
-    /// - Returns: The set of published endpoints.
+    /// - Returns: The set of published endpoints. Remains usable after this object adapter has been deactivated.
     func getPublishedEndpoints() -> EndpointSeq
 
-    /// Set of the endpoints that proxies created by this object adapter will contain.
+    /// Sets the endpoints that proxies created by this object adapter will contain.
     ///
     /// - Parameter newEndpoints: The new set of endpoints that the object adapter will embed in proxies.
+    /// - Throws: `invalid_argument` when `newEndpoints` is empty or this adapter is associated with a router.
     func setPublishedEndpoints(_ newEndpoints: EndpointSeq) throws
 }

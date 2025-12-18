@@ -5,255 +5,250 @@ import IceImpl
 
 /// The base protocol for all Ice proxies.
 public protocol ObjectPrx: CustomStringConvertible, AnyObject, Sendable {
-    /// Returns the communicator that created this proxy.
+    /// Gets the communicator that created this proxy.
     ///
     /// - Returns: The communicator that created this proxy.
     func ice_getCommunicator() -> Communicator
 
-    /// Returns the identity embedded in this proxy.
+    /// Gets the identity embedded in this proxy.
     ///
     /// - Returns: The identity of the target object.
     func ice_getIdentity() -> Identity
 
-    /// Creates a new proxy that is identical to this proxy, except for the identity.
+    /// Creates a proxy that is identical to this proxy, except for the identity.
     ///
     /// - Parameter id: The identity for the new proxy.
     /// - Returns: A proxy with the new identity.
     func ice_identity(_ id: Identity) -> Self
 
-    /// Returns the per-proxy context for this proxy.
+    /// Gets the per-proxy context for this proxy.
     ///
     /// - Returns: The per-proxy context.
     func ice_getContext() -> Context
 
-    /// Creates a new proxy that is identical to this proxy, except for the per-proxy context.
+    /// Creates a proxy that is identical to this proxy, except for the per-proxy context.
     ///
     /// - Parameter context: The context for the new proxy.
-    /// - Returns: The proxy with the new per-proxy context.
+    /// - Returns: A proxy with the new per-proxy context.
     func ice_context(_ context: Context) -> Self
 
-    /// Returns the facet for this proxy.
+    /// Gets the facet for this proxy.
     ///
     /// - Returns: The facet for this proxy. If the proxy uses the default facet,
     ///   the return value is the empty string.
     func ice_getFacet() -> String
 
-    /// Creates a new proxy that is identical to this proxy, except for the facet.
+    /// Creates a proxy that is identical to this proxy, except for the facet.
     ///
     /// - Parameter facet: The facet for the new proxy.
-    /// - Returns: The proxy with the new facet.
+    /// - Returns: A proxy with the new facet.
     func ice_facet(_ facet: String) -> ObjectPrx
 
-    /// Returns the adapter ID for this proxy.
+    /// Gets the adapter ID for this proxy.
     ///
     /// - Returns: The adapter ID. If the proxy does not have an adapter ID, the return value is the
     ///   empty string.
     func ice_getAdapterId() -> String
 
-    /// Creates a new proxy that is identical to this proxy, except for the adapter ID.
+    /// Creates a proxy that is identical to this proxy, except for the adapter ID.
     ///
     /// - Parameter id: The adapter ID for the new proxy.
-    /// - Returns: The proxy with the new adapter ID.
+    /// - Returns: A proxy with the new adapter ID.
     func ice_adapterId(_ id: String) -> Self
 
-    /// Returns the endpoints used by this proxy.
+    /// Gets the endpoints used by this proxy.
     ///
     /// - Returns: The endpoints used by this proxy.
     func ice_getEndpoints() -> EndpointSeq
 
-    /// Creates a new proxy that is identical to this proxy, except for the endpoints.
+    /// Creates a proxy that is identical to this proxy, except for the endpoints.
     ///
     /// - Parameter endpoints: The endpoints for the new proxy.
-    /// - Returns: The proxy with the new endpoints.
+    /// - Returns: A proxy with the new endpoints.
     func ice_endpoints(_ endpoints: EndpointSeq) -> Self
 
-    /// Returns the locator cache timeout of this proxy.
+    /// Gets the locator cache timeout of this proxy.
     ///
     /// - Returns: The locator cache timeout value (in seconds).
     func ice_getLocatorCacheTimeout() -> Int32
 
-    /// Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
+    /// Creates a proxy that is identical to this proxy, except for the locator cache timeout.
     ///
     /// - Parameter timeout: The new locator cache timeout (in seconds).
-    /// - Returns: A new proxy with the specified cache timeout.
+    /// - Returns: A proxy with the new timeout.
     func ice_locatorCacheTimeout(_ timeout: Int32) -> Self
 
-    /// Returns the invocation timeout of this proxy.
+    /// Gets the invocation timeout of this proxy.
     ///
-    /// - Returns: The invocation timeout value (in seconds).
+    /// - Returns: The invocation timeout value.
     func ice_getInvocationTimeout() -> Int32
 
-    /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
+    /// Creates a proxy that is identical to this proxy, except for the invocation timeout.
     ///
     /// - Parameter timeout: The new invocation timeout (in seconds).
-    /// - Returns: A new proxy with the specified invocation timeout.
+    /// - Returns: A proxy with the new timeout.
     func ice_invocationTimeout(_ timeout: Int32) -> Self
 
-    /// Returns the connection id of this proxy.
+    /// Gets the connection ID of this proxy.
     ///
-    /// - Returns: The connection id.
+    /// - Returns: The connection ID.
     func ice_getConnectionId() -> String
 
-    /// Creates a new proxy that is identical to this proxy, except for its connection ID.
+    /// Creates a proxy that is identical to this proxy, except for its connection ID.
     ///
-    /// - Parameter id: The connection ID for the new proxy. An empty string removes the
-    ///   connection ID.
-    /// - Returns: A new proxy with the specified connection ID.
+    /// - Parameter id: The connection ID for the new proxy. An empty string removes the connection ID.
+    /// - Returns: A proxy with the specified connection ID.
     func ice_connectionId(_ id: String) -> Self
 
-    /// Returns whether this proxy caches connections.
+    /// Determines whether this proxy caches connections.
     ///
-    /// - Returns: True if this proxy caches connections; false, otherwise.
+    /// - Returns: `true` if this proxy caches connections, `false` otherwise.
     func ice_isConnectionCached() -> Bool
 
-    /// Creates a new proxy that is identical to this proxy, except for how it selects connections.
+    /// Creates a proxy that is identical to this proxy, except for connection caching.
     ///
-    /// - Parameter cached: True if the new proxy should cache connections; false, otherwise.
-    /// - Returns: The new proxy with the specified caching policy.
+    /// - Parameter cached: `true` if the new proxy should cache connections, `false` otherwise.
+    /// - Returns: A proxy with the specified caching policy.
     func ice_connectionCached(_ cached: Bool) -> Self
 
-    /// Returns how this proxy selects endpoints (randomly or ordered).
+    /// Gets the endpoint selection policy for this proxy (randomly or ordered).
     ///
     /// - Returns: The endpoint selection policy.
     func ice_getEndpointSelection() -> EndpointSelectionType
 
-    /// Creates a new proxy that is identical to this proxy, except for the endpoint selection policy.
+    /// Creates a proxy that is identical to this proxy, except for the endpoint selection policy.
     ///
     /// - Parameter type: The new endpoint selection policy.
-    /// - Returns: The new proxy with the specified endpoint selection policy.
+    /// - Returns: A proxy with the specified endpoint selection policy.
     func ice_endpointSelection(_ type: EndpointSelectionType) -> Self
 
-    /// Returns the encoding version used to marshal requests parameters.
+    /// Gets the encoding version used to marshal request parameters.
     ///
     /// - Returns: The encoding version.
     func ice_getEncodingVersion() -> EncodingVersion
 
-    /// Creates a new proxy that is identical to this proxy, except for the encoding used to marshal
-    /// parameters.
+    /// Creates a proxy that is identical to this proxy, except for the encoding used to marshal parameters.
     ///
-    /// - Parameter encoding: The encoding version to use to marshal requests parameters.
-    /// - Returns: The new proxy with the specified encoding version.
+    /// - Parameter encoding: The encoding version to use to marshal request parameters.
+    /// - Returns: A proxy with the specified encoding version.
     func ice_encodingVersion(_ encoding: EncodingVersion) -> Self
 
-    /// Returns the router for this proxy.
+    /// Gets the router for this proxy.
     ///
-    /// - Returns: The router for the proxy. If no router is configured for the proxy,
-    ///   the return value is nil.
+    /// - Returns: The router for the proxy. If no router is configured for the proxy, the return value is nil.
     func ice_getRouter() -> RouterPrx?
 
-    /// Creates a new proxy that is identical to this proxy, except for the router.
+    /// Creates a proxy that is identical to this proxy, except for the router.
     ///
     /// - Parameter router: The router for the new proxy.
-    /// - Returns: The new proxy with the specified router.
+    /// - Returns: A proxy with the specified router.
     func ice_router(_ router: RouterPrx?) -> Self
 
-    /// Returns the locator for this proxy.
+    /// Gets the locator for this proxy.
     ///
-    /// - Returns: The locator for this proxy. If no locator is configured, the
-    ///   return value is nil.
+    /// - Returns: The locator for this proxy. If no locator is configured, the return value is nil.
     func ice_getLocator() -> LocatorPrx?
 
-    /// Creates a new proxy that is identical to this proxy, except for the locator.
+    /// Creates a proxy that is identical to this proxy, except for the locator.
     ///
     /// - Parameter locator: The locator for the new proxy.
-    /// - Returns: The new proxy with the specified locator.
+    /// - Returns: A proxy with the specified locator.
     func ice_locator(_ locator: LocatorPrx?) -> Self
 
-    /// Returns whether this proxy uses twoway invocations.
+    /// Determines whether this proxy uses twoway invocations.
     ///
-    /// - Returns: True if this proxy uses twoway invocations; false, otherwise.
+    /// - Returns: `true` if this proxy uses twoway invocations, `false` otherwise.
     func ice_isTwoway() -> Bool
 
-    /// Creates a new proxy that is identical to this proxy, but uses twoway invocations.
+    /// Creates a proxy that is identical to this proxy, but uses twoway invocations.
     ///
-    /// - Returns: A new proxy that uses twoway invocations.
+    /// - Returns: A proxy that uses twoway invocations.
     func ice_twoway() -> Self
 
-    /// Returns whether this proxy uses oneway invocations.
+    /// Determines whether this proxy uses oneway invocations.
     ///
-    /// - Returns: True if this proxy uses oneway invocations; false, otherwise.
+    /// - Returns: `true` if this proxy uses oneway invocations, `false` otherwise.
     func ice_isOneway() -> Bool
 
-    /// Creates a new proxy that is identical to this proxy, but uses oneway invocations.
+    /// Creates a proxy that is identical to this proxy, but uses oneway invocations.
     ///
-    /// - Returns: A new proxy that uses oneway invocations.
+    /// - Returns: A proxy that uses oneway invocations.
     func ice_oneway() -> Self
 
-    /// Returns whether this proxy uses batch oneway invocations.
+    /// Determines whether this proxy uses batch oneway invocations.
     ///
-    /// - Returns: True if this proxy uses batch oneway invocations; false, otherwise.
+    /// - Returns: `true` if this proxy uses batch oneway invocations, `false` otherwise.
     func ice_isBatchOneway() -> Bool
 
-    /// Creates a new proxy that is identical to this proxy, but uses batch oneway invocations.
+    /// Creates a proxy that is identical to this proxy, but uses batch oneway invocations.
     ///
-    /// - Returns: A new proxy that uses batch oneway invocations.
+    /// - Returns: A proxy that uses batch oneway invocations.
     func ice_batchOneway() -> Self
 
-    /// Returns whether this proxy uses datagram invocations.
+    /// Determines whether this proxy uses datagram invocations.
     ///
-    /// - Returns: True if this proxy uses datagram invocations; false, otherwise.
+    /// - Returns: `true` if this proxy uses datagram invocations, `false` otherwise.
     func ice_isDatagram() -> Bool
 
-    /// Creates a new proxy that is identical to this proxy, but uses datagram invocations.
+    /// Creates a proxy that is identical to this proxy, but uses datagram invocations.
     ///
-    /// - Returns: A new proxy that uses datagram invocations.
+    /// - Returns: A proxy that uses datagram invocations.
     func ice_datagram() -> Self
 
-    /// Returns whether this proxy uses batch datagram invocations.
+    /// Determines whether this proxy uses batch datagram invocations.
     ///
-    /// - Returns: True if this proxy uses batch datagram invocations; false, otherwise.
+    /// - Returns: `true` if this proxy uses batch datagram invocations, `false` otherwise.
     func ice_isBatchDatagram() -> Bool
 
-    /// Creates a new proxy that is identical to this proxy, but uses batch datagram invocations.
+    /// Creates a proxy that is identical to this proxy, but uses batch datagram invocations.
     ///
-    /// - Returns: A new proxy that uses batch datagram invocations.
+    /// - Returns: A proxy that uses batch datagram invocations.
     func ice_batchDatagram() -> Self
 
-    /// Obtains the compression override setting of this proxy.
+    /// Gets the compression override setting of this proxy.
     ///
-    /// - Returns: The compression override setting. If no optional value is present, no override is
-    ///   set. Otherwise, true if compression is enabled, false otherwise.
+    /// - Returns: The compression override setting. If nil is returned, no override is set.
+    /// Otherwise, `true` if compression is enabled, `false` otherwise.
     func ice_getCompress() -> Bool?
 
-    /// Creates a new proxy that is identical to this proxy, except for compression.
+    /// Creates a proxy that is identical to this proxy, except for its compression setting which overrides the
+    /// compression setting from the proxy endpoints.
     ///
-    /// - Parameter compress: True enables compression for the new proxy; false disables compression.
-    /// - Returns: A new proxy with the specified compression setting.
+    /// - Parameter compress: `true` enables compression for the new proxy, `false` disables compression.
+    /// - Returns: A proxy with the specified compression override setting.
     func ice_compress(_ compress: Bool) -> Self
 
-    /// Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
-    /// to the given connection.
+    /// Creates a proxy that is identical to this proxy, except it's a fixed proxy bound to the given connection.
     ///
     /// - Parameter connection: The fixed proxy connection.
     /// - Returns: A fixed proxy bound to the given connection.
     func ice_fixed(_ connection: Connection) -> Self
 
-    /// Returns whether this proxy is a fixed proxy.
+    /// Determines whether this proxy is a fixed proxy.
     ///
-    /// - Returns: True if this is a fixed proxy, false otherwise.
+    /// - Returns: `true` if this proxy is a fixed proxy, `false` otherwise.
     func ice_isFixed() -> Bool
 
-    /// Returns the cached Connection for this proxy. If the proxy does not yet have an established
-    /// connection, it does not attempt to create a connection.
+    /// Gets the cached Connection for this proxy. If the proxy does not yet have an established connection, it does
+    /// not attempt to create a connection.
     ///
-    /// - Returns: The cached Connection for this proxy (nil if the proxy does not have
-    ///   an established connection).
+    /// - Returns: The cached connection for this proxy, or nil if the proxy does not have an established connection.
     func ice_getCachedConnection() -> Connection?
 
-    /// Returns the stringified form of this proxy.
+    /// Creates a stringified version of this proxy.
     ///
-    /// - Returns: The stringified proxy
+    /// - Returns: A stringified proxy.
     func ice_toString() -> String
 
-    /// Returns whether this proxy uses collocation optimization.
+    /// Determines whether this proxy uses collocation optimization.
     ///
-    /// - Returns: True if the proxy uses collocation optimization; false, otherwise.
+    /// - Returns: `true` if the proxy uses collocation optimization, `false` otherwise.
     func ice_isCollocationOptimized() -> Bool
 
-    /// Creates a new proxy that is identical to this proxy, except for collocation optimization.
+    /// Creates a proxy that is identical to this proxy, except for collocation optimization.
     ///
-    /// - Parameter collocated: True if the new proxy enables collocation optimization; false, otherwise.
-    /// - Returns: The new proxy the specified collocation optimization.
+    /// - Parameter collocated: `true` if the new proxy enables collocation optimization, `false` otherwise.
+    /// - Returns: A proxy with the specified collocation optimization.
     func ice_collocationOptimized(_ collocated: Bool) -> Self
 }
 
