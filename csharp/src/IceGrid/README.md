@@ -1,4 +1,4 @@
-# IceGrid
+# IceGrid Client Library
 
 IceGrid is a location and activation service for Ice applications. The ZeroC.IceGrid NuGet package provides
 the IceGrid assembly - the C# client library for the [IceGrid] service.
