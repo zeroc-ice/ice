@@ -3,10 +3,6 @@
 buildscript {
     repositories {
         mavenCentral()
-
-        maven {
-            url = "https://plugins.gradle.org/m2/"
-        }
     }
 }
 
@@ -44,38 +40,4 @@ tasks.withType(Checkstyle).configureEach {
     outputs.upToDateWhen { false }
     doNotTrackState("Always run Checkstyle")
 }
-
-// Android does not have a compileJava task
-if(!(project.hasProperty('android') && project.android.sourceSets)) {
-    compileJava {
-        // Set the target release using the --release option
-        options.compilerArgs.addAll(['--release', "${targetJavaRelease}"])
-        options.debug = debug
-    }
-}
-
-// If the prefix isn't set use these default locations.
-if(!prefix) {
-    def prefixVersion = iceVersion
-    if(prefixVersion.indexOf(".0-alpha")){
-        prefixVersion = prefixVersion.replace(".0-alpha", "a")
-    } else if(prefixVersion.indexOf(".0-beta")){
-        prefixVersion = prefixVersion.replace(".0-beta", "b")
-    }
-    if(System.properties['os.name'].toLowerCase().contains('windows')) {
-        prefix = "C:\\Ice-${prefixVersion}"
-    } else {
-        prefix = "/opt/Ice-${prefixVersion}"
-    }
-}
-
-// Installation location for jar/pom & executables.
-if((prefix.startsWith("/usr") || prefix.startsWith("/usr/local"))) {
-    ext.jarDir = prefix + "/share/java"
-    ext.binDir = prefix + "/bin"
-} else {
-    ext.jarDir = prefix + "/lib"
-    ext.binDir = prefix + "/bin"
-}
-
 ext.libDir = "$rootProject.projectDir/lib"
