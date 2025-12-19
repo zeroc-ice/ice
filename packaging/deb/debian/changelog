@@ -1,8 +1,14 @@
-zeroc-ice (3.8.0~alpha0-1) UNRELEASED; urgency=medium
+zeroc-ice (3.9.0~alpha0-1) UNRELEASED; urgency=medium
 
-  * Ice 3.8 alpha0 pre-release
+  * Ice 3.9 alpha0 pre-release
 
- -- José Gutiérrez de la Concha <jose@zeroc.com>  Fri, 31 Jan 2025 11:13:28 +0100
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Fri, 19 Dec 2025 17:02:28 +0100
+
+zeroc-ice (3.8.0-1) unstable; urgency=medium
+
+  * New upstream version 3.8.0
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Tue, 16 Dec 2025 15:24:28 +0100
 
 zeroc-ice (3.7.10-2) unstable; urgency=medium
 

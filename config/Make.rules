@@ -86,9 +86,9 @@ supported-languages     ?= $(strip cpp java python ruby php \
 supported-configs       ?= shared
 default-configs         ?= $(firstword $(supported-configs))
 
-version                 = 3.8a0
-mmversion               = 3.8
-soversion               = 38a0
+version                 = 3.9a0
+mmversion               = 3.9
+soversion               = 39a0
 
 #
 # The compatversion is the lowest patch release with the same API.

@@ -3,7 +3,7 @@
   <metadata>
     <id>ZeroC.Ice.Cpp</id>
     <title>Ice for C++ Windows developer kit.</title>
-    <version>3.8.0-alpha0</version>
+    <version>3.9.0-alpha0</version>
     <authors>ZeroC</authors>
     <copyright>Copyright (c) ZeroC, Inc.</copyright>
     <license type="expression">GPL-2.0-only</license>

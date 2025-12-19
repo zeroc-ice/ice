@@ -20,8 +20,8 @@ Example folder structure created:
         modules.txt
         server.exe
         server.pdb
-        ice38a0.dll
-        ice38a0.pdb
+        ice39a0.dll
+        ice39a0.pdb
 
 Arguments:
   --dumps       Path containing *.dmp dump files

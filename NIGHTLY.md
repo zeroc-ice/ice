@@ -217,7 +217,7 @@ You can install the latest Ruby gem by running the following command:
 
 ```shell
 gem install zeroc-ice --source https://download.zeroc.com/nexus/repository/rubygems-nightly --user \
-    --pre --version '>= 3.8.0.pre'
+    --pre --version '>= 3.9.0.pre'
 ```
 
 ### Ice for Swift
