@@ -8,7 +8,7 @@ Currently, the distribution supports Ubuntu 24.04, Debian 12, and Debian 13, for
 DEB Package              Description
 -----------------------  ---------------------------------------------------------------
 libzeroc-ice-dev         Ice for C++ headers and symlinks, and the Slice compiler for C++
-libzeroc-ice3.8          Ice for C++ runtime libraries (includes plug-ins, DataStorm and client libraries for Ice services)
+libzeroc-ice3.9          Ice for C++ runtime libraries (includes plug-ins, DataStorm and client libraries for Ice services)
 php-zeroc-ice            Ice for PHP
 python3-zeroc-ice        Ice for Python [1]
 zeroc-dsnode             DataStorm server

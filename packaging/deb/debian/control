@@ -33,7 +33,7 @@ Vcs-Browser: https://github.com/zeroc-ice/ice.git
 Package: libzeroc-ice-dev
 Architecture: any
 Section: libdevel
-Depends: libzeroc-ice3.8 (= ${binary:Version}),
+Depends: libzeroc-ice3.9 (= ${binary:Version}),
          zeroc-ice-slice (= ${binary:Version}),
          libssl-dev,
          ${misc:Depends}
@@ -46,7 +46,7 @@ Description: libraries and headers for developing Ice applications in C++
  network programming interfaces and allows you to focus your efforts on
  your application logic.
 
-Package: libzeroc-ice3.8
+Package: libzeroc-ice3.9
 Architecture: any
 Section: libs
 Pre-Depends: ${misc:Pre-Depends}
@@ -65,7 +65,7 @@ Package: zeroc-icestorm
 Architecture: any
 Section: net
 Pre-Depends: ${misc:Pre-Depends}
-Depends: libzeroc-ice3.8 (= ${binary:Version}),
+Depends: libzeroc-ice3.9 (= ${binary:Version}),
          zeroc-icebox (= ${binary:Version}),
          zeroc-ice-utils (= ${binary:Version}),
          ${misc:Depends},
@@ -87,7 +87,7 @@ Description: IceStorm publish-subscribe event distribution service
 Package: php-zeroc-ice
 Architecture: any
 Section: php
-Depends: libzeroc-ice3.8 (= ${binary:Version}),
+Depends: libzeroc-ice3.9 (= ${binary:Version}),
          zeroc-ice-slice (= ${binary:Version}),
          ${misc:Depends},
          ${php:Depends},
@@ -105,7 +105,7 @@ Package: python3-zeroc-ice
 Build-Profiles: <!no-python312>
 Architecture: any
 Section: python
-Depends: libzeroc-ice3.8 (= ${binary:Version}),
+Depends: libzeroc-ice3.9 (= ${binary:Version}),
          zeroc-ice-slice (= ${binary:Version}),
          ${misc:Depends},
          ${python3:Depends},
@@ -121,7 +121,7 @@ Description: Python 3 extension for Ice
 Package: zeroc-glacier2
 Architecture: any
 Section: net
-Depends: libzeroc-ice3.8 (= ${binary:Version}),
+Depends: libzeroc-ice3.9 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: Glacier2 router
@@ -169,7 +169,7 @@ Description: Slice files for Ice
 Package: zeroc-ice-utils
 Architecture: any
 Section: admin
-Depends: libzeroc-ice3.8 (= ${binary:Version}),
+Depends: libzeroc-ice3.9 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: Ice utilities and admin tools
@@ -183,7 +183,7 @@ Description: Ice utilities and admin tools
 Package: zeroc-dsnode
 Architecture: any
 Section: net
-Depends: libzeroc-ice3.8 (= ${binary:Version}),
+Depends: libzeroc-ice3.9 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: This package contains the DataStorm node server. The DataStorm
@@ -199,7 +199,7 @@ Description: This package contains the DataStorm node server. The DataStorm
 Package: zeroc-icebox
 Architecture: any
 Section: net
-Depends: libzeroc-ice3.8 (= ${binary:Version}),
+Depends: libzeroc-ice3.9 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: IceBox server, a framework for Ice application services
@@ -214,7 +214,7 @@ Description: IceBox server, a framework for Ice application services
 Package: zeroc-icegrid
 Architecture: any
 Section: net
-Depends: libzeroc-ice3.8 (= ${binary:Version}),
+Depends: libzeroc-ice3.9 (= ${binary:Version}),
          zeroc-icestorm (= ${binary:Version}),
          zeroc-ice-utils (= ${binary:Version}),
          ${misc:Depends},
@@ -231,7 +231,7 @@ Description: Locate, deploy, and manage Ice servers
 Package: zeroc-icebridge
 Architecture: any
 Section: net
-Depends: libzeroc-ice3.8 (= ${binary:Version}),
+Depends: libzeroc-ice3.9 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: IceBridge service
@@ -244,33 +244,3 @@ Description: IceBridge service
  with minimal effort. Ice takes care of all interactions with low-level
  network programming interfaces and allows you to focus your efforts on
  your application logic.
-
-Package: zeroc-ice-compilers
-Architecture: all
-Section: oldlibs
-Priority: optional
-Depends: libzeroc-ice-dev (= ${binary:Version}),
-        python3-zeroc-ice (= ${binary:Version}) <!no-python312>,
-        php-zeroc-ice (= ${binary:Version}),
-        ${misc:Depends}
-Description: transitional dummy package for Ice 3.7 all-dev metapackage
- This empty package ensures a smooth upgrade from Ice 3.7 by replacing
- the obsolete zeroc-ice-compilers. It can be safely removed.
-
-Package: zeroc-ice-all-dev
-Architecture: all
-Section: oldlibs
-Priority: optional
-Depends: ${misc:Depends}
-Description: transitional dummy package for Ice 3.7 all-dev metapackage
- This empty package ensures a smooth upgrade from Ice 3.7 by replacing
- the obsolete zeroc-ice-all-dev metapackage. It can be safely removed.
-
-Package: zeroc-ice-all-runtime
-Architecture: all
-Section: oldlibs
-Priority: optional
-Depends: ${misc:Depends}
-Description: transitional dummy package for Ice 3.7 all-runtime metapackage
- This empty package ensures a smooth upgrade from Ice 3.7 by replacing
- the obsolete zeroc-ice-all-runtime metapackage. It can be safely removed.
