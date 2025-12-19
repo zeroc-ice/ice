@@ -39,7 +39,7 @@
       "ZeroC.Glacier2": {
         "type": "Project",
         "dependencies": {
-          "ZeroC.Ice": "[3.8.0-alpha0, )"
+          "ZeroC.Ice": "[3.9.0-alpha0, )"
         }
       },
       "ZeroC.Ice": {

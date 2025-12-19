@@ -62,7 +62,7 @@ You can install Ice for PHP by running:
 make install
 ```
 
-By default, Ice for PHP is installed to `/opt/Ice-3.8a0`. To change the installation location, set the `prefix` Makefile
+By default, Ice for PHP is installed to `/opt/Ice-3.9a0`. To change the installation location, set the `prefix` Makefile
 variable:
 
 ```shell
@@ -85,7 +85,7 @@ Next, enable the extension in your PHP configuration. Create an `ice.ini` file c
 extension=ice
 
 ; Add the Ice for PHP sources to the PHP include_path
-include_path=${include_path}":/opt/Ice-3.8a0/php"
+include_path=${include_path}":/opt/Ice-3.9a0/php"
 ```
 
 Place this file in your PHP configuration file directory, often called `conf.d`.

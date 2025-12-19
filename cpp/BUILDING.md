@@ -130,7 +130,7 @@ You can install Ice for C++ by running:
 make install
 ```
 
-By default, Ice for C++ is installed to `/opt/Ice-3.8a0`. To change the installation location, set the `prefix`
+By default, Ice for C++ is installed to `/opt/Ice-3.9a0`. To change the installation location, set the `prefix`
 Makefile variable:
 
 ```shell
@@ -231,7 +231,7 @@ You can install Ice for C++ by running:
 make -j10 install
 ```
 
-By default, Ice for C++ is installed to `/opt/Ice-3.8a0`. To change the installation location, set the `prefix` Makefile
+By default, Ice for C++ is installed to `/opt/Ice-3.9a0`. To change the installation location, set the `prefix` Makefile
 variable:
 
 ```shell
