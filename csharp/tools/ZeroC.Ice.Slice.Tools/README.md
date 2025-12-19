@@ -1,4 +1,4 @@
-# Slice Tools for Ice and CSharp
+# Slice Tools for Ice and C\#
 
 **ZeroC.Ice.Slice.Tools** provides an MSBuild task for compiling Slice definitions (`.ice` files) into C# source
 files (`.cs` files) automatically as part of your build process.

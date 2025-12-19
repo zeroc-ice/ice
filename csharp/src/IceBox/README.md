@@ -4,7 +4,7 @@ IceBox allows you to develop Ice servers as collections of services that can be 
 [IceBox server] through configuration.
 
 The ZeroC.IceBox NuGet package provides the IceBox assembly required to develop IceBox services. It also includes the
-Slice definitions that define the `IceBox::ServiceManager` interface, used to remotely administer an IceBox server. The
+Slice definitions for the `IceBox::ServiceManager` interface, used to remotely administer an IceBox server. The
 generated code for these definitions is included in the IceBox assembly.
 
 [Package][package] | [Source code][source] | [Examples][examples] | [Documentation][docs] | [API reference][api]
