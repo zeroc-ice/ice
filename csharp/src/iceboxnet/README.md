@@ -1,6 +1,4 @@
-# iceboxnet
-
-The IceBox server for .NET.
+# IceBox Server for .NET
 
 The IceBox server loads and manages [IceBox services], allowing you to build Ice servers as collections of services
 that can be dynamically loaded through configuration.

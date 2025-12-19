@@ -1,9 +1,7 @@
 # IceGrid
 
-IceGrid is a location and activation service for Ice applications.
-
-The IceGrid NuGet package enables C# applications to communicate with the IceGrid service. It includes the Slice
-definitions for IceGrid. The generated code for these definitions is included in the IceGrid assembly.
+IceGrid is a location and activation service for Ice applications. The ZeroC.IceGrid NuGet package provides
+the IceGrid assembly - the C# client library for the [IceGrid] service.
 
 [Package][package] | [Source code][source] | [Examples][examples] | [Documentation][docs] | [API reference][api]
 
@@ -12,3 +10,4 @@ definitions for IceGrid. The generated code for these definitions is included in
 [examples]: https://github.com/zeroc-ice/ice-demos/tree/main/csharp
 [package]: https://www.nuget.org/packages/ZeroC.IceGrid
 [source]: https://github.com/zeroc-ice/ice/tree/main/csharp/src/IceGrid
+[IceGrid]: https://docs.zeroc.com/ice/latest/csharp/icegrid
