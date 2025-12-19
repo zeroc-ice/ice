@@ -12,7 +12,6 @@ if(os == "Mac OS X") {
     ext.platform = "linux"
 }
 
-
 // Don't generate javadoc
 javadoc.enabled = false
 

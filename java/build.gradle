@@ -49,6 +49,11 @@ subprojects {
     }
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.release = targetJavaRelease
+    options.debug = debug
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
