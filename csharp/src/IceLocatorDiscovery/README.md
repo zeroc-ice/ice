@@ -1,12 +1,14 @@
-# IceLocatorDiscovery
+# IceLocatorDiscovery Plug-in
 
-IceLocatorDiscovery provides an Ice location service based on UDP multicast that allows Ice applications to automatically discover and configure locators.
-The ZeroC.IceLocatorDiscovery NuGet package includes the IceLocatorDiscovery plugin for Ice for C#.
+IceLocatorDiscovery is an Ice location service based on UDP multicast that allows Ice applications to automatically
+discover and configure locators. The ZeroC.IceLocatorDiscovery NuGet package provides the IceLocatorDiscovery plug-in
+for C#.
 
 [Package][package] | [Source code][source] | [Examples][examples] | [Documentation][docs]
 
 ```csharp
-// Configure the communicator to load the IceLocatorDiscovery plug-in during initialization.
+// Configure the communicator to load the IceLocatorDiscovery plug-in during
+// initialization.
 var initData = new Ice.InitializationData
 {
     properties = new Ice.Properties(ref args),

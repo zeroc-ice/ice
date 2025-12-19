@@ -1,4 +1,4 @@
-# Ice for C-Sharp
+# Ice for C\#
 
 [Examples] | [Documentation] | [API Reference] | [Building from source]
 
