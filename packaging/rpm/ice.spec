@@ -115,39 +115,12 @@ with minimal effort. Ice takes care of all interactions with low-level
 network programming interfaces and allows you to focus your efforts on
 your application logic.
 
-# Transitional dummy package for clean upgrade from Ice 3.7
-%package -n %{?nameprefix}ice-all-runtime
-Summary: Transitional package for Ice run-time components.
-Obsoletes: %{?nameprefix}ice-all-runtime < %{version}-%{release}
-Provides: %{?nameprefix}ice-all-runtime = %{version}-%{release}
-
-%description -n %{?nameprefix}ice-all-runtime
-This transitional package exists to support upgrades from Ice 3.7.
-It does not install any content and can be safely removed.
-
-# Transitional dummy package for clean upgrade from Ice 3.7
-%package -n %{?nameprefix}ice-all-devel
-Summary: Transitional package for Ice development components.
-Obsoletes: %{?nameprefix}ice-all-devel < %{version}-%{release}
-Provides: %{?nameprefix}ice-all-devel = %{version}-%{release}
-
-%description -n %{?nameprefix}ice-all-devel
-This transitional package exists to support upgrades from Ice 3.7.
-It does not install any content and can be safely removed.
-
-# Transitional dummy package for clean upgrade from Ice 3.7
-Summary: Transitional package to install all Slice compilers
-Name: %{?nameprefix}ice-compilers
-Requires: libice-c++-devel, python3-%{?nameprefix}ice, %{phpname}-%{?nameprefix}ice
-Obsoletes: %{?nameprefix}ice-compilers < %{version}-%{release}
-Provides: %{?nameprefix}ice-compilers = %{version}-%{release}
-
 #
 # libiceMm-c++ package
 #
-%package -n lib%{?nameprefix}ice3.8-c++
+%package -n lib%{?nameprefix}ice3.9-c++
 Summary: Ice for C++ run-time libraries.
-%description -n lib%{?nameprefix}ice3.8-c++
+%description -n lib%{?nameprefix}ice3.9-c++
 This package contains the C++ run-time libraries for the Ice framework.
 
 Ice is a comprehensive RPC framework that helps you network your software
@@ -160,7 +133,7 @@ your application logic.
 #
 %package -n %{?nameprefix}icebox
 Summary: IceBox server, a framework for Ice application services.
-Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
 Requires: %{?nameprefix}ice-utils = %{version}-%{release}
 %description -n %{?nameprefix}icebox
 This package contains the IceBox server, an easy-to-use framework for
@@ -176,7 +149,7 @@ your application logic.
 #
 %package -n %{?nameprefix}icestorm
 Summary: IceStorm publish-subscribe event distribution service.
-Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
 Requires: %{?nameprefix}icebox = %{version}-%{release}
 Requires: %{?nameprefix}ice-utils = %{version}-%{release}
 %description -n %{?nameprefix}icestorm
@@ -198,7 +171,7 @@ your application logic.
 #
 %package -n lib%{?nameprefix}ice-c++-devel
 Summary: Libraries and headers for developing Ice applications in C++.
-Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
 Requires: %{?nameprefix}ice-slice = %{version}-%{release}
 Requires: glibc-devel
 Requires: openssl-devel
@@ -234,7 +207,7 @@ your application logic.
 #
 %package -n %{?nameprefix}ice-utils
 Summary: Ice utilities and admin tools.
-Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
 %description -n %{?nameprefix}ice-utils
 This package contains Ice utilities and admin tools.
 
@@ -248,7 +221,7 @@ your application logic.
 #
 %package -n %{?nameprefix}icegrid
 Summary: Locate, deploy, and manage Ice servers.
-Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
 Requires: %{?nameprefix}icestorm = %{version}-%{release}
 Requires: %{?nameprefix}ice-utils = %{version}-%{release}
 # Requirements for the users
@@ -268,7 +241,7 @@ your application logic.
 #
 %package -n %{?nameprefix}dsnode
 Summary: DataStorm node server.
-Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
 %description -n %{?nameprefix}dsnode
 This package contains the DataStorm node server. The DataStorm node server allows
 other DataStorm nodes to exchange topic discovery information without relying on
@@ -284,7 +257,7 @@ your application logic.
 #
 %package -n %{?nameprefix}glacier2
 Summary: Glacier2 router.
-Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
 Requires(pre): %{shadow}
 %{?systemd_requires: %systemd_requires}
 %description -n %{?nameprefix}glacier2
@@ -304,7 +277,7 @@ your application logic.
 #
 %package -n %{?nameprefix}icebridge
 Summary: IceBridge service.
-Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
 %description -n %{?nameprefix}icebridge
 This package contains the IceBridge service. IceBridge allows you to bridge
 connections securely between one or multiple clients and a server. It
@@ -321,7 +294,7 @@ your application logic.
 #
 %package -n %{phpname}-%{?nameprefix}ice
 Summary: PHP extension for Ice.
-Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
 Requires: %{?nameprefix}ice-slice = %{version}-%{release}
 Requires: %{phpcommon}
 
@@ -338,7 +311,7 @@ your application logic.
 #
 %package -n python3-%{?nameprefix}ice
 Summary: Python extension for Ice.
-Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
 Requires: %{?nameprefix}ice-slice = %{version}-%{release}
 Requires: python3
 %description -n python3-%{?nameprefix}ice
@@ -452,7 +425,7 @@ cp -p packaging/rpm/icegridgui %{buildroot}%{_bindir}/icegridgui
 #
 # libice-Mm-c++ package
 #
-%files -n lib%{?nameprefix}ice3.8-c++
+%files -n lib%{?nameprefix}ice3.9-c++
 %license LICENSE
 %license ICE_LICENSE
 %license packaging/rpm/LMDB_LICENSE
@@ -467,8 +440,8 @@ cp -p packaging/rpm/icegridgui %{buildroot}%{_bindir}/icegridgui
 %{_libdir}/libIceLocatorDiscovery.so.*
 %{_libdir}/libIceStorm.so.*
 %{_libdir}/cmake/*/*.cmake
-%post -n lib%{?nameprefix}ice3.8-c++ -p /sbin/ldconfig
-%postun -n lib%{?nameprefix}ice3.8-c++
+%post -n lib%{?nameprefix}ice3.9-c++ -p /sbin/ldconfig
+%postun -n lib%{?nameprefix}ice3.9-c++
 /sbin/ldconfig
 exit 0
 
