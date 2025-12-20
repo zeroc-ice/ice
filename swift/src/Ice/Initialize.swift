@@ -43,6 +43,8 @@ public func initialize(_ args: inout [String]) throws -> Communicator {
 /// Creates a new communicator.
 /// - Parameter initData: Options for the new communicator.
 /// - Returns: The new communicator.
+/// - Remark: This is the primary `initialize` overload; the other overloads are provided for convenience and call
+///   this function.
 public func initialize(_ initData: InitializationData = InitializationData()) throws -> Communicator {
     // Ensure factories are initialized.
     guard factoriesRegistered else {
@@ -178,10 +180,10 @@ public let stringVersion: String = "3.9.0-alpha.0"
 public let Encoding_1_0 = EncodingVersion(major: 1, minor: 0)
 public let Encoding_1_1 = EncodingVersion(major: 1, minor: 1)
 
-/// Converts a string to an object identity.
+/// Converts a stringified identity into an `Identity`.
 ///
-/// - Parameter string: The string to convert.
-/// - Returns: The converted object identity.
+/// - Parameter string: The stringified identity.
+/// - Returns: An `Identity` containing the name and category components.
 public func stringToIdentity(_ string: String) throws -> Identity {
     guard factoriesRegistered else {
         fatalError("Unable to initialize Ice")
@@ -194,12 +196,12 @@ public func stringToIdentity(_ string: String) throws -> Identity {
     }
 }
 
-/// Converts an object identity to a string.
+/// Converts an `Identity` into a string using the specified mode.
 ///
 /// - Parameters:
 ///   - id: The object identity to convert.
-///   - mode: Specifies if and how non-printable ASCII characters are escaped in the result.
-/// - Returns: The string representation of the object identity.
+///   - mode: Specifies how to handle non-ASCII characters and non-printable ASCII characters.
+/// - Returns: The stringified identity.
 public func identityToString(id: Identity, mode: ToStringMode = .Unicode) -> String {
     precondition(!id.name.isEmpty, "Invalid identity with an empty name")
     return ICEUtil.identityToString(name: id.name, category: id.category, mode: mode.rawValue)

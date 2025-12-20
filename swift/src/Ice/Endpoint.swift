@@ -2,22 +2,23 @@
 
 import Foundation
 
-/// The user-level interface to an endpoint.
+/// An endpoint specifies the address of the server-end of an Ice connection: an object adapter listens on one or more
+/// endpoints and a client establishes a connection to an endpoint.
 public protocol Endpoint: AnyObject, CustomStringConvertible {
-    /// Return a string representation of the endpoint.
+    /// Returns a string representation of this endpoint.
     ///
-    /// - Returns: The string representation of the endpoint.
+    /// - Returns: The string representation of this endpoint.
     func toString() -> String
 
-    /// Returns the endpoint information.
+    /// Returns this endpoint's information.
     ///
-    /// - Returns: The endpoint information class.
+    /// - Returns: This endpoint's information class.
     func getInfo() -> EndpointInfo?
 }
 
 public typealias EndpointSeq = [Endpoint]
 
-/// Base class providing access to the endpoint details.
+/// Base class for the endpoint info classes.
 open class EndpointInfo {
     /// The information of the underlying endpoint or nil if there's no underlying endpoint.
     public let underlying: EndpointInfo?
@@ -32,16 +33,16 @@ open class EndpointInfo {
         underlying?.type() ?? -1
     }
 
-    /// Returns true if this endpoint is a datagram endpoint.
+    /// Returns `true` if this endpoint's transport is a datagram transport (namely, UDP), `false` otherwise.
     ///
-    /// - Returns: True for a datagram endpoint.
+    /// - Returns: `true` for a UDP endpoint, `false` otherwise.
     public func datagram() -> Bool {
         underlying?.datagram() ?? false
     }
 
-    /// Returns true if this endpoint is a secure endpoint.
+    /// Returns `true` if this endpoint's transport uses SSL, `false` otherwise.
     ///
-    /// - Returns: True for a secure endpoint.
+    /// - Returns: `true` for SSL and SSL-based transports, `false` otherwise.
     public func secure() -> Bool {
         underlying?.secure() ?? false
     }
@@ -57,7 +58,7 @@ open class EndpointInfo {
     }
 }
 
-/// Provides access to the address details of a IP endpoint.
+/// Provides access to the address details of an IP endpoint.
 open class IPEndpointInfo: EndpointInfo {
     /// The host or address configured with the endpoint.
     public let host: String
@@ -98,7 +99,7 @@ public final class TCPEndpointInfo: IPEndpointInfo {
 public final class SSLEndpointInfo: EndpointInfo {
 }
 
-/// Provides access to an UDP endpoint information.
+/// Provides access to a UDP endpoint information.
 public final class UDPEndpointInfo: IPEndpointInfo {
     /// The multicast interface.
     public let mcastInterface: String
@@ -136,11 +137,11 @@ public final class WSEndpointInfo: EndpointInfo {
 
 /// Provides access to an IAP endpoint information.
 public final class IAPEndpointInfo: EndpointInfo {
-    /// The accessory manufacturer or empty to not match against a manufacturer.
+    /// The accessory manufacturer. Can be empty.
     public let manufacturer: String
-    /// The accessory model number or empty to not match against a model number.
+    /// The accessory model number. Can be empty.
     public let modelNumber: String
-    /// The accessory name or empty to not match against the accessory name.
+    /// The accessory name. Can be empty.
     public let name: String
     /// The protocol supported by the accessory.
     public let `protocol`: String

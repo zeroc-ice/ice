@@ -6,14 +6,17 @@
 // Dispatch exceptions
 //
 
-/// The dispatch failed. This is the base class for local exceptions that can be marshaled and transmitted "over the
-/// wire".
+/// The exception that is thrown when a dispatch failed. This is the base class for local exceptions that can be
+/// marshaled and transmitted "over the wire".
+/// You can throw this exception in the implementation of an operation, or in a middleware.
+/// The Ice runtime then logically rethrows this exception to the client.
 public class DispatchException: LocalException, @unchecked Sendable {
     public let replyStatus: UInt8
 
     /// Creates a DispatchException.
+    ///
     /// - Parameters:
-    ///   - replyStatus: The reply status raw value. It may not correspond to a valid `ReplyStatus` enum value.
+    ///   - replyStatus: The reply status raw value. It may not correspond to a valid ``ReplyStatus`` enum value.
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
@@ -81,9 +84,10 @@ public class RequestFailedException: DispatchException, @unchecked Sendable {
     }
 }
 
-/// The dispatch could not find a servant for the identity carried by the request.
+/// The exception that is thrown when a dispatch could not find a servant for the identity carried by the request.
 public final class ObjectNotExistException: RequestFailedException, @unchecked Sendable {
     /// Creates an ObjectNotExistException.
+    ///
     /// - Parameters:
     ///   - id: The identity of the target Ice object carried by the request.
     ///   - facet: The facet of the target Ice object.
@@ -99,6 +103,7 @@ public final class ObjectNotExistException: RequestFailedException, @unchecked S
 
     /// Creates an ObjectNotExistException. The request details (id, facet, operation) will be filled-in by the Ice
     /// runtime when the exception is marshaled.
+    ///
     /// - Parameters:
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
@@ -110,6 +115,7 @@ public final class ObjectNotExistException: RequestFailedException, @unchecked S
 /// The dispatch could not find a servant for the identity + facet carried by the request.
 public final class FacetNotExistException: RequestFailedException, @unchecked Sendable {
     /// Creates a FacetNotExistException.
+    ///
     /// - Parameters:
     ///   - id: The identity of the target Ice object carried by the request.
     ///   - facet: The facet of the target Ice object.
@@ -125,6 +131,7 @@ public final class FacetNotExistException: RequestFailedException, @unchecked Se
 
     /// Creates a FacetNotExistException. The request details (id, facet, operation) will be filled-in by the Ice
     /// runtime when the exception is marshaled.
+    ///
     /// - Parameters:
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
@@ -137,6 +144,7 @@ public final class FacetNotExistException: RequestFailedException, @unchecked Se
 /// to a mismatch in the Slice definitions, such as the client using Slice definitions newer than the server's.
 public final class OperationNotExistException: RequestFailedException, @unchecked Sendable {
     /// Creates an OperationNotExistException.
+    ///
     /// - Parameters:
     ///   - id: The identity of the target Ice object carried by the request.
     ///   - facet: The facet of the target Ice object.
@@ -152,6 +160,7 @@ public final class OperationNotExistException: RequestFailedException, @unchecke
 
     /// Creates an OperationNotExistException. The request details (id, facet, operation) will be filled-in by the Ice
     /// runtime when the exception is marshaled.
+    ///
     /// - Parameters:
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
@@ -160,7 +169,8 @@ public final class OperationNotExistException: RequestFailedException, @unchecke
     }
 }
 
-/// The dispatch failed with an exception that is not an `Ice.LocalException` or an `Ice.UserException`.
+/// The exception that is thrown when a dispatch failed with an exception that is not a `LocalException` or a
+/// `UserException`.
 public class UnknownException: DispatchException, @unchecked Sendable {
     @available(*, deprecated, renamed: "message")
     public var reason: String { message }
@@ -174,20 +184,22 @@ public class UnknownException: DispatchException, @unchecked Sendable {
     }
 }
 
-/// The dispatch failed with an `Ice.LocalException` that is not one of the special marshal-able local exceptions.
+/// The exception that is thrown when a dispatch failed with a `LocalException` that is not a `DispatchException`.
 public final class UnknownLocalException: UnknownException, @unchecked Sendable {
     public required init(_ message: String, file: String = #fileID, line: Int32 = #line) {
         super.init(replyStatus: .unknownLocalException, message: message, file: file, line: line)
     }
 }
 
-/// The dispatch returned an `Ice.UserException` that was not declared in the operation's exception specification.
+/// The exception that is thrown when a client receives a `UserException` that was not declared in the operation's
+/// exception specification.
 public final class UnknownUserException: UnknownException, @unchecked Sendable {
     public required init(_ message: String, file: String = #fileID, line: Int32 = #line) {
         super.init(replyStatus: .unknownUserException, message: message, file: file, line: line)
     }
 
     /// Creates an UnknownUserException.
+    ///
     /// - Parameters:
     ///   - badTypeId: The type ID of the user exception carried by the reply.
     ///   - file: The file where the exception was thrown.
@@ -203,60 +215,59 @@ public final class UnknownUserException: UnknownException, @unchecked Sendable {
 // Protocol exceptions
 //
 
-/// The base class for Ice protocol exceptions.
+/// The base class for exceptions related to the Ice protocol.
 public class ProtocolException: LocalException, @unchecked Sendable {}
 
-/// This exception indicates that the connection has been gracefully shut down by the server. The operation call that
-/// caused this exception has not been executed by the server. In most cases you will not get this exception, because
-/// the client will automatically retry the operation call in case the server shut down the connection. However, if
-/// upon retry the server shuts down the connection again, and the retry limit has been reached, then this exception
-/// is propagated to the application code.
+/// The exception that is thrown when the connection has been gracefully shut down by the server. The request that
+/// returned this exception has not been executed by the server. In most cases you will not get this exception,
+/// because the client will automatically retry the invocation. However, if upon retry the server shuts down the
+/// connection again and the retry limit has been reached, this exception is propagated to the application code.
 public final class CloseConnectionException: ProtocolException, @unchecked Sendable {}
 
-/// A datagram exceeds the configured size. This exception is raised if a datagram exceeds the configured send or
-/// receive buffer size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
+/// The exception that is thrown when a datagram exceeds the configured send or receive buffer size, or exceeds the
+/// maximum payload size of a UDP packet (65507 bytes).
 public final class DatagramLimitException: ProtocolException, @unchecked Sendable {}
 
-/// This exception is raised for errors during marshaling or unmarshaling data.
+/// The exception that is thrown when an error occurs during marshaling or unmarshaling.
 public final class MarshalException: ProtocolException, @unchecked Sendable {}
 
 //
 // Timeout exceptions
 //
 
-/// This exception indicates a timeout condition.
+/// The exception that is thrown when a timeout occurs. This is the base class for all timeout exceptions.
 public class TimeoutException: LocalException, @unchecked Sendable {}
 
-/// This exception indicates a connection establishment timeout condition.
+/// The exception that is thrown when a connection establishment times out.
 public final class ConnectTimeoutException: TimeoutException, @unchecked Sendable {}
 
-/// This exception indicates a connection closure timeout condition.
+/// The exception that is thrown when a graceful connection closure times out.
 public final class CloseTimeoutException: TimeoutException, @unchecked Sendable {}
 
-/// This exception indicates that an invocation failed because it timed out.
+/// The exception that is thrown when an invocation times out.
 public final class InvocationTimeoutException: TimeoutException, @unchecked Sendable {}
 
 //
 // Syscall exceptions
 //
 
-/// This exception is raised if a system error occurred in the server or client process.
+/// The exception that is thrown to report the failure of a system call.
 public class SyscallException: LocalException, @unchecked Sendable {}
 
-/// This exception indicates a DNS problem.
+/// The exception that is thrown to report a DNS resolution failure.
 public final class DNSException: SyscallException, @unchecked Sendable {}
 
 //
 // Socket exceptions
 //
 
-/// This exception indicates a socket error.
+/// The exception that is thrown to report a socket error.
 public class SocketException: SyscallException, @unchecked Sendable {}
 
-/// This exception indicates a connection failure.
+/// The exception that is thrown when a connection establishment fails.
 public class ConnectFailedException: SocketException, @unchecked Sendable {}
 
-/// This exception indicates a connection failure for which the server host actively refuses a connection.
+/// The exception that is thrown when the server host actively refuses a connection.
 public final class ConnectionRefusedException: ConnectFailedException, @unchecked Sendable {}
 
 /// This exception indicates a lost connection.
@@ -278,6 +289,7 @@ public final class AlreadyRegisteredException: LocalException, @unchecked Sendab
     public let id: String
 
     /// Creates an AlreadyRegisteredException.
+    ///
     /// - Parameters:
     ///   - kindOfObject: The kind of object that is already registered.
     ///   - id: The ID (or name) of the object that is already registered.
@@ -372,6 +384,7 @@ public final class InitializationException: LocalException, @unchecked Sendable 
 /// This exception is raised if no suitable endpoint is available.
 public final class NoEndpointException: LocalException, @unchecked Sendable {
     /// Creates a NoEndpointException.
+    ///
     /// - Parameters:
     ///   - proxy: The proxy that carries the endpoints.
     ///   - file: The file where the exception was thrown.
@@ -390,6 +403,7 @@ public final class NotRegisteredException: LocalException, @unchecked Sendable {
     public let id: String
 
     /// Creates a NotRegisteredException.
+    ///
     /// - Parameters:
     ///   - kindOfObject: The kind of object that is not registered.
     ///   - id: The ID (or name) of the object that is not registered.
@@ -424,6 +438,7 @@ public final class ObjectAdapterDestroyedException: LocalException, @unchecked S
 /// detects another active ObjectAdapter with the same adapter id.
 public final class ObjectAdapterIdInUseException: LocalException, @unchecked Sendable {
     /// Creates an ObjectAdapterIdInUseException.
+    ///
     /// - Parameters:
     ///   - id: The adapter ID that is already active in the Locator.
     ///   - file: The file where the exception was thrown.
@@ -447,6 +462,7 @@ public final class SecurityException: LocalException, @unchecked Sendable {}
 /// ice_batchDatagram and the operation has a return value, out-parameters, or an exception specification.
 public final class TwowayOnlyException: LocalException, @unchecked Sendable {
     /// Creates a TwowayOnlyException.
+    ///
     /// - Parameters:
     ///   - operation: The name of the two-way only operation.
     ///   - file: The file where the exception was thrown.

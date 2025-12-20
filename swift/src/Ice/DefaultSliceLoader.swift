@@ -3,17 +3,18 @@
 import Foundation
 import Synchronization
 
-/// Implements SliceLoader using the generated code.
+/// Implements ``SliceLoader`` using the generated code.
 public final class DefaultSliceLoader: NSObject, SliceLoader {
     private let classResolverPrefix: String
 
-    // We cache successful resolutions. The size of this cache is bounded by the number of Slice classes and exceptions
-    // in the program.
+    // We cache successful resolutions.
+    // The size of this cache is bounded by the number of Slice classes and exceptions in the program.
     private let typeIdToClassMap = Mutex<[String: AnyObject.Type]>([:])
 
     /// Creates a DefaultSliceLoader.
-    /// - Parameter classResolverPrefix: The prefix to use when resolving Slice classes and exceptions. This prefix
-    /// corresponds to the Slice metadata directive swift:class-resolver-prefix.
+    ///
+    /// - Parameter classResolverPrefix: The prefix to use when resolving Slice classes and exceptions.
+    /// This prefix corresponds to the Slice metadata directive `swift:class-resolver-prefix`.
     public init(_ classResolverPrefix: String = "") {
         self.classResolverPrefix = classResolverPrefix
     }
@@ -39,7 +40,7 @@ public final class DefaultSliceLoader: NSObject, SliceLoader {
         }
     }
 
-    /// Finds a generated class or exception dynamically, using a resolveTypeId<prefix>_xxx extension method.
+    /// Finds a generated class or exception dynamically, using a `resolveTypeId<prefix>_xxx` extension method.
     private static func resolve(typeId: String, prefix: String) -> AnyObject.Type? {
         return autoreleasepool {
             // Regular type IDs start with "::", while compact IDs don't.

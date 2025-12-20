@@ -2,27 +2,29 @@
 
 import Foundation
 
-/// Represents the response to an incoming request. It's returned by Dispatcher.dispatch.
+/// Represents the response to an incoming request. It's returned by ``Dispatcher/dispatch(_:)``.
 public struct OutgoingResponse {
-    /// Gets the exception ID of the response.
-    /// It's nil when replyStatus is ok or userException. Otherwise, this ID is the value returned by `ice_id` for
+    /// The exception ID of the response.
+    /// It's nil when ``replyStatus`` is `ok` or `userException`. Otherwise, this ID is the value returned by `ice_id` for
     /// Ice local exceptions. For other exceptions, this ID is the full name of the exception's type.
     public let exceptionId: String?
 
-    /// Gets the full details of the exception marshaled into this response.
-    /// It's nil when replyStatus is ok.
+    /// The full details of the exception marshaled into the response.
+    /// It's nil when ``replyStatus`` is `ok` or `userException`.
     public let exceptionDetails: String?
 
-    /// Gets the output stream buffer of the response. This output stream should not be written to after construction.
+    /// The output stream buffer of the response.
     public let outputStream: OutputStream
 
-    /// Gets the reply status raw value. It may not correspond to a valid `ReplyStatus` value.
+    /// The reply status of the response.
     public let replyStatus: UInt8
 
     /// Creates an OutgoingResponse object.
+    ///
     /// - Parameters:
     ///   - replyStatus: The reply status.
-    ///   - exceptionId: The ID of the exception, when the response carries an exception other than a user exception.
+    ///   - exceptionId: The type ID of the exception, when the response carries an exception other than a user
+    ///   exception.
     ///   - exceptionDetails: The full details of the exception, when the response carries an exception other than a
     ///   user exception.
     ///   - outputStream: The output stream that holds the response.
@@ -35,7 +37,8 @@ public struct OutgoingResponse {
         self.outputStream = outputStream
     }
 
-    /// Creates an OutgoingResponse object with the ok status.
+    /// Creates an OutgoingResponse object with the `ok` status.
+    ///
     /// - Parameter outputStream: The output stream that holds the response.
     internal init(_ outputStream: OutputStream) {
         self.init(

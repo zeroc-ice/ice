@@ -2,6 +2,7 @@
 
 import Synchronization
 
+/// A dispatcher that manages servants and servant locators for an object adapter.
 final class ServantManager: Dispatcher {
 
     private struct State {

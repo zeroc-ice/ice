@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-/// Base class for Ice local exceptions.
+/// Base class for all Ice exceptions not defined in Slice.
 public class LocalException: Exception, CustomStringConvertible, @unchecked Sendable {
     /// The error message.
     public let message: String
@@ -13,6 +13,7 @@ public class LocalException: Exception, CustomStringConvertible, @unchecked Send
     public var description: String { "\(file):\(line) \(ice_id().dropFirst(2)) \(message)" }
 
     /// Creates a LocalException.
+    ///
     /// - Parameters:
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
@@ -23,9 +24,9 @@ public class LocalException: Exception, CustomStringConvertible, @unchecked Send
         self.line = line
     }
 
-    /// Gets the type ID of the class, for example "::Ice::CommunicatorDestroyedException".
-    /// This type ID is provided for informational purposes.
-    /// - Returns: The type ID of the class.
+    /// Returns a type ID for this exception based on its fully qualified name.
+    ///
+    /// - Returns: The type ID of this exception.
     public func ice_id() -> String {
         "::" + String(reflecting: type(of: self)).replacingOccurrences(of: ".", with: "::")
     }

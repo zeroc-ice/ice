@@ -56,7 +56,7 @@ namespace Ice
         virtual void hold() = 0;
 
         /// Waits until the object adapter is in the holding state (see #hold) and the dispatch of requests received
-        /// over incoming connection has completed.
+        /// over incoming connections has completed.
         /// @remark This function is provided for backward compatibility with older versions of Ice. Don't use it in
         /// new applications.
         virtual void waitForHold() = 0;
@@ -234,7 +234,7 @@ namespace Ice
         /// Removes a ServantLocator from this object adapter.
         /// @param category The category.
         /// @return The servant locator.
-        /// @throws NotRegisteredException Thrown when no ServantLocator with the given category is registered.
+        /// @throws NotRegisteredException Thrown when no servant locator with the given category is registered.
         virtual ServantLocatorPtr removeServantLocator(std::string_view category) = 0;
 
         /// Finds a ServantLocator registered with this object adapter.

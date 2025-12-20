@@ -19,7 +19,7 @@ namespace Ice
 
 namespace IceInternal
 {
-    // A dispatcher that manages servants and servant locators for an object adapter.
+    /// A dispatcher that manages servants and servant locators for an object adapter.
     class ServantManager final : public Ice::Object
     {
     public:

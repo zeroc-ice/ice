@@ -2,13 +2,13 @@
 
 import Foundation
 
-/// The batch compression option when flushing queued batch requests.
+/// Represents batch compression options when flushing queued batch requests.
 public enum CompressBatch: UInt8 {
-    /// Yes Compress the batch requests.
+    /// Compress the batch requests.
     case Yes = 0
-    /// No Don't compress the batch requests.
+    /// Don't compress the batch requests.
     case No = 1
-    /// BasedOnProxy Compress the batch requests if at least one request was made on a compressed proxy.
+    /// Compress the batch requests if at least one request was made on a compressed proxy.
     case BasedOnProxy = 2
     public init() {
         self = .Yes
@@ -50,6 +50,7 @@ extension OutputStream {
     }
 
     /// Writes an optional enumerated value to the stream.
+    ///
     /// - Parameters:
     ///   - tag: The numeric tag associated with the value.
     ///   - value: The enumerator to write.
@@ -61,43 +62,38 @@ extension OutputStream {
     }
 }
 
-/// A collection of HTTP headers.
+/// Represents a collection of HTTP headers.
 public typealias HeaderDict = [String: String]
 
-/// An application can implement this interface to receive notifications when a connection closes.
+/// The callback function given to ``Connection/setCloseCallback(_:)``.
+/// This callback is called by the connection when the connection is closed.
 ///
-/// This method is called by the connection when the connection is closed. If the callback needs more information
-/// about the closure, it can call Connection.throwException.
-///
-/// - Parameter _: The connection that was closed.
+/// - Parameter _: The connection that was closed. It's never `nil`.
 public typealias CloseCallback = (Connection?) -> Void
 
-/// The user-level interface to a connection.
+/// Represents a connection that uses the Ice protocol.
 public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
 
     /// Aborts this connection.
     func abort()
 
-    /// Closes this connection gracefully after all outstanding invocations have completed.
-    /// If this operation takes longer than the configured close timeout, the connection is aborted with a
-    /// `CloseTimeoutException`.
+    /// Closes this connection gracefully once all outstanding invocations have completed. If closing the connection
+    /// takes longer than the configured close timeout, the connection is aborted with a ``CloseTimeoutException``.
     func close() async throws
 
-    /// Create a special proxy that always uses this connection. This can be used for callbacks from a server to a
-    /// client if the server cannot directly establish a connection to the client, for example because of firewalls. In
-    /// this case, the server would create a proxy using an already established connection from the client.
+    /// Creates a special proxy (a "fixed proxy") that always uses this connection.
     ///
-    /// - Parameter id: The identity for which a proxy is to be created.
-    /// - Returns: A proxy that matches the given identity and uses this connection.
+    /// - Parameter id: The identity of the target object.
+    /// - Returns: A fixed proxy with the provided identity.
     func createProxy(_ id: Identity) throws -> ObjectPrx
 
     /// Associates an object adapter with this connection. When a connection receives a request, it dispatches this
-    /// request using its associated object adapter. If the associated object adapter is nil, the connection
-    /// rejects any incoming request with an ObjectNotExistException.
+    /// request using its associated object adapter. If the associated object adapter is `nil`, the connection
+    /// rejects any incoming request with an ``ObjectNotExistException``.
     /// The default object adapter of an incoming connection is the object adapter that created this connection;
     /// the default object adapter of an outgoing connection is the communicator's default object adapter.
     ///
-    /// - Parameter adapter: The object adapter to associate with the connection.
+    /// - Parameter adapter: The object adapter to associate with this connection.
     func setAdapter(_ adapter: ObjectAdapter?) throws
 
     /// Gets the object adapter associated with this connection.
@@ -105,34 +101,35 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
     /// - Returns: The object adapter associated with this connection.
     func getAdapter() -> ObjectAdapter?
 
-    /// Get the endpoint from which the connection was created.
+    /// Gets the endpoint from which the connection was created.
     ///
     /// - Returns: The endpoint from which the connection was created.
     func getEndpoint() -> Endpoint
 
-    /// Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
-    /// associated with the connection.
+    /// Flushes any pending batch requests for this connection.
+    /// This means all batch requests invoked on fixed proxies associated with the connection.
     ///
     /// - Parameter compress: Specifies whether or not the queued batch requests should be compressed
     /// before being sent over the wire.
     func flushBatchRequests(_ compress: CompressBatch) async throws
 
-    /// Set a close callback on the connection. The callback is called by the connection when it's closed. The callback
-    /// is called from the Ice thread pool associated with the connection. If the callback needs more information about
-    /// the closure, it can call Connection.throwException.
+    /// Sets a close callback on the connection. The callback is called by the connection when it's closed. The
+    /// callback is called from the Ice thread pool associated with the connection.
+    /// If the callback needs more information about the closure, it can call ``throwException()``.
     ///
     /// - Parameter callback: The close callback object.
     func setCloseCallback(_ callback: CloseCallback?) throws
 
-    /// Disable the inactivity check on this connection.
+    /// Disables the inactivity check on this connection.
     func disableInactivityCheck()
 
-    /// Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
+    /// Returns the connection type. This corresponds to the endpoint type, such as "tcp", "udp", etc.
     ///
     /// - Returns: The type of the connection.
     func type() -> String
 
-    /// Return a description of the connection as human readable text, suitable for logging or error messages.
+    /// Returns a description of the connection as human readable text, suitable for logging or error messages.
+    /// This method remains usable after the connection is closed or aborted.
     ///
     /// - Returns: The description of the connection as human readable text.
     func toString() -> String
@@ -142,31 +139,32 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
     /// - Returns: The connection information.
     func getInfo() throws -> ConnectionInfo
 
-    /// Set the connection buffer receive/send size.
+    /// Sets the size of the receive and send buffers.
     ///
     /// - Parameters:
-    ///   - rcvSize: The connection receive buffer size.
-    ///   - sndSize: The connection send buffer size.
+    ///   - rcvSize: The size of the receive buffer.
+    ///   - sndSize: The size of the send buffer.
     func setBufferSize(rcvSize: Int32, sndSize: Int32) throws
 
-    /// Throw an exception indicating the reason for connection closure. For example,
-    /// CloseConnectionException is raised if the connection was closed gracefully by the peer.
-    /// This operation does nothing if the connection is not yet closed.
+    /// Throws an exception that provides the reason for the closure of this connection. For example,
+    /// this method throws ``CloseConnectionException`` when the connection was closed gracefully by the peer;
+    /// it throws ``ConnectionAbortedException`` when the connection is aborted with ``abort()``.
+    /// This method does nothing if the connection is not yet closed.
     func throwException() throws
 }
 
-/// Base class providing access to the connection details.
+/// Base class for all connection info classes.
 open class ConnectionInfo {
-    /// The information of the underlying transport or nil if there's no underlying transport.
+    /// The information of the underlying transport or `nil` if there's no underlying transport.
     public let underlying: ConnectionInfo?
 
-    /// Whether or not the connection is an incoming or outgoing connection.
+    /// Indicates whether the connection is an incoming connection.
     public let incoming: Bool
 
     /// The name of the adapter associated with the connection.
     public let adapterName: String
 
-    /// The connection id.
+    /// The connection ID.
     public let connectionId: String
 
     public init(underlying: ConnectionInfo) {
@@ -184,7 +182,7 @@ open class ConnectionInfo {
     }
 }
 
-/// Provides access to the connection details of an IP connection
+/// Provides access to the connection details of an IP connection.
 open class IPConnectionInfo: ConnectionInfo {
     /// The local address.
     public let localAddress: String
@@ -211,12 +209,12 @@ open class IPConnectionInfo: ConnectionInfo {
     }
 }
 
-/// Provides access to the connection details of a TCP connection
+/// Provides access to the connection details of a TCP connection.
 public final class TCPConnectionInfo: IPConnectionInfo {
-    /// The connection buffer receive size.
+    /// The size of the receive buffer.
     public let rcvSize: Int32
 
-    /// The connection buffer send size.
+    /// The size of the send buffer.
     public let sndSize: Int32
 
     internal init(
@@ -233,7 +231,7 @@ public final class TCPConnectionInfo: IPConnectionInfo {
     }
 }
 
-/// Provides access to the connection details of an SSL connection
+/// Provides access to the connection details of an SSL connection.
 public final class SSLConnectionInfo: ConnectionInfo {
     /// The certificate chain.
     public let peerCertificate: SecCertificate?
@@ -244,7 +242,7 @@ public final class SSLConnectionInfo: ConnectionInfo {
     }
 }
 
-/// Provides access to the connection details of a UDP connection
+/// Provides access to the connection details of a UDP connection.
 public final class UDPConnectionInfo: IPConnectionInfo {
     /// The multicast address.
     public let mcastAddress: String
@@ -252,10 +250,10 @@ public final class UDPConnectionInfo: IPConnectionInfo {
     /// The multicast port.
     public let mcastPort: Int32
 
-    /// The connection buffer receive size.
+    /// The size of the receive buffer.
     public let rcvSize: Int32
 
-    /// The connection buffer send size.
+    /// The size of the send buffer.
     public let sndSize: Int32
 
     internal init(
@@ -275,7 +273,7 @@ public final class UDPConnectionInfo: IPConnectionInfo {
     }
 }
 
-/// Provides access to the connection details of a WebSocket connection
+/// Provides access to the connection details of a WebSocket connection.
 public final class WSConnectionInfo: ConnectionInfo {
     /// The headers from the HTTP upgrade request.
     public let headers: HeaderDict

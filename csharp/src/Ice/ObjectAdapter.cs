@@ -185,7 +185,7 @@ public sealed class ObjectAdapter
 
     /// <summary>
     /// Waits until the object adapter is in the holding state (see <see cref="hold"/>) and the dispatch of requests
-    /// received over incoming connection has completed.
+    /// received over incoming connections has completed.
     /// </summary>
     /// <remarks>This method is provided for backward compatibility with older versions of Ice. Don't use it in
     /// new applications.</remarks>
@@ -668,7 +668,7 @@ public sealed class ObjectAdapter
     /// </summary>
     /// <param name="category">The category.</param>
     /// <returns>The servant locator.</returns>
-    /// <exception cref="NotRegisteredException">Thrown when no ServantLocator with the given category is registered.
+    /// <exception cref="NotRegisteredException">Thrown when no servant locator with the given category is registered.
     /// </exception>
     public ServantLocator removeServantLocator(string category)
     {
