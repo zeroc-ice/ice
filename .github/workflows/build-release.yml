@@ -234,6 +234,8 @@ jobs:
       - build-rpm-packages
       - build-windows-msi
       - build-xcframework-packages
+      - build-symbols-sources-store
+      - build-cpp-nuget-packages
     uses: ./.github/workflows/prune-nightly-artifacts.yml
     secrets: inherit
 
