@@ -3,32 +3,13 @@
 project.ext.displayName = "IceGridGUI"
 project.ext.description = ""
 
-ext.hasJavaFx = false
-
-if(iceGridGuiUseJavaFX.toBoolean()) {
-    ext.os = System.properties['os.name']
-    if(os == "Mac OS X") {
-        ext.platform = "mac"
-        ext.hasJavaFx = true
-    } else if(os.toLowerCase().contains("windows")) {
-        ext.platform = "win"
-        ext.hasJavaFx = true
-    } else if(os.toLowerCase().contains("linux")) {
-        ext.platform = "linux"
-        ext.hasJavaFx = true
-    } else {
-        ext.hasJavaFx = false
-    }
-}
-
-if(!hasJavaFx) {
-    sourceSets {
-        main {
-            java {
-                exclude '**/LiveDeployment/GraphView.java'
-            }
-        }
-    }
+ext.os = System.properties['os.name']
+if(os == "Mac OS X") {
+    ext.platform = "mac"
+} else if(os.toLowerCase().contains("windows")) {
+    ext.platform = "win"
+} else {
+    ext.platform = "linux"
 }
 
 // Don't generate javadoc
@@ -49,12 +30,10 @@ dependencies {
       implementation "com.jgoodies:jgoodies-looks:${jgoodiesLooksVersion}"
       implementation "com.jgoodies:jgoodies-forms:${jgoodiesFormsVersion}"
 
-      if(hasJavaFx) {
-           implementation "org.openjfx:javafx-base:${openjfxVersion}:${platform}"
-           implementation "org.openjfx:javafx-swing:${openjfxVersion}:${platform}"
-           implementation "org.openjfx:javafx-controls:${openjfxVersion}:${platform}"
-           implementation "org.openjfx:javafx-graphics:${openjfxVersion}:${platform}"
-      }
+    implementation "org.openjfx:javafx-base:${openjfxVersion}:${platform}"
+    implementation "org.openjfx:javafx-swing:${openjfxVersion}:${platform}"
+    implementation "org.openjfx:javafx-controls:${openjfxVersion}:${platform}"
+    implementation "org.openjfx:javafx-graphics:${openjfxVersion}:${platform}"
 }
 
 project.ext.tmpJarName = "IceGridGUITEMP.jar"
@@ -70,9 +49,7 @@ jar {
 
 project.ext.libJars = []
 
-project.ext.jarBuilder = icegridguiProguard.toBoolean() ? "proguard-jar.gradle" : "plain-jar.gradle"
-
-apply from: jarBuilder
+apply from: "proguard-jar.gradle"
 
 clean {
     delete("${libDir}/${jarName}")

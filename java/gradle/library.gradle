@@ -64,11 +64,3 @@ clean {
     delete("${libDir}/${project.name}-${project.version}-javadoc.jar")
     delete(project.ext.pomName)
 }
-
-task installJars(type: Copy, dependsOn: assemble) {
-    from "${project.ext.pomName}"
-    from "${libDir}/${project.name}-${project.version}.jar"
-    from "${libDir}/${project.name}-${project.version}-sources.jar"
-    into "${DESTDIR}${jarDir}"
-}
-task install(dependsOn: installJars)
