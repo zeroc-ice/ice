@@ -33,11 +33,4 @@ task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
     configuration 'icegridgui.pro'
 }
 
-task copyJars(type: Copy, dependsOn: proguardJar) {
-    from new File("${libDir}/${jarName}")
-    into "${DESTDIR}${jarDir}"
-}
-
-task install(dependsOn: copyJars)
-
 assemble.dependsOn(proguardJar)
