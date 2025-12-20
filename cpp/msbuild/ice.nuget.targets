@@ -10,14 +10,9 @@
                    Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormservice*.dll;
                             $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\libexpat*.dll" />
 
-        <PDBs Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.pdb"
-              Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormservice*.pdb;
-                       $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\libexpat*.pdb" />
+        <PDBs Include="@(Libraries->'$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\%(Filename).pdb')" />
 
-        <ImportLibraries Include="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\*.lib"
-                         Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icestormservice*.lib;
-                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\iceutil*.lib;
-                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\slice*.lib"/>
+        <ImportLibraries Include="@(Libraries->'$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\%(Filename).lib')" />
     </ItemGroup>
 
     <ItemGroup>
