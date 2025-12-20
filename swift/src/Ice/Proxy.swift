@@ -827,9 +827,7 @@ open class ObjectPrxI: ObjectPrx, @unchecked Sendable {
         let encoding = istr.currentEncoding
         let communicator = istr.communicator
 
-        //
         // Returns Any which is either NSNull or ICEObjectPrx
-        //
         let handleOpt =
             try ICEObjectPrx.ice_read(
                 istr.data[istr.pos..<istr.data.count],

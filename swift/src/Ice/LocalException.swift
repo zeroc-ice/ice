@@ -4,8 +4,10 @@
 public class LocalException: Exception, CustomStringConvertible, @unchecked Sendable {
     /// The error message.
     public let message: String
+
     /// The name of the file where this exception was thrown.
     public let file: String
+
     /// The line number where this exception was thrown.
     public let line: Int32
 

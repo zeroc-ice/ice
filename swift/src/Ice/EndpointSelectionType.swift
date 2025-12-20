@@ -6,8 +6,10 @@ import Foundation
 public enum EndpointSelectionType: UInt8 {
     /// The Ice runtime shuffles the endpoints in a random order.
     case Random = 0
+
     /// The Ice runtime uses the endpoints in the order they appear in the proxy.
     case Ordered = 1
+
     public init() {
         self = .Random
     }

@@ -1,4 +1,5 @@
 // Copyright (c) ZeroC, Inc.
+
 /// Represents a request received by a connection. It's the argument given to ``Dispatcher/dispatch(_:)``.
 public struct IncomingRequest {
     /// The Current object of the request.
