@@ -81,6 +81,8 @@ if [ "$CHANNEL" = "nightly" ]; then
 
   plugin_staging_dir="${STAGING_DIR}/slice-tools-packages/com/zeroc/slice-tools"
 
+  rm -f "${plugin_staging_dir}/${ice_version}/"*-javadoc.jar
+  rm -f "${plugin_staging_dir}/${ice_version}/"*-sources.jar
   cp "${plugin_staging_dir}/${ice_version}/"*.jar "plugin/slice-tools-${ice_version}.jar"
   cp "${plugin_staging_dir}/${ice_version}/"*.pom "plugin/slice-tools-${ice_version}.pom"
 
