@@ -768,7 +768,7 @@ private final class EncapsEncoder10: EncapsEncoder {
                 key.value._iceWrite(to: os)
             }
         }
-        os.write(size: 0) // Zero marker indicates end of sequence of sequences of instances.
+        os.write(size: 0)  // Zero marker indicates end of sequence of sequences of instances.
     }
 
     func registerValue(_ v: Value) -> Int32 {
@@ -912,7 +912,7 @@ private final class EncapsEncoder11: EncapsEncoder {
         guard let current = current else {
             preconditionFailure("current is nil")
         }
-    
+
         // Write the optional member end marker if some optional members
         // were encoded. Note that the optional members are encoded before
         // the indirection table and are included in the slice size.
