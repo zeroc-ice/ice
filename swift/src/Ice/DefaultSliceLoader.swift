@@ -7,8 +7,8 @@ import Synchronization
 public final class DefaultSliceLoader: NSObject, SliceLoader {
     private let classResolverPrefix: String
 
-    /// We cache successful resolutions.
-    /// The size of this cache is bounded by the number of Slice classes and exceptions in the program.
+    // We cache successful resolutions.
+    // The size of this cache is bounded by the number of Slice classes and exceptions in the program.
     private let typeIdToClassMap = Mutex<[String: AnyObject.Type]>([:])
 
     /// Creates a DefaultSliceLoader.
