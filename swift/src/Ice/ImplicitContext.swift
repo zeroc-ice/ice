@@ -2,47 +2,39 @@
 
 import Foundation
 
-/// An interface to associate implicit contexts with communicators. When you make a remote invocation without an
-/// explicit context parameter, Ice uses the per-proxy context (if any) combined with the ImplicitContext
-/// associated with the communicator.
-/// Ice provides several implementations of ImplicitContext. The implementation used depends on the value
-/// of the Ice.ImplicitContext property.
-///
-/// None (default)
-/// No implicit context at all.
-/// PerThread
-/// The implementation maintains a context per thread.
-/// Shared
-/// The implementation maintains a single context shared by all threads.
-///
-/// ImplicitContext also provides a number of operations to create, update or retrieve an entry in the
-/// underlying context without first retrieving a copy of the entire context.
+/// Represents the request context associated with a communicator. When you make a remote invocation without an
+/// explicit request context parameter, Ice uses the per-proxy request context (if any) combined with the
+/// `ImplicitContext` associated with your communicator.
+/// The property `Ice.ImplicitContext` controls if your communicator has an associated implicit context,
+/// and when it does, whether this implicit context is per-thread or shared by all threads:
+/// - `None`: No implicit context at all.
+/// - `PerThread`: The implementation maintains a context per thread.
+/// - `Shared`: The implementation maintains a single context shared by all threads.
 public protocol ImplicitContext: AnyObject {
-    /// Get a copy of the underlying context.
+    /// Gets a copy of the request context maintained by this object.
     ///
-    /// - Returns: A copy of the underlying context.
+    /// - Returns: A copy of the request context.
     func getContext() -> Context
 
-    /// Set the underlying context.
+    /// Sets the request context.
     ///
-    /// - Parameter newContext: The new context.
+    /// - Parameter newContext: The new request context.
     func setContext(_ newContext: Context)
 
-    /// Check if this key has an associated value in the underlying context.
+    /// Checks if the specified key has an associated value in the request context.
     ///
     /// - Parameter key: The key.
-    /// - Returns: True if the key has an associated value, False otherwise.
+    /// - Returns: `true` if the key has an associated value, `false` otherwise.
     func containsKey(_ key: String) -> Bool
 
-    /// Get the value associated with the given key in the underlying context. Returns an empty string if no value is
-    /// associated with the key. containsKey allows you to distinguish between an empty-string value and no
-    /// value at all.
+    /// Gets the value associated with the specified key in the request context.
     ///
     /// - Parameter key: The key.
-    /// - Returns: The value associated with the key.
+    /// - Returns: The value associated with the key, or the empty string if no value is associated with the key.
+    ///   ``containsKey(_:)`` allows you to distinguish between an empty-string value and no value at all.
     func get(_ key: String) -> String
 
-    /// Create or update a key/value entry in the underlying context.
+    /// Creates or updates a key/value entry in the request context.
     ///
     /// - Parameters:
     ///   - key: The key.
@@ -51,7 +43,7 @@ public protocol ImplicitContext: AnyObject {
     @discardableResult
     func put(key: String, value: String) -> String
 
-    /// Remove the entry for the given key in the underlying context.
+    /// Removes the entry for the specified key in the request context.
     ///
     /// - Parameter key: The key.
     /// - Returns: The value associated with the key, if any.

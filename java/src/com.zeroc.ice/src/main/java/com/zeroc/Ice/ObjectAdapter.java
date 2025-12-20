@@ -177,7 +177,7 @@ public final class ObjectAdapter {
 
     /**
      * Waits until the object adapter is in the holding state (see {@link #hold}) and the dispatch of requests received
-     * over incoming connection has completed.
+     * over incoming connections has completed.
      *
      * <p>This method is provided for backward compatibility with older versions of Ice.
      * Don't use it in new applications.
@@ -656,7 +656,7 @@ public final class ObjectAdapter {
      *
      * @param category the category
      * @return the servant locator
-     * @throws NotRegisteredException if no ServantLocator with the given category is registered.
+     * @throws NotRegisteredException if no servant locator with the given category is registered.
      * @see #addServantLocator
      * @see #findServantLocator
      */

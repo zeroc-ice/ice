@@ -196,7 +196,7 @@ namespace Ice
 
         /// Gets an Ice property as a list of strings. The strings must be separated by whitespace or comma. The strings
         /// in the list can contain whitespace and commas if they are enclosed in single or double quotes. If quotes are
-        /// mismatched, the default list is returned.  Within single quotes or double quotes, you can escape the quote
+        /// mismatched, the default list is returned. Within single quotes or double quotes, you can escape the quote
         /// in question with a backslash, e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
         /// @param key The property key.
         /// @return The property value interpreted as a list of strings, or the default value if the property is not

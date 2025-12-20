@@ -5,14 +5,14 @@ import IceImpl
 /// Closure called when the communicator's properties have been updated.
 ///
 /// - Parameter: `PropertyDict` A dictionary containing the properties that were added,
-///   changed or removed, with a removed property denoted by an entry whose value is an
+///   changed, or removed. Removed properties are denoted by an entry whose value is an
 ///   empty string.
 public typealias PropertiesAdminUpdateCallback = (PropertyDict) -> Void
 
-/// Closure used to remove the properties update callback.
+/// Closure used to remove a ``PropertiesAdminUpdateCallback``.
 public typealias PropertiesAdminRemoveCallback = () -> Void
 
-/// The default implementation for the "Properties" admin facet.
+/// The default implementation of the "Properties" admin facet.
 public struct NativePropertiesAdmin: PropertiesAdmin {
     nonisolated(unsafe) private let handle: ICEPropertiesAdmin
 
@@ -38,10 +38,10 @@ public struct NativePropertiesAdmin: PropertiesAdmin {
         }
     }
 
-    /// Registers an update callback that will be invoked when property updates occur.
+    /// Registers an update callback that will be invoked when a property update occurs.
     ///
     /// - Parameter cb: The callback.
-    /// - Returns: A closure that can be invoked to remove the callback.
+    /// - Returns: A closure that unregisters the callback.
     public func addUpdateCallback(_ cb: @escaping PropertiesAdminUpdateCallback) -> PropertiesAdminRemoveCallback {
         return handle.addUpdateCallback { (props: PropertyDict) in
             cb(props)

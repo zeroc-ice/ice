@@ -4,9 +4,9 @@ import Foundation
 
 /// Provides information about an incoming request being dispatched.
 public struct Current: Sendable {
-    /// The object adapter that received the request.
+    /// The object adapter.
     public let adapter: ObjectAdapter
-    /// The connection that received the request. It's nil when the invocation and dispatch are collocated.
+    /// The connection that received the request. It's `nil` for collocation-optimized dispatches.
     public let con: Connection?
     /// The identity of the target Ice object.
     public let id: Identity
@@ -14,13 +14,13 @@ public struct Current: Sendable {
     public let facet: String
     /// The name of the operation.
     public let operation: String
-    /// The operation mode (idempotent or not).
+    /// The mode of the operation (see ``Current/checkNonIdempotent()``).
     public let mode: OperationMode
-    /// The request context carried by the request.
+    /// The request context.
     public var ctx: Context
-    /// The request ID. 0 means the request is a one-way request.
+    /// The request ID. `0` means the request is one-way.
     public let requestId: Int32
-    /// The encoding of the request payload.
+    /// The Slice encoding version used to marshal the payload of the request.
     public let encoding: EncodingVersion
 
     public init(

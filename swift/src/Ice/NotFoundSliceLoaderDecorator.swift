@@ -2,7 +2,7 @@
 
 import Synchronization
 
-/// Decorates SliceLoader to cache nil results.
+/// Decorates a ``SliceLoader`` to cache `nil` results.
 final class NotFoundSliceLoaderDecorator: SliceLoader {
     private let decoratee: SliceLoader
     private let cacheSize: Int32

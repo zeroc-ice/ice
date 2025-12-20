@@ -2,5 +2,5 @@
 
 import Foundation
 
-/// A mapping from facet name to servant.
+/// A mapping from facet name to dispatcher.
 public typealias FacetMap = [String: Dispatcher]

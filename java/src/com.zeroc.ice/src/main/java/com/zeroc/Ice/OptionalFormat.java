@@ -19,10 +19,10 @@ public enum OptionalFormat {
     /** "Size encoding" using either 1 or 5 bytes. Used by enums, class identifiers, etc. */
     Size(4),
     /** Variable "size encoding" using either 1 or 5 bytes followed by data.
-     *  Used by strings, fixed size structs, and containers whose size can be computed prior to marshaling. */
+     *  Used by strings, fixed-size structs, and containers whose size can be computed prior to marshaling. */
     VSize(5),
     /** Fixed "size encoding" using 4 bytes followed by data.
-     *  Used by variable-size structs, and containers whose sizes can't be computed prior to unmarshaling. */
+     *  Used by variable-size structs and containers whose sizes can't be computed prior to unmarshaling. */
     FSize(6),
     /** Class instance. No longer supported. */
     Class(7);

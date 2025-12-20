@@ -2,27 +2,28 @@
 
 import Foundation
 
-/// The Ice message logger. Applications can provide their own logger by implementing this interface and installing it
-/// in a communicator.
+/// Represents Ice's abstraction for logging and tracing.
+/// Applications can provide their own logger by implementing this interface and setting a logger on the communicator.
 public protocol Logger: AnyObject {
-    /// Print a message. The message is printed literally, without any decorations such as executable name or time
+    /// Prints a message. The message is printed literally, without any decorations such as executable name or time
     /// stamp.
     ///
     /// - Parameter message: The message to log.
     func print(_ message: String)
 
-    /// Log a trace message.
+    /// Logs a trace message.
+    ///
     /// - Parameters:
     ///   - category: The trace category.
     ///   - message: The trace message to log.
     func trace(category: String, message: String)
 
-    /// Log a warning message.
+    /// Logs a warning message.
     ///
     /// - Parameter message: The warning message to log.
     func warning(_ message: String)
 
-    /// Log an error message.
+    /// Logs an error message.
     ///
     /// - Parameter message: The error message to log.
     func error(_ message: String)

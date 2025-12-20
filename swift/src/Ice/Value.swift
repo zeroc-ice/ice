@@ -1,36 +1,37 @@
 // Copyright (c) ZeroC, Inc.
 
-/// The base class for all Ice values.
+/// The base class for instances of Slice-defined classes.
 open class Value {
     private var slicedData: SlicedData?
 
     public required init() {}
 
-    /// Gets the type ID of the class.
-    /// - Returns: The type ID of the class.
+    /// Returns the Slice type ID of this type.
+    ///
+    /// - Returns: The return value is always `"::Ice::Object"`.
     open class func ice_staticId() -> String { "::Ice::Object" }
 
-    /// Gets the type ID of this Ice value
-    /// - Returns: The type ID of this Ice value.
+    /// Returns the Slice type ID of the most-derived class supported by this object.
+    ///
+    /// - Returns: The Slice type ID.
     open func ice_id() -> String { type(of: self).ice_staticId() }
 
     open func _iceReadImpl(from _: InputStream) throws {}
 
     open func _iceWriteImpl(to _: OutputStream) {}
 
-    /// The Ice run time invokes this method prior to marshaling an object's fields.
-    /// This allows a subclass to override this method in order to validate its data
-    /// members.
+    /// The Ice runtime calls this method before marshaling a class instance.
+    /// Subclasses can override this method in order to update or validate their fields before marshaling.
     open func ice_preMarshal() {}
 
-    /// This Ice run time invokes this method after unmarshaling an object's fields. This allows a
-    /// subclass to override this method in order to perform additional initialization.
+    /// The Ice runtime calls this method after unmarshaling a class instance.
+    /// Subclasses can override this method in order to update or validate their fields after unmarshaling.
     open func ice_postUnmarshal() {}
 
-    /// Returns the sliced data if the value has a preserved-slice base class and has been sliced during
-    /// un-marshaling of the value, nil is returned otherwise.
+    /// Gets the sliced data associated with this instance.
     ///
-    /// - Returns: The sliced data or nil.
+    /// - Returns: The sliced data if the value has a preserved-slice base class and has been sliced during
+    /// unmarshaling of the value, `nil` otherwise.
     open func ice_getSlicedData() -> SlicedData? {
         return slicedData
     }

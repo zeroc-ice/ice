@@ -623,7 +623,7 @@ namespace Ice
         [[nodiscard]] bool ice_isBatchDatagram() const noexcept;
 
         /// Gets the compression override setting of this proxy.
-        /// @return The compression override setting. If nullopt is returned, no override is set. Otherwise, true
+        /// @return The compression override setting. If nullopt is returned, no override is set. Otherwise, `true`
         /// if compression is enabled, `false` otherwise.
         [[nodiscard]] std::optional<bool> ice_getCompress() const noexcept;
 
