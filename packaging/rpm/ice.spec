@@ -407,22 +407,6 @@ cp -p packaging/rpm/icegridgui %{buildroot}%{_bindir}/icegridgui
 %{_javadir}/icegridgui.jar
 
 #
-# Generate "ice-all-runtime" meta package as arch-specific
-#
-%files -n %{?nameprefix}ice-all-runtime
-%license LICENSE
-%license ICE_LICENSE
-%doc packaging/rpm/README
-
-#
-# Generate "ice-all-devel" meta package as arch-specific
-#
-%files -n %{?nameprefix}ice-all-devel
-%license LICENSE
-%license ICE_LICENSE
-%doc packaging/rpm/README
-
-#
 # libice-Mm-c++ package
 #
 %files -n lib%{?nameprefix}ice3.9-c++
