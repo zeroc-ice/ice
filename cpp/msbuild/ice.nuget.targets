@@ -10,6 +10,10 @@
                    Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormservice*.dll;
                             $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\libexpat*.dll" />
 
+        <PDBs Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.pdb"
+              Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormservice*.pdb;
+                       $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\libexpat*.pdb" />
+
         <ImportLibraries Include="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\*.lib"
                          Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icestormservice*.lib;
                                   $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\iceutil*.lib;
@@ -55,6 +59,7 @@
 
         <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
+        <Copy SourceFiles="@(PDBs)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(ImportLibraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(CMakeFiles)" DestinationFolder="$(PackageDirectory)\cmake" />
     </Target>
