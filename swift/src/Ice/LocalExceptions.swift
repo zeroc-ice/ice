@@ -51,8 +51,10 @@ public class DispatchException: LocalException, @unchecked Sendable {
 public class RequestFailedException: DispatchException, @unchecked Sendable {
     /// The identity of the Ice Object to which the request was sent.
     public let id: Identity
+
     /// The facet to which the request was sent.
     public let facet: String
+
     /// The operation name of the request.
     public let operation: String
 

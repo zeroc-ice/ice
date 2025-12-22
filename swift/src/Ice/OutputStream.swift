@@ -16,6 +16,7 @@ public final class OutputStream {
     }
 
     /// Constructs an output stream using an encoding version and a class format.
+    ///
     /// - Parameters:
     ///   - encoding: The encoding version.
     ///   - format: The class format.
@@ -25,6 +26,7 @@ public final class OutputStream {
     }
 
     /// Constructs an output stream using a communicator.
+    ///
     /// - Parameter communicator: A communicator that supplies the encoding version and the class format.
     public convenience init(communicator: Communicator) {
         let defaultsAndOverrides = (communicator as! CommunicatorI).defaultsAndOverrides
@@ -33,6 +35,7 @@ public final class OutputStream {
     }
 
     /// Constructs an output stream using a communicator and an encoding version.
+    ///
     /// - Parameters:
     ///   - communicator: A communicator that supplies the class format.
     ///   - encoding: The encoding version.
@@ -161,6 +164,7 @@ public final class OutputStream {
     }
 
     /// Marks the start of a new slice for a class instance or user exception.
+    ///
     /// - Parameters:
     ///   - typeId: The Slice type ID corresponding to this slice.
     ///   - compactId: The Slice compact type ID corresponding to this
@@ -322,6 +326,7 @@ extension OutputStream {
     }
 
     /// Writes an optional sequence of boolean values to the stream.
+    ///
     /// - Parameters:
     ///   - tag: The tag of the optional field or parameter.
     ///   - value: The sequence of boolean values to write.
@@ -365,6 +370,7 @@ extension OutputStream {
     }
 
     /// Writes an enumerator to the stream.
+    ///
     /// - Parameters:
     ///   - val: The value of the enumerator to write.
     ///   - maxValue: The maximum value for the enumeration's enumerators
@@ -384,6 +390,7 @@ extension OutputStream {
     }
 
     /// Writes an optional enumerator to the stream.
+    ///
     /// - Parameters:
     ///   - tag: The tag of the optional field or parameter.
     ///   - val: The value of the enumerator to write.
@@ -396,6 +403,7 @@ extension OutputStream {
     }
 
     /// Writes an enumerator to the stream.
+    ///
     /// - Parameters:
     ///   - val: The value of the enumerator to write.
     ///   - maxValue: The maximum value for the enumeration's enumerators
@@ -415,6 +423,7 @@ extension OutputStream {
     }
 
     /// Writes an optional enumerator to the stream.
+    ///
     /// - Parameters:
     ///   - tag: The tag of the optional field or parameter.
     ///   - val: The value of the enumerator to write.
@@ -436,6 +445,7 @@ extension OutputStream {
     }
 
     /// Writes a string to the stream.
+    ///
     /// - Parameters:
     ///   - tag: The tag of the optional field or parameter.
     ///   - v: The string to write.
@@ -458,6 +468,7 @@ extension OutputStream {
     }
 
     /// Writes an optional sequence of strings to the stream.
+    ///
     /// - Parameters:
     ///   - tag: The tag of the optional field or parameter.
     ///   - v: The sequence of strings to write.
@@ -478,14 +489,13 @@ extension OutputStream {
         if let prxImpl = v as? ObjectPrxI {
             prxImpl.ice_write(to: self)
         } else {
-            //
             // A nil proxy is represented by an Identity with empty name and category fields.
-            //
             write(Identity())
         }
     }
 
     /// Writes an optional proxy to the stream.
+    ///
     /// - Parameters:
     ///   - tag: The tag of the optional field or parameter.
     ///   - v: The proxy to write.
@@ -671,9 +681,7 @@ private final class EncapsEncoder10: EncapsEncoder {
     }
 
     func writeValue(v: Value?) {
-        //
         // Value references are encoded as a negative integer in 1.0.
-        //
         if let val = v {
             os.write(-registerValue(val))
         } else {
@@ -682,14 +690,11 @@ private final class EncapsEncoder10: EncapsEncoder {
     }
 
     func writeException(v: UserException) {
-        //
         // User exception with the 1.0 encoding start with a boolean
-        // flag that indicates whether or not the exception uses
-        // classes.
+        // flag that indicates whether or not the exception uses classes.
         //
         // This allows reading the pending instances even if some part of
         // the exception was sliced.
-        //
         let usesClasses = v._usesClasses()
         os.write(usesClasses)
         v._iceWrite(to: os)
@@ -704,9 +709,7 @@ private final class EncapsEncoder10: EncapsEncoder {
 
     func endInstance() {
         if sliceType == SliceType.ValueSlice {
-            //
             // Write the Object slice.
-            //
             startSlice(typeId: "::Ice::Object", compactId: -1, last: true)
             os.write(size: 0)  // For compatibility with the old AFM.
             endSlice()
@@ -715,11 +718,9 @@ private final class EncapsEncoder10: EncapsEncoder {
     }
 
     func startSlice(typeId: String, compactId _: Int32, last _: Bool) {
-        //
         // For instance slices, encode a boolean to indicate how the type ID
         // is encoded and the type ID either as a string or index. For
         // exception slices, always encode the type ID as a string.
-        //
         if sliceType == SliceType.ValueSlice {
             let index = registerTypeId(typeId)
             if index < 0 {
@@ -738,21 +739,16 @@ private final class EncapsEncoder10: EncapsEncoder {
     }
 
     func endSlice() {
-        //
         // Write the slice length.
-        //
         let sz = Int32(os.getCount()) - writeSlice + 4
         os.write(bytesOf: sz, at: Int(writeSlice - 4))
     }
 
     func writePendingValues() {
         while !toBeMarshaledMap.isEmpty {
-            //
             // Consider the to be marshaled instances as marshaled now,
-            // this is necessary to avoid adding again the "to be
-            // marshaled instances" into _toBeMarshaledMap while writing
-            // instances.
-            //
+            // this is necessary to avoid adding again the "to be marshaled instances"
+            // into _toBeMarshaledMap while writing instances.
             for (key, value) in toBeMarshaledMap {
                 marshaledMap[key] = value
             }
@@ -762,12 +758,9 @@ private final class EncapsEncoder10: EncapsEncoder {
             os.write(size: savedMap.count)
 
             for (key, value) in savedMap {
-                //
                 // Consider the to be marshaled instances as marshaled now,
-                // this is necessary to avoid adding again the "to be
-                // marshaled instances" into _toBeMarshaledMap while writing
-                // instances.
-                //
+                // this is necessary to avoid adding again the "to be marshaled instances"
+                // into _toBeMarshaledMap while writing instances.
                 os.write(Int32(value))
 
                 key.value.ice_preMarshal()
@@ -779,25 +772,19 @@ private final class EncapsEncoder10: EncapsEncoder {
     }
 
     func registerValue(_ v: Value) -> Int32 {
-        //
         // Look for this instance in the to-be-marshaled map.
-        //
         let val = ValueHolder(v)
         if let p = toBeMarshaledMap[val] {
             return p
         }
 
-        //
         // Didn't find it, try the marshaled map next.
-        //
         if let p = marshaledMap[val] {
             return p
         }
 
-        //
         // We haven't seen this instance previously, create a new
         // index, and insert it into the to-be-marshaled map.
-        //
         valueIdIndex += 1
         toBeMarshaledMap[val] = valueIdIndex
         return valueIdIndex
@@ -829,13 +816,10 @@ private final class EncapsEncoder11: EncapsEncoder {
         }
 
         if let current = current, encaps.format == .slicedFormat {
-            //
             // If writing an instance within a slice and using the sliced
-            // format, write an index from the instance indirection
-            // table. The indirect instance table is encoded at the end of
-            // each slice and is always read (even if the Slice is
-            // unknown).
-            //
+            // format, write an index from the instance indirection table.
+            // The indirect instance table is encoded at the end of
+            // each slice and is always read (even if the Slice is unknown).
             let vh = ValueHolder(v)
             if let index = current.indirectionMap[vh] {
                 os.write(size: index)
@@ -893,16 +877,10 @@ private final class EncapsEncoder11: EncapsEncoder {
 
         os.write(UInt8(0))  // Placeholder for the slice flags
 
-        //
         // For instance slices, encode the flag and the type ID either as a
-        // string or index. For exception slices, always encode the type
-        // ID a string.
-        //
+        // string or index. For exception slices, always encode the type ID a string.
         if current.sliceType == SliceType.ValueSlice {
-            //
-            // Encode the type ID (only in the first slice for the compact
-            // encoding).
-            //
+            // Encode the type ID (only in the first slice for the compact encoding).
             if encaps.format == .slicedFormat || current.firstSlice {
                 if compactId != -1 {
                     current.sliceFlags.insert(.FLAG_HAS_TYPE_ID_COMPACT)
@@ -934,33 +912,26 @@ private final class EncapsEncoder11: EncapsEncoder {
         guard let current = current else {
             preconditionFailure("current is nil")
         }
-        //
+
         // Write the optional member end marker if some optional members
         // were encoded. Note that the optional members are encoded before
         // the indirection table and are included in the slice size.
-        //
         if current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS) {
             os.write(SliceFlags.OPTIONAL_END_MARKER.rawValue)
         }
 
-        //
         // Write the slice length if necessary.
-        //
         if current.sliceFlags.contains(.FLAG_HAS_SLICE_SIZE) {
             let sz = Int32(os.getCount()) - current.writeSlice + 4
             os.write(bytesOf: sz, at: Int(current.writeSlice - 4))
         }
 
-        //
         // Only write the indirection table if it contains entries.
-        //
         if !current.indirectionTable.isEmpty {
             precondition(encaps.format == .slicedFormat)
             current.sliceFlags.insert(.FLAG_HAS_INDIRECTION_TABLE)
 
-            //
             // Write the indirection instance table.
-            //
             os.write(size: current.indirectionTable.count)
             for v in current.indirectionTable {
                 writeInstance(v.value)
@@ -970,9 +941,7 @@ private final class EncapsEncoder11: EncapsEncoder {
             current.indirectionMap.removeAll()
         }
 
-        //
         // Finally, update the slice flags.
-        //
         os.write(bytesOf: current.sliceFlags.rawValue, at: Int(current.sliceFlagsPos))
     }
 
@@ -990,12 +959,9 @@ private final class EncapsEncoder11: EncapsEncoder {
     }
 
     func writeSlicedData(_ slicedData: SlicedData) {
-        //
-        // We only remarshal preserved slices if we are using the sliced
-        // format. Otherwise, we ignore the preserved slices, which
-        // essentially "slices" the instance into the most-derived type
-        // known by the sender.
-        //
+        // We only remarshal preserved slices if we are using the sliced format.
+        // Otherwise, we ignore the preserved slices, which essentially "slices"
+        // the instance into the most-derived type known by the sender.
         guard encaps.format == .slicedFormat else {
             return
         }
@@ -1003,18 +969,14 @@ private final class EncapsEncoder11: EncapsEncoder {
         for info in slicedData.slices {
             startSlice(typeId: info.typeId, compactId: info.compactId, last: info.isLastSlice)
 
-            //
             // Write the bytes associated with this slice.
-            //
             os.write(raw: info.bytes)
 
             if info.hasOptionalMembers {
                 current.sliceFlags.insert(.FLAG_HAS_OPTIONAL_MEMBERS)
             }
 
-            //
             // Make sure to also re-write the instance indirection table.
-            //
             for o in info.instances {
                 current.indirectionTable.append(ValueHolder(o))
             }
@@ -1024,18 +986,14 @@ private final class EncapsEncoder11: EncapsEncoder {
     }
 
     func writeInstance(_ v: Value) {
-        //
         // If the instance was already marshaled, just write it's ID.
-        //
         if let p = marshaledMap[ValueHolder(v)] {
             os.write(size: p)
             return
         }
 
-        //
         // We haven't seen this instance previously, create a new ID,
         // insert it into the marshaled map, and write the instance.
-        //
         valueIdIndex += 1
         marshaledMap[ValueHolder(v)] = valueIdIndex
 
