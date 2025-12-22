@@ -28,9 +28,6 @@ subprojects {
     }
 
     java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(targetJavaRelease)
-        }
         withSourcesJar()
         withJavadocJar()
     }
