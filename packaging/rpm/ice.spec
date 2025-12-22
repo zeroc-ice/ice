@@ -386,8 +386,6 @@ make %{?_smp_mflags} \
   install_phpdir=%{phpdir} \
   LANGUAGES="cpp php python" install
 
-make -C java DESTDIR=%{buildroot} install_javadir=%{_javadir} prefix=%{_prefix} install-icegridgui
-
 # Remove unused installed files
 rm -f %{buildroot}%{_datadir}/ice/LICENSE
 rm -f %{buildroot}%{_datadir}/ice/ICE_LICENSE
@@ -413,6 +411,9 @@ done
 #
 mkdir -p %{buildroot}%{_bindir}
 cp -p packaging/rpm/icegridgui %{buildroot}%{_bindir}/icegridgui
+
+mkdir -p %{buildroot}%{_javadir}/
+cp -p java/lib/icegridgui.jar %{buildroot}%{_javadir}/icegridgui.jar
 
 #
 # noarch file packages
