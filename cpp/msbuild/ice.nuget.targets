@@ -4,28 +4,26 @@
         <IceSrcRootDir>$(MSBuildThisFileDirectory)..\</IceSrcRootDir>
     </PropertyGroup>
 
-    <!-- Dynamic libraries and import libraries -->
     <ItemGroup>
+        <!-- The DLLs to include in the package, with the matching PDBs -->
         <Libraries Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.dll"
                    Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormservice*.dll;
                             $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\libexpat*.dll" />
+        <PDBs Include="@(Libraries->'$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\%(Filename).pdb')"
+              Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\bzip2*.pdb" />
 
-        <ImportLibraries Include="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\*.lib"
-                         Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icestormservice*.lib;
-                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\iceutil*.lib;
-                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\slice*.lib"/>
-    </ItemGroup>
+        <!-- The import libraries to link with -->
+        <ImportLibraries Include="@(Libraries->'$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\%(Filename).lib')"
+                         Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\bzip2*.lib" />
 
-    <ItemGroup>
         <!-- The Slice to C++ compiler is included as a Tool -->
         <Tools Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2cpp.exe" />
 
         <!-- The included executables -->
-        <Executables Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icebox.exe" />
-    </ItemGroup>
+        <Executables Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icebox.exe;
+                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icebox.pdb" />
 
-    <!-- public C++ header and Slice files -->
-    <ItemGroup>
+        <!-- public C++ header and Slice files -->
         <Headers Include="$(IceSrcRootDir)include\**\*.h"
                  Exclude="$(IceSrcRootDir)include\IceBT\*.h;
                           $(IceSrcRootDir)include\generated\**\*.h"/>
@@ -35,9 +33,7 @@
         <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice"
                 Exclude="$(IceSrcRootDir)..\slice\IceDiscovery\*.ice;
                          $(IceSrcRootDir)..\slice\IceLocatorDiscovery\*.ice"/>
-    </ItemGroup>
 
-    <ItemGroup>
         <!-- CMake support files -->
         <CMakeFiles Include="$(IceSrcRootDir)config\*.cmake" />
     </ItemGroup>
@@ -55,6 +51,7 @@
 
         <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
+        <Copy SourceFiles="@(PDBs)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(ImportLibraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(CMakeFiles)" DestinationFolder="$(PackageDirectory)\cmake" />
     </Target>
