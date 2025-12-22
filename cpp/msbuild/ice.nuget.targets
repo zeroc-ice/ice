@@ -15,8 +15,7 @@
         <ImportLibraries Include="@(Libraries->'$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\%(Filename).lib')" />
 
         <!-- The Slice to C++ compiler is included as a Tool -->
-        <Tools Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2cpp.exe;
-                        $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2cpp.pdb" />
+        <Tools Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2cpp.exe" />
 
         <!-- The included executables -->
         <Executables Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icebox.exe;
