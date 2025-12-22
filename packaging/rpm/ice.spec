@@ -661,7 +661,7 @@ exit 0
 %{_mandir}/man1/slice2py.1*
 
 %changelog
-* Wed Dec 19 2025 José Gutiérrez de la Concha <jose@zeroc.com> 3.9a0
+* Fri Dec 19 2025 José Gutiérrez de la Concha <jose@zeroc.com> 3.9a0
 - The 3.9.0-alpha0 release
 
 * Tue Dec 16 2025 José Gutiérrez de la Concha <jose@zeroc.com> 3.8.0
