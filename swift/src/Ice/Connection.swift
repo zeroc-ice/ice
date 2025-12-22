@@ -6,10 +6,13 @@ import Foundation
 public enum CompressBatch: UInt8 {
     /// Compress the batch requests.
     case Yes = 0
+
     /// Don't compress the batch requests.
     case No = 1
+
     /// Compress the batch requests if at least one request was made on a compressed proxy.
     case BasedOnProxy = 2
+
     public init() {
         self = .Yes
     }
@@ -73,7 +76,6 @@ public typealias CloseCallback = (Connection?) -> Void
 
 /// Represents a connection that uses the Ice protocol.
 public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
-
     /// Aborts this connection.
     func abort()
 

@@ -11,7 +11,6 @@ import Foundation
 /// An object adapter can dispatch "bidirectional requests" (requests received over an outgoing connection)
 /// and collocated requests (with no connection at all).
 public protocol ObjectAdapter: AnyObject, Sendable {
-
     /// Gets the dispatch pipeline of this object adapter.
     var dispatchPipeline: Dispatcher { get }
 

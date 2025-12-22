@@ -86,8 +86,7 @@ public protocol Communicator: AnyObject, Sendable {
     ///   - name: The object adapter name.
     ///   - endpoints: The endpoints of the object adapter.
     /// - Returns: The new object adapter.
-    func createObjectAdapterWithEndpoints(name: String, endpoints: String) throws
-        -> ObjectAdapter
+    func createObjectAdapterWithEndpoints(name: String, endpoints: String) throws -> ObjectAdapter
 
     /// Creates a new object adapter with a router. This method creates a routed object adapter. Calling this
     /// method with an empty name will result in a UUID being generated for the name.
