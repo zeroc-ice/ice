@@ -9,10 +9,12 @@
         <Libraries Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.dll"
                    Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormservice*.dll;
                             $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\libexpat*.dll" />
-        <PDBs Include="@(Libraries->'$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\%(Filename).pdb')" />
+        <PDBs Include="@(Libraries->'$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\%(Filename).pdb')"
+              Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\bzip2*.pdb" />
 
         <!-- The import libraries to link with -->
-        <ImportLibraries Include="@(Libraries->'$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\%(Filename).lib')" />
+        <ImportLibraries Include="@(Libraries->'$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\%(Filename).lib')"
+                         Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\bzip2*.lib" />
 
         <!-- The Slice to C++ compiler is included as a Tool -->
         <Tools Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2cpp.exe" />
