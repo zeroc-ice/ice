@@ -451,6 +451,9 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         assert(_sliceInfoType);
     }
 
+#if PY_VERSION_HEX >= 0x03090000
+    PyObjectHandle sd = PyObject_CallNoArgs(_slicedDataType);
+#else
     IcePy::PyObjectHandle args = PyTuple_New(0);
     if(!args.get())
     {
@@ -459,6 +462,7 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
     }
 
     PyObjectHandle sd = PyEval_CallObject(_slicedDataType, args.get());
+#endif
     if(!sd.get())
     {
         assert(PyErr_Occurred());
@@ -484,12 +488,16 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
     int i = 0;
     for(vector<Ice::SliceInfoPtr>::const_iterator p = slicedData->slices.begin(); p != slicedData->slices.end(); ++p)
     {
+#if PY_VERSION_HEX >= 0x03090000
+        PyObjectHandle slice = PyObject_CallNoArgs(_sliceInfoType);
+#else
         PyObjectHandle slice = PyEval_CallObject(_sliceInfoType, args.get());
         if(!slice.get())
         {
             assert(PyErr_Occurred());
             throw AbortMarshaling();
         }
+#endif
 
         PyTuple_SET_ITEM(slices.get(), i++, slice.get());
         Py_INCREF(slice.get()); // PyTuple_SET_ITEM steals a reference.
@@ -1665,9 +1673,17 @@ IcePy::SequenceInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* obje
             Py_ssize_t sz = 0;
             if(p != Py_None)
             {
+#if PY_VERSION_HEX >= 0x030B0000
+                Py_buffer pybuf;
+                if (PyObject_GetBuffer(p, &pybuf, PyBUF_SIMPLE | PyBUF_FORMAT) == 0)
+                {
+                    sz = pybuf.len;
+                    PyBuffer_Release(&pybuf);
+#else
                 const void* buf = 0;
                 if(PyObject_AsReadBuffer(p, &buf, &sz) == 0)
                 {
+#endif
                     if(pi->kind == PrimitiveInfo::KindString)
                     {
                         PyErr_Format(PyExc_ValueError, STRCAST("expected sequence value"));
@@ -4279,12 +4295,19 @@ IcePy::ExceptionWriter::ExceptionWriter(const PyObjectHandle& ex, const Exceptio
     }
 }
 
-IcePy::ExceptionWriter::~ExceptionWriter() throw()
+#ifdef __clang__
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wdeprecated-copy-with-user-provided-dtor"
+#endif
+IcePy::ExceptionWriter::~ExceptionWriter() noexcept
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
     _ex = 0;
 }
+#ifdef __clang__
+#   pragma clang diagnostic pop
+#endif
 
 string
 IcePy::ExceptionWriter::ice_id() const
@@ -4333,12 +4356,19 @@ IcePy::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) :
 {
 }
 
-IcePy::ExceptionReader::~ExceptionReader() throw()
+#ifdef __clang__
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wdeprecated-copy-with-user-provided-dtor"
+#endif
+IcePy::ExceptionReader::~ExceptionReader() noexcept
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
     _ex = 0;
 }
+#ifdef __clang__
+#   pragma clang diagnostic pop
+#endif
 
 string
 IcePy::ExceptionReader::ice_id() const

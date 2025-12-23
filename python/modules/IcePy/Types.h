@@ -672,7 +672,15 @@ class ExceptionWriter : public Ice::UserException
 public:
 
     ExceptionWriter(const PyObjectHandle&, const ExceptionInfoPtr& = 0);
-    ~ExceptionWriter() throw();
+
+#ifdef __clang__
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wdeprecated-copy-with-user-provided-dtor"
+#endif
+    ~ExceptionWriter() noexcept;
+#ifdef __clang__
+#   pragma clang diagnostic pop
+#endif
 
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING
@@ -705,7 +713,14 @@ class ExceptionReader : public Ice::UserException
 public:
 
     ExceptionReader(const ExceptionInfoPtr&);
-    ~ExceptionReader() throw();
+#ifdef __clang__
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wdeprecated-copy-with-user-provided-dtor"
+#endif
+    ~ExceptionReader() noexcept;
+#ifdef __clang__
+#   pragma clang diagnostic pop
+#endif
 
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING
