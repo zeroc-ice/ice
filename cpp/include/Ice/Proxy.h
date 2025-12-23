@@ -3170,7 +3170,7 @@ ICE_API bool proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& r
 
 #ifdef __clang__
 #   pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations" // for std::binary_function below
+#   pragma clang diagnostic ignored "-Wdeprecated-declarations" // for std::binary_function below
 #endif
 
 /**
