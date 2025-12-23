@@ -492,12 +492,12 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         PyObjectHandle slice = PyObject_CallNoArgs(_sliceInfoType);
 #else
         PyObjectHandle slice = PyEval_CallObject(_sliceInfoType, args.get());
+#endif
         if(!slice.get())
         {
             assert(PyErr_Occurred());
             throw AbortMarshaling();
         }
-#endif
 
         PyTuple_SET_ITEM(slices.get(), i++, slice.get());
         Py_INCREF(slice.get()); // PyTuple_SET_ITEM steals a reference.

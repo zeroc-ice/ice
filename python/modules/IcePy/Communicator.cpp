@@ -282,7 +282,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     // as an argument vector in case they contain plug-in properties.
     //
     int argc = static_cast<int>(seq.size());
-    char** argv = new char*[static_cast<unsigned long>(argc + 1)];
+    char** argv = new char*[static_cast<size_t>(argc + 1)];
     int i = 0;
     for(Ice::StringSeq::const_iterator s = seq.begin(); s != seq.end(); ++s, ++i)
     {
