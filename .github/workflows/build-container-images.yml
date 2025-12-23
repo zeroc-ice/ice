@@ -98,7 +98,8 @@ jobs:
         run: |
           args=(
             --platform "linux/${{ matrix.platform }}"
-            --tag "ghcr.io/zeroc-ice/${{ matrix.image }}-${CHANNEL}:${{ matrix.platform }}"
+            # Use CHANNEL as the tag; keep arch as a suffix tag for manifest assembly.
+            --tag "ghcr.io/zeroc-ice/${{ matrix.image }}:${CHANNEL}-${{ matrix.platform }}"
             --push
             -f ${{ matrix.dockerfile }}
           )
@@ -154,8 +155,8 @@ jobs:
 
       - name: Create and push manifest
         run: |
-          docker manifest create ghcr.io/zeroc-ice/${{ matrix.image }}-${CHANNEL}:latest \
-            --amend ghcr.io/zeroc-ice/${{ matrix.image }}-${CHANNEL}:amd64 \
-            --amend ghcr.io/zeroc-ice/${{ matrix.image }}-${CHANNEL}:arm64
+          docker manifest create ghcr.io/zeroc-ice/${{ matrix.image }}:${CHANNEL} \
+            --amend ghcr.io/zeroc-ice/${{ matrix.image }}:${CHANNEL}-amd64 \
+            --amend ghcr.io/zeroc-ice/${{ matrix.image }}:${CHANNEL}-arm64
 
-          docker manifest push ghcr.io/zeroc-ice/${{ matrix.image }}-${CHANNEL}:latest
+          docker manifest push ghcr.io/zeroc-ice/${{ matrix.image }}:${CHANNEL}

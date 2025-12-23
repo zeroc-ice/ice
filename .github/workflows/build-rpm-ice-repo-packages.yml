@@ -43,7 +43,7 @@ jobs:
             -v "$GITHUB_WORKSPACE:/workspace" \
             -e GPG_KEY="${{ secrets.ICE_3_8_CI_SIGNER_KEY }}" \
             -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}" \
-            ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }}-${CHANNEL} \
+            ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }}:${CHANNEL} \
             /workspace/ice/packaging/rpm/build-repo-package.sh \
             --distribution "${{ matrix.distribution }}" \
             --channel "${CHANNEL}" \

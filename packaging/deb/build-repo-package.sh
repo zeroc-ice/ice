@@ -13,7 +13,7 @@
 # (in ASCII-armored format), and the corresponding key ID via GPG_KEY_ID.
 #
 # The build-deb-ice-repo-packages GitHub Actions workflow in this repository uses this script together
-# with the ghcr.io/zeroc-ice/ice-deb-builder-<distribution>-<channel> Docker image to build the package.
+# with the ghcr.io/zeroc-ice/ice-deb-builder-<distribution>:<channel> Docker image to build the package.
 
 set -euo pipefail
 

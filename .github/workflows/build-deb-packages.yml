@@ -83,7 +83,7 @@ jobs:
             -e DH_BUILD_DDEBS="${DH_BUILD_DDEBS}" \
             -e DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS" \
             -e DEB_BUILD_PROFILES="${{ matrix.deb_build_profiles }}" \
-            ghcr.io/zeroc-ice/ice-deb-builder-${{ matrix.distribution }}-${CHANNEL} \
+            ghcr.io/zeroc-ice/ice-deb-builder-${{ matrix.distribution }}:${CHANNEL} \
             /workspace/ice/packaging/deb/build-package.sh
         shell: bash
 

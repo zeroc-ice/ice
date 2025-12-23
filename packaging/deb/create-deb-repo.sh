@@ -12,7 +12,7 @@
 # and the key ID via GPG_KEY_ID.
 #
 # The publish-deb-packages GitHub Actions workflow in this repository uses this script together
-# with the ghcr.io/zeroc-ice/deb-repo-builder-<channel> Docker image to create and update the repository.
+# with the ghcr.io/zeroc-ice/deb-repo-builder:<channel> Docker image to create and update the repository.
 
 set -euo pipefail
 

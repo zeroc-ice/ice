@@ -30,7 +30,7 @@ jobs:
       - name: Load version info
         run: |
           source ice/config/version.env
-          echo "IMAGE_CHANNEL=$CHANNEL" >> $GITHUB_ENV
+          echo "CHANNEL=$CHANNEL" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -50,7 +50,7 @@ jobs:
             -e GIT_TAG="${{ github.ref_name }}" \
             -e GPG_KEY="${{ secrets.ICE_3_8_CI_SIGNER_KEY }}" \
             -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}" \
-            ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }}-${IMAGE_CHANNEL} \
+            ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }}:${CHANNEL} \
             /workspace/ice/packaging/rpm/build-package.sh
 
       - name: Upload Artifacts

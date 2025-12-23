@@ -12,7 +12,7 @@
 # The resulting package installs a zeroc-ice-<channel>.repo file into /etc/yum.repos.d/.
 #
 # The build-rpm-ice-repo-packages GitHub Actions workflow in this repository uses this script
-# together with the ghcr.io/zeroc-ice/ice-rpm-builder-<distribution>-<channel> Docker image to build the package.
+# together with the ghcr.io/zeroc-ice/ice-rpm-builder-<distribution>:<channel> Docker image to build the package.
 
 set -euo pipefail
 
