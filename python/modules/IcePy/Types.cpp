@@ -1677,9 +1677,12 @@ IcePy::SequenceInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* obje
             Py_ssize_t sz = 0;
             if(p != Py_None)
             {
+                // Prefer the modern buffer protocol (PyObject_GetBuffer).
+                // PyObject_GetBuffer is in the Stable ABI starting with Python 3.11.
+                // PyObject_AsReadBuffer is a legacy compatibility API and is removed in Python 3.13.
 #if PY_VERSION_HEX >= 0x030B0000
                 Py_buffer pybuf;
-                if (PyObject_GetBuffer(p, &pybuf, PyBUF_SIMPLE | PyBUF_FORMAT) == 0)
+                if (PyObject_GetBuffer(p, &pybuf, PyBUF_SIMPLE) == 0)
                 {
                     sz = pybuf.len;
                     PyBuffer_Release(&pybuf);
@@ -1696,7 +1699,7 @@ IcePy::SequenceInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* obje
                 }
                 else
                 {
-                    PyErr_Clear(); // PyObject_AsReadBuffer sets an exception on failure.
+                    PyErr_Clear(); // PyObject_AsReadBuffer/PyObject_GetBuffer sets an exception on failure.
 
                     PyObjectHandle fs;
                     if(pi)
