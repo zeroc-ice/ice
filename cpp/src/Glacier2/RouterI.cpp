@@ -159,11 +159,11 @@ Glacier2::RouterI::addProxies(const ObjectProxySeq& proxies, const Current& curr
     return _routingTable->add(proxies, current);
 }
 
-string
+std::string
 Glacier2::RouterI::getCategoryForClient(const Ice::Current&) const
 {
     assert(false); // Must not be called in this router implementation.
-    return 0;
+    return std::string();
 }
 
 void
