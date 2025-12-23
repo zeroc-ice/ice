@@ -451,6 +451,8 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         assert(_sliceInfoType);
     }
 
+    // Python 3.9+ provides PyObject_CallNoArgs for calling a callable with no arguments.
+    // PyEval_CallObject was deprecated in Python 3.9 and removed in Python 3.12.
 #if PY_VERSION_HEX >= 0x03090000
     PyObjectHandle sd = PyObject_CallNoArgs(_slicedDataType);
 #else
@@ -488,6 +490,8 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
     int i = 0;
     for(vector<Ice::SliceInfoPtr>::const_iterator p = slicedData->slices.begin(); p != slicedData->slices.end(); ++p)
     {
+        // Python 3.9+ provides PyObject_CallNoArgs for calling a callable with no arguments.
+        // PyEval_CallObject was deprecated in Python 3.9 and removed in Python 3.12.1
 #if PY_VERSION_HEX >= 0x03090000
         PyObjectHandle slice = PyObject_CallNoArgs(_sliceInfoType);
 #else
