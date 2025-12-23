@@ -52,33 +52,6 @@ done
 : "${GPG_KEY:?GPG_KEY environment variable is not set}"
 : "${GPG_KEY_ID:?GPG_KEY_ID environment variable is not set}"
 
-# Validate distribution
-case "$DISTRIBUTION" in
-    debian12|debian13|ubuntu24.04) ;;
-    *)
-        echo "Error: DISTRIBUTION must be 'debian12', 'debian13', or 'ubuntu24.04'" >&2
-        exit 1
-        ;;
-esac
-
-# Validate channel
-case "$CHANNEL" in
-    3.9|3.8) ;;
-    *)
-        echo "Error: CHANNEL must be '3.9' or '3.8'" >&2
-        exit 1
-        ;;
-esac
-
-# Validate quality
-case "$QUALITY" in
-    stable|nightly) ;;
-    *)
-        echo "Error: QUALITY must be 'stable' or 'nightly'" >&2
-        exit 1
-        ;;
-esac
-
 declare -A CODENAMES=(
     ["debian12"]="bookworm"
     ["debian13"]="trixie"
