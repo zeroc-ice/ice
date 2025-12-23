@@ -4,6 +4,10 @@ pluginManagement {
     includeBuild "./tools/slice-tools"
 }
 
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
 // Source projects
 include ':ice'
 project(':ice').projectDir = new File('src/com.zeroc.ice')

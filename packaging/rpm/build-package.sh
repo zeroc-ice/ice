@@ -12,7 +12,7 @@
 # and the key ID via GPG_KEY_ID.
 #
 # The build-rpm-packages GitHub Actions workflow in this repository uses this script together
-# with the ghcr.io/zeroc-ice/ice-rpm-builder-<distribution> Docker image to build the packages.
+# with the ghcr.io/zeroc-ice/ice-rpm-builder-<distribution>-<channel> Docker image to build the packages.
 
 set -euo pipefail
 

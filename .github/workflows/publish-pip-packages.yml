@@ -4,14 +4,21 @@ on:
   workflow_dispatch:
     inputs:
       channel:
-        description: "The channel to publish to (e.g., 3.8, nightly)"
+        description: "The release channel (e.g., 3.9, 3.8)"
         required: true
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
+        required: true
+        default: "nightly"
       run_id:
         description: "The run ID to use for downloading artifacts"
         required: true
   workflow_call:
     inputs:
       channel:
+        required: true
+        type: string
+      quality:
         required: true
         type: string
       run_id:
@@ -29,28 +36,20 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ inputs.run_id }}
         run: |
-          set -euo pipefail
-          mkdir -p staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "pip-packages-*" --dir staging
 
       - name: Publish PIP Package
         run: |
-          set -euo pipefail
-
-          case "$CHANNEL" in
-            "3.8")
+          case "$QUALITY" in
+            "stable")
               REPOSITORY_URL="https://upload.pypi.org/legacy/"
               export TWINE_USERNAME="__token__"
               export TWINE_PASSWORD="${RELEASE_PYPI_AUTH_TOKEN}"
               ;;
-            "nightly")
-              REPOSITORY_URL="https://download.zeroc.com/nexus/repository/pypi-nightly/"
+            *)
+              REPOSITORY_URL="https://download.zeroc.com/nexus/repository/pypi-${CHANNEL}-${QUALITY}/"
               export TWINE_USERNAME="nightly"
               export TWINE_PASSWORD="${NEXUS_NIGHTLY_PASSWORD}"
-              ;;
-            *)
-              echo "Unsupported channel: $CHANNEL"
-              exit 1
               ;;
           esac
 
@@ -65,5 +64,6 @@ jobs:
           twine upload --verbose --repository-url "${REPOSITORY_URL}" dist/*
         env:
           CHANNEL: ${{ inputs.channel }}
+          QUALITY: ${{ inputs.quality }}
           NEXUS_NIGHTLY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
           RELEASE_PYPI_AUTH_TOKEN: ${{ secrets.RELEASE_PYPI_AUTH_TOKEN }}

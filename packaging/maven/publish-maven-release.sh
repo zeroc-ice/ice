@@ -1,17 +1,13 @@
 set -xeuo pipefail
 
-case "$CHANNEL" in
-  "3.8")
+case "$QUALITY" in
+  "stable")
     REPO_ID=ossrh
     SOURCE_URL="https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
     ;;
-  "nightly")
-    REPO_ID=maven-nightly
-    SOURCE_URL="https://download.zeroc.com/nexus/repository/maven-nightly/"
-    ;;
   *)
-    echo "Unsupported channel: $CHANNEL"
-    exit 1
+    REPO_ID=maven-${CHANNEL}-${QUALITY}
+    SOURCE_URL="https://download.zeroc.com/nexus/repository/maven-${CHANNEL}-${QUALITY}/"
     ;;
 esac
 
@@ -64,7 +60,7 @@ for component in "${components[@]}"; do
     -DrepositoryId="${REPO_ID}" || { echo "Failed to publish $base_name"; exit 1; }
 done
 
-if [ "$CHANNEL" = "3.8" ]; then
+if [ "$QUALITY" = "stable" ]; then
   # Tell maven central to validate the deployed artifacts, the deployment needs to be manually published
   # from the maven central web site after it has been validated.
   curl -sS -X POST \

@@ -4,14 +4,21 @@ on:
   workflow_dispatch:
     inputs:
       channel:
-        description: "The channel to publish to (e.g., 3.8, nightly)"
+        description: "The release channel (e.g., 3.9, 3.8)"
         required: true
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
+        required: true
+        default: "nightly"
       run_id:
         description: "The run ID to use for downloading artifacts"
         required: true
   workflow_call:
     inputs:
       channel:
+        required: true
+        type: string
+      quality:
         required: true
         type: string
       run_id:
@@ -34,26 +41,26 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ inputs.run_id }}
         run: |
-          set -euo pipefail
-          mkdir -p "${STAGING_DIR}"
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "java-packages" --dir "${STAGING_DIR}"
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "slice-tools-packages" --dir "${STAGING_DIR}"
 
-      - name: Publish Nightly Java Packages
+      - name: Publish Java Packages
         run: packaging/maven/publish-maven-release.sh
-        if: ${{ inputs.channel == 'nightly' }}
+        if: ${{ inputs.quality == 'nightly' }}
         env:
           CHANNEL: ${{ inputs.channel }}
+          QUALITY: ${{ inputs.quality }}
           MAVEN_USERNAME: "nightly"
           MAVEN_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
           GPG_KEY: ${{ secrets.ICE_3_8_CI_SIGNER_KEY }}
           GPG_KEY_ID: ${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}
 
-      - name: Publish 3.8 Java Packages
+      - name: Publish Java Packages
         run: packaging/maven/publish-maven-release.sh
-        if: ${{ inputs.channel != 'nightly' }}
+        if: ${{ inputs.quality == 'stable' }}
         env:
           CHANNEL: ${{ inputs.channel }}
+          QUALITY: ${{ inputs.quality }}
           MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_API_KEY }}
           MAVEN_CENTRAL_BEARER_AUTH_TOKEN: ${{ secrets.MAVEN_CENTRAL_BEARER_AUTH_TOKEN }}

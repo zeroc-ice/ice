@@ -72,6 +72,11 @@ jobs:
         with:
           path: ice
 
+      - name: Load version info
+        run: |
+          source ice/config/version.env
+          echo "CHANNEL=$CHANNEL" >> $GITHUB_ENV
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -93,7 +98,7 @@ jobs:
         run: |
           args=(
             --platform "linux/${{ matrix.platform }}"
-            --tag "ghcr.io/zeroc-ice/${{ matrix.image }}:${{ matrix.platform }}"
+            --tag "ghcr.io/zeroc-ice/${{ matrix.image }}-${CHANNEL}:${{ matrix.platform }}"
             --push
             -f ${{ matrix.dockerfile }}
           )
@@ -127,6 +132,11 @@ jobs:
           - rpm-repo-builder
 
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          path: ice
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -137,10 +147,15 @@ jobs:
           username: zeroc-ice
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Load version info
+        run: |
+          source ice/config/version.env
+          echo "CHANNEL=$CHANNEL" >> $GITHUB_ENV
+
       - name: Create and push manifest
         run: |
-          docker manifest create ghcr.io/zeroc-ice/${{ matrix.image }}:latest \
-            --amend ghcr.io/zeroc-ice/${{ matrix.image }}:amd64 \
-            --amend ghcr.io/zeroc-ice/${{ matrix.image }}:arm64
+          docker manifest create ghcr.io/zeroc-ice/${{ matrix.image }}-${CHANNEL}:latest \
+            --amend ghcr.io/zeroc-ice/${{ matrix.image }}-${CHANNEL}:amd64 \
+            --amend ghcr.io/zeroc-ice/${{ matrix.image }}-${CHANNEL}:arm64
 
-          docker manifest push ghcr.io/zeroc-ice/${{ matrix.image }}:latest
+          docker manifest push ghcr.io/zeroc-ice/${{ matrix.image }}-${CHANNEL}:latest

@@ -2,7 +2,6 @@
 
 # This script creates a DNF/YUM repository for ZeroC Ice RPM packages.
 #
-# --channel specifies the Ice version channel (e.g., 3.8 or nightly).
 # --staging specifies the directory containing the built RPM packages.
 # --repository specifies the directory where the DNF repository will be created or updated.
 #
@@ -10,22 +9,17 @@
 # and the key ID via GPG_KEY_ID.
 #
 # The publish-rpm-packages GitHub Actions workflow in this repository uses this script together
-# with the ghcr.io/zeroc-ice/rpm-repo-builder Docker image to create and update the repository.
+# with the ghcr.io/zeroc-ice/rpm-repo-builder-<channel> Docker image to create and update the repository.
 
 set -euo pipefail
 
 # Default values
-CHANNEL=""
 STAGING=""
 REPODIR=""
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --channel)
-            CHANNEL="$2"
-            shift 2
-            ;;
         --staging)
             STAGING="$2"
             shift 2
@@ -42,20 +36,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Validate required inputs
-: "${CHANNEL:?Missing --channel}"
 : "${STAGING:?Missing --staging}"
 : "${REPODIR:?Missing --repository}"
 : "${GPG_KEY:?GPG_KEY environment variable is not set}"
 : "${GPG_KEY_ID:?GPG_KEY_ID environment variable is not set}"
-
-# Validate channel
-case "$CHANNEL" in
-    3.8|nightly) ;;
-    *)
-        echo "Error: CHANNEL must be '3.8' or 'nightly'" >&2
-        exit 1
-        ;;
-esac
 
 # Import the GPG key
 echo "$GPG_KEY" | gpg --batch --import

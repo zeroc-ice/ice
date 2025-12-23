@@ -56,7 +56,7 @@ Ice for C++ is distributed as the `ZeroC.Ice.Cpp` NuGet package on Windows.
 Add the following feed to your NuGet sources to get the nightly package:
 
 ```shell
-https://download.zeroc.com/nexus/repository/nuget-nightly/
+https://download.zeroc.com/nexus/repository/nuget-3.9-nightly/
 ```
 
 > `ZeroC.Ice.Cpp` includes C++ libraries, header files, the Slice to C++ compiler, and the IceBox service.
@@ -68,7 +68,7 @@ Ice for C# is distributed as NuGet packages for all platforms.
 Add the following feed to your NuGet sources to get the nightly packages:
 
 ```shell
-https://download.zeroc.com/nexus/repository/nuget-nightly/
+https://download.zeroc.com/nexus/repository/nuget-3.9-nightly/
 ```
 
 ### Ice for Java
@@ -78,7 +78,7 @@ The nightly packages are available from the maven ZeroC maven-nightly repository
 To use them, add the following Maven repository to your build configuration:
 
 ```shell
-https://download.zeroc.com/nexus/repository/maven-nightly/
+https://download.zeroc.com/nexus/repository/maven-3.9-nightly/
 ```
 
 #### Gradle <!-- omit in toc -->
@@ -92,7 +92,7 @@ pluginManagement {
         gradlePluginPortal()
         // Use the nightly build of the Slice Tools plugin, published to the ZeroC maven-nightly repository.
         maven {
-            url = uri("https://download.zeroc.com/nexus/repository/maven-nightly/")
+            url = uri("https://download.zeroc.com/nexus/repository/maven-3.9-nightly/")
             content {
                 includeGroupByRegex("com\\.zeroc.*")
             }
@@ -105,7 +105,7 @@ dependencyResolutionManagement {
         mavenCentral()
         // Use the nightly build of Ice, published to the ZeroC maven-nightly repository.
         maven {
-            url = uri("https://download.zeroc.com/nexus/repository/maven-nightly/")
+            url = uri("https://download.zeroc.com/nexus/repository/maven-3.9-nightly/")
             content {
                 includeGroupByRegex("com\\.zeroc.*")
             }
@@ -122,7 +122,7 @@ To install it, add the following line to your project’s .npmrc file:
 
 ```shell
 # Use ZeroC nightly registry for @zeroc packages
-@zeroc:registry=https://download.zeroc.com/nexus/repository/npm-nightly/
+@zeroc:registry=https://download.zeroc.com/nexus/repository/npm-3.9-nightly/
 ```
 
 Then add the `@zeroc/ice` package to your project:
@@ -135,8 +135,8 @@ npm install @zeroc/ice
 
 Ice toolbox for MATLAB R2025b:
 
-- Windows: [ice-nightly-R2025b-win.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025b-win.mltbx)
-- Ubuntu 24.04: [ice-nightly-R2025b-linux.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025b-linux.mltbx)
+- Windows: [ice-nightly-R2025b-win.mltbx](https://download.zeroc.com/ice/nightly/3.9/ice-nightly-R2025b-win.mltbx)
+- Ubuntu 24.04: [ice-nightly-R2025b-linux.mltbx](https://download.zeroc.com/ice/nightly/3.9/ice-nightly-R2025b-linux.mltbx)
 
 To install a toolbox, download the package corresponding to your platform and simply double-click on the `.mltbx` file
 from MATLAB.
@@ -216,7 +216,7 @@ The nightly Ruby GEM package is available from the ZeroC RubyGems nightly reposi
 You can install the latest Ruby gem by running the following command:
 
 ```shell
-gem install zeroc-ice --source https://download.zeroc.com/nexus/repository/rubygems-nightly --user \
+gem install zeroc-ice --source https://download.zeroc.com/nexus/repository/rubygems-3.9-nightly --user \
     --pre --version '>= 3.9.0.pre'
 ```
 
@@ -270,7 +270,7 @@ which is provided by a [cask](#macos-brew-formula-and-cask).
 The Ice services (Glacier2, IceGrid, IceStorm, etc.) and all admin tools for these services (IceGridGUI, icegridadmin,
 etc.) are provided in a Windows installer MSI package:
 
-- [Ice-Services-nightly.msi](https://download.zeroc.com/ice/nightly/Ice-Services-nightly.msi)
+- [Ice-Services-nightly.msi](https://download.zeroc.com/ice/nightly/3.9/Ice-Services-nightly.msi)
 
 ## Linux Repositories
 
@@ -284,19 +284,19 @@ To enable the nightly repository for your distribution run:
 - Red Hat Enterprise Linux 9
 
   ```shell
-  sudo dnf install https://download.zeroc.com/ice/nightly/el9/ice-repo-nightly-1.0.0-1.el9.noarch.rpm
+  sudo dnf install https://download.zeroc.com/ice/nightly/3.9/el9/ice-repo-3.9-nightly-1.0.0-1.el9.noarch.rpm
   ```
 
 - Red Hat Enterprise Linux 10
 
   ```shell
-  sudo dnf install https://download.zeroc.com/ice/nightly/el10/ice-repo-nightly-1.0.0-1.el10.noarch.rpm
+  sudo dnf install https://download.zeroc.com/ice/nightly/3.9/el10/ice-repo-3.9-nightly-1.0.0-1.el10.noarch.rpm
   ```
 
 - Amazon Linux 2023
 
   ```shell
-  sudo dnf install https://download.zeroc.com/ice/nightly/amzn2023/ice-repo-nightly-1.0.0-1.amzn2023.noarch.rpm
+  sudo dnf install https://download.zeroc.com/ice/nightly/3.9/amzn2023/ice-repo-3.9-nightly-1.0.0-1.amzn2023.noarch.rpm
   ```
 
 See also: [RPM packages README]
@@ -310,25 +310,25 @@ To enable the nightly repository for your distribution run:
 - Debian 12
 
   ```shell
-  wget "https://download.zeroc.com/ice/nightly/debian12/ice-repo-nightly_1.0_all.deb" -O ice-repo-nightly.deb
-  sudo dpkg -i ice-repo-nightly.deb
-  rm ice-repo-nightly.deb
+  wget "https://download.zeroc.com/ice/nightly/3.9/debian12/ice-repo-3.9-nightly_1.0_all.deb" -O ice-repo-3.9-nightly.deb
+  sudo dpkg -i ice-repo-3.9-nightly.deb
+  rm ice-repo-3.9-nightly.deb
   ```
 
 - Debian 13
 
   ```shell
-  wget "https://download.zeroc.com/ice/nightly/debian13/ice-repo-nightly_1.0_all.deb" -O ice-repo-nightly.deb
-  sudo dpkg -i ice-repo-nightly.deb
-  rm ice-repo-nightly.deb
+  wget "https://download.zeroc.com/ice/nightly/3.9/debian13/ice-repo-3.9-nightly_1.0_all.deb" -O ice-repo-3.9-nightly.deb
+  sudo dpkg -i ice-repo-3.9-nightly.deb
+  rm ice-repo-3.9-nightly.deb
   ```
 
 - Ubuntu 24.04
 
   ```shell
-  wget "https://download.zeroc.com/ice/nightly/ubuntu24.04/ice-repo-nightly_1.0_all.deb" -O ice-repo-nightly.deb
-  sudo dpkg -i ice-repo-nightly.deb
-  rm ice-repo-nightly.deb
+  wget "https://download.zeroc.com/ice/nightly/3.9/ubuntu24.04/ice-repo-3.9-nightly_1.0_all.deb" -O ice-repo-3.9-nightly.deb
+  sudo dpkg -i ice-repo-3.9-nightly.deb
+  rm ice-repo-3.9-nightly.deb
   ```
 
 See also: [DEB packages README]
