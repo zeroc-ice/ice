@@ -1472,12 +1472,16 @@ ICE_API bool proxyIdentityAndFacetLess(const ::std::shared_ptr<ObjectPrx>& lhs,
 ICE_API bool proxyIdentityAndFacetEqual(const ::std::shared_ptr<ObjectPrx>& lhs,
                                         const ::std::shared_ptr<ObjectPrx>& rhs);
 
+#ifdef __clang__
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wdeprecated-declarations" // for std::binary_function below
+#endif
+
 /**
  * A functor that compares the object identities of two proxies. Evaluates true if the identity in lhs
  * compares less than the identity in rhs, false otherwise.
  * \headerfile Ice/Ice.h
  */
-
 struct ProxyIdentityLess
 #if (ICE_CPLUSPLUS < 201703L)
     : std::binary_function<bool, ::std::shared_ptr<ObjectPrx>&, ::std::shared_ptr<ObjectPrx>&>
@@ -1536,6 +1540,10 @@ struct ProxyIdentityAndFacetEqual
         return proxyIdentityAndFacetEqual(lhs, rhs);
     }
 };
+
+#ifdef __clang__
+#   pragma clang diagnostic pop
+#endif
 
 /**
  * Downcasts a proxy without confirming the target object's type via a remote invocation.
@@ -3160,6 +3168,11 @@ ICE_API bool proxyIdentityAndFacetLess(const ObjectPrx& lhs, const ObjectPrx& rh
  */
 ICE_API bool proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& rhs);
 
+#ifdef __clang__
+#   pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations" // for std::binary_function below
+#endif
+
 /**
  * A functor that compares the object identities of two proxies. Evaluates true if the identity in lhs
  * compares less than the identity in rhs, false otherwise.
@@ -3223,6 +3236,10 @@ struct ProxyIdentityAndFacetEqual
         return proxyIdentityAndFacetEqual(lhs, rhs);
     }
 };
+
+#ifdef __clang__
+#   pragma clang diagnostic pop
+#endif
 
 }
 

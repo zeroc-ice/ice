@@ -100,6 +100,11 @@ protected:
     bool _destroyed;
     std::set<Token> _tokens;
 
+#ifdef __clang__
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wdeprecated-declarations" // for std::binary_function below
+#endif
+
 #if (ICE_CPLUSPLUS >= 201703L)
     class TimerTaskCompare
 #else
@@ -117,6 +122,10 @@ protected:
     IceUtil::Time _wakeUpTime;
 };
 typedef IceUtil::Handle<Timer> TimerPtr;
+
+#ifdef __clang__
+#   pragma clang diagnostic pop
+#endif
 
 inline
 Timer::Token::Token(const IceUtil::Time& st, const IceUtil::Time& d, const TimerTaskPtr& t) :
