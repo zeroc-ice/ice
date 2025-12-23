@@ -729,12 +729,16 @@ PyObject*
 IcePy::createExceptionInstance(PyObject* type)
 {
     assert(PyExceptionClass_Check(type));
+#if PY_VERSION_HEX >= 0x03090000
+    return PyObject_CallNoArgs(type);
+#else
     IcePy::PyObjectHandle args = PyTuple_New(0);
     if(!args.get())
     {
         return 0;
     }
     return PyEval_CallObject(type, args.get());
+#endif
 }
 
 static void
