@@ -1,0 +1,19 @@
+name: Setup Python
+
+inputs:
+  python-version:
+    description: "The version of Python to set up."
+    default: "3.14"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Configure Windows Python Environment
+      run: |
+        echo "PythonHome=$env:Python_ROOT_DIR"  >> $env:GITHUB_ENV
+      shell: powershell
+      if: runner.os == 'Windows'

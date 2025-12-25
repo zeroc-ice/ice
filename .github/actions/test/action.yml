@@ -1,0 +1,32 @@
+name: Test Ice
+
+inputs:
+  working_directory:
+    description: "The working directory to run the tests in"
+
+  flags:
+    description: "Flags to pass to the test"
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Test
+      working-directory: ${{ inputs.working_directory }}
+      run: python3 allTests.py --debug --all --continue --workers=4 --export-xml=test-report.xml ${{ inputs.flags }}
+      shell: bash
+      if: runner.os == 'macOS'
+
+    - name: Test
+      working-directory: ${{ inputs.working_directory }}
+      run: |
+        ulimit -c unlimited
+        python3 allTests.py --debug --all --continue --workers=4 --export-xml=test-report.xml ${{ inputs.flags }}
+      shell: bash
+      if: runner.os == 'Linux'
+
+    - name: Test
+      working-directory: ${{ inputs.working_directory }}
+      run: python allTests.py --debug --all --continue --workers=4 --export-xml=test-report.xml ${{ inputs.flags }}
+      shell: powershell
+      if: runner.os == 'Windows'

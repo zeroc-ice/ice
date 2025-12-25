@@ -1,0 +1,67 @@
+name: Build Ice
+description: "Build Ice project"
+
+inputs:
+  working_directory:
+    description: "The working directory to run the build in"
+    default: "."
+
+  build_flags:
+    description: "Additional flags to pass to the build"
+    default: ""
+
+  msbuild_project:
+    description: "The project file to build"
+    default: "ice.proj"
+
+  msbuild_command:
+    description: "The msbuild command to use"
+    default: "msbuild /m"
+
+  build_cpp_and_python:
+    description: "Build C++ and Python"
+    default: "false"
+
+  build_android_controller:
+    description: "Build Android Controller"
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    # macOS and Linux
+    - name: Build C++ and Python
+      run: |
+        make ${{ inputs.build_flags }} -C cpp srcs
+        make -C python
+      shell: bash
+      if: (runner.os == 'macOS' || runner.os == 'Linux') && inputs.build_cpp_and_python == 'true'
+    - name: Build
+      working-directory: ${{ inputs.working_directory }}
+      run: make ${{ inputs.build_flags }}
+      shell: bash
+      if: runner.os == 'macOS' || runner.os == 'Linux'
+
+    # Android
+    - name: Build Android
+      working-directory: ${{ inputs.working_directory }}
+      run: |
+        cd test/android/controller
+        ./gradlew build checkstyle
+        ./gradlew rewriteDryRun --no-parallel --no-configuration-cache
+      shell: bash
+      if: inputs.build_android_controller == 'true'
+
+    # Windows
+    - name: Build C++ and Python
+      run: |
+        msbuild /m ${{ inputs.build_flags }} /t:BuildDist cpp/msbuild/ice.proj
+        msbuild /m ${{ inputs.build_flags }} python/msbuild/ice.proj
+      shell: powershell
+      if: runner.os == 'Windows' && inputs.build_cpp_and_python == 'true'
+
+    - name: Build
+      working-directory: ${{ inputs.working_directory }}
+      run: ${{ inputs.msbuild_command }} ${{ inputs.build_flags }} ${{ inputs.msbuild_project }}
+      shell: powershell
+      if: runner.os == 'Windows'
