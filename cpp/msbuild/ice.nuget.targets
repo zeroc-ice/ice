@@ -5,12 +5,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <!-- The DLLs to include in the package, with the matching PDBs -->
+        <!-- The DLLs to include in the package -->
         <Libraries Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.dll"
                    Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormservice*.dll;
                             $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\libexpat*.dll" />
-        <PDBs Include="@(Libraries->'$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\%(Filename).pdb')"
-              Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\bzip2*.pdb" />
 
         <!-- The import libraries to link with -->
         <ImportLibraries Include="@(Libraries->'$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\%(Filename).lib')"
@@ -20,8 +18,7 @@
         <Tools Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2cpp.exe" />
 
         <!-- The included executables -->
-        <Executables Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icebox.exe;
-                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icebox.pdb" />
+        <Executables Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icebox.exe" />
 
         <!-- public C++ header and Slice files -->
         <Headers Include="$(IceSrcRootDir)include\**\*.h"
@@ -51,7 +48,6 @@
 
         <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
-        <Copy SourceFiles="@(PDBs)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(ImportLibraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(CMakeFiles)" DestinationFolder="$(PackageDirectory)\cmake" />
     </Target>
