@@ -3,11 +3,12 @@ set -euo pipefail
 
 trap 'echo "🔥 ERROR: command \"$BASH_COMMAND\" exited with code $?" >&2' ERR
 
-# Config (override via env or CLI if you like)
-BUCKET="${BUCKET:-zeroc-downloads}"
-PREFIX="${PREFIX:-ice/nightly/}"   # no leading slash
-DAYS_TO_KEEP="${DAYS_TO_KEEP:-7}"  # default: keep last 7 days
-DRY_RUN="${DRY_RUN:-1}"            # set to 0 to actually delete
+# Config (override via env)
+BUCKET="${BUCKET:-zeroc-downloads}"         # S3 bucket name
+CHANNEL="${CHANNEL:-3.9}"                   # release channel (e.g., 3.9, 3.8)
+PREFIX="${PREFIX:-ice/nightly/$CHANNEL/}"   # no leading slash
+DAYS_TO_KEEP="${DAYS_TO_KEEP:-7}"           # default: keep last 7 days
+DRY_RUN="${DRY_RUN:-1}"                     # set to 0 to actually delete
 
 echo "Bucket       : $BUCKET"
 echo "Prefix       : $PREFIX"

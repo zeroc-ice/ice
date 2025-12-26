@@ -4,14 +4,21 @@ on:
   workflow_dispatch:
     inputs:
       channel:
-        description: "The channel to publish to (e.g., 3.8, nightly)"
+        description: "The release channel (e.g., 3.9, 3.8)"
         required: true
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
+        required: true
+        default: "nightly"
       run_id:
         description: "The run ID to use for downloading artifacts"
         required: true
   workflow_call:
     inputs:
       channel:
+        required: true
+        type: string
+      quality:
         required: true
         type: string
       run_id:
@@ -29,27 +36,20 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ inputs.run_id }}
         run: |
-          set -euo pipefail
-          mkdir -p staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "js-npm-packages" --dir staging
 
       - name: Publish NPM Packages
         run: |
-          set -euo pipefail
-          case "$CHANNEL" in
-            "3.8")
+          case "$QUALITY" in
+            "stable")
               REPOSITORY_PREFIX="//registry.npmjs.org/"
               # Reference the env var in .npmrc using \$ so NPM reads it at publish time
               echo "${REPOSITORY_PREFIX}:_authToken=\${RELEASE_NPM_AUTH_TOKEN}" > ~/.npmrc
               ;;
-            "nightly")
-              REPOSITORY_PREFIX="//download.zeroc.com/nexus/repository/npm-nightly/"
+            *)
+              REPOSITORY_PREFIX="//download.zeroc.com/nexus/repository/npm-${CHANNEL}-${QUALITY}/"
               # Reference the env var in .npmrc using \$ so NPM reads it at publish time
               echo "${REPOSITORY_PREFIX}:_auth=\${NEXUS_NIGHTLY_NPM_AUTH_TOKEN}" > ~/.npmrc
-              ;;
-            *)
-              echo "Unsupported channel: $CHANNEL"
-              exit 1
               ;;
           esac
 
@@ -57,5 +57,6 @@ jobs:
           npm publish staging/js-npm-packages/*.tgz --registry "https:${REPOSITORY_PREFIX}"
         env:
           CHANNEL: ${{ inputs.channel }}
+          QUALITY: ${{ inputs.quality }}
           NEXUS_NIGHTLY_NPM_AUTH_TOKEN: ${{ secrets.NEXUS_NIGHTLY_NPM_AUTH_TOKEN }}
           RELEASE_NPM_AUTH_TOKEN: ${{ secrets.RELEASE_NPM_AUTH_TOKEN }}

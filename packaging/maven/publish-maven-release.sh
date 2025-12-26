@@ -1,17 +1,13 @@
 set -xeuo pipefail
 
-case "$CHANNEL" in
-  "3.8")
+case "$QUALITY" in
+  "stable")
     REPO_ID=ossrh
     SOURCE_URL="https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
     ;;
-  "nightly")
-    REPO_ID=maven-nightly
-    SOURCE_URL="https://download.zeroc.com/nexus/repository/maven-nightly/"
-    ;;
   *)
-    echo "Unsupported channel: $CHANNEL"
-    exit 1
+    REPO_ID=maven-${CHANNEL}-${QUALITY}
+    SOURCE_URL="https://download.zeroc.com/nexus/repository/maven-${CHANNEL}-${QUALITY}/"
     ;;
 esac
 
@@ -64,7 +60,7 @@ for component in "${components[@]}"; do
     -DrepositoryId="${REPO_ID}" || { echo "Failed to publish $base_name"; exit 1; }
 done
 
-if [ "$CHANNEL" = "3.8" ]; then
+if [ "$QUALITY" = "stable" ]; then
   # Tell maven central to validate the deployed artifacts, the deployment needs to be manually published
   # from the maven central web site after it has been validated.
   curl -sS -X POST \
@@ -74,7 +70,35 @@ if [ "$CHANNEL" = "3.8" ]; then
   -d '{"publishing_type":"user_managed"}'
 fi
 
-if [ "$CHANNEL" = "nightly" ]; then
+if [ "$QUALITY" = "stable" ]; then
+  echo "Publishing Slice Tools plugin to the Gradle Plugin Portal"
+
+  : "${GRADLE_PUBLISH_KEY:?GRADLE_PUBLISH_KEY is required}"
+  : "${GRADLE_PUBLISH_SECRET:?GRADLE_PUBLISH_SECRET is required}"
+
+  plugin_staging_dir="${STAGING_DIR}/slice-tools-packages/com/zeroc/slice-tools"
+  plugin_jar="${plugin_staging_dir}/${ice_version}/slice-tools-${ice_version}.jar"
+
+  if [ ! -f "${plugin_jar}" ]; then
+    echo "Slice Tools plugin jar not found at ${plugin_jar}"
+    exit 1
+  fi
+
+  plugin_project_dir="java/tools/slice-tools"
+  plugin_resources_dir="${plugin_project_dir}/src/main/resources"
+
+  rm -rf "${plugin_resources_dir}/resources"
+  mkdir -p "${plugin_resources_dir}"
+  unzip -qo "${plugin_jar}" "resources/*" -d "${plugin_resources_dir}"
+
+  pushd "${plugin_project_dir}" > /dev/null
+
+  ../../gradlew publishPlugins \
+    -Pgradle.publish.key="${GRADLE_PUBLISH_KEY}" \
+    -Pgradle.publish.secret="${GRADLE_PUBLISH_SECRET}"
+
+  popd > /dev/null
+else
   echo "Publishing Slice Tools plugin"
 
   mkdir -p plugin

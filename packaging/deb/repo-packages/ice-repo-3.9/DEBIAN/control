@@ -1,0 +1,6 @@
+Package: ice-repo-3.9
+Version: 1.0.0
+Architecture: all
+Maintainer: ZeroC, Inc. <info@zeroc.com>
+Description: ZeroC APT repository configuration for Ice 3.9
+ This package installs the APT repository and GPG key for the ZeroC Ice 3.9 repository.
