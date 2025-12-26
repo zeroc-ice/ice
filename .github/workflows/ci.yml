@@ -34,11 +34,11 @@ jobs:
       - name: Setup Python
         uses: ./.github/actions/setup-python
 
+      - name: Setup Java
+        uses: ./.github/actions/setup-java
+
       - name: Build ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/build
-        with:
-          working_directory: "cpp"
-          msbuild_project: "msbuild/ice.proj"
         timeout-minutes: 90
 
       - name: Install testing dependencies from pip
@@ -49,6 +49,5 @@ jobs:
         uses: ./.github/actions/test
         timeout-minutes: 45
         with:
-          working_directory: "cpp"
           # TODO: Filter out IceSSL/configuration see https://github.com/zeroc-ice/ice/issues/4805
           flags: "--all --rfilter IceSSL/configuration"

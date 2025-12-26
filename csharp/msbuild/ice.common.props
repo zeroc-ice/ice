@@ -25,6 +25,9 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryUrl>https://github.com/zeroc-ice/ice</RepositoryUrl>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+
+    <!-- Avoid warnings about end-of-line target framework -->
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
 
   <!-- Import Ice version settings -->
