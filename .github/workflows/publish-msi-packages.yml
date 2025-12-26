@@ -44,7 +44,7 @@ jobs:
             aws s3 cp staging/windows-msi/*.msi "s3://zeroc-downloads/${UPLOAD_PATH}/"
           else
             UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}"
-            # Rename the MSI file for non -stable releases to include the quality in the filename
+            # Rename the MSI file for non-stable releases to include the quality in the filename
             aws s3 cp staging/windows-msi/*.msi "s3://zeroc-downloads/${UPLOAD_PATH}/Ice-Services-${QUALITY}.msi"
           fi
 
