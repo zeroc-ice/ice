@@ -36,7 +36,7 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
     : _serviceType(serviceType),
       _configFile(fixDirSeparator(configFile)),
       _communicator(communicator),
-      _serviceProperties(createProperties()),
+      _serviceProperties(make_shared<Properties>("IceGrid", "Glacier2")),
       _sid(0),
       _debug(false)
 {
@@ -49,6 +49,12 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
     if (_serviceType == icegridregistry)
     {
         _icegridInstanceName = _serviceProperties->getIceProperty("IceGrid.InstanceName");
+        if (_icegridInstanceName == "")
+        {
+            // getIceProperty provides "" as default because in IceGrid itself, the default is computed and
+            // eventually defaults to "IceGrid". Here, we default to "IceGrid" directly like in Ice 3.7 and before.
+            _icegridInstanceName = "IceGrid";
+        }
         _serviceName = serviceTypeToLowerString(_serviceType) + "." + _icegridInstanceName;
     }
     else
@@ -282,7 +288,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     {
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
-        throw runtime_error("Cannot create service" + _serviceName + ": " + IceInternal::errorToString(res));
+        throw runtime_error("Cannot create service '" + _serviceName + "': " + IceInternal::errorToString(res));
     }
 
     //
@@ -297,7 +303,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         CloseServiceHandle(scm);
         CloseServiceHandle(service);
         throw runtime_error(
-            "Cannot set description for service" + _serviceName + ": " + IceInternal::errorToString(res));
+            "Cannot set description for service '" + _serviceName + "': " + IceInternal::errorToString(res));
     }
 
     //
@@ -313,7 +319,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
             CloseServiceHandle(scm);
             CloseServiceHandle(service);
             throw runtime_error(
-                "Cannot set delayed auto start for service" + _serviceName + ": " + IceInternal::errorToString(res));
+                "Cannot set delayed auto start for service '" + _serviceName + "': " + IceInternal::errorToString(res));
         }
     }
 
