@@ -79,8 +79,7 @@ jobs:
           symstore add /3 /r /t "Ice for C++" `
             /v "${{ inputs.ice_version }}" `
             /s "${{ github.workspace }}/symbols-sources/symbols/${{ inputs.ice_version }}/" `
-            /f "${{ github.workspace }}/symbols-sources/pdbs/${{ inputs.ice_version }}/" `
-            /compress
+            /f "${{ github.workspace }}/symbols-sources/pdbs/${{ inputs.ice_version }}/"
 
       - name: Upload Symbols and Sources
         uses: actions/upload-artifact@v4
