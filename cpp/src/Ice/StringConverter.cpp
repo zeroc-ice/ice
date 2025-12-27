@@ -6,9 +6,9 @@
 #    define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #elif (__cplusplus >= 201703L)
 #    include "DisableWarnings.h"
-#    if defined(__clang__) // for clang in C++26 mode
-#        define _LIBCPP_ENABLE_CXX26_REMOVED_CODECVT
-#        define _LIBCPP_ENABLE_CXX26_REMOVED_WSTRING_CONVERT
+#    if defined(__clang__)                                   // for clang in C++26 mode
+#        define _LIBCPP_ENABLE_CXX26_REMOVED_CODECVT         // NOLINT(cert-dcl37-c,cert-dcl51-cpp)
+#        define _LIBCPP_ENABLE_CXX26_REMOVED_WSTRING_CONVERT // NOLINT(cert-dcl37-c,cert-dcl51-cpp)
 #    endif
 #endif
 
