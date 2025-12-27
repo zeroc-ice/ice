@@ -6,6 +6,7 @@
 #include "InstanceF.h"
 #include "Instrumentation.h"
 
+#include <exception>
 #include <string_view>
 
 #if defined(_MSC_VER)

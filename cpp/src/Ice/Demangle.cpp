@@ -3,6 +3,7 @@
 #include "Ice/Demangle.h"
 
 #if defined(__GNUC__) || defined(__clang__)
+#    include <cstdlib>
 #    include <cxxabi.h>
 #endif
 

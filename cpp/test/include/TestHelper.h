@@ -16,6 +16,8 @@
 #    pragma comment(lib, ICE_LIBNAME("testcommon"))
 #endif
 
+// On macOS, atomic includes a test function, so we need to include atomic before defining our test macro.
+#include <atomic>
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
