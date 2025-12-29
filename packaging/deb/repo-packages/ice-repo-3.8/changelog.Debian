@@ -1,0 +1,5 @@
+ice-repo-3.9 (1.0.0) unstable; urgency=medium
+
+  * Initial release of Ice 3.9 APT repository configuration.
+
+ -- ZeroC, Inc. <info@zeroc.com>  Mon, 29 Dec 2025 13:19:28 +0000

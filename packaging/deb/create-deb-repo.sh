@@ -3,7 +3,8 @@
 # This script creates an APT repository for ZeroC Ice DEB packages.
 #
 # --distribution specifies the target distribution (e.g., debian12, debian13, or ubuntu24.04).
-# --channel specifies the Ice version channel (e.g., 3.8 or nightly).
+# --channel specifies the Ice version channel (e.g., 3.8 or 3.9).
+# --quality specifies the release quality (e.g., stable, or nightly).
 # --staging specifies the directory containing the built DEB packages.
 # --repository specifies the directory where the APT repository will be created. This can also be
 # an existing repository directory if you are updating it.
@@ -12,13 +13,14 @@
 # and the key ID via GPG_KEY_ID.
 #
 # The publish-deb-packages GitHub Actions workflow in this repository uses this script together
-# with the ghcr.io/zeroc-ice/deb-repo-builder Docker image to create and update the repository.
+# with the ghcr.io/zeroc-ice/deb-repo-builder:<channel> Docker image to create and update the repository.
 
 set -euo pipefail
 
 # Default values
 DISTRIBUTION=""
 CHANNEL=""
+QUALITY=""
 STAGING=""
 REPODIR=""
 
@@ -31,6 +33,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --channel)
             CHANNEL="$2"
+            shift 2
+            ;;
+        --quality)
+            QUALITY="$2"
             shift 2
             ;;
         --staging)
@@ -51,28 +57,11 @@ done
 # Validate required inputs
 : "${DISTRIBUTION:?Missing --distribution}"
 : "${CHANNEL:?Missing --channel}"
+: "${QUALITY:?Missing --quality}"
 : "${STAGING:?Missing --staging}"
 : "${REPODIR:?Missing --repo}"
 : "${GPG_KEY:?GPG_KEY environment variable is not set}"
 : "${GPG_KEY_ID:?GPG_KEY_ID environment variable is not set}"
-
-# Validate distribution
-case "$DISTRIBUTION" in
-    debian12|debian13|ubuntu24.04) ;;
-    *)
-        echo "Error: DISTRIBUTION must be 'debian12', 'debian13', or 'ubuntu24.04'" >&2
-        exit 1
-        ;;
-esac
-
-# Validate channel
-case "$CHANNEL" in
-    3.8|nightly) ;;
-    *)
-        echo "Error: CHANNEL must be '3.8' or 'nightly'" >&2
-        exit 1
-        ;;
-esac
 
 # Import the GPG key
 echo "$GPG_KEY" | gpg --batch --import
@@ -106,13 +95,13 @@ EOF
 # Write conf/distributions
 cat > "$CONF_DIR/distributions" <<EOF
 Origin: ZeroC
-Label: Ice $CHANNEL
+Label: Ice $CHANNEL $QUALITY Repository
 Codename: $CODENAME
 Suite: stable
-Version: $CHANNEL
+Version: $CHANNEL-$QUALITY
 Architectures: amd64 arm64 source
 Components: main
-Description: ZeroC Ice $CHANNEL packages for $DISTRIBUTION
+Description: ZeroC Ice $CHANNEL $QUALITY packages for $DISTRIBUTION
 SignWith: $GPG_KEY_ID
 EOF
 

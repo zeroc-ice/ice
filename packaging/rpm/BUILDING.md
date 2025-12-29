@@ -16,14 +16,14 @@ For Amazon Linux 2023, no additional repos are needed.
 #### RHEL 9
 
 ```bash
-sudo dnf install -y https://zeroc.com/download/ice/3.8/el9/ice-repo-3.8-1.0.0-1.el9.noarch.rpm
+sudo dnf install -y https://zeroc.com/download/ice/nightly/3.8/el9/ice-repo-3.8-nightly-1.0.0-1.el9.noarch.rpm
 sudo dnf config-manager --set-enabled codeready-builder-for-rhel-9-$(arch)-rpms
 ```
 
 #### RHEL 10
 
 ```bash
-sudo dnf install -y https://zeroc.com/download/ice/3.8/el10/ice-repo-3.8-1.0.0-1.el10.noarch.rpm
+sudo dnf install -y https://zeroc.com/download/ice/nightly/3.8/el10/ice-repo-3.8-nightly-1.0.0-1.el10.noarch.rpm
 sudo dnf config-manager --set-enabled codeready-builder-for-rhel-10-$(arch)-rpms
 ```
 

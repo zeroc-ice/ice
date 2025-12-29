@@ -4,14 +4,21 @@ on:
   workflow_dispatch:
     inputs:
       channel:
-        description: "The channel to publish to (e.g., 3.8, nightly)"
+        description: "The release channel (e.g., 3.9, 3.8)"
         required: true
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
+        required: true
+        default: "nightly"
       run_id:
         description: "The run ID to use for downloading artifacts"
         required: true
   workflow_call:
     inputs:
       channel:
+        required: true
+        type: string
+      quality:
         required: true
         type: string
       run_id:
@@ -23,9 +30,10 @@ jobs:
     name: "Publish Brew Packages"
     runs-on: macos-26
     # Stable Brew releases must be published manually.
-    if: ${{ inputs.channel == 'nightly' }}
+    if: ${{ inputs.quality == 'nightly' }}
     env:
       CHANNEL: ${{ inputs.channel }}
+      QUALITY: ${{ inputs.quality }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -35,18 +43,16 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ inputs.run_id }}
         run: |
-          set -euo pipefail
-          mkdir -p staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "homebrew-bottle" --dir staging
 
       - name: Publish Homebrew Bottle Packages
         run: |
-          set -euo pipefail
-          mkdir -p "${CHANNEL}"
-          # Copy all .tar.gz files from staging/homebrew-bottle to the channel directory
-          # Preserve file attributes; do not overwrite existing files.
-          cp -npv staging/homebrew-bottle/*.tar.gz "${CHANNEL}/"
-          aws s3 sync "${CHANNEL}/" "s3://zeroc-downloads/ice/${CHANNEL}/" --exclude "*" --include "*.tar.gz"
+          if [ "${QUALITY}" = "stable" ]; then
+            UPLOAD_PATH="ice/${CHANNEL}"
+          else
+            UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}"
+          fi
+          aws s3 sync staging/homebrew-bottle/ "s3://zeroc-downloads/${UPLOAD_PATH}/" --exclude "*" --include "*.tar.gz"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -57,7 +63,6 @@ jobs:
 
       - name: Publish Homebrew Patch
         run: |
-          set -euo pipefail
           # Configure git for pushing the patch
           git config user.name "ZeroC"
           git config user.email "git@zeroc.com"
