@@ -178,7 +178,7 @@ To install the latest zeroc-ice nightly package, add the following lines to your
 
 ```shell
 # Use ZeroC nightly repository as the main index for pip
---index-url https://download.zeroc.com/nexus/repository/pypi-nightly/simple/
+--index-url https://download.zeroc.com/nexus/repository/pypi-3.8-nightly/simple/
 
 # Allow installing packages from the official PyPI index if not found in the ZeroC repository
 --extra-index-url https://pypi.org/simple/
