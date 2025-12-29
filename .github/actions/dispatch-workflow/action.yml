@@ -1,0 +1,29 @@
+name: "Dispatch Workflow"
+description: "Trigger a workflow_dispatch on a given ref"
+inputs:
+  ref:
+    description: "Git ref to dispatch"
+    required: true
+  workflow:
+    description: "Workflow filename to dispatch"
+    required: true
+  token:
+    description: "GitHub token with workflow scope"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Dispatch workflow
+      run: |
+        set -euo pipefail
+        echo "Dispatching ${WORKFLOW} on ref ${REF}"
+        curl -sS -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${TOKEN}" \
+          "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/${WORKFLOW}/dispatches" \
+          -d "{\"ref\":\"${REF}\"}"
+      env:
+        REF: ${{ inputs.ref }}
+        WORKFLOW: ${{ inputs.workflow }}
+        TOKEN: ${{ inputs.token }}
+      shell: bash
