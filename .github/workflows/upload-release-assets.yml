@@ -4,8 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       channel:
-        description: "The release channel (e.g., 3.8, nightly)"
-        required: false
+        description: "The release channel (e.g., 3.9, 3.8)"
+        required: true
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
+        required: true
         default: "nightly"
       run_id:
         description: "The GitHub run ID to use for artifacts"
@@ -16,6 +19,9 @@ on:
       channel:
         required: true
         type: string
+      quality:
+        required: true
+        type: string
       run_id:
         required: true
         type: string
@@ -23,7 +29,7 @@ on:
 jobs:
   upload-release-assets:
     # For stable channels if running on a tag, we upload the release assets to the tag.
-    if: ${{ inputs.channel != 'nightly' && startsWith(github.ref, 'refs/tags/') }}
+    if: ${{ inputs.quality == 'stable' && startsWith(github.ref, 'refs/tags/') }}
     runs-on: ubuntu-24.04
     steps:
       - name: Ensure tag matches channel
@@ -60,17 +66,6 @@ jobs:
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "rpm-packages-*" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "icegridgui-jar" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "windows-symbols-sources" --dir staging
-
-      - name: Download artifacts for Homebrew Bottle
-        # Homebrew bottles are only built for nightly releases
-        if: ${{ inputs.channel == 'nightly' }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUN_ID: ${{ inputs.run_id }}
-        run: |
-          set -euo pipefail
-          mkdir -p staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "homebrew-bottle" --dir staging
 
       - name: Prepare Release Assets
         run: ./packaging/release/prepare-release-assets.sh

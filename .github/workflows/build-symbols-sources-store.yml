@@ -9,6 +9,9 @@ on:
       channel:
         required: true
         type: string
+      quality:
+        required: true
+        type: string
       run_id:
         description: "The run ID to use for downloading artifacts"
         required: true
@@ -19,7 +22,10 @@ on:
         description: "The Ice version (e.g., 3.8.0)"
         required: true
       channel:
-        description: "Release channel (e.g., 3.8, nightly)"
+        description: "The release channel (e.g., 3.9, 3.8)"
+        required: true
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
         required: true
         default: "nightly"
       run_id:
@@ -51,10 +57,11 @@ jobs:
       - name: Compute Source Base URL
         id: source-url
         run: |
-          if ("${{ inputs.channel }}" -eq "nightly") {
-            $url = "https://download.zeroc.com/ice/nightly/sources/"
-          } else {
+          if ("${{ inputs.quality }}" -eq "stable") {
             $url = "https://symbols.zeroc.com/sources/ice/"
+
+          } else {
+            $url = "https://download.zeroc.com/ice/${{ inputs.quality }}/${{ inputs.channel }}/sources/"
           }
           echo "source_base_url=$url" >> $env:GITHUB_OUTPUT
         shell: pwsh

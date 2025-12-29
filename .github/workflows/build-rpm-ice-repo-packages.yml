@@ -1,7 +1,12 @@
 name: "Build Ice Repo RPM Packages"
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
+        required: false
+        default: "nightly"
 
 jobs:
   build:
@@ -9,30 +14,18 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        include:
-          - distribution: el9
-            channel: 3.8
-
-          - distribution: el10
-            channel: 3.8
-
-          - distribution: amzn2023
-            channel: 3.8
-
-          - distribution: el9
-            channel: nightly
-
-          - distribution: el10
-            channel: nightly
-
-          - distribution: amzn2023
-            channel: nightly
+        distribution: [el9, el10, amzn2023]
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
           path: ice
+
+      - name: Load version info
+        run: |
+          source ice/config/version.env
+          echo "CHANNEL=$CHANNEL" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -50,34 +43,23 @@ jobs:
             -v "$GITHUB_WORKSPACE:/workspace" \
             -e GPG_KEY="${{ secrets.ICE_3_8_CI_SIGNER_KEY }}" \
             -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}" \
-            ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }} \
+            ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }}:${CHANNEL} \
             /workspace/ice/packaging/rpm/build-repo-package.sh \
             --distribution "${{ matrix.distribution }}" \
-            --channel "${{ matrix.channel }}"
+            --channel "${CHANNEL}" \
+            --quality "${{ inputs.quality }}"
 
       - name: Sync RPM packages to S3
         run: |
-          # Validate CHANNEL
-          case "$CHANNEL" in
-            3.8|nightly) ;;
-            *)
-              echo "Invalid CHANNEL: $CHANNEL"
-              exit 1
-              ;;
-          esac
+          if [ "${QUALITY}" = "stable" ]; then
+            UPLOAD_PATH="ice/${CHANNEL}/${DISTRIBUTION}"
+          else
+            UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}/${DISTRIBUTION}"
+          fi
 
-          # Validate DISTRIBUTION
-          case "$DISTRIBUTION" in
-            el9|el10|amzn2023) ;;
-            *)
-              echo "Invalid DISTRIBUTION: $DISTRIBUTION"
-              exit 1
-              ;;
-          esac
-
-          aws s3 cp build/RPMS/noarch/*.rpm s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION/
+          aws s3 cp build/RPMS/noarch/*.rpm "s3://zeroc-downloads/${UPLOAD_PATH}/"
         env:
-          CHANNEL: ${{ matrix.channel }}
+          QUALITY: ${{ inputs.quality }}
           DISTRIBUTION: ${{ matrix.distribution }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -85,7 +67,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: rpm-packages-${{ matrix.channel }}-${{ matrix.distribution }}
+          name: rpm-packages-${{ matrix.distribution }}
           path: |
             build/RPMS/*
             build/SRPMS/*

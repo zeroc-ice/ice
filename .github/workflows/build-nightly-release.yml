@@ -10,5 +10,5 @@ jobs:
     uses: ./.github/workflows/build-release.yml
     secrets: inherit
     with:
-      channel: nightly
+      quality: nightly
       publish: true

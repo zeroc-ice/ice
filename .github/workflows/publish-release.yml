@@ -4,8 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       channel:
-        description: "The release channel (e.g., 3.8, nightly)"
-        required: false
+        description: "The release channel (e.g., 3.9, 3.8)"
+        required: true
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
+        required: true
         default: "nightly"
       run_id:
         description: "The GitHub run ID to use for artifacts"
@@ -14,6 +17,9 @@ on:
   workflow_call:
     inputs:
       channel:
+        required: true
+        type: string
+      quality:
         required: true
         type: string
       run_id:
@@ -25,6 +31,7 @@ jobs:
     uses: ./.github/workflows/publish-brew-packages.yml
     with:
       channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
@@ -32,6 +39,7 @@ jobs:
     uses: ./.github/workflows/publish-deb-packages.yml
     with:
       channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
@@ -39,6 +47,7 @@ jobs:
     uses: ./.github/workflows/publish-gem-packages.yml
     with:
       channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
@@ -46,6 +55,7 @@ jobs:
     uses: ./.github/workflows/publish-matlab-packages.yml
     with:
       channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
@@ -53,6 +63,7 @@ jobs:
     uses: ./.github/workflows/publish-maven-packages.yml
     with:
       channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
@@ -60,6 +71,7 @@ jobs:
     uses: ./.github/workflows/publish-msi-packages.yml
     with:
       channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
@@ -67,6 +79,7 @@ jobs:
     uses: ./.github/workflows/publish-npm-packages.yml
     with:
       channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
@@ -74,6 +87,7 @@ jobs:
     uses: ./.github/workflows/publish-nuget-packages.yml
     with:
       channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
@@ -81,6 +95,7 @@ jobs:
     uses: ./.github/workflows/publish-pip-packages.yml
     with:
       channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
@@ -88,6 +103,7 @@ jobs:
     uses: ./.github/workflows/publish-rpm-packages.yml
     with:
       channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
@@ -95,6 +111,7 @@ jobs:
     uses: ./.github/workflows/publish-swift-packages.yml
     with:
       channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
@@ -102,6 +119,7 @@ jobs:
     uses: ./.github/workflows/publish-xcframework-packages.yml
     with:
       channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
@@ -109,6 +127,7 @@ jobs:
     uses: ./.github/workflows/publish-symbols-sources.yml
     with:
       channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
@@ -131,16 +150,21 @@ jobs:
     steps:
       - name: Invalidate CloudFront Cache
         run: |
+          if [ "${{ inputs.quality }}" = "stable" ]; then
+            INVALIDATION_PATH="/ice/${{ inputs.channel }}/*"
+          else
+            INVALIDATION_PATH="/ice/${{ inputs.quality }}/${{ inputs.channel }}/*"
+          fi
           aws cloudfront create-invalidation \
             --distribution-id E163NR6GH4QVNV \
-            --paths "/ice/${{ inputs.channel }}/*"
+            --paths "${INVALIDATION_PATH}"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   upload-release-assets:
     # For stable channels if running on a tag, we upload the release assets to the tag.
-    if: ${{ inputs.channel != 'nightly' && startsWith(github.ref, 'refs/tags/') }}
+    if: ${{ inputs.quality == 'stable' && startsWith(github.ref, 'refs/tags/') }}
     needs:
       - publish-brew-packages
       - publish-deb-packages
@@ -157,5 +181,6 @@ jobs:
     uses: ./.github/workflows/upload-release-assets.yml
     with:
       channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
