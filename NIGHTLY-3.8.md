@@ -74,7 +74,7 @@ https://download.zeroc.com/nexus/repository/nuget-3.8-nightly/
 
 ### Ice for Java
 
-The nightly packages are available from the maven ZeroC maven-nightly repository.
+The nightly packages are available from the ZeroC `maven-3.8-nightly` Maven repository.
 
 To use them, add the following Maven repository to your build configuration:
 
