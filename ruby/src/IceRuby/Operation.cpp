@@ -2,6 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#if defined(__clang__)
+#   pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 #include <Operation.h>
 #include <Proxy.h>
 #include <Types.h>

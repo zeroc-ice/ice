@@ -2,6 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#if defined(__clang__)
+#   pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 #include <Types.h>
 #include <Proxy.h>
 #include <Util.h>
@@ -2886,11 +2890,18 @@ IceRuby::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) :
 {
 }
 
-IceRuby::ExceptionReader::~ExceptionReader()
-    throw()
+#if defined(__clang__)
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wdeprecated-copy-with-user-provided-dtor"
+#   pragma clang diagnostic ignored "-Wdeprecated-dynamic-exception-spec"
+#endif
+IceRuby::ExceptionReader::~ExceptionReader() throw()
 {
     rb_gc_unregister_address(&_ex);
 }
+#if defined(__clang__)
+#   pragma clang diagnostic pop
+#endif
 
 string
 IceRuby::ExceptionReader::ice_id() const
