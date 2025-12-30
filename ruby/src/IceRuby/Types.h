@@ -541,7 +541,16 @@ class ExceptionReader : public Ice::UserException
 public:
 
     ExceptionReader(const ExceptionInfoPtr&);
+#if defined(__clang__)
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wdeprecated-copy-with-user-provided-dtor"
+#   pragma clang diagnostic ignored "-Wdeprecated-dynamic-exception-spec"
+#endif
     ~ExceptionReader() throw();
+#if defined(__clang__)
+#   pragma clang diagnostic pop
+#endif
+
 
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING
