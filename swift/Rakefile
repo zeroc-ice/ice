@@ -115,6 +115,9 @@ def create_project(name, bindist)
         config.build_settings["USE_HEADERMAP"] = "NO"
     end
 
+    # Add PromiseKit SPM package reference
+    add_spm_promisekit(project)
+
     [:osx, :ios].each do |platform|
         create_platform_targets(project, platform, bindist)
     end
@@ -286,7 +289,7 @@ def create_platform_targets(project, platform, bindist)
             config.build_settings["DEFINES_MODULE"] = "NO"
         }
         target_set_framework_build_settings(target)
-        target_add_carthage_framework(target, platform, "PromiseKit.xcframework")
+        target_add_spm_promisekit(target)
 
         group = project_group(project, "src/Ice")
         group_add_files(group, "src/Ice", ["*.plist"])
@@ -333,7 +336,6 @@ def create_platform_targets(project, platform, bindist)
                 config.build_settings["DEFINES_MODULE"] = "NO"
             }
             target_set_framework_build_settings(target)
-            target_add_carthage_framework(target, platform, "PromiseKit.xcframework")
 
             group = project_group(project, "src/#{framework}")
             group_add_files(group, "src/#{framework}", ["*.plist"])
@@ -360,7 +362,6 @@ def create_platform_targets(project, platform, bindist)
     target = project.new_target(:framework, "TestCommon", platform)
     target.name = "#{target.name} #{platform_name}"
     target_set_framework_build_settings(target)
-    target_add_carthage_framework(target, platform, "PromiseKit.xcframework")
     if bindist then
         target_add_carthage_framework(target, platform, "IceImpl.xcframework")
         target_add_carthage_framework(target, platform, "Ice.xcframework")
@@ -433,8 +434,6 @@ def create_platform_targets(project, platform, bindist)
     file = copy_phase.add_file_reference(test_common_target.product_reference)
     file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
 
-    target_add_carthage_framework(target, platform, "PromiseKit.xcframework", true)
-
     test_driver_target = target
 
     #
@@ -473,7 +472,6 @@ def create_platform_targets(project, platform, bindist)
             config.build_settings["ENABLE_BITCODE"] = "NO"
         }
 
-        target_add_carthage_framework(target, platform, "PromiseKit.xcframework")
         target_add_slice2swift_build_rule(project, target, "test/#{test}", test: true)
 
         #
@@ -540,7 +538,6 @@ def create_platform_targets(project, platform, bindist)
                 config.build_settings["ENABLE_BITCODE"] = "NO"
             }
 
-            target_add_carthage_framework(target, platform, "PromiseKit.xcframework")
             target_add_slice2swift_build_rule(project, target, "test/#{test}", test: true)
 
             #
@@ -577,6 +574,14 @@ def create_platform_targets(project, platform, bindist)
         scheme.build_action.parallelize_buildables = false
         scheme.save_as("ice.xcodeproj", "Ice #{platform_name}", true)
     end
+
+    #
+    # Create TestDriver scheme
+    #
+    test_scheme = Xcodeproj::XCScheme.new
+    test_scheme.add_build_target(test_driver_target)
+    test_scheme.build_action.parallelize_buildables = false
+    test_scheme.save_as("ice.xcodeproj", "TestDriver #{platform_name}", true)
 end
 
 def project_group(project, name)
@@ -834,4 +839,40 @@ def test_variant_sources(test, variant)
     sources += $test_extra_sources["#{test}/#{variant}"] || []
 
     return sources
+end
+
+#
+# Add PromiseKit Swift Package to the project
+#
+def add_spm_promisekit(project)
+    # Create the remote Swift package reference
+    pkg_ref = project.new(Xcodeproj::Project::Object::XCRemoteSwiftPackageReference)
+    pkg_ref.repositoryURL = "https://github.com/mxcl/PromiseKit.git"
+    pkg_ref.requirement = {
+        "kind" => "exactVersion",
+        "version" => "6.22.1"
+    }
+    project.root_object.package_references << pkg_ref
+end
+
+#
+# Add PromiseKit SPM product dependency to a target
+#
+def target_add_spm_promisekit(target)
+    project = target.project
+
+    # Find the PromiseKit package reference
+    pkg_ref = project.root_object.package_references.find { |ref|
+        ref.repositoryURL == "https://github.com/mxcl/PromiseKit.git"
+    }
+
+    return unless pkg_ref
+
+    # Create package product dependency
+    pkg_product = project.new(Xcodeproj::Project::Object::XCSwiftPackageProductDependency)
+    pkg_product.product_name = "PromiseKit"
+    pkg_product.package = pkg_ref
+
+    # Add to target's package product dependencies
+    target.package_product_dependencies << pkg_product
 end

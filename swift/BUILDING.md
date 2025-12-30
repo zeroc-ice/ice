@@ -7,7 +7,6 @@ resulting build.
   - [Operating Systems](#operating-systems)
   - [Slice to Swift Compiler](#slice-to-swift-compiler)
   - [Swift Version](#swift-version)
-  - [Carthage](#carthage)
 - [Building Ice for Swift](#building-ice-for-swift)
 - [Running the Swift Test Suite](#running-the-swift-test-suite)
   - [macOS](#macos)
@@ -32,27 +31,11 @@ compiler.
 
 Ice for Swift requires Swift 5 or later.
 
-### Carthage
-
-Carthage must be installed to build Ice for Swift. You can install Carthage
-using Homebrew:
-
-```shell
-brew install carthage
-```
-
 ## Building Ice for Swift
 
-First download and build the PromiseKit framework by running:
-
-```shell
-carthage bootstrap --use-xcframeworks
-```
-
-from the root directory of your ice repository.
-
-Then open `ice.xcodeproj` with Xcode and build the `Ice macOS` or `Ice iOS`
-targets.
+Open `ice.xcodeproj` with Xcode and build the `Ice macOS` or `Ice iOS`
+targets. The PromiseKit dependency will be automatically fetched via Swift
+Package Manager.
 
 The test programs for macOS and iOS can be built using `TestDriver macOS` and
 `TestDriver iOS` respectively.
