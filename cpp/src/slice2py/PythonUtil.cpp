@@ -1211,7 +1211,7 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p, Output& ou
         out << epar << operationReturnTypeHint(operation, MethodKind::Dispatch) << ":";
         out.inc();
 
-        writeDocstring(operation, MethodKind::Dispatch, out);
+        writeOpDocstring(operation, MethodKind::Dispatch, out);
 
         out << nl << "pass";
         out.dec();
@@ -1640,7 +1640,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         out << ", " << contextParamName << ": dict[str, str] | None = None)"
             << operationReturnTypeHint(operation, MethodKind::SyncInvocation) << ":";
         out.inc();
-        writeDocstring(operation, MethodKind::SyncInvocation, out);
+        writeOpDocstring(operation, MethodKind::SyncInvocation, out);
         out << nl << "return " << className << "._op_" << opName << ".invoke(self, ((" << inParams;
         if (!inParams.empty() && inParams.find(',') == string::npos)
         {
@@ -1659,7 +1659,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         out << ", " << contextParamName << ": dict[str, str] | None = None)"
             << operationReturnTypeHint(operation, MethodKind::AsyncInvocation) << ":";
         out.inc();
-        writeDocstring(operation, MethodKind::AsyncInvocation, out);
+        writeOpDocstring(operation, MethodKind::AsyncInvocation, out);
         out << nl << "return " << className << "._op_" << opName << ".invokeAsync(self, ((" << inParams;
         if (!inParams.empty() && inParams.find(',') == string::npos)
         {
@@ -1989,7 +1989,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     out << nl << "class " << name << "(" << getImportAlias(p, "enum", "Enum") << "):";
     out.inc();
 
-    writeDocstring(p, out);
+    writeEnumDocstring(p, out);
 
     out << nl;
     for (const auto& enumerator : enumerators)
@@ -2029,11 +2029,13 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
 void
 Slice::Python::CodeVisitor::visitConst(const ConstPtr& p)
 {
-    string name = p->mappedName();
     BufferedOutput out;
     out << sp;
+
+    string name = p->mappedName();
     out << nl << name << " = ";
     writeConstantValue(p, p->type(), p->valueType(), p->value(), out);
+    writeDocstring(p, out, "constant");
 
     out << sp;
     out << nl << "__all__ = [\"" << name << "\"]";
@@ -2276,7 +2278,7 @@ Slice::Python::CodeVisitor::writeSeeAlso(const StringList& seeAlso, bool needsNe
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, const optional<string>& generatedType)
+Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, const string& generatedType)
 {
     const optional<DocComment>& comment = p->docComment();
 
@@ -2308,11 +2310,6 @@ Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, c
         }
     }
 
-    if (!comment && !generatedType && fieldDocs.empty())
-    {
-        return;
-    }
-
     out << nl << tripleQuotes;
 
     StringList overview;
@@ -2329,16 +2326,13 @@ Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, c
         seeAlso = comment->seeAlso();
     }
 
-    if (generatedType)
+    if (!remarks.empty())
     {
-        if (!remarks.empty())
-        {
-            remarks.emplace_back(""); // empty line
-        }
-        remarks.push_back(
-            "The Slice compiler generated this " + *generatedType + " from Slice " + p->kindOf() + " ``" + p->scoped() +
-            "``.");
+        remarks.emplace_back(""); // empty line
     }
+    remarks.push_back(
+        "The Slice compiler generated this " + generatedType + " from Slice " + p->kindOf() + " ``" + p->scoped() +
+        "``.");
 
     // Only emit Attributes if there's a docstring for at least one field.
     if (!fieldDocs.empty())
@@ -2365,12 +2359,12 @@ Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, c
     }
 
     writeRemarksDocComment(remarks, !overview.empty() || !fieldDocs.empty(), out);
-    writeSeeAlso(seeAlso, !overview.empty() || !fieldDocs.empty() || !remarks.empty(), out);
+    writeSeeAlso(seeAlso, true, out); // Always add a newline because 'remarks' is always present.
     out << nl << tripleQuotes;
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const EnumPtr& p, Output& out)
+Slice::Python::CodeVisitor::writeEnumDocstring(const EnumPtr& p, Output& out)
 {
     const optional<DocComment>& comment = p->docComment();
 
@@ -2442,7 +2436,7 @@ Slice::Python::CodeVisitor::writeDocstring(const EnumPtr& p, Output& out)
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind methodKind, Output& out)
+Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind methodKind, Output& out)
 {
     const optional<DocComment>& comment = op->docComment();
     if (!comment)
