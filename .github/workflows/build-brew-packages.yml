@@ -40,11 +40,6 @@ jobs:
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
-      - name: Setup Cache
-        uses: ./.github/actions/setup-cache
-        with:
-          prefix: build-brew-packages
-
       - name: Update Nightly Tap
         run: |
           ./packaging/brew/update-nightly-tap.sh "${{ inputs.ice_version }}" "https://download.zeroc.com/ice/${{ inputs.quality }}/${{ inputs.channel }}"
