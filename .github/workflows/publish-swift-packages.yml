@@ -4,14 +4,21 @@ on:
   workflow_dispatch:
     inputs:
       channel:
-        description: "The channel to publish to (e.g., 3.8, nightly)"
+        description: "The release channel (e.g., 3.9, 3.8)"
         required: true
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
+        required: true
+        default: "nightly"
       run_id:
         description: "The run ID to use for downloading artifacts"
         required: true
   workflow_call:
     inputs:
       channel:
+        required: true
+        type: string
+      quality:
         required: true
         type: string
       run_id:
@@ -24,7 +31,7 @@ jobs:
     name: "Publish Swift Packages"
     runs-on: macos-26
     # Stable Swift releases must be published manually.
-    if: ${{ inputs.channel == 'nightly' }}
+    if: ${{ inputs.quality == 'nightly' }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -34,8 +41,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ inputs.run_id }}
         run: |
-          set -euo pipefail
-          mkdir -p staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "xcframework-packages" --dir staging
 
       - name: Create ice-swift repository
@@ -44,4 +49,3 @@ jobs:
         env:
           ICE_NIGHTLY_PUBLISH_TOKEN: ${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}
           STAGING_DIR: ${{ github.workspace }}/staging/xcframework-packages
-        if: ${{ inputs.channel == 'nightly' }}

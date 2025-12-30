@@ -7,7 +7,9 @@ This Docker image provides a minimal, RHEL-compatible environment for:
 
 ## Image Name
 
-`ghcr.io/zeroc-ice/rpm-repo-builder`
+`ghcr.io/zeroc-ice/rpm-repo-builder-<channel>`
+
+Where `<channel>` is the Ice version channel (e.g., `3.8`, `3.9`).
 
 ## Included Tools
 

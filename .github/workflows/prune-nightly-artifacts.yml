@@ -2,8 +2,15 @@ name: Prune Nightly Artifacts
 
 on:
   workflow_dispatch:
+    inputs:
+      channel:
+        description: "The release channel (e.g., 3.9, 3.8)"
+        required: true
   workflow_call:
-
+    inputs:
+      channel:
+        required: true
+        type: string
 jobs:
     prune-nightly-artifacts:
         runs-on: ubuntu-24.04
@@ -14,9 +21,9 @@ jobs:
 
           - name: Prune nightly artifacts
             env:
+              CHANNEL: ${{ inputs.channel }}
               DRY_RUN: '0'
               AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
               AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             run: |
-              chmod +x ./packaging/release/prune-nightly-artifacts.sh
               ./packaging/release/prune-nightly-artifacts.sh
