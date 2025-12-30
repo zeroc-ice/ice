@@ -456,14 +456,11 @@ namespace Slice::Python
         /// Writes the provided @p seeAlso in its own subheading in the current comment (if @p seeAlso is non-empty).
         void writeSeeAlso(const StringList& seeAlso, bool needsNewline, IceInternal::Output& out);
 
-        void writeDocstring(
-            const ContainedPtr& p,
-            IceInternal::Output& out,
-            const std::optional<std::string>& generatedType = std::nullopt);
+        void writeDocstring(const ContainedPtr& p, IceInternal::Output& out, const std::string& generatedType);
 
-        void writeDocstring(const EnumPtr&, IceInternal::Output&);
+        void writeEnumDocstring(const EnumPtr&, IceInternal::Output&);
 
-        void writeDocstring(const OperationPtr&, MethodKind, IceInternal::Output&);
+        void writeOpDocstring(const OperationPtr&, MethodKind, IceInternal::Output&);
 
         std::string getImportAlias(const ContainedPtr& source, const SyntaxTreeBasePtr& definition);
         std::string
