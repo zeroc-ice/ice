@@ -19,6 +19,7 @@
 #elif defined(__FreeBSD__)
 #   include <unistd.h>
 #elif defined(__APPLE__)
+#   pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #   include <CoreFoundation/CoreFoundation.h>
 #   include <Security/Security.h>
 #   include <CommonCrypto/CommonCrypto.h>
@@ -38,7 +39,7 @@ namespace
 #if defined(__FreeBSD__) && !defined(__GLIBC__)
 
 //
-// FreeBSD crypt is no reentrat we use this global mutex
+// FreeBSD crypt is not reentrant we use this global mutex
 // to serialize access.
 //
 IceUtil::Mutex* _staticMutex = 0;
