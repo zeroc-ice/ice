@@ -135,54 +135,6 @@ jobs:
             test_flags: "--target-framework=net10.0"
             build_cpp_and_python: true
 
-          # Python 3.12 testing
-          - os: windows-2025
-            config: "Python312"
-            working_directory: "python"
-            build_flags: "/p:Platform=x64"
-            msbuild_project: "msbuild/ice.proj"
-            build_cpp_and_python: true
-            python_version: "3.12"
-            python_tests: true
-
-          - os: macos-26
-            config: "Python312"
-            working_directory: "python"
-            build_cpp_and_python: true
-            python_version: "3.12"
-            python_tests: true
-
-          - os: ubuntu-24.04
-            config: "Python312"
-            working_directory: "python"
-            build_cpp_and_python: true
-            python_version: "3.12"
-            python_tests: true
-
-          # Python 3.13 testing
-          - os: windows-2025
-            config: "Python313"
-            working_directory: "python"
-            build_flags: "/p:Platform=x64"
-            msbuild_project: "msbuild/ice.proj"
-            build_cpp_and_python: true
-            python_version: "3.13"
-            python_tests: true
-
-          - os: macos-26
-            config: "Python313"
-            working_directory: "python"
-            build_cpp_and_python: true
-            python_version: "3.13"
-            python_tests: true
-
-          - os: ubuntu-24.04
-            config: "Python313"
-            working_directory: "python"
-            build_cpp_and_python: true
-            python_version: "3.13"
-            python_tests: true
-
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -203,8 +155,6 @@ jobs:
 
       - name: Setup Python
         uses: ./.github/actions/setup-python
-        with:
-          python-version: ${{ matrix.python_version || '3.14' }}
 
       - name: Setup .NET
         uses: ./.github/actions/setup-dotnet
