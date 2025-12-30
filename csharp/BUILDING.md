@@ -28,8 +28,8 @@ A source build of Ice for .NET on Windows produces two sets of assemblies:
 In order to build Ice for .NET from source, you need:
 
 * A [supported version][3] of Visual Studio when building .NET Framework 4.5 Assemblies.
-* Visual Studio 2022 with [.NET 6.0 SDK][4] or [.NET 7.0 SDK][5] when building the .NET Standard 2.0 Assemblies.
-* Visual Studio 2022 with [.NET 6.0 SDK][4] and [.NET 7.0 SDK][5] when building the NuGet packages.
+* Visual Studio 2022 with [.NET 8.0 SDK][4] or [.NET 7.0 SDK][5] when building the .NET Standard 2.0 Assemblies.
+* Visual Studio 2022 with [.NET 8.0 SDK][4] and [.NET 7.0 SDK][5] when building the NuGet packages.
 
 ### Compiling Ice for .NET on Windows
 
@@ -67,13 +67,13 @@ the test suite.
 
 > Note: Visual Studio 2022 version or higher is required for .NET Standard 2.0 builds.
 
-The .NET Standard build of iceboxnet and test applications target `net6.0` You can change
+The .NET Standard build of iceboxnet and test applications target `net8.0` You can change
 the target framework by setting the `AppTargetFramework` property to a different
 
 Target Framework Moniker value, for example:
 
 ```shell
-msbuild msbuild\ice.proj /p:"AppTargetFramework=net7.0"
+msbuild msbuild\ice.proj /p:"AppTargetFramework=net10.0"
 ```
 
 This builds the test programs for `net7.0`. The target frameworks you specify
@@ -126,7 +126,7 @@ necessary.
 
 ### Linux and macOS Build Requirements
 
-You need the [.NET 6.0 SDK][4] or [.NET 7.0 SDK][5] to build Ice for .NET from source.
+You need the [.NET 8.0 SDK][4] or [.NET 7.0 SDK][5] to build Ice for .NET from source.
 
 ### Compiling Ice for .NET on Linux or macOS
 
@@ -178,13 +178,13 @@ python allTests.py
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-`allTests.py` executes by default the tests for .NET 6.0. If you want to run
+`allTests.py` executes by default the tests for .NET 8.0. If you want to run
 the test with a different .NET Framework you must use `--framework` option.
 
-For example, to run .NET 7.0 tests:
+For example, to run .NET 10.0 tests:
 
 ```shell
-python allTests.py --framework=net7.0
+python allTests.py --framework=net10.0
 ```
 
 or to run .NET Framework 4.5 tests on Windows:
@@ -221,6 +221,6 @@ directory.
 [1]: https://zeroc.com/downloads/ice
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
 [3]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
-[4]: https://dotnet.microsoft.com/en-us/download/dotnet/6.0
-[5]: https://dotnet.microsoft.com/en-us/download/dotnet/7.0
+[4]: https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+[5]: https://dotnet.microsoft.com/en-us/download/dotnet/10.0
 [6]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming

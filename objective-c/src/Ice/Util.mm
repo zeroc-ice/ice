@@ -409,10 +409,18 @@ IceObjC::Exception::Exception(const IceObjC::Exception& ex) : _ex([ex._ex retain
 {
 }
 
+#if defined(__clang__)
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wdeprecated-copy-with-user-provided-dtor"
+#   pragma clang diagnostic ignored "-Wdeprecated-dynamic-exception-spec"
+#endif
 IceObjC::Exception::~Exception() throw()
 {
     [_ex release];
 }
+#if defined(__clang__)
+#   pragma clang diagnostic pop
+#endif
 
 std::string
 IceObjC::Exception::ice_id() const

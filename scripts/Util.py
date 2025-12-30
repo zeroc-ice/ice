@@ -417,7 +417,7 @@ class Windows(Platform):
         pass # Nothing to do, we don't support the make build system on Windows
 
     def getDefaultBuildPlatform(self):
-        return "x64" if "X64" in os.environ.get("PLATFORM", "") else "Win32"
+        return "Win32" if "Win32" in os.environ.get("PLATFORM", "") else "x64"
 
     def getDefaultBuildConfig(self):
         return "Release"
@@ -3316,13 +3316,13 @@ class CSharpMapping(Mapping):
         def usage(self):
             print("")
             print("C# mapping options:")
-            print("--framework=net45|net6.0|net7.0   Choose the framework used to run .NET tests")
+            print("--framework=net45|net8.0|net10.0   Choose the framework used to run .NET tests")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
             if self.framework == "":
-                self.framework = "net6.0"
+                self.framework = "net8.0"
 
             self.dotnet = not isinstance(platform, Windows) or self.framework != "net45"
 

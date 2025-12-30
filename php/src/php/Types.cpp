@@ -3434,18 +3434,27 @@ IcePHP::ExceptionReader::ExceptionReader(const CommunicatorInfoPtr& communicator
     ZVAL_UNDEF(&_ex);
 }
 
+#if defined(__clang__)
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wdeprecated-copy-with-user-provided-dtor"
+#   pragma clang diagnostic ignored "-Wdeprecated-dynamic-exception-spec"
+#endif
+
 IcePHP::ExceptionReader::~ExceptionReader()
     throw()
 {
-#ifdef NDEBUG
+#    ifdef NDEBUG
     // BUGFIX: releasing this object trigers an assert in PHP objects_store
     // https://github.com/php/php-src/issues/10593
     if (!Z_ISUNDEF(_ex))
     {
         zval_ptr_dtor(&_ex);
     }
-#endif
+#    endif
 }
+#if defined(__clang__)
+#   pragma clang diagnostic pop
+#endif
 
 string
 IcePHP::ExceptionReader::ice_id() const
