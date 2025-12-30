@@ -2033,9 +2033,9 @@ Slice::Python::CodeVisitor::visitConst(const ConstPtr& p)
     out << sp;
 
     string name = p->mappedName();
-    writeConstDocstring(p, out);
     out << nl << name << " = ";
     writeConstantValue(p, p->type(), p->valueType(), p->value(), out);
+    writeDocstring(p, out, "constant");
 
     out << sp;
     out << nl << "__all__ = [\"" << name << "\"]";
@@ -2433,55 +2433,6 @@ Slice::Python::CodeVisitor::writeEnumDocstring(const EnumPtr& p, Output& out)
     writeRemarksDocComment(remarks, !overview.empty() || !docs.empty(), out);
     writeSeeAlso(seeAlso, !overview.empty() || !docs.empty() || !remarks.empty(), out);
     out << nl << tripleQuotes;
-}
-
-void
-Slice::Python::CodeVisitor::writeConstDocstring(const ConstPtr& p, IceInternal::Output& out)
-{
-    const optional<DocComment>& comment = p->docComment();
-
-    StringList overview;
-    StringList remarks;
-    StringList seeAlso;
-    if (comment)
-    {
-        overview = comment->overview();
-        remarks = comment->remarks();
-        seeAlso = comment->seeAlso();
-    }
-
-    for (const auto& line : overview)
-    {
-        out << nl << "#: " << line;
-    }
-
-    if (!remarks.empty())
-    {
-        remarks.emplace_back(""); // empty line
-    }
-    remarks.push_back("The Slice compiler generated this constant from Slice constant ``" + p->scoped() + "``.");
-    if (!overview.empty())
-    {
-        out << nl << "#:";
-    }
-    out << nl << "#: " << "Notes";
-    out << nl << "#: " << "-----";
-    for (const auto& line : remarks)
-    {
-        out << nl << "#:     " << line;
-    }
-
-    if (!seeAlso.empty())
-    {
-        out << nl << "#:";
-
-        out << nl << "#: " << "See Also";
-        out << nl << "#: " << "--------";
-        for (const string& line : seeAlso)
-        {
-            out << nl << "#:     " << line;
-        }
-    }
 }
 
 void
