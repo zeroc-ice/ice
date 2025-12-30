@@ -2473,10 +2473,7 @@ Slice::Python::CodeVisitor::writeConstDocstring(const ConstPtr& p, IceInternal::
 
     if (!seeAlso.empty())
     {
-        if (!overview.empty() || !remarks.empty())
-        {
-            out << nl << "#:";
-        }
+        out << nl << "#:";
 
         out << nl << "#: " << "See Also";
         out << nl << "#: " << "--------";
