@@ -2278,7 +2278,7 @@ Slice::Python::CodeVisitor::writeSeeAlso(const StringList& seeAlso, bool needsNe
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, string_view generatedType)
+Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, const string& generatedType)
 {
     const optional<DocComment>& comment = p->docComment();
 
@@ -2331,7 +2331,7 @@ Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, s
         remarks.emplace_back(""); // empty line
     }
     remarks.push_back(
-        "The Slice compiler generated this " + *generatedType + " from Slice " + p->kindOf() + " ``" + p->scoped() +
+        "The Slice compiler generated this " + generatedType + " from Slice " + p->kindOf() + " ``" + p->scoped() +
         "``.");
 
     // Only emit Attributes if there's a docstring for at least one field.

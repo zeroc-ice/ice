@@ -10,7 +10,6 @@
 #include <map>
 #include <set>
 #include <string>
-#include <string_view>
 
 namespace Slice::Python
 {
@@ -457,7 +456,7 @@ namespace Slice::Python
         /// Writes the provided @p seeAlso in its own subheading in the current comment (if @p seeAlso is non-empty).
         void writeSeeAlso(const StringList& seeAlso, bool needsNewline, IceInternal::Output& out);
 
-        void writeDocstring(const ContainedPtr& p, IceInternal::Output& out, std::string_view generatedType);
+        void writeDocstring(const ContainedPtr& p, IceInternal::Output& out, const std::string& generatedType);
 
         void writeEnumDocstring(const EnumPtr&, IceInternal::Output&);
 
