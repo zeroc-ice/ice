@@ -51,7 +51,7 @@ protected:
     /// \cond STREAM
     virtual void _writeImpl(Ice::OutputStream* os) const override
     {
-        os->startSlice(T::ice_staticId(), -1, std::is_same<B, Ice::LocalException>::value ? true : false);
+        os->startSlice(T::ice_staticId(), -1, std::is_same<B, Ice::UserException>::value ? true : false);
         Ice::StreamWriter<T, Ice::OutputStream>::write(os, static_cast<const T&>(*this));
         os->endSlice();
         B::_writeImpl(os);
