@@ -55,6 +55,7 @@ runs:
         max-size: 1G
         evict-old-files: job
         variant: ${{ runner.os == 'Windows' && 'ccache' || 'ccache' }}
+        save: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
 
     - name: Configure ccache path
       if: runner.os == 'macOS' || runner.os == 'Linux'
