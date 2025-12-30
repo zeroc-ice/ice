@@ -26,11 +26,6 @@ jobs:
       - name: Setup Ruby
         uses: ./.github/actions/setup-ruby
 
-      - name: Setup Cache
-        uses: ./.github/actions/setup-cache
-        with:
-          prefix: build-gem-packages
-
       - name: Install Build Dependencies
         run: gem install rake
 

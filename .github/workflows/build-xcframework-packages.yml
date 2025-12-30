@@ -32,11 +32,6 @@ jobs:
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
-      - name: Setup Cache
-        uses: ./.github/actions/setup-cache
-        with:
-          prefix: build-xcframework-packages
-
       - name: Build XCFramework Packages
         run: make OPTIMIZE=yes PLATFORMS="all" CONFIGS="static" srcs
         working-directory: cpp
