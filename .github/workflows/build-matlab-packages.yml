@@ -32,11 +32,6 @@ jobs:
       - name: Setup MATLAB
         uses: ./.github/actions/setup-matlab
 
-      - name: Setup Cache
-        uses: ./.github/actions/setup-cache
-        with:
-          prefix: build-matlab-packages
-
       - name: Ice Package Version
         if: ${{ inputs.ice_version != '' }}
         run: |
