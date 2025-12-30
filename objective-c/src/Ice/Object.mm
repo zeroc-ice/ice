@@ -330,7 +330,7 @@ static NSString* ICEObject_ids[1] =
 -(BOOL) ice_isA:(NSString*)__unused typeId current:(ICECurrent*)__unused current
 {
     NSAssert(NO, @"ice_isA requires override");
-    return nil;
+    return false;
 }
 -(void) ice_ping:(ICECurrent*)__unused current
 {

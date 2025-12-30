@@ -221,8 +221,15 @@ public:
 
     Exception(id<NSObject>);
     Exception(const Exception&);
+#if defined(__clang__)
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wdeprecated-copy-with-user-provided-dtor"
+#   pragma clang diagnostic ignored "-Wdeprecated-dynamic-exception-spec"
+#endif
     virtual ~Exception() throw();
-
+#if defined(__clang__)
+#   pragma clang diagnostic pop
+#endif
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream& os) const;
     virtual Exception* ice_clone() const;

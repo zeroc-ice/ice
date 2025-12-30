@@ -91,10 +91,18 @@ public:
     {
     }
 
+#if defined(__clang__)
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wdeprecated-copy-with-user-provided-dtor"
+#   pragma clang diagnostic ignored "-Wdeprecated-dynamic-exception-spec"
+#endif
     ~ExceptionWriter() throw()
     {
         [_ex release];
     }
+#if defined(__clang__)
+#   pragma clang diagnostic pop
+#endif
 
     void
     _write(Ice::OutputStream* s) const

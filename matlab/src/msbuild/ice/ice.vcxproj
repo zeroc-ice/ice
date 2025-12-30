@@ -13,7 +13,6 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{89C40F1A-1761-46C1-B326-5B20BE6F8173}</ProjectGuid>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
     <IceLanguageMapping>matlab</IceLanguageMapping>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
