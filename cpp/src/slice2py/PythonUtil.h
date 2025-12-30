@@ -463,6 +463,8 @@ namespace Slice::Python
 
         void writeDocstring(const EnumPtr&, IceInternal::Output&);
 
+        void writeConstDocstring(const ConstPtr&, IceInternal::Output&);
+
         void writeDocstring(const OperationPtr&, MethodKind, IceInternal::Output&);
 
         std::string getImportAlias(const ContainedPtr& source, const SyntaxTreeBasePtr& definition);
