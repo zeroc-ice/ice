@@ -3316,7 +3316,9 @@ class CSharpMapping(Mapping):
         def usage(self):
             print("")
             print("C# mapping options:")
-            print("--framework=net45|net8.0|net10.0   Choose the framework used to run .NET tests")
+            print(
+                "--framework=net472|net48|net8.0|net10.0   Choose the framework used to run .NET tests"
+            )
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
@@ -3324,9 +3326,11 @@ class CSharpMapping(Mapping):
             if self.framework == "":
                 self.framework = "net8.0"
 
-            self.dotnet = not isinstance(platform, Windows) or self.framework != "net45"
+            self.dotnet = not isinstance(
+                platform, Windows
+            ) or not self.framework.startswith("net4")
 
-            self.libTargetFramework = "netstandard2.0" if self.framework != "net45" else self.framework
+            self.libTargetFramework = "netstandard2.0"
             self.binTargetFramework = self.framework
             self.testTargetFramework = self.framework
 
@@ -3340,10 +3344,7 @@ class CSharpMapping(Mapping):
         return current.config.testTargetFramework
 
     def getBuildDir(self, name, current):
-        if current.config.framework in ["net45"]:
-            return os.path.join("msbuild", name, current.config.framework)
-        else:
-            return os.path.join("msbuild", name, "netstandard2.0", self.getTargetFramework(current))
+        return os.path.join("msbuild", name, self.getTargetFramework(current))
 
     def getSSLProps(self, process, current):
         props = Mapping.getSSLProps(self, process, current)
@@ -3409,7 +3410,10 @@ class CSharpMapping(Mapping):
         else:
             path = os.path.join(current.testcase.getPath(current), current.getBuildDir(exe))
 
-        useDotnetExe = process.isFromBinDir() and current.config.testTargetFramework != "net45"
+        useDotnetExe = (
+            process.isFromBinDir()
+            and not current.config.testTargetFramework.startswith("net4")
+        )
         command = ""
         if useDotnetExe:
             command += "dotnet "

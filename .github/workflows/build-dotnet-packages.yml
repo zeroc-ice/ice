@@ -1,0 +1,69 @@
+name: "Build .NET Packages"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+jobs:
+  pack-dotnet:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
+
+      - name: Ice Package Version
+        if: ${{ inputs.ice_version != '' }}
+        run: |
+          $nuspecPath = "csharp\msbuild\zeroc.ice.net.nuspec"
+          $nuspec = Get-Content $nuspecPath
+          $nuspec -replace '<version>.*</version>', '<version>${{ inputs.ice_version }}</version>' `
+            | Set-Content $nuspecPath
+        shell: pwsh
+
+      - name: Pack .NET Packages
+        run: |
+          msbuild csharp\msbuild\ice.proj /t:BuildDist /p:Configuration=Release
+
+      - name: Collect Files to Sign
+        run: |
+          Get-ChildItem -Path csharp\lib, csharp\bin -Recurse -Filter *.dll | ForEach-Object {
+              $_.FullName
+          } | Set-Content -Path ${{ github.workspace }}\catalog.txt -Encoding UTF8
+          Add-Content -Path "${{ github.workspace }}\catalog.txt" -Value "cpp\bin\x64\Release\slice2cs.exe"
+          Add-Content -Path "${{ github.workspace }}\catalog.txt" -Value "cpp\bin\x64\Release\slice2html.exe"
+
+      - name: Sign .NET Assemblies with Trusted Signing
+        uses: azure/trusted-signing-action@v0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          trusted-signing-account-name: zeroc
+          certificate-profile-name: zeroc-ice
+          files-catalog: ${{ github.workspace }}\catalog.txt
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Pack .NET Packages
+        run: msbuild csharp\msbuild\ice.proj /t:NugetPack /p:Configuration=Release
+
+      - name: Upload NuGet Packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-nuget-packages
+          path: |
+            csharp/msbuild/zeroc.ice.net/*.nupkg
+            csharp/msbuild/zeroc.ice.net/*.snupkg

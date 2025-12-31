@@ -1,0 +1,17 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="../src/Glacier2/glacier2.csproj" />
+  <Project Path="../src/Ice/ice.csproj" />
+  <Project Path="../src/IceBox/msbuild/icebox/icebox.csproj" />
+  <Project Path="../src/IceBox/msbuild/iceboxlib/iceboxlib.csproj" />
+  <Project Path="../src/IceDiscovery/icediscovery.csproj" />
+  <Project Path="../src/IceGrid/icegrid.csproj" />
+  <Project Path="../src/IceLocatorDiscovery/icelocatordiscovery.csproj" />
+  <Project Path="../src/IceSSL/icessl.csproj" />
+  <Project Path="../src/IceStorm/icestorm.csproj" />
+  <Project Path="../src/IcePatch2/icepatch2.csproj" />
+</Solution>

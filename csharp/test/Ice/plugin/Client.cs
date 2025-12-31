@@ -21,13 +21,9 @@ public class Client : Test.TestHelper
 
     public override void run(string[] args)
     {
-#if NET45
-        string pluginPath = "msbuild/plugin/net45/Plugin.dll";
-#else
         string pluginPath =
-            String.Format("msbuild/plugin/netstandard2.0/{0}/Plugin.dll",
+            String.Format("msbuild/plugin/{0}/Plugin.dll",
                           Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)));
-#endif
         {
             Console.Write("testing a simple plug-in... ");
             Console.Out.Flush();
@@ -35,7 +31,7 @@ public class Client : Test.TestHelper
             properties.setProperty("Ice.Plugin.Test",
                 pluginPath + ":PluginFactory 'C:\\Program Files\\' --DatabasePath " +
                 "'C:\\Program Files\\Application\\db'");
-            using(var communicator = initialize(properties))
+            using (var communicator = initialize(properties))
             {
             }
             Console.WriteLine("ok");
@@ -51,7 +47,7 @@ public class Client : Test.TestHelper
                 initialize(properties);
                 test(false);
             }
-            catch(Ice.PluginInitializationException ex)
+            catch (Ice.PluginInitializationException ex)
             {
                 test(ex.InnerException.Message.Equals("PluginInitializeFailException"));
             }
@@ -66,7 +62,7 @@ public class Client : Test.TestHelper
             properties.setProperty("Ice.Plugin.PluginTwo", pluginPath + ":PluginTwoFactory");
             properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
             properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
-            using(var communicator = initialize(properties))
+            using (var communicator = initialize(properties))
             {
             }
             Console.WriteLine("ok");
@@ -84,7 +80,7 @@ public class Client : Test.TestHelper
             properties.setProperty("Ice.InitPlugins", "0");
 
             MyPlugin p4 = null;
-            using(var communicator = initialize(properties))
+            using (var communicator = initialize(properties))
             {
                 Ice.PluginManager pm = communicator.getPluginManager();
                 test(pm.getPlugin("PluginOne") != null);
@@ -115,7 +111,7 @@ public class Client : Test.TestHelper
                 properties.setProperty("Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
                 initialize(properties);
             }
-            catch(Ice.PluginInitializationException ex)
+            catch (Ice.PluginInitializationException ex)
             {
                 test(ex.InnerException.Message.Equals("PluginInitializeFailException"));
             }
