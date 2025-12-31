@@ -61,6 +61,5 @@ jobs:
         uses: ./.github/actions/test
         timeout-minutes: 45
         with:
-          # TODO: Filter out IceSSL/configuration see https://github.com/zeroc-ice/ice/issues/4805
           # TODO: Filter out IceGrid/replication see https://github.com/zeroc-ice/ice/issues/4818
-          flags: "--all --rfilter IceSSL/configuration --rfilter IceGrid/replication"
+          flags: "--all --rfilter IceGrid/replication"
