@@ -2651,7 +2651,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         //
-        // Client and server doesn't enable a common cipher negotiate to use AES_128 as it is enabled in both.
+        // Client and server do not enable a common cipher (client: AES_128, server: AES_256); the connection should fail.
         //
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
