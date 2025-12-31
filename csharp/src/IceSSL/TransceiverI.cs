@@ -1,5 +1,5 @@
 //
-// Copyright(c) ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
 namespace IceSSL
@@ -31,7 +31,7 @@ namespace IceSSL
                 {
                     return status;
                 }
-                _isConnected = true;
+                _isConnected  = true;
             }
 
             IceInternal.Network.setBlock(fd(), true); // SSL requires a blocking socket
@@ -73,7 +73,7 @@ namespace IceSSL
             _authenticated = true;
 
             _cipher = _sslStream.CipherAlgorithm.ToString();
-            _instance.verifyPeer(_host,(ConnectionInfo)getInfo(), ToString());
+            _instance.verifyPeer(_host, (ConnectionInfo)getInfo(), ToString());
 
             if(_instance.securityTraceLevel() >= 1)
             {
@@ -184,7 +184,7 @@ namespace IceSSL
                 {
                     ret = _readResult.Result;
                 }
-                catch(AggregateException ex)
+                catch (AggregateException ex)
                 {
                     throw ex.InnerException;
                 }
@@ -300,7 +300,7 @@ namespace IceSSL
                 {
                     _writeResult.Wait();
                 }
-                catch(AggregateException ex)
+                catch (AggregateException ex)
                 {
                     throw ex.InnerException;
                 }
@@ -441,17 +441,17 @@ namespace IceSSL
                 e.reason = ex.Message;
                 throw e;
             }
-            catch(System.ComponentModel.Win32Exception ex)
+            catch (System.ComponentModel.Win32Exception ex)
             {
                 // This error code correspond to SChannel SEC_E_ALGORITHM_MISMATCH. The client and server cannot
                 // communicate, because they can't agree on a common algorithm.
-                if(ex.NativeErrorCode == -2146893007)
+                if (ex.NativeErrorCode == -2146893007)
                 {
                     throw new Ice.ConnectionLostException(ex);
                 }
                 throw new Ice.SyscallException(ex);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Ice.SyscallException(ex);
             }
@@ -470,7 +470,7 @@ namespace IceSSL
                 {
                     _writeResult.Wait();
                 }
-                catch(AggregateException ex)
+                catch (AggregateException ex)
                 {
                     throw ex.InnerException;
                 }
@@ -552,13 +552,13 @@ namespace IceSSL
                 }
 
                 string message = "";
-                int errors =(int)policyErrors;
+                int errors = (int)policyErrors;
                 if(certificate != null)
                 {
                     chain.Build(new X509Certificate2(certificate));
                     if(chain.ChainStatus != null && chain.ChainStatus.Length > 0)
                     {
-                        errors |=(int)SslPolicyErrors.RemoteCertificateChainErrors;
+                        errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
                     }
                     else if(_instance.engine().caCerts() != null)
                     {
@@ -571,10 +571,10 @@ namespace IceSSL
                             }
                             else
                             {
-                                message = message + "\nuntrusted root certificate(ignored)";
+                                message = message + "\nuntrusted root certificate (ignored)";
                                 _verified = false;
                             }
-                            errors |=(int)SslPolicyErrors.RemoteCertificateChainErrors;
+                            errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
                         }
                         else
                         {
@@ -589,7 +589,7 @@ namespace IceSSL
                     }
                 }
 
-                if((errors &(int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
+                if((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
                 {
                     //
                     // The RemoteCertificateNotAvailable case does not appear to be possible
@@ -609,12 +609,12 @@ namespace IceSSL
                             }
                             return false;
                         }
-                        errors ^=(int)SslPolicyErrors.RemoteCertificateNotAvailable;
-                        message = message + "\nremote certificate not provided(ignored)";
+                        errors ^= (int)SslPolicyErrors.RemoteCertificateNotAvailable;
+                        message = message + "\nremote certificate not provided (ignored)";
                     }
                 }
 
-                bool certificateNameMismatch =(errors &(int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0;
+                bool certificateNameMismatch = (errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0;
                 if(certificateNameMismatch)
                 {
                     if(_instance.engine().getCheckCertName() && !string.IsNullOrEmpty(_host))
@@ -624,7 +624,7 @@ namespace IceSSL
                             string msg = "SSL certificate validation failed - Hostname mismatch";
                             if(_verifyPeer == 0)
                             {
-                                msg += "(ignored)";
+                                msg += " (ignored)";
                             }
                             _instance.logger().trace(_instance.securityTraceCategory(), msg);
                         }
@@ -635,17 +635,17 @@ namespace IceSSL
                         }
                         else
                         {
-                            errors ^=(int)SslPolicyErrors.RemoteCertificateNameMismatch;
+                            errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
                         }
                     }
                     else
                     {
-                        errors ^=(int)SslPolicyErrors.RemoteCertificateNameMismatch;
+                        errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
                         certificateNameMismatch = false;
                     }
                 }
 
-                if((errors &(int)SslPolicyErrors.RemoteCertificateChainErrors) > 0 &&
+                if((errors & (int)SslPolicyErrors.RemoteCertificateChainErrors) > 0 &&
                    chain.ChainStatus != null && chain.ChainStatus.Length > 0)
                 {
                     int errorCount = 0;
@@ -667,7 +667,7 @@ namespace IceSSL
                                 }
                                 else
                                 {
-                                    message = message + "\nuntrusted root certificate(ignored)";
+                                    message = message + "\nuntrusted root certificate (ignored)";
                                 }
                             }
                             else
@@ -684,7 +684,7 @@ namespace IceSSL
                             }
                             else
                             {
-                                message = message + "\ncertificate revoked(ignored)";
+                                message = message + "\ncertificate revoked (ignored)";
                             }
                         }
                         else if(status.Status == X509ChainStatusFlags.RevocationStatusUnknown)
@@ -700,7 +700,7 @@ namespace IceSSL
                             }
                             else
                             {
-                                message = message + "\ncertificate revocation status unknown(ignored)";
+                                message = message + "\ncertificate revocation status unknown (ignored)";
                             }
                         }
                         else if(status.Status == X509ChainStatusFlags.PartialChain)
@@ -712,7 +712,7 @@ namespace IceSSL
                             }
                             else
                             {
-                                message = message + "\npartial certificate chain(ignored)";
+                                message = message + "\npartial certificate chain (ignored)";
                             }
                         }
                         else if(status.Status != X509ChainStatusFlags.NoError)
@@ -724,7 +724,7 @@ namespace IceSSL
 
                     if(errorCount == 0)
                     {
-                        errors ^=(int)SslPolicyErrors.RemoteCertificateChainErrors;
+                        errors ^= (int)SslPolicyErrors.RemoteCertificateChainErrors;
                     }
                 }
 

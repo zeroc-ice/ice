@@ -13,7 +13,7 @@ using Microsoft.Win32;
 
 namespace Ice
 {
-    sealed class PropertiesI : Properties
+    sealed class PropertiesI :  Properties
     {
         class PropertyValue
         {
@@ -311,27 +311,25 @@ namespace Ice
         public void load(string file)
         {
             if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
-              (file.StartsWith("HKCU\\", StringComparison.Ordinal) ||
-                file.StartsWith("HKLM\\", StringComparison.Ordinal)))
+	       file.StartsWith("HKCU\\", StringComparison.Ordinal) ||
+               file.StartsWith("HKLM\\", StringComparison.Ordinal))
             {
-                RegistryKey root =
+                RegistryKey key =
                     file.StartsWith("HKCU\\", StringComparison.Ordinal) ? Registry.CurrentUser : Registry.LocalMachine;
-                using(RegistryKey iceKey = root.OpenSubKey(file.Substring(file.IndexOf("\\", StringComparison.Ordinal) + 1)))
+                RegistryKey iceKey = key.OpenSubKey(file.Substring(file.IndexOf("\\") + 1));
+                if(iceKey == null)
                 {
-                    if(iceKey == null)
-                    {
-                        Ice.InitializationException ex = new Ice.InitializationException();
-                        ex.reason = "Could not open Windows registry key `" + file + "'";
-                        throw ex;
-                    }
+                    Ice.InitializationException ex = new Ice.InitializationException();
+                    ex.reason = "Could not open Windows registry key `" + file + "'";
+                    throw ex;
+                }
 
-                    foreach(string propKey in iceKey.GetValueNames())
+                foreach(string propKey in iceKey.GetValueNames())
+                {
+                    RegistryValueKind kind = iceKey.GetValueKind(propKey);
+                    if(kind == RegistryValueKind.String || kind == RegistryValueKind.ExpandString)
                     {
-                        RegistryValueKind kind = iceKey.GetValueKind(propKey);
-                        if(kind == RegistryValueKind.String || kind == RegistryValueKind.ExpandString)
-                        {
-                            setProperty(propKey, iceKey.GetValue(propKey)?.ToString() ?? "");
-                        }
+                        setProperty(propKey, iceKey.GetValue(propKey).ToString());
                     }
                 }
             }
@@ -394,7 +392,7 @@ namespace Ice
         {
             if(defaults != null)
             {
-                foreach(KeyValuePair<string, PropertyValue> entry in((PropertiesI)defaults)._properties)
+                foreach(KeyValuePair<string, PropertyValue> entry in ((PropertiesI)defaults)._properties)
                 {
                     _properties[entry.Key] = new PropertyValue(entry.Value);
                 }
@@ -437,7 +435,7 @@ namespace Ice
             if(!loadConfigFiles)
             {
                 //
-                // If Ice.Config is not set, load from ICE_CONFIG(if set)
+                // If Ice.Config is not set, load from ICE_CONFIG (if set)
                 //
                 loadConfigFiles = !_properties.ContainsKey("Ice.Config");
             }
@@ -485,137 +483,137 @@ namespace Ice
                 char c = line[i];
                 switch(state)
                 {
-                    case ParseStateKey:
-                        {
-                            switch(c)
-                            {
+                  case ParseStateKey:
+                  {
+                      switch(c)
+                      {
+                        case '\\':
+                          if(i < line.Length - 1)
+                          {
+                              c = line[++i];
+                              switch(c)
+                              {
                                 case '\\':
-                                    if(i < line.Length - 1)
-                                    {
-                                        c = line[++i];
-                                        switch(c)
-                                        {
-                                            case '\\':
-                                            case '#':
-                                            case '=':
-                                                key += whitespace;
-                                                whitespace = "";
-                                                key += c;
-                                                break;
-
-                                            case ' ':
-                                                if(key.Length != 0)
-                                                {
-                                                    whitespace += c;
-                                                }
-                                                break;
-
-                                            default:
-                                                key += whitespace;
-                                                whitespace = "";
-                                                key += '\\';
-                                                key += c;
-                                                break;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        key += whitespace;
-                                        key += c;
-                                    }
-                                    break;
-
-                                case ' ':
-                                case '\t':
-                                case '\r':
-                                case '\n':
-                                    if(key.Length != 0)
-                                    {
-                                        whitespace += c;
-                                    }
-                                    break;
-
+                                case '#':
                                 case '=':
-                                    whitespace = "";
-                                    state = ParseStateValue;
-                                    break;
-
-                                case '#':
-                                    finished = true;
-                                    break;
-
-                                default:
-                                    key += whitespace;
-                                    whitespace = "";
-                                    key += c;
-                                    break;
-                            }
-                            break;
-                        }
-
-                    case ParseStateValue:
-                        {
-                            switch(c)
-                            {
-                                case '\\':
-                                    if(i < line.Length - 1)
-                                    {
-                                        c = line[++i];
-                                        switch(c)
-                                        {
-                                            case '\\':
-                                            case '#':
-                                            case '=':
-                                                val += val.Length == 0 ? escapedspace : whitespace;
-                                                whitespace = "";
-                                                escapedspace = "";
-                                                val += c;
-                                                break;
-
-                                            case ' ':
-                                                whitespace += c;
-                                                escapedspace += c;
-                                                break;
-
-                                            default:
-                                                val += val.Length == 0 ? escapedspace : whitespace;
-                                                whitespace = "";
-                                                escapedspace = "";
-                                                val += '\\';
-                                                val += c;
-                                                break;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        val += val.Length == 0 ? escapedspace : whitespace;
-                                        val += c;
-                                    }
-                                    break;
+                                  key += whitespace;
+                                  whitespace= "";
+                                  key += c;
+                                  break;
 
                                 case ' ':
-                                case '\t':
-                                case '\r':
-                                case '\n':
-                                    if(val.Length != 0)
-                                    {
-                                        whitespace += c;
-                                    }
-                                    break;
-
-                                case '#':
-                                    finished = true;
-                                    break;
+                                  if(key.Length != 0)
+                                  {
+                                      whitespace += c;
+                                  }
+                                  break;
 
                                 default:
-                                    val += val.Length == 0 ? escapedspace : whitespace;
-                                    whitespace = "";
-                                    escapedspace = "";
-                                    val += c;
-                                    break;
+                                  key += whitespace;
+                                  whitespace= "";
+                                  key += '\\';
+                                  key += c;
+                                  break;
+                              }
+                          }
+                          else
+                          {
+                              key += whitespace;
+                              key += c;
+                          }
+                          break;
+
+                        case ' ':
+                        case '\t':
+                        case '\r':
+                        case '\n':
+                            if(key.Length != 0)
+                            {
+                                whitespace += c;
                             }
                             break;
-                        }
+
+                        case '=':
+                            whitespace= "";
+                            state = ParseStateValue;
+                            break;
+
+                        case '#':
+                            finished = true;
+                            break;
+
+                        default:
+                            key += whitespace;
+                            whitespace= "";
+                            key += c;
+                            break;
+                      }
+                      break;
+                  }
+
+                  case ParseStateValue:
+                  {
+                      switch(c)
+                      {
+                        case '\\':
+                          if(i < line.Length - 1)
+                          {
+                              c = line[++i];
+                              switch(c)
+                              {
+                                case '\\':
+                                case '#':
+                                case '=':
+                                  val += val.Length == 0 ? escapedspace : whitespace;
+                                  whitespace= "";
+                                  escapedspace= "";
+                                  val += c;
+                                  break;
+
+                                case ' ':
+                                  whitespace += c;
+                                  escapedspace += c;
+                                  break;
+
+                                default:
+                                  val += val.Length == 0 ? escapedspace : whitespace;
+                                  whitespace= "";
+                                  escapedspace= "";
+                                  val += '\\';
+                                  val += c;
+                                  break;
+                              }
+                          }
+                          else
+                          {
+                              val += val.Length == 0 ? escapedspace : whitespace;
+                              val += c;
+                          }
+                          break;
+
+                        case ' ':
+                        case '\t':
+                        case '\r':
+                        case '\n':
+                            if(val.Length != 0)
+                            {
+                                whitespace += c;
+                            }
+                            break;
+
+                        case '#':
+                            finished = true;
+                            break;
+
+                        default:
+                            val += val.Length == 0 ? escapedspace : whitespace;
+                            whitespace = "";
+                            escapedspace = "";
+                            val += c;
+                            break;
+                      }
+                      break;
+                  }
                 }
                 if(finished)
                 {
@@ -624,7 +622,7 @@ namespace Ice
             }
             val += escapedspace;
 
-            if((state == ParseStateKey && key.Length != 0) ||(state == ParseStateValue && key.Length == 0))
+            if((state == ParseStateKey && key.Length != 0) || (state == ParseStateValue && key.Length == 0))
             {
                 Util.getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
                 return;

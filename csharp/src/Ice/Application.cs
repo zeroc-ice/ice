@@ -170,7 +170,7 @@ namespace Ice
             InitializationData initData;
             if(initializationData != null)
             {
-                initData =(InitializationData)initializationData.Clone();
+                initData = (InitializationData)initializationData.Clone();
             }
             else
             {
