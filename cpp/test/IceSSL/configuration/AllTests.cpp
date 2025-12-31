@@ -2621,25 +2621,25 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #else // SChannel ciphers
     {
         //
-        // Client and server should negotiate to use 3DES as it is enabled in both.
+        // Client and server should negotiate to use AES_128 as it is enabled in both.
         //
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        initData.properties->setProperty("IceSSL.Ciphers", "3DES");
+        initData.properties->setProperty("IceSSL.Ciphers", "AES_128");
 
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
 
         Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
-        d["IceSSL.Ciphers"] = "3DES AES_256";
+        d["IceSSL.Ciphers"] = "AES_128 AES_256";
 
         Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
-            server->checkCipher("3DES");
+            server->checkCipher("AES_128");
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
-            test(info->cipher.compare(0, 4, "3DES") == 0);
+            test(info->cipher.compare(0, 7, "AES_128") == 0);
         }
         catch(const LocalException& ex)
         {
@@ -2651,12 +2651,11 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         //
-        // Client and server doesn't enable a common cipher negotiate to use 3DES as it is enabled in both.
+        // Client and server doesn't enable a common cipher negotiate to use AES_128 as it is enabled in both.
         //
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        initData.properties->setProperty("IceSSL.Ciphers", "3DES");
-
+        initData.properties->setProperty("IceSSL.Ciphers", "AES_128");
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
@@ -2666,7 +2665,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
-            server->checkCipher("3DES");
+            server->checkCipher("AES_128");
             test(false);
         }
         catch(const Ice::ConnectionLostException&)
@@ -2682,6 +2681,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         comm->destroy();
     }
 #endif
+    cout << "ok" << endl;
 
     cout << "testing IceSSL.TrustOnly... " << flush;
     //
