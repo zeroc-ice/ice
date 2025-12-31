@@ -56,9 +56,12 @@ const string ice_ping_name = "ice_ping";
 const string ice_ids_name = "ice_ids";
 const string ice_id_name = "ice_id";
 const string ice_isA_name = "ice_isA";
-const string ice_invoke_name = "ice_invoke";
 const string ice_getConnection_name = "ice_getConnection";
 const string ice_flushBatchRequests_name = "ice_flushBatchRequests";
+
+#ifndef ICE_CPP11_MAPPING
+const string ice_invoke_name = "ice_invoke";
+#endif
 
 }
 

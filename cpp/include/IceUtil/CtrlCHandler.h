@@ -8,6 +8,10 @@
 #include <IceUtil/Config.h>
 #include <IceUtil/Exception.h>
 
+#ifdef ICE_CPP11_MAPPING
+#   include <functional>
+#endif
+
 namespace IceUtil
 {
 

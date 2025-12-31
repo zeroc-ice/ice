@@ -11,6 +11,8 @@
 
 #ifdef ICE_CPP11_MAPPING
 
+#include <functional>
+
 namespace Ice
 {
 

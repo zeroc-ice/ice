@@ -163,7 +163,7 @@ string
 Glacier2::RouterI::getCategoryForClient(const Ice::Current&) const
 {
     assert(false); // Must not be called in this router implementation.
-    return 0;
+    return "";
 }
 
 void
