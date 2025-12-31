@@ -78,13 +78,13 @@
         <MSBuild Projects="@(DistSolution)" BuildInParallel="true" Properties="%(Properties)"/>
 
         <!-- Build iceboxnet with net8.0 target framework -->
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\IceBox\icebox.csproj"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net8.0;BaseIntermediateOutputPath=obj\net8.0\"
                  Targets="Restore;Publish"
                  />
 
         <!-- Build iceboxnet with net472 target framework (Windows only) -->
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\IceBox\icebox.csproj"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net472;BaseIntermediateOutputPath=obj\net472\"
                  Targets="Restore;Publish"
                  Condition="'$(OS)' == 'Windows_NT'"
