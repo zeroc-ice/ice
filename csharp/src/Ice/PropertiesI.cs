@@ -35,11 +35,11 @@ namespace Ice
 
         public string getProperty(string key)
         {
-            lock (this)
+            lock(this)
             {
                 string result = "";
                 PropertyValue pv;
-                if (_properties.TryGetValue(key, out pv))
+                if(_properties.TryGetValue(key, out pv))
                 {
                     pv.used = true;
                     result = pv.val;
@@ -50,11 +50,11 @@ namespace Ice
 
         public string getPropertyWithDefault(string key, string val)
         {
-            lock (this)
+            lock(this)
             {
                 string result = val;
                 PropertyValue pv;
-                if (_properties.TryGetValue(key, out pv))
+                if(_properties.TryGetValue(key, out pv))
                 {
                     pv.used = true;
                     result = pv.val;
@@ -70,10 +70,10 @@ namespace Ice
 
         public int getPropertyAsIntWithDefault(string key, int val)
         {
-            lock (this)
+            lock(this)
             {
                 PropertyValue pv;
-                if (!_properties.TryGetValue(key, out pv))
+                if(!_properties.TryGetValue(key, out pv))
                 {
                     return val;
                 }
@@ -82,7 +82,7 @@ namespace Ice
                 {
                     return int.Parse(pv.val, CultureInfo.InvariantCulture);
                 }
-                catch (FormatException)
+                catch(FormatException)
                 {
                     Util.getProcessLogger().warning("numeric property " + key +
                                                     " set to non-numeric value, defaulting to " + val);
@@ -98,15 +98,15 @@ namespace Ice
 
         public string[] getPropertyAsListWithDefault(string key, string[] val)
         {
-            if (val == null)
+            if(val == null)
             {
                 val = new string[0];
             }
 
-            lock (this)
+            lock(this)
             {
                 PropertyValue pv;
-                if (!_properties.TryGetValue(key, out pv))
+                if(!_properties.TryGetValue(key, out pv))
                 {
                     return val;
                 }
@@ -114,7 +114,7 @@ namespace Ice
                 pv.used = true;
 
                 string[] result = IceUtilInternal.StringUtil.splitString(pv.val, ", \t\r\n");
-                if (result == null)
+                if(result == null)
                 {
                     Util.getProcessLogger().warning("mismatched quotes in property " + key
                                                     + "'s value, returning default value");
@@ -129,13 +129,13 @@ namespace Ice
 
         public Dictionary<string, string> getPropertiesForPrefix(string prefix)
         {
-            lock (this)
+            lock(this)
             {
                 Dictionary<string, string> result = new Dictionary<string, string>();
 
-                foreach (string s in _properties.Keys)
+                foreach(string s in _properties.Keys)
                 {
-                    if (prefix.Length == 0 || s.StartsWith(prefix, StringComparison.Ordinal))
+                    if(prefix.Length == 0 || s.StartsWith(prefix, StringComparison.Ordinal))
                     {
                         PropertyValue pv = _properties[s];
                         pv.used = true;
@@ -151,11 +151,11 @@ namespace Ice
             //
             // Trim whitespace
             //
-            if (key != null)
+            if(key != null)
             {
                 key = key.Trim();
             }
-            if (key == null || key.Length == 0)
+            if(key == null || key.Length == 0)
             {
                 throw new InitializationException("Attempt to set property with empty key");
             }
@@ -165,10 +165,10 @@ namespace Ice
             //
             Logger logger = Util.getProcessLogger();
             int dotPos = key.IndexOf('.');
-            if (dotPos != -1)
+            if(dotPos != -1)
             {
                 string prefix = key.Substring(0, dotPos);
-                foreach (var validProps in IceInternal.PropertyNames.validProps)
+                foreach(var validProps in IceInternal.PropertyNames.validProps)
                 {
                     string pattern = validProps[0].pattern();
                     dotPos = pattern.IndexOf('.');
@@ -176,23 +176,23 @@ namespace Ice
                     string propPrefix = pattern.Substring(1, dotPos - 2);
                     bool mismatchCase = false;
                     string otherKey = "";
-                    if (!propPrefix.ToUpper().Equals(prefix.ToUpper()))
+                    if(!propPrefix.ToUpper().Equals(prefix.ToUpper()))
                     {
                         continue;
                     }
 
                     bool found = false;
-                    foreach (var prop in validProps)
+                    foreach(var prop in validProps)
                     {
                         Regex r = new Regex(prop.pattern());
                         Match m = r.Match(key);
                         found = m.Success;
-                        if (found)
+                        if(found)
                         {
-                            if (prop.deprecated())
+                            if(prop.deprecated())
                             {
                                 logger.warning("deprecated property: " + key);
-                                if (prop.deprecatedBy() != null)
+                                if(prop.deprecatedBy() != null)
                                 {
                                     key = prop.deprecatedBy();
                                 }
@@ -200,11 +200,11 @@ namespace Ice
                             break;
                         }
 
-                        if (!found)
+                        if(!found)
                         {
                             r = new Regex(prop.pattern().ToUpper());
                             m = r.Match(key.ToUpper());
-                            if (m.Success)
+                            if(m.Success)
                             {
                                 found = true;
                                 mismatchCase = true;
@@ -213,27 +213,27 @@ namespace Ice
                             }
                         }
                     }
-                    if (!found)
+                    if(!found)
                     {
                         logger.warning("unknown property: " + key);
                     }
-                    else if (mismatchCase)
+                    else if(mismatchCase)
                     {
                         logger.warning("unknown property: `" + key + "'; did you mean `" + otherKey + "'");
                     }
                 }
             }
 
-            lock (this)
+            lock(this)
             {
                 //
                 //
                 // Set or clear the property.
                 //
-                if (val != null && val.Length > 0)
+                if(val != null && val.Length > 0)
                 {
                     PropertyValue pv;
-                    if (_properties.TryGetValue(key, out pv))
+                    if(_properties.TryGetValue(key, out pv))
                     {
                         pv.val = val;
                     }
@@ -252,11 +252,11 @@ namespace Ice
 
         public string[] getCommandLineOptions()
         {
-            lock (this)
+            lock(this)
             {
                 string[] result = new string[_properties.Count];
                 int i = 0;
-                foreach (KeyValuePair<string, PropertyValue> entry in _properties)
+                foreach(KeyValuePair<string, PropertyValue> entry in _properties)
                 {
                     result[i++] = "--" + entry.Key + "=" + entry.Value.val;
                 }
@@ -266,19 +266,19 @@ namespace Ice
 
         public string[] parseCommandLineOptions(string pfx, string[] options)
         {
-            if (pfx.Length > 0 && pfx[pfx.Length - 1] != '.')
+            if(pfx.Length > 0 && pfx[pfx.Length - 1] != '.')
             {
                 pfx += '.';
             }
             pfx = "--" + pfx;
 
             List<string> result = new List<string>();
-            for (int i = 0; i < options.Length; i++)
+            for(int i = 0; i < options.Length; i++)
             {
                 string opt = options[i];
-                if (opt.StartsWith(pfx, StringComparison.Ordinal))
+                if(opt.StartsWith(pfx, StringComparison.Ordinal))
                 {
-                    if (opt.IndexOf('=') == -1)
+                    if(opt.IndexOf('=') == -1)
                     {
                         opt += "=1";
                     }
@@ -291,7 +291,7 @@ namespace Ice
                 }
             }
             string[] arr = new string[result.Count];
-            if (arr.Length != 0)
+            if(arr.Length != 0)
             {
                 result.CopyTo(arr);
             }
@@ -301,7 +301,7 @@ namespace Ice
         public string[] parseIceCommandLineOptions(string[] options)
         {
             string[] args = options;
-            foreach (var name in IceInternal.PropertyNames.clPropNames)
+            foreach(var name in IceInternal.PropertyNames.clPropNames)
             {
                 args = parseCommandLineOptions(name, args);
             }
@@ -310,25 +310,25 @@ namespace Ice
 
         public void load(string file)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
-               (file.StartsWith("HKCU\\", StringComparison.Ordinal) ||
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+              (file.StartsWith("HKCU\\", StringComparison.Ordinal) ||
                 file.StartsWith("HKLM\\", StringComparison.Ordinal)))
             {
                 RegistryKey root =
                     file.StartsWith("HKCU\\", StringComparison.Ordinal) ? Registry.CurrentUser : Registry.LocalMachine;
-                using (RegistryKey iceKey = root.OpenSubKey(file.Substring(file.IndexOf("\\", StringComparison.Ordinal) + 1)))
+                using(RegistryKey iceKey = root.OpenSubKey(file.Substring(file.IndexOf("\\", StringComparison.Ordinal) + 1)))
                 {
-                    if (iceKey == null)
+                    if(iceKey == null)
                     {
                         Ice.InitializationException ex = new Ice.InitializationException();
                         ex.reason = "Could not open Windows registry key `" + file + "'";
                         throw ex;
                     }
 
-                    foreach (string propKey in iceKey.GetValueNames())
+                    foreach(string propKey in iceKey.GetValueNames())
                     {
                         RegistryValueKind kind = iceKey.GetValueKind(propKey);
-                        if (kind == RegistryValueKind.String || kind == RegistryValueKind.ExpandString)
+                        if(kind == RegistryValueKind.String || kind == RegistryValueKind.ExpandString)
                         {
                             setProperty(propKey, iceKey.GetValue(propKey)?.ToString() ?? "");
                         }
@@ -339,12 +339,12 @@ namespace Ice
             {
                 try
                 {
-                    using (System.IO.StreamReader sr = new System.IO.StreamReader(file))
+                    using(System.IO.StreamReader sr = new System.IO.StreamReader(file))
                     {
                         parse(sr);
                     }
                 }
-                catch (System.IO.IOException ex)
+                catch(System.IO.IOException ex)
                 {
                     FileException fe = new FileException(ex);
                     fe.path = file;
@@ -355,7 +355,7 @@ namespace Ice
 
         public Properties ice_clone_()
         {
-            lock (this)
+            lock(this)
             {
                 return new PropertiesI(this);
             }
@@ -363,12 +363,12 @@ namespace Ice
 
         public List<string> getUnusedProperties()
         {
-            lock (this)
+            lock(this)
             {
                 List<string> unused = new List<string>();
-                foreach (KeyValuePair<string, PropertyValue> entry in _properties)
+                foreach(KeyValuePair<string, PropertyValue> entry in _properties)
                 {
-                    if (!entry.Value.used)
+                    if(!entry.Value.used)
                     {
                         unused.Add(entry.Key);
                     }
@@ -379,7 +379,7 @@ namespace Ice
 
         internal PropertiesI(PropertiesI p) : this()
         {
-            foreach (KeyValuePair<string, PropertyValue> entry in p._properties)
+            foreach(KeyValuePair<string, PropertyValue> entry in p._properties)
             {
                 _properties[entry.Key] = new PropertyValue(entry.Value);
             }
@@ -392,16 +392,16 @@ namespace Ice
 
         internal PropertiesI(ref string[] args, Properties defaults) : this()
         {
-            if (defaults != null)
+            if(defaults != null)
             {
-                foreach (KeyValuePair<string, PropertyValue> entry in ((PropertiesI)defaults)._properties)
+                foreach(KeyValuePair<string, PropertyValue> entry in((PropertiesI)defaults)._properties)
                 {
                     _properties[entry.Key] = new PropertyValue(entry.Value);
                 }
             }
 
             PropertyValue pv;
-            if (_properties.TryGetValue("Ice.ProgramName", out pv))
+            if(_properties.TryGetValue("Ice.ProgramName", out pv))
             {
                 pv.used = true;
             }
@@ -412,12 +412,12 @@ namespace Ice
 
             bool loadConfigFiles = false;
 
-            for (int i = 0; i < args.Length; i++)
+            for(int i = 0; i < args.Length; i++)
             {
-                if (args[i].StartsWith("--Ice.Config", StringComparison.Ordinal))
+                if(args[i].StartsWith("--Ice.Config", StringComparison.Ordinal))
                 {
                     string line = args[i];
-                    if (line.IndexOf('=') == -1)
+                    if(line.IndexOf('=') == -1)
                     {
                         line += "=1";
                     }
@@ -426,7 +426,7 @@ namespace Ice
 
                     string[] arr = new string[args.Length - 1];
                     Array.Copy(args, 0, arr, 0, i);
-                    if (i < args.Length - 1)
+                    if(i < args.Length - 1)
                     {
                         Array.Copy(args, i + 1, arr, i, args.Length - i - 1);
                     }
@@ -434,15 +434,15 @@ namespace Ice
                 }
             }
 
-            if (!loadConfigFiles)
+            if(!loadConfigFiles)
             {
                 //
-                // If Ice.Config is not set, load from ICE_CONFIG (if set)
+                // If Ice.Config is not set, load from ICE_CONFIG(if set)
                 //
                 loadConfigFiles = !_properties.ContainsKey("Ice.Config");
             }
 
-            if (loadConfigFiles)
+            if(loadConfigFiles)
             {
                 loadConfig();
             }
@@ -455,12 +455,12 @@ namespace Ice
             try
             {
                 string line;
-                while ((line = input.ReadLine()) != null)
+                while((line = input.ReadLine()) != null)
                 {
                     parseLine(line);
                 }
             }
-            catch (System.IO.IOException ex)
+            catch(System.IO.IOException ex)
             {
                 SyscallException se = new SyscallException(ex);
                 throw se;
@@ -480,20 +480,20 @@ namespace Ice
             string whitespace = "";
             string escapedspace = "";
             bool finished = false;
-            for (int i = 0; i < line.Length; ++i)
+            for(int i = 0; i < line.Length; ++i)
             {
                 char c = line[i];
-                switch (state)
+                switch(state)
                 {
                     case ParseStateKey:
                         {
-                            switch (c)
+                            switch(c)
                             {
                                 case '\\':
-                                    if (i < line.Length - 1)
+                                    if(i < line.Length - 1)
                                     {
                                         c = line[++i];
-                                        switch (c)
+                                        switch(c)
                                         {
                                             case '\\':
                                             case '#':
@@ -504,7 +504,7 @@ namespace Ice
                                                 break;
 
                                             case ' ':
-                                                if (key.Length != 0)
+                                                if(key.Length != 0)
                                                 {
                                                     whitespace += c;
                                                 }
@@ -529,7 +529,7 @@ namespace Ice
                                 case '\t':
                                 case '\r':
                                 case '\n':
-                                    if (key.Length != 0)
+                                    if(key.Length != 0)
                                     {
                                         whitespace += c;
                                     }
@@ -555,13 +555,13 @@ namespace Ice
 
                     case ParseStateValue:
                         {
-                            switch (c)
+                            switch(c)
                             {
                                 case '\\':
-                                    if (i < line.Length - 1)
+                                    if(i < line.Length - 1)
                                     {
                                         c = line[++i];
-                                        switch (c)
+                                        switch(c)
                                         {
                                             case '\\':
                                             case '#':
@@ -597,7 +597,7 @@ namespace Ice
                                 case '\t':
                                 case '\r':
                                 case '\n':
-                                    if (val.Length != 0)
+                                    if(val.Length != 0)
                                     {
                                         whitespace += c;
                                     }
@@ -617,19 +617,19 @@ namespace Ice
                             break;
                         }
                 }
-                if (finished)
+                if(finished)
                 {
                     break;
                 }
             }
             val += escapedspace;
 
-            if ((state == ParseStateKey && key.Length != 0) || (state == ParseStateValue && key.Length == 0))
+            if((state == ParseStateKey && key.Length != 0) ||(state == ParseStateValue && key.Length == 0))
             {
                 Util.getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
                 return;
             }
-            else if (key.Length == 0)
+            else if(key.Length == 0)
             {
                 return;
             }
@@ -640,20 +640,20 @@ namespace Ice
         private void loadConfig()
         {
             string val = getProperty("Ice.Config");
-            if (val.Length == 0 || val.Equals("1"))
+            if(val.Length == 0 || val.Equals("1"))
             {
                 string s = Environment.GetEnvironmentVariable("ICE_CONFIG");
-                if (s != null && s.Length != 0)
+                if(s != null && s.Length != 0)
                 {
                     val = s;
                 }
             }
 
-            if (val.Length > 0)
+            if(val.Length > 0)
             {
                 char[] separator = { ',' };
                 string[] files = val.Split(separator);
-                for (int i = 0; i < files.Length; i++)
+                for(int i = 0; i < files.Length; i++)
                 {
                     load(files[i].Trim());
                 }
