@@ -1933,6 +1933,10 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             {
                 // Expected on some platforms.
             }
+            catch(const SecurityException&)
+            {
+                // Expected for Schannel.
+            }
             catch(const LocalException& ex)
             {
                 cerr << ex << endl;
