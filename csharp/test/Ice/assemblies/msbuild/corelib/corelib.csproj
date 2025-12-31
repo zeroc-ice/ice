@@ -2,29 +2,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../../../../msbuild/ice.common.props" />
   <PropertyGroup>
-    <AssemblyName>user</AssemblyName>
+    <AssemblyName>core</AssemblyName>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <OutputPath>.</OutputPath>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
-  <ItemDefinitionGroup>
-    <SliceCompile>
-      <IncludeDirectories>../..</IncludeDirectories>
-    </SliceCompile>
-  </ItemDefinitionGroup>
   <ItemGroup>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="../../User.ice" />
+    <SliceCompile Include="../../Core.ice" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../corelib/corelib.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="generated\User.cs">
-      <SliceCompileSource>../../User.ice</SliceCompileSource>
+    <Compile Include="generated\Core.cs">
+      <SliceCompileSource>../../Core.ice</SliceCompileSource>
     </Compile>
   </ItemGroup>
   <Choose>

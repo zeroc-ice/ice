@@ -79,8 +79,8 @@
   <Folder Name="/test/Ice/assemblies/msbuild/client/">
     <Project Path="../test/Ice/assemblies/msbuild/client/client.csproj" />
   </Folder>
-  <Folder Name="/test/Ice/assemblies/msbuild/core/">
-    <Project Path="../test/Ice/assemblies/msbuild/core/core.csproj" />
+  <Folder Name="/test/Ice/assemblies/msbuild/corelib/">
+    <Project Path="../test/Ice/assemblies/msbuild/corelib/corelib.csproj" />
   </Folder>
   <Folder Name="/test/Ice/assemblies/msbuild/user/">
     <Project Path="../test/Ice/assemblies/msbuild/user/user.csproj" />
