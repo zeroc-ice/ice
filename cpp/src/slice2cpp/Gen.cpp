@@ -6219,17 +6219,21 @@ Slice::Gen::Cpp11DeclVisitor::visitClassDefStart(const ClassDefPtr& p)
         allOpNames.sort();
         allOpNames.unique();
 
-        C << nl << "const ::std::string iceC" << p->flattenedScope() << p->name() << "_ops[] =";
-        C << sb;
-        for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
+        if(allOpNames.size() > 4)
         {
-            C << nl << '"' << *q << '"';
-            if(++q != allOpNames.end())
+            C << nl << "const ::std::string iceC" << p->flattenedScope() << p->name() << "_ops[] =";
+            C << sb;
+            for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
             {
-                C << ',';
+                C << nl << '"' << *q << '"';
+                if(++q != allOpNames.end())
+                {
+                    C << ',';
+                }
             }
+            C << eb << ';';
         }
-        C << eb << ';';
+        // else, we don't use the ops array.
     }
 
     return true;
