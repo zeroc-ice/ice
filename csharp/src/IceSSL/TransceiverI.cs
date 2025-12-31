@@ -441,7 +441,6 @@ namespace IceSSL
                 e.reason = ex.Message;
                 throw e;
             }
-#if NET45
             catch (System.ComponentModel.Win32Exception ex)
             {
                 // This error code correspond to SChannel SEC_E_ALGORITHM_MISMATCH. The client and server cannot
@@ -452,7 +451,6 @@ namespace IceSSL
                 }
                 throw new Ice.SyscallException(ex);
             }
-#endif
             catch (Exception ex)
             {
                 throw new Ice.SyscallException(ex);
@@ -765,7 +763,6 @@ namespace IceSSL
                     }
                 }
 
-#if NETSTANDARD2_0
                 try
                 {
                     chain.Dispose();
@@ -773,7 +770,6 @@ namespace IceSSL
                 catch(Exception)
                 {
                 }
-#endif
             }
         }
         private int getSendPacketSize(int length)

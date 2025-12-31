@@ -6,33 +6,14 @@ import sys, os
 from Util import *
 from Component import component
 
-class IceBox(ProcessFromBinDir, Server):
 
+class IceBox(ProcessFromBinDir, Server):
     def __init__(self, configFile=None, *args, **kargs):
         Server.__init__(self, *args, **kargs)
         self.configFile = configFile
 
     def setup(self, current):
-        mapping = self.getMapping(current)
-
-        #
-        # If running IceBox tests with non default framework we need to generate a custom config
-        # file.
-        #
-        if self.configFile:
-            if isinstance(mapping, CSharpMapping) and current.config.dotnet:
-                configFile = self.configFile.format(testdir=current.testsuite.getPath())
-                with open(configFile, 'r') as source:
-                    framework = mapping.getTargetFramework(current)
-                    libframework = mapping.getLibTargetFramework(current)
-                    newConfigFile = "{}.{}".format(configFile, framework)
-                    with open(newConfigFile, 'w') as target:
-                        for line in source.readlines():
-                            line = line.replace("\\net45\\", "\\netstandard2.0\\{0}\\".format(libframework))
-                            if "\\" != os.sep:
-                                line = line.replace("\\", os.sep)
-                            target.write(line)
-                        current.files.append(newConfigFile)
+        pass
 
     def getExe(self, current):
         mapping = self.getMapping(current)
@@ -58,15 +39,11 @@ class IceBox(ProcessFromBinDir, Server):
     def getEffectiveArgs(self, current, args):
         args = Server.getEffectiveArgs(self, current, args)
         if self.configFile:
-            mapping = self.getMapping(current)
-            if isinstance(mapping, CSharpMapping) and current.config.dotnet:
-                args.append("--Ice.Config={0}.{1}".format(self.configFile, mapping.getTargetFramework(current)))
-            else:
-                args.append("--Ice.Config={0}".format(self.configFile))
+            args.append("--Ice.Config={0}".format(self.configFile))
         return args
 
-class IceBoxAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, Client):
 
+class IceBoxAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, Client):
     def getMapping(self, current):
         # IceBox admin is only provided with the C++/Java, not C#
         mapping = Client.getMapping(self, current)

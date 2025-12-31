@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using Microsoft.Win32;
 
 namespace Ice
@@ -309,8 +310,8 @@ namespace Ice
 
         public void load(string file)
         {
-#if NET45
-            if(file.StartsWith("HKCU\\", StringComparison.Ordinal) ||
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+	       file.StartsWith("HKCU\\", StringComparison.Ordinal) ||
                file.StartsWith("HKLM\\", StringComparison.Ordinal))
             {
                 RegistryKey key =
@@ -334,7 +335,6 @@ namespace Ice
             }
             else
             {
-#endif
                 try
                 {
                     using(System.IO.StreamReader sr = new System.IO.StreamReader(file))
@@ -348,9 +348,7 @@ namespace Ice
                     fe.path = file;
                     throw fe;
                 }
-#if NET45
             }
-#endif
         }
 
         public Properties ice_clone_()

@@ -11,16 +11,6 @@ namespace Ice
     using System.Runtime.InteropServices;
     using System.Threading;
 
-#if NET45
-    internal static class SafeNativeMethods
-    {
-        [DllImport("kernel32.dll")]
-        [return: MarshalAsAttribute(UnmanagedType.Bool)]
-        internal static extern bool
-        SetConsoleCtrlHandler(CtrlCEventHandler eh, [MarshalAsAttribute(UnmanagedType.Bool)]bool add);
-    }
-#endif
-
     /// <summary>
     /// The signal policy for Ice.Application signal handling.
     /// </summary>
@@ -226,7 +216,7 @@ namespace Ice
         }
 
         /// <summary>
-        /// Returns the application name (which is also the value of Ice.ProgramName.
+        /// Returns the application name(which is also the value of Ice.ProgramName.
         /// This method is useful mainly for error messages that
         /// include the application name. Because appName is a static method, it is available from anywhere
         /// in the program.
@@ -724,28 +714,6 @@ namespace Ice
 
         private class WindowsSignals : Signals
         {
-#if NET45
-            public void register(SignalHandler handler)
-            {
-                _handler = handler;
-                _callback = new CtrlCEventHandler(callback);
-
-                bool rc = SafeNativeMethods.SetConsoleCtrlHandler(_callback, true);
-                Debug.Assert(rc);
-            }
-
-            public void destroy()
-            {
-            }
-
-            private CtrlCEventHandler _callback;
-
-            private bool callback(int sig)
-            {
-                _handler(sig);
-                return true;
-            }
-#else
             public void register(SignalHandler handler)
             {
                 _handler = handler;
@@ -759,10 +727,8 @@ namespace Ice
             public void destroy()
             {
             }
-#endif
+
             private SignalHandler _handler;
         }
     }
-
-    delegate bool CtrlCEventHandler(int sig);
 }
