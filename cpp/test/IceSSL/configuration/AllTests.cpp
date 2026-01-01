@@ -1911,14 +1911,14 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-            initData.properties->setProperty("IceSSL.Protocols", "tls1_1");
+            initData.properties->setProperty("IceSSL.Protocols", "tls1_2");
             CommunicatorPtr comm = initialize(initData);
 
             Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
             d["IceSSL.VerifyPeer"] = "0";
-            d["IceSSL.Protocols"] = "tls1_2";
+            d["IceSSL.Protocols"] = "tls1_3";
             Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
@@ -1932,10 +1932,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             catch(const ConnectionLostException&)
             {
                 // Expected on some platforms.
-            }
-            catch(const SecurityException&)
-            {
-                // Expected for Schannel.
             }
             catch(const LocalException& ex)
             {
@@ -1953,7 +1949,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             test(fact);
             d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
             d["IceSSL.VerifyPeer"] = "0";
-            d["IceSSL.Protocols"] = "tls1_1, tls1_2";
+            d["IceSSL.Protocols"] = "tls1_2, tls1_3";
             server = fact->createServer(d);
             try
             {
@@ -1961,16 +1957,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             }
             catch(const LocalException& ex)
             {
-                //
-                // OpenSSL < 1.0 doesn't support tls 1.1 so it will fail, we ignore the error in this case.
-                //
-#   ifdef ICE_USE_OPENSSL
-                if(openSSLVersion < 0x1000000)
-#   endif
-                {
-                    cerr << ex << endl;
-                    test(false);
-                }
+               cerr << ex << endl;
+               test(false);
             }
             fact->destroyServer(server);
             comm->destroy();
