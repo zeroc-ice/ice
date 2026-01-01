@@ -1957,8 +1957,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             }
             catch(const LocalException& ex)
             {
-               cerr << ex << endl;
-               test(false);
+                cerr << ex << endl;
+                test(false);
             }
             fact->destroyServer(server);
             comm->destroy();
