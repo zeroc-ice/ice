@@ -33,10 +33,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup .NET Framework
-        uses: ./.github/actions/setup-dotnet-framework
-        if: runner.os == 'Windows'
-
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
@@ -61,5 +57,4 @@ jobs:
         uses: ./.github/actions/test
         timeout-minutes: 45
         with:
-          # TODO: Filter out IceSSL/configuration see https://github.com/zeroc-ice/ice/issues/4805
-          flags: "--all --rfilter IceSSL/configuration"
+          flags: "--all"

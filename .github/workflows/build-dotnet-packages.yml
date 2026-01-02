@@ -19,9 +19,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: ./.github/actions/setup-dotnet
-
       - name: Ice Package Version
         if: ${{ inputs.ice_version != '' }}
         run: |
