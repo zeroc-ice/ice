@@ -45,6 +45,11 @@ jobs:
       - name: Setup Java
         uses: ./.github/actions/setup-java
 
+      - name: Set Build Configurations
+        run: echo "CONFIGS=shared cpp11-shared" >> $GITHUB_ENV
+        shell: bash
+        if: runner.os != 'Windows'
+
       - name: Build ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/build
         timeout-minutes: 90
@@ -58,3 +63,12 @@ jobs:
         timeout-minutes: 45
         with:
           flags: "--all"
+
+      - name: Test C++11 on ${{ matrix.os }}
+        uses: ./.github/actions/test
+        timeout-minutes: 45
+        with:
+          working_directory: cpp
+          flags: >-
+            --all
+            --config ${{ runner.os == 'Windows' && 'Cpp11-Release' || 'cpp11-shared' }}
