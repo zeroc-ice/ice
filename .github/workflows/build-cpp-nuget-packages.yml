@@ -44,7 +44,7 @@ jobs:
       - name: Ice Package Version
         if: ${{ inputs.ice_version != '' }}
         run: |
-          $nuspecPath = "csharp\msbuild\zeroc.ice.${{ matrix.platform-toolset}}.nuspec"
+          $nuspecPath = "cpp\msbuild\zeroc.ice.${{ matrix.platform-toolset}}.nuspec"
           $nuspec = Get-Content $nuspecPath
           $nuspec -replace '<version>.*</version>', '<version>${{ inputs.ice_version }}</version>' `
             | Set-Content $nuspecPath
