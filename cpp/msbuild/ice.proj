@@ -33,7 +33,7 @@
     <Choose>
         <When Condition="'$(DefaultPlatformToolset)' == 'v100' OR '$(DefaultPlatformToolset)' == 'v110'">
             <PropertyGroup>
-                <IceDistSln>ice.$(DefaultPlatformToolset).sln</IceDistSln>
+                <IceDistSln>$(IceDistSln)</IceDistSln>
             </PropertyGroup>
         </When>
         <Otherwise>
@@ -83,16 +83,16 @@
             </PropertyGroup>
             <!-- Ice for C++ configurations -->
             <ItemGroup>
-                <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
+                <DistSolution Include="$(IceDistSln)">
                     <Properties>Configuration=Debug;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
-                <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
+                <DistSolution Include="$(IceDistSln)">
                     <Properties>Configuration=Debug;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
-                <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
+                <DistSolution Include="$(IceDistSln)">
                     <Properties>Configuration=Release;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
-                <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
+                <DistSolution Include="$(IceDistSln)">
                     <Properties>Configuration=Release;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
             </ItemGroup>
@@ -167,7 +167,7 @@
             </PropertyGroup>
             <!-- Ice for C++98 configurations -->
             <ItemGroup>
-                <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
+                <DistSolution Include="$(IceDistSln)">
                     <Properties>Configuration=$(Configuration);Platform=$(Platform);VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
 
