@@ -239,8 +239,7 @@
     </Target>
 
     <!-- Create nuget packages -->
-    <Target Name="NuGetPack"
-            DependsOnTargets="BuildDist">
+    <Target Name="NuGetPack">
 
         <RemoveDir Directories="zeroc.ice.$(DefaultPlatformToolset)" />
 
