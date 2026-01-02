@@ -66,7 +66,7 @@ jobs:
       - name: Upload C++ Build
         uses: actions/upload-artifact@v4
         with:
-          name: windows-cpp${{matrix.platform-toolset}}-${{ matrix.platform }}-${{ matrix.configuration }}-build
+          name: windows-cpp-${{matrix.platform-toolset}}-${{ matrix.platform }}-${{ matrix.configuration }}-build
           path: |
             cpp/bin/${{ matrix.platform }}/${{ matrix.configuration }}/
             cpp/lib/${{ matrix.platform }}/${{ matrix.configuration }}/
