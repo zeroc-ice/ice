@@ -1,0 +1,2 @@
+libzeroc-icestorm3.7: package-name-doesnt-match-sonames *
+libzeroc-icestorm3.7: package-name-doesnt-match-sonames libzeroc-icestorm3.7

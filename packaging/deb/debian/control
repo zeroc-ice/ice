@@ -44,7 +44,7 @@ Multi-Arch: same
 Section: libdevel
 Replaces: libice++-dev,
           libzeroc-ice35-dev
-Depends: libzeroc-ice3.7t64 (= ${binary:Version}),
+Depends: libzeroc-ice3.7 (= ${binary:Version}),
          zeroc-ice-compilers (= ${binary:Version}),
          zeroc-ice-slice (= ${source:Version}),
          ${misc:Depends}
@@ -70,8 +70,7 @@ Description: Ice for Java run-time libraries.
  network programming interfaces and allows you to focus your efforts on
  your application logic.
 
-Package: libzeroc-ice3.7t64
-Provides: ${t64:Provides}
+Package: libzeroc-ice3.7
 Replaces: libzeroc-ice3.7
 Breaks: libzeroc-ice3.7 (<< ${source:Version})
 Architecture: any
@@ -89,15 +88,14 @@ Description: C++ run-time libraries for the Ice framework
  network programming interfaces and allows you to focus your efforts on
  your application logic.
 
-Package: libzeroc-icestorm3.7t64
-Provides: ${t64:Provides}
+Package: libzeroc-icestorm3.7
 Replaces: libzeroc-icestorm3.7
 Breaks: libzeroc-icestorm3.7 (<< ${source:Version})
 Architecture: any
 Multi-Arch: same
 Section: net
 Pre-Depends: ${misc:Pre-Depends}
-Depends: libzeroc-ice3.7t64 (= ${binary:Version}),
+Depends: libzeroc-ice3.7 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: IceStorm publish-subscribe event distribution service
@@ -117,7 +115,7 @@ Description: IceStorm publish-subscribe event distribution service
 Package: php-zeroc-ice
 Architecture: any
 Section: php
-Depends: libzeroc-ice3.7t64 (= ${binary:Version}),
+Depends: libzeroc-ice3.7 (= ${binary:Version}),
          ${misc:Depends},
          ${php:Depends},
          ${shlibs:Depends}
@@ -133,7 +131,7 @@ Description: PHP extension for Ice
 Package: python3-zeroc-ice
 Architecture: any
 Section: python
-Depends: libzeroc-ice3.7t64 (= ${binary:Version}),
+Depends: libzeroc-ice3.7 (= ${binary:Version}),
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}
@@ -151,7 +149,7 @@ Multi-Arch: foreign
 Section: net
 Replaces: glacier2,
           ice35-services
-Depends: libzeroc-ice3.7t64 (= ${binary:Version}),
+Depends: libzeroc-ice3.7 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: Glacier2 router
@@ -185,8 +183,8 @@ Package: zeroc-ice-all-runtime
 Architecture: all
 Section: net
 Depends: libzeroc-ice3.7-java (= ${source:Version}),
-         libzeroc-ice3.7t64 (>= ${source:Version}),
-         libzeroc-icestorm3.7t64 (>= ${source:Version}),
+         libzeroc-ice3.7 (>= ${source:Version}),
+         libzeroc-icestorm3.7 (>= ${source:Version}),
          php-zeroc-ice (>= ${source:Version}),
          python3-zeroc-ice (>= ${source:Version}),
          zeroc-glacier2 (>= ${source:Version}),
@@ -210,7 +208,7 @@ Package: zeroc-ice-compilers
 Architecture: any
 Multi-Arch: foreign
 Section: devel
-Depends: libzeroc-ice3.7t64 (= ${binary:Version}),
+Depends: libzeroc-ice3.7 (= ${binary:Version}),
          zeroc-ice-slice (= ${source:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
@@ -239,8 +237,8 @@ Package: zeroc-ice-utils
 Architecture: any
 Multi-Arch: foreign
 Section: admin
-Depends: libzeroc-ice3.7t64 (= ${binary:Version}),
-         libzeroc-icestorm3.7t64 (= ${binary:Version}),
+Depends: libzeroc-ice3.7 (= ${binary:Version}),
+         libzeroc-icestorm3.7 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: Ice utilities and admin tools
@@ -275,7 +273,7 @@ Package: zeroc-icebox
 Architecture: any
 Multi-Arch: foreign
 Section: net
-Depends: libzeroc-ice3.7t64 (= ${binary:Version}),
+Depends: libzeroc-ice3.7 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: IceBox server, a framework for Ice application services
@@ -293,8 +291,8 @@ Multi-Arch: foreign
 Section: net
 Replaces: ice35-services,
           icegrid
-Depends: libzeroc-ice3.7t64 (= ${binary:Version}),
-         libzeroc-icestorm3.7t64 (= ${binary:Version}),
+Depends: libzeroc-ice3.7 (= ${binary:Version}),
+         libzeroc-icestorm3.7 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: Locate, deploy, and manage Ice servers
@@ -312,7 +310,7 @@ Multi-Arch: foreign
 Section: net
 Replaces: ice35-services,
           icepatch2
-Depends: libzeroc-ice3.7t64 (= ${binary:Version}),
+Depends: libzeroc-ice3.7 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: File distribution and patching
@@ -329,7 +327,7 @@ Package: zeroc-icebridge
 Architecture: any
 Multi-Arch: foreign
 Section: net
-Depends: libzeroc-ice3.7t64 (= ${binary:Version}),
+Depends: libzeroc-ice3.7 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: Bridge service

@@ -1,0 +1,18 @@
+Description: remove -Werror build option to fix FSBFS issue
+ During the time_t 64bit transition the "implicit-function-declaration" build
+ flag is injected and this breaks the build when -Werror is set
+Author: Christopher Knadle <Chris.Knadle@coredump.us>
+Bug: https://bugs.debian.org/1067911
+Last-Update: 2024-04-10
+
+--- a/config/Make.rules.Linux
++++ b/config/Make.rules.Linux
+@@ -137,7 +137,7 @@
+         -pie $(if $(filter yes,$(new_dtags)),-Wl$(comma)--enable-new-dtags,-Wl$(comma)--disable-new-dtags) \
+         $$(call unique,$$(foreach d,$($4_dependencies),$$(call make-rpath-link-ldflags,$$d,$($4_dependencies)))))
+ 
+-cppflags        = -Wall -Wextra -Wredundant-decls -Wshadow -Wdeprecated -Werror -pthread $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)
++cppflags        = -Wall -Wextra -Wredundant-decls -Wshadow -Wdeprecated -pthread $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)
+ ldflags         = -pthread
+ 
+ # -Wshadow is too strict with gcc 4
