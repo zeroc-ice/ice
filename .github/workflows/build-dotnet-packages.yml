@@ -34,7 +34,7 @@ jobs:
 
       - name: Pack .NET Packages
         run: |
-          msbuild csharp\msbuild\ice.proj /t:BuildDist /p:Configuration=Release
+          msbuild csharp\msbuild\ice.proj /t:BuildDist /p:Configuration=Release /p:Platform=x64
 
       - name: Collect Files to Sign
         run: |
