@@ -33,7 +33,7 @@
     <Choose>
         <When Condition="'$(DefaultPlatformToolset)' == 'v100' OR '$(DefaultPlatformToolset)' == 'v120'">
             <PropertyGroup>
-                <IceDistSln>$(IceDistSln)</IceDistSln>
+                <IceDistSln>ice.$(DefaultPlatformToolset).sln</IceDistSln>
             </PropertyGroup>
         </When>
         <Otherwise>
