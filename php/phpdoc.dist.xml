@@ -4,12 +4,12 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://www.phpdoc.org"
 >
-    <title>Ice 3.8 PHP API Reference</title>
+    <title>Ice 3.9 PHP API Reference</title>
     <paths>
         <output>doc/api</output>
         <cache>doc/cache</cache>
     </paths>
-    <version number="3.8">
+    <version number="3.9">
         <folder>latest</folder>
         <api>
             <source dsn=".">
