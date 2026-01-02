@@ -3878,7 +3878,7 @@ class SwiftMapping(Mapping):
                           -sdk {2}".format(self.getXcodeProject(current),
                                            current.config.buildConfig,
                                            current.config.buildPlatform)
-        targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
+        targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
 
         testDriver = os.path.join(targetBuildDir, "TestDriver.app")
         if not os.path.exists(testDriver):
