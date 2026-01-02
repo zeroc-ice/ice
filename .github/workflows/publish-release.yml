@@ -1,0 +1,44 @@
+name: "Publish Ice Release"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The release channel (e.g., 3.9, 3.8)"
+        required: true
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
+        required: true
+        default: "nightly"
+      run_id:
+        description: "The GitHub run ID to use for artifacts"
+        required: true
+
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      quality:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+  publish-maven-packages:
+    uses: ./.github/workflows/publish-maven-packages.yml
+    with:
+      channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
+
+  publish-nuget-packages:
+    uses: ./.github/workflows/publish-nuget-packages.yml
+    with:
+      channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
