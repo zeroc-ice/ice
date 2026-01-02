@@ -1989,12 +1989,13 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     out << nl << "class " << name << "(" << getImportAlias(p, "enum", "Enum") << "):";
     out.inc();
 
-    writeEnumDocstring(p, out);
+    writeDocstring(p, out, "enum class");
 
-    out << nl;
     for (const auto& enumerator : enumerators)
     {
+        out << sp;
         out << nl << enumerator->mappedName() << " = " << enumerator->value();
+        writeEnumeratorDocstring(enumerator, out);
     }
 
     out.dec();
@@ -2310,18 +2311,12 @@ Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, c
         }
     }
 
-    out << nl << tripleQuotes;
-
     StringList overview;
     StringList remarks;
     StringList seeAlso;
     if (comment)
     {
         overview = comment->overview();
-        for (const auto& line : overview)
-        {
-            out << nl << line;
-        }
         remarks = comment->remarks();
         seeAlso = comment->seeAlso();
     }
@@ -2333,6 +2328,13 @@ Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, c
     remarks.push_back(
         "The Slice compiler generated this " + generatedType + " from Slice " + p->kindOf() + " ``" + p->scoped() +
         "``.");
+
+    out << nl << tripleQuotes;
+
+    for (const auto& line : overview)
+    {
+        out << nl << line;
+    }
 
     // Only emit Attributes if there's a docstring for at least one field.
     if (!fieldDocs.empty())
@@ -2364,74 +2366,26 @@ Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, c
 }
 
 void
-Slice::Python::CodeVisitor::writeEnumDocstring(const EnumPtr& p, Output& out)
+Slice::Python::CodeVisitor::writeEnumeratorDocstring(const EnumeratorPtr& p, Output& out)
 {
     const optional<DocComment>& comment = p->docComment();
-
-    // Collect docstrings (if any) for the enumerators.
-    const EnumeratorList& enumerators = p->enumerators();
-    map<string, list<string>> docs;
-    for (const auto& enumerator : enumerators)
+    if (!comment)
     {
-        if (const auto& enumeratorDoc = enumerator->docComment())
-        {
-            const StringList& enumeratorOverview = enumeratorDoc->overview();
-            if (!enumeratorOverview.empty())
-            {
-                docs[enumerator->name()] = enumeratorOverview;
-            }
-        }
+        return;
     }
-
-    StringList overview;
-    StringList remarks;
-    StringList seeAlso;
-
-    if (comment)
-    {
-        overview = comment->overview();
-        remarks = comment->remarks();
-        seeAlso = comment->seeAlso();
-    }
-    if (!remarks.empty())
-    {
-        remarks.emplace_back(""); // empty line
-    }
-    remarks.push_back(
-        "The Slice compiler generated this enum class from Slice " + p->kindOf() + " ``" + p->scoped() + "``.");
 
     out << nl << tripleQuotes;
+
+    StringList overview = comment->overview();
+    StringList remarks = comment->remarks();
+    StringList seeAlso = comment->seeAlso();
 
     for (const auto& line : overview)
     {
         out << nl << line;
     }
-
-    // Only emit enumerators if there's a docstring for at least one enumerator.
-    if (!docs.empty())
-    {
-        if (!overview.empty())
-        {
-            out << nl;
-        }
-        out << nl << "Enumerators:";
-        for (const auto& enumerator : enumerators)
-        {
-            out << nl << nl << "- " << enumerator->mappedName();
-            auto q = docs.find(enumerator->name());
-            if (q != docs.end())
-            {
-                out << ":"; // Only emit a trailing ':' if there's documentation to emit for it.
-                for (const auto& line : q->second)
-                {
-                    out << nl << "    " << line;
-                }
-            }
-        }
-    }
-
-    writeRemarksDocComment(remarks, !overview.empty() || !docs.empty(), out);
-    writeSeeAlso(seeAlso, !overview.empty() || !docs.empty() || !remarks.empty(), out);
+    writeRemarksDocComment(remarks, !overview.empty(), out);
+    writeSeeAlso(seeAlso, !overview.empty() || !remarks.empty(), out);
     out << nl << tripleQuotes;
 }
 

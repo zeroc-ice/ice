@@ -458,7 +458,7 @@ namespace Slice::Python
 
         void writeDocstring(const ContainedPtr& p, IceInternal::Output& out, const std::string& generatedType);
 
-        void writeEnumDocstring(const EnumPtr&, IceInternal::Output&);
+        void writeEnumeratorDocstring(const EnumeratorPtr& p, IceInternal::Output& out);
 
         void writeOpDocstring(const OperationPtr&, MethodKind, IceInternal::Output&);
 
