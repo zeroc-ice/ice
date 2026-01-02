@@ -1,0 +1,18 @@
+#!/bin/sh
+# postrm script for zeroc-icegrid
+set -e
+
+if [ "$1" = "purge" ]; then
+    # We remove /var/lib/ice/icegrid
+    rm -rf /var/lib/ice/icegrid
+
+    # Remove /var/lib/ice/icegrid
+    for i in icegrid icegrid/node1 icegrid/registry
+    do
+        dpkg-statoverride --remove /var/lib/ice/$i >/dev/null 2>/dev/null || true
+    done
+fi
+
+#DEBHELPER#
+
+exit 0

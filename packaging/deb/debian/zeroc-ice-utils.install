@@ -1,0 +1,14 @@
+usr/bin/iceboxadmin
+usr/bin/icegridadmin
+usr/bin/icegriddb
+usr/bin/icepatch2calc
+usr/bin/icepatch2client
+usr/bin/icestormadmin
+usr/bin/icestormdb
+usr/share/man/man1/iceboxadmin.1
+usr/share/man/man1/icegridadmin.1
+usr/share/man/man1/icegriddb.1
+usr/share/man/man1/icepatch2calc.1
+usr/share/man/man1/icepatch2client.1
+usr/share/man/man1/icestormadmin.1
+usr/share/man/man1/icestormdb.1

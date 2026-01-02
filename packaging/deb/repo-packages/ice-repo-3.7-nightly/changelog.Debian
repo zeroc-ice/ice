@@ -1,0 +1,5 @@
+ice-repo-3.7-nightly (1.0.0) unstable; urgency=medium
+
+  * Initial release of Ice 3.7 nightly APT repository configuration.
+
+ -- ZeroC, Inc. <info@zeroc.com>  Thu, 01 Jan 2026 00:00:00 +0000

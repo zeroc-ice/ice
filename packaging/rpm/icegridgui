@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Copyright (c) ZeroC, Inc. All rights reserved.
+
+exec java -cp `build-classpath icegridgui` com.zeroc.IceGridGUI.Main $@

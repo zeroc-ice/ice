@@ -1,0 +1,42 @@
+--- a/java/build.gradle
++++ b/java/build.gradle
+@@ -30,11 +30,6 @@
+         mavenCentral()
+     }
+ 
+-    // Only enable infer module path with Java 9 and up
+-    java {
+-        modularity.inferModulePath = targetJavaRelease.toInteger() > 8
+-    }
+-
+     jar {
+         manifest {
+             attributes("Built-By": "ZeroC, Inc.")
+--- a/java/src/IceGridGUI/plain-jar.gradle
++++ b/java/src/IceGridGUI/plain-jar.gradle
+@@ -3,7 +3,11 @@
+ //
+ 
+ task copyTmpJars(type: Copy) {
+-    from jar.archiveFile
++    if (GradleVersion.current() >= GradleVersion.version('8.0')) {
++        from jar.archiveFile
++    } else {
++        from jar.baseName
++    }
+     into "${libDir}"
+     rename("${tmpJarName}", "${jarName}")
+ 
+--- a/java/test/plugins/build.gradle
++++ b/java/test/plugins/build.gradle
+@@ -22,8 +22,8 @@
+         archiveFileName = "IceTestPlugins.jar"
+         destinationDirectory = new File("$rootProject.projectDir/lib/")
+     } else {
+-        archiveFileName = "IceTestPlugins.jar"
+-        destinationDirectory = new File("$rootProject.projectDir/lib/")
++        archiveName = "IceTestPlugins.jar"
++        destinationDir = new File("$rootProject.projectDir/lib/")
+     }
+ }
+ 

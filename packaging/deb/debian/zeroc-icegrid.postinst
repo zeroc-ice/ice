@@ -1,0 +1,16 @@
+#!/bin/sh
+# postinst script for zeroc-icegrid
+set -e
+
+if [ "$1" = "configure" ]; then
+    for i in icegrid icegrid/node1 icegrid/registry
+    do
+        if ! dpkg-statoverride --list /var/lib/ice/$i >/dev/null; then
+    	   dpkg-statoverride --update --add ice adm 0770 /var/lib/ice/$i >/dev/null 2>/dev/null || true
+        fi
+    done
+fi
+
+#DEBHELPER#
+
+exit 0
