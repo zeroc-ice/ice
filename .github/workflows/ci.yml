@@ -77,4 +77,4 @@ jobs:
             --all
             --config ${{ runner.os == 'Windows' && 'Cpp11-Release' || 'cpp11-shared' }}
             --rfilter IceSSL/configuration
-            --rfilter IceGrid/replication"
+            --rfilter IceGrid/replication
