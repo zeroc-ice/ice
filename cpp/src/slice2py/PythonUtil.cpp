@@ -2376,7 +2376,7 @@ Slice::Python::CodeVisitor::writeEnumeratorDocstring(const EnumeratorPtr& p, Out
 
     out << nl << tripleQuotes;
 
-    StringList overview = comment->overview();;
+    StringList overview = comment->overview();
     StringList remarks = comment->remarks();
     StringList seeAlso = comment->seeAlso();
 
