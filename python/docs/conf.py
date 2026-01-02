@@ -69,6 +69,7 @@ autodoc_typehints = "both"
 autodoc_typehints_description_target = "all"
 add_module_names = True
 python_use_unqualified_type_names = False
+autodoc_member_order = "bysource"
 
 # =============================================================================
 # Intersphinx Configuration
