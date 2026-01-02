@@ -19,6 +19,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Required to build the Slice compilers, and to get MSBuild.
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
       - name: Ice Package Version
         if: ${{ inputs.ice_version != '' }}
         run: |
