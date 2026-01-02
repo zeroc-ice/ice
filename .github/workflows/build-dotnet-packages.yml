@@ -19,6 +19,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Required to build the Slice compilers, and to get MSBuild.
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
       - name: Ice Package Version
         if: ${{ inputs.ice_version != '' }}
         run: |
@@ -30,15 +34,20 @@ jobs:
 
       - name: Pack .NET Packages
         run: |
-          msbuild csharp\msbuild\ice.proj /t:BuildDist /p:Configuration=Release
+          msbuild csharp\msbuild\ice.proj /t:BuildDist /p:Configuration=Release /p:Platform=x64
 
       - name: Collect Files to Sign
+        shell: pwsh
         run: |
-          Get-ChildItem -Path csharp\lib, csharp\bin -Recurse -Filter *.dll | ForEach-Object {
-              $_.FullName
-          } | Set-Content -Path ${{ github.workspace }}\catalog.txt -Encoding UTF8
-          Add-Content -Path "${{ github.workspace }}\catalog.txt" -Value "cpp\bin\x64\Release\slice2cs.exe"
-          Add-Content -Path "${{ github.workspace }}\catalog.txt" -Value "cpp\bin\x64\Release\slice2html.exe"
+          $root = "${{ github.workspace }}"
+
+          Get-ChildItem -Path "$root\cpp\bin", "$root\csharp\lib", "$root\csharp\bin" `
+            -Recurse `
+            -Include *.dll,*.exe `
+            -File | `
+          ForEach-Object { $_.FullName.Substring($root.Length + 1) } | `
+          Sort-Object -Unique |
+          Set-Content -Path "$root\catalog.txt" -Encoding UTF8
 
       - name: Sign .NET Assemblies with Trusted Signing
         uses: azure/trusted-signing-action@v0
@@ -55,7 +64,7 @@ jobs:
           timestamp-digest: SHA256
 
       - name: Pack .NET Packages
-        run: msbuild csharp\msbuild\ice.proj /t:NugetPack /p:Configuration=Release
+        run: msbuild csharp\msbuild\ice.proj /t:NugetPack /p:Configuration=Release /p:Platform=x64
 
       - name: Upload NuGet Packages
         uses: actions/upload-artifact@v4

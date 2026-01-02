@@ -49,8 +49,8 @@
     </ItemGroup>
 
     <Target Name="BuildCppDist" DependsOnTargets="NuGetRestore">
-        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"/>
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"/>
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
                  Targets="$(CppDistTargets)"
                  BuildInParallel="true"
                  Properties="Platform=$(Platform);Configuration=$(Configuration)" />
