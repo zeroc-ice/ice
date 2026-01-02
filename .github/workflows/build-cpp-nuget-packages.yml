@@ -44,7 +44,10 @@ jobs:
       - name: Ice Package Version
         if: ${{ inputs.ice_version != '' }}
         run: |
-          "IcePackageVersion=${{ inputs.ice_version }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $nuspecPath = "csharp\msbuild\zeroc.ice.${{ matrix.platform-toolset}}.nuspec"
+          $nuspec = Get-Content $nuspecPath
+          $nuspec -replace '<version>.*</version>', '<version>${{ inputs.ice_version }}</version>' `
+            | Set-Content $nuspecPath
         shell: pwsh
 
       - name: Build C++ NuGet Packages
