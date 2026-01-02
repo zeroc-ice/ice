@@ -39,12 +39,12 @@
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
         <Exec Command="$(NuGetExe) install zeroc.ice.v140 -OutputDirectory $(MSBuildThisFileDirectory)packages -Version $(IceJSONVersion)"
               Condition="'$(ICE_BIN_DIST)' == 'cpp'"/>
-        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
               Condition="'$(ICE_BIN_DIST)' == ''"/>
     </Target>
 
     <Target Name="BuildCppDist" Condition="'$(ICE_BIN_DIST)' == ''" DependsOnTargets="NuGetRestore">
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
                  Targets="c++98\slice2matlab;c++11\ice++11;c++11\icessl++11;c++11\icediscovery++11;c++11\icelocatordiscovery++11"
                  BuildInParallel="true"
                  Properties="Platform=$(Platform);Configuration=$(Configuration)" />
