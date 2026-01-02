@@ -30,6 +30,19 @@
         <OpenSSL>yes</OpenSSL>
     </PropertyGroup>
 
+    <Choose>
+        <When Condition="'$(DefaultPlatformToolset)' == 'v100' OR '$(DefaultPlatformToolset)' == 'v120'">
+            <PropertyGroup>
+                <IceDistSln>ice.$(DefaultPlatformToolset).sln</IceDistSln>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <IceDistSln>ice.sln</IceDistSln>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
+
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
 
@@ -37,7 +50,7 @@
         Restore NuGet packages.
     -->
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
-        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.$(DefaultPlatformToolset).sln"/>
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)$(IceDistSln)"/>
     </Target>
 
     <Target Name="RemovePackages">
@@ -70,16 +83,16 @@
             </PropertyGroup>
             <!-- Ice for C++ configurations -->
             <ItemGroup>
-                <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
+                <DistSolution Include="$(IceDistSln)">
                     <Properties>Configuration=Debug;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
-                <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
+                <DistSolution Include="$(IceDistSln)">
                     <Properties>Configuration=Debug;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
-                <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
+                <DistSolution Include="$(IceDistSln)">
                     <Properties>Configuration=Release;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
-                <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
+                <DistSolution Include="$(IceDistSln)">
                     <Properties>Configuration=Release;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
             </ItemGroup>
@@ -154,7 +167,7 @@
             </PropertyGroup>
             <!-- Ice for C++98 configurations -->
             <ItemGroup>
-                <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
+                <DistSolution Include="$(IceDistSln)">
                     <Properties>Configuration=$(Configuration);Platform=$(Platform);VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
 
@@ -226,8 +239,7 @@
     </Target>
 
     <!-- Create nuget packages -->
-    <Target Name="NuGetPack"
-            DependsOnTargets="BuildDist">
+    <Target Name="NuGetPack" DependsOnTargets="GetNuGet">
 
         <RemoveDir Directories="zeroc.ice.$(DefaultPlatformToolset)" />
 

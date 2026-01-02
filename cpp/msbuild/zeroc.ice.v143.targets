@@ -3,7 +3,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <!-- Use bin and lib directories that match the used platform toolset -->
-    <PropertyGroup Condition="'$(PlatformToolset)' == 'v143'">
+    <PropertyGroup Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(PlatformToolset)', '143'))">
         <IceConfiguration Condition="'$(UseDebugLibraries)' == 'true'">Debug</IceConfiguration>
         <IceConfiguration Condition="'$(UseDebugLibraries)' != 'true'">Release</IceConfiguration>
         <LocalDebuggerEnvironment Condition="'$(LocalDebuggerEnvironment)' == ''">PATH=$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)</LocalDebuggerEnvironment>
@@ -20,7 +20,7 @@
         <_Ice_DLLs_v143 Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\bzip2*.dll"/>
     </ItemGroup>
 
-    <ItemDefinitionGroup Condition="'$(PlatformToolset)' == 'v143'">
+    <ItemDefinitionGroup Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(PlatformToolset)', '143'))">
         <ClCompile>
             <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
         </ClCompile>
@@ -34,7 +34,7 @@
                Condition="'$(IceNugetPackageVersion)' != '3.7.10'" />
     </Target>
 
-    <Target Name="Ice_CopyDLLs_v143" AfterTargets="Build" Condition="'$(PlatformToolset)' == 'v143' and '$(Ice_CopyDLLs)' == 'Yes'">
+    <Target Name="Ice_CopyDLLs_v143" AfterTargets="Build" Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(PlatformToolset)', '143')) and '$(Ice_CopyDLLs)' == 'Yes'">
         <Copy SourceFiles="@(_Ice_DLLs_v143)"
               DestinationFolder="$(OutDir)"
               SkipUnchangedFiles="true"/>

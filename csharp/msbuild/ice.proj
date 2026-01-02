@@ -5,15 +5,6 @@
     <PropertyGroup>
         <CppPlatform Condition="'$(Platform)' == 'x64'">x64</CppPlatform>
         <CppPlatform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Win32'">Win32</CppPlatform>
-
-        <UwpPlatform Condition="'$(Platform)' == 'x64'">x64</UwpPlatform>
-        <UwpPlatform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Win32'">x86</UwpPlatform>
-
-        <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</DefaultPlatformToolset>
-        <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</DefaultPlatformToolset>
-        <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</DefaultPlatformToolset>
-        <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</DefaultPlatformToolset>
-        <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</DefaultPlatformToolset>
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
@@ -45,7 +36,7 @@
                  BuildInParallel="true"
                  Condition="'$(OS)' == 'Windows_NT'"/>
 
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
                  Targets="@(SliceCompilers)"
                  BuildInParallel="true"
                  Properties="Platform=$(CppPlatform);Configuration=$(Configuration)"

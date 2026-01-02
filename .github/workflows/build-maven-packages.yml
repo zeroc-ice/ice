@@ -1,0 +1,53 @@
+name: "Build Maven Packages"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+jobs:
+  build-maven-packages:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup Java
+        uses: ./.github/actions/setup-java
+
+      - name: Update Ice Version
+        run: |
+          sed -i "s/^iceVersion = .*/iceVersion = ${{ inputs.ice_version }}/" java/gradle.properties
+          sed -i "s/^iceVersion = .*/iceVersion = ${{ inputs.ice_version }}/" java-compat/gradle.properties
+        if: ${{ inputs.ice_version != '' }}
+
+      - name: Build Slice Compilers
+        run: make -C cpp slice2java
+
+      - name: Build Ice for Java Packages
+        run: ./gradlew dist
+        working-directory: java
+
+      - name: Build Ice for Java Compat Packages
+        run: ./gradlew dist
+        working-directory: java-compat
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-packages
+          path: |
+            java/lib/*.jar
+            java/lib/*.pom
+            java-compat/lib/*.jar
+            java-compat/lib/*.pom
