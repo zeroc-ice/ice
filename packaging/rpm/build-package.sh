@@ -20,8 +20,30 @@ set -euo pipefail
 : "${GPG_KEY:?GPG_KEY environment variable is not set}"
 : "${GPG_KEY_ID:?GPG_KEY_ID environment variable is not set}"
 
-# mutt GPG tty setting
-export GPG_TTY=$(tty)
+# mutt GPG tty setting (avoid failure in non-interactive shells)
+if tty > /dev/null 2>&1; then
+  export GPG_TTY
+  GPG_TTY=$(tty)
+fi
+
+# Use a temporary keyring to avoid persisting keys in the container
+GNUPGHOME="$(mktemp -d)"
+chmod 700 "$GNUPGHOME"
+export GNUPGHOME
+trap 'rm -rf "$GNUPGHOME"' EXIT
+
+# Enable loopback pinentry when passphrase is provided
+if [[ -n "${GPG_PASSPHRASE:-}" ]]; then
+  {
+    echo "allow-loopback-pinentry"
+  } > "$GNUPGHOME/gpg-agent.conf"
+  {
+    echo "pinentry-mode loopback"
+  } > "$GNUPGHOME/gpg.conf"
+  if command -v gpgconf > /dev/null 2>&1; then
+    gpgconf --kill gpg-agent || true
+  fi
+fi
 
 # Import the GPG key
 echo "$GPG_KEY" | gpg --batch --import
@@ -54,11 +76,19 @@ fi
 cat > ~/.rpmmacros <<EOF
 %_signature gpg
 %_gpg_name $GPG_KEY_ID
-%_gpg_path ~/.gnupg
+%_gpg_path $GNUPGHOME
 %__gpg_check_password_cmd /bin/true
 %__gpg /usr/bin/gpg
 %vendor ZeroC, Inc.
 EOF
+
+# Configure rpmsign to use loopback pinentry when a passphrase is set
+if [[ -n "${GPG_PASSPHRASE:-}" ]]; then
+  cat >> ~/.rpmmacros <<EOF
+%_gpg_passphrase $GPG_PASSPHRASE
+%_gpg_sign_cmd %{__gpg} gpg --batch --no-tty --pinentry-mode loopback --passphrase %{_gpg_passphrase} -u "%{_gpg_name}" -sbo %{__signature_filename} %{__plaintext_filename}
+EOF
+fi
 
 # spectool doesn't read ~/.rpmmacros, so we need to pass these macros explicitly.
 RPM_MACROS=(--define "_topdir $RPM_BUILD_ROOT")

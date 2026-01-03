@@ -67,8 +67,14 @@
    %define runpath embedded_runpath_prefix=%{_prefix}
 %endif
 
-%define makebuildopts CONFIGS="shared cpp11-shared" OPTIMIZE=yes V=1 %{runpath} %{?_smp_mflags}
-%define makeinstallopts CONFIGS="shared cpp11-shared" OPTIMIZE=yes V=1 %{runpath} DESTDIR=%{buildroot} prefix=%{_prefix} install_bindir=%{_bindir} install_libdir=%{_libdir} install_slicedir=%{_datadir}/ice/slice install_includedir=%{_includedir} install_mandir=%{_mandir} install_configdir=%{_datadir}/ice install_javadir=%{_javadir} install_phplibdir=%{phplibdir} install_phpdir=%{phpdir}
+%if "%{dist}" == ".amzn2023"
+   %define javafxargs -PiceGridGuiUseJavaFX=false -PicegridguiProguard=false
+%else
+   %define javafxargs %{nil}
+%endif
+
+%define makebuildopts CONFIGS="shared cpp11-shared" OPTIMIZE=yes V=1 %{runpath} GRADLEARGS="%{javafxargs}" %{?_smp_mflags}
+%define makeinstallopts CONFIGS="shared cpp11-shared" OPTIMIZE=yes V=1 %{runpath} GRADLEARGS="%{javafxargs}" DESTDIR=%{buildroot} prefix=%{_prefix} install_bindir=%{_bindir} install_libdir=%{_libdir} install_slicedir=%{_datadir}/ice/slice install_includedir=%{_includedir} install_mandir=%{_mandir} install_configdir=%{_datadir}/ice install_javadir=%{_javadir} install_phplibdir=%{phplibdir} install_phpdir=%{phpdir}
 
 Name: %{?nameprefix}ice
 Version: 3.7.10
@@ -102,6 +108,10 @@ BuildRequires: pkgconfig(mcpp)
 
 %if "%{dist}" == ".el9"
 BuildRequires: java-11-openjdk-devel java-11-openjdk-jmods
+%endif
+
+%if "%{dist}" == ".amzn2023"
+BuildRequires: java-17-amazon-corretto-devel
 %endif
 
 %ifarch %{_host_cpu}

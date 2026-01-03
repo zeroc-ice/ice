@@ -174,6 +174,8 @@ def run_interactive_session(args: argparse.Namespace) -> int:
     # Build Docker command for interactive session
     docker_cmd = [
         'docker', 'run', '--rm', '-it',
+        '--user', f'{os.getuid()}:{os.getgid()}',
+        '-e', 'HOME=/workspace',
         '-v', f'{output_dir}:/workspace',
         '-v', f'{ice_repo}:/workspace/ice:ro',
         '-w', '/workspace',
@@ -274,6 +276,8 @@ def run_package_build(args: argparse.Namespace) -> int:
     # Build Docker command
     docker_cmd = [
         'docker', 'run', '--rm',
+        '--user', f'{os.getuid()}:{os.getgid()}',
+        '-e', 'HOME=/workspace',
         '-v', f'{output_dir}:/workspace',
         '-v', f'{ice_repo}:/workspace/ice:ro',
         '-e', f'DEBEMAIL={args.email}',
