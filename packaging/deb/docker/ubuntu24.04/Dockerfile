@@ -8,5 +8,6 @@ RUN apt-get update && apt-get install -y \
     dh-exec dh-php dh-python locales-all php-all-dev python3-setuptools \
     javahelper maven-repo-helper \
     build-essential git devscripts curl \
+    default-jdk gradle gradle-ice-builder-plugin libjgoodies-forms-java libjgoodies-looks-java \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
