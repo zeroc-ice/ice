@@ -1,0 +1,33 @@
+ZeroC Ice RPM Distribution
+==========================
+
+The ZeroC Ice RPM distribution includes the following packages.
+
+Currently, the distribution supports RHEL 10, RHEL 9, and Amazon Linux 2023, for both x86_64 and aarch64 architectures.
+
+RPM Package             Description
+----------------------  ---------------------------------------------------------------
+dsnode                  DataStorm server
+glacier2                Glacier2 service
+ice-slice               Slice definition files
+ice-utils               Admin utilities for Ice services
+ice2slice               The Ice to Slice compiler.
+icebox                  IceBox server for C++
+icebridge               IceBridge service
+icegrid                 IceGrid service
+icegridgui              IceGrid GUI application
+icestorm                IceStorm service
+libice-c++-devel        Ice for C++ headers and symlinks, and the Slice compiler for C++
+libice3.8-c++           Ice for C++ runtime libraries (includes plug-ins, DataStorm and client libraries for Ice services)
+php-ice                 Ice for PHP [1]
+php8.4-ice              Ice for PHP [2]
+python3-ice             Ice for Python
+
+[1] Available on RHEL 9 and RHEL 10.
+[2] Available on Amazon Linux 2023 only.
+
+For more information, visit:
+
+- ZeroC website: https://zeroc.com
+- Ice GitHub repository: https://github.com/zeroc-ice/ice
+- Ice Sample Programs: https://github.com/zeroc-ice/ice-demos

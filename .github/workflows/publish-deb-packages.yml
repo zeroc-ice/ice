@@ -1,0 +1,91 @@
+name: "Publish DEB Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The release channel (e.g., 3.9, 3.8)"
+        required: true
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
+        required: true
+        default: "nightly"
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      quality:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: "Publish DEB Packages for ${{ matrix.distribution }}"
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        distribution: [debian12, debian13, ubuntu22.04, ubuntu24.04]
+    env:
+      DISTRIBUTION: ${{ matrix.distribution }}
+      CHANNEL: ${{ inputs.channel }}
+      QUALITY: ${{ inputs.quality }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          path: ice
+
+      - name: Download DEB artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "deb-packages-${DISTRIBUTION}-*" --dir staging
+
+      - name: Create DEB repository
+        run: |
+          if [ "${QUALITY}" = "stable" ]; then
+            UPLOAD_PATH="ice/${CHANNEL}/${DISTRIBUTION}"
+            REPO_PATH="ice/${CHANNEL}"
+          else
+            UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}/${DISTRIBUTION}"
+            REPO_PATH="ice/${QUALITY}/${CHANNEL}"
+          fi
+
+          echo "Syncing current repository from S3..."
+          mkdir -p "${UPLOAD_PATH}"
+          aws s3 sync "s3://zeroc-downloads/${UPLOAD_PATH}" "${UPLOAD_PATH}"
+          echo "Creating/updating repository with new DEB packages..."
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -e GPG_KEY="${GPG_KEY}" \
+            -e GPG_KEY_ID="${GPG_KEY_ID}" \
+            ghcr.io/zeroc-ice/deb-repo-builder:${CHANNEL} \
+            /workspace/ice/packaging/deb/create-deb-repo.sh \
+            --staging /workspace/staging/ \
+            --repository "/workspace/${REPO_PATH}" \
+            --distribution "${DISTRIBUTION}" \
+            --channel "${CHANNEL}" \
+            --quality "${QUALITY}"
+
+          echo "Uploading updated repository to S3..."
+          # We add the repo package to --exclude to avoid deleting it, this package is built by
+          # the build-deb-ice-repo-packages workflow
+          aws s3 sync \
+            "${UPLOAD_PATH}" \
+            "s3://zeroc-downloads/${UPLOAD_PATH}" \
+            --delete \
+            --exclude "ice-repo-*.deb"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          GPG_KEY: ${{ secrets.ICE_3_7_CI_SIGNER_KEY }}
+          GPG_KEY_ID: ${{ secrets.ICE_3_7_CI_SIGNER_KEY_ID }}

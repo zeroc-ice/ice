@@ -1,0 +1,82 @@
+name: "Build DEB Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+      deb_build_options:
+        description: "DEB_BUILD_OPTIONS for the build"
+        required: false
+        default: "nocheck parallel=4"
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+      deb_build_options:
+        type: string
+        required: false
+
+jobs:
+  build:
+    name: "Build for ${{ matrix.distribution }}-${{ matrix.arch }}"
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    strategy:
+      matrix:
+        distribution: [ubuntu22.04, ubuntu24.04, debian12, debian13]
+        arch: [x86_64, aarch64]
+    env:
+      DEB_BUILD_OPTIONS: "nocheck parallel=4"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          path: ice
+
+      - name: Load version info
+        run: |
+          source ice/config/version.env
+          echo "CHANNEL=$CHANNEL" >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: zeroc-ice
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build DEB Packages
+        run: |
+          set -euo pipefail
+
+          # Enable ddeb generation
+          export DH_BUILD_DDEBS=1
+
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -e DEBEMAIL="ci@zeroc.com" \
+            -e DEBFULLNAME="CI" \
+            -e ICE_VERSION=${{ inputs.ice_version }} \
+            -e DH_BUILD_DDEBS="${DH_BUILD_DDEBS}" \
+            -e DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS" \
+            ghcr.io/zeroc-ice/ice-deb-builder-${{ matrix.distribution }}:${CHANNEL} \
+            /workspace/ice/packaging/deb/build-package.sh
+        shell: bash
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-packages-${{ matrix.distribution }}-${{ matrix.arch }}
+          path: |
+            *.deb
+            *.ddeb
+            *.dsc
+            *.tar.xz
+            *.tar.gz
+            *.changes
+            *.buildinfo
