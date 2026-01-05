@@ -107,7 +107,7 @@ void
 TransientTopicManagerImpl::reap()
 {
     //
-    // Must be called called with mutex locked.
+    // Must be called with mutex locked.
     //
     for (const string& topic : _instance->topicReaper()->consumeReapedTopics())
     {
