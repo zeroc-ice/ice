@@ -28,6 +28,7 @@ namespace IceStorm
 
     private:
         std::optional<TopicPrx> createImpl(std::string);
+        void removeDestroyedTopic(std::map<std::string, std::shared_ptr<TransientTopicImpl>>::iterator);
 
         const std::shared_ptr<Instance> _instance;
         std::map<std::string, std::shared_ptr<TransientTopicImpl>> _topics;

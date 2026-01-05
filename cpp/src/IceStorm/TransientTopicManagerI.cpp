@@ -30,15 +30,7 @@ TransientTopicManagerImpl::create(string name, const Ice::Current&)
         }
 
         // Topic is destroyed, remove it from the adapter and topic map before creating a new one.
-        try
-        {
-            _instance->topicAdapter()->remove(p->second->id());
-        }
-        catch (const Ice::ObjectAdapterDestroyedException&)
-        {
-            // Ignore
-        }
-        _topics.erase(p);
+        removeDestroyedTopic(p);
     }
 
     return createImpl(std::move(name));
@@ -76,15 +68,7 @@ TransientTopicManagerImpl::createOrRetrieve(string name, const Ice::Current&)
         }
 
         // Topic is destroyed, remove it from the adapter and topic map before creating a new one.
-        try
-        {
-            _instance->topicAdapter()->remove(p->second->id());
-        }
-        catch (const Ice::ObjectAdapterDestroyedException&)
-        {
-            // Ignore
-        }
-        _topics.erase(p);
+        removeDestroyedTopic(p);
     }
 
     return createImpl(std::move(name));
@@ -156,6 +140,22 @@ TransientTopicManagerImpl::shutdown()
     {
         topic.second->shutdown();
     }
+}
+
+void
+TransientTopicManagerImpl::removeDestroyedTopic(map<string, shared_ptr<TransientTopicImpl>>::iterator p)
+{
+    // Must be called with _mutex locked.
+    // Removes a destroyed topic from the adapter and the topic map.
+    try
+    {
+        _instance->topicAdapter()->remove(p->second->id());
+    }
+    catch (const Ice::ObjectAdapterDestroyedException&)
+    {
+        // Ignore
+    }
+    _topics.erase(p);
 }
 
 optional<TopicPrx>
