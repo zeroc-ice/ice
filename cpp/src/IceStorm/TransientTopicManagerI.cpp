@@ -37,7 +37,7 @@ TransientTopicManagerImpl::retrieve(string name, const Ice::Current&)
     reap();
 
     auto p = _topics.find(name);
-    if (p == _topics.end())
+    if (p == _topics.end() || p->second->destroyed())
     {
         throw NoSuchTopic(name);
     }
@@ -53,12 +53,26 @@ TransientTopicManagerImpl::createOrRetrieve(string name, const Ice::Current&)
     reap();
 
     auto p = _topics.find(name);
-    if (p == _topics.end())
+    if (p != _topics.end())
     {
-        return createImpl(std::move(name));
+        if (!p->second->destroyed())
+        {
+            return _instance->topicAdapter()->createProxy<TopicPrx>(p->second->id());
+        }
+
+        // Topic is destroyed, remove it from the adapter and topic map before creating a new one.
+        try
+        {
+            _instance->topicAdapter()->remove(p->second->id());
+        }
+        catch (const Ice::ObjectAdapterDestroyedException&)
+        {
+            // Ignore
+        }
+        _topics.erase(p);
     }
 
-    return _instance->topicAdapter()->createProxy<TopicPrx>(p->second->id());
+    return createImpl(std::move(name));
 }
 
 TopicDict
