@@ -110,7 +110,6 @@ TransientTopicManagerImpl::reap()
         auto i = _topics.find(topic);
         if (i != _topics.end() && i->second->destroyed())
         {
-            auto id = i->second->id();
             auto traceLevels = _instance->traceLevels();
             if (traceLevels->topicMgr > 0)
             {
@@ -118,16 +117,7 @@ TransientTopicManagerImpl::reap()
                 out << "Reaping " << i->first;
             }
 
-            try
-            {
-                _instance->topicAdapter()->remove(id);
-            }
-            catch (const Ice::ObjectAdapterDestroyedException&)
-            {
-                // Ignore
-            }
-
-            _topics.erase(i);
+            removeDestroyedTopic(i);
         }
     }
 }
