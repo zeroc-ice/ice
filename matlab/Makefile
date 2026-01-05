@@ -7,8 +7,7 @@ lang_srcdir     := $(top_srcdir)/$(notdir $(patsubst %/,%,$(dir $(lastword $(abs
 
 include $(top_srcdir)/config/Make.rules
 
-matlab_version  = $(patsubst @@%@@,%,$(filter VERSION-%,$(shell $(matlab) -nodesktop -nosplash -r "fprintf('@@%s@@', version('-release'));exit(0);")))
-icetoolbox_file = toolbox/ice-$(version)-R$(matlab_version)-linux.mltbx
+icetoolbox_file = toolbox/ice-$(ICE_TOOLBOX_VERSION)-$(MATLAB_VERSION)-linux.mltbx
 
 #
 # Load C++ dependencies
