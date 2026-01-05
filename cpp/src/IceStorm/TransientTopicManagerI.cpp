@@ -143,7 +143,7 @@ TransientTopicManagerImpl::shutdown()
 }
 
 void
-TransientTopicManagerImpl::removeDestroyedTopic(map<string, shared_ptr<TransientTopicImpl>>::iterator p)
+TransientTopicManagerImpl::removeDestroyedTopic(TopicMap::iterator p)
 {
     // Must be called with _mutex locked.
     // Removes a destroyed topic from the adapter and the topic map.

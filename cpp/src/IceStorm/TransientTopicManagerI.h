@@ -27,11 +27,13 @@ namespace IceStorm
         void shutdown();
 
     private:
+        using TopicMap = std::map<std::string, std::shared_ptr<TransientTopicImpl>>;
+
         std::optional<TopicPrx> createImpl(std::string);
-        void removeDestroyedTopic(std::map<std::string, std::shared_ptr<TransientTopicImpl>>::iterator);
+        void removeDestroyedTopic(TopicMap::iterator);
 
         const std::shared_ptr<Instance> _instance;
-        std::map<std::string, std::shared_ptr<TransientTopicImpl>> _topics;
+        TopicMap _topics;
 
         std::mutex _mutex;
     };
