@@ -26,9 +26,19 @@ inputs:
     description: "Build Android Controller"
     default: "false"
 
+  cpp11_mapping:
+    description: "Build with C++11 mapping (non-Windows only)"
+    default: "false"
+
 runs:
   using: "composite"
   steps:
+    # Set CONFIGS for macOS and Linux
+    - name: Set Build Configurations
+      run: echo "CONFIGS=${{ inputs.cpp11_mapping == 'true' && 'cpp11-shared' || 'shared' }}" >> $GITHUB_ENV
+      shell: bash
+      if: runner.os != 'Windows'
+
     # macOS and Linux
     - name: Build C++ and Python
       run: |
