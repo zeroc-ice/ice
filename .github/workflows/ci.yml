@@ -26,6 +26,7 @@ jobs:
 
           - os: windows-2025
             config: release
+            build_flags: "/p:Platform=x64 /p:Configuration=Release"
 
           - os: macos-26
             config: release
@@ -40,7 +41,7 @@ jobs:
           - os: windows-2025
             config: cpp11-release
             msbuild_project: "msbuild/ice.proj"
-            build_flags: "/t:BuildCpp11"
+            build_flags: "/t:BuildCpp11 /p:Platform=x64 /p:Configuration=Release"
             test_flags: "--platform=x64 --config Cpp11-Release"
             working_directory: cpp
 
@@ -59,7 +60,7 @@ jobs:
           - os: windows-2025
             config: "matlab"
             working_directory: matlab
-            build_flags: "/p:Platform=x64"
+            build_flags: "/p:Platform=x64 /p:Configuration=Release"
             msbuild_project: "msbuild/ice.proj"
             test_flags: "--platform=x64"
             build_cpp_and_python: true
