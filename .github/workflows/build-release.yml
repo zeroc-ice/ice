@@ -91,6 +91,14 @@ jobs:
             echo "matlab_version=" >> $GITHUB_OUTPUT
           fi
 
+  build-deb-packages:
+    name: Build DEB Packages
+    uses: ./.github/workflows/build-deb-packages.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.deb_version }}
+    secrets: inherit
+
   build-dotnet-packages:
     name: Build .NET Packages
     uses: ./.github/workflows/build-dotnet-packages.yml
@@ -105,6 +113,14 @@ jobs:
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.maven_version }}
+    secrets: inherit
+
+  build-rpm-packages:
+    name: Build RPM Packages
+    uses: ./.github/workflows/build-rpm-packages.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.rpm_version }}
     secrets: inherit
 
   build-cpp-windows-binaries:
@@ -130,8 +146,10 @@ jobs:
     name: Prune Nightly Artifacts
     if: ${{ inputs.publish == true && inputs.quality == 'nightly' }}
     needs:
+      - build-deb-packages
       - build-dotnet-packages
       - build-maven-packages
+      - build-rpm-packages
       - build-cpp-nuget-packages
       - set-version
     uses: ./.github/workflows/prune-nightly-artifacts.yml

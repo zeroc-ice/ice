@@ -1,0 +1,69 @@
+name: "Build RPM Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+
+jobs:
+  build:
+    name: "Build for ${{ matrix.distribution }}-${{ matrix.arch }}"
+    runs-on: ${{ matrix.arch == 'aarch64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    strategy:
+      matrix:
+        distribution: [el9, el10, amzn2023]
+        arch: [x86_64, aarch64]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          path: ice
+
+      - name: Load version info
+        run: |
+          source ice/config/version.env
+          echo "CHANNEL=$CHANNEL" >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: zeroc-ice
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build RPM packages
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -e ICE_VERSION="${{ inputs.ice_version }}" \
+            -e GIT_TAG="${{ github.ref_name }}" \
+            ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }}:${CHANNEL} \
+            /workspace/ice/packaging/rpm/build-package.sh
+
+      - name: Sign RPM packages
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -e GPG_KEY="${{ secrets.ICE_3_7_CI_SIGNER_KEY }}" \
+            -e GPG_KEY_ID="${{ secrets.ICE_3_7_CI_SIGNER_KEY_ID }}" \
+            ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }}:${CHANNEL} \
+            /workspace/ice/packaging/rpm/sign-package.sh
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpm-packages-${{ matrix.distribution }}-${{ matrix.arch }}
+          path: |
+            build/RPMS/*
+            build/SRPMS/*

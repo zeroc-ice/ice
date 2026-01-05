@@ -1,0 +1,16 @@
+#!/bin/sh
+# postrm script for libzeroc-ice3.7
+set -e
+
+if [ "$1" = "purge" ]; then
+    # We remove /var/lib/ice on purge
+    rm -rf /var/lib/ice
+    
+    # Remove /var/lib/ice override
+    dpkg-statoverride --remove /var/lib/ice >/dev/null 2>/dev/null || true
+
+fi
+
+#DEBHELPER#
+
+exit 0

@@ -1,0 +1,21 @@
+#
+# Copyright (c) 2007-2017 ZeroC, Inc. All rights reserved.
+#
+
+[Unit]
+Description=IceGrid registry daemon
+Documentation=man:icegridregistry(1)
+Documentation=https://doc.zeroc.com/display/Ice/icegridregistry
+Before=icegridnode.service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/icegridregistry --Ice.Config=/etc/icegridregistry.conf
+Type=notify
+NotifyAccess=main
+RuntimeDirectory=icegridregistry
+KillMode=process
+User=ice
+
+[Install]
+WantedBy=multi-user.target

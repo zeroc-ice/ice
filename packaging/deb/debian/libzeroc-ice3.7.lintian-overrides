@@ -1,0 +1,5 @@
+libzeroc-ice3.7: package-name-doesnt-match-sonames *
+libzeroc-ice3.7: dev-pkg-without-shlib-symlink usr/lib/*/libIceXML.so.* usr/lib/*/libIceXML.so
+libzeroc-ice3.7: dev-pkg-without-shlib-symlink usr/lib/*/libIceDB.so.* usr/lib/*/libIceDB.so
+libzeroc-ice3.7: dev-pkg-without-shlib-symlink usr/lib/*/libGlacier2CryptPermissionsVerifier.so.* usr/lib/*/libGlacier2CryptPermissionsVerifier.so
+libzeroc-ice3.7: package-name-doesnt-match-sonames libzeroc-ice3.7

@@ -1,0 +1,13 @@
+[zeroc-ice-@CHANNEL@-@QUALITY@]
+name=ZeroC Ice @CHANNEL@ @QUALITY@
+baseurl=https://download.zeroc.com/ice/@UPLOAD_PREFIX@/@DISTRIBUTION@/$basearch
+enabled=1
+gpgcheck=1
+gpgkey=https://download.zeroc.com/ice/@UPLOAD_PREFIX@/RPM-GPG-KEY-zeroc-release
+
+[zeroc-ice-@CHANNEL@-@QUALITY@-src]
+name=ZeroC Ice @CHANNEL@ @QUALITY@ (SRPMS)
+baseurl=https://download.zeroc.com/ice/@UPLOAD_PREFIX@/@DISTRIBUTION@/SRPMS
+enabled=1
+gpgcheck=1
+gpgkey=https://download.zeroc.com/ice/@UPLOAD_PREFIX@/RPM-GPG-KEY-zeroc-release
