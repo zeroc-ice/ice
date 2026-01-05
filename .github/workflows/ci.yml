@@ -54,6 +54,7 @@ jobs:
           # MATLAB
           - os: ubuntu-24.04
             config: "matlab"
+            build_flags: "CONFIGS=cpp11-shared"
             working_directory: matlab
             build_cpp_and_python: true
 

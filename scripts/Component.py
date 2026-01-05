@@ -232,6 +232,7 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
         Mapping.add("csharp", CSharpMapping(), component, enable=isinstance(platform, Windows) or platform.hasDotNet())
 
 if isinstance(platform, Windows):
+    print("COMPILER:", platform.getCompiler())
     # Windows doesn't support all the mappings, we take them out here.
     if platform.getCompiler() not in ["v140", "v141", "v142", "v143"]:
         Mapping.disable("python")
