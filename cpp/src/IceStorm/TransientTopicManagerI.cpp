@@ -60,17 +60,21 @@ TransientTopicManagerImpl::createOrRetrieve(string name, const Ice::Current&)
     reap();
 
     auto p = _topics.find(name);
-    if (p != _topics.end())
+    
+    // If topic doesn't exist, create it.
+    if (p == _topics.end())
     {
-        if (!p->second->destroyed())
-        {
-            return _instance->topicAdapter()->createProxy<TopicPrx>(p->second->id());
-        }
-
-        // Topic is destroyed, remove it from the adapter and topic map before creating a new one.
-        removeDestroyedTopic(p);
+        return createImpl(std::move(name));
     }
 
+    // If topic exists and is not destroyed, return it.
+    if (!p->second->destroyed())
+    {
+        return _instance->topicAdapter()->createProxy<TopicPrx>(p->second->id());
+    }
+
+    // Topic exists but is destroyed, remove it and create a new one.
+    removeDestroyedTopic(p);
     return createImpl(std::move(name));
 }
 
