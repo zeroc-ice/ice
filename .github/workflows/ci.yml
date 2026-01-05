@@ -33,6 +33,7 @@ jobs:
           # Release builds
           - os: ubuntu-24.04
             config: cpp11-release
+            build_flags: "CONFIGS=cpp11-shared"
             test_flags: "--config=cpp11-shared"
             working_directory: cpp
 
@@ -45,6 +46,7 @@ jobs:
 
           - os: macos-26
             config: cpp11-release
+            build_flags: "CONFIGS=cpp11-shared"
             test_flags: "--config=cpp11-shared"
             working_directory: cpp
 
