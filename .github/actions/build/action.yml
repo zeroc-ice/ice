@@ -37,7 +37,7 @@ runs:
     - name: Set Build Configurations
       run: echo "CONFIGS=${{ inputs.cpp11_mapping == 'true' && 'cpp11-shared' || 'shared' }}" >> $GITHUB_ENV
       shell: bash
-      if: runner.os != 'Windows'
+      if: runner.os == 'macOS' || runner.os == 'Linux'
 
     # macOS and Linux
     - name: Build C++ and Python

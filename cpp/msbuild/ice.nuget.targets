@@ -34,7 +34,7 @@
                                      $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\iceserviceinstall.exe;
                                      $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormadmin.exe;
                                      $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormdb.exe"
-                            Condition="'$(DefaultBuild)' != '$(Platform)|$(Configuration)' and '$(Configuration)' == 'Debug'"/>
+                            Condition="'x64|Release' != '$(Platform)|$(Configuration)' and '$(Configuration)' == 'Debug'"/>
 
         <ExecutableExcludes Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe"/>
 
@@ -62,13 +62,13 @@
 
     <!-- Copy required files to the package specific directories -->
     <Target Name="NugetPack">
-        <Copy Condition="'$(DefaultBuild)' == '$(Platform)|$(Configuration)'"
+        <Copy Condition="'x64|Release' == '$(Platform)|$(Configuration)'"
               SourceFiles="@(Headers)" DestinationFolder="$(PackageDirectory)\build\native\include\%(Headers.RecursiveDir)" />
 
-        <Copy Condition="'$(DefaultBuild)' == '$(Platform)|$(Configuration)'"
+        <Copy Condition="'x64|Release' == '$(Platform)|$(Configuration)'"
               SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)" />
 
-        <Copy Condition="'$(DefaultBuild)' == '$(Platform)|$(Configuration)'"
+        <Copy Condition="'x64|Release' == '$(Platform)|$(Configuration)'"
               SourceFiles="@(Tools)" DestinationFolder="$(PackageDirectory)\tools" />
 
         <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
