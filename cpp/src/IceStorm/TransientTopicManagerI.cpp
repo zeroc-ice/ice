@@ -21,9 +21,24 @@ TransientTopicManagerImpl::create(string name, const Ice::Current&)
 
     reap();
 
-    if (_topics.find(name) != _topics.end())
+    auto p = _topics.find(name);
+    if (p != _topics.end())
     {
-        throw TopicExists(name);
+        if (!p->second->destroyed())
+        {
+            throw TopicExists(name);
+        }
+
+        // Topic is destroyed, remove it from the adapter and topic map before creating a new one.
+        try
+        {
+            _instance->topicAdapter()->remove(p->second->id());
+        }
+        catch (const Ice::ObjectAdapterDestroyedException&)
+        {
+            // Ignore
+        }
+        _topics.erase(p);
     }
 
     return createImpl(std::move(name));
@@ -85,7 +100,10 @@ TransientTopicManagerImpl::retrieveAll(const Ice::Current&)
     TopicDict all;
     for (const auto& topic : _topics)
     {
-        all.insert({topic.first, _instance->topicAdapter()->createProxy<TopicPrx>(topic.second->id())});
+        if (!topic.second->destroyed())
+        {
+            all.insert({topic.first, _instance->topicAdapter()->createProxy<TopicPrx>(topic.second->id())});
+        }
     }
 
     return all;
