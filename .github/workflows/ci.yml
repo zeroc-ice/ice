@@ -72,3 +72,19 @@ jobs:
           flags: >-
             --all
             --config ${{ runner.os == 'Windows' && 'Cpp11-Release' || 'cpp11-shared' }}
+
+      - name: Upload test logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs-${{ matrix.config }}-${{ matrix.os }}
+          path: ${{ '.' }}/**/*.log
+          if-no-files-found: ignore
+        if: always()
+
+      - name: Upload macOS crash diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: crash-diagnostics-${{ matrix.config }}-${{ matrix.os }}
+          path: ~/Library/Logs/DiagnosticReports/*.ips
+          if-no-files-found: ignore
+        if: runner.os == 'macOS' && always()
