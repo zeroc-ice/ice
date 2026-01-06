@@ -785,7 +785,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// The exception that is thrown when an ObjectAdapter cannot be activated. This can happen when the locator
+    /// The exception that is thrown when an ObjectAdapter cannot be activated. This can happen when a Locator
     /// implementation detects another active ObjectAdapter with the same adapter ID.
     /// @headerfile Ice/Ice.h
     class ICE_API ObjectAdapterIdInUseException final : public LocalException

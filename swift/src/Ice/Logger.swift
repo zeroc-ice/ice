@@ -36,6 +36,6 @@ public protocol Logger: AnyObject {
     /// Returns a clone of the logger with a new prefix.
     ///
     /// - Parameter prefix: The new prefix for the logger.
-    /// - Returns: A logger instance.
+    /// - Returns: A new logger instance with the specified prefix.
     func cloneWithPrefix(_ prefix: String) -> Logger
 }

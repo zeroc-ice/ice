@@ -28,8 +28,8 @@ namespace Ice
         // send the message to C APIs that require null-terminated strings.
         // The message itself is also often constructed from a string produced by an ostringstream.
 
-        /// Prints a message. The message is printed literally, without any decorations such as executable name or
-        /// timestamp.
+        /// Prints a message.
+        /// The message is printed literally, without any decorations such as executable name or timestamp.
         /// @param message The message to log.
         virtual void print(const std::string& message) = 0;
 
@@ -54,7 +54,7 @@ namespace Ice
 
         /// Returns a clone of the logger with a new prefix.
         /// @param prefix The new prefix for the logger.
-        /// @return A logger instance.
+        /// @return A new logger instance with the specified prefix.
         virtual LoggerPtr cloneWithPrefix(std::string prefix) = 0;
     };
 }

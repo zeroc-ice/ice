@@ -8,8 +8,8 @@ package com.zeroc.Ice;
  */
 public interface Logger extends AutoCloseable {
     /**
-     * Prints a message. The message is printed literally, without any decorations such as executable
-     * name or timestamp.
+     * Prints a message.
+     * The message is printed literally, without any decorations such as executable name or timestamp.
      *
      * @param message the message to log
      */
@@ -50,7 +50,7 @@ public interface Logger extends AutoCloseable {
      * Returns a clone of the logger with a new prefix.
      *
      * @param prefix the new prefix for the logger
-     * @return a logger instance
+     * @return a new logger instance with the specified prefix
      */
     Logger cloneWithPrefix(String prefix);
 }

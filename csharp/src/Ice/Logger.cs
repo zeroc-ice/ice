@@ -46,7 +46,7 @@ public interface Logger : IDisposable
     /// Returns a clone of the logger with a new prefix.
     /// </summary>
     /// <param name="prefix">The new prefix for the logger.</param>
-    /// <returns>A logger instance.</returns>
+    /// <returns>A new logger instance with the specified prefix.</returns>
     /// <remarks>The caller is responsible for disposing the returned logger.</remarks>
     Logger cloneWithPrefix(string prefix);
 }
