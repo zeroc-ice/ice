@@ -430,6 +430,7 @@ class Windows(Platform):
         else:
             try:
                 out = run("cl")
+                print(out)
                 if out.find("Version 16.") != -1:
                     self.compiler = "v100"
                 elif out.find("Version 17.") != -1:

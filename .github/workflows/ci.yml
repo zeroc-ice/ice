@@ -54,7 +54,11 @@ jobs:
           # MATLAB
           - os: ubuntu-24.04
             config: "matlab"
-            build_flags: "CONFIGS=cpp11-shared"
+
+            # We need both configurations:
+            # - shared: for Python C++98 based mapping
+            # - cpp11-shared: for MATLAB C++11 based mapping
+            build_flags: "CONFIGS='shared cpp11-shared'"
             working_directory: matlab
             build_cpp_and_python: true
 
