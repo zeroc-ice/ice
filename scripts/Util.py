@@ -423,14 +423,16 @@ class Windows(Platform):
         return "Release"
 
     def getCompiler(self):
-        if self.compiler != None:
+        if self.compiler is not None:
+            print("using compiler from cache: {0}".format(self.compiler))
             return self.compiler
         if os.environ.get("CPP_COMPILER", "") != "":
             self.compiler = os.environ["CPP_COMPILER"]
+            print("using compiler from CPP_COMPILER env: {0}".format(self.compiler))
         else:
             try:
                 out = run("cl")
-                print(out)
+                print("CL: {0}".format(out))
                 if out.find("Version 16.") != -1:
                     self.compiler = "v100"
                 elif out.find("Version 17.") != -1:
