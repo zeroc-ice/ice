@@ -424,15 +424,12 @@ class Windows(Platform):
 
     def getCompiler(self):
         if self.compiler is not None:
-            print("using compiler from cache: {0}".format(self.compiler))
             return self.compiler
         if os.environ.get("CPP_COMPILER", "") != "":
             self.compiler = os.environ["CPP_COMPILER"]
-            print("using compiler from CPP_COMPILER env: {0}".format(self.compiler))
         else:
             try:
                 out = run("cl")
-                print("CL: {0}".format(out))
                 if out.find("Version 16.") != -1:
                     self.compiler = "v100"
                 elif out.find("Version 17.") != -1:
@@ -449,9 +446,8 @@ class Windows(Platform):
                     self.compiler = "v143"
                 else:
                     raise RuntimeError("Unknown compiler version:\n{0}".format(out))
-            except Exception as e:
-                print("couldn't run cl to determine the compiler version: {0}".format(e))
-                self.compiler = ""
+            except Exception:
+                self.compiler = "v143"
         return self.compiler
 
     def getPlatformToolset(self):
