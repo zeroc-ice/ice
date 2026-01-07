@@ -125,7 +125,7 @@ On Windows with an MSI installation:
 
 ```shell
 set ICE_BIN_DIST=cpp
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.10
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.11
 ```
 
 If you are using Ice for C++ from a source build on Windows, you must set
@@ -170,17 +170,17 @@ gradlew install
 
 The following JAR files will be installed to `<prefix>/lib`.
 
-* glacier2-3.7.10.jar
-* ice-3.7.10.jar
-* icebox-3.7.10.jar
-* icebt-3.7.10.jar
-* icediscovery-3.7.10.jar
-* icegrid-3.7.10.jar
+* glacier2-3.7.11.jar
+* ice-3.7.11.jar
+* icebox-3.7.11.jar
+* icebt-3.7.11.jar
+* icediscovery-3.7.11.jar
+* icegrid-3.7.11.jar
 * icegridgui.jar
-* icelocatordiscovery-3.7.10.jar
-* icepatch2-3.7.10.jar
-* icessl-3.7.10.jar
-* icestorm-3.7.10.jar
+* icelocatordiscovery-3.7.11.jar
+* icepatch2-3.7.11.jar
+* icessl-3.7.11.jar
+* icestorm-3.7.11.jar
 
 POM files are also installed for ease of deployment to a Maven-based
 distribution system.
@@ -193,14 +193,14 @@ then you must set the `ICE_HOME` environment variable with the path name of your
 Ice installation. On Unix:
 
 ```shell
-export ICE_HOME=/opt/Ice-3.7.10 (For local build)
+export ICE_HOME=/opt/Ice-3.7.11 (For local build)
 export ICE_HOME=/usr (For RPM installation)
 ```
 
 On Windows:
 
 ```shell
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.10
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.11
 ```
 
 Python is required to run the test suite. To run the tests, open a command
@@ -313,7 +313,7 @@ Finder.
 
 [binary distribution]: https://zeroc.com/downloads/ice
 [major version]: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.1-200-B.2
-[supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
+[supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3.7.11
 [Gradle]: https://gradle.org
 [ProGuard]: http://proguard.sourceforge.net
 [Apache Commons Compress]: https://commons.apache.org/proper/commons-compress/

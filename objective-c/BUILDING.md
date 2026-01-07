@@ -155,5 +155,5 @@ All the test clients and servers run on the iOS device, not on your Mac
 computer.
 
 [Homebrew]: https://doc.zeroc.com/ice/3.7/release-notes/using-the-macos-binary-distribution
-[supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
+[supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3.7.11
 [Automatic Reference Counting]: https://en.wikipedia.org/wiki/Automatic_Reference_Counting

@@ -39,9 +39,9 @@ Getting Started with Ice on Linux
 ---------------------------------
 
 Please visit the 'Using the Linux Binary Distributions' section in the
-Ice 3.7.10 release notes:
+Ice 3.7.11 release notes:
 
-https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes
+https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3.7.11-release-notes
 
 Documentation
 -------------
@@ -53,6 +53,6 @@ https://doc.zeroc.com/ice/3.7/
 Source Code
 ------------
 
-The source code for Ice 3.7.10 is on GitHub:
+The source code for Ice 3.7.11 is on GitHub:
 
-https://github.com/zeroc-ice/ice/releases/tag/v3.7.10
+https://github.com/zeroc-ice/ice/releases/tag/v3.7.11
