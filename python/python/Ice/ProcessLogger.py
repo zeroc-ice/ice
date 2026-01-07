@@ -9,7 +9,15 @@ __name__ = "Ice"
 
 
 def getProcessLogger() -> Logger:
-    """Returns the default logger object."""
+    """
+    Gets the per-process logger. This logger is used by all communicators that do not have their own specific logger
+    configured at the time the communicator is created.
+
+    Returns
+    -------
+    Ice.Logger
+        The current per-process logger instance.
+    """
     logger = IcePy.getProcessLogger()
     if isinstance(logger, Logger):
         return logger
@@ -19,6 +27,15 @@ def getProcessLogger() -> Logger:
 
 def setProcessLogger(logger: Logger):
     """Sets the default logger object."""
+    """
+    Sets the per-process logger. This logger is used by all communicators that do not have their own specific logger
+    configured at the time the communicator is created.
+
+    Parameters
+    ----------
+    logger : Ice.Logger
+        The new per-process logger instance.
+    """
     IcePy.setProcessLogger(logger)
 
 

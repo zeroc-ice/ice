@@ -5,23 +5,21 @@ from builtins import Exception as BuiltinsException
 
 class Exception(BuiltinsException):
     """
-    The base class for all Ice exceptions.
+    Abstract base class for all Ice exceptions.
+    It has only two derived classes: :class:`LocalException` and :class:`UserException`.
     """
 
     _ice_id: str
 
-    def ice_id(self):
+    def ice_id(self) -> str:
         """
-        Return the type ID of this exception.
-
-        For exceptions defined in Slice, this corresponds to the Slice type ID.
-        For other exceptions, it is a fully scoped name in the same format.
-        For example: "::Ice::CommunicatorDestroyedException".
+        Returns the type ID of this exception. This corresponds to the Slice type ID for Slice-defined exceptions,
+        and to a fully scoped name for other exceptions. For example: ``"::Ice::CommunicatorDestroyedException"``.
 
         Returns
         -------
         str
-            The type ID of the exception.
+            The type ID of this exception
         """
         return self._ice_id
 

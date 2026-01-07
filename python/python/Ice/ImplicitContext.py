@@ -8,24 +8,19 @@ import IcePy
 @final
 class ImplicitContext:
     """
-    An interface to associate implicit contexts with communicators.
+    Represents the request context associated with a communicator.
+    When you make a remote invocation without an explicit request context parameter, Ice uses the per-proxy request
+    context (if any) combined with the ``ImplicitContext`` associated with your communicator.
 
-    When you make a remote invocation without an explicit context parameter, Ice uses the per-proxy context (if any)
-    combined with the ImplicitContext associated with the communicator.
+    The property ``Ice.ImplicitContext`` controls if your communicator has an associated implicit context,
+    and when it does, whether this implicit context is per-thread or shared by all threads:
 
-    Ice provides several implementations of ImplicitContext. The implementation used depends on the value of the
-    `Ice.ImplicitContext` property.
-
-    None (default)
+    - None (default):
         No implicit context at all.
-    PerThread
+    - PerThread:
         The implementation maintains a context per thread.
-    Shared
+    - Shared:
         The implementation maintains a single context shared by all threads.
-
-
-    ImplicitContext also provides a number of operations to create, update, or retrieve an entry in the underlying
-    context without first retrieving a copy of the entire context.
     """
 
     def __init__(self, impl: IcePy.ImplicitContext):
@@ -33,92 +28,90 @@ class ImplicitContext:
 
     def getContext(self) -> dict[str, str]:
         """
-        Get a copy of the underlying context.
+        Gets a copy of the request context maintained by this object.
 
         Returns
         -------
-        dict
-            A copy of the underlying context.
+        dict[str, str]
+            A copy of the request context.
         """
         return self._impl.getContext()
 
     def setContext(self, newContext: dict[str, str]):
         """
-        Set the underlying context.
+        Sets the request context.
 
         Parameters
         ----------
-        newContext : dict
-            The new context to set.
+        newContext : dict[str, str]
+            The new request context.
         """
         self._impl.setContext(newContext)
 
     def containsKey(self, key: str) -> bool:
         """
-        Check if this key has an associated value in the underlying context.
+        Checks if the specified key has an associated value in the request context.
 
         Parameters
         ----------
         key : str
-            The key to check.
+            The key.
 
         Returns
         -------
         bool
-            True if the key has an associated value, False otherwise.
+            ``True`` if the key has an associated value, ``False`` otherwise.
         """
         return self._impl.containsKey(key)
 
     def get(self, key: str) -> str:
         """
-        Get the value associated with the given key in the underlying context.
-
-        Returns an empty string if no value is associated with the key. Use `containsKey` to distinguish between an
-        empty-string value and no value at all.
+        Gets the value associated with the specified key in the request context.
 
         Parameters
         ----------
         key : str
-            The key to retrieve the value for.
+            The key.
 
         Returns
         -------
         str
-            The value associated with the key, or an empty string if no value is associated with the key.
+            The value associated with the key, or the empty string if no value is associated with the key.
+            :func:`containsKey` allows you to distinguish between an empty-string value and no value at all.
         """
         return self._impl.get(key)
 
     def put(self, key: str, value: str) -> str | None:
         """
-        Create or update a key/value entry in the underlying context.
+        Creates or updates a key/value entry in the request context.
 
         Parameters
         ----------
         key : str
-            The key to create or update.
+            The key.
         value : str
-            The value to associate with the key.
+            The value.
 
         Returns
         -------
         str | None
-            The previous value associated with the key, if any, otherwise None.
+            The previous value associated with the key, if any.
         """
         return self._impl.put(key, value)
 
     def remove(self, key: str) -> str | None:
         """
-        Remove the entry for the given key in the underlying context.
+        Removes the entry for the specified key in the request context.
 
         Parameters
         ----------
         key : str
-            The key to remove.
+            The key.
 
         Returns
         -------
         str | None
-            The value associated with the key, if any, otherwise None.
+            The value associated with the key, if any.
         """
         return self._impl.remove(key)
 

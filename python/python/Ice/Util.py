@@ -36,18 +36,20 @@ def initialize(
     initData: InitializationData | None = None,
 ) -> Communicator:
     """
-    Creates a new communicator. This function is provided for backwards compatibility. New code should call the
-    :class:`Communicator` constructor directly.
+    Creates a new communicator.
+
+    This function is provided for backwards compatibility.
+    New code should call the :class:`Communicator` constructor directly.
 
     Parameters
     ----------
-    args : list of str, optional
+    args : list[str], optional
         The command-line arguments.
     eventLoop : asyncio.AbstractEventLoop, optional
-        An asyncio event loop used to run coroutines and wrap futures. This argument and the `initData` argument are
-        mutually exclusive.
+        An asyncio event loop used to run coroutines and wrap futures.
     initData : InitializationData, optional
-        Options for the new communicator. This argument and the `args` argument are mutually exclusive.
+        Options for the new communicator.
+        This argument is mutually exclusive with both the `args` and `eventLoop` argument.
 
     Returns
     -------
@@ -59,36 +61,36 @@ def initialize(
 
 def identityToString(identity: Identity, toStringMode: ToStringMode | None = None) -> str:
     """
-    Convert an object identity to a string.
+    Converts an Identity into a string using the specified mode.
 
     Parameters
     ----------
     identity : Ice.Identity
-        The object identity to convert.
+        The identity.
     toStringMode : Ice.ToStringMode, optional
-        Specifies if and how non-printable ASCII characters are escaped in the result.
+        Specifies how to handle non-ASCII characters and non-printable ASCII characters.
 
     Returns
     -------
     str
-        The string representation of the object identity.
+        The stringified identity.
     """
     return IcePy.identityToString(identity, toStringMode)
 
 
 def stringToIdentity(str: str) -> Identity:
     """
-    Convert a string to an object identity.
+    Converts a stringified identity into an Identity.
 
     Parameters
     ----------
     str : str
-        The string to convert.
+        The stringified identity.
 
     Returns
     -------
     Identity
-        The converted object identity.
+        An Identity created from the provided string.
 
     Raises
     ------
@@ -102,8 +104,8 @@ def createProperties(args: list[str] | None = None, defaults: Properties | None 
     """
     Creates a property set initialized from command-line arguments and a default property set.
 
-    This function is provided for backwards compatibility. New code should call the :class:`Properties` constructor
-    directly.
+    This function is provided for backwards compatibility.
+    New code should call the :class:`Properties` constructor directly.
 
     Parameters
     ----------
@@ -122,15 +124,13 @@ def createProperties(args: list[str] | None = None, defaults: Properties | None 
 
 def getSliceDir() -> str | None:
     """
-    Returns the path to the directory where the Ice Slice files are installed.
-
-    This helper function locates the installation directory for the Ice Slice files,
-    typically used to configure include paths for Slice compilers.
+    This helper function locates the installation directory for the Ice Slice files, and returns its path.
+    This path is typically used to configure include paths for Slice compilers.
 
     Returns
     -------
-    str or None
-        The absolute path to the directory containing the Ice Slice files, or ``None`` if the directory cannot be found.
+    str | None
+        The absolute path of the directory containing the Ice Slice files, or ``None`` if the directory cannot be found.
     """
 
     # Get the parent of the directory containing this file (__init__.py).

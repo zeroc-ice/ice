@@ -72,62 +72,63 @@ class Object:
 
     def ice_isA(self, id: str, current: Current) -> bool | Awaitable[bool]:
         """
-        Determine whether the target object supports the interface denoted by the given Slice type ID.
+        Tests whether this object supports a specific Slice interface.
 
         Parameters
         ----------
         id : str
-            The Slice type ID.
+            The type ID of the Slice interface to test against.
         current : Current
-            The current context.
+            The Current object of the incoming request.
 
         Returns
         -------
         bool
-            True if the target object supports the interface, False otherwise.
+            ``true`` if this object implements the Slice interface specified by ``typeId`` or implements a derived
+            interface, ``false`` otherwise.
         """
         return id in self._ice_ids
 
     def ice_ping(self, current: Current) -> None | Awaitable[None]:
         """
-        A reachability test for the target object.
+        Tests whether this object can be reached.
 
         Parameters
         ----------
         current : Current
-            The current context.
+            The Current object of the incoming request.
         """
         pass
 
     def ice_ids(self, current: Current) -> Sequence[str] | Awaitable[Sequence[str]]:
         """
-        Obtain the type IDs corresponding to the Slice interfaces that are supported by the target object.
+        Returns the Slice interfaces supported by this object as a list of Slice type IDs.
 
         Parameters
         ----------
         current : Current
-            The current context.
+            The Current object of the incoming request.
 
         Returns
         -------
         Sequence[str]
-            A list of type IDs.
+            The Slice type IDs of the interfaces supported by this object, in alphabetical order.
         """
         return self._ice_ids
 
     def ice_id(self, current: Current) -> str | Awaitable[str]:
         """
-        Obtain the type ID corresponding to the most-derived Slice interface supported by the target object.
+        Returns the type ID of the most-derived Slice interface supported by this object.
 
         Parameters
         ----------
         current : Current
-            The current context.
+            The Current object of the incoming request.
 
         Returns
         -------
         str
-            The type ID.
+            The Slice type ID of the most-derived interface.
         """
         # Call ice_staticId() on self to get the value from the most-derived class.
         return self.ice_staticId()
@@ -135,11 +136,11 @@ class Object:
     @staticmethod
     def ice_staticId() -> str:
         """
-        Obtain the type ID of the Slice interface.
+        Returns the type ID of the associated Slice interface.
 
         Returns
         -------
         str
-            The type ID.
+            The return value is always ``"::Ice::Object"``.
         """
         return "::Ice::Object"

@@ -20,7 +20,7 @@ class Current:
     adapter : Ice.ObjectAdapter
         The object adapter that received the request.
     con : IcePy.Connection | None
-        The connection that received the request. It's None when the invocation and dispatch are collocated.
+        The connection that received the request. It's ``None`` for collocation-optimized dispatches.
     id : Ice.Identity
         The identity of the target Ice object.
     facet : str
@@ -32,9 +32,9 @@ class Current:
     ctx : dict[str, str]
         The request context.
     requestId : int
-        The request ID. 0 means the request is a one-way request.
+        The request ID. ``0`` means the request is one-way.
     encoding : Ice.EncodingVersion
-        The encoding of the request payload.
+        The Slice encoding version used to marshal the payload of the request.
     """
 
     adapter: ObjectAdapter
