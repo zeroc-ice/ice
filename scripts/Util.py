@@ -2111,7 +2111,11 @@ class LocalProcessController(ProcessController):
                 current.writeln("({0})".format(cmd))
 
         env = os.environ.copy()
-        env.update(envs)
+        for k, v in envs.items():
+            if k == platform.getLdPathEnvName() and k in env:
+                env[k] = v + os.pathsep + env[k]
+            else:
+                env[k] = v
         mapping = process.getMapping(current)
         cwd = mapping.getTestCwd(process, current)
         process = LocalProcessController.LocalProcess(command=cmd,
