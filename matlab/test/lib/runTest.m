@@ -22,10 +22,12 @@ function runTest(varargin)
     end
     addpath(fullfile(rootDir, 'test', 'lib'));
 
+    disp(['Running tests in ' testdir]);
+    addpath(testdir);
     cd(testdir);
 
     try
-        Client(varargin);
+        client(varargin);
         exit(0);
     catch ex
         disp(getReport(ex, 'extended'));
