@@ -4,10 +4,6 @@ The **Slice Tools for Ice and Java** integrates the **Slice-to-Java compiler (`s
 **Java** and **Android** projects. It automates the compilation of Slice (`.ice`) files into Java source files and
 integrates seamlessly with the Gradle build system.
 
-> Note: This Gradle plugin replaces the Ice Builder for Gradle plugin (com.zeroc.gradle.ice-builder.slice). While the
-> Ice Builder for Gradle is still compatible with Ice 3.9, we recommend using the Slice Tools for Ice and Java
-> (com.zeroc.slice-tools) for better integration with Ice 3.9.
-
 ## Features
 
 - **Automatic Slice Compilation**: Compiles Slice definitions in `.ice` files into Java `.java` files using
