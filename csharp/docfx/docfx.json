@@ -56,7 +56,7 @@
     "disableGitFeatures": false,
     "globalMetadata": {
       "_appTitle": "Ice API",
-      "_appName": "Ice 3.8",
+      "_appName": "Ice 3.9",
       "_appFaviconPath": "assets/favicon-96x96.png",
       "_appLogoPath": "assets/logo.svg",
       "_appLogoUrl": "https://code.zeroc.com/ice/main/api/csharp/index.html",

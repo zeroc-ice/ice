@@ -5,8 +5,8 @@ The **Slice Tools for Ice and Java** integrates the **Slice-to-Java compiler (`s
 integrates seamlessly with the Gradle build system.
 
 > Note: This Gradle plugin replaces the Ice Builder for Gradle plugin (com.zeroc.gradle.ice-builder.slice). While the
-> Ice Builder for Gradle is still compatible with Ice 3.8, we recommend using the Slice Tools for Ice and Java
-> (com.zeroc.slice-tools) for better integration with Ice 3.8.
+> Ice Builder for Gradle is still compatible with Ice 3.9, we recommend using the Slice Tools for Ice and Java
+> (com.zeroc.slice-tools) for better integration with Ice 3.9.
 
 ## Features
 

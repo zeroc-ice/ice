@@ -13,8 +13,8 @@
 
 module IceGrid
 {
-    // These Internal descriptors are used for registry-node communications. InternalServerDescriptor changed in 3.8
-    // so a registry 3.8 cannot communicate with a node 3.7 or older.
+    // These Internal descriptors are used for registry-node communications.
+    // InternalServerDescriptor changed in 3.8 so a registry 3.8 cannot communicate with a node 3.7 or older.
 
     class InternalAdapterDescriptor
     {

@@ -63,13 +63,13 @@ First add the ZeroC repository:
 ##### RHEL 9
 
 ```shell
-dnf install https://zeroc.com/download/ice/3.8/el9/ice-repo-3.8-1.0.0-1.el9.noarch.rpm
+dnf install https://zeroc.com/download/ice/3.9/el9/ice-repo-3.9-1.0.0-1.el9.noarch.rpm
 ```
 
 ##### RHEL 10
 
 ```shell
-dnf install https://zeroc.com/download/ice/3.8/el10/ice-repo-3.8-1.0.0-1.el10.noarch.rpm
+dnf install https://zeroc.com/download/ice/3.9/el10/ice-repo-3.9-1.0.0-1.el10.noarch.rpm
 ```
 
 > The ZeroC repository provides the `lmdb-devel` and `mcpp-devel` packages, which are not available in the standard
