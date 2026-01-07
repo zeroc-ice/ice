@@ -14,7 +14,7 @@ object SliceToolsUtil {
      * This method determines whether an Android-related Gradle plugin is applied by checking for `com.android.base`,
      * which is the common parent plugin for all Android plugins in AGP 3.0.0+.
      *
-     * Since Ice 3.9 targets SDK 34+ (AGP 8.1+), older legacy plugins (such as `android` and `android-library`) are no
+     * Since Ice targets SDK 34+ (AGP 8.1+), older legacy plugins (such as `android` and `android-library`) are no
      * longer checked.
      *
      * @param project The Gradle project instance.
