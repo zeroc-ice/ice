@@ -449,7 +449,8 @@ class Windows(Platform):
                     self.compiler = "v143"
                 else:
                     raise RuntimeError("Unknown compiler version:\n{0}".format(out))
-            except:
+            except Exception as e:
+                print("couldn't run cl to determine the compiler version: {0}".format(e))
                 self.compiler = ""
         return self.compiler
 
