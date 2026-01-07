@@ -23,10 +23,52 @@ jobs:
           # Release builds
           - os: ubuntu-24.04
             config: release
+
           - os: windows-2025
             config: release
+            build_flags: "/p:Platform=x64 /p:Configuration=Release"
+
           - os: macos-26
             config: release
+
+          # Release builds
+          - os: ubuntu-24.04
+            config: cpp11-release
+            build_flags: "CONFIGS=cpp11-shared"
+            test_flags: "--config=cpp11-shared"
+            working_directory: cpp
+
+          - os: windows-2025
+            config: cpp11-release
+            msbuild_project: "msbuild/ice.proj"
+            build_flags: "/t:BuildCpp11 /p:Platform=x64 /p:Configuration=Release"
+            test_flags: "--platform=x64 --config Cpp11-Release"
+            working_directory: cpp
+
+          - os: macos-26
+            config: cpp11-release
+            build_flags: "CONFIGS=cpp11-shared"
+            test_flags: "--config=cpp11-shared"
+            working_directory: cpp
+
+          # MATLAB
+          - os: ubuntu-24.04
+            config: "matlab"
+
+            # We need both configurations:
+            # - shared: for Python C++98 based mapping
+            # - cpp11-shared: for MATLAB C++11 based mapping
+            build_flags: "CONFIGS='shared cpp11-shared'"
+            working_directory: matlab
+            build_cpp_and_python: true
+
+          - os: windows-2025
+            config: "matlab"
+            working_directory: matlab
+            build_flags: "/p:Platform=x64 /p:Configuration=Release"
+            msbuild_project: "msbuild/ice.proj"
+            test_flags: "--platform=x64"
+            build_cpp_and_python: true
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -45,13 +87,18 @@ jobs:
       - name: Setup Java
         uses: ./.github/actions/setup-java
 
-      - name: Set Build Configurations
-        run: echo "CONFIGS=shared cpp11-shared" >> $GITHUB_ENV
-        shell: bash
-        if: runner.os != 'Windows'
+      - name: Setup MATLAB
+        uses: ./.github/actions/setup-matlab
+        if: matrix.config == 'matlab'
 
       - name: Build ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/build
+        with:
+          cpp11_mapping: ${{ matrix.config == 'cpp11-release' && 'true' || 'false' }}
+          working_directory: ${{ matrix.working_directory }}
+          build_flags: ${{ matrix.build_flags  }}
+          msbuild_project: ${{ matrix.msbuild_project }}
+          build_cpp_and_python: ${{ matrix.build_cpp_and_python }}
         timeout-minutes: 90
 
       - name: Install testing dependencies from pip
@@ -62,16 +109,10 @@ jobs:
         uses: ./.github/actions/test
         timeout-minutes: 45
         with:
-          flags: "--all"
-
-      - name: Test C++11 on ${{ matrix.os }}
-        uses: ./.github/actions/test
-        timeout-minutes: 45
-        with:
-          working_directory: cpp
-          flags: >-
-            --all
-            --config ${{ runner.os == 'Windows' && 'Cpp11-Release' || 'cpp11-shared' }}
+          flags: ${{ matrix.test_flags || '' }}
+          working_directory: ${{ matrix.working_directory || '.' }}
+        # Don't test matlab on Windows (see https://github.com/zeroc-ice/ice/issues/3524)
+        if: matrix.config != 'matlab' || runner.os != 'Windows'
 
       - name: Upload test logs
         uses: actions/upload-artifact@v4

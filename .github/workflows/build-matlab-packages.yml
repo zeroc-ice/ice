@@ -1,0 +1,81 @@
+name: "Build MATLAB Packages"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+
+jobs:
+  build-matlab-packages:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-24.04
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup MATLAB
+        uses: ./.github/actions/setup-matlab
+
+      - name: Ice Package Version
+        if: ${{ inputs.ice_version != '' }}
+        run: |
+          "IceToolboxVersion=${{ inputs.ice_version }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "ICE_TOOLBOX_VERSION=${{ inputs.ice_version }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        shell: pwsh
+
+      - name: Build Linux MATLAB ToolBox
+        run: |
+          make -C cpp srcs
+          make -C matlab toolbox
+        if: runner.os == 'Linux'
+
+      - name: Build Windows MATLAB ToolBox
+        run: MSBuild /p:Configuration=Release /p:Platform=x64 /t:BuildDist matlab\msbuild\ice.proj
+        if: runner.os == 'Windows'
+
+      - name: Collect Files To Sign
+        if: runner.os == 'Windows'
+        run: |
+          Resolve-Path -Path ".\matlab\lib\x64\Release\*.dll" -Relative | Set-Content -Path "${{ github.workspace }}\catalog.txt" -Encoding UTF8
+          Resolve-Path -Path ".\matlab\lib\x64\Release\*.mexw64" -Relative | Add-Content -Path "${{ github.workspace }}\catalog.txt" -Encoding UTF8
+          Add-Content -Path "${{ github.workspace }}\catalog.txt" -Value "cpp\bin\x64\Release\slice2matlab.exe"
+
+      - name: Sign C++ Binaries
+        uses: azure/trusted-signing-action@v0
+        if: runner.os == 'Windows'
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          trusted-signing-account-name: zeroc
+          certificate-profile-name: zeroc-ice
+          files-catalog: ${{ github.workspace }}\catalog.txt
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Package Windows MATLAB ToolBox
+        run: MSBuild /p:Configuration=Release /p:Platform=x64 /t:Package matlab\msbuild\ice.proj
+        if: runner.os == 'Windows'
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: matlab-packages-${{ matrix.os }}
+          path: matlab/toolbox/*.mltbx

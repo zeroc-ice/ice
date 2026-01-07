@@ -423,7 +423,7 @@ class Windows(Platform):
         return "Release"
 
     def getCompiler(self):
-        if self.compiler != None:
+        if self.compiler is not None:
             return self.compiler
         if os.environ.get("CPP_COMPILER", "") != "":
             self.compiler = os.environ["CPP_COMPILER"]
@@ -446,8 +446,8 @@ class Windows(Platform):
                     self.compiler = "v143"
                 else:
                     raise RuntimeError("Unknown compiler version:\n{0}".format(out))
-            except:
-                self.compiler = ""
+            except Exception:
+                self.compiler = "v143"
         return self.compiler
 
     def getPlatformToolset(self):
@@ -3675,15 +3675,26 @@ class MatlabMapping(CppBasedClientMapping):
         mappingDesc = "MATLAB"
 
     def getCommandLine(self, current, process, exe, args):
-        matlabHome = os.getenv("MATLAB_HOME")
-        # -wait and -minimize are not available on Linux, -log causes duplicate output to stdout on Linux
-        return "{0} -nodesktop -nosplash{1} -r \"cd '{2}', runTest {3} {4} {5}\"".format(
-            "matlab" if matlabHome is None else os.path.join(matlabHome, "bin", "matlab"),
-            " -wait -log -minimize" if isinstance(platform, Windows) else "",
+        # The MATLAB_COMMAND environment variable can be used to specify the MATLAB command.
+        # This is currently used for GitHub Actions to specify the path to a custom MATLAB executable
+        # which is required to run the tests and does not need any additional arguments.
+        matlabCmd = os.getenv("MATLAB_COMMAND")
+
+        if not matlabCmd:
+            matlabHome = os.getenv("MATLAB_HOME")
+            # -wait and -minimize are not available on Linux, -log causes duplicate output to stdout on Linux
+            matlabCmd = "{0} -nodesktop -nosplash {1} -r".format(
+                "matlab" if matlabHome is None else os.path.join(matlabHome, "bin", "matlab"),
+                " -wait -log -minimize" if isinstance(platform, Windows) else "",
+            )
+
+        return "{0} \"cd('{1}');runTest {2} {3} {4}\"".format(
+            matlabCmd,
             os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "matlab", "test", "lib")),
             self.getTestCwd(process, current),
             current.driver.getComponent().getLibDir(process, self, current),
-            args)
+            args,
+        )
 
     def getServerMapping(self, testId=None):
         return Mapping.getByName("python") # Run clients against Python mapping servers
