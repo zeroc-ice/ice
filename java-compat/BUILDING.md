@@ -246,7 +246,7 @@ To run the tests against a `controller` application started from Android
 Studio you should omit the `--controller-app` option from the commands above.
 
 [binary distribution]: https://zeroc.com/downloads/ice
-[supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3.7.11
+[supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-11
 [Gradle]: https://gradle.org
 [Apache Commons Compress]: https://commons.apache.org/proper/commons-compress/
 [major version]: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.1-200-B.2

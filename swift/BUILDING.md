@@ -85,4 +85,4 @@ python3 allTests.py --config Debug --platform iphonesimulator
 depending on your target.
 
 [binary distribution]: https://zeroc.com/downloads/ice
-[supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3.7.11
+[supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-11
