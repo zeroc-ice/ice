@@ -19,7 +19,7 @@ using namespace IceBT;
 
 namespace
 {
-    class ProfileCallbackI : public ProfileCallback
+    class ProfileCallbackI final : public ProfileCallback
     {
     public:
         ProfileCallbackI(AcceptorIPtr acceptor) : _acceptor(std::move(acceptor)) {}

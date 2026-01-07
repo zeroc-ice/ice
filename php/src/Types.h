@@ -228,7 +228,7 @@ namespace IcePHP
 
         void print(zval*, IceInternal::Output&, PrintObjectHistory*) final;
 
-        virtual void destroy();
+        void destroy() final;
 
         const std::string id;
         const std::string name; // PHP class name
