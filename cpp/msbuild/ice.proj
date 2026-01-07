@@ -83,7 +83,7 @@
         </TestSolution>
     </ItemGroup>
 
-    <!-- Ice for C++ test configurations (C++11 mapping) requires v140 or geater -->
+    <!-- Ice for C++ test configurations (C++11 mapping) requires v140 or greater -->
     <ItemGroup Condition="'$(Cpp11Compiler)' == 'yes'">
         <TestSolution Include="$(IceTestSolution)">
             <Properties>Configuration=Cpp11-$(Configuration);Platform=$(Platform)</Properties>

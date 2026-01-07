@@ -126,7 +126,7 @@ ifneq (,$(MATLAB_COMMAND))
 	cd $(lang_srcdir)/toolbox && $(MATLAB_COMMAND) "removeFolderFromPath '`realpath build`'"
 else
 	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "addFolderToPath '`realpath build`'"
-	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "buildToolbox '$(version)'"
+	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "buildToolbox '$(ICE_TOOLBOX_VERSION)'"
 	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "removeFolderFromPath '`realpath build`'"
 endif
 

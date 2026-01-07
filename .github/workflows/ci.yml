@@ -31,7 +31,7 @@ jobs:
           - os: macos-26
             config: release
 
-          # Release builds
+          # C++11 release builds
           - os: ubuntu-24.04
             config: cpp11-release
             build_flags: "CONFIGS=cpp11-shared"

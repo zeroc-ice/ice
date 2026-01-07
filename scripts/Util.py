@@ -2112,6 +2112,8 @@ class LocalProcessController(ProcessController):
 
         env = os.environ.copy()
         for k, v in envs.items():
+            # Prepend to existing LD_LIBRARY_PATH / DYLD_LIBRARY_PATH / PATH to ensure that our libraries
+            # are found first but we can still pick up system libraries and executables.
             if k == platform.getLdPathEnvName() and k in env:
                 env[k] = v + os.pathsep + env[k]
             else:
