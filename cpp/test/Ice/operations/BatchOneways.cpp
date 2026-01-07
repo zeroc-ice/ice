@@ -18,7 +18,7 @@ namespace
     public:
         BatchRequestInterceptorI() = default;
 
-        virtual void enqueue(const BatchRequest& request, int32_t count, int32_t size)
+        void enqueue(const BatchRequest& request, int32_t count, int32_t size)
         {
             test(request.getOperation() == "opByteSOneway" || request.getOperation() == "ice_ping");
             test(request.getProxy()->ice_isBatchOneway());

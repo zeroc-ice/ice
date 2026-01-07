@@ -88,11 +88,11 @@ namespace IceInternal
                 std::function<void(Ice::ConnectionIPtr, bool)>,
                 std::function<void(std::exception_ptr)>);
 
-            virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
-            virtual void connectionStartFailed(const Ice::ConnectionIPtr&, std::exception_ptr);
+            void connectionStartCompleted(const Ice::ConnectionIPtr&);
+            void connectionStartFailed(const Ice::ConnectionIPtr&, std::exception_ptr);
 
-            virtual void connectors(const std::vector<ConnectorPtr>&);
-            virtual void exception(std::exception_ptr);
+            void connectors(const std::vector<ConnectorPtr>&);
+            void exception(std::exception_ptr);
 
             void getConnectors();
             void nextEndpoint();
@@ -193,8 +193,8 @@ namespace IceInternal
         //
 
 #if defined(ICE_USE_IOCP)
-        virtual bool startAsync(SocketOperation);
-        virtual bool finishAsync(SocketOperation);
+        bool startAsync(SocketOperation) final;
+        bool finishAsync(SocketOperation) final;
 #endif
 
         void message(ThreadPoolCurrent&) override;
@@ -205,8 +205,8 @@ namespace IceInternal
         [[nodiscard]] std::string toString() const override;
         NativeInfoPtr getNativeInfo() override;
 
-        virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
-        virtual void connectionStartFailed(const Ice::ConnectionIPtr&, std::exception_ptr);
+        void connectionStartCompleted(const Ice::ConnectionIPtr&);
+        void connectionStartFailed(const Ice::ConnectionIPtr&, std::exception_ptr);
         void initialize();
         ~IncomingConnectionFactory() override;
 
