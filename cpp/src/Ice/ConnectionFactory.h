@@ -193,8 +193,8 @@ namespace IceInternal
         //
 
 #if defined(ICE_USE_IOCP)
-        bool startAsync(SocketOperation);
-        bool finishAsync(SocketOperation);
+        bool startAsync(SocketOperation) final;
+        bool finishAsync(SocketOperation) final;
 #endif
 
         void message(ThreadPoolCurrent&) override;
