@@ -42,7 +42,7 @@ jobs:
 
       - name: Update Nightly Tap
         run: |
-          ./packaging/brew/update-nightly-tap.sh "${{ inputs.ice_version }}" "https://download.zeroc.com/ice/${{ inputs.quality }}/${{ inputs.channel }}"
+          ./packaging/brew/update-nightly-tap.sh "${{ inputs.channel }}" "${{ inputs.quality }}" "${{ inputs.ice_version }}"
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4

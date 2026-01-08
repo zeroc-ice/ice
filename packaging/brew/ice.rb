@@ -1,4 +1,4 @@
-class Ice < Formula
+class ${ICE_FORMULA_CLASS} < Formula
     desc "Comprehensive RPC framework"
     homepage "https://zeroc.com"
 
