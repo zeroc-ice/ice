@@ -16,8 +16,7 @@ jobs:
   build-matlab-packages:
     strategy:
       matrix:
-        include:
-          - os: ubuntu-24.04
+        os: [ubuntu-24.04, windows-2025]
 
     runs-on: ${{ matrix.os }}
 
@@ -40,7 +39,7 @@ jobs:
 
       - name: Build Linux MATLAB ToolBox
         run: |
-          make -C cpp srcs
+          make -C cpp srcs CONFIGS="cpp11-shared"
           make -C matlab toolbox
         if: runner.os == 'Linux'
 

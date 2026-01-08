@@ -150,6 +150,26 @@ jobs:
       run_id: ${{ github.run_id }}
     secrets: inherit
 
+  build-icegridgui-jar:
+    name: Build IceGrid GUI JAR
+    uses: ./.github/workflows/build-icegridgui-jar.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.semver_version }}
+    secrets: inherit
+
+  build-windows-msi:
+    name: Build Windows MSI
+    uses: ./.github/workflows/build-windows-msi.yml
+    needs:
+      - set-version
+      - build-cpp-windows-binaries
+      - build-icegridgui-jar
+    with:
+      ice_version: ${{ needs.set-version.outputs.semver_version }}
+      run_id: ${{ github.run_id }}
+    secrets: inherit
+
   prune-nightly-artifacts:
     name: Prune Nightly Artifacts
     if: ${{ inputs.publish == true && inputs.quality == 'nightly' }}
@@ -159,6 +179,7 @@ jobs:
       - build-matlab-packages
       - build-maven-packages
       - build-rpm-packages
+      - build-windows-msi
       - build-cpp-nuget-packages
       - set-version
     uses: ./.github/workflows/prune-nightly-artifacts.yml
