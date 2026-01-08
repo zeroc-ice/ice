@@ -23,7 +23,7 @@
     ],
     "main": "index.js",
     "bin": {
-        "slice2js": "./bin/slice2js-cli.js"
+        "slice2js": "./index.js"
     },
     "files": [
         "index.js",
