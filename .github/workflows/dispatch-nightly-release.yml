@@ -33,8 +33,8 @@ jobs:
           workflow: build-nightly-release.yml
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Dispatch nightly build for 3.8 (3:00 UTC)
-        if: github.event.schedule == '0 3 * * *'
+      - name: Dispatch nightly build for 3.7 (4:00 UTC)
+        if: github.event.schedule == '0 4 * * *'
         uses: ./.github/actions/dispatch-workflow
         with:
           ref: 3.7
