@@ -853,6 +853,8 @@ $1_targetdir    := $(call bindir,$1)
 #
 $1_configs              := static
 
+$1[static]_ldflags      := $(fully_static_ldflags)
+
 # Make sure the static/$(build-platform) are always enabled, the native translators
 # are required to build the sources for foreign architectures
 $(notdir $1)_always_enable_configs      := static

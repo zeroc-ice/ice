@@ -1,0 +1,66 @@
+name: "Publish NPM Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The release channel (e.g., 3.7)"
+        required: true
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
+        required: true
+        default: "nightly"
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      quality:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+  publish:
+    name: "Publish NPM Packages"
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Download NPM artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "js-npm-packages" --dir staging
+
+      - name: Publish NPM Packages
+        run: |
+          case "$QUALITY" in
+            "stable")
+              REPOSITORY_PREFIX="//registry.npmjs.org/"
+              # Reference the env var in .npmrc using \$ so NPM reads it at publish time
+              echo "${REPOSITORY_PREFIX}:_authToken=\${RELEASE_NPM_AUTH_TOKEN}" > ~/.npmrc
+              ;;
+            *)
+              REPOSITORY_PREFIX="//download.zeroc.com/nexus/repository/npm-${CHANNEL}-${QUALITY}/"
+              # Reference the env var in .npmrc using \$ so NPM reads it at publish time
+              echo "${REPOSITORY_PREFIX}:_auth=\${NEXUS_NIGHTLY_NPM_AUTH_TOKEN}" > ~/.npmrc
+              ;;
+          esac
+
+          echo "always-auth=true" >> ~/.npmrc
+
+          # Publish both slice2js and ice packages
+          for pkg in staging/js-npm-packages/*.tgz; do
+            npm publish "$pkg" --registry "https:${REPOSITORY_PREFIX}"
+          done
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          QUALITY: ${{ inputs.quality }}
+          NEXUS_NIGHTLY_NPM_AUTH_TOKEN: ${{ secrets.NEXUS_NIGHTLY_NPM_AUTH_TOKEN }}
+          RELEASE_NPM_AUTH_TOKEN: ${{ secrets.RELEASE_NPM_AUTH_TOKEN }}

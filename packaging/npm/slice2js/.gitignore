@@ -1,0 +1,9 @@
+# Generated during prepack
+slice/
+bin/windows-x64/
+bin/macos-arm64/
+bin/linux-x64/
+bin/linux-arm64/
+
+# npm package
+*.tgz
