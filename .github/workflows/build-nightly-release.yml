@@ -1,0 +1,12 @@
+name: Build Nightly Release
+on:
+  workflow_dispatch:
+
+jobs:
+  build-nightly-release:
+    if: github.repository == 'zeroc-ice/ice'
+    uses: ./.github/workflows/build-release.yml
+    secrets: inherit
+    with:
+      quality: nightly
+      publish: true

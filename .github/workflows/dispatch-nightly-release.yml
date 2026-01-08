@@ -1,0 +1,45 @@
+name: Dispatch Nightly Release
+
+on:
+  # Central scheduler (runs from the default branch)
+  schedule:
+    # Run main nightly at 2:00 AM UTC
+    - cron: "0 2 * * *"
+
+    # Run 3.8 nightly at 3:00 AM UTC
+    - cron: "0 3 * * *"
+
+    # Run 3.7 nightly at 4:00 AM UTC
+    - cron: "0 4 * * *"
+
+jobs:
+  dispatch-nightly-release:
+    if: github.repository == 'zeroc-ice/ice'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Dispatch nightly build for main (2:00 UTC)
+        if: github.event.schedule == '0 2 * * *'
+        uses: ./.github/actions/dispatch-workflow
+        with:
+          ref: main
+          workflow: build-nightly-release.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Dispatch nightly build for 3.8 (3:00 UTC)
+        if: github.event.schedule == '0 3 * * *'
+        uses: ./.github/actions/dispatch-workflow
+        with:
+          ref: 3.8
+          workflow: build-nightly-release.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Dispatch nightly build for 3.7 (4:00 UTC)
+        if: github.event.schedule == '0 4 * * *'
+        uses: ./.github/actions/dispatch-workflow
+        with:
+          ref: 3.7
+          workflow: build-nightly-release.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
