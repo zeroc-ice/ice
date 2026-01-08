@@ -1,0 +1,41 @@
+[project]
+name = "zeroc-ice"
+version = "3.7.11"
+description = "Ice is a comprehensive RPC framework with support for Python, C++, .NET, Java, JavaScript and more."
+authors = [{ name = "ZeroC, Inc.", email = "info@zeroc.com" }]
+requires-python = ">=3.10"
+readme = "README.md"
+license = "GPL-2.0-only"
+keywords = ["ice", "RPC"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
+
+[project.urls]
+Homepage = "https://zeroc.com/ice"
+Repository = "https://github.com/zeroc-ice/ice"
+Documentation = "https://doc.zeroc.com/ice/3.7"
+Issues = "https://github.com/zeroc-ice/ice/issues"
+Changelog = "https://github.com/zeroc-ice/ice/blob/3.7/CHANGELOG-3.7.md"
+
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["slice2py"]
+
+[project.scripts]
+slice2py = "slice2py:main"
+
+[dependency-groups]
+dev = ["cryptography", "setuptools"]
