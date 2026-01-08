@@ -21,7 +21,7 @@ Homepage = "https://zeroc.com/ice"
 Repository = "https://github.com/zeroc-ice/ice"
 Documentation = "https://code.zeroc.com/ice/main/api/python/index.html"
 Issues = "https://github.com/zeroc-ice/ice/issues"
-Changelog = "https://github.com/zeroc-ice/ice/blob/main/CHANGELOG-3.8.md"
+Changelog = "https://github.com/zeroc-ice/ice/blob/main/CHANGELOG-3.9.md"
 
 [build-system]
 requires = ["setuptools >= 61.0"]

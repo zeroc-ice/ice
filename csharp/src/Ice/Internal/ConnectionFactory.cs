@@ -148,7 +148,7 @@ internal sealed class OutgoingConnectionFactory
                 // gets the information about whether messages should be compressed or not fro other sources. In order
                 // to allow connection sharing for endpoints that differ in the value of the compression flag only, we
                 // always set the compression flag to false here in this connection factory. We also clear the timeout
-                // as it is no longer used for Ice 3.8.
+                // as it is no longer used for Ice 3.8 or greater.
                 endpoint = endpoint.compress(false).timeout(-1);
 
                 foreach (ICollection<ConnectionI> connections in _connections.Values)

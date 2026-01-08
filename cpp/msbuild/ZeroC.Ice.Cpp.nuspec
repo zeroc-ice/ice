@@ -11,7 +11,7 @@
     <icon>logo-128x128.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>The Ice framework provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.</description>
-    <releaseNotes>https://docs.zeroc.com/ice/latest/cpp/ice-3-8-0-preview</releaseNotes>
+    <releaseNotes>https://docs.zeroc.com/ice/latest/cpp/ice-3-9-0-preview</releaseNotes>
     <tags>ice native rpc zeroc</tags>
     <readme>README.md</readme>
   </metadata>
