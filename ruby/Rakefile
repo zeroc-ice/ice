@@ -1,0 +1,216 @@
+# Copyright (c) ZeroC, Inc.
+
+require 'rake'
+require 'fileutils'
+require 'open-uri'
+require 'uri'
+require 'pathname'
+
+desc "Generate additional C/C++ source files"
+task :generate_sources do
+    # Script directory for target paths
+    script_directory = File.dirname(File.absolute_path(__FILE__))
+
+    # Define versions and URLs for dependencies
+    mcpp_version = "2.7.2.18"
+    mcpp_url = "https://github.com/zeroc-ice/mcpp/archive/refs/tags/v#{mcpp_version}.tar.gz"
+    mcpp_local_filename = "dist/mcpp-#{mcpp_version}.tar.gz"
+    dist_dir = 'dist'
+
+    unless File.exist?(dist_dir)
+        FileUtils.mkdir_p(dist_dir)
+    end
+
+    unless File.exist?(mcpp_local_filename)
+        URI.open(mcpp_url) do |response|
+            File.open(mcpp_local_filename, 'wb') do |file|
+                file.write(response.read)
+            end
+        end
+
+        system("tar -xzf #{mcpp_local_filename} -C #{dist_dir}")
+    end
+
+    # MCPP sources
+    Dir.foreach("dist/mcpp-#{mcpp_version}") do |relative_path|
+        source_file = "dist/mcpp-#{mcpp_version}/#{relative_path}"
+        if File.file?(source_file) && ['.c', '.h'].include?(File.extname(source_file).downcase)
+            target_file = File.join(script_directory, 'dist/ice/mcpp', relative_path)
+            target_dir = File.dirname(target_file)
+
+            unless File.exist?(target_dir)
+                FileUtils.mkdir_p(target_dir)
+            end
+            FileUtils.cp(source_file, target_file)
+        end
+    end
+
+    # Ensure C++ generated sources and the required Slice compilers have been built.
+    system('make slice2cpp slice2rb generate-srcs OPTIMIZE=yes -C ../cpp')
+
+    # Helper to recursively copy C/C++ source/header files
+    copy_cpp_files = lambda do |source_dir, base_dir|
+        return unless File.exist?(source_dir)
+        Dir.foreach(source_dir) do |entry|
+            next if entry == '.' || entry == '..'
+            source_file = "#{source_dir}/#{entry}"
+            if File.directory?(source_file)
+                # Recursively handle subdirectories
+                copy_cpp_files.call(source_file, base_dir)
+            elsif File.file?(source_file) && ['.c', '.cpp', '.h'].include?(File.extname(source_file).downcase)
+                relative_path = Pathname.new(File.expand_path(source_file)).relative_path_from(Pathname.new(File.expand_path(base_dir))).to_s
+                target_file = File.join(script_directory, 'dist/ice', relative_path)
+                target_dir = File.dirname(target_file)
+
+                unless File.exist?(target_dir)
+                    FileUtils.mkdir_p(target_dir)
+                end
+                FileUtils.cp(source_file, target_file)
+            end
+        end
+    end
+
+    # Define source directories for Ice C++ (3.7 structure with IceUtil and IceSSL as separate dirs)
+    # Use tuples of [source_dir, base_dir] where base_dir is used for computing relative paths
+    # base_dir ".." means the path will be relative to parent of cpp/, giving "cpp/src/..." or "cpp/include/..."
+    ice_cpp_sources = [
+        # Source directories - relative to parent so paths include "cpp/src/..."
+        ["../cpp/src/Ice", ".."],
+        ["../cpp/src/IceSSL", ".."],
+        ["../cpp/src/IceUtil", ".."],
+        ["../cpp/src/IceDiscovery", ".."],
+        ["../cpp/src/IceLocatorDiscovery", ".."],
+        ["../cpp/src/slice2rb", ".."],
+        ["../cpp/src/Slice", ".."],
+        # Include directories - relative to parent so paths include "cpp/include/..."
+        ["../cpp/include/Ice", ".."],
+        ["../cpp/include/IceSSL", ".."],
+        ["../cpp/include/IceUtil", ".."],
+        # Generated includes - also relative to parent to get "cpp/include/generated/..."
+        ["../cpp/include/generated/Ice", ".."],
+        ["../cpp/include/generated/IceSSL", ".."],
+        ["../cpp/include/generated/Glacier2", ".."],
+        ["../cpp/include/generated/IceBox", ".."],
+        ["../cpp/include/generated/IceGrid", ".."],
+        ["../cpp/include/generated/IcePatch2", ".."],
+        ["../cpp/include/generated/IceStorm", ".."],
+    ]
+
+    for source_entry in ice_cpp_sources do
+        source_dir, base_dir = source_entry
+        copy_cpp_files.call(source_dir, base_dir)
+    end
+
+    # Handle generated headers under src directories (IceDiscovery, IceLocatorDiscovery)
+    # These have a nested structure: src/IceDiscovery/generated/IceDiscovery/IceDiscovery.h
+    # which needs to map to cpp/include/IceDiscovery/IceDiscovery.h
+    src_generated_dirs = [
+        ["../cpp/src/IceDiscovery/generated", "../cpp/src/IceDiscovery/generated"],
+        ["../cpp/src/IceLocatorDiscovery/generated", "../cpp/src/IceLocatorDiscovery/generated"],
+    ]
+
+    for source_entry in src_generated_dirs do
+        source_dir, base_dir = source_entry
+        next unless File.exist?(source_dir)
+        # Copy the generated .cpp files to src
+        Dir.foreach(source_dir) do |entry|
+            next if entry == '.' || entry == '..'
+            source_file = "#{source_dir}/#{entry}"
+            if File.file?(source_file) && ['.cpp', '.h'].include?(File.extname(source_file).downcase)
+                relative_path = Pathname.new(File.expand_path(source_file)).relative_path_from(Pathname.new(File.expand_path('..'))).to_s
+                target_file = File.join(script_directory, 'dist/ice', relative_path)
+                target_dir = File.dirname(target_file)
+
+                unless File.exist?(target_dir)
+                    FileUtils.mkdir_p(target_dir)
+                end
+                FileUtils.cp(source_file, target_file)
+            elsif File.directory?(source_file)
+                # For the subdirectory with headers (e.g., IceDiscovery/IceDiscovery.h)
+                # Copy to cpp/include/ path for the include path to work
+                subdir_name = entry
+                Dir.foreach(source_file) do |subentry|
+                    next if subentry == '.' || subentry == '..'
+                    sub_source_file = "#{source_file}/#{subentry}"
+                    if File.file?(sub_source_file) && ['.h'].include?(File.extname(sub_source_file).downcase)
+                        target_file = File.join(script_directory, "dist/ice/cpp/include/#{subdir_name}", subentry)
+                        target_dir = File.dirname(target_file)
+
+                        unless File.exist?(target_dir)
+                            FileUtils.mkdir_p(target_dir)
+                        end
+                        FileUtils.cp(sub_source_file, target_file)
+                    end
+                end
+            end
+        end
+    end
+
+    # Define source Slice directories included in the gem.
+    ice_slice_sources = [
+        "../slice/Glacier2",
+        "../slice/Ice",
+        "../slice/IceBox",
+        "../slice/IceGrid",
+        "../slice/IcePatch2",
+        "../slice/IceStorm",
+    ]
+
+    for source_dir in ice_slice_sources do
+        Dir.foreach(source_dir) do |entry|
+            source_file = "#{source_dir}/#{entry}"
+            if File.file?(source_file) && ['.ice'].include?(File.extname(source_file).downcase)
+                relative_path = Pathname.new(File.expand_path(source_file)).relative_path_from(Pathname.new(File.expand_path('..'))).to_s
+                target_file = File.join(script_directory, 'dist/ice', relative_path)
+                target_dir = File.dirname(target_file)
+
+                unless File.exist?(target_dir)
+                    FileUtils.mkdir_p(target_dir)
+                end
+                FileUtils.cp(source_file, target_file)
+            end
+        end
+    end
+
+    # Ruby native extension sources
+    Dir.foreach("src/IceRuby") do |relative_path|
+        source_file = "src/IceRuby/#{relative_path}"
+        if File.file?(source_file) && ['.cpp', '.h'].include?(File.extname(source_file).downcase)
+            target_file = File.join(script_directory, 'dist/IceRuby', relative_path)
+            target_dir = File.dirname(target_file)
+
+            unless File.exist?(target_dir)
+                FileUtils.mkdir_p(target_dir)
+            end
+            FileUtils.cp(source_file, target_file)
+        end
+    end
+
+    # Ruby sources
+    system('make generate-srcs OPTIMIZE=yes')
+    ice_ruby_sources = ["ruby", "ruby/Glacier2", "ruby/Ice", "ruby/IceBox", "ruby/IceGrid", "ruby/IcePatch2", "ruby/IceStorm"]
+    for source_dir in ice_ruby_sources do
+        next unless File.exist?(source_dir)
+        Dir.foreach(source_dir) do |entry|
+            source_file = "#{source_dir}/#{entry}"
+            if File.file?(source_file) && ['.rb'].include?(File.extname(source_file).downcase)
+                relative_path = Pathname.new(File.expand_path(source_file)).relative_path_from(
+                    Pathname.new(File.expand_path('./ruby'))).to_s
+                target_file = File.join(script_directory, 'dist/lib', relative_path)
+                target_dir = File.dirname(target_file)
+
+                unless File.exist?(target_dir)
+                    FileUtils.mkdir_p(target_dir)
+                end
+                FileUtils.cp(source_file, target_file)
+            end
+        end
+    end
+end
+
+desc "Build the gem"
+task :build => 'generate_sources' do
+    sh "gem build ice.gemspec"
+end
+
+task :default => [:build]

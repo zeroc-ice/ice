@@ -1,0 +1,5 @@
+# Generated gem packages
+*.gem
+
+# Build artifacts in dist/
+dist/*
