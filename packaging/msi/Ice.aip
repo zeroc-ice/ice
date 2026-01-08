@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DOCUMENT Type="Advanced Installer" CreateVersion="7.3" version="12.5.1" Modules="enterprise" RootPath="." Language="en" Id="{D2D9A4AE-247D-4F78-A56D-30B7664C93DA}">
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiValidationComponent">
+    <ROW Table="File" Column="Sequence" MinValue="1" MaxValue="2147483647" Description="Sequence with respect to the media images; order must track cabinet order." Options="0" ColumnType="3" ColumnIndex="7" ColumnSize="4" MsiKey="File#Sequence"/>
+    <ROW Table="Media" Column="LastSequence" MinValue="0" MaxValue="2147483647" Description="File sequence number for the last file for this media." Options="0" ColumnType="3" ColumnIndex="1" ColumnSize="4" MsiKey="Media#LastSequence"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
+    <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
+    <ROW Property="AI_EXTERNALUIUNINSTALLERNAME" MultiBuildValue="DefaultBuild:aiui"/>
+    <ROW Property="ALLUSERS" Value="2"/>
+    <ROW Property="ARPPRODUCTICON" Value="product.exe" Type="8"/>
+    <ROW Property="ARPURLINFOABOUT" Value="https://zeroc.com"/>
+    <ROW Property="BannerBitmap" Value="banner" MultiBuildValue="DefaultBuild:banner.jpg" Type="1" MsiKey="BannerBitmap"/>
+    <ROW Property="DOCUMENTS_DIR" Value="DOCUMENTS_DIR"/>
+    <ROW Property="DialogBitmap" Value="dialog" MultiBuildValue="DefaultBuild:diglog.jpg" Type="1" MsiKey="DialogBitmap"/>
+    <ROW Property="LICENSE_AGREEMENT" Value="No" Options="1"/>
+    <ROW Property="Manufacturer" Value="ZeroC, Inc." ValueLocId="*"/>
+    <ROW Property="PRODUCT_NAME" Value="Ice 3.7.11"/>
+    <ROW Property="ProductCode" Value="1033:{AB37BCBA-BD85-4892-A41E-00F4C059901A} " Type="16"/>
+    <ROW Property="ProductLanguage" Value="1033"/>
+    <ROW Property="ProductName" Value="Ice 3.7.11" ValueLocId="*"/>
+    <ROW Property="ProductVersion" Value="3.7.11" Type="32"/>
+    <ROW Property="RELEASENOTES" Value="1" Type="4"/>
+    <ROW Property="SET_SYSTEM_PATH" Value="1"/>
+    <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
+    <ROW Property="UpgradeCode" Value="{D8C2E744-0230-4ED5-89ED-8CD302C3DCC7}"/>
+    <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40Display" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
+    <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
+    <ROW Directory="CommonAppDataFolder" Directory_Parent="TARGETDIR" DefaultDir="Common~1|CommonAppDataFolder" IsPseudoRoot="1"/>
+    <ROW Directory="Glacier2_Dir" Directory_Parent="slice_Dir" DefaultDir="Glacier2"/>
+    <ROW Directory="Ice3.7.0_Dir" Directory_Parent="ProgramMenuFolder" DefaultDir="ICE37~1.11|Ice 3.7.11"/>
+    <ROW Directory="IceBT_Dir" Directory_Parent="slice_Dir" DefaultDir="IceBT"/>
+    <ROW Directory="IceBox_Dir" Directory_Parent="slice_Dir" DefaultDir="IceBox"/>
+    <ROW Directory="IceGrid_Dir" Directory_Parent="slice_Dir" DefaultDir="IceGrid"/>
+    <ROW Directory="IceIAP_Dir" Directory_Parent="slice_Dir" DefaultDir="IceIAP"/>
+    <ROW Directory="IcePatch2_Dir" Directory_Parent="slice_Dir" DefaultDir="ICEPAT~1|IcePatch2"/>
+    <ROW Directory="IceSSL_Dir" Directory_Parent="slice_Dir" DefaultDir="IceSSL"/>
+    <ROW Directory="IceStorm_Dir" Directory_Parent="slice_Dir" DefaultDir="IceStorm"/>
+    <ROW Directory="Ice_Dir" Directory_Parent="slice_Dir" DefaultDir="Ice"/>
+    <ROW Directory="ProgramMenuFolder" Directory_Parent="TARGETDIR" DefaultDir="Progra~1|ProgramMenuFolder" IsPseudoRoot="1"/>
+    <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
+    <ROW Directory="bin_Dir" Directory_Parent="APPDIR" DefaultDir="bin"/>
+    <ROW Directory="config_Dir" Directory_Parent="APPDIR" DefaultDir="config"/>
+    <ROW Directory="slice_Dir" Directory_Parent="APPDIR" DefaultDir="slice"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
+    <ROW Component="Admin.ice" ComponentId="{81CB712B-F420-4421-9FA2-49831F15A8FC}" Directory_="IceGrid_Dir" Attributes="0" KeyPath="Admin.ice" Type="0"/>
+    <ROW Component="B5158184F44A6981C5919229A6AEBE" ComponentId="{90A918EF-FE1F-48C6-A241-E132DD2F8BEC}" Directory_="APPDIR" Attributes="260" KeyPath="B5158184F44A6981C5919229A6AEBE" Options="2"/>
+    <ROW Component="BuiltinSequences.ice" ComponentId="{B6EAA9E8-C40D-453C-87C6-497EEB37896B}" Directory_="Ice_Dir" Attributes="0" KeyPath="BuiltinSequences.ice" Type="0"/>
+    <ROW Component="ConnectionInfo.ice" ComponentId="{91BEF46C-C5C3-4777-95BC-71E1177F8200}" Directory_="IceBT_Dir" Attributes="0" KeyPath="ConnectionInfo.ice" Type="0"/>
+    <ROW Component="ConnectionInfo.ice_1" ComponentId="{34F88534-8C81-4CE9-ABF1-90AE4E628486}" Directory_="IceIAP_Dir" Attributes="0" KeyPath="ConnectionInfo.ice_1" Type="0"/>
+    <ROW Component="ConnectionInfo.ice_2" ComponentId="{05C59933-400F-4A7B-8ABA-339C4BF398A7}" Directory_="IceSSL_Dir" Attributes="0" KeyPath="ConnectionInfo.ice_2" Type="0"/>
+    <ROW Component="ContentType" ComponentId="{3A543025-CF98-46CC-B5CB-432BA086DEEE}" Directory_="APPDIR" Attributes="260" KeyPath="ContentType"/>
+    <ROW Component="FileInfo.ice" ComponentId="{8BB328CA-7B28-4346-AD2F-F0AB181EE47D}" Directory_="IcePatch2_Dir" Attributes="0" KeyPath="FileInfo.ice" Type="0"/>
+    <ROW Component="ICE_LICENSE.txt" ComponentId="{1EDE0681-D276-4F8D-B1C9-9DD19C78B7AF}" Directory_="APPDIR" Attributes="0" KeyPath="THIRD_PARTY_LICENSE.txt"/>
+    <ROW Component="ICE_LICENSE.txt_1" ComponentId="{75CABDDB-CE2A-4919-AC37-C5EC049E7BF3}" Directory_="APPDIR" Attributes="0" KeyPath="ICE_LICENSE.txt"/>
+    <ROW Component="Ice3.7.0" ComponentId="{7BFD8586-C9FD-4490-9EBD-28013EB929D7}" Directory_="Ice3.7.0_Dir" Attributes="4" KeyPath="Ice3.7.0"/>
+    <ROW Component="IceBox.ice" ComponentId="{10D7A2C2-6EB6-408C-AAF6-D464978B3FB2}" Directory_="IceBox_Dir" Attributes="0" KeyPath="IceBox.ice" Type="0"/>
+    <ROW Component="IceStorm.ice" ComponentId="{81256CB0-CC00-4697-8EF3-C8BC618BB4A8}" Directory_="IceStorm_Dir" Attributes="0" KeyPath="IceStorm.ice" Type="0"/>
+    <ROW Component="InstallDir" ComponentId="{08ECB67A-C0AF-4201-A763-D38B2496B429}" Directory_="APPDIR" Attributes="260" KeyPath="InstallDir"/>
+    <ROW Component="Installicegridgui.jarComponentShortcuts" ComponentId="{300A3309-3BA7-4AEC-8EB6-3DA346CF0682}" Directory_="APPDIR" Attributes="260" KeyPath="Installicegridgui.jarComponentShortcuts"/>
+    <ROW Component="LICENSE.txt" ComponentId="{9542FE10-093C-45BF-93CE-CA37D8ADE313}" Directory_="APPDIR" Attributes="0" KeyPath="LICENSE.txt"/>
+    <ROW Component="Metrics.ice" ComponentId="{293B62FA-F23A-430C-A9B4-FF8AEB7B715D}" Directory_="Glacier2_Dir" Attributes="0" KeyPath="Metrics.ice" Type="0"/>
+    <ROW Component="PerceivedType" ComponentId="{DDDB76E5-B12C-4BE8-B022-2EA198B23D90}" Directory_="APPDIR" Attributes="260" KeyPath="PerceivedType"/>
+    <ROW Component="_" ComponentId="{1A1E18F9-0C52-4493-BDF0-148B8CF80686}" Directory_="APPDIR" Attributes="260" KeyPath="_"/>
+    <ROW Component="__1" ComponentId="{47B79542-9243-4320-A5B0-63C0BB0685BB}" Directory_="APPDIR" Attributes="260" KeyPath="__1"/>
+    <ROW Component="bzip2.dll" ComponentId="{A8147F24-F462-4658-882D-D0D481AC8399}" Directory_="bin_Dir" Attributes="256" Condition="VersionNT64" KeyPath="bzip2.dll"/>
+    <ROW Component="glacier237.dll" ComponentId="{6D5FC222-AA77-4FD3-9387-5D02C984503B}" Directory_="bin_Dir" Attributes="256" KeyPath="glacier237.dll"/>
+    <ROW Component="glacier2cryptpermissionsverifier37.dll" ComponentId="{C2DE4028-D166-4E59-8856-085D0950F408}" Directory_="bin_Dir" Attributes="256" KeyPath="glacier2cryptpermissionsverifier37.dll"/>
+    <ROW Component="glacier2router.cfg" ComponentId="{F604DABB-98F7-4888-8239-895456D04295}" Directory_="config_Dir" Attributes="0" KeyPath="glacier2router.cfg" Type="0"/>
+    <ROW Component="glacier2router.exe" ComponentId="{7635F08A-3635-4C08-874F-A46E4C59FE9D}" Directory_="bin_Dir" Attributes="256" Condition="VersionNT64" KeyPath="glacier2router.exe"/>
+    <ROW Component="ice" ComponentId="{18587318-C2BE-4322-8ED1-8A4FCE0485F3}" Directory_="APPDIR" Attributes="260" KeyPath="ice"/>
+    <ROW Component="ice37.dll_4" ComponentId="{4D81A9A6-E225-4E17-B539-C5CEA06713AB}" Directory_="bin_Dir" Attributes="256" KeyPath="ice37.dll_4"/>
+    <ROW Component="icebox.exe" ComponentId="{7EF9B189-3CFA-445A-821D-701317BE30B3}" Directory_="bin_Dir" Attributes="256" Condition="VersionNT64" KeyPath="icebox.exe"/>
+    <ROW Component="icebox37.dll" ComponentId="{01C6EB7D-E160-4831-9D55-07AA92484612}" Directory_="bin_Dir" Attributes="256" KeyPath="icebox37.dll"/>
+    <ROW Component="iceboxadmin.exe" ComponentId="{EBDC958D-07AE-413A-9054-8E4F5329D22D}" Directory_="bin_Dir" Attributes="256" Condition="VersionNT64" KeyPath="iceboxadmin.exe"/>
+    <ROW Component="icebridge.exe" ComponentId="{0402F16E-31E4-4751-B57E-47F16AD49F49}" Directory_="bin_Dir" Attributes="256" KeyPath="icebridge.exe"/>
+    <ROW Component="icedb37.dll" ComponentId="{755A2395-271E-4142-BD56-83D6E6A0085A}" Directory_="bin_Dir" Attributes="256" KeyPath="icedb37.dll"/>
+    <ROW Component="icediscovery37.dll_4" ComponentId="{4FBFF863-5E76-4FD0-8740-2A2DAEADF646}" Directory_="bin_Dir" Attributes="256" KeyPath="icediscovery37.dll_4"/>
+    <ROW Component="icegrid37.dll" ComponentId="{368B7458-98E3-49B8-B98D-D86A1CD4F6D7}" Directory_="bin_Dir" Attributes="256" KeyPath="icegrid37.dll"/>
+    <ROW Component="icegridadmin.exe" ComponentId="{9E86D498-1A93-4C25-B40E-FB49F7B47398}" Directory_="bin_Dir" Attributes="256" Condition="VersionNT64" KeyPath="icegridadmin.exe"/>
+    <ROW Component="icegriddb.exe" ComponentId="{14FA6A24-FE9B-4A10-B1BA-FEA71186FC77}" Directory_="bin_Dir" Attributes="256" Condition="VersionNT64" KeyPath="icegriddb.exe"/>
+    <ROW Component="icegridgui.jar" ComponentId="{2ECA8DBC-C39A-4D7A-81B6-44883E3C2731}" Directory_="bin_Dir" Attributes="0" KeyPath="icegridgui.jar" Type="0"/>
+    <ROW Component="icegridnode.exe" ComponentId="{C319062D-75EF-4912-964F-EA687AC2F2E7}" Directory_="bin_Dir" Attributes="256" Condition="VersionNT64" KeyPath="icegridnode.exe"/>
+    <ROW Component="icegridregistry.exe" ComponentId="{45D26910-E4A9-444A-8FDD-1809271D2A53}" Directory_="bin_Dir" Attributes="256" Condition="VersionNT64" KeyPath="icegridregistry.exe"/>
+    <ROW Component="icelocatordiscovery37.dll_4" ComponentId="{2E322AC5-D594-4B44-BF3F-EA99B4D05A50}" Directory_="bin_Dir" Attributes="256" KeyPath="icelocatordiscovery37.dll_4"/>
+    <ROW Component="icepatch237.dll" ComponentId="{58F0E8DB-BEEB-4682-879C-11E0340B8DEB}" Directory_="bin_Dir" Attributes="256" KeyPath="icepatch237.dll"/>
+    <ROW Component="icepatch2calc.exe" ComponentId="{55DC355E-945C-4CDB-B8B3-92A22AE60D52}" Directory_="bin_Dir" Attributes="256" Condition="VersionNT64" KeyPath="icepatch2calc.exe"/>
+    <ROW Component="icepatch2client.exe" ComponentId="{CB26B920-CA30-41FF-87A7-392337E7DA44}" Directory_="bin_Dir" Attributes="256" Condition="VersionNT64" KeyPath="icepatch2client.exe"/>
+    <ROW Component="icepatch2server.exe" ComponentId="{66D77664-7CFB-42B3-A721-31321E0C68E6}" Directory_="bin_Dir" Attributes="256" Condition="VersionNT64" KeyPath="icepatch2server.exe"/>
+    <ROW Component="iceserviceinstall.exe" ComponentId="{9709E8D0-50A4-4819-A273-C144EFAF1083}" Directory_="bin_Dir" Attributes="256" KeyPath="iceserviceinstall.exe"/>
+    <ROW Component="icessl37.dll_4" ComponentId="{FAF7742D-1F0F-44FE-A0B1-AAD061688786}" Directory_="bin_Dir" Attributes="256" KeyPath="icessl37.dll_4"/>
+    <ROW Component="icestorm37.dll" ComponentId="{6E9CAD59-FF85-4F40-942C-626410027820}" Directory_="bin_Dir" Attributes="256" KeyPath="icestorm37.dll"/>
+    <ROW Component="icestormadmin.exe" ComponentId="{7725D14C-EDFB-44B9-8BEC-DE893661FEA4}" Directory_="bin_Dir" Attributes="256" Condition="VersionNT64" KeyPath="icestormadmin.exe"/>
+    <ROW Component="icestormdb.exe" ComponentId="{6E905324-15EB-40E2-AC6A-5BE2BA288DCD}" Directory_="bin_Dir" Attributes="256" Condition="VersionNT64" KeyPath="icestormdb.exe"/>
+    <ROW Component="icestormservice37.dll" ComponentId="{9862D81E-C5E2-4564-8F79-8A7261BFA5AE}" Directory_="bin_Dir" Attributes="256" KeyPath="icestormservice37.dll"/>
+    <ROW Component="icexml37.dll" ComponentId="{8B2D9271-B3DB-4F9B-AA15-655E4359B9C4}" Directory_="bin_Dir" Attributes="256" KeyPath="icexml37.dll"/>
+    <ROW Component="libexpat.dll" ComponentId="{2ABD3B35-461F-4565-86D7-4468393ACC6B}" Directory_="bin_Dir" Attributes="256" Condition="VersionNT64" KeyPath="libexpat.dll"/>
+    <ROW Component="mdb_copy.exe" ComponentId="{997588BA-1D20-4C07-BC05-801ED38F08A4}" Directory_="bin_Dir" Attributes="256" KeyPath="mdb_copy.exe"/>
+    <ROW Component="mdb_dump.exe" ComponentId="{9999F6EE-8345-4186-9D61-01F9AEA5BCA2}" Directory_="bin_Dir" Attributes="256" KeyPath="mdb_dump.exe"/>
+    <ROW Component="mdb_load.exe" ComponentId="{B5EBC28E-9F3F-4405-9CB1-E0DE78D9BF9F}" Directory_="bin_Dir" Attributes="256" KeyPath="mdb_load.exe"/>
+    <ROW Component="mdb_stat.exe" ComponentId="{556515B4-7283-4890-A51C-3968178F0CA1}" Directory_="bin_Dir" Attributes="256" KeyPath="mdb_stat.exe"/>
+    <ROW Component="slice2cpp.exe" ComponentId="{B2155187-2B15-4E7F-B087-A9D6341D6AEE}" Directory_="bin_Dir" Attributes="256" KeyPath="slice2cpp.exe"/>
+    <ROW Component="slice2cs.exe" ComponentId="{AC8CC4DD-265D-4FDF-8E95-220F56FF967F}" Directory_="bin_Dir" Attributes="256" KeyPath="slice2cs.exe"/>
+    <ROW Component="slice2html.exe" ComponentId="{5D0143DE-4ED7-43DB-B989-E2E41DA96F65}" Directory_="bin_Dir" Attributes="256" KeyPath="slice2html.exe"/>
+    <ROW Component="slice2java.exe" ComponentId="{44AE1850-547C-446E-A498-2A83DD19B15A}" Directory_="bin_Dir" Attributes="256" KeyPath="slice2java.exe"/>
+    <ROW Component="slice2js.exe" ComponentId="{6D0322E4-0735-4147-BE55-FE52F23C4B4C}" Directory_="bin_Dir" Attributes="256" KeyPath="slice2js.exe"/>
+    <ROW Component="slice2matlab.exe" ComponentId="{80442FCD-58BB-476F-AE99-58BD8914AD64}" Directory_="bin_Dir" Attributes="256" KeyPath="slice2matlab.exe"/>
+    <ROW Component="slice2objc.exe" ComponentId="{AD4A818E-9D53-492A-B818-293D782CEBC2}" Directory_="bin_Dir" Attributes="256" KeyPath="slice2objc.exe"/>
+    <ROW Component="slice2php.exe" ComponentId="{3C4905E5-B3F1-4EA1-8F03-E5737904E7DE}" Directory_="bin_Dir" Attributes="256" KeyPath="slice2php.exe"/>
+    <ROW Component="slice2py.exe" ComponentId="{F9265C35-C420-4913-AC69-605E7B773112}" Directory_="bin_Dir" Attributes="256" KeyPath="slice2py.exe"/>
+    <ROW Component="slice2rb.exe" ComponentId="{7D3A3590-44EA-4A28-976D-F5441E8F318C}" Directory_="bin_Dir" Attributes="256" KeyPath="slice2rb.exe"/>
+    <ROW Component="slicefile" ComponentId="{76CC5122-2320-4D8D-950C-B3540DBF944D}" Directory_="APPDIR" Attributes="260" KeyPath="slicefile"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
+    <ROW Feature="B5158184F44A6981C5919229A6AEBE" Title="Visual C++ Redistributable for Visual Studio 2015 x64" Description="Visual C++ Redistributable for Visual Studio 2015 x64" Display="3" Level="1" Attributes="0" Components="B5158184F44A6981C5919229A6AEBE"/>
+    <ROW Feature="core" Title="core" Description="Description" Display="0" Level="1" Directory_="APPDIR" Attributes="16" Components="Admin.ice BuiltinSequences.ice ConnectionInfo.ice ConnectionInfo.ice_1 ConnectionInfo.ice_2 ContentType FileInfo.ice ICE_LICENSE.txt ICE_LICENSE.txt_1 Ice3.7.0 IceBox.ice IceStorm.ice InstallDir Installicegridgui.jarComponentShortcuts LICENSE.txt Metrics.ice PerceivedType _ __1 bzip2.dll glacier237.dll glacier2cryptpermissionsverifier37.dll glacier2router.cfg glacier2router.exe ice ice37.dll_4 icebox.exe icebox37.dll iceboxadmin.exe icebridge.exe icedb37.dll icediscovery37.dll_4 icegrid37.dll icegridadmin.exe icegriddb.exe icegridgui.jar icegridnode.exe icegridregistry.exe icelocatordiscovery37.dll_4 icepatch237.dll icepatch2calc.exe icepatch2client.exe icepatch2server.exe iceserviceinstall.exe icessl37.dll_4 icestorm37.dll icestormadmin.exe icestormdb.exe icestormservice37.dll icexml37.dll libexpat.dll mdb_copy.exe mdb_dump.exe mdb_load.exe mdb_stat.exe slice2cpp.exe slice2cs.exe slice2html.exe slice2java.exe slice2js.exe slice2matlab.exe slice2objc.exe slice2php.exe slice2py.exe slice2rb.exe slicefile"/>
+    <ATTRIBUTE name="CurrentFeature" value="core"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
+    <ROW File="Admin.ice" Component_="Admin.ice" FileName="Admin.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceGrid\Admin.ice" SelfReg="false" NextFile="Descriptor.ice"/>
+    <ROW File="BuiltinSequences.ice" Component_="BuiltinSequences.ice" FileName="BUILTI~1.ICE|BuiltinSequences.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\BuiltinSequences.ice" SelfReg="false" NextFile="Communicator.ice"/>
+    <ROW File="Communicator.ice" Component_="BuiltinSequences.ice" FileName="COMMUN~1.ICE|Communicator.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\Communicator.ice" SelfReg="false" NextFile="CommunicatorF.ice"/>
+    <ROW File="CommunicatorF.ice" Component_="BuiltinSequences.ice" FileName="COMMUN~2.ICE|CommunicatorF.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\CommunicatorF.ice" SelfReg="false" NextFile="Connection.ice"/>
+    <ROW File="Connection.ice" Component_="BuiltinSequences.ice" FileName="CONNEC~1.ICE|Connection.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\Connection.ice" SelfReg="false" NextFile="ConnectionF.ice"/>
+    <ROW File="ConnectionF.ice" Component_="BuiltinSequences.ice" FileName="CONNEC~2.ICE|ConnectionF.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\ConnectionF.ice" SelfReg="false" NextFile="Current.ice"/>
+    <ROW File="ConnectionInfo.ice" Component_="ConnectionInfo.ice" FileName="CONNEC~1.ICE|ConnectionInfo.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceBT\ConnectionInfo.ice" SelfReg="false" NextFile="EndpointInfo.ice"/>
+    <ROW File="ConnectionInfo.ice_1" Component_="ConnectionInfo.ice_1" FileName="CONNEC~1.ICE|ConnectionInfo.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceIAP\ConnectionInfo.ice" SelfReg="false" NextFile="EndpointInfo.ice_1"/>
+    <ROW File="ConnectionInfo.ice_2" Component_="ConnectionInfo.ice_2" FileName="CONNEC~1.ICE|ConnectionInfo.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceSSL\ConnectionInfo.ice" SelfReg="false" NextFile="ConnectionInfoF.ice"/>
+    <ROW File="ConnectionInfoF.ice" Component_="ConnectionInfo.ice_2" FileName="CONNEC~2.ICE|ConnectionInfoF.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceSSL\ConnectionInfoF.ice" SelfReg="false" NextFile="EndpointInfo.ice_2"/>
+    <ROW File="Current.ice" Component_="BuiltinSequences.ice" FileName="Current.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\Current.ice" SelfReg="false" NextFile="Endpoint.ice"/>
+    <ROW File="Descriptor.ice" Component_="Admin.ice" FileName="DESCRI~1.ICE|Descriptor.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceGrid\Descriptor.ice" SelfReg="false" NextFile="Exception.ice"/>
+    <ROW File="Endpoint.ice" Component_="BuiltinSequences.ice" FileName="Endpoint.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\Endpoint.ice" SelfReg="false" NextFile="EndpointF.ice"/>
+    <ROW File="EndpointF.ice" Component_="BuiltinSequences.ice" FileName="ENDPOI~1.ICE|EndpointF.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\EndpointF.ice" SelfReg="false" NextFile="EndpointTypes.ice"/>
+    <ROW File="EndpointInfo.ice" Component_="ConnectionInfo.ice" FileName="ENDPOI~1.ICE|EndpointInfo.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceBT\EndpointInfo.ice" SelfReg="false" NextFile="Types.ice"/>
+    <ROW File="EndpointInfo.ice_1" Component_="ConnectionInfo.ice_1" FileName="ENDPOI~1.ICE|EndpointInfo.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceIAP\EndpointInfo.ice" SelfReg="false" NextFile="FileInfo.ice"/>
+    <ROW File="EndpointInfo.ice_2" Component_="ConnectionInfo.ice_2" FileName="ENDPOI~1.ICE|EndpointInfo.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceSSL\EndpointInfo.ice" SelfReg="false" NextFile="IceStorm.ice"/>
+    <ROW File="EndpointTypes.ice" Component_="BuiltinSequences.ice" FileName="ENDPOI~2.ICE|EndpointTypes.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\EndpointTypes.ice" SelfReg="false" NextFile="FacetMap.ice"/>
+    <ROW File="Exception.ice" Component_="Admin.ice" FileName="EXCEPT~1.ICE|Exception.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceGrid\Exception.ice" SelfReg="false" NextFile="FileParser.ice"/>
+    <ROW File="FacetMap.ice" Component_="BuiltinSequences.ice" FileName="FacetMap.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\FacetMap.ice" SelfReg="false" NextFile="Identity.ice"/>
+    <ROW File="FileInfo.ice" Component_="FileInfo.ice" FileName="FileInfo.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IcePatch2\FileInfo.ice" SelfReg="false" NextFile="FileServer.ice"/>
+    <ROW File="FileParser.ice" Component_="Admin.ice" FileName="FILEPA~1.ICE|FileParser.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceGrid\FileParser.ice" SelfReg="false" NextFile="PluginFacade.ice"/>
+    <ROW File="FileServer.ice" Component_="FileInfo.ice" FileName="FILESE~1.ICE|FileServer.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IcePatch2\FileServer.ice" SelfReg="false" NextFile="ConnectionInfo.ice_2"/>
+    <ROW File="ICE_LICENSE.txt" Component_="ICE_LICENSE.txt_1" FileName="ICE_LI~1.TXT|ICE_LICENSE.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;packaging\msi\docs\main\ICE_LICENSE.txt" SelfReg="false" NextFile="LICENSE.txt"/>
+    <ROW File="IceBox.ice" Component_="IceBox.ice" FileName="IceBox.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceBox\IceBox.ice" SelfReg="false" NextFile="ConnectionInfo.ice"/>
+    <ROW File="IceStorm.ice" Component_="IceStorm.ice" FileName="IceStorm.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceStorm\IceStorm.ice" SelfReg="false" NextFile="Metrics.ice_2"/>
+    <ROW File="Identity.ice" Component_="BuiltinSequences.ice" FileName="Identity.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\Identity.ice" SelfReg="false" NextFile="ImplicitContext.ice"/>
+    <ROW File="ImplicitContext.ice" Component_="BuiltinSequences.ice" FileName="IMPLIC~1.ICE|ImplicitContext.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\ImplicitContext.ice" SelfReg="false" NextFile="ImplicitContextF.ice"/>
+    <ROW File="ImplicitContextF.ice" Component_="BuiltinSequences.ice" FileName="IMPLIC~2.ICE|ImplicitContextF.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\ImplicitContextF.ice" SelfReg="false" NextFile="Instrumentation.ice"/>
+    <ROW File="Instrumentation.ice" Component_="BuiltinSequences.ice" FileName="INSTRU~1.ICE|Instrumentation.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\Instrumentation.ice" SelfReg="false" NextFile="InstrumentationF.ice"/>
+    <ROW File="InstrumentationF.ice" Component_="BuiltinSequences.ice" FileName="INSTRU~2.ICE|InstrumentationF.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\InstrumentationF.ice" SelfReg="false" NextFile="LocalException.ice"/>
+    <ROW File="LICENSE.txt" Component_="LICENSE.txt" FileName="LICENSE.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;packaging\msi\docs\main\LICENSE.txt" SelfReg="false" NextFile="THIRD_PARTY_LICENSE.txt"/>
+    <ROW File="LocalException.ice" Component_="BuiltinSequences.ice" FileName="LOCALE~1.ICE|LocalException.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\LocalException.ice" SelfReg="false" NextFile="Locator.ice"/>
+    <ROW File="Locator.ice" Component_="BuiltinSequences.ice" FileName="Locator.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\Locator.ice" SelfReg="false" NextFile="LocatorF.ice"/>
+    <ROW File="LocatorF.ice" Component_="BuiltinSequences.ice" FileName="LocatorF.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\LocatorF.ice" SelfReg="false" NextFile="Logger.ice"/>
+    <ROW File="Logger.ice" Component_="BuiltinSequences.ice" FileName="Logger.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\Logger.ice" SelfReg="false" NextFile="LoggerF.ice"/>
+    <ROW File="LoggerF.ice" Component_="BuiltinSequences.ice" FileName="LoggerF.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\LoggerF.ice" SelfReg="false" NextFile="Metrics.ice_1"/>
+    <ROW File="Metrics.ice" Component_="Metrics.ice" FileName="Metrics.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Glacier2\Metrics.ice" SelfReg="false" NextFile="PermissionsVerifier.ice"/>
+    <ROW File="Metrics.ice_1" Component_="BuiltinSequences.ice" FileName="Metrics.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\Metrics.ice" SelfReg="false" NextFile="ObjectAdapter.ice"/>
+    <ROW File="Metrics.ice_2" Component_="IceStorm.ice" FileName="Metrics.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceStorm\Metrics.ice" SelfReg="false" NextFile="glacier2router.cfg"/>
+    <ROW File="ObjectAdapter.ice" Component_="BuiltinSequences.ice" FileName="OBJECT~1.ICE|ObjectAdapter.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\ObjectAdapter.ice" SelfReg="false" NextFile="ObjectAdapterF.ice"/>
+    <ROW File="ObjectAdapterF.ice" Component_="BuiltinSequences.ice" FileName="OBJECT~2.ICE|ObjectAdapterF.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\ObjectAdapterF.ice" SelfReg="false" NextFile="ObjectFactory.ice"/>
+    <ROW File="ObjectFactory.ice" Component_="BuiltinSequences.ice" FileName="OBJECT~3.ICE|ObjectFactory.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\ObjectFactory.ice" SelfReg="false" NextFile="Plugin.ice"/>
+    <ROW File="PermissionsVerifier.ice" Component_="Metrics.ice" FileName="PERMIS~1.ICE|PermissionsVerifier.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Glacier2\PermissionsVerifier.ice" SelfReg="false" NextFile="PermissionsVerifierF.ice"/>
+    <ROW File="PermissionsVerifierF.ice" Component_="Metrics.ice" FileName="PERMIS~2.ICE|PermissionsVerifierF.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Glacier2\PermissionsVerifierF.ice" SelfReg="false" NextFile="Router.ice"/>
+    <ROW File="Plugin.ice" Component_="BuiltinSequences.ice" FileName="Plugin.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\Plugin.ice" SelfReg="false" NextFile="PluginF.ice"/>
+    <ROW File="PluginF.ice" Component_="BuiltinSequences.ice" FileName="PluginF.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\PluginF.ice" SelfReg="false" NextFile="Process.ice"/>
+    <ROW File="PluginFacade.ice" Component_="Admin.ice" FileName="PLUGIN~1.ICE|PluginFacade.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceGrid\PluginFacade.ice" SelfReg="false" NextFile="Registry.ice"/>
+    <ROW File="Process.ice" Component_="BuiltinSequences.ice" FileName="Process.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\Process.ice" SelfReg="false" NextFile="ProcessF.ice"/>
+    <ROW File="ProcessF.ice" Component_="BuiltinSequences.ice" FileName="ProcessF.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\ProcessF.ice" SelfReg="false" NextFile="Properties.ice"/>
+    <ROW File="Properties.ice" Component_="BuiltinSequences.ice" FileName="PROPER~1.ICE|Properties.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\Properties.ice" SelfReg="false" NextFile="PropertiesAdmin.ice"/>
+    <ROW File="PropertiesAdmin.ice" Component_="BuiltinSequences.ice" FileName="PROPER~2.ICE|PropertiesAdmin.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\PropertiesAdmin.ice" SelfReg="false" NextFile="PropertiesF.ice"/>
+    <ROW File="PropertiesF.ice" Component_="BuiltinSequences.ice" FileName="PROPER~3.ICE|PropertiesF.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\PropertiesF.ice" SelfReg="false" NextFile="RemoteLogger.ice"/>
+    <ROW File="Registry.ice" Component_="Admin.ice" FileName="Registry.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceGrid\Registry.ice" SelfReg="false" NextFile="Session.ice_1"/>
+    <ROW File="RemoteLogger.ice" Component_="BuiltinSequences.ice" FileName="REMOTE~1.ICE|RemoteLogger.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\RemoteLogger.ice" SelfReg="false" NextFile="Router.ice_1"/>
+    <ROW File="Router.ice" Component_="Metrics.ice" FileName="Router.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Glacier2\Router.ice" SelfReg="false" NextFile="RouterF.ice"/>
+    <ROW File="Router.ice_1" Component_="BuiltinSequences.ice" FileName="Router.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\Router.ice" SelfReg="false" NextFile="RouterF.ice_1"/>
+    <ROW File="RouterF.ice" Component_="Metrics.ice" FileName="RouterF.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Glacier2\RouterF.ice" SelfReg="false" NextFile="Session.ice"/>
+    <ROW File="RouterF.ice_1" Component_="BuiltinSequences.ice" FileName="RouterF.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\RouterF.ice" SelfReg="false" NextFile="ServantLocator.ice"/>
+    <ROW File="SSLInfo.ice" Component_="Metrics.ice" FileName="SSLInfo.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Glacier2\SSLInfo.ice" SelfReg="false" NextFile="BuiltinSequences.ice"/>
+    <ROW File="ServantLocator.ice" Component_="BuiltinSequences.ice" FileName="SERVAN~1.ICE|ServantLocator.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\ServantLocator.ice" SelfReg="false" NextFile="ServantLocatorF.ice"/>
+    <ROW File="ServantLocatorF.ice" Component_="BuiltinSequences.ice" FileName="SERVAN~2.ICE|ServantLocatorF.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\ServantLocatorF.ice" SelfReg="false" NextFile="SliceChecksumDict.ice"/>
+    <ROW File="Session.ice" Component_="Metrics.ice" FileName="Session.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Glacier2\Session.ice" SelfReg="false" NextFile="SSLInfo.ice"/>
+    <ROW File="Session.ice_1" Component_="Admin.ice" FileName="Session.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceGrid\Session.ice" SelfReg="false" NextFile="UserAccountMapper.ice"/>
+    <ROW File="SliceChecksumDict.ice" Component_="BuiltinSequences.ice" FileName="SLICEC~1.ICE|SliceChecksumDict.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\SliceChecksumDict.ice" SelfReg="false" NextFile="ValueFactory.ice"/>
+    <ROW File="THIRD_PARTY_LICENSE.txt" Component_="ICE_LICENSE.txt" FileName="THIRD_~1.TXT|THIRD_PARTY_LICENSE.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;packaging\msi\docs\main\THIRD_PARTY_LICENSE.txt" SelfReg="false" NextFile="bzip2.dll"/>
+    <ROW File="Types.ice" Component_="ConnectionInfo.ice" FileName="Types.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceBT\Types.ice" SelfReg="false" NextFile="Admin.ice"/>
+    <ROW File="UserAccountMapper.ice" Component_="Admin.ice" FileName="USERAC~1.ICE|UserAccountMapper.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\IceGrid\UserAccountMapper.ice" SelfReg="false" NextFile="ConnectionInfo.ice_1"/>
+    <ROW File="ValueFactory.ice" Component_="BuiltinSequences.ice" FileName="VALUEF~1.ICE|ValueFactory.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\ValueFactory.ice" SelfReg="false" NextFile="Version.ice"/>
+    <ROW File="Version.ice" Component_="BuiltinSequences.ice" FileName="Version.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;slice\Ice\Version.ice" SelfReg="false" NextFile="IceBox.ice"/>
+    <ROW File="bzip2.dll" Component_="bzip2.dll" FileName="bzip2.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\bzip2.dll" SelfReg="false" NextFile="glacier2router.exe"/>
+    <ROW File="glacier237.dll" Component_="glacier237.dll" FileName="GLACIE~3.DLL|glacier237.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\glacier237.dll" SelfReg="false" NextFile="glacier2cryptpermissionsverifier37.dll"/>
+    <ROW File="glacier2cryptpermissionsverifier37.dll" Component_="glacier2cryptpermissionsverifier37.dll" FileName="GLACIE~4.DLL|glacier2cryptpermissionsverifier37.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\glacier2cryptpermissionsverifier37.dll" SelfReg="false" NextFile="icediscovery37.dll_4"/>
+    <ROW File="glacier2router.cfg" Component_="glacier2router.cfg" FileName="GLACIE~1.CFG|glacier2router.cfg" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\config\glacier2router.cfg" SelfReg="false" NextFile="icegridnode.cfg"/>
+    <ROW File="glacier2router.exe" Component_="glacier2router.exe" FileName="GLACIE~1.EXE|glacier2router.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\glacier2router.exe" SelfReg="false" NextFile="icebox.exe"/>
+    <ROW File="ice37.dll_4" Component_="ice37.dll_4" FileName="ice37.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\ice37.dll" SelfReg="false" NextFile="glacier237.dll"/>
+    <ROW File="icebox.exe" Component_="icebox.exe" FileName="icebox.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icebox.exe" SelfReg="false" NextFile="iceboxadmin.exe"/>
+    <ROW File="icebox37.dll" Component_="icebox37.dll" FileName="ICEBOX~2.DLL|icebox37.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icebox37.dll" SelfReg="false" NextFile="ice37.dll_4"/>
+    <ROW File="iceboxadmin.exe" Component_="iceboxadmin.exe" FileName="ICEBOX~1.EXE|iceboxadmin.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\iceboxadmin.exe" SelfReg="false" NextFile="icegridadmin.exe"/>
+    <ROW File="icebridge.exe" Component_="icebridge.exe" FileName="ICEBRI~1.EXE|icebridge.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icebridge.exe" SelfReg="false" NextFile="slice2objc.exe"/>
+    <ROW File="icedb37.dll" Component_="icedb37.dll" FileName="ICEDB3~2.DLL|icedb37.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icedb37.dll" SelfReg="false" NextFile="icebox37.dll"/>
+    <ROW File="icediscovery37.dll_4" Component_="icediscovery37.dll_4" FileName="ICEDIS~1.DLL|icediscovery37.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icediscovery37.dll" SelfReg="false" NextFile="icebridge.exe"/>
+    <ROW File="icegrid37.dll" Component_="icegrid37.dll" FileName="ICEGRI~2.DLL|icegrid37.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icegrid37.dll" SelfReg="false" NextFile="icedb37.dll"/>
+    <ROW File="icegridadmin.exe" Component_="icegridadmin.exe" FileName="ICEGRI~1.EXE|icegridadmin.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icegridadmin.exe" SelfReg="false" NextFile="icegriddb.exe"/>
+    <ROW File="icegriddb.exe" Component_="icegriddb.exe" FileName="ICEGRI~2.EXE|icegriddb.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icegriddb.exe" SelfReg="false" NextFile="icegridnode.exe"/>
+    <ROW File="icegridgui.jar" Component_="icegridgui.jar" FileName="ICEGRI~1.JAR|icegridgui.jar" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;java\lib\icegridgui.jar" SelfReg="false" NextFile="Metrics.ice"/>
+    <ROW File="icegridnode.cfg" Component_="glacier2router.cfg" FileName="ICEGRI~1.CFG|icegridnode.cfg" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\config\icegridnode.cfg" SelfReg="false" NextFile="icegridregistry.cfg"/>
+    <ROW File="icegridnode.exe" Component_="icegridnode.exe" FileName="ICEGRI~3.EXE|icegridnode.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icegridnode.exe" SelfReg="false" NextFile="icegridregistry.exe"/>
+    <ROW File="icegridregistry.cfg" Component_="glacier2router.cfg" FileName="ICEGRI~2.CFG|icegridregistry.cfg" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\config\icegridregistry.cfg" SelfReg="false" NextFile="templates.xml"/>
+    <ROW File="icegridregistry.exe" Component_="icegridregistry.exe" FileName="ICEGRI~4.EXE|icegridregistry.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icegridregistry.exe" SelfReg="false" NextFile="icepatch2calc.exe"/>
+    <ROW File="icelocatordiscovery37.dll_4" Component_="icelocatordiscovery37.dll_4" FileName="ICELOC~2.DLL|icelocatordiscovery37.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icelocatordiscovery37.dll" SelfReg="false" NextFile="icegrid37.dll"/>
+    <ROW File="icepatch237.dll" Component_="icepatch237.dll" FileName="ICEPAT~2.DLL|icepatch237.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icepatch237.dll" SelfReg="false" NextFile="icelocatordiscovery37.dll_4"/>
+    <ROW File="icepatch2calc.exe" Component_="icepatch2calc.exe" FileName="ICEPAT~1.EXE|icepatch2calc.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icepatch2calc.exe" SelfReg="false" NextFile="icepatch2client.exe"/>
+    <ROW File="icepatch2client.exe" Component_="icepatch2client.exe" FileName="ICEPAT~2.EXE|icepatch2client.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icepatch2client.exe" SelfReg="false" NextFile="icepatch2server.exe"/>
+    <ROW File="icepatch2server.exe" Component_="icepatch2server.exe" FileName="ICEPAT~3.EXE|icepatch2server.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icepatch2server.exe" SelfReg="false" NextFile="icestormadmin.exe"/>
+    <ROW File="iceserviceinstall.exe" Component_="iceserviceinstall.exe" FileName="ICESER~1.EXE|iceserviceinstall.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\iceserviceinstall.exe" SelfReg="false" NextFile="slice2matlab.exe"/>
+    <ROW File="icessl37.dll_4" Component_="icessl37.dll_4" FileName="ICESSL~2.DLL|icessl37.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icessl37.dll" SelfReg="false" NextFile="icepatch237.dll"/>
+    <ROW File="icestorm37.dll" Component_="icestorm37.dll" FileName="ICESTO~4.DLL|icestorm37.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icestorm37.dll" SelfReg="false" NextFile="icessl37.dll_4"/>
+    <ROW File="icestormadmin.exe" Component_="icestormadmin.exe" FileName="ICESTO~1.EXE|icestormadmin.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icestormadmin.exe" SelfReg="false" NextFile="icestormdb.exe"/>
+    <ROW File="icestormdb.exe" Component_="icestormdb.exe" FileName="ICESTO~2.EXE|icestormdb.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icestormdb.exe" SelfReg="false" NextFile="libexpat.dll"/>
+    <ROW File="icestormservice37.dll" Component_="icestormservice37.dll" FileName="ICESTO~3.DLL|icestormservice37.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icestormservice37.dll" SelfReg="false" NextFile="icestorm37.dll"/>
+    <ROW File="icexml37.dll" Component_="icexml37.dll" FileName="ICEXML~2.DLL|icexml37.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\icexml37.dll" SelfReg="false" NextFile="icestormservice37.dll"/>
+    <ROW File="libexpat.dll" Component_="libexpat.dll" FileName="libexpat.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\libexpat.dll" SelfReg="false" NextFile="slice2cpp.exe"/>
+    <ROW File="mdb_copy.exe" Component_="mdb_copy.exe" FileName="mdb_copy.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\msbuild\packages\zeroc.lmdb-tools.0.9.29\tools\mdb_copy.exe" SelfReg="false" NextFile="mdb_dump.exe" DigSign="true"/>
+    <ROW File="mdb_dump.exe" Component_="mdb_dump.exe" FileName="mdb_dump.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\msbuild\packages\zeroc.lmdb-tools.0.9.29\tools\mdb_dump.exe" SelfReg="false" NextFile="mdb_load.exe" DigSign="true"/>
+    <ROW File="mdb_load.exe" Component_="mdb_load.exe" FileName="mdb_load.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\msbuild\packages\zeroc.lmdb-tools.0.9.29\tools\mdb_load.exe" SelfReg="false" NextFile="mdb_stat.exe" DigSign="true"/>
+    <ROW File="mdb_stat.exe" Component_="mdb_stat.exe" FileName="mdb_stat.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\msbuild\packages\zeroc.lmdb-tools.0.9.29\tools\mdb_stat.exe" SelfReg="false" NextFile="icegridgui.jar" DigSign="true"/>
+    <ROW File="slice2cpp.exe" Component_="slice2cpp.exe" FileName="SLICE2~1.EXE|slice2cpp.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\slice2cpp.exe" SelfReg="false" NextFile="slice2cs.exe"/>
+    <ROW File="slice2cs.exe" Component_="slice2cs.exe" FileName="slice2cs.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\slice2cs.exe" SelfReg="false" NextFile="slice2html.exe"/>
+    <ROW File="slice2html.exe" Component_="slice2html.exe" FileName="SLICE2~2.EXE|slice2html.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\slice2html.exe" SelfReg="false" NextFile="slice2java.exe"/>
+    <ROW File="slice2java.exe" Component_="slice2java.exe" FileName="SLICE2~3.EXE|slice2java.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\slice2java.exe" SelfReg="false" NextFile="slice2js.exe"/>
+    <ROW File="slice2js.exe" Component_="slice2js.exe" FileName="slice2js.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\slice2js.exe" SelfReg="false" NextFile="slice2php.exe"/>
+    <ROW File="slice2matlab.exe" Component_="slice2matlab.exe" FileName="SLICE2~6.EXE|slice2matlab.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\slice2matlab.exe" SelfReg="false" NextFile="mdb_copy.exe"/>
+    <ROW File="slice2objc.exe" Component_="slice2objc.exe" FileName="SLICE2~5.EXE|slice2objc.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\slice2objc.exe" SelfReg="false" NextFile="slice2rb.exe"/>
+    <ROW File="slice2php.exe" Component_="slice2php.exe" FileName="SLICE2~4.EXE|slice2php.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\slice2php.exe" SelfReg="false" NextFile="slice2py.exe"/>
+    <ROW File="slice2py.exe" Component_="slice2py.exe" FileName="slice2py.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\slice2py.exe" SelfReg="false" NextFile="icexml37.dll"/>
+    <ROW File="slice2rb.exe" Component_="slice2rb.exe" FileName="slice2rb.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\slice2rb.exe" SelfReg="false" NextFile="iceserviceinstall.exe"/>
+    <ROW File="templates.xml" Component_="glacier2router.cfg" FileName="TEMPLA~1.XML|templates.xml" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\config\templates.xml" SelfReg="false"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.AppPathsComponent">
+    <ROW Name="ICE_BUILD_HOME" Path="..\.." Type="2" Content="0"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
+    <ROW BootstrOptKey="GlobalOptions" GeneralOptions="h" DownloadFolder="[AppDataFolder][|Manufacturer]\[|ProductName]\prerequisites" EulaPathLocId="*"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
+    <ROW BuildKey="DefaultBuild" BuildName="offline" BuildOrder="1" BuildType="1" PackageFolder="." PackageFileName="Ice-3.7.11" Languages="en" InstallationType="4" ExtUI="true" MsiPackageType="x64"/>
+    <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
+    <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
+    <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.DigCertStoreComponent">
+    <ROW TimeStampUrl="http://timestamp.digicert.com" SignerDescription="[|ProductName]" SignOptions="0" SignTool="0"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
+    <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
+    <ROW Fragment="FolderDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\FolderDlg.aip"/>
+    <ROW Fragment="LicenseAgreementDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\LicenseAgreementDlg.aip"/>
+    <ROW Fragment="MaintenanceTypeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceTypeDlg.aip"/>
+    <ROW Fragment="MaintenanceWelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceWelcomeDlg.aip"/>
+    <ROW Fragment="OptionalFeatsDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\OptionalFeatsDlg.aip"/>
+    <ROW Fragment="SequenceDialogs.aip" Path="&lt;AI_THEMES&gt;classic\fragments\SequenceDialogs.aip"/>
+    <ROW Fragment="Sequences.aip" Path="&lt;AI_FRAGS&gt;Sequences.aip"/>
+    <ROW Fragment="StaticUIStrings.aip" Path="&lt;AI_FRAGS&gt;StaticUIStrings.aip"/>
+    <ROW Fragment="UI.aip" Path="&lt;AI_THEMES&gt;classic\fragments\UI.aip"/>
+    <ROW Fragment="Validation.aip" Path="&lt;AI_FRAGS&gt;Validation.aip"/>
+    <ROW Fragment="VerifyRemoveDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRemoveDlg.aip"/>
+    <ROW Fragment="VerifyRepairDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRepairDlg.aip"/>
+    <ROW Fragment="WelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\WelcomeDlg.aip"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiActionTextComponent">
+    <ROW Action="AI_ConfigureChainer" Description="Configuring prerequisites launcher" Template="Configure Launcher" DescriptionLocId="ActionText.Description.AI_ConfigureChainer" TemplateLocId="ActionText.Template.AI_ConfigureChainer"/>
+    <ROW Action="AI_DownloadPrereq" Description="Downloading prerequisite software" Template="Downloading [1]{[2] completed}" DescriptionLocId="ActionText.Description.AI_DownloadPrereq" TemplateLocId="ActionText.Template.AI_DownloadPrereq"/>
+    <ROW Action="AI_ExtractPrereq" Description="Extracting prerequisite software" Template="Extracting [1]{[2] completed}" DescriptionLocId="ActionText.Description.AI_ExtractPrereq" TemplateLocId="ActionText.Template.AI_ExtractPrereq"/>
+    <ROW Action="AI_InstallPostPrerequisite" Description="Installing prerequisite software" Template="Installing [1]{[2] completed}" DescriptionLocId="ActionText.Description.AI_InstallPrerequisite" TemplateLocId="ActionText.Template.AI_InstallPrerequisite"/>
+    <ROW Action="AI_InstallPrerequisite" Description="Installing prerequisite software" Template="Installing [1]{[2] completed}" DescriptionLocId="ActionText.Description.AI_InstallPrerequisite" TemplateLocId="ActionText.Template.AI_InstallPrerequisite"/>
+    <ROW Action="AI_VerifyPrereq" Description="Verifying prerequisites" Template="[1] was not installed correctly." DescriptionLocId="ActionText.Description.AI_VerifyPrereq" TemplateLocId="ActionText.Template.AI_VerifyPrereq"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
+    <ROW Name="ExternalUICleaner.dll" SourcePath="&lt;AI_CUSTACTS&gt;ExternalUICleaner.dll"/>
+    <ROW Name="PowerShellScriptLauncher.dll" SourcePath="&lt;AI_CUSTACTS&gt;PowerShellScriptLauncher.dll"/>
+    <ROW Name="Prereq.dll" SourcePath="&lt;AI_CUSTACTS&gt;Prereq.dll"/>
+    <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
+    <ROW Name="aipackagechainer.exe" SourcePath="&lt;AI_CUSTACTS&gt;aipackagechainer.exe"/>
+    <ROW Name="banner.jpg" SourcePath="resources\banner.jpg"/>
+    <ROW Name="cleanpath.vbs" SourcePath="actions\cleanpath.vbs"/>
+    <ROW Name="diglog.jpg" SourcePath="resources\diglog.jpg"/>
+    <ROW Name="fixinstalldir.vbs" SourcePath="actions\fixinstalldir.vbs"/>
+    <ROW Name="path.vbs" SourcePath="actions\path.vbs"/>
+    <ROW Name="viewer.exe" SourcePath="&lt;AI_CUSTACTS&gt;viewer.exe"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCheckBoxComponent">
+    <ROW Property="RELEASENOTES" Value="1"/>
+    <ROW Property="SET_SYSTEM_PATH" Value="1"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
+    <ROW Dialog_="AdminBrowseDlg" Control="OK" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_OK]" Order="300" TextLocId="-" MsiKey="AdminBrowseDlg#OK"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="Cancel" Type="PushButton" X="240" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="400" TextLocId="-" MsiKey="AdminBrowseDlg#Cancel"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="ComboLabel" Type="Text" X="25" Y="58" Width="60" Height="10" Attributes="3" Text="&amp;Look in:" Order="500" TextLocId="Control.Text.AdminBrowseDlg#ComboLabel" MsiKey="AdminBrowseDlg#ComboLabel"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="DirectoryCombo" Type="DirectoryCombo" X="86" Y="55" Width="204" Height="80" Attributes="458755" Property="TARGETDIR" Order="600" MsiKey="AdminBrowseDlg#DirectoryCombo"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="Up" Type="PushButton" X="298" Y="55" Width="19" Height="19" Attributes="3670019" Text="[UpDirIcon]" Help="Up One Level|" Order="700" HelpLocId="Control.Help.AdminBrowseDlg#Up" MsiKey="AdminBrowseDlg#Up"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="NewFolder" Type="PushButton" X="325" Y="55" Width="19" Height="19" Attributes="3670019" Text="[NewDirIcon]" Help="Create A New Folder|" Order="800" HelpLocId="Control.Help.AdminBrowseDlg#NewFolder" MsiKey="AdminBrowseDlg#NewFolder"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="DirectoryList" Type="DirectoryList" X="25" Y="83" Width="320" Height="110" Attributes="7" Property="TARGETDIR" Order="900" MsiKey="AdminBrowseDlg#DirectoryList"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="PathLabel" Type="Text" X="25" Y="205" Width="75" Height="10" Attributes="3" Text="&amp;Folder name:" Order="1000" TextLocId="Control.Text.AdminBrowseDlg#PathLabel" MsiKey="AdminBrowseDlg#PathLabel"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Order="1100" MsiKey="AdminBrowseDlg#BannerBitmap"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="65539" Text="Change current destination folder" TextStyle="[DlgTitleFont]" Order="1200" TextLocId="Control.Text.AdminBrowseDlg#Title" MsiKey="AdminBrowseDlg#Title"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Browse to the destination folder" Order="1300" TextLocId="Control.Text.AdminBrowseDlg#Description" MsiKey="AdminBrowseDlg#Description"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="1400" MsiKey="AdminBrowseDlg#BannerLine"/>
+    <ROW Dialog_="AdminInstallPointDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="500" TextLocId="-" MsiKey="AdminInstallPointDlg#Back" Options="1"/>
+    <ROW Dialog_="AdminInstallPointDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="600" TextLocId="-" MsiKey="AdminInstallPointDlg#Next" Options="1"/>
+    <ROW Dialog_="AdminInstallPointDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="700" TextLocId="-" MsiKey="AdminInstallPointDlg#Cancel" Options="1"/>
+    <ROW Dialog_="AdminInstallPointDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Order="800" MsiKey="AdminInstallPointDlg#BannerBitmap"/>
+    <ROW Dialog_="AdminInstallPointDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Network Location" TextStyle="[DlgTitleFont]" Order="900" TextLocId="Control.Text.AdminInstallPointDlg#Title" MsiKey="AdminInstallPointDlg#Title"/>
+    <ROW Dialog_="AdminInstallPointDlg" Control="Description" Type="Text" X="25" Y="20" Width="280" Height="20" Attributes="196611" Text="Please specify a network location for the server image of [ProductName] product" Order="1000" TextLocId="Control.Text.AdminInstallPointDlg#Description" MsiKey="AdminInstallPointDlg#Description"/>
+    <ROW Dialog_="AdminInstallPointDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="1100" MsiKey="AdminInstallPointDlg#BannerLine"/>
+    <ROW Dialog_="AdminWelcomeDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="60" Attributes="196611" Text="Welcome to the [ProductName] [Wizard]" TextStyle="VerdanaBold13" Order="500" TextLocId="Control.Text.AdminWelcomeDlg#Title" MsiKey="AdminWelcomeDlg#Title"/>
+    <ROW Dialog_="BrowseDlg" Control="OK" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_OK]" Order="300" TextLocId="-" MsiKey="BrowseDlg#OK"/>
+    <ROW Dialog_="BrowseDlg" Control="Cancel" Type="PushButton" X="240" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="400" TextLocId="-" MsiKey="BrowseDlg#Cancel"/>
+    <ROW Dialog_="BrowseDlg" Control="ComboLabel" Type="Text" X="25" Y="58" Width="60" Height="10" Attributes="3" Text="&amp;Look in:" Order="500" TextLocId="Control.Text.BrowseDlg#ComboLabel" MsiKey="BrowseDlg#ComboLabel"/>
+    <ROW Dialog_="BrowseDlg" Control="DirectoryCombo" Type="DirectoryCombo" X="86" Y="55" Width="204" Height="80" Attributes="393227" Property="_BrowseProperty" Order="600" MsiKey="BrowseDlg#DirectoryCombo"/>
+    <ROW Dialog_="BrowseDlg" Control="Up" Type="PushButton" X="298" Y="55" Width="19" Height="19" Attributes="3670019" Text="[UpDirIcon]" Help="Up One Level|" Order="700" HelpLocId="Control.Help.BrowseDlg#Up" MsiKey="BrowseDlg#Up"/>
+    <ROW Dialog_="BrowseDlg" Control="NewFolder" Type="PushButton" X="325" Y="55" Width="19" Height="19" Attributes="3670019" Text="[NewDirIcon]" Help="Create A New Folder|" Order="800" HelpLocId="Control.Help.BrowseDlg#NewFolder" MsiKey="BrowseDlg#NewFolder"/>
+    <ROW Dialog_="BrowseDlg" Control="DirectoryList" Type="DirectoryList" X="25" Y="83" Width="320" Height="110" Attributes="15" Property="_BrowseProperty" Order="900" MsiKey="BrowseDlg#DirectoryList"/>
+    <ROW Dialog_="BrowseDlg" Control="PathLabel" Type="Text" X="25" Y="205" Width="75" Height="10" Attributes="3" Text="&amp;Folder name:" Order="1000" TextLocId="Control.Text.BrowseDlg#PathLabel" MsiKey="BrowseDlg#PathLabel"/>
+    <ROW Dialog_="BrowseDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Order="1100" MsiKey="BrowseDlg#BannerBitmap"/>
+    <ROW Dialog_="BrowseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Change current destination folder" TextStyle="[DlgTitleFont]" Order="1200" TextLocId="Control.Text.BrowseDlg#Title" MsiKey="BrowseDlg#Title"/>
+    <ROW Dialog_="BrowseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Browse to the destination folder" Order="1300" TextLocId="Control.Text.BrowseDlg#Description" MsiKey="BrowseDlg#Description"/>
+    <ROW Dialog_="BrowseDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="1400" MsiKey="BrowseDlg#BannerLine"/>
+    <ROW Dialog_="CustomizeDlg" Control="Tree" Type="SelectionTree" X="25" Y="85" Width="199" Height="95" Attributes="7" Property="_BrowseProperty" Text="Tree of selections" Order="100" TextLocId="Control.Text.CustomizeDlg#Tree" MsiKey="CustomizeDlg#Tree"/>
+    <ROW Dialog_="CustomizeDlg" Control="Reset" Type="PushButton" X="15" Y="243" Width="76" Height="17" Attributes="3" Text="[ButtonText_Reset]" Order="200" TextLocId="-" MsiKey="CustomizeDlg#Reset"/>
+    <ROW Dialog_="CustomizeDlg" Control="DiskCost" Type="PushButton" X="91" Y="243" Width="76" Height="17" Attributes="3" Text="Disk &amp;Usage" Order="300" TextLocId="Control.Text.CustomizeDlg#DiskCost" MsiKey="CustomizeDlg#DiskCost"/>
+    <ROW Dialog_="CustomizeDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="400" MsiKey="CustomizeDlg#BottomLine"/>
+    <ROW Dialog_="CustomizeDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="500" TextLocId="-" MsiKey="CustomizeDlg#Back" Options="1"/>
+    <ROW Dialog_="CustomizeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="600" TextLocId="-" MsiKey="CustomizeDlg#Next" Options="1"/>
+    <ROW Dialog_="CustomizeDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="700" TextLocId="-" MsiKey="CustomizeDlg#Cancel" Options="1"/>
+    <ROW Dialog_="CustomizeDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Order="800" MsiKey="CustomizeDlg#BannerBitmap"/>
+    <ROW Dialog_="CustomizeDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Select the way you want features to be installed." Order="900" TextLocId="Control.Text.CustomizeDlg#Description" MsiKey="CustomizeDlg#Description"/>
+    <ROW Dialog_="CustomizeDlg" Control="Box" Type="GroupBox" X="236" Y="81" Width="114" Height="98" Attributes="1" Order="1000" MsiKey="CustomizeDlg#Box"/>
+    <ROW Dialog_="CustomizeDlg" Control="ItemSize" Type="Text" X="246" Y="128" Width="99" Height="50" Attributes="3" Text="The size of the currently selected item." Order="1100" TextLocId="Control.Text.CustomizeDlg#ItemSize" MsiKey="CustomizeDlg#ItemSize"/>
+    <ROW Dialog_="CustomizeDlg" Control="ItemDescription" Type="Text" X="246" Y="90" Width="99" Height="30" Attributes="3" Text="Multiline description of the currently selected item." Order="1200" TextLocId="Control.Text.CustomizeDlg#ItemDescription" MsiKey="CustomizeDlg#ItemDescription"/>
+    <ROW Dialog_="CustomizeDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="1300" MsiKey="CustomizeDlg#BannerLine"/>
+    <ROW Dialog_="CustomizeDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Custom Setup" TextStyle="[DlgTitleFont]" Order="1400" TextLocId="Control.Text.CustomizeDlg#Title" MsiKey="CustomizeDlg#Title"/>
+    <ROW Dialog_="CustomizeDlg" Control="Text" Type="Text" X="25" Y="55" Width="320" Height="20" Attributes="3" Text="Click on the icons in the tree below to change the way features will be installed." Order="1500" TextLocId="Control.Text.CustomizeDlg#Text" MsiKey="CustomizeDlg#Text"/>
+    <ROW Dialog_="DiskCostDlg" Control="VolumeList" Type="VolumeCostList" X="20" Y="100" Width="330" Height="120" Attributes="393223" Text="{120}{70}{70}{70}{70}" Order="400" TextLocId="Control.Text.DiskCostDlg#VolumeList" MsiKey="DiskCostDlg#VolumeList"/>
+    <ROW Dialog_="DiskCostDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Disk Space Requirements" TextStyle="[DlgTitleFont]" Order="500" TextLocId="Control.Text.DiskCostDlg#Title" MsiKey="DiskCostDlg#Title"/>
+    <ROW Dialog_="DiskCostDlg" Control="Text" Type="Text" X="20" Y="53" Width="330" Height="40" Attributes="3" Text="The highlighted volumes (if any) do not have enough disk space available for the currently selected features.  You can either remove some files from the highlighted volumes, or choose to install less features onto local drive(s), or select different destination       drive(s)." Order="600" TextLocId="Control.Text.DiskCostDlg#Text" MsiKey="DiskCostDlg#Text"/>
+    <ROW Dialog_="DiskCostDlg" Control="Description" Type="Text" X="20" Y="20" Width="280" Height="20" Attributes="196611" Text="The disk space required for the installation of the selected features." Order="700" TextLocId="Control.Text.DiskCostDlg#Description" MsiKey="DiskCostDlg#Description"/>
+    <ROW Dialog_="DiskCostDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="800" MsiKey="DiskCostDlg#BannerLine"/>
+    <ROW Dialog_="ExitDialog" Control="ViewReadmeCheckBox" Type="CheckBox" X="53" Y="211" Width="10" Height="10" Attributes="3" Property="VIEWREADME" Order="500" MsiKey="ExitDialog#ViewReadmeCheckBox" Options="1"/>
+    <ROW Dialog_="ExitDialog" Control="Title" Type="Text" X="134" Y="20" Width="220" Height="56" Attributes="196611" Text="Completing the [ProductName] [Wizard]" TextStyle="VerdanaBold13" Order="600" TextLocId="Control.Text.ExitDialog#Title" MsiKey="ExitDialog#Title"/>
+    <ROW Dialog_="ExitDialog" Control="LaunchProdCheckBox" Type="CheckBox" X="31" Y="211" Width="10" Height="10" Attributes="3" Property="RUNAPPLICATION" Order="700" MsiKey="ExitDialog#LaunchProdCheckBox" Options="1"/>
+    <ROW Dialog_="ExitDialog" Control="Description" Type="Text" X="134" Y="121" Width="181" Height="15" Attributes="196611" Text="Click the &quot;Finish&quot; button to exit the [Wizard]." Order="800" TextLocId="Control.Text.ExitDialog#Description" MsiKey="ExitDialog#Description"/>
+    <ROW Dialog_="ExitDialog" Control="BottomLine" Type="Line" X="0" Y="234" Width="372" Height="0" Attributes="1" Order="900" MsiKey="ExitDialog#BottomLine"/>
+    <ROW Dialog_="ExitDialog" Control="Text_2" Type="Text" X="134" Y="90" Width="207" Height="11" Attributes="65539" Property="TEXT_2_PROP" Text=" [ProductName] installation is complete." Order="1000"/>
+    <ROW Dialog_="ExitDialog" Control="CheckBox_1" Type="CheckBox" X="134" Y="135" Width="10" Height="13" Attributes="3" Property="RELEASENOTES" Order="1100"/>
+    <ROW Dialog_="ExitDialog" Control="Text_3" Type="Text" X="149" Y="136" Width="75" Height="11" Attributes="65539" Property="TEXT_3_PROP" Text="View Release Notes" Order="1200"/>
+    <ROW Dialog_="ExitDialog" Control="Text_4" Type="Text" X="134" Y="80" Width="207" Height="11" Attributes="65538" Property="TEXT_2_PROP_1" Text=" [ProductName] has been successfully removed." Order="1300"/>
+    <ROW Dialog_="ExitDialog" Control="Text_1" Type="Text" X="134" Y="178" Width="181" Height="27" Attributes="65538" Property="TEXT_1_PROP" Text="You need to reboot your computer to get the updated system path." Order="1400"/>
+    <ROW Dialog_="FatalError" Control="Bitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="234" Attributes="1048577" Text="[DialogBitmap]" Order="300" MsiKey="FatalError#Bitmap"/>
+    <ROW Dialog_="FatalError" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="53" Attributes="196611" Text="The [ProductName] [Wizard] ended prematurely" TextStyle="VerdanaBold13" Order="800" TextLocId="Control.Text.FatalError#Title" MsiKey="FatalError#Title"/>
+    <ROW Dialog_="FilesInUse" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Files in Use" TextStyle="[DlgTitleFont]" Order="600" TextLocId="Control.Text.FilesInUse#Title" MsiKey="FilesInUse#Title"/>
+    <ROW Dialog_="FilesInUse" Control="Text" Type="Text" X="20" Y="55" Width="330" Height="30" Attributes="3" Text="The following applications are using files that need to be updated by this setup. You can either close the applications and then click &quot;Retry&quot;, or click &quot;Ignore&quot; so that the installer continues the installation and replaces these files when your system restarts." Order="700" TextLocId="Control.Text.FilesInUse#Text" MsiKey="FilesInUse#Text"/>
+    <ROW Dialog_="FilesInUse" Control="List" Type="ListBox" X="20" Y="87" Width="330" Height="130" Attributes="7" Property="FileInUseProcess" Order="800" MsiKey="FilesInUse#List"/>
+    <ROW Dialog_="FilesInUse" Control="Description" Type="Text" X="20" Y="23" Width="280" Height="20" Attributes="196611" Text="Some files that need to be updated are currently in use." Order="900" TextLocId="Control.Text.FilesInUse#Description" MsiKey="FilesInUse#Description"/>
+    <ROW Dialog_="FilesInUse" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="1000" MsiKey="FilesInUse#BannerLine"/>
+    <ROW Dialog_="FolderDlg" Control="FolderLabel" Type="Text" X="20" Y="114" Width="348" Height="12" Attributes="3" Text="&amp;Main Installation Folder:" Help="|" Order="200" TextLocId="Control.Text.FolderDlg#FolderLabel" HelpLocId="Control.Help.FolderDlg#FolderLabel" MsiKey="FolderDlg#FolderLabel"/>
+    <ROW Dialog_="FolderDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="600" TextLocId="-" MsiKey="FolderDlg#Cancel" Options="1"/>
+    <ROW Dialog_="FolderDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="700" TextLocId="-" MsiKey="FolderDlg#Back" Options="1"/>
+    <ROW Dialog_="FolderDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Help="|" Order="800" HelpLocId="Control.Help.FolderDlg#BannerBitmap" MsiKey="FolderDlg#BannerBitmap"/>
+    <ROW Dialog_="FolderDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Select Installation Folder" TextStyle="[DlgTitleFont]" Order="900" TextLocId="Control.Text.FolderDlg#Title" MsiKey="FolderDlg#Title"/>
+    <ROW Dialog_="FolderDlg" Control="Text" Type="Text" X="25" Y="70" Width="320" Height="40" Attributes="3" Text="To install in this folder, click &quot;[Text_Next]&quot;. To install to a different folder, enter it below or click &quot;Browse&quot;." Order="1000" TextLocId="Control.Text.FolderDlg#Text" MsiKey="FolderDlg#Text"/>
+    <ROW Dialog_="FolderDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="This is the folder where [ProductName] will be installed." Order="1100" TextLocId="Control.Text.FolderDlg#Description" MsiKey="FolderDlg#Description"/>
+    <ROW Dialog_="FolderDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="1200" MsiKey="FolderDlg#BannerLine"/>
+    <ROW Dialog_="FolderDlg" Control="CheckBox_1" Type="CheckBox" X="20" Y="160" Width="251" Height="13" Attributes="3" Property="SET_SYSTEM_PATH" Text="Add bin directory to the system PATH environment variable." Order="1300"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control="AgreementText" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="docs\main\LICENSE.rtf" Order="400" TextLocId="Control.Text.LicenseAgreementDlg#AgreementText" MsiKey="LicenseAgreementDlg#AgreementText"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="700" TextLocId="-" MsiKey="LicenseAgreementDlg#Back" Options="1"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control="Description" Type="Text" X="25" Y="23" Width="304" Height="15" Attributes="196611" Text="Please read the following license agreement carefully" Order="800" TextLocId="Control.Text.LicenseAgreementDlg#Description" MsiKey="LicenseAgreementDlg#Description"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control="Title" Type="Text" X="15" Y="6" Width="304" Height="15" Attributes="196611" Text="End-User License Agreement" TextStyle="[DlgTitleFont]" Order="900" TextLocId="Control.Text.LicenseAgreementDlg#Title" MsiKey="LicenseAgreementDlg#Title"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="1000" MsiKey="LicenseAgreementDlg#BannerLine"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="20" Attributes="196611" Text="Select the operation you wish to perform." Order="1200" TextLocId="Control.Text.MaintenanceTypeDlg#Description" MsiKey="MaintenanceTypeDlg#Description"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control="ChangeText" Type="Text" X="105" Y="78" Width="230" Height="20" Attributes="3" Text="Allows users to change the way features are installed." Order="1300" TextLocId="Control.Text.MaintenanceTypeDlg#ChangeText" MsiKey="MaintenanceTypeDlg#ChangeText"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="1400" MsiKey="MaintenanceTypeDlg#BannerLine"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control="Title" Type="Text" X="15" Y="6" Width="240" Height="15" Attributes="196611" Text="Modify, Repair or Remove installation" TextStyle="[DlgTitleFont]" Order="1500" TextLocId="Control.Text.MaintenanceTypeDlg#Title" MsiKey="MaintenanceTypeDlg#Title"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control="RepairText" Type="Text" X="105" Y="127" Width="230" Height="30" Attributes="3" Text="Repairs errors in the most recent installation state - fixes missing or corrupt files, shortcuts and registry entries." Order="1600" TextLocId="Control.Text.MaintenanceTypeDlg#RepairText" MsiKey="MaintenanceTypeDlg#RepairText"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control="RemoveText" Type="Text" X="105" Y="176" Width="230" Height="20" Attributes="3" Text="Removes [ProductName] from your computer." Order="1700" TextLocId="Control.Text.MaintenanceTypeDlg#RemoveText" MsiKey="MaintenanceTypeDlg#RemoveText"/>
+    <ROW Dialog_="MaintenanceWelcomeDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="33" Attributes="196611" Text="Welcome to the [ProductName] [Wizard]" TextStyle="VerdanaBold13" Order="500" TextLocId="Control.Text.MaintenanceWelcomeDlg#Title" MsiKey="MaintenanceWelcomeDlg#Title"/>
+    <ROW Dialog_="OptionalFeatsDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Optional features to install" TextStyle="[DlgTitleFont]" Order="800" TextLocId="Control.Text.OptionalFeatsDlg#Title" MsiKey="OptionalFeatsDlg#Title"/>
+    <ROW Dialog_="OptionalFeatsDlg" Control="QuickSelectionList" Type="QuickSelectionList" X="25" Y="60" Width="315" Height="145" Attributes="6291459" Property="QUICKSELECTIONLISTPROP" Text="QuickSelectionList" Order="900" MsiKey="OptionalFeatsDlg#QuickSelectionList" ExtType="QuickSelectionList"/>
+    <ROW Dialog_="OptionalFeatsDlg" Control="SelectAllCheckbox" Type="CheckBox" X="25" Y="209" Width="90" Height="20" Attributes="3" Property="SELECTALLCHECHBOX" Text="&amp;Select All" Order="1000" TextLocId="Control.Text.SelectAll" MsiKey="OptionalFeatsDlg#SelectAllCheckbox"/>
+    <ROW Dialog_="OutOfDiskDlg" Control="VolumeList" Type="VolumeCostList" X="20" Y="100" Width="330" Height="120" Attributes="393223" Text="{120}{70}{70}{70}{70}" Order="400" TextLocId="Control.Text.OutOfDiskDlg#VolumeList" MsiKey="OutOfDiskDlg#VolumeList"/>
+    <ROW Dialog_="OutOfDiskDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Out of Disk Space" TextStyle="[DlgTitleFont]" Order="500" TextLocId="Control.Text.OutOfDiskDlg#Title" MsiKey="OutOfDiskDlg#Title"/>
+    <ROW Dialog_="OutOfDiskDlg" Control="Text" Type="Text" X="20" Y="53" Width="330" Height="40" Attributes="3" Text="The highlighted volumes do not have enough disk space available for the currently selected features.  You can either remove some files from the highlighted volumes, or choose to install less features onto local drive(s), or select different destination drive(s)." Order="600" TextLocId="Control.Text.OutOfDiskDlg#Text" MsiKey="OutOfDiskDlg#Text"/>
+    <ROW Dialog_="OutOfDiskDlg" Control="Description" Type="Text" X="20" Y="20" Width="280" Height="20" Attributes="196611" Text="Disk space required for the installation exceeds available disk space." Order="700" TextLocId="Control.Text.OutOfDiskDlg#Description" MsiKey="OutOfDiskDlg#Description"/>
+    <ROW Dialog_="OutOfDiskDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="800" MsiKey="OutOfDiskDlg#BannerLine"/>
+    <ROW Dialog_="PatchWelcomeDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="57" Attributes="196611" Text="Welcome to the [ProductName] Patch [Wizard]" TextStyle="VerdanaBold13" Order="500" TextLocId="Control.Text.PatchWelcomeDlg#Title" MsiKey="PatchWelcomeDlg#Title"/>
+    <ROW Dialog_="PrepareDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="71" Attributes="196611" Text="Welcome to the [ProductName] [Wizard]" TextStyle="VerdanaBold13" Order="300" TextLocId="Control.Text.PrepareDlg#Title" MsiKey="PrepareDlg#Title"/>
+    <ROW Dialog_="PrepareDlg" Control="Description" Type="Text" X="135" Y="129" Width="220" Height="23" Attributes="196611" Text="Please wait while the [Wizard] prepares to guide you through the installation." Order="500" TextLocId="Control.Text.PrepareDlg#Description" MsiKey="PrepareDlg#Description"/>
+    <ROW Dialog_="PrepareDlg" Control="ActionText" Type="Text" X="135" Y="95" Width="220" Height="20" Attributes="196611" Order="800" MsiKey="PrepareDlg#ActionText"/>
+    <ROW Dialog_="PrepareDlg" Control="ActionData" Type="Text" X="135" Y="159" Width="220" Height="30" Attributes="196611" Order="900" MsiKey="PrepareDlg#ActionData"/>
+    <ROW Dialog_="ProgressDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="1" Text="[ButtonText_Back]" Order="400" TextLocId="-" MsiKey="ProgressDlg#Back" Options="1"/>
+    <ROW Dialog_="ProgressDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="1" Text="[ButtonText_Next]" Order="500" TextLocId="-" MsiKey="ProgressDlg#Next" Options="1"/>
+    <ROW Dialog_="ProgressDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="600" MsiKey="ProgressDlg#BannerLine"/>
+    <ROW Dialog_="ProgressDlg" Control="ActionText" Type="Text" X="80" Y="100" Width="255" Height="10" Attributes="3" Order="700" MsiKey="ProgressDlg#ActionText"/>
+    <ROW Dialog_="ProgressDlg" Control="Title" Type="Text" X="20" Y="15" Width="200" Height="15" Attributes="196611" Text="[Progress1] [ProductName]" TextStyle="[DlgTitleFont]" Order="800" TextLocId="Control.Text.ProgressDlg#Title" MsiKey="ProgressDlg#Title"/>
+    <ROW Dialog_="ProgressDlg" Control="Text" Type="Text" X="35" Y="65" Width="300" Height="30" Attributes="196611" Text="Please wait while the [Wizard] [Progress2] [ProductName].  This may take several minutes." Order="900" TextLocId="Control.Text.ProgressDlg#Text" MsiKey="ProgressDlg#Text"/>
+    <ROW Dialog_="ProgressDlg" Control="StatusLabel" Type="Text" X="35" Y="100" Width="45" Height="10" Attributes="3" Text="Status:" Order="1000" TextLocId="Control.Text.ProgressDlg#StatusLabel" MsiKey="ProgressDlg#StatusLabel"/>
+    <ROW Dialog_="ProgressDlg" Control="ProgressBar" Type="ProgressBar" X="35" Y="115" Width="300" Height="10" Attributes="65537" Text="Progress done" Order="1100" TextLocId="Control.Text.ProgressDlg#ProgressBar" MsiKey="ProgressDlg#ProgressBar"/>
+    <ROW Dialog_="ResumeDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="56" Attributes="196611" Text="Resuming the [ProductName] [Wizard]" TextStyle="VerdanaBold13" Order="500" TextLocId="Control.Text.ResumeDlg#Title" MsiKey="ResumeDlg#Title"/>
+    <ROW Dialog_="UserExit" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="60" Attributes="196611" Text="The [ProductName] [Wizard] was interrupted" TextStyle="VerdanaBold13" Order="500" TextLocId="Control.Text.UserExit#Title" MsiKey="UserExit#Title"/>
+    <ROW Dialog_="VerifyReadyDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="500" TextLocId="-" MsiKey="VerifyReadyDlg#Back" Options="1"/>
+    <ROW Dialog_="VerifyReadyDlg" Control="Text" Type="Text" X="25" Y="70" Width="320" Height="40" Attributes="196611" Text="Click &quot;Install&quot; to begin the installation.  If you want to review or change any of your installation settings, click &quot;Back&quot;.  Click &quot;Cancel&quot; to exit the wizard." Order="600" TextLocId="Control.Text.VerifyReadyDlg#Text" MsiKey="VerifyReadyDlg#Text"/>
+    <ROW Dialog_="VerifyReadyDlg" Control="Description" Type="Text" X="25" Y="23" Width="304" Height="15" Attributes="196611" Text="The [Wizard] is ready to begin the installation" Order="700" TextLocId="Control.Text.VerifyReadyDlg#Description" MsiKey="VerifyReadyDlg#Description"/>
+    <ROW Dialog_="VerifyReadyDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="800" MsiKey="VerifyReadyDlg#BannerLine"/>
+    <ROW Dialog_="VerifyReadyDlg" Control="Title" Type="Text" X="15" Y="6" Width="304" Height="15" Attributes="196611" Text="Ready to Install" TextStyle="[DlgTitleFont]" Order="900" TextLocId="Control.Text.VerifyReadyDlg#Title" MsiKey="VerifyReadyDlg#Title"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Remove [ProductName]" TextStyle="DlgFontBold8" Order="600" TextLocId="Control.Text.VerifyRemoveDlg#Title" MsiKey="VerifyRemoveDlg#Title"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control="Text" Type="Text" X="25" Y="70" Width="320" Height="60" Attributes="3" Text="Click &quot;Remove&quot; to remove [ProductName] from your computer.  If you want to review or change any of your installation settings, click &quot;Back&quot;.  Click &quot;Cancel&quot; to exit the wizard." Order="700" TextLocId="Control.Text.VerifyRemoveDlg#Text" MsiKey="VerifyRemoveDlg#Text"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="You have chosen to remove the program from your computer." Order="800" TextLocId="Control.Text.VerifyRemoveDlg#Description" MsiKey="VerifyRemoveDlg#Description"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="900" MsiKey="VerifyRemoveDlg#BannerLine"/>
+    <ROW Dialog_="VerifyRepairDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="500" TextLocId="-" MsiKey="VerifyRepairDlg#Back" Options="1"/>
+    <ROW Dialog_="VerifyRepairDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Repair [ProductName]" TextStyle="DlgFontBold8" Order="600" TextLocId="Control.Text.VerifyRepairDlg#Title" MsiKey="VerifyRepairDlg#Title"/>
+    <ROW Dialog_="VerifyRepairDlg" Control="Text" Type="Text" X="25" Y="70" Width="320" Height="60" Attributes="3" Text="Click &quot;Repair&quot; to repair the installation of [ProductName].  If you want to review or change any of your installation settings, click &quot;Back&quot;.  Click &quot;Cancel&quot; to exit the wizard." Order="700" TextLocId="Control.Text.VerifyRepairDlg#Text" MsiKey="VerifyRepairDlg#Text"/>
+    <ROW Dialog_="VerifyRepairDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="The [Wizard] is ready to begin the repair of [ProductName]." Order="800" TextLocId="Control.Text.VerifyRepairDlg#Description" MsiKey="VerifyRepairDlg#Description"/>
+    <ROW Dialog_="VerifyRepairDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="900" MsiKey="VerifyRepairDlg#BannerLine"/>
+    <ROW Dialog_="WelcomeDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="60" Attributes="196611" Text="Welcome to the [ProductName] [Wizard]" TextStyle="VerdanaBold13" Order="500" TextLocId="Control.Text.WelcomeDlg#Title" MsiKey="WelcomeDlg#Title"/>
+    <ATTRIBUTE name="DeletedRows" value="AdminBrowseDlg#Logo@AdminInstallPointDlg#Logo@BrowseDlg#Logo@CustomizeDlg#Browse@CustomizeDlg#Location@CustomizeDlg#LocationLabel@CustomizeDlg#Logo@DiskCostDlg#Logo@ExitDialog#LaunchProdText@ExitDialog#ViewReadmeText@FilesInUse#Logo@FolderDlg#Logo@LicenseAgreementDlg#Logo@MaintenanceTypeDlg#Logo@MsiRMFilesInUse#Logo@OptionalFeatsDlg#Logo@OutOfDiskDlg#Logo@ProgressDlg#Logo@VerifyReadyDlg#Logo@VerifyRemoveDlg#Logo@VerifyRepairDlg#Logo"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlConditionComponent">
+    <ROW Dialog_="ExitDialog" Control_="CheckBox_1" Action="Hide" Condition="(Installed AND ( REMOVE = &quot;ALL&quot; OR AI_INSTALL_MODE = &quot;Remove&quot; ))"/>
+    <ROW Dialog_="ExitDialog" Control_="Text_2" Action="Hide" Condition="(Installed AND ( REMOVE = &quot;ALL&quot; OR AI_INSTALL_MODE = &quot;Remove&quot; ))"/>
+    <ROW Dialog_="ExitDialog" Control_="Text_4" Action="Show" Condition="(Installed AND ( REMOVE = &quot;ALL&quot; OR AI_INSTALL_MODE = &quot;Remove&quot; ))"/>
+    <ROW Dialog_="ExitDialog" Control_="Text_1" Action="Show" Condition="SET_SYSTEM_PATH = 1"/>
+    <ATTRIBUTE name="DeletedRows" value="CustomizeDlg#Browse#Hide#Installed@CustomizeDlg#Location#Hide#Installed@CustomizeDlg#LocationLabel#Hide#Installed@ExitDialog#LaunchProdText#Hide#((NOT AI_INSTALL) AND (NOT AI_PATCH)) OR ((CTRLS &lt;&gt; 2) AND (CTRLS &lt;&gt; 3))@ExitDialog#ViewReadmeText#Hide#((NOT AI_INSTALL) AND (NOT AI_PATCH)) OR ((CTRLS &lt;&gt; 1) AND (CTRLS &lt;&gt; 3))"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
+    <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="LicenseAgreementDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_INSTALL" Ordering="197"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="MaintenanceWelcomeDlg" Control_="Next" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="99"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_MAINT" Ordering="198"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="203"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="ChangeButton" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_MAINT" Ordering="501"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceWelcomeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RemoveButton" Event="NewDialog" Argument="VerifyRemoveDlg" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="601"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RepairButton" Event="NewDialog" Argument="VerifyRepairDlg" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="601"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="1"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Repair" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="399" Options="1"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Remove" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="299" Options="1"/>
+    <ROW Dialog_="PatchWelcomeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_PATCH" Ordering="201"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_PATCH" Ordering="199"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="PatchWelcomeDlg" Condition="AI_PATCH" Ordering="205"/>
+    <ROW Dialog_="ResumeDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_RESUME" Ordering="299"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control_="Next" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="3"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="LicenseAgreementDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="ExitDialog" Control_="Finish" Event="DoAction" Argument="ViewReleaseNotes" Condition="(RELEASENOTES=1) AND ((Not Installed) OR (Installed AND NOT (REMOVE = &quot;ALL&quot; OR AI_INSTALL_MODE = &quot;Remove&quot; )))" Ordering="299"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="ChangeButton" Event="[CustomizeDlg_Cond]" Argument="1" Condition="PHP7.1_IIS_EXPRESS_INI &lt;&gt; &quot;&quot; OR PHP7.1_IIS_INI &lt;&gt; &quot;&quot; OR PHP7.1_X64_IIS_EXPRESS_INI &lt;&gt; &quot;&quot; OR PHP7.1_X64_IIS_INI &lt;&gt; &quot;&quot; OR php71.x64.iss OR php71.x86.iss OR php71.x64.issexpress OR php71.x86.issexpress" Ordering="2"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="ChangeButton" Event="[CustomizeDlg_Cond]" Argument="{}" Condition="1" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="ChangeButton" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT AND CustomizeDlg_Cond" Ordering="502"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT AND CustomizeDlg_Cond" Ordering="204"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_MAINT AND CustomizeDlg_Cond" Ordering="101"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND CustomizeDlg_Cond" Ordering="1"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control_="Next" Event="[OptionalFeatsDlg_Cond]" Argument="1" Condition="PHP7.1_IIS_EXPRESS_INI &lt;&gt; &quot;&quot; OR PHP7.1_IIS_INI &lt;&gt; &quot;&quot; OR PHP7.1_X64_IIS_EXPRESS_INI &lt;&gt; &quot;&quot; OR PHP7.1_X64_IIS_INI &lt;&gt; &quot;&quot;" Ordering="2"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control_="Next" Event="[OptionalFeatsDlg_Cond]" Argument="{}" Condition="1" Ordering="1"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control_="Next" Event="NewDialog" Argument="OptionalFeatsDlg" Condition="AI_INSTALL AND OptionalFeatsDlg_Cond" Ordering="4"/>
+    <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="OptionalFeatsDlg" Condition="AI_INSTALL AND OptionalFeatsDlg_Cond" Ordering="2"/>
+    <ROW Dialog_="OptionalFeatsDlg" Control_="Next" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL AND OptionalFeatsDlg_Cond" Ordering="1"/>
+    <ROW Dialog_="OptionalFeatsDlg" Control_="Back" Event="NewDialog" Argument="LicenseAgreementDlg" Condition="AI_INSTALL AND OptionalFeatsDlg_Cond" Ordering="1"/>
+    <ROW Dialog_="ExitDialog" Control_="Finish" Event="DoAction" Argument="AI_CleanPrereq" Condition="1" Ordering="301"/>
+    <ROW Dialog_="FatalError" Control_="Finish" Event="DoAction" Argument="AI_CleanPrereq" Condition="1" Ordering="102"/>
+    <ROW Dialog_="UserExit" Control_="Finish" Event="DoAction" Argument="AI_CleanPrereq" Condition="1" Ordering="101"/>
+    <ATTRIBUTE name="DeletedRows" value="CustomizeDlg#Browse#SelectionBrowse#BrowseDlg#1"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
+    <ROW Directory_="Ice3.7.0_Dir" Component_="Ice3.7.0" ManualDelete="false"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
+    <ROW Action="AI_AppSearchEx" Type="1" Source="Prereq.dll" Target="DoAppSearchEx"/>
+    <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Type="51" Source="AI_SETUPEXEPATH_ORIGINAL" Target="[AI_SETUPEXEPATH]"/>
+    <ROW Action="AI_CleanPrereq" Type="65" Source="Prereq.dll" Target="CleanPrereq" WithoutSeq="true"/>
+    <ROW Action="AI_ConfigureChainer" Type="1" Source="Prereq.dll" Target="ConfigurePrereqLauncher"/>
+    <ROW Action="AI_DATA_SETTER" Type="51" Source="notifyenvchanges" Target="AEkAcwA2ADQAQgBpAHQAAgABAFAAYQByAGEAbQBzAAIAAQBTAGMAcgBpAHAAdAACACMAIABCAGwAbwBjAGsAIABmAG8AcgAgAGQAZQBjAGwAYQByAGkAbgBnACAAdABoAGUAIABzAGMAcgBpAHAAdAAgAHAAYQByAGEAbQBlAHQAZQByAHMALgANAAoAUABhAHIAYQBtACgAKQANAAoADQAKACMAIABiAGUAYwBhAHUAcwBlACAAcwBvAG0AZQB0AGkAbQBlAHMAIABlAHgAcABsAG8AcgBlAHIALgBlAHgAZQAgAGoAdQBzAHQAIABkAG8AZQBzAG4AJwB0ACAAZwBlAHQAIAB0AGgAZQAgAG0AZQBzAHMAYQBnAGUAIAB0AGgAYQB0ACAAdABoAGkAbgBnAHMAIAB3AGUAcgBlACAAdQBwAGQAYQB0AGUAZAAuAA0ACgBpAGYAIAAoAC0AbgBvAHQAIAAoACIAdwBpAG4AMwAyAC4AbgBhAHQAaQB2AGUAbQBlAHQAaABvAGQAcwAiACAALQBhAHMAIABbAFwAWwBdAHQAeQBwAGUAWwBcAF0AXQApACkAIABbAFwAewBdAA0ACgAgACAAIAAgACMAIABpAG0AcABvAHIAdAAgAHMAZQBuAGQAbQBlAHMAcwBhAGcAZQB0AGkAbQBlAG8AdQB0ACAAZgByAG8AbQAgAHcAaQBuADMAMgANAAoAIAAgACAAIABhAGQAZAAtAHQAeQBwAGUAIAAtAE4AYQBtAGUAcwBwAGEAYwBlACAAVwBpAG4AMwAyACAALQBOAGEAbQBlACAATgBhAHQAaQB2AGUATQBlAHQAaABvAGQAcwAgAC0ATQBlAG0AYgBlAHIARABlAGYAaQBuAGkAdABpAG8AbgAgAEAAIgANAAoAWwBcAFsAXQBEAGwAbABJAG0AcABvAHIAdAAoACIAdQBzAGUAcgAzADIALgBkAGwAbAAiACwAIABTAGUAdABMAGEAcwB0AEUAcgByAG8AcgAgAD0AIAB0AHIAdQBlACwAIABDAGgAYQByAFMAZQB0ACAAPQAgAEMAaABhAHIAUwBlAHQALgBBAHUAdABvACkAWwBcAF0AXQANAAoAcAB1AGIAbABpAGMAIABzAHQAYQB0AGkAYwAgAGUAeAB0AGUAcgBuACAASQBuAHQAUAB0AHIAIABTAGUAbgBkAE0AZQBzAHMAYQBnAGUAVABpAG0AZQBvAHUAdAAoAA0ACgAgACAAIAAgAEkAbgB0AFAAdAByACAAaABXAG4AZAAsACAAdQBpAG4AdAAgAE0AcwBnACwAIABVAEkAbgB0AFAAdAByACAAdwBQAGEAcgBhAG0ALAAgAHMAdAByAGkAbgBnACAAbABQAGEAcgBhAG0ALAANAAoAIAAgACAAIAB1AGkAbgB0ACAAZgB1AEYAbABhAGcAcwAsACAAdQBpAG4AdAAgAHUAVABpAG0AZQBvAHUAdAAsACAAbwB1AHQAIABVAEkAbgB0AFAAdAByACAAbABwAGQAdwBSAGUAcwB1AGwAdAApADsADQAKACIAQAANAAoAWwBcAH0AXQANAAoADQAKACQASABXAE4ARABfAEIAUgBPAEEARABDAEEAUwBUACAAPQAgAFsAXABbAF0AaQBuAHQAcAB0AHIAWwBcAF0AXQAwAHgAZgBmAGYAZgA7AA0ACgAkAFcATQBfAFMARQBUAFQASQBOAEcAQwBIAEEATgBHAEUAIAA9ACAAMAB4ADEAYQA7AA0ACgAkAHIAZQBzAHUAbAB0ACAAPQAgAFsAXABbAF0AdQBpAG4AdABwAHQAcgBbAFwAXQBdADoAOgB6AGUAcgBvAA0ACgANAAoAIwAgAG4AbwB0AGkAZgB5ACAAYQBsAGwAIAB3AGkAbgBkAG8AdwBzACAAbwBmACAAZQBuAHYAaQByAG8AbgBtAGUAbgB0ACAAYgBsAG8AYwBrACAAYwBoAGEAbgBnAGUADQAKAFsAXABbAF0AdwBpAG4AMwAyAC4AbgBhAHQAaQB2AGUAbQBlAHQAaABvAGQAcwBbAFwAXQBdADoAOgBTAGUAbgBkAE0AZQBzAHMAYQBnAGUAVABpAG0AZQBvAHUAdAAoACQASABXAE4ARABfAEIAUgBPAEEARABDAEEAUwBUACwAIAAkAFcATQBfAFMARQBUAFQASQBOAEcAQwBIAEEATgBHAEUALAAgACAAWwBcAFsAXQB1AGkAbgB0AHAAdAByAFsAXABdAF0AOgA6AFoAZQByAG8ALAAgACIARQBuAHYAaQByAG8AbgBtAGUAbgB0ACIALAAgADIALAAgADUAMAAwADAALAAgAFsAXABbAF0AcgBlAGYAWwBcAF0AXQAkAHIAZQBzAHUAbAB0ACkAOw=="/>
+    <ROW Action="AI_DATA_SETTER_12" Type="51" Source="fixinstalldir.vbs" Target="[APPDIR]"/>
+    <ROW Action="AI_DATA_SETTER_3" Type="51" Source="path.vbs" Target="[APPDIR]bin"/>
+    <ROW Action="AI_DATA_SETTER_4" Type="51" Source="cleanpath.vbs" Target="[APPDIR]bin"/>
+    <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
+    <ROW Action="AI_DoRemoveExternalUIStub" Type="3585" Source="ExternalUICleaner.dll" Target="DoRemoveExternalUIStub" WithoutSeq="true"/>
+    <ROW Action="AI_DownloadPrereq" Type="1" Source="Prereq.dll" Target="DownloadPrereq"/>
+    <ROW Action="AI_DpiContentScale" Type="1" Source="aicustact.dll" Target="DpiContentScale"/>
+    <ROW Action="AI_ExtractPrereq" Type="65" Source="Prereq.dll" Target="ExtractPrereq"/>
+    <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
+    <ROW Action="AI_InstallPostPrerequisite" Type="1" Source="Prereq.dll" Target="InstallPostPrereq"/>
+    <ROW Action="AI_InstallPrerequisite" Type="65" Source="Prereq.dll" Target="InstallPrereq"/>
+    <ROW Action="AI_LaunchChainer" Type="3314" Source="AI_PREREQ_CHAINER"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
+    <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Type="51" Source="AI_SETUPEXEPATH" Target="[AI_SETUPEXEPATH_ORIGINAL]"/>
+    <ROW Action="AI_RemoveExternalUIStub" Type="1" Source="ExternalUICleaner.dll" Target="RemoveExternalUIStub"/>
+    <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
+    <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
+    <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
+    <ROW Action="AI_VerifyPrereq" Type="1" Source="Prereq.dll" Target="VerifyPrereq"/>
+    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder]ZeroC\Ice-3.7.10" MultiBuildTarget="DefaultBuild:[ProgramFiles64Folder]ZeroC\Ice-3.7.11"/>
+    <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
+    <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
+    <ROW Action="ViewReleaseNotes" Type="194" Source="viewer.exe" Target="https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes" WithoutSeq="true" Options="1"/>
+    <ROW Action="cleanpath.vbs" Type="7174" Source="cleanpath.vbs" AdditionalSeq="AI_DATA_SETTER_4"/>
+    <ROW Action="fixinstalldir.vbs" Type="3078" Source="fixinstalldir.vbs" AdditionalSeq="AI_DATA_SETTER_12"/>
+    <ROW Action="notifyenvchanges" Type="3137" Source="PowerShellScriptLauncher.dll" Target="RunPowerShellScript" Options="1" AdditionalSeq="AI_DATA_SETTER"/>
+    <ROW Action="path.vbs" Type="7174" Source="path.vbs" AdditionalSeq="AI_DATA_SETTER_3"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiEventMappingComponent">
+    <ATTRIBUTE name="DeletedRows" value="CustomizeDlg#Location#SelectionPath@CustomizeDlg#Location#SelectionPathOn@CustomizeDlg#LocationLabel#SelectionPathOn"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
+    <ROW Name="icegridgui_1.exe" SourcePath="..\..\java\src\IceGridGUI\src\main\resources\icons\icegrid.ico" Index="0"/>
+    <ROW Name="product.exe" SourcePath="resources\product.ico" Index="0"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiIniFileComponent">
+    <ROW IniFile="URL" FileName="ICEMAN~1.URL|Ice Manual.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://doc.zeroc.com/ice/3.7/" Action="0" Component_="ICE_LICENSE.txt_1"/>
+    <ROW IniFile="URL_1" FileName="RELEAS~1.URL|Release Notes.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes" Action="0" Component_="ICE_LICENSE.txt_1"/>
+    <ROW IniFile="URL_2" FileName="SOURCE~1.URL|Source Code on GitHub.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://github.com/zeroc-ice/ice/tree/v3.7.10" Action="0" Component_="ICE_LICENSE.txt_1"/>
+    <ROW IniFile="URL_3" FileName="USINGT~1.URL|Using this Binary Distribution.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes/using-the-windows-binary-distributions-for-ice-3-7-10" Action="0" Component_="ICE_LICENSE.txt_1"/>
+    <ROW IniFile="URL_9" FileName="ICESAM~1.URL|Ice Sample Programs.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://github.com/zeroc-ice/ice-demos/tree/v3.7.10" Action="0" Component_="ICE_LICENSE.txt_1"/>
+    <ROW IniFile="WorkingDirectory" FileName="ICEMAN~1.URL|Ice Manual.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="WorkingDirectory" Value="[Ice3.7.0_Dir]" Action="0" Component_="ICE_LICENSE.txt_1"/>
+    <ROW IniFile="WorkingDirectory_1" FileName="RELEAS~1.URL|Release Notes.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="WorkingDirectory" Value="[Ice3.7.0_Dir]" Action="0" Component_="ICE_LICENSE.txt_1"/>
+    <ROW IniFile="WorkingDirectory_2" FileName="SOURCE~1.URL|Source Code on GitHub.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="WorkingDirectory" Value="[Ice3.7.0_Dir]" Action="0" Component_="ICE_LICENSE.txt_1"/>
+    <ROW IniFile="WorkingDirectory_3" FileName="USINGT~1.URL|Using this Binary Distribution.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="WorkingDirectory" Value="[Ice3.7.0_Dir]" Action="0" Component_="ICE_LICENSE.txt_1"/>
+    <ROW IniFile="WorkingDirectory_9" FileName="ICESAM~1.URL|Ice Sample Programs.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="WorkingDirectory" Value="[Ice3.7.0_Dir]" Action="0" Component_="ICE_LICENSE.txt_1"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
+    <ROW Action="AI_STORE_LOCATION" Condition="Not Installed" Sequence="1502"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
+    <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="201"/>
+    <ROW Action="AppSearch" Sequence="54" SeqType="0" MsiKey="AppSearch"/>
+    <ROW Action="AI_RemoveExternalUIStub" Condition="(REMOVE=&quot;ALL&quot;) AND ((VersionNT &gt; 500) OR((VersionNT = 500) AND (ServicePackLevel &gt;= 4)))" Sequence="1501"/>
+    <ROW Action="cleanpath.vbs" Condition="( Installed AND ( REMOVE = &quot;ALL&quot; OR AI_INSTALL_MODE = &quot;Remove&quot; ) )" Sequence="6406"/>
+    <ROW Action="AI_DATA_SETTER_4" Condition="( Installed AND ( REMOVE = &quot;ALL&quot; OR AI_INSTALL_MODE = &quot;Remove&quot; ) )" Sequence="6405"/>
+    <ROW Action="path.vbs" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) ) AND ( SET_SYSTEM_PATH = 1 )" Sequence="6404"/>
+    <ROW Action="AI_DATA_SETTER_3" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) ) AND ( SET_SYSTEM_PATH = 1 )" Sequence="6403"/>
+    <ROW Action="fixinstalldir.vbs" Sequence="6402"/>
+    <ROW Action="AI_DATA_SETTER_12" Sequence="6401"/>
+    <ROW Action="notifyenvchanges" Condition="SET_SYSTEM_PATH = 1 AND ((VersionNT &gt; 501) OR (VersionNT = 501 AND ServicePackLevel &gt;= 2))" Sequence="6408"/>
+    <ROW Action="AI_DATA_SETTER" Condition="SET_SYSTEM_PATH = 1 AND ((VersionNT &gt; 501) OR (VersionNT = 501 AND ServicePackLevel &gt;= 2))" Sequence="6407"/>
+    <ROW Action="AI_ConfigureChainer" Condition="((UILevel = 2) OR (UILevel = 3)) AND (NOT UPGRADINGPRODUCTCODE)" Sequence="6598"/>
+    <ROW Action="AI_LaunchChainer" Condition="AI_PREREQ_CHAINER AND (NOT UPGRADINGPRODUCTCODE)" Sequence="6599"/>
+    <ROW Action="AI_VerifyPrereq" Sequence="1101"/>
+    <ROW Action="AI_AppSearchEx" Sequence="55"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
+    <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
+    <ROW Action="AI_DpiContentScale" Sequence="51"/>
+    <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="99"/>
+    <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Condition="AI_SETUPEXEPATH_ORIGINAL" Sequence="101"/>
+    <ROW Action="AppSearch" Sequence="76" SeqType="0" MsiKey="AppSearch"/>
+    <ROW Action="ExecuteAction" Sequence="1302" SeqType="0" MsiKey="ExecuteAction"/>
+    <ROW Action="AI_DownloadPrereq" Sequence="1299"/>
+    <ROW Action="AI_ExtractPrereq" Sequence="1300"/>
+    <ROW Action="AI_InstallPrerequisite" Sequence="1301"/>
+    <ROW Action="AI_InstallPostPrerequisite" Sequence="1303"/>
+    <ROW Action="AI_AppSearchEx" Sequence="77"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
+    <ROW Condition="(VersionNT &lt;&gt; 400)" Description="[ProductName] cannot be installed on the following Windows versions: [WindowsTypeNT40Display]" DescriptionLocId="AI.LaunchCondition.NoNT40" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]" DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
+    <ROW Registry="B5158184F44A6981C5919229A6AEBE" Root="-1" Key="Software\Caphyon\Advanced Installer\Prereqs\[ProductCode]\[ProductVersion]" Name="B5158184F44A6981C5919229A6AEBE" Value="1" Component_="B5158184F44A6981C5919229A6AEBE"/>
+    <ROW Registry="ContentType" Root="0" Key=".ice" Name="Content Type" Value="text/plain" Component_="ContentType"/>
+    <ROW Registry="Ice3.7.0" Root="1" Key="Software\[Manufacturer]\[ProductName]" Name="Ice3.7.6" Value="0" Component_="Ice3.7.0"/>
+    <ROW Registry="InstallDir" Root="2" Key="Software\ZeroC\[ProductName]" Name="InstallDir" Value="[APPDIR]" Component_="InstallDir"/>
+    <ROW Registry="Installicegridgui.jarComponentShortcuts" Root="1" Key="Software\[Manufacturer]\[ProductName]" Name="Installicegridgui.jarComponentShortcuts" Value="0" Component_="Installicegridgui.jarComponentShortcuts"/>
+    <ROW Registry="PerceivedType" Root="0" Key=".ice" Name="PerceivedType" Value="text" Component_="PerceivedType"/>
+    <ROW Registry="_" Root="0" Key=".ice" Value="slicefile" Component_="_"/>
+    <ROW Registry="__1" Root="0" Key="slicefile" Value="Slice File" Component_="__1"/>
+    <ROW Registry="ice" Root="0" Key=".ice" Name="+" Component_="ice"/>
+    <ROW Registry="slicefile" Root="0" Key="slicefile" Name="+" Component_="slicefile"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRemoveFileComponent">
+    <ROW FileKey="_" Component_="Ice3.7.0" DirProperty="Ice3.7.0_Dir" InstallMode="2"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
+    <ROW Shortcut="IceGridGUI_1" Directory_="Ice3.7.0_Dir" Name="ICEGRI~1|IceGrid GUI" Component_="Installicegridgui.jarComponentShortcuts" Target="[bin_Dir]\icegridgui.jar" Hotkey="0" Icon_="icegridgui_1.exe" IconIndex="0" ShowCmd="1" WkDir="bin_Dir"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
+    <ATTRIBUTE name="UsedTheme" value="classic"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiUpgradeComponent">
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMax="[|ProductVersion]" Attributes="1025" ActionProperty="OLDPRODUCTS"/>
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MultipleInstancesComponent">
+    <ATTRIBUTE name="DynamicInstances" value="DefaultBuild:"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.PreReqComponent">
+    <ROW PrereqKey="B5158184F44A6981C5919229A6AEBE" DisplayName="Visual C++ Redistributable for Visual Studio 2015 x64" VersionMin="14.0" SetupFileUrl="http://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x64.exe" Location="1" ExactSize="14572000" WinNTVersions="Windows 9x/ME/NT/2000/XP/Vista/Windows 7/Windows 8 x86/Windows 8.1 x86/Windows 10 x86" WinNT64Versions="Windows XP x64, Windows XP x64 Service Pack 1, Windows Server 2003 x64, Windows Server 2003 x64 Service Pack 1, Windows Vista x64, Windows Vista x64 Service Pack 1, Windows 7 x64, Windows Server 2008 R2 x64" Operator="1" NoUiComLine="/q /norestart" Options="x" MD5="27b141aacc2777a82bb3fa9f6e5e5c1c" TargetName="Visual C++ Redistributable for Visual Studio 2015" Type="1" Feature="B5158184F44A6981C5919229A6AEBE"/>
+    <ATTRIBUTE name="PrereqsOrder" value="B5158184F44A6981C5919229A6AEBE"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.PreReqSearchComponent">
+    <ROW SearchKey="B5158184F44A6981C5919229A6AEBEVersion" Prereq="B5158184F44A6981C5919229A6AEBE" SearchType="2" SearchString="HKLM\SOFTWARE\Microsoft\DevDiv\VC\Servicing\14.0\RuntimeMinimum\Version" VerMin="14.0.23026" Order="1" Property="PreReqSearch_B5158184F44A6981C5919229A6AEBE"/>
+  </COMPONENT>
+</DOCUMENT>

@@ -1,0 +1,126 @@
+name: "Build Windows MSI"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+
+jobs:
+  build-windows-msi:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Download Artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run download "${{ inputs.run_id }}" `
+            --repo ${{ github.repository }} `
+            --name windows-cpp-v143-x64-Release-build `
+            --dir cpp
+          gh run download "${{ inputs.run_id }}" `
+            --repo ${{ github.repository }} `
+            --name icegridgui-jar `
+            --dir java/lib
+
+          nuget install zeroc.lmdb-tools  -OutputDirectory cpp/msbuild/packages
+
+      - name: Install Advanced Installer
+        run: |
+          $msi = "$env:TEMP\advinst.msi"
+          $url = "http://www.advancedinstaller.com/downloads/12.5.1/advinst.msi"
+          (New-Object Net.WebClient).DownloadFile($url, $msi)
+          Start-Process -FilePath "msiexec.exe" -ArgumentList "/i $msi /qn /norestart" -NoNewWindow -Wait
+        shell: powershell
+
+      - name: Locate Advanced Installer
+        id: locate-advinst
+        run: |
+          $regPath = "HKLM:\SOFTWARE\WOW6432Node\Caphyon\Advanced Installer"
+          $regKey = Get-ItemProperty -Path $regPath -Name "Advanced Installer Path" -ErrorAction SilentlyContinue
+          $advInstPath = $regKey."Advanced Installer Path"
+          if (-not $advInstPath) {
+            $regPath = "HKLM:\SOFTWARE\Caphyon\Advanced Installer"
+            $regKey = Get-ItemProperty -Path $regPath -Name "Advanced Installer Path" -ErrorAction SilentlyContinue
+            $advInstPath = $regKey."Advanced Installer Path"
+          }
+          if (-not $advInstPath) {
+            throw "Advanced Installer not found in registry"
+          }
+          $advInstaller = Join-Path $advInstPath "bin\x86\AdvancedInstaller.com"
+          if (-not (Test-Path $advInstaller)) {
+            throw "Advanced Installer executable not found at: $advInstaller"
+          }
+          echo "ADVANCED_INSTALLER_PATH=$advInstaller" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Host "Found Advanced Installer at: $advInstaller"
+        shell: powershell
+
+      - name: Register Advanced Installer
+        run: |
+          Start-Process `
+            -FilePath "$env:ADVANCED_INSTALLER_PATH" `
+            -ArgumentList "/register ${{ secrets.ADVANCEDINSTALLER_LICENSE }}" `
+            -NoNewWindow -Wait
+        shell: powershell
+
+      - name: Create Advanced Installer Build Command
+        run: |
+          $buildCommand = @"
+          ;aic
+          NewPathVariable -name ICE_BUILD_HOME -value "${{ github.workspace }}" -valuetype Folder
+          SetOutputLocation -buildname "offline" -path "${{ github.workspace }}\packaging\msi\"
+          Save
+          Build
+          "@
+          Set-Content -Path "${{ github.workspace }}\packaging\msi\BuildCommandIce.aic" -Value $buildCommand
+        shell: powershell
+
+      - name: Build MSI
+        run: |
+          Start-Process `
+            -FilePath "$env:ADVANCED_INSTALLER_PATH" `
+            -ArgumentList "/execute", "Ice.aip", "BuildCommandIce.aic" `
+            -NoNewWindow -Wait
+        working-directory: packaging/msi
+        shell: powershell
+
+      - name: Sign MSI installer with Trusted Signing
+        uses: azure/trusted-signing-action@v0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          trusted-signing-account-name: zeroc
+          certificate-profile-name: zeroc-ice
+          files-folder: ./packaging/msi/
+          files-folder-filter: msi
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Upload MSI
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msi
+          path: |
+            packaging/msi/*.msi
