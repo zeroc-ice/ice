@@ -333,7 +333,7 @@ public final class Util {
     /**
      * Returns the Ice version as an integer in the form {@code AABBCC}, where {@code AA}
      * indicates the major version, {@code BB} indicates the minor version, and {@code CC}
-     * indicates the patch level. For example, for Ice 3.8.1, the returned value is 30801.
+     * indicates the patch level. For example, for Ice 3.9.1, the returned value is 30901.
      *
      * @return The Ice version.
      */
