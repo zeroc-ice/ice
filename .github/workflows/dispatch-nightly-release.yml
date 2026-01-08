@@ -17,6 +17,9 @@ jobs:
     if: github.repository == 'zeroc-ice/ice'
     runs-on: ubuntu-24.04
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Dispatch nightly build for main (2:00 UTC)
         if: github.event.schedule == '0 2 * * *'
         uses: ./.github/actions/dispatch-workflow
