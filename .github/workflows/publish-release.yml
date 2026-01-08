@@ -27,6 +27,14 @@ on:
         type: string
 
 jobs:
+  publish-brew-packages:
+    uses: ./.github/workflows/publish-brew-packages.yml
+    with:
+      channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
+
   publish-deb-packages:
     uses: ./.github/workflows/publish-deb-packages.yml
     with:

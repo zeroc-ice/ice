@@ -1,0 +1,53 @@
+name: "Build Brew Packages"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: true
+        type: string
+      channel:
+        required: true
+        type: string
+      quality:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version number to use"
+        required: true
+      channel:
+        description: "The release channel (e.g., 3.9, 3.8)"
+        required: true
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
+        required: true
+        default: "nightly"
+
+permissions:
+  contents: write
+
+jobs:
+  build-brew-packages:
+    runs-on: macos-26
+    # Stable brew release must be build manually.
+    if: ${{ inputs.quality == 'nightly' }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Update Nightly Tap
+        run: |
+          ./packaging/brew/update-nightly-tap.sh "${{ inputs.channel }}" "${{ inputs.quality }}" "${{ inputs.ice_version }}"
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: homebrew-bottle
+          path: |
+            ./*.tar.gz
+            ./*.patch
