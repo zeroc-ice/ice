@@ -26,7 +26,7 @@ eos
   spec.files       = ['ice.gemspec'] +
                      Dir['dist/lib/**/*.rb'] +
                      Dir['dist/ice/**/*.*'] +
-                     Dir['dist/IceRuby/*.*']
+                     Dir['dist/IceRuby/*.*'] +
                      Dir['scripts/*']
   spec.homepage    = 'https://zeroc.com'
   spec.license     = 'GPL-2.0-only'
