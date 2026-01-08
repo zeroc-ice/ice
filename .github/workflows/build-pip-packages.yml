@@ -1,0 +1,56 @@
+name: "Build PIP Packages"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+
+jobs:
+  build-python-packages:
+    strategy:
+      matrix:
+        os: [macos-26, windows-2022]
+        python-version: ["3.14", "3.13"]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Build Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install build
+          python3 -m pip install toml
+
+      - name: Update PYPI Version
+        run: python3 packaging/pypi/update_version.py ${{ inputs.ice_version }} python/pyproject.toml
+        if: inputs.ice_version != ''
+
+      - name: Build PIP Package
+        working-directory: python
+        run: python3 -m build
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pip-packages-${{ matrix.os }}-${{ matrix.python-version }}
+          path: |
+            python/dist/zeroc_ice-*.whl
+            python/dist/zeroc_ice-*.tar.gz

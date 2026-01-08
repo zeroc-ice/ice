@@ -1,0 +1,24 @@
+# Downloaded/extracted dependencies (created during build)
+mcpp-*/
+mcpp-*.tar.gz
+bzip2-*/
+bzip2-*.tar.gz
+
+# Build outputs
+ice/
+*.tar.gz
+*.whl
+
+# Keep the lib directory structure
+!lib/
+
+# Generated files in lib/ (created during sdist)
+lib/**/zeroc_ice.egg-info/
+lib/slice/
+lib/Ice/*.py
+lib/Glacier2/*.py
+lib/IceBox/*.py
+lib/IceGrid/*.py
+lib/IceMX/*.py
+lib/IcePatch2/*.py
+lib/IceStorm/*.py
