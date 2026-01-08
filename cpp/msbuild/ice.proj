@@ -71,132 +71,37 @@
     </Target>
 
     <!-- Ice for C++ builds. -->
-    <Choose>
-        <!--
-            If BuildAllConfigurations is set to yes we build all configurations that are
-            part of the binary distribution, otherwise we just build the given platform
-            and configuration.
-        -->
-        <When Condition="'$(BuildAllConfigurations)' == 'yes'">
-            <PropertyGroup>
-                <DefaultBuild>x64|Release</DefaultBuild>
-            </PropertyGroup>
-            <!-- Ice for C++ configurations -->
-            <ItemGroup>
-                <DistSolution Include="$(IceDistSln)">
-                    <Properties>Configuration=Debug;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
-                </DistSolution>
-                <DistSolution Include="$(IceDistSln)">
-                    <Properties>Configuration=Debug;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
-                </DistSolution>
-                <DistSolution Include="$(IceDistSln)">
-                    <Properties>Configuration=Release;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
-                </DistSolution>
-                <DistSolution Include="$(IceDistSln)">
-                    <Properties>Configuration=Release;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
-                </DistSolution>
-            </ItemGroup>
 
-            <!-- Ice for C++ test configurations (C++98 mapping) -->
-            <ItemGroup>
-                <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Debug;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
-                </TestSolution>
-                <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Debug;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
-                </TestSolution>
-                <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Release;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
-                </TestSolution>
-                <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Release;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
-                </TestSolution>
-            </ItemGroup>
+    <!-- Ice for C++98 configurations -->
+    <ItemGroup>
+        <DistSolution Include="$(IceDistSln)">
+            <Properties>Configuration=$(Configuration);Platform=$(Platform);VisualStudioVersion=$(VisualStudioVersion)</Properties>
+        </DistSolution>
 
-            <!-- Ice for C++ test configurations (C++11 mapping) requires a C++11 compiler -->
-            <ItemGroup Condition="'$(Cpp11Compiler)' == 'yes'">
-                <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Cpp11-Debug;Platform=Win32</Properties>
-                </TestSolution>
-                <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Cpp11-Debug;Platform=x64</Properties>
-                </TestSolution>
-                <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Cpp11-Release;Platform=Win32</Properties>
-                </TestSolution>
-                <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Cpp11-Release;Platform=x64</Properties>
-                </TestSolution>
-            </ItemGroup>
+        <TestSolution Include="$(IceTestSolution)">
+            <Properties>Configuration=$(Configuration);Platform=$(Platform);VisualStudioVersion=$(VisualStudioVersion)</Properties>
+        </TestSolution>
+    </ItemGroup>
 
-            <!-- OpenSSL C++ test configurations (C++98 mapping) -->
-            <ItemGroup Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OpenSSL)' == 'yes'">
-                <OpenSSLTestSolution Include="ice.openssl.test.sln">
-                    <Properties>Configuration=Debug;Platform=Win32</Properties>
-                </OpenSSLTestSolution>
-                <OpenSSLTestSolution Include="ice.openssl.test.sln">
-                    <Properties>Configuration=Debug;Platform=x64</Properties>
-                </OpenSSLTestSolution>
-                <OpenSSLTestSolution Include="ice.openssl.test.sln">
-                    <Properties>Configuration=Release;Platform=Win32</Properties>
-                </OpenSSLTestSolution>
-                <OpenSSLTestSolution Include="ice.openssl.test.sln">
-                    <Properties>Configuration=Release;Platform=x64</Properties>
-                </OpenSSLTestSolution>
-            </ItemGroup>
+    <!-- Ice for C++ test configurations (C++11 mapping) requires v140 or greater -->
+    <ItemGroup Condition="'$(Cpp11Compiler)' == 'yes'">
+        <TestSolution Include="$(IceTestSolution)">
+            <Properties>Configuration=Cpp11-$(Configuration);Platform=$(Platform)</Properties>
+        </TestSolution>
+    </ItemGroup>
 
-            <!-- OpenSSL C++ test configurations (C++11 mapping) -->
-            <ItemGroup Condition="'$(ICE_BIN_DIST)' != 'all' and $(OpenSSL) == 'yes' and '$(Cpp11Compiler)' == 'yes'">
-                <OpenSSLTestSolution Include="ice.openssl.test.sln">
-                    <Properties>Configuration=Cpp11-Debug;Platform=Win32</Properties>
-                </OpenSSLTestSolution>
-                <OpenSSLTestSolution Include="ice.openssl.test.sln">
-                    <Properties>Configuration=Cpp11-Debug;Platform=x64</Properties>
-                </OpenSSLTestSolution>
-                <OpenSSLTestSolution Include="ice.openssl.test.sln">
-                    <Properties>Configuration=Cpp11-Release;Platform=Win32</Properties>
-                </OpenSSLTestSolution>
-                <OpenSSLTestSolution Include="ice.openssl.test.sln">
-                    <Properties>Configuration=Cpp11-Release;Platform=x64</Properties>
-                </OpenSSLTestSolution>
-            </ItemGroup>
-        </When>
-        <Otherwise>
-            <PropertyGroup>
-                <DefaultBuild>$(Platform)|$(Configuration)</DefaultBuild>
-            </PropertyGroup>
-            <!-- Ice for C++98 configurations -->
-            <ItemGroup>
-                <DistSolution Include="$(IceDistSln)">
-                    <Properties>Configuration=$(Configuration);Platform=$(Platform);VisualStudioVersion=$(VisualStudioVersion)</Properties>
-                </DistSolution>
+    <!-- OpenSSL test builds -->
+    <ItemGroup  Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OpenSSL)' == 'yes'">
+        <OpenSSLTestSolution Include="ice.openssl.test.sln">
+            <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
+        </OpenSSLTestSolution>
+    </ItemGroup>
 
-                <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=$(Configuration);Platform=$(Platform);VisualStudioVersion=$(VisualStudioVersion)</Properties>
-                </TestSolution>
-            </ItemGroup>
-
-            <!-- Ice for C++ test configurations (C++11 mapping) requires v140 or v141 -->
-            <ItemGroup Condition="'$(Cpp11Compiler)' == 'yes'">
-                <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Cpp11-$(Configuration);Platform=$(Platform)</Properties>
-                </TestSolution>
-            </ItemGroup>
-
-            <!-- OpenSSL test builds -->
-            <ItemGroup  Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OpenSSL)' == 'yes'">
-                <OpenSSLTestSolution Include="ice.openssl.test.sln">
-                    <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
-                </OpenSSLTestSolution>
-            </ItemGroup>
-
-            <ItemGroup  Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OpenSSL)' == 'yes' and '$(Cpp11Compiler)' == 'yes'">
-                <OpenSSLTestSolution Include="ice.openssl.test.sln">
-                    <Properties>Configuration=Cpp11-$(Configuration);Platform=$(Platform)</Properties>
-                </OpenSSLTestSolution>
-            </ItemGroup>
-        </Otherwise>
-    </Choose>
+    <ItemGroup  Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OpenSSL)' == 'yes' and '$(Cpp11Compiler)' == 'yes'">
+        <OpenSSLTestSolution Include="ice.openssl.test.sln">
+            <Properties>Configuration=Cpp11-$(Configuration);Platform=$(Platform)</Properties>
+        </OpenSSLTestSolution>
+    </ItemGroup>
 
     <!-- Build distribution targets -->
     <Target Name="BuildDist" DependsOnTargets="NuGetRestore"
@@ -204,6 +109,32 @@
         <MSBuild Projects="@(DistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"/>
+    </Target>
+
+    <!-- Build C++11 distribution and tests -->
+    <Target Name="BuildCpp11" DependsOnTargets="TestNuGetRestore;BuildDist">
+        <MSBuild Projects="$(IceTestSolution)"
+                 BuildInParallel="true"
+                 Properties="Configuration=Cpp11-$(Configuration);Platform=$(Platform);VisualStudioVersion=$(VisualStudioVersion)" />
+
+        <!-- Build OpenSSL tests only with supported compilers -->
+        <MSBuild Projects="ice.openssl.test.sln"
+                 BuildInParallel="true"
+                 Properties="Configuration=Cpp11-$(Configuration);Platform=$(Platform)"
+                 Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OpenSSL)' == 'yes'" />
+    </Target>
+
+    <!-- Build C++98 distribution and tests -->
+    <Target Name="BuildCpp98" DependsOnTargets="TestNuGetRestore;BuildDist">
+        <MSBuild Projects="$(IceTestSolution)"
+                 BuildInParallel="true"
+                 Properties="Configuration=$(Configuration);Platform=$(Platform);VisualStudioVersion=$(VisualStudioVersion)" />
+
+        <!-- Build OpenSSL tests only with supported compilers -->
+        <MSBuild Projects="ice.openssl.test.sln"
+                 BuildInParallel="true"
+                 Properties="Configuration=$(Configuration);Platform=$(Platform)"
+                 Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OpenSSL)' == 'yes'" />
     </Target>
 
     <!-- Clean distribution targets -->
@@ -244,17 +175,13 @@
         <RemoveDir Directories="zeroc.ice.$(DefaultPlatformToolset)" />
 
         <MSBuild Projects="ice.nuget.targets"
-                 Properties="Configuration=Debug;Platform=Win32;PackageDirectory=zeroc.ice.$(DefaultPlatformToolset);DefaultBuild=$(DefaultBuild)"
-                 Condition="'$(Platform)|$(Configuration)' == 'Win32|Debug' or '$(BuildAllConfigurations)' == 'yes'" />
+                 Properties="Configuration=Debug;Platform=Win32;PackageDirectory=zeroc.ice.$(DefaultPlatformToolset)" />
         <MSBuild Projects="ice.nuget.targets"
-                 Properties="Configuration=Debug;Platform=x64;PackageDirectory=zeroc.ice.$(DefaultPlatformToolset);DefaultBuild=$(DefaultBuild)"
-                 Condition="'$(Platform)|$(Configuration)' == 'x64|Debug' or '$(BuildAllConfigurations)' == 'yes'"/>
+                 Properties="Configuration=Debug;Platform=x64;PackageDirectory=zeroc.ice.$(DefaultPlatformToolset)" />
         <MSBuild Projects="ice.nuget.targets"
-                 Properties="Configuration=Release;Platform=Win32;PackageDirectory=zeroc.ice.$(DefaultPlatformToolset);DefaultBuild=$(DefaultBuild)"
-                 Condition="'$(Platform)|$(Configuration)' == 'Win32|Release' or '$(BuildAllConfigurations)' == 'yes'"/>
+                 Properties="Configuration=Release;Platform=Win32;PackageDirectory=zeroc.ice.$(DefaultPlatformToolset)" />
         <MSBuild Projects="ice.nuget.targets"
-                 Properties="Configuration=Release;Platform=x64;PackageDirectory=zeroc.ice.$(DefaultPlatformToolset);DefaultBuild=$(DefaultBuild)"
-                 Condition="'$(Platform)|$(Configuration)' == 'x64|Release' or '$(BuildAllConfigurations)' == 'yes'"/>
+                 Properties="Configuration=Release;Platform=x64;PackageDirectory=zeroc.ice.$(DefaultPlatformToolset)" />
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\README.md"
               DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\README.md"

@@ -7,8 +7,7 @@ lang_srcdir     := $(top_srcdir)/$(notdir $(patsubst %/,%,$(dir $(lastword $(abs
 
 include $(top_srcdir)/config/Make.rules
 
-matlab_version  = $(patsubst @@%@@,%,$(filter VERSION-%,$(shell $(matlab) -nodesktop -nosplash -r "fprintf('@@%s@@', version('-release'));exit(0);")))
-icetoolbox_file = toolbox/ice-$(version)-R$(matlab_version)-linux.mltbx
+icetoolbox_file = toolbox/ice-$(ICE_TOOLBOX_VERSION)-$(MATLAB_VERSION)-linux.mltbx
 
 #
 # Load C++ dependencies
@@ -121,9 +120,15 @@ $(icetoolbox_file):: $(icethunk_target) $(slice2matlab_path) $(lang_srcdir)/lib/
 	cp -rf $(cpp_bindir)/slice2matlab $(lang_srcdir)/toolbox/build/
 	# Doc files
 	cp -rf $(lang_srcdir)/toolbox/doc $(lang_srcdir)/toolbox/build
+ifneq (,$(MATLAB_COMMAND))
+	cd $(lang_srcdir)/toolbox && $(MATLAB_COMMAND) "addFolderToPath '`realpath build`'"
+	cd $(lang_srcdir)/toolbox && $(MATLAB_COMMAND) "buildToolbox '$(ICE_TOOLBOX_VERSION)'"
+	cd $(lang_srcdir)/toolbox && $(MATLAB_COMMAND) "removeFolderFromPath '`realpath build`'"
+else
 	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "addFolderToPath '`realpath build`'"
-	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "buildToolbox '$(version)'"
+	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "buildToolbox '$(ICE_TOOLBOX_VERSION)'"
 	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "removeFolderFromPath '`realpath build`'"
+endif
 
 clean::
 	rm -rf $(icetoolbox_file)

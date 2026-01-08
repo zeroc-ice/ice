@@ -26,6 +26,10 @@ inputs:
     description: "Build Android Controller"
     default: "false"
 
+  cpp11_mapping:
+    description: "Build with C++11 mapping (non-Windows only)"
+    default: "false"
+
 runs:
   using: "composite"
   steps:
@@ -36,6 +40,13 @@ runs:
         make -C python
       shell: bash
       if: (runner.os == 'macOS' || runner.os == 'Linux') && inputs.build_cpp_and_python == 'true'
+
+    # For C++11 testing we also need the C++98 services icegrid/glacier2/etc.
+    - name: Build C++98 sources for C++11 mapping tests
+      run: make -C cpp srcs
+      shell: bash
+      if: inputs.cpp11_mapping == 'true' && (runner.os == 'macOS' || runner.os == 'Linux')
+
     - name: Build
       working-directory: ${{ inputs.working_directory }}
       run: make ${{ inputs.build_flags }}

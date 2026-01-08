@@ -107,6 +107,14 @@ jobs:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
     secrets: inherit
 
+  build-matlab-packages:
+    name: Build MATLAB Packages
+    uses: ./.github/workflows/build-matlab-packages.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.matlab_version }}
+    secrets: inherit
+
   build-maven-packages:
     name: Build Maven Packages
     uses: ./.github/workflows/build-maven-packages.yml
@@ -148,6 +156,7 @@ jobs:
     needs:
       - build-deb-packages
       - build-dotnet-packages
+      - build-matlab-packages
       - build-maven-packages
       - build-rpm-packages
       - build-cpp-nuget-packages

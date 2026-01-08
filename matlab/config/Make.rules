@@ -5,7 +5,9 @@
 #
 # the location of the MATLAB installation.
 #
-MATLAB_HOME ?= /usr/local/MATLAB/R2019b
+MATLAB_VERSION ?= R2025b
+MATLAB_HOME    ?= /usr/local/MATLAB/$(MATLAB_VERSION)
+ICE_TOOLBOX_VERSION ?= 3.7.11.0
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!

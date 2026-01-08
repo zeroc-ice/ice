@@ -14,35 +14,30 @@
 
   <ItemGroup>
     <Projects Include="$(MSBuildThisFileDirectory)cpp\msbuild\ice.proj">
-      <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
+        <Targets>BuildCpp98</Targets>
     </Projects>
-
-    <Projects Include="$(MSBuildThisFileDirectory)csharp\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' != 'v100'">
-      <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
+    <Projects Include="$(MSBuildThisFileDirectory)csharp\msbuild\ice.proj">
+        <Targets>Build</Targets>
     </Projects>
-
-    <Projects Include="$(MSBuildThisFileDirectory)java\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' != 'v100'">
-      <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
+    <Projects Include="$(MSBuildThisFileDirectory)java\msbuild\ice.proj">
+        <Targets>Build</Targets>
     </Projects>
-
-    <Projects Include="$(MSBuildThisFileDirectory)java-compat\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' != 'v100'">
-      <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
+    <Projects Include="$(MSBuildThisFileDirectory)java-compat\msbuild\ice.proj">
+        <Targets>Build</Targets>
     </Projects>
-
     <Projects Include="$(MSBuildThisFileDirectory)js\msbuild\ice.proj">
-      <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
+        <Targets>Build</Targets>
     </Projects>
-
-    <Projects Include="$(MSBuildThisFileDirectory)python\msbuild\ice.proj"
-              Condition="'$(DefaultPlatformToolset)' == 'v140' or '$(DefaultPlatformToolset)' == 'v141' or '$(DefaultPlatformToolset)' == 'v142' or '$(DefaultPlatformToolset)' == 'v143'">
-      <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
+    <Projects Include="$(MSBuildThisFileDirectory)python\msbuild\ice.proj">
+        <Targets>Build</Targets>
     </Projects>
   </ItemGroup>
 
   <Target Name="Build">
     <MSBuild Projects="@(Projects)"
-             BuildInParallel="false"
-             Properties="%(Properties)" />
+             BuildInParallel="true"
+             Properties="Platform=$(Platform);Configuration=$(Configuration)"
+             Targets="%(Targets)" />
   </Target>
 
   <Target Name="Clean">
