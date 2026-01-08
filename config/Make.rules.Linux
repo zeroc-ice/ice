@@ -146,6 +146,17 @@ shared_ldflags      = $(if $(filter-out program,$($1_target)),\
         -pie $(if $(filter yes,$(new_dtags)),-Wl$(comma)--enable-new-dtags,-Wl$(comma)--disable-new-dtags) \
         $$(call unique,$$(foreach d,$($4_dependencies),$$(call make-rpath-link-ldflags,$$d,$($4_dependencies)))))
 
+# We use the same obj/pie directory as the shared build since all the flags are the same.
+static_cppflags = -fPIE
+static_objdir   = obj/pie
+static_ldflags  = -pie
+
+# Link the Slice compilers without any shared libraries.
+# On Amazon Linux 2023, disable static linking since libmcpp-devel provides only the shared library.
+ifeq ($(filter amzn,$(linux_id)),)
+fully_static_ldflags = -static
+endif
+
 cppflags        = -Wall -Wextra -Wredundant-decls -Wshadow -Wdeprecated -Werror -pthread $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)
 ldflags         = -pthread
 

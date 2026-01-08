@@ -31,6 +31,9 @@ MCPP_HOME                      ?= $(shell brew --prefix mcpp)
 LMDB_HOME                      ?= $(shell brew --prefix lmdb)
 endif
 
+# Always link with the static version of libmcpp on macOS.
+mcpp_ldflags                   := $(MCPP_HOME)/lib/libmcpp.a -Wl,-max_default_common_align,0x4000
+
 # If building objects for a shared library, enable fPIC
 shared_cppflags = $(if $(filter-out program,$($1_target)),-fPIC) -fvisibility=hidden
 
