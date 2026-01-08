@@ -7,24 +7,41 @@ set -eux -o pipefail
 # Note: The current commit hash is used as the commit to build the bottle from. It must exist on the
 # zeroc-ice/ice repository.
 
+BASE_URL="https://download.zeroc.com/ice"
+
 usage() {
-    echo "Usage: $0 <ice_version> <root_url>"
+    echo "Usage: $0 <channel> <quality> <ice_version>"
+    echo "  <channel>      The Ice channel (e.g., 3.8, 3.9)"
+    echo "  <quality>      The release quality (e.g., nightly, stable)"
     echo "  <ice_version>  The version of Ice to build (e.g., 3.9.0-nightly-20231020)"
-    echo "  <root_url>     The root URL for the bottles (e.g., https://download.zeroc.com/ice/nightly)"
 }
 
-ice_version="${1:-}"
+channel="${1:-}"
+
+if [ -z "$channel" ]; then
+    usage
+    exit 1
+fi
+
+quality="${2:-}"
+
+if [ -z "$quality" ]; then
+    usage
+    exit 1
+fi
+
+ice_version="${3:-}"
 
 if [ -z "$ice_version" ]; then
     usage
     exit 1
 fi
 
-root_url="${2:-}"
-
-if [ -z "$root_url" ]; then
-    usage
-    exit 1
+# Construct the root URL for the bottles
+if [ "$quality" = "stable" ]; then
+    root_url="${BASE_URL}/${channel}"
+else
+    root_url="${BASE_URL}/${quality}/${channel}"
 fi
 
 git_hash=$(git rev-parse HEAD)
@@ -48,21 +65,22 @@ else
     brew tap "$tap_name"
 fi
 
-tap_formula_path=$tap_path/Formula/ice.rb
+tap_formula_path=$tap_path/Formula/ice@${channel}.rb
 ice_formula_template=packaging/brew/ice.rb
 
 export ICE_URL=$archive_url
 export ICE_VERSION=$ice_version
 export ICE_URL_SHA256=$archive_hash
+export ICE_FORMULA_CLASS="IceAT${channel//./}"
 
 envsubst < "$ice_formula_template" > "$tap_formula_path"
 
-brew install --build-bottle zeroc-ice/nightly/ice
-brew bottle zeroc-ice/nightly/ice --root-url="$root_url" --json
-brew bottle --merge ./ice--*.bottle.json --write --no-commit
+brew install --build-bottle zeroc-ice/nightly/ice@${channel}
+brew bottle zeroc-ice/nightly/ice@${channel} --root-url="$root_url" --json
+brew bottle --merge ./ice@${channel}--*.bottle.json --write --no-commit
 
 # Rename file to fix `--`. See https://github.com/orgs/Homebrew/discussions/4541
-for file in ice--*.bottle.*tar.gz; do
+for file in ice@${channel}--*.bottle.*tar.gz; do
     mv "$file" "${file/--/-}"
 done
 
@@ -70,8 +88,8 @@ git -C "$tap_path" config user.name "ZeroC"
 git -C "$tap_path" config user.email "git@zeroc.com"
 
 # Add the formula and commit
-git -C "$tap_path" add Formula/ice.rb
-git -C "$tap_path" commit -m "ice: $ice_version"
+git -C "$tap_path" add Formula/ice@${channel}.rb
+git -C "$tap_path" commit -m "ice@${channel}: $ice_version"
 
 # Create a patch to attach to the GitHub release
-git -C "$tap_path" format-patch -1 HEAD --stdout > "ice-$ice_version.patch"
+git -C "$tap_path" format-patch -1 HEAD --stdout > "ice@${channel}-$ice_version.patch"

@@ -336,13 +336,13 @@ See also: [DEB packages README]
 
 ## macOS Brew Formula and Cask
 
-You can install the nightly ice formula by running:
+You can install the nightly ice@3.8 formula by running:
 
 ```shell
-brew install zeroc-ice/nightly/ice
+brew install zeroc-ice/nightly/ice@3.8
 ```
 
-The ice formula includes:
+The ice@3.8 formula includes:
 
 - the Ice for C++ runtime and dev kit.
 - all Ice services (Glacier2, IceGrid, IceStorm, etc.) and all admin tools except IceGrid GUI.
