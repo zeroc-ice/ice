@@ -1,0 +1,36 @@
+{
+    "name": "slice2js",
+    "version": "3.7.110",
+    "description": "Slice to JavaScript compiler",
+    "author": "ZeroC, Inc.",
+    "homepage": "https://zeroc.com",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zeroc-ice/ice.git"
+    },
+    "bugs": {
+        "url": "https://github.com/zeroc-ice/ice/issues"
+    },
+    "license": "GPL-2.0",
+    "engines": {
+        "node": ">=14.0.0"
+    },
+    "keywords": [
+        "Ice",
+        "Slice",
+        "compiler",
+        "rpc"
+    ],
+    "main": "index.js",
+    "bin": {
+        "slice2js": "./bin/slice2js-cli.js"
+    },
+    "files": [
+        "index.js",
+        "bin/",
+        "slice/"
+    ],
+    "scripts": {
+        "prepack": "node scripts/prepack.js"
+    }
+}
