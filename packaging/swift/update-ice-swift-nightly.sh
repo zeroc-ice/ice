@@ -10,11 +10,6 @@ if [ -z "${ICE_NIGHTLY_PUBLISH_TOKEN:-}" ]; then
     exit 1
 fi
 
-if [ -z "${STAGING_DIR:-}" ]; then
-    echo "Error: STAGING_DIR environment variable is not set"
-    exit 1
-fi
-
 if [ -z "${CHANNEL:-}" ]; then
     echo "Error: CHANNEL environment variable is not set"
     exit 1
