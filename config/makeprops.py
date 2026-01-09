@@ -428,7 +428,7 @@ class JavaPropertyHandler(PropertyHandler):
 
     def fix(self, propertyName):
         #
-        # The Java property strings are actually regexp's that will be passed to Java's regexp facitlity.
+        # The Java property strings are actually regexp's that will be passed to Java's regexp facility.
         #
         return propertyName.replace(".", "\\\\.").replace("[any]", "[^\\\\s]+")
 
@@ -512,15 +512,15 @@ class CSPropertyHandler(PropertyHandler):
         return propertyName.replace(".", "\\.").replace("[any]", "[^\\s]+")
 
     def deprecatedImpl(self, propertyName):
-        self.srcFile.write("             new Property(@\"^%s\.%s$\", true, null),\n" % (self.currentSection, \
+        self.srcFile.write("             new Property(@\"^%s\\.%s$\", true, null),\n" % (self.currentSection, \
                 self.fix(propertyName)))
 
     def deprecatedImplWithReplacementImpl(self, propertyName, deprecatedBy):
-        self.srcFile.write("             new Property(@\"^%s\.%s$\", true, @\"%s\"),\n" % \
+        self.srcFile.write("             new Property(@\"^%s\\.%s$\", true, @\"%s\"),\n" % \
                 (self.currentSection, self.fix(propertyName), deprecatedBy))
 
     def propertyImpl(self, propertyName):
-        self.srcFile.write("             new Property(@\"^%s\.%s$\", false, null),\n" % (self.currentSection, \
+        self.srcFile.write("             new Property(@\"^%s\\.%s$\", false, null),\n" % (self.currentSection, \
                 self.fix(propertyName)))
 
     def newSection(self):
@@ -572,21 +572,21 @@ class JSPropertyHandler(PropertyHandler):
         self.srcFile.close()
 
     def fix(self, propertyName):
-        return propertyName.replace(".", "\\.").replace("[any]", ".")
+        return propertyName.replace(".", "\\.").replace("[any]", "[^\\s]+")
 
     def deprecatedImpl(self, propertyName):
         if self.currentSection in self.validSections:
-            self.srcFile.write("    new Property(\"/^%s\.%s/\", true, null),\n" % (self.currentSection, \
+            self.srcFile.write("    new Property(/^%s\\.%s$/, true, null),\n" % (self.currentSection, \
                     self.fix(propertyName)))
 
     def deprecatedImplWithReplacementImpl(self, propertyName, deprecatedBy):
         if self.currentSection in self.validSections:
-            self.srcFile.write("    new Property(\"/^%s\.%s/\", true, \"%s\"),\n" % \
+            self.srcFile.write("    new Property(/^%s\\.%s$/, true, \"%s\"),\n" % \
                     (self.currentSection, self.fix(propertyName), deprecatedBy))
 
     def propertyImpl(self, propertyName):
         if self.currentSection in self.validSections:
-            self.srcFile.write("    new Property(\"/^%s\.%s/\", false, null),\n" % (self.currentSection, \
+            self.srcFile.write("    new Property(/^%s\\.%s$/, false, null),\n" % (self.currentSection, \
                     self.fix(propertyName)))
 
     def newSection(self):
