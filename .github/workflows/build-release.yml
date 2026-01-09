@@ -203,6 +203,20 @@ jobs:
       run_id: ${{ github.run_id }}
     secrets: inherit
 
+  build-xcframework-packages:
+    name: Build macOS Packages
+    uses: ./.github/workflows/build-xcframework-packages.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.semver_version }}
+    secrets: inherit
+
+  build-swift-packages:
+    name: Build Swift Packages
+    uses: ./.github/workflows/build-swift-packages.yml
+    needs: set-version
+    secrets: inherit
+
   prune-nightly-artifacts:
     name: Prune Nightly Artifacts
     if: ${{ inputs.publish == true && inputs.quality == 'nightly' }}
@@ -217,6 +231,8 @@ jobs:
       - build-pip-packages
       - build-rpm-packages
       - build-windows-msi
+      - build-xcframework-packages
+      - build-swift-packages
       - build-cpp-nuget-packages
       - set-version
     uses: ./.github/workflows/prune-nightly-artifacts.yml
