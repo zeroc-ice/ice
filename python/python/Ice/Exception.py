@@ -19,7 +19,7 @@ class Exception(BuiltinsException):
         Returns
         -------
         str
-            The type ID of this exception
+            The type ID of this exception.
         """
         return self._ice_id
 

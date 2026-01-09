@@ -257,9 +257,9 @@ class Connection:
 
     def throwException(self) -> None:
         """
-        Throws an exception that provides the reason for the closure of this connection. For example,
-        this function throws :class:`CloseConnectionException` when the connection was closed gracefully by the peer;
-        it throws :class:`ConnectionAbortedException` when the connection is aborted with :func:`abort`.
+        Raises an exception that provides the reason for the closure of this connection. For example,
+        this function raises :class:`CloseConnectionException` when the connection was closed gracefully by the peer;
+        it raises :class:`ConnectionAbortedException` when the connection is aborted with :func:`abort`.
         This function does nothing if the connection is not yet closed.
         """
         ...
@@ -270,8 +270,7 @@ class Connection:
 
         Notes
         -----
-
-        This method remains usable after the connection is closed or aborted.
+        This function remains usable after the connection is closed or aborted.
 
         Returns
         -------

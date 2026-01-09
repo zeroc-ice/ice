@@ -128,8 +128,8 @@ public final class Util {
     /**
      * Converts a stringified identity into an Identity.
      *
-     * @param s The stringified identity.
-     * @return An Identity created from the provided string.
+     * @param s the stringified identity
+     * @return an Identity created from the provided string
      * @throws ParseException if the string cannot be converted to an object identity.
      */
     public static Identity stringToIdentity(String s) {
@@ -185,9 +185,9 @@ public final class Util {
     /**
      * Converts an Identity into a string using the specified mode.
      *
-     * @param ident The object identity to convert.
+     * @param ident the identity
      * @param toStringMode Specifies how to handle non-ASCII characters and non-printable ASCII characters.
-     * @return the stringified identifier
+     * @return the stringified identity
      */
     public static String identityToString(Identity ident, ToStringMode toStringMode) {
         if (ident.category == null || ident.category.isEmpty()) {

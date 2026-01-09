@@ -36,8 +36,8 @@ namespace Ice
     public:
         ~Communicator();
 
-        /// Destroys this communicator. This function calls #shutdown implicitly. Calling #destroy destroys all
-        /// object adapters, and closes all outgoing connections. This method waits for all outstanding dispatches to
+        /// Destroys this communicator. This function calls #shutdown implicitly. Calling this function destroys all
+        /// object adapters, and closes all outgoing connections. This function waits for all outstanding dispatches to
         /// complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
         /// @see CommunicatorHolder
         void destroy() noexcept;
@@ -277,14 +277,14 @@ namespace Ice
         [[nodiscard]] std::future<void> flushBatchRequestsAsync(CompressBatch compress);
 
         /// Adds the Admin object with all its facets to the provided object adapter. If `Ice.Admin.ServerId`
-        /// is set and the provided object adapter has a Locator, #createAdmin registers the Admin's Process facet with
+        /// is set and the provided object adapter has a Locator, this function registers the Admin's Process facet with
         /// the Locator's LocatorRegistry.
         /// @param adminAdapter The object adapter used to host the Admin object; if it is null and
         /// `Ice.Admin.Endpoints` is set, this function uses the `Ice.Admin` object adapter, after creating and
         /// activating this adapter.
         /// @param adminId The identity of the Admin object.
         /// @return A proxy to the main ("") facet of the Admin object.
-        /// @throws InitializationException Thrown when #createAdmin is called more than once.
+        /// @throws InitializationException Thrown when this function is called more than once.
         /// @see #getAdmin
         ObjectPrx createAdmin(const ObjectAdapterPtr& adminAdapter, const Identity& adminId);
 

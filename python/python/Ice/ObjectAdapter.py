@@ -19,10 +19,13 @@ if TYPE_CHECKING:
 @final
 class ObjectAdapter:
     """
-    The object adapter provides an up-call interface from the Ice runtime to the implementation of Ice objects.
+    An object adapter is the main server-side Ice API. It has two main purposes:
+    - accept incoming connections from clients and dispatch requests received over these connections (see
+      :func:`activate`); and
+    - maintain servants that handle the requests (see :func:`add`, :func:`addDefaultServant`).
 
-    The object adapter is responsible for receiving requests from endpoints, and for mapping between servants,
-    identities, and proxies.
+    An object adapter can dispatch "bidirectional requests" -- requests it receives over an outgoing connection
+    instead of a more common incoming connection. It can also dispatch collocated requests (with no connection at all).
     """
 
     def __init__(self, impl: IcePy.ObjectAdapter):
@@ -30,51 +33,59 @@ class ObjectAdapter:
 
     def getName(self) -> str:
         """
-        Get the name of this object adapter.
+        Gets the name of this object adapter.
 
         Returns
         -------
         str
-            The name of this object adapter.
+            This object adapter's name.
         """
         return self._impl.getName()
 
     def getCommunicator(self) -> Communicator:
         """
-        Get the communicator this object adapter belongs to.
+        Gets the communicator that created this object adapter.
 
         Returns
         -------
         Communicator
-            The communicator this object adapter belongs to.
+            This object adapter's communicator.
         """
         communicator = self._impl.getCommunicator()
         return communicator._getWrapper()
 
     def activate(self) -> None:
         """
-        Activate all endpoints that belong to this object adapter.
+        Starts receiving and dispatching requests received over incoming connections.
 
-        After activation, the object adapter can dispatch requests received through its endpoints.
+        Notes
+        -----
+        When this object adapter is an indirect object adapter configured with a locator proxy, this
+        function also registers the object adapter's published endpoints with this locator.
         """
         self._impl.activate()
 
     def hold(self) -> None:
         """
-        Temporarily hold receiving and dispatching requests.
+        Stops reading requests from incoming connections. Outstanding dispatches are not affected.
+        The object adapter can be reactivated with :func:`activate.
 
-        The object adapter can be reactivated with the `activate` operation. Holding is not immediate;
-        i.e., after `hold` returns, the object adapter might still be active for some time.
-        You can use `waitForHold` to wait until holding is complete.
+        Notes
+        -----
+        This function is provided for backward compatibility with older versions of Ice.
+        Don't use it in new applications.
         """
         self._impl.hold()
 
     def waitForHold(self) -> None:
         """
-        Wait until the object adapter holds requests.
+        Waits until the object adapter is in the holding state (see :func:`hold`) and the dispatch of requests received
+        over incoming connections has completed.
 
-        Calling `hold` initiates holding of requests, and `waitForHold` only returns when holding of requests has been
-        completed.
+        Notes
+        -----
+        This function is provided for backward compatibility with older versions of Ice.
+        Don't use it in new applications.
         """
         # If invoked by the main thread, waitForHold only blocks for the specified timeout in order to give us a chance
         # to handle signals.
@@ -83,22 +94,20 @@ class ObjectAdapter:
 
     def deactivate(self) -> None:
         """
-        Deactivates this object adapter: stop accepting new connections from clients and close gracefully all incoming
-        connections created by this object adapter once all outstanding dispatches have completed.
+        Deactivates this object adapter: stops accepting new connections from clients and closes gracefully all
+        incoming connections created by this object adapter once all outstanding dispatches have completed.
+        If this object adapter is indirect, this function also unregisters the object adapter from the locator
+        (see :func:`activate`).
 
-        If this object adapter is indirect, this method also unregisters the object adapter from the Locator.
-        This method does not cancel outstanding dispatches--it lets them execute until completion. A new incoming
-        request on an existing connection will be accepted and can delay the closure of the connection.
+        This function does not cancel outstanding dispatches: it lets them execute until completion.
         A deactivated object adapter cannot be reactivated again; it can only be destroyed.
         """
         self._impl.deactivate()
 
     def waitForDeactivate(self) -> None:
         """
-        Wait until `deactivate` is called on this object adapter and all connections accepted by this object adapter are
-        closed.
-
-        A connection is closed only after all outstanding dispatches on this connection have completed.
+        Waits until :func:`deactivate` is called on this object adapter and all connections accepted by this object adapter
+        are closed. A connection is closed only after all outstanding dispatches on this connection have completed.
         """
         # If invoked by the main thread, waitForDeactivate only blocks for the specified timeout in order to give us a
         # chance to handle signals.
@@ -107,29 +116,33 @@ class ObjectAdapter:
 
     def isDeactivated(self) -> bool:
         """
-        Checks if this object adapter has been deactivated.
+        Checks whether or not :func:`deactivate` was called on this object adapter.
 
         Returns
         -------
         bool
-            True if `deactivate` has been called on this object adapter; otherwise, False.
+            ``True`` if :func:`deactivate` has been called on this object adapter, ``False`` otherwise.
         """
         return self._impl.isDeactivated()
 
     def destroy(self) -> None:
         """
-        Destroys this object adapter and cleans up all resources held by this object adapter.
-
-        Once this method has returned, it is possible to create another object adapter with the same name.
+        Destroys this object adapter and cleans up all resources associated with it.
+        Once this function has returned, you can recreate another object adapter with the same name.
         """
         self._impl.destroy()
 
     def add(self, servant: Object, id: Identity) -> ObjectPrx:
         """
-        Add a servant to this object adapter's Active Servant Map.
+        Adds a servant to this object adapter's Active Servant Map (ASM).
+        The ASM is a map {identity, facet} -> servant.
 
         Note that one servant can implement several Ice objects by registering the servant with multiple identities.
-        Adding a servant with an identity that is already in the map throws `AlreadyRegisteredException`.
+        Adding a servant with an identity that is already in the map raises `AlreadyRegisteredException`.
+
+        Notes
+        -----
+        This function is equivalent to calling :func:`addFacet` with an empty facet.
 
         Parameters
         ----------
@@ -141,15 +154,19 @@ class ObjectAdapter:
         Returns
         -------
         ObjectPrx
-            A proxy that matches the given identity and this object adapter.
+            A proxy for ``id``, created by this object adapter.
+
+        Raises
+        ------
+        AlreadyRegisteredException
+            If a servant with the same identity is already registered.
         """
         return self._impl.add(servant, id)
 
     def addFacet(self, servant: Object, id: Identity, facet: str = "") -> ObjectPrx:
         """
-        Add a servant with a facet to this object adapter's Active Servant Map.
-
-        Calling `add(servant, id)` is equivalent to calling `addFacet` with an empty facet.
+        Adds a servant to this object adapter's Active Servant Map (ASM), while specifying a facet.
+        The ASM is a map {identity, facet} -> servant.
 
         Parameters
         ----------
@@ -157,21 +174,25 @@ class ObjectAdapter:
             The servant to add.
         id : Identity
             The identity of the Ice object that is implemented by the servant.
-        facet : str
-            The facet. An empty facet means the default facet.
+        facet : str, optional
+            The facet of the Ice object that is implemented by the servant.
 
         Returns
         -------
         ObjectPrx
-            A proxy that matches the given identity, facet, and this object adapter.
+            A proxy for ``id`` and ``facet``, created by this object adapter.
+
+        Raises
+        ------
+        AlreadyRegisteredException
+            If a servant with the same identity and facet is already registered.
         """
         return self._impl.addFacet(servant, id, facet)
 
     def addWithUUID(self, servant: Object) -> ObjectPrx:
         """
-        Add a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its identity.
-
-        Note that the generated UUID identity can be accessed using the proxy's `ice_getIdentity` operation.
+        Adds a servant to this object adapter's Active Servant Map (ASM),
+        using an automatically generated UUID as its identity.
 
         Parameters
         ----------
@@ -181,80 +202,85 @@ class ObjectAdapter:
         Returns
         -------
         ObjectPrx
-            A proxy that matches the generated UUID identity and this object adapter.
+            A proxy with the generated UUID identity created by this object adapter.
         """
         return self._impl.addWithUUID(servant)
 
     def addFacetWithUUID(self, servant: Object, facet: str) -> ObjectPrx:
         """
-        Add a servant with a facet to this object adapter's Active Servant Map, using an automatically generated UUID as its identity.
-
-        Calling `addWithUUID(servant)` is equivalent to calling `addFacetWithUUID` with an empty facet.
+        Adds a servant to this object adapter's Active Servant Map (ASM),
+        using an automatically generated UUID as its identity. Also specifies a facet.
 
         Parameters
         ----------
         servant : Object
             The servant to add.
         facet : str
-            The facet. An empty facet means the default facet.
+            The facet of the Ice object that is implemented by the servant.
 
         Returns
         -------
         ObjectPrx
-            A proxy that matches the generated UUID identity, facet, and this object adapter.
+            A proxy with the generated UUID identity and the specified facet.
         """
         return self._impl.addFacetWithUUID(servant, facet)
 
     def addDefaultServant(self, servant: Object, category: str) -> None:
         """
-        Add a default servant to handle requests for a specific category.
-
-        Adding a default servant for a category for which a default servant is already registered throws
-        `AlreadyRegisteredException`. To dispatch operation calls on servants, the object adapter tries to
-        find a servant for a given Ice object identity and facet in the following order:
-
-        1. The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
-        2. If no servant has been found in the Active Servant Map, the object adapter tries to find a default servant
-           for the category component of the identity.
-        3. If no servant has been found by any of the preceding steps, the object adapter tries to find a default servant
-           for an empty category, regardless of the category contained in the identity.
-        4. If no servant has been found by any of the preceding steps, the object adapter gives up and the caller
-           receives `ObjectNotExistException` or `FacetNotExistException`.
-
+        Adds a default servant to handle requests for a specific category. When an object adapter dispatches an
+        incoming request, it tries to find a servant for the identity and facet carried by the request in the
+        following order:
+         - The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
+         - If this fails, the object adapter tries to find a default servant for the category component of the
+           identity.
+         - If this fails, the object adapter tries to find a default servant for the empty category, regardless of
+           the category contained in the identity.
+         - If this fails, the object adapter tries to find a servant locator for the category component of the
+           identity. If there is no such servant locator, the object adapter tries to find a servant locator for the
+           empty category.
+           - If a servant locator is found, the object adapter tries to find a servant using this servant locator.
+         - If all the previous steps fail, the object adapter gives up and the caller receives an
+           :class:`ObjectNotExistException` or a :class:`FacetNotExistException`.
 
         Parameters
         ----------
         servant : Object
-            The default servant.
+            The default servant to add.
         category : str
-            The category for which the default servant is registered. An empty category means it will handle all categories.
+            The category for which the default servant is registered.
+            The empty category means it handles all categories.
+
+        Raises
+        ------
+        AlreadyRegisteredException
+            If a default servant with the same category is already registered.
         """
         self._impl.addDefaultServant(servant, category)
 
     def remove(self, id: Identity) -> Object:
         """
-        Remove a servant (that is, the default facet) from the object adapter's Active Servant Map.
-
-        Removing an identity that is not in the map throws `NotRegisteredException`.
+        Removes a servant from the object adapter's Active Servant Map.
 
         Parameters
         ----------
         id : Identity
-            The identity of the Ice object that is implemented by the servant. If the servant implements multiple Ice
-            objects, `remove` has to be called for all those Ice objects.
+            The identity of the Ice object that is implemented by the servant.
 
         Returns
         -------
         Object
             The removed servant.
+
+        Raises
+        ------
+        AlreadyRegisteredException
+            If a default servant with the same category is already registered.
         """
         return self._impl.remove(id)
 
     def removeFacet(self, id: Identity, facet: str) -> Object:
         """
-        Remove a servant with a facet from the object adapter's Active Servant Map.
-
-        Calling `remove(id)` is equivalent to calling `removeFacet` with an empty facet.
+        Removes a servant from the object adapter's Active Servant Map, while specifying a facet.
 
         Parameters
         ----------
@@ -267,15 +293,18 @@ class ObjectAdapter:
         -------
         Object
             The removed servant.
+
+        Raises
+        ------
+        NotRegisteredException
+            If no servant with the given identity and facet is registered.
         """
         return self._impl.removeFacet(id, facet)
 
     def removeAllFacets(self, id: Identity) -> dict[str, Object]:
         """
-        Remove all facets with the given identity from the Active Servant Map.
-
-        The operation completely removes the Ice object, including its default facet. Removing an identity that is not
-        in the map throws `NotRegisteredException`.
+        Removes all facets with the given identity from the Active Servant Map. This function completely removes the
+        Ice object, including its default facet.
 
         Parameters
         ----------
@@ -286,14 +315,17 @@ class ObjectAdapter:
         -------
         dict[str, Object]
             A collection containing all the facet names and servants of the removed Ice object.
+
+        Raises
+        ------
+        NotRegisteredException
+            If no servant with the given identity is registered.
         """
         return self._impl.removeAllFacets(id)
 
     def removeDefaultServant(self, category: str) -> Object:
         """
-        Remove the default servant for a specific category.
-
-        Attempting to remove a default servant for a category that is not registered throws `NotRegisteredException`.
+        Removes the default servant for a specific category.
 
         Parameters
         ----------
@@ -304,234 +336,224 @@ class ObjectAdapter:
         -------
         Object
             The default servant.
+
+        Raises
+        ------
+        NotRegisteredException
+            If no default servant is registered for the given category
         """
         return self._impl.removeDefaultServant(category)
 
     def find(self, id: Identity) -> Object | None:
         """
-        Look up a servant in this object adapter's Active Servant Map by the identity of the Ice object it implements.
+        Looks up a servant.
 
-        This operation only tries to look up a servant in the Active Servant Map. It does not attempt to find a servant
-        by using any installed ServantLocator.
+        Notes
+        -----
+        This function only tries to find the servant in the ASM and among the default servants.
+        It does not attempt to locate a servant using servant locators.
 
         Parameters
         ----------
         id : Identity
-            The identity of the Ice object for which the servant should be returned.
+            The identity of an Ice object.
 
         Returns
         -------
         Object | None
-            The servant that implements the Ice object with the given identity, or None if no such servant has been found.
+            The servant that implements the Ice object with the given identity,
+            or ``None`` if no such servant has been found.
         """
         return self._impl.find(id)
 
     def findFacet(self, id: Identity, facet: str) -> Object | None:
         """
-        Look up a servant in this object adapter's Active Servant Map by the identity and facet of the Ice object it implements.
+        Looks up a servant with an identity and facet.
 
-        Calling `find(id)` is equivalent to calling `findFacet` with an empty facet.
+        Notes
+        -----
+        This function only tries to find the servant in the ASM and among the default servants.
+        It does not attempt to locate a servant using servant locators.
 
         Parameters
         ----------
         id : Identity
-            The identity of the Ice object for which the servant should be returned.
+            The identity of an Ice object.
         facet : str
-            The facet. An empty facet means the default facet.
+            The facet of an Ice object. An empty facet means the default facet.
 
         Returns
         -------
         Object | None
-            The servant that implements the Ice object with the given identity and facet, or None if no such servant has been found.
+            The servant that implements the Ice object with the given identity and facet,
+            or ``None`` if no such servant has been found.
         """
         return self._impl.findFacet(id, facet)
 
     def findAllFacets(self, id: Identity) -> dict[str, Object]:
         """
-        Find all facets with the given identity in the Active Servant Map.
+        Finds all facets for a given identity in the Active Servant Map.
 
         Parameters
         ----------
         id : Identity
-            The identity of the Ice object for which the facets should be returned.
+            The identity.
 
         Returns
         -------
         dict[str, Object]
-            A dictionary containing all the facet names and servants that have been found, or an empty dictionary if
-            there is no facet for the given identity.
+            A collection containing all the facet names and servants that have been found. Can be empty.
         """
         return self._impl.findAllFacets(id)
 
     def findByProxy(self, proxy: ObjectPrx) -> Object | None:
         """
-        Look up a servant in this object adapter's Active Servant Map, given a proxy.
+        Looks up a servant with an identity and a facet. It's equivalent to calling :func:`findFacet`.
 
-        This operation only tries to look up a servant in the Active Servant Map. It does not attempt to find a servant
-        by using any installed ServantLocator.
+        Notes
+        -----
+        This function only tries to find the servant in the ASM and among the default servants.
+        It does not attempt to locate a servant using servant locators.
 
         Parameters
         ----------
         proxy : ObjectPrx
-            The proxy for which the servant should be returned.
+            The proxy that provides the identity and facet to search.
 
         Returns
         -------
         Object | None
-            The servant that matches the proxy, or None if no such servant has been found.
+            The servant that matches the identity and facet carried by ``proxy``,
+            or ``None`` if no such servant has been found.
         """
         return self._impl.findByProxy(proxy)
 
     def addServantLocator(self, locator: ServantLocator, category: str) -> None:
         """
-        Add a Servant Locator to this object adapter.
-
-        Adding a servant locator for a category for which a servant locator is already registered throws
-        `AlreadyRegisteredException`. To dispatch operation calls on servants, the object adapter tries to
-        find a servant for a given Ice object identity and facet in the following order:
-
-        1. The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
-        2. If no servant has been found in the Active Servant Map, the object adapter tries to find a servant locator
-           for the category component of the identity. If a locator is found, the object adapter tries to find a servant
-           using this locator.
-        3. If no servant has been found by any of the preceding steps, the object adapter tries to find a locator for
-           an empty category, regardless of the category contained in the identity. If a locator is found, the object
-           adapter tries to find a servant using this locator.
-        4. If no servant has been found by any of the preceding steps, the object adapter gives up and the caller
-           receives `ObjectNotExistException` or `FacetNotExistException`.
-
-        Only one locator for the empty category can be installed.
+        Adds a ServantLocator to this object adapter for a specific category.
 
         Parameters
         ----------
         locator : ServantLocator
-            The locator to add.
+            The servant locator to add.
         category : str
-            The category for which the Servant Locator can locate servants, or an empty string if the Servant Locator
-            does not belong to any specific category.
+            The category. The empty category means the locator handles all categories.
+
+        Raises
+        ------
+        AlreadyRegisteredException
+            If a servant locator with the same category is already registered.
         """
         self._impl.addServantLocator(locator, category)
 
     def removeServantLocator(self, category: str) -> ServantLocator:
         """
-        Remove a Servant Locator from this object adapter.
+        Removes a ServantLocator from this object adapter.
 
         Parameters
         ----------
         category : str
-            The category for which the Servant Locator can locate servants, or an empty string if the Servant Locator
-            does not belong to any specific category.
+            The category.
 
         Returns
         -------
         ServantLocator
-            The Servant Locator.
+            The servant locator.
 
         Raises
         ------
         NotRegisteredException
-            If no Servant Locator was found for the given category.
+            If no servant locator with the given category is registered.
         """
         return self._impl.removeServantLocator(category)
 
     def findServantLocator(self, category: str) -> ServantLocator | None:
         """
-        Find a Servant Locator installed with this object adapter.
+        Finds a ServantLocator registered with this object adapter.
 
         Parameters
         ----------
         category : str
-            The category for which the Servant Locator can locate servants, or an empty string if the Servant Locator
-            does not belong to any specific category.
+            The category.
 
         Returns
         -------
         ServantLocator | None
-            The Servant Locator, or None if no Servant Locator was found for the given category.
+            The servant locator, or ``None`` if not found.
         """
         return self._impl.findServantLocator(category)
 
     def findDefaultServant(self, category: str) -> Object | None:
         """
-        Find the default servant for a specific category.
+        Finds the default servant for a specific category.
 
         Parameters
         ----------
         category : str
-            The category of the default servant to find.
+            The category.
 
         Returns
         -------
-        Object or None
-            The default servant, or None if no default servant was registered for the category.
+        Object | None
+            The default servant, or ``None`` if not found.
         """
         return self._impl.findDefaultServant(category)
 
     def createProxy(self, id: Identity) -> ObjectPrx:
         """
-        Create a proxy for the object with the given identity.
-
-        If this object adapter is configured with an adapter ID, the return value is an indirect proxy that refers to the
-        adapter ID. If a replica group ID is also defined, the return value is an indirect proxy that refers to the replica
-        group ID. Otherwise, if no adapter ID is defined, the return value is a direct proxy containing this object adapter's
-        published endpoints.
+        Creates a proxy from an Ice identity. If this object adapter is configured with an adapter ID, the proxy
+        is an indirect proxy that refers to this adapter ID. If a replica group ID is also defined, the proxy is an
+        indirect proxy that refers to this replica group ID. Otherwise, the proxy is a direct proxy containing this
+        object adapter's published endpoints.
 
         Parameters
         ----------
         id : Identity
-            The object's identity.
+            An Ice identity.
 
         Returns
         -------
         ObjectPrx
-            A proxy for the object with the given identity.
+            A proxy with the given identity.
         """
         return self._impl.createProxy(id)
 
     def createDirectProxy(self, id: Identity) -> ObjectPrx:
         """
-        Create a direct proxy for the object with the given identity.
-
-        The returned proxy contains this object adapter's published endpoints.
+        Creates a direct proxy from an Ice identity.
 
         Parameters
         ----------
         id : Identity
-            The object's identity.
+            An Ice identity.
 
         Returns
         -------
         ObjectPrx
-            A proxy for the object with the given identity.
+            A proxy with the given identity and this published endpoints of this object adapter.
         """
         return self._impl.createDirectProxy(id)
 
     def createIndirectProxy(self, id: Identity) -> ObjectPrx:
         """
-        Create an indirect proxy for the object with the given identity.
-
-        If this object adapter is configured with an adapter ID, the return value refers to the adapter ID. Otherwise,
-        the return value contains only the object identity.
+        Creates an indirect proxy for an Ice identity.
 
         Parameters
         ----------
         id : Identity
-            The object's identity.
+            An Ice identity.
 
         Returns
         -------
         ObjectPrx
-            A proxy for the object with the given identity.
+            An indirect proxy with the given identity. If this object adapter is not configured with an adapter
+            ID or a replica group ID, the new proxy is a well-known proxy (i.e., an identity-only proxy).
         """
         return self._impl.createIndirectProxy(id)
 
     def setLocator(self, locator: LocatorPrx) -> None:
         """
-        Set an Ice locator for this object adapter.
-
-        By doing so, the object adapter will register itself with the locator registry when it is activated for the first
-        time. Furthermore, the proxies created by this object adapter will contain the adapter identifier instead of its
-        endpoints. The adapter identifier must be configured using the AdapterId property.
+        Sets an Ice locator on this object adapter.
 
         Parameters
         ----------
@@ -542,45 +564,58 @@ class ObjectAdapter:
 
     def getLocator(self) -> LocatorPrx | None:
         """
-        Get the Ice locator used by this object adapter.
+        Gets the Ice locator used by this object adapter.
 
         Returns
         -------
         LocatorPrx | None
-            The locator used by this object adapter, or None if no locator is used by this object adapter.
+            The locator used by this object adapter, or ``None`` if no locator is used by this object adapter.
         """
         return self._impl.getLocator()
 
     def getEndpoints(self) -> tuple[IcePy.Endpoint, ...]:
         """
-        Get the set of endpoints configured with this object adapter.
+        Gets the set of endpoints configured on this object adapter.
+
+        Notes
+        -----
+        This function remains usable after the object adapter has been deactivated.
 
         Returns
         -------
-        tuple[IcePy.Endpoint, ...]
+        tuple[Ice.Endpoint, ...]
             The set of endpoints.
         """
         return self._impl.getEndpoints()
 
     def getPublishedEndpoints(self) -> tuple[IcePy.Endpoint, ...]:
         """
-        Get the set of endpoints that proxies created by this object adapter will contain.
+        Gets the set of endpoints that proxies created by this object adapter will contain.
+
+        Notes
+        -----
+        This function remains usable after the object adapter has been deactivated.
 
         Returns
         -------
-        tuple[IcePy.Endpoint, ...]
+        tuple[Ice.Endpoint, ...]
             The set of published endpoints.
         """
         return self._impl.getPublishedEndpoints()
 
     def setPublishedEndpoints(self, newEndpoints: tuple[IcePy.Endpoint, ...] | list[IcePy.Endpoint]) -> None:
         """
-        Set the endpoints that proxies created by this object adapter will contain.
+        Sets the endpoints that proxies created by this object adapter will contain.
 
         Parameters
         ----------
-        newEndpoints : tuple[IcePy.Endpoint, ...] | list[IcePy.Endpoint]
+        newEndpoints : tuple[Ice.Endpoint, ...] | list[Ice.Endpoint]
             The new set of endpoints that the object adapter will embed in proxies.
+
+        Raises
+        ------
+        RuntimeError
+            If ``newEndpoints`` is empty or if this adapter is associated with a router.
         """
         self._impl.setPublishedEndpoints(newEndpoints)
 

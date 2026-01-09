@@ -19,7 +19,7 @@ class Current:
     ----------
     adapter : Ice.ObjectAdapter
         The object adapter that received the request.
-    con : IcePy.Connection | None
+    con : Ice.Connection | None
         The connection that received the request. It's ``None`` for collocation-optimized dispatches.
     id : Ice.Identity
         The identity of the target Ice object.

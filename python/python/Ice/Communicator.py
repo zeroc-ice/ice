@@ -37,8 +37,8 @@ class Communicator:
     - creating and destroying object adapters
     - loading plug-ins
     - managing properties (configuration), retries, logging, instrumentation, and more.
-    The communicator is usually the first object you create when programming with Ice. You can create multiple
-    communicators in a single program, but this is not common.
+    A communicator is usually the first object you create when programming with Ice.
+    You can create multiple communicators in a single program, but this is not common.
 
     Example
     -------
@@ -76,7 +76,7 @@ class Communicator:
         Parameters
         ----------
         args : list of str, optional
-            The command-line arguments, parsed into Ice properties by this method.
+            The command-line arguments, parsed into Ice properties by this function.
         eventLoop : asyncio.AbstractEventLoop, optional
             An asyncio event loop used to run coroutines and wrap futures. If provided, a new event loop adapter is
             created and configured with the communicator. This adapter is responsible for executing coroutines returned
@@ -115,12 +115,12 @@ class Communicator:
     @property
     def eventLoopAdapter(self) -> EventLoopAdapter | None:
         """
-        The event loop adapter associated with this communicator, or None if the communicator does not have one.
+        Returns this communicator's event loop adapter, or ``None`` if the communicator does not have one.
 
         Returns
         -------
         EventLoopAdapter | None
-            The event loop adapter used for integrating Ice with a custom event loop.
+            The event loop adapter used for by this communicator.
         """
 
         return self._eventLoopAdapter
@@ -130,17 +130,17 @@ class Communicator:
 
     def destroy(self) -> None:
         """
-        Destroys this communicator. This method calls shutdown implicitly. Calling destroy destroys all
-        object adapters, and closes all outgoing connections. destroy waits for all outstanding dispatches to
+        Destroys this communicator. This function calls :func:`shutdown` implicitly. Calling this function destroys all
+        object adapters, and closes all outgoing connections. This function waits for all outstanding dispatches to
         complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
         """
         self._impl.destroy()
 
     def destroyAsync(self) -> Awaitable[None]:
         """
-        Destroys this communicator asynchronously. This method calls shutdown implicitly. Calling destroy destroys all
-        object adapters, and closes all outgoing connections. destroy waits for all outstanding dispatches to
-        complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
+        Destroys this communicator asynchronously.
+
+        See :func:`destroy`.
         """
         future = Future()
 
@@ -156,16 +156,16 @@ class Communicator:
 
     def shutdown(self) -> None:
         """
-        Shuts down this communicator. This method calls deactivate on all object adapters created by this
-        communicator. Shutting down a communicator has no effect on outgoing connections.
+        Shuts down this communicator. This function calls :func:`ObjectAdapter.deactivate` on all object adapters
+        created by this communicator. Shutting down a communicator has no effect on outgoing connections.
         """
         self._impl.shutdown()
 
     def waitForShutdown(self) -> None:
         """
-        Waits for shutdown to complete. This method calls waitForDeactivate on all object adapters
-        created by this communicator. In a client application that does not accept incoming connections, this
-        method returns as soon as another thread calls shutdown or destroy on this communicator.
+        Waits for shutdown to complete. This function calls :func:`ObjectAdapter.waitForDeactivate` on all object
+        adapters created by this communicator. In a client application that does not accept incoming connections, this
+        function returns as soon as another thread calls :func:`shutdown` or :func:`destroy` on this communicator.
         """
         # If invoked by the main thread, waitForShutdown only blocks for the specified timeout in order to give us a
         # chance to handle signals.
@@ -174,9 +174,13 @@ class Communicator:
 
     def shutdownCompleted(self) -> Awaitable[None]:
         """
-        Return an awaitable that completes when the communicator's shutdown completes.
+        Returns an :class:`Awaitable` that completes when the communicator's shutdown completes.
+        This task always completes successfully.
 
-        The returned Future always completes successfully.
+        Notes
+        -----
+        The shutdown of a communicator completes when all its incoming connections are closed.
+        Awaiting this task is equivalent to calling :func:`waitForShutdown`.
 
         Returns
         -------
@@ -187,61 +191,56 @@ class Communicator:
 
     def isShutdown(self) -> bool:
         """
-        Checks whether or not shutdown was called on this communicator.
+        Checks whether or not :func:`shutdown` was called on this communicator.
 
         Returns
         -------
         bool
-            True if shutdown was called on this communicator; False otherwise.
+            ``True`` if :func:`shutdown` was called on this communicator, ``False`` otherwise
         """
         return self._impl.isShutdown()
 
     def stringToProxy(self, str: str) -> ObjectPrx | None:
         """
-        Convert a proxy string representation into a proxy.
-
-        For example, `MyCategory/MyObject:tcp -h some_host -p 10000` creates a proxy that refers to the Ice object
-        having an identity with a name "MyObject" and a category "MyCategory", with the server running on host "some_host",
-        port 10000. If the proxy string representation does not parse correctly, the operation throws ParseException.
-        Refer to the Ice manual for a detailed description of the syntax supported by proxy strings.
+        Converts a stringified proxy into a proxy.
 
         Parameters
         ----------
-        proxyString : str
-            The proxy string representation to convert into a proxy.
+        str : str
+            The stringified proxy to convert into a proxy.
 
         Returns
         -------
         ObjectPrx | None
-            The proxy, or None if the string is empty.
+            The proxy, or ``None`` if ``str`` is an empty string.
 
         Raises
         ------
         ParseException
-            If the proxy string representation does not parse correctly.
+            If ``str`` is not a valid proxy string.
         """
         return self._impl.stringToProxy(str)
 
     def proxyToString(self, proxy: ObjectPrx | None) -> str:
         """
-        Convert a proxy into a string.
+        Converts a proxy into a string.
 
         Parameters
         ----------
         proxy : ObjectPrx | None
-            The proxy to convert into a string representation.
+            The proxy to convert into a stringified proxy.
 
         Returns
         -------
         str
-            The proxy string representation, or an empty string if the proxy is None.
+            The stringified proxy, or an empty string if ``proxy`` is ``None``.
         """
         return self._impl.proxyToString(proxy)
 
     def propertyToProxy(self, property: str) -> ObjectPrx | None:
         """
-        Converts a set of proxy properties into a proxy. The "base" name supplied in the property argument refers to a
-        property containing a stringified proxy, such as :code:`MyProxy=id:tcp -h localhost -p 10000`.
+        Converts a set of proxy properties into a proxy. The "base" name supplied in the ``property`` argument refers
+        to a property containing a stringified proxy, such as ``MyProxy=id:tcp -h localhost -p 10000``.
         Additional properties configure local settings for the proxy.
 
         Parameters
@@ -252,18 +251,18 @@ class Communicator:
         Returns
         -------
         ObjectPrx | None
-            The proxy, or None if the property is not set.
+            The proxy, or ``None`` if the property is not set.
         """
         return self._impl.propertyToProxy(property)
 
     def proxyToProperty(self, proxy: ObjectPrx, property: str) -> dict[str, str]:
         """
-        Convert a proxy to a set of properties.
+        Converts a proxy into a set of proxy properties.
 
         Parameters
         ----------
         proxy : ObjectPrx
-            The proxy to convert.
+            The proxy.
         property : str
             The base property name.
 
@@ -276,7 +275,7 @@ class Communicator:
 
     def identityToString(self, identity: Identity) -> str:
         """
-        Convert an identity into a string.
+        Converts an identity into a string.
 
         Parameters
         ----------
@@ -286,18 +285,17 @@ class Communicator:
         Returns
         -------
         str
-            The string representation of the identity.
+            The "stringified" identity.
         """
         return self._impl.identityToString(identity)
 
     def createObjectAdapter(self, name: str) -> ObjectAdapter:
         """
-        Create a new object adapter.
+        Creates a new object adapter. The endpoints for the object adapter are taken from the property
+        ``name.Endpoints``.
 
-        The endpoints for the object adapter are taken from the property ``name.Endpoints``. It is legal to create an
-        object adapter with an empty string as its name. Such an object adapter is accessible via bidirectional connections
-        or by collocated invocations that originate from the same communicator as is used by the adapter. Attempts to create
-        a named object adapter for which no configuration can be found raise an InitializationException.
+        It is legal to create an object adapter with the empty string as its name. Such an object adapter is
+        accessible via bidirectional connections or by collocated invocations.
 
         Parameters
         ----------
@@ -314,17 +312,16 @@ class Communicator:
 
     def createObjectAdapterWithEndpoints(self, name: str, endpoints: str) -> ObjectAdapter:
         """
-        Create a new object adapter with endpoints.
-
-        This operation sets the property `name.Endpoints` and then calls `createObjectAdapter`. It is provided as a
-        convenience function. Calling this operation with an empty name will result in a UUID being generated for the name.
+        Creates a new object adapter with endpoints. This function sets the property ``name.Endpoints``,
+        and then calls :func:`createObjectAdapter`. It is provided as a convenience function. Calling this function
+        with an empty name will result in a UUID being generated for the name.
 
         Parameters
         ----------
         name : str
             The object adapter name.
         endpoints : str
-            The endpoints for the object adapter.
+            The endpoints of the object adapter.
 
         Returns
         -------
@@ -336,9 +333,8 @@ class Communicator:
 
     def createObjectAdapterWithRouter(self, name: str, router: RouterPrx) -> ObjectAdapter:
         """
-        Create a new object adapter with a router.
-
-        This operation creates a routed object adapter. Calling this operation with an empty name will result in a UUID being generated for the name.
+        Creates a new object adapter with a router. This function creates a routed object adapter.
+        Calling this function with an empty name will result in a UUID being generated for the name.
 
         Parameters
         ----------
@@ -357,19 +353,26 @@ class Communicator:
 
     def getDefaultObjectAdapter(self) -> ObjectAdapter | None:
         """
-        Get the object adapter that is associated by default with new outgoing connections created by this
-        communicator. This method returns None unless you set a default object adapter using createDefaultObjectAdapter.
+        Gets the object adapter that is associated by default with new outgoing connections created by this
+        communicator. This function returns ``None`` unless you set a non-``None`` default object adapter using
+        :func:`setDefaultObjectAdapter`.
 
         Returns
         -------
         ObjectAdapter | None
             The object adapter associated by default with new outgoing connections.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         return self._impl.getDefaultObjectAdapter()
 
     def setDefaultObjectAdapter(self, adapter: ObjectAdapter | None):
         """
-        Set the object adapter that is associated by default with new outgoing connections created by this communicator.
+        Sets the object adapter that will be associated with new outgoing connections created by this communicator.
+        This function has no effect on existing outgoing connections, or on incoming connections.
 
         Parameters
         ----------
@@ -378,14 +381,15 @@ class Communicator:
         """
         self._impl.setDefaultObjectAdapter(adapter)
 
-    def getImplicitContext(self):
+    def getImplicitContext(self) -> ImplicitContext | None:
         """
-        Get the implicit context associated with this communicator.
+        Gets the implicit context associated with this communicator.
 
         Returns
         -------
-        ImplicitContext or None
-            The implicit context associated with this communicator, or None if the property Ice.ImplicitContext is not set or is set to ``"None"``.
+        ImplicitContext | None
+            The implicit context associated with this communicator; returns ``None`` when the property
+            ``Ice.ImplicitContext`` is not set or is set to ``None``.
         """
         context = self._impl.getImplicitContext()
         if context is None:
@@ -395,24 +399,24 @@ class Communicator:
 
     def getProperties(self) -> Properties:
         """
-        Get the properties for this communicator.
+        Gets the properties of this communicator.
 
         Returns
         -------
         Properties
-            The properties associated with this communicator.
+            This communicator's properties.
         """
         properties = self._impl.getProperties()
         return Properties(properties=properties)
 
     def getLogger(self) -> Logger:
         """
-        Get the logger for this communicator.
+        Gets the logger of this communicator.
 
         Returns
         -------
         Logger
-            The logger associated with this communicator.
+            This communicator's logger.
         """
         logger = self._impl.getLogger()
         if isinstance(logger, Logger):
@@ -422,65 +426,69 @@ class Communicator:
 
     def getDefaultRouter(self) -> RouterPrx | None:
         """
-        Get the default router for this communicator.
+        Gets the default router of this communicator.
 
         Returns
         -------
         RouterPrx | None
-            The default router for this communicator, or None if no default router has been set.
+            The default router of this communicator, or ``None`` if no default router has been set.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         return self._impl.getDefaultRouter()
 
     def setDefaultRouter(self, router: RouterPrx | None):
         """
-        Set a default router for this communicator.
+        Sets the default router of this communicator. All newly created proxies will use this default router.
+        This function has no effect on existing proxies.
 
-        All newly created proxies will use this default router. To disable the default router, pass `None`.
-        Note that this operation has no effect on existing proxies.
-
-        You can also set a router for an individual proxy by calling the method `ObjectPrx.ice_router` on the
-        proxy.
+        Notes
+        -----
+        You can set a router for an individual proxy by calling :func:`ObjectPrx.ice_router` on the proxy.
 
         Parameters
         ----------
         router : RouterPrx | None
-            The default router to use for this communicator.
+            The new default router. Use ``None`` to remove the default router.
         """
         self._impl.setDefaultRouter(router)
 
     def getDefaultLocator(self) -> LocatorPrx | None:
         """
-        Get the default locator for this communicator.
+        Gets the default locator of this communicator.
 
         Returns
         -------
         LocatorPrx | None
-            The default locator for this communicator, or None if no default locator has been set.
+            The default locator of this communicator, or ``None`` if no default locator has been set.
         """
         return self._impl.getDefaultLocator()
 
     def setDefaultLocator(self, locator: LocatorPrx | None):
         """
-        Set a default Ice locator for this communicator.
+        Sets the default locator of this communicator. All newly created proxies will use this default locator.
+        This function has no effect on existing proxies or object adapters.
 
-        All newly created proxies and object adapters will use this default locator. To disable the default locator,
-        pass `None`. Note that this operation has no effect on existing proxies or object adapters.
-
-        You can also set a locator for an individual proxy by calling the method `ObjectPrx.ice_locator` on the
-        proxy, or for an object adapter by calling `ObjectAdapter.setLocator` on the object adapter.
+        Notes
+        -----
+        You can set a locator for an individual proxy by calling :func:`ObjectPrx.ice_locator` on the proxy,
+        or for an object adapter by calling :func:`ObjectAdapter.setLocator` on the object adapter.
 
         Parameters
         ----------
         locator : LocatorPrx | None
-            The default locator to use for this communicator.
+            The new default locator. Use ``None`` to remove the default locator.
         """
         self._impl.setDefaultLocator(locator)
 
     def flushBatchRequests(self, compress: CompressBatch):
         """
-        Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
-        for all connections associated with the communicator. Any errors that occur while flushing a connection are
-        ignored.
+        Flushes any pending batch requests of this communicator. This means all batch requests invoked on fixed
+        proxies for all connections associated with the communicator. Errors that occur while flushing a connection
+        are ignored.
 
         Parameters
         ----------
@@ -491,30 +499,33 @@ class Communicator:
 
     def flushBatchRequestsAsync(self, compress: CompressBatch) -> Awaitable[None]:
         """
-        Flush any pending batch requests for this communicator asynchronously. This means all batch requests invoked on fixed proxies
-        for all connections associated with the communicator. Any errors that occur while flushing a connection are
-        ignored.
+        Flushes any pending batch requests of this communicator. This means all batch requests invoked on fixed
+        proxies for all connections associated with the communicator. Errors that occur while flushing a connection
+        are ignored.
 
         Parameters
         ----------
         compress : CompressBatch
             Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
+
+        Returns
+        -------
+        Awaitable[None]
+            An :class:`Awaitable` that completes when all batch requests have been sent.
         """
         return self._impl.flushBatchRequestsAsync(compress)
 
     def createAdmin(self, adminAdapter: ObjectAdapter | None, adminId: Identity) -> ObjectPrx:
         """
-        Add the Admin object with all its facets to the provided object adapter.
-
-        If ``Ice.Admin.ServerId`` is set and the provided object adapter has a Locator, ``createAdmin`` registers the
-        Admin's Process facet with the Locator's LocatorRegistry. ``createAdmin`` must only be called once;
-        subsequent calls raise `InitializationException`.
+        Adds the Admin object with all its facets to the provided object adapter.
+        If ``Ice.Admin.ServerId`` is set and the provided object adapter has a :class:`Locator`,
+        this function registers the Admin's Process facet with the :class:`Locator`'s :class:`LocatorRegistry`.
 
         Parameters
         ----------
         adminAdapter : ObjectAdapter | None
-            The object adapter used to host the Admin object. If `None` and `Ice.Admin.Endpoints` is set,
-            create, activate, and use the Admin object adapter.
+            The object adapter used to host the Admin object; if it is ``None`` and ``Ice.Admin.Endpoints`` is set,
+            this function uses the ``Ice.Admin`` object adapter, after creating and activating this adapter.
         adminId : Identity
             The identity of the Admin object.
 
@@ -526,32 +537,35 @@ class Communicator:
         Raises
         ------
         InitializationException
-            If the method is called more than once.
+            If this function is called more than once.
         """
         return self._impl.createAdmin(adminAdapter, adminId)
 
     def getAdmin(self) -> ObjectPrx | None:
         """
-        Get a proxy to the main facet of the Admin object.
+        Gets a proxy to the main facet of the Admin object.
 
-        This method also creates the Admin object and activates the ``Ice.Admin`` object adapter to host this Admin
-        object if ``Ice.Admin.Endpoints`` property is set. The identity of the Admin object created by getAdmin is
-        ``{value of Ice.Admin.InstanceName}/admin``, or ``{UUID}/admin`` when ``Ice.Admin.InstanceName`` property is
-        not set. If ``Ice.Admin.DelayCreation`` property is 0 or not set, getAdmin is called by the communicator
-        initialization, after initialization of all plugins.
+        ``getAdmin`` also creates the Admin object and creates and activates the ``Ice.Admin`` object adapter to host
+        this Admin object if ``Ice.Admin.Endpoints`` is set. The identity of the Admin object created by ``getAdmin``
+        is ``{value of Ice.Admin.InstanceName}/admin``, or ``{UUID}/admin`` when ``Ice.Admin.InstanceName`` is not set.
+        If ``Ice.Admin.DelayCreation`` is ``0`` or not set, ``getAdmin`` is called by the communicator initialization,
+        after initialization of all plugins.
 
         Returns
         -------
         ObjectPrx | None
-            A proxy to the main ("") facet of the Admin object, or None if no Admin object is configured.
+            A proxy to the main ("") facet of the Admin object, or ``None`` if no Admin object is configured.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         return self._impl.getAdmin()
 
     def addAdminFacet(self, servant: Object | None, facet: str) -> None:
         """
         Adds a new facet to the Admin object.
-
-        This method adds a new servant implementing the specified Admin facet.
 
         Parameters
         ----------
@@ -563,36 +577,34 @@ class Communicator:
         Raises
         ------
         AlreadyRegisteredException
-            If the facet is already registered.
+            If a facet with the same name is already registered.
         """
         self._impl.addAdminFacet(servant, facet)
 
     def removeAdminFacet(self, facet: str) -> Object:
         """
-        Remove the specified facet from the Admin object.
-
-        Removing a facet that was not previously registered throws a NotRegisteredException.
+        Removes a facet from the Admin object.
 
         Parameters
         ----------
         facet : str
-            The name of the Admin facet to be removed.
+            The name of the Admin facet.
 
         Returns
         -------
         Object
-            The servant associated with the removed Admin facet.
+            The servant associated with this Admin facet.
 
         Raises
         ------
         NotRegisteredException
-            If the facet is not registered.
+            If no facet with the given name is registered.
         """
         return self._impl.removeAdminFacet(facet)
 
     def findAdminFacet(self, facet: str) -> Object | None:
         """
-        Return a facet of the Admin object.
+        Returns a facet of the Admin object.
 
         Parameters
         ----------
@@ -602,18 +614,18 @@ class Communicator:
         Returns
         -------
         Object | None
-            The servant associated with the specified Admin facet, or None if no facet is registered with the given name.
+            The servant associated with this Admin facet, or ``None`` if no facet is registered with the given name.
         """
         return self._impl.findAdminFacet(facet)
 
     def findAllAdminFacets(self) -> dict[str, Object]:
         """
-        Return a dictionary of all facets of the Admin object.
+        Returns a map of all facets of the Admin object.
 
         Returns
         -------
         dict[str, Object]
-            A dictionary where the keys are facet names and the values are the associated servants.
+            A collection containing all the facet names and servants of the Admin object.
         """
         return self._impl.findAllAdminFacets()
 
