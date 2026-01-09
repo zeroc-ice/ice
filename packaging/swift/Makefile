@@ -46,18 +46,19 @@ common_make_flags       := CPPFLAGS="-DICE_SWIFT" \
                            $(if $(OPTIMIZE),OPTIMIZE=$(OPTIMIZE))
 
 # Platform-specific make flags
-macosx_configs          := static
+# Use cpp11-static config which enables ICE_CPP11_MAPPING required for ICE_SWIFT
+macosx_configs          := cpp11-static
 macosx_make_flags       := CONFIGS="$(macosx_configs)" \
                            $(common_make_flags)
 macosx_libdir           := $(cpp_srcdir)/lib
 
-iphoneos_configs        := static
+iphoneos_configs        := cpp11-static
 iphoneos_make_flags     := CONFIGS="$(iphoneos_configs)" \
                            PLATFORMS=iphoneos \
                            $(common_make_flags)
 iphoneos_libdir         := $(cpp_srcdir)/lib/iphoneos
 
-iphonesimulator_configs         := static
+iphonesimulator_configs         := cpp11-static
 iphonesimulator_make_flags      := CONFIGS="$(iphonesimulator_configs)" \
                                    PLATFORMS=iphonesimulator \
                                    $(common_make_flags)
@@ -66,8 +67,9 @@ iphonesimulator_libdir          := $(cpp_srcdir)/lib/iphonesimulator
 #
 # Get static library path for a component on a platform
 # $(call lib-path,component,platform)
+# Note: cpp11-static config produces libraries with ++11 suffix
 #
-lib-path = $($(2)_libdir)/lib$(1).a
+lib-path = $($(2)_libdir)/lib$(1)++11.a
 
 #
 # Get all library paths for a component across all platforms
@@ -97,7 +99,14 @@ all: xcframeworks
 # This must be done before building to ensure headers have correct dispatch_queue_t types.
 # Uses a sentinel file to ensure it only runs once even with parallel make.
 #
+# We must remove existing generated files first to force regeneration with ICE_SWIFT,
+# since they may have been generated without it.
+#
 $(build_dir)/.generate-srcs-done:
+	$(call E,"Cleaning existing generated C++ sources")
+	$(Q)rm -rf $(cpp_srcdir)/include/generated $(cpp_srcdir)/src/Ice/generated \
+		$(cpp_srcdir)/src/IceSSL/generated $(cpp_srcdir)/src/IceDiscovery/generated \
+		$(cpp_srcdir)/src/IceLocatorDiscovery/generated
 	$(call E,"Generating C++ sources with ICE_SWIFT")
 	$(Q)$(MAKE) -C $(cpp_srcdir) SLICEFLAGS="-DICE_SWIFT" generate-srcs
 	$(Q)mkdir -p $(build_dir)
