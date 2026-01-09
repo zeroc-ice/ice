@@ -428,7 +428,7 @@ class JavaPropertyHandler(PropertyHandler):
 
     def fix(self, propertyName):
         #
-        # The Java property strings are actually regexp's that will be passed to Java's regexp facitlity.
+        # The Java property strings are actually regexp's that will be passed to Java's regexp facility.
         #
         return propertyName.replace(".", "\\\\.").replace("[any]", "[^\\\\s]+")
 
@@ -572,7 +572,7 @@ class JSPropertyHandler(PropertyHandler):
         self.srcFile.close()
 
     def fix(self, propertyName):
-        return propertyName.replace(".", "\\.").replace("[any]", ".")
+        return propertyName.replace(".", "\\.").replace("[any]", "[^\\s]+")
 
     def deprecatedImpl(self, propertyName):
         if self.currentSection in self.validSections:

@@ -298,8 +298,6 @@ generated from the section label.
 
     <section name="Ice">
         <property name="AcceptClassCycles" />
-        <property name="ACM.Client" deprecated="true"/>
-        <property name="ACM.Server" deprecated="true"/>
         <property name="ACM" class="acm"/>
         <property name="ACM.Client" class="acm"/>
         <property name="ACM.Server" class="acm"/>
