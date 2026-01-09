@@ -15,6 +15,11 @@ if [ -z "${CHANNEL:-}" ]; then
     exit 1
 fi
 
+if [ -z "${VERSION:-}" ]; then
+    echo "Error: VERSION environment variable is not set"
+    exit 1
+fi
+
 # Get Git repository root directory
 root_dir=$(git rev-parse --show-toplevel)
 cd "$root_dir/packaging/swift"
@@ -38,6 +43,6 @@ cp -v ../spm/ICE_LICENSE .
 git add .
 git config user.name "ZeroC"
 git config user.email "git@zeroc.com"
-git commit -m "ice: $version Nightly build"
-git tag -a "$version" -m "ice: $version"
+git commit -m "ice: $VERSION Nightly build"
+git tag -a "$VERSION" -m "ice: $VERSION"
 git push origin "${CHANNEL}" --tags
