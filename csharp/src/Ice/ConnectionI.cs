@@ -1064,15 +1064,23 @@ namespace Ice
                                 observerStartWrite(_writeStream.getBuffer());
                             }
 
-                            bool completed;
-                            if (_transceiver.startWrite(_writeStream.getBuffer(), completedCallback, this, out completed))
+                            bool messageWritten = false;
+                            bool completedSynchronously = _transceiver.startWrite(
+                                _writeStream.getBuffer(),
+                                completedCallback,
+                                this,
+                                out messageWritten);
+
+                            // If the startWrite call wrote the message, we assume the message is sent now for at-most-once
+                            // semantics in the event the connection is closed while the message is still in _sendStreams.
+                            if (messageWritten && _sendStreams.Count > 0)
                             {
-                                // If the write completed immediately and the buffer
-                                if (completed && _sendStreams.Count > 0)
-                                {
-                                    // The whole message is written, assume it's sent now for at-most-once semantics.
-                                    _sendStreams.First.Value.isSent = true;
-                                }
+                                _sendStreams.First.Value.isSent = true;
+                            }
+
+                            if (completedSynchronously)
+                            {
+                                // If the write completed synchronously, we need to call the completedCallback.
                                 completedCallback(this);
                             }
                         }
