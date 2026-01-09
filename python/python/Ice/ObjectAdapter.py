@@ -137,9 +137,6 @@ class ObjectAdapter:
         Adds a servant to this object adapter's Active Servant Map (ASM).
         The ASM is a map {identity, facet} -> servant.
 
-        Note that one servant can implement several Ice objects by registering the servant with multiple identities.
-        Adding a servant with an identity that is already in the map raises `AlreadyRegisteredException`.
-
         Notes
         -----
         This function is equivalent to calling :func:`addFacet` with an empty facet.
