@@ -68,7 +68,7 @@ class ObjectAdapter:
     def hold(self) -> None:
         """
         Stops reading requests from incoming connections. Outstanding dispatches are not affected.
-        The object adapter can be reactivated with :func:`activate.
+        The object adapter can be reactivated with :func:`activate`.
 
         Notes
         -----
@@ -273,8 +273,8 @@ class ObjectAdapter:
 
         Raises
         ------
-        AlreadyRegisteredException
-            If a default servant with the same category is already registered.
+        NotRegisteredException
+            If no servant with the given identity is registered.
         """
         return self._impl.remove(id)
 

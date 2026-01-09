@@ -141,7 +141,7 @@ class Properties:
         Raises
         ------
         PropertyException
-            If when the property value is not a valid integer.
+            If the property value is not a valid integer.
         """
         return self._impl.getPropertyAsInt(key)
 

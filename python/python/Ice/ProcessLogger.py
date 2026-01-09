@@ -26,7 +26,6 @@ def getProcessLogger() -> Logger:
 
 
 def setProcessLogger(logger: Logger):
-    """Sets the default logger object."""
     """
     Sets the per-process logger. This logger is used by all communicators that do not have their own specific logger
     configured at the time the communicator is created.

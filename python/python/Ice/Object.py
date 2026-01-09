@@ -84,8 +84,8 @@ class Object:
         Returns
         -------
         bool
-            ``true`` if this object implements the Slice interface specified by ``typeId`` or implements a derived
-            interface, ``false`` otherwise.
+            ``True`` if this object implements the Slice interface specified by ``typeId`` or implements a derived
+            interface, ``False`` otherwise.
         """
         return id in self._ice_ids
 

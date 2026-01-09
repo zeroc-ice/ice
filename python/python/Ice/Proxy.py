@@ -25,8 +25,8 @@ def proxyIdentityEqual(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | None)
     Returns
     -------
     bool
-        ``true`` if the identity in ``lhs`` is equal to the identity in ``rhs``,
-        ``false`` otherwise.
+        ``True`` if the identity in ``lhs`` is equal to the identity in ``rhs``,
+        ``False`` otherwise.
     """
     return proxyIdentityCompare(lhs, rhs) == 0
 
@@ -77,8 +77,8 @@ def proxyIdentityAndFacetEqual(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx
     Returns
     -------
     bool
-        ``true`` if the identity and facet in ``lhs`` are equal to the identity and facet in ``rhs``,
-        ``false`` otherwise.
+        ``True`` if the identity and facet in ``lhs`` are equal to the identity and facet in ``rhs``,
+        ``False`` otherwise.
     """
     return proxyIdentityAndFacetCompare(lhs, rhs) == 0
 
