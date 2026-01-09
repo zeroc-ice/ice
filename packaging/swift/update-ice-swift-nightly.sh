@@ -39,21 +39,6 @@ cp -v ../spm/Package.swift .
 cp -v ../spm/LICENSE .
 cp -v ../spm/ICE_LICENSE .
 
-# Update the Packages.swift file with the URL and Checksum for the xcframeworks
-for zip_file in "${STAGING_DIR}"/*.zip; do
-    echo "Processing zip file: ${zip_file}"
-    zip_name=$(basename -s ".xcframework.zip" "${zip_file}")
-    name="${zip_name%%-*}"
-    version="${zip_name#*-}"
-    zip_url="https://download.zeroc.com/ice/nightly/${CHANNEL}/${zip_name}.xcframework.zip"
-
-    checksum=$(shasum -a 256 "${zip_file}" | cut -d ' ' -f 1)
-    indent=$(printf "%12s" "") # indentation for the checksum line
-
-    # Replace path: "...$name.xcframework" with url/checksum lines
-    sed -i '' -e "s|path: \".*$name\.xcframework\"|url: \"${zip_url}\",\n${indent}checksum: \"${checksum}\"|" Package.swift
-done
-
 # Commit and push the changes
 git add .
 git config user.name "ZeroC"

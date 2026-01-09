@@ -36,13 +36,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Download XCFramework artifacts
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUN_ID: ${{ inputs.run_id }}
-        run: |
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "xcframework-packages" --dir staging
-
       - name: Download SPM sources artifact
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -58,5 +51,4 @@ jobs:
         working-directory: packaging/swift
         env:
           ICE_NIGHTLY_PUBLISH_TOKEN: ${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}
-          STAGING_DIR: ${{ github.workspace }}/staging/xcframework-packages
           CHANNEL: ${{ inputs.channel }}

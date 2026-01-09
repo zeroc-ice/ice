@@ -114,11 +114,3 @@ jobs:
       quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
-
-  publish-xcframework-packages:
-    uses: ./.github/workflows/publish-xcframework-packages.yml
-    with:
-      channel: ${{ inputs.channel }}
-      quality: ${{ inputs.quality }}
-      run_id: ${{ inputs.run_id }}
-    secrets: inherit
