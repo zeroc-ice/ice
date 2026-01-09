@@ -170,31 +170,24 @@ class Properties
                 let otherKey;
                 for(let j = 0; j < props.length && !found; ++j)
                 {
-                    const pattern = props[j].pattern;
-                    found = pattern.test(key);
-
-                    if(found && props[j].deprecated)
+                    const property = props[j];
+                    if(property.pattern.test(key))
                     {
-                        logger.warning("deprecated property: " + key);
-                        if(props[j].deprecatedBy !== null)
+                        found = true;
+                        if(property.deprecated)
                         {
-                            key = props[j].deprecatedBy;
+                            logger.warning("deprecated property: " + key);
+                            if(property.deprecatedBy !== null)
+                            {
+                                key = property.deprecatedBy;
+                            }
                         }
                     }
-
-                    if(found)
+                    else if(new RegExp(property.pattern.source, "i").test(key))
                     {
-                        break;
-                    }
-                    else
-                    {
-                        found = new RegExp(pattern.source, "i").test(key);
-                        if(found)
-                        {
-                            mismatchCase = true;
-                            otherKey = pattern.source.substr(1).replace(/\\/g, "");
-                            break;
-                        }
+                        found = true;
+                        mismatchCase = true;
+                        otherKey = property.pattern.source.substr(1).replace(/\\/g, "");
                     }
                 }
 
