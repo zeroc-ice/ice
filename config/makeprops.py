@@ -576,17 +576,17 @@ class JSPropertyHandler(PropertyHandler):
 
     def deprecatedImpl(self, propertyName):
         if self.currentSection in self.validSections:
-            self.srcFile.write("    new Property(\"/^%s\.%s/\", true, null),\n" % (self.currentSection, \
+            self.srcFile.write("    new Property(/^%s\\.%s/, true, null),\n" % (self.currentSection, \
                     self.fix(propertyName)))
 
     def deprecatedImplWithReplacementImpl(self, propertyName, deprecatedBy):
         if self.currentSection in self.validSections:
-            self.srcFile.write("    new Property(\"/^%s\.%s/\", true, \"%s\"),\n" % \
+            self.srcFile.write("    new Property(/^%s\\.%s/, true, \"%s\"),\n" % \
                     (self.currentSection, self.fix(propertyName), deprecatedBy))
 
     def propertyImpl(self, propertyName):
         if self.currentSection in self.validSections:
-            self.srcFile.write("    new Property(\"/^%s\.%s/\", false, null),\n" % (self.currentSection, \
+            self.srcFile.write("    new Property(/^%s\\.%s/, false, null),\n" % (self.currentSection, \
                     self.fix(propertyName)))
 
     def newSection(self):

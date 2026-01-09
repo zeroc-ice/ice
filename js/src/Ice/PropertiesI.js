@@ -157,39 +157,28 @@ class Properties
             throw new InitializationException("Attempt to set property with empty key");
         }
 
-        let dotPos = key.indexOf(".");
+        const dotPos = key.indexOf(".");
         if(dotPos !== -1)
         {
             const prefix = key.substr(0, dotPos);
-            for(let i = 0; i < PropertyNames.validProps.length; ++i)
+            const i = PropertyNames.clPropNames.indexOf(prefix);
+            if(i !== -1)
             {
-                let pattern = PropertyNames.validProps[i][0].pattern;
-                dotPos = pattern.indexOf(".");
-                //
-                // Each top level prefix describes a non-empty namespace. Having a string without a
-                // prefix followed by a dot is an error.
-                //
-                Debug.assert(dotPos != -1);
-                if(pattern.substring(0, dotPos - 1) != prefix)
-                {
-                    continue;
-                }
-
+                const props = PropertyNames.validProps[i];
                 let found = false;
                 let mismatchCase = false;
                 let otherKey;
-                for(let j = 0; j < PropertyNames.validProps[i][j].length && !found; ++j)
+                for(let j = 0; j < props.length && !found; ++j)
                 {
-                    pattern = PropertyNames.validProps[i][j].pattern();
-                    let pComp = new RegExp(pattern);
-                    found = pComp.test(key);
+                    const pattern = props[j].pattern;
+                    found = pattern.test(key);
 
-                    if(found && PropertyNames.validProps[i][j].deprecated)
+                    if(found && props[j].deprecated)
                     {
                         logger.warning("deprecated property: " + key);
-                        if(PropertyNames.validProps[i][j].deprecatedBy !== null)
+                        if(props[j].deprecatedBy !== null)
                         {
-                            key = PropertyNames.validProps[i][j].deprecatedBy;
+                            key = props[j].deprecatedBy;
                         }
                     }
 
@@ -199,14 +188,11 @@ class Properties
                     }
                     else
                     {
-                        pComp = new RegExp(pattern.toUpperCase());
-                        found = pComp.test(key.toUpperCase());
+                        found = new RegExp(pattern.source, "i").test(key);
                         if(found)
                         {
                             mismatchCase = true;
-                            otherKey = pattern.substr(2);
-                            otherKey = otherKey.substr(0, otherKey.length - 1);
-                            otherKey = otherKey.replace(/\\/g, "");
+                            otherKey = pattern.source.substr(1).replace(/\\/g, "");
                             break;
                         }
                     }
