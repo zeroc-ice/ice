@@ -1071,16 +1071,16 @@ namespace Ice
                                 this,
                                 out messageWritten);
 
-                            // If the startWrite call consumed the complete buffer, we assume the message
-                            // is sent now for at-most-once semantics.
+                            // If the startWrite call wrote the message, we assume the message is sent now for at-most-once
+                            // semantics in the event the connection is closed while the message is still in _sendStreams.
                             if (messageWritten && _sendStreams.Count > 0)
                             {
                                 _sendStreams.First.Value.isSent = true;
                             }
 
-                            // If the write completed synchronously, we need to call the completedCallback.
                             if (completedSynchronously)
                             {
+                                // If the write completed synchronously, we need to call the completedCallback.
                                 completedCallback(this);
                             }
                         }
