@@ -20,7 +20,7 @@ ifeq ($(os),Linux)
    cppflags   := $(filter-out -Wredundant-decls,$(cppflags))
 endif
 
-python_cppflags         := $(or $(PYTHON_CPPFLAGS),$(shell $(python-config) --cflags))
+python_cppflags         := $(or $(PYTHON_CPPFLAGS),$(shell $(python-config) --includes))
 python_ldflags          := $(or $(PYTHON_LDLFLAGS),$(shell $(python-config) --ldflags))
 
 # Use .so as default value --extension-suffix is not supported by python-config in all platforms
@@ -33,11 +33,6 @@ allow-undefined-symbols := yes
 # Debian packaging complains if these libraries are included
 ifneq ($(filter debian ubuntu,$(linux_id)),)
 python_ldflags          := $(filter-out -lpython% -ldl -lutil,$(python_ldflags))
-endif
-
-ifneq ($(OPTIMIZE),yes)
-# Remove optimization options if building debug build
-python_cppflags         := $(filter-out -O% -DNDEBUG -Wp$(comma)-D_FORTIFY_SOURCE=%,$(python_cppflags))
 endif
 
 # Disable the warning about missing field initializers
