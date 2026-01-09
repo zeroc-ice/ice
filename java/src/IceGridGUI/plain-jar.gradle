@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import org.gradle.util.GradleVersion
+
 task copyTmpJars(type: Copy) {
     if (GradleVersion.current() >= GradleVersion.version('8.0')) {
         from jar.archiveFile

@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import org.gradle.util.GradleVersion
+
 buildscript {
     //
     // If iceBuilderHome is set add its lib directory it to the local maven repositories

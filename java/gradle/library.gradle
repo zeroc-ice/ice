@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import org.gradle.util.GradleVersion
+
 jar {
     if (GradleVersion.current() >= GradleVersion.version('8.0')) {
         destinationDirectory = new File("${libDir}")
