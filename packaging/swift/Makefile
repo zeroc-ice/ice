@@ -87,7 +87,8 @@ has-headers = $(filter $1,$(xcframeworks_with_headers))
 #
 xcframework-flags = $(foreach p,$(platforms),-library $(call lib-path,$1,$p) $(if $(call has-headers,$1),-headers $(cpp_srcdir)/include/$1))
 
-.PHONY: all clean distclean generate-srcs $(platforms) xcframeworks
+.PHONY: all clean distclean generate-srcs $(platforms) xcframeworks \
+        $(foreach f,$(xcframeworks),$f.xcframework)
 
 all: xcframeworks
 
@@ -125,7 +126,7 @@ iphonesimulator: $(build_dir)/.generate-srcs-done
 #
 define create-xcframework
 
-$(xcframework_dir)/$1.xcframework: $(call all-libs,$1)
+$1.xcframework:
 	$(call E,"Creating XCFramework for $1")
 	$(Q)mkdir -p $(xcframework_dir)
 	$(Q)rm -rf $(xcframework_dir)/$1.xcframework
@@ -148,8 +149,9 @@ endef
 # Generate rules for each XCFramework
 $(foreach f,$(xcframeworks),$(eval $(call create-xcframework,$f)))
 
-# Build all XCFrameworks
-xcframeworks: $(platforms) $(foreach f,$(xcframeworks),$(xcframework_dir)/$f.xcframework)
+# Build all XCFrameworks - platforms must complete before creating xcframeworks
+xcframeworks: $(platforms)
+	$(Q)$(MAKE) $(foreach f,$(xcframeworks),$f.xcframework)
 
 clean:
 	$(call E,"Cleaning XCFrameworks")
