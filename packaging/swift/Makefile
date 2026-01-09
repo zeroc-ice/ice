@@ -87,22 +87,35 @@ has-headers = $(filter $1,$(xcframeworks_with_headers))
 #
 xcframework-flags = $(foreach p,$(platforms),-library $(call lib-path,$1,$p) $(if $(call has-headers,$1),-headers $(cpp_srcdir)/include/$1))
 
-.PHONY: all clean distclean $(platforms) xcframeworks
+.PHONY: all clean distclean generate-srcs $(platforms) xcframeworks
 
 all: xcframeworks
 
 #
+# Generate C++ sources from Slice files with ICE_SWIFT defined.
+# This must be done before building to ensure headers have correct dispatch_queue_t types.
+# Uses a sentinel file to ensure it only runs once even with parallel make.
+#
+$(build_dir)/.generate-srcs-done:
+	$(call E,"Generating C++ sources with ICE_SWIFT")
+	$(Q)$(MAKE) -C $(cpp_srcdir) SLICEFLAGS="-DICE_SWIFT" generate-srcs
+	$(Q)mkdir -p $(build_dir)
+	$(Q)touch $@
+
+generate-srcs: $(build_dir)/.generate-srcs-done
+
+#
 # Build static libraries for each platform
 #
-macosx:
+macosx: $(build_dir)/.generate-srcs-done
 	$(call E,"Building C++ static libraries for macOS")
 	$(Q)$(MAKE) -C $(cpp_srcdir) $(macosx_make_flags) $(xcframeworks)
 
-iphoneos:
+iphoneos: $(build_dir)/.generate-srcs-done
 	$(call E,"Building C++ static libraries for iOS")
 	$(Q)$(MAKE) -C $(cpp_srcdir) $(iphoneos_make_flags) $(xcframeworks)
 
-iphonesimulator:
+iphonesimulator: $(build_dir)/.generate-srcs-done
 	$(call E,"Building C++ static libraries for iOS Simulator")
 	$(Q)$(MAKE) -C $(cpp_srcdir) $(iphonesimulator_make_flags) $(xcframeworks)
 
@@ -140,7 +153,7 @@ xcframeworks: $(platforms) $(foreach f,$(xcframeworks),$(xcframework_dir)/$f.xcf
 
 clean:
 	$(call E,"Cleaning XCFrameworks")
-	$(Q)rm -rf $(xcframework_dir)
+	$(Q)rm -rf $(build_dir)
 
 distclean: clean
 	$(call E,"Cleaning C++ builds")
