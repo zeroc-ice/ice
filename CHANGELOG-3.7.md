@@ -109,6 +109,11 @@ particular aspect of Ice.
   associated thread-pool has no thread available to process these messages. As a result, back-pressure now works in
   Ice for C# just like in other language mappings.
 
+## JavaScript Changes
+
+- Fixed a bug in the Ice for JavaScript property validation code, which resulted in incorrect property validation
+  for Ice properties. (https://github.com/zeroc-ice/ice/issues/2102)
+
 # Changes in Ice 3.7.10
 
 These are the major changes since Ice 3.7.9.
