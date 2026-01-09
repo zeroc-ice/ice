@@ -42,7 +42,7 @@ class DispatchException(LocalException):
     @property
     def replyStatus(self):
         """
-        Returns the reply status as an int (see :class:``ReplyStatus``)
+        Returns the reply status as an int (see :class:`ReplyStatus`).
 
         Returns
         -------

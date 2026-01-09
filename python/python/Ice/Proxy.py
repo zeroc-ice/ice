@@ -45,8 +45,8 @@ def proxyIdentityCompare(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | Non
     Returns
     -------
     int
-        ``-1`` if the identity in ``lhs`` compare less than the identity in ``rhs``;
-        ``0`` if the identities and facets compare equal; ``1``, otherwise.
+        ``-1`` if the identity in ``lhs`` compares less than the identity in ``rhs``;
+        ``0`` if the identities compare equal; ``1``, otherwise.
     """
     if (lhs and not isinstance(lhs, IcePy.ObjectPrx)) or (rhs and not isinstance(rhs, IcePy.ObjectPrx)):
         raise ValueError("argument is not a proxy")

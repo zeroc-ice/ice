@@ -340,7 +340,7 @@ class ObjectAdapter:
         Raises
         ------
         NotRegisteredException
-            If no default servant is registered for the given category
+            If no default servant is registered for the given category.
         """
         return self._impl.removeDefaultServant(category)
 
@@ -530,7 +530,7 @@ class ObjectAdapter:
         Returns
         -------
         ObjectPrx
-            A proxy with the given identity and this published endpoints of this object adapter.
+            A proxy with the given identity and the published endpoints of this object adapter.
         """
         return self._impl.createDirectProxy(id)
 

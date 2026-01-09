@@ -731,7 +731,7 @@ public final class ObjectAdapter {
      * Creates a direct proxy from an Ice identity.
      *
      * @param identity an Ice identity
-     * @return a proxy with the given identity and this published endpoints of this object adapter
+     * @return a proxy with the given identity and the published endpoints of this object adapter
      */
     public synchronized ObjectPrx createDirectProxy(Identity identity) {
         checkForDestruction();

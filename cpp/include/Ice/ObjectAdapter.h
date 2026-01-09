@@ -267,7 +267,7 @@ namespace Ice
         /// Creates a direct proxy from an Ice identity.
         /// @tparam Prx The type of the proxy to return.
         /// @param id An Ice identity.
-        /// @return A proxy with the given identity and this published endpoints of this object adapter.
+        /// @return A proxy with the given identity and the published endpoints of this object adapter.
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         Prx createDirectProxy(Identity id)
         {

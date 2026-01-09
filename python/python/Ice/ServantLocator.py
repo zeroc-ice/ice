@@ -12,7 +12,7 @@ class ServantLocator(ABC):
 
     Notes
     -----
-    For simple cases, You should consider using a default servant instead (see :func:`ObjectAdapter.addDefaultServant`).
+    For simple cases, you should consider using a default servant instead (see :func:`ObjectAdapter.addDefaultServant`).
     """
 
     @abstractmethod
@@ -29,7 +29,7 @@ class ServantLocator(ABC):
         The Ice runtime will marshal this exception in the response.
 
         If you call :func:`locate` from your own code, you must also call :func:`finished` when you have finished using
-        the servant, provided that :func:`locate` did not return `None`.
+        the servant, provided that :func:`locate` did not return ``None``.
 
         Parameters
         ----------

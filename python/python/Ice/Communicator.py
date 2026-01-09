@@ -120,7 +120,7 @@ class Communicator:
         Returns
         -------
         EventLoopAdapter | None
-            The event loop adapter used for by this communicator.
+            The event loop adapter used by this communicator.
         """
 
         return self._eventLoopAdapter

@@ -49,7 +49,7 @@ def initialize(
         An asyncio event loop used to run coroutines and wrap futures.
     initData : InitializationData, optional
         Options for the new communicator.
-        This argument is mutually exclusive with both the `args` and `eventLoop` argument.
+        This argument is mutually exclusive with both the ``args`` and ``eventLoop`` argument.
 
     Returns
     -------
