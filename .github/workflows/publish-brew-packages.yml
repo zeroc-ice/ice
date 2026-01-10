@@ -59,7 +59,7 @@ jobs:
 
       - name: Clone Repository
         run: |
-          git clone "https://x-access-token:${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}@github.com/zeroc-ice/homebrew-nightly.git" -b main
+          git clone "https://x-access-token:${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}@github.com/zeroc-ice/homebrew-nightly.git" -b ${{ inputs.channel }}
 
       - name: Publish Homebrew Patch
         run: |
@@ -67,7 +67,7 @@ jobs:
           git config user.name "ZeroC"
           git config user.email "git@zeroc.com"
           # Apply and commit the patch created during the brew package build
-          git am "${GITHUB_WORKSPACE}/staging/homebrew-bottle/"ice-*.patch
+          git am "${GITHUB_WORKSPACE}/staging/homebrew-bottle/"ice@${{ inputs.channel }}-*.patch
           # Push the updated formula
-          git push origin main || { echo "Push failed"; exit 1; }
+          git push origin ${{ inputs.channel }} || { echo "Push failed"; exit 1; }
         working-directory: homebrew-nightly
