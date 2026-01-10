@@ -54,8 +54,6 @@ jobs:
           esac
 
           echo "always-auth=true" >> ~/.npmrc
-
-          # Publish both slice2js and ice packages
           mapfile -t packages < <(find staging -type f -name "*.tgz")
           for pkg in "${packages[@]}"; do
             echo "Publishing package: $pkg"
