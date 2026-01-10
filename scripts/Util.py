@@ -663,11 +663,7 @@ class Mapping(object):
                 if current.driver.cross:
                     serverTestCase = testcase.getServerTestCase(current.driver.cross)
                     if serverTestCase:
-                        serverOptions = serverTestCase.getMapping().getOptions(current)
-                        for k, v in serverOptions.items():
-                            if k in mappingOptions:
-                                # Intersect the values - only keep values present in both
-                                mappingOptions[k] = [x for x in mappingOptions[k] if x in v]
+                        self.intersectMappingOptions(mappingOptions, serverTestCase.getMapping().getOptions(current))
 
                 supportedOptions.update(mappingOptions)
                 supportedOptions.update(testcase.getTestSuite().getOptions(current))
@@ -720,6 +716,17 @@ class Mapping(object):
                 for c in gen(current.driver.filterOptions(current.driver.getComponent().getOptions(testcase, current)))
             ]
 
+        @staticmethod
+        def intersectMappingOptions(options, serverOptions):
+            """Intersect client mapping options with server mapping options for cross tests."""
+            for k, v in serverOptions.items():
+                if k in options:
+                    # Intersect the values - only keep values present in both
+                    options[k] = [x for x in options[k] if x in v]
+                else:
+                    # Server has a restriction that client doesn't - add it
+                    options[k] = v
+
         def getMergedOptions(self, current):
             """
             Get test options merged from the testcase, testsuite, and mapping. When running cross
@@ -733,11 +740,7 @@ class Mapping(object):
             if current.driver.cross:
                 serverTestCase = current.testcase.getServerTestCase(current.driver.cross)
                 if serverTestCase:
-                    serverOptions = serverTestCase.getMapping().getOptions(current)
-                    for k, v in serverOptions.items():
-                        if k in options:
-                            # Intersect the values - only keep values present in both
-                            options[k] = [x for x in options[k] if x in v]
+                    self.intersectMappingOptions(options, serverTestCase.getMapping().getOptions(current))
 
             options.update(current.testcase.getTestSuite().getOptions(current))
             options.update(current.testcase.getOptions(current))
