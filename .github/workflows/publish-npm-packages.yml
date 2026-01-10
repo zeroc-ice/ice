@@ -54,9 +54,9 @@ jobs:
           esac
 
           echo "always-auth=true" >> ~/.npmrc
-
-          # Publish both slice2js and ice packages
-          for pkg in staging/js-npm-packages/*.tgz; do
+          mapfile -t packages < <(find staging -type f -name "*.tgz")
+          for pkg in "${packages[@]}"; do
+            echo "Publishing package: $pkg"
             npm publish "$pkg" --registry "https:${REPOSITORY_PREFIX}"
           done
         env:
