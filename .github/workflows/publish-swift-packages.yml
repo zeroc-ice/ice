@@ -49,3 +49,5 @@ jobs:
         env:
           ICE_NIGHTLY_PUBLISH_TOKEN: ${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}
           STAGING_DIR: ${{ github.workspace }}/staging/xcframework-packages
+          CHANNEL: ${{ inputs.channel }}
+          QUALITY: ${{ inputs.quality }}
