@@ -10,13 +10,18 @@ if [ -z "${ICE_NIGHTLY_PUBLISH_TOKEN:-}" ]; then
     exit 1
 fi
 
+if [ -z "${STAGING_DIR:-}" ]; then
+    echo "Error: STAGING_DIR environment variable is not set"
+    exit 1
+fi
+
 if [ -z "${CHANNEL:-}" ]; then
     echo "Error: CHANNEL environment variable is not set"
     exit 1
 fi
 
-if [ -z "${VERSION:-}" ]; then
-    echo "Error: VERSION environment variable is not set"
+if [ -z "${QUALITY:-}" ]; then
+    echo "Error: QUALITY environment variable is not set"
     exit 1
 fi
 
@@ -24,13 +29,19 @@ fi
 root_dir=$(git rev-parse --show-toplevel)
 cd "$root_dir/packaging/swift"
 
+# Find the spm-sources tar.gz file and extract the version from the filename
+tarball=("$STAGING_DIR"/spm-sources/spm-sources-*.tar.gz)
+version=${tarball##*/}
+version=${version#spm-sources-}
+version=${version%.tar.gz}
+tar -xzvf "$tarball" -C .
+
 # Clone the ice-swift-nightly repository and add the Ice for Swift sources
-# Use the channel (e.g., 3.7, 3.8) as the branch name
 [ -d ice-swift-nightly ] && rm -rf ice-swift-nightly
-git clone "https://x-access-token:${ICE_NIGHTLY_PUBLISH_TOKEN}@github.com/zeroc-ice/ice-swift-nightly.git" -b "${CHANNEL}"
+git clone "https://x-access-token:${ICE_NIGHTLY_PUBLISH_TOKEN}@github.com/zeroc-ice/ice-swift-nightly.git" -b ${CHANNEL}
 cd ice-swift-nightly
 
-# Remove existing Sources directory to avoid keeping stale files
+# Remove existing directories to avoid keeping stale files that may have been removed from the Ice repository.
 rm -rfv Sources cpp slice swift
 
 # Copy the generated SPM sources from build-spm-sources.py output
@@ -44,6 +55,6 @@ cp -v ../README.md .
 git add .
 git config user.name "ZeroC"
 git config user.email "git@zeroc.com"
-git commit -m "ice: $VERSION Nightly build"
-git tag -a "$VERSION" -m "ice: $VERSION"
-git push origin "${CHANNEL}" --tags
+git commit -m "ice: ${version} ${QUALITY} build"
+git tag -a "${version}" -m "ice: ${version} ${QUALITY} build"
+git push origin ${CHANNEL} --tags
