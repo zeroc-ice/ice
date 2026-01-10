@@ -38,17 +38,9 @@ def run_command(cmd, cwd=None, check=True):
 def copy_files(src_pattern, dest_dir, excludes=None):
     """Copy files matching a glob pattern to destination directory."""
     excludes = excludes or []
-    files = glob.glob(src_pattern)
-    for f in files:
+    for f in glob.glob(src_pattern):
         basename = os.path.basename(f)
-        skip = False
-        for exclude in excludes:
-            # Simple exclude matching
-            exclude_pattern = exclude.replace("**/", "").replace("*", "")
-            if exclude_pattern in basename:
-                skip = True
-                break
-        if not skip and os.path.isfile(f):
+        if os.path.isfile(f) and not any(basename.startswith(e) for e in excludes):
             shutil.copy2(f, dest_dir)
 
 
@@ -61,26 +53,14 @@ def copy_tree(src_dir, dest_dir):
 
 def main():
     parser = argparse.ArgumentParser(description="Build Ice Swift Package Manager source distribution")
-    parser.add_argument("--ice-dir", default=None,
-                        help="Path to the Ice repository (default: auto-detect from script location)")
     parser.add_argument("--output-dir", default=None,
                         help="Output directory for SPM sources (default: packaging/swift/spm)")
-    parser.add_argument("--skip-build", action="store_true",
-                        help="Skip building translators (use existing)")
-    parser.add_argument("--clean", action="store_true",
-                        help="Clean output directory before building")
     args = parser.parse_args()
 
-    # Determine Ice repository root
-    if args.ice_dir:
-        ice_dir = os.path.abspath(args.ice_dir)
-    else:
-        # Auto-detect: script is in ice/packaging/swift, so ice root is ../../
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        ice_dir = os.path.abspath(os.path.join(script_dir, "..", ".."))
-
-    if not os.path.isdir(os.path.join(ice_dir, "cpp")):
-        error(f"Invalid Ice repository path: {ice_dir}")
+    # Determine Ice repository root from script location
+    # Script is in ice/packaging/swift, so ice root is ../../
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    ice_dir = os.path.abspath(os.path.join(script_dir, "..", ".."))
 
     # Determine output directory
     if args.output_dir:
@@ -95,11 +75,6 @@ def main():
 
     info(f"Ice repository: {ice_dir}")
     info(f"Output directory: {output_dir}")
-
-    # Clean if requested
-    if args.clean and os.path.exists(output_dir):
-        info("Cleaning output directory")
-        shutil.rmtree(output_dir)
 
     # Create output directory structure
     src_dir = output_dir
@@ -123,21 +98,29 @@ def main():
     for d in directories:
         os.makedirs(d, exist_ok=True)
 
-    # Build translators if not skipping
-    if not args.skip_build:
-        info("Building slice2cpp and slice2swift")
-        run_command(["make", "slice2cpp", "slice2swift"], cwd=cpp_dir)
-
-        info("Generating C++ sources from Slice files")
-        run_command(["make", "SLICEFLAGS=-DICE_SWIFT", "generate-srcs"], cwd=cpp_dir)
+    # Build translators
+    info("Building slice2cpp and slice2swift")
+    run_command(["make", "slice2cpp", "slice2swift"], cwd=cpp_dir)
 
     slice2cpp = os.path.join(cpp_dir, "bin", "slice2cpp")
     slice2swift = os.path.join(cpp_dir, "bin", "slice2swift")
 
-    if not os.path.exists(slice2cpp):
-        error(f"slice2cpp not found at {slice2cpp}. Run without --skip-build first.")
-    if not os.path.exists(slice2swift):
-        error(f"slice2swift not found at {slice2swift}. Run without --skip-build first.")
+    # Generate C++ sources from Slice files
+    info("Generating C++ sources from Slice files")
+    generated_cpp_dir = os.path.join(src_dir, ".generated", "cpp")
+
+    for component in ["Ice", "IceSSL", "IceDiscovery", "IceLocatorDiscovery", "IceIAP"]:
+        component_generated = os.path.join(generated_cpp_dir, component)
+        os.makedirs(component_generated, exist_ok=True)
+        for ice_file in glob.glob(os.path.join(slice_dir, component, "*.ice")):
+            run_command([
+                slice2cpp,
+                f"-I{slice_dir}",
+                "-DICE_SWIFT",
+                "--include-dir", component,
+                "--output-dir", component_generated,
+                ice_file
+            ])
 
     info("Copying sources")
 
@@ -149,7 +132,7 @@ def main():
     copy_files(os.path.join(cpp_dir, "include", "IceUtil", "*.h"),
                os.path.join(sources_dir, "IceCpp", "include", "IceUtil"))
 
-    excludes = ["UWP", "SChannel", "OpenSSL", "DLLMain.cpp"]
+    excludes = ["SChannel", "OpenSSL", "DLLMain.cpp"]
 
     # Copy Ice and IceSSL sources
     for d in ["Ice", "IceSSL"]:
@@ -159,11 +142,12 @@ def main():
                    os.path.join(sources_dir, target_cpp), excludes)
         copy_files(os.path.join(cpp_dir, "src", d, "*.h"),
                    os.path.join(sources_dir, target_cpp, "include", d), excludes)
-        copy_files(os.path.join(cpp_dir, "src", d, "generated", "*.cpp"),
-                   os.path.join(sources_dir, target_cpp))
         copy_files(os.path.join(cpp_dir, "include", d, "*.h"),
                    os.path.join(sources_dir, target_cpp, "include", d), excludes)
-        copy_files(os.path.join(cpp_dir, "include", "generated", d, "*.h"),
+        # Copy generated sources
+        copy_files(os.path.join(generated_cpp_dir, d, "*.cpp"),
+                   os.path.join(sources_dir, target_cpp))
+        copy_files(os.path.join(generated_cpp_dir, d, "*.h"),
                    os.path.join(sources_dir, target_cpp, "include", d))
 
     # Copy iOS-specific Ice sources
@@ -180,35 +164,18 @@ def main():
                    os.path.join(sources_dir, target_cpp, "include", d))
         copy_files(os.path.join(cpp_dir, "src", d, "*.cpp"),
                    os.path.join(sources_dir, target_cpp))
-        copy_files(os.path.join(cpp_dir, "src", d, "generated", "*.cpp"),
+        # Copy generated sources
+        copy_files(os.path.join(generated_cpp_dir, d, "*.cpp"),
                    os.path.join(sources_dir, target_cpp))
+        copy_files(os.path.join(generated_cpp_dir, d, "*.h"),
+                   os.path.join(sources_dir, target_cpp, "include", d))
 
-        generated_include = os.path.join(cpp_dir, "src", d, "generated", d)
-        if os.path.isdir(generated_include):
-            copy_files(os.path.join(generated_include, "*.h"),
-                       os.path.join(sources_dir, target_cpp, "include", d))
-
-    # Generate IceIAP C++ sources
-    info("Generating IceIAP C++ sources")
-    ice_iap_generated = os.path.join(src_dir, ".generated", "IceIAP")
-    os.makedirs(ice_iap_generated, exist_ok=True)
-
-    ice_iap_slice_dir = os.path.join(slice_dir, "IceIAP")
-    for ice_file in glob.glob(os.path.join(ice_iap_slice_dir, "*.ice")):
-        run_command([
-            slice2cpp,
-            f"-I{slice_dir}",
-            "-DICE_SWIFT",
-            "--include-dir", "IceIAP",
-            "--output-dir", ice_iap_generated,
-            ice_file
-        ])
-
-    copy_files(os.path.join(ice_iap_generated, "*.cpp"),
-               os.path.join(sources_dir, "IceCpp"))
-    copy_files(os.path.join(ice_iap_generated, "*.h"),
-               os.path.join(sources_dir, "IceCpp", "include", "IceIAP"))
+    # Copy IceIAP sources
     copy_files(os.path.join(cpp_dir, "include", "IceIAP", "*.h"),
+               os.path.join(sources_dir, "IceCpp", "include", "IceIAP"))
+    copy_files(os.path.join(generated_cpp_dir, "IceIAP", "*.cpp"),
+               os.path.join(sources_dir, "IceCpp"))
+    copy_files(os.path.join(generated_cpp_dir, "IceIAP", "*.h"),
                os.path.join(sources_dir, "IceCpp", "include", "IceIAP"))
 
     # Copy IceImpl sources (Swift/ObjC++ bridge)
