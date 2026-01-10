@@ -311,7 +311,7 @@ To enable the nightly repository for your distribution run:
 - Debian 12
 
   ```shell
-  wget "https://download.zeroc.com/ice/nightly/3.8/debian12/ice-repo-3.8-nightly_1.0_all.deb" -O ice-repo-3.8-nightly.deb
+  wget "https://download.zeroc.com/ice/nightly/3.8/debian12/ice-repo-3.8-nightly_1.0.0_all.deb" -O ice-repo-3.8-nightly.deb
   sudo dpkg -i ice-repo-3.8-nightly.deb
   rm ice-repo-3.8-nightly.deb
   ```
@@ -319,7 +319,7 @@ To enable the nightly repository for your distribution run:
 - Debian 13
 
   ```shell
-  wget "https://download.zeroc.com/ice/nightly/3.8/debian13/ice-repo-3.8-nightly_1.0_all.deb" -O ice-repo-3.8-nightly.deb
+  wget "https://download.zeroc.com/ice/nightly/3.8/debian13/ice-repo-3.8-nightly_1.0.0_all.deb" -O ice-repo-3.8-nightly.deb
   sudo dpkg -i ice-repo-3.8-nightly.deb
   rm ice-repo-3.8-nightly.deb
   ```
@@ -327,7 +327,7 @@ To enable the nightly repository for your distribution run:
 - Ubuntu 24.04
 
   ```shell
-  wget "https://download.zeroc.com/ice/nightly/3.8/ubuntu24.04/ice-repo-3.8-nightly_1.0_all.deb" -O ice-repo-3.8-nightly.deb
+  wget "https://download.zeroc.com/ice/nightly/3.8/ubuntu24.04/ice-repo-3.8-nightly_1.0.0_all.deb" -O ice-repo-3.8-nightly.deb
   sudo dpkg -i ice-repo-3.8-nightly.deb
   rm ice-repo-3.8-nightly.deb
   ```
