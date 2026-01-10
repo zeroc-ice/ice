@@ -54,7 +54,11 @@ jobs:
           esac
 
           echo "always-auth=true" >> ~/.npmrc
-          npm publish staging/js-npm-packages/*.tgz --registry "https:${REPOSITORY_PREFIX}"
+          mapfile -t packages < <(find staging -type f -name "*.tgz")
+          for pkg in "${packages[@]}"; do
+            echo "Publishing package: $pkg"
+            npm publish "$pkg" --registry "https:${REPOSITORY_PREFIX}"
+          done
         env:
           CHANNEL: ${{ inputs.channel }}
           QUALITY: ${{ inputs.quality }}
