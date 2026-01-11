@@ -652,7 +652,15 @@ class Mapping(object):
                     return
 
                 supportedOptions = supportedOptions.copy()
-                supportedOptions.update(testcase.getMapping().getOptions(current))
+                mappingOptions = testcase.getMapping().getOptions(current)
+
+                # For cross tests, intersect with the server mapping options
+                if current.driver.cross:
+                    serverTestCase = testcase.getServerTestCase(current.driver.cross)
+                    if serverTestCase:
+                        self.intersectMappingOptions(mappingOptions, serverTestCase.getMapping().getOptions(current))
+
+                supportedOptions.update(mappingOptions)
                 supportedOptions.update(testcase.getTestSuite().getOptions(current))
                 supportedOptions.update(testcase.getOptions(current))
 
@@ -700,14 +708,41 @@ class Mapping(object):
 
             return [c for c in gen(current.driver.filterOptions(current.driver.getComponent().getOptions(testcase, current)))]
 
+        @staticmethod
+        def intersectMappingOptions(options, serverOptions):
+            """Intersect client mapping options with server mapping options for cross tests."""
+            for k, v in serverOptions.items():
+                if k in options:
+                    # Intersect the values - only keep values present in both
+                    options[k] = [x for x in options[k] if x in v]
+                else:
+                    # Server has a restriction that client doesn't - add it
+                    options[k] = v
+
+        def getMergedOptions(self, current):
+            """
+            Get test options merged from the testcase, testsuite, and mapping. When running cross
+            tests, options from both client and server mappings are intersected to ensure only
+            configurations supported by both are used.
+            """
+            options = {}
+            options.update(current.testcase.getMapping().getOptions(current))
+
+            # For cross tests, intersect with the server mapping options
+            if current.driver.cross:
+                serverTestCase = current.testcase.getServerTestCase(current.driver.cross)
+                if serverTestCase:
+                    self.intersectMappingOptions(options, serverTestCase.getMapping().getOptions(current))
+
+            options.update(current.testcase.getTestSuite().getOptions(current))
+            options.update(current.testcase.getOptions(current))
+            return options
+
         def canRun(self, testId, current):
             if not current.driver.getComponent().canRun(testId, current.testcase.getMapping(), current):
                 return False
 
-            options = {}
-            options.update(current.testcase.getMapping().getOptions(current))
-            options.update(current.testcase.getTestSuite().getOptions(current))
-            options.update(current.testcase.getOptions(current))
+            options = self.getMergedOptions(current)
 
             for (k, v) in options.items():
                 if hasattr(self, k):
@@ -723,10 +758,7 @@ class Mapping(object):
             #
             # Clone this configuration and make sure all the options are supported
             #
-            options = {}
-            options.update(current.testcase.getMapping().getOptions(current))
-            options.update(current.testcase.getTestSuite().getOptions(current))
-            options.update(current.testcase.getOptions(current))
+            options = self.getMergedOptions(current)
 
             clone = copy.copy(self)
             for o in self.parsedOptions:
@@ -3415,6 +3447,10 @@ class CSharpMapping(Mapping):
 
     def _getDefaultExe(self, processType):
         return Mapping._getDefaultExe(self, processType).lower()
+
+    def getOptions(self, current):
+        # Disable IPv6 for .NET on macOS to workaround https://github.com/dotnet/runtime/issues/121848
+        return {"ipv6": [False]} if isinstance(platform, Darwin) else {}
 
     def getCommandLine(self, current, process, exe, args):
         if process.isFromBinDir():
