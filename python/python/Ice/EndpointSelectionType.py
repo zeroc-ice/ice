@@ -5,17 +5,17 @@ from enum import Enum
 
 class EndpointSelectionType(Enum):
     """
-    Determines the order in which the Ice runtime uses the endpoints in a proxy when establishing a connection.
+    Determines how the Ice runtime sorts proxy endpoints when establishing a connection.
     """
 
     Random = 0
     """
-    Random causes the endpoints to be arranged in a random order.
+    The Ice runtime shuffles the endpoints in a random order.
     """
 
     Ordered = 1
     """
-    Ordered forces the Ice runtime to use the endpoints in the order they appeared in the proxy.
+    The Ice runtime uses the endpoints in the order they appear in the proxy.
     """
 
 

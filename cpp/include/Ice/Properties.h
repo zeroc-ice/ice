@@ -216,8 +216,8 @@ namespace Ice
         /// @see #setProperty
         StringSeq getPropertyAsListWithDefault(std::string_view key, const StringSeq& value);
 
-        /// Gets all properties whose keys begin with @p prefix. If @p prefix is the empty string, then all properties
-        /// are returned.
+        /// Gets all properties whose keys begin with the given prefix. If @p prefix is the empty string,
+        /// then all properties are returned.
         /// @param prefix The prefix to search for.
         /// @return The matching property set.
         PropertyDict getPropertiesForPrefix(std::string_view prefix);

@@ -7,18 +7,26 @@ from .Value import Value
 
 class UnknownSlicedValue(Value):
     """
-    Unknown sliced value holds an instance of an unknown Slice class type.
+    Represents an instance of an unknown class.
 
     Attributes
     ----------
     unknownTypeId : str
-        The type ID of the unknown Slice class type.
+        The Slice type ID of the unknown value.
     """
 
     _ice_type = None  # Will be set after class definition
     unknownTypeId: str
 
-    def ice_id(self):
+    def ice_id(self) -> str:
+        """
+        Returns the Slice type ID associated with this instance.
+
+        Returns
+        -------
+        str
+            The Slice type ID of the unknown value.
+        """
         return self.unknownTypeId
 
 

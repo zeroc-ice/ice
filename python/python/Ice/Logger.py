@@ -5,15 +5,15 @@ from abc import ABC, abstractmethod
 
 class Logger(ABC):
     """
-    The Ice message logger.
+    Represents Ice's abstraction for logging and tracing.
 
-    Applications can provide their own logger by implementing this interface and installing it in a communicator.
+    Applications can provide their own logger by implementing this abstraction and setting a logger on the communicator.
     """
 
     @abstractmethod
     def print(self, message: str):
         """
-        Print a message.
+        Prints a message.
 
         The message is printed literally, without any decorations such as executable name or timestamp.
 
@@ -32,7 +32,7 @@ class Logger(ABC):
     @abstractmethod
     def trace(self, category: str, message: str):
         """
-        Log a trace message.
+        Logs a trace message.
 
         Parameters
         ----------
@@ -46,7 +46,7 @@ class Logger(ABC):
     @abstractmethod
     def warning(self, message: str):
         """
-        Log a warning message.
+        Logs a warning message.
 
         Parameters
         ----------
@@ -58,7 +58,7 @@ class Logger(ABC):
     @abstractmethod
     def error(self, message: str):
         """
-        Log an error message.
+        Logs an error message.
 
         Parameters
         ----------
@@ -70,19 +70,19 @@ class Logger(ABC):
     @abstractmethod
     def getPrefix(self) -> str:
         """
-        Get this logger's prefix.
+        Returns this logger's prefix.
 
         Returns
         -------
         str
-            The prefix of this logger.
+            The prefix.
         """
         pass
 
     @abstractmethod
     def cloneWithPrefix(self, prefix: str) -> "Logger":
         """
-        Return a clone of the logger with a new prefix.
+        Returns a clone of the logger with a new prefix.
 
         Parameters
         ----------
@@ -91,7 +91,7 @@ class Logger(ABC):
 
         Returns
         -------
-        Logger
+        Ice.Logger
             A new logger instance with the specified prefix.
         """
         pass

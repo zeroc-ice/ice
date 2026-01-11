@@ -20,8 +20,8 @@
 
 namespace Ice
 {
-    /// An endpoint specifies the address of the server-end of an Ice connection: an object adapter listens on one or
-    /// more endpoints and a client establishes a connection to an endpoint.
+    /// An endpoint specifies the address of the server-end of an Ice connection.
+    /// An object adapter listens on one or more endpoints and a client establishes a connection to an endpoint.
     /// @headerfile Ice/Ice.h
     class ICE_API Endpoint
     {

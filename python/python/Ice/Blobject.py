@@ -35,7 +35,7 @@ class Blobject(Object, ABC):
 
         Returns
         -------
-        tuple of (bool, bytes) or awaitable of tuple of (bool, bytes)
+        tuple[bool, bytes] | Awaitable[tuple[bool, bytes]]
             - bool True if the operation succeeded, False if it raised a user exception.
             - bytes The encoded form of the operation's results or the user exception.
         """

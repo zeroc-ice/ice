@@ -178,8 +178,8 @@ Ice::NativePropertiesAdmin::addUpdateCallback(std::function<void(const PropertyD
 }
 
 void
-Ice::NativePropertiesAdmin::removeUpdateCallback(std::list<std::function<void(const PropertyDict&)>>::iterator p)
+Ice::NativePropertiesAdmin::removeUpdateCallback(std::list<std::function<void(const PropertyDict&)>>::iterator cb)
 {
     lock_guard lock{_mutex};
-    _updateCallbacks.erase(p);
+    _updateCallbacks.erase(cb);
 }

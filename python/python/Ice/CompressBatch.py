@@ -6,7 +6,7 @@ from enum import Enum
 
 class CompressBatch(Enum):
     """
-    The batch compression option when flushing queued batch requests.
+    Represents batch compression options when flushing queued batch requests.
     """
 
     Yes = 0

@@ -243,7 +243,7 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     /// Creates a direct proxy from an Ice identity.
     ///
     /// - Parameter id: An Ice identity.
-    /// - Returns: A proxy with the given identity and this published endpoints of this object adapter.
+    /// - Returns: A proxy with the given identity and the published endpoints of this object adapter.
     func createDirectProxy(_ id: Identity) throws -> ObjectPrx
 
     /// Creates an indirect proxy for an Ice identity.

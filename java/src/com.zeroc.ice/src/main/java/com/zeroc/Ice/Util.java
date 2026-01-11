@@ -54,7 +54,7 @@ public final class Util {
      * constructor directly.
      *
      * @param args The command-line arguments.
-     * @param defaults Default values for the property set. Settings in configuration files and
+     * @param defaults Default values for the new property set. Settings in configuration files and
      *     {@code args} override these defaults.
      * @return A new property set.
      */
@@ -68,7 +68,7 @@ public final class Util {
      * {@link Properties#Properties(String[], Properties, java.util.List)} constructor directly.
      *
      * @param args The command-line arguments.
-     * @param defaults Default values for the property set. Settings in configuration files and
+     * @param defaults Default values for the new property set. Settings in configuration files and
      *     {@code args} override these defaults.
      * @param remainingArgs If non-null, the command-line arguments that remain after parsing Ice properties out of
      *     {@code args}.
@@ -128,8 +128,9 @@ public final class Util {
     /**
      * Converts a stringified identity into an Identity.
      *
-     * @param s The string to convert.
-     * @return The converted object identity.
+     * @param s the stringified identity
+     * @return an Identity created from the provided string
+     * @throws ParseException if the string cannot be converted to an object identity.
      */
     public static Identity stringToIdentity(String s) {
         Identity ident = new Identity();
@@ -184,9 +185,9 @@ public final class Util {
     /**
      * Converts an Identity into a string using the specified mode.
      *
-     * @param ident The object identity to convert.
+     * @param ident the identity
      * @param toStringMode Specifies how to handle non-ASCII characters and non-printable ASCII characters.
-     * @return the stringified identifier
+     * @return the stringified identity
      */
     public static String identityToString(Identity ident, ToStringMode toStringMode) {
         if (ident.category == null || ident.category.isEmpty()) {

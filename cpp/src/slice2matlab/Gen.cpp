@@ -85,7 +85,7 @@ namespace
     }
 
     // Type represents a dictionary value type or the type of a sequence element.
-    // Returns true if when the mapped dictionary value type is a scalar, as opposed to a cell array. For sequences,
+    // Returns true when the mapped dictionary value type is a scalar, as opposed to a cell array. For sequences,
     // returns true when the sequence maps to a regular array as opposed to a cell array.
     bool isMappedToScalar(const TypePtr& type)
     {

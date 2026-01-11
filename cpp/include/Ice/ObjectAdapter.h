@@ -23,7 +23,7 @@ namespace Ice
     ///   #activate); and
     /// - maintain a dispatch pipeline and servants that handle the requests (see #add, #addDefaultServant, and #use).
     ///
-    /// An object adapter can dispatch "bidirectional requests"--requests it receives over an outgoing connection
+    /// An object adapter can dispatch "bidirectional requests" -- requests it receives over an outgoing connection
     /// instead of a more common incoming connection. It can also dispatch collocated requests (with no connection at
     /// all).
     /// @see Communicator::createObjectAdapter
@@ -267,7 +267,7 @@ namespace Ice
         /// Creates a direct proxy from an Ice identity.
         /// @tparam Prx The type of the proxy to return.
         /// @param id An Ice identity.
-        /// @return A proxy with the given identity and this published endpoints of this object adapter.
+        /// @return A proxy with the given identity and the published endpoints of this object adapter.
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         Prx createDirectProxy(Identity id)
         {

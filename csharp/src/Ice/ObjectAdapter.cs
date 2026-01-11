@@ -19,7 +19,7 @@ namespace Ice;
 /// <item>maintain a dispatch pipeline and servants that handle the requests (see <see cref="add" />,
 /// <see cref="addDefaultServant" />, and <see cref="use" />).</item>
 /// </list>
-/// An object adapter can dispatch "bidirectional requests"--requests it receives over an outgoing connection
+/// An object adapter can dispatch "bidirectional requests" -- requests it receives over an outgoing connection
 /// instead of a more common incoming connection. It can also dispatch collocated requests (with no connection at
 /// all).
 /// </summary>
@@ -736,7 +736,7 @@ public sealed class ObjectAdapter
     /// Creates a direct proxy from an Ice identity.
     /// </summary>
     /// <param name="id">An Ice identity.</param>
-    /// <returns>A proxy with the given identity and this published endpoints of this object adapter.</returns>
+    /// <returns>A proxy with the given identity and the published endpoints of this object adapter.</returns>
     public ObjectPrx createDirectProxy(Identity id)
     {
         lock (_mutex)

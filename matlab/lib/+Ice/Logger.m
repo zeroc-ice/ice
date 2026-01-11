@@ -99,7 +99,7 @@ classdef Logger < IceInternal.WrapperObject
             %       character vector
             %
             %   Output Arguments
-            %     r - A new logger instance.
+            %     r - A new logger instance with the specified prefix.
             %       Ice.Logger scalar
 
             arguments
