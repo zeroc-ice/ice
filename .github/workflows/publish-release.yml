@@ -106,3 +106,11 @@ jobs:
       quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
+
+  publish-swift-packages:
+    uses: ./.github/workflows/publish-swift-packages.yml
+    with:
+      channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit

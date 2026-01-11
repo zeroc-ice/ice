@@ -70,7 +70,8 @@ namespace
 
         // Find the object in the cache. If it's not there, it's likely that another thread already replaced
         // the object with a new one and then that new one was quickly deallocated.
-        if (auto p = cachedObjects->find(_cppObject.get()); p != cachedObjects->end())
+        auto p = cachedObjects->find(_cppObject.get());
+        if (p != cachedObjects->end())
         {
             // The object in the cache is either nil or NOT the current object. The later can happen if this thread was
             // trying to deallocate the object while another thread was trying to create a new one.

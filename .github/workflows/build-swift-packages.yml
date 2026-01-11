@@ -1,0 +1,37 @@
+name: "Build Swift Packages"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: true
+
+jobs:
+  build-swift-packages:
+    name: "Build Swift Packages"
+    runs-on: macos-15
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Build SPM sources
+        run: ./build-spm-sources.py
+        working-directory: packaging/swift
+
+      - name: Create SPM sources archive
+        run: tar -czvf spm-sources-${{ inputs.ice_version }}.tar.gz -C packaging/swift spm
+
+      - name: Upload SPM sources artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: spm-sources
+          path: spm-sources-${{ inputs.ice_version }}.tar.gz
