@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import org.gradle.util.GradleVersion
+
 // Override defaults otherwise this code won't compile!
 //
 sourceCompatibility = 1.8

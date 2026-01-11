@@ -36,7 +36,8 @@ endif
 
 # GRADLE_OPTS memory setting to work around FTBFS on armel
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1069538
-export GRADLE_OPTS=-Xmx512M
+# Disable the Debian gradle hook to suppress ClassNotFoundException when not using dh --buildsystem=gradle
+export GRADLE_OPTS=-Xmx512M -Dgradle-debian-helper.hook.enabled=false
 
 export GRADLEARGS	= --gradle-user-home $(CURDIR)/.gradle \
 			  --info \
