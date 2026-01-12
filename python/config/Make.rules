@@ -23,7 +23,7 @@ ifeq ($(os),Linux)
 endif
 
 python_cppflags         := $(or $(PYTHON_CPPFLAGS),$(shell $(python-config) --includes))
-python_ldflags          := $(or $(PYTHON_LDLFLAGS),$(shell $(python-config) --ldflags))
+python_ldflags          := $(PYTHON_LDLFLAGS)
 
 # Use .so as default value --extension-suffix is not supported by python-config in all platforms
 python_extsuffix        := $(or $(shell $(python-config) --extension-suffix 2> /dev/null),.so)
