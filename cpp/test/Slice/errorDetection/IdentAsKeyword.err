@@ -49,7 +49,9 @@ IdentAsKeyword.ice:46: dictionaries can only be defined within a module
 IdentAsKeyword.ice:48: syntax error, unexpected out keyword
 IdentAsKeyword.ice:49: dictionaries can only be defined within a module
 IdentAsKeyword.ice:51: syntax error, unexpected void keyword
+IdentAsKeyword.ice:52: exception name 'VOID' is capitalized inconsistently with its previous name: '::Void'
 IdentAsKeyword.ice:52: 'VOID' is an exception, which cannot be used as a type
+IdentAsKeyword.ice:52: exception name 'VOid' is capitalized inconsistently with its previous name: '::Void'
 IdentAsKeyword.ice:52: 'VOid' is an exception, which cannot be used as a type
 IdentAsKeyword.ice:52: dictionaries can only be defined within a module
 IdentAsKeyword.ice:54: keyword 'idempotent' cannot be used as a name
