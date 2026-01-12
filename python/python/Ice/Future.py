@@ -96,7 +96,7 @@ class Future(Awaitable[_T]):
         with self._condition:
             return self._state in [Future.StateCancelled, Future.StateDone]
 
-    def add_done_callback(self, fn: Callable[["Future"], Any]) -> None:
+    def add_done_callback(self, fn: Callable[[Self], None]) -> None:
         """
         Attaches a callback function which will be called when this future completes or is cancelled.
         If this future is already complete, ``fn`` is called immediately from the calling thread.

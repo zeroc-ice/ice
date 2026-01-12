@@ -312,7 +312,7 @@ class ConnectionInfo:
     """str: The name of the adapter associated with the connection."""
 
     incoming: bool
-    """bool: ``True`` if this an incoming connection, ``False`` otherwise."""
+    """bool: ``True`` if this is an incoming connection, ``False`` otherwise."""
 
 class DispatchCallback:
     def response(self, *args: tuple) -> None: ...

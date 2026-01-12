@@ -25,7 +25,7 @@
 
 namespace Ice
 {
-    /// Represents batch compression options when flushing queued batch requests.
+    /// Represents batch compression options for flushing queued batch requests.
     enum class CompressBatch : std::uint8_t
     {
         /// Compress the batch requests.

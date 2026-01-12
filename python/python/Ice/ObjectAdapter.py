@@ -24,7 +24,7 @@ class ObjectAdapter:
       :func:`activate`); and
     - maintain servants that handle the requests (see :func:`add`, :func:`addDefaultServant`).
 
-    An object adapter can dispatch "bidirectional requests" -- requests it receives over an outgoing connection
+    An object adapter can dispatch "bidirectional requests"--requests it receives over an outgoing connection
     instead of a more common incoming connection. It can also dispatch collocated requests (with no connection at all).
     """
 

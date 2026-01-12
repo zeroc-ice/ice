@@ -13,7 +13,7 @@ __name__ = "Ice"
 
 def proxyIdentityEqual(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | None) -> bool:
     """
-    Checks if the object identifiers of two proxies are equal.
+    Checks if the object identities of two proxies are equal.
 
     Parameters
     ----------
@@ -65,7 +65,7 @@ def proxyIdentityCompare(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | Non
 
 def proxyIdentityAndFacetEqual(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | None) -> bool:
     """
-    Checks if the object identifiers and facets of two proxies are equal.
+    Checks if the object identities and facets of two proxies are equal.
 
     Parameters
     ----------

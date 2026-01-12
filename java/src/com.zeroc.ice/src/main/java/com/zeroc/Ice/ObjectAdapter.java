@@ -23,7 +23,7 @@ import java.util.stream.Stream;
  * - maintain a dispatch pipeline and servants that handle the requests (see {@link #add},
  *   {@link #addDefaultServant}, and {@link #use}).
  *
- * <p>An object adapter can dispatch "bidirectional requests" -- requests it receives over an outgoing connection
+ * <p>An object adapter can dispatch "bidirectional requests"--requests it receives over an outgoing connection
  * instead of a more common incoming connection. It can also dispatch collocated requests (with no connection at all).
  *
  * @see Communicator#createObjectAdapter

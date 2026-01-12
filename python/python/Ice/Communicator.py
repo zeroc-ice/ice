@@ -180,7 +180,7 @@ class Communicator:
         Notes
         -----
         The shutdown of a communicator completes when all its incoming connections are closed.
-        Awaiting this task is equivalent to calling :func:`waitForShutdown`.
+        Awaiting this task is equivalent to awaiting :func:`waitForShutdown`.
 
         Returns
         -------
