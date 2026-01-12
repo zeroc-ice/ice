@@ -90,7 +90,7 @@ class Future(Awaitable[_T]):
         Returns
         -------
         bool
-            ``True`` if the future has completed (either successfully or with an exception), or has been cancelled,
+            ``True`` if this future has completed (either successfully or with an exception), or has been cancelled,
             otherwise ``False``.
         """
         with self._condition:
@@ -326,7 +326,7 @@ def wrap_future(future: Future | asyncio.Future, *, loop: asyncio.AbstractEventL
 
     if future.done():
         # As long as no done callbacks are registered, completing the asyncio future should be thread safe
-        # even if the future is constructed with a loop which isn't the current thread's loop.
+        # even if this future is constructed with a loop which isn't the current thread's loop.
         forwardCompletion(future, asyncioFuture)
     else:
         asyncioFuture.add_done_callback(lambda f: forwardCompletion(asyncioFuture, future))
