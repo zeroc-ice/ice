@@ -22,7 +22,7 @@ let package = Package(
     .library(name: "IceGrid", targets: ["IceGrid"])
   ],
   dependencies: [
-    .package(url: "https://github.com/mxcl/PromiseKit.git", from: "6.8.10")
+    .package(url: "https://github.com/mxcl/PromiseKit.git", from: "6.22.1")
   ],
   targets: [
     .target(name: "IceCpp", cxxSettings: cxxSettings,
