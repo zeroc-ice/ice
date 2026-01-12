@@ -40,7 +40,7 @@ namespace Ice
     private:
         /// Removes a previously registered update callback.
         /// @param cb An iterator which points to the callback to remove.
-        void removeUpdateCallback(std::list<std::function<void(const PropertyDict&)>>::iterator cb);
+        void removeUpdateCallback(std::list<std::function<void(const PropertyDict&)>>::iterator p);
 
         const PropertiesPtr _properties;
         const LoggerPtr _logger;

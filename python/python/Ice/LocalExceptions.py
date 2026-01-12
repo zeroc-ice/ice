@@ -40,7 +40,7 @@ class DispatchException(LocalException):
         self.__replyStatus = replyStatus
 
     @property
-    def replyStatus(self):
+    def replyStatus(self) -> int:
         """
         Returns the reply status as an int (see :class:`ReplyStatus`).
 
@@ -78,7 +78,7 @@ class RequestFailedException(DispatchException):
         return self.__id
 
     @property
-    def facet(self):
+    def facet(self) -> str:
         """
         Returns the facet to which the request was sent.
 
@@ -90,7 +90,7 @@ class RequestFailedException(DispatchException):
         return self.__facet
 
     @property
-    def operation(self):
+    def operation(self) -> str:
         """
         Returns the operation name of the request.
 
@@ -349,7 +349,7 @@ class ConnectionAbortedException(LocalException):
         self.__closedByApplication = closedByApplication
 
     @property
-    def closedByApplication(self):
+    def closedByApplication(self) -> bool:
         return self.__closedByApplication
 
 
@@ -364,7 +364,7 @@ class ConnectionClosedException(LocalException):
         self.__closedByApplication = closedByApplication
 
     @property
-    def closedByApplication(self):
+    def closedByApplication(self) -> bool:
         return self.__closedByApplication
 
 
@@ -414,7 +414,7 @@ class NotRegisteredException(LocalException):
         self.__id = id
 
     @property
-    def kindOfObject(self):
+    def kindOfObject(self) -> str:
         """
         Returns the kind of object that is not registered.
 
@@ -426,7 +426,7 @@ class NotRegisteredException(LocalException):
         return self.__kindOfObject
 
     @property
-    def id(self):
+    def id(self) -> str:
         """
         Returns the ID (or name) of the object that is not registered.
 

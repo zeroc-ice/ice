@@ -140,8 +140,8 @@ class Connection:
         """
         Disables the inactivity check on this connection.
 
-        By default, Ice will close connections that remain idle for a
-        certain period. This method disables that behavior for this connection.
+        By default, Ice will close connections that remain inactive for a certain period.
+        This function disables that behavior for this connection.
         """
         ...
 

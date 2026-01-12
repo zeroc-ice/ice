@@ -75,15 +75,15 @@ class Communicator:
 
         Parameters
         ----------
-        args : list of str, optional
+        args : list[str] | None, optional
             The command-line arguments, parsed into Ice properties by this function.
-        eventLoop : asyncio.AbstractEventLoop, optional
+        eventLoop : asyncio.AbstractEventLoop | None, optional
             An asyncio event loop used to run coroutines and wrap futures. If provided, a new event loop adapter is
             created and configured with the communicator. This adapter is responsible for executing coroutines returned
             by Ice asynchronous dispatch methods and for wrapping Ice futures (from Ice Async APIs) into asyncio
             futures. This argument and the `initData` argument are mutually exclusive. If the `initData` argument is
             provided, the event loop adapter can be set using the :attr:`InitializationData.eventLoopAdapter` attribute.
-        initData : InitializationData, optional
+        initData : InitializationData | None, optional
             Options for the new communicator. This argument and the `args` argument are mutually exclusive.
         """
         eventLoopAdapter = None

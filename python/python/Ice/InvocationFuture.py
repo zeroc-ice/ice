@@ -13,12 +13,13 @@ class InvocationFuture(Future):
     """
     A Future object representing the result of an AMI (Asynchronous Method Invocation) request.
 
-    InvocationFuture objects are returned by AMI requests. The application can use an InvocationFuture object to
-    wait for the result of the AMI request or register a callback that will be invoked when the result becomes
-    available.
+    Instances of ``InvocationFuture`` are returned by AMI requests, and applications can either wait for the result
+    of the request to become available, or register a callback which will be invoked when the result becomes available.
 
-    This class provides the same functionality as `Future`, with the addition of "sent callbacks," which are invoked
-    when the request is sent.
+    Notes
+    -----
+    This class provides the same functionality as :class:`Ice.Future` with the addition of "sent callbacks";
+    callbacks which are invoked when the request has been sent.
     """
 
     def __init__(self, asyncInvocationContext: IcePy.AsyncInvocationContext):
@@ -33,16 +34,18 @@ class InvocationFuture(Future):
         """
         Cancels the invocation.
 
-        This method invokes :py:meth:`Future.cancel` to cancel the underlying future. If the cancellation is
-        successful, the associated invocation is also cancelled.
+        This function invokes :func:`Future.cancel` to cancel the underlying future.
+        If the cancellation is successful, the associated invocation is also cancelled.
 
-        Cancelling an invocation prevents a queued invocation from being sent. If the invocation has already been sent,
-        cancellation ensures that any reply from the server is ignored.
+        Cancelling an invocation prevents a queued invocation from being sent.
+        If the invocation has already been sent, cancellation ensures that any reply from the server is ignored.
 
+        After cancellation, :func:`done` returns ``True``, and attempting to retrieve the result raises an
+        :class:`Ice.InvocationCanceledException`.
+
+        Notes
+        -----
         Cancellation is a local operation with no effect on the server.
-
-        After cancellation, :py:meth:`done` returns ``True``, and attempting to retrieve the result raises an
-        :py:exc:`Ice.InvocationCanceledException`.
 
         Returns
         -------
@@ -56,40 +59,38 @@ class InvocationFuture(Future):
 
     def is_sent(self) -> bool:
         """
-        Check if the request has been sent.
+        Checks if the request has been sent.
 
         Returns
         -------
         bool
-            True if the request has been sent, otherwise False.
+            ``True`` if the request has been sent, otherwise ``False``.
         """
         with self._condition:
             return self._sent
 
     def is_sent_synchronously(self) -> bool:
         """
-        Check if the request was sent synchronously.
+        Checks if the request was sent synchronously.
 
         Returns
         -------
         bool
-            True if the request was sent synchronously, otherwise False.
+            ``True`` if the request was sent synchronously, otherwise ``False``.
         """
         with self._condition:
             return self._sentSynchronously
 
     def add_sent_callback(self, fn: Callable[[bool], None]) -> None:
         """
-        Attach a callback to be executed when the invocation is sent.
-
-        The callback `fn` is called with a boolean argument, indicating whether the invocation was sent synchronously.
-
-        If the future has already been sent, `fn` is called immediately from the calling thread.
+        Attaches a callback function which will be called when the invocation is sent.
+        If the invocation has already been sent, ``fn`` is called immediately from the calling thread.
 
         Parameters
         ----------
-        fn : Callable
+        fn : Callable[[bool], None]
             The function to execute when the invocation is sent.
+            It accepts a single boolean argument which is only ``True`` if the invocation was sent synchronously.
         """
         with self._condition:
             if not self._sent:
@@ -99,31 +100,27 @@ class InvocationFuture(Future):
 
     def sent(self, timeout: int | float | None = None) -> bool:
         """
-        Wait for the operation to be sent.
+        Waits until the invocation has been sent.
 
-        This method waits up to `timeout` seconds for the operation to be sent and then returns
-        whether it was sent synchronously.
-
-        If the operation has not been sent within the specified time, a `TimeoutException` is raised.
-        If the future was cancelled before being sent, an `InvocationCanceledException` is raised.
+        If the invocation has not been sent, this function will wait up to ``timeout``-many seconds for it to send.
 
         Parameters
         ----------
-        timeout : int | float, optional
-            Maximum time (in seconds) to wait for the operation to be sent. If `None`, the method waits
-            indefinitely.
+        timeout : int | float | None, optional
+            Maximum time (in seconds) to wait for the invocation to be sent.
+            If ``None`` (the default), this function waits indefinitely.
 
         Returns
         -------
         bool
-            True if the operation was sent synchronously, otherwise False.
+            ``True`` if the invocation was sent synchronously, otherwise ``False``.
 
         Raises
         ------
         TimeoutException
-            If the operation was not sent within the specified timeout.
+            If the invocation was not sent within the specified timeout.
         InvocationCanceledException
-            If the operation was cancelled before it was sent.
+            If the invocation was cancelled before it was sent.
         """
         with self._condition:
             if not self._wait(timeout, lambda: not self._sent):

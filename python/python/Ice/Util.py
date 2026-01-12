@@ -43,11 +43,11 @@ def initialize(
 
     Parameters
     ----------
-    args : list[str], optional
+    args : list[str] | None, optional
         The command-line arguments.
-    eventLoop : asyncio.AbstractEventLoop, optional
+    eventLoop : asyncio.AbstractEventLoop | None, optional
         An asyncio event loop used to run coroutines and wrap futures.
-    initData : InitializationData, optional
+    initData : InitializationData | None, optional
         Options for the new communicator.
         This argument is mutually exclusive with both the ``args`` and ``eventLoop`` argument.
 
@@ -67,7 +67,7 @@ def identityToString(identity: Identity, toStringMode: ToStringMode | None = Non
     ----------
     identity : Ice.Identity
         The identity.
-    toStringMode : Ice.ToStringMode, optional
+    toStringMode : Ice.ToStringMode | None, optional
         Specifies how to handle non-ASCII characters and non-printable ASCII characters.
 
     Returns
@@ -109,9 +109,9 @@ def createProperties(args: list[str] | None = None, defaults: Properties | None 
 
     Parameters
     ----------
-    args : list[str], optional
+    args : list[str] | None, optional
         The command-line arguments.
-    defaults : Properties, optional
+    defaults : Properties | None, optional
         Default values for the new property set.
 
     Returns

@@ -83,7 +83,7 @@ class Object:
 
         Returns
         -------
-        bool
+        bool | Awaitable[bool]
             ``True`` if this object implements the Slice interface specified by ``typeId`` or implements a derived
             interface, ``False`` otherwise.
         """
@@ -97,6 +97,10 @@ class Object:
         ----------
         current : Current
             The Current object of the incoming request.
+
+        Returns
+        -------
+        None | Awaitable[None]
         """
         pass
 
@@ -111,7 +115,7 @@ class Object:
 
         Returns
         -------
-        Sequence[str]
+        Sequence[str] | Awaitable[Sequence[str]]
             The Slice type IDs of the interfaces supported by this object, in alphabetical order.
         """
         return self._ice_ids
@@ -127,7 +131,7 @@ class Object:
 
         Returns
         -------
-        str
+        str | Awaitable[str]
             The Slice type ID of the most-derived interface.
         """
         # Call ice_staticId() on self to get the value from the most-derived class.

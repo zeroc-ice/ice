@@ -30,13 +30,13 @@ class Properties:
 
         Parameters
         ----------
-        args : list of str, optional
+        args : list[str] | None, optional
             The command-line arguments. Arguments starting with ``--`` and one of the reserved prefixes
             (``Ice``, ``IceSSL``, etc.) are parsed as properties and removed from the list. If there is
             an argument starting with ``--Ice.Config``, the specified configuration file is loaded. When
             the same property is set in both a configuration file and a command-line argument, the
             command-line setting takes precedence.
-        defaults : dict of (str, str), optional
+        defaults : Self | None, optional
             Default values for the new Properties object. Settings in configuration files and command-line
             arguments override these defaults.
 
