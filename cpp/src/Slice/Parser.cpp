@@ -1419,7 +1419,7 @@ Slice::Container::createConst(
     return p;
 }
 
-TypeList
+TypePtr
 Slice::Container::lookupType(const string& identifier)
 {
     // Remove whitespace.
@@ -1434,14 +1434,14 @@ Slice::Container::lookupType(const string& identifier)
     auto kind = Builtin::kindFromString(sc);
     if (kind)
     {
-        return {unit()->createBuiltin(*kind)};
+        return unit()->createBuiltin(*kind);
     }
 
     // Not a builtin type, try to look up a user-defined type.
     return lookupTypeNoBuiltin(identifier, true);
 }
 
-TypeList
+TypePtr
 Slice::Container::lookupTypeNoBuiltin(const string& identifier, bool emitErrors, bool ignoreUndefined)
 {
     // Remove whitespace.
@@ -1458,7 +1458,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& identifier, bool emitErrors,
         return unit()->lookupTypeNoBuiltin(sc.substr(2), emitErrors);
     }
 
-    TypeList results;
+    optional<TypePtr> resolvedType;
     bool typeError = false;
     vector<string> errors;
 
@@ -1470,70 +1470,66 @@ Slice::Container::lookupTypeNoBuiltin(const string& identifier, bool emitErrors,
             continue; // Ignore interface and class definitions.
         }
 
-        if (emitErrors && matches.front()->scoped() != (thisScope() + sc))
+        if (p->scoped() != (thisScope() + sc))
         {
             ostringstream os;
             os << p->kindOf() << " name '" << identifier << "' is capitalized inconsistently with its previous name: '"
-               << matches.front()->scoped() << "'";
+               << p->scoped() << "'";
             errors.push_back(os.str());
         }
 
-        ExceptionPtr ex = dynamic_pointer_cast<Exception>(p);
-        if (ex)
+        if (TypePtr type = dynamic_pointer_cast<Type>(p))
         {
-            if (emitErrors)
-            {
-                ostringstream os;
-                os << "'" << sc << "' is an exception, which cannot be used as a type";
-                unit()->error(os.str());
-            }
-            return {};
+            resolvedType = type;
         }
+        else if (ExceptionPtr ex = dynamic_pointer_cast<Exception>(p))
+        {
+            resolvedType = nullptr;
 
-        TypePtr type = dynamic_pointer_cast<Type>(p);
-        if (!type)
+            ostringstream os;
+            os << "'" << sc << "' is an exception, which cannot be used as a type";
+            errors.push_back(os.str());
+        }
+        else
         {
             typeError = true;
-            if (emitErrors)
-            {
-                ostringstream os;
-                os << "'" << sc << "' is not a type";
-                errors.push_back(os.str());
-            }
-            break; // Possible that correct match is higher in scope
+
+            ostringstream os;
+            os << "'" << sc << "' is not a type";
+            errors.push_back(os.str());
         }
-        results.push_back(type);
+        break;
     }
 
-    if (results.empty())
+    if (!resolvedType.has_value())
     {
         ContainedPtr contained = dynamic_pointer_cast<Contained>(shared_from_this());
         if (contained)
         {
-            results = contained->container()->lookupTypeNoBuiltin(sc, emitErrors, typeError || ignoreUndefined);
-        }
-        else if (!typeError)
-        {
-            if (emitErrors && !ignoreUndefined)
+            TypePtr parent = contained->container()->lookupTypeNoBuiltin(sc, emitErrors, typeError || ignoreUndefined);
+            if (parent)
             {
-                ostringstream os;
-                os << "'" << sc << "' is not defined";
-                unit()->error(os.str());
+                resolvedType = parent;
             }
-            return {};
+        }
+        else if (!typeError && !ignoreUndefined)
+        {
+            ostringstream os;
+            os << "'" << sc << "' is not defined";
+            errors.push_back(os.str());
         }
     }
 
     // Do not emit errors if there was a type error but a match was found in a higher scope.
-    // TODO The second part of this check looks funny to me.
-    if (emitErrors && !(typeError && !results.empty()))
+    if (emitErrors && (!typeError || !resolvedType.has_value()))
     {
         for (const auto& error : errors)
         {
             unit()->error(error);
         }
     }
-    return results;
+
+    return resolvedType.value_or(nullptr);
 }
 
 ContainedList
@@ -1597,31 +1593,23 @@ Slice::Container::lookupContained(const string& identifier, bool emitErrors)
 InterfaceDefPtr
 Slice::Container::lookupInterfaceDef(const string& identifier, bool emitErrors)
 {
-    TypeList types = lookupType(identifier);
-    if (!types.empty())
+    TypePtr resolvedType = lookupType(identifier);
+    if (resolvedType)
     {
-        auto interface = dynamic_pointer_cast<InterfaceDecl>(types.front());
-        if (!interface)
+        if (auto interface = dynamic_pointer_cast<InterfaceDecl>(resolvedType))
         {
-            if (emitErrors)
-            {
-                unit()->error("'" + identifier + "' is not an interface");
-            }
-        }
-        else
-        {
-            InterfaceDefPtr def = interface->definition();
-            if (!def)
-            {
-                if (emitErrors)
-                {
-                    unit()->error("'" + identifier + "' has been declared but not defined");
-                }
-            }
-            else
+            if (InterfaceDefPtr def = interface->definition())
             {
                 return def;
             }
+            else if (emitErrors)
+            {
+                unit()->error("'" + identifier + "' has been declared but not defined");
+            }
+        }
+        else if (emitErrors)
+        {
+            unit()->error("'" + identifier + "' is not an interface");
         }
     }
 

@@ -476,8 +476,8 @@ namespace Slice
             MetadataList metadata,
             const SyntaxTreeBasePtr& valueType,
             const std::string& value);
-        [[nodiscard]] TypeList lookupType(const std::string& identifier);
-        [[nodiscard]] TypeList
+        [[nodiscard]] TypePtr lookupType(const std::string& identifier);
+        [[nodiscard]] TypePtr
         lookupTypeNoBuiltin(const std::string& identifier, bool emitErrors, bool ignoreUndefined = false);
         [[nodiscard]] ContainedList lookupContained(const std::string& identifier, bool emitErrors);
         [[nodiscard]] InterfaceDefPtr lookupInterfaceDef(const std::string& identifier, bool emitErrors);
