@@ -63,7 +63,8 @@ Add the following feed to your NuGet sources to get the nightly packages:
 https://download.zeroc.com/nexus/repository/nuget-3.7-nightly/
 ```
 
-> `ZeroC.Ice.Cpp` includes C++ libraries, header files, the Slice to C++ compiler, and the IceBox service.
+> `ZeroC.Ice.v142` and `ZeroC.Ice.v143` packages include C++ libraries, header files, the Slice to C++ compiler, and
+> the IceBox service.
 
 ### Ice for C#
 
@@ -91,23 +92,10 @@ Here’s an example configuration using Kotlin DSL:
 
 ```kotlin
 // settings.gradle.kts
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        // Use the nightly build of the Slice Tools plugin, published to the ZeroC maven-nightly repository.
-        maven {
-            url = uri("https://download.zeroc.com/nexus/repository/maven-3.7-nightly/")
-            content {
-                includeGroupByRegex("com\\.zeroc.*")
-            }
-        }
-    }
-}
-
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
-        // Use the nightly build of Ice, published to the ZeroC maven-nightly repository.
+        // Use the nightly build of Ice, published to the ZeroC maven-3.7-nightly repository.
         maven {
             url = uri("https://download.zeroc.com/nexus/repository/maven-3.7-nightly/")
             content {
@@ -228,10 +216,10 @@ gem install zeroc-ice --source https://download.zeroc.com/nexus/repository/rubyg
 
 The nightly package is available via the Swift Package Manager (SPM).
 
-To use it in your project, add the following URL as a dependency in your Package.swift:
+To use it in your project, add the following package as a dependency in your Package.swift:
 
 ```shell
-https://github.com/zeroc-ice/ice-swift-nightly
+.package(url: "https://github.com/zeroc-ice/ice-swift-nightly.git", branch: "3.8")
 ```
 
 ## Ice Services
