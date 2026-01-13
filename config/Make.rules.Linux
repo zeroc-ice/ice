@@ -143,7 +143,9 @@ ifeq ($(filter amzn,$(linux_id)),)
 fully_static_ldflags = -static
 endif
 
-cppflags        = -fvisibility=hidden -Wall -Wextra -Wredundant-decls -Wshadow -Wdeprecated -Werror -pthread \
+cppflags        = -fvisibility=hidden -Wall -Wextra -Wredundant-decls -Wshadow -Wdeprecated \
+                  $(if $(ICE_WARNINGS_AS_ERRORS),-Werror,) \
+                  -pthread \
                   $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)
 ldflags         = -pthread
 

@@ -13,6 +13,10 @@ concurrency:
   group: ${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+env:
+  # Configure the various build systems to treat warnings as errors
+  ICE_WARNINGS_AS_ERRORS: true
+
 jobs:
   ci:
     name: ${{ matrix.config }} on ${{ matrix.os }}
