@@ -36,7 +36,7 @@ on:
         default: false
         type: boolean
       authenticode_sign:
-        description: "Whether to Authenticode sign Windows binaries (always true for stable channel)"
+        description: "Whether to Authenticode sign Windows binaries (always true for stable quality)"
         required: false
         default: false
         type: boolean
@@ -66,8 +66,8 @@ jobs:
           source ./config/version.env
           # The channel for the branch from version.env
           echo "channel=${CHANNEL}" >> $GITHUB_OUTPUT
-          # Authenticode sign is always true for stable channel, otherwise use the input value
-          if [[ "${CHANNEL}" == "stable" ]] || [[ "${{ inputs.authenticode_sign }}" == "true" ]]; then
+          # Authenticode sign is always true for stable quality, otherwise use the input value
+          if [[ "${{ inputs.quality }}" == "stable" ]] || [[ "${{ inputs.authenticode_sign }}" == "true" ]]; then
             echo "authenticode_sign=true" >> $GITHUB_OUTPUT
           else
             echo "authenticode_sign=false" >> $GITHUB_OUTPUT
