@@ -174,7 +174,7 @@ static PyGetSetDef ConnectionInfoGetters[] = {
     {"incoming",
      reinterpret_cast<getter>(connectionInfoGetIncoming),
      nullptr,
-     PyDoc_STR("bool: bool: ``True`` if this is an incoming connection, ``False`` otherwise."),
+     PyDoc_STR("bool: ``True`` if this is an incoming connection, ``False`` otherwise."),
      nullptr},
     {"adapterName",
      reinterpret_cast<getter>(connectionInfoGetAdapterName),

@@ -247,7 +247,7 @@ PyMODINIT_FUNC ICE_DECLSPEC_EXPORT
 #endif
 PyInit_IcePy(void)
 {
-    // Create the IcePy  module.
+    // Create the IcePy module.
     PyObject* module{PyModule_Create(&iceModule)};
 
     // Initialize the IcePy built-in types.

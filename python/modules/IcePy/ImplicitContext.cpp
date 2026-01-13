@@ -241,7 +241,6 @@ implicitContextRemove(ImplicitContextObject* self, PyObject* args)
         setPythonException(current_exception());
         return nullptr;
     }
-    
     return createString(val);
 }
 
