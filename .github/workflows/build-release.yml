@@ -156,7 +156,6 @@ jobs:
     needs: configure
     with:
       ice_version: ${{ needs.configure.outputs.maven_version }}
-      authenticode_sign: ${{ needs.configure.outputs.authenticode_sign == 'true' }}
     secrets: inherit
 
   build-npm-packages:
