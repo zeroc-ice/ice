@@ -145,73 +145,6 @@ class Connection:
         """
         ...
 
-    def flushBatchRequests(self, compress: Ice.CompressBatch) -> None:
-        """
-        Flushes any pending batch requests for this connection.
-
-        This corresponds to all batch requests invoked on fixed proxies associated with the connection.
-
-        Parameters
-        ----------
-        compress : Ice.CompressBatch
-            Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
-        """
-        ...
-
-    def flushBatchRequestsAsync(
-        self,
-        compress: Ice.CompressBatch,
-    ) -> Awaitable[None]:
-        """
-        Flushes any pending batch requests for this connection.
-
-        This corresponds to all batch requests invoked on fixed proxies associated with the connection.
-
-        Parameters
-        ----------
-        compress : Ice.CompressBatch
-            Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
-
-        Returns
-        -------
-        Awaitable[None]
-            A future that becomes available when the flush completes.
-        """
-        ...
-
-    def getAdapter(self) -> Ice.ObjectAdapter | None:
-        """
-        Gets the object adapter associated with this connection.
-
-        Returns
-        -------
-        Ice.ObjectAdapter | None
-            The object adapter associated with this connection.
-        """
-        ...
-
-    def getEndpoint(self) -> Endpoint:
-        """
-        Gets the endpoint from which the connection was created.
-
-        Returns
-        -------
-        Ice.Endpoint
-            The endpoint from which the connection was created.
-        """
-        ...
-
-    def getInfo(self) -> Ice.ConnectionInfo:
-        """
-        Returns the connection information.
-
-        Returns
-        -------
-        Ice.ConnectionInfo
-            The connection information.
-        """
-        ...
-
     def setAdapter(self, adapter: Ice.ObjectAdapter | None) -> None:
         """
         Associates an object adapter with this connection.
@@ -230,16 +163,48 @@ class Connection:
         """
         ...
 
-    def setBufferSize(self, rcvSize: int, sndSize: int) -> None:
+    def getAdapter(self) -> Ice.ObjectAdapter | None:
         """
-        Sets the size of the receive and send buffers.
+        Gets the object adapter associated with this connection.
+
+        Returns
+        -------
+        Ice.ObjectAdapter | None
+            The object adapter associated with this connection.
+        """
+        ...
+
+    def flushBatchRequests(self, compress: Ice.CompressBatch) -> None:
+        """
+        Flushes any pending batch requests for this connection.
+
+        This corresponds to all batch requests invoked on fixed proxies associated with the connection.
 
         Parameters
         ----------
-        rcvSize : int
-            The size of the receive buffer.
-        sndSize : int
-            The size of the send buffer.
+        compress : Ice.CompressBatch
+            Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
+        """
+        ...
+
+    def flushBatchRequestsAsync(
+        self,
+        compress: Ice.CompressBatch,
+    ) -> Awaitable[None]:
+        """
+        Flushes any pending batch requests for this connection asynchronously.
+
+        This corresponds to all batch requests invoked on fixed proxies associated with the connection.
+
+        Parameters
+        ----------
+        compress : Ice.CompressBatch
+            Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
+
+        Returns
+        -------
+        Awaitable[None]
+            A future that becomes available when the flush completes.
         """
         ...
 
@@ -255,12 +220,14 @@ class Connection:
         """
         ...
 
-    def throwException(self) -> None:
+    def type(self) -> str:
         """
-        Raises an exception that provides the reason for the closure of this connection. For example,
-        this function raises :class:`CloseConnectionException` when the connection was closed gracefully by the peer;
-        it raises :class:`ConnectionAbortedException` when the connection is aborted with :func:`abort`.
-        This function does nothing if the connection is not yet closed.
+        Returns the connection type. This corresponds to the endpoint type, such as 'tcp', 'udp', etc.
+
+        Returns
+        -------
+        str
+            The type of the connection.
         """
         ...
 
@@ -279,14 +246,47 @@ class Connection:
         """
         ...
 
-    def type(self) -> str:
+    def getInfo(self) -> Ice.ConnectionInfo:
         """
-        Returns the connection type. This corresponds to the endpoint type, such as 'tcp', 'udp', etc.
+        Returns the connection information.
 
         Returns
         -------
-        str
-            The type of the connection.
+        Ice.ConnectionInfo
+            The connection information.
+        """
+        ...
+
+    def getEndpoint(self) -> Endpoint:
+        """
+        Gets the endpoint from which the connection was created.
+
+        Returns
+        -------
+        Ice.Endpoint
+            The endpoint from which the connection was created.
+        """
+        ...
+
+    def setBufferSize(self, rcvSize: int, sndSize: int) -> None:
+        """
+        Sets the size of the receive and send buffers.
+
+        Parameters
+        ----------
+        rcvSize : int
+            The size of the receive buffer.
+        sndSize : int
+            The size of the send buffer.
+        """
+        ...
+
+    def throwException(self) -> None:
+        """
+        Raises an exception that provides the reason for the closure of this connection. For example,
+        this function raises :class:`CloseConnectionException` when the connection was closed gracefully by the peer;
+        it raises :class:`ConnectionAbortedException` when the connection is aborted with :func:`abort`.
+        This function does nothing if the connection is not yet closed.
         """
         ...
 
@@ -308,11 +308,11 @@ class ConnectionInfo:
     ConnectionInfo | None: The information of the underlying transport or ``None`` if there's no underlying transport.
     """
 
-    adapterName: str
-    """str: The name of the adapter associated with the connection."""
-
     incoming: bool
     """bool: ``True`` if this is an incoming connection, ``False`` otherwise."""
+
+    adapterName: str
+    """str: The name of the adapter associated with the connection."""
 
 class DispatchCallback:
     def response(self, *args: tuple) -> None: ...
@@ -323,6 +323,17 @@ class Endpoint:
     An endpoint specifies the address of the server-end of an Ice connection.
     An object adapter listens on one or more endpoints and a client establishes a connection to an endpoint.
     """
+
+    def toString(self) -> str:
+        """
+        Returns a string representation of this endpoint.
+
+        Returns
+        -------
+        str
+            The string representation of this endpoint.
+        """
+        ...
 
     def getInfo(self) -> EndpointInfo:
         """
@@ -335,16 +346,6 @@ class Endpoint:
         """
         ...
 
-    def toString(self) -> str:
-        """
-        Returns a string representation of this endpoint.
-
-        Returns
-        -------
-        str
-            The string representation of this endpoint.
-        """
-        ...
     def __eq__(self, other: object) -> bool: ...
     def __ge__(self, other: object) -> bool: ...
     def __gt__(self, other: object) -> bool: ...
@@ -362,6 +363,17 @@ class EndpointInfo:
 
     compress: bool
     """Specifies whether or not compression should be used if available when using this endpoint."""
+
+    def type(self) -> int:
+        """
+        Returns the type of the endpoint.
+
+        Returns
+        -------
+        int
+            The endpoint type.
+        """
+        ...
 
     def datagram(self) -> bool:
         """
@@ -382,17 +394,6 @@ class EndpointInfo:
         -------
         bool
             ``True`` for SSL and SSL-based transports, ``False`` otherwise.
-        """
-        ...
-
-    def type(self) -> int:
-        """
-        Returns the type of the endpoint.
-
-        Returns
-        -------
-        int
-            The endpoint type.
         """
         ...
 
@@ -600,27 +601,27 @@ class Operation:
         return_type: Any,
         exceptions: tuple,
     ) -> None: ...
-    def deprecate(self, reason: str): ...
     def invoke(self, proxy: ObjectPrx, args: tuple) -> Any: ...
     def invokeAsync(self, proxy: ObjectPrx, args: tuple) -> Awaitable[Any]: ...
+    def deprecate(self, reason: str): ...
 
 class Properties:
-    def clone(self) -> Properties: ...
-    def getCommandLineOptions(self) -> list[str]: ...
-    def getIceProperty(self, key: str) -> str: ...
-    def getIcePropertyAsInt(self, key: str) -> int: ...
-    def getIcePropertyAsList(self, key: str) -> list[str]: ...
-    def getPropertiesForPrefix(self, prefix: str) -> dict[str, str]: ...
     def getProperty(self, key: str) -> str: ...
+    def getIceProperty(self, key: str) -> str: ...
+    def getPropertyWithDefault(self, key: str, value: str) -> str: ...
     def getPropertyAsInt(self, key: str) -> int: ...
-    def getPropertyAsIntWithDefault(self, key: str, default: int) -> int: ...
+    def getIcePropertyAsInt(self, key: str) -> int: ...
+    def getPropertyAsIntWithDefault(self, key: str, value: int) -> int: ...
     def getPropertyAsList(self, key: str) -> list[str]: ...
-    def getPropertyAsListWithDefault(self, key: str, default: list[str]) -> list[str]: ...
-    def getPropertyWithDefault(self, key: str, default: str) -> str: ...
-    def load(self, file: str) -> None: ...
+    def getIcePropertyAsList(self, key: str) -> list[str]: ...
+    def getPropertyAsListWithDefault(self, key: str, value: list[str]) -> list[str]: ...
+    def getPropertiesForPrefix(self, prefix: str) -> dict[str, str]: ...
+    def setProperty(self, key: str, value: str) -> None: ...
+    def getCommandLineOptions(self) -> list[str]: ...
     def parseCommandLineOptions(self, prefix: str, options: list[str]) -> list[str]: ...
     def parseIceCommandLineOptions(self, options: list[str]) -> list[str]: ...
-    def setProperty(self, key: str, value: str) -> None: ...
+    def load(self, file: str) -> None: ...
+    def clone(self) -> Properties: ...
 
 class SSLConnectionInfo(ConnectionInfo):
     """Provides access to the connection details of an SSL connection."""
@@ -683,15 +684,16 @@ class WSEndpointInfo(EndpointInfo):
     resource: str
     """str: The URI configured with the endpoint."""
 
-def compileSlice(args: list[str]) -> int: ...
-def createProperties(args: list[str] | None, defaults: Ice.Properties | None): ...
 def stringVersion() -> str: ...
 def intVersion() -> int: ...
+def createProperties(args: list[str] | None = None, defaults: Ice.Properties | None = None) -> Ice.Properties: ...
+def stringToIdentity(str: str) -> Ice.Identity: ...
 def identityToString(identity: Ice.Identity, toStringMode: Ice.ToStringMode | None = None) -> str: ...
 def getProcessLogger() -> Ice.Logger: ...
 def setProcessLogger(logger: Ice.Logger) -> None: ...
+
 def loadSlice(args: list[str]) -> None: ...
-def stringToIdentity(str: str) -> Ice.Identity: ...
+def compileSlice(args: list[str]) -> int: ...
 
 #
 # Internal API for IcePy

@@ -69,6 +69,7 @@ def identityToString(identity: Identity, toStringMode: ToStringMode | None = Non
         The identity.
     toStringMode : Ice.ToStringMode | None, optional
         Specifies how to handle non-ASCII characters and non-printable ASCII characters.
+        The default is :const:`Ice.ToStringMode.Unicode`.
 
     Returns
     -------

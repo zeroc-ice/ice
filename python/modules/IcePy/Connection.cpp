@@ -85,20 +85,23 @@ Ice.ObjectPrx
 
 Disables the inactivity check on this connection.
 
-By default, Ice will close connections that remain idle for a
-certain period. This method disables that behavior for this connection.)";
+By default, Ice will close connections that remain inactive for a certain period.
+This function disables that behavior for this connection.)";
 
     constexpr const char* connectionSetAdapter_doc = R"(setAdapter(adapter: Ice.ObjectAdapter | None) -> None
 
 Associates an object adapter with this connection.
 
-When a connection receives a request, it dispatches this request using
-its associated object adapter. If the associated object adapter is None,
-the connection rejects any incoming request with an ObjectNotExistException.
+When a connection receives a request, it dispatches this request using its associated object adapter.
+If the associated object adapter is ``None``, the connection rejects any incoming request with an
+:class:`ObjectNotExistException`.
+
+The default object adapter of an incoming connection is the object adapter that created this connection;
+the default object adapter of an outgoing connection is the communicator's default object adapter.
 
 Parameters
 ----------
-adapter : Ice.ObjectAdapter or None
+adapter : Ice.ObjectAdapter | None
     The object adapter to associate with this connection.)";
 
     constexpr const char* connectionGetAdapter_doc = R"(getAdapter() -> Ice.ObjectAdapter | None
@@ -107,35 +110,31 @@ Gets the object adapter associated with this connection.
 
 Returns
 -------
-Ice.ObjectAdapter or None
+Ice.ObjectAdapter | None
     The object adapter associated with this connection.)";
 
     constexpr const char* connectionFlushBatchRequests_doc = R"(flushBatchRequests(compress: Ice.CompressBatch) -> None
 
 Flushes any pending batch requests for this connection.
 
-This corresponds to all batch requests invoked on fixed proxies
-associated with the connection.
+This corresponds to all batch requests invoked on fixed proxies associated with the connection.
 
 Parameters
 ----------
 compress : Ice.CompressBatch
-    Specifies whether or not the queued batch requests should be
-    compressed before being sent over the wire.)";
+    Specifies whether or not the queued batch requests should be compressed before being sent over the wire.)";
 
     constexpr const char* connectionFlushBatchRequestsAsync_doc =
         R"(flushBatchRequestsAsync(compress: Ice.CompressBatch) -> Awaitable[None]
 
 Flushes any pending batch requests for this connection asynchronously.
 
-This corresponds to all batch requests invoked on fixed proxies
-associated with the connection.
+This corresponds to all batch requests invoked on fixed proxies associated with the connection.
 
 Parameters
 ----------
 compress : Ice.CompressBatch
-    Specifies whether or not the queued batch requests should be
-    compressed before being sent over the wire.
+    Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
 
 Returns
 -------
@@ -145,21 +144,17 @@ Awaitable[None]
     constexpr const char* connectionSetCloseCallback_doc =
         R"(setCloseCallback(callback: Callable[[Connection], None]) -> None
 
-Sets a close callback on the connection.
-
-The callback is called by the connection when it's closed. The callback
-is called from the Ice thread pool associated with the connection.
+Sets a close callback on the connection. The callback is called by the connection when it's closed.
+The callback is called from the Ice thread pool associated with the connection.
 
 Parameters
 ----------
-callback : Callable
-    The close callback function.)";
+callback : Callable[[Connection], None]
+    The close callback callable.)";
 
     constexpr const char* connectionType_doc = R"(type() -> str
 
-Returns the connection type.
-
-This corresponds to the endpoint type, such as 'tcp', 'udp', etc.
+Returns the connection type. This corresponds to the endpoint type, such as 'tcp', 'udp', etc.
 
 Returns
 -------
@@ -168,10 +163,11 @@ str
 
     constexpr const char* connectionToString_doc = R"(toString() -> str
 
-Returns a description of the connection as human readable text.
+Returns a description of the connection as human readable text, suitable for logging or error messages.
 
-This function is suitable for logging or error messages and remains
-usable after the connection is closed or aborted.
+Notes
+-----
+This function remains usable after the connection is closed or aborted.
 
 Returns
 -------
@@ -209,12 +205,10 @@ sndSize : int
 
     constexpr const char* connectionThrowException_doc = R"(throwException() -> None
 
-Throws an exception that provides the reason for the closure of this connection.
-
-For example, this function throws CloseConnectionException when the connection
-was closed gracefully by the peer; it throws ConnectionAbortedException when
-the connection is aborted. This function does nothing if the connection is
-not yet closed.)";
+Raises an exception that provides the reason for the closure of this connection. For example,
+this function raises :class:`CloseConnectionException` when the connection was closed gracefully by the peer;
+it raises :class:`ConnectionAbortedException` when the connection is aborted with :func:`abort`.
+This function does nothing if the connection is not yet closed.)";
 }
 
 namespace IcePy
@@ -753,8 +747,14 @@ connectionThrowException(ConnectionObject* self, PyObject* /*args*/)
 }
 
 static PyMethodDef ConnectionMethods[] = {
-    {"abort", reinterpret_cast<PyCFunction>(connectionAbort), METH_NOARGS, PyDoc_STR(connectionAbort_doc)},
-    {"close", reinterpret_cast<PyCFunction>(connectionClose), METH_NOARGS, PyDoc_STR(connectionClose_doc)},
+    {"abort",
+     reinterpret_cast<PyCFunction>(connectionAbort),
+     METH_NOARGS,
+     PyDoc_STR(connectionAbort_doc)},
+    {"close",
+     reinterpret_cast<PyCFunction>(connectionClose),
+     METH_NOARGS,
+     PyDoc_STR(connectionClose_doc)},
     {"createProxy",
      reinterpret_cast<PyCFunction>(connectionCreateProxy),
      METH_VARARGS,
@@ -783,9 +783,18 @@ static PyMethodDef ConnectionMethods[] = {
      reinterpret_cast<PyCFunction>(connectionSetCloseCallback),
      METH_VARARGS,
      PyDoc_STR(connectionSetCloseCallback_doc)},
-    {"type", reinterpret_cast<PyCFunction>(connectionType), METH_NOARGS, PyDoc_STR(connectionType_doc)},
-    {"toString", reinterpret_cast<PyCFunction>(connectionToString), METH_NOARGS, PyDoc_STR(connectionToString_doc)},
-    {"getInfo", reinterpret_cast<PyCFunction>(connectionGetInfo), METH_NOARGS, PyDoc_STR(connectionGetInfo_doc)},
+    {"type",
+     reinterpret_cast<PyCFunction>(connectionType),
+     METH_NOARGS,
+     PyDoc_STR(connectionType_doc)},
+    {"toString",
+     reinterpret_cast<PyCFunction>(connectionToString),
+     METH_NOARGS,
+     PyDoc_STR(connectionToString_doc)},
+    {"getInfo",
+     reinterpret_cast<PyCFunction>(connectionGetInfo),
+     METH_NOARGS,
+     PyDoc_STR(connectionGetInfo_doc)},
     {"getEndpoint",
      reinterpret_cast<PyCFunction>(connectionGetEndpoint),
      METH_NOARGS,

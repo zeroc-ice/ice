@@ -241,6 +241,7 @@ implicitContextRemove(ImplicitContextObject* self, PyObject* args)
         setPythonException(current_exception());
         return nullptr;
     }
+    
     return createString(val);
 }
 
@@ -248,24 +249,27 @@ static PyMethodDef ImplicitContextMethods[] = {
     {"getContext",
      reinterpret_cast<PyCFunction>(implicitContextGetContext),
      METH_NOARGS,
-     PyDoc_STR("getContext() -> Ice.Context")},
+     PyDoc_STR("getContext() -> dict[str, str]")},
     {"setContext",
      reinterpret_cast<PyCFunction>(implicitContextSetContext),
      METH_VARARGS,
-     PyDoc_STR("setContext(ctx: Ice.Context) -> None")},
+     PyDoc_STR("setContext(newContext: dict[str, str]) -> None")},
     {"containsKey",
      reinterpret_cast<PyCFunction>(implicitContextContainsKey),
      METH_VARARGS,
      PyDoc_STR("containsKey(key: str) -> bool")},
-    {"get", reinterpret_cast<PyCFunction>(implicitContextGet), METH_VARARGS, PyDoc_STR("get(key: str) -> str")},
+    {"get",
+     reinterpret_cast<PyCFunction>(implicitContextGet),
+     METH_VARARGS,
+     PyDoc_STR("get(key: str) -> str")},
     {"put",
      reinterpret_cast<PyCFunction>(implicitContextPut),
      METH_VARARGS,
-     PyDoc_STR("put(key: str, value: str) -> str")},
+     PyDoc_STR("put(key: str, value: str) -> str | None")},
     {"remove",
      reinterpret_cast<PyCFunction>(implicitContextRemove),
      METH_VARARGS,
-     PyDoc_STR("remove(key: str) -> str")},
+     PyDoc_STR("remove(key: str) -> str | None")},
     {} /* sentinel */
 };
 
