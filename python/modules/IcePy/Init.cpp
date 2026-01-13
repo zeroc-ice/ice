@@ -28,7 +28,7 @@ namespace
 {
     constexpr const char* IcePy_stringVersion_doc = R"(stringVersion() -> str
 
-Returns the Ice version in the form ``A.B.C``, where ``A` indicates the major version,
+Returns the Ice version in the form ``A.B.C``, where ``A`` indicates the major version,
 ``B`` indicates the minor version, and ``C`` indicates the patch level.
 
 Returns
