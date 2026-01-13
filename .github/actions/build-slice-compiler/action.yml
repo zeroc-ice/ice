@@ -2,9 +2,13 @@ name: "Build Slice Compiler"
 description: "Builds a Slice compiler from C++ source for multiple platforms"
 
 inputs:
-  compiler-name:
+  compiler_name:
     description: "Name of the compiler to build"
     required: true
+  authenticode_sign:
+    description: "Whether to Authenticode sign Windows binaries"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -13,17 +17,17 @@ runs:
       if: runner.os == 'Windows'
       run: |
         nuget restore cpp/msbuild/ice.slnx
-        MSBuild /m cpp/msbuild/ice.slnx /p:Configuration=Release /p:Platform=x64 /t:${{ inputs.compiler-name }}
+        MSBuild /m cpp/msbuild/ice.slnx /p:Configuration=Release /p:Platform=x64 /t:${{ inputs.compiler_name }}
       shell: cmd
 
     - name: Build on Linux/macOS
       if: runner.os != 'Windows'
       run: |
-        make -C cpp OPTIMIZE=yes V=1 ${{ inputs.compiler-name }}
+        make -C cpp OPTIMIZE=yes V=1 ${{ inputs.compiler_name }}
       shell: bash
 
     - name: Sign Compiler Artifact
-      if: runner.os == 'Windows'
+      if: runner.os == 'Windows' && inputs.authenticode_sign == 'true'
       uses: azure/trusted-signing-action@v0
       with:
         azure-tenant-id: ${{ env.AZURE_TENANT_ID }}
@@ -32,7 +36,7 @@ runs:
         endpoint: https://eus.codesigning.azure.net/
         trusted-signing-account-name: zeroc
         certificate-profile-name: zeroc-ice
-        files: ${{ github.workspace }}\cpp\bin\x64\Release\${{ inputs.compiler-name }}.exe
+        files: ${{ github.workspace }}\cpp\bin\x64\Release\${{ inputs.compiler_name }}.exe
         file-digest: SHA256
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
         timestamp-digest: SHA256

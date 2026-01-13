@@ -14,6 +14,11 @@ on:
         required: false
         type: boolean
         default: false
+      authenticode_sign:
+        description: "Whether to Authenticode sign Windows binaries (always true for stable quality)"
+        required: false
+        type: boolean
+        default: false
 
   workflow_dispatch:
     inputs:
@@ -30,31 +35,43 @@ on:
         required: false
         default: false
         type: boolean
+      authenticode_sign:
+        description: "Whether to Authenticode sign Windows binaries (always true for stable quality)"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
-  set-version:
+  configure:
     runs-on: ubuntu-24.04
     outputs:
-      semver_version: ${{ steps.set-vars.outputs.semver_version }}
-      deb_version: ${{ steps.set-vars.outputs.deb_version }}
-      gem_version: ${{ steps.set-vars.outputs.gem_version }}
-      maven_version: ${{ steps.set-vars.outputs.maven_version }}
-      pypi_version: ${{ steps.set-vars.outputs.pypi_version }}
-      rpm_version: ${{ steps.set-vars.outputs.rpm_version }}
-      matlab_version: ${{ steps.set-vars.outputs.matlab_version }}
-      channel: ${{ steps.set-vars.outputs.channel }}
+      semver_version: ${{ steps.configure.outputs.semver_version }}
+      deb_version: ${{ steps.configure.outputs.deb_version }}
+      gem_version: ${{ steps.configure.outputs.gem_version }}
+      maven_version: ${{ steps.configure.outputs.maven_version }}
+      pypi_version: ${{ steps.configure.outputs.pypi_version }}
+      rpm_version: ${{ steps.configure.outputs.rpm_version }}
+      matlab_version: ${{ steps.configure.outputs.matlab_version }}
+      channel: ${{ steps.configure.outputs.channel }}
+      authenticode_sign: ${{ steps.configure.outputs.authenticode_sign }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set version variables
-        id: set-vars
+      - name: Configure build
+        id: configure
         run: |
           # Load version information
           source ./config/version.env
           # The channel for the branch from version.env
           echo "channel=${CHANNEL}" >> $GITHUB_OUTPUT
+          # Authenticode sign is always true for stable quality, otherwise use the input value
+          if [[ "${{ inputs.quality }}" == "stable" ]] || [[ "${{ inputs.authenticode_sign }}" == "true" ]]; then
+            echo "authenticode_sign=true" >> $GITHUB_OUTPUT
+          else
+            echo "authenticode_sign=false" >> $GITHUB_OUTPUT
+          fi
           if [[ "${{ inputs.quality }}" == "nightly" ]]; then
             DATE=$(date +%Y%m%d)
             BUILD=${{ inputs.build_number }}
@@ -94,93 +111,98 @@ jobs:
   build-brew-packages:
     name: Build Brew Packages
     uses: ./.github/workflows/build-brew-packages.yml
-    needs: set-version
+    needs: configure
     with:
-      ice_version: ${{ needs.set-version.outputs.semver_version }}
-      channel: ${{ needs.set-version.outputs.channel }}
+      ice_version: ${{ needs.configure.outputs.semver_version }}
+      channel: ${{ needs.configure.outputs.channel }}
       quality: ${{ inputs.quality }}
     secrets: inherit
 
   build-deb-packages:
     name: Build DEB Packages
     uses: ./.github/workflows/build-deb-packages.yml
-    needs: set-version
+    needs: configure
     with:
-      ice_version: ${{ needs.set-version.outputs.deb_version }}
+      ice_version: ${{ needs.configure.outputs.deb_version }}
     secrets: inherit
 
   build-dotnet-packages:
     name: Build .NET Packages
     uses: ./.github/workflows/build-dotnet-packages.yml
-    needs: set-version
+    needs: configure
     with:
-      ice_version: ${{ needs.set-version.outputs.semver_version }}
+      ice_version: ${{ needs.configure.outputs.semver_version }}
+      authenticode_sign: ${{ needs.configure.outputs.authenticode_sign == 'true' }}
     secrets: inherit
 
   build-gem-packages:
     name: Build GEM Packages
     uses: ./.github/workflows/build-gem-packages.yml
-    needs: set-version
+    needs: configure
     with:
-      ice_version: ${{ needs.set-version.outputs.gem_version }}
+      ice_version: ${{ needs.configure.outputs.gem_version }}
 
   build-matlab-packages:
     name: Build MATLAB Packages
     uses: ./.github/workflows/build-matlab-packages.yml
-    needs: set-version
+    needs: configure
     with:
-      ice_version: ${{ needs.set-version.outputs.matlab_version }}
+      ice_version: ${{ needs.configure.outputs.matlab_version }}
+      authenticode_sign: ${{ needs.configure.outputs.authenticode_sign == 'true' }}
     secrets: inherit
 
   build-maven-packages:
     name: Build Maven Packages
     uses: ./.github/workflows/build-maven-packages.yml
-    needs: set-version
+    needs: configure
     with:
-      ice_version: ${{ needs.set-version.outputs.maven_version }}
+      ice_version: ${{ needs.configure.outputs.maven_version }}
+      authenticode_sign: ${{ needs.configure.outputs.authenticode_sign == 'true' }}
     secrets: inherit
 
   build-npm-packages:
     name: Build NPM Packages
     uses: ./.github/workflows/build-npm-packages.yml
-    needs: set-version
+    needs: configure
     with:
-      ice_version: ${{ needs.set-version.outputs.semver_version }}
+      ice_version: ${{ needs.configure.outputs.semver_version }}
+      authenticode_sign: ${{ needs.configure.outputs.authenticode_sign == 'true' }}
     secrets: inherit
 
   build-pip-packages:
     name: Build PIP Packages
     uses: ./.github/workflows/build-pip-packages.yml
-    needs: set-version
+    needs: configure
     with:
-      ice_version: ${{ needs.set-version.outputs.pypi_version }}
+      ice_version: ${{ needs.configure.outputs.pypi_version }}
     secrets: inherit
 
   build-rpm-packages:
     name: Build RPM Packages
     uses: ./.github/workflows/build-rpm-packages.yml
-    needs: set-version
+    needs: configure
     with:
-      ice_version: ${{ needs.set-version.outputs.rpm_version }}
+      ice_version: ${{ needs.configure.outputs.rpm_version }}
     secrets: inherit
 
   build-cpp-windows-binaries:
     name: Build C++ Windows Binaries
     uses: ./.github/workflows/build-cpp-windows-binaries.yml
-    needs: set-version
+    needs: configure
     with:
-      ice_version: ${{ needs.set-version.outputs.semver_version }}
+      ice_version: ${{ needs.configure.outputs.semver_version }}
+      authenticode_sign: ${{ needs.configure.outputs.authenticode_sign == 'true' }}
     secrets: inherit
 
   build-symbols-sources-store:
     name: Build Symbols and Sources Store
     uses: ./.github/workflows/build-symbols-sources-store.yml
     needs:
-      - set-version
+      - configure
       - build-cpp-windows-binaries
     with:
-      ice_version: ${{ needs.set-version.outputs.semver_version }}
-      channel: ${{ needs.set-version.outputs.channel }}
+      ice_version: ${{ needs.configure.outputs.semver_version }}
+      channel: ${{ needs.configure.outputs.channel }}
       quality: ${{ inputs.quality }}
       run_id: ${{ github.run_id }}
     secrets: inherit
@@ -189,40 +211,41 @@ jobs:
     name: Build C++ NuGet Packages
     uses: ./.github/workflows/build-cpp-nuget-packages.yml
     needs:
-      - set-version
+      - configure
       - build-cpp-windows-binaries
     with:
-      ice_version: ${{ needs.set-version.outputs.semver_version }}
+      ice_version: ${{ needs.configure.outputs.semver_version }}
       run_id: ${{ github.run_id }}
     secrets: inherit
 
   build-icegridgui-jar:
     name: Build IceGrid GUI JAR
     uses: ./.github/workflows/build-icegridgui-jar.yml
-    needs: set-version
+    needs: configure
     with:
-      ice_version: ${{ needs.set-version.outputs.semver_version }}
+      ice_version: ${{ needs.configure.outputs.semver_version }}
     secrets: inherit
 
   build-windows-msi:
     name: Build Windows MSI
     uses: ./.github/workflows/build-windows-msi.yml
     needs:
-      - set-version
+      - configure
       - build-cpp-windows-binaries
       - build-icegridgui-jar
     with:
-      ice_version: ${{ needs.set-version.outputs.semver_version }}
+      ice_version: ${{ needs.configure.outputs.semver_version }}
       run_id: ${{ github.run_id }}
+      authenticode_sign: ${{ needs.configure.outputs.authenticode_sign == 'true' }}
     secrets: inherit
 
   build-xcframework-packages:
     name: Build macOS Packages
     uses: ./.github/workflows/build-xcframework-packages.yml
-    needs: set-version
+    needs: configure
     with:
-      ice_version: ${{ needs.set-version.outputs.semver_version }}
-      channel: ${{ needs.set-version.outputs.channel }}
+      ice_version: ${{ needs.configure.outputs.semver_version }}
+      channel: ${{ needs.configure.outputs.channel }}
     secrets: inherit
 
   prune-nightly-artifacts:
@@ -242,21 +265,21 @@ jobs:
       - build-xcframework-packages
       - build-symbols-sources-store
       - build-cpp-nuget-packages
-      - set-version
+      - configure
     uses: ./.github/workflows/prune-nightly-artifacts.yml
     with:
-      channel: ${{ needs.set-version.outputs.channel }}
+      channel: ${{ needs.configure.outputs.channel }}
     secrets: inherit
 
   publish-release:
     name: Publish Release
     if: ${{ inputs.publish == true }}
     needs:
-      - set-version
+      - configure
       - prune-nightly-artifacts
     uses: ./.github/workflows/publish-release.yml
     with:
-      channel: ${{ needs.set-version.outputs.channel }}
+      channel: ${{ needs.configure.outputs.channel }}
       quality: ${{ inputs.quality }}
       run_id: ${{ github.run_id }}
     secrets: inherit
