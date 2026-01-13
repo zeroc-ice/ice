@@ -736,7 +736,7 @@ public sealed class ObjectAdapter
     /// Creates a direct proxy from an Ice identity.
     /// </summary>
     /// <param name="id">An Ice identity.</param>
-    /// <returns>A proxy with the given identity and this published endpoints of this object adapter.</returns>
+    /// <returns>A proxy with the given identity and the published endpoints of this object adapter.</returns>
     public ObjectPrx createDirectProxy(Identity id)
     {
         lock (_mutex)

@@ -7,7 +7,7 @@ public class ConnectionInfo {
     /** The information of the underlying transport or {@code null} if there's no underlying transport. */
     public final ConnectionInfo underlying;
 
-    /** {@code true} if this an incoming connection, {@code false} otherwise. */
+    /** {@code true} if this is an incoming connection, {@code false} otherwise. */
     public final boolean incoming;
 
     /** The name of the adapter associated with the connection. */

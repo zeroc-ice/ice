@@ -45,7 +45,7 @@ declare module "@zeroc/ice" {
             /**
              * Returns a clone of the logger with a new prefix.
              * @param prefix The new prefix for the logger.
-             * @returns A logger instance.
+             * @returns A new logger instance with the specified prefix.
              */
             cloneWithPrefix(prefix: string): Ice.Logger;
         }

@@ -21,8 +21,7 @@ import java.util.stream.Stream;
  * - accept incoming connections from clients and dispatch requests received over these connections (see
  *   {@link #activate}); and
  * - maintain a dispatch pipeline and servants that handle the requests (see {@link #add},
- *   {@link #addDefaultServant},
- *   and {@link #use}).
+ *   {@link #addDefaultServant}, and {@link #use}).
  *
  * <p>An object adapter can dispatch "bidirectional requests"--requests it receives over an outgoing connection
  * instead of a more common incoming connection. It can also dispatch collocated requests (with no connection at all).
@@ -622,6 +621,9 @@ public final class ObjectAdapter {
     /**
      * Looks up a servant with an identity and a facet. It's equivalent to calling {@link #findFacet}.
      *
+     * <p>This method only tries to find the servant in the ASM and among the default servants.
+     * It does not attempt to locate a servant using servant locators.
+     *
      * @param proxy the proxy that provides the identity and facet to search
      * @return the servant that matches the identity and facet carried by the proxy,
      *     or null if no such servant has been found
@@ -729,7 +731,7 @@ public final class ObjectAdapter {
      * Creates a direct proxy from an Ice identity.
      *
      * @param identity an Ice identity
-     * @return a proxy with the given identity and this published endpoints of this object adapter
+     * @return a proxy with the given identity and the published endpoints of this object adapter
      */
     public synchronized ObjectPrx createDirectProxy(Identity identity) {
         checkForDestruction();
@@ -807,7 +809,7 @@ public final class ObjectAdapter {
     /**
      * Sets the endpoints that proxies created by this object adapter will contain.
      *
-     * @param newEndpoints the new set of endpoints that the object adapter will embed in proxies.
+     * @param newEndpoints the new set of endpoints that the object adapter will embed in proxies
      * @throws IllegalArgumentException if {@code newEndpoints} is empty or if this adapter is associated with a router
      */
     public void setPublishedEndpoints(Endpoint[] newEndpoints) {

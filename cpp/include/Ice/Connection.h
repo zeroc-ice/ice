@@ -25,7 +25,7 @@
 
 namespace Ice
 {
-    /// Represents batch compression options when flushing queued batch requests.
+    /// Represents batch compression options for flushing queued batch requests.
     enum class CompressBatch : std::uint8_t
     {
         /// Compress the batch requests.
@@ -124,8 +124,8 @@ namespace Ice
         /// @return A future that becomes available when the flush completes.
         [[nodiscard]] std::future<void> flushBatchRequestsAsync(CompressBatch compress);
 
-        /// Sets a close callback on the connection. The callback is called by the connection when it's closed. The
-        /// callback is called from the Ice thread pool associated with the connection.
+        /// Sets a close callback on the connection. The callback is called by the connection when it's closed.
+        /// The callback is called from the Ice thread pool associated with the connection.
         /// @param callback The close callback object.
         virtual void setCloseCallback(CloseCallback callback) = 0;
 

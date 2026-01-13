@@ -5,7 +5,7 @@ from .Exception import Exception as IceException
 
 class UserException(IceException):
     """
-    The base class for all user-defined exceptions.
+    Base class for all exceptions defined in Slice.
     """
 
     def __str__(self):

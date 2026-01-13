@@ -44,7 +44,7 @@ def uncheckedCast(type: Type[T], proxy: ObjectPrx | None, facet: str | None = No
     proxy : ObjectPrx | None
         The source proxy.
 
-    facet : str, optional
+    facet : str | None, optional
         A facet name.
 
     Returns
@@ -73,10 +73,10 @@ def checkedCast(
     proxy : ObjectPrx | None
         The source proxy.
 
-    facet : str, optional
+    facet : str | None, optional
         A facet name.
 
-    context : dict[str, str], optional
+    context : dict[str, str] | None, optional
         The request context.
 
     Returns
@@ -106,10 +106,10 @@ async def checkedCastAsync(
     proxy : ObjectPrx | None
         The source proxy.
 
-    facet : str, optional
+    facet : str | None, optional
         A facet name.
 
-    context : dict[str, str], optional
+    context : dict[str, str] | None, optional
         The request context.
 
     Returns
@@ -141,7 +141,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         proxy : ObjectPrx | None
             The source proxy.
 
-        facet : str, optional
+        facet : str | None, optional
             A facet name.
 
         Returns
@@ -163,10 +163,10 @@ class ObjectPrx(IcePy.ObjectPrx):
         proxy : ObjectPrx | None
             The source proxy.
 
-        facet : str, optional
+        facet : str | None, optional
             A facet name.
 
-        context : dict[str, str], optional
+        context : dict[str, str] | None, optional
             The request context.
 
         Returns
@@ -189,10 +189,10 @@ class ObjectPrx(IcePy.ObjectPrx):
         proxy : ObjectPrx | None
             The source proxy.
 
-        facet : str, optional
+        facet : str | None, optional
             A facet name.
 
-        context : dict[str, str], optional
+        context : dict[str, str] | None, optional
             The request context.
 
         Returns
@@ -234,7 +234,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         ----------
         id : str
             The type ID of the Slice interface to test against.
-        context : dict[str, str], optional
+        context : dict[str, str] | None, optional
             The context dictionary for the invocation.
 
         Returns
@@ -252,7 +252,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         ----------
         id : str
             The type ID of the Slice interface to test against.
-        context : dict[str, str], optional
+        context : dict[str, str] | None, optional
             The context dictionary for the invocation.
 
         Returns
@@ -268,7 +268,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Parameters
         ----------
-        context : dict[str, str], optional
+        context : dict[str, str] | None, optional
             The context dictionary for the invocation.
 
         Examples
@@ -283,7 +283,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Parameters
         ----------
-        context : dict[str, str], optional
+        context : dict[str, str] | None, optional
             The context dictionary for the invocation.
 
         Examples
@@ -298,7 +298,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Parameters
         ----------
-        context : dict[str, str], optional
+        context : dict[str, str] | None, optional
             The context dictionary for the invocation.
 
         Returns
@@ -314,7 +314,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Parameters
         ----------
-        context : dict[str, str], optional
+        context : dict[str, str] | None, optional
             The context dictionary for the invocation.
 
         Returns
@@ -330,7 +330,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Parameters
         ----------
-        context : dict[str, str], optional
+        context : dict[str, str] | None, optional
             The context dictionary for the invocation.
 
         Returns
@@ -346,7 +346,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Parameters
         ----------
-        context : dict[str, str], optional
+        context : dict[str, str] | None, optional
             The context dictionary for the invocation.
 
         Returns

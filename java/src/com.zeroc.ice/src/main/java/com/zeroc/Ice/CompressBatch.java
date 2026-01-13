@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** Represents batch compression options when flushing queued batch requests. */
+/** Represents batch compression options for flushing queued batch requests. */
 public enum CompressBatch {
     /** Compress the batch requests. */
     Yes(0),

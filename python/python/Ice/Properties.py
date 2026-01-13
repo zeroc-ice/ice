@@ -10,7 +10,7 @@ class Properties:
     """
     Represents a set of properties used to configure Ice and Ice-based applications. A property is a key/value pair,
     where both the key and the value are strings. By convention, property keys should have the form
-    application-name[.category[.sub-category]].name.
+    ``application-name[.category[.sub-category]].name``.
     """
 
     @overload
@@ -30,13 +30,13 @@ class Properties:
 
         Parameters
         ----------
-        args : list of str, optional
+        args : list[str] | None, optional
             The command-line arguments. Arguments starting with ``--`` and one of the reserved prefixes
             (``Ice``, ``IceSSL``, etc.) are parsed as properties and removed from the list. If there is
             an argument starting with ``--Ice.Config``, the specified configuration file is loaded. When
             the same property is set in both a configuration file and a command-line argument, the
             command-line setting takes precedence.
-        defaults : dict of (str, str), optional
+        defaults : Self | None, optional
             Default values for the new Properties object. Settings in configuration files and command-line
             arguments override these defaults.
 
@@ -71,9 +71,7 @@ class Properties:
 
     def getProperty(self, key: str) -> str:
         """
-        Get a property by key.
-
-        If the property is not set, an empty string is returned.
+        Gets a property by key.
 
         Parameters
         ----------
@@ -83,15 +81,13 @@ class Properties:
         Returns
         -------
         str
-            The property value, or an empty string if the property is not set.
+            The property value, or the empty string if the property is not set.
         """
         return self._impl.getProperty(key)
 
     def getIceProperty(self, key: str) -> str:
         """
-        Get an Ice property by key.
-
-        If the property is not set, its default value is returned.
+        Gets an Ice property by key.
 
         Parameters
         ----------
@@ -101,40 +97,36 @@ class Properties:
         Returns
         -------
         str
-            The property value, or the default value if the property is not set.
+            The property value, or the default value for this property if the property is not set.
 
         Raises
         ------
         PropertyException
-            When the property is not a known Ice property.
+            If the property is not a known Ice property.
         """
         return self._impl.getIceProperty(key)
 
     def getPropertyWithDefault(self, key: str, value: str) -> str:
         """
-        Get a property by key.
-
-        If the property is not set, the given default value is returned.
+        Gets a property by key.
 
         Parameters
         ----------
         key : str
             The property key.
         value : str
-            The default value to use if the property does not exist.
+            The default value to return if the property is not set.
 
         Returns
         -------
         str
-            The property value, or the default value if the property does not exist.
+            The property value or the default value if the property is not set.
         """
         return self._impl.getPropertyWithDefault(key, value)
 
     def getPropertyAsInt(self, key: str) -> int:
         """
-        Get a property as an integer.
-
-        If the property is not set, 0 is returned.
+        Gets a property as an integer.
 
         Parameters
         ----------
@@ -144,20 +136,18 @@ class Properties:
         Returns
         -------
         int
-            The property value interpreted as an integer, or 0 if the property is not set.
+            The property value interpreted as an integer, or ``0`` if the property is not set.
 
         Raises
         ------
         PropertyException
-            When the property value is not a valid integer.
+            If the property value is not a valid integer.
         """
         return self._impl.getPropertyAsInt(key)
 
     def getIcePropertyAsInt(self, key: str) -> int:
         """
-        Get an Ice property as an integer.
-
-        If the property is not set, its default value is returned.
+        Gets an Ice property as an integer.
 
         Parameters
         ----------
@@ -172,43 +162,41 @@ class Properties:
         Raises
         ------
         PropertyException
-            When the property is not a known Ice property or the property value is not a valid integer.
+            If the property is not a known Ice property or the value is not a valid integer.
         """
         return self._impl.getIcePropertyAsInt(key)
 
     def getPropertyAsIntWithDefault(self, key: str, value: int) -> int:
         """
-        Get a property as an integer.
-
-        If the property is not set, the given default value is returned.
+        Gets a property as an integer.
 
         Parameters
         ----------
         key : str
             The property key.
         value : int
-            The default value to use if the property does not exist.
+            The default value to return if the property does not exist.
 
         Returns
         -------
         int
-            The property value interpreted as an integer, or the default value if the property does not exist.
+            The property value interpreted as an integer, or the default value if the property is not set.
 
         Raises
         ------
         PropertyException
-            When the property value is not a valid integer.
+            If the property value is not a valid integer.
         """
         return self._impl.getPropertyAsIntWithDefault(key, value)
 
     def getPropertyAsList(self, key: str) -> list[str]:
         """
-        Get a property as a list of strings.
+        Gets a property as a list of strings.
 
-        The strings must be separated by whitespace or comma. If the property is not set, an empty list is returned.
-        The strings in the list can contain whitespace and commas if they are enclosed in single or double quotes.
-        If quotes are mismatched, an empty list is returned. Within single or double quotes, you can escape the quote
-        in question with a backslash, e.g., O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+        The strings must be separated by whitespace or comma. The strings in the list can contain whitespace and commas
+        if they are enclosed in single or double quotes. If quotes are mismatched, an empty list is returned.
+        Within single quotes or double quotes, you can escape the quote in question with a backslash,
+        e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
 
         Parameters
         ----------
@@ -217,19 +205,19 @@ class Properties:
 
         Returns
         -------
-        list of str
-            The property value interpreted as a list of strings.
+        list[str]
+            The property value interpreted as a list of strings, or an empty list if the property is not set.
         """
         return self._impl.getPropertyAsList(key)
 
     def getIcePropertyAsList(self, key: str) -> list[str]:
         """
-        Get an Ice property as a list of strings.
+        Gets an Ice property as a list of strings.
 
-        The strings must be separated by whitespace or comma. If the property is not set, its default value is returned.
-        The strings in the list can contain whitespace and commas if they are enclosed in single or double quotes.
-        If quotes are mismatched, the default value is returned. Within single or double quotes, you can escape the quote
-        in question with a backslash, e.g., O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+        The strings must be separated by whitespace or comma. The strings in the list can contain whitespace and commas
+        if they are enclosed in single or double quotes. If quotes are mismatched, the default list is returned.
+        Within single quotes or double quotes, you can escape the quote in question with a backslash,
+        e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
 
         Parameters
         ----------
@@ -238,62 +226,59 @@ class Properties:
 
         Returns
         -------
-        list of str
+        list[str]
             The property value interpreted as a list of strings, or the default value if the property is not set.
 
         Raises
         ------
         PropertyException
-            When the property is not a known Ice property.
+            If the property is not a known Ice property.
         """
         return self._impl.getIcePropertyAsList(key)
 
     def getPropertyAsListWithDefault(self, key: str, value: list[str]) -> list[str]:
         """
-        Get a property as a list of strings.
+        Gets a property as a list of strings.
 
-        The strings must be separated by whitespace or comma. If the property is not set, the default value is returned.
-        The strings in the list can contain whitespace and commas if they are enclosed in single or double quotes.
-        If quotes are mismatched, the default value is returned. Within single or double quotes, you can escape the quote
-        in question with a backslash, e.g., O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+        The strings must be separated by whitespace or comma. The strings in the list can contain whitespace and commas
+        if they are enclosed in single or double quotes. If quotes are mismatched, the default list is returned.
+        Within single quotes or double quotes, you can escape the quote in question with a backslash,
+        e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
 
         Parameters
         ----------
         key : str
             The property key.
-        value : list of str
+        value : list[str]
             The default value to use if the property is not set.
 
         Returns
         -------
-        list of str
+        list[str]
             The property value interpreted as a list of strings, or the default value if the property is not set.
         """
         return self._impl.getPropertyAsListWithDefault(key, value)
 
     def getPropertiesForPrefix(self, prefix: str) -> dict[str, str]:
         """
-        Get all properties whose keys begin with the given prefix.
-
-        If the prefix is an empty string, then all properties are returned.
+        Gets all properties whose keys begin with the given prefix.
+        If ``prefix`` is the empty string, then all properties are returned.
 
         Parameters
         ----------
         prefix : str
-            The prefix to search for (empty string if none).
+            The prefix to search for.
 
         Returns
         -------
         dict[str, str]
-            The matching property set with keys and values as strings.
+            The matching property set.
         """
         return self._impl.getPropertiesForPrefix(prefix)
 
     def setProperty(self, key: str, value: str) -> None:
         """
-        Set a property.
-
-        To unset a property, set it to the empty string.
+        Sets a property. To unset a property, set it to the empty string.
 
         Parameters
         ----------
@@ -306,60 +291,59 @@ class Properties:
 
     def getCommandLineOptions(self) -> list[str]:
         """
-        Get a sequence of command-line options that is equivalent to this property set.
-
-        Each element of the returned sequence is a command-line option of the form --key=value.
+        Gets a sequence of command-line options that is equivalent to this property set.
+        Each element of the returned sequence is a command-line option of the form ``--key=value``.
 
         Returns
         -------
-        list of str
+        list[str]
             The command line options for this property set.
         """
         return self._impl.getCommandLineOptions()
 
     def parseCommandLineOptions(self, prefix: str, options: list[str]) -> list[str]:
         """
-        Convert a sequence of command-line options into properties.
+        Converts a sequence of command-line options into properties.
 
-        All options that begin with `--prefix.` are converted into properties. If the prefix is empty, all options that
-        begin with `--` are converted to properties.
+        All options that start with ``--prefix.`` are converted into properties.
+        If the prefix is empty, all options that begin with ``--`` are converted to properties.
 
         Parameters
         ----------
         prefix : str
-            The property prefix, or an empty string to convert all options starting with `--`.
-        options : list of str
+            The property prefix, or the empty string to convert all options starting with ``--``.
+        options : list[str]
             The command-line options.
 
         Returns
         -------
-        list of str
+        list[str]
             The command-line options that do not start with the specified prefix, in their original order.
         """
         return self._impl.parseCommandLineOptions(prefix, options)
 
     def parseIceCommandLineOptions(self, options: list[str]) -> list[str]:
         """
-        Convert a sequence of command-line options into properties.
+        Converts a sequence of command-line options into properties.
 
-        All options that begin with one of the following prefixes are converted into properties: `--Ice`, `--IceBox`,
-        `--IceGrid`, `--IceSSL`, `--IceStorm`, and `--Glacier2`.
+        All options that start with one of the reserved Ice prefixes (``--Ice``, ``--IceSSL``, etc.) are converted into
+        properties.
 
         Parameters
         ----------
-        options : list of str
+        options : list[str]
             The command-line options.
 
         Returns
         -------
-        list of str
-            The command-line options that do not start with one of the listed prefixes, in their original order.
+        list[str]
+            The command-line options that do not start with one of the reserved prefixes, in their original order.
         """
         return self._impl.parseIceCommandLineOptions(options)
 
     def load(self, file: str) -> None:
         """
-        Load properties from a file.
+        Loads properties from a file.
 
         Parameters
         ----------
@@ -370,7 +354,7 @@ class Properties:
 
     def clone(self) -> "Properties":
         """
-        Create a copy of this property set.
+        Creates a copy of this property set.
 
         Returns
         -------
