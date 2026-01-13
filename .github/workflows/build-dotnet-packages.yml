@@ -6,11 +6,21 @@ on:
       ice_version:
         required: false
         type: string
+      authenticode_sign:
+        description: "Whether to Authenticode sign Windows binaries"
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       ice_version:
         description: "The Ice version to build"
         required: false
+      authenticode_sign:
+        description: "Whether to Authenticode sign Windows binaries"
+        required: false
+        type: boolean
+        default: false
 jobs:
   build-slice-compilers:
     strategy:
@@ -41,7 +51,8 @@ jobs:
       - name: Build Compiler
         uses: ./.github/actions/build-slice-compiler
         with:
-          compiler-name: slice2cs
+          compiler_name: slice2cs
+          authenticode_sign: ${{ inputs.authenticode_sign }}
         env:
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -99,6 +110,7 @@ jobs:
           dotnet build-server shutdown
 
       - name: Collect Files to Sign
+        if: ${{ inputs.authenticode_sign }}
         run: |
           Get-ChildItem -Path csharp\src -Directory | ForEach-Object {
               $name = $_.Name
@@ -107,6 +119,7 @@ jobs:
           Add-Content -Path "${{ github.workspace }}\catalog.txt" -Value "csharp\tools\ZeroC.Ice.Slice.Tools\bin\Release\netstandard2.0\ZeroC.Ice.Slice.Tools.dll"
 
       - name: Sign .NET Assemblies with Trusted Signing
+        if: ${{ inputs.authenticode_sign }}
         uses: azure/trusted-signing-action@v0
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
