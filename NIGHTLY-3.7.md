@@ -1,9 +1,9 @@
 # Installing the Nightly Builds <!-- omit in toc -->
 
-This document describes the nightly builds for the 3.7 branch, which are expected to become the next 3.7.11 patch release.
+This document describes how to install the nightly builds for the 3.7 branch, which are expected to become the next
+3.7 patch release.
 
-Ice 3.7 nightly builds are produced daily from the 3.7 GitHub branch. For nightly builds of the next major release (3.9.0),
-see `NIGHTLY.md` on the main branch.
+Ice 3.7 nightly builds are produced daily from the 3.7 GitHub branch.
 
 - [Dev kits](#dev-kits)
   - [Ice for C++](#ice-for-c)
@@ -54,8 +54,8 @@ Ice for C++ is included in the [ice formula](#macos-brew-formula-and-cask).
 
 Ice for C++ is distributed as NuGet packages on Windows.
 
-- ZeroC.Ice.v142 compatible with Visual Studio 2019
-- ZeroC.Ice.v143 compatible with Visual Studio 2022 and later
+- `ZeroC.Ice.v142` compatible with Visual Studio 2019
+- `ZeroC.Ice.v143` compatible with Visual Studio 2022 and later
 
 Add the following feed to your NuGet sources to get the nightly packages:
 
@@ -63,8 +63,8 @@ Add the following feed to your NuGet sources to get the nightly packages:
 https://download.zeroc.com/nexus/repository/nuget-3.7-nightly/
 ```
 
-> `ZeroC.Ice.v142` and `ZeroC.Ice.v143` packages include C++ libraries, header files, the Slice to C++ compiler, and
-> the IceBox service.
+> `ZeroC.Ice.v142` and `ZeroC.Ice.v143` packages include C++ libraries, header files, the Slice to C++ compiler,
+> all the Ice services (Glacier2, IceGrid, etc.), and the command-line admin tools for these services.
 
 ### Ice for C#
 
@@ -108,19 +108,22 @@ dependencyResolutionManagement {
 
 ### Ice for JavaScript
 
-The nightly NPM package @zeroc/ice is available from the ZeroC NPM nightly registry.
+The nightly NPM packages `ice` and `slice2js` are available from the ZeroC NPM nightly registry.
 
-To install it, add the following line to your project’s .npmrc file:
+To use them, add the following line to your project’s .npmrc file:
 
 ```shell
-# Use ZeroC nightly registry for @zeroc packages
-@zeroc:registry=https://download.zeroc.com/nexus/repository/npm-3.7-nightly/
+# Use ZeroC nightly registry for all packages
+registry=https://download.zeroc.com/nexus/repository/npm-3.7-nightly/
 ```
 
-Then add the `@zeroc/ice` package to your project:
+> This registry also proxies packages from npmjs.org, so your other dependencies will install normally.
+
+Then add the `slice2js` and `ice` packages to your project:
 
 ```shell
-npm install @zeroc/ice
+npm install --save-dev slice2js
+npm install ice
 ```
 
 ### Ice for MATLAB
@@ -219,16 +222,13 @@ The nightly package is available via the Swift Package Manager (SPM).
 To use it in your project, add the following package as a dependency in your Package.swift:
 
 ```shell
-.package(url: "https://github.com/zeroc-ice/ice-swift-nightly.git", branch: "3.8")
+.package(url: "https://github.com/zeroc-ice/ice-swift-nightly.git", branch: "3.7")
 ```
 
 ## Ice Services
 
-This section describes how to install the DataStorm, Glacier2, IceBox, IceBridge, IceGrid, IceStorm services, and the
+This section describes how to install the Glacier2, IceBox, IceBridge, IceGrid, IceStorm services, and the
 associated admin tools.
-
-> DataStorm is primarily a library-based service, installed as part of Ice for C++. The DataStorm component described
-> in this section is the DataStorm server (dsnode).
 
 ### Linux
 
@@ -259,10 +259,11 @@ which is provided by a [cask](#macos-brew-formula-and-cask).
 
 ### Windows
 
-The Ice services (Glacier2, IceGrid, IceStorm, etc.) and all admin tools for these services (IceGridGUI, icegridadmin,
-etc.) are provided in a Windows installer MSI package:
+The Ice services (Glacier2, IceGrid, IceStorm, etc.) and admin tools for these services are available in both the
+Windows installer MSI package and the C++ NuGet packages listed in the [Ice for C++](#ice-for-c) Windows section.
+IceGridGUI is only included in the MSI package:
 
-- [Ice-Services-nightly.msi](https://download.zeroc.com/ice/nightly/3.7/Ice-Services-nightly.msi)
+- [Ice-nightly.msi](https://download.zeroc.com/ice/nightly/3.7/Ice-nightly.msi)
 
 ## Linux Repositories
 
@@ -319,6 +320,14 @@ To enable the nightly repository for your distribution run:
 
   ```shell
   wget "https://download.zeroc.com/ice/nightly/3.7/ubuntu24.04/ice-repo-3.7-nightly_1.0.0_all.deb" -O ice-repo-3.7-nightly.deb
+  sudo dpkg -i ice-repo-3.7-nightly.deb
+  rm ice-repo-3.7-nightly.deb
+  ```
+
+- Ubuntu 22.04
+
+  ```shell
+  wget "https://download.zeroc.com/ice/nightly/3.7/ubuntu22.04/ice-repo-3.7-nightly_1.0.0_all.deb" -O ice-repo-3.7-nightly.deb
   sudo dpkg -i ice-repo-3.7-nightly.deb
   rm ice-repo-3.7-nightly.deb
   ```
