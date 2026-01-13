@@ -81,6 +81,6 @@ jobs:
           path: |
             cpp/bin/${{ matrix.platform }}/${{ matrix.configuration }}/
             cpp/lib/${{ matrix.platform }}/${{ matrix.configuration }}/
-            cpp/include/generated/${{ matrix.platform }}/${{ matrix.configuration }}/
+            cpp/include/generated/**/${{ matrix.platform }}/${{ matrix.configuration }}/*.h
             cpp/src/**/msbuild/**/${{ matrix.platform }}/${{ matrix.configuration }}/*.cpp
             cpp/src/**/msbuild/**/${{ matrix.platform }}/${{ matrix.configuration }}/*.h
