@@ -712,27 +712,25 @@ class_extends
 {
     auto scoped = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
-    TypeList types = cont->lookupType(scoped->v);
+    TypePtr resolvedType = cont->lookupType(scoped->v);
     $$ = nullptr;
-    if (!types.empty())
+    if (resolvedType)
     {
-        auto cl = dynamic_pointer_cast<ClassDecl>(types.front());
-        if (!cl)
+        if (auto cl = dynamic_pointer_cast<ClassDecl>(resolvedType))
         {
-            currentUnit->error("'" + scoped->v + "' is not a class");
-        }
-        else
-        {
-            ClassDefPtr def = cl->definition();
-            if (!def)
-            {
-                currentUnit->error("'" + scoped->v + "' has been declared but not defined");
-            }
-            else
+            if (ClassDefPtr def = cl->definition())
             {
                 cont->checkHasChangedMeaning(scoped->v);
                 $$ = def;
             }
+            else
+            {
+                currentUnit->error("'" + scoped->v + "' has been declared but not defined");
+            }
+        }
+        else
+        {
+            currentUnit->error("'" + scoped->v + "' is not a class");
         }
     }
 }
@@ -1699,14 +1697,13 @@ namespace
     TypePtr lookupTypeByName(const string& name, bool expectInterfaceType)
     {
         ContainerPtr cont = currentUnit->currentContainer();
-        TypeList types = cont->lookupType(name);
-        if (types.empty())
+        TypePtr resolvedType = cont->lookupType(name);
+        if (resolvedType == nullptr)
         {
             return nullptr;
         }
 
-        TypePtr firstType = types.front();
-        auto interface = dynamic_pointer_cast<InterfaceDecl>(firstType);
+        auto interface = dynamic_pointer_cast<InterfaceDecl>(resolvedType);
         if (interface && !expectInterfaceType)
         {
             string msg = "add a '*' after the interface name to specify its proxy type: '" + name + "*'";
@@ -1719,7 +1716,7 @@ namespace
         }
 
         cont->checkHasChangedMeaning(name);
-        return firstType;
+        return resolvedType;
     }
 
     InterfaceDefPtr lookupInterfaceByName(const string& name)
