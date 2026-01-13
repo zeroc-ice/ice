@@ -10,6 +10,11 @@ on:
         description: "The run ID to use for downloading artifacts"
         required: true
         type: string
+      authenticode_sign:
+        description: "Whether to Authenticode sign Windows binaries"
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       ice_version:
@@ -18,6 +23,11 @@ on:
       run_id:
         description: "The run ID to use for downloading artifacts"
         required: true
+      authenticode_sign:
+        description: "Whether to Authenticode sign Windows binaries"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build-windows-msi:
@@ -50,6 +60,7 @@ jobs:
           StagingDir: "${{ github.workspace }}\\staging"
 
       - name: Sign MSI installer with Trusted Signing
+        if: ${{ inputs.authenticode_sign }}
         uses: azure/trusted-signing-action@v0
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}

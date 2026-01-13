@@ -6,11 +6,21 @@ on:
       ice_version:
         required: false
         type: string
+      authenticode_sign:
+        description: "Whether to Authenticode sign Windows binaries"
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       ice_version:
         description: "The Ice version to build"
         required: false
+      authenticode_sign:
+        description: "Whether to Authenticode sign Windows binaries"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build-matlab-packages:
@@ -50,7 +60,7 @@ jobs:
         if: runner.os == 'Windows'
 
       - name: Collect Files To Sign
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && inputs.authenticode_sign
         run: |
           Resolve-Path -Path ".\matlab\lib\x64\Release\*.dll" -Relative | Set-Content -Path "${{ github.workspace }}\catalog.txt" -Encoding UTF8
           Resolve-Path -Path ".\matlab\lib\x64\Release\*.mexw64" -Relative | Add-Content -Path "${{ github.workspace }}\catalog.txt" -Encoding UTF8
@@ -58,7 +68,7 @@ jobs:
 
       - name: Sign C++ Binaries
         uses: azure/trusted-signing-action@v0
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && inputs.authenticode_sign
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
