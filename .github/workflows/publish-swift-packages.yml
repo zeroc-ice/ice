@@ -48,6 +48,6 @@ jobs:
         working-directory: packaging/swift
         env:
           ICE_NIGHTLY_PUBLISH_TOKEN: ${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}
-          STAGING_DIR: ${{ github.workspace }}/staging/xcframework-packages
+          STAGING_DIR: ${{ github.workspace }}/staging/spm-sources
           CHANNEL: ${{ inputs.channel }}
           QUALITY: ${{ inputs.quality }}

@@ -30,7 +30,7 @@ root_dir=$(git rev-parse --show-toplevel)
 cd "$root_dir/packaging/swift"
 
 # Find the spm-sources tar.gz file and extract the version from the filename
-tarball=("$STAGING_DIR"/spm-sources/spm-sources-*.tar.gz)
+tarball=("$STAGING_DIR"/spm-sources-*.tar.gz)
 version=${tarball##*/}
 version=${version#spm-sources-}
 version=${version%.tar.gz}
