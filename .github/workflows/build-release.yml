@@ -15,7 +15,7 @@ on:
         type: boolean
         default: false
       authenticode_sign:
-        description: "Whether to Authenticode sign Windows binaries (always true for stable channel)"
+        description: "Whether to Authenticode sign Windows binaries (always true for stable quality)"
         required: false
         type: boolean
         default: false
