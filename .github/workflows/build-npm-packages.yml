@@ -6,11 +6,21 @@ on:
       ice_version:
         required: false
         type: string
+      authenticode_sign:
+        description: "Whether to Authenticode sign Windows binaries"
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       ice_version:
         description: "The Ice version to build"
         required: false
+      authenticode_sign:
+        description: "Whether to Authenticode sign Windows binaries"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build-slice-compilers:
@@ -42,7 +52,8 @@ jobs:
       - name: Build Compiler
         uses: ./.github/actions/build-slice-compiler
         with:
-          compiler-name: slice2js
+          compiler_name: slice2js
+          authenticode_sign: ${{ inputs.authenticode_sign }}
         env:
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}

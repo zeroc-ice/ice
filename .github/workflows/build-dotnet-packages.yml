@@ -6,11 +6,21 @@ on:
       ice_version:
         required: false
         type: string
+      authenticode_sign:
+        description: "Whether to Authenticode sign Windows binaries"
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       ice_version:
         description: "The Ice version to build"
         required: false
+      authenticode_sign:
+        description: "Whether to Authenticode sign Windows binaries"
+        required: false
+        type: boolean
+        default: false
 jobs:
   pack-dotnet:
     runs-on: windows-2022
@@ -37,6 +47,7 @@ jobs:
           msbuild csharp\msbuild\ice.proj /t:BuildDist /p:Configuration=Release /p:Platform=x64
 
       - name: Collect Files to Sign
+        if: ${{ inputs.authenticode_sign }}
         shell: pwsh
         run: |
           $root = "${{ github.workspace }}"
@@ -50,6 +61,7 @@ jobs:
           Set-Content -Path "$root\catalog.txt" -Encoding UTF8
 
       - name: Sign .NET Assemblies with Trusted Signing
+        if: ${{ inputs.authenticode_sign }}
         uses: azure/trusted-signing-action@v0
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}

@@ -6,11 +6,21 @@ on:
       ice_version:
         required: false
         type: string
+      authenticode_sign:
+        description: "Whether to Authenticode sign Windows binaries"
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       ice_version:
         description: "The Ice version to build"
         required: false
+      authenticode_sign:
+        description: "Whether to Authenticode sign Windows binaries"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build-cpp-windows-binaries:
@@ -49,6 +59,7 @@ jobs:
         working-directory: cpp/msbuild
 
       - name: Sign C++ Binaries with Trusted Signing
+        if: ${{ inputs.authenticode_sign }}
         uses: azure/trusted-signing-action@v0
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
