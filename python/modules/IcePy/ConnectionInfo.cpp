@@ -169,7 +169,8 @@ static PyGetSetDef ConnectionInfoGetters[] = {
     {"underlying",
      reinterpret_cast<getter>(connectionInfoGetUnderlying),
      nullptr,
-     PyDoc_STR("ConnectionInfo | None: The information of the underlying transport or ``None`` if there's no underlying transport."),
+     PyDoc_STR("ConnectionInfo | None: The information of the underlying transport or ``None`` if there's no "
+               "underlying transport."),
      nullptr},
     {"incoming",
      reinterpret_cast<getter>(connectionInfoGetIncoming),

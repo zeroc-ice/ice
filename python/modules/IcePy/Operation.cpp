@@ -858,10 +858,7 @@ static PyMethodDef OperationMethods[] = {
      reinterpret_cast<PyCFunction>(operationInvokeAsync),
      METH_VARARGS,
      PyDoc_STR("invokeAsync(proxy: ObjectPrx, args: tuple) -> Awaitable[Any]")},
-    {"deprecate",
-     reinterpret_cast<PyCFunction>(operationDeprecate),
-     METH_VARARGS,
-     PyDoc_STR("deprecate(reason: str)")},
+    {"deprecate", reinterpret_cast<PyCFunction>(operationDeprecate), METH_VARARGS, PyDoc_STR("deprecate(reason: str)")},
     {} /* sentinel */
 };
 
@@ -878,10 +875,7 @@ static PyMethodDef DispatchCallbackMethods[] = {
 };
 
 static PyMethodDef AsyncInvocationContextMethods[] = {
-    {"cancel",
-     reinterpret_cast<PyCFunction>(asyncInvocationContextCancel),
-     METH_NOARGS,
-     PyDoc_STR("cancel() -> None")},
+    {"cancel", reinterpret_cast<PyCFunction>(asyncInvocationContextCancel), METH_NOARGS, PyDoc_STR("cancel() -> None")},
     {} /* sentinel */
 };
 

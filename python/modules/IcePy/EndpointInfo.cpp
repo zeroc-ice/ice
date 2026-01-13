@@ -178,7 +178,8 @@ static PyGetSetDef EndpointInfoGetters[] = {
     {"underlying",
      reinterpret_cast<getter>(endpointInfoGetUnderlying),
      nullptr,
-     PyDoc_STR("Ice.EndpointInfo | None: The information of the underlying endpoint or ``None`` if there's no underlying endpoint."),
+     PyDoc_STR("Ice.EndpointInfo | None: The information of the underlying endpoint or ``None`` if there's no "
+               "underlying endpoint."),
      nullptr},
     {"compress",
      reinterpret_cast<getter>(endpointInfoGetCompress),
@@ -194,11 +195,7 @@ static PyGetSetDef IPEndpointInfoGetters[] = {
      nullptr,
      PyDoc_STR("str: The host or address configured with the endpoint."),
      nullptr},
-    {"port",
-     reinterpret_cast<getter>(ipEndpointInfoGetPort),
-     nullptr,
-     PyDoc_STR("int: The port number."),
-     nullptr},
+    {"port", reinterpret_cast<getter>(ipEndpointInfoGetPort), nullptr, PyDoc_STR("int: The port number."), nullptr},
     {"sourceAddress",
      reinterpret_cast<getter>(ipEndpointInfoGetSourceAddress),
      nullptr,
@@ -239,7 +236,8 @@ static PyGetSetDef OpaqueEndpointInfoGetters[] = {
     {"rawEncoding",
      reinterpret_cast<getter>(opaqueEndpointInfoGetRawEncoding),
      nullptr,
-     PyDoc_STR("Ice.EncodingVersion: The encoding version of the opaque endpoint (to decode or encode the ``rawBytes``)."),
+     PyDoc_STR(
+        "Ice.EncodingVersion: The encoding version of the opaque endpoint (to decode or encode the ``rawBytes``)."),
      nullptr},
     {} /* sentinel */
 };

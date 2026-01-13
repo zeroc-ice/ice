@@ -28,7 +28,8 @@ Returns
 Ice.EndpointInfo
     This endpoint's information class.)";
 
-    constexpr const char* EndpointType_doc = R"(An endpoint specifies the address of the server-end of an Ice connection.
+    constexpr const char* EndpointType_doc =
+        R"(An endpoint specifies the address of the server-end of an Ice connection.
 An object adapter listens on one or more endpoints and a client establishes a connection to an endpoint.)";
 }
 
