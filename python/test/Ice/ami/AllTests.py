@@ -40,9 +40,6 @@ class CallbackBase:
             self._called = True
             self._cond.notify()
 
-    def exception(self, ex: BaseException):
-        test(False)
-
 
 class FutureDoneCallback(CallbackBase):
     def isA(self, f: Ice.Future[bool]):
@@ -126,8 +123,8 @@ class FutureFlushExCallback(CallbackBase):
         CallbackBase.__init__(self)
         self._cookie = cookie
 
-    @override
-    def exception(self, ex: BaseException):
+    def ex(self, f: Ice.Future):
+        test(f.exception() is not None)
         self.called()
 
     def sent(self, sentSynchronously: bool):
@@ -521,7 +518,7 @@ def allTestsFuture(helper: TestHelper, communicator: Ice.Communicator, collocate
         cb = FutureFlushExCallback()
         f = con.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         assert isinstance(f, Ice.InvocationFuture)
-        f.add_done_callback(cb.exception)
+        f.add_done_callback(cb.ex)
         f.add_sent_callback(cb.sent)
         cb.check()
         test(not f.is_sent())

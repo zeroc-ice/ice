@@ -124,7 +124,7 @@ namespace Ice
 
     /// Converts a stringified identity into an Identity.
     /// @param str The stringified identity.
-    /// @return An Identity containing the name and category components.
+    /// @return An Identity created from the provided string.
     ICE_API Identity stringToIdentity(std::string_view str);
 
     /// Converts an Identity into a string using the specified mode.

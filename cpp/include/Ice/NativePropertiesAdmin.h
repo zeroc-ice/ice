@@ -38,6 +38,8 @@ namespace Ice
         std::function<void()> addUpdateCallback(std::function<void(const PropertyDict&)> cb);
 
     private:
+        /// Removes a previously registered update callback.
+        /// @param p An iterator which points to the callback to remove.
         void removeUpdateCallback(std::list<std::function<void(const PropertyDict&)>>::iterator p);
 
         const PropertiesPtr _properties;

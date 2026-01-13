@@ -5,7 +5,7 @@
 namespace Ice;
 
 /// <summary>
-/// Represents batch compression options when flushing queued batch requests.
+/// Represents batch compression options for flushing queued batch requests.
 /// </summary>
 public enum CompressBatch
 {

@@ -15,8 +15,10 @@ __name__ = "Ice"
 
 class DispatchException(LocalException):
     """
-    The dispatch failed. This is the base class for local exceptions that can be marshaled and transmitted "over the
-    wire".
+    The exception that is raised when a dispatch failed. This is the base class for local exceptions that can be
+    marshaled and transmitted "over the wire".
+    You can raise this exception in the implementation of an operation, or in a middleware.
+    The Ice runtime then logically re-raises this exception to the client.
     """
 
     def __init__(self, replyStatus: int | None, msg: str = ""):
@@ -38,21 +40,21 @@ class DispatchException(LocalException):
         self.__replyStatus = replyStatus
 
     @property
-    def replyStatus(self):
+    def replyStatus(self) -> int:
         """
-        Gets the reply status of this exception.
+        Returns the reply status as an int (see :class:`ReplyStatus`).
 
         Returns
         -------
         int
-            The reply status, as an int in the range 2..255.
+            The reply status.
         """
         return self.__replyStatus
 
 
 class RequestFailedException(DispatchException):
     """
-    The base exception for the 3 NotExist exceptions.
+    The base class for the 3 NotExist exceptions.
     """
 
     def __init__(
@@ -66,36 +68,36 @@ class RequestFailedException(DispatchException):
     @property
     def id(self) -> Identity:
         """
-        Gets the identity of the Ice Object to which the request was sent.
+        Returns the identity of the Ice Object to which the request was sent.
 
         Returns
         -------
         Identity
-            The identity of the Ice Object to which the request was sent.
+            The identity.
         """
         return self.__id
 
     @property
-    def facet(self):
+    def facet(self) -> str:
         """
-        Gets the facet to which the request was sent.
+        Returns the facet to which the request was sent.
 
         Returns
         -------
         str
-            The facet to which the request was sent.
+            The facet.
         """
         return self.__facet
 
     @property
-    def operation(self):
+    def operation(self) -> str:
         """
-        Gets the operation name of the request.
+        Returns the operation name of the request.
 
         Returns
         -------
         str
-            The operation name of the request.
+            The operation name.
         """
         return self.__operation
 
@@ -103,7 +105,7 @@ class RequestFailedException(DispatchException):
 @final
 class ObjectNotExistException(RequestFailedException):
     """
-    The dispatch could not find a servant for the identity carried by the request.
+    The exception that is raised when a dispatch could not find a servant for the identity carried by the request.
     """
 
     def __init__(self, id: Identity | None = None, facet: str = "", operation: str = "", msg: str = ""):
@@ -113,7 +115,8 @@ class ObjectNotExistException(RequestFailedException):
 @final
 class FacetNotExistException(RequestFailedException):
     """
-    The dispatch could not find a servant for the identity + facet carried by the request.
+    The exception that is raised when a dispatch could not find a servant for the identity + facet carried by the
+    request.
     """
 
     def __init__(self, id: Identity | None = None, facet: str = "", operation: str = "", msg: str = ""):
@@ -123,8 +126,9 @@ class FacetNotExistException(RequestFailedException):
 @final
 class OperationNotExistException(RequestFailedException):
     """
-    The dispatch could not find the operation carried by the request on the target servant. This is typically due
-    to a mismatch in the Slice definitions, such as the client using Slice definitions newer than the server's.
+    The exception that is raised when a dispatch could not find the operation carried by the request on the target
+    servant. This is typically due to a mismatch in the Slice definitions, such as the client using Slice
+    definitions newer than the server's.
     """
 
     def __init__(self, id: Identity | None = None, facet: str = "", operation: str = "", msg: str = ""):
@@ -133,7 +137,8 @@ class OperationNotExistException(RequestFailedException):
 
 class UnknownException(DispatchException):
     """
-    The dispatch failed with an exception that is not a LocalException or a UserException.
+    The exception that is raised when a dispatch failed with an exception that is not a :class:`LocalException` or a
+    :class:`UserException`.
     """
 
     def __init__(self, msg: str, replyStatus: int = ReplyStatus.UnknownException.value):
@@ -143,7 +148,8 @@ class UnknownException(DispatchException):
 @final
 class UnknownLocalException(UnknownException):
     """
-    The dispatch failed with LocalException that is not one of the special marshal-able local exceptions.
+    The exception that is raised when a dispatch failed with a :class:`LocalException` that is not a
+    :class:`DispatchException`.
     """
 
     def __init__(self, msg: str):
@@ -153,7 +159,8 @@ class UnknownLocalException(UnknownException):
 @final
 class UnknownUserException(UnknownException):
     """
-    The dispatch returned a UserException that was not declared in the operation's exception specification.
+    The exception that is raised when a client receives a :class:`UserException` that was not declared in the
+    operation's exception specification.
     """
 
     def __init__(self, msg: str):
@@ -168,33 +175,32 @@ class UnknownUserException(UnknownException):
 
 class ProtocolException(LocalException):
     """
-    The base class for Ice protocol exceptions.
+    The base class for exceptions related to the Ice protocol.
     """
 
 
 @final
 class CloseConnectionException(ProtocolException):
     """
-    This exception indicates that the connection has been gracefully shut down by the server. The operation call that
-    caused this exception has not been executed by the server. In most cases you will not get this exception, because
-    the client will automatically retry the operation call in case the server shut down the connection. However, if
-    upon retry the server shuts down the connection again, and the retry limit has been reached, then this exception is
-    propagated to the application code.
+    The exception that is raised when the connection has been gracefully shut down by the server. The request
+    that returned this exception has not been executed by the server. In most cases you will not get this exception,
+    because the client will automatically retry the invocation. However, if upon retry the server shuts down the
+    connection again, and the retry limit has been reached, then this exception is propagated to the application code.
     """
 
 
 @final
 class DatagramLimitException(ProtocolException):
     """
-    A datagram exceeds the configured size. This exception is raised if a datagram exceeds the configured send or
-    receive buffer size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
+    The exception that is raised when a datagram exceeds the configured send or receive buffer size, or exceeds the
+    maximum payload size of a UDP packet (65507 bytes).
     """
 
 
 @final
 class MarshalException(ProtocolException):
     """
-    This exception reports an error during marshaling or unmarshaling.
+    The exception that is raised when an error occurs during marshaling or unmarshaling.
     """
 
 
@@ -206,28 +212,28 @@ class MarshalException(ProtocolException):
 
 class TimeoutException(LocalException):
     """
-    This exception indicates a timeout condition.
+    The exception that is raised when a timeout occurs. This is the base class for all timeout exceptions.
     """
 
 
 @final
 class ConnectTimeoutException(TimeoutException):
     """
-    This exception indicates a connection establishment timeout condition.
+    The exception that is raised when a connection establishment times out.
     """
 
 
 @final
 class CloseTimeoutException(TimeoutException):
     """
-    This exception indicates a connection closure timeout condition.
+    The exception that is raised when a graceful connection closure times out.
     """
 
 
 @final
 class InvocationTimeoutException(TimeoutException):
     """
-    This exception indicates that an invocation failed because it timed out.
+    The exception that is raised when an invocation times out.
     """
 
 
@@ -239,14 +245,14 @@ class InvocationTimeoutException(TimeoutException):
 
 class SyscallException(LocalException):
     """
-    This exception is raised if a system error occurred in the server or client process.
+    The exception that is raised to report the failure of a system call.
     """
 
 
 @final
 class DNSException(SyscallException):
     """
-    This exception indicates a DNS problem.
+    The exception that is raised to report a DNS resolution failure.
     """
 
 
@@ -258,27 +264,27 @@ class DNSException(SyscallException):
 
 class SocketException(SyscallException):
     """
-    This exception indicates socket errors.
+    The exception that is raised to report a socket error.
     """
 
 
 class ConnectFailedException(SocketException):
     """
-    This exception indicates connection failures.
+    The exception that is raised when a connection establishment fails.
     """
 
 
 @final
 class ConnectionLostException(SocketException):
     """
-    This exception indicates a lost connection.
+    The exception that is raised when an established connection is lost.
     """
 
 
 @final
 class ConnectionRefusedException(ConnectFailedException):
     """
-    This exception indicates a connection failure for which the server host actively refuses a connection.
+    The exception that is raised when the server host actively refuses a connection.
     """
 
 
@@ -291,9 +297,7 @@ class ConnectionRefusedException(ConnectFailedException):
 @final
 class AlreadyRegisteredException(LocalException):
     """
-    An attempt was made to register something more than once with the Ice run time. This exception is raised if an
-    attempt is made to register a servant, servant locator, facet, plug-in, or object adapter more than once for the
-    same ID.
+    The exception that is raised when you attempt to register an object more than once with the Ice runtime.
     """
 
     def __init__(self, kindOfObject: str, id: str, msg: str):
@@ -302,38 +306,27 @@ class AlreadyRegisteredException(LocalException):
         self.__id = id
 
     @property
-    def kindOfObject(self):
+    def kindOfObject(self) -> str:
         """
-        The kind of object that could not be removed.
-
-        This property can have one of the following values:
-
-        - "servant"
-        - "facet"
-        - "object"
-        - "default servant"
-        - "servant locator"
-        - "plugin"
-        - "object adapter"
-        - "object adapter with router"
-        - "replica group"
+        Returns the kind of object that is already registered: "servant", "facet", "object", "default servant",
+        "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
 
         Returns
         -------
         str
-            The kind of object that could not be removed.
+            The kind.
         """
         return self.__kindOfObject
 
     @property
-    def id(self):
+    def id(self) -> str:
         """
-        The ID (or name) of the object that is already registered.
+        Returns the ID (or name) of the object that is already registered.
 
         Returns
         -------
         str
-            The ID of the registered object.
+            The ID (or name).
         """
         return self.__id
 
@@ -341,14 +334,14 @@ class AlreadyRegisteredException(LocalException):
 @final
 class CommunicatorDestroyedException(LocalException):
     """
-    This exception is raised if the Communicator has been destroyed.
+    The exception that is raised when an operation fails because the communicator has been destroyed.
     """
 
 
 @final
 class ConnectionAbortedException(LocalException):
     """
-    This exception indicates that a connection has been closed forcefully.
+    The exception that is raised when an operation fails because the connection has been aborted.
     """
 
     def __init__(self, closedByApplication: bool, msg: str):
@@ -356,14 +349,14 @@ class ConnectionAbortedException(LocalException):
         self.__closedByApplication = closedByApplication
 
     @property
-    def closedByApplication(self):
+    def closedByApplication(self) -> bool:
         return self.__closedByApplication
 
 
 @final
 class ConnectionClosedException(LocalException):
     """
-    This exception indicates that a connection has been closed gracefully.
+    The exception that is raised when an operation fails because the connection has been closed gracefully.
     """
 
     def __init__(self, closedByApplication: bool, msg: str):
@@ -371,53 +364,48 @@ class ConnectionClosedException(LocalException):
         self.__closedByApplication = closedByApplication
 
     @property
-    def closedByApplication(self):
+    def closedByApplication(self) -> bool:
         return self.__closedByApplication
 
 
 @final
 class FeatureNotSupportedException(LocalException):
     """
-    This exception is raised if an unsupported feature is used.
+    The exception that is raised when attempting to use an unsupported feature.
     """
 
 
 @final
 class FixedProxyException(LocalException):
     """
-    This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
+    The exception that is raised when attempting to change a connection-related property on a fixed proxy.
     """
 
 
 @final
 class InitializationException(LocalException):
     """
-    This exception is raised when a failure occurs during initialization.
-
-    Attributes
-    ----------
-    reason: str
-        The reason for the failure.
+    The exception that is raised when communicator initialization fails.
     """
 
 
 class InvocationCanceledException(LocalException):
     """
-    This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
+    The exception that is raised when an asynchronous invocation fails because it was canceled explicitly by the user.
     """
 
 
 @final
 class NoEndpointException(LocalException):
     """
-    This exception is raised if no suitable endpoint is available.
+    The exception that is raised when the Ice runtime cannot find a suitable endpoint to connect to.
     """
 
 
 @final
 class NotRegisteredException(LocalException):
     """
-    An attempt was made to find or deregister something that is not registered with Ice.
+    The exception that is raised when attempting to find or deregister something that is not registered with Ice.
     """
 
     def __init__(self, kindOfObject: str, id: str, msg: str):
@@ -426,26 +414,26 @@ class NotRegisteredException(LocalException):
         self.__id = id
 
     @property
-    def kindOfObject(self):
+    def kindOfObject(self) -> str:
         """
-        The kind of object that is not registered.
+        Returns the kind of object that is not registered.
 
         Returns
         -------
         str
-            The kind of object that is not registered.
+            The kind.
         """
         return self.__kindOfObject
 
     @property
-    def id(self):
+    def id(self) -> str:
         """
-        The ID (or name) of the object that is not registered.
+        Returns the ID (or name) of the object that is not registered.
 
         Returns
         -------
         str
-            The ID of the object that is not registered.
+            The ID (or name).
         """
         return self.__id
 
@@ -453,53 +441,53 @@ class NotRegisteredException(LocalException):
 @final
 class ObjectAdapterDeactivatedException(LocalException):
     """
-    This exception is raised if an attempt is made to use a deactivated ObjectAdapter.
+    The exception that is raised when attempting to use an :class:`ObjectAdapter` that has been deactivated.
     """
 
 
 @final
 class ObjectAdapterDestroyedException(LocalException):
     """
-    This exception is raised if an attempt is made to use a destroyed ObjectAdapter.
+    The exception that is raised when attempting to use an :class:`ObjectAdapter` that has been destroyed.
     """
 
 
 @final
 class ObjectAdapterIdInUseException(LocalException):
     """
-    This exception is raised if an ObjectAdapter cannot be activated. This happens if the Locator detects another
-    active ObjectAdapter with the same adapter id.
+    The exception that is raised when an :class:`ObjectAdapter` cannot be activated. This can happen when a
+    :class:`Locator` implementation detects another active :class:`ObjectAdapter` with the same adapter ID.
     """
 
 
 @final
 class ParseException(LocalException):
     """
-    This exception is raised if there was an error while parsing a string.
+    The exception that is raised when the parsing of a string fails.
     """
 
 
 @final
 class SecurityException(LocalException):
     """
-    This exception indicates a failure in a security subsystem, such as the SSL transport.
+    The exception that is raised when a failure occurs in the security subsystem. This includes IceSSL errors.
     """
 
 
 @final
 class TwowayOnlyException(LocalException):
     """
-    The operation can only be invoked with a twoway request. This exception is raised if an attempt is made to invoke
-    an operation with ice_oneway, ice_batchOneway, ice_datagram, or ice_batchDatagram and the operation has a return
-    value, out-parameters, or an exception specification.
+    The exception that is raised when attempting to invoke an operation with ``ice_oneway``, ``ice_batchOneway``,
+    ``ice_datagram``, or ``ice_batchDatagram``, and the operation has a return value, an out parameter, or an exception
+    specification.
     """
 
 
 @final
 class PropertyException(LocalException):
     """
-    This exception is raised when there is an error while getting or setting a property. For example, when
-    trying to set an unknown Ice property.
+    The exception that is raised when a property cannot be set or retrieved.
+    For example, this exception is raised when attempting to set an unknown Ice property.
     """
 
 

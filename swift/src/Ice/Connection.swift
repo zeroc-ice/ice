@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// Represents batch compression options when flushing queued batch requests.
+/// Represents batch compression options for flushing queued batch requests.
 public enum CompressBatch: UInt8 {
     /// Compress the batch requests.
     case Yes = 0

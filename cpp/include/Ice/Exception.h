@@ -34,7 +34,7 @@ namespace Ice
         /// Returns the type ID of this exception. This corresponds to the Slice type ID for Slice-defined exceptions,
         /// and to a fully scoped name for other exceptions. For example
         /// "::Ice::CommunicatorDestroyedException".
-        /// @return The type ID of this exception
+        /// @return The type ID of this exception.
         [[nodiscard]] virtual const char* ice_id() const noexcept = 0;
 
         /// Outputs a description of this exception to a stream.

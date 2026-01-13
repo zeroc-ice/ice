@@ -12,12 +12,12 @@ class Value:
 
     def ice_id(self) -> str:
         """
-        Obtain the type ID corresponding to the most-derived Slice interface supported by the target object.
+        Returns the Slice type ID of the most-derived class supported by this object.
 
         Returns
         -------
         str
-            The type ID.
+            The Slice type ID.
         """
         # Call ice_staticId() on self to get the value from the most-derived class.
         return self.ice_staticId()
@@ -25,12 +25,12 @@ class Value:
     @staticmethod
     def ice_staticId() -> str:
         """
-        Obtain the type ID of this Slice class or interface.
+        Returns the Slice type ID of this type.
 
         Returns
         -------
         str
-            The type ID.
+            The return value is always ``::Ice::Object``.
         """
         return "::Ice::Object"
 
@@ -45,13 +45,13 @@ class Value:
 
     def ice_getSlicedData(self) -> SlicedData | None:
         """
-        Return the sliced data if the value has a preserved-slice base class and has been sliced during
-        un-marshaling of the value. Return None otherwise.
+        Gets the sliced data associated with this instance.
 
         Returns
         -------
         SlicedData | None
-            The sliced data or None.
+            If this value has a preserved-slice base class and has been sliced during unmarshaling, this returns the
+            sliced data; otherwise this returns ``None``.
         """
         return getattr(self, "_ice_slicedData", None)
 
