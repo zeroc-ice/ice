@@ -48,8 +48,10 @@ mcpp_ldflags                   := $(MCPP_HOME)/lib/libmcpp.a -Wl,-max_default_co
 # On macos, objects are always PIC/PIE, and executables are always PIE. So there is no need to pass -fPIC or -fPIE to
 # the compiler.
 cppflags        = -fvisibility=hidden -Wall -Wextra -Wshadow -Wshadow-all -Wredundant-decls -Wno-shadow-field \
-                  -Wdeprecated -Wstrict-prototypes -Werror -Wconversion -Wdocumentation -Wno-shadow-uncaptured-local \
-                  -Wreorder-init-list -pthread \
+                  -Wdeprecated -Wstrict-prototypes -Wconversion -Wdocumentation -Wno-shadow-uncaptured-local \
+                  -Wreorder-init-list \
+                  $(if $(filter yes,$(WARNINGS_AS_ERRORS)),-Werror,) \
+                  -pthread \
                   $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g) \
                   -std=c++20
 
