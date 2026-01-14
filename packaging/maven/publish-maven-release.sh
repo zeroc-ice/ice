@@ -40,7 +40,7 @@ cp -pf "${STAGING_DIR}/java-compat/lib/"*.jar "${STAGING_DIR}/java-compat/lib/"*
 
 # Determine Ice version
 
-ice_version=$(basename "$(ls lib/java/ice-*-sources.jar)" | sed -E 's/^ice-(.+)-sources\.jar$/\1/')
+ice_version=$(basename "$(ls java/lib/ice-*-sources.jar)" | sed -E 's/^ice-(.+)-sources\.jar$/\1/')
 components=(ice glacier2 icebt icebox icediscovery icelocatordiscovery icegrid icestorm icepatch2 icessl)
 
 publish_component() {
