@@ -48,7 +48,7 @@
 #        endif
 #    endif
 
-#    if !defined(__FreeBSD__)
+#    if __has_include(<execinfo.h>)
 #        include <cstdint>
 #        include <execinfo.h>
 #        define ICE_BACKTRACE
