@@ -15,7 +15,7 @@ concurrency:
 
 env:
   # Configure the various build systems to treat warnings as errors
-  WARNINGS_AS_ERRORS: true
+  WARNINGS_AS_ERRORS: yes
 
 jobs:
   ci:
