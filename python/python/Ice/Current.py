@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from IcePy import Connection
+from .IcePyTypes import Connection
 
 from .EncodingVersion import EncodingVersion
 from .Identity import Identity

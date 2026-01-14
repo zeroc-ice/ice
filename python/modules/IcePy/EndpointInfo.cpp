@@ -237,7 +237,7 @@ static PyGetSetDef OpaqueEndpointInfoGetters[] = {
      reinterpret_cast<getter>(opaqueEndpointInfoGetRawEncoding),
      nullptr,
      PyDoc_STR(
-        "Ice.EncodingVersion: The encoding version of the opaque endpoint (to decode or encode the ``rawBytes``)."),
+         "Ice.EncodingVersion: The encoding version of the opaque endpoint (to decode or encode the ``rawBytes``)."),
      nullptr},
     {} /* sentinel */
 };

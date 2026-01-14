@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from IcePy import BatchRequest, Connection
+    from .IcePyTypes import BatchRequest, Connection
 
     from .EventLoopAdapter import EventLoopAdapter
     from .Logger import Logger

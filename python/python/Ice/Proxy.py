@@ -2,6 +2,8 @@
 
 import IcePy
 
+from .ObjectPrx import ObjectPrx
+
 IcePy._t_ObjectPrx = IcePy.defineProxy("::Ice::Object", IcePy.ObjectPrx)
 
 __name__ = "Ice"
@@ -10,8 +12,7 @@ __name__ = "Ice"
 # Proxy comparison functions.
 #
 
-
-def proxyIdentityEqual(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | None) -> bool:
+def proxyIdentityEqual(lhs: ObjectPrx | None, rhs: ObjectPrx | None) -> bool:
     """
     Checks if the object identities of two proxies are equal.
 
@@ -31,7 +32,7 @@ def proxyIdentityEqual(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | None)
     return proxyIdentityCompare(lhs, rhs) == 0
 
 
-def proxyIdentityCompare(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | None) -> int:
+def proxyIdentityCompare(lhs: ObjectPrx | None, rhs: ObjectPrx | None) -> int:
     """
     Compares the object identities of two proxies.
 
@@ -48,7 +49,7 @@ def proxyIdentityCompare(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | Non
         ``-1`` if the identity in ``lhs`` compares less than the identity in ``rhs``;
         ``0`` if the identities compare equal; ``1``, otherwise.
     """
-    if (lhs and not isinstance(lhs, IcePy.ObjectPrx)) or (rhs and not isinstance(rhs, IcePy.ObjectPrx)):
+    if (lhs and not isinstance(lhs, ObjectPrx)) or (rhs and not isinstance(rhs, ObjectPrx)):
         raise ValueError("argument is not a proxy")
     if not lhs and not rhs:
         return 0
@@ -63,7 +64,7 @@ def proxyIdentityCompare(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | Non
         return (lid > rid) - (lid < rid)
 
 
-def proxyIdentityAndFacetEqual(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | None) -> bool:
+def proxyIdentityAndFacetEqual(lhs: ObjectPrx | None, rhs: ObjectPrx | None) -> bool:
     """
     Checks if the object identities and facets of two proxies are equal.
 
@@ -83,7 +84,7 @@ def proxyIdentityAndFacetEqual(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx
     return proxyIdentityAndFacetCompare(lhs, rhs) == 0
 
 
-def proxyIdentityAndFacetCompare(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | None) -> int:
+def proxyIdentityAndFacetCompare(lhs: ObjectPrx | None, rhs: ObjectPrx | None) -> int:
     """
     Compares the object identities and facets of two proxies.
 
@@ -100,7 +101,7 @@ def proxyIdentityAndFacetCompare(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectP
         ``-1`` if the identity and facet in ``lhs`` compare less than the identity and
         facet in ``rhs``; ``0`` if the identities and facets compare equal; ``1``, otherwise.
     """
-    if (lhs and not isinstance(lhs, IcePy.ObjectPrx)) or (rhs and not isinstance(rhs, IcePy.ObjectPrx)):
+    if (lhs and not isinstance(lhs, ObjectPrx)) or (rhs and not isinstance(rhs, ObjectPrx)):
         raise ValueError("argument is not a proxy")
     if lhs is None and rhs is None:
         return 0
