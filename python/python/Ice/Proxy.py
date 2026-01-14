@@ -8,9 +8,11 @@ IcePy._t_ObjectPrx = IcePy.defineProxy("::Ice::Object", IcePy.ObjectPrx)
 
 __name__ = "Ice"
 
+
 #
 # Proxy comparison functions.
 #
+
 
 def proxyIdentityEqual(lhs: ObjectPrx | None, rhs: ObjectPrx | None) -> bool:
     """
