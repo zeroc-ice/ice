@@ -28,7 +28,7 @@
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
 
-    <!-- Enable warnings as errors -->
+  <!-- Enable warnings as errors -->
   <PropertyGroup Condition="'$(WARNINGS_AS_ERRORS)' == 'yes'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
