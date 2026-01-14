@@ -42,7 +42,6 @@
       <PreprocessorDefinitions>_CONSOLE;_WIN32_WINNT=0x0A00;WIN32_LEAN_AND_MEAN</PreprocessorDefinitions>
       <DisableSpecificWarnings>4121;4250;4251;4275;4324</DisableSpecificWarnings>
       <AdditionalOptions>/utf-8 /bigobj %(AdditionalOptions)</AdditionalOptions>
-      <TreatWarningAsError Condition="'$(ICE_WARNINGS_AS_ERRORS)' != ''">$(ICE_WARNINGS_AS_ERRORS)</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <MinimalRebuild>false</MinimalRebuild>
@@ -62,6 +61,10 @@
       <LinkTimeCodeGeneration />
       <AdditionalLibraryDirectories>$(IceHome)\cpp\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(ICE_WARNINGS_AS_ERRORS)' == 'yes'">
+    <TreatWarningAsError>true</TreatWarningAsError>
   </ItemDefinitionGroup>
 
   <!-- Common properties set for all debug builds and platforms. -->
