@@ -64,7 +64,9 @@
   </ItemDefinitionGroup>
 
   <ItemDefinitionGroup Condition="'$(ICE_WARNINGS_AS_ERRORS)' == 'yes'">
-    <TreatWarningAsError>true</TreatWarningAsError>
+    <ClCompile>
+      <TreatWarningAsError>true</TreatWarningAsError>
+    </ClCompile>
   </ItemDefinitionGroup>
 
   <!-- Common properties set for all debug builds and platforms. -->
