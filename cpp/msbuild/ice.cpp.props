@@ -63,6 +63,7 @@
     </Link>
   </ItemDefinitionGroup>
 
+  <!-- Enable warnings as errors -->
   <ItemDefinitionGroup Condition="'$(ICE_WARNINGS_AS_ERRORS)' == 'yes'">
     <ClCompile>
       <TreatWarningAsError>true</TreatWarningAsError>
