@@ -8,9 +8,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from .IcePyTypes import BatchRequest, Connection
-
     from .EventLoopAdapter import EventLoopAdapter
+    from .IcePyTypes import BatchRequest, Connection
     from .Logger import Logger
     from .Properties import Properties
     from .UserException import UserException
