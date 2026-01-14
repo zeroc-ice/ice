@@ -71,7 +71,6 @@
       <PreprocessorDefinitions>_CONSOLE;_WIN32_WINNT=0x601;WIN32_LEAN_AND_MEAN</PreprocessorDefinitions>
       <DisableSpecificWarnings>4121;4250;4251;4275;4324</DisableSpecificWarnings>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
-      <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <MinimalRebuild>false</MinimalRebuild>
@@ -87,6 +86,12 @@
       <LinkTimeCodeGeneration />
       <AdditionalLibraryDirectories />
     </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(WARNINGS_AS_ERRORS)' == 'yes'">
+    <ClCompile>
+      <TreatWarningAsError>true</TreatWarningAsError>
+    </ClCompile>
   </ItemDefinitionGroup>
 
   <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes'">

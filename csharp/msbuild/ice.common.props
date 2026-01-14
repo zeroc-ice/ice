@@ -16,7 +16,6 @@
     <FileAlignment>512</FileAlignment>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DefineConstants>TRACE</DefineConstants>
     <SignAssembly>true</SignAssembly>
     <!-- Source Link Settings -->
@@ -27,6 +26,11 @@
 
     <!-- Avoid warnings about end-of-line target framework -->
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
+  </PropertyGroup>
+
+    <!-- Enable warnings as errors -->
+  <PropertyGroup Condition="'$(WARNINGS_AS_ERRORS)' == 'yes'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <!-- Import Ice version settings -->
