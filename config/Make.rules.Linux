@@ -144,7 +144,7 @@ fully_static_ldflags = -static
 endif
 
 cppflags        = -fvisibility=hidden -Wall -Wextra -Wredundant-decls -Wshadow -Wdeprecated \
-                  $(if $(filter yes,$(ICE_WARNINGS_AS_ERRORS)),-Werror,) \
+                  $(if $(filter yes,$(WARNINGS_AS_ERRORS)),-Werror,) \
                   -pthread \
                   $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)
 ldflags         = -pthread
