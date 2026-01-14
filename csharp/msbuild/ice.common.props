@@ -12,11 +12,15 @@
     <ImplicitUsings>true</ImplicitUsings>
     <LangVersion>12.0</LangVersion>
     <RollForward>Major</RollForward>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningLevel>4</WarningLevel>
      <!-- The 1.2 beta version is required for supporting the latest language features.
             See: https://github.com/DotNetAnalyzers/StyleCopAnalyzers/pull/3187 -->
     <StyleCopAnalyzersVersion>1.2.0-beta.556</StyleCopAnalyzersVersion>
+  </PropertyGroup>
+
+  <!-- Enable warnings as errors -->
+  <PropertyGroup Condition="'$(WARNINGS_AS_ERRORS)' == 'yes'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <!-- Common assembly and packaging properties -->
