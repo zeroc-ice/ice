@@ -157,7 +157,10 @@ ifeq ($(filter amzn,$(linux_id)),)
 fully_static_ldflags = -static
 endif
 
-cppflags        = -Wall -Wextra -Wredundant-decls -Wshadow -Wdeprecated -Werror -pthread $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)
+cppflags        = -Wall -Wextra -Wredundant-decls -Wshadow -Wdeprecated \
+                  $(if $(filter yes,$(WARNINGS_AS_ERRORS)),-Werror,) \
+                  -pthread \
+                  $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)
 ldflags         = -pthread
 
 # -Wshadow is too strict with gcc 4
