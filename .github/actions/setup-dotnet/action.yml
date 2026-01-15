@@ -1,4 +1,5 @@
 name: Setup .NET
+description: Installs .NET SDK versions (8.0 by default, optionally 10.0).
 
 inputs:
   include_net10:
