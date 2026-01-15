@@ -1,13 +1,12 @@
 name: Test Ice
+description: Runs the Ice test suite using allTests.py with parallel workers and XML report generation.
 
 inputs:
   working_directory:
     description: "The working directory to run the tests in"
-    type: string
 
   flags:
     description: "Flags to pass to the test"
-    type: string
     default: ""
 
 runs:

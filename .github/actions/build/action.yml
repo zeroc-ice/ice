@@ -1,41 +1,34 @@
 name: Build Ice
+description: Builds Ice for the current platform using Make (macOS/Linux) or MSBuild (Windows).
 
 inputs:
   working_directory:
     description: "The working directory to run the build in"
     default: "."
-    type: string
 
   build_flags:
     description: "Additional flags to pass to the build"
     default: ""
-    type: string
 
   msbuild_project:
     description: "The project file to build"
     default: "ice.proj"
-    type: string
 
   msbuild_command:
     description: "The msbuild command to use"
     default: "msbuild /m"
-    type: string
 
   build_cpp_and_python:
     description: "Build C++ and Python"
-    type: choice
     default: "false"
-    options:
-      - true
-      - false
 
   build_android_controller:
     description: "Build Android Controller"
-    type: choice
     default: "false"
-    options:
-      - true
-      - false
+
+  clean_obj_files:
+    description: "Remove intermediate object files after build to save disk space"
+    default: "false"
 
 runs:
   using: "composite"
@@ -63,6 +56,16 @@ runs:
       shell: bash
       if: inputs.build_android_controller == 'true'
 
+    - name: Clean intermediate object files
+      working-directory: ${{ inputs.working_directory }}
+      run: |
+        echo "Cleaning intermediate object files to save disk space..."
+        find . -type f \( -name "*.o" -o -name "*.obj" \) -delete
+        echo "Disk space after cleanup:"
+        df -h .
+      shell: bash
+      if: (runner.os == 'macOS' || runner.os == 'Linux') && inputs.clean_obj_files == 'true'
+
     # Windows
     - name: Build C++ and Python
       run: |
@@ -76,3 +79,13 @@ runs:
       run: ${{ inputs.msbuild_command }} ${{ inputs.build_flags }} ${{ inputs.msbuild_project }}
       shell: powershell
       if: runner.os == 'Windows'
+
+    - name: Clean intermediate object files
+      working-directory: ${{ inputs.working_directory }}
+      run: |
+        Write-Host "Cleaning intermediate object files to save disk space..."
+        Get-ChildItem -Recurse -Include *.obj | Remove-Item -Force
+        Write-Host "Disk space after cleanup:"
+        Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -ne $null } | Format-Table Name, @{N='Used (GB)';E={[math]::Round($_.Used/1GB,2)}}, @{N='Free (GB)';E={[math]::Round($_.Free/1GB,2)}}
+      shell: powershell
+      if: runner.os == 'Windows' && inputs.clean_obj_files == 'true'

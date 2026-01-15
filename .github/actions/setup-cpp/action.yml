@@ -1,4 +1,5 @@
 name: Setup C++
+description: Installs C++ build dependencies and configures the build environment for the current platform.
 runs:
   using: "composite"
   steps:
