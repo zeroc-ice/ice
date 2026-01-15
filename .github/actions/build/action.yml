@@ -57,7 +57,6 @@ runs:
       if: inputs.build_android_controller == 'true'
 
     - name: Clean intermediate object files
-      working-directory: ${{ inputs.working_directory }}
       run: |
         echo "=== Before cleanup ==="
         echo "Disk space:"
@@ -91,7 +90,6 @@ runs:
       if: runner.os == 'Windows'
 
     - name: Clean intermediate object files
-      working-directory: ${{ inputs.working_directory }}
       run: |
         Write-Host "=== Before cleanup ==="
         Write-Host "Disk space:"
