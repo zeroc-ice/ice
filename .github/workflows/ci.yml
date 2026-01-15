@@ -156,6 +156,14 @@ jobs:
         run: df -h
         shell: bash
 
+      - name: Free up disk space
+        if: matrix.config == 'android'
+        run: |
+          sudo rm -rf /usr/local/go* /opt/hostedtoolcache/go
+          sudo rm -rf /usr/local/.ghcup
+          df -h
+        shell: bash
+
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
