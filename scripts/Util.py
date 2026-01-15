@@ -621,7 +621,6 @@ class Mapping(object):
             # avoid having to check the configuration type)
             self.openssl = False
             self.browser = ""
-            self.es5 = False
             self.worker = False
             self.dotnet = False
             self.framework = ""
@@ -2666,7 +2665,7 @@ class BrowserProcessController(RemoteProcessController):
         self.url = None
         self.driver = None
         try:
-            cmd = "node -e \"require('./bin/HttpServer')()\""
+            cmd = "node --input-type=module -e \"import('./bin/HttpServer.mjs').then(m => m.default())\""
             cwd = current.testcase.getMapping().getPath()
             self.httpServer = Expect.Expect(cmd, cwd=cwd)
             self.httpServer.expect("listening on ports")
@@ -2729,9 +2728,7 @@ class BrowserProcessController(RemoteProcessController):
         # to register itself with this script.
         #
         testsuite = ""
-        if current.config.es5:
-            testsuite += "es5/"
-        elif isinstance(current.testcase.getMapping(), TypeScriptMapping):
+        if isinstance(current.testcase.getMapping(), TypeScriptMapping):
             testsuite += "typescript/"
         testsuite += str(current.testsuite)
 
@@ -2771,8 +2768,7 @@ class BrowserProcessController(RemoteProcessController):
                         if ident in self.processControllerProxies:
                             prx = self.processControllerProxies[ident]
                             break
-                        print("Please load http://{0}:8080/{1}".format(self.host,
-                                                                       "es5/start" if current.config.es5 else "start"))
+                        print("Please load http://{0}:8080/start".format(self.host))
                         self.cond.wait(5)
 
                 try:
@@ -3756,10 +3752,6 @@ class MatlabMapping(CppBasedClientMapping):
 class JavaScriptMixin():
 
     def loadTestSuites(self, tests, config, filters, rfilters):
-        # Exclude es5 directory, these are the same tests but transpiled with babel the JavaScript mapping
-        # use them when --es5 option is set.
-        rfilters += [re.compile("es5/*")]
-
         # Exclude typescript directory when the mapping is not typescript otherwise we endup with duplicate entries
         if self.name != "typescript":
             rfilters += [re.compile("typescript/*")]
@@ -3809,13 +3801,12 @@ class JavaScriptMapping(JavaScriptMixin,Mapping):
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["es5", "browser=", "worker"])
+            return ("", ["browser=", "worker"])
 
         @classmethod
         def usage(self):
             print("")
             print("JavaScript mapping options:")
-            print("--es5                 Use JavaScript ES5 (Babel compiled code).")
             print("--browser=<name>      Run with the given browser.")
             print("--worker              Run with Web workers enabled.")
 
@@ -3825,31 +3816,16 @@ class JavaScriptMapping(JavaScriptMixin,Mapping):
             if self.browser and self.protocol == "tcp":
                 self.protocol = "ws"
 
-            # Ie only support ES5 for now
-            if self.browser in ["Ie"]:
-                self.es5 = True
-
-    def getCommonDir(self, current):
-        if current.config.es5:
-            return os.path.join(self.getPath(), "test", "es5", "Common")
-        else:
-            return os.path.join(self.getPath(), "test", "Common")
-
     def _getDefaultSource(self, processType):
         return { "client" : "Client.js", "serveramd" : "ServerAMD.js", "server" : "Server.js" }[processType]
 
     def getTestCwd(self, process, current):
-        if current.config.es5:
-            # Change to the ES5 test directory if testing ES5
-            return os.path.join(self.path, "test", "es5", current.testcase.getTestSuite().getId())
-        else:
-            return os.path.join(self.path, "test", current.testcase.getTestSuite().getId())
+        return os.path.join(self.path, "test", current.testcase.getTestSuite().getId())
 
     def getOptions(self, current):
         options = JavaScriptMixin.getOptions(self, current)
         options.update({
-            "es5" : [True] if current.config.es5 else [False, True],
-            "worker" : [False, True] if current.config.browser and current.config.browser != "Ie" else [False],
+            "worker" : [False, True] if current.config.browser else [False],
         })
         return options
 
