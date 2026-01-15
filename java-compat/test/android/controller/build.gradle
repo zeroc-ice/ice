@@ -6,11 +6,11 @@ buildscript {
     repositories {
         google()
         maven {
-            url "https://plugins.gradle.org/m2/"
+            url = "https://plugins.gradle.org/m2/"
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.1'
+        classpath 'com.android.tools.build:gradle:8.13.2'
         classpath 'gradle.plugin.com.zeroc.gradle.ice-builder:slice:1.5.0'
     }
 }
@@ -51,13 +51,18 @@ repositories {
 }
 
 android {
-    compileSdk 33
+    compileSdk 36
+
+    buildFeatures {
+        buildConfig = false
+    }
 
     defaultConfig {
         applicationId "com.zeroc.testcontroller"
         minSdkVersion 21
-        targetSdkVersion 33
-        multiDexEnabled true // Necessary otherwise we'd exceed the 64K DEX limit.
+        targetSdkVersion 36
+        // The test controller app exceeds the 64K method limit due to the Ice libraries and test classes.
+        multiDexEnabled = true
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_7
             targetCompatibility JavaVersion.VERSION_1_7
@@ -75,7 +80,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
         }
     }
-    namespace 'com.zeroc.testcontroller'
+    namespace = 'com.zeroc.testcontroller'
 }
 
 task copyBksTask(type: Copy) {
