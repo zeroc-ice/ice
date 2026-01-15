@@ -155,6 +155,7 @@ jobs:
         run: df -h
         shell: bash
 
+      # Free up disk space to avoid running out of space when starting the Android emulator for tests
       - name: Free up disk space
         if: matrix.config == 'android'
         run: |
