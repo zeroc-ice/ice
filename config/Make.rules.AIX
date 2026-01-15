@@ -123,7 +123,7 @@ endif
 ifeq ($(COMPILER),xlC_r)
      cppflags        += -qrtti -qstaticinline -qhalt=i
 else ifeq ($(COMPILER),xlclang++)
-     cppflags        += -mcpu=pwr8 -Werror
+     cppflags        += -mcpu=pwr8 $(if $(filter yes,$(WARNINGS_AS_ERRORS)),-Werror,)
      nodeprecatedwarnings-cppflags := -Wno-deprecated-declarations
 endif
 
