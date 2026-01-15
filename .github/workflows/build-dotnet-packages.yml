@@ -112,7 +112,7 @@ jobs:
         shell: pwsh
 
       - name: Build .NET
-        run: msbuild csharp\msbuild\ice.proj /t:BuildDist /p:Configuration=Release /p:Platform=x64
+        run: dotnet msbuild csharp\msbuild\ice.proj /t:BuildDist /p:Configuration=Release /p:Platform=x64
 
       - name: Collect Files to Sign
         if: ${{ inputs.authenticode_sign }}
@@ -144,7 +144,7 @@ jobs:
           timestamp-digest: SHA256
 
       - name: Pack .NET Packages
-        run: msbuild csharp\msbuild\ice.proj /t:NuGetPack /p:Configuration=Release /p:Platform=x64
+        run: dotnet msbuild csharp\msbuild\ice.proj /t:NuGetPack /p:Configuration=Release /p:Platform=x64
 
       - name: Upload NuGet Packages
         uses: actions/upload-artifact@v4

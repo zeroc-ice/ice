@@ -7,9 +7,9 @@
         <!-- .NET assemblies and tools -->
         <NetIceBox Include="$(IceSrcRootDir)bin\net8.0\publish\*"
                    Exclude="$(IceSrcRootDir)bin\net8.0\publish\*.exe" />
-        <NetFramework Include="$(IceSrcRootDir)bin\net472\publish\*"
-                      Exclude="$(IceSrcRootDir)bin\net472\publish\*.exe"
-                      Condition="'$(OS)' == 'Windows_NT'" />
+        <NetFrameworkIceBox Include="$(IceSrcRootDir)bin\net472\publish\*"
+                            Exclude="$(IceSrcRootDir)bin\net472\publish\*.exe"
+                            Condition="'$(OS)' == 'Windows_NT'" />
 
         <Assemblies Include="$(IceSrcRootDir)lib\netstandard2.0\*.dll;
                              $(IceSrcRootDir)lib\netstandard2.0\*.xml;
@@ -25,6 +25,6 @@
         <Copy SourceFiles="@(Assemblies)" DestinationFolder="$(PackageDirectory)\lib\netstandard2.0"/>
         <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)"/>
         <Copy SourceFiles="@(NetIceBox)" DestinationFolder="$(PackageDirectory)\tools\net8.0"/>
-        <Copy SourceFiles="@(NetFramework)" DestinationFolder="$(PackageDirectory)\tools\net472"/>
+        <Copy SourceFiles="@(NetFrameworkIceBox)" DestinationFolder="$(PackageDirectory)\tools\net472"/>
     </Target>
 </Project>
