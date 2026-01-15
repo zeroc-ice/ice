@@ -59,10 +59,20 @@ runs:
     - name: Clean intermediate object files
       working-directory: ${{ inputs.working_directory }}
       run: |
-        echo "Cleaning intermediate object files to save disk space..."
-        find . -type f \( -name "*.o" -o -name "*.obj" \) -delete
-        echo "Disk space after cleanup:"
+        echo "=== Before cleanup ==="
+        echo "Disk space:"
         df -h .
+        echo "Workspace size:"
+        du -sh .
+        echo ""
+        echo "Cleaning intermediate object files..."
+        find . -type f \( -name "*.o" -o -name "*.obj" \) -delete
+        echo ""
+        echo "=== After cleanup ==="
+        echo "Disk space:"
+        df -h .
+        echo "Workspace size:"
+        du -sh .
       shell: bash
       if: (runner.os == 'macOS' || runner.os == 'Linux') && inputs.clean_obj_files == 'true'
 
@@ -83,9 +93,21 @@ runs:
     - name: Clean intermediate object files
       working-directory: ${{ inputs.working_directory }}
       run: |
-        Write-Host "Cleaning intermediate object files to save disk space..."
-        Get-ChildItem -Recurse -Include *.obj | Remove-Item -Force
-        Write-Host "Disk space after cleanup:"
+        Write-Host "=== Before cleanup ==="
+        Write-Host "Disk space:"
         Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -ne $null } | Format-Table Name, @{N='Used (GB)';E={[math]::Round($_.Used/1GB,2)}}, @{N='Free (GB)';E={[math]::Round($_.Free/1GB,2)}}
+        Write-Host "Workspace size:"
+        $size = (Get-ChildItem -Recurse -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum / 1GB
+        Write-Host ("{0:N2} GB" -f $size)
+        Write-Host ""
+        Write-Host "Cleaning intermediate object files..."
+        Get-ChildItem -Recurse -Include *.obj | Remove-Item -Force
+        Write-Host ""
+        Write-Host "=== After cleanup ==="
+        Write-Host "Disk space:"
+        Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -ne $null } | Format-Table Name, @{N='Used (GB)';E={[math]::Round($_.Used/1GB,2)}}, @{N='Free (GB)';E={[math]::Round($_.Free/1GB,2)}}
+        Write-Host "Workspace size:"
+        $size = (Get-ChildItem -Recurse -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum / 1GB
+        Write-Host ("{0:N2} GB" -f $size)
       shell: powershell
       if: runner.os == 'Windows' && inputs.clean_obj_files == 'true'
