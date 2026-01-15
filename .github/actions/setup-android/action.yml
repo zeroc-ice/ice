@@ -1,4 +1,5 @@
 name: Setup Android
+description: Configures the Android SDK, emulator, and KVM permissions for Android builds and testing.
 runs:
   using: "composite"
   steps:

@@ -1,4 +1,5 @@
 name: Setup Node
+description: Installs Node.js 22 using the actions/setup-node action.
 runs:
   using: "composite"
   steps:

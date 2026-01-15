@@ -1,4 +1,5 @@
 name: Setup Python
+description: Installs Python and configures the environment for the current platform.
 
 inputs:
   python-version:

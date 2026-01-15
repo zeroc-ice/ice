@@ -1,9 +1,9 @@
 name: Setup Cache
+description: Configures ccache for C++ compilation caching across platforms.
 
 inputs:
   prefix:
     description: "Cache key prefix"
-    type: string
     required: true
 
 runs:

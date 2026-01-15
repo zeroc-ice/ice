@@ -1,4 +1,5 @@
 name: "Setup PHP"
+description: Installs PHP CLI and development packages for macOS and Linux.
 runs:
   using: "composite"
   steps:
