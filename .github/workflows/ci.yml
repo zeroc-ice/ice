@@ -199,6 +199,20 @@ jobs:
         uses: ./.github/actions/macos-fqdn
         if: runner.os == 'macOS'
 
+      - name: Disk space before setup
+        run: df -h
+        shell: bash
+
+      # Free up disk space to avoid running out of space when starting the Android emulator for tests
+      - name: Free up disk space
+        if: matrix.config == 'android'
+        run: |
+          sudo rm -rf /usr/local/go* /opt/hostedtoolcache/go
+          sudo rm -rf /usr/local/.ghcup
+          sudo rm -rf /usr/share/dotnet
+          df -h
+        shell: bash
+
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
@@ -211,6 +225,7 @@ jobs:
           python-version: ${{ matrix.python_version || '3.14' }}
 
       - name: Setup .NET
+        if: matrix.config != 'android'
         uses: ./.github/actions/setup-dotnet
         with:
           include_net10: ${{ matrix.net_target_framework == 'net10.0' }}
@@ -248,6 +263,10 @@ jobs:
         uses: ./.github/actions/setup-cache
         with:
           prefix: ci-${{ matrix.config }}
+
+      - name: Disk space after setup
+        run: df -h
+        shell: bash
 
       # See https://learn.microsoft.com/en-us/windows/win32/wer/collecting-user-mode-dumps
       - name: Enable Windows crash dumps
