@@ -1,5 +1,6 @@
 name: Setup Android
-description: Configures the Android SDK, emulator, and KVM permissions for Android builds and testing.
+description: Setup Android SDK and Emulator
+
 runs:
   using: "composite"
   steps:
@@ -23,7 +24,11 @@ runs:
     - name: Configure Android SDK
       shell: bash
       run: |
-        sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34"
-        sdkmanager "system-images;android-34;google_apis;x86_64"
-        sdkmanager emulator
-        sdkmanager --update
+        # platform-tools, build-tools, and platforms are pre-installed on GitHub runners
+        # We only need to install the system image for the emulator
+        if [ "$(uname -m)" = "aarch64" ]; then
+          ARCH="arm64-v8a"
+        else
+          ARCH="x86_64"
+        fi
+        sdkmanager "system-images;android-36;google_apis;$ARCH"
