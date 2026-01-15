@@ -28,97 +28,98 @@ namespace
 {
     constexpr const char* IcePy_stringVersion_doc = R"(stringVersion() -> str
 
-Returns the Ice version as a string.
+Returns the Ice version in the form ``A.B.C``, where ``A`` indicates the major version,
+``B`` indicates the minor version, and ``C`` indicates the patch level.
 
 Returns
 -------
 str
-    The Ice version in the format 'A.B.C' where A is the major version,
-    B is the minor version, and C is the patch version.)";
+    The Ice version.)";
 
     constexpr const char* IcePy_intVersion_doc = R"(intVersion() -> int
 
-Returns the Ice version as an integer.
+Returns the Ice version as an integer in the form ``AABBCC``, where ``AA`` indicates the major version,
+``BB`` indicates the minor version, and ``CC`` indicates the patch level.
+For example, for Ice 3.9.1, the returned value is 30901.
 
 Returns
 -------
 int
-    The Ice version as an integer for version comparison.)";
+    The Ice version.)";
 
     constexpr const char* IcePy_createProperties_doc =
-        R"(createProperties(args: list[str] | None = None) -> Ice.Properties
+        R"(createProperties(args: list[str] | None = None, defaults: Ice.Properties | None = None) -> Ice.Properties
 
-Creates a new Properties instance.
+Creates a property set initialized from command-line arguments and a default property set.
 
 Parameters
 ----------
-args : list or None, optional
-    Command-line arguments used to set properties. If provided, these
-    are parsed to extract property settings.
+args : list[str] | None, optional
+    The command-line arguments.
+defaults : Properties | None, optional
+    Default values for the new property set.
 
 Returns
 -------
 Ice.Properties
-    A new Properties object.)";
+    A new property set.)";
 
-    constexpr const char* IcePy_stringToIdentity_doc = R"(stringToIdentity(s: str) -> Ice.Identity
+    constexpr const char* IcePy_stringToIdentity_doc = R"(stringToIdentity(str: str) -> Ice.Identity
 
-Converts a string into an identity.
+Converts a stringified identity into an Identity.
 
 Parameters
 ----------
-s : str
-    The string representation of an identity.
+str : str
+    The stringified identity.
 
 Returns
 -------
 Ice.Identity
-    The identity.
+    An Identity created from the provided string.
 
 Raises
 ------
-IdentityParseException
-    If the string is not a valid identity.)";
+ParseException
+    If the string cannot be converted to an object identity.)";
 
     constexpr const char* IcePy_identityToString_doc =
-        R"(identityToString(ident: Ice.Identity, mode: Ice.ToStringMode = Ice.ToStringMode.Unicode) -> str
+        R"(identityToString(identity: Ice.Identity, toStringMode: Ice.ToStringMode | None = None) -> str
 
-Converts an identity into a string.
+Converts an Identity into a string using the specified mode.
 
 Parameters
 ----------
-ident : Ice.Identity
-    The identity to convert.
-mode : Ice.ToStringMode, optional
-    Specifies how to encode non-ASCII characters. The default is
-    Ice.ToStringMode.Unicode.
+identity : Ice.Identity
+    The identity.
+toStringMode : Ice.ToStringMode | None, optional
+    Specifies how to handle non-ASCII characters and non-printable ASCII characters.
+    The default is :const:`Ice.ToStringMode.Unicode`.
 
 Returns
 -------
 str
-    The string representation of the identity.)";
+    The stringified identity.)";
 
     constexpr const char* IcePy_getProcessLogger_doc = R"(getProcessLogger() -> Ice.Logger
 
-Returns the process logger. This is the logger used by the Ice
-run time unless the application sets a different logger in
-InitializationData for a communicator.
+Gets the per-process logger. This logger is used by all communicators that do not have their own specific logger
+configured at the time the communicator is created.
 
 Returns
 -------
 Ice.Logger
-    The process logger.)";
+    The current per-process logger instance.)";
 
     constexpr const char* IcePy_setProcessLogger_doc = R"(setProcessLogger(logger: Ice.Logger) -> None
 
-Sets the process logger. This logger is used by the Ice run time
-unless the application sets a different logger in
-InitializationData for a communicator.
+Sets the per-process logger. This logger is used by all communicators that do not have their own specific logger
+configured at the time the communicator is created.
 
 Parameters
 ----------
 logger : Ice.Logger
-    The new process logger.)";
+    The new per-process logger instance.)";
 
     constexpr const char* IcePy_loadSlice_doc = R"(loadSlice(args: list[str]) -> None
 
@@ -246,7 +247,7 @@ PyMODINIT_FUNC ICE_DECLSPEC_EXPORT
 #endif
 PyInit_IcePy(void)
 {
-    // Create the IcePy  module.
+    // Create the IcePy module.
     PyObject* module{PyModule_Create(&iceModule)};
 
     // Initialize the IcePy built-in types.

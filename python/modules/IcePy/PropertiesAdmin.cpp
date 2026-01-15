@@ -20,8 +20,8 @@ Registers an update callback that will be invoked when a property update occurs.
 
 Parameters
 ----------
-callback : Callable
-    The callback function.)";
+callback : Callable[[dict[str, str]], None]
+    The callback.)";
 
     constexpr const char* nativePropertiesAdminRemoveUpdateCB_doc =
         R"(removeUpdateCallback(callback: Callable[[dict[str, str]], None]) -> None
@@ -30,8 +30,8 @@ Removes a previously registered update callback.
 
 Parameters
 ----------
-callback : Callable
-    The callback function to remove.)";
+callback : Callable[[dict[str, str]], None]
+    The callback to remove.)";
 }
 
 namespace IcePy
@@ -153,7 +153,7 @@ namespace IcePy
         .tp_basicsize = sizeof(NativePropertiesAdminObject),
         .tp_dealloc = reinterpret_cast<destructor>(nativePropertiesAdminDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT,
-        .tp_doc = PyDoc_STR("The default implementation for the 'Properties' admin facet."),
+        .tp_doc = PyDoc_STR("The default implementation of the 'Properties' admin facet."),
         .tp_methods = NativePropertiesAdminMethods,
         .tp_new = reinterpret_cast<newfunc>(nativePropertiesAdminNew),
     };

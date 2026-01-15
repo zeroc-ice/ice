@@ -9,6 +9,7 @@ import IcePy
 
 if TYPE_CHECKING:
     from .Communicator import Communicator
+    from .IcePyTypes import Endpoint
     from .Identity import Identity
     from .Locator import LocatorPrx
     from .Object import Object
@@ -570,7 +571,7 @@ class ObjectAdapter:
         """
         return self._impl.getLocator()
 
-    def getEndpoints(self) -> tuple[IcePy.Endpoint, ...]:
+    def getEndpoints(self) -> tuple[Endpoint, ...]:
         """
         Gets the set of endpoints configured on this object adapter.
 
@@ -585,7 +586,7 @@ class ObjectAdapter:
         """
         return self._impl.getEndpoints()
 
-    def getPublishedEndpoints(self) -> tuple[IcePy.Endpoint, ...]:
+    def getPublishedEndpoints(self) -> tuple[Endpoint, ...]:
         """
         Gets the set of endpoints that proxies created by this object adapter will contain.
 
@@ -600,7 +601,7 @@ class ObjectAdapter:
         """
         return self._impl.getPublishedEndpoints()
 
-    def setPublishedEndpoints(self, newEndpoints: tuple[IcePy.Endpoint, ...] | list[IcePy.Endpoint]) -> None:
+    def setPublishedEndpoints(self, newEndpoints: tuple[Endpoint, ...] | list[Endpoint]) -> None:
         """
         Sets the endpoints that proxies created by this object adapter will contain.
 
