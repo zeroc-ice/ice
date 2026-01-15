@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <Target Name="Build">
-    <Exec Command="$(NPM) --omit=optional install"
+    <Exec Command="$(NPM) install"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
           StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />
@@ -19,7 +19,7 @@
   </Target>
 
   <Target Name="Clean">
-    <Exec Command="$(NPM) --omit=optional install"
+    <Exec Command="$(NPM) install"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
           StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />

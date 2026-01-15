@@ -21,4 +21,4 @@ lint: npminstall
 	$(NPM) run lint
 
 npminstall:
-	$(NPM) install --omit=optional
+	$(NPM) install
