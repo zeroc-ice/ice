@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from .Communicator import Communicator
     from .EncodingVersion import EncodingVersion
     from .EndpointSelectionType import EndpointSelectionType
-    from .IcePyTypes import Connection
+    from .IcePyTypes import Connection, Endpoint
     from .Identity import Identity
     from .Locator import LocatorPrx
     from .Router import RouterPrx
@@ -38,19 +38,17 @@ def uncheckedCast(type: Type[T], proxy: ObjectPrx | None, facet: str | None = No
 
     Parameters
     ----------
-    type : type
+    type : Type[T]
         The proxy target type.
-
     proxy : ObjectPrx | None
         The source proxy.
-
     facet : str | None, optional
         A facet name.
 
     Returns
     -------
-    ObjectPrx | None
-        A new proxy with the requested type, or None if the source proxy is None.
+    T | None
+        A new proxy with the requested type and facet, or ``None`` if the source proxy is ``None``.
     """
     if proxy is None:
         return None
@@ -67,23 +65,20 @@ def checkedCast(
 
     Parameters
     ----------
-    type : type
+    type : Type[T]
         The proxy target type.
-
     proxy : ObjectPrx | None
         The source proxy.
-
     facet : str | None, optional
         A facet name.
-
     context : dict[str, str] | None, optional
         The request context.
 
     Returns
     -------
-    ObjectPrx | None
-        A new proxy with the requested type, or None if the source proxy is None or if the target object does not
-        support the requested type.
+    T | None
+        A new proxy with the requested type and facet, or ``None`` if the source proxy is ``None`` or if the target
+        object/facet does not support the requested type.
     """
     if proxy is None:
         return None
@@ -100,23 +95,20 @@ async def checkedCastAsync(
 
     Parameters
     ----------
-    type : type
+    type : Type[T]
         The proxy target type.
-
     proxy : ObjectPrx | None
         The source proxy.
-
     facet : str | None, optional
         A facet name.
-
     context : dict[str, str] | None, optional
         The request context.
 
     Returns
     -------
-    ObjectPrx | None
-        A new proxy with the requested type, or None if the source proxy is None or if the target object does not
-        support the requested type.
+    T | None
+        A new proxy with the requested type and facet, or ``None`` if the source proxy is ``None`` or if the target
+        object/facet does not support the requested type.
     """
     if proxy is None:
         return None
@@ -128,7 +120,7 @@ async def checkedCastAsync(
 
 class ObjectPrx(IcePy.ObjectPrx):
     """
-    The base class for all proxies.
+    The base class for all Ice proxies.
     """
 
     @staticmethod
@@ -140,14 +132,13 @@ class ObjectPrx(IcePy.ObjectPrx):
         ----------
         proxy : ObjectPrx | None
             The source proxy.
-
         facet : str | None, optional
             A facet name.
 
         Returns
         -------
         ObjectPrx | None
-            A new proxy with the requested type, or None if the source proxy is None.
+            A new proxy with the requested facet, or ``None`` if the source proxy is ``None``.
         """
         return uncheckedCast(ObjectPrx, proxy, facet)
 
@@ -162,18 +153,16 @@ class ObjectPrx(IcePy.ObjectPrx):
         ----------
         proxy : ObjectPrx | None
             The source proxy.
-
         facet : str | None, optional
             A facet name.
-
         context : dict[str, str] | None, optional
             The request context.
 
         Returns
         -------
         ObjectPrx | None
-            A new proxy with the requested type, or None if the source proxy is None or if the target object does not
-            support the requested type.
+            A new proxy with the requested facet, or ``None`` if the source proxy is ``None`` or if the target
+            object/facet does not support the requested type.
         """
         return checkedCast(ObjectPrx, proxy, facet, context)
 
@@ -188,36 +177,34 @@ class ObjectPrx(IcePy.ObjectPrx):
         ----------
         proxy : ObjectPrx | None
             The source proxy.
-
         facet : str | None, optional
             A facet name.
-
         context : dict[str, str] | None, optional
             The request context.
 
         Returns
         -------
         ObjectPrx | None
-            A new proxy with the requested type, or None if the source proxy is None or if the target object does not
-            support the requested type.
+            A new proxy with the requested facet, or ``None`` if the source proxy is ``None`` or if the target
+            object/facet does not support the requested type.
         """
         return checkedCastAsync(ObjectPrx, proxy, facet, context)
 
     @staticmethod
     def ice_staticId() -> str:
         """
-        Gets the Slice type ID of the interface associated with this proxy.
+        Returns the Slice type ID associated with this type.
 
         Returns
         -------
         str
-            The type ID, "::Ice::Object".
+            The Slice type ID.
         """
         return "::Ice::Object"
 
     def ice_getCommunicator(self) -> Communicator:
         """
-        Return the communicator that created this proxy.
+        Gets the communicator that created this proxy.
 
         Returns
         -------
@@ -228,110 +215,111 @@ class ObjectPrx(IcePy.ObjectPrx):
 
     def ice_isA(self, id: str, context: dict[str, str] | None = None) -> bool:
         """
-        Test whether this object supports a specific Slice interface.
+        Tests whether this object supports a specific Slice interface.
 
         Parameters
         ----------
         id : str
             The type ID of the Slice interface to test against.
         context : dict[str, str] | None, optional
-            The context dictionary for the invocation.
+            The request context.
 
         Returns
         -------
         bool
-            True if the target object has the interface specified by id or derives from the interface specified by id.
+            ``True`` if the target object implements the Slice interface specified by ``id``
+            or implements a derived interface, ``False`` otherwise.
         """
         return Object._op_ice_isA.invoke(self, ((id,), context))
 
     def ice_isAAsync(self, id: str, context: dict[str, str] | None = None) -> Awaitable[bool]:
         """
-        Test whether this object supports a specific Slice interface.
+        Tests whether this object supports a specific Slice interface.
 
         Parameters
         ----------
         id : str
             The type ID of the Slice interface to test against.
         context : dict[str, str] | None, optional
-            The context dictionary for the invocation.
+            The request context.
 
         Returns
         -------
-        bool
-            True if the target object has the interface specified by id or derives from the interface specified by id.
+        Awaitable[bool]
+            An :class:`Awaitable` that completes when the invocation completes.
+            It holds ``True`` if the target object implements the Slice interface specified by ``id``
+            or implements a derived interface, ``False`` otherwise.
         """
         return Object._op_ice_isA.invokeAsync(self, ((id,), context))
 
     def ice_ping(self, context: dict[str, str] | None = None):
         """
-        Test whether the target object of this proxy can be reached.
+        Tests whether the target object of this proxy can be reached.
 
         Parameters
         ----------
         context : dict[str, str] | None, optional
-            The context dictionary for the invocation.
-
-        Examples
-        --------
-        >>> obj.ice_ping(context={"key": "value"})
+            The request context.
         """
         Object._op_ice_ping.invoke(self, ((), context))
 
-    def ice_pingAsync(self, context: dict[str, str] | None = None):
+    def ice_pingAsync(self, context: dict[str, str] | None = None) -> Awaitable[None]:
         """
-        Test whether the target object of this proxy can be reached.
+        Tests whether the target object of this proxy can be reached.
 
         Parameters
         ----------
         context : dict[str, str] | None, optional
-            The context dictionary for the invocation.
+            The request context.
 
-        Examples
-        --------
-        >>> obj.ice_ping(context={"key": "value"})
+        Returns
+        -------
+        Awaitable[None]
+            An :class:`Awaitable` that completes when the invocation completes.
         """
         return Object._op_ice_ping.invokeAsync(self, ((), context))
 
     def ice_ids(self, context: dict[str, str] | None = None) -> list[str]:
         """
-        Return the Slice type IDs of the interfaces supported by the target object of this proxy.
+        Returns the Slice interfaces supported by this object as a list of Slice type IDs.
 
         Parameters
         ----------
         context : dict[str, str] | None, optional
-            The context dictionary for the invocation.
+            The request context.
 
         Returns
         -------
-        list of str
-            The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
+        list[str]
+            The Slice type IDs of the interfaces supported by this object, in alphabetical order.
         """
         return Object._op_ice_ids.invoke(self, ((), context))
 
     def ice_idsAsync(self, context: dict[str, str] | None = None) -> Awaitable[list[str]]:
         """
-        Return the Slice type IDs of the interfaces supported by the target object of this proxy.
+        Returns the Slice interfaces supported by this object as a list of Slice type IDs.
 
         Parameters
         ----------
         context : dict[str, str] | None, optional
-            The context dictionary for the invocation.
+            The request context.
 
         Returns
         -------
-        list of str
-            The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
+        Awaitable[list[str]]
+            An :class:`Awaitable` that completes when the invocation completes.
+            It holds the Slice type IDs of the interfaces supported by the target object, in alphabetical order.
         """
         return Object._op_ice_ids.invokeAsync(self, ((), context))
 
     def ice_id(self, context: dict[str, str] | None = None) -> str:
         """
-        Return the Slice type ID of the most-derived interface supported by the target object of this proxy.
+        Returns the type ID of the most-derived Slice interface supported by this object.
 
         Parameters
         ----------
         context : dict[str, str] | None, optional
-            The context dictionary for the invocation.
+            The request context.
 
         Returns
         -------
@@ -342,23 +330,24 @@ class ObjectPrx(IcePy.ObjectPrx):
 
     def ice_idAsync(self, context: dict[str, str] | None = None) -> Awaitable[str]:
         """
-        Return the Slice type ID of the most-derived interface supported by the target object of this proxy.
+        Returns the type ID of the most-derived Slice interface supported by this object.
 
         Parameters
         ----------
         context : dict[str, str] | None, optional
-            The context dictionary for the invocation.
+            The request context.
 
         Returns
         -------
-        str
-            The Slice type ID of the most-derived interface.
+        Awaitable[str]
+            An :class:`Awaitable` that completes when the invocation completes.
+            It holds the Slice type ID of the most-derived interface.
         """
         return Object._op_ice_id.invokeAsync(self, ((), context))
 
     def ice_getIdentity(self) -> Identity:
         """
-        Return the identity embedded in this proxy.
+        Gets the identity embedded in this proxy.
 
         Returns
         -------
@@ -369,7 +358,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
     def ice_identity(self, newIdentity: Identity) -> Self:
         """
-        Create a new proxy that is identical to this proxy, except for the per-proxy context.
+        Creates a proxy that is identical to this proxy, except for the identity.
 
         Parameters
         ----------
@@ -378,25 +367,25 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Returns
         -------
-        ObjectPrx
-            The proxy with the new identity.
+        Self
+            A proxy with the new identity.
         """
         return super().ice_identity(newIdentity)
 
     def ice_getContext(self) -> dict[str, str] | None:
         """
-        Returns the per-proxy context for this proxy.
+        Gets the per-proxy context for this proxy.
 
         Returns
         -------
         dict[str, str] | None
-            The per-proxy context. If the proxy does not have a per-proxy (implicit) context, the return value is None.
+            The per-proxy context, or ``None`` if the proxy does not have a per-proxy context.
         """
         return super().ice_getContext()
 
     def ice_context(self, new_context: dict[str, str]) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, except for the per-proxy context.
+        Creates a proxy that is identical to this proxy, except for the per-proxy context.
 
         Parameters
         ----------
@@ -405,14 +394,14 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Returns
         -------
-        ObjectPrx
-            The proxy with the new per-proxy context.
+        Self
+            A proxy with the new per-proxy context.
         """
         return super().ice_context(new_context)
 
     def ice_getFacet(self) -> str:
         """
-        Returns the facet for this proxy.
+        Gets the facet for this proxy.
 
         Returns
         -------
@@ -423,7 +412,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
     def ice_facet(self, new_facet: str) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, except for the facet.
+        Creates a proxy that is identical to this proxy, except for the facet.
 
         Parameters
         ----------
@@ -432,14 +421,14 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Returns
         -------
-        ObjectPrx
-            The proxy with the new facet.
+        Self
+            A proxy with the new facet.
         """
         return super().ice_facet(new_facet)
 
     def ice_getAdapterId(self) -> str:
         """
-        Returns the adapter ID for this proxy.
+        Gets the adapter ID for this proxy.
 
         Returns
         -------
@@ -450,7 +439,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
     def ice_adapterId(self, newAdapterId: str) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, except for the adapter ID.
+        Creates a proxy that is identical to this proxy, except for the adapter ID.
 
         Parameters
         ----------
@@ -459,41 +448,41 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Returns
         -------
-        ObjectPrx
-            The proxy with the new adapter ID.
+        Self
+            A proxy with the new adapter ID.
         """
         return super().ice_adapterId(newAdapterId)
 
-    def ice_getEndpoints(self) -> tuple[IcePy.Endpoint, ...]:
+    def ice_getEndpoints(self) -> tuple[Endpoint, ...]:
         """
-        Returns the endpoints used by this proxy.
+        Gets the endpoints used by this proxy.
 
         Returns
         -------
-        tuple[IcePy.Endpoint, ...]
+        tuple[Ice.Endpoint, ...]
             The endpoints used by this proxy.
         """
         return super().ice_getEndpoints()
 
-    def ice_endpoints(self, newEndpoints: tuple[IcePy.Endpoint, ...] | list[IcePy.Endpoint]) -> Self:
+    def ice_endpoints(self, newEndpoints: tuple[Endpoint, ...] | list[Endpoint]) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, except for the endpoints.
+        Creates a proxy that is identical to this proxy, except for the endpoints.
 
         Parameters
         ----------
-        newEndpoints : tuple[IcePy.Endpoint, ...] | list[IcePy.Endpoint]
+        newEndpoints : tuple[Ice.Endpoint, ...] | list[Ice.Endpoint]
             The endpoints for the new proxy.
 
         Returns
         -------
-        ObjectPrx
-            The proxy with the new endpoints.
+        Self
+            A proxy with the new endpoints.
         """
         return super().ice_endpoints(newEndpoints)
 
     def ice_getLocatorCacheTimeout(self) -> int:
         """
-        Returns the locator cache timeout of this proxy.
+        Gets the locator cache timeout of this proxy.
 
         Returns
         -------
@@ -504,7 +493,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
     def ice_locatorCacheTimeout(self, timeout: int) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
+        Creates a proxy that is identical to this proxy, except for the locator cache timeout.
 
         Parameters
         ----------
@@ -513,68 +502,68 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Returns
         -------
-        ObjectPrx
-            The proxy with the new locator cache timeout.
+        Self
+            A proxy with the new timeout.
         """
         return super().ice_locatorCacheTimeout(timeout)
 
     def ice_invocationTimeout(self, timeout: int) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, except for the invocation timeout.
+        Creates a proxy that is identical to this proxy, except for the invocation timeout.
 
         Parameters
         ----------
         timeout : int
-            The new invocation timeout (in seconds).
+            The new invocation timeout (in milliseconds).
 
         Returns
         -------
-        ObjectPrx
-            The proxy with the new invocation timeout.
+        Self
+            A proxy with the new timeout.
         """
         return super().ice_invocationTimeout(timeout)
 
     def ice_getInvocationTimeout(self) -> int:
         """
-        Returns the invocation timeout of this proxy.
+        Gets the invocation timeout of this proxy.
 
         Returns
         -------
         int
-            The invocation timeout value (in seconds).
+            The invocation timeout value (in milliseconds).
         """
         return super().ice_getInvocationTimeout()
 
     def ice_isConnectionCached(self) -> bool:
         """
-        Returns whether this proxy caches connections.
+        Determines whether this proxy caches connections.
 
         Returns
         -------
         bool
-            True if this proxy caches connections; False otherwise.
+            ``True`` if this proxy caches connections, ``False`` otherwise.
         """
         return super().ice_isConnectionCached()
 
     def ice_connectionCached(self, newCache: bool) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, except for connection caching.
+        Creates a proxy that is identical to this proxy, except for connection caching.
 
         Parameters
         ----------
         newCache : bool
-            True if the new proxy should cache connections; False otherwise.
+            ``True`` if the new proxy should cache connections, ``False`` otherwise.
 
         Returns
         -------
-        ObjectPrx
-            The new proxy with the specified caching policy.
+        Self
+            A proxy with the specified caching policy.
         """
         return super().ice_connectionCached(newCache)
 
     def ice_getEndpointSelection(self) -> EndpointSelectionType:
         """
-        Returns how this proxy selects endpoints (randomly or ordered).
+        Gets the endpoint selection policy for this proxy (randomly or ordered).
 
         Returns
         -------
@@ -585,7 +574,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
     def ice_endpointSelection(self, newType: EndpointSelectionType) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, except for the endpoint selection policy.
+        Creates a proxy that is identical to this proxy, except for the endpoint selection policy.
 
         Parameters
         ----------
@@ -594,30 +583,30 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Returns
         -------
-        ObjectPrx
-            The new proxy with the specified endpoint selection policy.
+        Self
+            A proxy with the specified endpoint selection policy.
         """
         return super().ice_endpointSelection(newType)
 
     def ice_encodingVersion(self, version: EncodingVersion) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, except for the encoding used to marshal parameters.
+        Creates a proxy that is identical to this proxy, except for the encoding used to marshal parameters.
 
         Parameters
         ----------
         version : EncodingVersion
-            The encoding version to use to marshal requests parameters.
+            The encoding version to use to marshal request parameters.
 
         Returns
         -------
-        ObjectPrx
-            The new proxy with the specified encoding version.
+        Self
+            A proxy with the specified encoding version.
         """
         return super().ice_encodingVersion(version)
 
     def ice_getEncodingVersion(self) -> EncodingVersion:
         """
-        Returns the encoding version used to marshal requests parameters.
+        Gets the encoding version used to marshal request parameters.
 
         Returns
         -------
@@ -628,225 +617,226 @@ class ObjectPrx(IcePy.ObjectPrx):
 
     def ice_getRouter(self) -> RouterPrx | None:
         """
-        Returns the router for this proxy.
+        Gets the router for this proxy.
 
         Returns
         -------
-        RouterPrx or None
-            The router for the proxy. If no router is configured for the proxy, the return value is None.
+        RouterPrx | None
+            The router for the proxy. If no router is configured for the proxy, the return value is ``None``.
         """
         return super().ice_getRouter()
 
     def ice_router(self, router: RouterPrx | None) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, except for the router.
+        Creates a proxy that is identical to this proxy, except for the router.
 
         Parameters
         ----------
-        router : RouterPrx or None
+        router : RouterPrx | None
             The router for the new proxy.
 
         Returns
         -------
-        ObjectPrx
-            The new proxy with the specified router.
+        Self
+            A proxy with the specified router.
         """
         return super().ice_router(router)
 
     def ice_getLocator(self) -> LocatorPrx | None:
         """
-        Returns the locator for this proxy.
+        Gets the locator for this proxy.
 
         Returns
         -------
-        LocatorPrx or None
-            The locator for this proxy. If no locator is configured, the return value is None.
+        LocatorPrx | None
+            The locator for this proxy. If no locator is configured, the return value is ``None``.
         """
         return super().ice_getLocator()
 
     def ice_locator(self, locator: LocatorPrx | None) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, except for the locator.
+        Creates a proxy that is identical to this proxy, except for the locator.
 
         Parameters
         ----------
-        locator : LocatorPrx or None
+        locator : LocatorPrx | None
             The locator for the new proxy.
 
         Returns
         -------
-        ObjectPrx
-            The new proxy with the specified locator.
+        Self
+            A proxy with the specified locator.
         """
         return super().ice_locator(locator)
 
     def ice_isCollocationOptimized(self) -> bool:
         """
-        Returns whether this proxy uses collocation optimization.
+        Determines whether this proxy uses collocation optimization.
 
         Returns
         -------
         bool
-            True if the proxy uses collocation optimization; False otherwise.
+            ``True`` if the proxy uses collocation optimization, ``False`` otherwise.
         """
         return super().ice_isCollocationOptimized()
 
     def ice_collocationOptimized(self, collocated: bool) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, except for collocation optimization.
+        Creates a proxy that is identical to this proxy, except for collocation optimization.
 
         Parameters
         ----------
         collocated : bool
-            True if the new proxy enables collocation optimization; False otherwise.
+            ``True`` if the new proxy enables collocation optimization, ``False`` otherwise.
 
         Returns
         -------
-        ObjectPrx
-            The new proxy with the specified collocation optimization.
+        Self
+            A proxy with the specified collocation optimization.
         """
         return super().ice_collocationOptimized(collocated)
 
     def ice_twoway(self) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, but uses twoway invocations.
+        Creates a proxy that is identical to this proxy, but uses twoway invocations.
 
         Returns
         -------
-        ObjectPrx
-            A new proxy that uses twoway invocations.
+        Self
+            A proxy that uses twoway invocations.
         """
         return super().ice_twoway()
 
     def ice_isTwoway(self) -> bool:
         """
-        Returns whether this proxy uses twoway invocations.
+        Determines whether this proxy uses twoway invocations.
 
         Returns
         -------
         bool
-            True if this proxy uses twoway invocations; False otherwise.
+            ``True`` if this proxy uses twoway invocations, ``False`` otherwise.
         """
         return super().ice_isTwoway()
 
     def ice_oneway(self) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, but uses oneway invocations.
+        Creates a proxy that is identical to this proxy, but uses oneway invocations.
 
         Returns
         -------
-        ObjectPrx
-            A new proxy that uses oneway invocations.
+        Self
+            A proxy that uses oneway invocations.
         """
         return super().ice_oneway()
 
     def ice_isOneway(self) -> bool:
         """
-        Returns whether this proxy uses oneway invocations.
+        Determines whether this proxy uses oneway invocations.
 
         Returns
         -------
         bool
-            True if this proxy uses oneway invocations; False otherwise.
+            ``True`` if this proxy uses oneway invocations, ``False`` otherwise.
         """
         return super().ice_isOneway()
 
     def ice_batchOneway(self) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, but uses batch oneway invocations.
+        Creates a proxy that is identical to this proxy, but uses batch oneway invocations.
 
         Returns
         -------
-        ObjectPrx
-            A new proxy that uses batch oneway invocations.
+        Self
+            A proxy that uses batch oneway invocations.
         """
         return super().ice_batchOneway()
 
     def ice_isBatchOneway(self) -> bool:
         """
-        Returns whether this proxy uses batch oneway invocations.
+        Determines whether this proxy uses batch oneway invocations.
 
         Returns
         -------
         bool
-            True if this proxy uses batch oneway invocations; False otherwise.
+            ``True`` if this proxy uses batch oneway invocations, ``False`` otherwise.
         """
         return super().ice_isBatchOneway()
 
     def ice_datagram(self) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, but uses datagram invocations.
+        Creates a proxy that is identical to this proxy, but uses datagram invocations.
 
         Returns
         -------
-        ObjectPrx
-            A new proxy that uses datagram invocations.
+        Self
+            A proxy that uses datagram invocations.
         """
         return super().ice_datagram()
 
     def ice_isDatagram(self) -> bool:
         """
-        Returns whether this proxy uses datagram invocations.
+        Determines whether this proxy uses datagram invocations.
 
         Returns
         -------
         bool
-            True if this proxy uses datagram invocations; False otherwise.
+            ``True`` if this proxy uses datagram invocations, ``False`` otherwise.
         """
         return super().ice_isDatagram()
 
     def ice_batchDatagram(self) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, but uses batch datagram invocations.
+        Creates a proxy that is identical to this proxy, but uses batch datagram invocations.
 
         Returns
         -------
-        ObjectPrx
-            A new proxy that uses batch datagram invocations.
+        Self
+            A proxy that uses batch datagram invocations.
         """
         return super().ice_batchDatagram()
 
     def ice_isBatchDatagram(self) -> bool:
         """
-        Returns whether this proxy uses batch datagram invocations.
+        Determines whether this proxy uses batch datagram invocations.
 
         Returns
         -------
         bool
-            True if this proxy uses batch datagram invocations; False otherwise.
+            ``True`` if this proxy uses batch datagram invocations, ``False`` otherwise.
         """
         return super().ice_isBatchDatagram()
 
     def ice_compress(self, compress: bool) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, except for compression.
+        Creates a proxy that is identical to this proxy, except for its compression setting which overrides the
+        compression setting from the proxy endpoints.
 
         Parameters
         ----------
         compress : bool
-            True enables compression for the new proxy; False disables compression.
+            ``True`` enables compression for the new proxy, ``False`` disables compression.
 
         Returns
         -------
-        ObjectPrx
-            A new proxy with the specified compression setting.
+        Self
+            A proxy with the specified compression override setting.
         """
         return super().ice_compress(compress)
 
     def ice_getCompress(self) -> bool | None:
         """
-        Obtains the compression override setting of this proxy.
+        Gets the compression override setting of this proxy.
 
         Returns
         -------
-        bool or None
-            The compression override setting. If no optional value is present, no override is set. Otherwise, true if compression is enabled, false otherwise.
+            The compression override setting. If ``None`` is returned, no override is set.
+            Otherwise, ``True`` if compression is enabled, ``False`` otherwise.
         """
         return super().ice_getCompress()
 
     def ice_connectionId(self, connectionId: str) -> Self:
         """
-        Creates a new proxy that is identical to this proxy, except for its connection ID.
+        Creates a proxy that is identical to this proxy, except for its connection ID.
 
         Parameters
         ----------
@@ -855,26 +845,25 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Returns
         -------
-        ObjectPrx
-            A new proxy with the specified connection ID.
+        Self
+            A proxy with the specified connection ID.
         """
         return super().ice_connectionId(connectionId)
 
     def ice_getConnectionId(self) -> str:
         """
-        Returns the connection id of this proxy.
+        Gets the connection ID of this proxy.
 
         Returns
         -------
         str
-            The connection id.
+            The connection ID.
         """
         return super().ice_getConnectionId()
 
     def ice_fixed(self, connection: Connection) -> Self:
         """
-        Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
-        to the given connection.
+        Creates a proxy that is identical to this proxy, except it's a fixed proxy bound to the given connection.
 
         Parameters
         ----------
@@ -883,43 +872,48 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Returns
         -------
-        ObjectPrx
+        Self
             A fixed proxy bound to the given connection.
         """
         return super().ice_fixed(connection)
 
     def ice_isFixed(self) -> bool:
         """
-        Returns whether this proxy is a fixed proxy.
+        Determines whether this proxy is a fixed proxy.
 
         Returns
         -------
         bool
-            True if this is a fixed proxy; False otherwise.
+            ``True`` if this proxy is a fixed proxy, ``False`` otherwise.
         """
         return super().ice_isFixed()
 
     def ice_getConnection(self) -> Connection | None:
         """
-        Returns the Connection for this proxy. If the proxy does not yet have an established connection,
+        Gets the connection for this proxy. If the proxy does not yet have an established connection,
         it first attempts to create a connection.
 
         Returns
         -------
         Connection | None
-            The Connection for this proxy, or null when the target object is collocated.
+            The Connection for this proxy, or ``None`` when the target object is collocated.
+
+        Notes
+        -----
+        You can call this function to establish a connection or associate the proxy with an existing
+        connection and ignore the return value.
         """
         return super().ice_getConnection()
 
     def ice_getCachedConnection(self) -> Connection | None:
         """
-        Returns the cached Connection for this proxy. If the proxy does not yet have an established
-        connection, it does not attempt to create a connection.
+        Gets the cached Connection for this proxy. If the proxy does not yet have an established connection,
+        it does not attempt to create a connection.
 
         Returns
         -------
         Connection | None
-            The cached Connection for this proxy (None if the proxy does not have an established connection).
+            The cached connection for this proxy, or ``None`` if the proxy does not have an established connection.
         """
         return super().ice_getCachedConnection()
 

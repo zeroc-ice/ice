@@ -316,7 +316,7 @@ static PyMethodDef LoggerMethods[] = {
     {"cloneWithPrefix",
      reinterpret_cast<PyCFunction>(loggerCloneWithPrefix),
      METH_VARARGS,
-     PyDoc_STR("cloneWithPrefix(prefix) -> Ice.Logger")},
+     PyDoc_STR("cloneWithPrefix(prefix: str) -> Logger")},
     {} /* sentinel */
 };
 

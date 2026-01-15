@@ -230,7 +230,7 @@ public interface ObjectPrx {
     /**
      * Gets the facet for this proxy.
      *
-     * @return the facet for this proxy. If the proxy uses the default facet, the return value is the empty string
+     * @return the facet for this proxy. If the proxy uses the default facet, the return value is the empty string.
      */
     String ice_getFacet();
 

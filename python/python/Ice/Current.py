@@ -2,9 +2,8 @@
 
 from dataclasses import dataclass
 
-from IcePy import Connection
-
 from .EncodingVersion import EncodingVersion
+from .IcePyTypes import Connection
 from .Identity import Identity
 from .ObjectAdapter import ObjectAdapter
 from .OperationMode import OperationMode

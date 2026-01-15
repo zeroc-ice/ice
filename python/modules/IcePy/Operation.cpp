@@ -850,18 +850,27 @@ IcePy::Operation::convertParam(PyObject* p, Py_ssize_t pos)
 }
 
 static PyMethodDef OperationMethods[] = {
-    {"invoke", reinterpret_cast<PyCFunction>(operationInvoke), METH_VARARGS, PyDoc_STR("internal function")},
-    {"invokeAsync", reinterpret_cast<PyCFunction>(operationInvokeAsync), METH_VARARGS, PyDoc_STR("internal function")},
-    {"deprecate", reinterpret_cast<PyCFunction>(operationDeprecate), METH_VARARGS, PyDoc_STR("internal function")},
+    {"invoke",
+     reinterpret_cast<PyCFunction>(operationInvoke),
+     METH_VARARGS,
+     PyDoc_STR("invoke(proxy: ObjectPrx, args: tuple) -> Any")},
+    {"invokeAsync",
+     reinterpret_cast<PyCFunction>(operationInvokeAsync),
+     METH_VARARGS,
+     PyDoc_STR("invokeAsync(proxy: ObjectPrx, args: tuple) -> Awaitable[Any]")},
+    {"deprecate", reinterpret_cast<PyCFunction>(operationDeprecate), METH_VARARGS, PyDoc_STR("deprecate(reason: str)")},
     {} /* sentinel */
 };
 
 static PyMethodDef DispatchCallbackMethods[] = {
-    {"response", reinterpret_cast<PyCFunction>(dispatchCallbackResponse), METH_VARARGS, PyDoc_STR("internal function")},
+    {"response",
+     reinterpret_cast<PyCFunction>(dispatchCallbackResponse),
+     METH_VARARGS,
+     PyDoc_STR("response(*args: tuple) -> None")},
     {"exception",
      reinterpret_cast<PyCFunction>(dispatchCallbackException),
      METH_VARARGS,
-     PyDoc_STR("internal function")},
+     PyDoc_STR("exception(exception: BaseException) -> None")},
     {} /* sentinel */
 };
 

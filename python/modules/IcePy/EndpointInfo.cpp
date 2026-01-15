@@ -20,27 +20,21 @@ int
 
     constexpr const char* endpointInfoDatagram_doc = R"(datagram() -> bool
 
-Returns True if this endpoint's transport is a datagram transport (namely, UDP), False otherwise.
+Returns whether this endpoint is a datagram endpoint (namely, UDP).
 
 Returns
 -------
 bool
-    True for a UDP endpoint, False otherwise.)";
+    ``True`` for a UDP endpoint, ``False`` otherwise.)";
 
     constexpr const char* endpointInfoSecure_doc = R"(secure() -> bool
 
-Returns True if this endpoint's transport uses SSL, False otherwise.
+Returns whether this endpoint uses SSL.
 
 Returns
 -------
 bool
-    True for SSL and SSL-based transports, False otherwise.)";
-
-    constexpr const char* EndpointInfoType_doc = R"(Base class for all endpoint info classes.
-
-Provides access to the endpoint details. Endpoint info classes are
-used to get information about the endpoints that a connection or
-proxy uses.)";
+    ``True`` for SSL and SSL-based transports, ``False`` otherwise.)";
 }
 
 namespace IcePy
@@ -184,12 +178,13 @@ static PyGetSetDef EndpointInfoGetters[] = {
     {"underlying",
      reinterpret_cast<getter>(endpointInfoGetUnderlying),
      nullptr,
-     PyDoc_STR("Ice.EndpointInfo | None: underlying endpoint information"),
+     PyDoc_STR("Ice.EndpointInfo | None: The information of the underlying endpoint or ``None`` if there's no "
+               "underlying endpoint."),
      nullptr},
     {"compress",
      reinterpret_cast<getter>(endpointInfoGetCompress),
      nullptr,
-     PyDoc_STR("bool: compression status"),
+     PyDoc_STR("bool: Specifies whether or not compression should be used if available when using this endpoint."),
      nullptr},
     {} /* sentinel */
 };
@@ -198,13 +193,13 @@ static PyGetSetDef IPEndpointInfoGetters[] = {
     {"host",
      reinterpret_cast<getter>(ipEndpointInfoGetHost),
      nullptr,
-     PyDoc_STR("str: host name or IP address"),
+     PyDoc_STR("str: The host or address configured with the endpoint."),
      nullptr},
-    {"port", reinterpret_cast<getter>(ipEndpointInfoGetPort), nullptr, PyDoc_STR("int: TCP port number"), nullptr},
+    {"port", reinterpret_cast<getter>(ipEndpointInfoGetPort), nullptr, PyDoc_STR("int: The port number."), nullptr},
     {"sourceAddress",
      reinterpret_cast<getter>(ipEndpointInfoGetSourceAddress),
      nullptr,
-     PyDoc_STR("str: source IP address"),
+     PyDoc_STR("str: The source IP address."),
      nullptr},
     {} /* sentinel */
 };
@@ -213,18 +208,22 @@ static PyGetSetDef UDPEndpointInfoGetters[] = {
     {"mcastInterface",
      reinterpret_cast<getter>(udpEndpointInfoGetMcastInterface),
      nullptr,
-     PyDoc_STR("str: multicast interface"),
+     PyDoc_STR("str: The multicast interface."),
      nullptr},
     {"mcastTtl",
      reinterpret_cast<getter>(udpEndpointInfoGetMcastTtl),
      nullptr,
-     PyDoc_STR("int: multicast time-to-live"),
+     PyDoc_STR("int: The multicast time-to-live (or hops)."),
      nullptr},
     {} /* sentinel */
 };
 
 static PyGetSetDef WSEndpointInfoGetters[] = {
-    {"resource", reinterpret_cast<getter>(wsEndpointInfoGetResource), nullptr, PyDoc_STR("str: resource"), nullptr},
+    {"resource",
+     reinterpret_cast<getter>(wsEndpointInfoGetResource),
+     nullptr,
+     PyDoc_STR("str: The URI configured with the endpoint."),
+     nullptr},
     {} /* sentinel */
 };
 
@@ -232,12 +231,13 @@ static PyGetSetDef OpaqueEndpointInfoGetters[] = {
     {"rawBytes",
      reinterpret_cast<getter>(opaqueEndpointInfoGetRawBytes),
      nullptr,
-     PyDoc_STR("bytes: raw encoding"),
+     PyDoc_STR("bytes: The raw encoding of the opaque endpoint."),
      nullptr},
     {"rawEncoding",
      reinterpret_cast<getter>(opaqueEndpointInfoGetRawEncoding),
      nullptr,
-     PyDoc_STR("Ice.EncodingVersion: raw encoding version"),
+     PyDoc_STR(
+         "Ice.EncodingVersion: The encoding version of the opaque endpoint (to decode or encode the ``rawBytes``)."),
      nullptr},
     {} /* sentinel */
 };
@@ -251,7 +251,7 @@ namespace IcePy
         .tp_basicsize = sizeof(EndpointInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(endpointInfoDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = PyDoc_STR(EndpointInfoType_doc),
+        .tp_doc = PyDoc_STR("Base class for the endpoint info classes."),
         .tp_methods = EndpointInfoMethods,
         .tp_getset = EndpointInfoGetters,
         .tp_new = reinterpret_cast<newfunc>(endpointInfoNew),
@@ -284,7 +284,7 @@ namespace IcePy
         .tp_basicsize = sizeof(EndpointInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(endpointInfoDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = PyDoc_STR("Provides access to an UDP endpoint information."),
+        .tp_doc = PyDoc_STR("Provides access to a UDP endpoint information."),
         .tp_getset = UDPEndpointInfoGetters,
         .tp_new = reinterpret_cast<newfunc>(endpointInfoNew),
     };

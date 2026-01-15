@@ -21,12 +21,16 @@ str
 
     constexpr const char* endpointGetInfo_doc = R"(getInfo() -> Ice.EndpointInfo
 
-Returns the endpoint information.
+Returns this endpoint's information.
 
 Returns
 -------
 Ice.EndpointInfo
-    The endpoint information class.)";
+    This endpoint's information class.)";
+
+    constexpr const char* EndpointType_doc =
+        R"(An endpoint specifies the address of the server-end of an Ice connection.
+An object adapter listens on one or more endpoints and a client establishes a connection to an endpoint.)";
 }
 
 namespace IcePy
@@ -154,7 +158,7 @@ namespace IcePy
         .tp_dealloc = reinterpret_cast<destructor>(endpointDealloc),
         .tp_repr = reinterpret_cast<reprfunc>(endpointRepr),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = PyDoc_STR("IcePy.Endpoint"),
+        .tp_doc = PyDoc_STR(EndpointType_doc),
         .tp_richcompare = reinterpret_cast<richcmpfunc>(endpointCompare),
         .tp_methods = EndpointMethods,
         .tp_new = reinterpret_cast<newfunc>(endpointNew),
