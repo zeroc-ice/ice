@@ -1,4 +1,5 @@
 name: Setup Ruby
+description: Installs Ruby 3.4 using the ruby/setup-ruby action.
 runs:
   using: "composite"
   steps:

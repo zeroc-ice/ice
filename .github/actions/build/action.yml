@@ -1,41 +1,30 @@
 name: Build Ice
+description: Builds Ice for the current platform using Make (macOS/Linux) or MSBuild (Windows).
 
 inputs:
   working_directory:
     description: "The working directory to run the build in"
     default: "."
-    type: string
 
   build_flags:
     description: "Additional flags to pass to the build"
     default: ""
-    type: string
 
   msbuild_project:
     description: "The project file to build"
     default: "ice.proj"
-    type: string
 
   msbuild_command:
     description: "The msbuild command to use"
     default: "msbuild /m"
-    type: string
 
   build_cpp_and_python:
     description: "Build C++ and Python"
-    type: choice
     default: "false"
-    options:
-      - true
-      - false
 
   build_android_controller:
     description: "Build Android Controller"
-    type: choice
     default: "false"
-    options:
-      - true
-      - false
 
 runs:
   using: "composite"

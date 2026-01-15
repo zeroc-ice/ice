@@ -1,4 +1,5 @@
 name: Setup Java
+description: Installs Oracle Java 17 using the actions/setup-java action.
 runs:
   using: "composite"
   steps:
