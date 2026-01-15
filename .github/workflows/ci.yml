@@ -82,6 +82,11 @@ jobs:
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
+        with:
+          include_net10: 'true'
+
       - name: Setup Python
         uses: ./.github/actions/setup-python
 
