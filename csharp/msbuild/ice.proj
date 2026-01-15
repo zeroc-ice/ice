@@ -155,7 +155,7 @@
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\logo.png"
               DestinationFiles="zeroc.ice.net\logo.png" />
 
-        <!-- Copy bzip2 DLL (always include for portability, Windows only) -->
+        <!-- Copy bzip2 DLL (Windows only) -->
         <Copy SourceFiles="$(Bzip2DllPath)"
               DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net8.0"
               Condition="'$(OS)' == 'Windows_NT'" />
