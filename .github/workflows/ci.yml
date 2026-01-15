@@ -152,6 +152,10 @@ jobs:
         uses: ./.github/actions/macos-fqdn
         if: runner.os == 'macOS'
 
+      - name: Disk space before setup
+        run: df -h
+        shell: bash
+
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
@@ -199,6 +203,10 @@ jobs:
         uses: ./.github/actions/setup-cache
         with:
           prefix: ci-${{ matrix.config }}
+
+      - name: Disk space after setup
+        run: df -h
+        shell: bash
 
       # See https://learn.microsoft.com/en-us/windows/win32/wer/collecting-user-mode-dumps
       - name: Enable Windows crash dumps
