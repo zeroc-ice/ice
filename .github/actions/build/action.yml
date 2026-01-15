@@ -26,10 +26,6 @@ inputs:
     description: "Build Android Controller"
     default: "false"
 
-  clean_obj_files:
-    description: "Remove intermediate object files after build to save disk space"
-    default: "false"
-
 runs:
   using: "composite"
   steps:
@@ -56,25 +52,6 @@ runs:
       shell: bash
       if: inputs.build_android_controller == 'true'
 
-    - name: Clean intermediate object files
-      run: |
-        echo "=== Before cleanup ==="
-        echo "Disk space:"
-        df -h .
-        echo "Workspace size:"
-        du -sh .
-        echo ""
-        echo "Cleaning intermediate object files..."
-        find . -type f \( -name "*.o" -o -name "*.obj" \) -delete
-        echo ""
-        echo "=== After cleanup ==="
-        echo "Disk space:"
-        df -h .
-        echo "Workspace size:"
-        du -sh .
-      shell: bash
-      if: (runner.os == 'macOS' || runner.os == 'Linux') && inputs.clean_obj_files == 'true'
-
     # Windows
     - name: Build C++ and Python
       run: |
@@ -88,24 +65,3 @@ runs:
       run: ${{ inputs.msbuild_command }} ${{ inputs.build_flags }} ${{ inputs.msbuild_project }}
       shell: powershell
       if: runner.os == 'Windows'
-
-    - name: Clean intermediate object files
-      run: |
-        Write-Host "=== Before cleanup ==="
-        Write-Host "Disk space:"
-        Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -ne $null } | Format-Table Name, @{N='Used (GB)';E={[math]::Round($_.Used/1GB,2)}}, @{N='Free (GB)';E={[math]::Round($_.Free/1GB,2)}}
-        Write-Host "Workspace size:"
-        $size = (Get-ChildItem -Recurse -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum / 1GB
-        Write-Host ("{0:N2} GB" -f $size)
-        Write-Host ""
-        Write-Host "Cleaning intermediate object files..."
-        Get-ChildItem -Recurse -Include *.obj | Remove-Item -Force
-        Write-Host ""
-        Write-Host "=== After cleanup ==="
-        Write-Host "Disk space:"
-        Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -ne $null } | Format-Table Name, @{N='Used (GB)';E={[math]::Round($_.Used/1GB,2)}}, @{N='Free (GB)';E={[math]::Round($_.Free/1GB,2)}}
-        Write-Host "Workspace size:"
-        $size = (Get-ChildItem -Recurse -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum / 1GB
-        Write-Host ("{0:N2} GB" -f $size)
-      shell: powershell
-      if: runner.os == 'Windows' && inputs.clean_obj_files == 'true'
