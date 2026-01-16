@@ -111,6 +111,29 @@ jobs:
             | Set-Content $nuspecPath
         shell: pwsh
 
+      - name: Setup Strong Name Signing Keys
+        shell: pwsh
+        env:
+          ICE_SNK_PUBLIC_KEY: ${{ secrets.ICE_SNK_PUBLIC_KEY }}
+          ICE_SNK_KEY: ${{ secrets.ICE_SNK_KEY }}
+        run: |
+          # Decode base64-encoded keys from secrets and save to files (only if secrets are set)
+          if ($env:ICE_SNK_PUBLIC_KEY -and $env:ICE_SNK_KEY) {
+            Write-Host "Setting up strong name signing keys..."
+
+            $publicKeyBytes = [System.Convert]::FromBase64String($env:ICE_SNK_PUBLIC_KEY)
+            [System.IO.File]::WriteAllBytes("${{ github.workspace }}\csharp\msbuild\ice-release-pub-key.snk", $publicKeyBytes)
+
+            $keyBytes = [System.Convert]::FromBase64String($env:ICE_SNK_KEY)
+            [System.IO.File]::WriteAllBytes("${{ github.workspace }}\csharp\msbuild\ice-release-key.snk", $keyBytes)
+
+            # Set environment variables for the build
+            echo "PUBLIC_KEYFILE=${{ github.workspace }}\csharp\msbuild\ice-release-pub-key.snk" >> $env:GITHUB_ENV
+            echo "KEYFILE=${{ github.workspace }}\csharp\msbuild\ice-release-key.snk" >> $env:GITHUB_ENV
+          } else {
+            Write-Host "Strong name signing keys not configured - assemblies will not be signed"
+          }
+
       - name: Build .NET
         run: dotnet msbuild csharp\msbuild\ice.proj /t:BuildDist /p:Configuration=Release /p:Platform=x64
 

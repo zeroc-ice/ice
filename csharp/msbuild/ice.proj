@@ -5,6 +5,8 @@
     <PropertyGroup>
         <CppPlatform Condition="'$(Platform)' == 'x64'">x64</CppPlatform>
         <CppPlatform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Win32'">Win32</CppPlatform>
+        <!-- Default to x64 if Platform is not specified or is 'Any CPU' -->
+        <CppPlatform Condition="'$(CppPlatform)' == ''">x64</CppPlatform>
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
@@ -154,6 +156,21 @@
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\logo.png"
               DestinationFiles="zeroc.ice.net\logo.png" />
+
+        <!-- Generate iceboxnet.exe.config with the correct assembly public key token and assembly paths -->
+        <GetPublicKeyToken AssemblyFile="$(MSBuildThisFileDirectory)..\lib\netstandard2.0\Ice.dll">
+            <Output TaskParameter="PublicKeyToken" PropertyName="PublicKeyToken"/>
+        </GetPublicKeyToken>
+
+        <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)iceboxnet.exe.config.release"
+                                   OutputFile="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net472\iceboxnet.exe.config"
+                                   Tokens="@PublicKeyToken@;@AssemblyDir@"
+                                   Replacements="$(PublicKeyToken);..\..\lib\netstandard2.0"
+                                   Condition="'$(PublicKeyToken)' != '' and '$(OS)' == 'Windows_NT'"/>
+
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)iceboxnet.exe.config.dev"
+              DestinationFiles="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net472\iceboxnet.exe.config"
+              Condition="'$(PublicKeyToken)' == '' and '$(OS)' == 'Windows_NT'"/>
 
         <!-- Copy bzip2 DLL (Windows only) -->
         <Copy SourceFiles="$(Bzip2DllPath)"

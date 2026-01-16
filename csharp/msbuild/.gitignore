@@ -1,2 +1,4 @@
 # Nuget
 zeroc.ice.net
+# Strong name signing keys
+*.snk

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="$(MSBuildThisFileDirectory)/../../config/ice.common.sign.targets" />
     <PropertyGroup Condition="'$(PUBLIC_KEYFILE)' != '' Or '$(KEYFILE)' != ''">
         <SignAssembly>true</SignAssembly>
         <!-- If PUBLIC_KEYFILE is set we use delay sign to sign the assembly -->
@@ -14,23 +13,11 @@
 
   <Target Name="SignPackage"
           BeforeTargets="CopyFilesToOutputDirectory"
-          Condition="'$(OS)' == 'Windows_NT' and Exists('$(SIGN_CERTIFICATE)') and (!Exists('$(IntermediateOutputPath)sign.log') or $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)$(TargetName)$(TargetExt)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)sign.log').Ticks))">
-    <Message Text="Signing $(IntermediateOutputPath)$(TargetName)$(TargetExt)" />
+          Condition="'$(OS)' == 'Windows_NT' and '$(KEYFILE)' != '' and '$(PUBLIC_KEYFILE)' != '' and (!Exists('$(IntermediateOutputPath)sign.log') or $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)$(TargetName)$(TargetExt)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)sign.log').Ticks))">
+    <Message Text="Re-signing $(IntermediateOutputPath)$(TargetName)$(TargetExt) with full key" />
 
-    <!-- If both KEYFILE and PUBLIC_KEYFILE are set we re-sign the assembly using KEYFILE after it has been build -->
-    <Exec Command="sn -Ra &quot;$(IntermediateOutputPath)$(TargetName)$(TargetExt)&quot; &quot;$(KEYFILE)&quot;"
-          Condition="'$(KEYFILE)' != '' and '$(PUBLIC_KEYFILE)' != ''" />
-
-    <!-- Authenticode signing -->
-    <SignTask
-        WorkingDirectory="$(IntermediateOutputPath)"
-        AdditionalOptions="$(SignCommandSHA1)"
-        Files="$(TargetName)$(TargetExt)"/>
-
-    <SignTask
-        WorkingDirectory="$(IntermediateOutputPath)"
-        AdditionalOptions="$(SignCommandSHA256)"
-        Files="$(TargetName)$(TargetExt)"/>
+    <!-- If both KEYFILE and PUBLIC_KEYFILE are set we re-sign the assembly using KEYFILE after it has been built -->
+    <Exec Command="sn -Ra &quot;$(IntermediateOutputPath)$(TargetName)$(TargetExt)&quot; &quot;$(KEYFILE)&quot;" />
 
     <WriteLinesToFile File                = "$(IntermediateOutputPath)sign.log"
                       Encoding            = "Unicode"
