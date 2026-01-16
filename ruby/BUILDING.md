@@ -3,7 +3,7 @@
 ## Table of Contents
 
 - [Build roadmap](#build-roadmap)
-- [Building Ice for Ruby from source](#building-ice-for-ruby-from-source)
+- [Building the Ruby Extension](#building-ice-for-ruby-from-source)
   - [Prerequisites](#prerequisites)
   - [Building Ice for Ruby](#building-ice-for-ruby)
   - [Configuring your environment](#configuring-your-environment)
@@ -29,7 +29,7 @@ This document describes two distinct build workflows:
    Builds standalone Ruby gem packages from the source tree.
    This workflow **does not require Ice for C++** and is intended for producing distributable `.gem` packages.
 
-## Building Ice for Ruby from source
+## Building the Ruby Extension
 
 This build compiles Ice for Ruby directly from the source tree and requires a prior build of Ice for C++.
 
