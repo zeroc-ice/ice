@@ -1,128 +1,102 @@
-# Ice for Java Compat Build Instructions
+# Building Ice for Java Compat from Source
 
-This page describes how to build and install Ice for Java Compat from source. If you prefer, you can also download a
-[binary distribution].
+This document describes how to build and install Ice for Java Compat from source.
 
-- [Build Requirements](#build-requirements)
-  - [Operating Systems](#operating-systems)
-  - [Slice to Java Compiler](#slice-to-java-compiler)
-  - [JDK Version](#jdk-version)
-  - [Gradle](#gradle)
-  - [Bzip2 Compression](#bzip2-compression)
+ZeroC provides [Ice binary distributions] for many platforms, so building Ice for Java Compat from source is usually
+unnecessary.
+
+## Table of Contents
+
+- [Build roadmap](#build-roadmap)
+- [Prerequisites](#prerequisites)
 - [Building Ice for Java Compat](#building-ice-for-java-compat)
-- [Installing Ice for Java Compat](#installing-ice-for-java-compat)
-- [Running the Tests](#running-the-tests)
-- [Building the Ice for Android Tests](#building-the-ice-for-android-tests)
+- [Running the tests](#running-the-tests)
+- [Running the tests on Android](#running-the-tests-on-android)
+  - [Using Android Studio](#using-android-studio)
 
-## Build Requirements
+## Build roadmap
 
-### Operating Systems
-
-Ice for Java Compat builds and runs properly on Windows, macOS, and any recent Linux distributions. It is fully
-supported on the platforms listed on the [supported platforms] page.
-
-### Slice to Java Compiler
-
-You need the Slice to Java compiler to build Ice for Java Compat and also to use Ice for Java Compat. The Slice to Java
-compiler (`slice2java`) is a command-line tool written in C++. You can build the Slice to Java compiler from source, or
-alternatively you can install an Ice [binary distribution] that includes this compiler.
-
-### JDK Version
-
-You need JDK 8, JDK 11, or JDK 17 to build Ice for Java Compat.
-
-Make sure that the `javac` and `java` commands are present in your PATH.
-
-> The build produces bytecode in the Java 7 class file format ([major version] 51).
-
-### Gradle
-
-Ice for Java Compat uses the [Gradle] build system, and includes the Gradle wrapper in the distribution. You cannot
-build the Ice for Java Compat source distribution without an Internet connection. Gradle will download all required
-packages automatically from the Maven Central repository.
-
-### Bzip2 Compression
-
-Ice for Java Compat supports protocol compression using the bzip2 classes included with [Apache Commons Compress].
-
-The Maven package ID for the commons-compress JAR file is as follows:
-
-```gradle
-groupId=org.apache.commons, version=1.20, artifactId=commons-compress
+```mermaid
+flowchart LR
+    c++(Ice for C++) --> java(Ice for Java Compat)
+    java --> tests(Tests)
 ```
 
-The demos and tests are automatically setup to enable protocol compression by adding the commons-compress JAR to the
-manifest class path. For your own applications you must add the commons-compress JAR to the application `CLASSPATH` to
-enable protocol compression.
+## Prerequisites
+
+1. **JDK 8, JDK 11, or JDK 17.** Make sure that the `javac` and `java` commands are present in your PATH. The build
+   produces bytecode in the Java 7 class file format.
+
+2. **The Slice-to-Java compiler (`slice2java`).** You can build the Slice to Java compiler from source, or install an
+   Ice [binary distribution][Ice binary distributions] that includes this compiler.
+
+3. **Ice for C++ distribution** (for running service tests).
+
+4. **Python 3** is required to run the tests. The Glacier2 tests also require the `passlib` Python package.
+
+5. **Ice for Python** is required for running the Android tests.
+
+6. **Android Studio** (optional). Android Studio Otter 2 Feature Drop | 2025.2.2 Patch 1 is required to build the
+   Android test controller.
 
 ## Building Ice for Java Compat
 
-The build system requires the Slice to Java compiler from Ice for C++. If you have not built Ice for C++ in this source
-distribution, you must set the `ICE_HOME` environment variable with the path name of your Ice installation.
+Before building Ice for Java Compat, you must first build the Ice for C++ source distribution. Refer to the
+[C++ build instructions](../cpp/BUILDING.md) for details.
 
-On Linux or macOS with a local build:
+Once Ice for C++ is built, open a command prompt and navigate to the `java-compat` subdirectory. To build Ice for Java
+Compat, run:
 
 ```shell
-export ICE_HOME=/opt/Ice-3.7.11
+./gradlew build
 ```
+
+On Windows, if you're not using the default C++ build configuration (i.e., x64/Release), set the `CPP_PLATFORM` and
+`CPP_CONFIGURATION` environment variables to match your C++ build:
+
+```shell
+set CPP_PLATFORM=x64
+set CPP_CONFIGURATION=Debug
+gradlew build
+```
+
+Upon completion, the Ice JAR and POM files are placed in the `lib` subdirectory.
+
+### Using an Ice binary distribution
+
+If you have not built Ice for C++ from source, you must set the `ICE_BIN_DIST` environment variable to `cpp` and the
+`ICE_HOME` environment variable with the path name of your Ice installation.
 
 On Linux with an RPM installation:
 
 ```shell
+export ICE_BIN_DIST=cpp
 export ICE_HOME=/usr
 ```
 
 On macOS with a Homebrew installation:
 
 ```shell
+export ICE_BIN_DIST=cpp
 export ICE_HOME=$(brew --prefix)
 ```
 
 On Windows with an MSI installation:
 
 ```shell
+set ICE_BIN_DIST=cpp
 set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.11
 ```
 
-On Windows if you are using Ice for C++ from a source distribution, you must set the `CPP_PLATFORM` and
-`CPP_CONFIGURATION` environment variables to match the platform and configuration used in your C++ build:
+### Installing Ice for Java Compat
+
+To install Ice for Java Compat in the directory specified by the `prefix` variable in `gradle.properties`, run:
 
 ```shell
-set CPP_PLATFORM=x64
-set CPP_CONFIGURATION=Debug
+./gradlew install
 ```
 
-The supported values for `CPP_PLATFORM` are `Win32` and `x64` and the supported values for `CPP_CONFIGURATION` are
-`Debug` and `Release`.
-
-Before building Ice for Java Compat, review the settings in the file `gradle.properties` and edit as necessary.
-
-To build Ice, all services, and tests, run
-
-```shell
-gradlew build
-```
-
-Upon completion, the Ice JAR and POM files are placed in the `lib` subdirectory.
-
-If at any time you wish to discard the current build and start a new one, use
-these commands:
-
-```shell
-gradlew clean
-gradlew build
-```
-
-## Installing Ice for Java Compat
-
-To install Ice for Java Compat in the directory specified by the `prefix` variable in
-`gradle.properties` run the following command:
-
-```shell
-gradlew install
-```
-
-The installation installs the following JAR files to `<prefix>/lib`.
+The following JAR files will be installed to `<prefix>/lib`:
 
 - glacier2-compat-3.7.11.jar
 - ice-compat-3.7.11.jar
@@ -136,36 +110,9 @@ The installation installs the following JAR files to `<prefix>/lib`.
 
 POM files are also installed for ease of deployment to a Maven-based distribution system.
 
-## Running the Tests
+## Running the tests
 
-Some of the Ice for Java Compat tests employ applications that are part of the Ice for C++ distribution. If you have
-not built Ice for C++ in this source distribution then you must set the `ICE_HOME` environment variable with the path
-name of your Ice installation. On Linux or macOS with a local build:
-
-```shell
-export ICE_HOME=/opt/Ice-3.7.11
-```
-
-On Linux with an RPM installation:
-
-```shell
-export ICE_HOME=/usr
-```
-
-On macOS with a Homebrew installation:
-
-```shell
-export ICE_HOME=$(brew --prefix)
-```
-
-On Windows:
-
-```shell
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.11
-```
-
-Python is required to run the test suite. To run the tests, open a command window and change to the top-level directory.
-At the command prompt, execute:
+To run the Java Compat test suite, open a command prompt and change to the `java-compat` subdirectory. Then run:
 
 ```shell
 python allTests.py
@@ -173,45 +120,53 @@ python allTests.py
 
 If everything worked out, you should see lots of `ok` messages. In case of a failure, the tests abort with `failed`.
 
-## Building the Ice for Android Tests
+## Running the tests on Android
 
 The `test/android/controller` directory contains an Android Studio project for the Ice test suite controller.
 
-### Android Build Requirements
+To build and run the Android test controller, install the following:
 
-Building any Ice application for Android requires Android Studio and the Android SDK build tools. We tested with the
-following components:
-
-- Android Studio Otter 2 Feature Drop | 2025.2.2 Patch 1
 - Android SDK 36
+- Android Studio Otter 2 Feature Drop | 2025.2.2 Patch 1
 
-Ice requires at minimum API level 21:
+Ice for Java Compat requires at minimum API level 21 (Android 5).
 
-- Android 5 (API 21)
+### Using Android Studio
 
-### Building the Android Test Controller
-
-You must first build Ice for Java Compat refer to [Building Ice for Java Compat](#building-ice-for-java-compat)
-for instructions, then follow these steps:
+You must first build Ice for Java Compat (see [Building Ice for Java Compat](#building-ice-for-java-compat)), then
+follow these steps:
 
 1. Start Android Studio
 2. Select "Open an existing Android Studio project"
-3. Navigate to and select the "android" subdirectory
+3. Navigate to and select the `java-compat/test/android/controller` subdirectory
 4. Click OK and wait for the project to open and build
 
-To build the tests against the Ice binary distribution you must set `ICE_BIN_DIST` environment variable to `all` before
+To build the tests against the Ice binary distribution, set the `ICE_BIN_DIST` environment variable to `all` before
 starting Android Studio.
 
-## Running the Android Tests
+Once the test controller is running, open a terminal, change to the `java-compat` subdirectory, and execute:
 
-The Android Studio project contains a `controller` app for the Ice test suite.
+```shell
+python allTests.py --android --controller-app
+```
 
-Tests are started from the dev machine using the `allTests.py` script, similar to the other language mappings. The
-script uses Ice for Python to communicate with the Android app, therefore you must build the [Python mapping](../../python)
-before continuing.
+To run the tests on an Android device connected through USB:
 
-You also need to add the `tools\bin`, `platform-tools` and `emulator` directories from the Android SDK to your PATH. On
-macOS, you can use the following commands:
+```shell
+python allTests.py --android --device=usb --controller-app
+```
+
+To connect to an Android device that is running adb:
+
+```shell
+python allTests.py --android --device=<ip-address> --controller-app
+```
+
+To run the tests against a controller application started from Android Studio, omit the `--controller-app` option.
+
+You also need to add the Android SDK tools to your PATH:
+
+On macOS:
 
 ```shell
 export PATH=~/Library/Android/sdk/cmdline-tools/latest/bin:$PATH
@@ -219,7 +174,7 @@ export PATH=~/Library/Android/sdk/platform-tools:$PATH
 export PATH=~/Library/Android/sdk/emulator:$PATH
 ```
 
-On Windows, you can use the following commands:
+On Windows:
 
 ```shell
 set PATH=%LOCALAPPDATA%\Android\sdk\cmdline-tools\latest\bin;%PATH%
@@ -227,30 +182,4 @@ set PATH=%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\emulator;%PATH%
 ```
 
-Run the tests with the Android emulator by running the following command:
-
-```shell
-python allTests.py --android --controller-app
-```
-
-To run the tests on a Android device connected through USB, you can use
-the `--device=usb` option as shown below:
-
-```shell
-python allTests.py --android --device=usb --controller-app
-```
-
-To connect to an Android device that is running adb you can use the `--device=<ip-address>`
-
-```shell
-python allTests.py --android --device=<ip-address> --controller-app
-```
-
-To run the tests against a `controller` application started from Android Studio you should omit the `--controller-app`
-option from the commands above.
-
-[Apache Commons Compress]: https://commons.apache.org/proper/commons-compress/
-[binary distribution]: https://zeroc.com/downloads/ice
-[Gradle]: https://gradle.org
-[major version]: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.1-200-B.2
-[supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-11
+[Ice binary distributions]: https://zeroc.com/downloads/ice
