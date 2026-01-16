@@ -2,13 +2,13 @@
 
 ## Table of Contents
 
-* [Build roadmap](#build-roadmap)
-* [Building Ice for Ruby from source](#building-ice-for-ruby-from-source)
-  * [Prerequisites](#prerequisites)
-  * [Building Ice for Ruby](#building-ice-for-ruby)
-  * [Configuring your environment](#configuring-your-environment)
-  * [Running the tests](#running-the-tests)
-* [Building the Ruby gem package](#building-the-ruby-gem-package)
+- [Build roadmap](#build-roadmap)
+- [Building Ice for Ruby from source](#building-ice-for-ruby-from-source)
+  - [Prerequisites](#prerequisites)
+  - [Building Ice for Ruby](#building-ice-for-ruby)
+  - [Configuring your environment](#configuring-your-environment)
+  - [Running the tests](#running-the-tests)
+- [Building the Ruby gem package](#building-the-ruby-gem-package)
 
 ## Build roadmap
 
@@ -38,6 +38,7 @@ This build compiles Ice for Ruby directly from the source tree and requires a pr
 1. **Ruby 3.0 or later**
 
    If you use an RPM installation, the following packages are required:
+
    - ruby
    - ruby-devel
    - ruby-libs (RHEL)
@@ -79,10 +80,16 @@ This example assumes that your Ice for Ruby installation is located in the `/opt
 
 You must also modify `LD_LIBRARY_PATH` or `DYLD_LIBRARY_PATH` to include the Ice library directory.
 
-**On Linux:**
+**On Linux (RHEL, SLES, Amazon):**
 
 ```shell
-export LD_LIBRARY_PATH=/opt/Ice/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/opt/Ice/lib64:$LD_LIBRARY_PATH
+```
+
+**On Linux (Debian, Ubuntu):**
+
+```shell
+export LD_LIBRARY_PATH=/opt/Ice/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 ```
 
 **On macOS:**
