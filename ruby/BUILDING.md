@@ -10,7 +10,7 @@
   - [Running the tests](#running-the-tests)
 - [Building the Ruby gem package](#building-the-ruby-gem-package)
 
-## Build roadmap
+## Build Roadmap
 
 This document describes two distinct build workflows:
 
