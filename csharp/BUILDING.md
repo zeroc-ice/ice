@@ -72,10 +72,7 @@ The target framework you specify must implement .NET Standard 2.0.
 ### Strong Name Signatures
 
 The Ice assemblies in official releases are signed with strong name signatures to maintain compatibility with previous
-versions and allow them to be installed in the Global Assembly Cache (GAC).
-
-Strong name signing is automatically applied during the release build process via GitHub Actions, using keys stored as
-GitHub secrets. For regular development builds, strong name signing is not required and assemblies are built unsigned.
+versions.
 
 ### Building only the Test Suite
 
