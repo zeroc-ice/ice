@@ -37,12 +37,6 @@ This build compiles Ice for Ruby directly from the source tree and requires a pr
 
 1. **Ruby 3.0 or later**
 
-   If you use an RPM installation, the following packages are required:
-
-   - ruby
-   - ruby-devel
-   - ruby-libs (RHEL)
-
 2. **Ice for C++ source build**
 
 3. **Python** (required to run the tests)
