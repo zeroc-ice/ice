@@ -2,13 +2,12 @@
 
 This document describes how to build and install Ice for C++ from source.
 
-ZeroC provides [Ice binary distributions] for many platforms and compilers, including Windows and Visual Studio, so
-building Ice from source is usually unnecessary.
+ZeroC provides [Ice binary distributions] for many platforms, including Linux, macOS and Windows, so building Ice from
+source is usually unnecessary.
 
 ## Table of Contents
 
 - [Build roadmap](#build-roadmap)
-- [Prerequisites](#prerequisites)
 - [Building Ice for C++ on Linux](#building-ice-for-c-on-linux)
   - [Installing build dependencies](#installing-build-dependencies)
   - [Building](#building)
@@ -40,25 +39,11 @@ flowchart LR
     c++ --> tests(Tests)
 ```
 
-## Prerequisites
-
-Ice was extensively tested using the operating systems and compiler versions listed on [supported platforms].
-
-On Windows, the build requires Visual Studio 2019 or Visual Studio 2022. The resulting binaries are compatible with later
-versions of Visual Studio but the build requires one of the versions mentioned above.
-
 ## Building Ice for C++ on Linux
 
 ### Installing build dependencies
 
-Ice has dependencies on a number of third-party libraries:
-
-- [bzip2]
-- [expat]
-- [libedit]
-- [LMDB] (LMDB is not required with the C++11 mapping)
-- [mcpp]
-- [OpenSSL]
+Ice has dependencies on a number of third-party libraries ([bzip2], [expat], [libedit], [LMDB], [mcpp] and [OpenSSL]).
 
 Bzip, Expat, Libedit and OpenSSL are included with most Linux distributions.
 
@@ -67,10 +52,8 @@ ZeroC supplies binary packages for LMDB and mcpp for several Linux distributions
 #### On Ubuntu and other Debian-based systems
 
 ```shell
-sudo apt-get install libbz2-dev libexpat1-dev libedit-dev liblmdb-dev libssl-dev
+sudo apt-get install libbz2-dev libexpat1-dev libedit-dev liblmdb-dev libmcpp-dev libssl-dev
 ```
-
-You will also need to build [mcpp] from source, or add the ZeroC repository.
 
 In addition, on Ubuntu and Debian distributions where the Ice for Bluetooth plug-in is supported, you need to install
 the following packages in order to build the IceBT transport plug-in:
@@ -82,14 +65,14 @@ sudo apt-get install pkg-config libdbus-1-dev libbluetooth-dev
 #### On RHEL 9
 
 ```shell
-sudo dnf install https://zeroc.com/download/ice/3.7/el9/ice-repo-3.7.el9.noarch.rpm
+sudo dnf install https://download.zeroc.com/ice/3.7/el9/ice-repo-3.7.el9.noarch.rpm
 sudo dnf install bzip2-devel expat-devel libedit-devel lmdb-devel mcpp-devel openssl-devel
 ```
 
 #### On RHEL 10
 
 ```shell
-sudo dnf install https://zeroc.com/download/ice/3.7/el10/ice-repo-3.7.el10.noarch.rpm
+sudo dnf install https://download.zeroc.com/ice/3.7/el10/ice-repo-3.7.el10.noarch.rpm
 sudo dnf install bzip2-devel expat-devel libedit-devel lmdb-devel mcpp-devel openssl-devel
 ```
 
@@ -195,7 +178,7 @@ If you choose to not embed a `runpath` into executables at build time (see your 
 you also need to add the library directory to your `LD_LIBRARY_PATH`:
 
 - `<prefix>/lib64` (RHEL, SLES, Amazon)
-- `<prefix>/lib/x86_64-linux-gnu` (Ubuntu)
+- `<prefix>/lib/x86_64-linux-gnu` (Debian, Ubuntu)
 
 When compiling Ice programs, you must pass the location of the `<prefix>/include` directory to the compiler with the
 `-I` option, and the location of the library directory with the `-L` option.
@@ -219,13 +202,7 @@ remove the generated files created by the Slice compilers.
 
 ### Installing build dependencies
 
-Ice has dependencies on a number of third-party libraries:
-
-- [bzip2]
-- [expat]
-- [libedit]
-- [LMDB] (LMDB is not required with the C++11 mapping)
-- [mcpp]
+Ice has dependencies on a number of third-party libraries ([bzip2], [expat], [libedit], [LMDB] and [mcpp]).
 
 bzip, expat and libedit are included with your system.
 
@@ -416,13 +393,7 @@ remove the generated files created by the Slice compilers.
 
 ### Installing build dependencies
 
-Ice has dependencies on a number of third-party libraries:
-
-- [bzip2]
-- [expat]
-- [LMDB] (LMDB is not required with the C++11 mapping)
-- [mcpp]
-- [OpenSSL]
+Ice has dependencies on a number of third-party libraries ([bzip2], [expat], [LMDB], [mcpp] and [OpenSSL]).
 
 OpenSSL (openssl.base) is provided by AIX. bzip2 and bzip2-devel are included in the [IBM AIX Toolbox for Linux
 Applications].
@@ -430,7 +401,7 @@ Applications].
 ZeroC provides RPM packages for expat, LMDB and mcpp. You can install these packages as shown below:
 
 ```shell
-sudo yum install https://zeroc.com/download/ice/3.7/aix7.2/ice-repo-3.7.aix7.2.noarch.rpm
+sudo yum install https://download.zeroc.com/ice/3.7/aix7.2/ice-repo-3.7.aix7.2.noarch.rpm
 sudo yum install expat-devel lmdb-devel mcpp-devel
 ```
 
@@ -551,6 +522,9 @@ remove the generated files created by the Slice compilers.
 
 ## Building Ice for C++ on Windows
 
+The build requires Visual Studio 2019 or Visual Studio 2022. The resulting binaries are compatible with later versions
+of Visual Studio but the build requires one of the versions mentioned above.
+
 ### Installing build dependencies
 
 ZeroC provides NuGet packages for all third-party dependencies.
@@ -580,7 +554,7 @@ Now you're ready to build Ice:
 msbuild /m msbuild\ice.proj
 ```
 
-This builds the Ice for C++ SDK and the Ice for C++ test suite, with Release binaries for the default platform.
+This builds the Ice C++ libraries, services and test suite, with Release binaries for the default platform.
 
 Set the MSBuild `Configuration` property to `Debug` to build debug binaries instead:
 
