@@ -1,124 +1,86 @@
-# Ice for Java build instructions
+# Building Ice for Java from Source
 
-This page describes how to build and install Ice for Java from source. If
-you prefer, you can also download a [binary distribution].
+This document describes how to build and install Ice for Java from source.
 
-* [Build Requirements](#build-requirements)
-  * [Operating Systems](#operating-systems)
-  * [Slice to Java Compiler](#slice-to-java-compiler)
-  * [JDK Version](#jdk-version)
-  * [Gradle](#gradle)
-  * [Bzip2 Compression](#bzip2-compression)
-  * [JGoodies](#jgoodies)
-  * [ProGuard](#proguard)
-  * [Java Application Bundler](#java-application-bundler)
-* [Building Ice for Java](#building-ice-for-java)
-* [Installing Ice for Java](#installing-ice-for-java)
-* [Running the Java Tests](#running-the-java-tests)
-* [Building the Ice for Android Tests](#building-the-ice-for-android-tests)
-* [IceGrid GUI Tool](#icegrid-gui-tool)
+ZeroC provides [Ice binary distributions] for many platforms, so building Ice for Java from source is usually
+unnecessary.
 
-## Build Requirements
+## Table of Contents
 
-### Operating Systems
+- [Build roadmap](#build-roadmap)
+- [Prerequisites](#prerequisites)
+- [Building Ice for Java](#building-ice-for-java)
+- [Running the tests](#running-the-tests)
+- [Running the tests on Android](#running-the-tests-on-android)
+  - [Using Android Studio](#using-android-studio)
+- [IceGrid GUI tool](#icegrid-gui-tool)
 
-Ice for Java builds and runs properly on Windows, macOS, and any recent Linux
-distribution. It is fully supported on the platforms listed on the [supported platforms]
-page.
+## Build roadmap
 
-### Slice to Java Compiler
-
-You need the Slice to Java compiler to build Ice for Java and also to use
-Ice for Java. The Slice to Java compiler (`slice2java`) is a command-line tool
-written in C++. You can build the Slice to Java compiler from source, or
-alternatively you can install an Ice [binary distribution] that includes
-this compiler.
-
-### JDK Version
-
-You need JDK 8, JDK 11, JDK 17, or JDK 21 to build Ice for Java.
-
-Make sure that the `javac` and `java` commands are present in your PATH.
-
-> The build produces bytecode in the Java 8 class file format ([major version] 52).
-
-The IceGrid GUI tool's Metrics Graph feature requires JavaFX support. If you
-build the source with a JVM that lacks JavaFX support, this feature will be
-unavailable. Alternatively, building the source in an environment with
-JavaFX produces an IceGrid GUI JAR file that can be used in JVMs with or without
-JavaFX support, as the Metrics Graph feature is enabled dynamically.
-
-### Gradle
-
-Ice for Java uses the [Gradle] build system, and includes the Gradle wrapper
-in the distribution. You cannot build the Ice for Java source distribution without
-an Internet connection. Gradle will download all required packages automatically
-from the Maven Central repository located at https://repo1.maven.org/maven2/
-
-### Bzip2 Compression
-
-Ice for Java supports protocol compression using the bzip2 classes included
-with [Apache Commons Compress].
-
-The Maven package ID for the commons-compress JAR file is as follows:
-
-```gradle
-groupId=org.apache.commons, version=1.20, artifactId=commons-compress
+```mermaid
+flowchart LR
+    c++(Ice for C++) --> java(Ice for Java)
+    java --> tests(Tests)
+    java --> icegridgui(IceGrid GUI)
 ```
 
-The demos and tests are automatically setup to enable protocol compression by
-adding the commons-compress JAR to the manifest class path. For your own
-applications you must add the commons-compress JAR to the application `CLASSPATH`
-to enable protocol compression.
+## Prerequisites
 
-### JGoodies
+1. **JDK 8, JDK 11, JDK 17, or JDK 21.** Make sure that the `javac` and `java` commands are present in your PATH. The
+   build produces bytecode in the Java 8 class file format.
 
-The IceGrid GUI tool uses the JGoodies libraries Forms and Looks. The following
-versions were tested:
+2. **The Slice-to-Java compiler (`slice2java`).** You can build the Slice to Java compiler from source, or install an
+   Ice [binary distribution][Ice binary distributions] that includes this compiler.
 
-* JGoodies Forms 1.9.0
-* JGoodies Looks 2.7.0
+3. **Ice for C++ distribution** (for running service tests).
 
-The Maven package ids for the JGoodies packages are as follows:
+4. **Python 3** is required to run the tests. The Glacier2 tests also require the `passlib` Python package.
 
-```gradle
-groupId=com.jgoodies, version=1.9.0, artifactId=jgoodies-forms
-groupId=com.jgoodies, version=2.7.0, artifactId=jgoodies-looks
-```
+5. **Ice for Python** is required for running the Android tests.
 
-### ProGuard
+6. **Android Studio** (optional). Android Studio Otter 2 Feature Drop | 2025.2.2 Patch 1 is required to build the
+   Android test controller.
 
-Gradle uses [ProGuard] to create the standalone JAR file for the IceGrid
-GUI tool.
-
-The Maven package id for the ProGuard gradle plugin is as follows:
-
-```gradle
-groupId=com.guardsquare, version=7.3.1, artifactId=proguard-gradle
-```
-
-### Java Application Bundler
-
-Under macOS Gradle uses the Java Application Bundler to create an application
-bundle for the IceGrid GUI tool.
-
-The Maven package id for the application bundler package is as follows:
-
-```gradle
-groupId=com.panayotis, version=1.1.0, artifactId=appbundler
-```
+The IceGrid GUI tool's Metrics Graph feature requires JavaFX support. If you build the source with a JVM that lacks
+JavaFX support, this feature will be unavailable.
 
 ## Building Ice for Java
 
-The build system requires the Slice to Java compiler from Ice for C++. If you
-have not built Ice for C++ in this source distribution, you must set the
-`ICE_BIN_DIST` environment variable to `cpp` and the `ICE_HOME` environment
-variable with the path name of your Ice installation. For example, on Linux with
-an RPM installation:
+Before building Ice for Java, you must first build the Ice for C++ source distribution. Refer to the
+[C++ build instructions](../cpp/BUILDING.md) for details.
+
+Once Ice for C++ is built, open a command prompt and navigate to the `java` subdirectory. To build Ice for Java, run:
+
+```shell
+./gradlew build
+```
+
+On Windows, if you're not using the default C++ build configuration (i.e., x64/Release), set the `cppPlatform` and
+`cppConfiguration` Gradle properties to match your C++ build:
+
+```shell
+gradlew build -PcppPlatform=Win32 -PcppConfiguration=Debug
+```
+
+Upon completion, the Ice JAR and POM files are placed in the `lib` subdirectory.
+
+### Using an Ice binary distribution
+
+If you have not built Ice for C++ from source, you must set the `ICE_BIN_DIST` environment variable to `cpp` and the
+`ICE_HOME` environment variable with the path name of your Ice installation.
+
+On Linux with an RPM installation:
 
 ```shell
 export ICE_BIN_DIST=cpp
 export ICE_HOME=/usr
+```
+
+On macOS with a Homebrew installation:
+
+```shell
+export ICE_BIN_DIST=cpp
+export ICE_HOME=$(brew --prefix)
 ```
 
 On Windows with an MSI installation:
@@ -128,135 +90,86 @@ set ICE_BIN_DIST=cpp
 set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.11
 ```
 
-If you are using Ice for C++ from a source build on Windows, you must set
-the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables to match the
-platform and configuration used in your C++ build:
+### Installing Ice for Java
+
+To install Ice for Java in the directory specified by the `prefix` variable in `gradle.properties`, run:
 
 ```shell
-set CPP_PLATFORM=x64
-set CPP_CONFIGURATION=Debug
+./gradlew install
 ```
 
-The supported values for `CPP_PLATFORM` are `Win32` and `x64` and the supported
-values for `CPP_CONFIGURATION` are `Debug` and `Release`.
+The following JAR files will be installed to `<prefix>/lib`:
 
-Before building Ice for Java, review the settings in the file
-`gradle.properties` and edit as necessary.
+- glacier2-3.7.11.jar
+- ice-3.7.11.jar
+- icebox-3.7.11.jar
+- icebt-3.7.11.jar
+- icediscovery-3.7.11.jar
+- icegrid-3.7.11.jar
+- icegridgui.jar
+- icelocatordiscovery-3.7.11.jar
+- icepatch2-3.7.11.jar
+- icessl-3.7.11.jar
+- icestorm-3.7.11.jar
 
-To build Ice, all services, and tests, run
+POM files are also installed for ease of deployment to a Maven-based distribution system.
 
-```shell
-gradlew build
-```
+## Running the tests
 
-Upon completion, the Ice JAR and POM files are placed in the `lib` subdirectory.
-
-If at any time you wish to discard the current build and start a new one, use
-these commands:
-
-```shell
-gradlew clean
-gradlew build
-```
-
-## Installing Ice for Java
-
-To install Ice for Java in the directory specified by the `prefix` variable in
-`gradle.properties` run the following command:
-
-```shell
-gradlew install
-```
-
-The following JAR files will be installed to `<prefix>/lib`.
-
-* glacier2-3.7.11.jar
-* ice-3.7.11.jar
-* icebox-3.7.11.jar
-* icebt-3.7.11.jar
-* icediscovery-3.7.11.jar
-* icegrid-3.7.11.jar
-* icegridgui.jar
-* icelocatordiscovery-3.7.11.jar
-* icepatch2-3.7.11.jar
-* icessl-3.7.11.jar
-* icestorm-3.7.11.jar
-
-POM files are also installed for ease of deployment to a Maven-based
-distribution system.
-
-## Running the Java Tests
-
-Some of the Ice for Java tests employ applications that are part of the Ice for
-C++ distribution. If you have not built Ice for C++ in this source distribution
-then you must set the `ICE_HOME` environment variable with the path name of your
-Ice installation. On Unix:
-
-```shell
-export ICE_HOME=/opt/Ice-3.7.11 (For local build)
-export ICE_HOME=/usr (For RPM installation)
-```
-
-On Windows:
-
-```shell
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.11
-```
-
-Python is required to run the test suite. To run the tests, open a command
-window and change to the top-level directory. At the command prompt, execute:
+To run the Java test suite, open a command prompt and change to the `java` subdirectory. Then run:
 
 ```shell
 python allTests.py
 ```
 
-If everything worked out, you should see lots of `ok` messages. In case of a
-failure, the tests abort with `failed`.
+If everything worked out, you should see lots of `ok` messages. In case of a failure, the tests abort with `failed`.
 
-## Building the Ice for Android Tests
+## Running the tests on Android
 
-The `test/android/controller` directory contains an Android Studio project for
-the Ice test suite controller.
+The `test/android/controller` directory contains an Android Studio project for the Ice test suite controller.
 
-### Android Build Requirements
+To build and run the Android test controller, install the following:
 
-To build an Ice application for Android, you need Android Studio and the Android SDK
-build tools. We tested the following components:
+- Android SDK 36
+- Android Studio Otter 2 Feature Drop | 2025.2.2 Patch 1
 
-* Android Studio Giraffe
-* Android SDK 33
+To use Ice's Java mapping with Java 8, you need at least API level 24 (Android 7).
 
-To use Ice's Java mapping with Java 8, you need at least API level 24:
+### Using Android Studio
 
-* Android 7 (API24)
-
-### Building the Android Test Controller
-
-You must first build Ice for Java refer to [Building Ice for Java](#building-ice-for-java)
-for instructions, then follow these steps:
+You must first build Ice for Java (see [Building Ice for Java](#building-ice-for-java)), then follow these steps:
 
 1. Start Android Studio
 2. Select "Open an existing Android Studio project"
-3. Navigate to and select the "java/test/android/controller" subdirectory
+3. Navigate to and select the `java/test/android/controller` subdirectory
 4. Click OK and wait for the project to open and build
 
-To build the tests against the Ice binary distribution you must set `ICE_BIN_DIST` environment
-variable to `all` before starting Android Studio.
+To build the tests against the Ice binary distribution, set the `ICE_BIN_DIST` environment variable to `all` before
+starting Android Studio.
 
-### Running the Android Test Suite
+Once the test controller is running, open a terminal, change to the `java` subdirectory, and execute:
 
-The Android Studio project contains a `controller` app for the Ice test
-suite. Prior to running the app, you must disable Android Studio's Instant Run
-feature, located in File / Settings / Build, Execution, Deployment /
-Instant Run.
+```shell
+python allTests.py --android --controller-app
+```
 
-Tests are started from the dev machine using the `allTests.py` script, similar
-to the other language mappings. The script uses Ice for Python to communicate
-with the Android app, therefore you must build the [Python mapping] before continuing.
+To run the tests on an Android device connected through USB:
 
-You also need to add the `tools\bin`, `platform-tools` and `emulator`
-directories from the Android SDK to your PATH. On macOS, you can use the
-following commands:
+```shell
+python allTests.py --android --device=usb --controller-app
+```
+
+To connect to an Android device that is running adb:
+
+```shell
+python allTests.py --android --device=<ip-address> --controller-app
+```
+
+To run the tests against a controller application started from Android Studio, omit the `--controller-app` option.
+
+You also need to add the Android SDK tools to your PATH:
+
+On macOS:
 
 ```shell
 export PATH=~/Library/Android/sdk/cmdline-tools/latest/bin:$PATH
@@ -264,7 +177,7 @@ export PATH=~/Library/Android/sdk/platform-tools:$PATH
 export PATH=~/Library/Android/sdk/emulator:$PATH
 ```
 
-On Windows, you can use the following commands:
+On Windows:
 
 ```shell
 set PATH=%LOCALAPPDATA%\Android\sdk\cmdline-tools\latest\bin;%PATH%
@@ -272,49 +185,18 @@ set PATH=%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\emulator;%PATH%
 ```
 
-Run the tests with the Android emulator by running the following command:
+## IceGrid GUI tool
 
-```shell
-python allTests.py --android --controller-app
-```
+Ice for Java includes the IceGrid GUI tool. It can be found in the file `lib/icegridgui.jar`.
 
-To run the tests on a Android device connected through USB, you can use
-the `--device=usb` option as shown below:
-
-```shell
-python allTests.py --android --device=usb --controller-app
-```
-
-To connect to an Android device that is running adb you can use the
-`--device=<ip-address>`
-
-```shell
-python allTests.py --android --device=<ip-address> --controller-app
-```
-
-To run the tests against a `controller` application started from Android
-Studio you should omit the `--controller-app` option from the commands above.
-
-## IceGrid GUI Tool
-
-Ice for Java includes the IceGrid GUI tool. It can be found in the file
-`lib/icegridgui.jar`.
-
-This JAR file is completely self-contained and has no external dependencies.
-You can start the tool with the following command:
+When built with ProGuard enabled (the default, see `gradle.properties`), this JAR file is completely self-contained
+and has no external dependencies. You can start the tool with:
 
 ```shell
 java -jar icegridgui.jar
 ```
 
-On macOS, the build also creates an application bundle named IceGrid GUI. You
-can start the IceGrid GUI tool by double-clicking the IceGrid GUI icon in
-Finder.
+On macOS, the build also creates an application bundle named IceGrid GUI. You can start the IceGrid GUI tool by
+double-clicking the IceGrid GUI icon in Finder.
 
-[binary distribution]: https://zeroc.com/downloads/ice
-[major version]: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.1-200-B.2
-[supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-11
-[Gradle]: https://gradle.org
-[ProGuard]: http://proguard.sourceforge.net
-[Apache Commons Compress]: https://commons.apache.org/proper/commons-compress/
-[Python Mapping]: ../python
+[Ice binary distributions]: https://zeroc.com/downloads/ice
