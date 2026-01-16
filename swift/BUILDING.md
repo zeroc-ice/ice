@@ -36,6 +36,8 @@ flowchart LR
    building Ice for C++ from the `cpp` subdirectory, or install an Ice [binary distribution] that includes this
    compiler.
 
+4. **[Ice for Python](../python/BUILDING.md)** (required for iOS and iOS Simulator tests)
+
 ### Build instructions
 
 Open `ice.xcodeproj` with Xcode and build the `Ice macOS` or `Ice iOS` targets. The PromiseKit dependency will be

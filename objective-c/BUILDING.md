@@ -38,6 +38,8 @@ flowchart LR
 
 3. **Python** (required to run the tests)
 
+4. **[Ice for Python](../python/BUILDING.md)** (required for iOS and iOS Simulator tests)
+
 ### Build instructions
 
 Before building Ice for Objective-C, you must first build the Ice for C++ source distribution for the same
