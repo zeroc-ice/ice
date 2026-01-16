@@ -3,12 +3,12 @@
 ## Table of Contents
 
 * [Build roadmap](#build-roadmap)
-* [Building Ice for Python from source](#building-ice-for-python-from-source)
+* [Source Build](#building-ice-for-python-from-source)
   * [Prerequisites](#prerequisites)
   * [Building Ice for Python](#building-ice-for-python)
   * [Configuring your environment](#configuring-your-environment)
   * [Running the tests](#running-the-tests)
-* [Building the Python packages](#building-the-python-packages)
+* [Python Package Build](#building-the-python-packages)
   * [Creating Python packages](#creating-python-packages)
 
 ## Build roadmap
@@ -31,7 +31,7 @@ This document describes two distinct build workflows:
    This workflow **does not require Ice for C++** and is intended for producing distributable packages (e.g., wheels)
    for PyPI or internal use.
 
-## Building Ice for Python from source
+## Source Build
 
 This build compiles Ice for Python directly from the source tree and requires a prior build of Ice for C++.
 
@@ -128,7 +128,7 @@ python allTests.py
 
 If everything worked out, you should see lots of `ok` messages. In case of a failure, the tests abort with `failed`.
 
-## Building the Python packages
+## Python Package Build
 
 This build process creates standalone Python packages without requiring a prior Ice for C++ build.
 
