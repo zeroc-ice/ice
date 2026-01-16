@@ -35,8 +35,8 @@ echo "$GPG_KEY" | gpg --batch --import
 mkdir -p lib/java lib/java-compat
 
 # Copy staged artifacts (3.7 layout)
-cp -pf "${STAGING_DIR}/java/lib/"*.jar "${STAGING_DIR}/java/lib/"*.pom lib/java 2>/dev/null || true
-cp -pf "${STAGING_DIR}/java-compat/lib/"*.jar "${STAGING_DIR}/java-compat/lib/"*.pom lib/java-compat 2>/dev/null || true
+cp -pf "${STAGING_DIR}/java-packages/java/lib/"*.jar "${STAGING_DIR}/java-packages/java/lib/"*.pom lib/java
+cp -pf "${STAGING_DIR}/java-packages/java-compat/lib/"*.jar "${STAGING_DIR}/java-packages/java-compat/lib/"*.pom lib/java-compat
 
 # Determine Ice version
 

@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         distribution: [ubuntu22.04, ubuntu24.04, debian12, debian13]
-        arch: [x86_64, aarch64]
+        arch: [amd64, arm64]
     env:
       DEB_BUILD_OPTIONS: "nocheck parallel=4"
     steps:

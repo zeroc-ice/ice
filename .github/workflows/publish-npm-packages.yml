@@ -47,7 +47,7 @@ jobs:
               echo "${REPOSITORY_PREFIX}:_authToken=\${RELEASE_NPM_AUTH_TOKEN}" > ~/.npmrc
               ;;
             *)
-              REPOSITORY_PREFIX="//download.zeroc.com/nexus/repository/npm-${CHANNEL}-${QUALITY}/"
+              REPOSITORY_PREFIX="//download.zeroc.com/nexus/repository/npm-${CHANNEL}-${QUALITY}-hosted/"
               # Reference the env var in .npmrc using \$ so NPM reads it at publish time
               echo "${REPOSITORY_PREFIX}:_auth=\${NEXUS_NIGHTLY_NPM_AUTH_TOKEN}" > ~/.npmrc
               ;;
