@@ -178,7 +178,10 @@
               DestinationFolder="$(ToolsDir)\net472"
               Condition="'$(OS)' == 'Windows_NT'" />
 
-        <!-- Pack using MSBuild Pack target (cross-platform) -->
+        <!-- Restore and Pack using MSBuild (cross-platform) -->
+        <MSBuild Projects="$(MSBuildThisFileDirectory)zeroc.ice.net.csproj"
+                 Properties="Configuration=$(Configuration)"
+                 Targets="Restore"/>
         <MSBuild Projects="$(MSBuildThisFileDirectory)zeroc.ice.net.csproj"
                  Properties="Configuration=$(Configuration);PackageOutputPath=$(PackageOutputPath);NoBuild=true"
                  Targets="Pack"/>
