@@ -8,7 +8,6 @@
         <NetIceBox Include="$(IceSrcRootDir)bin\net8.0\publish\*"
                    Exclude="$(IceSrcRootDir)bin\net8.0\publish\*.exe" />
         <NetFrameworkIceBox Include="$(IceSrcRootDir)bin\net472\publish\*"
-                            Exclude="$(IceSrcRootDir)bin\net472\publish\*.exe"
                             Condition="'$(OS)' == 'Windows_NT'" />
 
         <Assemblies Include="$(IceSrcRootDir)lib\netstandard2.0\*.dll;

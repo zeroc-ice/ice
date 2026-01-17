@@ -71,16 +71,15 @@
         <MSBuild Projects="@(TestSolution)" BuildInParallel="true" Properties="%(Properties)" Targets="Clean" />
     </Target>
 
-    <Import Project="$(MSBuildThisFileDirectory)ice.common.targets" />
-
     <!-- Platform detection properties -->
     <PropertyGroup>
-        <Ice_OSName Condition="'$(OS)' == 'Windows_NT'">windows</Ice_OSName>
-        <Ice_OSName Condition="$([MSBuild]::IsOSPlatform('OSX'))">macos</Ice_OSName>
-        <Ice_OSName Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</Ice_OSName>
-        <Ice_OSArch>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant())</Ice_OSArch>
-        <Ice_SliceCompilerExe Condition="'$(OS)' == 'Windows_NT'">slice2cs.exe</Ice_SliceCompilerExe>
-        <Ice_SliceCompilerExe Condition="'$(OS)' != 'Windows_NT'">slice2cs</Ice_SliceCompilerExe>
+        <IceOSName Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</IceOSName>
+        <IceOSName Condition="$([MSBuild]::IsOSPlatform('Windows'))">windows</IceOSName>
+        <IceOSName Condition="$([MSBuild]::IsOSPlatform('OSX'))">macos</IceOSName>
+        <IceOSArch
+        >$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLower())</IceOSArch>
+        <IceSliceCompilerExe Condition="'$(OS)' == 'Windows_NT'">slice2cs.exe</IceSliceCompilerExe>
+        <IceSliceCompilerExe Condition="'$(OS)' != 'Windows_NT'">slice2cs</IceSliceCompilerExe>
         <!-- bzip2 package properties (Windows only, restored via NuGet) -->
         <Bzip2PackageId>bzip2.v143</Bzip2PackageId>
         <Bzip2PackageVersion>1.0.6.10</Bzip2PackageVersion>
@@ -114,8 +113,8 @@
                 <_CppBinDir Condition="'$(OS)' != 'Windows_NT'">$(MSBuildThisFileDirectory)../../cpp/bin</_CppBinDir>
             </PropertyGroup>
             <ItemGroup>
-                <_SliceCompiler Include="$(_CppBinDir)/$(Ice_SliceCompilerExe)">
-                    <PackagePath>$(Ice_OSName)-$(Ice_OSArch)</PackagePath>
+                <_SliceCompiler Include="$(_CppBinDir)/$(IceSliceCompilerExe)">
+                    <PackagePath>$(IceOSName)-$(IceOSArch)</PackagePath>
                 </_SliceCompiler>
             </ItemGroup>
         </Otherwise>
@@ -143,31 +142,6 @@
                Condition="!Exists('%(_SliceCompiler.Identity)')" />
         <Copy SourceFiles="@(_SliceCompiler)"
               DestinationFolder="$(ToolsDir)\%(_SliceCompiler.PackagePath)" />
-
-        <!-- Stage iceboxnet tools for net8.0 -->
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\bin\net8.0\publish\iceboxnet.dll;
-                           $(MSBuildThisFileDirectory)..\bin\net8.0\publish\iceboxnet.runtimeconfig.json"
-              DestinationFolder="$(ToolsDir)\net8.0" />
-
-        <!-- Stage iceboxnet tools for net472 (Windows only) -->
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\bin\net472\publish\iceboxnet.exe"
-              DestinationFolder="$(ToolsDir)\net472"
-              Condition="'$(OS)' == 'Windows_NT'" />
-
-        <!-- Generate iceboxnet.exe.config with the correct assembly public key token and assembly paths -->
-        <GetPublicKeyToken AssemblyFile="$(MSBuildThisFileDirectory)..\lib\netstandard2.0\Ice.dll">
-            <Output TaskParameter="PublicKeyToken" PropertyName="PublicKeyToken"/>
-        </GetPublicKeyToken>
-
-        <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)iceboxnet.exe.config.release"
-                                   OutputFile="$(ToolsDir)\net472\iceboxnet.exe.config"
-                                   Tokens="@PublicKeyToken@;@AssemblyDir@"
-                                   Replacements="$(PublicKeyToken);..\..\lib\netstandard2.0"
-                                   Condition="'$(PublicKeyToken)' != '' and '$(OS)' == 'Windows_NT'"/>
-
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)iceboxnet.exe.config.dev"
-              DestinationFiles="$(ToolsDir)\net472\iceboxnet.exe.config"
-              Condition="'$(PublicKeyToken)' == '' and '$(OS)' == 'Windows_NT'"/>
 
         <!-- Copy bzip2 DLL (Windows only) -->
         <Copy SourceFiles="$(Bzip2DllPath)"
