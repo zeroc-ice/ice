@@ -5,6 +5,8 @@
     <PropertyGroup>
         <CppPlatform Condition="'$(Platform)' == 'x64'">x64</CppPlatform>
         <CppPlatform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Win32'">Win32</CppPlatform>
+        <!-- Default to x64 if Platform is not specified or is 'Any CPU' -->
+        <CppPlatform Condition="'$(CppPlatform)' == ''">x64</CppPlatform>
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
@@ -13,38 +15,6 @@
 
     <Target Name="RemovePackages">
       <Exec Command="rmdir /s /q $(MSBuildThisFileDirectory)packages" Condition="Exists('$(MSBuildThisFileDirectory)packages')" />
-    </Target>
-
-    <!-- Targets required to build Slice compilers -->
-    <Choose>
-        <When Condition="'$(VisualStudioVersion)' == '12.0' or '$(OS)' != 'Windows_NT'">
-            <ItemGroup>
-                <SliceCompilers Include="slice2cs;slice2html"/>
-            </ItemGroup>
-        </When>
-
-        <Otherwise>
-            <ItemGroup>
-                <SliceCompilers Include="c++98\slice2cs;c++98\slice2html"/>
-            </ItemGroup>
-        </Otherwise>
-    </Choose>
-
-    <Target Name="SliceCompilers" Condition="'$(ICE_BIN_DIST)' != 'all'">
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.proj"
-                 Targets="NuGetRestore"
-                 BuildInParallel="true"
-                 Condition="'$(OS)' == 'Windows_NT'"/>
-
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
-                 Targets="@(SliceCompilers)"
-                 BuildInParallel="true"
-                 Properties="Platform=$(CppPlatform);Configuration=$(Configuration)"
-                 Condition="'$(OS)' == 'Windows_NT'"/>
-
-        <Exec Command="make @(SliceCompilers->'%(Identity)', ' ')"
-              WorkingDirectory="$(MSBuildThisFileDirectory)..\..\cpp"
-              Condition="'$(OS)' != 'Windows_NT'"/>
     </Target>
 
     <ItemGroup>
@@ -65,7 +35,7 @@
                  Targets="Restore"/>
     </Target>
 
-    <Target Name="BuildDist" DependsOnTargets="SliceCompilers;NuGetRestoreDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
+    <Target Name="BuildDist" DependsOnTargets="NuGetRestoreDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
         <MSBuild Projects="@(DistSolution)" BuildInParallel="true" Properties="%(Properties)"/>
 
         <!-- Build iceboxnet with net8.0 target framework -->
@@ -101,75 +71,93 @@
         <MSBuild Projects="@(TestSolution)" BuildInParallel="true" Properties="%(Properties)" Targets="Clean" />
     </Target>
 
-    <Import Project="$(MSBuildThisFileDirectory)ice.common.targets" />
+    <!-- Platform detection properties -->
+    <PropertyGroup>
+        <IceOSName Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</IceOSName>
+        <IceOSName Condition="$([MSBuild]::IsOSPlatform('Windows'))">windows</IceOSName>
+        <IceOSName Condition="$([MSBuild]::IsOSPlatform('OSX'))">macos</IceOSName>
+        <IceOSArch
+        >$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLower())</IceOSArch>
+        <IceSliceCompilerExe Condition="'$(OS)' == 'Windows_NT'">slice2cs.exe</IceSliceCompilerExe>
+        <IceSliceCompilerExe Condition="'$(OS)' != 'Windows_NT'">slice2cs</IceSliceCompilerExe>
+        <!-- bzip2 package properties (Windows only, restored via NuGet) -->
+        <Bzip2PackageId>bzip2.v143</Bzip2PackageId>
+        <Bzip2PackageVersion>1.0.6.10</Bzip2PackageVersion>
+        <Bzip2PackageDir>$(MSBuildThisFileDirectory)packages/$(Bzip2PackageId).$(Bzip2PackageVersion)</Bzip2PackageDir>
+        <Bzip2DllPath>$(Bzip2PackageDir)/build/native/bin/x64/MT-Release/bzip2.dll</Bzip2DllPath>
+    </PropertyGroup>
 
-    <Target Name="WindowsNuGetPack" Condition="'$(OS)' == 'Windows_NT'">
-        <RemoveDir Directories="zeroc.ice.net" />
+    <!-- Slice compiler staging: use SLICE2CS_STAGING_PATH for CI builds, or local C++ build for dev builds -->
+    <Choose>
+        <When Condition="Exists('$(SLICE2CS_STAGING_PATH)')">
+            <!-- CI builds: include all platform compilers from staging path -->
+            <ItemGroup>
+                <_SliceCompiler Include="$(SLICE2CS_STAGING_PATH)/windows-x64/slice2cs.exe">
+                    <PackagePath>windows-x64</PackagePath>
+                </_SliceCompiler>
+                <_SliceCompiler Include="$(SLICE2CS_STAGING_PATH)/linux-x64/slice2cs">
+                    <PackagePath>linux-x64</PackagePath>
+                </_SliceCompiler>
+                <_SliceCompiler Include="$(SLICE2CS_STAGING_PATH)/linux-arm64/slice2cs">
+                    <PackagePath>linux-arm64</PackagePath>
+                </_SliceCompiler>
+                <_SliceCompiler Include="$(SLICE2CS_STAGING_PATH)/macos-arm64/slice2cs">
+                    <PackagePath>macos-arm64</PackagePath>
+                </_SliceCompiler>
+            </ItemGroup>
+        </When>
+        <Otherwise>
+            <!-- Dev builds: include only current platform compiler from local C++ build -->
+            <PropertyGroup>
+                <_CppBinDir Condition="'$(OS)' == 'Windows_NT'">$(MSBuildThisFileDirectory)../../cpp/bin/$(CppPlatform)/$(Configuration)</_CppBinDir>
+                <_CppBinDir Condition="'$(OS)' != 'Windows_NT'">$(MSBuildThisFileDirectory)../../cpp/bin</_CppBinDir>
+            </PropertyGroup>
+            <ItemGroup>
+                <_SliceCompiler Include="$(_CppBinDir)/$(IceSliceCompilerExe)">
+                    <PackagePath>$(IceOSName)-$(IceOSArch)</PackagePath>
+                </_SliceCompiler>
+            </ItemGroup>
+        </Otherwise>
+    </Choose>
 
+    <Target Name="NuGetPack">
+        <PropertyGroup>
+            <PackageOutputPath>$(MSBuildThisFileDirectory)</PackageOutputPath>
+            <ToolsDir>$(MSBuildThisFileDirectory)obj\package\tools</ToolsDir>
+        </PropertyGroup>
+
+        <!-- Clean staging directories -->
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)obj\package" />
+
+        <!-- Install bzip2 package via NuGet (Windows only) -->
+        <Exec Command="nuget install $(Bzip2PackageId) -Version $(Bzip2PackageVersion) -OutputDirectory packages"
+              Condition="'$(OS)' == 'Windows_NT'" />
+
+        <!-- Use MSBuild targets for packaging - builds the binaries into ..\lib\ -->
         <MSBuild Projects="ice.nuget.targets"
-                 Properties="PackageDirectory=zeroc.ice.net;Targets=$(Targets);
-                             CppPlatform=$(CppPlatform);Configuration=$(Configuration)"/>
+                 Properties="PackageDirectory=obj\package;Configuration=$(Configuration)"/>
 
-        <Copy SourceFiles="zeroc.ice.net.nuspec"
-              DestinationFolder="zeroc.ice.net" />
+        <!-- Stage slice2cs compilers -->
+        <Error Text="Slice compiler not found: %(_SliceCompiler.Identity)"
+               Condition="!Exists('%(_SliceCompiler.Identity)')" />
+        <Copy SourceFiles="@(_SliceCompiler)"
+              DestinationFolder="$(ToolsDir)\%(_SliceCompiler.PackagePath)" />
 
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)THIRD_PARTY_LICENSE.txt"
-              DestinationFiles="zeroc.ice.net\THIRD_PARTY_LICENSE.txt" />
+        <!-- Copy bzip2 DLL (Windows only) -->
+        <Copy SourceFiles="$(Bzip2DllPath)"
+              DestinationFolder="$(ToolsDir)\net8.0"
+              Condition="'$(OS)' == 'Windows_NT'" />
 
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE"
-              DestinationFiles="zeroc.ice.net\ICE_LICENSE.txt" />
+        <Copy SourceFiles="$(Bzip2DllPath)"
+              DestinationFolder="$(ToolsDir)\net472"
+              Condition="'$(OS)' == 'Windows_NT'" />
 
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
-              DestinationFiles="zeroc.ice.net\LICENSE.txt" />
-
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\README.md"
-              DestinationFiles="zeroc.ice.net\README.md" />
-
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\logo.png"
-              DestinationFiles="zeroc.ice.net\logo.png" />
-
-        <!-- Generate iceboxnet.exe.config with the correct assembly pulbic key token and assembly paths -->
-        <GetPublicKeyToken AssemblyFile="$(MSBuildThisFileDirectory)..\lib\netstandard2.0\Ice.dll">
-            <Output TaskParameter="PublicKeyToken" PropertyName="PublicKeyToken"/>
-        </GetPublicKeyToken>
-
-        <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)iceboxnet.exe.config.release"
-                                   OutputFile="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net472\iceboxnet.exe.config"
-                                   Tokens="@PublicKeyToken@;@AssemblyDir@"
-                                   Replacements="$(PublicKeyToken);..\..\lib\net472"
-                                   Condition="'$(PublicKeyToken)' != ''"/>
-
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)iceboxnet.exe.config.dev"
-              DestinationFiles="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net472\iceboxnet.exe.config"
-              Condition="'$(PublicKeyToken)' == ''"/>
-
-        <!-- Copy bzip2 native dll next to iceboxnet assemblies -->
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
-                           $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
-              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net8.0"
-              />
-
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
-                           $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
-              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net472"/>
-
-        <Copy SourceFiles="zeroc.ice.net.props"
-              DestinationFiles="zeroc.ice.net\build\zeroc.ice.net.props"/>
-
-        <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive"
-              WorkingDirectory="zeroc.ice.net"/>
-    </Target>
-
-    <Target Name="UnixNuGetPack" Condition="'$(OS)' != 'Windows_NT'">
-        <RemoveDir Directories="zeroc.ice.net" />
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\2.0\icebox.csproj"
-                 Properties="Configuration=$(Configuration);Platform=Any CPU"
-                 Targets="Publish"/>
-        <MSBuild Projects="zeroc.ice.net.csproj" Targets="Restore;Pack"/>
-        <RemoveDir Directories="obj"/>
-        <Delete Files="zeroc.ice.net\zeroc.ice.net.deps.json;zeroc.ice.net\zeroc.ice.net.dll;zeroc.ice.net\zeroc.ice.net.pdb"/>
-    </Target>
-
-    <Target Name="NuGetPack" DependsOnTargets="WindowsNuGetPack;UnixNuGetPack">
+        <!-- Restore and Pack using MSBuild (cross-platform) -->
+        <MSBuild Projects="$(MSBuildThisFileDirectory)zeroc.ice.net.csproj"
+                 Properties="Configuration=$(Configuration)"
+                 Targets="Restore"/>
+        <MSBuild Projects="$(MSBuildThisFileDirectory)zeroc.ice.net.csproj"
+                 Properties="Configuration=$(Configuration);PackageOutputPath=$(PackageOutputPath);NoBuild=true"
+                 Targets="Pack"/>
     </Target>
 </Project>

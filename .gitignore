@@ -103,6 +103,9 @@ SliceCompile.command.*.log
 
 **/netstandard2.0/netstandard2.0/*
 **/netstandard2.0/netcoreapp3.*/*
+**/net472/
+**/net8.0/
+**/net10.0/
 
 AppPackages
 BundleArtifacts

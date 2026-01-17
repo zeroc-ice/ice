@@ -1,39 +1,46 @@
-# Building Ice for .NET
+# Building Ice for C# from Source
 
-This page describes how to build Ice for .NET from source and package the
-resulting binaries. As an alternative, you can download and install the
-[zeroc.ice.net][1] NuGet package.
+This document describes how to build and install Ice for C# from source.
 
-* [Building on Windows](#building-on-windows)
-  * [Windows Build Requirements](#windows-build-requirements)
-  * [Compiling Ice for \.NET on Windows](#compiling-ice-for-net-on-windows)
-    * [Strong Name Signatures for .NET Framework 4.5 Assemblies](#strong-name-signatures-for-net-framework-45-assemblies)
-    * [Authenticode Signatures](#authenticode-signatures)
-    * [Building only the Test Suite](#building-only-the-test-suite)
-* [Building on Linux or macOS](#building-on-linux-or-macos)
-  * [Linux and macOS Build Requirements](#linux-and-macos-build-requirements)
-  * [Compiling Ice for \.NET on Linux or macOS](#compiling-ice-for-net-on-linux-or-macos)
-* [Running the Tests](#running-the-tests)
-* [NuGet Package](#nuget-package)
+ZeroC provides [Ice binary distributions] for many platforms, including the [zeroc.ice.net] NuGet package, so building
+Ice for C# from source is usually unnecessary.
 
-## Building on Windows
+## Table of Contents
 
-A source build of Ice for .NET on Windows produces two sets of assemblies:
+- [Build roadmap](#build-roadmap)
+- [Prerequisites](#prerequisites)
+- [Building Ice for C#](#building-ice-for-c)
+  - [Strong Name Signatures](#strong-name-signatures)
+  - [Building only the Test Suite](#building-only-the-test-suite)
+- [Running the Tests](#running-the-tests)
+- [Creating NuGet Packages](#creating-nuget-packages)
 
-* assemblies for the .NET Framework 4.5
-* assemblies for [.NET Standard 2.0][2]
+## Build roadmap
 
-### Windows Build Requirements
+```mermaid
+flowchart LR
+    c++(Ice for C++) --> csharp(Ice for C#)
+    csharp --> tests(Tests)
+    csharp --> nuget(NuGet Package)
+```
 
-In order to build Ice for .NET from source, you need:
+## Prerequisites
 
-* A [supported version][3] of Visual Studio when building .NET Framework 4.5 Assemblies.
-* Visual Studio 2022 with [.NET 8.0 SDK][4] or [.NET 7.0 SDK][5] when building the .NET Standard 2.0 Assemblies.
-* Visual Studio 2022 with [.NET 8.0 SDK][4] and [.NET 7.0 SDK][5] when building the NuGet packages.
+You need the following to build Ice for C# from source:
 
-### Compiling Ice for .NET on Windows
+- [.NET 10.0 SDK]
+- [.NET 8.0 Runtime] (required to run tests and iceboxnet, since they target net8.0 by default)
+- The Slice to C# compiler (`slice2cs`). Build `slice2cs` from source by following the [C++ build instructions].
+- Python 3 is required to run the tests. The Glacier2 tests also require the `passlib` Python package.
 
-Open a Visual Studio command prompt and change to the `csharp` subdirectory:
+## Building Ice for C#
+
+Before building Ice for C#, you must first build the Ice for C++ source distribution to obtain the `slice2cs`
+compiler. Refer to the [C++ build instructions] for details.
+
+The build produces assemblies that target [.NET Standard 2.0].
+
+Once Ice for C++ is built, open a command prompt and change to the `csharp` subdirectory:
 
 ```shell
 cd csharp
@@ -42,108 +49,10 @@ cd csharp
 To build all Ice assemblies and the associated test suite, run:
 
 ```shell
-msbuild msbuild\ice.proj
-```
-
-> Depending on your Visual Studio environment, you may need to specify the platform.
-> For example:
->
-> ```shell
-> msbuild msbuild\ice.proj /p:Platform=x64
-> ```
-
-Upon completion, the Ice assemblies for the .NET Framework 4.5 and .NET Standard 2.0 are placed
-in the `lib\net45` and `lib\netstandard2.0` folders respectively.
-
-You can skip the build of the test suite with the `BuildDist` target:
-
-```shell
-msbuild msbuild\ice.proj /t:BuildDist
-```
-
-The `Net45Build`, `Net45BuildDist`, `NetStandardBuild` and `NetStandardBuildDist` targets allow
-you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0, with or without
-the test suite.
-
-> Note: Visual Studio 2022 version or higher is required for .NET Standard 2.0 builds.
-
-The .NET Standard build of iceboxnet and test applications target `net8.0` You can change
-the target framework by setting the `AppTargetFramework` property to a different
-
-Target Framework Moniker value, for example:
-
-```shell
-msbuild msbuild\ice.proj /p:"AppTargetFramework=net10.0"
-```
-
-This builds the test programs for `net7.0`. The target frameworks you specify
-must implement .NET Standard 2.0.
-
-#### Strong Name Signatures
-
-You can add Strong Naming signatures to the Ice assemblies by setting the
-following environment variables before building these assemblies:
-
-* `PUBLIC_KEYFILE` Identity public key used to delay sign the assembly
-* `KEYFILE` Identity full key pair used to sign the assembly
-
-If only `PUBLIC_KEYFILE` is set, the assemblies are delay-signed during the
-build and you must re-sign the assemblies later with the full identity key pair.
-
-If only `KEYFILE` is set, the assemblies are fully signed during the build using
-`KEYFILE`.
-
-If both `PUBLIC_KEYFILE` and `KEYFILE` are set, assemblies are delay-signed
-during the build using `PUBLIC_KEYFILE` and re-signed after the build using
-`KEYFILE`. This can be used for generating [Enhanced Strong Naming][6]
-signatures.
-
-*Strong Name Signatures can be generated only from Windows builds.*
-
-#### Authenticode Signatures
-
-You can sign the Ice binaries with Authenticode by setting the following
-environment variables before building these assemblies:
-
-* `SIGN_CERTIFICATE` to your Authenticode certificate
-* `SIGN_PASSWORD` to the certificate password
-* `SIGN_SHA1` the SHA1 has of the signing certificate
-
-*Authenticode can be generated only from Windows builds.*
-
-#### Building only the Test Suite
-
-You can build only the test suite with this command:
-
-```shell
-msbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
-```
-
-This build retrieves and installs the `zeroc.ice.net` NuGet package if
-necessary.
-
-## Building on Linux or macOS
-
-### Linux and macOS Build Requirements
-
-You need the [.NET 8.0 SDK][4] or [.NET 7.0 SDK][5] to build Ice for .NET from source.
-
-### Compiling Ice for .NET on Linux or macOS
-
-Open a command prompt and change to the `csharp` directory:
-
-```shell
-cd csharp
-```
-
-Then run:
-
-```shell
 dotnet msbuild msbuild/ice.proj
 ```
 
-Upon completion, the Ice assemblies for .NET Standard 2.0 are placed in the `lib/netstandard2.0`
-directory.
+Upon completion, the Ice assemblies for .NET Standard 2.0 are placed in the `lib/netstandard2.0` directory.
 
 You can skip the build of the test suite with the `BuildDist` target:
 
@@ -151,63 +60,83 @@ You can skip the build of the test suite with the `BuildDist` target:
 dotnet msbuild msbuild/ice.proj /t:BuildDist
 ```
 
-The .NET Standard build of iceboxnet and test applications target `net6.0`. You can change the target
-framework by setting the `AppTargetFramework` property to a different Target Framework Moniker value,
-for example:
+The iceboxnet application and test applications target `net8.0` by default. You can change the target framework by
+setting the `AppTargetFramework` property to a different Target Framework Moniker value, for example:
 
 ```shell
-dotnet msbuild msbuild/ice.proj /p:"AppTargetFramework=net7.0"
+dotnet msbuild msbuild/ice.proj /p:"AppTargetFramework=net472"
 ```
+
+The target framework you specify must implement .NET Standard 2.0.
+
+### Strong Name Signatures
+
+The Ice assemblies in official releases are signed with strong name signatures to maintain compatibility with previous
+versions.
+
+### Building only the Test Suite
+
+You can build only the test suite with this command:
+
+```shell
+dotnet msbuild msbuild/ice.proj /p:ICE_BIN_DIST=all
+```
+
+This build retrieves and installs the `zeroc.ice.net` NuGet package if necessary.
 
 ## Running the Tests
 
-Python is required to run the test suite. Additionally, the Glacier2 tests
-require the Python module `passlib`, which you can install with the command:
-
-```shell
-pip install passlib
-```
-
-To run the tests, open a command window and change to the top-level directory.
-At the command prompt, execute:
+To run the tests, open a command window and change to the top-level directory. At the command prompt, execute:
 
 ```shell
 python allTests.py
 ```
 
-If everything worked out, you should see lots of `ok` messages. In case of a
-failure, the tests abort with `failed`.
+If everything worked out, you should see lots of `ok` messages. In case of a failure, the tests abort with `failed`.
 
-`allTests.py` executes by default the tests for .NET 8.0. If you want to run
-the test with a different .NET Framework you must use `--framework` option.
+`allTests.py` executes by default the tests for .NET 8.0. If you want to run the tests with a different .NET version,
+you must use the `--framework` option.
 
-For example, to run .NET 10.0 tests:
-
-```shell
-python allTests.py --framework=net10.0
-```
-
-or to run .NET Framework 4.5 tests on Windows:
+For example, to run .NET Framework 4.7.2 tests (Windows only):
 
 ```shell
-python allTests.py --framework=net45
+python allTests.py --framework=net472
 ```
 
-## NuGet Package
+## Creating NuGet Packages
 
-### Creating NuGet Packages on Windows
+The `zeroc.ice.net` NuGet package includes:
 
-To create a NuGet package, open a Visual Studio command prompt and run the
-following command:
+- Ice assemblies for .NET Standard 2.0
+- Slice files for Glacier2, Ice, IceBox, IceGrid, IcePatch2, IceStorm
+- The `iceboxnet` host application for .NET 8.0 (and .NET Framework 4.7.2 on Windows)
+- The `slice2cs` compiler for compiling Slice files to C#
 
-```shell
-msbuild msbuild\ice.proj /t:NuGetPack
-```
+To automatically compile Slice files during your build, use the [zeroc.icebuilder.msbuild] package, which invokes
+`slice2cs` from the `IceToolsPath` provided by this package.
 
-This creates the `zeroc.ice.net` Nuget package in the `msbuild\zeroc.ice.net`
-directory.
+### Slice Compiler (slice2cs)
 
-### Creating NuGet Packages on Linux or macOS
+The NuGet package includes platform-specific `slice2cs` compilers for Windows (x64), Linux (x64 and ARM64), and macOS
+(ARM64). The package sets `IceToolsPath` to the appropriate platform-specific directory.
+
+When building a local NuGet package:
+
+- **CI/Release builds**: Set the `SLICE2CS_STAGING_PATH` environment variable to a directory containing pre-built
+  compilers for all platforms. The staging directory should have subdirectories `windows-x64`, `linux-x64`,
+  `linux-arm64`, and `macos-arm64`, each containing the `slice2cs` executable.
+
+- **Development builds**: If `SLICE2CS_STAGING_PATH` is not set, the build uses the `slice2cs` compiler from your local
+  C++ build (`cpp/bin` directory). This creates a package with only the compiler for your current platform.
+
+### Windows-Specific Content
+
+On Windows, the NuGet package build includes additional content:
+
+- The `iceboxnet` application for .NET Framework 4.7.2
+- The `bzip2.dll` native library (required for Ice protocol compression support)
+
+### Creating the Package
 
 To create a NuGet package, open a command prompt and run the following command:
 
@@ -215,12 +144,13 @@ To create a NuGet package, open a command prompt and run the following command:
 dotnet msbuild msbuild/ice.proj /t:NuGetPack
 ```
 
-This creates the `zeroc.ice.net` Nuget package in the `msbuild/zeroc.ice.net`
-directory.
+This creates the `zeroc.ice.net` NuGet package in the `msbuild/zeroc.ice.net` directory.
 
-[1]: https://zeroc.com/downloads/ice
-[2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
-[3]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-11
-[4]: https://dotnet.microsoft.com/en-us/download/dotnet/8.0
-[5]: https://dotnet.microsoft.com/en-us/download/dotnet/10.0
-[6]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
+[.NET 8.0 Runtime]: https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+[.NET 10.0 SDK]: https://dotnet.microsoft.com/en-us/download/dotnet/10.0
+[.NET Standard 2.0]: https://docs.microsoft.com/en-us/dotnet/standard/net-standard
+[C++ build instructions]: ../cpp/BUILDING.md
+[Enhanced Strong Naming]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
+[Ice binary distributions]: https://zeroc.com/downloads/ice
+[zeroc.ice.net]: https://www.nuget.org/packages/ZeroC.Ice.Net/
+[zeroc.icebuilder.msbuild]: https://www.nuget.org/packages/zeroc.icebuilder.msbuild/

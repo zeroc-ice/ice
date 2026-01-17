@@ -4,58 +4,72 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <NoWarn>2008;8021;NU5128</NoWarn>
         <IncludeBuildOutput>false</IncludeBuildOutput>
-        <PackageType>2.0.0.0</PackageType>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <OutputPath>zeroc.ice.net</OutputPath>
+        <OutputPath>bin</OutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <PackageId>zeroc.ice.net</PackageId>
         <Title>ZeroC Ice for .NET</Title>
-        <PackageVersion>3.7.10</PackageVersion>
+        <PackageVersion>3.7.11</PackageVersion>
         <Authors>ZeroC</Authors>
         <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/zeroc-ice/ice</PackageProjectUrl>
         <PackageIcon>logo.png</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright (c) ZeroC, Inc. All rights reserved</Copyright>
-        <Description>Ice C#/.NET SDK. Ice is a comprehensive RPC framework that helps you network your software with minimal effort.</Description>
-        <PackageReleaseNotes>https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-5-release-notes</PackageReleaseNotes>
+        <Description>The Ice framework provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.</Description>
+        <PackageReleaseNotes>https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageTags>ice</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
+        <!-- Build props -->
         <Content Include="zeroc.ice.net.props">
             <Pack>true</Pack>
             <PackagePath>build</PackagePath>
         </Content>
 
-        <Content Include="..\..\ICE_LICENSE;..\..\LICENSE">
+        <!-- License files -->
+        <None Include="..\..\ICE_LICENSE" Link="ICE_LICENSE.txt">
+            <Pack>true</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Include="..\..\LICENSE" Link="LICENSE.txt">
+            <Pack>true</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Include="THIRD_PARTY_LICENSE.txt">
+            <Pack>true</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+
+        <!-- Logo and README -->
+        <None Include="..\..\logo.png">
+            <Pack>True</Pack>
             <PackagePath></PackagePath>
-            <Pack>true</Pack>
-        </Content>
+        </None>
+        <None Include="..\README.md">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
 
-        <Content Include="..\lib\net6.0\*.dll">
-            <Pack>true</Pack>
-            <PackagePath>lib\net6.0</PackagePath>
-        </Content>
-
+        <!-- .NET Libraries -->
         <Content Include="..\lib\netstandard2.0\*.dll">
             <Pack>true</Pack>
             <PackagePath>lib\netstandard2.0</PackagePath>
         </Content>
 
-        <Content Include="..\bin\$(AppTargetFramework)\publish\*" Exclude="..\bin\$(AppTargetFramework)\publish\iceboxnet">
-            <Pack>true</Pack>
-            <PackagePath>tools\$(AppTargetFramework)</PackagePath>
-        </Content>
-
+        <!-- Slice files -->
         <Content Include="..\..\slice\**\*.ice"
                  Exclude="..\..\slice\IceDiscovery\*.ice;..\..\slice\IceLocatorDiscovery\*.ice">
             <Pack>true</Pack>
             <PackagePath>slice</PackagePath>
         </Content>
-        <None Include="$(MSBuildThisFileDirectory)..\..\logo.png">
-            <Pack>True</Pack>
-            <PackagePath></PackagePath>
-        </None>
+
+        <!-- Tools directory (slice2cs compilers, iceboxnet, bzip2.dll) -->
+        <Content Include="obj\package\tools\**\*">
+            <Pack>true</Pack>
+            <PackagePath>tools\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+        </Content>
     </ItemGroup>
 </Project>

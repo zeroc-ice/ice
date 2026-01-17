@@ -2,39 +2,44 @@
 <!-- Copyright (c) ZeroC, Inc. All rights reserved. -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <IceVersion>3.7.10</IceVersion>
-        <IceIntVersion>30710</IceIntVersion>
+        <IceVersion>3.7.11</IceVersion>
+        <IceIntVersion>30711</IceIntVersion>
         <IceVersionMM>3.7</IceVersionMM>
         <IceSoVersion>37</IceSoVersion>
         <IceHome>$(MSBuildThisFileDirectory)..</IceHome>
-        <IceAssembliesDir>$(IceHome)\lib</IceAssembliesDir>
+        <!-- Internal properties used to compute the Ice tools location for the current platform. -->
+        <IceOSName Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</IceOSName>
+        <IceOSName Condition="$([MSBuild]::IsOSPlatform('Windows'))">windows</IceOSName>
+        <IceOSName Condition="$([MSBuild]::IsOSPlatform('OSX'))">macos</IceOSName>
+        <IceOSArch
+        >$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLower())</IceOSArch>
     </PropertyGroup>
 
     <Choose>
-        <When Condition="'$(IceToolsPath)' == ''">
-            <Choose>
-                <When Condition="'$(OS)' == 'Windows_NT'">
-                    <PropertyGroup>
-                        <IceToolsPath>$(IceHome)\tools</IceToolsPath>
-                    </PropertyGroup>
-                </When>
-                <When Condition="Exists('/usr/bin/slice2cs')">
-                    <PropertyGroup>
-                        <IceToolsPath>/usr/bin</IceToolsPath>
-                    </PropertyGroup>
-                </When>
-                <When Condition="Exists('/usr/local/bin/slice2cs')">
-                    <PropertyGroup>
-                        <IceToolsPath>/usr/local/bin</IceToolsPath>
-                    </PropertyGroup>
-                </When>
-                <!-- For Homebrew on macOS with Apple Silicon   -->
-                <When Condition="Exists('/opt/homebrew/bin/slice2cs')">
-                    <PropertyGroup>
-                        <IceToolsPath>/opt/homebrew/bin</IceToolsPath>
-                    </PropertyGroup>
-                </When>
-            </Choose>
+        <When Condition="'$(IceToolsPath)' != ''">
+            <!-- IceToolsPath is already set, use it -->
+        </When>
+        <When Condition="Exists('$(IceHome)/tools/$(IceOSName)-$(IceOSArch)')">
+            <!-- Platform-specific tools from NuGet package -->
+            <PropertyGroup>
+                <IceToolsPath>$(IceHome)/tools/$(IceOSName)-$(IceOSArch)</IceToolsPath>
+            </PropertyGroup>
+        </When>
+        <!-- Fallback to system-installed slice2cs -->
+        <When Condition="Exists('/usr/bin/slice2cs')">
+            <PropertyGroup>
+                <IceToolsPath>/usr/bin</IceToolsPath>
+            </PropertyGroup>
+        </When>
+        <When Condition="Exists('/usr/local/bin/slice2cs')">
+            <PropertyGroup>
+                <IceToolsPath>/usr/local/bin</IceToolsPath>
+            </PropertyGroup>
+        </When>
+        <When Condition="Exists('/opt/homebrew/bin/slice2cs')">
+            <PropertyGroup>
+                <IceToolsPath>/opt/homebrew/bin</IceToolsPath>
+            </PropertyGroup>
         </When>
     </Choose>
 </Project>
