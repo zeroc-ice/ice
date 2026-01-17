@@ -94,16 +94,16 @@
             <!-- CI builds: include all platform compilers from staging path -->
             <ItemGroup>
                 <_SliceCompiler Include="$(SLICE2CS_STAGING_PATH)/windows-x64/slice2cs.exe">
-                    <PackagePath>tools/windows-x64</PackagePath>
+                    <PackagePath>windows-x64</PackagePath>
                 </_SliceCompiler>
                 <_SliceCompiler Include="$(SLICE2CS_STAGING_PATH)/linux-x64/slice2cs">
-                    <PackagePath>tools/linux-x64</PackagePath>
+                    <PackagePath>linux-x64</PackagePath>
                 </_SliceCompiler>
                 <_SliceCompiler Include="$(SLICE2CS_STAGING_PATH)/linux-arm64/slice2cs">
-                    <PackagePath>tools/linux-arm64</PackagePath>
+                    <PackagePath>linux-arm64</PackagePath>
                 </_SliceCompiler>
                 <_SliceCompiler Include="$(SLICE2CS_STAGING_PATH)/macos-arm64/slice2cs">
-                    <PackagePath>tools/macos-arm64</PackagePath>
+                    <PackagePath>macos-arm64</PackagePath>
                 </_SliceCompiler>
             </ItemGroup>
         </When>
@@ -115,47 +115,44 @@
             </PropertyGroup>
             <ItemGroup>
                 <_SliceCompiler Include="$(_CppBinDir)/$(Ice_SliceCompilerExe)">
-                    <PackagePath>tools/$(Ice_OSName)-$(Ice_OSArch)</PackagePath>
+                    <PackagePath>$(Ice_OSName)-$(Ice_OSArch)</PackagePath>
                 </_SliceCompiler>
             </ItemGroup>
         </Otherwise>
     </Choose>
 
     <Target Name="NuGetPack">
-        <RemoveDir Directories="zeroc.ice.net" />
+        <PropertyGroup>
+            <PackageOutputPath>$(MSBuildThisFileDirectory)</PackageOutputPath>
+            <ToolsDir>$(MSBuildThisFileDirectory)obj\package\tools</ToolsDir>
+        </PropertyGroup>
+
+        <!-- Clean staging directories -->
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)obj\package" />
 
         <!-- Install bzip2 package via NuGet (Windows only) -->
         <Exec Command="nuget install $(Bzip2PackageId) -Version $(Bzip2PackageVersion) -OutputDirectory packages"
               Condition="'$(OS)' == 'Windows_NT'" />
 
-        <!-- Use MSBuild targets for packaging -->
+        <!-- Use MSBuild targets for packaging - builds the binaries into ..\lib\ -->
         <MSBuild Projects="ice.nuget.targets"
-                 Properties="PackageDirectory=zeroc.ice.net;Configuration=$(Configuration)"/>
+                 Properties="PackageDirectory=obj\package;Configuration=$(Configuration)"/>
 
         <!-- Stage slice2cs compilers -->
         <Error Text="Slice compiler not found: %(_SliceCompiler.Identity)"
                Condition="!Exists('%(_SliceCompiler.Identity)')" />
         <Copy SourceFiles="@(_SliceCompiler)"
-              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net/%(_SliceCompiler.PackagePath)" />
+              DestinationFolder="$(ToolsDir)\%(_SliceCompiler.PackagePath)" />
 
-        <!-- Copy standard files -->
-        <Copy SourceFiles="zeroc.ice.net.nuspec"
-              DestinationFolder="zeroc.ice.net" />
+        <!-- Stage iceboxnet tools for net8.0 -->
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\bin\net8.0\publish\iceboxnet.dll;
+                           $(MSBuildThisFileDirectory)..\bin\net8.0\publish\iceboxnet.runtimeconfig.json"
+              DestinationFolder="$(ToolsDir)\net8.0" />
 
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)THIRD_PARTY_LICENSE.txt"
-              DestinationFiles="zeroc.ice.net\THIRD_PARTY_LICENSE.txt" />
-
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE"
-              DestinationFiles="zeroc.ice.net\ICE_LICENSE.txt" />
-
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
-              DestinationFiles="zeroc.ice.net\LICENSE.txt" />
-
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\README.md"
-              DestinationFiles="zeroc.ice.net\README.md" />
-
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\logo.png"
-              DestinationFiles="zeroc.ice.net\logo.png" />
+        <!-- Stage iceboxnet tools for net472 (Windows only) -->
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\bin\net472\publish\iceboxnet.exe"
+              DestinationFolder="$(ToolsDir)\net472"
+              Condition="'$(OS)' == 'Windows_NT'" />
 
         <!-- Generate iceboxnet.exe.config with the correct assembly public key token and assembly paths -->
         <GetPublicKeyToken AssemblyFile="$(MSBuildThisFileDirectory)..\lib\netstandard2.0\Ice.dll">
@@ -163,30 +160,27 @@
         </GetPublicKeyToken>
 
         <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)iceboxnet.exe.config.release"
-                                   OutputFile="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net472\iceboxnet.exe.config"
+                                   OutputFile="$(ToolsDir)\net472\iceboxnet.exe.config"
                                    Tokens="@PublicKeyToken@;@AssemblyDir@"
                                    Replacements="$(PublicKeyToken);..\..\lib\netstandard2.0"
                                    Condition="'$(PublicKeyToken)' != '' and '$(OS)' == 'Windows_NT'"/>
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)iceboxnet.exe.config.dev"
-              DestinationFiles="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net472\iceboxnet.exe.config"
+              DestinationFiles="$(ToolsDir)\net472\iceboxnet.exe.config"
               Condition="'$(PublicKeyToken)' == '' and '$(OS)' == 'Windows_NT'"/>
 
         <!-- Copy bzip2 DLL (Windows only) -->
         <Copy SourceFiles="$(Bzip2DllPath)"
-              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net8.0"
+              DestinationFolder="$(ToolsDir)\net8.0"
               Condition="'$(OS)' == 'Windows_NT'" />
 
         <Copy SourceFiles="$(Bzip2DllPath)"
-              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net472"
+              DestinationFolder="$(ToolsDir)\net472"
               Condition="'$(OS)' == 'Windows_NT'" />
 
-        <!-- Copy build props -->
-        <Copy SourceFiles="zeroc.ice.net.props"
-              DestinationFiles="zeroc.ice.net\build\zeroc.ice.net.props"/>
-
-        <!-- Pack -->
-        <Exec Command="nuget pack -NoPackageAnalysis -NonInteractive"
-              WorkingDirectory="$(MSBuildThisFileDirectory)zeroc.ice.net"/>
+        <!-- Pack using MSBuild Pack target (cross-platform) -->
+        <MSBuild Projects="$(MSBuildThisFileDirectory)zeroc.ice.net.csproj"
+                 Properties="Configuration=$(Configuration);PackageOutputPath=$(PackageOutputPath);NoBuild=true"
+                 Targets="Pack"/>
     </Target>
 </Project>
