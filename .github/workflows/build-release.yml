@@ -49,6 +49,7 @@ jobs:
       deb_version: ${{ steps.configure.outputs.deb_version }}
       gem_version: ${{ steps.configure.outputs.gem_version }}
       maven_version: ${{ steps.configure.outputs.maven_version }}
+      npm_version: ${{ steps.configure.outputs.npm_version }}
       pypi_version: ${{ steps.configure.outputs.pypi_version }}
       rpm_version: ${{ steps.configure.outputs.rpm_version }}
       matlab_version: ${{ steps.configure.outputs.matlab_version }}
@@ -89,6 +90,9 @@ jobs:
             # e.g. 3.9.0-nightly-20250625.1-SNAPSHOT
             echo "maven_version=${BASE_VERSION}-nightly-${DATE}.${BUILD}-SNAPSHOT" >> $GITHUB_OUTPUT
 
+            # e.g. 3.7.110-nightly.20250625.1
+            echo "npm_version=${NPM_BASE_VERSION}-nightly.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+
             # e.g. 3.9.0.dev202506251
             echo "pypi_version=${BASE_VERSION}.dev${DATE}${BUILD}" >> $GITHUB_OUTPUT
 
@@ -103,6 +107,7 @@ jobs:
             echo "deb_version=" >> $GITHUB_OUTPUT
             echo "gem_version=" >> $GITHUB_OUTPUT
             echo "maven_version=" >> $GITHUB_OUTPUT
+            echo "npm_version=" >> $GITHUB_OUTPUT
             echo "pypi_version=" >> $GITHUB_OUTPUT
             echo "rpm_version=" >> $GITHUB_OUTPUT
             echo "matlab_version=" >> $GITHUB_OUTPUT
@@ -163,7 +168,7 @@ jobs:
     uses: ./.github/workflows/build-npm-packages.yml
     needs: configure
     with:
-      ice_version: ${{ needs.configure.outputs.semver_version }}
+      ice_version: ${{ needs.configure.outputs.npm_version }}
       authenticode_sign: ${{ needs.configure.outputs.authenticode_sign == 'true' }}
     secrets: inherit
 
