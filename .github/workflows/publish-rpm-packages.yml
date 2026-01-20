@@ -38,7 +38,7 @@ jobs:
     env:
       DISTRIBUTION: ${{ matrix.distribution }}
       CHANNEL: ${{ inputs.channel }}
-      MCPP_VERSION: v2.7.2.19
+      MCPP_VERSION: v2.7.2.20
     steps:
       - name: Download RPM artifacts
         env:
@@ -56,14 +56,16 @@ jobs:
           if [[ "$DISTRIBUTION" == "rhel9" || "$DISTRIBUTION" == "rhel10" ]]; then
             echo "Also downloading MCPP RPMs for $DISTRIBUTION..."
 
+            # MCPP packages
+            MCPP_PACKAGES="rpm-packages-3.8-${DISTRIBUTION}-*"
             gh release download "$MCPP_VERSION" \
               --repo zeroc-ice/mcpp \
-              --pattern "rpm-packages-${DISTRIBUTION}-*" \
+              --pattern "$MCPP_PACKAGES" \
               --dir staging/mcpp
 
             # gh doesn't automatically extract release downloads
             pushd staging/mcpp > /dev/null
-            unzip -q "rpm-packages-${DISTRIBUTION}-*.zip"
+            unzip -q ${MCPP_PACKAGES}.zip
             popd > /dev/null
           fi
 
