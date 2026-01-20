@@ -58,11 +58,7 @@ jobs:
           echo "Also downloading MCPP RPMs for $DISTRIBUTION..."
 
           # MCPP packages
-          if [[ "$CHANNEL" == "3.7" ]]; then
-            MCPP_PACKAGES="rpm-packages-3.7-${DISTRIBUTION}-*"
-          else
-            MCPP_PACKAGES="rpm-packages-3.8-${DISTRIBUTION}-*"
-          fi
+          MCPP_PACKAGES="rpm-packages-3.7-${DISTRIBUTION}-*"
 
           gh release download "$MCPP_VERSION" \
             --repo zeroc-ice/mcpp \
