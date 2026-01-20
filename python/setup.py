@@ -11,7 +11,7 @@ from setuptools.command.build_ext import build_ext as _build_ext
 from setuptools.command.sdist import sdist as _sdist
 
 # Define versions and URLs for dependencies
-mcpp_version = "2.7.2.18"
+mcpp_version = "2.7.2.20"
 mcpp_url = f"https://github.com/zeroc-ice/mcpp/archive/refs/tags/v{mcpp_version}.tar.gz"
 mcpp_local_filename = f"dist/mcpp-{mcpp_version}.tar.gz"
 
