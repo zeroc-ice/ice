@@ -833,7 +833,7 @@ public interface ObjectPrx
     /**
      * Returns the invocation timeout of this proxy.
      *
-     * @return The invocation timeout value (in seconds).
+     * @return The invocation timeout value (in milliseconds).
      **/
     int ice_getInvocationTimeout();
 
@@ -858,7 +858,7 @@ public interface ObjectPrx
     /**
      * Creates a new proxy that is identical to this proxy, except for the invocation timeout.
      *
-     * @param newTimeout The new invocation timeout (in seconds).
+     * @param newTimeout The new invocation timeout (in milliseconds).
      * @return The new proxy with the specified invocation timeout.
      *
      **/

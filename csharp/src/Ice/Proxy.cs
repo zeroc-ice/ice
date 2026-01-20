@@ -477,13 +477,13 @@ namespace Ice
         /// <summary>
         /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
         /// </summary>
-        /// <param name="timeout">The new invocation timeout (in seconds).</param>
+        /// <param name="timeout">The new invocation timeout (in milliseconds).</param>
         ObjectPrx ice_invocationTimeout(int timeout);
 
         /// <summary>
         /// Returns the invocation timeout of this proxy.
         /// </summary>
-        /// <returns>The invocation timeout value (in seconds).</returns>
+        /// <returns>The invocation timeout value (in milliseconds).</returns>
         int ice_getInvocationTimeout();
 
         /// <summary>
@@ -1710,7 +1710,7 @@ namespace Ice
         /// <summary>
         /// Returns the invocation timeout of this proxy.
         /// </summary>
-        /// <returns>The invocation timeout value (in seconds).</returns>
+        /// <returns>The invocation timeout value (in milliseconds).</returns>
         public int ice_getInvocationTimeout()
         {
             return _reference.getInvocationTimeout();
@@ -1719,7 +1719,7 @@ namespace Ice
         /// <summary>
         /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
         /// </summary>
-        /// <param name="newTimeout">The new invocation timeout (in seconds).</param>
+        /// <param name="newTimeout">The new invocation timeout (in milliseconds).</param>
         public ObjectPrx ice_invocationTimeout(int newTimeout)
         {
             if(newTimeout < 1 && newTimeout != -1 && newTimeout != -2)

@@ -1692,7 +1692,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     /**
      * Returns the invocation timeout of this proxy.
      *
-     * @return The invocation timeout value (in seconds).
+     * @return The invocation timeout value (in milliseconds).
      **/
     @Override
     public final int
@@ -1742,7 +1742,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     /**
      * Creates a new proxy that is identical to this proxy, except for the invocation timeout.
      *
-     * @param newTimeout The new invocation timeout (in seconds).
+     * @param newTimeout The new invocation timeout (in milliseconds).
      **/
     @Override
     public final ObjectPrx

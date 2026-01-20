@@ -471,7 +471,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % ice_getInvocationTimeout - Returns the invocation timeout of
             %   this proxy.
             %
-            % Returns (int32) - The invocation timeout value (in seconds).
+            % Returns (int32) - The invocation timeout value (in milliseconds).
 
             obj.instantiate_();
             r = obj.iceCallWithResult('ice_getInvocationTimeout');
@@ -482,7 +482,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %   this proxy, except for the invocation timeout.
             %
             % Parameters:
-            %   t (int32) - The new invocation timeout (in seconds).
+            %   t (int32) - The new invocation timeout (in milliseconds).
             %
             % Returns - The proxy with the new timeout.
 
