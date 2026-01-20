@@ -4807,7 +4807,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << sp;
     writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for the invocation timeout.\n"
-                    "@param newTimeout The new invocation timeout (in seconds).\n"
+                    "@param newTimeout The new invocation timeout (in milliseconds).\n"
                     "@return A proxy with the specified invocation timeout.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_invocationTimeout(int newTimeout)";

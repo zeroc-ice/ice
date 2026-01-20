@@ -89,12 +89,12 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
     /// Returns the invocation timeout of this proxy.
     ///
-    /// - returns: `Int32` - The invocation timeout value (in seconds).
+    /// - returns: `Int32` - The invocation timeout value (in milliseconds).
     func ice_getInvocationTimeout() -> Int32
 
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     ///
-    /// - parameter _: `Int32` - The new invocation timeout (in seconds).
+    /// - parameter _: `Int32` - The new invocation timeout (in milliseconds).
     ///
     /// - returns: A new proxy with the specified invocation timeout.
     func ice_invocationTimeout(_ timeout: Int32) -> Self
