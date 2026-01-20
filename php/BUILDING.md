@@ -131,7 +131,7 @@ prefer to install them in a common directory, you may need to modify PHP's `incl
 interpreter is able to locate these files. For example, you could append to `php.ini`:
 
 ```ini
-include_path=${include_path}";C\ice\php\lib"
+include_path=${include_path}":/opt/ice/php/lib"
 ```
 
 Another option is to modify the include path from within your script prior to including any Ice run-time file. Here is
