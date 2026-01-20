@@ -4,10 +4,8 @@ This file describes how to build and install Ice for PHP from source.
 ZeroC provides [binary distributions] for many platforms, including Linux, so building Ice for PHP from source is
 usually unnecessary.
 
-## Table of Contents
-
-- [Build roadmap](#build-roadmap)
-- [Building Ice for PHP from source](#building-ice-for-php-from-source)
+- [Building Ice for PHP from Source](#building-ice-for-php-from-source)
+  - [Build roadmap](#build-roadmap)
   - [Prerequisites](#prerequisites)
   - [Building Ice for PHP](#building-ice-for-php)
   - [Installing Ice for PHP](#installing-ice-for-php)
@@ -22,11 +20,7 @@ flowchart LR
     php --> tests(Tests)
 ```
 
-## Building Ice for PHP from source
-
-This build compiles Ice for PHP directly from the source tree and requires a prior build of Ice for C++.
-
-### Prerequisites
+## Prerequisites
 
 1. **PHP 7.1 or later**
 
@@ -34,7 +28,7 @@ This build compiles Ice for PHP directly from the source tree and requires a pri
 
 3. **Python** (required to run the tests)
 
-### Building Ice for PHP
+## Building Ice for PHP
 
 Before building Ice for PHP, you must first build the Ice for C++ source distribution.
 Refer to the [build instructions](../cpp/BUILDING.md) in the `cpp` subdirectory for details.
@@ -49,7 +43,7 @@ To build Ice for PHP, run:
 make
 ```
 
-### Installing Ice for PHP
+## Installing Ice for PHP
 
 To install the Ice extension, you must move the extension's shared library into PHP's extension directory. This
 directory is determined by the PHP configuration directive `extension_dir`. You can determine the default value for
@@ -73,7 +67,7 @@ make install
 
 This process uses the `prefix` variable in `../config/Make.rules` as the installation's root directory.
 
-### Configuring the Ice for PHP extension
+## Configuring the Ice for PHP extension
 
 Once you've copied the extension to PHP's extension directory, you will need to enable the extension in your PHP
 configuration. Your PHP installation likely supports the `/etc/php.d` configuration directory, which you can verify by
@@ -142,7 +136,7 @@ ini_set('include_path', ini_get('include_path') . PATH_SEPARATOR . '/opt/Ice/php
 require 'Ice.php'; // Load the core Ice run time definitions.
 ```
 
-### Running the tests
+## Running the tests
 
 The test subdirectory contains PHP implementations of the core Ice test suite.
 
