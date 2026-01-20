@@ -56,14 +56,21 @@ jobs:
           if [[ "$DISTRIBUTION" == "rhel9" || "$DISTRIBUTION" == "rhel10" ]]; then
             echo "Also downloading MCPP RPMs for $DISTRIBUTION..."
 
+            # MCPP channel is 3.7 for Ice 3.7, 3.8 for all others
+            if [[ "$CHANNEL" == "3.7" ]]; then
+              MCPP_CHANNEL="3.7"
+            else
+              MCPP_CHANNEL="3.8"
+            fi
+
             gh release download "$MCPP_VERSION" \
               --repo zeroc-ice/mcpp \
-              --pattern "rpm-packages-${DISTRIBUTION}-*" \
+              --pattern "rpm-packages-${MCPP_CHANNEL}-${DISTRIBUTION}-*" \
               --dir staging/mcpp
 
             # gh doesn't automatically extract release downloads
             pushd staging/mcpp > /dev/null
-            unzip -q "rpm-packages-${DISTRIBUTION}-*.zip"
+            unzip -q "rpm-packages-${MCPP_CHANNEL}-${DISTRIBUTION}-*.zip"
             popd > /dev/null
           fi
 
