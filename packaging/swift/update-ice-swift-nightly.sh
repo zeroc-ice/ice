@@ -69,6 +69,10 @@ done
 git add .
 git config user.name "ZeroC"
 git config user.email "git@zeroc.com"
-git commit -m "ice: ${version} ${QUALITY} build"
-git tag -a "${version}" -m "ice: ${version} ${QUALITY} build"
-git push origin ${CHANNEL} --tags
+if ! git diff --cached --quiet; then
+    git commit -m "ice: ${version} ${QUALITY} build"
+    git tag -a "${version}" -m "ice: ${version} ${QUALITY} build"
+    git push origin ${CHANNEL} --tags
+else
+    echo "No changes to commit"
+fi
