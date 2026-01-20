@@ -818,9 +818,9 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     {
         // Import the required modules from "@zeroc/ice" JavaScript module.
         set<string> iceModules = imports["@zeroc/ice"];
+        _out << nl << "import { ";
         for (auto i = iceModules.begin(); i != iceModules.end();)
         {
-            _out << nl << "import { ";
             _out << (*i);
             if (++i != iceModules.end())
             {
