@@ -102,15 +102,6 @@ jobs:
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
-      - name: Ice Package Version
-        if: ${{ inputs.ice_version != '' }}
-        run: |
-          $nuspecPath = "csharp\msbuild\zeroc.ice.net.nuspec"
-          $nuspec = Get-Content $nuspecPath
-          $nuspec -replace '<version>.*</version>', '<version>${{ inputs.ice_version }}</version>' `
-            | Set-Content $nuspecPath
-        shell: pwsh
-
       - name: Setup Strong Name Signing Keys
         shell: pwsh
         env:
@@ -167,7 +158,9 @@ jobs:
           timestamp-digest: SHA256
 
       - name: Pack .NET Packages
-        run: dotnet msbuild csharp\msbuild\ice.proj /t:NuGetPack /p:Configuration=Release /p:Platform=x64
+        run: >-
+          dotnet msbuild csharp\msbuild\ice.proj /t:NuGetPack /p:Configuration=Release /p:Platform=x64
+          ${{ inputs.ice_version && format('/p:PackageVersion={0}', inputs.ice_version) || '' }}
 
       - name: Upload NuGet Packages
         uses: actions/upload-artifact@v4
