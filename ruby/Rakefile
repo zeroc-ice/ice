@@ -12,7 +12,7 @@ task :generate_sources do
     script_directory = File.dirname(File.absolute_path(__FILE__))
 
     # Define versions and URLs for dependencies
-    mcpp_version = "2.7.2.18"
+    mcpp_version = "2.7.2.20"
     mcpp_url = "https://github.com/zeroc-ice/mcpp/archive/refs/tags/v#{mcpp_version}.tar.gz"
     mcpp_local_filename = "dist/mcpp-#{mcpp_version}.tar.gz"
     dist_dir = 'dist'
