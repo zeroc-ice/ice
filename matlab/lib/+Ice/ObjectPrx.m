@@ -576,7 +576,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %ICE_GETINVOCATIONTIMEOUT Returns the invocation timeout of this proxy.
             %
             %   Output Arguments
-            %     r - The invocation timeout value (in seconds).
+            %     r - The invocation timeout value (in milliseconds).
             %       int32 scalar
 
             arguments
@@ -589,7 +589,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %ICE_INVOCATIONTIMEOUT Returns a proxy that is identical to this proxy, except for the invocation timeout.
             %
             %   Input Arguments
-            %     t - The new invocation timeout (in seconds).
+            %     t - The new invocation timeout (in milliseconds).
             %       int32 scalar
             %
             %   Output Arguments

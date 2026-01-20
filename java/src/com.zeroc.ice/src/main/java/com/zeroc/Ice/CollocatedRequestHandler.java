@@ -298,8 +298,7 @@ final class CollocatedRequestHandler implements RequestHandler {
 
     private int _requestId;
 
-    // A map of outstanding requests that can be canceled. A request can be canceled if it has an
-    // invocation timeout, or we support interrupts.
+    // A map of outstanding requests.
     private final Map<OutgoingAsyncBase, Integer> _sendAsyncRequests = new HashMap<>();
 
     private final Map<Integer, OutgoingAsyncBase> _asyncRequests = new HashMap<>();
