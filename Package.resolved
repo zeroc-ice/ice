@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zeroc-ice/mcpp.git",
       "state" : {
-        "branch" : "master",
-        "revision" : "4137e39e62bd22c232b470c9516669fc3d1a1353"
+        "branch" : "main",
+        "revision" : "0dbe51946cce23c692c59cf75909daf4fcdfd1d2"
       }
     },
     {
