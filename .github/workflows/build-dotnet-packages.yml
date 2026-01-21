@@ -97,6 +97,11 @@ jobs:
           cp -v artifacts/slice2cs-linux-arm64/slice2cs "$SLICE2CS_STAGING_PATH/linux-arm64/"
           chmod +x $SLICE2CS_STAGING_PATH/linux-arm64/slice2cs
           cp -v artifacts/slice2cs-windows-x64/slice2cs.exe "$SLICE2CS_STAGING_PATH/windows-x64/"
+
+          # Copy slice2cs Windows binary to the default location for using it in package builds.
+          mkdir -p cpp/bin/x64/Release
+          cp -v artifacts/slice2cs-windows-x64/slice2cs.exe cpp/bin/x64/Release/
+
         shell: bash
 
       - name: Setup C++
