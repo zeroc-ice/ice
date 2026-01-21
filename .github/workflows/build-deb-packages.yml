@@ -26,6 +26,14 @@ jobs:
     strategy:
       matrix:
         include:
+          - distribution: ubuntu22.04
+            arch: amd64
+            deb_build_profiles: "no-python312"
+
+          - distribution: ubuntu22.04
+            arch: arm64
+            deb_build_profiles: "no-python312"
+
           - distribution: ubuntu24.04
             arch: amd64
 

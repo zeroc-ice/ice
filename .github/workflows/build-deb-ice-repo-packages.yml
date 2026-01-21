@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        distribution: [debian12, debian13, ubuntu24.04]
+        distribution: [debian12, debian13, ubuntu22.04, ubuntu24.04]
 
     steps:
       - name: Check out repository
