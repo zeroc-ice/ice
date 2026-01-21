@@ -1,4 +1,6 @@
-FROM ubuntu:24.04
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
