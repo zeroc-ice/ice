@@ -3,8 +3,8 @@ ZeroC Ice RPM Distribution
 
 The ZeroC Ice RPM distribution includes the following packages.
 
-Currently, the distribution supports RHEL 10, RHEL 9, RHEL 8, Amazon Linux 2023, Amazon Linux 2, and SLES 12,
-for both x86_64 and i686 architectures (x86_64 only for Amazon Linux 2023 and RHEL 10).
+Currently, the distribution supports RHEL 10, RHEL 9, and Amazon Linux 2023
+for x86_64 and aarch64 architectures.
 
 RPM Package             Description
 ----------------------  ---------------------------------------------------------------
@@ -24,13 +24,10 @@ libice3.7-c++           Ice for C++ runtime libraries
 libicestorm3.7          IceStorm publish-subscribe service library
 php-ice                 Ice for PHP [1]
 php8.4-ice              Ice for PHP [2]
-python-ice              Ice for Python 2 [3]
-python3-ice             Ice for Python 3 [4]
+python3-ice             Ice for Python 3
 
-[1] Available on RHEL 8, RHEL 9, RHEL 10, Amazon Linux 2, and SLES 12.
+[1] Available on RHEL 9 and RHEL 10 only.
 [2] Available on Amazon Linux 2023 only.
-[3] Available on RHEL 8, Amazon Linux 2, and SLES 12 only.
-[4] Available on RHEL 8, RHEL 9, RHEL 10, Amazon Linux 2, and Amazon Linux 2023.
 
 For more information, visit:
 
