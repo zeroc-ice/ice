@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../msbuild/ice.common.props" />
+  <Import Project="../ZeroC.Ice.Slice.Tools/ZeroC.Ice.Slice.Tools.props"/>
   <PropertyGroup>
     <AssemblyName>IceGrid</AssemblyName>
     <Description>Client library for the IceGrid service</Description>
@@ -33,4 +34,5 @@
     <Content Include="@(SliceCompile)" Pack="true" PackagePath="/slice/IceGrid"/>
     <Content Include="ZeroC.IceGrid.props" Pack="true" PackagePath="buildTransitive/" />
   </ItemGroup>
+   <Import Project="../ZeroC.Ice.Slice.Tools/ZeroC.Ice.Slice.Tools.targets"/>
 </Project>

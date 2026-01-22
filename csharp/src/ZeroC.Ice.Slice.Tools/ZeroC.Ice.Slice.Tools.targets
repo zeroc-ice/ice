@@ -7,7 +7,7 @@
     the zeroc.ice.net NuGet package or the Ice source distribution.
 
     - For the NuGet package, the assembly is included in the "tools" directory.
-    - For the Ice source distribution, the assembly is taken from the Ice.Slice.Tools.CSharp project
+    - For the Ice source distribution, the assembly is taken from the ZeroC.Ice.Slice.Tools project
       output directory.
     -->
     <Choose>
@@ -28,6 +28,11 @@
             </PropertyGroup>
         </Otherwise>
     </Choose>
+
+    <ItemGroup Condition="'$(SliceToolsSourceBuild)' == 'true'">
+      <!-- Add a reference to the Tools project to ensure it's built before we use its tasks -->
+      <ProjectReference Include="$(MSBuildThisFileDirectory)ZeroC.Ice.Slice.Tools.csproj" ReferenceOutputAssembly="false" />
+    </ItemGroup>
 
     <!-- Import the MSBuild tasks required to compile Slice files using the slice2cs compiler. -->
     <UsingTask TaskName="ZeroC.Ice.Slice.Tools.Slice2CSharpTask" AssemblyFile="$(SliceToolsAssembly)"/>
