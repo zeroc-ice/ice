@@ -206,6 +206,9 @@ These are the changes since Ice 3.7.10.
 
 ## IceSSL Changes
 
+- Added `IceSSL.SecurityLevel` to the known property names to prevent "unknown property" warnings.
+  ([#2141](https://github.com/zeroc-ice/ice/issues/2141))
+
 - Fixed loading of certificates without a password.
   ([#1812](https://github.com/zeroc-ice/ice/pull/1812))
 
