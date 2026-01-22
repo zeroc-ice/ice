@@ -126,6 +126,15 @@ jobs:
             # Set environment variables for the build
             echo "PUBLIC_KEYFILE=${{ github.workspace }}\csharp\msbuild\ice-release-pub-key.snk" >> $env:GITHUB_ENV
             echo "KEYFILE=${{ github.workspace }}\csharp\msbuild\ice-release-key.snk" >> $env:GITHUB_ENV
+
+            # Add the .NET Framework SDK tools directory to PATH for sn.exe (strong name tool)
+            $sdkToolsPath = "${env:ProgramFiles(x86)}\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8.1 Tools"
+            if (Test-Path $sdkToolsPath) {
+              Write-Host "Adding $sdkToolsPath to PATH"
+              echo $sdkToolsPath >> $env:GITHUB_PATH
+            } else {
+              Write-Host "Warning: .NET Framework SDK tools path not found at $sdkToolsPath"
+            }
           } else {
             Write-Host "Strong name signing keys not configured - assemblies will not be signed"
           }
