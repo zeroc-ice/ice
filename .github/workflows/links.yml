@@ -1,0 +1,34 @@
+name: Check Links
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["3.7"]
+    paths:
+      - "**.md"
+      - "**.html"
+      - ".github/workflows/links.yml"
+  pull_request:
+    branches: ["3.7"]
+    paths:
+      - "**.md"
+      - "**.html"
+      - ".github/workflows/links.yml"
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --config .lychee.toml
+            --verbose
+            --no-progress
+            '**/*.md'
+            '**/*.html'
+          fail: true

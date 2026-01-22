@@ -509,7 +509,7 @@
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder]ZeroC\Ice-3.7.10" MultiBuildTarget="DefaultBuild:[ProgramFiles64Folder]ZeroC\Ice-3.7.11"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
-    <ROW Action="ViewReleaseNotes" Type="194" Source="viewer.exe" Target="https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes" WithoutSeq="true" Options="1"/>
+    <ROW Action="ViewReleaseNotes" Type="194" Source="viewer.exe" Target="https://archive.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes" WithoutSeq="true" Options="1"/>
     <ROW Action="cleanpath.vbs" Type="7174" Source="cleanpath.vbs" AdditionalSeq="AI_DATA_SETTER_4"/>
     <ROW Action="fixinstalldir.vbs" Type="3078" Source="fixinstalldir.vbs" AdditionalSeq="AI_DATA_SETTER_12"/>
     <ROW Action="notifyenvchanges" Type="3137" Source="PowerShellScriptLauncher.dll" Target="RunPowerShellScript" Options="1" AdditionalSeq="AI_DATA_SETTER"/>
@@ -523,10 +523,10 @@
     <ROW Name="product.exe" SourcePath="resources\product.ico" Index="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIniFileComponent">
-    <ROW IniFile="URL" FileName="ICEMAN~1.URL|Ice Manual.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://doc.zeroc.com/ice/3.7/" Action="0" Component_="ICE_LICENSE.txt_1"/>
-    <ROW IniFile="URL_1" FileName="RELEAS~1.URL|Release Notes.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes" Action="0" Component_="ICE_LICENSE.txt_1"/>
+    <ROW IniFile="URL" FileName="ICEMAN~1.URL|Ice Manual.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://archive.zeroc.com/ice/3.7/" Action="0" Component_="ICE_LICENSE.txt_1"/>
+    <ROW IniFile="URL_1" FileName="RELEAS~1.URL|Release Notes.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://archive.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes" Action="0" Component_="ICE_LICENSE.txt_1"/>
     <ROW IniFile="URL_2" FileName="SOURCE~1.URL|Source Code on GitHub.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://github.com/zeroc-ice/ice/tree/v3.7.10" Action="0" Component_="ICE_LICENSE.txt_1"/>
-    <ROW IniFile="URL_3" FileName="USINGT~1.URL|Using this Binary Distribution.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes/using-the-windows-binary-distributions-for-ice-3-7-10" Action="0" Component_="ICE_LICENSE.txt_1"/>
+    <ROW IniFile="URL_3" FileName="USINGT~1.URL|Using this Binary Distribution.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://archive.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes/using-the-windows-binary-distributions-for-ice-3-7-10" Action="0" Component_="ICE_LICENSE.txt_1"/>
     <ROW IniFile="URL_9" FileName="ICESAM~1.URL|Ice Sample Programs.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://github.com/zeroc-ice/ice-demos/tree/v3.7.10" Action="0" Component_="ICE_LICENSE.txt_1"/>
     <ROW IniFile="WorkingDirectory" FileName="ICEMAN~1.URL|Ice Manual.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="WorkingDirectory" Value="[Ice3.7.0_Dir]" Action="0" Component_="ICE_LICENSE.txt_1"/>
     <ROW IniFile="WorkingDirectory_1" FileName="RELEAS~1.URL|Release Notes.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="WorkingDirectory" Value="[Ice3.7.0_Dir]" Action="0" Component_="ICE_LICENSE.txt_1"/>

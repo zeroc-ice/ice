@@ -151,4 +151,4 @@ python allTests.py --config=arc-xcodesdk --platform=iphoneos
 All the test clients and servers run on the iOS device, not on your Mac computer.
 
 [Automatic Reference Counting]: https://en.wikipedia.org/wiki/Automatic_Reference_Counting
-[Homebrew]: https://doc.zeroc.com/ice/3.7/release-notes/using-the-macos-binary-distribution
+[Homebrew]: https://archive.zeroc.com/ice/3.7/release-notes/using-the-macos-binary-distribution

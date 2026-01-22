@@ -27,13 +27,16 @@ jobs:
           # Release builds
           - os: ubuntu-24.04
             config: release
+            cross_test_flags: "--all-cross"
 
           - os: windows-2025
             config: release
             build_flags: "/p:Platform=x64 /p:Configuration=Release"
+            cross_test_flags: "--all-cross --platform=x64"
 
           - os: macos-26
             config: release
+            cross_test_flags: "--all-cross"
 
           # C++11 release builds
           - os: ubuntu-24.04
@@ -118,8 +121,16 @@ jobs:
         uses: ./.github/actions/test
         timeout-minutes: 45
         with:
-          flags: ${{ matrix.test_flags || '' }}
+          flags: "--all ${{ matrix.test_flags }}"
           working_directory: ${{ matrix.working_directory || '.' }}
+
+      - name: Cross Test ${{ matrix.config }} on ${{ matrix.os }}
+        uses: ./.github/actions/test
+        timeout-minutes: 45
+        with:
+          flags: ${{ matrix.cross_test_flags }}
+          working_directory: ${{ matrix.working_directory || '.' }}
+        if: matrix.cross_test_flags != ''
 
       - name: Upload test logs
         uses: actions/upload-artifact@v4

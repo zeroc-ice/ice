@@ -41,7 +41,7 @@ List of arguments passed to the `slice2js` compiler.
 | --depend-file FILE  | Write dependencies to FILE instead of standard output.       |
 | -d, --debug         | Print debug messages.                                        |
 
-Additional documentation can be found [here](https://doc.zeroc.com/display/Ice37/slice2js+Command-Line+Options).
+Additional documentation can be found [here](https://archive.zeroc.com/display/Ice37/slice2js+Command-Line+Options).
 
 The `slice2js` module includes all the Ice Slice files and adds these files to the include file search path.
 
