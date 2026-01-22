@@ -169,7 +169,14 @@ jobs:
               set -ex
               make CONFIGS=${{ matrix.config }} -j\$(nproc) srcs
               make CONFIGS=${{ matrix.config }} -j\$(nproc) tests
-              python3 allTests.py --config=${{ matrix.config }} --workers=4 --debug --continue
+
+              # The --rfilter option excludes tests matching the regex. These tests are excluded because
+              # they require dependencies or permissions not available in the Docker builder images:
+              # - IceUtil/priority, Ice/threadPoolPriority: require CAP_SYS_NICE for thread priorities
+              # - Glacier2/*: require the passlib Python module
+              # - IceSSL/configuration: requires the openssl CLI tool
+              python3 allTests.py --config=${{ matrix.config }} --workers=4 --debug --continue \
+                --rfilter='IceUtil/priority|Ice/threadPoolPriority|Glacier2/|IceSSL/configuration'
             "
 
       - name: Upload test logs
