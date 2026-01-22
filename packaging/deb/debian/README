@@ -27,24 +27,6 @@ zeroc-icepatch2          IcePatch2 file distribution service
 
 For more information, visit:
 
-Getting Started with Ice on Linux
----------------------------------
-
-Please visit the 'Using the Linux Binary Distributions' section in the
-Ice 3.7.11 release notes:
-
-https://archive.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-11-release-notes
-
-Documentation
--------------
-
-The full documentation for Ice is available online:
-
-https://archive.zeroc.com/ice/3.7/
-
-Source Code
-------------
-
-The source code for Ice 3.7.11 is on GitHub:
-
-https://github.com/zeroc-ice/ice/releases/tag/v3.7.11
+- ZeroC website: https://zeroc.com
+- Ice GitHub repository: https://github.com/zeroc-ice/ice
+- Ice Sample Programs: https://github.com/zeroc-ice/ice-demos/tree/3.7
