@@ -182,4 +182,4 @@ set PATH=%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\emulator;%PATH%
 ```
 
-[Ice binary distributions]: https://zeroc.com/downloads/ice
+[Ice binary distributions]: https://zeroc.com/ice/downloads/3.7

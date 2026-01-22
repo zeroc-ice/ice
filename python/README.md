@@ -65,8 +65,8 @@ with Ice.initialize(sys.argv) as communicator:
     communicator.waitForShutdown()
 ```
 
-[Getting started]: https://doc.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-python
+[Getting started]: https://archive.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-python
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.7/python
-[Documentation]: https://doc.zeroc.com/ice/3.7
+[Documentation]: https://archive.zeroc.com/ice/3.7
 [Building from source]: https://github.com/zeroc-ice/ice/blob/3.7/python/BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

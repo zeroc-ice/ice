@@ -23,7 +23,7 @@ classifiers = [
 [project.urls]
 Homepage = "https://zeroc.com/ice"
 Repository = "https://github.com/zeroc-ice/ice"
-Documentation = "https://doc.zeroc.com/ice/3.7"
+Documentation = "https://archive.zeroc.com/ice/3.7"
 Issues = "https://github.com/zeroc-ice/ice/issues"
 Changelog = "https://github.com/zeroc-ice/ice/blob/3.7/CHANGELOG-3.7.md"
 

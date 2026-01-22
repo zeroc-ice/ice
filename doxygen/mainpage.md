@@ -5,6 +5,6 @@ This Slice API reference was generated from the Slice files in the
 using [Doxygen](http://www.doxygen.nl/). We provide a [tag file](../slice.tag) if you
 would like to include links to this documentation in your own Doxygen projects.
 
-The [language mapping chapters](https://doc.zeroc.com/ice/3.7/language-mappings)
-in the [Ice Manual](https://doc.zeroc.com/ice/3.7/introduction) describe how Slice
+The [language mapping chapters](https://archive.zeroc.com/ice/3.7/language-mappings)
+in the [Ice Manual](https://archive.zeroc.com/ice/3.7/introduction) describe how Slice
 APIs map to programming language APIs.

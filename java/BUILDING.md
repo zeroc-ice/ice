@@ -199,4 +199,4 @@ java -jar icegridgui.jar
 On macOS, the build also creates an application bundle named IceGrid GUI. You can start the IceGrid GUI tool by
 double-clicking the IceGrid GUI icon in Finder.
 
-[Ice binary distributions]: https://zeroc.com/downloads/ice
+[Ice binary distributions]: https://zeroc.com/ice/downloads/3.7
