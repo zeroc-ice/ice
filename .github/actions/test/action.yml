@@ -13,7 +13,7 @@ runs:
   steps:
     - name: Test
       working-directory: ${{ inputs.working_directory }}
-      run: python3 allTests.py --debug --all --keep-logs --continue --workers=$(sysctl -n hw.ncpu) --export-xml=test-report.xml ${{ inputs.flags }}
+      run: python3 allTests.py --debug --keep-logs --continue --workers=$(sysctl -n hw.ncpu) --export-xml=test-report.xml ${{ inputs.flags }}
       shell: bash
       if: runner.os == 'macOS'
 
@@ -21,12 +21,12 @@ runs:
       working-directory: ${{ inputs.working_directory }}
       run: |
         ulimit -c unlimited
-        python3 allTests.py --debug --all --keep-logs --continue --workers=$(nproc) --export-xml=test-report.xml ${{ inputs.flags }}
+        python3 allTests.py --debug --keep-logs --continue --workers=$(nproc) --export-xml=test-report.xml ${{ inputs.flags }}
       shell: bash
       if: runner.os == 'Linux'
 
     - name: Test
       working-directory: ${{ inputs.working_directory }}
-      run: python allTests.py --debug --all --keep-logs --continue --workers=$env:NUMBER_OF_PROCESSORS --export-xml=test-report.xml ${{ inputs.flags }}
+      run: python allTests.py --debug --keep-logs --continue --workers=$env:NUMBER_OF_PROCESSORS --export-xml=test-report.xml ${{ inputs.flags }}
       shell: powershell
       if: runner.os == 'Windows'
