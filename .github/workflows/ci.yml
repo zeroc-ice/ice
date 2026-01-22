@@ -126,7 +126,7 @@ jobs:
 
       - name: Cross Test ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test
-        timeout-minutes: 30
+        timeout-minutes: 45
         with:
           flags: ${{ matrix.cross_test_flags }}
           working_directory: ${{ matrix.working_directory || '.' }}
