@@ -2,7 +2,6 @@
   <img src="https://raw.githubusercontent.com/zeroc-ice/ice/3.7/.github/assets/ice-banner.svg" height="150" width="150" />
 </p>
 
-[![Join the chat at https://gitter.im/zeroc-ice/ice](https://badges.gitter.im/zeroc-ice/ice.svg)][gitter]
 [![GPLv2](https://img.shields.io/github/license/zeroc-ice/ice?color=red)][GPLv2]
 [![Static Badge](https://img.shields.io/badge/license-Commercial-blue)][Commercial]
 
@@ -109,11 +108,10 @@ license terms.
 
 [Commercial]: https://zeroc.com/ice/pricing
 [copyleft]: https://en.wikipedia.org/wiki/Copyleft
-[datastorm]: https://doc.zeroc.com/datastorm/latest/introduction
+[datastorm]: https://archive.zeroc.com/datastorm/latest/introduction
 [docs]: https://archive.zeroc.com/ice/3.7
-[downloads]: https://zeroc.com/downloads/ice
+[downloads]: https://zeroc.com/ice/downloads/3.7
 [examples]: https://github.com/zeroc-ice/ice-demos
-[gitter]: https://gitter.im/zeroc-ice/ice?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 [glacier2]: https://archive.zeroc.com/ice/3.7/ice-services/glacier2
 [GPLv2]: https://github.com/zeroc-ice/ice/blob/3.7/LICENSE
 [ice-repo]: https://github.com/zeroc-ice/ice

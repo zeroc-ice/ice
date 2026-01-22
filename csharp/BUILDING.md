@@ -151,6 +151,6 @@ This creates the `zeroc.ice.net` NuGet package in the `msbuild/zeroc.ice.net` di
 [.NET Standard 2.0]: https://docs.microsoft.com/en-us/dotnet/standard/net-standard
 [C++ build instructions]: ../cpp/BUILDING.md
 [Enhanced Strong Naming]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
-[Ice binary distributions]: https://zeroc.com/downloads/ice
+[Ice binary distributions]: https://zeroc.com/ice/downloads/3.7
 [zeroc.ice.net]: https://www.nuget.org/packages/ZeroC.Ice.Net/
 [zeroc.icebuilder.msbuild]: https://www.nuget.org/packages/zeroc.icebuilder.msbuild/

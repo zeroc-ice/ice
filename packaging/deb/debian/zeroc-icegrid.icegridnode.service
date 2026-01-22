@@ -5,7 +5,7 @@
 [Unit]
 Description=IceGrid node daemon
 Documentation=man:icegridnode(1)
-Documentation=https://doc.zeroc.com/display/Ice/icegridnode
+Documentation=https://archive.zeroc.com/display/Ice/icegridnode
 After=network.target icegridregistry.service
 
 [Service]

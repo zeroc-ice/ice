@@ -164,4 +164,4 @@ python allTests.py
 This script automatically starts a Python server for each MATLAB client. MATLAB clients are executed using a minimized
 MATLAB interpreter and the test output is copied to the command prompt window.
 
-[toolboxes]: https://zeroc.com/downloads/ice
+[toolboxes]: https://zeroc.com/ice/downloads/3.7

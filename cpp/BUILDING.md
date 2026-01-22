@@ -586,10 +586,7 @@ msbuild /m msbuild\ice.proj /p:ICE_BIN_DIST=all
 
 #### Build using Visual Studio
 
-Open the Visual Studio solution that corresponds to the Visual Studio version you are using.
-
-- For Visual Studio 2022 use [msbuild/ice.v143.sln](./msbuild/ice.v143.sln)
-- For Visual Studio 2019 use [msbuild/ice.v142.sln](./msbuild/ice.v142.sln)
+Open the Visual Studio solution [msbuild/ice.sln](./msbuild/ice.sln).
 
 Restore the solution NuGet packages using the NuGet package manager, if the automatic download of packages during build
 is not enabled.
@@ -674,10 +671,10 @@ compiler you are using.
 [bzip2]: https://github.com/zeroc-ice/bzip2
 [expat]: https://libexpat.github.io
 [IBM AIX Toolbox for Linux Applications]: https://www.ibm.com/support/pages/aix-toolbox-linux-applications-overview
-[Ice binary distributions]: https://zeroc.com/downloads/ice
+[Ice binary distributions]: https://zeroc.com/ice/downloads/3.7
 [Ice Builder for Xcode]: https://github.com/zeroc-ice/ice-builder-xcode
 [libedit]: https://thrysoee.dk/editline/
-[LMDB]: https://symas.com/lightning-memory-mapped-database/
+[LMDB]: https://www.symas.com/symas-embedded-database-lmdb
 [mcpp]: https://github.com/zeroc-ice/mcpp
 [OpenSSL]: https://www.openssl.org/
 [supported platforms]: https://archive.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-11
