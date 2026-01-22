@@ -34,5 +34,5 @@
     <Content Include="@(SliceCompile)" Pack="true" PackagePath="/slice/IceGrid"/>
     <Content Include="ZeroC.IceGrid.props" Pack="true" PackagePath="buildTransitive/" />
   </ItemGroup>
-   <Import Project="../ZeroC.Ice.Slice.Tools/ZeroC.Ice.Slice.Tools.targets"/>
+  <Import Project="../ZeroC.Ice.Slice.Tools/ZeroC.Ice.Slice.Tools.targets"/>
 </Project>
