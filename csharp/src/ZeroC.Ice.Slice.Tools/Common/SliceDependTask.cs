@@ -29,7 +29,7 @@ public abstract class SliceDependTask : Task
 
     protected abstract string ToolName { get; }
 
-    abstract protected ITaskItem[] GeneratedItems(ITaskItem source);
+    protected abstract ITaskItem[] GeneratedItems(ITaskItem source);
 
     // Same as generated items but only returns the generated items that need to be compiled
     // for example it excludes C++ headers
@@ -48,7 +48,7 @@ public abstract class SliceDependTask : Task
             ["OutputDir"] = item.GetMetadata("OutputDir").TrimEnd('\\')
         };
 
-        var value = item.GetMetadata("IncludeDirectories").Trim(';');
+        string value = item.GetMetadata("IncludeDirectories").Trim(';');
         if (!string.IsNullOrEmpty(value))
         {
             options["IncludeDirectories"] = value;
@@ -83,7 +83,7 @@ public abstract class SliceDependTask : Task
                 skip = false;
             }
 
-            var generatedItems = GeneratedItems(source);
+            ITaskItem[] generatedItems = GeneratedItems(source);
 
             generatedCompiledPaths.AddRange(
                 GeneratedCompiledItems(source).Select(item => item.GetMetadata("FullPath")));
@@ -197,7 +197,7 @@ public abstract class SliceDependTask : Task
                 XmlNodeList? options = sourceNode?.SelectNodes("options/*");
                 if (options != null)
                 {
-                    var newOptions = GetOptions(source);
+                    Dictionary<string, string> newOptions = GetOptions(source);
                     var oldOptions = options.Cast<XmlNode>().Select(node => new
                     {
                         node.Name,
@@ -248,7 +248,8 @@ public abstract class SliceDependTask : Task
                     inputs.Add(source.GetMetadata("FullPath").ToUpper());
                     inputs.Add(sliceCompiler.FullName.ToUpper());
 
-                    var outputs = GeneratedItems(source).Select(item => item.GetMetadata("FullPath").ToUpper());
+                    IEnumerable<string> outputs =
+                        GeneratedItems(source).Select(item => item.GetMetadata("FullPath").ToUpper());
                     source.SetMetadata("Outputs", string.Join(";", outputs));
                     source.SetMetadata("Inputs", string.Join(";", inputs));
                 }

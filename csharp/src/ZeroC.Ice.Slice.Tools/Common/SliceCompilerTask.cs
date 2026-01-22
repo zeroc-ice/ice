@@ -49,7 +49,7 @@ public abstract class SliceCompilerTask : ToolTask
             ["OutputDir"] = OutputDir.TrimEnd('\\')
         };
 
-        var value = item.GetMetadata("IncludeDirectories").Trim(';');
+        string value = item.GetMetadata("IncludeDirectories").Trim(';');
         if (!string.IsNullOrEmpty(value))
         {
             options["IncludeDirectories"] = value;
@@ -146,7 +146,8 @@ public abstract class SliceCompilerTask : ToolTask
 
                     ITaskItem computedSource = new TaskItem(source.ItemSpec);
                     source.CopyMetadataTo(computedSource);
-                    var outputs = GeneratedItems(source).Select((item) => item.GetMetadata("FullPath").ToUpper());
+                    IEnumerable<string> outputs =
+                        GeneratedItems(source).Select((item) => item.GetMetadata("FullPath").ToUpper());
                     computedSource.SetMetadata("Outputs", string.Join(";", outputs));
                     computedSource.SetMetadata("Inputs", string.Join(";", inputs));
                     computed.Add(computedSource);
@@ -167,10 +168,7 @@ public abstract class SliceCompilerTask : ToolTask
         return path;
     }
 
-    protected override void LogToolCommand(string message)
-    {
-        Log.LogMessage(MessageImportance.Low, message);
-    }
+    protected override void LogToolCommand(string message) => Log.LogMessage(MessageImportance.Low, message);
 
     private bool UsageError { get; set; }
 
