@@ -201,11 +201,11 @@ public:
 }
 ```
 
-[Getting started C++11]: https://doc.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-c++-c++11
+[Getting started C++11]: https://archive.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-c++-c++11
 [Examples C++11]: https://github.com/zeroc-ice/ice-demos/tree/3.7/cpp11
-[Getting started C++98]: https://doc.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-c++-c++98
+[Getting started C++98]: https://archive.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-c++-c++98
 [Examples C++98]: https://github.com/zeroc-ice/ice-demos/tree/3.7/cpp98
 [NuGet packages]: https://www.nuget.org/packages?q=zeroc.ice.v
-[Documentation]: https://doc.zeroc.com/ice/3.7
+[Documentation]: https://archive.zeroc.com/ice/3.7
 [Building from source]: https://github.com/zeroc-ice/ice/blob/3.7/cpp/BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

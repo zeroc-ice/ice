@@ -73,8 +73,8 @@ do {
 }
 ```
 
-[Getting started]: https://doc.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-swift
+[Getting started]: https://archive.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-swift
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.7/swift
-[Documentation]: https://doc.zeroc.com/ice/3.7
+[Documentation]: https://archive.zeroc.com/ice/3.7
 [Building from source]: https://github.com/zeroc-ice/ice/blob/3.7/swift/BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

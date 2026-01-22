@@ -523,7 +523,7 @@
     <ROW Name="product.exe" SourcePath="resources\product.ico" Index="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIniFileComponent">
-    <ROW IniFile="URL" FileName="ICEMAN~1.URL|Ice Manual.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://doc.zeroc.com/ice/3.7/" Action="0" Component_="ICE_LICENSE.txt_1"/>
+    <ROW IniFile="URL" FileName="ICEMAN~1.URL|Ice Manual.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://archive.zeroc.com/ice/3.7/" Action="0" Component_="ICE_LICENSE.txt_1"/>
     <ROW IniFile="URL_1" FileName="RELEAS~1.URL|Release Notes.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes" Action="0" Component_="ICE_LICENSE.txt_1"/>
     <ROW IniFile="URL_2" FileName="SOURCE~1.URL|Source Code on GitHub.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://github.com/zeroc-ice/ice/tree/v3.7.10" Action="0" Component_="ICE_LICENSE.txt_1"/>
     <ROW IniFile="URL_3" FileName="USINGT~1.URL|Using this Binary Distribution.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes/using-the-windows-binary-distributions-for-ice-3-7-10" Action="0" Component_="ICE_LICENSE.txt_1"/>

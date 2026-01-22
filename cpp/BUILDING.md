@@ -680,4 +680,4 @@ compiler you are using.
 [LMDB]: https://symas.com/lightning-memory-mapped-database/
 [mcpp]: https://github.com/zeroc-ice/mcpp
 [OpenSSL]: https://www.openssl.org/
-[supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-11
+[supported platforms]: https://archive.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-11
