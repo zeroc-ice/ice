@@ -144,10 +144,8 @@ These are the changes since Ice 3.7.10.
 - Fixed a bug in the Ice for C# connection code. A connection no longer reads messages off the network when its
   associated thread pool has no thread available to process these messages. As a result, back-pressure now works
   in Ice for C# just like in other language mappings.
-  ([#2270](https://github.com/zeroc-ice/ice/pull/2270))
-
-- Fixed an additional C# thread pool issue related to back-pressure handling.
-  ([#2372](https://github.com/zeroc-ice/ice/pull/2372))
+  ([#2270](https://github.com/zeroc-ice/ice/pull/2270),
+  [#2372](https://github.com/zeroc-ice/ice/pull/2372))
 
 - Fixed a bug where C# connections did not correctly mark messages as sent.
   ([#4861](https://github.com/zeroc-ice/ice/pull/4861))
