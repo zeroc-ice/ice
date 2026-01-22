@@ -140,6 +140,7 @@ jobs:
             build_cpp_and_python: true
 
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 180
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
