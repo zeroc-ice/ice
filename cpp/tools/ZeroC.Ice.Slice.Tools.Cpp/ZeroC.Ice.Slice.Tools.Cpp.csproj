@@ -13,7 +13,7 @@
 
     </PropertyGroup>
     <ItemGroup>
-      <Compile Include="..\..\..\csharp\tools\ZeroC.Ice.Slice.Tools\Common\*.cs" />
+      <Compile Include="..\..\..\csharp\src\ZeroC.Ice.Slice.Tools\Common\*.cs" />
     </ItemGroup>
 
     <ItemGroup>

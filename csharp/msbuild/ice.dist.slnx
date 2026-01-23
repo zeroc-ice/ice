@@ -11,5 +11,6 @@
     <Project Path="../src/IceGrid/IceGrid.csproj" />
     <Project Path="../src/IceLocatorDiscovery/IceLocatorDiscovery.csproj" />
     <Project Path="../src/IceStorm/IceStorm.csproj" />
+    <Project Path="../src/ZeroC.Ice.Slice.Tools/ZeroC.Ice.Slice.Tools.csproj" />
   </Folder>
 </Solution>

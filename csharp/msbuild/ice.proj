@@ -10,9 +10,6 @@
 
     <ItemGroup>
         <!-- Packages produced by the source build -->
-        <DistPackage Include="ZeroC.Ice.Slice.Tools">
-            <ProjectDir>$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools</ProjectDir>
-        </DistPackage>
         <DistPackage Include="ZeroC.Ice">
             <ProjectDir>$(MSBuildThisFileDirectory)..\src\Ice</ProjectDir>
         </DistPackage>
@@ -40,15 +37,12 @@
         <DistPackage Include="ZeroC.IceStorm">
             <ProjectDir>$(MSBuildThisFileDirectory)..\src\IceStorm</ProjectDir>
         </DistPackage>
+        <DistPackage Include="ZeroC.Ice.Slice.Tools">
+            <ProjectDir>$(MSBuildThisFileDirectory)..\src\ZeroC.Ice.Slice.Tools</ProjectDir>
+        </DistPackage>
     </ItemGroup>
 
     <ItemGroup>
-        <!-- Tools projects -->
-        <ToolsSolution Include="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools\ZeroC.Ice.Slice.Tools.slnx">
-            <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
-            <Properties Condition="'$(PackageVersion)' != ''">%(Properties);PackageVersion=$(PackageVersion)</Properties>
-        </ToolsSolution>
-
         <!-- .NET Solution files -->
         <SolutionFile Include="ice.slnx">
           <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
@@ -63,17 +57,14 @@
     </ItemGroup>
 
     <Target Name="NuGetRestore">
-        <MSBuild Projects="@(ToolsSolution)" Properties="%(Properties)" Targets="Restore" />
         <MSBuild Projects="@(SolutionFile)" Properties="%(Properties)" Targets="Restore"/>
     </Target>
 
     <Target Name="Build" DependsOnTargets="NuGetRestore">
-        <MSBuild Projects="@(ToolsSolution)" Properties="%(Properties)" />
         <MSBuild Projects="@(SolutionFile)" Properties="%(Properties)"/>
     </Target>
 
     <Target Name="BuildDist" DependsOnTargets="NuGetRestore">
-        <MSBuild Projects="@(ToolsSolution)" Properties="%(Properties)" />
         <MSBuild Projects="@(DistSolutionFile)" Properties="%(Properties)" />
     </Target>
 
@@ -82,7 +73,6 @@
     </Target>
 
     <Target Name="Pack">
-        <Exec Command="dotnet pack --no-build @(ToolsSolution) /p:PackageVersion=$(PackageVersion);Platform=&quot;Any CPU&quot;" />
         <Exec Command="dotnet pack --no-build @(DistSolutionFile) /p:PackageVersion=$(PackageVersion);Platform=&quot;Any CPU&quot;" />
     </Target>
 
