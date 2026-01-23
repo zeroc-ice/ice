@@ -35,8 +35,14 @@
     </ItemGroup>
 
     <!-- Import the MSBuild tasks required to compile Slice files using the slice2cs compiler. -->
-    <UsingTask TaskName="ZeroC.Ice.Slice.Tools.Slice2CSharpTask" AssemblyFile="$(SliceToolsAssembly)"/>
-    <UsingTask TaskName="ZeroC.Ice.Slice.Tools.Slice2CSharpDependTask" AssemblyFile="$(SliceToolsAssembly)"/>
+    <UsingTask
+        TaskName="ZeroC.Ice.Slice.Tools.Slice2CSharpTask"
+        TaskFactory="$(SliceToolsTaskFactory)"
+        AssemblyFile="$(SliceToolsAssembly)"/>
+    <UsingTask
+        TaskName="ZeroC.Ice.Slice.Tools.Slice2CSharpDependTask"
+        TaskFactory="$(SliceToolsTaskFactory)"
+        AssemblyFile="$(SliceToolsAssembly)"/>
 
     <PropertyGroup>
         <EnableDefaultSliceCompileItems Condition="'$(EnableDefaultSliceCompileItems)' == ''">true</EnableDefaultSliceCompileItems>

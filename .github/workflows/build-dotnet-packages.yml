@@ -102,12 +102,10 @@ jobs:
           "IcePackageVersion=${{ inputs.ice_version }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         shell: pwsh
 
-      # Build .NET assemblies. We shutdown the MSBuild server to avoid issues with the signing step. For example ZeroC.Ice.Slice.Tools.dll
-      # might remain in used by the MSBuild server and cannot be signed.
+      # Build .NET assemblies.
       - name: Pack .NET Packages
         run: |
           dotnet msbuild csharp\msbuild\ice.proj /t:BuildDist /p:Configuration=Release
-          dotnet build-server shutdown
 
       - name: Collect Files to Sign
         if: ${{ inputs.authenticode_sign }}
