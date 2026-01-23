@@ -1,0 +1,32 @@
+name: Windows Debug Tools Installer
+description: "Installs Debugging Tools for Windows using the Windows SDK installer."
+runs:
+  using: "composite"
+  steps:
+    - name: Install Debugging Tools for Windows
+      shell: pwsh
+      run: |
+        $sdkPath = "$env:TEMP\sdksetup.exe"
+        $logPath = "$env:TEMP\sdk.log"
+
+        Write-Host "Downloading Windows SDK installer..."
+        Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/?linkid=2338977" -OutFile $sdkPath
+
+        Write-Host "Running Windows SDK installer (Debugging Tools only)..."
+        $args = '/quiet /norestart /features OptionId.WindowsDesktopDebuggers /log "{0}"' -f $logPath
+        $p = Start-Process -FilePath $sdkPath -ArgumentList $args -PassThru -Wait
+
+    - name: Add Debug Tools to PATH
+      shell: pwsh
+      run: |
+        $debugToolsPath = "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64"
+        $srcsrvPath = "$debugToolsPath\srcsrv"
+        echo "$debugToolsPath" >> $env:GITHUB_PATH
+        echo "$srcsrvPath" >> $env:GITHUB_PATH
+
+    - name: Upload SDK install log
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: sdk-install-log
+        path: ${{ env.TEMP }}\sdk.log

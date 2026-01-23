@@ -114,3 +114,11 @@ jobs:
       quality: ${{ inputs.quality }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
+
+  publish-symbols-sources:
+    uses: ./.github/workflows/publish-symbols-sources.yml
+    with:
+      channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
