@@ -1,16 +1,12 @@
-# Building Ice for C# from source
+# Building Ice for C# from source <!-- omit in toc -->
 
-## Table of contents
-
-- [Building Ice for C# from source](#building-ice-for-c-from-source)
-  - [Table of contents](#table-of-contents)
-  - [Prerequisites](#prerequisites)
-  - [Build roadmap](#build-roadmap)
-  - [Building Ice for C#](#building-ice-for-c)
-  - [Running the Tests](#running-the-tests)
-  - [Creating and publishing NuGet packages](#creating-and-publishing-nuget-packages)
-    - [Slice tools](#slice-tools)
-  - [Generating the API reference](#generating-the-api-reference)
+- [Prerequisites](#prerequisites)
+- [Build roadmap](#build-roadmap)
+- [Building Ice for C#](#building-ice-for-c)
+- [Running the Tests](#running-the-tests)
+- [Creating and publishing NuGet packages](#creating-and-publishing-nuget-packages)
+  - [Slice tools](#slice-tools)
+- [Generating the API reference](#generating-the-api-reference)
 
 ## Prerequisites
 
