@@ -7,6 +7,9 @@
             <!-- Use the Slice compiler from this NuGet package -->
             <PropertyGroup>
                 <IceToolsPath>$(MSBuildThisFileDirectory)..\tools\</IceToolsPath>
+
+                <!-- AssemblyTaskFactory is the default value when no TaskFactory is specified -->
+                <SliceToolsTaskFactory>AssemblyTaskFactory</SliceToolsTaskFactory>
             </PropertyGroup>
         </When>
         <Otherwise>
