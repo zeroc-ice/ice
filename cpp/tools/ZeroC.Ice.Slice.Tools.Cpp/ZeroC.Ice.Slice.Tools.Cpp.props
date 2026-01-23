@@ -7,12 +7,18 @@
             <!-- Use the Slice compiler from this NuGet package -->
             <PropertyGroup>
                 <IceToolsPath>$(MSBuildThisFileDirectory)..\tools\</IceToolsPath>
+
+                <!-- AssemblyTaskFactory is the default value when no TaskFactory is specified -->
+                <SliceToolsTaskFactory>AssemblyTaskFactory</SliceToolsTaskFactory>
             </PropertyGroup>
         </When>
         <Otherwise>
             <PropertyGroup >
                 <!-- Use the Slice compiler from this Source distribution -->
                 <IceToolsPath>$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\$(Configuration)</IceToolsPath>
+
+                <!-- Force task to run out of process to avoid issues with files in use -->
+                <SliceToolsTaskFactory>TaskHostFactory</SliceToolsTaskFactory>
             </PropertyGroup>
         </Otherwise>
     </Choose>
