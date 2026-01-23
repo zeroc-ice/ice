@@ -7,9 +7,6 @@ max_concurrency = 32
 # Timeout for each request in seconds
 timeout = 30
 
-# Use HEAD requests for HTTP links (faster, only fetches headers)
-method = "head"
-
 # Number of retries for failed requests
 max_retries = 3
 
