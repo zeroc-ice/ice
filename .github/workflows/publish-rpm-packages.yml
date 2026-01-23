@@ -66,7 +66,7 @@ jobs:
             --dir staging/mcpp
           # gh doesn't automatically extract release downloads
           pushd staging/mcpp > /dev/null
-          unzip -q ${MCPP_PACKAGES}.zip
+          for zip in ${MCPP_PACKAGES}.zip; do unzip -q "$zip"; done
           popd > /dev/null
 
       - name: Create RPM repository
