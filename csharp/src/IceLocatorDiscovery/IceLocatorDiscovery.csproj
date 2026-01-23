@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../msbuild/ice.common.props" />
+  <Import Project="../ZeroC.Ice.Slice.Tools/ZeroC.Ice.Slice.Tools.props"/>
   <PropertyGroup>
     <AssemblyName>IceLocatorDiscovery</AssemblyName>
     <Description>The IceLocatorDiscovery plug-in</Description>
@@ -30,4 +31,5 @@
     <Content Include="../../../assets/logo-128x128.png" Pack="true" PackagePath="/" />
     <Content Include="README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
+  <Import Project="../ZeroC.Ice.Slice.Tools/ZeroC.Ice.Slice.Tools.targets"/>
 </Project>
