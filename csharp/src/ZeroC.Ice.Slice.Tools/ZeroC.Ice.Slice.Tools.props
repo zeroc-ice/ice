@@ -25,6 +25,9 @@
                 <SliceToolsSourceBuild>true</SliceToolsSourceBuild>
                 <IceToolsPath>$(MSBuildThisFileDirectory)..\..\..\cpp\bin\</IceToolsPath>
                 <IceToolsPath Condition="'$(IceOSName)' == 'windows'">$(IceToolsPath)x64\$(Configuration)\</IceToolsPath>
+
+                <!-- Force task to run out of process to avoid issues with files in use -->
+                <SliceToolsTaskFactory>TaskHostFactory</SliceToolsTaskFactory>
             </PropertyGroup>
         </Otherwise>
     </Choose>

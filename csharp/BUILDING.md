@@ -2,14 +2,15 @@
 
 ## Table of contents
 
-- [Prerequisites](#prerequisites)
-- [Build roadmap](#build-roadmap)
-- [Building Ice for C#](#building-ice-for-c)
-- [Running the tests](#running-the-tests)
-- [Creating and publishing NuGet packages](#creating-and-publishing-nuget-packages)
-  - [Slice tools](#slice-tools)
-- [Generating the API reference](#generating-the-api-reference)
-- [Shutting down background MSBuild servers](#shutting-down-background-msbuild-servers)
+- [Building Ice for C# from source](#building-ice-for-c-from-source)
+  - [Table of contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+  - [Build roadmap](#build-roadmap)
+  - [Building Ice for C#](#building-ice-for-c)
+  - [Running the Tests](#running-the-tests)
+  - [Creating and publishing NuGet packages](#creating-and-publishing-nuget-packages)
+    - [Slice tools](#slice-tools)
+  - [Generating the API reference](#generating-the-api-reference)
 
 ## Prerequisites
 
@@ -104,13 +105,4 @@ This command generates the API reference into the `docfx\_site` directory. Start
 
 ```shell
 docfx serve docfx/_site
-```
-
-## Shutting down background MSBuild servers
-
-You may occasionally encounter errors when cleaning and building because background MSBuild servers use/lock the
-`ZeroC.Ice.Slice.Tools` assembly. When this happens, you can shutdown these MSBuild servers with:
-
-```shell
-dotnet build-server shutdown
 ```

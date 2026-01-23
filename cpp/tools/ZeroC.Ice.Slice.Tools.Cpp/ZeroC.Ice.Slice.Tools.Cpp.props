@@ -13,6 +13,9 @@
             <PropertyGroup >
                 <!-- Use the Slice compiler from this Source distribution -->
                 <IceToolsPath>$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\$(Configuration)</IceToolsPath>
+
+                <!-- Force task to run out of process to avoid issues with files in use -->
+                <SliceToolsTaskFactory>TaskHostFactory</SliceToolsTaskFactory>
             </PropertyGroup>
         </Otherwise>
     </Choose>
