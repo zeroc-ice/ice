@@ -122,8 +122,9 @@ These are the changes since Ice 3.7.10.
 
 ## C++ Changes
 
-- Fixed a bug with `Ice.ServerIdleTime` affecting Apple platforms.
-  ([#2025](https://github.com/zeroc-ice/ice/issues/2025))
+- Fixed multiple bugs affecting `Ice.ServerIdleTime` on Apple platforms and AIX.
+  ([#2025](https://github.com/zeroc-ice/ice/issues/2025),
+  [#4897](https://github.com/zeroc-ice/ice/pull/4897))
 
 - Fixed a bug in C++ user exception marshaling that affected the C++11 mapping only.
   ([#4823](https://github.com/zeroc-ice/ice/pull/4823))
@@ -135,9 +136,6 @@ These are the changes since Ice 3.7.10.
 
 - Fixed a bug in the OpenSSL IceSSL implementation where `ERR_get_error` was called incorrectly, which could
   result in misleading error messages. ([#2153](https://github.com/zeroc-ice/ice/issues/2153))
-
-- Fixed an additional `Ice.ServerIdleTime` issue on AIX.
-  ([#4897](https://github.com/zeroc-ice/ice/pull/4897))
 
 ## C# Changes
 
