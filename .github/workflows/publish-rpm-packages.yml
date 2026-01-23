@@ -53,7 +53,7 @@ jobs:
             --dir staging
 
           # If building for RHEL 9 or 10, also download MCPP RPMs.
-          if [[ "$DISTRIBUTION" == "rhel9" || "$DISTRIBUTION" == "rhel10" ]]; then
+          if [[ "$DISTRIBUTION" == "el9" || "$DISTRIBUTION" == "el10" ]]; then
             echo "Also downloading MCPP RPMs for $DISTRIBUTION..."
 
             # MCPP packages
@@ -65,7 +65,7 @@ jobs:
 
             # gh doesn't automatically extract release downloads
             pushd staging/mcpp > /dev/null
-            unzip -q ${MCPP_PACKAGES}.zip
+            for zip in ${MCPP_PACKAGES}.zip; do unzip -q "$zip"; done
             popd > /dev/null
           fi
 
