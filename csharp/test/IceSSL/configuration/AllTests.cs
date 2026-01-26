@@ -7,8 +7,8 @@
 //
 
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -18,7 +18,7 @@ public class AllTests
 {
     private static void test(bool b)
     {
-        if(!b)
+        if (!b)
         {
             throw new Exception();
         }
@@ -38,7 +38,7 @@ public class AllTests
         result.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:IceSSL.PluginFactory");
         result.properties.setProperty("IceSSL.DefaultDir", defaultProperties.getProperty("IceSSL.DefaultDir"));
         result.properties.setProperty("Ice.Default.Host", defaultProperties.getProperty("Ice.Default.Host"));
-        if(defaultProperties.getProperty("Ice.IPv6").Length > 0)
+        if (defaultProperties.getProperty("Ice.IPv6").Length > 0)
         {
             result.properties.setProperty("Ice.IPv6", defaultProperties.getProperty("Ice.IPv6"));
         }
@@ -54,7 +54,7 @@ public class AllTests
         result["Ice.Plugin.IceSSL"] = "IceSSL:IceSSL.PluginFactory";
         result["IceSSL.DefaultDir"] = defaultProperties.getProperty("IceSSL.DefaultDir");
         result["Ice.Default.Host"] = defaultProperties.getProperty("Ice.Default.Host");
-        if(defaultProperties.getProperty("Ice.IPv6").Length > 0)
+        if (defaultProperties.getProperty("Ice.IPv6").Length > 0)
         {
             result["Ice.IPv6"] = defaultProperties.getProperty("Ice.IPv6");
         }
@@ -66,11 +66,11 @@ public class AllTests
     createServerProps(Ice.Properties defaultProperties, string cert, string ca)
     {
         Dictionary<string, string> d = createServerProps(defaultProperties);
-        if(cert.Length > 0)
+        if (cert.Length > 0)
         {
             d["IceSSL.CertFile"] = cert + ".p12";
         }
-        if(ca.Length > 0)
+        if (ca.Length > 0)
         {
             d["IceSSL.CAs"] = ca + ".pem";
         }
@@ -82,11 +82,11 @@ public class AllTests
     createClientProps(Ice.Properties defaultProperties, string cert, string ca)
     {
         Ice.InitializationData initData = createClientProps(defaultProperties);
-        if(cert.Length > 0)
+        if (cert.Length > 0)
         {
             initData.properties.setProperty("IceSSL.CertFile", cert + ".p12");
         }
-        if(ca.Length > 0)
+        if (ca.Length > 0)
         {
             initData.properties.setProperty("IceSSL.CAs", ca + ".pem");
         }
@@ -129,14 +129,14 @@ public class AllTests
 
         X509Store store = new X509Store(StoreName.AuthRoot, StoreLocation.LocalMachine);
         bool isAdministrator = false;
-        if(IceInternal.AssemblyUtil.isWindows)
+        if (IceInternal.AssemblyUtil.isWindows)
         {
             try
             {
                 store.Open(OpenFlags.ReadWrite);
                 isAdministrator = true;
             }
-            catch(CryptographicException)
+            catch (CryptographicException)
             {
                 store.Open(OpenFlags.ReadOnly);
                 Console.Out.WriteLine("warning: some test requires administrator privileges, run as Administrator to run all the tests.");
@@ -161,11 +161,11 @@ public class AllTests
                     p.ice_ping();
                     test(false);
                 }
-                catch(Ice.PluginInitializationException)
+                catch (Ice.PluginInitializationException)
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -187,7 +187,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -221,7 +221,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -255,7 +255,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -281,7 +281,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -311,7 +311,7 @@ public class AllTests
                     server.noCert();
                     test(!((IceSSL.ConnectionInfo)server.ice_getConnection().getInfo()).verified);
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -336,7 +336,7 @@ public class AllTests
                     server.noCert();
                     test(((IceSSL.ConnectionInfo)server.ice_getConnection().getInfo()).verified);
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -358,7 +358,7 @@ public class AllTests
                 {
                     server.noCert();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -377,11 +377,11 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.ConnectionLostException)
+                catch (Ice.ConnectionLostException)
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -421,7 +421,7 @@ public class AllTests
                     test(caCert.Equals(info.certs[1]));
                     test(serverCert.Equals(info.certs[0]));
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -439,7 +439,7 @@ public class AllTests
                     X509Certificate2 clientCert = new X509Certificate2(defaultDir + "/c_rsa_ca1.p12", "password");
                     server.checkCert(clientCert.Subject, clientCert.Issuer);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -464,11 +464,11 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.SecurityException)
+                catch (Ice.SecurityException)
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -493,15 +493,15 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.SecurityException)
+                catch (Ice.SecurityException)
                 {
                     // Expected.
                 }
-                catch(Ice.ConnectionLostException)
+                catch (Ice.ConnectionLostException)
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -524,7 +524,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -548,11 +548,11 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.SecurityException)
+                catch (Ice.SecurityException)
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -574,7 +574,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -586,7 +586,7 @@ public class AllTests
                 // Test Hostname verification only when Ice.DefaultHost is 127.0.0.1
                 // as that is the IP address used in the test certificates.
                 //
-                if(defaultHost.Equals("127.0.0.1"))
+                if (defaultHost.Equals("127.0.0.1"))
                 {
                     //
                     // Test using localhost as target host
@@ -611,12 +611,12 @@ public class AllTests
                         {
                             server.ice_ping();
                         }
-                        catch(Ice.LocalException ex)
+                        catch (Ice.LocalException ex)
                         {
                             //
                             // macOS catalina or greater does not check the certificate common name
                             //
-                            if(!IceInternal.AssemblyUtil.isMacOS)
+                            if (!IceInternal.AssemblyUtil.isMacOS)
                             {
                                 Console.WriteLine(ex.ToString());
                                 test(false);
@@ -643,7 +643,7 @@ public class AllTests
                             server.ice_ping();
                             test(false);
                         }
-                        catch(Ice.SecurityException)
+                        catch (Ice.SecurityException)
                         {
                             // Expected
                         }
@@ -668,7 +668,7 @@ public class AllTests
                         {
                             server.ice_ping();
                         }
-                        catch(Ice.LocalException)
+                        catch (Ice.LocalException)
                         {
                             // macOS >= Catalina requires a DNS altName. DNS name as the Common Name is not trusted
                             test(IceInternal.AssemblyUtil.isMacOS);
@@ -695,7 +695,7 @@ public class AllTests
                             server.ice_ping();
                             test(false);
                         }
-                        catch(Ice.SecurityException)
+                        catch (Ice.SecurityException)
                         {
                             // Expected
                         }
@@ -721,7 +721,7 @@ public class AllTests
                             server.ice_ping();
                             test(false);
                         }
-                        catch(Ice.SecurityException)
+                        catch (Ice.SecurityException)
                         {
                             // Expected
                         }
@@ -804,12 +804,12 @@ public class AllTests
                         {
                             server.ice_ping();
                         }
-                        catch(Ice.SecurityException ex)
+                        catch (Ice.SecurityException ex)
                         {
                             //
                             // macOS catalina or greater does not check the certificate common name
                             //
-                            if(!IceInternal.AssemblyUtil.isMacOS)
+                            if (!IceInternal.AssemblyUtil.isMacOS)
                             {
                                 Console.WriteLine(ex.ToString());
                                 test(false);
@@ -839,7 +839,7 @@ public class AllTests
                             IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
                             test(!info.verified);
                         }
-                        catch(Ice.LocalException ex)
+                        catch (Ice.LocalException ex)
                         {
                             Console.WriteLine(ex.ToString());
                             test(false);
@@ -866,7 +866,7 @@ public class AllTests
                         {
                             server.ice_ping();
                         }
-                        catch(Ice.LocalException ex)
+                        catch (Ice.LocalException ex)
                         {
                             Console.WriteLine(ex.ToString());
                             test(false);
@@ -885,7 +885,7 @@ public class AllTests
                 certStore.Open(OpenFlags.ReadWrite);
                 X509Certificate2Collection certs = new X509Certificate2Collection();
                 var storageFlags = X509KeyStorageFlags.DefaultKeySet;
-                if(IceInternal.AssemblyUtil.isMacOS)
+                if (IceInternal.AssemblyUtil.isMacOS)
                 {
                     //
                     // On macOS, we need to mark the key exportable because the addition of the key to the
@@ -895,7 +895,7 @@ public class AllTests
                     storageFlags |= X509KeyStorageFlags.Exportable;
                 }
                 certs.Import(defaultDir + "/s_rsa_cai2.p12", "password", storageFlags);
-                foreach(X509Certificate2 cert in certs)
+                foreach (X509Certificate2 cert in certs)
                 {
                     certStore.Add(cert);
                 }
@@ -924,7 +924,7 @@ public class AllTests
                         test(info.certs.Length == 1);
                         test(!info.verified);
                     }
-                    catch(Ice.LocalException ex)
+                    catch (Ice.LocalException ex)
                     {
                         Console.WriteLine(ex.ToString());
                         test(false);
@@ -944,7 +944,7 @@ public class AllTests
                         test(info.certs.Length == 1);
                         test(!info.verified);
                     }
-                    catch(Ice.LocalException ex)
+                    catch (Ice.LocalException ex)
                     {
                         Console.WriteLine(ex.ToString());
                         test(false);
@@ -964,7 +964,7 @@ public class AllTests
                         info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
                         test(info.certs.Length == 1); // Like the SChannel transport, .NET never sends the root.
                     }
-                    catch(Ice.LocalException ex)
+                    catch (Ice.LocalException ex)
                     {
                         Console.WriteLine(ex.ToString());
                         test(false);
@@ -992,7 +992,7 @@ public class AllTests
                             test(info.certs.Length == 2);
                             test(info.verified);
                         }
-                        catch(Ice.LocalException ex)
+                        catch (Ice.LocalException ex)
                         {
                             Console.WriteLine(ex.ToString());
                             test(false);
@@ -1020,15 +1020,15 @@ public class AllTests
                             server.ice_getConnection().getInfo();
                             test(false);
                         }
-                        catch(Ice.SecurityException)
+                        catch (Ice.SecurityException)
                         {
                             // Chain length too long
                         }
-                        catch(Ice.ConnectionLostException)
+                        catch (Ice.ConnectionLostException)
                         {
                             // Expected
                         }
-                        catch(Ice.LocalException ex)
+                        catch (Ice.LocalException ex)
                         {
                             Console.WriteLine(ex.ToString());
                             test(false);
@@ -1037,7 +1037,7 @@ public class AllTests
                     }
                     comm.destroy();
 
-                    if(IceInternal.AssemblyUtil.isWindows)
+                    if (IceInternal.AssemblyUtil.isWindows)
                     {
                         //
                         // The certificate chain on Linux doesn't include the intermeidate
@@ -1065,7 +1065,7 @@ public class AllTests
                                 test(info.certs.Length == 3);
                                 test(info.verified);
                             }
-                            catch(Ice.LocalException ex)
+                            catch (Ice.LocalException ex)
                             {
                                 Console.WriteLine(ex.ToString());
                                 test(false);
@@ -1082,7 +1082,7 @@ public class AllTests
                                 server.ice_getConnection().getInfo();
                                 test(false);
                             }
-                            catch(Ice.SecurityException)
+                            catch (Ice.SecurityException)
                             {
                                 // Chain length too long
                             }
@@ -1111,7 +1111,7 @@ public class AllTests
                                 test(info.certs.Length == 4);
                                 test(info.verified);
                             }
-                            catch(Ice.LocalException ex)
+                            catch (Ice.LocalException ex)
                             {
                                 Console.WriteLine(ex.ToString());
                                 test(false);
@@ -1141,15 +1141,15 @@ public class AllTests
                                 server.ice_getConnection();
                                 test(false);
                             }
-                            catch(Ice.ProtocolException)
+                            catch (Ice.ProtocolException)
                             {
                                 // Expected
                             }
-                            catch(Ice.ConnectionLostException)
+                            catch (Ice.ConnectionLostException)
                             {
                                 // Expected
                             }
-                            catch(Ice.LocalException ex)
+                            catch (Ice.LocalException ex)
                             {
                                 Console.WriteLine(ex.ToString());
                                 test(false);
@@ -1166,7 +1166,7 @@ public class AllTests
                             {
                                 server.ice_getConnection();
                             }
-                            catch(Ice.LocalException ex)
+                            catch (Ice.LocalException ex)
                             {
                                 Console.WriteLine(ex.ToString());
                                 test(false);
@@ -1179,7 +1179,7 @@ public class AllTests
                 }
                 finally
                 {
-                    foreach(X509Certificate2 cert in certs)
+                    foreach (X509Certificate2 cert in certs)
                     {
                         certStore.Remove(cert);
                     }
@@ -1210,7 +1210,7 @@ public class AllTests
                     IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
                     server.checkCipher(info.cipher);
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1230,11 +1230,11 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.SecurityException)
+                catch (Ice.SecurityException)
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1278,7 +1278,7 @@ public class AllTests
                     server.ice_ping();
                     tls11 = true;
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     tls11 = false;
                 }
@@ -1303,15 +1303,15 @@ public class AllTests
                     server.ice_ping();
                     //test(false);
                 }
-                catch(Ice.SecurityException)
+                catch (Ice.SecurityException)
                 {
                     // Expected.
                 }
-                catch(Ice.ConnectionLostException)
+                catch (Ice.ConnectionLostException)
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1319,7 +1319,7 @@ public class AllTests
                 fact.destroyServer(server);
                 comm.destroy();
 
-                if(tls11)
+                if (tls11)
                 {
                     // This should succeed.
                     comm = Ice.Util.initialize(ref args, initData);
@@ -1350,7 +1350,7 @@ public class AllTests
                     fact.destroyServer(server);
                     comm.destroy();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1376,11 +1376,11 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.SecurityException)
+                catch (Ice.SecurityException)
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.Out.Write(ex.ToString());
                     test(false);
@@ -1403,11 +1403,11 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.ConnectionLostException)
+                catch (Ice.ConnectionLostException)
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.Out.Write(ex.ToString());
                     test(false);
@@ -1417,7 +1417,7 @@ public class AllTests
             }
             Console.Out.WriteLine("ok");
 
-            if(IceInternal.AssemblyUtil.isWindows && isAdministrator)
+            if (IceInternal.AssemblyUtil.isWindows && isAdministrator)
             {
                 //
                 // LocalMachine certificate store is not supported on non
@@ -1441,7 +1441,7 @@ public class AllTests
                     {
                         server.ice_ping();
                     }
-                    catch(Ice.LocalException ex)
+                    catch (Ice.LocalException ex)
                     {
                         Console.WriteLine(ex.ToString());
                         test(false);
@@ -1468,7 +1468,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1494,7 +1494,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1518,11 +1518,11 @@ public class AllTests
                     Ice.Util.initialize(ref args, initData);
                     test(false);
                 }
-                catch(Ice.PluginInitializationException)
+                catch (Ice.PluginInitializationException)
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1547,11 +1547,11 @@ public class AllTests
                     pm.initializePlugins();
                     test(false);
                 }
-                catch(Ice.PluginInitializationException)
+                catch (Ice.PluginInitializationException)
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1577,7 +1577,7 @@ public class AllTests
                 {
                     pm.initializePlugins();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1616,7 +1616,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1638,7 +1638,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -1657,7 +1657,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1678,7 +1678,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1700,7 +1700,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -1718,7 +1718,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1739,7 +1739,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -1757,7 +1757,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1778,7 +1778,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -1797,7 +1797,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -1816,7 +1816,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -1835,7 +1835,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -1853,7 +1853,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1873,7 +1873,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1894,7 +1894,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -1912,7 +1912,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1932,7 +1932,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1956,7 +1956,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -1978,7 +1978,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -2004,7 +2004,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -2026,7 +2026,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -2045,7 +2045,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -2066,7 +2066,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -2084,7 +2084,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -2112,7 +2112,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -2134,7 +2134,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -2153,7 +2153,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -2174,7 +2174,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -2193,7 +2193,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -2217,7 +2217,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -2239,7 +2239,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -2258,7 +2258,7 @@ public class AllTests
                     server.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 fact.destroyServer(server);
@@ -2276,7 +2276,7 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -2286,7 +2286,7 @@ public class AllTests
             }
             Console.Out.WriteLine("ok");
 
-            if(!IceInternal.AssemblyUtil.isMacOS)
+            if (!IceInternal.AssemblyUtil.isMacOS)
             {
                 Console.Out.Write("testing IceSSL.FindCerts properties... ");
                 Console.Out.Flush();
@@ -2321,18 +2321,18 @@ public class AllTests
                     "SUBJECTKEYID:'a6 42 aa 17 04 41 86 56 67 e4 04 64 59 34 30 c7 4c 6b ef ff'"
                 };
 
-                string[] certificates = new string[] {"/s_rsa_ca1.p12", "/c_rsa_ca1.p12"};
+                string[] certificates = new string[] { "/s_rsa_ca1.p12", "/c_rsa_ca1.p12" };
 
                 X509Store certStore = new X509Store("My", StoreLocation.CurrentUser);
                 certStore.Open(OpenFlags.ReadWrite);
                 var storageFlags = X509KeyStorageFlags.DefaultKeySet;
                 try
                 {
-                    foreach(string cert in certificates)
+                    foreach (string cert in certificates)
                     {
                         certStore.Add(new X509Certificate2(defaultDir + cert, "password", storageFlags));
                     }
-                    for(int i = 0; i < clientFindCertProperties.Length; ++i)
+                    for (int i = 0; i < clientFindCertProperties.Length; ++i)
                     {
                         initData = createClientProps(defaultProperties, "", "cacert1");
                         initData.properties.setProperty("IceSSL.CertStore", "My");
@@ -2358,7 +2358,7 @@ public class AllTests
                         {
                             server.ice_ping();
                         }
-                        catch(Ice.LocalException ex)
+                        catch (Ice.LocalException ex)
                         {
                             Console.WriteLine(ex.ToString());
                             test(false);
@@ -2370,7 +2370,7 @@ public class AllTests
                     //
                     // These must fail because the search criteria does not match any certificates.
                     //
-                    foreach(string s in failFindCertProperties)
+                    foreach (string s in failFindCertProperties)
                     {
                         try
                         {
@@ -2379,11 +2379,11 @@ public class AllTests
                             Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                             test(false);
                         }
-                        catch(Ice.PluginInitializationException)
+                        catch (Ice.PluginInitializationException)
                         {
                             // Expected
                         }
-                        catch(Ice.LocalException ex)
+                        catch (Ice.LocalException ex)
                         {
                             Console.WriteLine(ex.ToString());
                             test(false);
@@ -2393,7 +2393,7 @@ public class AllTests
                 }
                 finally
                 {
-                    foreach(string cert in certificates)
+                    foreach (string cert in certificates)
                     {
                         certStore.Remove(new X509Certificate2(defaultDir + cert, "password"));
                     }
@@ -2403,7 +2403,7 @@ public class AllTests
                 //
                 // These must fail because we have already remove the certificates.
                 //
-                foreach(string s in clientFindCertProperties)
+                foreach (string s in clientFindCertProperties)
                 {
                     try
                     {
@@ -2412,11 +2412,11 @@ public class AllTests
                         Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                         test(false);
                     }
-                    catch(Ice.PluginInitializationException)
+                    catch (Ice.PluginInitializationException)
                     {
                         // Expected
                     }
-                    catch(Ice.LocalException ex)
+                    catch (Ice.LocalException ex)
                     {
                         Console.WriteLine(ex.ToString());
                         test(false);
@@ -2424,100 +2424,10 @@ public class AllTests
                 }
                 Console.Out.WriteLine("ok");
             }
-
-            Console.Out.Write("testing system CAs... ");
-            Console.Out.Flush();
-            {
-                //
-                // Retry a few times in case there are connectivity problems with demo.zeroc.com.
-                //
-                const int retryMax = 5;
-                const int retryDelay = 1000;
-                int retryCount = 0;
-
-                initData = createClientProps(defaultProperties);
-                initData.properties.setProperty("IceSSL.DefaultDir", "");
-                initData.properties.setProperty("IceSSL.VerifyDepthMax", "5");
-                initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
-                Ice.Communicator comm = Ice.Util.initialize(initData);
-                Ice.ObjectPrx p = comm.stringToProxy("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
-                while(true)
-                {
-                    try
-                    {
-                        p.ice_ping();
-                        test(false);
-                    }
-                    catch(Ice.SecurityException)
-                    {
-                        // Expected, by default we don't check for system CAs.
-                        break;
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                        if((ex is Ice.ConnectTimeoutException) ||
-                           (ex is Ice.SocketException) ||
-                           (ex is Ice.DNSException))
-                        {
-                            if(++retryCount < retryMax)
-                            {
-                                Console.Out.Write("retrying... ");
-                                Console.Out.Flush();
-                                Thread.Sleep(retryDelay);
-                                continue;
-                            }
-                        }
-
-                        Console.Out.WriteLine("warning: unable to connect to demo.zeroc.com to check system CA");
-                        Console.WriteLine(ex.ToString());
-                        break;
-                    }
-                }
-                comm.destroy();
-
-                retryCount = 0;
-                initData = createClientProps(defaultProperties);
-                initData.properties.setProperty("IceSSL.DefaultDir", "");
-                initData.properties.setProperty("IceSSL.VerifyDepthMax", "5");
-                initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
-                initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
-                comm = Ice.Util.initialize(initData);
-                p = comm.stringToProxy("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
-                while(true)
-                {
-                    try
-                    {
-                        IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)p.ice_getConnection().getInfo().underlying;
-                        test(info.verified);
-                        break;
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                        if((ex is Ice.ConnectTimeoutException) ||
-                           (ex is Ice.SocketException) ||
-                           (ex is Ice.DNSException))
-                        {
-                            if(++retryCount < retryMax)
-                            {
-                                Console.Out.Write("retrying... ");
-                                Console.Out.Flush();
-                                Thread.Sleep(retryDelay);
-                                continue;
-                            }
-                        }
-
-                        Console.Out.WriteLine("warning: unable to connect to demo.zeroc.com to check system CA");
-                        Console.WriteLine(ex.ToString());
-                        break;
-                    }
-                }
-                comm.destroy();
-            }
-            Console.Out.WriteLine("ok");
         }
         finally
         {
-            if(IceInternal.AssemblyUtil.isWindows && isAdministrator)
+            if (IceInternal.AssemblyUtil.isWindows && isAdministrator)
             {
                 store.Remove(caCert1);
                 store.Remove(caCert2);
