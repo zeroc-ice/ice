@@ -67,9 +67,9 @@
         </Content>
 
         <!-- Tools directory (slice2cs compilers, iceboxnet, bzip2.dll) -->
-        <Content Include="obj\package\tools\**\*">
+        <Content Include="obj\package\tools\**">
             <Pack>true</Pack>
-            <PackagePath>tools\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+            <PackagePath>tools</PackagePath>
         </Content>
     </ItemGroup>
 </Project>
