@@ -81,6 +81,7 @@ else:
 # All the /**/ macros are necessary only on Windows
 define_macros = [
     ("ICE_STATIC_LIBS", None),
+    ("ICE_PYPI", None),
     ("ICE_BUILDING_SRC", None),
     ("ICE_BUILDING_ICE", None),
     ("ICE_BUILDING_ICESSL", None),

@@ -241,6 +241,9 @@
     <ROW File="slice2rb.exe" Component_="slice2rb.exe" FileName="slice2rb.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\bin\x64\Release\slice2rb.exe" SelfReg="false" NextFile="iceserviceinstall.exe"/>
     <ROW File="templates.xml" Component_="glacier2router.cfg" FileName="TEMPLA~1.XML|templates.xml" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;cpp\config\templates.xml" SelfReg="false"/>
   </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.AiRemoveFileComponent">
+    <ROW RemoveFile="_" Options="3"/>
+  </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.AppPathsComponent">
     <ROW Name="ICE_BUILD_HOME" Path="..\.." Type="2" Content="0"/>
   </COMPONENT>
@@ -275,6 +278,11 @@
     <ROW Fragment="WelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\WelcomeDlg.aip"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiActionTextComponent">
+    <ROW Action="AI_AiRemoveFilesCommit" Description="Executing file removal operations" Template="Executing file removal: [1]" DescriptionLocId="ActionText.Description.AI_AiRemoveFilesCommit" TemplateLocId="ActionText.Template.AI_AiRemoveFilesCommit"/>
+    <ROW Action="AI_AiRemoveFilesDeferred_Permanent" Description="Preparing files for removal" Template="Preparing file: [1]" DescriptionLocId="ActionText.Description.AI_AiRemoveFilesDeferred_Permanent" TemplateLocId="ActionText.Template.AI_AiRemoveFilesDeferred_Permanent"/>
+    <ROW Action="AI_AiRemoveFilesDeferred_Undoable" Description="Preparing files for removal" Template="Preparing file: [1]" DescriptionLocId="ActionText.Description.AI_AiRemoveFilesDeferred_Undoable" TemplateLocId="ActionText.Template.AI_AiRemoveFilesDeferred_Undoable"/>
+    <ROW Action="AI_AiRemoveFilesImmediate" Description="Preparing files for removal" Template="Preparing file: [1]" DescriptionLocId="ActionText.Description.AI_AiRemoveFilesImmediate" TemplateLocId="ActionText.Template.AI_AiRemoveFilesImmediate"/>
+    <ROW Action="AI_AiRemoveFilesRollback" Description="Restoring removed files" Template="Restoring file: [1]" DescriptionLocId="ActionText.Description.AI_AiRemoveFilesRollback" TemplateLocId="ActionText.Template.AI_AiRemoveFilesRollback"/>
     <ROW Action="AI_ConfigureChainer" Description="Configuring prerequisites launcher" Template="Configure Launcher" DescriptionLocId="ActionText.Description.AI_ConfigureChainer" TemplateLocId="ActionText.Template.AI_ConfigureChainer"/>
     <ROW Action="AI_DownloadPrereq" Description="Downloading prerequisite software" Template="Downloading [1]{[2] completed}" DescriptionLocId="ActionText.Description.AI_DownloadPrereq" TemplateLocId="ActionText.Template.AI_DownloadPrereq"/>
     <ROW Action="AI_ExtractPrereq" Description="Extracting prerequisite software" Template="Extracting [1]{[2] completed}" DescriptionLocId="ActionText.Description.AI_ExtractPrereq" TemplateLocId="ActionText.Template.AI_ExtractPrereq"/>
@@ -286,6 +294,7 @@
     <ROW Name="ExternalUICleaner.dll" SourcePath="&lt;AI_CUSTACTS&gt;ExternalUICleaner.dll"/>
     <ROW Name="PowerShellScriptLauncher.dll" SourcePath="&lt;AI_CUSTACTS&gt;PowerShellScriptLauncher.dll"/>
     <ROW Name="Prereq.dll" SourcePath="&lt;AI_CUSTACTS&gt;Prereq.dll"/>
+    <ROW Name="ResourceCleaner.dll" SourcePath="&lt;AI_CUSTACTS&gt;ResourceCleaner.dll"/>
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
     <ROW Name="aipackagechainer.exe" SourcePath="&lt;AI_CUSTACTS&gt;aipackagechainer.exe"/>
     <ROW Name="banner.jpg" SourcePath="resources\banner.jpg"/>
@@ -482,6 +491,11 @@
     <ROW Directory_="Ice3.7.0_Dir" Component_="Ice3.7.0" ManualDelete="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
+    <ROW Action="AI_AiRemoveFilesCommit" Type="11777" Source="ResourceCleaner.dll" Target="OnAiRemoveFilesCommit" WithoutSeq="true"/>
+    <ROW Action="AI_AiRemoveFilesDeferred_Permanent" Type="11265" Source="ResourceCleaner.dll" Target="OnAiRemoveFilesPermanent" WithoutSeq="true"/>
+    <ROW Action="AI_AiRemoveFilesDeferred_Undoable" Type="11265" Source="ResourceCleaner.dll" Target="OnAiRemoveFilesUndoable" WithoutSeq="true"/>
+    <ROW Action="AI_AiRemoveFilesImmediate" Type="1" Source="ResourceCleaner.dll" Target="OnAiRemoveFilesImmediate"/>
+    <ROW Action="AI_AiRemoveFilesRollback" Type="11521" Source="ResourceCleaner.dll" Target="OnAiUndoRemoveFiles"/>
     <ROW Action="AI_AppSearchEx" Type="1" Source="Prereq.dll" Target="DoAppSearchEx"/>
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Type="51" Source="AI_SETUPEXEPATH_ORIGINAL" Target="[AI_SETUPEXEPATH]"/>
     <ROW Action="AI_CleanPrereq" Type="65" Source="Prereq.dll" Target="CleanPrereq" WithoutSeq="true"/>
@@ -509,7 +523,7 @@
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder]ZeroC\Ice-3.7.10" MultiBuildTarget="DefaultBuild:[ProgramFiles64Folder]ZeroC\Ice-3.7.11"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
-    <ROW Action="ViewReleaseNotes" Type="194" Source="viewer.exe" Target="https://archive.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes" WithoutSeq="true" Options="1"/>
+    <ROW Action="ViewReleaseNotes" Type="194" Source="viewer.exe" Target="https://archive.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-11-release-notes" WithoutSeq="true" Options="1"/>
     <ROW Action="cleanpath.vbs" Type="7174" Source="cleanpath.vbs" AdditionalSeq="AI_DATA_SETTER_4"/>
     <ROW Action="fixinstalldir.vbs" Type="3078" Source="fixinstalldir.vbs" AdditionalSeq="AI_DATA_SETTER_12"/>
     <ROW Action="notifyenvchanges" Type="3137" Source="PowerShellScriptLauncher.dll" Target="RunPowerShellScript" Options="1" AdditionalSeq="AI_DATA_SETTER"/>
@@ -521,18 +535,6 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
     <ROW Name="icegridgui_1.exe" SourcePath="..\..\java\src\IceGridGUI\src\main\resources\icons\icegrid.ico" Index="0"/>
     <ROW Name="product.exe" SourcePath="resources\product.ico" Index="0"/>
-  </COMPONENT>
-  <COMPONENT cid="caphyon.advinst.msicomp.MsiIniFileComponent">
-    <ROW IniFile="URL" FileName="ICEMAN~1.URL|Ice Manual.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://archive.zeroc.com/ice/3.7/" Action="0" Component_="ICE_LICENSE.txt_1"/>
-    <ROW IniFile="URL_1" FileName="RELEAS~1.URL|Release Notes.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://archive.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes" Action="0" Component_="ICE_LICENSE.txt_1"/>
-    <ROW IniFile="URL_2" FileName="SOURCE~1.URL|Source Code on GitHub.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://github.com/zeroc-ice/ice/tree/v3.7.10" Action="0" Component_="ICE_LICENSE.txt_1"/>
-    <ROW IniFile="URL_3" FileName="USINGT~1.URL|Using this Binary Distribution.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://archive.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes/using-the-windows-binary-distributions-for-ice-3-7-10" Action="0" Component_="ICE_LICENSE.txt_1"/>
-    <ROW IniFile="URL_9" FileName="ICESAM~1.URL|Ice Sample Programs.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="URL" Value="https://github.com/zeroc-ice/ice-demos/tree/v3.7.10" Action="0" Component_="ICE_LICENSE.txt_1"/>
-    <ROW IniFile="WorkingDirectory" FileName="ICEMAN~1.URL|Ice Manual.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="WorkingDirectory" Value="[Ice3.7.0_Dir]" Action="0" Component_="ICE_LICENSE.txt_1"/>
-    <ROW IniFile="WorkingDirectory_1" FileName="RELEAS~1.URL|Release Notes.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="WorkingDirectory" Value="[Ice3.7.0_Dir]" Action="0" Component_="ICE_LICENSE.txt_1"/>
-    <ROW IniFile="WorkingDirectory_2" FileName="SOURCE~1.URL|Source Code on GitHub.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="WorkingDirectory" Value="[Ice3.7.0_Dir]" Action="0" Component_="ICE_LICENSE.txt_1"/>
-    <ROW IniFile="WorkingDirectory_3" FileName="USINGT~1.URL|Using this Binary Distribution.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="WorkingDirectory" Value="[Ice3.7.0_Dir]" Action="0" Component_="ICE_LICENSE.txt_1"/>
-    <ROW IniFile="WorkingDirectory_9" FileName="ICESAM~1.URL|Ice Sample Programs.url" DirProperty="Ice3.7.0_Dir" Section="InternetShortcut" Key="WorkingDirectory" Value="[Ice3.7.0_Dir]" Action="0" Component_="ICE_LICENSE.txt_1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_STORE_LOCATION" Condition="Not Installed" Sequence="1502"/>
@@ -553,6 +555,8 @@
     <ROW Action="AI_LaunchChainer" Condition="AI_PREREQ_CHAINER AND (NOT UPGRADINGPRODUCTCODE)" Sequence="6599"/>
     <ROW Action="AI_VerifyPrereq" Sequence="1101"/>
     <ROW Action="AI_AppSearchEx" Sequence="55"/>
+    <ROW Action="AI_AiRemoveFilesImmediate" Sequence="3499"/>
+    <ROW Action="AI_AiRemoveFilesRollback" Sequence="3099"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
