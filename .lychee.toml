@@ -4,6 +4,9 @@
 # Maximum number of concurrent requests
 max_concurrency = 32
 
+# Minimum interval between requests to the same host
+host_request_interval = "50ms"
+
 # Timeout for each request in seconds
 timeout = 30
 
