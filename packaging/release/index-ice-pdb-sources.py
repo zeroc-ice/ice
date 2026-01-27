@@ -10,8 +10,8 @@ This script prepares Ice C++ builds for source server debugging by:
 
 The output directory structure is:
 
-    <output>/<version>/sources/  - Copy of all source files referenced by PDBs
-    <output>/<version>/pdbs/     - PDB files with embedded srcsrv streams
+    <output>/sources/<version>/  - Copy of all source files referenced by PDBs
+    <output>/pdbs/<version>/     - PDB files with embedded srcsrv streams
 
 When a debugger loads these PDBs, it can automatically fetch source files from
 the configured HTTP server (e.g., https://sources.zeroc.com/ice/<version>/<path>).
@@ -86,7 +86,7 @@ Examples:
         "-o",
         type=Path,
         required=True,
-        help="Output directory (creates '<version>/sources' and '<version>/pdbs' subdirectories)",
+        help="Output directory (creates 'sources/<version>/' and 'pdbs/<version>/' subdirectories)",
     )
     parser.add_argument(
         "--verbose",

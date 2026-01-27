@@ -16,6 +16,11 @@ runs:
         $args = '/quiet /norestart /features OptionId.WindowsDesktopDebuggers /log "{0}"' -f $logPath
         $p = Start-Process -FilePath $sdkPath -ArgumentList $args -PassThru -Wait
 
+        if ($p.ExitCode -ne 0) {
+          Write-Error "Windows SDK installer failed with exit code $($p.ExitCode). See log at $logPath."
+          exit $p.ExitCode
+        }
+
     - name: Add Debug Tools to PATH
       shell: pwsh
       run: |

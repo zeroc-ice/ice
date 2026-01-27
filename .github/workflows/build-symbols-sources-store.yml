@@ -61,8 +61,7 @@ jobs:
         id: source-url
         run: |
           if ("${{ inputs.quality }}" -eq "stable") {
-            $url = "https://symbols.zeroc.com/sources/ice/"
-
+            $url = "https://sources.zeroc.com/ice/"
           } else {
             $url = "https://download.zeroc.com/ice/${{ inputs.quality }}/${{ inputs.channel }}/sources/"
           }

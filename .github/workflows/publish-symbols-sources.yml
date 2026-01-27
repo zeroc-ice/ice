@@ -113,7 +113,7 @@ jobs:
       - name: Publish Symbols and Sources to S3
         run: |
           # Sources are the same for both toolsets, just sync one
-          aws s3 sync "staging/windows-v143-symbols-sources/sources/" "s3://${S3_BUCKET}/sources/"
+          aws s3 sync "staging/windows-v143-symbols-sources/sources/" "s3://${S3_BUCKET}/ice/"
 
           # Sync the entire symbol store including 000Admin (single shared store, no platform-toolset)
           aws s3 sync "symbol-store/" "s3://${S3_BUCKET}/symbols/"
