@@ -10,6 +10,8 @@
     <!-- Packaging properties -->
     <PackageId>ZeroC.IceBox</PackageId>
     <PackageTags>ice;icebox;rpc</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
     <SliceCompile Include="../../../slice/IceBox/*.ice" />

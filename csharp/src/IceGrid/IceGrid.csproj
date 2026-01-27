@@ -10,6 +10,8 @@
     <!-- Packaging properties -->
     <PackageId>ZeroC.IceGrid</PackageId>
     <PackageTags>ice;icegrid;rpc</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
     <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />
