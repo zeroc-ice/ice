@@ -65,6 +65,7 @@ Cpp11-Release/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
+!packaging/release/
 [Rr]eleases/
 x64/
 x86/

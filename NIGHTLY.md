@@ -66,6 +66,18 @@ https://download.zeroc.com/nexus/repository/nuget-3.7-nightly/
 > `ZeroC.Ice.v142` and `ZeroC.Ice.v143` packages include C++ libraries, header files, the Slice to C++ compiler,
 > all the Ice services (Glacier2, IceGrid, etc.), and the command-line admin tools for these services.
 
+The debug symbols for `ZeroC.Ice.v142` and `ZeroC.Ice.v143` are uploaded to the nightly repository at:
+
+```
+https://download.zeroc.com/ice/nightly/3.7/symbols/<package-suffix>/<version>
+```
+
+where the package suffix is `v142` or `v143`, and the version is the NuGet package nightly version, for example `3.7.11-nightly.20260127.2`.
+
+```shell
+https://download.zeroc.com/ice/nightly/3.7/symbols/v142/3.7.11-nightly.20260127.2
+```
+
 ### Ice for C#
 
 Ice for C# is distributed as a NuGet package `ZeroC.Ice.Net` for all platforms.
@@ -88,7 +100,7 @@ https://download.zeroc.com/nexus/repository/maven-3.7-nightly/
 
 #### Gradle <!-- omit in toc -->
 
-Here’s an example configuration using Kotlin DSL:
+Here's an example configuration using Kotlin DSL:
 
 ```kotlin
 // settings.gradle.kts
@@ -110,7 +122,7 @@ dependencyResolutionManagement {
 
 The nightly NPM packages `ice` and `slice2js` are available from the ZeroC NPM nightly registry.
 
-To use them, add the following line to your project’s .npmrc file:
+To use them, add the following line to your project's .npmrc file:
 
 ```shell
 # Use ZeroC nightly registry for all packages

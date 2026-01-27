@@ -1,0 +1,90 @@
+name: "Build Symbols and Sources Store"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: true
+        type: string
+      channel:
+        required: true
+        type: string
+      quality:
+        required: true
+        type: string
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version (e.g., 3.7.10)"
+        required: true
+      channel:
+        description: "The release channel (e.g., 3.7, 3.8)"
+        required: true
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
+        required: true
+        default: "nightly"
+      run_id:
+        description: "The run ID of a successful build-cpp-windows-binaries workflow run"
+        required: true
+
+jobs:
+  build-symbols-sources-store:
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        platform-toolset: [v143, v142]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+
+      - name: Install Windows Debug Tools
+        uses: ./.github/actions/install-windows-debug-tools
+
+      - name: Download C++ Windows Binaries
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-${{ matrix.platform-toolset }}-x64-Release-build --dir cpp
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-${{ matrix.platform-toolset }}-x64-Debug-build --dir cpp
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-${{ matrix.platform-toolset }}-Win32-Release-build --dir cpp
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-${{ matrix.platform-toolset }}-Win32-Debug-build --dir cpp
+
+      - name: Compute Source Base URL
+        id: source-url
+        run: |
+          if ("${{ inputs.quality }}" -eq "stable") {
+            $url = "https://sources.zeroc.com/ice/"
+          } else {
+            $url = "https://download.zeroc.com/ice/${{ inputs.quality }}/${{ inputs.channel }}/sources/"
+          }
+          echo "source_base_url=$url" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Index PDBs and Sources
+        run: |
+          python packaging/release/index-ice-pdb-sources.py `
+            --source-dir ${{ github.workspace }} `
+            --version ${{ inputs.ice_version }} `
+            --source-base-url ${{ steps.source-url.outputs.source_base_url }} `
+            --output-dir ${{ github.workspace }}/symbols-sources
+
+      - name: Create Symbols Store
+        run: |
+          symstore add /3 /compress /r /t "Ice for C++ ${{ inputs.ice_version }} (${{ matrix.platform-toolset }})" `
+            /v "${{ inputs.ice_version }}" `
+            /s "${{ github.workspace }}/symbols-sources/symbols/${{ inputs.ice_version }}/" `
+            /f "${{ github.workspace }}/symbols-sources/pdbs/${{ inputs.ice_version }}/"
+
+      - name: Upload Symbols and Sources
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-${{ matrix.platform-toolset }}-symbols-sources
+          path: ${{ github.workspace }}/symbols-sources/

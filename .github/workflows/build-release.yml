@@ -208,6 +208,19 @@ jobs:
       run_id: ${{ github.run_id }}
     secrets: inherit
 
+  build-symbols-sources-store:
+    name: Build Symbols and Sources Store
+    uses: ./.github/workflows/build-symbols-sources-store.yml
+    needs:
+      - configure
+      - build-cpp-windows-binaries
+    with:
+      ice_version: ${{ needs.configure.outputs.semver_version }}
+      channel: ${{ needs.configure.outputs.channel }}
+      quality: ${{ inputs.quality }}
+      run_id: ${{ github.run_id }}
+    secrets: inherit
+
   build-icegridgui-jar:
     name: Build IceGrid GUI JAR
     uses: ./.github/workflows/build-icegridgui-jar.yml
