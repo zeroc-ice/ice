@@ -74,7 +74,7 @@ export class ConnectionI {
         this._closeTimeout = options.closeTimeout * 1000; // Seconds to milliseconds.
         this._closeTimeoutId = undefined;
 
-        this._inactivityTimeout = options.inactivityTimeout;
+        this._inactivityTimeout = options.inactivityTimeout * 1000; // Seconds to milliseconds
         this._inactivityTimer = undefined;
 
         const initData = instance.initializationData();
