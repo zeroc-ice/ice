@@ -6,6 +6,8 @@
     <OutputType>Exe</OutputType>
     <Description>The IceBox server for .NET</Description>
     <TargetFramework>net8.0</TargetFramework>
+    <!-- Enable documentation file generation -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- Packaging properties -->
     <PackageId>iceboxnet</PackageId>
     <PackAsTool>true</PackAsTool>

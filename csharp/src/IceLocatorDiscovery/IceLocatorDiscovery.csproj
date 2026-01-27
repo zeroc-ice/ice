@@ -7,11 +7,15 @@
     <Description>The IceLocatorDiscovery plug-in</Description>
     <AssemblyTitle>$(Description)</AssemblyTitle>
     <TargetFramework>net8.0</TargetFramework>
+    <!-- Enable documentation file generation -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- Packaging properties -->
     <PackageId>ZeroC.IceLocatorDiscovery</PackageId>
     <PackageTags>ice;icelocatordiscovery;rpc</PackageTags>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!-- Include PDB in the built .nupkg -->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
   <ItemGroup>
     <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />
