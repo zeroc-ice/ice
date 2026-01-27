@@ -148,6 +148,8 @@ These are the changes since Ice 3.7.10.
 - Fixed a bug where C# connections did not correctly mark messages as sent.
   ([#4861](https://github.com/zeroc-ice/ice/pull/4861))
 
+- Filter-out non-operational network interfaces when listening on a multicast endpoint.
+
 - The minimum supported .NET Framework version is now 4.7.2. The minimum supported .NET Standard version
   remains 2.0. ([#4826](https://github.com/zeroc-ice/ice/pull/4826))
 
