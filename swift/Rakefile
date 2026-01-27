@@ -98,15 +98,10 @@ $test_resources = {
 
 desc "Generate Xcode projects required to build Ice for Swift"
 task :icesdistproj do
-    create_project("ice.xcodeproj", false)
+    create_project("ice.xcodeproj")
 end
 
-desc "Generate Xcode projects required to build Ice for Swift test with Carthage binary dist"
-task :icebdistproj do
-    create_project("ice-test.xcodeproj", true)
-end
-
-def create_project(name, bindist)
+def create_project(name)
     project = Xcodeproj::Project.new(name)
 
     project.build_configurations.each do |config|
@@ -119,7 +114,7 @@ def create_project(name, bindist)
     add_spm_promisekit(project)
 
     [:osx, :ios].each do |platform|
-        create_platform_targets(project, platform, bindist)
+        create_platform_targets(project, platform)
     end
 
     attributes = project.root_object.attributes
@@ -140,14 +135,13 @@ end
 
 task :default => [:icesdistproj]
 
-def create_platform_targets(project, platform, bindist)
+def create_platform_targets(project, platform)
 
     platform_name = platform == :osx ? "macOS" : "iOS"
 
-    unless bindist
-        #
-        # Ice for C++11 static libraries
-        #
+    #
+    # Ice for C++11 static libraries
+    #
         cpp_components = ["Ice", "IceSSL", "IceDiscovery", "IceLocatorDiscovery"]
         cpp_source_dirs = { "Ice" => ["IceUtil", "Ice"] }
         if platform == :ios then
@@ -263,7 +257,7 @@ def create_platform_targets(project, platform, bindist)
                 config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] << "NDEBUG"
             end
         }
-        target_set_framework_build_settings(target)
+
         target.add_system_framework("Security")
         if platform == :ios then
             target.add_system_framework("ExternalAccessory")
@@ -288,7 +282,7 @@ def create_platform_targets(project, platform, bindist)
         target.build_configurations.each { |config|
             config.build_settings["DEFINES_MODULE"] = "NO"
         }
-        target_set_framework_build_settings(target)
+
         target_add_spm_promisekit(target)
 
         group = project_group(project, "src/Ice")
@@ -335,7 +329,7 @@ def create_platform_targets(project, platform, bindist)
             target.build_configurations.each { |config|
                 config.build_settings["DEFINES_MODULE"] = "NO"
             }
-            target_set_framework_build_settings(target)
+
 
             group = project_group(project, "src/#{framework}")
             group_add_files(group, "src/#{framework}", ["*.plist"])
@@ -354,20 +348,14 @@ def create_platform_targets(project, platform, bindist)
         #
         icegrid_target.frameworks_build_phases.add_file_reference(glacier2_target.product_reference)
         icegrid_target.add_dependency(glacier2_target)
-    end
 
     #
     # TestCommon framework
     #
     target = project.new_target(:framework, "TestCommon", platform)
     target.name = "#{target.name} #{platform_name}"
-    target_set_framework_build_settings(target)
-    if bindist then
-        target_add_carthage_framework(target, platform, "IceImpl.xcframework")
-        target_add_carthage_framework(target, platform, "Ice.xcframework")
-    else
-        target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
-    end
+
+    target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
     target_add_slice2swift_build_rule(project, target, "test/TestCommon", test: true)
     test_common_target = target
 
@@ -416,20 +404,11 @@ def create_platform_targets(project, platform, bindist)
     copy_symbols = target.new_copy_files_build_phase("Copy Symbols")
     copy_symbols.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:products_directory]
 
-    target_set_framework_build_settings(target)
-    if bindist then
-        target_add_carthage_framework(target, platform, "IceImpl.xcframework", true)
-        target_add_carthage_framework(target, platform, "Ice.xcframework", true)
-        target_add_carthage_framework(target, platform, "Glacier2.xcframework", true)
-        target_add_carthage_framework(target, platform, "IceStorm.xcframework", true)
-        target_add_carthage_framework(target, platform, "IceGrid.xcframework", true)
-    else
-        framework_targets.each do |name, t|
-            file = copy_phase.add_file_reference(t.product_reference)
-            file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
-            target.frameworks_build_phases.add_file_reference(t.product_reference)
-            target.add_dependency(t)
-        end
+    framework_targets.each do |name, t|
+        file = copy_phase.add_file_reference(t.product_reference)
+        file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
+        target.frameworks_build_phases.add_file_reference(t.product_reference)
+        target.add_dependency(t)
     end
     file = copy_phase.add_file_reference(test_common_target.product_reference)
     file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
@@ -443,31 +422,20 @@ def create_platform_targets(project, platform, bindist)
         target = project.new_target(:bundle, target_name("#{test}"), platform)
         target.name = "#{target.name} #{platform_name}"
 
-        if bindist
-            target_add_carthage_framework(target, platform, "Ice.xcframework")
-        else
-            target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
-            target.add_dependency(ice_target)
-        end
+        target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
+        target.add_dependency(ice_target)
         target.frameworks_build_phases.add_file_reference(test_common_target.product_reference, true)
         target.add_dependency(test_common_target)
 
         extra_frameworks = $test_extra_frameworks[test] || []
         extra_frameworks.each do |f|
-            if bindist
-                target_add_carthage_framework(target, platform, f)
-            else
-                if framework_targets.include? f
-                    target_framework = framework_targets[f]
-                    target.frameworks_build_phases.add_file_reference(target_framework.product_reference, true)
-                    target.add_dependency(target_framework)
-                else
-                    target_add_carthage_framework(target, platform, f)
-                end
+            if framework_targets.include? f
+                target_framework = framework_targets[f]
+                target.frameworks_build_phases.add_file_reference(target_framework.product_reference, true)
+                target.add_dependency(target_framework)
             end
         end
 
-        target_set_framework_build_settings(target)
         target.build_configurations.each { |config|
             config.build_settings["ENABLE_BITCODE"] = "NO"
         }
@@ -511,29 +479,18 @@ def create_platform_targets(project, platform, bindist)
             target = project.new_target(:bundle, target_name("#{test}AMD"), platform)
             target.name = "#{target.name} #{platform_name}"
 
-            if bindist
-                target_add_carthage_framework(target, platform, "Ice.xcframework")
-            else
-                target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
-            end
+            target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
 
             extra_frameworks = $test_extra_frameworks[test] || []
             extra_frameworks.each do |f|
-                if bindist
-                    target_add_carthage_framework(target, platform, f)
-                else
-                    if framework_targets.include? f
-                        target_framework = framework_targets[f]
-                        target.frameworks_build_phases.add_file_reference(target_framework.product_reference, true)
-                        target.add_dependency(target_framework)
-                    else
-                        target_add_carthage_framework(target, platform, f)
-                    end
+                if framework_targets.include? f
+                    target_framework = framework_targets[f]
+                    target.frameworks_build_phases.add_file_reference(target_framework.product_reference, true)
+                    target.add_dependency(target_framework)
                 end
             end
             target.frameworks_build_phases.add_file_reference(test_common_target.product_reference, true)
 
-            target_set_framework_build_settings(target)
             target.build_configurations.each { |config|
                 config.build_settings["ENABLE_BITCODE"] = "NO"
             }
@@ -562,18 +519,16 @@ def create_platform_targets(project, platform, bindist)
     end
 
     #
-    # Ensure there is a shared scheme to build the frameworks distributed with Carthage builds
+    # Ensure there is a shared scheme to build the frameworks
     #
-    unless bindist
-        scheme = Xcodeproj::XCScheme.new
-        scheme.add_build_target(iceimpl_target)
-        scheme.add_build_target(ice_target)
-        scheme.add_build_target(glacier2_target)
-        scheme.add_build_target(icestorm_target)
-        scheme.add_build_target(icegrid_target)
-        scheme.build_action.parallelize_buildables = false
-        scheme.save_as("ice.xcodeproj", "Ice #{platform_name}", true)
-    end
+    scheme = Xcodeproj::XCScheme.new
+    scheme.add_build_target(iceimpl_target)
+    scheme.add_build_target(ice_target)
+    scheme.add_build_target(glacier2_target)
+    scheme.add_build_target(icestorm_target)
+    scheme.add_build_target(icegrid_target)
+    scheme.build_action.parallelize_buildables = false
+    scheme.save_as("ice.xcodeproj", "Ice #{platform_name}", true)
 
     #
     # Create TestDriver scheme
@@ -749,6 +704,7 @@ def target_set_common_build_settings(target, product, platform, plist: nil, swif
         config.build_settings["GCC_SYMBOLS_PRIVATE_EXTERN"] = "YES"
         config.build_settings["ENABLE_TESTABILITY"] = "NO"
         config.build_settings["GCC_TREAT_WARNINGS_AS_ERRORS"] = "YES"
+        config.build_settings["DISABLE_MANUAL_TARGET_ORDER_BUILD_WARNING"] = "YES"
         config.build_settings["CLANG_CXX_LANGUAGE_STANDARD"] = "c++17"
         config.build_settings["CURRENT_PROJECT_VERSION"] = $projectVersion
         config.build_settings["DYLIB_CURRENT_VERSION"] = $projectVersion
@@ -791,30 +747,6 @@ def target_set_common_build_settings(target, product, platform, plist: nil, swif
             config.build_settings["IPHONEOS_DEPLOYMENT_TARGET"] = $iOSDeploymentTarget
         end
     }
-end
-
-def target_set_framework_build_settings(target)
-    target.build_configurations.each { |config|
-        config.build_settings["FRAMEWORK_SEARCH_PATHS"] = "$(SRCROOT)/../Carthage/Build/"
-    }
-end
-
-def target_add_carthage_framework(target, platform, framework, copy=false)
-    group = target.project.frameworks_group[(platform == :osx ? "OS X" : "iOS")]
-    group_add_files(group, "../Carthage/Build", [framework]).each do |ref|
-        # When copy is true we copy the framework to the target, for :ios targets we use the carthage copy-frameworks
-        # script for macOS targets we use the regular copy phase.
-        if copy then
-            file = target.copy_files_build_phases[0].add_file_reference(ref)
-            file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
-        end
-
-        # when copy is false or the target platform is ios we also have to add a reference into the target
-        # frameworks build phase.
-        unless copy and platform == :macos then
-            target.frameworks_build_phases.add_file_reference(ref, true)
-        end
-    end
 end
 
 #

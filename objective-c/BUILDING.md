@@ -7,17 +7,19 @@ unnecessary.
 
 ## Table of Contents
 
-- [Build roadmap](#build-roadmap)
-- [Building Ice for Objective-C](#building-ice-for-objective-c)
-  - [Prerequisites](#prerequisites)
-  - [Build instructions](#build-instructions)
-  - [Build configurations and platforms](#build-configurations-and-platforms)
-  - [Ice Xcode SDK](#ice-xcode-sdk)
-  - [Installing Ice for Objective-C](#installing-ice-for-objective-c)
-- [Running the tests](#running-the-tests)
-  - [macOS](#macos)
-  - [iOS Simulator](#ios-simulator)
-  - [iOS](#ios)
+- [Building Ice for Objective-C from Source](#building-ice-for-objective-c-from-source)
+  - [Table of Contents](#table-of-contents)
+  - [Build roadmap](#build-roadmap)
+  - [Building Ice for Objective-C](#building-ice-for-objective-c)
+    - [Prerequisites](#prerequisites)
+    - [Build instructions](#build-instructions)
+    - [Build configurations and platforms](#build-configurations-and-platforms)
+    - [Ice Xcode SDK](#ice-xcode-sdk)
+    - [Installing Ice for Objective-C](#installing-ice-for-objective-c)
+  - [Running the tests](#running-the-tests)
+    - [macOS](#macos)
+    - [iOS Simulator](#ios-simulator)
+    - [iOS](#ios)
 
 ## Build roadmap
 
@@ -136,7 +138,7 @@ To run the test suite on `iphoneos`, you need to build the Objective-C Controlle
 2. Build the `Objective-C Controller` or `Objective-C ARC Controller` app.
 3. Start the app on your iOS device from Xcode.
 
-Then on your Mac, run:
+Then on your Mac, run:****
 
 ```shell
 python allTests.py --config=xcodesdk --platform=iphoneos
