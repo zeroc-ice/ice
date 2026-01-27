@@ -834,20 +834,23 @@ namespace IceInternal
                 NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
                 foreach(NetworkInterface ni in nics)
                 {
-                    IPInterfaceProperties ipProps = ni.GetIPProperties();
-                    UnicastIPAddressInformationCollection uniColl = ipProps.UnicastAddresses;
-                    foreach(UnicastIPAddressInformation uni in uniColl)
+                    if (ni.OperationalStatus == OperationalStatus.Up)
                     {
-                        if((uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
-                           (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
+                        IPInterfaceProperties ipProps = ni.GetIPProperties();
+                        UnicastIPAddressInformationCollection uniColl = ipProps.UnicastAddresses;
+                        foreach(UnicastIPAddressInformation uni in uniColl)
                         {
-                            if(!addresses.Contains(uni.Address) &&
-                               (includeLoopback || !IPAddress.IsLoopback(uni.Address)))
+                            if((uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
+                                (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
                             {
-                                addresses.Add(uni.Address);
-                                if(singleAddressPerInterface)
+                                if(!addresses.Contains(uni.Address) &&
+                                (includeLoopback || !IPAddress.IsLoopback(uni.Address)))
                                 {
-                                    break;
+                                    addresses.Add(uni.Address);
+                                    if(singleAddressPerInterface)
+                                    {
+                                        break;
+                                    }
                                 }
                             }
                         }
