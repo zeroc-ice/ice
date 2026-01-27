@@ -536,6 +536,7 @@ def create_platform_targets(project, platform)
     test_scheme = Xcodeproj::XCScheme.new
     test_scheme.add_build_target(test_driver_target)
     test_scheme.build_action.parallelize_buildables = false
+    test_scheme.set_launch_target(test_driver_target)
     test_scheme.save_as("ice.xcodeproj", "TestDriver #{platform_name}", true)
 end
 
