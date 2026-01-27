@@ -168,20 +168,10 @@ sudo apt-get install php-zeroc-ice
 
 The nightly package for all platforms (Linux, macOS, Windows) is available from the ZeroC PyPI nightly repository.
 
-To install the latest zeroc-ice nightly package, add the following lines to your requirements.txt:
+To install the latest zeroc-ice 3.7 nightly package:
 
 ```shell
-# Use ZeroC nightly repository as the main index for pip
---index-url https://download.zeroc.com/nexus/repository/pypi-3.7-nightly/simple/
-
-# Allow installing packages from the official PyPI index if not found in the ZeroC repository
---extra-index-url https://pypi.org/simple/
-
-# Enable installation of pre-release versions (required for nightly builds)
---pre
-
-# Specify the zeroc-ice package (latest nightly version)
-zeroc-ice
+pip install --pre --index-url https://download.zeroc.com/nexus/repository/pypi-3.7-nightly/simple/ zeroc-ice
 ```
 
 #### Linux <!-- omit in toc -->
