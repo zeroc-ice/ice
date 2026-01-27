@@ -834,7 +834,7 @@ namespace IceInternal
                 NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
                 foreach(NetworkInterface ni in nics)
                 {
-                    if (ni.OperationalStatus == OperationalStatus.Up)
+                    if(ni.OperationalStatus == OperationalStatus.Up)
                     {
                         IPInterfaceProperties ipProps = ni.GetIPProperties();
                         UnicastIPAddressInformationCollection uniColl = ipProps.UnicastAddresses;
@@ -844,7 +844,7 @@ namespace IceInternal
                                 (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
                             {
                                 if(!addresses.Contains(uni.Address) &&
-                                (includeLoopback || !IPAddress.IsLoopback(uni.Address)))
+                                    (includeLoopback || !IPAddress.IsLoopback(uni.Address)))
                                 {
                                     addresses.Add(uni.Address);
                                     if(singleAddressPerInterface)
