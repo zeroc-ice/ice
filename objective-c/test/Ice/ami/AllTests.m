@@ -797,7 +797,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
     {
         [testController holdAdapter];
 
-        id<ICEAsyncResult> r;
+        id<ICEAsyncResult> r = nil;
         ICEByte buf[10024];
         ICEByteSeq* seq = [ICEByteSeq dataWithBytes:buf length:sizeof(buf)];
         for(int i = 0; i < 200; ++i) // 2MB

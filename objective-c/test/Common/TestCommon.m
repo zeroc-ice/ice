@@ -211,7 +211,7 @@ serverReady(id<ICECommunicator> c)
 }
 
 void
-serverStop()
+serverStop(void)
 {
     @try
     {
