@@ -177,6 +177,9 @@ These are the changes since Ice 3.7.10.
 - Stopped building ES5 JavaScript libraries with Babel. The Ice for JavaScript library now requires
   an ES6-compatible runtime. ([#4893](https://github.com/zeroc-ice/ice/pull/4893))
 
+- Added missing `onerror` handler for WebSocket connections. This bug prevented connection errors from
+  being properly reported. ([#4968](https://github.com/zeroc-ice/ice/issues/4968))
+
 ## MATLAB Changes
 
 - Fixed compatibility issues with MATLAB R2025a.

@@ -82,6 +82,7 @@ if (typeof WebSocket !== 'undefined')
                     this._fd.onopen = e => this.socketConnected(e);
                     this._fd.onmessage = e => this.socketBytesAvailable(e.data);
                     this._fd.onclose = e => this.socketClosed(e);
+                    this._fd.onerror = e => this.socketClosed(e);
                     return SocketOperation.Connect; // Waiting for connect to complete.
                 }
                 else if(this._state === StateConnectPending)
@@ -357,6 +358,11 @@ if (typeof WebSocket !== 'undefined')
                 return;
             }
 
+            if(this._exception)
+            {
+                return; // Already handled (e.g., onerror followed by onclose)
+            }
+
             this._exception = translateError(this._state, err);
             if(this._state < StateConnected)
             {
@@ -398,15 +404,19 @@ if (typeof WebSocket !== 'undefined')
     {
         if(state < StateConnected)
         {
-            return new Ice.ConnectFailedException(err.code, err);
+            return new Ice.ConnectFailedException();
+        }
+        else if(typeof err.code === "number" && err.code !== 1000 && err.code !== 1006)
+        {
+            // CloseEvent with unusual code
+            return new Ice.SocketException(err.code, err);
         }
         else
         {
-            if(err.code === 1000 || err.code === 1006) // CLOSE_NORMAL | CLOSE_ABNORMAL
-            {
-                return new Ice.ConnectionLostException();
-            }
-            return new Ice.SocketException(err.code, err);
+            // This is either:
+            // - onerror event connection closure without details (e.g. network error)
+            // - CloseEvent code 1000 CLOSE_NORMAL or code 1006 CLOSE_ABRUPT
+            return new Ice.ConnectionLostException();
         }
     }
 }
