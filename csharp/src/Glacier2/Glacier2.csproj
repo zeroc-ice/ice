@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../msbuild/ice.common.props" />
   <Import Project="../ZeroC.Ice.Slice.Tools/ZeroC.Ice.Slice.Tools.props"/>
   <PropertyGroup>
     <AssemblyName>Glacier2</AssemblyName>
@@ -10,6 +9,10 @@
     <!-- Packaging properties -->
     <PackageId>ZeroC.Glacier2</PackageId>
     <PackageTags>ice;glacier2;rpc</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!-- Include PDB in the built .nupkg -->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
   <ItemGroup>
     <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+  <!-- Import Ice version properties -->
+  <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.version.props" />
+
   <PropertyGroup>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
     <Platform Condition="'$(Platform)' == ''">Any CPU</Platform>
@@ -16,6 +19,7 @@
      <!-- The 1.2 beta version is required for supporting the latest language features.
             See: https://github.com/DotNetAnalyzers/StyleCopAnalyzers/pull/3187 -->
     <StyleCopAnalyzersVersion>1.2.0-beta.556</StyleCopAnalyzersVersion>
+    <AnalysisMode>All</AnalysisMode>
   </PropertyGroup>
 
   <!-- Enable warnings as errors -->
@@ -36,6 +40,9 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/zeroc-ice/ice</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <!-- The version for all NuGet packages built with this distribution. -->
+    <!-- Defaults to IcePackageVersion, which is set in ice.version.props imported above. -->
+    <PackageVersion>$(IcePackageVersion)</PackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
