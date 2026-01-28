@@ -10,7 +10,7 @@ using System.Xml;
 
 namespace ZeroC.Ice.Slice.Tools.Common;
 
-public abstract class SliceDependTask : Task
+public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
 {
     [Required]
     public ITaskItem[] Sources { get; set; } = Array.Empty<ITaskItem>();
