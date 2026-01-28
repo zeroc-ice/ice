@@ -6,8 +6,6 @@
     <Description>Client library for the IceGrid service</Description>
     <AssemblyTitle>$(Description)</AssemblyTitle>
     <TargetFrameworks>net8.0</TargetFrameworks>
-    <!-- Enable documentation file generation -->
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- Packaging properties -->
     <PackageId>ZeroC.IceGrid</PackageId>
     <PackageTags>ice;icegrid;rpc</PackageTags>

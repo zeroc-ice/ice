@@ -6,16 +6,21 @@
         <!-- Enable package lock file to ensure consistent package versions across builds -->
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
         <RestoreLockedMode>true</RestoreLockedMode>
+        <!-- Required for XML comment analysis; without this SA0001 warning is reported:
+             "XML comment analysis is disabled due to project configuration" -->
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(CI)' == 'true'">
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     </PropertyGroup>
+
     <ItemGroup>
         <AdditionalFiles Include="$(MSBuildThisFileDirectory)../msbuild/StyleCop.json" Link="stylecop.json" />
         <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)../msbuild/CodeAnalysis.Base.globalconfig" />
         <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)../msbuild/CodeAnalysis.Src.globalconfig" />
     </ItemGroup>
+
     <ItemDefinitionGroup>
         <SliceCompile Condition="'$(EnableAnalysis)' == 'true'">
             <AdditionalOptions>--enable-analysis</AdditionalOptions>

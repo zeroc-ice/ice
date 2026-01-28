@@ -6,8 +6,6 @@
     <Description>The main Ice library</Description>
     <AssemblyTitle>$(Description)</AssemblyTitle>
     <TargetFramework>net8.0</TargetFramework>
-    <!-- Enable documentation file generation -->
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- Packaging properties -->
     <PackageId>ZeroC.Ice</PackageId>
     <PackageTags>ice;rpc</PackageTags>

@@ -6,8 +6,6 @@
     <Description>The IceLocatorDiscovery plug-in</Description>
     <AssemblyTitle>$(Description)</AssemblyTitle>
     <TargetFramework>net8.0</TargetFramework>
-    <!-- Enable documentation file generation -->
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- Packaging properties -->
     <PackageId>ZeroC.IceLocatorDiscovery</PackageId>
     <PackageTags>ice;icelocatordiscovery;rpc</PackageTags>

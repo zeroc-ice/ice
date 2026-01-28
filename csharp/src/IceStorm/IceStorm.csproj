@@ -6,8 +6,6 @@
     <Description>Client library for the IceStorm service</Description>
     <AssemblyTitle>$(Description)</AssemblyTitle>
     <TargetFramework>net8.0</TargetFramework>
-    <!-- Enable documentation file generation -->
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- Packaging properties -->
     <PackageId>ZeroC.IceStorm</PackageId>
     <PackageTags>ice;icestorm;rpc</PackageTags>
