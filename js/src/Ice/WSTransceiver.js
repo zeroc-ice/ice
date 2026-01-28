@@ -72,7 +72,7 @@ class WSTransceiver {
                 this._fd.onopen = e => this.socketConnected(e);
                 this._fd.onmessage = e => this.socketBytesAvailable(e.data);
                 this._fd.onclose = e => this.socketClosed(e);
-                this._fd.onerror = () => this.socketClosed();
+                this._fd.onerror = e => this.socketClosed(e);
                 return SocketOperation.Connect; // Waiting for connect to complete.
             } else if (this._state === StateConnectPending) {
                 //
@@ -301,6 +301,10 @@ class WSTransceiver {
             return;
         }
 
+        if (this._exception) {
+            return; // Already handled (e.g., onerror followed by onclose)
+        }
+
         this._exception = translateError(this._state, err);
         if (this._state < StateConnected) {
             this._connectedCallback();
@@ -316,12 +320,15 @@ function fdToString(address) {
 
 function translateError(state, err) {
     if (state < StateConnected) {
-        return new ConnectFailedException();
-    } else if (err === undefined || err.code === 1000 || err.code === 1006) {
-        // CLOSE_NORMAL | CLOSE_ABNORMAL
-        return new ConnectionLostException();
-    } else {
+        return new ConnectFailedException("connect failed", { cause: err });
+    } else if (typeof err.code === "number" && err.code !== 1000 && err.code !== 1006) {
+        // CloseEvent with unusual code
         return new SocketException("socket exception", { cause: err });
+    } else {
+        // This is either:
+        // - onerror event connection closure without details (e.g. network error)
+        // - CloseEvent code 1000 CLOSE_NORMAL or code 1006 CLOSE_ABRUPT
+        return new ConnectionLostException();
     }
 }
 
