@@ -2,11 +2,6 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <AppTargetFramework Condition="'$(AppTargetFramework)' == ''">net8.0</AppTargetFramework>
-        <!-- Include PDB in the built .nupkg -->
-        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-        <!-- TODO: move to common.props and fix analyzer warnings in tests -->
-        <AnalysisMode>All</AnalysisMode>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
     <Import Project="$(MSBuildThisFileDirectory)../src/ZeroC.Ice.Slice.Tools/ZeroC.Ice.Slice.Tools.props"/>
     <ItemGroup>

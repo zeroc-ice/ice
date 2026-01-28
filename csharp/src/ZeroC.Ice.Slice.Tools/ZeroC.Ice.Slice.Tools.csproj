@@ -6,10 +6,6 @@
       <LangVersion>10.0</LangVersion>
 
       <!-- Packaging properties -->
-
-      <!-- The version for the NuGet package. -->
-      <!-- Defaults to IcePackageVersion, which is set in ice.version.props imported above. -->
-      <PackageVersion>$(IcePackageVersion)</PackageVersion>
       <Description>Provides tools to generate C# code from Slice definitions; includes support for MSBuild projects.</Description>
       <DevelopmentDependency>true</DevelopmentDependency>
       <PackageType>Dependency</PackageType>
@@ -19,17 +15,7 @@
       <!-- We do that on purpose we don't want projects to reference it, is only for MSBuild to load the tasks. -->
       <NoWarn>NU5100</NoWarn>
       <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
-      <Authors>ZeroC, Inc.</Authors>
-      <Copyright>Copyright (c) ZeroC, Inc.</Copyright>
       <PackageTags>ice;rpc;msbuild;slice</PackageTags>
-      <PackageProjectUrl>https://zeroc.com/zeroc-ice</PackageProjectUrl>
-      <PackageReadmeFile>README.md</PackageReadmeFile>
-      <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
-      <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-      <PackageIcon>logo-128x128.png</PackageIcon>
-      <Product>Ice</Product>
-      <RepositoryType>git</RepositoryType>
-      <RepositoryUrl>https://github.com/zeroc-ice/ice</RepositoryUrl>
 
       <!-- Internal properties used to compute the slice2cs compiler location for the current platform. -->
       <IceOSName Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</IceOSName>
