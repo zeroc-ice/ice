@@ -133,13 +133,9 @@ class WSTransceiver {
             this._state = StateClosePending;
             return;
         }
-
-        try {
-            this._state = StateClosed;
-            this._fd.close();
-        } finally {
-            this._fd = null;
-        }
+        this._state = StateClosed;
+        this._fd.close();
+        this._fd = null;
     }
 
     destroy() {}
