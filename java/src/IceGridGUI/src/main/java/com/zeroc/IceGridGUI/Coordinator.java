@@ -3219,32 +3219,12 @@ public class Coordinator
 
     private void helpContents()
     {
-        String version = com.zeroc.Ice.Util.stringVersion();
-
-        int pos = version.indexOf('a');
-        if(pos == -1)
-        {
-            pos = version.indexOf('b');
-        }
-
-        if(pos != -1)
-        {
-            // 3.7a3 or 3.7b1 becomes simply 3.7
-            version = version.substring(0, pos);
-        }
-
-        String[] tokens = version.split("\\.");
-        if(tokens.length > 2)
-        {
-            version = tokens[0] + "." + tokens[1];
-        }
-
         Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
         if(desktop != null && desktop.isSupported(Desktop.Action.BROWSE))
         {
             try
             {
-                desktop.browse(new URI("https://archive.zeroc.com/ice/" + version + "/ice-services/icegrid/icegrid-gui-tool"));
+                desktop.browse(new URI("https://archive.zeroc.com/ice/3.7/ice-services/icegrid/icegrid-gui-tool"));
             }
             catch(Exception e)
             {
