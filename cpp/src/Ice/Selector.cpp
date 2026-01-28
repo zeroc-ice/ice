@@ -1456,7 +1456,7 @@ Selector::select(int timeout)
         {
             if(timeout > 0)
             {
-                bool timedOut = !timedWait(IceUtil::Time::seconds(timeout);
+                bool timedOut = !timedWait(IceUtil::Time::seconds(timeout));
                 if(_readyHandlers.empty())
                 {
                     if(timedOut)
