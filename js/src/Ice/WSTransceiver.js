@@ -72,6 +72,7 @@ class WSTransceiver {
                 this._fd.onopen = e => this.socketConnected(e);
                 this._fd.onmessage = e => this.socketBytesAvailable(e.data);
                 this._fd.onclose = e => this.socketClosed(e);
+                this._fd.onerror = () => this.socketClosed();
                 return SocketOperation.Connect; // Waiting for connect to complete.
             } else if (this._state === StateConnectPending) {
                 //
@@ -315,12 +316,11 @@ function fdToString(address) {
 
 function translateError(state, err) {
     if (state < StateConnected) {
-        return new ConnectFailedException("connect failed", { cause: err });
+        return new ConnectFailedException();
+    } else if (err === undefined || err.code === 1000 || err.code === 1006) {
+        // CLOSE_NORMAL | CLOSE_ABNORMAL
+        return new ConnectionLostException();
     } else {
-        if (err.code === 1000 || err.code === 1006) {
-            // CLOSE_NORMAL | CLOSE_ABNORMAL
-            return new ConnectionLostException();
-        }
         return new SocketException("socket exception", { cause: err });
     }
 }
