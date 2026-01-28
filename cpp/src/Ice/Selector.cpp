@@ -1458,9 +1458,10 @@ Selector::select(int timeout)
             {
                 if(!timedWait(IceUtil::Time::seconds(timeout)))
                 {
-                    break;
+                    throw SelectorTimeoutException(); // Actual timeout
                 }
-                throw SelectorTimeoutException();
+                // Signaled but no ready handlers - spurious wakeup, continue waiting
+                continue;
             }
             else
             {
