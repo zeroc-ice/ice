@@ -7,19 +7,22 @@ usually unnecessary.
 
 ## Table of Contents
 
-- [Build roadmap](#build-roadmap)
-- [Building Ice for MATLAB on Windows](#building-ice-for-matlab-on-windows)
-  - [Prerequisites](#prerequisites)
-  - [Build instructions](#build-instructions)
-  - [Packaging the Ice toolbox](#packaging-the-ice-toolbox)
-- [Building Ice for MATLAB on Linux](#building-ice-for-matlab-on-linux)
-  - [Prerequisites](#prerequisites-1)
-  - [Build instructions](#build-instructions-1)
-- [Using Ice for MATLAB](#using-ice-for-matlab)
-  - [Search path](#search-path)
-  - [Slice files](#slice-files)
-  - [Loading the library](#loading-the-library)
-  - [Running the tests](#running-the-tests)
+- [Building Ice for MATLAB from Source](#building-ice-for-matlab-from-source)
+  - [Table of Contents](#table-of-contents)
+  - [Build roadmap](#build-roadmap)
+  - [Building Ice for MATLAB on Windows](#building-ice-for-matlab-on-windows)
+    - [Prerequisites](#prerequisites)
+    - [Build instructions](#build-instructions)
+    - [Packaging the Ice toolbox](#packaging-the-ice-toolbox)
+  - [Building Ice for MATLAB on Linux](#building-ice-for-matlab-on-linux)
+    - [Prerequisites](#prerequisites-1)
+    - [libstdc++ Compatibility](#libstdc-compatibility)
+    - [Build instructions](#build-instructions-1)
+  - [Using Ice for MATLAB](#using-ice-for-matlab)
+    - [Search path](#search-path)
+    - [Slice files](#slice-files)
+    - [Loading the library](#loading-the-library)
+    - [Running the tests](#running-the-tests)
 
 ## Build roadmap
 
