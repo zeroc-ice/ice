@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-    <PropertyGroup Condition="'$(Configuration)' == ''">
-        <Configuration>Release</Configuration>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Platform)' == ''">
-        <Platform>Win32</Platform>
-    </PropertyGroup>
-
     <PropertyGroup>
+        <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+        <Platform Condition="'$(Platform)' == ''">x64</Platform>
         <VCTargetsPath Condition="'$(VCTargetsPath)' == ''">C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0</VCTargetsPath>
         <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And  '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>
         <IceTestSolution>ice.test.sln</IceTestSolution>

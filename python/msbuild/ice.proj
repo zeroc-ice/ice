@@ -1,14 +1,8 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-    <PropertyGroup Condition="'$(Configuration)' == ''">
-        <Configuration>Release</Configuration>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Platform)' == ''">
-      <Platform>Win32</Platform>
-    </PropertyGroup>
-
     <PropertyGroup>
+        <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+        <Platform Condition="'$(Platform)' == ''">x64</Platform>
         <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
         <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
     </PropertyGroup>
