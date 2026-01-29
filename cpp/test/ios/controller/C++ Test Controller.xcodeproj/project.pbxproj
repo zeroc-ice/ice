@@ -37,7 +37,7 @@
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).h",
 			);
 			runOncePerArchitecture = 0;
-			script = "../../../../scripts/ice-builder-xcode-wrapper --cpp\n";
+			script = "set -e\nif [ -n \"$ICE_HOME\" ]; then\n    SLICE2CPP=\"$ICE_HOME/bin/slice2cpp\"\n    SLICE_DIR=\"$ICE_HOME/slice\"\nelse\n    SLICE2CPP=\"$SRCROOT/../../../../cpp/bin/slice2cpp\"\n    SLICE_DIR=\"$SRCROOT/../../../../slice\"\nfi\nif [ ! -x \"$SLICE2CPP\" ]; then\n    echo \"error: slice2cpp not found at: $SLICE2CPP\" >&2\n    echo \"hint: Set ICE_HOME or build Ice from source first\" >&2\n    exit 1\nfi\nexec \"$SLICE2CPP\" -I\"$SLICE_DIR\" --output-dir \"$DERIVED_FILE_DIR\" \"$INPUT_FILE_PATH\"\n";
 		};
 /* End PBXBuildRule section */
 
