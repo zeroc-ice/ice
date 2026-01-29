@@ -5,10 +5,7 @@ This document describes how to build and install Ice for MATLAB from source.
 ZeroC provides Ice for MATLAB [toolboxes] for MATLAB on Windows and Linux, so building Ice for MATLAB from source is
 usually unnecessary.
 
-## Table of Contents
-
 - [Building Ice for MATLAB from Source](#building-ice-for-matlab-from-source)
-  - [Table of Contents](#table-of-contents)
   - [Build roadmap](#build-roadmap)
   - [Building Ice for MATLAB on Windows](#building-ice-for-matlab-on-windows)
     - [Prerequisites](#prerequisites)
