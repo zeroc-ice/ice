@@ -202,11 +202,23 @@ endif
 endif
 
 IceUtil_system_libs                             = -lrt $(if $(filter yes,$(libbacktrace)),-lbacktrace)
+
+#
+# Support for linking with MATLAB's bundled OpenSSL libraries.
+# Set USE_MATLAB_SSL=yes and MATLAB_HOME to link against MATLAB's OpenSSL.
+#
+ifeq ($(USE_MATLAB_SSL),yes)
+matlab_ssl_ldflags                              = -L$(MATLAB_HOME)/bin/glnxa64 -Wl,-rpath,$(MATLAB_HOME)/bin/glnxa64
+Ice_system_libs                                 = -ldl $(matlab_ssl_ldflags) -lmwcrypto $(IceUtil_system_libs)
+IceSSL_system_libs                              = $(matlab_ssl_ldflags) -lmwssl -lmwcrypto
+else
 Ice_system_libs                                 = -ldl -lcrypto $(IceUtil_system_libs)
+IceSSL_system_libs                              = -lssl -lcrypto
+endif
+
 ifeq ($(shell pkg-config --exists libsystemd 2> /dev/null && echo yes),yes)
 Ice_system_libs                                 += $(shell pkg-config --libs libsystemd)
 endif
-IceSSL_system_libs                              = -lssl -lcrypto
 Glacier2CryptPermissionsVerifier_system_libs    = -lcrypt
 
 icegridadmin_system_libs                        = -ledit
