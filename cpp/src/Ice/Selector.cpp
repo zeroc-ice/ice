@@ -1456,11 +1456,17 @@ Selector::select(int timeout)
         {
             if(timeout > 0)
             {
-                if(!timedWait(IceUtil::Time::seconds(timeout)))
+                bool timedOut = !timedWait(IceUtil::Time::seconds(timeout));
+                if(_readyHandlers.empty())
                 {
-                    break;
+                    if(timedOut)
+                    {
+                        throw SelectorTimeoutException(); // Actual timeout
+                    }
+                    // Signaled but no ready handlers - spurious wakeup, continue waiting
+                    continue;
                 }
-                throw SelectorTimeoutException();
+                break; // Ready handlers
             }
             else
             {
