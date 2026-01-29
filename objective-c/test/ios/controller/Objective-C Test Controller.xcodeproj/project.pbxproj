@@ -373,7 +373,7 @@
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).h",
 			);
 			runOncePerArchitecture = 0;
-			script = "#export ICE_BIN_DIST=all\n../../../../scripts/ice-builder-xcode-wrapper\n";
+			script = "set -e\nif [ -n \"$ICE_HOME\" ]; then\n    SLICE2OBJC=\"$ICE_HOME/bin/slice2objc\"\n    SLICE_DIR=\"$ICE_HOME/slice\"\nelse\n    SLICE2OBJC=\"$SRCROOT/../../../../cpp/bin/slice2objc\"\n    SLICE_DIR=\"$SRCROOT/../../../../slice\"\nfi\nif [ ! -x \"$SLICE2OBJC\" ]; then\n    echo \"error: slice2objc not found at: $SLICE2OBJC\" >&2\n    echo \"hint: Set ICE_HOME or build Ice from source first\" >&2\n    exit 1\nfi\nexec \"$SLICE2OBJC\" -I\"$SLICE_DIR\" --output-dir \"$DERIVED_FILE_DIR\" \"$INPUT_FILE_PATH\"\n";
 		};
 		14B7DF791E043085001D0109 /* PBXBuildRule */ = {
 			isa = PBXBuildRule;
@@ -388,7 +388,7 @@
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).h",
 			);
 			runOncePerArchitecture = 0;
-			script = "#export ICE_BIN_DIST=all\n../../../../scripts/ice-builder-xcode-wrapper\n";
+			script = "set -e\nif [ -n \"$ICE_HOME\" ]; then\n    SLICE2OBJC=\"$ICE_HOME/bin/slice2objc\"\n    SLICE_DIR=\"$ICE_HOME/slice\"\nelse\n    SLICE2OBJC=\"$SRCROOT/../../../../cpp/bin/slice2objc\"\n    SLICE_DIR=\"$SRCROOT/../../../../slice\"\nfi\nif [ ! -x \"$SLICE2OBJC\" ]; then\n    echo \"error: slice2objc not found at: $SLICE2OBJC\" >&2\n    echo \"hint: Set ICE_HOME or build Ice from source first\" >&2\n    exit 1\nfi\nexec \"$SLICE2OBJC\" -I\"$SLICE_DIR\" --output-dir \"$DERIVED_FILE_DIR\" \"$INPUT_FILE_PATH\"\n";
 		};
 /* End PBXBuildRule section */
 
