@@ -102,6 +102,19 @@ You can install the toolbox from within MATLAB by double-clicking on the file.
 
 4. **Perl**
 
+### libstdc++ Compatibility
+
+While GCC 13.x is officially supported by MathWorks, MATLAB bundles its own older libstdc++ runtime
+library that only supports up to GLIBCXX_3.4.30. Code compiled with Ubuntu 24.04's default GCC (13.3.0)
+links against GLIBCXX_3.4.32 symbols, causing `GLIBCXX_X.X.XX not found` errors at runtime when MATLAB
+loads its bundled library first.
+
+To work around this issue, set the `LD_PRELOAD` environment variable to use the system's libstdc++:
+
+```shell
+export LD_PRELOAD=/lib/x86_64-linux-gnu/libstdc++.so.6
+```
+
 ### Build instructions
 
 Before building Ice for MATLAB, you must first build the Ice for C++ source distribution using the `cpp11-shared`
