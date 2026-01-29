@@ -103,6 +103,15 @@ jobs:
         uses: ./.github/actions/setup-matlab
         if: matrix.config == 'matlab'
 
+      - name: Setup MATLAB Build Environment
+        if: matrix.config == 'matlab' && runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-11
+          echo "CXX=g++-11" >> $GITHUB_ENV
+          echo "USE_MATLAB_SSL=yes" >> $GITHUB_ENV
+        shell: bash
+
       - name: Build ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/build
         with:
