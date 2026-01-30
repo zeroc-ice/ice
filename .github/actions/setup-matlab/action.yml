@@ -34,9 +34,6 @@ runs:
         chmod +x /usr/local/bin/run-matlab-command
         echo "MATLAB_COMMAND=/usr/local/bin/run-matlab-command" >> $GITHUB_ENV
 
-        # https://www.mathworks.com/matlabcentral/answers/1907290-how-to-manually-select-the-libstdc-library-to-use-to-resolve-a-version-glibcxx_-not-found
-        echo "LD_PRELOAD=/lib/x86_64-linux-gnu/libstdc++.so.6" >> $GITHUB_ENV
-
       shell: bash
       if: runner.os == 'Linux'
 
