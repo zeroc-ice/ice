@@ -520,7 +520,7 @@
     <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
     <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
     <ROW Action="AI_VerifyPrereq" Type="1" Source="Prereq.dll" Target="VerifyPrereq"/>
-    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder]ZeroC\Ice-3.7.10" MultiBuildTarget="DefaultBuild:[ProgramFiles64Folder]ZeroC\Ice-3.7.11"/>
+    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder]ZeroC\Ice-3.7.11" MultiBuildTarget="DefaultBuild:[ProgramFiles64Folder]ZeroC\Ice-3.7.11"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
     <ROW Action="ViewReleaseNotes" Type="194" Source="viewer.exe" Target="https://archive.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-11-release-notes" WithoutSeq="true" Options="1"/>
