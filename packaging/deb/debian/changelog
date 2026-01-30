@@ -1,3 +1,9 @@
+zeroc-ice (3.7.11-1) unstable; urgency=medium
+
+  * New upstream version 3.7.11
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Thu, 30 Jan 2026 12:00:00 +0100
+
 zeroc-ice (3.7.10-4) unstable; urgency=medium
 
   *  add libcrypt-dev to Build-Depends closes #1106950

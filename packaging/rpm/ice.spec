@@ -923,6 +923,9 @@ exit 0
 %endif #%{_host_cpu}
 
 %changelog
+* Thu Jan 30 2026 José Gutiérrez de la Concha <jose@zeroc.com> 3.7.11
+- 3.7.11 release
+
 * Wed Apr 2 2025 Joe George <joe@zeroc.com> 3.7.10-4
 - Support for Amazon Linux 2023
 
