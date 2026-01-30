@@ -177,6 +177,14 @@ export PATH=~/Library/Android/sdk/platform-tools:$PATH
 export PATH=~/Library/Android/sdk/emulator:$PATH
 ```
 
+On Linux:
+
+```shell
+export PATH=~/Android/Sdk/cmdline-tools/latest/bin:$PATH
+export PATH=~/Android/Sdk/platform-tools:$PATH
+export PATH=~/Android/Sdk/emulator:$PATH
+```
+
 On Windows:
 
 ```shell
@@ -184,6 +192,14 @@ set PATH=%LOCALAPPDATA%\Android\sdk\cmdline-tools\latest\bin;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\emulator;%PATH%
 ```
+
+The test scripts use the following system image, ensure it is installed:
+
+```shell
+sdkmanager "system-images;android-36.1;google_apis_playstore;x86_64"
+```
+
+On ARM-based machines (e.g., Apple Silicon), use `arm64-v8a` instead of `x86_64`.
 
 ## IceGrid GUI tool
 

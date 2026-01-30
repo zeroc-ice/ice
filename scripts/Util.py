@@ -2474,7 +2474,7 @@ class AndroidProcessController(RemoteProcessController):
                 pass
             # The SDK is downloaded by test VMs instead of here.
             #run("sdkmanager \"{0}\"".format(sdk), stdout=True, stdin="yes", stdinRepeat=True) # yes to accept licenses
-            run("avdmanager -v create avd -k \"{0}\" -d \"Nexus 6\" -n IceTests".format(sdk))
+            run("avdmanager -v create avd -k \"{0}\" -d \"Nexus 6\" -n IceTests --force".format(sdk))
             self.startEmulator("IceTests")
         elif current.config.device != "usb":
             run("adb connect {}".format(current.config.device))
@@ -3304,7 +3304,7 @@ class JavaMapping(Mapping):
         }[processType]
 
     def getSDKPackage(self):
-        return "system-images;android-33;google_apis;{}".format(
+        return "system-images;android-36.1;google_apis_playstore;{}".format(
             "arm64-v8a" if platform_machine() == "arm64" else "x86_64")
 
     def getApk(self, current):
@@ -3341,7 +3341,7 @@ class JavaCompatMapping(JavaMapping):
         return { "CLASSPATH" : os.pathsep.join(classPath) }
 
     def getSDKPackage(self):
-        return "system-images;android-33;google_apis;{}".format(
+        return "system-images;android-36.1;google_apis_playstore;{}".format(
             "arm64-v8a" if platform_machine() == "arm64" else "x86_64")
 
 class CSharpMapping(Mapping):
@@ -3470,7 +3470,7 @@ class CSharpMapping(Mapping):
         return command
 
     def getSDKPackage(self):
-        return "system-images;android-33;google_apis;{}".format(
+        return "system-images;android-36.1;google_apis_playstore;{}".format(
             "arm64-v8a" if platform_machine() == "arm64" else "x86_64")
 
 class CppBasedMapping(Mapping):
