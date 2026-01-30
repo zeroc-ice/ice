@@ -19,6 +19,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <SignAssembly>true</SignAssembly>
     <!-- Source Link Settings -->
+    <Deterministic>true</Deterministic>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryUrl>https://github.com/zeroc-ice/ice</RepositoryUrl>

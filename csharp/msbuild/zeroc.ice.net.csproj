@@ -20,6 +20,10 @@
         <PackageReleaseNotes>https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageTags>ice</PackageTags>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <!-- Include PDB in the built .nupkg -->
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     </PropertyGroup>
 
     <ItemGroup>
@@ -55,6 +59,11 @@
 
         <!-- .NET Libraries -->
         <Content Include="..\lib\netstandard2.0\*.dll">
+            <Pack>true</Pack>
+            <PackagePath>lib\netstandard2.0</PackagePath>
+        </Content>
+
+        <Content Include="..\lib\netstandard2.0\*.pdb">
             <Pack>true</Pack>
             <PackagePath>lib\netstandard2.0</PackagePath>
         </Content>
