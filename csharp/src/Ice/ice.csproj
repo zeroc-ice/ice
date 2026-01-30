@@ -14,7 +14,7 @@
   <ItemGroup>
       <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" PrivateAssets="All" />
       <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-      <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
+      <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" PrivateAssets="All" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)../../msbuild/ice.sign.targets" />
 </Project>
