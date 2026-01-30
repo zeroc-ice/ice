@@ -11,7 +11,7 @@
     <icon>logo.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Ice C++ SDK for Visual Studio 2010 (v100). The Ice framework provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.</description>
-    <releaseNotes>https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes</releaseNotes>
+    <releaseNotes>https://archive.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-11-release-notes</releaseNotes>
     <tags>ice native rpc v100 zeroc</tags>
   </metadata>
 </package>

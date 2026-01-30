@@ -71,6 +71,7 @@ x64/
 x86/
 bld/
 [Bb]in/
+!js/bin/
 [Oo]bj/
 [Ll]og/
 
@@ -100,6 +101,10 @@ SliceCompile.command.*.log
 # Nuget packages
 **/msbuild/packages/*
 **/msbuild/zeroc.ice.*
+!**/msbuild/zeroc.ice.v*.nuspec
+!**/msbuild/zeroc.ice.v*.props
+!**/msbuild/zeroc.ice.v*.targets
+!**/msbuild/zeroc.ice.net.*
 *.nupkg
 
 **/netstandard2.0/netstandard2.0/*
@@ -122,6 +127,7 @@ cpp/test/Slice/errorDetection/tmp
 
 **/objs-*/
 **/build-*/
+!.github/actions/build-slice-compiler/
 
 .classpath
 .project
