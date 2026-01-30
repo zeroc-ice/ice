@@ -20,6 +20,7 @@
     <SignAssembly>true</SignAssembly>
     <!-- Source Link Settings -->
     <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
