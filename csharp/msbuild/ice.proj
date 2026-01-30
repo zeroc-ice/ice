@@ -80,11 +80,6 @@
         >$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLower())</IceOSArch>
         <IceSliceCompilerExe Condition="'$(OS)' == 'Windows_NT'">slice2cs.exe</IceSliceCompilerExe>
         <IceSliceCompilerExe Condition="'$(OS)' != 'Windows_NT'">slice2cs</IceSliceCompilerExe>
-        <!-- bzip2 package properties (Windows only, restored via NuGet) -->
-        <Bzip2PackageId>bzip2.v143</Bzip2PackageId>
-        <Bzip2PackageVersion>1.0.6.10</Bzip2PackageVersion>
-        <Bzip2PackageDir>$(MSBuildThisFileDirectory)packages/$(Bzip2PackageId).$(Bzip2PackageVersion)</Bzip2PackageDir>
-        <Bzip2DllPath>$(Bzip2PackageDir)/build/native/bin/x64/MT-Release/bzip2.dll</Bzip2DllPath>
     </PropertyGroup>
 
     <!-- Slice compiler staging: use SLICE2CS_STAGING_PATH for CI builds, or local C++ build for dev builds -->
@@ -129,10 +124,6 @@
         <!-- Clean staging directories -->
         <RemoveDir Directories="$(MSBuildThisFileDirectory)obj\package" />
 
-        <!-- Install bzip2 package via NuGet (Windows only) -->
-        <Exec Command="nuget install $(Bzip2PackageId) -Version $(Bzip2PackageVersion) -OutputDirectory packages"
-              Condition="'$(OS)' == 'Windows_NT'" />
-
         <!-- Use MSBuild targets for packaging - builds the binaries into ..\lib\ -->
         <MSBuild Projects="ice.nuget.targets"
                  Properties="PackageDirectory=obj\package;Configuration=$(Configuration)"/>
@@ -142,15 +133,6 @@
                Condition="!Exists('%(_SliceCompiler.Identity)')" />
         <Copy SourceFiles="@(_SliceCompiler)"
               DestinationFolder="$(ToolsDir)\%(_SliceCompiler.PackagePath)" />
-
-        <!-- Copy bzip2 DLL (Windows only) -->
-        <Copy SourceFiles="$(Bzip2DllPath)"
-              DestinationFolder="$(ToolsDir)\net8.0"
-              Condition="'$(OS)' == 'Windows_NT'" />
-
-        <Copy SourceFiles="$(Bzip2DllPath)"
-              DestinationFolder="$(ToolsDir)\net472"
-              Condition="'$(OS)' == 'Windows_NT'" />
 
         <!-- Restore and Pack using MSBuild (cross-platform) -->
         <MSBuild Projects="$(MSBuildThisFileDirectory)zeroc.ice.net.csproj"
