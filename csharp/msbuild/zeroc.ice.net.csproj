@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="ice.common.props" />
     <PropertyGroup>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <NoWarn>2008;8021;NU5128</NoWarn>
@@ -15,9 +16,9 @@
         <PackageProjectUrl>https://github.com/zeroc-ice/ice</PackageProjectUrl>
         <PackageIcon>logo.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <Copyright>Copyright (c) ZeroC, Inc. All rights reserved</Copyright>
+        <Copyright>Copyright (c) ZeroC, Inc.</Copyright>
         <Description>The Ice framework provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.</Description>
-        <PackageReleaseNotes>https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes</PackageReleaseNotes>
+        <PackageReleaseNotes>https://archive.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-11-release-notes</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageTags>ice</PackageTags>
         <IncludeSymbols>true</IncludeSymbols>

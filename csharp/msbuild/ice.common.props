@@ -22,6 +22,7 @@
     <Deterministic>true</Deterministic>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/zeroc-ice/ice</RepositoryUrl>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
 
