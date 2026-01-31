@@ -77,7 +77,7 @@ class TcpTransceiver {
             }
         } catch (err) {
             if (!this._exception) {
-                this._exception = translateError(this._state, err);
+                this._exception = translateError(this._state, err, this._addr);
             }
             throw this._exception;
         }
@@ -123,7 +123,7 @@ class TcpTransceiver {
         try {
             this._fd.destroy();
         } catch (ex) {
-            throw translateError(this._state, ex);
+            throw translateError(this._state, ex, this._addr);
         } finally {
             this._fd = null;
         }
@@ -247,7 +247,7 @@ class TcpTransceiver {
     }
 
     socketError(err) {
-        this._exception = translateError(this._state, err);
+        this._exception = translateError(this._state, err, this._addr);
         if (this._state < StateConnected) {
             this._connectedCallback();
         } else if (this._registered) {
@@ -264,19 +264,20 @@ function fdToString(fd, targetAddr) {
     return addressesToString(fd.localAddress, fd.localPort, fd.remoteAddress, fd.remotePort, targetAddr);
 }
 
-function translateError(state, err) {
+function translateError(state, err, addr) {
+    const address = addr ? `${addr.host}:${addr.port}` : null;
     if (!err) {
-        return new ConnectionLostException();
+        return new ConnectionLostException(address);
     } else if (state < StateConnected) {
         if (connectionRefused(err.code)) {
-            return new ConnectionRefusedException("connection refused", { cause: err });
+            return new ConnectionRefusedException(address, { cause: err });
         } else if (connectionFailed(err.code)) {
-            return new ConnectFailedException("connect failed", { cause: err });
+            return new ConnectFailedException(address, { cause: err });
         }
     } else if (connectionLost(err.code)) {
-        return new ConnectionLostException("connection lost", { cause: err });
+        return new ConnectionLostException(address, { cause: err });
     }
-    return new SocketException("socket exception", { cause: err });
+    return new SocketException(address ? `Socket error on ${address}.` : "socket exception", { cause: err });
 }
 
 function addressesToString(localHost, localPort, remoteHost, remotePort, targetAddr) {
