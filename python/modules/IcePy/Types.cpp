@@ -76,7 +76,7 @@ namespace IcePy
         }
         else
         {
-            assert(false);
+            return false;
         }
 
         return true;
@@ -541,120 +541,6 @@ IcePy::PrimitiveInfo::getId() const
 }
 
 bool
-IcePy::PrimitiveInfo::validate(PyObject* p)
-{
-    switch (kind)
-    {
-        case PrimitiveInfo::KindBool:
-        {
-            int isTrue = PyObject_IsTrue(p);
-            if (isTrue < 0)
-            {
-                return false;
-            }
-            break;
-        }
-        case PrimitiveInfo::KindByte:
-        {
-            long val = PyLong_AsLong(p);
-
-            if (PyErr_Occurred() || val < 0 || val > 255)
-            {
-                return false;
-            }
-            break;
-        }
-        case PrimitiveInfo::KindShort:
-        {
-            long val = PyLong_AsLong(p);
-
-            if (PyErr_Occurred() || val < SHRT_MIN || val > SHRT_MAX)
-            {
-                return false;
-            }
-            break;
-        }
-        case PrimitiveInfo::KindInt:
-        {
-            long val = PyLong_AsLong(p);
-
-            if (PyErr_Occurred() || val < INT_MIN || val > INT_MAX)
-            {
-                return false;
-            }
-            break;
-        }
-        case PrimitiveInfo::KindLong:
-        {
-            PyLong_AsLongLong(p); // Just to see if it raises an error.
-
-            if (PyErr_Occurred())
-            {
-                return false;
-            }
-
-            break;
-        }
-        case PrimitiveInfo::KindFloat:
-        {
-            if (!PyFloat_Check(p))
-            {
-                if (PyLong_Check(p))
-                {
-                    PyLong_AsDouble(p); // Just to see if it raises an error.
-                    if (PyErr_Occurred())
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                // Ensure double does not exceed maximum float value before casting
-                double val = PyFloat_AsDouble(p);
-                return (val <= numeric_limits<float>::max() && val >= -numeric_limits<float>::max()) || !isfinite(val);
-            }
-
-            break;
-        }
-        case PrimitiveInfo::KindDouble:
-        {
-            if (!PyFloat_Check(p))
-            {
-                if (PyLong_Check(p))
-                {
-                    PyLong_AsDouble(p); // Just to see if it raises an error.
-                    if (PyErr_Occurred())
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            break;
-        }
-        case PrimitiveInfo::KindString:
-        {
-            if (p != Py_None && !checkString(p))
-            {
-                return false;
-            }
-            break;
-        }
-    }
-
-    return true;
-}
-
-bool
 IcePy::PrimitiveInfo::variableLength() const
 {
     return kind == KindString;
@@ -721,7 +607,8 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             int isTrue = PyObject_IsTrue(p);
             if (isTrue < 0)
             {
-                assert(false); // validate() should have caught this.
+                PyErr_Format(PyExc_ValueError, "invalid value for bool type");
+                throw AbortMarshaling();
             }
             os->write(isTrue ? true : false);
             break;
@@ -729,43 +616,63 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
         case PrimitiveInfo::KindByte:
         {
             long val = PyLong_AsLong(p);
-            assert(!PyErr_Occurred());      // validate() should have caught this.
-            assert(val >= 0 && val <= 255); // validate() should have caught this.
+            if (PyErr_Occurred() || val < 0 || val > 255)
+            {
+                PyErr_Format(PyExc_ValueError, "invalid value for byte type");
+                throw AbortMarshaling();
+            }
             os->write(static_cast<uint8_t>(val));
             break;
         }
         case PrimitiveInfo::KindShort:
         {
             long val = PyLong_AsLong(p);
-            assert(!PyErr_Occurred());                  // validate() should have caught this.
-            assert(val >= SHRT_MIN && val <= SHRT_MAX); // validate() should have caught this.
+            if (PyErr_Occurred() || val < SHRT_MIN || val > SHRT_MAX)
+            {
+                PyErr_Format(PyExc_ValueError, "invalid value for short type");
+                throw AbortMarshaling();
+            }
             os->write(static_cast<int16_t>(val));
             break;
         }
         case PrimitiveInfo::KindInt:
         {
             long val = PyLong_AsLong(p);
-            assert(!PyErr_Occurred());                // validate() should have caught this.
-            assert(val >= INT_MIN && val <= INT_MAX); // validate() should have caught this.
+            if (PyErr_Occurred() || val < INT_MIN || val > INT_MAX)
+            {
+                PyErr_Format(PyExc_ValueError, "invalid value for int type");
+                throw AbortMarshaling();
+            }
             os->write(static_cast<int32_t>(val));
             break;
         }
         case PrimitiveInfo::KindLong:
         {
             int64_t val = PyLong_AsLongLong(p);
-            assert(!PyErr_Occurred()); // validate() should have caught this.
+            if (PyErr_Occurred())
+            {
+                PyErr_Format(PyExc_ValueError, "invalid value for long type");
+                throw AbortMarshaling();
+            }
             os->write(val);
             break;
         }
         case PrimitiveInfo::KindFloat:
         {
-            auto val = static_cast<float>(PyFloat_AsDouble(p)); // Attempts to perform conversion.
+            double dval = PyFloat_AsDouble(p); // Attempts to perform conversion.
             if (PyErr_Occurred())
             {
                 throw AbortMarshaling();
             }
 
-            os->write(val);
+            // Check if the value is within float range (infinity/nan are allowed)
+            if (!((dval <= numeric_limits<float>::max() && dval >= -numeric_limits<float>::max()) || !isfinite(dval)))
+            {
+                PyErr_Format(PyExc_ValueError, "invalid value for float type");
+                throw AbortMarshaling();
+            }
+
+            os->write(static_cast<float>(dval));
             break;
         }
         case PrimitiveInfo::KindDouble:
@@ -783,7 +690,10 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
         {
             if (!writeString(p, os))
             {
-                assert(PyErr_Occurred());
+                if (!PyErr_Occurred())
+                {
+                    PyErr_Format(PyExc_ValueError, "invalid value for string type");
+                }
                 throw AbortMarshaling();
             }
             break;
@@ -912,12 +822,6 @@ IcePy::EnumInfo::getId() const
 }
 
 bool
-IcePy::EnumInfo::validate(PyObject* val)
-{
-    return PyObject_IsInstance(val, pythonType) == 1;
-}
-
-bool
 IcePy::EnumInfo::variableLength() const
 {
     return true;
@@ -981,12 +885,15 @@ IcePy::EnumInfo::destroy()
 int32_t
 IcePy::EnumInfo::valueForEnumerator(PyObject* p) const
 {
-    assert(PyObject_IsInstance(p, pythonType) == 1);
+    if (PyObject_IsInstance(p, pythonType) != 1)
+    {
+        PyErr_Format(PyExc_ValueError, "expected value of type %s", id.c_str());
+        return -1;
+    }
 
     PyObjectHandle v{PyObject_GetAttrString(p, "value")};
     if (!v.get())
     {
-        assert(PyErr_Occurred());
         return -1;
     }
     if (!PyLong_Check(v.get()))
@@ -1125,12 +1032,6 @@ IcePy::StructInfo::getId() const
 }
 
 bool
-IcePy::StructInfo::validate(PyObject* val)
-{
-    return PyObject_IsInstance(val, pythonType) == 1;
-}
-
-bool
 IcePy::StructInfo::variableLength() const
 {
     return _variableLength;
@@ -1170,7 +1071,11 @@ IcePy::StructInfo::marshal(
     bool optional,
     const Ice::StringSeq*)
 {
-    assert(PyObject_IsInstance(p, pythonType) == 1); // validate() should have caught this.
+    if (PyObject_IsInstance(p, pythonType) != 1)
+    {
+        PyErr_Format(PyExc_ValueError, "expected value of type %s", id.c_str());
+        throw AbortMarshaling();
+    }
 
     Ice::OutputStream::size_type sizePos = 0;
     if (optional)
@@ -1197,15 +1102,6 @@ IcePy::StructInfo::marshal(
                 "no member '%s' found in %s value",
                 memberName,
                 const_cast<char*>(id.c_str()));
-            throw AbortMarshaling();
-        }
-        if (!member->type->validate(attr.get()))
-        {
-            PyErr_Format(
-                PyExc_ValueError,
-                "invalid value for %s member '%s'",
-                const_cast<char*>(id.c_str()),
-                memberName);
             throw AbortMarshaling();
         }
         member->type->marshal(attr.get(), os, objectMap, false, &member->metadata);
@@ -1287,12 +1183,6 @@ string
 IcePy::SequenceInfo::getId() const
 {
     return id;
-}
-
-bool
-IcePy::SequenceInfo::validate(PyObject* val)
-{
-    return val == Py_None || PySequence_Check(val) == 1;
 }
 
 bool
@@ -1403,15 +1293,6 @@ IcePy::SequenceInfo::marshal(
             if (!item)
             {
                 assert(PyErr_Occurred());
-                throw AbortMarshaling();
-            }
-            if (!elementType->validate(item))
-            {
-                PyErr_Format(
-                    PyExc_ValueError,
-                    "invalid value for element %d of '%s'",
-                    static_cast<int>(i),
-                    const_cast<char*>(id.c_str()));
                 throw AbortMarshaling();
             }
             elementType->marshal(item, os, objectMap, false);
@@ -2389,12 +2270,6 @@ IcePy::DictionaryInfo::getId() const
 }
 
 bool
-IcePy::DictionaryInfo::validate(PyObject* val)
-{
-    return val == Py_None || PyDict_Check(val) == 1;
-}
-
-bool
 IcePy::DictionaryInfo::variableLength() const
 {
     return true;
@@ -2460,18 +2335,7 @@ IcePy::DictionaryInfo::marshal(
         PyObject* value;
         while (PyDict_Next(p, &pos, &key, &value))
         {
-            if (!keyType->validate(key))
-            {
-                PyErr_Format(PyExc_ValueError, "invalid key in '%s' element", const_cast<char*>(id.c_str()));
-                throw AbortMarshaling();
-            }
             keyType->marshal(key, os, objectMap, false);
-
-            if (!valueType->validate(value))
-            {
-                PyErr_Format(PyExc_ValueError, "invalid value in '%s' element", const_cast<char*>(id.c_str()));
-                throw AbortMarshaling();
-            }
             valueType->marshal(value, os, objectMap, false);
         }
     }
@@ -2608,12 +2472,6 @@ string
 IcePy::ValueInfo::getId() const
 {
     return id;
-}
-
-bool
-IcePy::ValueInfo::validate(PyObject* val)
-{
-    return val == Py_None || PyObject_IsInstance(val, pythonType) == 1;
 }
 
 bool
@@ -2757,12 +2615,6 @@ IcePy::ProxyInfo::getId() const
 }
 
 bool
-IcePy::ProxyInfo::validate(PyObject* val)
-{
-    return val == Py_None || checkProxy(val);
-}
-
-bool
 IcePy::ProxyInfo::variableLength() const
 {
     return true;
@@ -2799,7 +2651,8 @@ IcePy::ProxyInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bool o
         }
         else
         {
-            assert(false); // validate() should have caught this.
+            PyErr_Format(PyExc_ValueError, "expected proxy of type %s", id.c_str());
+            throw AbortMarshaling();
         }
     }
     os->write(proxy);
@@ -2960,16 +2813,6 @@ IcePy::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& me
             (val.get() == Py_None || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
-        }
-
-        if (!member->type->validate(val.get()))
-        {
-            PyErr_Format(
-                PyExc_ValueError,
-                "invalid value for %s member '%s'",
-                const_cast<char*>(_info->id.c_str()),
-                memberName);
-            throw AbortMarshaling();
         }
 
         member->type->marshal(val.get(), os, _map, member->optional, &member->metadata);
@@ -3205,16 +3048,6 @@ IcePy::ExceptionInfo::writeMembers(
             (val.get() == Py_None || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
-        }
-
-        if (!member->type->validate(val.get()))
-        {
-            PyErr_Format(
-                PyExc_ValueError,
-                "invalid value for %s member '%s'",
-                const_cast<char*>(id.c_str()),
-                memberName);
-            throw AbortMarshaling();
         }
 
         member->type->marshal(val.get(), os, objectMap, member->optional, &member->metadata);
