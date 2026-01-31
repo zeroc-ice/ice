@@ -49,10 +49,21 @@ jobs:
           "ICE_TOOLBOX_VERSION=${{ inputs.ice_version }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         shell: pwsh
 
+      - name: Install g++-11
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-11
+        if: runner.os == 'Linux'
+
       - name: Build Linux MATLAB ToolBox
         run: |
-          make -C cpp srcs
-          make -C matlab toolbox
+          make -C cpp slice2matlab Ice IceDiscovery IceLocatorDiscovery OPTIMIZE=yes
+          make -C matlab toolbox OPTIMIZE=yes
+        env:
+          CXX: g++-11
+          USE_MATLAB_SSL: yes
+          # g++-11 headers only support _FORTIFY_SOURCE up to 2, but Ubuntu 24.04's dpkg-buildflags sets it to 3
+          CXXFLAGS: -D_FORTIFY_SOURCE=2
         if: runner.os == 'Linux'
 
       - name: Build Windows MATLAB ToolBox

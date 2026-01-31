@@ -194,6 +194,17 @@ jobs:
         if: matrix.config == 'matlab'
         uses: ./.github/actions/setup-matlab
 
+      - name: Setup MATLAB Build Environment
+        if: matrix.config == 'matlab' && runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-11
+          echo "CXX=g++-11" >> $GITHUB_ENV
+          echo "USE_MATLAB_SSL=yes" >> $GITHUB_ENV
+          # g++-11 headers only support _FORTIFY_SOURCE up to 2, but Ubuntu 24.04's dpkg-buildflags sets it to 3
+          echo "CXXFLAGS=-D_FORTIFY_SOURCE=2" >> $GITHUB_ENV
+        shell: bash
+
       - name: Setup Android
         if: matrix.config == 'android'
         uses: ./.github/actions/setup-android
