@@ -233,17 +233,29 @@ export class ConnectFailedException extends SocketException {
     static get _ice_id() {
         return "::Ice::ConnectFailedException";
     }
+
+    constructor(peerAddress, options) {
+        super(peerAddress ? `Failed to connect to ${peerAddress}.` : undefined, options);
+    }
 }
 
 export class ConnectionLostException extends SocketException {
     static get _ice_id() {
         return "::Ice::ConnectionLostException";
     }
+
+    constructor(peerAddress, options) {
+        super(peerAddress ? `Lost connection to ${peerAddress}.` : undefined, options);
+    }
 }
 
 export class ConnectionRefusedException extends ConnectFailedException {
     static get _ice_id() {
         return "::Ice::ConnectionRefusedException";
+    }
+
+    constructor(serverAddress, options) {
+        super(serverAddress, options);
     }
 }
 

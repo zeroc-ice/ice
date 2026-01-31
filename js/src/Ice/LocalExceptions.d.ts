@@ -163,17 +163,23 @@ declare module "@zeroc/ice" {
         /**
          * The exception that is thrown when a connection establishment fails.
          */
-        class ConnectFailedException extends SocketException {}
+        class ConnectFailedException extends SocketException {
+            constructor(peerAddress?: string, options?: ErrorOptions);
+        }
 
         /**
          * The exception that is thrown when an established connection is lost.
          */
-        class ConnectionLostException extends SocketException {}
+        class ConnectionLostException extends SocketException {
+            constructor(peerAddress?: string, options?: ErrorOptions);
+        }
 
         /**
          * The exception that is thrown when the server host actively refuses a connection.
          */
-        class ConnectionRefusedException extends ConnectFailedException {}
+        class ConnectionRefusedException extends ConnectFailedException {
+            constructor(serverAddress?: string, options?: ErrorOptions);
+        }
 
         //
         // Other leaf local exceptions in alphabetical order.
