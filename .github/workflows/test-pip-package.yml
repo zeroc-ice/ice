@@ -1,0 +1,80 @@
+name: "Test PIP Package"
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "python/**"
+      - "slice/**"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "python/**"
+      - "slice/**"
+
+jobs:
+  test-pip-package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            python-version: "3.12"
+
+          - os: macos-15
+            python-version: "3.12"
+
+          - os: windows-2022
+            python-version: "3.12"
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Build Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build
+
+      - name: Build PIP Package
+        working-directory: python
+        run: python -m build
+
+      - name: Create Test Virtual Environment
+        run: python -m venv test-venv
+
+      - name: Install Package (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          source test-venv/bin/activate
+          pip install python/dist/*.whl
+
+      - name: Install Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          test-venv\Scripts\Activate.ps1
+          pip install (Get-ChildItem python\dist\*.whl).FullName
+
+      - name: Run Tests (Unix)
+        if: runner.os != 'Windows'
+        working-directory: python
+        run: |
+          source ../test-venv/bin/activate
+          python allTests.py --load-slice --rfilter="Glacier2|IceGrid|IceBox|IceMX"
+
+      - name: Run Tests (Windows)
+        if: runner.os == 'Windows'
+        working-directory: python
+        shell: pwsh
+        run: |
+          ..\test-venv\Scripts\Activate.ps1
+          python allTests.py --load-slice --rfilter="Glacier2|IceGrid|IceBox|IceMX"
