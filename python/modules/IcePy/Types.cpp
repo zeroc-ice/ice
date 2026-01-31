@@ -607,7 +607,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             int isTrue = PyObject_IsTrue(p);
             if (isTrue < 0)
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for bool type");
+                // PyObject_IsTrue sets an exception on failure - preserve it.
                 throw AbortMarshaling();
             }
             os->write(isTrue ? true : false);
@@ -616,9 +616,14 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
         case PrimitiveInfo::KindByte:
         {
             long val = PyLong_AsLong(p);
-            if (PyErr_Occurred() || val < 0 || val > 255)
+            if (PyErr_Occurred())
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for byte type");
+                // Preserve Python's error (e.g., overflow).
+                throw AbortMarshaling();
+            }
+            if (val < 0 || val > 255)
+            {
+                PyErr_Format(PyExc_ValueError, "invalid value for byte type: out of range");
                 throw AbortMarshaling();
             }
             os->write(static_cast<uint8_t>(val));
@@ -627,9 +632,14 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
         case PrimitiveInfo::KindShort:
         {
             long val = PyLong_AsLong(p);
-            if (PyErr_Occurred() || val < SHRT_MIN || val > SHRT_MAX)
+            if (PyErr_Occurred())
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for short type");
+                // Preserve Python's error (e.g., overflow).
+                throw AbortMarshaling();
+            }
+            if (val < SHRT_MIN || val > SHRT_MAX)
+            {
+                PyErr_Format(PyExc_ValueError, "invalid value for short type: out of range");
                 throw AbortMarshaling();
             }
             os->write(static_cast<int16_t>(val));
@@ -638,9 +648,14 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
         case PrimitiveInfo::KindInt:
         {
             long val = PyLong_AsLong(p);
-            if (PyErr_Occurred() || val < INT_MIN || val > INT_MAX)
+            if (PyErr_Occurred())
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for int type");
+                // Preserve Python's error (e.g., overflow).
+                throw AbortMarshaling();
+            }
+            if (val < INT_MIN || val > INT_MAX)
+            {
+                PyErr_Format(PyExc_ValueError, "invalid value for int type: out of range");
                 throw AbortMarshaling();
             }
             os->write(static_cast<int32_t>(val));
@@ -651,7 +666,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             int64_t val = PyLong_AsLongLong(p);
             if (PyErr_Occurred())
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for long type");
+                // Preserve Python's error (e.g., overflow).
                 throw AbortMarshaling();
             }
             os->write(val);
