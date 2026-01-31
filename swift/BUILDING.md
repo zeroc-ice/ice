@@ -17,12 +17,13 @@ This file describes how to build Ice for Swift from source and how to test the r
 1. Swift and Xcode\
    You need Swift 5 or later with a recent version of Xcode for macOS.
 
-2. Ice C++ XCFrameworks\
+2. Ice C++ XCFrameworks and slice2swift\
    Building Ice for Swift requires having first built Ice for C++ from the `cpp` directory. The Ice for C++ build
-   creates the following C++ `XCFrameworks`:
+   creates the following artifacts:
     - `Ice.xcframework`
     - `IceDiscovery.xcframework`
     - `IceLocatorDiscovery.xcframework`
+    - `slice2swift.artifactbundle` (used by the CompileSlice plugin)
 
    If you want to create binaries for iOS or the iOS simulator, build the C++ XCFrameworks with `PLATFORMS=all`:
 
