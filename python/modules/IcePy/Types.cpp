@@ -1803,7 +1803,13 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
 
                 if (!writeString(item, os))
                 {
-                    assert(PyErr_Occurred());
+                    if (!PyErr_Occurred())
+                    {
+                        PyErr_Format(
+                            PyExc_ValueError,
+                            "invalid value for element %d of sequence<string>",
+                            static_cast<int>(i));
+                    }
                     throw AbortMarshaling();
                 }
             }
