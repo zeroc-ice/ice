@@ -2,6 +2,13 @@
 
 declare module "@zeroc/ice" {
     namespace Ice {
+        /**
+         * Options for constructing an Error with a cause.
+         */
+        interface ErrorOptions {
+            cause?: unknown;
+        }
+
         //
         // Dispatch exceptions
         //
