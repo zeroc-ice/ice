@@ -13,7 +13,8 @@ extension CompileSlicePlugin: BuildToolPlugin {
         return try createBuildCommands(
             outputDir: context.pluginWorkDirectoryURL,
             inputFiles: swiftTarget.sourceFiles,
-            slice2swift: try context.tool(named: "slice2swift").url
+            slice2swift: try context.tool(named: "slice2swift").url,
+            iceSliceDir: CompileSlicePlugin.iceSliceDir
         )
     }
 }
@@ -28,7 +29,8 @@ extension CompileSlicePlugin: BuildToolPlugin {
             return try createBuildCommands(
                 outputDir: context.pluginWorkDirectoryURL,
                 inputFiles: target.inputFiles,
-                slice2swift: try context.tool(named: "slice2swift").url
+                slice2swift: try context.tool(named: "slice2swift").url,
+                iceSliceDir: CompileSlicePlugin.iceSliceDir
             )
         }
     }
@@ -63,13 +65,14 @@ enum PluginError: Error {
 ///   are always included and do not need to be listed here.
 ///
 /// - `search_paths`: Optional list of directories to add as `-I` search paths when invoking `slice2swift`.
-///   These paths are also relative to the config file location.
+///   These paths are also relative to the config file location. Note: The Ice slice directory is automatically
+///   included and does not need to be listed here.
 ///
 /// - Example:
 /// ```json
 /// {
 ///     "sources": ["Slice"],
-///     "search_paths": ["Slice", "../OtherModule/Slice"]
+///     "search_paths": ["../OtherModule/Slice"]
 /// }
 /// ```
 struct Config: Codable {
@@ -79,22 +82,43 @@ struct Config: Codable {
 
     /// Optional list of directories to add as `-I` search paths when invoking `slice2swift`.
     /// Paths are relative to the `slice-plugin.json` file.
+    /// Note: The Ice slice directory is automatically included.
     var search_paths: [String]?
 }
 
 /// The CompileSlicePlugin for SwiftPM compiles Ice Slice files to Swift files using the `slice2swift` compiler.
 /// The `slice2swift` compilation can be configured using a `slice-plugin.json` file in the target's source files.
 /// By default the plugin will compile all `.ice` files in the target's source files.
+///
+/// The Ice slice directory is automatically added to the search path, so you don't need to include it in
+/// `search_paths`. This allows Slice files to import Ice definitions (e.g., `#include <Ice/Identity.ice>`)
+/// without additional configuration.
 @main
 struct CompileSlicePlugin {
 
     /// The name of the configuration file.
     private static let configFileName = "slice-plugin.json"
 
+    /// The Ice slice directory, derived from this plugin's source file location.
+    /// Path: CompileSlicePlugin.swift -> CompileSlice -> Plugins -> swift -> (ice root) -> slice
+    private static let iceSliceDir: URL? = {
+        var url = URL(fileURLWithPath: #filePath)
+        for _ in 0..<4 {
+            url.deleteLastPathComponent()
+        }
+        url.append(path: "slice")
+        let identityIce = url.appending(path: "Ice/Identity.ice")
+        guard FileManager.default.fileExists(atPath: identityIce.path) else {
+            return nil
+        }
+        return url
+    }()
+
     private func createBuildCommands(
         outputDir: URL,
         inputFiles: FileList,
-        slice2swift: URL
+        slice2swift: URL,
+        iceSliceDir: URL?
     ) throws -> [Command] {
 
         // Collect .ice input files in the target's source files.
@@ -109,8 +133,11 @@ struct CompileSlicePlugin {
             .first(where: { $0.url.lastPathComponent == Self.configFileName })?
             .url
 
-        // By default we use an empty search path for Slice compilation.
+        // Start with the Ice slice directory in the search path (if found).
         var searchPaths: [String] = []
+        if let iceSliceDir = iceSliceDir {
+            searchPaths.append("-I\(iceSliceDir.path)")
+        }
 
         // Decode config and apply additional sources and search paths.
         if let configFileURL = configFileURL {
@@ -132,10 +159,10 @@ struct CompileSlicePlugin {
                 }
             }
 
-            // Construct the search paths from config.search_paths.
-            // These paths are also relative to the config file location.
-            searchPaths = (config.search_paths ?? []).map {
-                "-I\(baseDirectory.appendingPathComponent($0).path)"
+            // Add additional search paths from config.search_paths.
+            // These paths are relative to the config file location.
+            for path in config.search_paths ?? [] {
+                searchPaths.append("-I\(baseDirectory.appendingPathComponent(path).path)")
             }
         }
 
@@ -153,7 +180,7 @@ struct CompileSlicePlugin {
                 // detect changes. This also avoids warnings about unused files.
                 // TODO: We should also include imported Slice dependencies as inputs.
                 inputFiles: [sliceSource] + (configFileURL.map { [$0] } ?? []),
-                outputFiles: [URL(fileURLWithPath: outputFile.path)],
+                outputFiles: [URL(fileURLWithPath: outputFile.path)]
             )
         }
     }
