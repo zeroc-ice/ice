@@ -42,6 +42,19 @@ namespace
     class InvalidSequenceFactoryException
     {
     };
+
+    //
+    // Wraps the current Python exception in a ValueError with the original exception as the cause.
+    // TODO: In the next major release, we can remove this helper and avoid wrapping the original exceptions.
+    //
+    void wrapRaisedExceptionWithValueError(const char* message)
+    {
+        assert(PyErr_Occurred());
+        PyObject* originalException = PyErr_GetRaisedException();
+        PyObject* valueError = PyObject_CallFunction(PyExc_ValueError, "s", message);
+        PyException_SetCause(valueError, originalException); // Steals reference to originalException
+        PyErr_SetRaisedException(valueError);                // Steals reference to valueError
+    }
 }
 
 namespace IcePy
@@ -607,7 +620,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             int isTrue = PyObject_IsTrue(p);
             if (isTrue < 0)
             {
-                // PyObject_IsTrue sets an exception on failure - preserve it.
+                wrapRaisedExceptionWithValueError("invalid value for bool type");
                 throw AbortMarshaling();
             }
             os->write(isTrue ? true : false);
@@ -618,7 +631,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             long val = PyLong_AsLong(p);
             if (PyErr_Occurred())
             {
-                // Preserve Python's error (e.g., overflow).
+                wrapRaisedExceptionWithValueError("invalid value for byte type");
                 throw AbortMarshaling();
             }
             if (val < 0 || val > 255)
@@ -634,7 +647,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             long val = PyLong_AsLong(p);
             if (PyErr_Occurred())
             {
-                // Preserve Python's error (e.g., overflow).
+                wrapRaisedExceptionWithValueError("invalid value for short type");
                 throw AbortMarshaling();
             }
             if (val < SHRT_MIN || val > SHRT_MAX)
@@ -650,7 +663,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             long val = PyLong_AsLong(p);
             if (PyErr_Occurred())
             {
-                // Preserve Python's error (e.g., overflow).
+                wrapRaisedExceptionWithValueError("invalid value for int type");
                 throw AbortMarshaling();
             }
             if (val < INT_MIN || val > INT_MAX)
@@ -666,7 +679,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             int64_t val = PyLong_AsLongLong(p);
             if (PyErr_Occurred())
             {
-                // Preserve Python's error (e.g., overflow).
+                wrapRaisedExceptionWithValueError("invalid value for long type");
                 throw AbortMarshaling();
             }
             os->write(val);
@@ -677,13 +690,14 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             double dval = PyFloat_AsDouble(p); // Attempts to perform conversion.
             if (PyErr_Occurred())
             {
+                wrapRaisedExceptionWithValueError("invalid value for float type");
                 throw AbortMarshaling();
             }
 
             // Check if the value is within float range (infinity/nan are allowed)
             if (!((dval <= numeric_limits<float>::max() && dval >= -numeric_limits<float>::max()) || !isfinite(dval)))
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for float type");
+                PyErr_Format(PyExc_ValueError, "invalid value for float type: out of range");
                 throw AbortMarshaling();
             }
 
@@ -695,6 +709,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             double val = PyFloat_AsDouble(p); // Attempts to perform conversion.
             if (PyErr_Occurred())
             {
+                wrapRaisedExceptionWithValueError("invalid value for double type");
                 throw AbortMarshaling();
             }
 
