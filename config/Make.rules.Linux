@@ -188,11 +188,9 @@ IceUtil_system_libs                             = -lrt $(if $(filter yes,$(libba
 #
 ifeq ($(USE_MATLAB_SSL),yes)
 matlab_ssl_ldflags                              = -L$(MATLAB_HOME)/bin/glnxa64 -Wl,-rpath,$(MATLAB_HOME)/bin/glnxa64
-Ice_system_libs                                 = -ldl $(matlab_ssl_ldflags) -lmwcrypto $(IceUtil_system_libs)
-IceSSL_system_libs                              = $(matlab_ssl_ldflags) -lmwssl -lmwcrypto
+Ice_system_libs                                 = -ldl $(matlab_ssl_ldflags) -lmwssl -lmwcrypto $(IceUtil_system_libs)
 else
 Ice_system_libs                                 = -ldl -lssl -lcrypto $(IceUtil_system_libs)
-IceSSL_system_libs                              = -lssl -lcrypto
 endif
 
 ifeq ($(shell pkg-config --exists libsystemd 2> /dev/null && echo yes),yes)
