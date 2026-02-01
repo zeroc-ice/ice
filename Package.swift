@@ -18,7 +18,7 @@ let package = Package(
         .plugin(name: "CompileSlice", targets: ["CompileSlice"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.3"),
+        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.3")
     ],
     targets: [
         .target(
