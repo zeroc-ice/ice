@@ -637,7 +637,14 @@ class Mapping(object):
             self.pipPackage = False  # Use installed pip package instead of local build
 
             parseOptions(
-                self, options, {"config": "buildConfig", "platform": "buildPlatform", "load-slice": "loadSlice", "pip-package": "pipPackage"}
+                self,
+                options,
+                {
+                    "config": "buildConfig",
+                    "platform": "buildPlatform",
+                    "load-slice": "loadSlice",
+                    "pip-package": "pipPackage",
+                },
             )
 
         def __str__(self):
