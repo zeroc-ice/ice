@@ -29,6 +29,9 @@ jobs:
   publish:
     name: "Publish NPM Packages"
     runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Download NPM artifacts
@@ -38,22 +41,14 @@ jobs:
         run: |
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "js-npm-packages" --dir staging
 
-      - name: Publish NPM Packages
+      - name: Publish Nightly NPM Packages
+        if: ${{ inputs.quality != 'stable' }}
         run: |
-          case "$QUALITY" in
-            "stable")
-              REPOSITORY_PREFIX="//registry.npmjs.org/"
-              # Reference the env var in .npmrc using \$ so NPM reads it at publish time
-              echo "${REPOSITORY_PREFIX}:_authToken=\${RELEASE_NPM_AUTH_TOKEN}" > ~/.npmrc
-              ;;
-            *)
-              REPOSITORY_PREFIX="//download.zeroc.com/nexus/repository/npm-${CHANNEL}-${QUALITY}-hosted/"
-              # Reference the env var in .npmrc using \$ so NPM reads it at publish time
-              echo "${REPOSITORY_PREFIX}:_auth=\${NEXUS_NIGHTLY_NPM_AUTH_TOKEN}" > ~/.npmrc
-              ;;
-          esac
-
+          REPOSITORY_PREFIX="//download.zeroc.com/nexus/repository/npm-${CHANNEL}-${QUALITY}-hosted/"
+          # Reference the env var in .npmrc using \$ so NPM reads it at publish time
+          echo "${REPOSITORY_PREFIX}:_auth=\${NEXUS_NIGHTLY_NPM_AUTH_TOKEN}" > ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
+
           mapfile -t packages < <(find staging -type f -name "*.tgz")
           for pkg in "${packages[@]}"; do
             echo "Publishing package: $pkg"
@@ -63,4 +58,12 @@ jobs:
           CHANNEL: ${{ inputs.channel }}
           QUALITY: ${{ inputs.quality }}
           NEXUS_NIGHTLY_NPM_AUTH_TOKEN: ${{ secrets.NEXUS_NIGHTLY_NPM_AUTH_TOKEN }}
-          RELEASE_NPM_AUTH_TOKEN: ${{ secrets.RELEASE_NPM_AUTH_TOKEN }}
+
+      - name: Publish Release NPM Packages
+        if: ${{ inputs.quality == 'stable' }}
+        run: |
+          mapfile -t packages < <(find staging -type f -name "*.tgz")
+          for pkg in "${packages[@]}"; do
+            echo "Publishing package: $pkg"
+            npm publish "$pkg" --provenance --access public
+          done
