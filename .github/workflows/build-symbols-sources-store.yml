@@ -42,6 +42,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set ICE_VERSION
+        shell: bash
+        run: |
+          if [[ "${{ inputs.quality }}" == "stable" ]]; then
+            source ./config/version.env
+            echo "ICE_VERSION=${BASE_VERSION}" >> $GITHUB_ENV
+          else
+            echo "ICE_VERSION=${{ inputs.ice_version }}" >> $GITHUB_ENV
+          fi
+
       - name: Setup Python
         uses: ./.github/actions/setup-python
 
@@ -72,16 +82,16 @@ jobs:
         run: |
           python packaging/release/index-ice-pdb-sources.py `
             --source-dir ${{ github.workspace }} `
-            --version ${{ inputs.ice_version }} `
+            --version $env:ICE_VERSION `
             --source-base-url ${{ steps.source-url.outputs.source_base_url }} `
             --output-dir ${{ github.workspace }}/symbols-sources
 
       - name: Create Symbols Store
         run: |
-          symstore add /3 /compress /r /t "Ice for C++ ${{ inputs.ice_version }} (${{ matrix.platform-toolset }})" `
-            /v "${{ inputs.ice_version }}" `
-            /s "${{ github.workspace }}/symbols-sources/symbols/${{ inputs.ice_version }}/" `
-            /f "${{ github.workspace }}/symbols-sources/pdbs/${{ inputs.ice_version }}/"
+          symstore add /3 /compress /r /t "Ice for C++ $env:ICE_VERSION (${{ matrix.platform-toolset }})" `
+            /v "$env:ICE_VERSION" `
+            /s "${{ github.workspace }}/symbols-sources/symbols/$env:ICE_VERSION/" `
+            /f "${{ github.workspace }}/symbols-sources/pdbs/$env:ICE_VERSION/"
 
       - name: Upload Symbols and Sources
         uses: actions/upload-artifact@v4
