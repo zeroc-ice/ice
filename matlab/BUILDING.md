@@ -1,35 +1,48 @@
-# Ice for MATLAB Build Instructions
+# Building Ice for MATLAB from Source
 
 This document describes how to build and install Ice for MATLAB from source.
 
-ZeroC provides Ice for MATLAB [toolboxes][1] for MATLAB on Windows and Linux, so building Ice for MATLAB from source is
+ZeroC provides Ice for MATLAB [toolboxes] for MATLAB on Windows and Linux, so building Ice for MATLAB from source is
 usually unnecessary.
 
-- [Ice for MATLAB Build Instructions](#ice-for-matlab-build-instructions)
+- [Building Ice for MATLAB from Source](#building-ice-for-matlab-from-source)
+  - [Build roadmap](#build-roadmap)
   - [Building Ice for MATLAB on Windows](#building-ice-for-matlab-on-windows)
     - [Prerequisites](#prerequisites)
-    - [Build Instructions](#build-instructions)
-    - [Packaging the Ice Toolbox](#packaging-the-ice-toolbox)
+    - [Build instructions](#build-instructions)
+    - [Packaging the Ice toolbox](#packaging-the-ice-toolbox)
   - [Building Ice for MATLAB on Linux](#building-ice-for-matlab-on-linux)
     - [Prerequisites](#prerequisites-1)
-    - [Build Instructions](#build-instructions-1)
+    - [Build instructions](#build-instructions-1)
   - [Using Ice for MATLAB](#using-ice-for-matlab)
-    - [Search Path](#search-path)
-    - [Slice Files](#slice-files)
-    - [Loading the Library](#loading-the-library)
-    - [Running the Tests](#running-the-tests)
+    - [Search path](#search-path)
+    - [Slice files](#slice-files)
+    - [Loading the library](#loading-the-library)
+    - [Running the tests](#running-the-tests)
+
+## Build roadmap
+
+```mermaid
+flowchart LR
+    c++(Ice for C++) --> matlab(Ice for MATLAB)
+    matlab --> tests(Tests)
+    matlab --> toolbox(Toolbox Package)
+```
 
 ## Building Ice for MATLAB on Windows
 
 ### Prerequisites
 
-The build system requires MATLAB 2016a or later for Windows, Visual Studio 2022
-and a Perl installation.
+1. **MATLAB R2025b or later**
 
-### Build Instructions
+2. **Visual Studio 2022**
 
-Open a Visual Studio x64 command prompt, `VS2022 x64 Native Tools Command Prompt`. In this Command Prompt, change to the
-`matlab` subdirectory:
+3. **Perl**
+
+### Build instructions
+
+Open a Visual Studio x64 command prompt, `VS2022 x64 Native Tools Command Prompt`. In this command prompt, change to
+the `matlab` subdirectory:
 
 ```shell
 cd matlab
@@ -58,7 +71,7 @@ Upon completion, a build in release mode generates the following components:
 
 The MATLAB extension depends on Ice for C++ components from the `cpp` subdirectory, and those are built if required.
 
-### Packaging the Ice Toolbox
+### Packaging the Ice toolbox
 
 Use the following command to build the Ice toolbox package:
 
@@ -74,29 +87,27 @@ You can install the toolbox from within MATLAB by double-clicking on the file.
 
 ### Prerequisites
 
-The build system requires MATLAB 2017b or MATLAB 2019b for Linux, with a supported C++ compiler and a Perl installation.
+1. **MATLAB R2025b or later**
 
-- Use GCC 4.9 for 2017b, see [MATLAB 2017b supported compilers][2].
-- Use GCC 6.3 for 2019b, see [MATLAB 2019b supported compilers][3].
+2. **Ubuntu 24.04** with the default C++ compiler
 
-We recommend using the following build environments:
+3. **Ice for C++ source build** (using the `shared` configuration)
 
-- Ubuntu 16.04 (Xenial) with g++-4.9 compiler, for MATLAB 2017b.
-- Debian 9 (Stretch) with the default g++ compiler, for MATLAB 2019b.
+4. **Perl**
 
-### Build Instructions
+### Build instructions
 
-The MATLAB extension depends on Ice for C++ components from the cpp subdirectory, and those need to be built, using the
-`shared` configuration, if you have not built the C++ distribution first review [cpp/README.md](../cpp/README.md).
+Before building Ice for MATLAB, you must first build the Ice for C++ source distribution using the `shared`
+configuration. Refer to the [build instructions](../cpp/BUILDING.md) in the `cpp` subdirectory for details.
 
-In a command window, change to the matlab subdirectory:
+In a terminal, change to the `matlab` subdirectory:
 
 ```shell
 cd matlab
 ```
 
-Review the [matlab/config/Make.rules](config/Make.rules) in your build tree and update the configuration if needed. The
-comments in the file provide more information.
+Review the [matlab/config/Make.rules](config/Make.rules) in your build tree and update the configuration if needed.
+The comments in the file provide more information.
 
 Run `make` to build the Ice for MATLAB toolbox and the MATLAB tests. Set `V=1` to get a more detailed build output.
 
@@ -104,42 +115,34 @@ Run `make` to build the Ice for MATLAB toolbox and the MATLAB tests. Set `V=1` t
 make
 ```
 
-This creates the toolbox package `toolbox/ice-<Ice Version>-<MATLAB Version>-linux.mltbx`. You can install the toolbox from
-within MATLAB by double-clicking on the file.
-
-When building for MATALB 2017b you must set `CC` and `CXX` variables to use the `gcc-4.9` and `g++-4.9` compilers
-respectively.
-
-```shell
-CC=gcc-4.9
-CXX=g++-4.9
-```
+This creates the toolbox package `toolbox/ice-<Ice Version>-<MATLAB Version>-linux.mltbx`. You can install the toolbox
+from within MATLAB by double-clicking on the file.
 
 ## Using Ice for MATLAB
 
-### Search Path
+### Search path
 
 To use a source build, add the following directories to your MATLAB path:
 
 - `matlab\lib`
 - `matlab\lib\generated`
-- `matlab\lib\x64\Release` (only on Windows platforms)
-- `matlab\lib\x86_64-linux-gnu` (only on Linux platforms)
+- `matlab\lib\x64\Release` (only on Windows)
+- `matlab\lib\x86_64-linux-gnu` (only on Linux)
 
-### Slice Files
+### Slice files
 
-Use `slice2matlab` to compile your Slice files. Run `slice2matlab -h` for a description of its command-line options. You
-can place the generated `*.m` files anywhere you like, but the enclosing directory must be in your MATLAB path.
+Use `slice2matlab` to compile your Slice files. Run `slice2matlab -h` for a description of its command-line options.
+You can place the generated `*.m` files anywhere you like, but the enclosing directory must be in your MATLAB path.
 
-### Loading the Library
+### Loading the library
 
 The Ice for MATLAB library can be loaded with this command:
 
-```shell
+```matlab
 loadlibrary('ice', @iceproto)
 ```
 
-### Running the Tests
+### Running the tests
 
 The Ice for MATLAB tests are located in `matlab\test`.
 
@@ -152,8 +155,6 @@ python allTests.py
 ```
 
 This script automatically starts a Python server for each MATLAB client. MATLAB clients are executed using a minimized
-MATLAB interpreter and the test output is copied to the Command Prompt window.
+MATLAB interpreter and the test output is copied to the command prompt window.
 
-[1]: https://zeroc.com/downloads/ice
-[2]: https://www.mathworks.com/content/dam/mathworks/mathworks-dot-com/support/sysreq/files/SystemRequirements-Release2017b_SupportedCompilers.pdf
-[3]: https://www.mathworks.com/content/dam/mathworks/mathworks-dot-com/support/sysreq/files/system-requirements-release-2019b-supported-compilers.pdf
+[toolboxes]: https://zeroc.com/downloads/ice
