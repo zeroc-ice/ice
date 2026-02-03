@@ -634,9 +634,17 @@ class Mapping(object):
             self.phpVersion = "7.1"
             self.python = sys.executable
             self.loadSlice = False  # Use Ice.loadSlice instead of the static generated code
+            self.pipPackage = False  # Use installed pip package instead of local build
 
             parseOptions(
-                self, options, {"config": "buildConfig", "platform": "buildPlatform", "load-slice": "loadSlice"}
+                self,
+                options,
+                {
+                    "config": "buildConfig",
+                    "platform": "buildPlatform",
+                    "load-slice": "loadSlice",
+                    "pip-package": "pipPackage",
+                },
             )
 
         def __str__(self):
@@ -3821,7 +3829,7 @@ class PythonMapping(CppBasedMapping):
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["python=", "load-slice"])
+            return ("", ["python=", "load-slice", "pip-package"])
 
         @classmethod
         def usage(self):
@@ -3829,6 +3837,7 @@ class PythonMapping(CppBasedMapping):
             print("Python mapping options:")
             print("--python=<interpreter>   Choose the interperter used to run python tests")
             print("--load-slice             Use Ice.loadSlice instead of the slice2py static generated code.")
+            print("--pip-package            Use the installed pip package instead of the local build.")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
@@ -3862,9 +3871,9 @@ class PythonMapping(CppBasedMapping):
     def getEnv(self, process, current):
         env = CppBasedMapping.getEnv(self, process, current)
         dirs = []
-        if self.component.getInstallDir(self, current) != platform.getInstallDir():
+        if not current.config.pipPackage and self.component.getInstallDir(self, current) != platform.getInstallDir():
             # If not installed in the default platform installation directory, add
-            # the Ice python directory to PYTHONPATH
+            # the Ice python directory to PYTHONPATH (skip when using pip package)
             dirs += self.getPythonDirs(self.component.getInstallDir(self, current), current.config)
         dirs += [current.testcase.getPath(current)]
         if not current.config.loadSlice:
