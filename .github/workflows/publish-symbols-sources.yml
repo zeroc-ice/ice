@@ -89,7 +89,7 @@ jobs:
           $symbolStorePath = "symbol-store"
           New-Item -ItemType Directory -Force -Path $symbolStorePath
           # Download existing 000Admin from stable symbol store
-          aws s3 sync "s3://${{ env.S3_BUCKET }}/symbols/000Admin/" "$symbolStorePath/000Admin/"
+          aws s3 sync "s3://${{ env.S3_BUCKET }}/symstore/000Admin/" "$symbolStorePath/000Admin/"
           if (-not (Test-Path "$symbolStorePath/000Admin/history.txt")) {
             Write-Error "No existing 000Admin found in stable symbol store - this should not happen"
             exit 1
@@ -116,5 +116,5 @@ jobs:
           aws s3 sync "staging/windows-v143-symbols-sources/sources/" "s3://${S3_BUCKET}/ice/"
 
           # Sync the entire symbol store including 000Admin (single shared store, no platform-toolset)
-          aws s3 sync "symbol-store/" "s3://${S3_BUCKET}/symbols/"
+          aws s3 sync "symbol-store/" "s3://${S3_BUCKET}/symstore/"
         shell: pwsh
