@@ -1,4 +1,4 @@
-name: "Build Brew Packages"
+name: "Build Swift Artifacts"
 
 on:
   workflow_call:
@@ -22,7 +22,7 @@ permissions:
   contents: write
 
 jobs:
-  build-xcfranework-packages:
+  build-swift-artifacts:
     runs-on: macos-26
 
     steps:
@@ -31,10 +31,6 @@ jobs:
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
-
-      - name: Build XCFramework Packages
-        run: make OPTIMIZE=yes PLATFORMS="all" CONFIGS="static" srcs
-        working-directory: cpp
 
       - name: Set Version (For Nightly Builds)
         run: |
@@ -47,6 +43,10 @@ jobs:
           echo "ICE_VERSION=${VERSION}" >> $GITHUB_ENV
         if: ${{ inputs.ice_version == '' }}
 
+      - name: Build XCFramework Packages
+        run: make OPTIMIZE=yes PLATFORMS="all" CONFIGS="static" srcs
+        working-directory: cpp
+
       - name: Create XCFrameworks Zip archives
         run: |
           for dir in *.xcframework; do
@@ -56,8 +56,18 @@ jobs:
           done
         working-directory: cpp/lib/XCFrameworks
 
-      - name: Upload Artifacts
+      - name: Create slice2swift Artifact Bundle Zip archive
+        run: mv slice2swift.artifactbundle.zip slice2swift-${ICE_VERSION}.artifactbundle.zip
+        working-directory: cpp/bin
+
+      - name: Upload XCFramework Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: xcframework-packages
           path: cpp/lib/XCFrameworks/*.zip
+
+      - name: Upload slice2swift Artifact Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: slice2swift-artifactbundle
+          path: cpp/bin/slice2swift-*.artifactbundle.zip

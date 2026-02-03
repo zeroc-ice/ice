@@ -1,4 +1,4 @@
-name: "Publish XCFramework Packages"
+name: "Publish Swift Artifacts"
 
 on:
   workflow_dispatch:
@@ -27,8 +27,8 @@ on:
 
 jobs:
 
-  publish-xcframework-packages:
-    name: "Publish XCFramework Packages"
+  publish-swift-artifacts:
+    name: "Publish Swift Artifacts"
     runs-on: "ubuntu-24.04"
     steps:
       - name: Download XCFramework artifacts
@@ -38,7 +38,14 @@ jobs:
         run: |
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "xcframework-packages" --dir staging
 
-      - name: Publish XCFramework Packages
+      - name: Download slice2swift artifact bundle
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "slice2swift-artifactbundle" --dir staging
+
+      - name: Publish XCFramework and Artifact Bundle Packages
         run: |
           if [ "${QUALITY}" = "stable" ]; then
             UPLOAD_PATH="ice/${CHANNEL}"
@@ -46,6 +53,7 @@ jobs:
             UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}"
           fi
           aws s3 sync staging/xcframework-packages/ "s3://zeroc-downloads/${UPLOAD_PATH}/" --exclude "*" --include "*.zip"
+          aws s3 sync staging/slice2swift-artifactbundle/ "s3://zeroc-downloads/${UPLOAD_PATH}/" --exclude "*" --include "*.zip"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

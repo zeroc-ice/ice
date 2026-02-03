@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0",
+  "artifacts": {
+    "slice2swift": {
+      "type": "executable",
+      "version": "@VERSION@",
+      "variants": [
+        {
+          "path": "slice2swift-macos-arm64/bin/slice2swift",
+          "supportedTriples": ["arm64-apple-macosx"]
+        }
+      ]
+    }
+  }
+}
