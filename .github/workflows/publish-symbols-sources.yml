@@ -49,9 +49,9 @@ jobs:
       - name: Publish Symbols and Sources
         run: |
           # Upload sources to S3 (version is already in the directory structure)
-          aws s3 sync "staging/windows-${{ matrix.platform-toolset }}-symbols-sources/sources/" "s3://${{ env.S3_BUCKET }}/${S3_UPLOAD_PATH}/sources/"
+          aws s3 sync "staging/windows-${{ matrix.platform-toolset }}-symbols-sources/sources/" "s3://${{ env.S3_BUCKET }}/${{ env.S3_UPLOAD_PATH }}/sources/"
           # Upload symbol store to S3 (separate store per toolset)
-          aws s3 sync "staging/windows-${{ matrix.platform-toolset }}-symbols-sources/symbols/" "s3://${{ env.S3_BUCKET }}/${S3_UPLOAD_PATH}/symbols/${{ matrix.platform-toolset }}/"
+          aws s3 sync "staging/windows-${{ matrix.platform-toolset }}-symbols-sources/symbols/" "s3://${{ env.S3_BUCKET }}/${{ env.S3_UPLOAD_PATH }}/symbols/${{ matrix.platform-toolset }}/"
 
   # Stable releases - incremental update to shared symbol store with proper 000admin handling
   # Downloads existing 000admin, uses symstore add to create proper transaction, uploads result
@@ -86,11 +86,10 @@ jobs:
 
       - name: Download existing 000admin from S3
         run: |
-          $symbolStorePath = "symbol-store"
-          New-Item -ItemType Directory -Force -Path $symbolStorePath
+          New-Item -ItemType Directory -Force -Path symbol-store
           # Download existing 000admin from stable symbol store
-          aws s3 sync "s3://${{ env.S3_BUCKET }}/symstore/000admin/" "$symbolStorePath/000admin/"
-          if (-not (Test-Path "$symbolStorePath/000admin/history.txt")) {
+          aws s3 sync "s3://${{ env.S3_BUCKET }}/symstore/000admin/" "symbol-store/000admin/"
+          if (-not (Test-Path "symbol-store/000admin/history.txt")) {
             Write-Error "No existing 000admin found in stable symbol store - this should not happen"
             exit 1
           }
@@ -99,14 +98,12 @@ jobs:
 
       - name: Add symbols to store using symstore
         run: |
-          $symbolStorePath = "${{ github.workspace }}/symbol-store"
-
           # Add all PDBs from both toolsets in a single transaction
           # symstore /r recursively finds all PDBs under the staging directory
           symstore add /3 /compress /r `
             /t "Ice" `
             /v "${{ steps.version.outputs.ice_version }}" `
-            /s $symbolStorePath `
+            /s ${{ github.workspace }}/symbol-store `
             /f "${{ github.workspace }}/staging"
         shell: pwsh
 
