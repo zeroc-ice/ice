@@ -49,9 +49,9 @@ jobs:
       - name: Publish Symbols and Sources
         run: |
           # Upload sources to S3 (version is already in the directory structure)
-          aws s3 sync "staging/windows-${{ matrix.platform-toolset }}-symbols-sources/sources/" "s3://${S3_BUCKET}/${S3_UPLOAD_PATH}/sources/"
+          aws s3 sync "staging/windows-${{ matrix.platform-toolset }}-symbols-sources/sources/" "s3://${{ env.S3_BUCKET }}/${S3_UPLOAD_PATH}/sources/"
           # Upload symbol store to S3 (separate store per toolset)
-          aws s3 sync "staging/windows-${{ matrix.platform-toolset }}-symbols-sources/symbols/" "s3://${S3_BUCKET}/${S3_UPLOAD_PATH}/symbols/${{ matrix.platform-toolset }}/"
+          aws s3 sync "staging/windows-${{ matrix.platform-toolset }}-symbols-sources/symbols/" "s3://${{ env.S3_BUCKET }}/${S3_UPLOAD_PATH}/symbols/${{ matrix.platform-toolset }}/"
 
   # Stable releases - incremental update to shared symbol store with proper 000admin handling
   # Downloads existing 000admin, uses symstore add to create proper transaction, uploads result
@@ -113,8 +113,8 @@ jobs:
       - name: Publish Symbols and Sources to S3
         run: |
           # Sources are the same for both toolsets, just sync one
-          aws s3 sync "staging/windows-v143-symbols-sources/sources/" "s3://${S3_BUCKET}/ice/"
+          aws s3 sync "staging/windows-v143-symbols-sources/sources/" "s3://${{ env.S3_BUCKET }}/sources/ice/"
 
           # Sync the entire symbol store including 000admin (single shared store, no platform-toolset)
-          aws s3 sync "symbol-store/" "s3://${S3_BUCKET}/symstore/"
+          aws s3 sync "symbol-store/" "s3://${{ env.S3_BUCKET }}/symstore/"
         shell: pwsh
