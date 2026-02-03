@@ -53,8 +53,8 @@ jobs:
           # Upload symbol store to S3 (separate store per toolset)
           aws s3 sync "staging/windows-${{ matrix.platform-toolset }}-symbols-sources/symbols/" "s3://${S3_BUCKET}/${S3_UPLOAD_PATH}/symbols/${{ matrix.platform-toolset }}/"
 
-  # Stable releases - incremental update to shared symbol store with proper 000Admin handling
-  # Downloads existing 000Admin, uses symstore add to create proper transaction, uploads result
+  # Stable releases - incremental update to shared symbol store with proper 000admin handling
+  # Downloads existing 000admin, uses symstore add to create proper transaction, uploads result
   publish-symbols-sources-stable:
     name: "Publish Symbols and Sources (Stable)"
     if: ${{ inputs.quality == 'stable' }}
@@ -84,17 +84,17 @@ jobs:
           echo "ice_version=${BASE_VERSION}" >> $GITHUB_OUTPUT
         shell: bash
 
-      - name: Download existing 000Admin from S3
+      - name: Download existing 000admin from S3
         run: |
           $symbolStorePath = "symbol-store"
           New-Item -ItemType Directory -Force -Path $symbolStorePath
-          # Download existing 000Admin from stable symbol store
-          aws s3 sync "s3://${{ env.S3_BUCKET }}/symstore/000Admin/" "$symbolStorePath/000Admin/"
-          if (-not (Test-Path "$symbolStorePath/000Admin/history.txt")) {
-            Write-Error "No existing 000Admin found in stable symbol store - this should not happen"
+          # Download existing 000admin from stable symbol store
+          aws s3 sync "s3://${{ env.S3_BUCKET }}/symstore/000admin/" "$symbolStorePath/000admin/"
+          if (-not (Test-Path "$symbolStorePath/000admin/history.txt")) {
+            Write-Error "No existing 000admin found in stable symbol store - this should not happen"
             exit 1
           }
-          Write-Host "Downloaded existing 000Admin"
+          Write-Host "Downloaded existing 000admin"
         shell: pwsh
 
       - name: Add symbols to store using symstore
@@ -115,6 +115,6 @@ jobs:
           # Sources are the same for both toolsets, just sync one
           aws s3 sync "staging/windows-v143-symbols-sources/sources/" "s3://${S3_BUCKET}/ice/"
 
-          # Sync the entire symbol store including 000Admin (single shared store, no platform-toolset)
+          # Sync the entire symbol store including 000admin (single shared store, no platform-toolset)
           aws s3 sync "symbol-store/" "s3://${S3_BUCKET}/symstore/"
         shell: pwsh
