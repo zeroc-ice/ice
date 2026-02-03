@@ -4,24 +4,23 @@
 #
 # This rule creates a SwiftPM executable artifact bundle containing the slice2swift binary.
 # The bundle is used by Package.swift to provide the slice2swift tool to the CompileSlice plugin.
-#
-# Set ICE_VERSION environment variable to override the version (e.g., for nightly builds).
 
-slice2swift_binary := bin/slice2swift
-bundle_version := $(or $(ICE_VERSION),$(version))
-slice2swift_artifactbundle := bin/slice2swift-$(bundle_version).artifactbundle.zip
+slice2swift_artifactbundle_dir := bin/slice2swift.artifactbundle
+slice2swift_artifactbundle := $(slice2swift_artifactbundle_dir).zip
+slice2swift_platform := slice2swift-macos-arm64
+slice2swift_info_template := $(lang_srcdir)/config/slice2swift.artifactbundle.info.json
 
-$(slice2swift_artifactbundle): $(slice2swift_binary)
-	$(E) Creating $(slice2swift_artifactbundle)
-	$(Q)$(RM) -r $(basename $(slice2swift_artifactbundle))
-	$(Q)$(MKDIR) -p $(basename $(slice2swift_artifactbundle))/slice2swift-macos-arm64/bin
-	$(Q)cp $(slice2swift_binary) $(basename $(slice2swift_artifactbundle))/slice2swift-macos-arm64/bin/slice2swift
-	$(Q)sed 's/@VERSION@/$(bundle_version)/' $(lang_srcdir)/config/slice2swift.artifactbundle.info.json > $(basename $(slice2swift_artifactbundle))/info.json
-	$(Q)cd bin && zip -r $(notdir $(slice2swift_artifactbundle)) $(notdir $(basename $(slice2swift_artifactbundle)))
-	$(Q)$(RM) -r $(basename $(slice2swift_artifactbundle))
+$(slice2swift_artifactbundle): bin/slice2swift
+	$(E) Creating $@
+	$(Q)$(RM) -r $(@:.zip=)
+	$(Q)$(MKDIR) -p $(@:.zip=)/$(slice2swift_platform)/bin
+	$(Q)cp $< $(@:.zip=)/$(slice2swift_platform)/bin/slice2swift
+	$(Q)sed 's/@VERSION@/$(version)/' $(slice2swift_info_template) > $(@:.zip=)/info.json
+	$(Q)cd $(dir $(@:.zip=)) && zip -rq $(abspath $@) $(notdir $(@:.zip=))
+	$(Q)$(RM) -r $(@:.zip=)
 
 srcs all:: $(slice2swift_artifactbundle)
 
 clean::
 	$(E) Cleaning slice2swift artifact bundles
-	$(Q)$(RM) -r bin/slice2swift-*.artifactbundle.zip bin/slice2swift-*.artifactbundle
+	$(Q)$(RM) -r $(slice2swift_artifactbundle) $(slice2swift_artifactbundle_dir)

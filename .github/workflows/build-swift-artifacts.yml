@@ -1,4 +1,4 @@
-name: "Build Brew Packages"
+name: "Build Swift Artifacts"
 
 on:
   workflow_call:
@@ -22,7 +22,7 @@ permissions:
   contents: write
 
 jobs:
-  build-xcfranework-packages:
+  build-swift-artifacts:
     runs-on: macos-26
 
     steps:
@@ -56,6 +56,10 @@ jobs:
           done
         working-directory: cpp/lib/XCFrameworks
 
+      - name: Create slice2swift Artifact Bundle Zip archive
+        run: mv slice2swift.artifactbundle.zip slice2swift-${ICE_VERSION}.artifactbundle.zip
+        working-directory: cpp/bin
+
       - name: Upload XCFramework Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -66,4 +70,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: slice2swift-artifactbundle
-          path: cpp/bin/*.artifactbundle.zip
+          path: cpp/bin/slice2swift-*.artifactbundle.zip

@@ -43,7 +43,7 @@ cp -rfv ../../../slice .
 cp -rfv ../../../swift .
 cp -v ../../../Package.swift .
 
-# Compute the download path based on quality (matching publish-xcframework-packages.yml)
+# Compute the download path based on quality (matching publish-swift-artifacts.yml)
 if [ "${QUALITY}" = "stable" ]; then
     download_path="ice/${CHANNEL}"
 else
@@ -76,7 +76,7 @@ for zip_file in "${STAGING_DIR}"/*.artifactbundle.zip; do
     indent=$(printf "%12s" "") # indentation for the checksum line
 
     # Replace path: "..." with url/checksum lines for slice2swift
-    sed -i '' -e "s|path: \"cpp/bin/slice2swift\.artifactbundle\"|url: \"${zip_url}\",\n${indent}checksum: \"${checksum}\"|" Package.swift
+    sed -i '' -e "s|path: \"cpp/bin/slice2swift\.artifactbundle\.zip\"|url: \"${zip_url}\",\n${indent}checksum: \"${checksum}\"|" Package.swift
 done
 
 # Commit and push the changes

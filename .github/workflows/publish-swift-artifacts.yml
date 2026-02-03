@@ -1,4 +1,4 @@
-name: "Publish XCFramework Packages"
+name: "Publish Swift Artifacts"
 
 on:
   workflow_dispatch:
@@ -27,8 +27,8 @@ on:
 
 jobs:
 
-  publish-xcframework-packages:
-    name: "Publish XCFramework Packages"
+  publish-swift-artifacts:
+    name: "Publish Swift Artifacts"
     runs-on: "ubuntu-24.04"
     steps:
       - name: Download XCFramework artifacts
