@@ -7,11 +7,13 @@ on:
     paths:
       - "python/**"
       - "slice/**"
+      - ".github/actions/setup-python/**"
   pull_request:
     branches: ["main"]
     paths:
       - "python/**"
       - "slice/**"
+      - ".github/actions/setup-python/**"
 
 jobs:
   test-pip-package:
