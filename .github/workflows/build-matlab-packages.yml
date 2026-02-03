@@ -51,8 +51,8 @@ jobs:
 
       - name: Build Linux MATLAB ToolBox
         run: |
-          make -C cpp srcs
-          make -C matlab toolbox
+          make -C cpp slice2matlab Ice IceDiscovery IceLocatorDiscovery OPTIMIZE=yes
+          make -C matlab toolbox OPTIMIZE=yes
         if: runner.os == 'Linux'
 
       - name: Build Windows MATLAB ToolBox
