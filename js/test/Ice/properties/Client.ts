@@ -116,32 +116,36 @@ export class Client extends TestHelper {
         }
 
         {
-            await using communicator = new Ice.Communicator(args);
-            const properties = communicator.getProperties();
-
-            out.write("testing that creating an object adapter with unknown properties throws an exception...");
-            properties.setProperty("FooOA.Router", "router:tcp -h 127.0.0.1 -p 10000");
-            properties.setProperty("FooOA.UnknownProperty", "bar");
+            const communicator = new Ice.Communicator(args);
             try {
-                await communicator.createObjectAdapter("FooOA");
-                test(false);
-            } catch (ex) {
-                test(ex instanceof Ice.PropertyException);
-            }
-            out.writeLine("ok");
+                const properties = communicator.getProperties();
 
-            out.write("testing that creating a proxy with unknown properties throws an exception...");
-            properties.setProperty("FooProxy", "test:tcp -h 127.0.0.1 -p 10000");
-            properties.setProperty("FooProxy.UnknownProperty", "bar");
-            try {
-                communicator.propertyToProxy("FooProxy");
-                test(false);
-            } catch (ex) {
-                test(ex instanceof Ice.PropertyException);
-            }
-            out.writeLine("ok");
+                out.write("testing that creating an object adapter with unknown properties throws an exception...");
+                properties.setProperty("FooOA.Router", "router:tcp -h 127.0.0.1 -p 10000");
+                properties.setProperty("FooOA.UnknownProperty", "bar");
+                try {
+                    await communicator.createObjectAdapter("FooOA");
+                    test(false);
+                } catch (ex) {
+                    test(ex instanceof Ice.PropertyException);
+                }
+                out.writeLine("ok");
 
-            communicator.shutdown();
+                out.write("testing that creating a proxy with unknown properties throws an exception...");
+                properties.setProperty("FooProxy", "test:tcp -h 127.0.0.1 -p 10000");
+                properties.setProperty("FooProxy.UnknownProperty", "bar");
+                try {
+                    communicator.propertyToProxy("FooProxy");
+                    test(false);
+                } catch (ex) {
+                    test(ex instanceof Ice.PropertyException);
+                }
+                out.writeLine("ok");
+
+                communicator.shutdown();
+            } finally {
+                await communicator.destroy();
+            }
         }
 
         {
