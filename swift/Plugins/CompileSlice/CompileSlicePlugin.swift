@@ -14,7 +14,6 @@ extension CompileSlicePlugin: BuildToolPlugin {
             outputDir: context.pluginWorkDirectoryURL,
             inputFiles: swiftTarget.sourceFiles,
             slice2swift: try context.tool(named: "slice2swift").url,
-            iceSliceDir: CompileSlicePlugin.iceSliceDir
         )
     }
 }
@@ -30,7 +29,6 @@ extension CompileSlicePlugin: BuildToolPlugin {
                 outputDir: context.pluginWorkDirectoryURL,
                 inputFiles: target.inputFiles,
                 slice2swift: try context.tool(named: "slice2swift").url,
-                iceSliceDir: CompileSlicePlugin.iceSliceDir
             )
         }
     }
@@ -117,8 +115,7 @@ struct CompileSlicePlugin {
     private func createBuildCommands(
         outputDir: URL,
         inputFiles: FileList,
-        slice2swift: URL,
-        iceSliceDir: URL?
+        slice2swift: URL
     ) throws -> [Command] {
 
         // Collect .ice input files in the target's source files.
@@ -135,7 +132,7 @@ struct CompileSlicePlugin {
 
         // Start with the Ice slice directory in the search path (if found).
         var searchPaths: [String] = []
-        if let iceSliceDir = iceSliceDir {
+        if let iceSliceDir = CompileSlicePlugin.iceSliceDir {
             searchPaths.append("-I\(iceSliceDir.path)")
         }
 
