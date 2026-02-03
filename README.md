@@ -2,6 +2,7 @@
   <img src="https://raw.githubusercontent.com/zeroc-ice/ice/3.7/.github/assets/ice-banner.svg" height="150" width="150" />
 </p>
 
+[![CI](https://github.com/zeroc-ice/ice/actions/workflows/ci.yml/badge.svg?branch=3.7)][ci-home]
 [![GPLv2](https://img.shields.io/github/license/zeroc-ice/ice?color=red)][GPLv2]
 [![Static Badge](https://img.shields.io/badge/license-Commercial-blue)][Commercial]
 
@@ -106,6 +107,7 @@ the associated license agreement; the GPLv2 terms and conditions do not apply.
 The Ice software itself remains the same: the only difference between an open-source Ice and a commercial Ice are the
 license terms.
 
+[ci-home]: https://github.com/zeroc-ice/ice/actions/workflows/ci.yml
 [Commercial]: https://zeroc.com/ice/pricing
 [copyleft]: https://en.wikipedia.org/wiki/Copyleft
 [datastorm]: https://archive.zeroc.com/datastorm/latest/introduction
