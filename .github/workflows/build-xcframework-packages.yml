@@ -32,10 +32,6 @@ jobs:
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
-      - name: Build XCFramework Packages
-        run: make OPTIMIZE=yes PLATFORMS="all" CONFIGS="static" srcs
-        working-directory: cpp
-
       - name: Set Version (For Nightly Builds)
         run: |
           echo "ICE_VERSION=${{inputs.ice_version}}" >> $GITHUB_ENV
@@ -47,6 +43,10 @@ jobs:
           echo "ICE_VERSION=${VERSION}" >> $GITHUB_ENV
         if: ${{ inputs.ice_version == '' }}
 
+      - name: Build XCFramework Packages
+        run: make OPTIMIZE=yes PLATFORMS="all" CONFIGS="static" srcs
+        working-directory: cpp
+
       - name: Create XCFrameworks Zip archives
         run: |
           for dir in *.xcframework; do
@@ -55,11 +55,6 @@ jobs:
             zip -r $framework_zip $dir
           done
         working-directory: cpp/lib/XCFrameworks
-
-      - name: Build slice2swift artifact bundle
-        run: ./packaging/swift/build-slice2swift-bundle.sh --zip
-        env:
-          ICE_VERSION: ${{ env.ICE_VERSION }}
 
       - name: Upload XCFramework Artifacts
         uses: actions/upload-artifact@v4

@@ -36,7 +36,6 @@ srcs:: $(projects)
 ifeq ($(os),Darwin)
 $(call make-xcframeworks)
 include $(lang_srcdir)/config/Make.artifactbundle.rules
-$(call make-slice2swift-artifactbundle)
 endif
 
 #

@@ -73,7 +73,7 @@ let package = Package(
         ),
         .binaryTarget(
             name: "slice2swift",
-            path: "cpp/bin/slice2swift.artifactbundle"
+            path: "cpp/bin/slice2swift.artifactbundle.zip"
         ),
         .plugin(
             name: "CompileSlice",
