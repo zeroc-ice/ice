@@ -59,11 +59,17 @@ jobs:
           QUALITY: ${{ inputs.quality }}
           NEXUS_NIGHTLY_NPM_AUTH_TOKEN: ${{ secrets.NEXUS_NIGHTLY_NPM_AUTH_TOKEN }}
 
+      - uses: actions/setup-node@v4
+        if: ${{ inputs.quality == 'stable' }}
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
       - name: Publish Release NPM Packages
         if: ${{ inputs.quality == 'stable' }}
         run: |
           mapfile -t packages < <(find staging -type f -name "*.tgz")
           for pkg in "${packages[@]}"; do
             echo "Publishing package: $pkg"
-            npm publish "$pkg" --provenance --access public
+            npm publish "$pkg" --provenance
           done
