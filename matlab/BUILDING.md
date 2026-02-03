@@ -33,7 +33,7 @@ flowchart LR
 
 ### Prerequisites
 
-1. **MATLAB R2025b or later**
+1. **A recent version of MATLAB**
 
 2. **Visual Studio 2022**
 
@@ -87,9 +87,9 @@ You can install the toolbox from within MATLAB by double-clicking on the file.
 
 ### Prerequisites
 
-1. **MATLAB R2025b or later**
+1. **A recent version of MATLAB**
 
-2. **Ubuntu 24.04** with the default C++ compiler
+2. **GCC 11 or greater**
 
 3. **Ice for C++ source build** (using the `shared` configuration)
 
