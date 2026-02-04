@@ -14,6 +14,7 @@ public class UnderlyingEndpointFactory implements EndpointFactory
 {
     public UnderlyingEndpointFactory(ProtocolInstance instance, short type, short underlying)
     {
+        assert instance != null;
         _instance = instance;
         _type = type;
         _underlying = underlying;
@@ -69,7 +70,6 @@ public class UnderlyingEndpointFactory implements EndpointFactory
         {
             _factory.destroy();
         }
-        _instance = null;
     }
 
     public EndpointFactory clone(ProtocolInstance instance)
@@ -77,7 +77,7 @@ public class UnderlyingEndpointFactory implements EndpointFactory
         return new UnderlyingEndpointFactory(instance, _type, _underlying);
     }
 
-    protected ProtocolInstance _instance;
+    protected final ProtocolInstance _instance;
 
     private final short _type;
     private final short _underlying;
