@@ -139,7 +139,7 @@ struct CompileSlicePlugin {
             // Add additional slice files from config.sources. The files are relative to the config file location.
             let baseDirectory = configFileURL.deletingLastPathComponent()
             for source in config.sources ?? [] {
-                let sourceFileOrDirectory = baseDirectory.appendingPathComponent(source)
+                let sourceFileOrDirectory = baseDirectory.appending(path: source)
                 if sourceFileOrDirectory.pathExtension == "ice" {
                     sliceSources.append(sourceFileOrDirectory)
                 } else {
@@ -154,7 +154,7 @@ struct CompileSlicePlugin {
             // Add additional search paths from config.search_paths.
             // These paths are relative to the config file location.
             for path in config.search_paths ?? [] {
-                searchPaths.append("-I\(baseDirectory.appendingPathComponent(path).path)")
+                searchPaths.append("-I\(baseDirectory.appending(path: path).path)")
             }
         }
 
@@ -165,7 +165,7 @@ struct CompileSlicePlugin {
 
         // Create the build commands for each slice file.
         return sliceSources.map { sliceSource in
-            let outputFile = outputDir.appendingPathComponent(sliceSource.lastPathComponent)
+            let outputFile = outputDir.appending(path: sliceSource.lastPathComponent)
                 .deletingPathExtension()
                 .appendingPathExtension("swift")
 
