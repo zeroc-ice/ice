@@ -164,12 +164,16 @@ export class Buffer {
             return;
         }
 
-        // Maximum UTF-8 byte length: string.length * 3 (safe upper bound)
+        // JavaScript string.length returns the number of UTF-16 code units. The maximum UTF-8 bytes per
+        // UTF-16 code unit is 3, which occurs for BMP characters in the range U+0800–U+FFFF (e.g., CJK characters).
+        // Surrogate pairs (2 UTF-16 code units) encode to 4 UTF-8 bytes, which is only 2 bytes per code unit.
         const maxUtf8Size = v.length * 3;
 
-        // Decide size encoding based on max possible encoded length
+        // Decide size encoding based on max possible encoded length. Slice 1.x size encoding allows using
+        // more bytes than strictly required, so it's valid to encode a size as 5 bytes even when 1 would suffice.
         const sizeLength = maxUtf8Size <= 254 ? 1 : 5;
 
+        // Over-allocating buffer capacity avoids an extra allocation and copy that TextEncoder.encode() would require.
         stream.expand(sizeLength + maxUtf8Size);
 
         const sizePos = this._position;
