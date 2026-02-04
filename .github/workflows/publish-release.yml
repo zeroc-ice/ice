@@ -115,8 +115,8 @@ jobs:
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
-  publish-swift-artifacts:
-    uses: ./.github/workflows/publish-swift-artifacts.yml
+  publish-ice-cpp-swift-deps:
+    uses: ./.github/workflows/publish-ice-cpp-swift-deps.yml
     with:
       channel: ${{ inputs.channel }}
       quality: ${{ inputs.quality }}
@@ -145,7 +145,7 @@ jobs:
       - publish-pip-packages
       - publish-rpm-packages
       - publish-swift-packages
-      - publish-swift-artifacts
+      - publish-ice-cpp-swift-deps
       - publish-symbols-sources
     steps:
       - name: Invalidate CloudFront Cache
@@ -177,7 +177,7 @@ jobs:
       - publish-pip-packages
       - publish-rpm-packages
       - publish-swift-packages
-      - publish-swift-artifacts
+      - publish-ice-cpp-swift-deps
     uses: ./.github/workflows/upload-release-assets.yml
     with:
       channel: ${{ inputs.channel }}

@@ -1,4 +1,4 @@
-name: "Build Swift Artifacts"
+name: "Build Ice C++ Dependencies for Swift"
 
 on:
   workflow_call:
@@ -22,7 +22,7 @@ permissions:
   contents: write
 
 jobs:
-  build-swift-artifacts:
+  build-ice-cpp-swift-deps:
     runs-on: macos-26
 
     steps:

@@ -1,4 +1,4 @@
-name: "Publish Swift Artifacts"
+name: "Publish Ice C++ Dependencies for Swift"
 
 on:
   workflow_dispatch:
@@ -27,8 +27,8 @@ on:
 
 jobs:
 
-  publish-swift-artifacts:
-    name: "Publish Swift Artifacts"
+  publish-ice-cpp-swift-deps:
+    name: "Publish Ice C++ Dependencies for Swift"
     runs-on: "ubuntu-24.04"
     steps:
       - name: Download XCFramework artifacts
