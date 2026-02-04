@@ -51,6 +51,7 @@ jobs:
         run: |
           source test-venv/bin/activate
           pip install python/dist/*.whl
+          pip install cryptography
 
       - name: Install Package (Windows)
         if: runner.os == 'Windows'
@@ -58,6 +59,7 @@ jobs:
         run: |
           test-venv\Scripts\Activate.ps1
           pip install (Get-ChildItem python\dist\*.whl).FullName
+          pip install cryptography
 
       - name: Run Tests (Unix)
         if: runner.os != 'Windows'
