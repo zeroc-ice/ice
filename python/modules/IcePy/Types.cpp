@@ -47,7 +47,7 @@ namespace
     // Wraps the current Python exception in a ValueError with the original exception as the cause.
     // TODO: In the next major release, we can remove this helper and avoid wrapping the original exceptions.
     //
-    void wrapRaisedExceptionWithValueError(const char* message)
+    void wrapRaisedExceptionInValueError(const char* message)
     {
         assert(PyErr_Occurred());
         PyObject* originalException = PyErr_GetRaisedException();
@@ -620,7 +620,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             int isTrue = PyObject_IsTrue(p);
             if (isTrue < 0)
             {
-                wrapRaisedExceptionWithValueError("invalid value for bool type");
+                wrapRaisedExceptionInValueError("invalid value for bool type");
                 throw AbortMarshaling();
             }
             os->write(isTrue ? true : false);
@@ -631,7 +631,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             long val = PyLong_AsLong(p);
             if (PyErr_Occurred())
             {
-                wrapRaisedExceptionWithValueError("invalid value for byte type");
+                wrapRaisedExceptionInValueError("invalid value for byte type");
                 throw AbortMarshaling();
             }
             if (val < 0 || val > 255)
@@ -647,7 +647,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             long val = PyLong_AsLong(p);
             if (PyErr_Occurred())
             {
-                wrapRaisedExceptionWithValueError("invalid value for short type");
+                wrapRaisedExceptionInValueError("invalid value for short type");
                 throw AbortMarshaling();
             }
             if (val < SHRT_MIN || val > SHRT_MAX)
@@ -663,7 +663,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             long val = PyLong_AsLong(p);
             if (PyErr_Occurred())
             {
-                wrapRaisedExceptionWithValueError("invalid value for int type");
+                wrapRaisedExceptionInValueError("invalid value for int type");
                 throw AbortMarshaling();
             }
             if (val < INT_MIN || val > INT_MAX)
@@ -679,7 +679,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             int64_t val = PyLong_AsLongLong(p);
             if (PyErr_Occurred())
             {
-                wrapRaisedExceptionWithValueError("invalid value for long type");
+                wrapRaisedExceptionInValueError("invalid value for long type");
                 throw AbortMarshaling();
             }
             os->write(val);
@@ -690,7 +690,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             double dval = PyFloat_AsDouble(p); // Attempts to perform conversion.
             if (PyErr_Occurred())
             {
-                wrapRaisedExceptionWithValueError("invalid value for float type");
+                wrapRaisedExceptionInValueError("invalid value for float type");
                 throw AbortMarshaling();
             }
 
@@ -709,7 +709,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
             double val = PyFloat_AsDouble(p); // Attempts to perform conversion.
             if (PyErr_Occurred())
             {
-                wrapRaisedExceptionWithValueError("invalid value for double type");
+                wrapRaisedExceptionInValueError("invalid value for double type");
                 throw AbortMarshaling();
             }
 
@@ -1789,15 +1789,6 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 if (!item)
                 {
                     assert(PyErr_Occurred());
-                    throw AbortMarshaling();
-                }
-
-                if (item != Py_None && !checkString(item))
-                {
-                    PyErr_Format(
-                        PyExc_ValueError,
-                        "invalid value for element %d of sequence<string>",
-                        static_cast<int>(i));
                     throw AbortMarshaling();
                 }
 
