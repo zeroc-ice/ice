@@ -130,13 +130,8 @@ struct CompileSlicePlugin {
             .first(where: { $0.url.lastPathComponent == Self.configFileName })?
             .url
 
-        // Start with the Ice slice directory in the search path (if found).
-        var searchPaths: [String] = []
-        if let iceSliceDir = CompileSlicePlugin.iceSliceDir {
-            searchPaths.append("-I\(iceSliceDir.path)")
-        }
-
         // Decode config and apply additional sources and search paths.
+        var searchPaths: [String] = []
         if let configFileURL = configFileURL {
             let configData = try Data(contentsOf: configFileURL)
             let config = try JSONDecoder().decode(Config.self, from: configData)
@@ -161,6 +156,11 @@ struct CompileSlicePlugin {
             for path in config.search_paths ?? [] {
                 searchPaths.append("-I\(baseDirectory.appendingPathComponent(path).path)")
             }
+        }
+
+        // Add the Ice slice directory last, so user-provided paths take precedence.
+        if let iceSliceDir = CompileSlicePlugin.iceSliceDir {
+            searchPaths.append("-I\(iceSliceDir.path)")
         }
 
         // Create the build commands for each slice file.
