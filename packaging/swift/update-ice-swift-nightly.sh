@@ -43,7 +43,7 @@ cp -rfv ../../../slice .
 cp -rfv ../../../swift .
 cp -v ../../../Package.swift .
 
-# Compute the download path based on quality (matching publish-ice-cpp-swift-deps.yml)
+# Compute the download path based on quality (matching publish-cpp-swift-deps.yml)
 if [ "${QUALITY}" = "stable" ]; then
     download_path="ice/${CHANNEL}"
 else

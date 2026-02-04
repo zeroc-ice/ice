@@ -24,11 +24,8 @@ rm -rf dotnet-nuget-packages
 # Include Ruby GEM packages as is.
 cp -v "${STAGING_DIR}/gem-packages"/*.gem .
 
-# Include XCFramework ZIP archives.
-cp -v "${STAGING_DIR}/xcframework-packages"/*.zip .
-
-# Include slice2swift artifact bundle.
-cp -v "${STAGING_DIR}/slice2swift-artifactbundle"/*.zip .
+# Include C++ Dependencies for Swift (XCFrameworks and slice2swift artifact bundle).
+cp -v "${STAGING_DIR}/cpp-swift-deps"/*.zip .
 
 # Include MATLAB toolbox packages (.mltbx).
 cp -v "${STAGING_DIR}"/matlab-packages-*/*.mltbx .

@@ -1,4 +1,4 @@
-name: "Build Ice C++ Dependencies for Swift"
+name: "Build C++ Dependencies for Swift"
 
 on:
   workflow_call:
@@ -22,7 +22,7 @@ permissions:
   contents: write
 
 jobs:
-  build-ice-cpp-swift-deps:
+  build-cpp-swift-deps:
     runs-on: macos-26
 
     steps:
@@ -60,14 +60,10 @@ jobs:
         run: mv slice2swift.artifactbundle.zip slice2swift-${ICE_VERSION}.artifactbundle.zip
         working-directory: cpp/bin
 
-      - name: Upload XCFramework Artifacts
+      - name: Upload C++ Dependencies for Swift
         uses: actions/upload-artifact@v4
         with:
-          name: xcframework-packages
-          path: cpp/lib/XCFrameworks/*.zip
-
-      - name: Upload slice2swift Artifact Bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: slice2swift-artifactbundle
-          path: cpp/bin/slice2swift-*.artifactbundle.zip
+          name: cpp-swift-deps
+          path: |
+            cpp/lib/XCFrameworks/*.zip
+            cpp/bin/slice2swift-*.artifactbundle.zip

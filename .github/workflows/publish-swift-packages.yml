@@ -36,31 +36,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Download XCFramework artifacts
+      - name: Download C++ Dependencies for Swift
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ inputs.run_id }}
         run: |
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "xcframework-packages" --dir staging
-
-      - name: Download slice2swift artifact bundle
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUN_ID: ${{ inputs.run_id }}
-        run: |
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "slice2swift-artifactbundle" --dir staging
-
-      - name: Prepare staging directory
-        run: |
-          mkdir -p staging/swift-deps
-          mv staging/xcframework-packages/* staging/swift-deps/
-          mv staging/slice2swift-artifactbundle/* staging/swift-deps/
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "cpp-swift-deps" --dir staging
 
       - name: Create ice-swift repository
         run: ./update-ice-swift-nightly.sh
         working-directory: packaging/swift
         env:
           ICE_NIGHTLY_PUBLISH_TOKEN: ${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}
-          STAGING_DIR: ${{ github.workspace }}/staging/swift-deps
+          STAGING_DIR: ${{ github.workspace }}/staging/cpp-swift-deps
           CHANNEL: ${{ inputs.channel }}
           QUALITY: ${{ inputs.quality }}
