@@ -6,8 +6,8 @@ runs:
     - name: Install Debugging Tools for Windows
       shell: pwsh
       run: |
-        $sdkPath = "$env:TEMP\sdksetup.exe"
-        $logPath = "$env:TEMP\sdk.log"
+        $sdkPath = "${{ runner.temp }}\sdksetup.exe"
+        $logPath = "${{ runner.temp }}\sdk.log"
 
         Write-Host "Downloading Windows SDK installer..."
         Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/?linkid=2338977" -OutFile $sdkPath
@@ -34,4 +34,4 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: sdk-install-log
-        path: ${{ env.TEMP }}\sdk.log
+        path: ${{ runner.temp }}/sdk.log
