@@ -3,21 +3,6 @@
 import Foundation
 import PackageDescription
 
-let iceUtilSources: [String] = [
-    "src/Ice/ConsoleUtil.cpp",
-    "src/Ice/CtrlCHandler.cpp",
-    "src/Ice/Demangle.cpp",
-    "src/Ice/Exception.cpp",
-    "src/Ice/FileUtil.cpp",
-    "src/Ice/LocalException.cpp",
-    "src/Ice/Options.cpp",
-    "src/Ice/OutputUtil.cpp",
-    "src/Ice/Random.cpp",
-    "src/Ice/StringConverter.cpp",
-    "src/Ice/StringUtil.cpp",
-    "src/Ice/UUID.cpp",
-]
-
 let package = Package(
     name: "ice",
     defaultLocalization: "en",
@@ -33,8 +18,7 @@ let package = Package(
         .plugin(name: "CompileSlice", targets: ["CompileSlice"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/zeroc-ice/mcpp.git", revision: "0dbe51946cce23c692c59cf75909daf4fcdfd1d2"),
-        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.3"),
+        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.3")
     ],
     targets: [
         .target(
@@ -87,27 +71,9 @@ let package = Package(
             name: "IceLocatorDiscoveryCpp",
             path: "cpp/lib/XCFrameworks/IceLocatorDiscovery.xcframework"
         ),
-        .executableTarget(
+        .binaryTarget(
             name: "slice2swift",
-            dependencies: ["mcpp"],
-            path: "cpp",
-            exclude: [
-                "test",
-                "src/slice2swift/build",
-                "src/slice2swift/msbuild",
-                "src/slice2swift/Slice2Swift.rc",
-                "src/Slice/build",
-                "src/Slice/msbuild",
-                "src/Slice/Scanner.l",
-                "src/Slice/Grammar.y",
-                "src/Slice/Makefile.mk",
-            ],
-            sources: ["src/slice2swift", "src/Slice"] + iceUtilSources,
-            publicHeadersPath: "src/slice2swift",
-            cxxSettings: [
-                .headerSearchPath("src"),
-                .headerSearchPath("include"),
-            ]
+            path: "cpp/bin/slice2swift.artifactbundle.zip"
         ),
         .plugin(
             name: "CompileSlice",
