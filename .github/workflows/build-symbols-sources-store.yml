@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       ice_version:
-        required: true
+        required: false
         type: string
       channel:
         required: true
@@ -19,8 +19,8 @@ on:
   workflow_dispatch:
     inputs:
       ice_version:
-        description: "The Ice version (e.g., 3.9.0)"
-        required: true
+        description: "The Ice version (e.g., 3.9.0). Required for nightly builds, optional for stable."
+        required: false
       channel:
         description: "The release channel (e.g., 3.9, 3.8)"
         required: true
@@ -38,6 +38,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set ICE_VERSION
+        shell: bash
+        run: |
+          if [[ "${{ inputs.quality }}" == "stable" ]]; then
+            source ./config/version.env
+            echo "ICE_VERSION=${BASE_VERSION}" >> $GITHUB_ENV
+          else
+            echo "ICE_VERSION=${{ inputs.ice_version }}" >> $GITHUB_ENV
+          fi
 
       - name: Setup Python
         uses: ./.github/actions/setup-python
@@ -70,16 +80,16 @@ jobs:
         run: |
           python packaging/release/index-ice-pdb-sources.py `
             --source-dir ${{ github.workspace }} `
-            --version ${{ inputs.ice_version }} `
+            --version $env:ICE_VERSION `
             --source-base-url ${{ steps.source-url.outputs.source_base_url }} `
             --output-dir ${{ github.workspace }}/symbols-sources
 
       - name: Create Symbols Store
         run: |
           symstore add /3 /r /t "Ice for C++" `
-            /v "${{ inputs.ice_version }}" `
-            /s "${{ github.workspace }}/symbols-sources/symbols/${{ inputs.ice_version }}/" `
-            /f "${{ github.workspace }}/symbols-sources/pdbs/${{ inputs.ice_version }}/" `
+            /v "$env:ICE_VERSION" `
+            /s "${{ github.workspace }}/symbols-sources/symbols/$env:ICE_VERSION/" `
+            /f "${{ github.workspace }}/symbols-sources/pdbs/$env:ICE_VERSION/" `
             /compress
 
       - name: Upload Symbols and Sources

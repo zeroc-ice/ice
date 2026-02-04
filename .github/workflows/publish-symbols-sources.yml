@@ -26,17 +26,20 @@ on:
         type: string
 
 jobs:
-  publish-symbols-sources:
-    name: "Publish Symbols and Sources"
+  # Non-stable releases (nightly, RC) - simple sync to quality-specific paths
+  publish-symbols-sources-nightly:
+    name: "Publish Symbols and Sources (Non-Stable)"
     if: ${{ inputs.quality != 'stable' }}
     runs-on: ubuntu-24.04
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
       - name: Download Symbols and Sources artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUN_ID: ${{ inputs.run_id }}
         run: |
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "windows-symbols-sources" --dir staging
+          gh run download "${{ inputs.run_id }}" --repo zeroc-ice/ice --pattern "windows-symbols-sources" --dir staging
 
       - name: Publish Symbols and Sources
         run: |
@@ -47,7 +50,67 @@ jobs:
           # Upload symbol store to S3
           aws s3 sync "staging/windows-symbols-sources/symbols/" "s3://zeroc-downloads/${UPLOAD_PATH}/symbols/"
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           CHANNEL: ${{ inputs.channel }}
           QUALITY: ${{ inputs.quality }}
+
+  # Stable releases - incremental update to shared symbol store with proper 000admin handling
+  # Downloads existing 000admin, uses symstore add to create proper transaction, uploads result
+  publish-symbols-sources-stable:
+    name: "Publish Symbols and Sources (Stable)"
+    if: ${{ inputs.quality == 'stable' }}
+    runs-on: windows-2022
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      S3_BUCKET: zeroc-sourcesandsymbols
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Windows Debug Tools
+        uses: ./.github/actions/install-windows-debug-tools
+
+      - name: Download Symbols and Sources artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run download "${{ inputs.run_id }}" --repo zeroc-ice/ice --pattern "windows-symbols-sources" --dir staging
+
+      - name: Read version from config
+        id: version
+        run: |
+          source ./config/version.env
+          echo "ice_version=${BASE_VERSION}" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Download existing 000admin from S3
+        run: |
+          New-Item -ItemType Directory -Force -Path symbol-store
+          # Download existing 000admin from stable symbol store
+          aws s3 sync "s3://${{ env.S3_BUCKET }}/symstore/000admin/" "symbol-store/000admin/"
+          if (-not (Test-Path "symbol-store/000admin/history.txt")) {
+            Write-Error "No existing 000admin found in stable symbol store - this should not happen"
+            exit 1
+          }
+          Write-Host "Downloaded existing 000admin"
+        shell: pwsh
+
+      - name: Add symbols to store using symstore
+        run: |
+          # Add all PDBs in a single transaction
+          # symstore /r recursively finds all PDBs under the staging directory
+          symstore add /3 /compress /r `
+            /t "Ice" `
+            /v "${{ steps.version.outputs.ice_version }}" `
+            /s ${{ github.workspace }}/symbol-store `
+            /f "${{ github.workspace }}/staging"
+        shell: pwsh
+
+      - name: Publish Symbols and Sources to S3
+        run: |
+          # Upload sources to S3
+          aws s3 sync "staging/windows-symbols-sources/sources/" "s3://${{ env.S3_BUCKET }}/sources/ice/"
+
+          # Sync the entire symbol store including 000admin
+          aws s3 sync "symbol-store/" "s3://${{ env.S3_BUCKET }}/symstore/"
+        shell: pwsh

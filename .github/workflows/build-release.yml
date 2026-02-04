@@ -248,9 +248,9 @@ jobs:
       channel: ${{ needs.configure.outputs.channel }}
     secrets: inherit
 
-  prune-nightly-artifacts:
-    name: Prune Nightly Artifacts
-    if: ${{ inputs.publish == true && inputs.quality == 'nightly' }}
+  build-all:
+    name: Build All Packages
+    runs-on: ubuntu-24.04
     needs:
       - build-brew-packages
       - build-deb-packages
@@ -265,7 +265,15 @@ jobs:
       - build-xcframework-packages
       - build-symbols-sources-store
       - build-cpp-nuget-packages
+    steps:
+      - run: echo "All packages built successfully"
+
+  prune-nightly-artifacts:
+    name: Prune Nightly Artifacts
+    if: ${{ inputs.publish == true && inputs.quality == 'nightly' }}
+    needs:
       - configure
+      - build-all
     uses: ./.github/workflows/prune-nightly-artifacts.yml
     with:
       channel: ${{ needs.configure.outputs.channel }}
@@ -276,6 +284,7 @@ jobs:
     if: ${{ inputs.publish == true }}
     needs:
       - configure
+      - build-all
       - prune-nightly-artifacts
     uses: ./.github/workflows/publish-release.yml
     with:
