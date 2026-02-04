@@ -1,4 +1,3 @@
 {
-  "sources": ["../../../slice/Glacier2"],
-  "search_paths": ["../../../slice"]
+  "sources": ["../../../slice/Glacier2"]
 }
