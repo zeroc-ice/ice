@@ -693,87 +693,58 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
     }
 
     ObjectMap objectMap;
-    ParamInfoList::iterator p;
 
-    //
-    // Validate the results.
-    //
-    for (const auto& info : outParams)
+    try
     {
-        PyObject* arg = PyTuple_GET_ITEM(resultTuple.get(), info->pos);
-        if ((!info->optional || arg != Py_None) && !info->type->validate(arg))
+        // Marshal the required out parameters.
+        for (const auto& info : outParams)
         {
-            // TODO: Provide the parameter name instead?
-            ostringstream ostr;
-            ostr << "cannot marshal result: invalid value for out argument " << (info->pos + 1) << " in operation '"
-                 << mappedName << "'";
-            if (PyErr_Occurred())
+            if (!info->optional)
             {
-                try
-                {
-                    throwPythonException();
-                }
-                catch (const Ice::LocalException& ex)
-                {
-                    ostr << "':\n" << ex.what();
-                }
+                PyObject* arg = PyTuple_GET_ITEM(resultTuple.get(), info->pos);
+                info->type->marshal(arg, &os, &objectMap, false, &info->metadata);
             }
-            throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
         }
-    }
 
-    if (returnType)
-    {
-        PyObject* res = PyTuple_GET_ITEM(resultTuple.get(), 0);
-        if ((!returnType->optional || res != Py_None) && !returnType->type->validate(res))
+        // Marshal the required return value, if any.
+        if (returnType && !returnType->optional)
         {
-            ostringstream ostr;
-            ostr << "cannot marshal result: invalid return value for operation '" << mappedName << "'";
-            if (PyErr_Occurred())
-            {
-                try
-                {
-                    throwPythonException();
-                }
-                catch (const Ice::LocalException& ex)
-                {
-                    ostr << ":\n" << ex.what();
-                }
-            }
-            throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
+            PyObject* res = PyTuple_GET_ITEM(resultTuple.get(), 0);
+            returnType->type->marshal(res, &os, &objectMap, false, &metadata);
         }
-    }
 
-    // Marshal the required out parameters.
-    for (const auto& info : outParams)
-    {
-        if (!info->optional)
+        // Marshal the optional results.
+        for (const auto& info : optionalOutParams)
         {
             PyObject* arg = PyTuple_GET_ITEM(resultTuple.get(), info->pos);
-            info->type->marshal(arg, &os, &objectMap, false, &info->metadata);
+            if (arg != Py_None && os.writeOptional(info->tag, info->type->optionalFormat()))
+            {
+                info->type->marshal(arg, &os, &objectMap, true, &info->metadata);
+            }
         }
-    }
 
-    // Marshal the required return value, if any.
-    if (returnType && !returnType->optional)
-    {
-        PyObject* res = PyTuple_GET_ITEM(resultTuple.get(), 0);
-        returnType->type->marshal(res, &os, &objectMap, false, &metadata);
-    }
-
-    // Marshal the optional results.
-    for (const auto& info : optionalOutParams)
-    {
-        PyObject* arg = PyTuple_GET_ITEM(resultTuple.get(), info->pos);
-        if (arg != Py_None && os.writeOptional(info->tag, info->type->optionalFormat()))
+        if (returnsClasses)
         {
-            info->type->marshal(arg, &os, &objectMap, true, &info->metadata);
+            os.writePendingValues();
         }
     }
-
-    if (returnsClasses)
+    catch (const AbortMarshaling&)
     {
-        os.writePendingValues();
+        // Wrap the marshaling error in a MarshalException with context about the operation.
+        ostringstream ostr;
+        ostr << "cannot marshal result for operation '" << mappedName << "'";
+        if (PyErr_Occurred())
+        {
+            try
+            {
+                throwPythonException();
+            }
+            catch (const Ice::LocalException& ex)
+            {
+                ostr << ":\n" << ex.what();
+            }
+        }
+        throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
     }
 }
 
@@ -997,27 +968,6 @@ IcePy::Invocation::prepareRequest(
             os->startEncapsulation(_prx->ice_getEncodingVersion(), op->format);
 
             ObjectMap objectMap;
-            //
-            // Validate the supplied arguments.
-            //
-            for (const auto& info : op->inParams)
-            {
-                PyObject* arg = PyTuple_GET_ITEM(args, info->pos);
-                if ((!info->optional || arg != Py_None) && !info->type->validate(arg))
-                {
-                    string opName = op->mappedName;
-                    if (mapping == AsyncMapping)
-                    {
-                        opName += "Async";
-                    }
-                    PyErr_Format(
-                        PyExc_ValueError,
-                        "invalid value for argument %" PY_FORMAT_SIZE_T "d in operation '%s'",
-                        info->pos + 1,
-                        const_cast<char*>(opName.c_str()));
-                    return false;
-                }
-            }
 
             //
             // Marshal the required parameters.

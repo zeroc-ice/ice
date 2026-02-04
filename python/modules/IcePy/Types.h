@@ -133,8 +133,6 @@ namespace IcePy
         TypeInfo();
         [[nodiscard]] virtual std::string getId() const = 0;
 
-        virtual bool validate(PyObject*) = 0;
-
         [[nodiscard]] virtual bool variableLength() const = 0;
         [[nodiscard]] virtual int wireSize() const = 0;
         [[nodiscard]] virtual Ice::OptionalFormat optionalFormat() const = 0;
@@ -181,8 +179,6 @@ namespace IcePy
 
         [[nodiscard]] std::string getId() const final;
 
-        bool validate(PyObject*) final;
-
         [[nodiscard]] bool variableLength() const final;
         [[nodiscard]] int wireSize() const final;
         [[nodiscard]] Ice::OptionalFormat optionalFormat() const final;
@@ -211,8 +207,6 @@ namespace IcePy
         EnumInfo(std::string, PyObject*, PyObject*);
 
         [[nodiscard]] std::string getId() const final;
-
-        bool validate(PyObject*) final;
 
         [[nodiscard]] bool variableLength() const final;
         [[nodiscard]] int wireSize() const final;
@@ -263,8 +257,6 @@ namespace IcePy
 
         [[nodiscard]] std::string getId() const final;
 
-        bool validate(PyObject*) final;
-
         [[nodiscard]] bool variableLength() const final;
         [[nodiscard]] int wireSize() const final;
         [[nodiscard]] Ice::OptionalFormat optionalFormat() const final;
@@ -303,8 +295,6 @@ namespace IcePy
         SequenceInfo(std::string, PyObject*, PyObject*);
 
         [[nodiscard]] std::string getId() const final;
-
-        bool validate(PyObject*) final;
 
         [[nodiscard]] bool variableLength() const final;
         [[nodiscard]] int wireSize() const final;
@@ -392,8 +382,6 @@ namespace IcePy
 
         [[nodiscard]] std::string getId() const final;
 
-        bool validate(PyObject*) final;
-
         [[nodiscard]] bool variableLength() const final;
         [[nodiscard]] int wireSize() const final;
         [[nodiscard]] Ice::OptionalFormat optionalFormat() const final;
@@ -445,8 +433,6 @@ namespace IcePy
 
         [[nodiscard]] std::string getId() const final;
 
-        bool validate(PyObject*) final;
-
         [[nodiscard]] bool variableLength() const final;
         [[nodiscard]] int wireSize() const final;
         [[nodiscard]] Ice::OptionalFormat optionalFormat() const final;
@@ -489,8 +475,6 @@ namespace IcePy
         void define(PyObject*);
 
         [[nodiscard]] std::string getId() const final;
-
-        bool validate(PyObject*) final;
 
         [[nodiscard]] bool variableLength() const final;
         [[nodiscard]] int wireSize() const final;
