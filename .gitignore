@@ -146,9 +146,6 @@ compile_commands.json
 .build
 .swiftpm
 
-# slice2swift artifact bundle (built on-demand for SwiftPM)
-cpp/bin/slice2swift.artifactbundle
-
 # LLVM Code Coverage maps
 *.profraw
 *.profdata
