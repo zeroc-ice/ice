@@ -79,7 +79,7 @@ class Chatbot(VisitorCenter.Greeter):
 ```
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/python
-[Documentation]: https://docs.zeroc.com/ice/latest/python/
+[Documentation]: https://docs.zeroc.com/ice/latest/python
 [API Reference]: https://code.zeroc.com/ice/main/api/python/index.html
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

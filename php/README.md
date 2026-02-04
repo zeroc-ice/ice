@@ -43,6 +43,6 @@ echo "$greeting\n";
 ```
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/php
-[Documentation]: https://docs.zeroc.com/ice/latest/php/
+[Documentation]: https://docs.zeroc.com/ice/latest/php
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice
