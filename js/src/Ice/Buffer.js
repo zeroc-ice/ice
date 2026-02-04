@@ -7,16 +7,6 @@ const indexOutOfBoundsExceptionMsg = "IndexOutOfBoundsException";
 // Singleton TextEncoder for UTF-8 string encoding
 const textEncoder = new TextEncoder();
 
-// Write size at position using 1-byte or 5-byte encoding
-function writeSizeAt(v, position, size, sizeLength) {
-    if (sizeLength === 1) {
-        v.setUint8(position, size);
-    } else {
-        v.setUint8(position, 255);
-        v.setInt32(position + 1, size, true);
-    }
-}
-
 export class Buffer {
     constructor(buffer) {
         if (buffer !== undefined) {
@@ -159,33 +149,11 @@ export class Buffer {
     }
 
     writeString(stream, v) {
-        if (v.length === 0) {
-            stream.writeSize(0);
-            return;
-        }
-
-        // JavaScript string.length returns the number of UTF-16 code units. The maximum UTF-8 bytes per
-        // UTF-16 code unit is 3, which occurs for BMP characters in the range U+0800–U+FFFF (e.g., CJK characters).
-        // Surrogate pairs (2 UTF-16 code units) encode to 4 UTF-8 bytes, which is only 2 bytes per code unit.
-        const maxUtf8Size = v.length * 3;
-
-        // Decide size encoding based on max possible encoded length. Slice 1.x size encoding allows using
-        // more bytes than strictly required, so it's valid to encode a size as 5 bytes even when 1 would suffice.
-        const sizeLength = maxUtf8Size <= 254 ? 1 : 5;
-
-        // Over-allocating buffer capacity avoids an extra allocation and copy that TextEncoder.encode() would require.
-        stream.expand(sizeLength + maxUtf8Size);
-
-        const sizePos = this._position;
-        this._position += sizeLength;
-
-        const targetView = new Uint8Array(this.b, this._position, maxUtf8Size);
-        const { written } = textEncoder.encodeInto(v, targetView);
-
-        writeSizeAt(this.v, sizePos, written, sizeLength);
-        this._position += written;
-
-        // Adjust limit to actual bytes written (we expanded for max, but may have written less)
+        const encoded = textEncoder.encode(v);
+        stream.writeSize(encoded.length);
+        this.expand(encoded.length);
+        new Uint8Array(this.b, this._position, encoded.length).set(encoded);
+        this._position += encoded.length;
         this._limit = this._position;
     }
 
