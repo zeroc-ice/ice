@@ -35,7 +35,6 @@ class TcpTransceiver {
         this._exception = null;
     }
 
-
     setCallbacks(connectedCallback, bytesAvailableCallback, bytesWrittenCallback) {
         this._connectedCallback = connectedCallback;
         this._bytesAvailableCallback = bytesAvailableCallback;
