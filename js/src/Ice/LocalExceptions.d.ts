@@ -4,6 +4,8 @@ declare module "@zeroc/ice" {
     namespace Ice {
         /**
          * Options for constructing an Error with a cause.
+         *
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/Error#rethrowing_an_error_with_a_cause}
          */
         interface ErrorOptions {
             cause?: unknown;
@@ -171,6 +173,12 @@ declare module "@zeroc/ice" {
          * The exception that is thrown when a connection establishment fails.
          */
         class ConnectFailedException extends SocketException {
+            /**
+             * Constructs a ConnectFailedException.
+             *
+             * @param peerAddress The address of the remote peer, if available.
+             * @param options The error options.
+             */
             constructor(peerAddress?: string, options?: ErrorOptions);
         }
 
@@ -178,6 +186,12 @@ declare module "@zeroc/ice" {
          * The exception that is thrown when an established connection is lost.
          */
         class ConnectionLostException extends SocketException {
+            /**
+             * Constructs a ConnectionLostException.
+             *
+             * @param peerAddress The address of the remote peer, if available.
+             * @param options The error options.
+             */
             constructor(peerAddress?: string, options?: ErrorOptions);
         }
 
@@ -185,6 +199,12 @@ declare module "@zeroc/ice" {
          * The exception that is thrown when the server host actively refuses a connection.
          */
         class ConnectionRefusedException extends ConnectFailedException {
+            /**
+             * Constructs a ConnectionRefusedException.
+             *
+             * @param serverAddress The address of the remote server, if available.
+             * @param options The error options.
+             */
             constructor(serverAddress?: string, options?: ErrorOptions);
         }
 
