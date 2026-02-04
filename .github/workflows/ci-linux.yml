@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   build-and-test:
-    name: ${{ matrix.config }} on ${{ matrix.distribution }}-${{ matrix.arch }}
+    name: ${{ matrix.distribution }}-${{ matrix.arch }}
     runs-on: ${{ (contains(matrix.arch, 'arm64') || contains(matrix.arch, 'aarch64')) && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
@@ -22,122 +22,52 @@ jobs:
           # RPM-based distributions (el9, el10, amzn2023)
           - distribution: el9
             arch: x86_64
-            config: shared
-            image_type: rpm
-          - distribution: el9
-            arch: x86_64
-            config: cpp11-shared
             image_type: rpm
           - distribution: el9
             arch: aarch64
-            config: shared
-            image_type: rpm
-          - distribution: el9
-            arch: aarch64
-            config: cpp11-shared
             image_type: rpm
 
           - distribution: el10
             arch: x86_64
-            config: shared
-            image_type: rpm
-          - distribution: el10
-            arch: x86_64
-            config: cpp11-shared
             image_type: rpm
           - distribution: el10
             arch: aarch64
-            config: shared
-            image_type: rpm
-          - distribution: el10
-            arch: aarch64
-            config: cpp11-shared
             image_type: rpm
 
           - distribution: amzn2023
             arch: x86_64
-            config: shared
-            image_type: rpm
-          - distribution: amzn2023
-            arch: x86_64
-            config: cpp11-shared
             image_type: rpm
           - distribution: amzn2023
             arch: aarch64
-            config: shared
-            image_type: rpm
-          - distribution: amzn2023
-            arch: aarch64
-            config: cpp11-shared
             image_type: rpm
 
           # DEB-based distributions (ubuntu, debian)
           - distribution: ubuntu22.04
             arch: amd64
-            config: shared
-            image_type: deb
-          - distribution: ubuntu22.04
-            arch: amd64
-            config: cpp11-shared
             image_type: deb
           - distribution: ubuntu22.04
             arch: arm64
-            config: shared
-            image_type: deb
-          - distribution: ubuntu22.04
-            arch: arm64
-            config: cpp11-shared
             image_type: deb
 
           - distribution: ubuntu24.04
             arch: amd64
-            config: shared
-            image_type: deb
-          - distribution: ubuntu24.04
-            arch: amd64
-            config: cpp11-shared
             image_type: deb
           - distribution: ubuntu24.04
             arch: arm64
-            config: shared
-            image_type: deb
-          - distribution: ubuntu24.04
-            arch: arm64
-            config: cpp11-shared
             image_type: deb
 
           - distribution: debian12
             arch: amd64
-            config: shared
-            image_type: deb
-          - distribution: debian12
-            arch: amd64
-            config: cpp11-shared
             image_type: deb
           - distribution: debian12
             arch: arm64
-            config: shared
-            image_type: deb
-          - distribution: debian12
-            arch: arm64
-            config: cpp11-shared
             image_type: deb
 
           - distribution: debian13
             arch: amd64
-            config: shared
-            image_type: deb
-          - distribution: debian13
-            arch: amd64
-            config: cpp11-shared
             image_type: deb
           - distribution: debian13
             arch: arm64
-            config: shared
-            image_type: deb
-          - distribution: debian13
-            arch: arm64
-            config: cpp11-shared
             image_type: deb
 
     steps:
@@ -159,7 +89,7 @@ jobs:
           username: zeroc-ice
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and test C++ (${{ matrix.config }})
+      - name: Build and test C++
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/ice" \
@@ -167,22 +97,22 @@ jobs:
             ghcr.io/zeroc-ice/ice-${{ matrix.image_type }}-builder-${{ matrix.distribution }}:${CHANNEL} \
             bash -c "
               set -ex
-              make CONFIGS=${{ matrix.config }} -j\$(nproc) srcs
-              make CONFIGS=${{ matrix.config }} -j\$(nproc) tests
+              make -j\$(nproc) srcs
+              make -j\$(nproc) tests
 
               # The --rfilter option excludes tests matching the regex. These tests are excluded because
               # they require dependencies or permissions not available in the Docker builder images:
               # - IceUtil/priority, Ice/threadPoolPriority: require CAP_SYS_NICE for thread priorities
               # - Glacier2/*: require the passlib Python module
               # - IceSSL/configuration: requires the openssl CLI tool
-              python3 allTests.py --config=${{ matrix.config }} --workers=4 --debug --continue \
+              python3 allTests.py --workers=4 --debug --continue \
                 --rfilter='IceUtil/priority|Ice/threadPoolPriority|Glacier2/|IceSSL/configuration'
             "
 
       - name: Upload test logs
         uses: actions/upload-artifact@v4
         with:
-          name: test-logs-${{ matrix.config }}-${{ matrix.distribution }}-${{ matrix.arch }}
+          name: test-logs-${{ matrix.distribution }}-${{ matrix.arch }}
           path: cpp/**/*.log
           if-no-files-found: ignore
         if: always()
