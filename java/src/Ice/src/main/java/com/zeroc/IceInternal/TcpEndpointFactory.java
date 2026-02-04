@@ -8,6 +8,7 @@ final class TcpEndpointFactory implements EndpointFactory
 {
     TcpEndpointFactory(ProtocolInstance instance)
     {
+        assert instance != null;
         _instance = instance;
     }
 
@@ -40,7 +41,6 @@ final class TcpEndpointFactory implements EndpointFactory
     @Override
     public void destroy()
     {
-        _instance = null;
     }
 
     @Override
@@ -49,5 +49,5 @@ final class TcpEndpointFactory implements EndpointFactory
         return new TcpEndpointFactory(instance);
     }
 
-    private ProtocolInstance _instance;
+    private final ProtocolInstance _instance;
 }

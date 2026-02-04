@@ -9,6 +9,7 @@ public class ProtocolInstance
     public ProtocolInstance(com.zeroc.Ice.Communicator communicator, short type, String protocol, boolean secure)
     {
         _instance = Util.getInstance(communicator);
+        assert _instance != null;
         _traceLevel = _instance.traceLevels().network;
         _traceCategory = _instance.traceLevels().networkCat;
         _logger = _instance.initializationData().logger;
@@ -121,6 +122,7 @@ public class ProtocolInstance
 
     ProtocolInstance(Instance instance, short type, String protocol, boolean secure)
     {
+        assert instance != null;
         _instance = instance;
         _traceLevel = _instance.traceLevels().network;
         _traceCategory = _instance.traceLevels().networkCat;
@@ -131,7 +133,7 @@ public class ProtocolInstance
         _secure = secure;
     }
 
-    protected Instance _instance;
+    protected final Instance _instance;
     protected int _traceLevel;
     protected String _traceCategory;
     protected com.zeroc.Ice.Logger _logger;
