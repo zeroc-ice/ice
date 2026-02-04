@@ -27,6 +27,9 @@ cp -v "${STAGING_DIR}/gem-packages"/*.gem .
 # Include XCFramework ZIP archives.
 cp -v "${STAGING_DIR}/xcframework-packages"/*.zip .
 
+# Include slice2swift artifact bundle.
+cp -v "${STAGING_DIR}/slice2swift-artifactbundle"/*.zip .
+
 # Include MATLAB toolbox packages (.mltbx).
 cp -v "${STAGING_DIR}"/matlab-packages-*/*.mltbx .
 
