@@ -714,37 +714,37 @@ class Expect(object):
             test(self.exitstatus, exitstatus)
 
     def stackDump(self):
-        match platform.system():
-            case "Linux":
-                dumpCmd = [
-                    "gdb",
-                    "-q",
-                    "-n",
-                    "-batch",
-                    "-ex",
-                    f"attach {self.p.pid}",
-                    "-ex",
-                    "thread apply all bt",
-                    "-ex",
-                    "detach",
-                    "-ex",
-                    "quit",
-                ]
-            case "Darwin":
-                dumpCmd = [
-                    "lldb",
-                    "-p",
-                    f"{self.p.pid}",
-                    "-o",
-                    "thread backtrace all",
-                    "-o",
-                    "process detach",
-                    "-o",
-                    "quit",
-                ]
-            case _:
-                print(f"stackDump not supported on {platform.system()}")
-                return
+        system = platform.system()
+        if system == "Linux":
+            dumpCmd = [
+                "gdb",
+                "-q",
+                "-n",
+                "-batch",
+                "-ex",
+                f"attach {self.p.pid}",
+                "-ex",
+                "thread apply all bt",
+                "-ex",
+                "detach",
+                "-ex",
+                "quit",
+            ]
+        elif system == "Darwin":
+            dumpCmd = [
+                "lldb",
+                "-p",
+                f"{self.p.pid}",
+                "-o",
+                "thread backtrace all",
+                "-o",
+                "process detach",
+                "-o",
+                "quit",
+            ]
+        else:
+            print(f"stackDump not supported on {system}")
+            return
 
         try:
             # The args should be a list

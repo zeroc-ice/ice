@@ -42,13 +42,6 @@ jobs:
             image_type: rpm
 
           # DEB-based distributions (ubuntu, debian)
-          - distribution: ubuntu22.04
-            arch: amd64
-            image_type: deb
-          - distribution: ubuntu22.04
-            arch: arm64
-            image_type: deb
-
           - distribution: ubuntu24.04
             arch: amd64
             image_type: deb
