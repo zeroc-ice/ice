@@ -20,7 +20,7 @@ var initData = new Ice.InitializationData
 await using var communicator = new Ice.Communicator(initData);
 ```
 
-[docs]:https://docs.zeroc.com/ice/latest/csharp/
+[docs]:https://docs.zeroc.com/ice/latest/csharp
 [examples]: https://github.com/zeroc-ice/ice-demos/tree/main/csharp
 [package]: https://www.nuget.org/packages/ZeroC.IceDiscovery
 [source]: https://github.com/zeroc-ice/ice/tree/main/csharp/src/IceDiscovery

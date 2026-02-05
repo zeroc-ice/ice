@@ -51,6 +51,6 @@ end
 ```
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/matlab
-[Documentation]: https://docs.zeroc.com/ice/latest/matlab/
+[Documentation]: https://docs.zeroc.com/ice/latest/matlab
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

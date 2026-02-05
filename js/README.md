@@ -56,7 +56,7 @@ remove such statements. Different module bundlers provide different options, for
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/js
 [NPM Packages]: ../NIGHTLY.md#ice-for-javascript
-[Documentation]: https://docs.zeroc.com/ice/latest/javascript/
+[Documentation]: https://docs.zeroc.com/ice/latest/javascript
 [API Reference]: https://code.zeroc.com/ice/main/api/javascript/index.html
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice
