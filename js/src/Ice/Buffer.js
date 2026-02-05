@@ -9,6 +9,9 @@ const bufferOverflowExceptionMsg = "BufferOverflowException";
 const bufferUnderflowExceptionMsg = "BufferUnderflowException";
 const indexOutOfBoundsExceptionMsg = "IndexOutOfBoundsException";
 
+// Singleton TextEncoder for UTF-8 string encoding
+const textEncoder = new TextEncoder();
+
 class Buffer
 {
     constructor(buffer)
@@ -106,7 +109,7 @@ class Buffer
             else
             {
                 const b = new Uint8Array(capacity);
-                b.set(new Uint8Array(this.b));
+                b.set(new Uint8Array(this.b, 0, this._limit));
                 this.b = b.buffer;
             }
             this.v = new DataView(this.b);
@@ -150,7 +153,7 @@ class Buffer
             {
                 throw new RangeError(bufferOverflowExceptionMsg);
             }
-            new Uint8Array(this.b, 0, this.b.byteLength).set(v, this._position);
+            new Uint8Array(this.b, this._position, v.byteLength).set(v);
             this._position += v.byteLength;
         }
     }
@@ -218,27 +221,12 @@ class Buffer
 
     writeString(stream, v)
     {
-        //
-        // Encode the string as utf8
-        //
-        const encoded = unescape(encodeURIComponent(v));
-
+        const encoded = textEncoder.encode(v);
         stream.writeSize(encoded.length);
-        stream.expand(encoded.length);
-        this.putString(encoded, encoded.length);
-    }
-
-    putString(v, sz)
-    {
-        if(this._position + sz > this._limit)
-        {
-            throw new RangeError(bufferOverflowExceptionMsg);
-        }
-        for(let i = 0; i < sz; ++i)
-        {
-            this.v.setUint8(this._position, v.charCodeAt(i));
-            this._position++;
-        }
+        this.expand(encoded.length);
+        new Uint8Array(this.b, this._position, encoded.length).set(encoded);
+        this._position += encoded.length;
+        this._limit = this._position;
     }
 
     get()
