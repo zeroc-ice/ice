@@ -1131,7 +1131,7 @@ Slice::Gen::ImportVisitor::writeImports(
 
     // Aggregate the sub-modules.
     // If module Foo.Bar was imported from multiple files, we need to aggregate them into a single Foo.Bar module.
-    // This mut be done in a top-down order.
+    // This must be done in a top-down order.
     // Foo.Bar = { ...Foo_Bar_1.Bar, ...Foo_Bar_2.Bar, ... }
     // Foo.Bar.Baz = { ...Foo_Bar_1.Bar.Baz, ...Foo_Bar_2.Bar.Baz, ... }
     auto it = nestedModulesByTopLevel.find(p->topLevelFile());

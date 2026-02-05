@@ -245,7 +245,7 @@ for (const name of tests) {
     gulp.task(testTask(name, "bundle"), async () => {
         let input = fs.existsSync(`${name}/index.js`) ? `${name}/index.js` : `${name}/Client.js`;
 
-        // Use node-resolve plugin for tests that use npm modules (e.g., test-nested-modules)
+        // Use node-resolve plugin for tests that use npm modules (e.g., test_nested_modules)
         let plugins = [IceResolver(), resolve()];
 
         let bundle = await rollup({
