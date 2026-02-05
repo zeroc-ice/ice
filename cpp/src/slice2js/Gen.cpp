@@ -2635,7 +2635,7 @@ Slice::Gen::TypeScriptVisitor::writeNestedModuleExports(const string& currentMod
 
             // Get the nested module path relative to currentModuleScope.
             string nestedModulePath = parentModule.substr(prefix.length());
-            moduleTypes[nestedModulePath].push_back({typeName, importPrefix + typeScope});
+            moduleTypes[nestedModulePath].emplace_back(typeName, importPrefix + typeScope);
         }
     }
 
