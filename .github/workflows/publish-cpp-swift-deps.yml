@@ -1,4 +1,4 @@
-name: "Publish XCFramework Packages"
+name: "Publish C++ Dependencies for Swift"
 
 on:
   workflow_dispatch:
@@ -27,25 +27,25 @@ on:
 
 jobs:
 
-  publish-xcframework-packages:
-    name: "Publish XCFramework Packages"
+  publish-cpp-swift-deps:
+    name: "Publish C++ Dependencies for Swift"
     runs-on: "ubuntu-24.04"
     steps:
-      - name: Download XCFramework artifacts
+      - name: Download C++ Dependencies for Swift
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ inputs.run_id }}
         run: |
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "xcframework-packages" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "cpp-swift-deps" --dir staging
 
-      - name: Publish XCFramework Packages
+      - name: Publish C++ Dependencies for Swift
         run: |
           if [ "${QUALITY}" = "stable" ]; then
             UPLOAD_PATH="ice/${CHANNEL}"
           else
             UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}"
           fi
-          aws s3 sync staging/xcframework-packages/ "s3://zeroc-downloads/${UPLOAD_PATH}/" --exclude "*" --include "*.zip"
+          aws s3 sync staging/cpp-swift-deps/ "s3://zeroc-downloads/${UPLOAD_PATH}/" --exclude "*" --include "*.zip"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
