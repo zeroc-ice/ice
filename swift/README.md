@@ -110,6 +110,6 @@ struct Chatbot: Greeter {
 ```
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/swift
-[Documentation]: https://docs.zeroc.com/ice/latest/swift/
+[Documentation]: https://docs.zeroc.com/ice/latest/swift
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

@@ -41,6 +41,6 @@ end
 ```
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/ruby
-[Documentation]: https://docs.zeroc.com/ice/latest/ruby/
+[Documentation]: https://docs.zeroc.com/ice/latest/ruby
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

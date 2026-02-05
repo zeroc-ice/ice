@@ -26,9 +26,12 @@ on:
         type: string
 
 jobs:
-  build:
+  publish:
     name: "Publish GEM Packages"
     runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Download GEM artifacts
@@ -58,6 +61,14 @@ jobs:
       - name: Publish Release GEM Packages
         if: ${{ inputs.quality == 'stable' }}
         run: |
-          GEM_HOST_API_KEY="${RUBYGEMS_API_KEY}" gem push staging/gem-packages/zeroc-ice-*.gem
-        env:
-          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+          # Get OIDC token from GitHub Actions
+          OIDC_TOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=rubygems.org" | jq -r '.value')
+
+          # Exchange OIDC token for RubyGems API key
+          GEM_API_KEY=$(curl -sS -X POST "https://rubygems.org/api/v1/oidc/trusted_publisher/exchange_token" \
+            -H "Content-Type: application/json" \
+            -d "{\"jwt\": \"$OIDC_TOKEN\"}" | jq -r '.rubygems_api_key')
+
+          # Push the gem
+          GEM_HOST_API_KEY="$GEM_API_KEY" gem push staging/gem-packages/zeroc-ice-*.gem

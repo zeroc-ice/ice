@@ -112,7 +112,7 @@ namespace Server
 ```
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/cpp
-[Documentation]: https://docs.zeroc.com/ice/latest/cpp/
+[Documentation]: https://docs.zeroc.com/ice/latest/cpp
 [API Reference]: https://code.zeroc.com/ice/main/api/cpp/index.html
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

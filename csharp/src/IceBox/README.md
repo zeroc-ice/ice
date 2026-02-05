@@ -10,7 +10,7 @@ generated code for these definitions is included in the IceBox assembly.
 [Package][package] | [Source code][source] | [Examples][examples] | [Documentation][docs] | [API reference][api]
 
 [api]: https://code.zeroc.com/ice/main/api/csharp/api/IceBox.html
-[docs]:https://docs.zeroc.com/ice/latest/csharp/
+[docs]:https://docs.zeroc.com/ice/latest/csharp
 [examples]: https://github.com/zeroc-ice/ice-demos/tree/main/csharp
 [package]: https://www.nuget.org/packages/ZeroC.IceBox
 [IceBox server]: https://www.nuget.org/packages/iceboxnet

@@ -6,8 +6,8 @@ runs:
     - name: Install Debugging Tools for Windows
       shell: pwsh
       run: |
-        $sdkPath = "$env:TEMP\sdksetup.exe"
-        $logPath = "$env:TEMP\sdk.log"
+        $sdkPath = "${{ runner.temp }}\sdksetup.exe"
+        $logPath = "${{ runner.temp }}\sdk.log"
 
         Write-Host "Downloading Windows SDK installer..."
         Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/?linkid=2338977" -OutFile $sdkPath
@@ -15,6 +15,11 @@ runs:
         Write-Host "Running Windows SDK installer (Debugging Tools only)..."
         $args = '/quiet /norestart /features OptionId.WindowsDesktopDebuggers /log "{0}"' -f $logPath
         $p = Start-Process -FilePath $sdkPath -ArgumentList $args -PassThru -Wait
+
+        if ($p.ExitCode -ne 0) {
+          Write-Error "Windows SDK installer failed with exit code $($p.ExitCode). See log at $logPath."
+          exit $p.ExitCode
+        }
 
     - name: Add Debug Tools to PATH
       shell: pwsh
@@ -29,4 +34,4 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: sdk-install-log
-        path: ${{ env.TEMP }}\sdk.log
+        path: ${{ runner.temp }}/sdk.log

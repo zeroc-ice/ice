@@ -23,7 +23,7 @@ Once installed, you can start the IceBox server with:
 dotnet iceboxnet --Ice.Config=icebox.config
 ```
 
-[docs]:https://docs.zeroc.com/ice/latest/csharp/
+[docs]:https://docs.zeroc.com/ice/latest/csharp
 [examples]: https://github.com/zeroc-ice/ice-demos/tree/main/csharp
 [package]: https://www.nuget.org/packages/iceboxnet
 [IceBox services]: https://www.nuget.org/packages/ZeroC.IceBox
