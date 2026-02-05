@@ -126,6 +126,7 @@ const tests = [
     "test/Ice/inheritance",
     "test/Ice/location",
     "test/Ice/middleware",
+    "test/Ice/moduleAggregation",
     "test/Ice/objects",
     "test/Ice/operations",
     "test/Ice/optional",
@@ -244,9 +245,12 @@ for (const name of tests) {
     gulp.task(testTask(name, "bundle"), async () => {
         let input = fs.existsSync(`${name}/index.js`) ? `${name}/index.js` : `${name}/Client.js`;
 
+        // Use node-resolve plugin for tests that use npm modules (e.g., test-nested-modules)
+        let plugins = [IceResolver(), resolve()];
+
         let bundle = await rollup({
             input: input,
-            plugins: [IceResolver()],
+            plugins: plugins,
             onwarn: (warning, next) => {
                 // Ignore the "this is undefined" warning, let rollup silently rewrite it.
                 // This avoids warnings from the TypeScript polyfills for async disposable resources.
@@ -279,13 +283,43 @@ for (const name of tests) {
     );
 }
 
+// Special handling for moduleAggregation subdirectories (relative, module, and external)
+// These directories contain Slice files but no Client.ts
+const moduleAggregationSubdirs = [
+    "test/Ice/moduleAggregation/relative",
+    "test/Ice/moduleAggregation/module",
+    "test/Ice/moduleAggregation/external",
+];
+
+for (const name of moduleAggregationSubdirs) {
+    gulp.task(testTask(name, "build"), cb => {
+        const outputDirectory = `${root}/${name}`;
+        pump(
+            [
+                gulp.src(`${outputDirectory}/*.ice`),
+                slice2js({
+                    include: [outputDirectory],
+                    args: ["--typescript"],
+                }),
+                gulp.dest(outputDirectory),
+            ],
+            cb,
+        );
+    });
+
+    createCleanTask(testTask(name, "clean:js"), [`${name}/*.ice`], ".js");
+    createCleanTask(testTask(name, "clean:d.ts"), [`${name}/*.ice`], ".d.ts");
+
+    gulp.task(testTask(name, "clean"), gulp.series(testTask(name, "clean:js"), testTask(name, "clean:d.ts")));
+}
+
 gulp.task(
     "test",
     gulp.series(
         "ice:bundle",
         "test:common:generate",
         "test:common:bundle",
-        gulp.series(tests.map(testName => testTask(testName, "build"))),
+        gulp.series([...tests, ...moduleAggregationSubdirs].map(testName => testTask(testName, "build"))),
         gulp.series(tests.map(testName => testTask(testName, "ts-compile"))),
         gulp.series(tests.map(testName => testTask(testName, "bundle"))),
         gulp.series(tests.map(testName => testTask(testName, "copy:assets"))),
@@ -299,7 +333,7 @@ gulp.task(
     gulp.series(
         "test:common:clean",
         "test:bundle:clean",
-        tests.map(testName => testTask(testName, "clean")),
+        [...tests, ...moduleAggregationSubdirs].map(testName => testTask(testName, "clean")),
     ),
 );
 
