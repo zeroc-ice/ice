@@ -1,0 +1,51 @@
+# Lychee link checker configuration
+# https://lychee.cli.rs/
+
+# Maximum number of concurrent requests
+max_concurrency = 32
+
+# Minimum interval between requests to the same host
+host_request_interval = "50ms"
+
+# Timeout for each request in seconds
+timeout = 30
+
+# Number of retries for failed requests
+max_retries = 3
+
+# User agent string
+user_agent = "Mozilla/5.0 (compatible; lychee/0.15; +https://github.com/lycheeverse/lychee)"
+
+# Exclude patterns
+exclude = [
+    # Localhost and local files
+    "^file://",
+    "^https?://localhost",
+    "^https?://127\\.0\\.0\\.1",
+    # Example domains
+    "^https?://example\\.com",
+    # Mail links
+    "^mailto:",
+    # GitHub edit/blame links (may require auth)
+    "github\\.com/.*/edit/",
+    "github\\.com/.*/blame/",
+    # Gitter (no longer used)
+    "^https?://gitter\\.im",
+    # npm returns 403 to bots
+    "^https?://www\\.npmjs\\.com",
+    # Symbol server
+    "^https?://symbols\\.zeroc\\.com",
+]
+
+# Exclude paths from being checked
+exclude_path = [
+    "cpp/doxygen",
+    "doxygen",
+    "js/test/Common/controller.html",
+]
+
+# Accept these status codes as valid
+accept = [200, 204, 206, 301, 308]
+
+# Include fragments (anchors) in checks
+include_fragments = true
