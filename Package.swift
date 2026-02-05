@@ -76,7 +76,8 @@ let package = Package(
         ),
         .binaryTarget(
             name: "slice2swift",
-            path: "cpp/bin/slice2swift.artifactbundle.zip"
+            url: "https://download.zeroc.com/ice/3.8/slice2swift-3.8.0.artifactbundle.zip",
+            checksum: "afe82130f8ce3178896a56b8308eab5567312af86db395b6cb756d4bfa7c65ca"
         ),
         .plugin(
             name: "CompileSlice",
