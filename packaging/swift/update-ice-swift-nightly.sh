@@ -16,7 +16,7 @@ update_package_for_zip() {
     local zip_file="$1" suffix="$2" sed_pattern="$3"
     local zip_name checksum zip_url
 
-    zip_name=$(basename "${zip_file}" "${suffix}")
+    zip_name=$(basename -s "${suffix}" "${zip_file}")
     zip_url="https://download.zeroc.com/${download_path}/${zip_name}${suffix}"
     checksum=$(shasum -a 256 "${zip_file}" | cut -d ' ' -f 1)
 
@@ -37,9 +37,8 @@ update_package_for_zip() {
 root_dir=$(git rev-parse --show-toplevel)
 cd "$root_dir/packaging/swift"
 
-# Clone the ice-swift-nightly repository (disable tracing to avoid leaking token)
+# Clone the ice-swift-nightly repository.
 rm -rf ice-swift-nightly
-set +x 2>/dev/null || true
 git clone "https://x-access-token:${ICE_NIGHTLY_PUBLISH_TOKEN}@github.com/zeroc-ice/ice-swift-nightly.git" -b "${CHANNEL}"
 cd ice-swift-nightly
 
@@ -50,7 +49,7 @@ rm -rf cpp slice swift
 cp -rf ../../../cpp .
 cp -rf ../../../slice .
 cp -rf ../../../swift .
-cp ../../../Package.swift .
+cp -f ../../../Package.swift .
 
 # Compute the download path based on quality (matching publish-cpp-swift-deps.yml)
 if [ "${QUALITY}" = "stable" ]; then
@@ -59,16 +58,11 @@ else
     download_path="ice/${QUALITY}/${CHANNEL}"
 fi
 
-# Collect xcframework and artifactbundle zip files from staging directory (may be in subdirectories)
-xcframework_zips=()
-while IFS= read -r -d '' file; do
-    xcframework_zips+=("$file")
-done < <(find "${STAGING_DIR}" -name "*.xcframework.zip" -print0)
-
-artifactbundle_zips=()
-while IFS= read -r -d '' file; do
-    artifactbundle_zips+=("$file")
-done < <(find "${STAGING_DIR}" -name "*.artifactbundle.zip" -print0)
+# Collect xcframework and artifactbundle zip files from staging directory
+shopt -s nullglob
+xcframework_zips=("${STAGING_DIR}"/*.xcframework.zip)
+artifactbundle_zips=("${STAGING_DIR}"/*.artifactbundle.zip)
+shopt -u nullglob
 
 # Validate that we found at least one zip file
 if [ ${#xcframework_zips[@]} -eq 0 ] && [ ${#artifactbundle_zips[@]} -eq 0 ]; then
