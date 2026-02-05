@@ -19,14 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # RPM-based distributions (el9, el10, amzn2023)
-          - distribution: el9
-            arch: x86_64
-            image_type: rpm
-          - distribution: el9
-            arch: aarch64
-            image_type: rpm
-
+          # RPM-based distributions
           - distribution: el10
             arch: x86_64
             image_type: rpm
@@ -34,14 +27,7 @@ jobs:
             arch: aarch64
             image_type: rpm
 
-          - distribution: amzn2023
-            arch: x86_64
-            image_type: rpm
-          - distribution: amzn2023
-            arch: aarch64
-            image_type: rpm
-
-          # DEB-based distributions (ubuntu, debian)
+          # DEB-based distributions
           - distribution: ubuntu24.04
             arch: amd64
             image_type: deb
