@@ -677,14 +677,7 @@ export class OutputStream {
     }
 
     writeSize(v) {
-        if (v > 254) {
-            this.expand(5);
-            this._buf.put(255);
-            this._buf.putInt(v);
-        } else {
-            this.expand(1);
-            this._buf.put(v);
-        }
+        this._buf.putSize(v);
     }
 
     startSize() {
@@ -784,7 +777,7 @@ export class OutputStream {
         if (v === null || v === undefined || v.length === 0) {
             this.writeSize(0);
         } else {
-            this._buf.writeString(this, v);
+            this._buf.putString(v);
         }
     }
 
