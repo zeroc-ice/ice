@@ -14,6 +14,7 @@ let package = Package(
         .library(name: "Ice", targets: ["Ice"]),
         .library(name: "Glacier2", targets: ["Glacier2"]),
         .library(name: "IceGrid", targets: ["IceGrid"]),
+        .library(name: "IceBox", targets: ["IceBox"]),
         .library(name: "IceStorm", targets: ["IceStorm"]),
         .plugin(name: "CompileSlice", targets: ["CompileSlice"]),
     ],
@@ -37,6 +38,12 @@ let package = Package(
             name: "IceGrid",
             dependencies: ["Ice", "Glacier2"],
             path: "swift/src/IceGrid",
+            plugins: [.plugin(name: "CompileSlice")]
+        ),
+        .target(
+            name: "IceBox",
+            dependencies: ["Ice"],
+            path: "swift/src/IceBox",
             plugins: [.plugin(name: "CompileSlice")]
         ),
         .target(

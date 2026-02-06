@@ -62,7 +62,7 @@ function slice2js(options) {
 }
 
 const root = path.resolve(__dirname);
-const libs = ["Ice", "Glacier2", "IceStorm", "IceGrid"];
+const libs = ["Ice", "Glacier2", "IceBox", "IceStorm", "IceGrid"];
 
 const libTask = (libName, taskName) => libName + ":" + taskName;
 

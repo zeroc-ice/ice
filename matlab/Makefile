@@ -33,6 +33,7 @@ $(eval $(call make-matlab-package,$(slicedir),lib/generated,Ice,%F.ice \
     %/ServantLocator.ice))
 $(eval $(call make-matlab-package,$(slicedir),lib/generated,Glacier2))
 $(eval $(call make-matlab-package,$(slicedir),lib/generated,IceGrid))
+$(eval $(call make-matlab-package,$(slicedir),lib/generated,IceBox))
 $(eval $(call make-matlab-package,$(slicedir),lib/generated,IceStorm))
 
 # icethunk mex library
@@ -97,6 +98,7 @@ $(icetoolbox_file):: $(icethunk_target) $(slice2matlab_path) $(lang_srcdir)/lib/
 	mkdir -p $(lang_srcdir)/toolbox/build/slice
 	cp -rf $(top_srcdir)/slice/Glacier2 $(lang_srcdir)/toolbox/build/slice
 	cp -rf $(top_srcdir)/slice/Ice $(lang_srcdir)/toolbox/build/slice
+	cp -rf $(top_srcdir)/slice/IceBox $(lang_srcdir)/toolbox/build/slice
 	cp -rf $(top_srcdir)/slice/IceStorm $(lang_srcdir)/toolbox/build/slice
 	cp -rf $(top_srcdir)/slice/IceGrid $(lang_srcdir)/toolbox/build/slice
 	# Tools
