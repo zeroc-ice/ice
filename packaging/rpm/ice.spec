@@ -61,6 +61,12 @@ BuildRequires: pkgconfig(bzip2)
 BuildRequires: pkgconfig(lmdb)
 BuildRequires: pkgconfig(libsystemd)
 
+# Bluetooth transport is only built for RHEL distributions
+%if "%{dist}" != ".amzn2023"
+BuildRequires: pkgconfig(bluez)
+BuildRequires: pkgconfig(dbus-1)
+%endif
+
 # Amazon Linux 2023 does not provide pkgconfig(mcpp)
 %if "%{dist}" == ".amzn2023"
 BuildRequires: libmcpp-devel
@@ -419,6 +425,9 @@ cp -p java/lib/icegridgui.jar %{buildroot}%{_javadir}/icegridgui.jar
 %{_libdir}/libDataStorm.so.*
 %{_libdir}/libGlacier2.so.*
 %{_libdir}/libIce.so.*
+%if "%{dist}" != ".amzn2023"
+%{_libdir}/libIceBT.so.*
+%endif
 %{_libdir}/libIceBox.so.*
 %{_libdir}/libIceDiscovery.so.*
 %{_libdir}/libIceGrid.so.*
@@ -455,6 +464,9 @@ exit 0
 %{_libdir}/libDataStorm.so
 %{_libdir}/libGlacier2.so
 %{_libdir}/libIce.so
+%if "%{dist}" != ".amzn2023"
+%{_libdir}/libIceBT.so
+%endif
 %{_libdir}/libIceBox.so
 %{_libdir}/libIceDiscovery.so
 %{_libdir}/libIceGrid.so
@@ -463,10 +475,13 @@ exit 0
 %{_includedir}/DataStorm
 %{_includedir}/Glacier2
 %{_includedir}/Ice
-%{_includedir}/IceDiscovery
-%{_includedir}/IceLocatorDiscovery
+%if "%{dist}" != ".amzn2023"
+%{_includedir}/IceBT
+%endif
 %{_includedir}/IceBox
+%{_includedir}/IceDiscovery
 %{_includedir}/IceGrid
+%{_includedir}/IceLocatorDiscovery
 %{_includedir}/IceStorm
 %{_bindir}/slice2cpp
 %{_mandir}/man1/slice2cpp.1*
