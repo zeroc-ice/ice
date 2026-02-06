@@ -1,0 +1,45 @@
+name: Dispatch Container Image Builds
+
+on:
+  # Central scheduler (runs from the default branch)
+  schedule:
+    # Run main container image builds on Saturday at 6:00 AM UTC
+    - cron: "0 6 * * 6"
+
+    # Run 3.8 container image builds on Saturday at 7:00 AM UTC
+    - cron: "0 7 * * 6"
+
+    # Run 3.7 container image builds on Saturday at 8:00 AM UTC
+    - cron: "0 8 * * 6"
+
+jobs:
+  dispatch-container-image-builds:
+    if: github.repository == 'zeroc-ice/ice'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Dispatch container image builds for main (6:00 UTC)
+        if: github.event.schedule == '0 6 * * 6'
+        uses: ./.github/actions/dispatch-workflow
+        with:
+          ref: main
+          workflow: build-container-images.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Dispatch container image builds for 3.8 (7:00 UTC)
+        if: github.event.schedule == '0 7 * * 6'
+        uses: ./.github/actions/dispatch-workflow
+        with:
+          ref: 3.8
+          workflow: build-container-images.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Dispatch container image builds for 3.7 (8:00 UTC)
+        if: github.event.schedule == '0 8 * * 6'
+        uses: ./.github/actions/dispatch-workflow
+        with:
+          ref: 3.7
+          workflow: build-container-images.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
