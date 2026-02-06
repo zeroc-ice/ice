@@ -475,13 +475,13 @@ exit 0
 %{_includedir}/DataStorm
 %{_includedir}/Glacier2
 %{_includedir}/Ice
-%{_includedir}/IceDiscovery
-%{_includedir}/IceLocatorDiscovery
 %if "%{dist}" != ".amzn2023"
 %{_includedir}/IceBT
 %endif
 %{_includedir}/IceBox
+%{_includedir}/IceDiscovery
 %{_includedir}/IceGrid
+%{_includedir}/IceLocatorDiscovery
 %{_includedir}/IceStorm
 %{_bindir}/slice2cpp
 %{_mandir}/man1/slice2cpp.1*
