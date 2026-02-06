@@ -21,25 +21,18 @@ using namespace IceInternal;
 
 namespace
 {
-    // Convert a path to a module name, e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz"
+    // Convert a path or module name to a valid JavaScript identifier, e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz"
     string pathToModule(const string& path)
     {
         string moduleName = removeExtension(path);
 
-        size_t pos = moduleName.find('/');
-        if (pos == string::npos)
+        // Replace any character that is not valid in a JavaScript identifier with '_'.
+        for (char& c : moduleName)
         {
-            pos = moduleName.find('\\');
-        }
-
-        if (pos != string::npos)
-        {
-            // Replace remaining path separators ('/', '\') and ('.') with '_'
-            replace(moduleName.begin(), moduleName.end(), '/', '_');
-            replace(moduleName.begin(), moduleName.end(), '\\', '_');
-            replace(moduleName.begin(), moduleName.end(), '.', '_');
-            // Replace @ in scoped moduleName names with _
-            replace(moduleName.begin(), moduleName.end(), '@', '_');
+            if (!isalnum(static_cast<unsigned char>(c)) && c != '_' && c != '$')
+            {
+                c = '_';
+            }
         }
 
         return moduleName;
