@@ -11,24 +11,29 @@ set -eu -o pipefail
 indent="            " # 12 spaces for checksum line indentation
 
 # Helper function to update Package.swift with URL and checksum for a zip file
-# Arguments: $1=zip_file, $2=suffix (e.g., ".xcframework.zip"), $3=sed_pattern
+# Arguments: $1=zip_file, $2=suffix (e.g., ".xcframework.zip"), $3=path_pattern, $4=url_pattern
 update_package_for_zip() {
-    local zip_file="$1" suffix="$2" sed_pattern="$3"
+    local zip_file="$1" suffix="$2" path_pattern="$3" url_pattern="$4"
     local zip_name checksum zip_url
 
     zip_name=$(basename -s "${suffix}" "${zip_file}")
     zip_url="https://download.zeroc.com/${download_path}/${zip_name}${suffix}"
     checksum=$(shasum -a 256 "${zip_file}" | cut -d ' ' -f 1)
 
-    # Perform sed replacement and verify it matched
-    local before_checksum after_checksum
-    before_checksum=$(shasum -a 256 Package.swift | cut -d ' ' -f 1)
-    sed -i '' -e "s|${sed_pattern}|url: \"${zip_url}\",\n${indent}checksum: \"${checksum}\"|" Package.swift
-    after_checksum=$(shasum -a 256 Package.swift | cut -d ' ' -f 1)
-
-    if [ "$before_checksum" = "$after_checksum" ]; then
-        echo "Error: sed pattern did not match for ${zip_name}${suffix}" >&2
-        echo "Pattern: ${sed_pattern}" >&2
+    if grep -q "${path_pattern}" Package.swift; then
+        # Branch uses path: entries (main/3.9)
+        sed -i '' -e "s|${path_pattern}|url: \"${zip_url}\",\n${indent}checksum: \"${checksum}\"|" Package.swift
+    elif grep -q "${url_pattern}" Package.swift; then
+        # Branch uses url:/checksum: entries (3.8) - update both lines
+        sed -i '' -e "/${url_pattern}/{
+            s|${url_pattern}|url: \"${zip_url}\"|
+            n
+            s|checksum: \"[^\"]*\"|checksum: \"${checksum}\"|
+        }" Package.swift
+    else
+        echo "Error: Neither pattern matched for ${zip_name}${suffix}" >&2
+        echo "Tried path pattern: ${path_pattern}" >&2
+        echo "Tried url pattern: ${url_pattern}" >&2
         exit 1
     fi
 }
@@ -94,13 +99,17 @@ for zip_file in "${xcframework_zips[@]}"; do
     echo "Processing XCFramework zip file: ${zip_file}"
     zip_name=$(basename -s ".xcframework.zip" "${zip_file}")
     name="${zip_name%%-*}"
-    update_package_for_zip "${zip_file}" ".xcframework.zip" "path: \".*${name}\\.xcframework\""
+    update_package_for_zip "${zip_file}" ".xcframework.zip" \
+        "path: \".*${name}\\.xcframework\"" \
+        "url: \"[^\"]*${name}-[^\"]*\\.xcframework\\.zip\""
 done
 
 # Update the Package.swift file with the URL and Checksum for the slice2swift artifact bundle
 for zip_file in "${artifactbundle_zips[@]}"; do
     echo "Processing artifact bundle zip file: ${zip_file}"
-    update_package_for_zip "${zip_file}" ".artifactbundle.zip" "path: \"cpp/bin/slice2swift\\.artifactbundle\\.zip\""
+    update_package_for_zip "${zip_file}" ".artifactbundle.zip" \
+        "path: \"cpp/bin/slice2swift\\.artifactbundle\\.zip\"" \
+        "url: \"[^\"]*slice2swift[^\"]*\\.artifactbundle\\.zip\""
 done
 
 # Commit and push the changes
