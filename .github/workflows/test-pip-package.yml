@@ -7,22 +7,19 @@ on:
     paths:
       - "python/**"
       - "slice/**"
+      - ".github/actions/setup-cpp/**"
       - ".github/actions/setup-python/**"
   pull_request:
     branches: ["main"]
     paths:
       - "python/**"
       - "slice/**"
+      - ".github/actions/setup-cpp/**"
       - ".github/actions/setup-python/**"
 
 jobs:
-  test-pip-package:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-24.04, macos-26, windows-2022]
-
-    runs-on: ${{ matrix.os }}
+  build-sdist:
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout Repository
@@ -39,9 +36,55 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install build
 
-      - name: Build PIP Package
+      - name: Build Source Distribution
         working-directory: python
-        run: python -m build
+        run: python -m build --sdist
+
+      - name: Upload sdist
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdist
+          path: python/dist/*.tar.gz
+
+  test-pip-package:
+    needs: build-sdist
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-26, windows-2022]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+        with:
+          profile: pip-bdist
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+
+      - name: Download sdist
+        uses: actions/download-artifact@v4
+        with:
+          name: sdist
+          path: sdist
+
+      - name: Build Wheel from sdist (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          python -m pip install --upgrade pip
+          pip wheel sdist/*.tar.gz --no-deps -w dist/
+
+      - name: Build Wheel from sdist (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          pip wheel (Get-ChildItem sdist\*.tar.gz).FullName --no-deps -w dist/
 
       - name: Create Test Virtual Environment
         run: python -m venv test-venv
@@ -50,7 +93,7 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           source test-venv/bin/activate
-          pip install python/dist/*.whl
+          pip install dist/*.whl
           pip install cryptography
 
       - name: Install Package (Windows)
@@ -58,7 +101,7 @@ jobs:
         shell: pwsh
         run: |
           test-venv\Scripts\Activate.ps1
-          pip install (Get-ChildItem python\dist\*.whl).FullName
+          pip install (Get-ChildItem dist\*.whl).FullName
           pip install cryptography
 
       - name: Run Tests (Unix)

@@ -1,15 +1,24 @@
 name: Setup C++
 description: Installs C++ build dependencies and configures the build environment for the current platform.
+
+inputs:
+  profile:
+    description: >
+      The dependency profile to install.
+      'full' installs all C++ dependencies (default).
+      'pip-bdist' installs only the minimal dependencies needed to build a pip wheel from sdist.
+    default: "full"
+
 runs:
   using: "composite"
   steps:
     - name: Install dependencies on macOS
-      if: runner.os == 'macOS'
+      if: runner.os == 'macOS' && inputs.profile == 'full'
       shell: bash
       run: brew install mcpp lmdb
 
     - name: Install dependencies on Linux
-      if: runner.os == 'Linux'
+      if: runner.os == 'Linux' && inputs.profile == 'full'
       shell: bash
       run: |
         sudo apt-get update && sudo apt-get install -y \
@@ -18,9 +27,16 @@ runs:
             libbluetooth-dev libdbus-1-dev \
             gdb
 
+    - name: Install pip bdist dependencies on Linux
+      if: runner.os == 'Linux' && inputs.profile == 'pip-bdist'
+      shell: bash
+      run: |
+        sudo apt-get update && sudo apt-get install -y \
+            libbz2-dev libssl-dev
+
     # This is needed for GDB to work on Linux runners
     - name: Disable ptrace protection on Linux
-      if: runner.os == 'Linux'
+      if: runner.os == 'Linux' && inputs.profile == 'full'
       shell: bash
       run: echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
 
