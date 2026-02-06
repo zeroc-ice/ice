@@ -13,6 +13,7 @@
     <ItemGroup>
         <SliceCompile Include="..\..\..\slice\Ice\*.ice" />
         <SliceCompile Include="..\..\..\slice\Glacier2\*.ice" />
+        <SliceCompile Include="..\..\..\slice\IceBox\*.ice" />
         <SliceCompile Include="..\..\..\slice\IceStorm\*.ice" />
         <SliceCompile Include="..\..\..\slice\IceGrid\*.ice" />
     </ItemGroup>
