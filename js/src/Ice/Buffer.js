@@ -161,7 +161,7 @@ export class Buffer {
         if (v > 254) {
             this.expand(5);
             this.put(255);
-            this.putInt(v, true);
+            this.putInt(v);
         } else {
             this.expand(1);
             this.put(v);
