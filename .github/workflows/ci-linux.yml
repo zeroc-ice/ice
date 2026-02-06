@@ -20,12 +20,30 @@ jobs:
       matrix:
         include:
           # RPM-based distributions
+          - distribution: el9
+            arch: x86_64
+            image_type: rpm
+            python: python3.12
+          - distribution: el9
+            arch: aarch64
+            image_type: rpm
+            python: python3.12
+
           - distribution: el10
             arch: x86_64
             image_type: rpm
           - distribution: el10
             arch: aarch64
             image_type: rpm
+
+          - distribution: amzn2023
+            arch: x86_64
+            image_type: rpm
+            python: python3.12
+          - distribution: amzn2023
+            arch: aarch64
+            image_type: rpm
+            python: python3.12
 
           # DEB-based distributions
           - distribution: ubuntu24.04
@@ -84,7 +102,7 @@ jobs:
               # - IceUtil/priority, Ice/threadPoolPriority: require CAP_SYS_NICE for thread priorities
               # - Glacier2/*: require the passlib Python module
               # - IceSSL/configuration: requires the openssl CLI tool
-              python3 allTests.py --workers=4 --debug --continue \
+              ${{ matrix.python || 'python3' }} allTests.py --workers=4 --debug --continue \
                 --rfilter='IceUtil/priority|Ice/threadPoolPriority|Glacier2/|IceSSL/configuration'
             "
 
