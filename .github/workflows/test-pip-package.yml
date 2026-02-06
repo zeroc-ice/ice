@@ -44,7 +44,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sdist
-          path: python/dist/*.tar.gz
+          path: python/dist/zeroc_ice-*.tar.gz
 
   test-pip-package:
     needs: build-sdist
