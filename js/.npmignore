@@ -8,3 +8,4 @@ gulpfile.js
 Makefile
 test
 *.tgz
+packages

@@ -39,29 +39,31 @@ const slice2js = path.resolve(binDir, exe);
 /**
  * Compile function for programmatic use.
  * @param {string[]} args - Command-line arguments for slice2js.
- * @param {object} options - Options passed to spawn.
+ * @param {object} [options]
+ * @param {string} [options.toolsPath] - Directory containing the slice2js binary. Overrides the bundled binary.
+ * @param {string} [options.slicePath] - Directory containing the Slice definitions. Overrides the bundled path.
+ * @param {string} [options.cwd] - Working directory for the compiler process.
  * @returns {Promise<number>} Resolves with the exit code.
  */
-export async function compile(args = [], options = {}) {
-    if (!fs.existsSync(slice2js)) {
-        throw new Error(`Missing slice2js executable at ${slice2js}`);
+export async function compile(args = [], { toolsPath, slicePath: customSlicePath, cwd } = {}) {
+    const compiler = toolsPath ? path.resolve(toolsPath, exe) : slice2js;
+    const sliceInc = customSlicePath || slicePath;
+
+    if (!fs.existsSync(compiler)) {
+        throw new Error(`Missing slice2js executable at ${compiler}`);
     }
 
     let slice2jsArgs = args.slice();
-    slice2jsArgs.push(`-I${slicePath}`);
+    slice2jsArgs.push(`-I${sliceInc}`);
 
     return new Promise((resolve, reject) => {
-        const process = spawn(slice2js, slice2jsArgs, options);
-
-        process.on("error", reject);
-        process.on("exit", resolve);
+        const proc = spawn(compiler, slice2jsArgs, {
+            stdio: ["ignore", "inherit", "inherit"],
+            cwd,
+        });
+        proc.on("error", reject);
+        proc.on("exit", resolve);
     });
 }
 
-// Options for configuring gulp-ice-builder to use this package
-const builderOptions = {
-    iceHome: path.resolve(__dirname, ".."),
-    iceToolsPath: binDir,
-};
-
-export { slicePath, slice2js, builderOptions };
+export { slicePath, slice2js };

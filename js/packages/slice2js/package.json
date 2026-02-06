@@ -1,0 +1,46 @@
+{
+    "name": "@zeroc/slice2js",
+    "version": "3.9.0-alpha0",
+    "description": "Slice-to-JavaScript compiler and build plugin for Ice",
+    "author": "Zeroc, Inc.",
+    "homepage": "https://zeroc.com",
+    "repository": "https://github.com/zeroc-ice/ice.git",
+    "license": "GPL-2.0",
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=22.16.0"
+    },
+    "keywords": [
+        "Ice",
+        "slice2js",
+        "unplugin",
+        "compiler"
+    ],
+    "type": "module",
+    "exports": {
+        ".": "./src/slice2js.js",
+        "./unplugin": "./src/unplugin-slice2js.js",
+        "./unplugin/vite": "./src/unplugin/vite.js",
+        "./unplugin/rollup": "./src/unplugin/rollup.js",
+        "./unplugin/webpack": "./src/unplugin/webpack.js",
+        "./unplugin/esbuild": "./src/unplugin/esbuild.js"
+    },
+    "bin": {
+        "slice2js": "./bin/slice2js"
+    },
+    "dependencies": {
+        "fast-glob": "^3.3.0",
+        "unplugin": "^2.3.0"
+    },
+    "files": [
+        "src/",
+        "bin/",
+        "slice/",
+        "README.md"
+    ],
+    "scripts": {
+        "prepack": "node scripts/prepack.js"
+    }
+}

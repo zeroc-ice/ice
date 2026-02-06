@@ -28,16 +28,27 @@ test/**/Server.js
 test/**/ServerAMD.js
 test/**/*I.js
 
+test/Slice/unplugin/*/generated
+
 test/Ice/operations/BatchOneways.js
 test/Ice/operations/Oneways.js
 test/Ice/operations/Twoways.js
 
 # Files copied during packaging
-slice/
+src/slice2js.js
+/slice/
 bin/linux-arm64
 bin/linux-x64
 bin/macos-arm64
 bin/windows-x64
+
+# @zeroc/slice2js package - files copied during packaging
+packages/slice2js/slice/
+!packages/slice2js/bin/
+packages/slice2js/bin/linux-arm64
+packages/slice2js/bin/linux-x64
+packages/slice2js/bin/macos-arm64
+packages/slice2js/bin/windows-x64
 
 # NPM package
 zeroc-ice-*.tgz

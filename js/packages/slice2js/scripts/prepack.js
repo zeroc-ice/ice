@@ -35,9 +35,12 @@ switch (os.platform()) {
 
 const allSupportedPlatforms = ["windows-x64", "macos-arm64", "linux-x64", "linux-arm64"];
 
-const sliceSourceDir = path.resolve(__dirname, "../../slice");
+// Resolve paths relative to the Ice source distribution root.
+// From js/packages/slice2js/scripts/ -> repo root is four levels up.
+const iceHome = path.resolve(__dirname, "../../../..");
+const sliceSourceDir = path.resolve(iceHome, "slice");
 const sliceDestDir = path.resolve(__dirname, "../slice");
-let cppBinDir = path.resolve(__dirname, "../../cpp/bin");
+let cppBinDir = path.resolve(iceHome, "cpp/bin");
 
 if (os.platform() === "win32") {
     cppBinDir = path.resolve(cppBinDir, "x64", "Release");
@@ -56,13 +59,6 @@ function copyFolderSync(src, dest) {
         }
     });
 }
-
-// Copy slice2js.js from @zeroc/slice2js (single canonical source).
-const slice2jsSrc = path.resolve(__dirname, "../packages/slice2js/src/slice2js.js");
-const slice2jsDest = path.resolve(__dirname, "../src/slice2js.js");
-console.log(`Copying ${slice2jsSrc} to ${slice2jsDest}...`);
-fs.copyFileSync(slice2jsSrc, slice2jsDest);
-console.log("Done.");
 
 // Ensure we are running from Ice source distribution
 if (!fs.existsSync(sliceSourceDir)) {
