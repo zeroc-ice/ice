@@ -148,13 +148,24 @@ export class Buffer {
         this._position += 8;
     }
 
-    writeString(stream, v) {
+    putString(v) {
         const encoded = textEncoder.encode(v);
-        stream.writeSize(encoded.length);
+        this.putSize(encoded.length);
         this.expand(encoded.length);
         new Uint8Array(this.b, this._position, encoded.length).set(encoded);
         this._position += encoded.length;
         this._limit = this._position;
+    }
+
+    putSize(v) {
+        if (v > 254) {
+            this.expand(5);
+            this.put(255);
+            this.putInt(v, true);
+        } else {
+            this.expand(1);
+            this.put(v);
+        }
     }
 
     get() {
