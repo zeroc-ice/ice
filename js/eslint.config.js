@@ -43,7 +43,7 @@ export default tseslint.config(
         },
     },
     {
-        files: ["src/**/*.js", "test/**/*.js", "gulpfile.js", "dts-bundle.js", "scripts/*.js"],
+        files: ["src/**/*.js", "test/**/*.js", "gulpfile.js", "dts-bundle.js", "scripts/*.js", "packages/*/src/**/*.js", "packages/*/scripts/**/*.js"],
         languageOptions: {
             globals: { ...globals.browser, ...globals.node, ...globals.worker },
         },

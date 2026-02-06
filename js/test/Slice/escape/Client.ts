@@ -29,9 +29,10 @@ export class Client extends TestHelper {
             test(ex instanceof Ice.LocalException);
         }
 
-        const typeofPrx = new escapedAwait._typeofPrx(communicator, `hello: ${this.getTestEndpoint()}`).ice_invocationTimeout(
-            100,
-        );
+        const typeofPrx = new escapedAwait._typeofPrx(
+            communicator,
+            `hello: ${this.getTestEndpoint()}`,
+        ).ice_invocationTimeout(100);
 
         try {
             await typeofPrx._default();
