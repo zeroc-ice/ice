@@ -22,6 +22,8 @@ test/Slice/escape/Clash.d.ts
 test/Slice/escape/Clash.js
 test/Slice/escape/Key.d.ts
 test/Slice/escape/Key.js
+test/Slice/moduleName/test-dep.d.ts
+test/Slice/moduleName/test-dep.js
 
 test/**/Client.js
 test/**/Server.js
