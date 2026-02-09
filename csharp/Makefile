@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-DOTNETBUILDARGS = $(if $(filter $(OPTIMIZE),no),/p:Configuration=Debug)
+DOTNETBUILDARGS = $(if $(filter yes,$(OPTIMIZE)),,/p:Configuration=Debug)
 
 all:
 	dotnet msbuild msbuild/ice.proj $(DOTNETBUILDARGS)
