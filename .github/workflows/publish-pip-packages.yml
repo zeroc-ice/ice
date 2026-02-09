@@ -36,6 +36,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ inputs.run_id }}
         run: |
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "pip-sdist" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "pip-packages-*" --dir staging
 
       - name: Publish PIP Package
