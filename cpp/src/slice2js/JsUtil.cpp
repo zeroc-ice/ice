@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <regex>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -27,6 +28,73 @@ Slice::JavaScript::getJavaScriptModule(const DefinitionContextPtr& dc)
     // Check if the file contains the 'js:module' file metadata.
     assert(dc);
     return dc->getMetadataArgs("js:module").value_or("");
+}
+
+string
+Slice::JavaScript::importPathToIdentifier(const string& path)
+{
+    string identifier = path;
+
+    // Strip file extensions for relative paths (normalized by toRelativePath to start with "./").
+    // For module names like "foo" or "@zeroc/ice", there is no extension to strip.
+    if (identifier.size() > 2 && identifier[0] == '.' && identifier[1] == '/')
+    {
+        static constexpr string_view extensions[] = {".ice", ".js"};
+        for (string_view ext : extensions)
+        {
+            if (identifier.size() > ext.size() &&
+                identifier.compare(identifier.size() - ext.size(), ext.size(), ext.data(), ext.size()) == 0)
+            {
+                identifier.erase(identifier.size() - ext.size());
+                break;
+            }
+        }
+    }
+
+    // Replace any character that is not valid in a JavaScript identifier with '_'.
+    static const regex disallowedChars("[^a-zA-Z0-9_$]");
+    return regex_replace(identifier, disallowedChars, "_");
+}
+
+namespace
+{
+    // Applies the import alias prefix to a scoped name when it originates from an external js:module.
+    // For example, "Foo.SF" from js:module "foo" becomes "foo_Foo.SF".
+    string applyImportAlias(const string& scopedName, const DefinitionContextPtr& dc, const string& currentJsModule)
+    {
+        string typeJsModule = Slice::JavaScript::getJavaScriptModule(dc);
+        if (typeJsModule.empty() || typeJsModule == currentJsModule || typeJsModule == "@zeroc/ice")
+        {
+            // No alias needed: same module, no module, or the Ice runtime (always imported without alias).
+            return scopedName;
+        }
+
+        // Type is from an external js:module - replace the top-level module name with the aliased import name.
+        size_t dot = scopedName.find('.');
+        string topLevel = (dot != string::npos) ? scopedName.substr(0, dot) : scopedName;
+        string rest = (dot != string::npos) ? scopedName.substr(dot) : "";
+        return Slice::JavaScript::importPathToIdentifier(typeJsModule) + "_" + topLevel + rest;
+    }
+}
+
+string
+Slice::JavaScript::resolveJsType(const TypePtr& type, const string& currentJsModule)
+{
+    string base = typeToJsString(type);
+
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
+    if (!contained)
+    {
+        return base;
+    }
+
+    return applyImportAlias(base, contained->definitionContext(), currentJsModule);
+}
+
+string
+Slice::JavaScript::resolveJsScope(const ContainedPtr& contained, const string& currentJsModule)
+{
+    return applyImportAlias(contained->mappedScoped("."), contained->definitionContext(), currentJsModule);
 }
 
 string
@@ -111,7 +179,12 @@ Slice::JavaScript::typeToJsString(const TypePtr& type, bool definition)
 }
 
 void
-Slice::JavaScript::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal)
+Slice::JavaScript::writeMarshalUnmarshalCode(
+    Output& out,
+    const TypePtr& type,
+    const string& param,
+    bool marshal,
+    const string& currentJsModule)
 {
     string stream = marshal ? "ostr" : "istr";
 
@@ -240,11 +313,11 @@ Slice::JavaScript::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, c
     {
         if (marshal)
         {
-            out << nl << typeToJsString(type) << "._write(" << stream << ", " << param << ");";
+            out << nl << resolveJsType(type, currentJsModule) << "._write(" << stream << ", " << param << ");";
         }
         else
         {
-            out << nl << param << " = " << typeToJsString(type) << "._read(" << stream << ");";
+            out << nl << param << " = " << resolveJsType(type, currentJsModule) << "._read(" << stream << ");";
         }
         return;
     }
@@ -266,11 +339,12 @@ Slice::JavaScript::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, c
     {
         if (marshal)
         {
-            out << nl << typeToJsString(type) << ".write(" << stream << ", " << param << ");";
+            out << nl << resolveJsType(type, currentJsModule) << ".write(" << stream << ", " << param << ");";
         }
         else
         {
-            out << nl << param << " = " << typeToJsString(type) << ".read(" << stream << ", " << param << ");";
+            out << nl << param << " = " << resolveJsType(type, currentJsModule) << ".read(" << stream << ", " << param
+                << ");";
         }
         return;
     }
@@ -283,6 +357,7 @@ Slice::JavaScript::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, c
         }
         else
         {
+            // TypeRegistry key is a string literal - no alias resolution needed.
             out << nl << stream << ".readValue(obj => " << param << " = obj, Ice.TypeRegistry.getValueType(\""
                 << typeToJsString(type) << "\"));";
         }
@@ -293,11 +368,11 @@ Slice::JavaScript::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, c
     {
         if (marshal)
         {
-            out << nl << getHelper(type) << ".write(" << stream << ", " << param << ");";
+            out << nl << getHelper(type, currentJsModule) << ".write(" << stream << ", " << param << ");";
         }
         else
         {
-            out << nl << param << " = " << getHelper(type) << ".read(" << stream << ");";
+            out << nl << param << " = " << getHelper(type, currentJsModule) << ".read(" << stream << ");";
         }
         return;
     }
@@ -311,7 +386,8 @@ Slice::JavaScript::writeOptionalMarshalUnmarshalCode(
     const TypePtr& type,
     const string& param,
     int32_t tag,
-    bool marshal)
+    bool marshal,
+    const string& currentJsModule)
 {
     assert(!type->isClassType()); // Optional classes are disallowed by the parser.
 
@@ -321,27 +397,31 @@ Slice::JavaScript::writeOptionalMarshalUnmarshalCode(
     {
         if (marshal)
         {
-            out << nl << typeToJsString(type) << "._writeOpt(" << stream << ", " << tag << ", " << param << ");";
+            out << nl << resolveJsType(type, currentJsModule) << "._writeOpt(" << stream << ", " << tag << ", "
+                << param << ");";
         }
         else
         {
-            out << nl << param << " = " << typeToJsString(type) << "._readOpt(" << stream << ", " << tag << ");";
+            out << nl << param << " = " << resolveJsType(type, currentJsModule) << "._readOpt(" << stream << ", "
+                << tag << ");";
         }
         return;
     }
 
     if (marshal)
     {
-        out << nl << getHelper(type) << ".writeOptional(" << stream << ", " << tag << ", " << param << ");";
+        out << nl << getHelper(type, currentJsModule) << ".writeOptional(" << stream << ", " << tag << ", " << param
+            << ");";
     }
     else
     {
-        out << nl << param << " = " << getHelper(type) << ".readOptional(" << stream << ", " << tag << ");";
+        out << nl << param << " = " << getHelper(type, currentJsModule) << ".readOptional(" << stream << ", " << tag
+            << ");";
     }
 }
 
 std::string
-Slice::JavaScript::getHelper(const TypePtr& type)
+Slice::JavaScript::getHelper(const TypePtr& type, const string& currentJsModule)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
@@ -393,23 +473,24 @@ Slice::JavaScript::getHelper(const TypePtr& type)
 
     if (dynamic_pointer_cast<Enum>(type))
     {
-        return typeToJsString(type) + "._helper";
+        return resolveJsType(type, currentJsModule) + "._helper";
     }
 
     if (dynamic_pointer_cast<Struct>(type))
     {
-        return typeToJsString(type);
+        return resolveJsType(type, currentJsModule);
     }
 
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
     if (prx)
     {
-        return typeToJsString(type);
+        return resolveJsType(type, currentJsModule);
     }
 
     if (dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type))
     {
-        return dynamic_pointer_cast<Contained>(type)->mappedScoped(".") + "Helper";
+        ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
+        return resolveJsScope(contained, currentJsModule) + "Helper";
     }
 
     if (dynamic_pointer_cast<ClassDecl>(type))

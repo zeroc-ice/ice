@@ -40,6 +40,7 @@ namespace Slice
         void writeDocSummary(const ContainedPtr& p, const DocSummaryOptions& options = {});
 
         ::IceInternal::Output& _out;
+        std::string _jsModule;
     };
 
     class IncludeAggregationVisitor : public ParserVisitor
@@ -165,7 +166,7 @@ namespace Slice
         class TypesVisitor final : public JsVisitor
         {
         public:
-            TypesVisitor(::IceInternal::Output&);
+            TypesVisitor(::IceInternal::Output&, std::string jsModule);
 
             bool visitClassDefStart(const ClassDefPtr&) final;
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;

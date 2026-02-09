@@ -12,7 +12,6 @@
 #include <cassert>
 #include <iostream>
 #include <iterator>
-#include <regex>
 
 using namespace std;
 using namespace Slice;
@@ -26,7 +25,7 @@ namespace
     /// @param path The file path to normalize
     /// @param relativeTo The file to make absolute paths relative to
     /// @return The normalized path
-    string normalizeRelativePath(const string& path, const string& relativeTo)
+    string toRelativePath(const string& path, const string& relativeTo)
     {
         string f = path;
         if (IceInternal::isAbsolutePath(f))
@@ -40,27 +39,13 @@ namespace
         return f;
     }
 
-    // Create a valid JavaScript identifier from an import path, used as a prefix for imported symbols.
-    // e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz", "@zeroc/ice" -> "_zeroc_ice"
-    string importPathToIdentifier(const string& path)
+    bool ends_with(string_view s, string_view suffix)
     {
-        // Strip common extensions from the end of the path, so that the generated identifier is cleaner.
-        // If the code imports ./Foo/Foo.ice  we want the generated identifier to be _Foo_Foo, not _Foo_Foo_ice.
-        string identifier = path;
-        static constexpr string_view extensions[] = {".ice", ".js"};
-        for (string_view ext : extensions)
-        {
-            if (identifier.size() > ext.size() &&
-                identifier.compare(identifier.size() - ext.size(), ext.size(), ext.data(), ext.size()) == 0)
-            {
-                identifier.erase(identifier.size() - ext.size());
-                break;
-            }
-        }
-
-        // Replace any character that is not valid in a JavaScript identifier with '_'.
-        static const regex disallowedChars("[^a-zA-Z0-9_$]");
-        return regex_replace(identifier, disallowedChars, "_");
+#if defined __cpp_lib_starts_ends_with
+        return s.ends_with(suffix);
+#else
+        return s.size() >= suffix.size() && s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
+#endif
     }
 
     string sliceModeToIceMode(Operation::Mode opMode)
@@ -246,7 +231,7 @@ Slice::IncludeAggregationVisitor::visitUnitStart(const UnitPtr& unit)
         {
             // This is a direct include file. Check if we want to aggregate its transitives.
             currentDirectInclude = directIncludes.find(file) != directIncludes.end()
-                                       ? normalizeRelativePath(it->second, _topLevelFile)
+                                       ? toRelativePath(it->second, _topLevelFile)
                                        : string();
         }
         else if (!currentDirectInclude.empty())
@@ -279,7 +264,7 @@ Slice::IncludeAggregationVisitor::addImportedType(const ContainedPtr& definition
     string typeScope = definition->mappedScoped(".");
     if (includeLevel == 1)
     {
-        string includedFile = normalizeRelativePath(dc->filename(), _topLevelFile);
+        string includedFile = toRelativePath(dc->filename(), _topLevelFile);
         _importedTypesByTopLevel[_topLevelFile][includedFile].insert(typeScope);
     }
     else if (auto includeKey = resolveDirectInclude(dc))
@@ -326,7 +311,7 @@ Slice::IncludeAggregationVisitor::visitModuleEnd(const ModulePtr& module)
 
     if (includeLevel == 1)
     {
-        string includedFile = normalizeRelativePath(dc->filename(), _topLevelFile);
+        string includedFile = toRelativePath(dc->filename(), _topLevelFile);
         _nestedModulesByTopLevel[_topLevelFile][includedFile].insert(module->mappedScoped("."));
     }
     else if (auto includeKey = resolveDirectInclude(dc))
@@ -411,7 +396,7 @@ Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, con
     {
         if (!dataMember->optional())
         {
-            writeMarshalUnmarshalCode(_out, dataMember->type(), "this." + dataMember->mappedName(), true);
+            writeMarshalUnmarshalCode(_out, dataMember->type(), "this." + dataMember->mappedName(), true, _jsModule);
         }
     }
 
@@ -422,7 +407,8 @@ Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, con
             optionalMember->type(),
             "this." + optionalMember->mappedName(),
             optionalMember->tag(),
-            true);
+            true,
+            _jsModule);
     }
 }
 
@@ -433,7 +419,7 @@ Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, c
     {
         if (!dataMember->optional())
         {
-            writeMarshalUnmarshalCode(_out, dataMember->type(), "this." + dataMember->mappedName(), false);
+            writeMarshalUnmarshalCode(_out, dataMember->type(), "this." + dataMember->mappedName(), false, _jsModule);
         }
     }
 
@@ -444,7 +430,8 @@ Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, c
             optionalMember->type(),
             "this." + optionalMember->mappedName(),
             optionalMember->tag(),
-            false);
+            false,
+            _jsModule);
     }
 }
 
@@ -518,13 +505,13 @@ Slice::JsVisitor::getValue(const TypePtr& type)
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if (en)
     {
-        return (*en->enumerators().begin())->mappedScoped(".");
+        return resolveJsScope(*en->enumerators().begin(), _jsModule);
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        return "new " + typeToJsString(type) + "()";
+        return "new " + resolveJsType(type, _jsModule) + "()";
     }
 
     return "null";
@@ -537,7 +524,7 @@ Slice::JsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if (constant)
     {
-        os << constant->mappedScoped(".");
+        os << resolveJsScope(constant, _jsModule);
     }
     else
     {
@@ -558,7 +545,7 @@ Slice::JsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
         {
             EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
-            os << lte->mappedScoped(".");
+            os << resolveJsScope(lte, _jsModule);
         }
         else
         {
@@ -738,7 +725,7 @@ Slice::Gen::generate(const UnitPtr& p)
         set<string> seenModules = importedModules;
         seenModules.merge(exportedModules);
 
-        TypesVisitor typesVisitor(_javaScriptOutput);
+        TypesVisitor typesVisitor(_javaScriptOutput, module);
         p->visit(&typesVisitor);
     }
 
@@ -873,6 +860,8 @@ Slice::Gen::ImportVisitor::writeImports(
 {
     // The JavaScript module we are building as specified by "js:module:" metadata.
     string jsModule = getJavaScriptModule(p->findDefinitionContext(p->topLevelFile()));
+
+    // The set of top-level modules that we need to import in the generated JavaScript code.
     set<string> importedModules = {"Ice"};
 
     // The imports map maps JavaScript Modules to the set of Slice top-level modules that are imported from the
@@ -963,7 +952,7 @@ Slice::Gen::ImportVisitor::writeImports(
         {
             // For Slice modules mapped to the same JavaScript module, or Slice files that doesn't use "js:module".
             // We import them using their Slice include relative path.
-            string f = normalizeRelativePath(removeExtension(included) + ".js", p->topLevelFile());
+            string f = toRelativePath(removeExtension(included) + ".js", p->topLevelFile());
             imports[f] = sliceTopLevelModules;
 
             for (const auto& topLevelModule : sliceTopLevelModules)
@@ -1055,19 +1044,24 @@ Slice::Gen::ImportVisitor::writeImports(
             continue;
         }
 
+        bool isRelativeImport = ends_with(jsImportedModule, ".js");
         _out << nl << "import { ";
         _out.inc();
         for (const auto& topLevelModule : topLevelModules)
         {
             _out << nl << topLevelModule << " as " << importPathToIdentifier(jsImportedModule) << "_" << topLevelModule;
-            aggregatedModules.insert(topLevelModule);
+            if (isRelativeImport)
+            {
+                aggregatedModules.insert(topLevelModule);
+            }
             _out << ", ";
         }
         _out.dec();
         _out << "} from \"" << jsImportedModule << "\"";
     }
 
-    // Aggregate all Slice top-level modules imported from multiple files into a single module object.
+    // Aggregate top-level modules imported from relative .js files into a single module object.
+    // External js:module imports are not aggregated; their aliased names are used directly.
     for (const string& m : aggregatedModules)
     {
         _out << sp;
@@ -1075,7 +1069,7 @@ Slice::Gen::ImportVisitor::writeImports(
         _out.inc();
         for (const auto& [jsImportedModule, topLevelModules] : imports)
         {
-            if (topLevelModules.find(m) != topLevelModules.end())
+            if (ends_with(jsImportedModule, ".js") && topLevelModules.find(m) != topLevelModules.end())
             {
                 _out << nl << "..." << importPathToIdentifier(jsImportedModule) << "_" << m << ",";
             }
@@ -1210,14 +1204,17 @@ Slice::Gen::ExportsVisitor::exportedModules() const
     return _exportedModules;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out) : JsVisitor(out) {}
+Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out, string jsModule) : JsVisitor(out)
+{
+    _jsModule = std::move(jsModule);
+}
 
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const string scopedName = p->mappedScoped(".");
     ClassDefPtr base = p->base();
-    string baseRef = base ? base->mappedScoped(".") : "Ice.Value";
+    string baseRef = base ? resolveJsScope(base, _jsModule) : "Ice.Value";
 
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
@@ -1351,7 +1348,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         for (auto q = bases.begin(); q != bases.end();)
         {
             InterfaceDefPtr base = *q;
-            _out << nl << base->mappedScoped(".");
+            _out << nl << resolveJsScope(base, _jsModule);
             if (++q != bases.end())
             {
                 _out << ",";
@@ -1383,7 +1380,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             InterfaceDefPtr base = *q;
 
-            _out << nl << base->mappedScoped(".") + "Prx";
+            _out << nl << resolveJsScope(base, _jsModule) + "Prx";
             if (++q != bases.end())
             {
                 _out << ",";
@@ -1574,7 +1571,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     {
                         _out << ',';
                     }
-                    _out << nl << (*eli)->mappedScoped(".");
+                    _out << nl << resolveJsScope(*eli, _jsModule);
                 }
                 _out.dec();
                 _out << nl << ']';
@@ -1611,10 +1608,11 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     const bool fixed = !type->isVariableLength();
 
     _out << sp;
-    _out << nl << helperName << " = Ice.StreamHelpers.generateSeqHelper(" << getHelper(type) << ", "
+    _out << nl << helperName << " = Ice.StreamHelpers.generateSeqHelper(" << getHelper(type, _jsModule) << ", "
          << (fixed ? "true" : "false");
     if (type->isClassType())
     {
+        // String literal used as a type registry key - no alias resolution needed.
         _out << ", \"" << typeToJsString(type) << "\"";
     }
 
@@ -1630,7 +1628,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     if (base)
     {
-        baseRef = base->mappedScoped(".");
+        baseRef = resolveJsScope(base, _jsModule);
     }
     else
     {
@@ -1808,12 +1806,13 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     bool fixed = !keyType->isVariableLength() && !valueType->isVariableLength();
 
     _out << sp;
-    _out << nl << "[" << scopedName << ", " << helperName << "] = Ice.defineDictionary(" << getHelper(keyType) << ", "
-         << getHelper(valueType) << ", " << (fixed ? "true" : "false") << ", "
+    _out << nl << "[" << scopedName << ", " << helperName << "] = Ice.defineDictionary(" << getHelper(keyType, _jsModule)
+         << ", " << getHelper(valueType, _jsModule) << ", " << (fixed ? "true" : "false") << ", "
          << (keyUseEquals ? "Ice.HashMap.compareEquals" : "undefined");
 
     if (valueType->isClassType())
     {
+        // String literal used as a type registry key - no alias resolution needed.
         _out << ", \"" << typeToJsString(valueType) << "\"";
     }
     _out << ");";
@@ -1897,36 +1896,38 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
+        // String literal used as a type registry key - no alias resolution needed.
         return "\"" + proxy->mappedScoped(".") + "Prx" + "\"";
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if (seq)
     {
-        return seq->mappedScoped(".") + "Helper";
+        return resolveJsScope(seq, _jsModule) + "Helper";
     }
 
     DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if (d)
     {
-        return d->mappedScoped(".") + "Helper";
+        return resolveJsScope(d, _jsModule) + "Helper";
     }
 
     EnumPtr e = dynamic_pointer_cast<Enum>(type);
     if (e)
     {
-        return e->mappedScoped(".") + "._helper";
+        return resolveJsScope(e, _jsModule) + "._helper";
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        return st->mappedScoped(".");
+        return resolveJsScope(st, _jsModule);
     }
 
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
+        // String literal used as a type registry key - no alias resolution needed.
         return "\"" + cl->mappedScoped(".") + "\"";
     }
 
@@ -1965,7 +1966,7 @@ Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
             }
             else
             {
-                string f = normalizeRelativePath(filename, _filename);
+                string f = toRelativePath(filename, _filename);
                 _importedTypes[definitionId] = "__module_" + importPathToIdentifier(f) + ".";
                 _importedModules.insert(removeExtension(f) + ".js");
             }
