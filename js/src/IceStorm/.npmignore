@@ -1,1 +1,1 @@
-# Ensure we include generated files ignored by the .gitignore file
+# Override .gitignore for npm publish, ensure the generated code is included in the package
