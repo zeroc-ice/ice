@@ -1041,7 +1041,8 @@ Slice::Gen::ImportVisitor::writeImports(
         _out.inc();
         for (const auto& topLevelModule : topLevelModules)
         {
-            _out << nl << topLevelModule << " as " << importPathToIdentifier(jsImportedModule) << "_" << topLevelModule << ", ";
+            _out << nl << topLevelModule << " as " << importPathToIdentifier(jsImportedModule) << "_" << topLevelModule
+                 << ", ";
             if (isLocal)
             {
                 aggregatedModules.insert(topLevelModule);
