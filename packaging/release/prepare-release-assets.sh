@@ -47,12 +47,10 @@ rm -rf java-packages
 cp -v "${STAGING_DIR}/js-npm-packages"/*.tgz .
 
 # Include Python wheels and PIP source distributions.
-pip_dirs=("${STAGING_DIR}"/pip-packages-*)
-for dir in "${pip_dirs[@]}"; do
+for dir in "${STAGING_DIR}"/pip-packages-*; do
   cp -v "$dir"/zeroc_ice-*.whl .
 done
-# All directories contain equivalent sdist archives; upload only once.
-cp -v "${pip_dirs[0]}"/zeroc_ice-*.tar.gz .
+cp -v "${STAGING_DIR}/pip-sdist"/zeroc_ice-*.tar.gz .
 
 # IceGridGUI JAR package
 cp -v "${STAGING_DIR}/icegridgui-jar/icegridgui.jar" .
