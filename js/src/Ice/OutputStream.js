@@ -12,6 +12,9 @@ import { SliceType } from "./SliceType.js";
 import { Value } from "./Value.js";
 import { OptionalFormat } from "./OptionalFormat.js";
 
+// Singleton TextEncoder for UTF-8 string encoding
+const textEncoder = new TextEncoder();
+
 class WriteEncaps {
     constructor() {
         this.start = 0;
@@ -677,7 +680,14 @@ export class OutputStream {
     }
 
     writeSize(v) {
-        this._buf.putSize(v);
+        if (v > 254) {
+            this.expand(5);
+            this._buf.put(255);
+            this._buf.putInt(v);
+        } else {
+            this.expand(1);
+            this._buf.put(v);
+        }
     }
 
     startSize() {
@@ -777,7 +787,10 @@ export class OutputStream {
         if (v === null || v === undefined || v.length === 0) {
             this.writeSize(0);
         } else {
-            this._buf.putString(v);
+            const encoded = textEncoder.encode(v);
+            this.writeSize(encoded.length);
+            this.expand(encoded.length);
+            this._buf.putArray(encoded);
         }
     }
 
