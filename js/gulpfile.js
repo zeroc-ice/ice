@@ -142,6 +142,7 @@ const tests = [
     "test/Slice/escape",
     "test/Slice/macros",
     "test/Slice/moduleMapping",
+    "test/Slice/moduleName",
 ];
 
 gulp.task("test:common:generate", cb => {
