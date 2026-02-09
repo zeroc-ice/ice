@@ -47,14 +47,10 @@ rm -rf java-packages
 cp -v "${STAGING_DIR}/js-npm-packages"/*.tgz .
 
 # Include Python wheels and PIP source distributions.
-cp -v "${STAGING_DIR}/pip-packages-windows-2022-3.12"/zeroc_ice-*.whl .
-cp -v "${STAGING_DIR}/pip-packages-windows-2022-3.13"/zeroc_ice-*.whl .
-cp -v "${STAGING_DIR}/pip-packages-windows-2022-3.14"/zeroc_ice-*.whl .
-
-cp -v "${STAGING_DIR}/pip-packages-macos-26-3.12"/zeroc_ice-*.whl .
-cp -v "${STAGING_DIR}/pip-packages-macos-26-3.13"/zeroc_ice-*.whl .
-cp -v "${STAGING_DIR}/pip-packages-macos-26-3.14"/zeroc_ice-*.whl .
-cp -v "${STAGING_DIR}/pip-packages-macos-26-3.14"/zeroc_ice-*.tar.gz .
+for dir in "${STAGING_DIR}"/pip-packages-*; do
+  cp -v "$dir"/zeroc_ice-*.whl .
+done
+cp -v "${STAGING_DIR}/pip-sdist"/zeroc_ice-*.tar.gz .
 
 # IceGridGUI JAR package
 cp -v "${STAGING_DIR}/icegridgui-jar/icegridgui.jar" .
