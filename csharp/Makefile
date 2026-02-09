@@ -1,17 +1,22 @@
 # Copyright (c) ZeroC, Inc.
 
+top_srcdir := ..
+
+include $(top_srcdir)/config/Make.rules
+
 DOTNETBUILDARGS = $(if $(filter yes,$(OPTIMIZE)),,/p:Configuration=Debug)
 
-all:
+all::
 	dotnet msbuild msbuild/ice.proj $(DOTNETBUILDARGS)
 
-tests:
+tests::
 	dotnet msbuild msbuild/ice.proj $(DOTNETBUILDARGS)
 
-srcs:
+srcs::
 	dotnet msbuild msbuild/ice.proj $(DOTNETBUILDARGS) /t:BuildDist
 
-distclean clean:
+distclean:: clean
+clean::
 	dotnet msbuild msbuild/ice.proj /t:Clean
 
 install::
