@@ -22,10 +22,10 @@ using namespace IceInternal;
 
 namespace
 {
-    // Converts absolute paths to relative and ensures "./" prefix for relative paths.
-    // @param path The file path to normalize
-    // @param relativeTo The file to make absolute paths relative to
-    // @return The normalized path
+    /// Converts absolute paths to relative and ensures "./" prefix for relative paths.
+    /// @param path The file path to normalize
+    /// @param relativeTo The file to make absolute paths relative to
+    /// @return The normalized path
     string normalizeRelativePath(const string& path, const string& relativeTo)
     {
         string f = path;
