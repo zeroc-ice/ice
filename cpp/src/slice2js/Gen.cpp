@@ -12,6 +12,7 @@
 #include <cassert>
 #include <iostream>
 #include <iterator>
+#include <regex>
 
 using namespace std;
 using namespace Slice;
@@ -25,9 +26,10 @@ namespace
     // e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz", "@zeroc/ice" -> "_zeroc_ice"
     string importPathToIdentifier(const string& path)
     {
-        // Only strip known file extensions; a bare module name like "my.module" must not be truncated.
+        // Strip common extensions from the end of the path, so that the generated identifier is cleaner.
+        // If the code imports ./Foo/Foo.ice  we want the generated identifier to be _Foo_Foo, not _Foo_Foo_ice.
         string identifier = path;
-        static constexpr string_view extensions[] = {".d.ts", ".ice", ".js"};
+        static constexpr string_view extensions[] = {".ice", ".js"};
         for (string_view ext : extensions)
         {
             if (identifier.size() > ext.size() &&
@@ -39,15 +41,8 @@ namespace
         }
 
         // Replace any character that is not valid in a JavaScript identifier with '_'.
-        for (char& c : identifier)
-        {
-            if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '$'))
-            {
-                c = '_';
-            }
-        }
-
-        return identifier;
+        static const regex disallowedChars("[^a-zA-Z0-9_$]");
+        return regex_replace(identifier, disallowedChars, "_");
     }
 
     bool ends_with(string_view s, string_view suffix)
@@ -794,7 +789,8 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
         {
             if (modules.find("Ice") != modules.end())
             {
-                _out << nl << "import { Ice as Ice_" << importPathToIdentifier(imported) << " } from \"" << imported << "\"";
+                _out << nl << "import { Ice as Ice_" << importPathToIdentifier(imported) << " } from \"" << imported
+                     << "\"";
             }
         }
 
@@ -853,8 +849,8 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
             _out.inc();
             for (const auto& topLevelModule : topLevelModules)
             {
-                _out << nl << topLevelModule << " as " << topLevelModule << "_" << importPathToIdentifier(jsImportedModule)
-                     << ", ";
+                _out << nl << topLevelModule << " as " << topLevelModule << "_"
+                     << importPathToIdentifier(jsImportedModule) << ", ";
                 aggregatedModules.insert(topLevelModule);
             }
             _out.dec();
@@ -1915,7 +1911,8 @@ Slice::Gen::TypeScriptImportVisitor::writeImports()
     _out << sp;
     for (const auto& moduleName : _importedModules)
     {
-        _out << nl << "import * as __module_" << importPathToIdentifier(moduleName) << " from \"" << moduleName << "\";";
+        _out << nl << "import * as __module_" << importPathToIdentifier(moduleName) << " from \"" << moduleName
+             << "\";";
     }
     return _importedTypes;
 }
