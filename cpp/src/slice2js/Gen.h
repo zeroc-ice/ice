@@ -46,13 +46,11 @@ namespace Slice
     {
     public:
         bool visitUnitStart(const UnitPtr& unit) final;
-        bool visitModuleStart(const ModulePtr& module) final;
         void visitModuleEnd(const ModulePtr& module) final;
 
         bool visitClassDefStart(const ClassDefPtr&) final;
         bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
         bool visitStructStart(const StructPtr&) final;
-        void visitOperation(const OperationPtr&) final;
         bool visitExceptionStart(const ExceptionPtr&) final;
         void visitSequence(const SequencePtr&) final;
         void visitDictionary(const DictionaryPtr&) final;
@@ -61,19 +59,11 @@ namespace Slice
         [[nodiscard]] bool shouldVisitIncludedDefinitions() const final;
         [[nodiscard]] const std::map<std::string, std::map<std::string, std::set<std::string>>>&
         nestedModulesByTopLevel() const;
-        [[nodiscard]] const std::map<std::string, std::map<std::string, std::set<std::string>>>&
-        importedTypesByTopLevel() const;
+        [[nodiscard]] std::map<std::string, std::set<std::string>>
+        importedTypesByTopLevel(const std::string& topLevelFile) const;
 
     private:
         void addImportedType(const ContainedPtr& definition);
-
-        // Returns true if the definition context has js:module metadata.
-        // Used by TypeScript generation - files with js:module don't need TypeScript imports.
-        [[nodiscard]] bool hasJsModuleMetadata(const DefinitionContextPtr& dc) const;
-
-        // Returns true if the definition context has a different js:module than the top-level file.
-        // Used by JavaScript generation - external modules are imported directly.
-        [[nodiscard]] bool isExternalModule(const DefinitionContextPtr& dc) const;
 
         // Resolves a transitive include to its owning direct include.
         // Returns the normalized include key, or nullopt if not found.

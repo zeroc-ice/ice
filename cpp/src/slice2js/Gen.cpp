@@ -279,9 +279,8 @@ Slice::IncludeAggregationVisitor::addImportedType(const ContainedPtr& definition
         return;
     }
 
-    // Skip files with js:module metadata - they don't need aggregation.
-    // External modules are imported directly, same-module files are in the same package.
-    if (hasJsModuleMetadata(dc))
+    // Skip files with js:module metadata - they don't need TypeScript import aggregation.
+    if (dc->hasMetadata("js:module"))
     {
         return;
     }
@@ -299,21 +298,6 @@ Slice::IncludeAggregationVisitor::addImportedType(const ContainedPtr& definition
     }
 }
 
-bool
-Slice::IncludeAggregationVisitor::hasJsModuleMetadata(const DefinitionContextPtr& dc) const
-{
-    // Used by TypeScript generation - files with js:module don't need TypeScript imports.
-    return !getJavaScriptModule(dc).empty();
-}
-
-bool
-Slice::IncludeAggregationVisitor::isExternalModule(const DefinitionContextPtr& dc) const
-{
-    // Used by JavaScript generation - external modules are imported directly.
-    string jsModule = getJavaScriptModule(dc);
-    return !jsModule.empty() && jsModule != _topLevelModule;
-}
-
 std::optional<std::string>
 Slice::IncludeAggregationVisitor::resolveDirectInclude(const DefinitionContextPtr& dc) const
 {
@@ -323,12 +307,6 @@ Slice::IncludeAggregationVisitor::resolveDirectInclude(const DefinitionContextPt
         return it->second;
     }
     return std::nullopt;
-}
-
-bool
-Slice::IncludeAggregationVisitor::visitModuleStart(const ModulePtr&)
-{
-    return true;
 }
 
 void
@@ -343,8 +321,8 @@ Slice::IncludeAggregationVisitor::visitModuleEnd(const ModulePtr& module)
     }
 
     // Skip external js:module files - they're imported directly.
-    // Same-module files still need aggregation for JavaScript nested modules.
-    if (isExternalModule(dc))
+    string jsModule = getJavaScriptModule(dc);
+    if (!jsModule.empty() && jsModule != _topLevelModule)
     {
         return;
     }
@@ -387,12 +365,6 @@ Slice::IncludeAggregationVisitor::visitStructStart(const StructPtr& p)
     return true;
 }
 
-void
-Slice::IncludeAggregationVisitor::visitOperation(const OperationPtr&)
-{
-    // Nothing to do
-}
-
 bool
 Slice::IncludeAggregationVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
@@ -424,13 +396,14 @@ Slice::IncludeAggregationVisitor::nestedModulesByTopLevel() const
     return _nestedModulesByTopLevel;
 }
 
-const std::map<std::string, std::map<std::string, std::set<std::string>>>&
-Slice::IncludeAggregationVisitor::importedTypesByTopLevel() const
+std::map<std::string, std::set<std::string>>
+Slice::IncludeAggregationVisitor::importedTypesByTopLevel(const std::string& topLevelFile) const
 {
-    return _importedTypesByTopLevel;
+    auto it = _importedTypesByTopLevel.find(topLevelFile);
+    return it != _importedTypesByTopLevel.end() ? it->second : std::map<std::string, std::set<std::string>>{};
 }
 
-[[nodiscard]] bool
+bool
 Slice::IncludeAggregationVisitor::shouldVisitIncludedDefinitions() const
 {
     return true;
@@ -800,11 +773,7 @@ Slice::Gen::generate(const UnitPtr& p)
         IncludeAggregationVisitor moduleVisitor;
         p->visit(&moduleVisitor);
 
-        // Get the imported types for the top-level file.
-        const auto& importedTypesByTopLevel = moduleVisitor.importedTypesByTopLevel();
-        auto it = importedTypesByTopLevel.find(p->topLevelFile());
-        map<string, set<string>> importedTypesByInclude =
-            it != importedTypesByTopLevel.end() ? it->second : map<string, set<string>>{};
+        map<string, set<string>> importedTypesByInclude = moduleVisitor.importedTypesByTopLevel(p->topLevelFile());
 
         TypeScriptImportVisitor importVisitor(_typeScriptOutput, importedTypesByInclude);
         p->visit(&importVisitor);
