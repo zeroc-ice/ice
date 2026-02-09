@@ -30,6 +30,8 @@ jobs:
         working-directory: ./cpp
         run: |
           for binary in bin/*; do
+            # Skip non-executable files in the bin directory (e.g., .zip files, etc.)
+            [[ ! -x $binary ]] && continue
             ../scripts/generate-cpp-code-coverage.sh "$binary"
           done
 
