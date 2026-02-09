@@ -397,13 +397,13 @@ Slice::JavaScript::writeOptionalMarshalUnmarshalCode(
     {
         if (marshal)
         {
-            out << nl << resolveJsType(type, currentJsModule) << "._writeOpt(" << stream << ", " << tag << ", "
-                << param << ");";
+            out << nl << resolveJsType(type, currentJsModule) << "._writeOpt(" << stream << ", " << tag << ", " << param
+                << ");";
         }
         else
         {
-            out << nl << param << " = " << resolveJsType(type, currentJsModule) << "._readOpt(" << stream << ", "
-                << tag << ");";
+            out << nl << param << " = " << resolveJsType(type, currentJsModule) << "._readOpt(" << stream << ", " << tag
+                << ");";
         }
         return;
     }

@@ -1806,9 +1806,9 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     bool fixed = !keyType->isVariableLength() && !valueType->isVariableLength();
 
     _out << sp;
-    _out << nl << "[" << scopedName << ", " << helperName << "] = Ice.defineDictionary(" << getHelper(keyType, _jsModule)
-         << ", " << getHelper(valueType, _jsModule) << ", " << (fixed ? "true" : "false") << ", "
-         << (keyUseEquals ? "Ice.HashMap.compareEquals" : "undefined");
+    _out << nl << "[" << scopedName << ", " << helperName << "] = Ice.defineDictionary("
+         << getHelper(keyType, _jsModule) << ", " << getHelper(valueType, _jsModule) << ", "
+         << (fixed ? "true" : "false") << ", " << (keyUseEquals ? "Ice.HashMap.compareEquals" : "undefined");
 
     if (valueType->isClassType())
     {
