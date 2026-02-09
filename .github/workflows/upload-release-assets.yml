@@ -62,6 +62,7 @@ jobs:
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "java-packages" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "slice-tools-packages" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "js-npm-packages" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "pip-sdist" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "pip-packages-*" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "rpm-packages-*" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "icegridgui-jar" --dir staging
