@@ -1,3 +1,3 @@
 # ``IceBox``
 
-IceBox client library. Host multiple independent services in the same Ice server.
+The IceBox client library allows you to administer an IceBox server remotely.
