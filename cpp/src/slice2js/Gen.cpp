@@ -12,6 +12,7 @@
 #include <cassert>
 #include <iostream>
 #include <iterator>
+#include <regex>
 
 using namespace std;
 using namespace Slice;
@@ -39,37 +40,27 @@ namespace
         return f;
     }
 
-    // Convert a path to a module name, e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz"
-    string pathToModule(const string& path)
+    // Create a valid JavaScript identifier from an import path, used as a prefix for imported symbols.
+    // e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz", "@zeroc/ice" -> "_zeroc_ice"
+    string importPathToIdentifier(const string& path)
     {
-        string moduleName = removeExtension(path);
-
-        size_t pos = moduleName.find('/');
-        if (pos == string::npos)
+        // Strip common extensions from the end of the path, so that the generated identifier is cleaner.
+        // If the code imports ./Foo/Foo.ice  we want the generated identifier to be _Foo_Foo, not _Foo_Foo_ice.
+        string identifier = path;
+        static constexpr string_view extensions[] = {".ice", ".js"};
+        for (string_view ext : extensions)
         {
-            pos = moduleName.find('\\');
+            if (identifier.size() > ext.size() &&
+                identifier.compare(identifier.size() - ext.size(), ext.size(), ext.data(), ext.size()) == 0)
+            {
+                identifier.erase(identifier.size() - ext.size());
+                break;
+            }
         }
 
-        if (pos != string::npos)
-        {
-            // Replace remaining path separators ('/', '\') and ('.') with '_'
-            replace(moduleName.begin(), moduleName.end(), '/', '_');
-            replace(moduleName.begin(), moduleName.end(), '\\', '_');
-            replace(moduleName.begin(), moduleName.end(), '.', '_');
-            // Replace @ in scoped moduleName names with _
-            replace(moduleName.begin(), moduleName.end(), '@', '_');
-        }
-
-        return moduleName;
-    }
-
-    bool ends_with(string_view s, string_view suffix)
-    {
-#if defined __cpp_lib_starts_ends_with
-        return s.ends_with(suffix);
-#else
-        return s.size() >= suffix.size() && s.compare(s.size() - s.size(), std::string_view::npos, s) == 0;
-#endif
+        // Replace any character that is not valid in a JavaScript identifier with '_'.
+        static const regex disallowedChars("[^a-zA-Z0-9_$]");
+        return regex_replace(identifier, disallowedChars, "_");
     }
 
     string sliceModeToIceMode(Operation::Mode opMode)
@@ -1009,7 +1000,8 @@ Slice::Gen::ImportVisitor::writeImports(
         {
             if (modules.find("Ice") != modules.end())
             {
-                _out << nl << "import { Ice as Ice_" << pathToModule(imported) << " } from \"" << imported << "\"";
+                _out << nl << "import { Ice as Ice_" << importPathToIdentifier(imported) << " } from \"" << imported
+                     << "\"";
             }
         }
 
@@ -1025,7 +1017,7 @@ Slice::Gen::ImportVisitor::writeImports(
         {
             if (modules.find("Ice") != modules.end())
             {
-                _out << nl << "...Ice_" << pathToModule(imported) << ",";
+                _out << nl << "...Ice_" << importPathToIdentifier(imported) << ",";
 
                 modules.erase("Ice");
             }
@@ -1063,25 +1055,19 @@ Slice::Gen::ImportVisitor::writeImports(
             continue;
         }
 
-        bool isRelativeImport = ends_with(jsImportedModule, ".js");
         _out << nl << "import { ";
         _out.inc();
         for (const auto& topLevelModule : topLevelModules)
         {
-            _out << nl << topLevelModule;
-            if (isRelativeImport)
-            {
-                _out << " as " << pathToModule(jsImportedModule) << "_" << topLevelModule;
-                aggregatedModules.insert(topLevelModule);
-            }
+            _out << nl << topLevelModule << " as " << importPathToIdentifier(jsImportedModule) << "_" << topLevelModule;
+            aggregatedModules.insert(topLevelModule);
             _out << ", ";
         }
         _out.dec();
         _out << "} from \"" << jsImportedModule << "\"";
     }
 
-    // Aggregate all Slice top-level-modules imported from .js files, for imports corresponding to js:module modules
-    // there is no additional aggregation.
+    // Aggregate all Slice top-level modules imported from multiple files into a single module object.
     for (const string& m : aggregatedModules)
     {
         _out << sp;
@@ -1091,7 +1077,7 @@ Slice::Gen::ImportVisitor::writeImports(
         {
             if (topLevelModules.find(m) != topLevelModules.end())
             {
-                _out << nl << "..." << pathToModule(jsImportedModule) << "_" << m << ",";
+                _out << nl << "..." << importPathToIdentifier(jsImportedModule) << "_" << m << ",";
             }
         }
         _out.dec();
@@ -1147,7 +1133,7 @@ Slice::Gen::ImportVisitor::writeImports(
             _out.inc();
             for (const string& includeKey : nestedModuleSources[nestedModule])
             {
-                _out << nl << "..." << pathToModule(includeKey) << "_" << nestedModule << ",";
+                _out << nl << "..." << importPathToIdentifier(includeKey) << "_" << nestedModule << ",";
             }
             _out.dec();
             _out << nl << "};";
@@ -1966,7 +1952,7 @@ Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
         string definedIn = definition->getMetadataArgs("js:defined-in").value_or("");
         if (!definedIn.empty())
         {
-            _importedTypes[definitionId] = "__module_" + pathToModule(definedIn) + ".";
+            _importedTypes[definitionId] = "__module_" + importPathToIdentifier(definedIn) + ".";
             _importedModules.insert(removeExtension(definedIn) + ".js");
         }
         else
@@ -1980,14 +1966,14 @@ Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
             else
             {
                 string f = normalizeRelativePath(filename, _filename);
-                _importedTypes[definitionId] = "__module_" + pathToModule(f) + ".";
+                _importedTypes[definitionId] = "__module_" + importPathToIdentifier(f) + ".";
                 _importedModules.insert(removeExtension(f) + ".js");
             }
         }
     }
     else if (_module != jsImportedModule)
     {
-        _importedTypes[definitionId] = "__module_" + pathToModule(jsImportedModule) + ".";
+        _importedTypes[definitionId] = "__module_" + importPathToIdentifier(jsImportedModule) + ".";
         _importedModules.insert(jsImportedModule);
     }
     else
@@ -2150,7 +2136,8 @@ Slice::Gen::TypeScriptImportVisitor::writeImports()
     _out << sp;
     for (const auto& moduleName : _importedModules)
     {
-        _out << nl << "import * as __module_" << pathToModule(moduleName) << " from \"" << moduleName << "\";";
+        _out << nl << "import * as __module_" << importPathToIdentifier(moduleName) << " from \"" << moduleName
+             << "\";";
     }
     return _importedTypes;
 }
@@ -2571,7 +2558,7 @@ Slice::Gen::TypeScriptVisitor::writeNestedModuleExports(const string& currentMod
 
     for (const auto& [includeFile, types] : _importedTypesByInclude)
     {
-        string importPrefix = "__module_" + pathToModule(includeFile) + ".";
+        string importPrefix = "__module_" + importPathToIdentifier(includeFile) + ".";
 
         for (const auto& typeScope : types)
         {
