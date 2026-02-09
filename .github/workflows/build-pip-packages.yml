@@ -94,15 +94,15 @@ jobs:
       - name: Build Wheel from sdist (Unix)
         if: runner.os != 'Windows'
         run: |
-          python3 -m pip install --upgrade pip
-          pip3 wheel sdist/*.tar.gz --no-deps -w dist/
+          python -m pip install --upgrade pip
+          pip wheel sdist/*.tar.gz --no-deps -w dist/
 
       - name: Build Wheel from sdist (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          python3 -m pip install --upgrade pip
-          pip3 wheel (Get-ChildItem sdist\*.tar.gz).FullName --no-deps -w dist/
+          python -m pip install --upgrade pip
+          pip wheel (Get-ChildItem sdist\*.tar.gz).FullName --no-deps -w dist/
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
