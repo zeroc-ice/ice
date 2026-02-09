@@ -35,9 +35,9 @@ Slice::JavaScript::importPathToIdentifier(const string& path)
 {
     string identifier = path;
 
-    // Strip file extensions for relative paths (normalized by toRelativePath to start with "./").
-    // For module names like "foo" or "@zeroc/ice", there is no extension to strip.
-    if (identifier.size() > 2 && identifier[0] == '.' && identifier[1] == '/')
+    // Strip file extensions for relative paths (start with "./" or "../").
+    // Module names like "foo" or "@zeroc/ice" never start with '.' so they are unaffected.
+    if (!identifier.empty() && identifier[0] == '.')
     {
         static constexpr string_view extensions[] = {".ice", ".js"};
         for (string_view ext : extensions)

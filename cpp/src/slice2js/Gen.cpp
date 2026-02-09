@@ -39,15 +39,6 @@ namespace
         return f;
     }
 
-    bool ends_with(string_view s, string_view suffix)
-    {
-#if defined __cpp_lib_starts_ends_with
-        return s.ends_with(suffix);
-#else
-        return s.size() >= suffix.size() && s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
-#endif
-    }
-
     string sliceModeToIceMode(Operation::Mode opMode)
     {
         switch (opMode)
@@ -201,9 +192,8 @@ Slice::IncludeAggregationVisitor::visitUnitStart(const UnitPtr& unit)
         string resolvedPath = dc->resolvedFilename();
         directIncludeMap[resolvedPath] = directInclude;
 
-        string jsModule = getJavaScriptModule(dc);
-        const bool isExternal = !jsModule.empty() && jsModule != _topLevelModule;
-        if (!isExternal)
+        // Only aggregate includes that belong to the same js:module as the top-level file.
+        if (getJavaScriptModule(dc) == _topLevelModule)
         {
             directIncludes.insert(resolvedPath);
         }
@@ -296,9 +286,8 @@ Slice::IncludeAggregationVisitor::visitModuleEnd(const ModulePtr& module)
         return;
     }
 
-    // Skip external js:module files - they're imported directly.
-    string jsModule = getJavaScriptModule(dc);
-    if (!jsModule.empty() && jsModule != _topLevelModule)
+    // Skip files that don't belong to the same js:module - they're imported directly.
+    if (getJavaScriptModule(dc) != _topLevelModule)
     {
         return;
     }
@@ -940,7 +929,9 @@ Slice::Gen::ImportVisitor::writeImports(
         imports["@zeroc/ice"] = set<string>{"Ice"};
     }
 
-    // Iterate all the included files and generate an import statement for each top-level module in the included file.
+    // Group the top-level modules from each included file by their JavaScript import path.
+    // Imports from files in the same js:module (or without a js:module) are tracked as "local" for aggregation.
+    set<string> localImports;
     for (const auto& included : p->includeFiles())
     {
         set<string> sliceTopLevelModules = p->getTopLevelModules(included);
@@ -954,6 +945,7 @@ Slice::Gen::ImportVisitor::writeImports(
             // We import them using their Slice include relative path.
             string f = toRelativePath(removeExtension(included) + ".js", p->topLevelFile());
             imports[f] = sliceTopLevelModules;
+            localImports.insert(f);
 
             for (const auto& topLevelModule : sliceTopLevelModules)
             {
@@ -1018,19 +1010,19 @@ Slice::Gen::ImportVisitor::writeImports(
     else
     {
         // Import the required modules from "@zeroc/ice" JavaScript module.
-        set<string> iceModules = imports["@zeroc/ice"];
+        auto i = imports.find("@zeroc/ice");
+        assert(i != imports.end());
         _out << nl << "import { ";
-        for (auto i = iceModules.begin(); i != iceModules.end();)
+        for (auto j = i->second.begin(); j != i->second.end();)
         {
-            _out << (*i);
-            if (++i != iceModules.end())
+            _out << (*j);
+            if (++j != i->second.end())
             {
                 _out << ", ";
             }
         }
         _out << " } from \"@zeroc/ice\";";
-        // Remove Ice already imported from the list of imports.
-        imports.erase("@zeroc/ice");
+        imports.erase(i);
     }
 
     // Process the remaining imports, after importing "@zeroc/ice".
@@ -1044,23 +1036,22 @@ Slice::Gen::ImportVisitor::writeImports(
             continue;
         }
 
-        bool isRelativeImport = ends_with(jsImportedModule, ".js");
+        bool isLocal = localImports.count(jsImportedModule) > 0;
         _out << nl << "import { ";
         _out.inc();
         for (const auto& topLevelModule : topLevelModules)
         {
-            _out << nl << topLevelModule << " as " << importPathToIdentifier(jsImportedModule) << "_" << topLevelModule;
-            if (isRelativeImport)
+            _out << nl << topLevelModule << " as " << importPathToIdentifier(jsImportedModule) << "_" << topLevelModule << ", ";
+            if (isLocal)
             {
                 aggregatedModules.insert(topLevelModule);
             }
-            _out << ", ";
         }
         _out.dec();
         _out << "} from \"" << jsImportedModule << "\"";
     }
 
-    // Aggregate top-level modules imported from relative .js files into a single module object.
+    // Aggregate top-level modules from local imports into a single module object.
     // External js:module imports are not aggregated; their aliased names are used directly.
     for (const string& m : aggregatedModules)
     {
@@ -1069,7 +1060,7 @@ Slice::Gen::ImportVisitor::writeImports(
         _out.inc();
         for (const auto& [jsImportedModule, topLevelModules] : imports)
         {
-            if (ends_with(jsImportedModule, ".js") && topLevelModules.find(m) != topLevelModules.end())
+            if (localImports.count(jsImportedModule) > 0 && topLevelModules.find(m) != topLevelModules.end())
             {
                 _out << nl << "..." << importPathToIdentifier(jsImportedModule) << "_" << m << ",";
             }
