@@ -14,7 +14,7 @@
         <BootstrapperApplication>
             <bal:WixStandardBootstrapperApplication
                 LicenseUrl="https://zeroc.com/licenses/ice"
-                Theme="standard"
+                Theme="hyperlinkLicense"
                 LogoFile="!(bindpath.SOURCE_ROOT)packaging\windows-installer\resources\product.ico" />
         </BootstrapperApplication>
 
@@ -38,9 +38,9 @@
                 Vital="yes"
                 Protocol="burn"
                 DetectCondition="VCRedistInstalled = 1"
-                InstallCommand="/install /quiet /norestart"
-                RepairCommand="/repair /quiet /norestart"
-                UninstallCommand="/uninstall /quiet /norestart" />
+                InstallArguments="/install /quiet /norestart"
+                RepairArguments="/repair /quiet /norestart"
+                UninstallArguments="/uninstall /quiet /norestart" />
 
             <!-- Ice Services MSI -->
             <MsiPackage
