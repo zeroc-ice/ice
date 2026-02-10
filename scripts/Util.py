@@ -992,13 +992,11 @@ class Mapping(object):
         return testSuiteId
 
     def findTestSuite(self, testsuite):
-        print("Looking for testsuite `{0}' in mapping `{1}'".format(testsuite, self))
         return self.testsuites.get(testsuite if isinstance(testsuite, str) else testsuite.id)
 
     def computeTestCases(self, testId, files):
         # Instantiate a new test suite if the directory contains well-known source files.
         def checkFile(f, m):
-            print("Checking for file `{0}' in mapping `{1}' for test `{2}'".format(f, m, testId))
             try:
                 # If given mapping is same as local mapping, just check the files set, otherwise check
                 # with the mapping
