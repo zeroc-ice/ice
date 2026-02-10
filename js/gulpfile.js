@@ -373,7 +373,8 @@ gulp.task(
     gulp.series(
         "ice:bundle",
         "test:common:build",
-        gulp.series([...tests, ...moduleAggregationSubdirs].map(testName => testTask(testName, "build"))),
+        gulp.series(moduleAggregationSubdirs.map(testName => testTask(testName, "build"))),
+        gulp.series(tests.map(testName => testTask(testName, "build"))),
         gulp.series(tests.map(testName => testTask(testName, "copy:assets"))),
     ),
 );

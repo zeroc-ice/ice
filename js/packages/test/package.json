@@ -1,9 +1,5 @@
 {
     "name": "@zeroc/ice-test",
     "private": true,
-    "type": "module",
-    "dependencies": {
-        "@zeroc/ice": "*",
-        "@zeroc/slice2js": "*"
-    }
+    "type": "module"
 }

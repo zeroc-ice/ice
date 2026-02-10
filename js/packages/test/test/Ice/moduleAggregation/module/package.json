@@ -10,8 +10,5 @@
         }
     },
     "main": "index.js",
-    "types": "index.d.ts",
-    "dependencies": {
-        "@zeroc/ice": "file:../../../.."
-    }
+    "types": "index.d.ts"
 }
