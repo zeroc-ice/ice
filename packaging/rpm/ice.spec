@@ -60,6 +60,8 @@ BuildRequires: pkgconfig(openssl)
 BuildRequires: pkgconfig(bzip2)
 BuildRequires: pkgconfig(lmdb)
 BuildRequires: pkgconfig(libsystemd)
+BuildRequires: pkgconfig(bluez)
+BuildRequires: pkgconfig(dbus-1)
 
 # Amazon Linux 2023 does not provide pkgconfig(mcpp)
 %if "%{dist}" == ".amzn2023"
@@ -419,6 +421,7 @@ cp -p java/lib/icegridgui.jar %{buildroot}%{_javadir}/icegridgui.jar
 %{_libdir}/libDataStorm.so.*
 %{_libdir}/libGlacier2.so.*
 %{_libdir}/libIce.so.*
+%{_libdir}/libIceBT.so.*
 %{_libdir}/libIceBox.so.*
 %{_libdir}/libIceDiscovery.so.*
 %{_libdir}/libIceGrid.so.*
@@ -455,6 +458,7 @@ exit 0
 %{_libdir}/libDataStorm.so
 %{_libdir}/libGlacier2.so
 %{_libdir}/libIce.so
+%{_libdir}/libIceBT.so
 %{_libdir}/libIceBox.so
 %{_libdir}/libIceDiscovery.so
 %{_libdir}/libIceGrid.so
@@ -463,10 +467,11 @@ exit 0
 %{_includedir}/DataStorm
 %{_includedir}/Glacier2
 %{_includedir}/Ice
-%{_includedir}/IceDiscovery
-%{_includedir}/IceLocatorDiscovery
+%{_includedir}/IceBT
 %{_includedir}/IceBox
+%{_includedir}/IceDiscovery
 %{_includedir}/IceGrid
+%{_includedir}/IceLocatorDiscovery
 %{_includedir}/IceStorm
 %{_bindir}/slice2cpp
 %{_mandir}/man1/slice2cpp.1*

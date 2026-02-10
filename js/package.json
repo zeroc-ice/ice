@@ -9,6 +9,7 @@
     ],
     "type": "module",
     "devDependencies": {
+        "test_nested_modules": "file:packages/test/test/Ice/moduleAggregation/module",
         "@eslint/js": "^9.32.0",
         "@rollup/plugin-node-resolve": "^16.0.1",
         "@rollup/plugin-strip": "^3.0.4",

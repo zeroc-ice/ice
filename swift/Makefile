@@ -4,7 +4,7 @@ top_srcdir := ..
 
 include $(top_srcdir)/config/Make.rules
 
-CONFIG ?= $(if $(filter $(OPTIMIZE),no),Debug,Release)
+CONFIG ?= $(if $(filter yes,$(OPTIMIZE)),Release,Debug)
 
 SWIFT_BUILD_FLAGS ?= $(if $(filter yes,$(WARNINGS_AS_ERRORS)),-Xswiftc -warnings-as-errors,) $(if $(V),--verbose,) --configuration  $(shell echo $(CONFIG) | tr '[:upper:]' '[:lower:]')
 

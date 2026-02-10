@@ -16,12 +16,22 @@ packages/test/test/Glacier2/router/Callback.d.ts
 packages/test/test/Glacier2/router/Callback.js
 packages/test/test/Ice/objects/Forward.d.ts
 packages/test/test/Ice/objects/Forward.js
+packages/test/test/Ice/moduleAggregation/relative/*.js
+packages/test/test/Ice/moduleAggregation/relative/*.d.ts
+packages/test/test/Ice/moduleAggregation/module/*.js
+packages/test/test/Ice/moduleAggregation/module/*.d.ts
+!packages/test/test/Ice/moduleAggregation/module/index.js
+!packages/test/test/Ice/moduleAggregation/module/index.d.ts
+packages/test/test/Ice/moduleAggregation/external/*.js
+packages/test/test/Ice/moduleAggregation/external/*.d.ts
 packages/test/test/Ice/optional/ClientPrivate.d.ts
 packages/test/test/Ice/optional/ClientPrivate.js
 packages/test/test/Slice/escape/Clash.d.ts
 packages/test/test/Slice/escape/Clash.js
 packages/test/test/Slice/escape/Key.d.ts
 packages/test/test/Slice/escape/Key.js
+packages/test/test/Slice/moduleName/test-dep.d.ts
+packages/test/test/Slice/moduleName/test-dep.js
 
 packages/test/test/**/Client.js
 packages/test/test/**/Server.js
@@ -103,6 +113,8 @@ packages/ice/src/IceGrid/Session.js
 packages/ice/src/IceGrid/Session.d.ts
 packages/ice/src/IceGrid/UserAccountMapper.js
 packages/ice/src/IceGrid/UserAccountMapper.d.ts
+packages/ice/src/IceBox/ServiceManager.js
+packages/ice/src/IceBox/ServiceManager.d.ts
 packages/ice/src/IceStorm/IceStorm.js
 packages/ice/src/IceStorm/IceStorm.d.ts
 packages/ice/src/IceStorm/Metrics.js

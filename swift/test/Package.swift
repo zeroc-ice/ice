@@ -86,6 +86,7 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
         .byName(name: "TestCommon"),
         .product(name: "Ice", package: "ice"),
         .product(name: "Glacier2", package: "ice"),
+        .product(name: "IceBox", package: "ice"),
         .product(name: "IceGrid", package: "ice"),
         .product(name: "IceStorm", package: "ice"),
     ]
