@@ -1,10 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Gen.h"
-#include "CsMetadataValidator.h"
 #include "../Ice/FileUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
+#include "CsMetadataValidator.h"
 #include "Ice/StringUtil.h"
 
 #include <algorithm>
@@ -36,7 +36,6 @@ namespace
     {
         vector<string> params;
         ParameterList paramList = op->parameters();
-        InterfaceDefPtr interface = op->interface();
         for (const auto& q : paramList)
         {
             string param;

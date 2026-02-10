@@ -136,8 +136,7 @@ Slice::Csharp::typeToString(const TypePtr& type, const string& ns, bool optional
             const string& customType = *metadata;
             if (customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
             {
-                return "global::System.Collections.Generic." + customType + "<" + typeToString(seq->type(), ns) +
-                       ">";
+                return "global::System.Collections.Generic." + customType + "<" + typeToString(seq->type(), ns) + ">";
             }
             else
             {
@@ -560,8 +559,8 @@ Slice::Csharp::writeMarshalUnmarshalCode(
         }
         else
         {
-            out << nl << param << " = (" << typeToString(type, ns) << ')' << stream << ".readEnum("
-                << en->maxValue() << ");";
+            out << nl << param << " = (" << typeToString(type, ns) << ')' << stream << ".readEnum(" << en->maxValue()
+                << ");";
         }
         return;
     }

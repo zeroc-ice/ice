@@ -85,6 +85,8 @@ namespace Slice
         void writeDataMemberInitializers(const DataMemberList&);
     };
 
+    /// Generates Result record structs for any operation that returns multiple values or a marshaled result; does not
+    /// generate anything for other operations.
     class ResultVisitor final : public CsVisitor
     {
     public:
