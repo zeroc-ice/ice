@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Bundle</OutputType>
     <OutputName>Ice-Services-$(IcePackageVersion)</OutputName>
-    <DefineConstants>Version=3.9.0</DefineConstants>
+    <DefineConstants>Version=$(IcePackageVersion)</DefineConstants>
     <DefineConstants>$(DefineConstants);IcePackageVersion=$(IcePackageVersion)</DefineConstants>
     <!-- Path to the built MSI from the parent project -->
     <IceMsiDir Condition="'$(IceMsiDir)' == ''">$(MSBuildThisFileDirectory)..\bin\x64\Release\</IceMsiDir>
