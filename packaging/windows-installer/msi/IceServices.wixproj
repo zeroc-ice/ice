@@ -6,6 +6,7 @@
     <StagingDir>$([MSBuild]::EnsureTrailingSlash('$(StagingDir)'))</StagingDir>
     <!-- Use DefineConstants to make MSBuild properties available in wxs Wix Files-->
     <DefineConstants>Version=3.9.0</DefineConstants>
+    <DefineConstants>$(DefineConstants);IceReleaseNotesUrl=https://docs.zeroc.com/ice/latest/cpp/ice-3-9-preview</DefineConstants>
     <OutputName>Ice-Services-$(IcePackageVersion)</OutputName>
     <ProductCode>Ice-Services-$(Version)</ProductCode>
   </PropertyGroup>
@@ -15,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="WixToolset.Util.wixext" Version="6.0.0" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="6.0.0" />
   </ItemGroup>
   <!-- Files from the source build -->
   <ItemGroup>
