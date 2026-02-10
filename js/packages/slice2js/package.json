@@ -57,6 +57,7 @@
     ],
     "scripts": {
         "build": "tsc",
+        "prepare": "tsc",
         "prepack": "tsc && node scripts/prepack.js"
     }
 }
