@@ -19,7 +19,7 @@ mkdir packaging\windows-installer\redist
 curl -L -o packaging\windows-installer\redist\vc_redist.x64.exe https://aka.ms/vs/17/release/vc_redist.x64.exe
 ```
 
-## Build the MSI
+## Build the Installer
 
 ```cmd
 cd packaging\windows-installer
