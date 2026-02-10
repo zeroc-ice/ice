@@ -395,12 +395,12 @@ gulp.task("test:unplugin", () => {
         const testDir = path.join("packages/test/Slice/unplugin");
         const testFiles = fs
             .readdirSync(path.resolve(root, testDir), { withFileTypes: true })
-            .filter((d) => d.isDirectory())
-            .flatMap((d) =>
+            .filter(d => d.isDirectory())
+            .flatMap(d =>
                 fs
                     .readdirSync(path.resolve(root, testDir, d.name))
-                    .filter((f) => f.endsWith(".test.js"))
-                    .map((f) => path.join(testDir, d.name, f)),
+                    .filter(f => f.endsWith(".test.js"))
+                    .map(f => path.join(testDir, d.name, f)),
             );
         exec(`node --test ${testFiles.join(" ")}`, { cwd: root }, (err, stdout, stderr) => {
             if (err) {
@@ -415,7 +415,10 @@ gulp.task("test:unplugin", () => {
 });
 
 gulp.task("build", gulp.series("dist", "test", "test:unplugin"));
-gulp.task("clean", gulp.series("dist:clean", "test:clean", async () => {
-    await deleteAsync(["node_modules/", "packages/slice2js/dist/"]);
-}));
+gulp.task(
+    "clean",
+    gulp.series("dist:clean", "test:clean", async () => {
+        await deleteAsync(["node_modules/", "packages/slice2js/dist/"]);
+    }),
+);
 gulp.task("default", gulp.series("build"));
