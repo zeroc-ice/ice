@@ -149,6 +149,7 @@ Client::run(int argc, char** argv)
         test(proxy->echoString(string(50, char(0xE9))) == string(50, char(0xE9)));
         test(proxy->echoString(string(50, char(0xA4))) == string(50, char(0xA4)));
         test(proxy->echoString(string(84, char(0xE9))) == string(84, char(0xE9)));
+        test(proxy->echoString(string(84, char(0xA4))) == string(84, char(0xA4))); // 84 * 3 = 252 UTF-8 bytes
 
         // Large strings (vsize > 84): uses 5-byte size encoding
         test(proxy->echoString(string(85, char(0xE9))) == string(85, char(0xE9)));
