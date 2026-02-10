@@ -703,8 +703,24 @@ Ice::OutputStream::write(const char*)
 void
 Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
 {
+    StringConverterPtr stringConverter = _stringConverter;
+    if (!stringConverter)
+    {
+        stringConverter = getProcessStringConverter();
+    }
+
+    if (!stringConverter)
+    {
+        // No converter installed; write the string as-is (assumed to be UTF-8 already).
+        writeSize(static_cast<int32_t>(vsize));
+        Container::size_type position = b.size();
+        resize(position + vsize);
+        memcpy(&b[position], vdata, vsize);
+        return;
+    }
+
     //
-    // Convert the narrow string to UTF-8 using the installed string converter and write the result to the stream.
+    // Convert the narrow string to UTF-8 using the string converter and write the result to the stream.
     //
     // The worst-case expansion for converting a narrow string to UTF-8 is 3x (e.g., a single byte in Shift_JIS can
     // expand to 3 bytes in UTF-8). We use this upper bound to decide the size encoding:
@@ -713,27 +729,10 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
     //
     try
     {
-        StringConverterPtr stringConverter = _stringConverter;
-        if (!stringConverter)
-        {
-            stringConverter = getProcessStringConverter();
-        }
-
-        if (!stringConverter)
-        {
-            // No converter installed; write the string as-is (assumed to be UTF-8 already).
-            writeSize(static_cast<int32_t>(vsize));
-            Container::size_type position = b.size();
-            resize(position + vsize);
-            memcpy(&b[position], vdata, vsize);
-            return;
-        }
-
         if (vsize <= 254 / 3)
         {
             // The maximum UTF-8 size is vsize * 3 <= 252, which fits in a 1-byte size encoding.
-            write(uint8_t(0)); // 1-byte size placeholder
-            size_t firstIndex = b.size();
+            auto sizePos = startOneByteSize();
 
             StreamUTF8BufferI buffer(*this);
             byte* lastByte = stringConverter->toUTF8(vdata, vdata + vsize, buffer);
@@ -742,13 +741,12 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
                 resize(static_cast<size_t>(lastByte - b.begin()));
             }
 
-            assert(b.size() - firstIndex <= 254);
-            rewriteSize(static_cast<int32_t>(b.size() - firstIndex), b.begin() + firstIndex - 1);
+            endOneByteSize(sizePos);
         }
         else
         {
-            // Use the 5-byte size encoding unconditionally.
-            write(uint8_t(255)); // size marker
+            // Write the first byte of the 5-byte size encoding, followed by a 4-byte size placeholder.
+            write(uint8_t(255));
             auto sizePos = startSize();
 
             StreamUTF8BufferI buffer(*this);
