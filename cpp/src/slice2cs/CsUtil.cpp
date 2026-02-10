@@ -43,7 +43,7 @@ Slice::Csharp::getNamespace(const ContainedPtr& p)
 }
 
 string
-Slice::Csharp::getUnqualified(const ContainedPtr& p, const string& package, const string& prefix)
+Slice::Csharp::getUnqualified(const ContainedPtr& p, const string& ns, const string& prefix)
 {
     string name = p->mappedName();
     if (!prefix.empty())
@@ -55,12 +55,12 @@ Slice::Csharp::getUnqualified(const ContainedPtr& p, const string& package, cons
     if (dynamic_pointer_cast<Operation>(p) || dynamic_pointer_cast<DataMember>(p) ||
         dynamic_pointer_cast<Enumerator>(p))
     {
-        return getUnqualified(dynamic_pointer_cast<Contained>(p->container()), package) + "." + name;
+        return getUnqualified(dynamic_pointer_cast<Contained>(p->container()), ns) + "." + name;
     }
     else
     {
         string pNamespace = getNamespace(p);
-        if (pNamespace == package || pNamespace.empty())
+        if (pNamespace == ns || pNamespace.empty())
         {
             return name;
         }
@@ -102,7 +102,7 @@ Slice::Csharp::getStaticId(const TypePtr& type)
 }
 
 string
-Slice::Csharp::typeToString(const TypePtr& type, const string& package, bool optional)
+Slice::Csharp::typeToString(const TypePtr& type, const string& ns, bool optional)
 {
     if (!type)
     {
@@ -112,7 +112,7 @@ Slice::Csharp::typeToString(const TypePtr& type, const string& package, bool opt
     if (optional && !isProxyType(type))
     {
         // Proxy types are mapped the same way for optional and non-optional types.
-        return typeToString(type, package) + "?";
+        return typeToString(type, ns) + "?";
     }
     // else, just use the regular mapping. null represents "not set".
 
@@ -128,13 +128,13 @@ Slice::Csharp::typeToString(const TypePtr& type, const string& package, bool opt
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
-        return getUnqualified(cl, package) + "?";
+        return getUnqualified(cl, ns) + "?";
     }
 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        return getUnqualified(proxy, package) + "Prx?";
+        return getUnqualified(proxy, ns) + "Prx?";
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
@@ -145,30 +145,30 @@ Slice::Csharp::typeToString(const TypePtr& type, const string& package, bool opt
             const string& customType = *metadata;
             if (customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
             {
-                return "global::System.Collections.Generic." + customType + "<" + typeToString(seq->type(), package) +
+                return "global::System.Collections.Generic." + customType + "<" + typeToString(seq->type(), ns) +
                        ">";
             }
             else
             {
-                return "global::" + customType + "<" + typeToString(seq->type(), package) + ">";
+                return "global::" + customType + "<" + typeToString(seq->type(), ns) + ">";
             }
         }
 
-        return typeToString(seq->type(), package) + "[]";
+        return typeToString(seq->type(), ns) + "[]";
     }
 
     DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if (d)
     {
         string typeName = d->getMetadataArgs("cs:generic").value_or("Dictionary");
-        return "global::System.Collections.Generic." + typeName + "<" + typeToString(d->keyType(), package) + ", " +
-               typeToString(d->valueType(), package) + ">";
+        return "global::System.Collections.Generic." + typeName + "<" + typeToString(d->keyType(), ns) + ", " +
+               typeToString(d->valueType(), ns) + ">";
     }
 
     ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
     if (contained)
     {
-        return getUnqualified(contained, package);
+        return getUnqualified(contained, ns);
     }
 
     return "???";
@@ -185,12 +185,12 @@ Slice::Csharp::resultStructName(const string& className, const string& opName, b
 }
 
 string
-Slice::Csharp::resultType(const OperationPtr& op, const string& package, bool dispatch)
+Slice::Csharp::resultType(const OperationPtr& op, const string& ns, bool dispatch)
 {
     InterfaceDefPtr interface = op->interface();
     if (dispatch && op->hasMarshaledResult())
     {
-        return getUnqualified(interface, package) + resultStructName("", op->mappedName(), true);
+        return getUnqualified(interface, ns) + resultStructName("", op->mappedName(), true);
     }
 
     string t;
@@ -199,15 +199,15 @@ Slice::Csharp::resultType(const OperationPtr& op, const string& package, bool di
     {
         if (outParams.empty())
         {
-            t = typeToString(op->returnType(), package, op->returnIsOptional());
+            t = typeToString(op->returnType(), ns, op->returnIsOptional());
         }
         else if (op->returnType() || outParams.size() > 1)
         {
-            t = getUnqualified(interface, package) + resultStructName("", op->mappedName());
+            t = getUnqualified(interface, ns) + resultStructName("", op->mappedName());
         }
         else
         {
-            t = typeToString(outParams.front()->type(), package, outParams.front()->optional());
+            t = typeToString(outParams.front()->type(), ns, outParams.front()->optional());
         }
     }
 
@@ -321,10 +321,71 @@ Slice::Csharp::isMappedToRequiredField(const DataMemberPtr& p)
 }
 
 void
+Slice::Csharp::writeDocLine(Output& out, const string& openTag, const string& comment, std::optional<string> closeTag)
+{
+    if (comment.empty())
+    {
+        return;
+    }
+
+    if (!closeTag)
+    {
+        closeTag = openTag;
+    }
+
+    out << nl << "/// <" << openTag << ">" << comment << "</" << *closeTag << ">";
+}
+
+void
+Slice::Csharp::writeDocLines(Output& out, const string& openTag, const StringList& lines, optional<string> closeTag)
+{
+    // If there is a single line, write the doc-comment as a single line. Otherwise, write the doc-comment on
+    // multiple lines.
+
+    if (lines.size() == 1)
+    {
+        writeDocLine(out, openTag, lines.front(), closeTag);
+    }
+    else
+    {
+        if (lines.empty())
+        {
+            return;
+        }
+
+        if (!closeTag)
+        {
+            closeTag = openTag;
+        }
+
+        bool firstLine = true;
+
+        for (const auto& line : lines)
+        {
+            if (firstLine)
+            {
+                firstLine = false;
+                out << nl << "/// <" << openTag << ">";
+            }
+            else
+            {
+                out << nl << "///";
+                if (!line.empty())
+                {
+                    out << ' ';
+                }
+            }
+            out << line;
+        }
+        out << "</" << *closeTag << ">";
+    }
+}
+
+void
 Slice::Csharp::writeMarshalUnmarshalCode(
     Output& out,
     const TypePtr& type,
-    const string& package,
+    const string& ns,
     const string& param,
     bool marshal,
     const string& customStream)
@@ -459,7 +520,7 @@ Slice::Csharp::writeMarshalUnmarshalCode(
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
     if (prx)
     {
-        string typeS = typeToString(type, package);
+        string typeS = typeToString(type, ns);
         string helperName = typeS.substr(0, typeS.size() - 1) + "Helper"; // remove the trailing '?'
         if (marshal)
         {
@@ -490,11 +551,11 @@ Slice::Csharp::writeMarshalUnmarshalCode(
     {
         if (marshal)
         {
-            out << nl << typeToString(st, package) << ".ice_write(" << stream << ", " << param << ");";
+            out << nl << typeToString(st, ns) << ".ice_write(" << stream << ", " << param << ");";
         }
         else
         {
-            out << nl << param << " = new " << typeToString(type, package) << "(" << stream << ");";
+            out << nl << param << " = new " << typeToString(type, ns) << "(" << stream << ");";
         }
         return;
     }
@@ -508,7 +569,7 @@ Slice::Csharp::writeMarshalUnmarshalCode(
         }
         else
         {
-            out << nl << param << " = (" << typeToString(type, package) << ')' << stream << ".readEnum("
+            out << nl << param << " = (" << typeToString(type, ns) << ')' << stream << ".readEnum("
                 << en->maxValue() << ");";
         }
         return;
@@ -517,7 +578,7 @@ Slice::Csharp::writeMarshalUnmarshalCode(
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if (seq)
     {
-        writeSequenceMarshalUnmarshalCode(out, seq, package, param, marshal, true, stream);
+        writeSequenceMarshalUnmarshalCode(out, seq, ns, param, marshal, true, stream);
         return;
     }
 
@@ -526,11 +587,11 @@ Slice::Csharp::writeMarshalUnmarshalCode(
     DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if (d)
     {
-        helperName = getUnqualified(d, package) + "Helper";
+        helperName = getUnqualified(d, ns) + "Helper";
     }
     else
     {
-        helperName = typeToString(type, package) + "Helper";
+        helperName = typeToString(type, ns) + "Helper";
     }
 
     if (marshal)

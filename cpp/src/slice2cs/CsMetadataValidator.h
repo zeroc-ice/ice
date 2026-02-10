@@ -7,10 +7,8 @@
 
 namespace Slice
 {
-
     // Validates the C# metadata using "cs:" prefix in the given unit.
     void validateCsMetadata(const UnitPtr& unit);
-
 }
 
 #endif
