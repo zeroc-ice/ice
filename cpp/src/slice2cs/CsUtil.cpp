@@ -8,15 +8,6 @@
 #include <algorithm>
 #include <cassert>
 
-#include <sys/stat.h>
-#include <sys/types.h>
-
-#ifdef _WIN32
-#    include <direct.h>
-#else
-#    include <unistd.h>
-#endif
-
 using namespace std;
 using namespace Slice;
 using namespace IceInternal;

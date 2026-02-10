@@ -1,20 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Gen.h"
+#include "CsMetadataValidator.h"
 #include "../Ice/FileUtil.h"
-#include "Ice/StringUtil.h"
-
-#include <limits>
-#ifndef _WIN32
-#    include <unistd.h>
-#else
-#    include <direct.h>
-#endif
-
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
-#include "CsMetadataValidator.h"
-#include "Ice/UUID.h"
+#include "Ice/StringUtil.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cstring>
@@ -344,8 +336,6 @@ namespace
 }
 
 Slice::CsVisitor::CsVisitor(Output& out) : _out(out) {}
-
-Slice::CsVisitor::~CsVisitor() = default;
 
 void
 Slice::CsVisitor::emitNonBrowsableAttribute()

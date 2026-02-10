@@ -7,11 +7,11 @@
 
 namespace Slice
 {
+    /// Base visitor class for C# code generation.
     class CsVisitor : public ParserVisitor
     {
     public:
         CsVisitor(IceInternal::Output&);
-        ~CsVisitor() override;
 
     protected:
         void emitNonBrowsableAttribute();
@@ -50,6 +50,7 @@ namespace Slice
         IceInternal::Output& _out;
     };
 
+    /// Generates code for Slice types (including proxies) and Slice exceptions.
     class TypesVisitor final : public CsVisitor
     {
     public:
@@ -94,6 +95,7 @@ namespace Slice
         void visitOperation(const OperationPtr&) final;
     };
 
+    /// Generates the server-side code for Slice interfaces.
     class SkeletonVisitor final : public CsVisitor
     {
     public:
