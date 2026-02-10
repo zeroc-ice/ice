@@ -934,7 +934,7 @@ class Mapping(object):
             moduleprefix = self.component.getScriptDir()[len(prefix) + 1 :].replace(os.sep, ".") + "."
             sys.path = [prefix] + sys.path
             for test in tests or [""]:
-                testDir = self.component.getTestDir(self)
+                testDir = self.getTestDir()
                 for root, dirs, files in os.walk(os.path.join(testDir, test.replace("/", os.sep))):
                     testId = root[len(testDir) + 1 :]
                     if os.sep != "/":
@@ -986,17 +986,19 @@ class Mapping(object):
         return [self.testsuites[testSuiteId] for testSuiteId in ids if testSuiteId in self.testsuites]
 
     def addTestSuite(self, testsuite):
-        assert len(testsuite.path) > len(self.component.getTestDir(self)) + 1
-        testSuiteId = testsuite.path[len(self.component.getTestDir(self)) + 1 :].replace("\\", "/")
+        assert len(testsuite.path) > len(self.getTestDir()) + 1
+        testSuiteId = testsuite.path[len(self.getTestDir()) + 1 :].replace("\\", "/")
         self.testsuites[testSuiteId] = testsuite
         return testSuiteId
 
     def findTestSuite(self, testsuite):
+        print("Looking for testsuite `{0}' in mapping `{1}'".format(testsuite, self))
         return self.testsuites.get(testsuite if isinstance(testsuite, str) else testsuite.id)
 
     def computeTestCases(self, testId, files):
         # Instantiate a new test suite if the directory contains well-known source files.
         def checkFile(f, m):
+            print("Checking for file `{0}' in mapping `{1}' for test `{2}'".format(f, m, testId))
             try:
                 # If given mapping is same as local mapping, just check the files set, otherwise check
                 # with the mapping
@@ -1027,7 +1029,7 @@ class Mapping(object):
         try:
             return os.path.exists(
                 os.path.join(
-                    self.component.getTestDir(self),
+                    self.getTestDir(),
                     testId,
                     self.getDefaultSource(processType),
                 )
@@ -4034,13 +4036,13 @@ class JavaScriptMixin:
         return Mapping._getDefaultProcesses(self, processType)
 
     def getCommonDir(self, current):
-        return os.path.join(self.getPath(), "test", "Common")
+        return os.path.join(self.getTestDir(), "Common")
 
     def getCommandLine(self, current, process, exe, args):
         coverage = ""
 
-        src_path = os.path.join(self.getPath(), "src")
-        tests_path = os.path.join(self.getPath(), "test")
+        src_path = os.path.join(self.getPath(), "packages", "ice", "src")
+        tests_path = self.getTestDir()
 
         if current.config.coverage:
             report_dir = f"coverage/{current.testcase.getTestSuite().getId()}-{exe}"
@@ -4104,8 +4106,8 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
             if self.browser and self.protocol == "tcp":
                 self.protocol = "ws"
 
-    def getCommonDir(self, current):
-        return os.path.join(self.getPath(), "test", "Common")
+    def getTestDir(self):
+        return os.path.join(self.getPath(), "packages", "test", "test")
 
     def getEnv(self, process, current):
         if not current.config.browser and current.config.protocol == "wss":

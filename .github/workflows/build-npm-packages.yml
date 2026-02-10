@@ -113,8 +113,8 @@ jobs:
         working-directory: ice/js
 
       - name: Update Version - @zeroc/ice
-        working-directory: ice/js
-        run: npm version ${{ inputs.ice_version }} --workspaces=false
+        working-directory: ice/js/packages/ice
+        run: npm version ${{ inputs.ice_version }}
         if: ${{ inputs.ice_version != '' }}
 
       - name: Update Version - @zeroc/slice2js
@@ -122,18 +122,18 @@ jobs:
         run: npm version ${{ inputs.ice_version }}
         if: ${{ inputs.ice_version != '' }}
 
+      - name: Pack npm - @zeroc/ice
+        run: npm pack
+        working-directory: ice/js/packages/ice
+
       - name: Pack npm - @zeroc/slice2js
         run: npm pack
         working-directory: ice/js/packages/slice2js
-
-      - name: Pack npm - @zeroc/ice
-        run: npm pack
-        working-directory: ice/js
 
       - name: Upload NPM Packages
         uses: actions/upload-artifact@v4
         with:
           name: js-npm-packages
           path: |
-            ice/js/*.tgz
+            ice/js/packages/ice/*.tgz
             ice/js/packages/slice2js/*.tgz

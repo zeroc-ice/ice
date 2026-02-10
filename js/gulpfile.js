@@ -97,7 +97,7 @@ for (const lib of libs) {
         if (allFiles.length > 0) {
             await runSlice2js({
                 inputs: allFiles,
-                outputDir: path.resolve(root, "src", lib),
+                outputDir: path.resolve(root, "packages/ice/src", lib),
                 args: ["--typescript"],
                 ...sliceOptions,
             });
@@ -111,8 +111,8 @@ for (const lib of libs) {
             .flatMap(f => {
                 const baseName = path.basename(f, ".ice");
                 return [
-                    path.resolve(root, "src", lib, `${baseName}.js`),
-                    path.resolve(root, "src", lib, `${baseName}.d.ts`),
+                    path.resolve(root, "packages/ice/src", lib, `${baseName}.js`),
+                    path.resolve(root, "packages/ice/src", lib, `${baseName}.d.ts`),
                 ];
             });
         await deleteAsync(toDelete, { force: true });
@@ -186,7 +186,7 @@ gulp.task("ice:bundle", async () => {
     }
 
     let bundle = await rollup({
-        input: "src/index.js",
+        input: "packages/ice/src/index.js",
         plugins: plugins,
     });
     await bundle.write({
@@ -200,12 +200,12 @@ gulp.task("ice:bundle", async () => {
 gulp.task("test:common:build", async () => {
     await runSlice2js({
         inputs: [path.resolve("../scripts/Controller.ice")],
-        outputDir: path.resolve("test/Common"),
+        outputDir: path.resolve("packages/test/test/Common"),
         ...sliceOptions,
     });
 
     let bundle = await rollup({
-        input: ["test/Common/ControllerI.js", "test/Common/ControllerWorker.js"],
+        input: ["packages/test/test/Common/ControllerI.js", "packages/test/test/Common/ControllerWorker.js"],
         external: ["@zeroc/ice"],
     });
     await bundle.write({
@@ -217,13 +217,13 @@ gulp.task("test:common:build", async () => {
 });
 
 gulp.task("test:common:clean", async () => {
-    await deleteAsync(["test/Common/Controller.js", "test/Common/.depend"]);
+    await deleteAsync(["packages/test/test/Common/Controller.js", "packages/test/test/Common/.depend"]);
 });
 
 const testTask = (testName, taskName) => testName.replace(/\//g, "_") + ":" + taskName;
 
 for (const name of tests) {
-    const testDir = `${root}/${name}`;
+    const testDir = `${root}/packages/test/${name}`;
 
     // Build test: compile .ice → .js/.d.ts, compile .ts → .js (in-place for Node.js), then bundle for browser.
     gulp.task(testTask(name, "build"), async () => {
@@ -254,10 +254,10 @@ for (const name of tests) {
 
         // Step 3: Bundle .js files for browser
         let input;
-        if (fs.existsSync(`${name}/index.js`)) {
-            input = `${name}/index.js`;
+        if (fs.existsSync(`packages/test/${name}/index.js`)) {
+            input = `packages/test/${name}/index.js`;
         } else {
-            input = `${name}/Client.js`;
+            input = `packages/test/${name}/Client.js`;
         }
 
         let bundle = await rollup({
@@ -277,7 +277,9 @@ for (const name of tests) {
     });
 
     gulp.task(testTask(name, "copy:assets"), () => {
-        return gulp.src(["test/Common/controller.html", "test/Common/style.css"]).pipe(gulp.dest(`dist/${name}`));
+        return gulp
+            .src(["packages/test/test/Common/controller.html", "packages/test/test/Common/style.css"])
+            .pipe(gulp.dest(`dist/${name}`));
     });
 
     gulp.task(testTask(name, "clean"), async () => {
@@ -327,7 +329,17 @@ gulp.task(
 
 gulp.task("test:unplugin", () => {
     return new Promise((resolve, reject) => {
-        exec("node --test test/Slice/unplugin/*/*.test.js", { cwd: root }, (err, stdout, stderr) => {
+        const testDir = path.join("packages/test/test/Slice/unplugin");
+        const testFiles = fs
+            .readdirSync(path.resolve(root, testDir), { withFileTypes: true })
+            .filter((d) => d.isDirectory())
+            .flatMap((d) =>
+                fs
+                    .readdirSync(path.resolve(root, testDir, d.name))
+                    .filter((f) => f.endsWith(".test.js"))
+                    .map((f) => path.join(testDir, d.name, f)),
+            );
+        exec(`node --test ${testFiles.join(" ")}`, { cwd: root }, (err, stdout, stderr) => {
             process.stdout.write(stdout);
             process.stderr.write(stderr);
             if (err) reject(err);

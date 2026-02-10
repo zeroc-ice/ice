@@ -6,7 +6,7 @@ export default tseslint.config(
     eslint.configs.recommended,
     tseslint.configs.recommended,
     {
-        ignores: ["test/**/*.js", "dist/**", "coverage-report/**", "docs/**"],
+        ignores: ["packages/test/**/*.js", "dist/**", "coverage-report/**", "docs/**"],
     },
     {
         linterOptions: {
@@ -15,7 +15,7 @@ export default tseslint.config(
     },
     {
         // Override for specific paths
-        files: ["src/**/*.d.ts"],
+        files: ["packages/ice/src/**/*.d.ts"],
         rules: {
             "@typescript-eslint/triple-slash-reference": "off",
         },
@@ -44,11 +44,10 @@ export default tseslint.config(
     },
     {
         files: [
-            "src/**/*.js",
-            "test/**/*.js",
+            "packages/ice/src/**/*.js",
+            "packages/test/test/**/*.js",
             "gulpfile.js",
             "dts-bundle.js",
-            "scripts/*.js",
             "packages/*/src/**/*.js",
             "packages/*/scripts/**/*.js",
         ],
@@ -57,7 +56,7 @@ export default tseslint.config(
         },
     },
     {
-        files: ["src/**/*.js"],
+        files: ["packages/ice/src/**/*.js"],
         extends: [tseslint.configs.disableTypeChecked],
     },
 );

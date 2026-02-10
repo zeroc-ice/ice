@@ -17,7 +17,7 @@ describe("webpack plugin", () => {
     after(() => fs.rmSync(generatedDir, { recursive: true, force: true }));
 
     it("compiles .ice files and bundles Client.ts", async () => {
-        const stats = await new Promise((resolve, reject) => {
+        await new Promise((resolve, reject) => {
             webpack(
                 {
                     mode: "production",

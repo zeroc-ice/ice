@@ -1,0 +1,41 @@
+{
+    "name": "@zeroc/ice",
+    "version": "3.9.0-alpha.0",
+    "description": "Ice for JavaScript runtime",
+    "author": "Zeroc, Inc.",
+    "homepage": "https://zeroc.com",
+    "repository": "https://github.com/zeroc-ice/ice.git",
+    "license": "GPL-2.0",
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=22.16.0"
+    },
+    "keywords": [
+        "Ice",
+        "rpc"
+    ],
+    "type": "module",
+    "exports": {
+        ".": {
+            "import": "./src/index.js",
+            "types": "./src/index.d.ts"
+        }
+    },
+    "browser": {
+        "./src/Ice/FileLogger.js": "./src/Ice/FileLogger.browser.js",
+        "./src/Ice/TcpTransceiver.js": "./src/Ice/TcpTransceiver.browser.js",
+        "./src/Ice/TimerUtil.js": "./src/Ice/TimerUtil.browser.js"
+    },
+    "browserslist": "> 0.25%, not dead",
+    "files": [
+        "src/",
+        "bin/",
+        "slice/",
+        "README.md"
+    ],
+    "scripts": {
+        "prepack": "node scripts/prepack.js"
+    }
+}
