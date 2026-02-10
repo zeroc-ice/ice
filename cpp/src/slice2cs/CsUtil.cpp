@@ -27,10 +27,10 @@ Slice::Csharp::getNamespace(const ContainedPtr& p)
 {
     assert(!dynamic_pointer_cast<Module>(p));
 
-    string scope = p->mappedScope(".");
-    scope.pop_back(); // Remove the trailing '.' on the scope.
+    string ns = p->mappedScope(".");
+    ns.pop_back(); // Remove the trailing '.' on the ns.
     string prefix = getNamespacePrefix(p);
-    return (prefix.empty() ? scope : prefix + "." + scope);
+    return (prefix.empty() ? ns : prefix + "." + ns);
 }
 
 string
@@ -205,9 +205,9 @@ Slice::Csharp::resultType(const OperationPtr& op, const string& ns, bool dispatc
 }
 
 string
-Slice::Csharp::taskResultType(const OperationPtr& op, const string& scope, bool dispatch)
+Slice::Csharp::taskResultType(const OperationPtr& op, const string& ns, bool dispatch)
 {
-    string t = resultType(op, scope, dispatch);
+    string t = resultType(op, ns, dispatch);
     if (t.empty())
     {
         return "global::System.Threading.Tasks.Task";
@@ -598,7 +598,7 @@ void
 Slice::Csharp::writeOptionalMarshalUnmarshalCode(
     Output& out,
     const TypePtr& type,
-    const string& scope,
+    const string& ns,
     const string& param,
     int32_t tag,
     bool marshal,
@@ -715,7 +715,7 @@ Slice::Csharp::writeOptionalMarshalUnmarshalCode(
             }
             case Builtin::KindObjectProxy:
             {
-                string typeS = typeToString(type, scope);
+                string typeS = typeToString(type, ns);
                 if (marshal)
                 {
                     out << nl << stream << ".writeProxy(" << tag << ", " << param << ");";
@@ -747,7 +747,7 @@ Slice::Csharp::writeOptionalMarshalUnmarshalCode(
             out << nl << "if (" << stream << ".readOptional(" << tag << ", Ice.OptionalFormat.FSize))";
             out << sb;
             out << nl << stream << ".skip(4);";
-            writeMarshalUnmarshalCode(out, type, scope, param, marshal, customStream);
+            writeMarshalUnmarshalCode(out, type, ns, param, marshal, customStream);
             out << eb;
             out << nl << "else";
             out << sb;
@@ -777,7 +777,7 @@ Slice::Csharp::writeOptionalMarshalUnmarshalCode(
             writeMarshalUnmarshalCode(
                 out,
                 type,
-                scope,
+                ns,
                 isMappedToClass(st) ? param : param + ".Value",
                 marshal,
                 customStream);
@@ -799,10 +799,10 @@ Slice::Csharp::writeOptionalMarshalUnmarshalCode(
             {
                 out << nl << stream << ".skipSize();";
             }
-            string typeS = typeToString(type, scope);
+            string typeS = typeToString(type, ns);
             string tmp = "tmpVal";
             out << nl << typeS << ' ' << tmp << ";";
-            writeMarshalUnmarshalCode(out, type, scope, tmp, marshal, customStream);
+            writeMarshalUnmarshalCode(out, type, ns, tmp, marshal, customStream);
             out << nl << param << " = " << tmp << ";";
             out << eb;
             out << nl << "else";
@@ -828,10 +828,10 @@ Slice::Csharp::writeOptionalMarshalUnmarshalCode(
         {
             out << nl << "if (" << stream << ".readOptional(" << tag << ", Ice.OptionalFormat.Size))";
             out << sb;
-            string typeS = typeToString(type, scope);
+            string typeS = typeToString(type, ns);
             string tmp = "tmpVal";
             out << nl << typeS << ' ' << tmp << ';';
-            writeMarshalUnmarshalCode(out, type, scope, tmp, marshal, customStream);
+            writeMarshalUnmarshalCode(out, type, ns, tmp, marshal, customStream);
             out << nl << param << " = " << tmp << ";";
             out << eb;
             out << nl << "else";
@@ -845,7 +845,7 @@ Slice::Csharp::writeOptionalMarshalUnmarshalCode(
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if (seq)
     {
-        writeOptionalSequenceMarshalUnmarshalCode(out, seq, scope, param, tag, marshal, stream);
+        writeOptionalSequenceMarshalUnmarshalCode(out, seq, ns, param, tag, marshal, stream);
         return;
     }
 
@@ -867,7 +867,7 @@ Slice::Csharp::writeOptionalMarshalUnmarshalCode(
             out << nl << stream << ".writeSize((" << param << ".Count * "
                 << (keyType->minWireSize() + valueType->minWireSize()) << ") + (" << param << ".Count > 254 ? 5 : 1));";
         }
-        writeMarshalUnmarshalCode(out, type, scope, param, marshal, customStream);
+        writeMarshalUnmarshalCode(out, type, ns, param, marshal, customStream);
         if (keyType->isVariableLength() || valueType->isVariableLength())
         {
             out << nl << stream << ".endSize(pos);";
@@ -886,10 +886,10 @@ Slice::Csharp::writeOptionalMarshalUnmarshalCode(
         {
             out << nl << stream << ".skipSize();";
         }
-        string typeS = typeToString(type, scope);
+        string typeS = typeToString(type, ns);
         string tmp = "tmpVal";
         out << nl << typeS << ' ' << tmp << " = new " << typeS << "();";
-        writeMarshalUnmarshalCode(out, type, scope, tmp, marshal, customStream);
+        writeMarshalUnmarshalCode(out, type, ns, tmp, marshal, customStream);
         out << nl << param << " = " << tmp << ";";
         out << eb;
         out << nl << "else";
@@ -903,7 +903,7 @@ void
 Slice::Csharp::writeSequenceMarshalUnmarshalCode(
     Output& out,
     const SequencePtr& seq,
-    const string& scope,
+    const string& ns,
     const string& param,
     bool marshal,
     bool useHelper,
@@ -919,7 +919,7 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
     assert(cont);
     if (useHelper)
     {
-        string helperName = getUnqualified(seq, scope) + "Helper";
+        string helperName = getUnqualified(seq, ns) + "Helper";
         if (marshal)
         {
             out << nl << helperName << ".write(" << stream << ", " << param << ");";
@@ -932,7 +932,7 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
     }
 
     TypePtr type = seq->type();
-    string typeS = typeToString(type, scope);
+    string typeS = typeToString(type, ns);
 
     string genericType;
     string addMethod = "Add";
@@ -1141,7 +1141,7 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
                     {
                         out << sb;
                         out << nl << param << " = new "
-                            << "global::" << genericType << "<" << typeToString(type, scope) << ">();";
+                            << "global::" << genericType << "<" << typeToString(type, ns) << ">();";
                         out << nl << "int szx = " << stream << ".readSize();";
                         out << nl << "for (int ix = 0; ix < szx; ++ix)";
                         out << sb;
@@ -1432,11 +1432,11 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
     string helperName;
     if (dynamic_pointer_cast<InterfaceDecl>(type))
     {
-        helperName = getUnqualified(dynamic_pointer_cast<InterfaceDecl>(type), scope) + "PrxHelper";
+        helperName = getUnqualified(dynamic_pointer_cast<InterfaceDecl>(type), ns) + "PrxHelper";
     }
     else
     {
-        helperName = getUnqualified(dynamic_pointer_cast<Contained>(type), scope) + "Helper";
+        helperName = getUnqualified(dynamic_pointer_cast<Contained>(type), ns) + "Helper";
     }
 
     string func;
@@ -1532,7 +1532,7 @@ void
 Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
     Output& out,
     const SequencePtr& seq,
-    const string& scope,
+    const string& ns,
     const string& param,
     int tag,
     bool marshal,
@@ -1545,8 +1545,8 @@ Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
     }
 
     const TypePtr type = seq->type();
-    const string typeS = typeToString(type, scope);
-    const string seqS = typeToString(seq, scope);
+    const string typeS = typeToString(type, ns);
+    const string seqS = typeToString(seq, ns);
 
     const bool isArray = !seq->hasMetadata("cs:generic");
     const string length = isArray ? param + ".Length" : param + ".Count";
@@ -1602,7 +1602,7 @@ Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
                         {
                             out << nl << stream << ".skipSize();";
                         }
-                        writeSequenceMarshalUnmarshalCode(out, seq, scope, param, marshal, true, stream);
+                        writeSequenceMarshalUnmarshalCode(out, seq, ns, param, marshal, true, stream);
                         out << eb;
                         out << nl << "else";
                         out << sb;
@@ -1622,7 +1622,7 @@ Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
                         << getOptionalFormat(seq) << "))";
                     out << sb;
                     out << nl << "int pos = " << stream << ".startSize();";
-                    writeSequenceMarshalUnmarshalCode(out, seq, scope, param, marshal, true, stream);
+                    writeSequenceMarshalUnmarshalCode(out, seq, ns, param, marshal, true, stream);
                     out << nl << stream << ".endSize(pos);";
                     out << eb;
                 }
@@ -1633,7 +1633,7 @@ Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
                     out << nl << stream << ".skip(4);";
                     string tmp = "tmpVal";
                     out << nl << seqS << ' ' << tmp << ';';
-                    writeSequenceMarshalUnmarshalCode(out, seq, scope, tmp, marshal, true, stream);
+                    writeSequenceMarshalUnmarshalCode(out, seq, ns, tmp, marshal, true, stream);
                     out << nl << param << " = " << tmp << ";";
                     out << eb;
                     out << nl << "else";
@@ -1665,7 +1665,7 @@ Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
                 out << nl << stream << ".writeSize((" << length << " * " << st->minWireSize() << ") + (" << length
                     << " > 254 ? 5 : 1));";
             }
-            writeSequenceMarshalUnmarshalCode(out, seq, scope, param, marshal, true, stream);
+            writeSequenceMarshalUnmarshalCode(out, seq, ns, param, marshal, true, stream);
             if (st->isVariableLength())
             {
                 out << nl << stream << ".endSize(pos);";
@@ -1686,7 +1686,7 @@ Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
             }
             string tmp = "tmpVal";
             out << nl << seqS << ' ' << tmp << ';';
-            writeSequenceMarshalUnmarshalCode(out, seq, scope, tmp, marshal, true, stream);
+            writeSequenceMarshalUnmarshalCode(out, seq, ns, tmp, marshal, true, stream);
             out << nl << param << " = " << tmp << ";";
             out << eb;
             out << nl << "else";
@@ -1706,7 +1706,7 @@ Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
             << getOptionalFormat(seq) << "))";
         out << sb;
         out << nl << "int pos = " << stream << ".startSize();";
-        writeSequenceMarshalUnmarshalCode(out, seq, scope, param, marshal, true, stream);
+        writeSequenceMarshalUnmarshalCode(out, seq, ns, param, marshal, true, stream);
         out << nl << stream << ".endSize(pos);";
         out << eb;
     }
@@ -1717,7 +1717,7 @@ Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
         out << nl << stream << ".skip(4);";
         string tmp = "tmpVal";
         out << nl << seqS << ' ' << tmp << ';';
-        writeSequenceMarshalUnmarshalCode(out, seq, scope, tmp, marshal, true, stream);
+        writeSequenceMarshalUnmarshalCode(out, seq, ns, tmp, marshal, true, stream);
         out << nl << param << " = " << tmp << ";";
         out << eb;
         out << nl << "else";
@@ -1764,7 +1764,7 @@ Slice::Csharp::csLinkFormatter(const string& rawLink, const ContainedPtr& source
     else if (auto contained = dynamic_pointer_cast<Contained>(target))
     {
         string sourceScope = source->mappedScope(".");
-        sourceScope.pop_back(); // Remove the trailing '.' scope separator.
+        sourceScope.pop_back(); // Remove the trailing '.' ns separator.
 
         if (dynamic_pointer_cast<Sequence>(contained) || dynamic_pointer_cast<Dictionary>(contained))
         {
@@ -1797,16 +1797,16 @@ Slice::Csharp::csLinkFormatter(const string& rawLink, const ContainedPtr& source
         // reference but (a) the source Slice file does not include this type and (b) there is no cs:identifier or
         // other identifier renaming.
         string targetS = rawLink;
-        // Replace any "::" scope separators with '.'s.
+        // Replace any "::" ns separators with '.'s.
         auto pos = targetS.find("::");
         while (pos != string::npos)
         {
             targetS.replace(pos, 2, ".");
             pos = targetS.find("::", pos);
         }
-        // Replace any '#' scope separators with '.'s.
+        // Replace any '#' ns separators with '.'s.
         replace(targetS.begin(), targetS.end(), '#', '.');
-        // Remove any leading scope separators.
+        // Remove any leading ns separators.
         if (targetS.find('.') == 0)
         {
             targetS.erase(0, 1);

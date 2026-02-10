@@ -28,7 +28,7 @@ namespace Slice::Csharp
     [[nodiscard]] std::string
     resultStructName(const std::string& className, const std::string& opName, bool marshaledResult = false);
     [[nodiscard]] std::string resultType(const OperationPtr& op, const std::string& ns, bool dispatch = false);
-    [[nodiscard]] std::string taskResultType(const OperationPtr& op, const std::string& scope, bool dispatch = false);
+    [[nodiscard]] std::string taskResultType(const OperationPtr& op, const std::string& ns, bool dispatch = false);
     [[nodiscard]] std::string getOptionalFormat(const TypePtr& type);
     [[nodiscard]] std::string getStaticId(const TypePtr& type);
 
@@ -66,7 +66,7 @@ namespace Slice::Csharp
     void writeMarshalUnmarshalCode(
         ::IceInternal::Output& out,
         const TypePtr& type,
-        const std::string& package,
+        const std::string& ns,
         const std::string& param,
         bool marshal,
         const std::string& customStream = "");
@@ -74,7 +74,7 @@ namespace Slice::Csharp
     void writeOptionalMarshalUnmarshalCode(
         ::IceInternal::Output& out,
         const TypePtr& type,
-        const std::string& scope,
+        const std::string& ns,
         const std::string& param,
         std::int32_t tag,
         bool marshal,
@@ -83,7 +83,7 @@ namespace Slice::Csharp
     void writeSequenceMarshalUnmarshalCode(
         ::IceInternal::Output& out,
         const SequencePtr& seq,
-        const std::string& scope,
+        const std::string& ns,
         const std::string& param,
         bool marshal,
         bool useHelper,
@@ -92,7 +92,7 @@ namespace Slice::Csharp
     void writeOptionalSequenceMarshalUnmarshalCode(
         ::IceInternal::Output& out,
         const SequencePtr& seq,
-        const std::string& scope,
+        const std::string& ns,
         const std::string& param,
         int tag,
         bool marshal,
