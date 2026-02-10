@@ -15,6 +15,11 @@
     <BindPath Include="$(StagingDir)" BindName="STAGING_DIR" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Exclude the bundle directory so WiX doesn't glob Bundle.wxs into this MSI project -->
+    <None Remove="bundle\**" />
+    <Compile Remove="bundle\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="WixToolset.Util.wixext" Version="6.0.0" />
     <PackageReference Include="WixToolset.UI.wixext" Version="6.0.0" />
   </ItemGroup>
