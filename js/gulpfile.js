@@ -399,7 +399,7 @@ gulp.task("test:unplugin", () => {
             .flatMap(d =>
                 fs
                     .readdirSync(path.resolve(root, testDir, d.name))
-                    .filter(f => f.endsWith(".test.js"))
+                    .filter(f => f.endsWith(".test.ts"))
                     .map(f => path.join(testDir, d.name, f)),
             );
         exec(`node --test ${testFiles.join(" ")}`, { cwd: root }, (err, stdout, stderr) => {

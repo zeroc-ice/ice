@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const iceHome = path.resolve(__dirname, "../../../../..");
@@ -10,7 +10,7 @@ const iceHome = path.resolve(__dirname, "../../../../..");
 const cppPlatform = process.env.CPP_PLATFORM || "x64";
 const cppConfiguration = process.env.CPP_CONFIGURATION || "Release";
 
-export function getSliceOptions() {
+export function getSliceOptions(): { toolsPath?: string; slicePath: string } {
     const slicePath = path.resolve(iceHome, "slice");
 
     if (process.platform === "win32") {

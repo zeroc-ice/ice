@@ -123,14 +123,6 @@ import { compile } from "@zeroc/slice2js";
 const exitCode = await compile(["--typescript", "--output-dir", "src/generated", "slice/Hello.ice"]);
 ```
 
-## CLI
-
-The package provides the `slice2js` command:
-
-```bash
-npx slice2js --typescript --output-dir src/generated slice/Hello.ice
-```
-
 [Ice]: https://github.com/zeroc-ice/ice
 [Vite]: https://vitejs.dev
 [Rollup]: https://rollupjs.org

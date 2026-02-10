@@ -2,27 +2,25 @@
 
 import { describe, it, before, after } from "node:test";
 import assert from "node:assert/strict";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import esbuild from "esbuild";
-import slice2js from "@zeroc/slice2js/unplugin/esbuild";
-import { getSliceOptions } from "../testutil.js";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { rollup } from "rollup";
+import typescript from "@rollup/plugin-typescript";
+import resolve from "@rollup/plugin-node-resolve";
+import slice2js from "@zeroc/slice2js/unplugin/rollup";
+import { getSliceOptions } from "../testutil.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const generatedDir = path.join(__dirname, "generated");
 
-describe("esbuild plugin", () => {
+describe("rollup plugin", () => {
     before(() => fs.rmSync(generatedDir, { recursive: true, force: true }));
     after(() => fs.rmSync(generatedDir, { recursive: true, force: true }));
 
     it("compiles .ice files and bundles Client.ts", async () => {
-        await esbuild.build({
-            entryPoints: [path.join(__dirname, "Client.ts")],
-            bundle: true,
-            outfile: path.join(generatedDir, "bundle", "bundle.js"),
-            format: "esm",
-            external: ["@zeroc/ice"],
+        const bundle = await rollup({
+            input: path.join(__dirname, "Client.ts"),
             plugins: [
                 slice2js({
                     inputs: [path.join(__dirname, "..", "Test.ice")],
@@ -30,11 +28,22 @@ describe("esbuild plugin", () => {
                     args: ["--typescript"],
                     ...getSliceOptions(),
                 }),
+                resolve(),
+                typescript({
+                    tsconfig: path.join(__dirname, "..", "tsconfig.json"),
+                    include: [path.join(__dirname, "**/*.ts")],
+                }),
             ],
+            external: [/^@zeroc\/ice/],
         });
+
+        const { output } = await bundle.generate({ format: "es" });
+        await bundle.close();
 
         assert.ok(fs.existsSync(path.join(generatedDir, "Test.js")));
         assert.ok(fs.existsSync(path.join(generatedDir, "Test.d.ts")));
-        assert.ok(fs.existsSync(path.join(generatedDir, "bundle", "bundle.js")));
+
+        const code = output[0].code;
+        assert.ok(code.includes("Hello"));
     });
 });
