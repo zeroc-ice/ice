@@ -13,10 +13,28 @@
 
         <BootstrapperApplication>
             <bal:WixStandardBootstrapperApplication
-                LicenseUrl="https://zeroc.com/licenses/ice"
-                Theme="hyperlinkLicense"
+                LicenseFile="!(bindpath.SOURCE_ROOT)packaging\windows-installer\docs\LICENSE.rtf"
+                ThemeFile="IceTheme.xml"
+                LocalizationFile="IceTheme.wxl"
                 LogoFile="!(bindpath.SOURCE_ROOT)packaging\windows-installer\resources\product.ico" />
         </BootstrapperApplication>
+
+        <!-- Installation options passed to the MSI -->
+        <Variable Name="InstallFolder"
+                  Type="string"
+                  Value="[ProgramFiles64Folder]ZeroC\Ice-Services-$(Version)"
+                  bal:Overridable="yes"
+                  Persisted="yes" />
+
+        <Variable Name="AddToPath"
+                  Type="string"
+                  Value="1"
+                  bal:Overridable="yes" />
+
+        <!-- Launch target for "View Release Notes" button on success page -->
+        <Variable Name="LaunchTarget"
+                  Type="string"
+                  Value="$(IceReleaseNotesUrl)" />
 
         <!-- Detect if VC++ 2015-2022 redistributable (x64) is already installed -->
         <util:RegistrySearch
@@ -28,7 +46,7 @@
             Variable="VCRedistInstalled" />
 
         <Chain>
-            <!-- VC++ 2015-2022 Redistributable (x64) -->
+            <!-- VC++ 2015-2022 Redistributable (x64) — always installed silently -->
             <ExePackage
                 Id="VCRedist_x64"
                 Name="vc_redist.x64.exe"
@@ -42,11 +60,14 @@
                 RepairArguments="/repair /quiet /norestart"
                 UninstallArguments="/uninstall /quiet /norestart" />
 
-            <!-- Ice Services MSI -->
+            <!-- Ice Services MSI — installed silently with properties from Burn variables -->
             <MsiPackage
                 Id="IceServicesMsi"
                 SourceFile="!(bindpath.ICE_MSI_DIR)Ice-Services-$(IcePackageVersion).msi"
-                Vital="yes" />
+                Vital="yes">
+                <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
+                <MsiProperty Name="ADD_TO_PATH" Value="[AddToPath]" />
+            </MsiPackage>
         </Chain>
     </Bundle>
 </Wix>

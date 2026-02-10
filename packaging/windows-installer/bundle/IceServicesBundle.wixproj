@@ -5,6 +5,7 @@
     <OutputName>Ice-Services-$(IcePackageVersion)</OutputName>
     <DefineConstants>Version=$(IcePackageVersion)</DefineConstants>
     <DefineConstants>$(DefineConstants);IcePackageVersion=$(IcePackageVersion)</DefineConstants>
+    <DefineConstants>$(DefineConstants);IceReleaseNotesUrl=https://docs.zeroc.com/ice/latest/cpp/ice-3-9-preview</DefineConstants>
     <!-- Path to the built MSI from the parent project -->
     <IceMsiDir Condition="'$(IceMsiDir)' == ''">$(MSBuildThisFileDirectory)..\msi\bin\x64\Release\</IceMsiDir>
     <!-- Path to vc_redist.x64.exe -->

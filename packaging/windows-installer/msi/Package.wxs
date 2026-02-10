@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix
     xmlns="http://wixtoolset.org/schemas/v4/wxs"
-    xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
     <Package
         Name="Ice Services $(Version)"
@@ -21,11 +20,8 @@
         <!-- Embed CAB files in MSI -->
         <MediaTemplate EmbedCab="yes" />
 
-        <!-- Default settings -->
+        <!-- Default settings (overridden by Burn when installed via the bundle) -->
         <Property Id="ADD_TO_PATH" Value="1" />
-
-        <!-- Reference the UI Fragment -->
-        <PropertyRef Id="UiFragment"/>
 
         <!-- Add components to the MainFeature -->
         <Feature Id="MainFeature" Title="Ice" Level="1">
