@@ -129,6 +129,42 @@ Client::run(int argc, char** argv)
         test(Ice::stringToIdentity(identStr) == ident);
 
         cout << "ok" << endl;
+
+        //
+        // Test writeConverted with various string sizes and UTF-8 expansion ratios.
+        //
+        // OutputStream::writeConverted uses 1-byte size encoding when the input string is <= 84 bytes
+        // (254 / 3, where 3x is the worst-case narrow-to-UTF-8 expansion), and 5-byte size encoding otherwise.
+        //
+        // With ISO 8859-15:
+        //   - ASCII chars (0x00-0x7F): 1 byte -> 1 UTF-8 byte (1x expansion)
+        //   - Most Latin chars like 0xE9 (é, U+00E9): 1 byte -> 2 UTF-8 bytes (2x expansion)
+        //   - Euro sign 0xA4 (€, U+20AC): 1 byte -> 3 UTF-8 bytes (3x expansion)
+        //
+        cout << "testing writeConverted with small and large strings... " << flush;
+
+        // Small strings (vsize <= 84): uses 1-byte size encoding
+        test(proxy->echoString("") == "");
+        test(proxy->echoString(string(50, 'a')) == string(50, 'a'));
+        test(proxy->echoString(string(50, char(0xE9))) == string(50, char(0xE9)));
+        test(proxy->echoString(string(50, char(0xA4))) == string(50, char(0xA4)));
+        test(proxy->echoString(string(84, char(0xE9))) == string(84, char(0xE9)));
+
+        // Large strings (vsize > 84): uses 5-byte size encoding
+        test(proxy->echoString(string(85, char(0xE9))) == string(85, char(0xE9)));
+        test(proxy->echoString(string(200, 'a')) == string(200, 'a'));
+        test(proxy->echoString(string(200, char(0xE9))) == string(200, char(0xE9)));
+        test(proxy->echoString(string(200, char(0xA4))) == string(200, char(0xA4)));
+        test(proxy->echoString(string(1000, char(0xE9))) == string(1000, char(0xE9)));
+
+        // Mixed content: ASCII + 2x expansion + 3x expansion
+        string mixed;
+        mixed += string(100, 'x');       // 100 ASCII bytes -> 100 UTF-8 bytes
+        mixed += string(50, char(0xE9)); // 50 Latin bytes -> 100 UTF-8 bytes
+        mixed += string(50, char(0xA4)); // 50 euro bytes -> 150 UTF-8 bytes
+        test(proxy->echoString(mixed) == mixed);
+
+        cout << "ok" << endl;
         proxy->shutdown();
     }
 }
