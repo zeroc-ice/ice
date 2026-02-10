@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix
+    xmlns="http://wixtoolset.org/schemas/v4/wxs"
+    xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal"
+    xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+
+    <Bundle
+        Name="Ice Services $(Version)"
+        Manufacturer="ZeroC, Inc."
+        Version="$(Version).0"
+        UpgradeCode="D5F84B22-7A9E-4C1A-8B6D-3E8F1A2C5D7B"
+        IconSourceFile="!(bindpath.SOURCE_ROOT)packaging\windows-installer\resources\product.ico">
+
+        <BootstrapperApplication>
+            <bal:WixStandardBootstrapperApplication
+                LicenseUrl="https://zeroc.com/licenses/ice"
+                Theme="standard"
+                LogoFile="!(bindpath.SOURCE_ROOT)packaging\windows-installer\resources\product.ico" />
+        </BootstrapperApplication>
+
+        <!-- Detect if VC++ 2015-2022 redistributable (x64) is already installed -->
+        <util:RegistrySearch
+            Id="VCRT_REG_VERSION"
+            Root="HKLM"
+            Key="SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\X64"
+            Value="Installed"
+            Result="value"
+            Variable="VCRedistInstalled" />
+
+        <Chain>
+            <!-- VC++ 2015-2022 Redistributable (x64) -->
+            <ExePackage
+                Id="VCRedist_x64"
+                Name="vc_redist.x64.exe"
+                SourceFile="!(bindpath.VCREDIST_DIR)vc_redist.x64.exe"
+                PerMachine="yes"
+                Permanent="yes"
+                Vital="yes"
+                Protocol="burn"
+                DetectCondition="VCRedistInstalled = 1"
+                InstallCommand="/install /quiet /norestart"
+                RepairCommand="/repair /quiet /norestart"
+                UninstallCommand="/uninstall /quiet /norestart" />
+
+            <!-- Ice Services MSI -->
+            <MsiPackage
+                Id="IceServicesMsi"
+                SourceFile="!(bindpath.ICE_MSI_DIR)Ice-Services-$(IcePackageVersion).msi"
+                Vital="yes" />
+        </Chain>
+    </Bundle>
+</Wix>

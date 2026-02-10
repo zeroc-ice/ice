@@ -1,4 +1,4 @@
-name: "Build Windows MSI"
+name: "Build Windows Installer"
 
 on:
   workflow_call:
@@ -30,7 +30,7 @@ on:
         default: false
 
 jobs:
-  build-windows-msi:
+  build-windows-installer:
     runs-on: windows-2022
     steps:
       - name: Checkout repository
@@ -46,20 +46,19 @@ jobs:
           gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-x64-Release-build --dir cpp
           gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name icegridgui-jar --dir java/lib
 
-      # MSI packaging depends on VCInstallDir to locate The C++ merge modules
-      - name: Add VCInstallDir to Environment
+      - name: Download VC++ Redistributable
         run: |
-          $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
-          echo "VCInstallDir=$vsPath\VC" | Out-File -FilePath $env:GITHUB_ENV -Append
+          New-Item -ItemType Directory -Force -Path packaging\windows-installer\redist
+          Invoke-WebRequest -Uri "https://aka.ms/vs/17/release/vc_redist.x64.exe" -OutFile "packaging\windows-installer\redist\vc_redist.x64.exe"
         shell: powershell
 
       - name: Build MSI
         run: dotnet build -c Release -p:Platform=x64
-        working-directory: packaging/msi
+        working-directory: packaging/windows-installer
         env:
           StagingDir: "${{ github.workspace }}\\staging"
 
-      - name: Sign MSI installer with Trusted Signing
+      - name: Sign MSI with Trusted Signing
         if: ${{ inputs.authenticode_sign }}
         uses: azure/trusted-signing-action@v0
         with:
@@ -69,15 +68,35 @@ jobs:
           endpoint: https://eus.codesigning.azure.net/
           trusted-signing-account-name: zeroc
           certificate-profile-name: zeroc-ice
-          files-folder: ./packaging/msi/bin/x64/Release/
+          files-folder: ./packaging/windows-installer/bin/x64/Release/
           files-folder-filter: msi
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
 
-      - name: Upload MSI
+      - name: Build Bundle
+        run: dotnet build -c Release -p:Platform=x64
+        working-directory: packaging/windows-installer/bundle
+
+      - name: Sign Bundle installer with Trusted Signing
+        if: ${{ inputs.authenticode_sign }}
+        uses: azure/trusted-signing-action@v0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          trusted-signing-account-name: zeroc
+          certificate-profile-name: zeroc-ice
+          files-folder: ./packaging/windows-installer/bundle/bin/x64/Release/
+          files-folder-filter: exe
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Upload Installer
         uses: actions/upload-artifact@v4
         with:
-          name: windows-msi
+          name: windows-installer
           path: |
-            packaging/msi/bin/x64/Release/*.msi
+            packaging/windows-installer/bundle/bin/x64/Release/*.exe

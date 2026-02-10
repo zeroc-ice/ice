@@ -1,15 +1,9 @@
 ﻿<Project Sdk="WixToolset.Sdk/6.0.0">
   <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.version.props" />
   <PropertyGroup>
-    <!--
-        Suppress warning from the VC++ redistributable merge modules
-        see: https://wixtoolset.org/docs/v3/howtos/redistributables_and_install_checks/install_vcredist/#a-note-about-ice-warnings
-      -->
-    <SuppressIces>ICE03;ICE30;ICE82</SuppressIces>
     <PackageDir Condition="'$(PackageDir)' != ''">$([MSBuild]::EnsureTrailingSlash('$(PackageDir)'))</PackageDir>
     <StagingDir Condition="'$(StagingDir)' ==  ''">$(MSBuildThisFileDirectory)staging</StagingDir>
     <StagingDir>$([MSBuild]::EnsureTrailingSlash('$(StagingDir)'))</StagingDir>
-    <VCInstallDir Condition="'$(VCInstallDir)' != ''">$([MSBuild]::EnsureTrailingSlash('$(VCInstallDir)'))</VCInstallDir>
     <!-- Use DefineConstants to make MSBuild properties available in wxs Wix Files-->
     <DefineConstants>Version=3.9.0</DefineConstants>
     <DefineConstants>$(DefineConstants);IceReleaseNotesUrl=https://docs.zeroc.com/ice/latest/cpp/ice-3-9-preview</DefineConstants>
@@ -19,7 +13,6 @@
   <ItemGroup>
     <BindPath Include="$(MSBuildThisFileDirectory)..\..\" BindName="SOURCE_ROOT" />
     <BindPath Include="$(StagingDir)" BindName="STAGING_DIR" />
-    <BindPath Include="$(VCInstallDir)Redist\MSVC\v143\MergeModules\" BindName="MERGE_MODULES" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="WixToolset.Util.wixext" Version="6.0.0" />

@@ -226,9 +226,9 @@ jobs:
       ice_version: ${{ needs.configure.outputs.semver_version }}
     secrets: inherit
 
-  build-windows-msi:
-    name: Build Windows MSI
-    uses: ./.github/workflows/build-windows-msi.yml
+  build-windows-installer:
+    name: Build Windows Installer
+    uses: ./.github/workflows/build-windows-installer.yml
     needs:
       - configure
       - build-cpp-windows-binaries
@@ -261,7 +261,7 @@ jobs:
       - build-npm-packages
       - build-pip-packages
       - build-rpm-packages
-      - build-windows-msi
+      - build-windows-installer
       - build-xcframework-packages
       - build-symbols-sources-store
       - build-cpp-nuget-packages
