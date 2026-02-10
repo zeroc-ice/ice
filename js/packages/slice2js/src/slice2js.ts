@@ -1,10 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
-import { spawn } from "child_process";
-import path from "path";
-import os from "os";
-import { fileURLToPath } from "url";
-import fs from "fs";
+import { spawn } from "node:child_process";
+import path from "node:path";
+import os from "node:os";
+import { fileURLToPath } from "node:url";
+import fs from "node:fs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -32,20 +32,29 @@ switch (os.platform()) {
         process.exit(1);
 }
 
-const slicePath = path.resolve(__dirname, "..", "slice");
+const slicePath: string = path.resolve(__dirname, "..", "slice");
 const binDir = path.resolve(__dirname, "..", "bin", `${platformPrefix}-${archPrefix}`);
-const slice2js = path.resolve(binDir, exe);
+const slice2js: string = path.resolve(binDir, exe);
+
+export interface CompileOptions {
+    /** Directory containing the slice2js binary. Overrides the bundled binary. */
+    toolsPath?: string;
+    /** Directory containing the Slice definitions. Overrides the bundled path. */
+    slicePath?: string;
+    /** Working directory for the compiler process. */
+    cwd?: string;
+}
 
 /**
- * Compile function for programmatic use.
- * @param {string[]} args - Command-line arguments for slice2js.
- * @param {object} [options]
- * @param {string} [options.toolsPath] - Directory containing the slice2js binary. Overrides the bundled binary.
- * @param {string} [options.slicePath] - Directory containing the Slice definitions. Overrides the bundled path.
- * @param {string} [options.cwd] - Working directory for the compiler process.
- * @returns {Promise<number>} Resolves with the exit code.
+ * Compile Slice files using the slice2js compiler.
+ * @param args - Command-line arguments for slice2js.
+ * @param options - Optional configuration.
+ * @returns Resolves with the exit code.
  */
-export async function compile(args = [], { toolsPath, slicePath: customSlicePath, cwd } = {}) {
+export async function compile(
+    args: string[] = [],
+    { toolsPath, slicePath: customSlicePath, cwd }: CompileOptions = {},
+): Promise<number> {
     const compiler = toolsPath ? path.resolve(toolsPath, exe) : slice2js;
     const sliceInc = customSlicePath || slicePath;
 
@@ -53,7 +62,7 @@ export async function compile(args = [], { toolsPath, slicePath: customSlicePath
         throw new Error(`Missing slice2js executable at ${compiler}`);
     }
 
-    let slice2jsArgs = args.slice();
+    const slice2jsArgs = args.slice();
     slice2jsArgs.push(`-I${sliceInc}`);
 
     return new Promise((resolve, reject) => {
@@ -62,7 +71,7 @@ export async function compile(args = [], { toolsPath, slicePath: customSlicePath
             cwd,
         });
         proc.on("error", reject);
-        proc.on("exit", resolve);
+        proc.on("exit", (code) => resolve(code ?? 1));
     });
 }
 

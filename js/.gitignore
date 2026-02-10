@@ -128,7 +128,8 @@ packages/ice/bin/linux-x64
 packages/ice/bin/macos-arm64
 packages/ice/bin/windows-x64
 
-# @zeroc/slice2js package - files copied during packaging
+# @zeroc/slice2js package - TypeScript compiled output and files copied during packaging
+packages/slice2js/dist/
 packages/slice2js/slice/
 !packages/slice2js/bin/
 packages/slice2js/bin/linux-arm64

@@ -1,30 +1,35 @@
 // Copyright (c) ZeroC, Inc.
 
 import fg from "fast-glob";
-import fs from "fs";
-import path from "path";
-import { createUnplugin } from "unplugin";
-import { compile } from "./slice2js.js";
+import fs from "node:fs";
+import path from "node:path";
+import { createUnplugin, type UnpluginFactory } from "unplugin";
+import { compile, type CompileOptions } from "./slice2js.js";
 
-function toArray(value) {
+function toArray(value: string | string[] | undefined): string[] {
     if (!value) {
         return [];
     }
     return Array.isArray(value) ? value : [value];
 }
 
+export interface Slice2jsOptions extends CompileOptions {
+    /** Slice files or glob patterns (e.g. "*.ice", "**\/*.ice"). */
+    inputs: string | string[];
+    /** Output directory for generated files. */
+    outputDir: string;
+    /** Additional include directories. */
+    include?: string | string[];
+    /** Additional slice2js CLI arguments. */
+    args?: string | string[];
+    /** Base directory for resolving inputs. */
+    cwd?: string;
+}
+
 /**
  * Runs slice2js for the provided inputs.
- * @param {object} options
- * @param {string[] | string} options.inputs - Slice files or glob patterns (e.g. "*.ice", "**\/*.ice").
- * @param {string} options.outputDir - Output directory for generated files.
- * @param {string[] | string} [options.include] - Additional include directories.
- * @param {string[] | string} [options.args] - Additional slice2js CLI arguments.
- * @param {string} [options.cwd] - Base directory for resolving inputs.
- * @param {string} [options.toolsPath] - Directory containing the slice2js binary (for source builds).
- * @param {string} [options.slicePath] - Directory containing Slice definitions (for source builds).
  */
-export async function runSlice2js(options) {
+export async function runSlice2js(options: Slice2jsOptions): Promise<void> {
     const cwd = options.cwd ? path.resolve(options.cwd) : process.cwd();
     const outputDir = path.resolve(cwd, options.outputDir);
     const patterns = toArray(options.inputs).map((p) => p.replace(/\\/g, "/"));
@@ -36,7 +41,7 @@ export async function runSlice2js(options) {
 
     fs.mkdirSync(outputDir, { recursive: true });
 
-    const args = ["--output-dir", outputDir];
+    const args: string[] = ["--output-dir", outputDir];
     for (const dir of toArray(options.include)) {
         args.push(`-I${path.resolve(cwd, dir)}`);
     }
@@ -54,12 +59,12 @@ export async function runSlice2js(options) {
     }
 }
 
-const unpluginFactory = options => {
+export const unpluginFactory: UnpluginFactory<Slice2jsOptions | undefined> = (options) => {
     return {
         name: "unplugin-slice2js",
         buildStart() {
             const cwd = options?.cwd ? path.resolve(options.cwd) : process.cwd();
-            const patterns = toArray(options?.inputs || []).map((p) => p.replace(/\\/g, "/"));
+            const patterns = toArray(options?.inputs).map((p) => p.replace(/\\/g, "/"));
             const inputs = fg.sync(patterns, { cwd: cwd.replace(/\\/g, "/"), absolute: true });
 
             for (const file of inputs) {
@@ -70,14 +75,12 @@ const unpluginFactory = options => {
                 }
             }
 
-            if (inputs.length > 0) {
+            if (inputs.length > 0 && options?.inputs && options.outputDir) {
                 return runSlice2js({ ...options, inputs, cwd });
             }
         },
     };
 };
-
-export { unpluginFactory };
 
 export const unpluginSlice2js = createUnplugin(unpluginFactory);
 

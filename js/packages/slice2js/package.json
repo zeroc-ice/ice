@@ -20,24 +20,43 @@
     ],
     "type": "module",
     "exports": {
-        ".": "./src/slice2js.js",
-        "./unplugin": "./src/unplugin-slice2js.js",
-        "./unplugin/vite": "./src/unplugin/vite.js",
-        "./unplugin/rollup": "./src/unplugin/rollup.js",
-        "./unplugin/webpack": "./src/unplugin/webpack.js",
-        "./unplugin/esbuild": "./src/unplugin/esbuild.js"
+        ".": {
+            "types": "./dist/slice2js.d.ts",
+            "default": "./dist/slice2js.js"
+        },
+        "./unplugin": {
+            "types": "./dist/unplugin-slice2js.d.ts",
+            "default": "./dist/unplugin-slice2js.js"
+        },
+        "./unplugin/vite": {
+            "types": "./dist/unplugin/vite.d.ts",
+            "default": "./dist/unplugin/vite.js"
+        },
+        "./unplugin/rollup": {
+            "types": "./dist/unplugin/rollup.d.ts",
+            "default": "./dist/unplugin/rollup.js"
+        },
+        "./unplugin/webpack": {
+            "types": "./dist/unplugin/webpack.d.ts",
+            "default": "./dist/unplugin/webpack.js"
+        },
+        "./unplugin/esbuild": {
+            "types": "./dist/unplugin/esbuild.d.ts",
+            "default": "./dist/unplugin/esbuild.js"
+        }
     },
     "dependencies": {
         "fast-glob": "^3.3.0",
         "unplugin": "^2.3.0"
     },
     "files": [
-        "src/",
+        "dist/",
         "bin/",
         "slice/",
         "README.md"
     ],
     "scripts": {
-        "prepack": "node scripts/prepack.js"
+        "build": "tsc",
+        "prepack": "tsc && node scripts/prepack.js"
     }
 }
