@@ -54,7 +54,7 @@ jobs:
 
       - name: Build MSI
         run: dotnet build -c Release -p:Platform=x64
-        working-directory: packaging/windows-installer
+        working-directory: packaging/windows-installer/msi
         env:
           StagingDir: "${{ github.workspace }}\\staging"
 
@@ -68,7 +68,7 @@ jobs:
           endpoint: https://eus.codesigning.azure.net/
           trusted-signing-account-name: zeroc
           certificate-profile-name: zeroc-ice
-          files-folder: ./packaging/windows-installer/bin/x64/Release/
+          files-folder: ./packaging/windows-installer/msi/bin/x64/Release/
           files-folder-filter: msi
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com

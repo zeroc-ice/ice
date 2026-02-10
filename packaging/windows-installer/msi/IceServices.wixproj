@@ -1,5 +1,5 @@
 ﻿<Project Sdk="WixToolset.Sdk/6.0.0">
-  <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.version.props" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\config\ice.version.props" />
   <PropertyGroup>
     <PackageDir Condition="'$(PackageDir)' != ''">$([MSBuild]::EnsureTrailingSlash('$(PackageDir)'))</PackageDir>
     <StagingDir Condition="'$(StagingDir)' ==  ''">$(MSBuildThisFileDirectory)staging</StagingDir>
@@ -11,13 +11,8 @@
     <ProductCode>Ice-Services-$(Version)</ProductCode>
   </PropertyGroup>
   <ItemGroup>
-    <BindPath Include="$(MSBuildThisFileDirectory)..\..\" BindName="SOURCE_ROOT" />
+    <BindPath Include="$(MSBuildThisFileDirectory)..\..\..\" BindName="SOURCE_ROOT" />
     <BindPath Include="$(StagingDir)" BindName="STAGING_DIR" />
-  </ItemGroup>
-  <ItemGroup>
-    <!-- Exclude the bundle directory so WiX doesn't glob Bundle.wxs into this MSI project -->
-    <None Remove="bundle\**" />
-    <Compile Remove="bundle\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="WixToolset.Util.wixext" Version="6.0.0" />
@@ -25,14 +20,14 @@
   </ItemGroup>
   <!-- Files from the source build -->
   <ItemGroup>
-    <Libraries Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\*.dll" />
-    <Executables Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\*.exe"
-      Exclude="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\slice2*.exe;
-               $(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\ice2slice.exe" />
+    <Libraries Include="$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\Release\*.dll" />
+    <Executables Include="$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\Release\*.exe"
+      Exclude="$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\Release\slice2*.exe;
+               $(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\Release\ice2slice.exe" />
   </ItemGroup>
   <!-- Copy required files to staging before MSI build -->
   <Target Name="CopyToStaging" BeforeTargets="CoreCompile">
-    <Error Condition="!Exists('$(MSBuildThisFileDirectory)..\..\java\lib\icegridgui.jar')"
+    <Error Condition="!Exists('$(MSBuildThisFileDirectory)..\..\..\java\lib\icegridgui.jar')"
       Text="The IceGridGUI must be build before creating the MSI package." />
     <RemoveDir Directories="$(StagingDir)" />
     <MakeDir Directories="$(StagingDir)bin" />

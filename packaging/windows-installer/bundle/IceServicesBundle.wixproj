@@ -6,7 +6,7 @@
     <DefineConstants>Version=$(IcePackageVersion)</DefineConstants>
     <DefineConstants>$(DefineConstants);IcePackageVersion=$(IcePackageVersion)</DefineConstants>
     <!-- Path to the built MSI from the parent project -->
-    <IceMsiDir Condition="'$(IceMsiDir)' == ''">$(MSBuildThisFileDirectory)..\bin\x64\Release\</IceMsiDir>
+    <IceMsiDir Condition="'$(IceMsiDir)' == ''">$(MSBuildThisFileDirectory)..\msi\bin\x64\Release\</IceMsiDir>
     <!-- Path to vc_redist.x64.exe -->
     <VCRedistDir Condition="'$(VCRedistDir)' == ''">$(MSBuildThisFileDirectory)..\redist\</VCRedistDir>
   </PropertyGroup>
