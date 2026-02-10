@@ -12,7 +12,6 @@
 #include <cassert>
 #include <iostream>
 #include <iterator>
-#include <regex>
 
 using namespace std;
 using namespace Slice;
@@ -22,36 +21,22 @@ using namespace IceInternal;
 
 namespace
 {
-    // Create a valid JavaScript identifier from an import path, used as a prefix for imported symbols.
-    // e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz", "@zeroc/ice" -> "_zeroc_ice"
-    string importPathToIdentifier(const string& path)
+    /// Converts absolute paths to relative and ensures "./" prefix for relative paths.
+    /// @param path The file path to normalize
+    /// @param relativeTo The file to make absolute paths relative to
+    /// @return The normalized path
+    string toRelativePath(const string& path, const string& relativeTo)
     {
-        // Strip common extensions from the end of the path, so that the generated identifier is cleaner.
-        // If the code imports ./Foo/Foo.ice  we want the generated identifier to be _Foo_Foo, not _Foo_Foo_ice.
-        string identifier = path;
-        static constexpr string_view extensions[] = {".ice", ".js"};
-        for (string_view ext : extensions)
+        string f = path;
+        if (IceInternal::isAbsolutePath(f))
         {
-            if (identifier.size() > ext.size() &&
-                identifier.compare(identifier.size() - ext.size(), ext.size(), ext.data(), ext.size()) == 0)
-            {
-                identifier.erase(identifier.size() - ext.size());
-                break;
-            }
+            f = relativePath(f, Slice::dirName(relativeTo));
         }
-
-        // Replace any character that is not valid in a JavaScript identifier with '_'.
-        static const regex disallowedChars("[^a-zA-Z0-9_$]");
-        return regex_replace(identifier, disallowedChars, "_");
-    }
-
-    bool ends_with(string_view s, string_view suffix)
-    {
-#if defined __cpp_lib_starts_ends_with
-        return s.ends_with(suffix);
-#else
-        return s.size() >= suffix.size() && s.compare(s.size() - s.size(), std::string_view::npos, s) == 0;
-#endif
+        else if (f[0] != '.')
+        {
+            f = "./" + f;
+        }
+        return f;
     }
 
     string sliceModeToIceMode(Operation::Mode opMode)
@@ -185,6 +170,210 @@ namespace
     }
 }
 
+bool
+Slice::IncludeAggregationVisitor::visitUnitStart(const UnitPtr& unit)
+{
+    _topLevelFile = unit->topLevelFile();
+    _topLevelModule = getJavaScriptModule(unit->findDefinitionContext(_topLevelFile));
+    _unit = unit;
+
+    // A map with the unit's direct includes for lookup.
+    // resolved path -> filename (as seen in #include)
+    map<string, string> directIncludeMap;
+
+    // The set of direct includes for which we need to aggregate transitive imported types.
+    // For JavaScript, we aggregate same-module includes; we skip external modules which represent separate packages.
+    set<string> directIncludes;
+    for (const auto& directInclude : unit->includeFiles())
+    {
+        auto dc = unit->findDefinitionContext(directInclude);
+        assert(dc);
+
+        string resolvedPath = dc->resolvedFilename();
+        directIncludeMap[resolvedPath] = directInclude;
+
+        // Only aggregate includes that belong to the same js:module as the top-level file.
+        if (getJavaScriptModule(dc) == _topLevelModule)
+        {
+            directIncludes.insert(resolvedPath);
+        }
+    }
+
+    // This logic relies on the ordering of unit->allFiles(): a direct include is followed by its transitives.
+    // For each file in allFiles (skipping the top-level file):
+    // - If it's in directIncludeMap, this is a direct include, and we check the directIncludes set to see if we need
+    //   to track its transitives.
+    // - If it's not a direct include (so it is treated as transitive), assign it to the current owner.
+
+    // Tracks the last seen direct include for which we need to aggregate transitives. Is set to empty when we don't
+    // need to aggregate transitives (e.g., an external module).
+    string currentDirectInclude;
+
+    for (const auto& file : unit->allFiles())
+    {
+        if (file == _topLevelFile)
+        {
+            continue;
+        }
+
+        auto it = directIncludeMap.find(file);
+        if (it != directIncludeMap.end())
+        {
+            // This is a direct include file. Check if we want to aggregate its transitives.
+            currentDirectInclude = directIncludes.find(file) != directIncludes.end()
+                                       ? toRelativePath(it->second, _topLevelFile)
+                                       : string();
+        }
+        else if (!currentDirectInclude.empty())
+        {
+            // This is a transitive include, assign it to the current direct include owner.
+            _transitiveToDirectInclude[file] = currentDirectInclude;
+        }
+    }
+
+    return true;
+}
+
+void
+Slice::IncludeAggregationVisitor::addImportedType(const ContainedPtr& definition)
+{
+    auto dc = definition->definitionContext();
+    int includeLevel = dc->includeLevel();
+    if (includeLevel == 0)
+    {
+        // Not from an included file, skip.
+        return;
+    }
+
+    // Skip files with js:module metadata - they don't need TypeScript import aggregation.
+    if (dc->hasMetadata("js:module"))
+    {
+        return;
+    }
+
+    string typeScope = definition->mappedScoped(".");
+    if (includeLevel == 1)
+    {
+        string includedFile = toRelativePath(dc->filename(), _topLevelFile);
+        _importedTypesByTopLevel[_topLevelFile][includedFile].insert(typeScope);
+    }
+    else if (auto includeKey = resolveDirectInclude(dc))
+    {
+        // Transitive include - use the owning direct include's key.
+        _importedTypesByTopLevel[_topLevelFile][*includeKey].insert(typeScope);
+    }
+}
+
+std::optional<std::string>
+Slice::IncludeAggregationVisitor::resolveDirectInclude(const DefinitionContextPtr& dc) const
+{
+    auto it = _transitiveToDirectInclude.find(dc->resolvedFilename());
+    if (it != _transitiveToDirectInclude.end())
+    {
+        return it->second;
+    }
+    return std::nullopt;
+}
+
+void
+Slice::IncludeAggregationVisitor::visitModuleEnd(const ModulePtr& module)
+{
+    auto dc = module->definitionContext();
+    int includeLevel = dc->includeLevel();
+    if (includeLevel == 0)
+    {
+        // Not from an included file, skip.
+        return;
+    }
+
+    // Skip files that don't belong to the same js:module - they're imported directly.
+    if (getJavaScriptModule(dc) != _topLevelModule)
+    {
+        return;
+    }
+
+    // Only track nested modules, not top-level modules.
+    if (module->isTopLevel())
+    {
+        return;
+    }
+
+    if (includeLevel == 1)
+    {
+        string includedFile = toRelativePath(dc->filename(), _topLevelFile);
+        _nestedModulesByTopLevel[_topLevelFile][includedFile].insert(module->mappedScoped("."));
+    }
+    else if (auto includeKey = resolveDirectInclude(dc))
+    {
+        _nestedModulesByTopLevel[_topLevelFile][*includeKey].insert(module->mappedScoped("."));
+    }
+}
+
+bool
+Slice::IncludeAggregationVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    addImportedType(p);
+    return true;
+}
+
+bool
+Slice::IncludeAggregationVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    addImportedType(p);
+    return true;
+}
+
+bool
+Slice::IncludeAggregationVisitor::visitStructStart(const StructPtr& p)
+{
+    addImportedType(p);
+    return true;
+}
+
+bool
+Slice::IncludeAggregationVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    addImportedType(p);
+    return true;
+}
+
+void
+Slice::IncludeAggregationVisitor::visitSequence(const SequencePtr& p)
+{
+    addImportedType(p);
+}
+
+void
+Slice::IncludeAggregationVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    addImportedType(p);
+}
+
+void
+Slice::IncludeAggregationVisitor::visitEnum(const EnumPtr& p)
+{
+    addImportedType(p);
+}
+
+const std::map<std::string, std::map<std::string, std::set<std::string>>>&
+Slice::IncludeAggregationVisitor::nestedModulesByTopLevel() const
+{
+    return _nestedModulesByTopLevel;
+}
+
+std::map<std::string, std::set<std::string>>
+Slice::IncludeAggregationVisitor::importedTypesByTopLevel(const std::string& topLevelFile) const
+{
+    auto it = _importedTypesByTopLevel.find(topLevelFile);
+    return it != _importedTypesByTopLevel.end() ? it->second : std::map<std::string, std::set<std::string>>{};
+}
+
+bool
+Slice::IncludeAggregationVisitor::shouldVisitIncludedDefinitions() const
+{
+    return true;
+}
+
 Slice::JsVisitor::JsVisitor(Output& out) : _out(out) {}
 
 Slice::JsVisitor::~JsVisitor() = default;
@@ -196,7 +385,7 @@ Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, con
     {
         if (!dataMember->optional())
         {
-            writeMarshalUnmarshalCode(_out, dataMember->type(), "this." + dataMember->mappedName(), true);
+            writeMarshalUnmarshalCode(_out, dataMember->type(), "this." + dataMember->mappedName(), true, _jsModule);
         }
     }
 
@@ -207,7 +396,8 @@ Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, con
             optionalMember->type(),
             "this." + optionalMember->mappedName(),
             optionalMember->tag(),
-            true);
+            true,
+            _jsModule);
     }
 }
 
@@ -218,7 +408,7 @@ Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, c
     {
         if (!dataMember->optional())
         {
-            writeMarshalUnmarshalCode(_out, dataMember->type(), "this." + dataMember->mappedName(), false);
+            writeMarshalUnmarshalCode(_out, dataMember->type(), "this." + dataMember->mappedName(), false, _jsModule);
         }
     }
 
@@ -229,7 +419,8 @@ Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, c
             optionalMember->type(),
             "this." + optionalMember->mappedName(),
             optionalMember->tag(),
-            false);
+            false,
+            _jsModule);
     }
 }
 
@@ -303,13 +494,13 @@ Slice::JsVisitor::getValue(const TypePtr& type)
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if (en)
     {
-        return (*en->enumerators().begin())->mappedScoped(".");
+        return resolveJsScope(*en->enumerators().begin(), _jsModule);
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        return "new " + typeToJsString(type) + "()";
+        return "new " + resolveJsType(type, _jsModule) + "()";
     }
 
     return "null";
@@ -322,7 +513,7 @@ Slice::JsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if (constant)
     {
-        os << constant->mappedScoped(".");
+        os << resolveJsScope(constant, _jsModule);
     }
     else
     {
@@ -343,7 +534,7 @@ Slice::JsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
         {
             EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
-            os << lte->mappedScoped(".");
+            os << resolveJsScope(lte, _jsModule);
         }
         else
         {
@@ -509,9 +700,12 @@ Slice::Gen::generate(const UnitPtr& p)
     _javaScriptOutput << nl;
 
     {
+        IncludeAggregationVisitor moduleVisitor;
+        p->visit(&moduleVisitor);
+
         ImportVisitor importVisitor(_javaScriptOutput);
         p->visit(&importVisitor);
-        set<string> importedModules = importVisitor.writeImports(p);
+        set<string> importedModules = importVisitor.writeImports(p, moduleVisitor.nestedModulesByTopLevel());
 
         ExportsVisitor exportsVisitor(_javaScriptOutput, importedModules);
         p->visit(&exportsVisitor);
@@ -520,7 +714,7 @@ Slice::Gen::generate(const UnitPtr& p)
         set<string> seenModules = importedModules;
         seenModules.merge(exportedModules);
 
-        TypesVisitor typesVisitor(_javaScriptOutput);
+        TypesVisitor typesVisitor(_javaScriptOutput, module);
         p->visit(&typesVisitor);
     }
 
@@ -543,11 +737,16 @@ Slice::Gen::generate(const UnitPtr& p)
         printHeader(_typeScriptOutput);
         printGeneratedHeader(_typeScriptOutput, _fileBase + ".ice");
 
-        TypeScriptImportVisitor importVisitor(_typeScriptOutput);
+        IncludeAggregationVisitor moduleVisitor;
+        p->visit(&moduleVisitor);
+
+        map<string, set<string>> importedTypesByInclude = moduleVisitor.importedTypesByTopLevel(p->topLevelFile());
+
+        TypeScriptImportVisitor importVisitor(_typeScriptOutput, importedTypesByInclude);
         p->visit(&importVisitor);
         map<string, string> importedTypes = importVisitor.writeImports();
 
-        TypeScriptVisitor typeScriptVisitor(_typeScriptOutput, importedTypes);
+        TypeScriptVisitor typeScriptVisitor(_typeScriptOutput, importedTypes, importedTypesByInclude);
         p->visit(&typeScriptVisitor);
 
         if (_useStdout)
@@ -644,10 +843,14 @@ Slice::Gen::ImportVisitor::visitEnum(const EnumPtr&)
 }
 
 set<string>
-Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
+Slice::Gen::ImportVisitor::writeImports(
+    const UnitPtr& p,
+    const std::map<std::string, std::map<std::string, std::set<std::string>>>& nestedModulesByTopLevel)
 {
     // The JavaScript module we are building as specified by "js:module:" metadata.
     string jsModule = getJavaScriptModule(p->findDefinitionContext(p->topLevelFile()));
+
+    // The set of top-level modules that we need to import in the generated JavaScript code.
     set<string> importedModules = {"Ice"};
 
     // The imports map maps JavaScript Modules to the set of Slice top-level modules that are imported from the
@@ -655,8 +858,8 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     // relative path of the generated JavaScript file.
     map<string, set<string>> imports;
 
-    // The JavaScript files that we import in generated code when building Ice. The user generated code imports
-    // the "ice" package.
+    // The JavaScript files that we import in generated code when building Ice.
+    // For user generated code we import the "@zeroc/ice" package.
     set<string> jsIceImports;
     if (jsModule == "@zeroc/ice")
     {
@@ -726,10 +929,10 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
         imports["@zeroc/ice"] = set<string>{"Ice"};
     }
 
-    StringList includes = p->includeFiles();
-
-    // Iterate all the included files and generate an import statement for each top-level module in the included file.
-    for (const auto& included : includes)
+    // Group the top-level modules from each included file by their JavaScript import path.
+    // Imports from files in the same js:module (or without a js:module) are tracked as "local" for aggregation.
+    set<string> localImports;
+    for (const auto& included : p->includeFiles())
     {
         set<string> sliceTopLevelModules = p->getTopLevelModules(included);
 
@@ -740,18 +943,9 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
         {
             // For Slice modules mapped to the same JavaScript module, or Slice files that doesn't use "js:module".
             // We import them using their Slice include relative path.
-            string f = removeExtension(included) + ".js";
-            if (IceInternal::isAbsolutePath(f))
-            {
-                // If the include file is an absolute path, we need to generate a relative path.
-                f = relativePath(f, Slice::dirName(p->topLevelFile()));
-            }
-            else if (f[0] != '.')
-            {
-                // Make the import relative to the current directory.
-                f = "./" + f;
-            }
+            string f = toRelativePath(removeExtension(included) + ".js", p->topLevelFile());
             imports[f] = sliceTopLevelModules;
+            localImports.insert(f);
 
             for (const auto& topLevelModule : sliceTopLevelModules)
             {
@@ -774,8 +968,6 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
             }
         }
     }
-
-    set<string> aggregatedModules;
 
     // We first import the Ice runtime
     if (jsModule == "@zeroc/ice")
@@ -818,22 +1010,23 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     else
     {
         // Import the required modules from "@zeroc/ice" JavaScript module.
-        set<string> iceModules = imports["@zeroc/ice"];
+        auto i = imports.find("@zeroc/ice");
+        assert(i != imports.end());
         _out << nl << "import { ";
-        for (auto i = iceModules.begin(); i != iceModules.end();)
+        for (auto j = i->second.begin(); j != i->second.end();)
         {
-            _out << (*i);
-            if (++i != iceModules.end())
+            _out << (*j);
+            if (++j != i->second.end())
             {
                 _out << ", ";
             }
         }
         _out << " } from \"@zeroc/ice\";";
-        // Remove Ice already imported from the list of imports.
-        imports.erase("@zeroc/ice");
+        imports.erase(i);
     }
 
     // Process the remaining imports, after importing "@zeroc/ice".
+    set<string> aggregatedModules;
     _out << sp;
     for (const auto& [jsImportedModule, topLevelModules] : imports)
     {
@@ -843,60 +1036,95 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
             continue;
         }
 
-        if (ends_with(jsImportedModule, ".js"))
+        bool isLocal = localImports.count(jsImportedModule) > 0;
+        _out << nl << "import { ";
+        _out.inc();
+        for (const auto& topLevelModule : topLevelModules)
         {
-            _out << nl << "import { ";
-            _out.inc();
-            for (const auto& topLevelModule : topLevelModules)
+            _out << nl << topLevelModule << " as " << importPathToIdentifier(jsImportedModule) << "_" << topLevelModule
+                 << ", ";
+            if (isLocal)
             {
-                _out << nl << topLevelModule << " as " << topLevelModule << "_"
-                     << importPathToIdentifier(jsImportedModule) << ", ";
                 aggregatedModules.insert(topLevelModule);
             }
-            _out.dec();
-            _out << "} from \"" << jsImportedModule << "\"";
         }
-        else
-        {
-            _out << nl << "import { ";
-            _out.inc();
-            for (const auto& topLevelModule : topLevelModules)
-            {
-                _out << nl << topLevelModule << ", ";
-            }
-            _out.dec();
-            _out << "} from \"" << jsImportedModule << "\"";
-        }
+        _out.dec();
+        _out << "} from \"" << jsImportedModule << "\"";
     }
 
-    // Aggregate all Slice top-level-modules imported from .js files, for imports corresponding to js:module modules
-    // there is no additional aggregation.
+    // Aggregate top-level modules from local imports into a single module object.
+    // External js:module imports are not aggregated; their aliased names are used directly.
     for (const string& m : aggregatedModules)
     {
-        if (m == "Ice")
-        {
-            // Ice module is already imported.
-            continue;
-        }
         _out << sp;
         _out << nl << "const " << m << " = {";
         _out.inc();
         for (const auto& [jsImportedModule, topLevelModules] : imports)
         {
-            if (topLevelModules.find(m) != topLevelModules.end())
+            if (localImports.count(jsImportedModule) > 0 && topLevelModules.find(m) != topLevelModules.end())
             {
-                _out << nl << "..." << m << "_" << importPathToIdentifier(jsImportedModule) << ",";
+                _out << nl << "..." << importPathToIdentifier(jsImportedModule) << "_" << m << ",";
             }
         }
         _out.dec();
         _out << nl << "};";
     }
 
-    // TODO aggregate the sub-modules.
-    // If module Foo.Bar was imported from multiple files, we need to aggregate them into a single
-    // Foo.Bar module. This mut be done in a top-down order.
+    // Aggregate the sub-modules.
+    // If module Foo.Bar was imported from multiple files, we need to aggregate them into a single Foo.Bar module.
+    // This must be done in a top-down order.
     // Foo.Bar = { ...Foo_Bar_1.Bar, ...Foo_Bar_2.Bar, ... }
     // Foo.Bar.Baz = { ...Foo_Bar_1.Bar.Baz, ...Foo_Bar_2.Bar.Baz, ... }
+    auto it = nestedModulesByTopLevel.find(p->topLevelFile());
+    if (it != nestedModulesByTopLevel.end())
+    {
+        auto& nestedModulesByIncludeKey = it->second;
+        // All the unique nested modules that need to be aggregated.
+        set<string> uniqueNestedModules;
+        // Gather all the include keys that define a given nested module.
+        map<string, set<string>> nestedModuleSources;
+
+        for (const auto& [includeKey, nestedModules] : nestedModulesByIncludeKey)
+        {
+            for (const string& nestedModule : nestedModules)
+            {
+                uniqueNestedModules.insert(nestedModule);
+                nestedModuleSources[nestedModule].insert(includeKey);
+            }
+        }
+
+        // Sort by nesting depth (number of dots) to aggregate parent modules before their children.
+        std::vector<std::string> sortedNestedModules(uniqueNestedModules.begin(), uniqueNestedModules.end());
+        std::sort(
+            sortedNestedModules.begin(),
+            sortedNestedModules.end(),
+            [](const std::string& a, const std::string& b)
+            {
+                auto dotsA = std::count(a.begin(), a.end(), '.');
+                auto dotsB = std::count(b.begin(), b.end(), '.');
+
+                return dotsA != dotsB ? dotsA < dotsB : a < b;
+            });
+
+        for (const string& nestedModule : sortedNestedModules)
+        {
+            if (nestedModuleSources[nestedModule].size() == 1)
+            {
+                // No need to aggregate modules defined in a single file.
+                continue;
+            }
+
+            _out << sp;
+            _out << nl << nestedModule << " = {";
+            _out.inc();
+            for (const string& includeKey : nestedModuleSources[nestedModule])
+            {
+                _out << nl << "..." << importPathToIdentifier(includeKey) << "_" << nestedModule << ",";
+            }
+            _out.dec();
+            _out << nl << "};";
+        }
+    }
 
     return importedModules;
 }
@@ -968,14 +1196,17 @@ Slice::Gen::ExportsVisitor::exportedModules() const
     return _exportedModules;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out) : JsVisitor(out) {}
+Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out, string jsModule) : JsVisitor(out)
+{
+    _jsModule = std::move(jsModule);
+}
 
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const string scopedName = p->mappedScoped(".");
     ClassDefPtr base = p->base();
-    string baseRef = base ? base->mappedScoped(".") : "Ice.Value";
+    string baseRef = base ? resolveJsScope(base, _jsModule) : "Ice.Value";
 
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
@@ -1109,7 +1340,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         for (auto q = bases.begin(); q != bases.end();)
         {
             InterfaceDefPtr base = *q;
-            _out << nl << base->mappedScoped(".");
+            _out << nl << resolveJsScope(base, _jsModule);
             if (++q != bases.end())
             {
                 _out << ",";
@@ -1141,7 +1372,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             InterfaceDefPtr base = *q;
 
-            _out << nl << base->mappedScoped(".") + "Prx";
+            _out << nl << resolveJsScope(base, _jsModule) + "Prx";
             if (++q != bases.end())
             {
                 _out << ",";
@@ -1332,7 +1563,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     {
                         _out << ',';
                     }
-                    _out << nl << (*eli)->mappedScoped(".");
+                    _out << nl << resolveJsScope(*eli, _jsModule);
                 }
                 _out.dec();
                 _out << nl << ']';
@@ -1369,10 +1600,11 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     const bool fixed = !type->isVariableLength();
 
     _out << sp;
-    _out << nl << helperName << " = Ice.StreamHelpers.generateSeqHelper(" << getHelper(type) << ", "
+    _out << nl << helperName << " = Ice.StreamHelpers.generateSeqHelper(" << getHelper(type, _jsModule) << ", "
          << (fixed ? "true" : "false");
     if (type->isClassType())
     {
+        // String literal used as a type registry key - no alias resolution needed.
         _out << ", \"" << typeToJsString(type) << "\"";
     }
 
@@ -1388,7 +1620,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     if (base)
     {
-        baseRef = base->mappedScoped(".");
+        baseRef = resolveJsScope(base, _jsModule);
     }
     else
     {
@@ -1566,12 +1798,13 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     bool fixed = !keyType->isVariableLength() && !valueType->isVariableLength();
 
     _out << sp;
-    _out << nl << "[" << scopedName << ", " << helperName << "] = Ice.defineDictionary(" << getHelper(keyType) << ", "
-         << getHelper(valueType) << ", " << (fixed ? "true" : "false") << ", "
-         << (keyUseEquals ? "Ice.HashMap.compareEquals" : "undefined");
+    _out << nl << "[" << scopedName << ", " << helperName << "] = Ice.defineDictionary("
+         << getHelper(keyType, _jsModule) << ", " << getHelper(valueType, _jsModule) << ", "
+         << (fixed ? "true" : "false") << ", " << (keyUseEquals ? "Ice.HashMap.compareEquals" : "undefined");
 
     if (valueType->isClassType())
     {
+        // String literal used as a type registry key - no alias resolution needed.
         _out << ", \"" << typeToJsString(valueType) << "\"";
     }
     _out << ");";
@@ -1655,43 +1888,51 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
+        // String literal used as a type registry key - no alias resolution needed.
         return "\"" + proxy->mappedScoped(".") + "Prx" + "\"";
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if (seq)
     {
-        return seq->mappedScoped(".") + "Helper";
+        return resolveJsScope(seq, _jsModule) + "Helper";
     }
 
     DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if (d)
     {
-        return d->mappedScoped(".") + "Helper";
+        return resolveJsScope(d, _jsModule) + "Helper";
     }
 
     EnumPtr e = dynamic_pointer_cast<Enum>(type);
     if (e)
     {
-        return e->mappedScoped(".") + "._helper";
+        return resolveJsScope(e, _jsModule) + "._helper";
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        return st->mappedScoped(".");
+        return resolveJsScope(st, _jsModule);
     }
 
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
+        // String literal used as a type registry key - no alias resolution needed.
         return "\"" + cl->mappedScoped(".") + "\"";
     }
 
     return "???";
 }
 
-Slice::Gen::TypeScriptImportVisitor::TypeScriptImportVisitor(IceInternal::Output& out) : JsVisitor(out) {}
+Slice::Gen::TypeScriptImportVisitor::TypeScriptImportVisitor(
+    IceInternal::Output& out,
+    std::map<std::string, std::set<std::string>> importedTypesByInclude)
+    : JsVisitor(out),
+      _importedTypesByInclude(std::move(importedTypesByInclude))
+{
+}
 
 void
 Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
@@ -1717,17 +1958,7 @@ Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
             }
             else
             {
-                string f = filename;
-                if (IceInternal::isAbsolutePath(f))
-                {
-                    // If the include file is an absolute path, we need to generate a relative path.
-                    f = relativePath(f, Slice::dirName(_filename));
-                }
-                else if (f[0] != '.')
-                {
-                    // Make the import relative to the current file.
-                    f = "./" + f;
-                }
+                string f = toRelativePath(filename, _filename);
                 _importedTypes[definitionId] = "__module_" + importPathToIdentifier(f) + ".";
                 _importedModules.insert(removeExtension(f) + ".js");
             }
@@ -1736,6 +1967,7 @@ Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
     else if (_module != jsImportedModule)
     {
         _importedTypes[definitionId] = "__module_" + importPathToIdentifier(jsImportedModule) + ".";
+        _importedModules.insert(jsImportedModule);
     }
     else
     {
@@ -1753,34 +1985,20 @@ Slice::Gen::TypeScriptImportVisitor::visitUnitStart(const UnitPtr& unit)
     {
         _importedModules.insert("@zeroc/ice");
     }
-    StringList includes = unit->includeFiles();
-    // Iterate all the included files and generate an import statement for each top-level module in the included file.
-    for (const auto& included : includes)
-    {
-        // The JavaScript module corresponding to the 'js:module' metadata in the included file.
-        string jsImportedModule = getJavaScriptModule(unit->findDefinitionContext(included));
 
-        if (_module != jsImportedModule)
+    // Add imports for files that have types we need to re-export.
+    // The keys are normalized include paths (e.g., "./First.ice") or js:module names (e.g., "@zeroc/ice").
+    for (const auto& [includeKey, types] : _importedTypesByInclude)
+    {
+        if (includeKey[0] == '.' || includeKey[0] == '/')
         {
-            if (jsImportedModule.empty())
-            {
-                string f = removeExtension(included) + ".js";
-                if (IceInternal::isAbsolutePath(f))
-                {
-                    // If the include file is an absolute path, we need to generate a relative path.
-                    f = relativePath(f, Slice::dirName(_filename));
-                }
-                else if (f[0] != '.')
-                {
-                    // Make the import relative to the current file.
-                    f = "./" + f;
-                }
-                _importedModules.insert(f);
-            }
-            else
-            {
-                _importedModules.insert(jsImportedModule);
-            }
+            // Relative or absolute path - convert .ice to .js
+            _importedModules.insert(removeExtension(includeKey) + ".js");
+        }
+        else
+        {
+            // js:module name - use as-is
+            _importedModules.insert(includeKey);
         }
     }
     return true;
@@ -2065,9 +2283,11 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
 
 Slice::Gen::TypeScriptVisitor::TypeScriptVisitor(
     IceInternal::Output& out,
-    std::map<std::string, std::string> importedTypes)
+    std::map<std::string, std::string> importedTypes,
+    std::map<std::string, std::set<std::string>> importedTypesByInclude)
     : JsVisitor(out),
-      _importedTypes(std::move(importedTypes))
+      _importedTypes(std::move(importedTypes)),
+      _importedTypesByInclude(std::move(importedTypesByInclude))
 {
 }
 
@@ -2114,6 +2334,9 @@ Slice::Gen::TypeScriptVisitor::visitUnitEnd(const UnitPtr&)
 bool
 Slice::Gen::TypeScriptVisitor::visitModuleStart(const ModulePtr& p)
 {
+    // Track visited modules for nested module export detection.
+    _visitedModules.insert(p->mappedScoped("."));
+
     if (p->isTopLevel() && _module.empty())
     {
         _out << sp;
@@ -2123,12 +2346,27 @@ Slice::Gen::TypeScriptVisitor::visitModuleStart(const ModulePtr& p)
     {
         _out << nl << "namespace " << p->mappedName() << sb;
     }
+
+    // Re-export imported types under the module namespace.
+    for (const auto& [key, value] : _importedTypes)
+    {
+        auto pos = key.rfind('.');
+        if (pos != string::npos && key.substr(0, pos) == p->mappedScoped(".") && value.find("__module_") == 0)
+        {
+            _out << sp;
+            _out << nl << "export import " << key.substr(pos + 1) << " = " << value << key << ";";
+        }
+    }
+
     return true;
 }
 
 void
-Slice::Gen::TypeScriptVisitor::visitModuleEnd(const ModulePtr&)
+Slice::Gen::TypeScriptVisitor::visitModuleEnd(const ModulePtr& p)
 {
+    // Generate export imports for types in nested modules that don't exist in the current file.
+    writeNestedModuleExports(p->mappedScoped("."));
+
     _out << eb; // namespace end
 }
 
@@ -2298,6 +2536,112 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr
     }
 
     out << nl << " */";
+}
+
+void
+Slice::Gen::TypeScriptVisitor::writeNestedModuleExports(const string& currentModuleScope)
+{
+    // Export types from included files that are in nested modules not present in this file.
+    // Re-exported types for modules that are visible in this file are handled by TypeScriptVisitor::visitModuleStart.
+
+    // Map from nested module path (relative to currentModuleScope) to (typeName, fullReference) pairs.
+    map<string, vector<pair<string, string>>> moduleTypes;
+
+    const string prefix = currentModuleScope + ".";
+
+    for (const auto& [includeFile, types] : _importedTypesByInclude)
+    {
+        string importPrefix = "__module_" + importPathToIdentifier(includeFile) + ".";
+
+        for (const auto& typeScope : types)
+        {
+            // Check if this type is under currentModuleScope.
+            if (typeScope.find(prefix) != 0)
+            {
+                continue;
+            }
+
+            // Find the type's parent module and type name.
+            auto lastDot = typeScope.rfind('.');
+            assert(lastDot != string::npos);
+            string parentModule = typeScope.substr(0, lastDot);
+            string typeName = typeScope.substr(lastDot + 1);
+
+            // Skip if parent module is visible (exists in this file) - handled by that module.
+            if (_visitedModules.find(parentModule) != _visitedModules.end())
+            {
+                continue;
+            }
+
+            // Skip if already exported by a previous call.
+            if (_exportedTypes.find(typeScope) != _exportedTypes.end())
+            {
+                continue;
+            }
+
+            // Mark as exported and collect for output.
+            _exportedTypes.insert(typeScope);
+
+            // Get the nested module path relative to currentModuleScope.
+            string nestedModulePath = parentModule.substr(prefix.length());
+            moduleTypes[nestedModulePath].emplace_back(typeName, importPrefix + typeScope);
+        }
+    }
+
+    if (moduleTypes.empty())
+    {
+        return;
+    }
+
+    // Get sorted module paths from map keys.
+    vector<string> sortedModules;
+    sortedModules.reserve(moduleTypes.size());
+    for (const auto& [path, _] : moduleTypes)
+    {
+        sortedModules.push_back(path);
+    }
+    sort(sortedModules.begin(), sortedModules.end());
+
+    // Generate namespace declarations incrementally.
+    vector<string> currentOpen;
+    for (const auto& modulePath : sortedModules)
+    {
+        vector<string> parts;
+        splitString(modulePath, ".", parts);
+
+        // Find common prefix length with currently open namespaces.
+        size_t commonLen = 0;
+        while (commonLen < currentOpen.size() && commonLen < parts.size() && currentOpen[commonLen] == parts[commonLen])
+        {
+            ++commonLen;
+        }
+
+        // Close namespaces that are no longer needed.
+        for (size_t i = currentOpen.size(); i > commonLen; --i)
+        {
+            _out << eb;
+        }
+
+        // Open new namespaces.
+        for (size_t i = commonLen; i < parts.size(); ++i)
+        {
+            _out << nl << "namespace " << parts[i] << sb;
+        }
+
+        currentOpen = parts;
+
+        // Emit export imports for types in this module.
+        for (const auto& [typeName, fullRef] : moduleTypes[modulePath])
+        {
+            _out << nl << "export import " << typeName << " = " << fullRef << ";";
+        }
+    }
+
+    // Close all remaining open namespaces.
+    for (size_t i = currentOpen.size(); i > 0; --i)
+    {
+        _out << eb;
+    }
 }
 
 bool
