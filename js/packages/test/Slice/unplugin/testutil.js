@@ -5,7 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const iceHome = path.resolve(__dirname, "../../../../../..");
+const iceHome = path.resolve(__dirname, "../../../../..");
 
 const cppPlatform = process.env.CPP_PLATFORM || "x64";
 const cppConfiguration = process.env.CPP_CONFIGURATION || "Release";

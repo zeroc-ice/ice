@@ -127,38 +127,38 @@ gulp.task("dist:clean", gulp.parallel(libs.map(libName => libTask(libName, "clea
 // Tests
 //
 const tests = [
-    "test/Ice/adapterDeactivation",
-    "test/Ice/ami",
-    "test/Ice/binding",
-    "test/Ice/defaultValue",
-    "test/Ice/defaultServant",
-    "test/Ice/enums",
-    "test/Ice/exceptions",
-    "test/Ice/facets",
-    "test/Ice/idleTimeout",
-    "test/Ice/inactivityTimeout",
-    "test/Ice/info",
-    "test/Ice/inheritance",
-    "test/Ice/location",
-    "test/Ice/middleware",
-    "test/Ice/moduleAggregation",
-    "test/Ice/objects",
-    "test/Ice/operations",
-    "test/Ice/optional",
-    "test/Ice/properties",
-    "test/Ice/proxy",
-    "test/Ice/retry",
-    "test/Ice/servantLocator",
-    "test/Ice/slicing/exceptions",
-    "test/Ice/slicing/objects",
-    "test/Ice/stream",
-    "test/Ice/timeout",
-    "test/Ice/scope",
-    "test/Glacier2/router",
-    "test/Slice/escape",
-    "test/Slice/macros",
-    "test/Slice/moduleMapping",
-    "test/Slice/moduleName",
+    "Ice/adapterDeactivation",
+    "Ice/ami",
+    "Ice/binding",
+    "Ice/defaultValue",
+    "Ice/defaultServant",
+    "Ice/enums",
+    "Ice/exceptions",
+    "Ice/facets",
+    "Ice/idleTimeout",
+    "Ice/inactivityTimeout",
+    "Ice/info",
+    "Ice/inheritance",
+    "Ice/location",
+    "Ice/middleware",
+    "Ice/moduleAggregation",
+    "Ice/objects",
+    "Ice/operations",
+    "Ice/optional",
+    "Ice/properties",
+    "Ice/proxy",
+    "Ice/retry",
+    "Ice/servantLocator",
+    "Ice/slicing/exceptions",
+    "Ice/slicing/objects",
+    "Ice/stream",
+    "Ice/timeout",
+    "Ice/scope",
+    "Glacier2/router",
+    "Slice/escape",
+    "Slice/macros",
+    "Slice/moduleMapping",
+    "Slice/moduleName",
 ];
 
 // Shared TypeScript compiler options for all test builds.
@@ -215,12 +215,12 @@ function IceResolver() {
 gulp.task("test:common:build", async () => {
     await runSlice2js({
         inputs: [path.resolve("../scripts/Controller.ice")],
-        outputDir: path.resolve("packages/test/test/Common"),
+        outputDir: path.resolve("packages/test/Common"),
         ...sliceOptions,
     });
 
     let bundle = await rollup({
-        input: ["packages/test/test/Common/ControllerI.js", "packages/test/test/Common/ControllerWorker.js"],
+        input: ["packages/test/Common/ControllerI.js", "packages/test/Common/ControllerWorker.js"],
         plugins: [IceResolver()],
     });
     await bundle.write({
@@ -231,7 +231,7 @@ gulp.task("test:common:build", async () => {
 });
 
 gulp.task("test:common:clean", async () => {
-    await deleteAsync(["packages/test/test/Common/Controller.js", "packages/test/test/Common/.depend"]);
+    await deleteAsync(["packages/test/Common/Controller.js", "packages/test/Common/.depend"]);
 });
 
 const testTask = (testName, taskName) => testName.replace(/\//g, "_") + ":" + taskName;
@@ -295,7 +295,7 @@ for (const name of tests) {
 
     gulp.task(testTask(name, "copy:assets"), () => {
         return gulp
-            .src(["packages/test/test/Common/controller.html", "packages/test/test/Common/style.css"])
+            .src(["packages/test/Common/controller.html", "packages/test/Common/style.css"])
             .pipe(gulp.dest(`dist/${name}`));
     });
 
@@ -326,9 +326,9 @@ for (const name of tests) {
 // Special handling for moduleAggregation subdirectories (relative, module, and external)
 // These directories contain Slice files but no Client.ts
 const moduleAggregationSubdirs = [
-    "test/Ice/moduleAggregation/relative",
-    "test/Ice/moduleAggregation/module",
-    "test/Ice/moduleAggregation/external",
+    "Ice/moduleAggregation/relative",
+    "Ice/moduleAggregation/module",
+    "Ice/moduleAggregation/external",
 ];
 
 for (const name of moduleAggregationSubdirs) {
@@ -392,7 +392,7 @@ gulp.task(
 
 gulp.task("test:unplugin", () => {
     return new Promise((resolve, reject) => {
-        const testDir = path.join("packages/test/test/Slice/unplugin");
+        const testDir = path.join("packages/test/Slice/unplugin");
         const testFiles = fs
             .readdirSync(path.resolve(root, testDir), { withFileTypes: true })
             .filter((d) => d.isDirectory())

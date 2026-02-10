@@ -45,7 +45,7 @@ export default tseslint.config(
     {
         files: [
             "packages/ice/src/**/*.js",
-            "packages/test/test/**/*.js",
+            "packages/test/**/*.js",
             "gulpfile.js",
             "dts-bundle.js",
             "packages/*/src/**/*.js",

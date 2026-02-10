@@ -8,41 +8,41 @@ ICE_LICENSE
 LICENSE
 
 # Test generated files
-packages/test/test/**/Test.js
-packages/test/test/**/Test.d.ts
+packages/test/**/Test.js
+packages/test/**/Test.d.ts
 
-packages/test/test/Common/Controller.js
-packages/test/test/Glacier2/router/Callback.d.ts
-packages/test/test/Glacier2/router/Callback.js
-packages/test/test/Ice/objects/Forward.d.ts
-packages/test/test/Ice/objects/Forward.js
-packages/test/test/Ice/moduleAggregation/relative/*.js
-packages/test/test/Ice/moduleAggregation/relative/*.d.ts
-packages/test/test/Ice/moduleAggregation/module/*.js
-packages/test/test/Ice/moduleAggregation/module/*.d.ts
-!packages/test/test/Ice/moduleAggregation/module/index.js
-!packages/test/test/Ice/moduleAggregation/module/index.d.ts
-packages/test/test/Ice/moduleAggregation/external/*.js
-packages/test/test/Ice/moduleAggregation/external/*.d.ts
-packages/test/test/Ice/optional/ClientPrivate.d.ts
-packages/test/test/Ice/optional/ClientPrivate.js
-packages/test/test/Slice/escape/Clash.d.ts
-packages/test/test/Slice/escape/Clash.js
-packages/test/test/Slice/escape/Key.d.ts
-packages/test/test/Slice/escape/Key.js
-packages/test/test/Slice/moduleName/test-dep.d.ts
-packages/test/test/Slice/moduleName/test-dep.js
+packages/test/Common/Controller.js
+packages/test/Glacier2/router/Callback.d.ts
+packages/test/Glacier2/router/Callback.js
+packages/test/Ice/objects/Forward.d.ts
+packages/test/Ice/objects/Forward.js
+packages/test/Ice/moduleAggregation/relative/*.js
+packages/test/Ice/moduleAggregation/relative/*.d.ts
+packages/test/Ice/moduleAggregation/module/*.js
+packages/test/Ice/moduleAggregation/module/*.d.ts
+!packages/test/Ice/moduleAggregation/module/index.js
+!packages/test/Ice/moduleAggregation/module/index.d.ts
+packages/test/Ice/moduleAggregation/external/*.js
+packages/test/Ice/moduleAggregation/external/*.d.ts
+packages/test/Ice/optional/ClientPrivate.d.ts
+packages/test/Ice/optional/ClientPrivate.js
+packages/test/Slice/escape/Clash.d.ts
+packages/test/Slice/escape/Clash.js
+packages/test/Slice/escape/Key.d.ts
+packages/test/Slice/escape/Key.js
+packages/test/Slice/moduleName/test-dep.d.ts
+packages/test/Slice/moduleName/test-dep.js
 
-packages/test/test/**/Client.js
-packages/test/test/**/Server.js
-packages/test/test/**/ServerAMD.js
-packages/test/test/**/*I.js
+packages/test/**/Client.js
+packages/test/**/Server.js
+packages/test/**/ServerAMD.js
+packages/test/**/*I.js
 
-packages/test/test/Slice/unplugin/*/generated
+packages/test/Slice/unplugin/*/generated
 
-packages/test/test/Ice/operations/BatchOneways.js
-packages/test/test/Ice/operations/Oneways.js
-packages/test/test/Ice/operations/Twoways.js
+packages/test/Ice/operations/BatchOneways.js
+packages/test/Ice/operations/Oneways.js
+packages/test/Ice/operations/Twoways.js
 
 # @zeroc/ice package - generated files from .ice sources
 packages/ice/src/Ice/BuiltinSequences.js

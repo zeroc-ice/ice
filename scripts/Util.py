@@ -4107,7 +4107,7 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
                 self.protocol = "ws"
 
     def getTestDir(self):
-        return os.path.join(self.getPath(), "packages", "test", "test")
+        return os.path.join(self.getPath(), "packages", "test")
 
     def getEnv(self, process, current):
         if not current.config.browser and current.config.protocol == "wss":
