@@ -2767,8 +2767,8 @@ Slice::Python::compile(
                 throw runtime_error("Failed to preprocess Slice file: " + fileName);
             }
 
-            unit = Unit::createUnit("python", debug);
-            int parseStatus = unit->parse(fileName, preprocessedHandle, false);
+            unit = Unit::createUnit("python", false);
+            int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
             preprocessor->close();
 
