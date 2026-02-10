@@ -239,9 +239,9 @@ jobs:
       authenticode_sign: ${{ needs.configure.outputs.authenticode_sign == 'true' }}
     secrets: inherit
 
-  build-xcframework-packages:
+  build-cpp-swift-deps:
     name: Build macOS Packages
-    uses: ./.github/workflows/build-xcframework-packages.yml
+    uses: ./.github/workflows/build-cpp-swift-deps.yml
     needs: configure
     with:
       ice_version: ${{ needs.configure.outputs.semver_version }}
@@ -262,7 +262,7 @@ jobs:
       - build-pip-packages
       - build-rpm-packages
       - build-windows-installer
-      - build-xcframework-packages
+      - build-cpp-swift-deps
       - build-symbols-sources-store
       - build-cpp-nuget-packages
       - configure

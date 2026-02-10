@@ -56,7 +56,7 @@ jobs:
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "deb-packages-*" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "dotnet-nuget-packages" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "gem-packages" --dir staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "xcframework-packages" --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "cpp-swift-deps" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "matlab-packages-*" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "windows-installer" --dir staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "java-packages" --dir staging
