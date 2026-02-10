@@ -67,4 +67,5 @@ function mergeModules() {
 collectReferences(entryFilePath);
 const mergedContent = mergeModules();
 
+fs.mkdirSync(path.dirname(outputFilePath), { recursive: true });
 fs.writeFileSync(outputFilePath, mergedContent, "utf-8");
