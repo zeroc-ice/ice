@@ -36,7 +36,7 @@
     },
     "scripts": {
         "build": "gulp",
-        "build-doc": "node dts-bundle.js && npx typedoc --router structure dist/bundle.d.ts --disableGit --disableSources",
+        "build-doc": "node dts-bundle.js && npx typedoc --name '@zeroc/ice' --router structure dist/bundle.d.ts --disableGit --disableSources",
         "dist": "gulp dist",
         "clean": "gulp clean",
         "test:unplugin": "node --test packages/test/Slice/unplugin/"
