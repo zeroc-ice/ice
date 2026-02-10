@@ -9,9 +9,6 @@ const bufferOverflowExceptionMsg = "BufferOverflowException";
 const bufferUnderflowExceptionMsg = "BufferUnderflowException";
 const indexOutOfBoundsExceptionMsg = "IndexOutOfBoundsException";
 
-// Singleton TextEncoder for UTF-8 string encoding
-const textEncoder = new TextEncoder();
-
 class Buffer
 {
     constructor(buffer)
@@ -217,16 +214,6 @@ class Buffer
         this._position += 4;
         this.v.setInt32(this._position, v.high, true);
         this._position += 4;
-    }
-
-    writeString(stream, v)
-    {
-        const encoded = textEncoder.encode(v);
-        stream.writeSize(encoded.length);
-        this.expand(encoded.length);
-        new Uint8Array(this.b, this._position, encoded.length).set(encoded);
-        this._position += encoded.length;
-        this._limit = this._position;
     }
 
     get()

@@ -21,6 +21,9 @@ require("../Ice/UnknownSlicedValue");
 require("../Ice/Value");
 require("../Ice/Version");
 
+// Singleton TextEncoder for UTF-8 string encoding
+const textEncoder = new TextEncoder();
+
 const ArrayUtil = Ice.ArrayUtil;
 const Debug = Ice.Debug;
 const ExUtil = Ice.ExUtil;
@@ -3185,7 +3188,10 @@ class OutputStream
         }
         else
         {
-            this._buf.writeString(this, v);
+            const encoded = textEncoder.encode(v);
+            this.writeSize(encoded.length);
+            this.expand(encoded.length);
+            this._buf.putArray(encoded);
         }
     }
 
