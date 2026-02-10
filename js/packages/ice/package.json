@@ -28,6 +28,9 @@
         "./src/Ice/TcpTransceiver.js": "./src/Ice/TcpTransceiver.browser.js",
         "./src/Ice/TimerUtil.js": "./src/Ice/TimerUtil.browser.js"
     },
+    "bin": {
+        "slice2js": "./bin/slice2js"
+    },
     "browserslist": "> 0.25%, not dead",
     "files": [
         "src/",

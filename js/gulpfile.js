@@ -403,14 +403,19 @@ gulp.task("test:unplugin", () => {
                     .map((f) => path.join(testDir, d.name, f)),
             );
         exec(`node --test ${testFiles.join(" ")}`, { cwd: root }, (err, stdout, stderr) => {
-            process.stdout.write(stdout);
-            process.stderr.write(stderr);
-            if (err) reject(err);
-            else resolve();
+            if (err) {
+                process.stdout.write(stdout);
+                process.stderr.write(stderr);
+                reject(err);
+            } else {
+                resolve();
+            }
         });
     });
 });
 
 gulp.task("build", gulp.series("dist", "test", "test:unplugin"));
-gulp.task("clean", gulp.series("dist:clean", "test:clean"));
+gulp.task("clean", gulp.series("dist:clean", "test:clean", async () => {
+    await deleteAsync(["node_modules/", "packages/slice2js/dist/"]);
+}));
 gulp.task("default", gulp.series("build"));

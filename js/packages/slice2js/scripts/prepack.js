@@ -60,13 +60,6 @@ function copyFolderSync(src, dest) {
     });
 }
 
-// Ensure we are running from Ice source distribution
-if (!fs.existsSync(sliceSourceDir)) {
-    console.error("The pack command must be run from the Ice source distribution.");
-    console.error("See https://github.com/zeroc-ice/ice/blob/main/js/BUILDING.md");
-    process.exit(1);
-}
-
 console.log(`Copying Slice files from ${sliceSourceDir} to ${sliceDestDir}... `);
 copyFolderSync(sliceSourceDir, sliceDestDir);
 console.log("Done.");
