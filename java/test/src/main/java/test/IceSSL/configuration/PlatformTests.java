@@ -6,7 +6,6 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
-import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.SecurityException;
 
 import test.IceSSL.configuration.Test.ServerPrx;

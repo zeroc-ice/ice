@@ -1594,7 +1594,6 @@ public class AllTests : global::Test.AllTests
                 }
                 Console.Out.WriteLine("ok");
             }
-
         }
         finally
         {

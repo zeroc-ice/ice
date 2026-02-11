@@ -3,9 +3,7 @@
 package test.IceSSL.configuration;
 
 import com.zeroc.Ice.Communicator;
-import com.zeroc.Ice.ConnectTimeoutException;
 import com.zeroc.Ice.ConnectionLostException;
-import com.zeroc.Ice.DNSException;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.InitializationException;
 import com.zeroc.Ice.LocalException;
@@ -13,8 +11,6 @@ import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.SSL.ConnectionInfo;
 import com.zeroc.Ice.SecurityException;
-import com.zeroc.Ice.SocketException;
-import com.zeroc.Ice.WSConnectionInfo;
 
 import test.IceSSL.configuration.Test.ServerFactoryPrx;
 import test.IceSSL.configuration.Test.ServerPrx;
