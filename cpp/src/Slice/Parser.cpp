@@ -4913,7 +4913,9 @@ Slice::Unit::getTopLevelModules(const string& file) const
 }
 
 Slice::Unit::Unit(string languageName, UnitOptions options)
-    : _languageName(std::move(languageName)), _all(options.all), _normalizeCase(options.normalizeCase)
+    : _languageName(std::move(languageName)),
+      _all(options.all),
+      _normalizeCase(options.normalizeCase)
 {
     if (!_languageName.empty())
     {
