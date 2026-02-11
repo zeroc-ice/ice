@@ -4358,7 +4358,7 @@ Slice::DataMember::DataMember(
 UnitPtr
 Slice::Unit::createUnit(string languageName, UnitOptions options)
 {
-    return make_shared<Unit>(std::move(languageName), std::move(options));
+    return make_shared<Unit>(std::move(languageName), options);
 }
 
 string
