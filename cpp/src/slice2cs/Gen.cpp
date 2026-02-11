@@ -87,18 +87,18 @@ Slice::Gen::generate(const UnitPtr& p)
 {
     Slice::validateCsMetadata(p);
 
-    Ice::TypesVisitor typesVisitor(_out);
+    Slice::Ice::TypesVisitor typesVisitor(_out);
     p->visit(&typesVisitor);
 
-    Ice::ResultVisitor resultVisitor(_out);
+    Slice::Ice::ResultVisitor resultVisitor(_out);
     p->visit(&resultVisitor);
 
     // Default skeleton.
-    Ice::SkeletonVisitor skeletonVisitor(_out, false);
+    Slice::Ice::SkeletonVisitor skeletonVisitor(_out, false);
     p->visit(&skeletonVisitor);
 
     // Async skeleton.
-    Ice::SkeletonVisitor asyncSkeletonVisitor(_out, true);
+    Slice::Ice::SkeletonVisitor asyncSkeletonVisitor(_out, true);
     p->visit(&asyncSkeletonVisitor);
 }
 
