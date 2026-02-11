@@ -703,80 +703,60 @@ Ice::OutputStream::write(const char*)
 void
 Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
 {
+    StringConverterPtr stringConverter = _stringConverter;
+    if (!stringConverter)
+    {
+        stringConverter = getProcessStringConverter();
+    }
+
+    if (!stringConverter)
+    {
+        // No converter installed; write the string as-is (assumed to be UTF-8 already).
+        writeSize(static_cast<int32_t>(vsize));
+        Container::size_type position = b.size();
+        resize(position + vsize);
+        memcpy(&b[position], vdata, vsize);
+        return;
+    }
+
     //
-    // What is the size of the resulting UTF-8 encoded string?
-    // Impossible to tell, so we guess. If we don't guess correctly,
-    // we'll have to fix the mistake afterwards
+    // Convert the narrow string to UTF-8 using the string converter and write the result to the stream.
+    //
+    // The worst-case expansion for converting a narrow string to UTF-8 is 3x (e.g., a single byte in Shift_JIS can
+    // expand to 3 bytes in UTF-8). We use this upper bound to decide the size encoding:
+    //  - If vsize <= 254 / 3 (84), the converted string is at most 252 bytes, which always fits in a 1-byte size.
+    //  - Otherwise, we use the 5-byte size encoding to avoid guessing and memmove fixups.
     //
     try
     {
-        auto guessedSize = static_cast<int32_t>(vsize);
-        writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
-
-        size_t firstIndex = b.size();
-        StreamUTF8BufferI buffer(*this);
-
-        byte* lastByte = nullptr;
-        bool converted = false;
-
-        StringConverterPtr stringConverter = _stringConverter;
-        if (!stringConverter)
+        if (vsize <= 254 / 3)
         {
-            stringConverter = getProcessStringConverter();
-        }
-        if (stringConverter)
-        {
-            lastByte = stringConverter->toUTF8(vdata, vdata + vsize, buffer);
-            converted = true;
-        }
+            // The maximum UTF-8 size is vsize * 3 <= 252, which fits in a 1-byte size encoding.
+            auto sizePos = startOneByteSize();
 
-        if (!converted)
-        {
-            Container::size_type position = b.size();
-            resize(position + vsize);
-            memcpy(&b[position], vdata, vsize);
-            return;
-        }
-
-        if (lastByte != b.end())
-        {
-            resize(static_cast<size_t>(lastByte - b.begin()));
-        }
-        size_t lastIndex = b.size();
-
-        auto actualSize = static_cast<int32_t>(lastIndex - firstIndex);
-
-        //
-        // Check against the guess
-        //
-        if (guessedSize != actualSize)
-        {
-            if (guessedSize <= 254 && actualSize > 254)
+            StreamUTF8BufferI buffer(*this);
+            byte* lastByte = stringConverter->toUTF8(vdata, vdata + vsize, buffer);
+            if (lastByte != b.end())
             {
-                //
-                // Move the UTF-8 sequence 4 bytes further
-                // Use memmove instead of memcpy since the source and destination typically overlap.
-                //
-                resize(b.size() + 4);
-                memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, static_cast<size_t>(actualSize));
-            }
-            else if (guessedSize > 254 && actualSize <= 254)
-            {
-                //
-                // Move the UTF-8 sequence 4 bytes back
-                //
-                memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, static_cast<size_t>(actualSize));
-                resize(b.size() - 4);
+                resize(static_cast<size_t>(lastByte - b.begin()));
             }
 
-            if (guessedSize <= 254)
+            endOneByteSize(sizePos);
+        }
+        else
+        {
+            // Write the first byte of the 5-byte size encoding, followed by a 4-byte size placeholder.
+            write(uint8_t(255));
+            auto sizePos = startSize();
+
+            StreamUTF8BufferI buffer(*this);
+            byte* lastByte = stringConverter->toUTF8(vdata, vdata + vsize, buffer);
+            if (lastByte != b.end())
             {
-                rewriteSize(actualSize, b.begin() + firstIndex - 1);
+                resize(static_cast<size_t>(lastByte - b.begin()));
             }
-            else
-            {
-                rewriteSize(actualSize, b.begin() + firstIndex - 1 - 4);
-            }
+
+            endSize(sizePos);
         }
     }
     catch (const Ice::IllegalConversionException& ex)

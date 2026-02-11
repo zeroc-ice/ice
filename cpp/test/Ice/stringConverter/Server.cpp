@@ -22,6 +22,8 @@ public:
         return wstringToString(wmsg, Ice::getProcessStringConverter(), Ice::getProcessWstringConverter());
     }
 
+    string echoString(string s, const Ice::Current&) override { return s; }
+
     void shutdown(const Ice::Current& current) override { current.adapter->getCommunicator()->shutdown(); }
 };
 
