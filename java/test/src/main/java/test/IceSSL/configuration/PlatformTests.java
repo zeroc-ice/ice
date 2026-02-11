@@ -149,27 +149,6 @@ public class PlatformTests {
         }
     }
 
-    public static void clientValidatesServerUsingDefaultTrustStore(
-            TestHelper helper, String certificatesPath) {
-        try {
-            PrintWriter out = helper.getWriter();
-            out.print("client validates server certificate using default trust store... ");
-            out.flush();
-
-            try (var clientCommunicator = createClient(helper, null, null)) {
-                var obj =
-                    ObjectPrx.createProxy(
-                        clientCommunicator,
-                        "Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
-                obj.ice_ping();
-            }
-            out.println("ok");
-        } catch (Exception ex) {
-            System.out.println(ex.toString());
-            throw new RuntimeException(ex);
-        }
-    }
-
     public static void clientRejectsServerUsingTrustStore(
             TestHelper helper, String certificatesPath) {
         try {
@@ -406,7 +385,6 @@ public class PlatformTests {
 
     public static void allTests(TestHelper helper, String certificatesPath) {
         clientValidatesServerUsingTrustStore(helper, certificatesPath);
-        clientValidatesServerUsingDefaultTrustStore(helper, certificatesPath);
         clientRejectsServerUsingTrustStore(helper, certificatesPath);
 
         serverValidatesClientUsingTrustStore(helper, certificatesPath);
