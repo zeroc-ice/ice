@@ -8,9 +8,9 @@ import fs from "node:fs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-let platformPrefix = "";
-let archPrefix = os.arch();
-let exe = "";
+let platformPrefix: string;
+let archPrefix: string;
+let exe: string;
 
 switch (os.platform()) {
     case "win32":
@@ -25,11 +25,11 @@ switch (os.platform()) {
         break;
     case "linux":
         platformPrefix = "linux";
+        archPrefix = os.arch();
         exe = "slice2js";
         break;
     default:
-        console.error(`Unsupported platform: ${os.platform()}`);
-        process.exit(1);
+        throw new Error(`Unsupported platform: ${os.platform()}`);
 }
 
 const slicePath: string = path.resolve(__dirname, "..", "slice");

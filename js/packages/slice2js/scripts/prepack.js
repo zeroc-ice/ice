@@ -60,6 +60,11 @@ function copyFolderSync(src, dest) {
     });
 }
 
+if (!fs.existsSync(sliceSourceDir)) {
+    console.error(`Slice source directory not found: ${sliceSourceDir}`);
+    console.error("This script must be run from an Ice source distribution.");
+    process.exit(1);
+}
 console.log(`Copying Slice files from ${sliceSourceDir} to ${sliceDestDir}... `);
 copyFolderSync(sliceSourceDir, sliceDestDir);
 console.log("Done.");

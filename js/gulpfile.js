@@ -14,7 +14,7 @@ import { rollup } from "rollup";
 import strip from "@rollup/plugin-strip";
 import resolve from "@rollup/plugin-node-resolve";
 import { fileURLToPath } from "url";
-import { exec } from "node:child_process";
+import { execFile } from "node:child_process";
 import { runSlice2js } from "@zeroc/slice2js/unplugin";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -402,7 +402,7 @@ gulp.task("test:unplugin", () => {
                     .filter(f => f.endsWith(".test.ts"))
                     .map(f => path.join(testDir, d.name, f)),
             );
-        exec(`node --test ${testFiles.join(" ")}`, { cwd: root }, (err, stdout, stderr) => {
+        execFile("node", ["--test", ...testFiles], { cwd: root }, (err, stdout, stderr) => {
             if (err) {
                 process.stdout.write(stdout);
                 process.stderr.write(stderr);

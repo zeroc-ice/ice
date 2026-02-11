@@ -33,7 +33,7 @@ export async function runSlice2js(options: Slice2jsOptions): Promise<void> {
     const cwd = options.cwd ? path.resolve(options.cwd) : process.cwd();
     const outputDir = path.resolve(cwd, options.outputDir);
     const patterns = toArray(options.inputs).map((p) => p.replace(/\\/g, "/"));
-    const inputs = fg.sync(patterns, { cwd: cwd.replace(/\\/g, "/"), absolute: true });
+    const inputs = await fg(patterns, { cwd: cwd.replace(/\\/g, "/"), absolute: true });
 
     if (inputs.length === 0) {
         return;
@@ -62,10 +62,10 @@ export async function runSlice2js(options: Slice2jsOptions): Promise<void> {
 export const unpluginFactory: UnpluginFactory<Slice2jsOptions | undefined> = (options) => {
     return {
         name: "unplugin-slice2js",
-        buildStart() {
+        async buildStart() {
             const cwd = options?.cwd ? path.resolve(options.cwd) : process.cwd();
             const patterns = toArray(options?.inputs).map((p) => p.replace(/\\/g, "/"));
-            const inputs = fg.sync(patterns, { cwd: cwd.replace(/\\/g, "/"), absolute: true });
+            const inputs = await fg(patterns, { cwd: cwd.replace(/\\/g, "/"), absolute: true });
 
             for (const file of inputs) {
                 try {
