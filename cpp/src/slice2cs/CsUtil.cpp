@@ -331,12 +331,8 @@ Slice::Csharp::writeDocLines(Output& out, const string& openTag, const StringLis
     {
         writeDocLine(out, openTag, lines.front(), closeTag);
     }
-    else
+    else if (lines.size() > 1)
     {
-        if (lines.empty())
-        {
-            return;
-        }
 
         if (!closeTag)
         {
