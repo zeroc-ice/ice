@@ -1,0 +1,14 @@
+{
+    "name": "test_nested_modules",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": {
+            "import": "./index.js",
+            "types": "./index.d.ts"
+        }
+    },
+    "main": "index.js",
+    "types": "index.d.ts"
+}

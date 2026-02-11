@@ -1,1 +1,0 @@
-# Override .gitignore for npm publish, ensure the generated code is included in the package

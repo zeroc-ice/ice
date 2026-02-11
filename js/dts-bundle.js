@@ -10,7 +10,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const entryFilePath = path.resolve(__dirname, "src/index.d.ts");
+const entryFilePath = path.resolve(__dirname, "packages/ice/src/index.d.ts");
 const outputFilePath = path.resolve(__dirname, "dist/bundle.d.ts");
 
 const visitedFiles = new Set();
@@ -67,4 +67,5 @@ function mergeModules() {
 collectReferences(entryFilePath);
 const mergedContent = mergeModules();
 
+fs.mkdirSync(path.dirname(outputFilePath), { recursive: true });
 fs.writeFileSync(outputFilePath, mergedContent, "utf-8");

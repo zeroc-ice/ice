@@ -1,0 +1,63 @@
+{
+    "name": "@zeroc/slice2js",
+    "version": "3.8.0",
+    "description": "Slice-to-JavaScript compiler and build plugin for Ice",
+    "author": "Zeroc, Inc.",
+    "homepage": "https://zeroc.com",
+    "repository": "https://github.com/zeroc-ice/ice.git",
+    "license": "GPL-2.0",
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=22.16.0"
+    },
+    "keywords": [
+        "Ice",
+        "slice2js",
+        "unplugin",
+        "compiler"
+    ],
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/slice2js.d.ts",
+            "default": "./dist/slice2js.js"
+        },
+        "./unplugin": {
+            "types": "./dist/unplugin-slice2js.d.ts",
+            "default": "./dist/unplugin-slice2js.js"
+        },
+        "./unplugin/vite": {
+            "types": "./dist/unplugin/vite.d.ts",
+            "default": "./dist/unplugin/vite.js"
+        },
+        "./unplugin/rollup": {
+            "types": "./dist/unplugin/rollup.d.ts",
+            "default": "./dist/unplugin/rollup.js"
+        },
+        "./unplugin/webpack": {
+            "types": "./dist/unplugin/webpack.d.ts",
+            "default": "./dist/unplugin/webpack.js"
+        },
+        "./unplugin/esbuild": {
+            "types": "./dist/unplugin/esbuild.d.ts",
+            "default": "./dist/unplugin/esbuild.js"
+        }
+    },
+    "dependencies": {
+        "fast-glob": "^3.3.0",
+        "unplugin": "^2.3.0"
+    },
+    "files": [
+        "dist/",
+        "bin/",
+        "slice/",
+        "README.md"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "prepare": "tsc",
+        "prepack": "tsc && node scripts/prepack.js"
+    }
+}

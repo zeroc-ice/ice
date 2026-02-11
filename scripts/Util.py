@@ -934,7 +934,7 @@ class Mapping(object):
             moduleprefix = self.component.getScriptDir()[len(prefix) + 1 :].replace(os.sep, ".") + "."
             sys.path = [prefix] + sys.path
             for test in tests or [""]:
-                testDir = self.component.getTestDir(self)
+                testDir = self.getTestDir()
                 for root, dirs, files in os.walk(os.path.join(testDir, test.replace("/", os.sep))):
                     testId = root[len(testDir) + 1 :]
                     if os.sep != "/":
@@ -986,8 +986,8 @@ class Mapping(object):
         return [self.testsuites[testSuiteId] for testSuiteId in ids if testSuiteId in self.testsuites]
 
     def addTestSuite(self, testsuite):
-        assert len(testsuite.path) > len(self.component.getTestDir(self)) + 1
-        testSuiteId = testsuite.path[len(self.component.getTestDir(self)) + 1 :].replace("\\", "/")
+        assert len(testsuite.path) > len(self.getTestDir()) + 1
+        testSuiteId = testsuite.path[len(self.getTestDir()) + 1 :].replace("\\", "/")
         self.testsuites[testSuiteId] = testsuite
         return testSuiteId
 
@@ -1027,7 +1027,7 @@ class Mapping(object):
         try:
             return os.path.exists(
                 os.path.join(
-                    self.component.getTestDir(self),
+                    self.getTestDir(),
                     testId,
                     self.getDefaultSource(processType),
                 )
@@ -2986,7 +2986,7 @@ class BrowserProcessController(RemoteProcessController):
             protocol = "http"
             port = "8080"
             cport = "15002"
-        url = "{0}://{5}:{1}/test/{2}/controller.html?port={3}&worker={4}".format(
+        url = "{0}://{5}:{1}/{2}/controller.html?port={3}&worker={4}".format(
             protocol, port, testsuite, cport, current.config.worker, self.host
         )
         if url != self.url:
@@ -4034,13 +4034,13 @@ class JavaScriptMixin:
         return Mapping._getDefaultProcesses(self, processType)
 
     def getCommonDir(self, current):
-        return os.path.join(self.getPath(), "test", "Common")
+        return os.path.join(self.getTestDir(), "Common")
 
     def getCommandLine(self, current, process, exe, args):
         coverage = ""
 
-        src_path = os.path.join(self.getPath(), "src")
-        tests_path = os.path.join(self.getPath(), "test")
+        src_path = os.path.join(self.getPath(), "packages", "ice", "src")
+        tests_path = self.getTestDir()
 
         if current.config.coverage:
             report_dir = f"coverage/{current.testcase.getTestSuite().getId()}-{exe}"
@@ -4104,8 +4104,8 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
             if self.browser and self.protocol == "tcp":
                 self.protocol = "ws"
 
-    def getCommonDir(self, current):
-        return os.path.join(self.getPath(), "test", "Common")
+    def getTestDir(self):
+        return os.path.join(self.getPath(), "packages", "test")
 
     def getEnv(self, process, current):
         if not current.config.browser and current.config.protocol == "wss":
