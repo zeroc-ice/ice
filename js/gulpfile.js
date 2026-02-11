@@ -5,18 +5,17 @@
 /* eslint no-process-exit: "off" */
 
 import { deleteAsync } from "del";
-import vinylPaths from "vinyl-paths";
-import extReplace from "gulp-ext-replace";
 import fs from "fs";
 import gulp from "gulp";
-import iceBuilder from "gulp-ice-builder";
+import tsc from "gulp-typescript";
 import path from "path";
-import pump from "pump";
+import { finished } from "node:stream/promises";
 import { rollup } from "rollup";
 import strip from "@rollup/plugin-strip";
 import resolve from "@rollup/plugin-node-resolve";
 import { fileURLToPath } from "url";
-import tsc from "gulp-typescript";
+import { execFile } from "node:child_process";
+import { runSlice2js } from "@zeroc/slice2js/unplugin";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -36,10 +35,14 @@ function parseArg(argv, key) {
 const platform = parseArg(process.argv, "--cppPlatform") || process.env.CPP_PLATFORM || "x64";
 const configuration = parseArg(process.argv, "--cppConfiguration") || process.env.CPP_CONFIGURATION || "Release";
 
-function slice2js(options) {
-    const defaults = {};
-    const opts = options || {};
-    if (process.platform == "win32") {
+// Determine toolsPath and slicePath for source builds.
+// When toolsPath is set, compile() in slice2js.js uses the binary from that directory.
+// Otherwise, it falls back to the bundled binary from @zeroc/ice.
+function getSliceOptions() {
+    const iceHome = path.resolve(__dirname, "..");
+    const slicePath = path.resolve(iceHome, "slice");
+
+    if (process.platform === "win32") {
         if (!platform || (platform.toLowerCase() != "win32" && platform.toLowerCase() != "x64")) {
             console.log("Error: --cppPlatform must be set to `Win32' or `x64', in order to locate slice2js.exe");
             process.exit(1);
@@ -51,15 +54,23 @@ function slice2js(options) {
             );
             process.exit(1);
         }
-        defaults.iceToolsPath = path.resolve("../cpp/bin", platform, configuration);
+        return {
+            toolsPath: path.resolve(iceHome, "cpp/bin", platform, configuration),
+            slicePath,
+        };
     }
-    defaults.iceHome = path.resolve(__dirname, "..");
-    defaults.include = opts.include || [];
-    defaults.args = opts.args || [];
-    defaults.jsbundle = false;
-    defaults.tsbundle = false;
-    return iceBuilder(defaults);
+
+    // For non-Windows source builds, check if the C++ build output exists.
+    const sourceBuild = path.resolve(iceHome, "cpp/bin/slice2js");
+    if (fs.existsSync(sourceBuild)) {
+        return { toolsPath: path.resolve(iceHome, "cpp/bin"), slicePath };
+    }
+
+    // Fall back to bundled binary (no toolsPath needed).
+    return { slicePath };
 }
+
+const sliceOptions = getSliceOptions();
 
 const root = path.resolve(__dirname);
 const libs = ["Ice", "Glacier2", "IceBox", "IceStorm", "IceGrid"];
@@ -67,91 +78,106 @@ const libs = ["Ice", "Glacier2", "IceBox", "IceStorm", "IceGrid"];
 const libTask = (libName, taskName) => libName + ":" + taskName;
 
 const excludes = {
-    Ice: ["!../slice/Ice/Identity.ice", "!../slice/Ice/Version.ice"],
+    Ice: ["Identity.ice", "Version.ice"],
 };
 
-function createCleanTask(taskName, patterns, extension, dest = undefined) {
-    gulp.task(taskName, () => {
-        const pumpArgs = [gulp.src(patterns), extReplace(extension)];
-
-        if (dest !== undefined) {
-            pumpArgs.push(gulp.dest(dest));
-        }
-
-        pumpArgs.push(vinylPaths(deleteAsync));
-
-        return new Promise((resolve, reject) => {
-            pump(pumpArgs, err => (err ? reject(err) : resolve()));
-        });
-    });
-}
-
+//
+// Library generation tasks: compile .ice -> .js + .d.ts using runSlice2js.
+//
 for (const lib of libs) {
-    const slicePatterns = [`../slice/${lib}/*.ice`, ...(excludes[lib] || [])];
-    gulp.task(libTask(lib, "generate"), cb => {
-        pump(
-            [
-                gulp.src(slicePatterns),
-                slice2js({
-                    args: ["--typescript"],
-                }),
-                gulp.dest(`${root}/src/${lib}`),
-            ],
-            cb,
-        );
+    const sliceDir = path.resolve(__dirname, `../slice/${lib}`);
+    const excludedFiles = excludes[lib] || [];
+
+    gulp.task(libTask(lib, "generate"), async () => {
+        const allFiles = fs
+            .readdirSync(sliceDir)
+            .filter(f => f.endsWith(".ice") && !excludedFiles.includes(f))
+            .map(f => path.resolve(sliceDir, f));
+
+        if (allFiles.length > 0) {
+            await runSlice2js({
+                inputs: allFiles,
+                outputDir: path.resolve(root, "packages/ice/src", lib),
+                args: ["--typescript"],
+                ...sliceOptions,
+            });
+        }
     });
 
-    createCleanTask(libTask(lib, "clean:js"), slicePatterns, ".js", `${root}/src/${lib}`);
-    createCleanTask(libTask(lib, "clean:d.ts"), slicePatterns, ".d.ts", `${root}/src/${lib}`);
-
-    gulp.task(libTask(lib, "clean"), gulp.series(libTask(lib, "clean:js"), libTask(lib, "clean:d.ts")));
+    gulp.task(libTask(lib, "clean"), async () => {
+        const toDelete = fs
+            .readdirSync(sliceDir)
+            .filter(f => f.endsWith(".ice") && !excludedFiles.includes(f))
+            .flatMap(f => {
+                const baseName = path.basename(f, ".ice");
+                return [
+                    path.resolve(root, "packages/ice/src", lib, `${baseName}.js`),
+                    path.resolve(root, "packages/ice/src", lib, `${baseName}.d.ts`),
+                ];
+            });
+        await deleteAsync(toDelete, { force: true });
+    });
 }
 
 gulp.task("dist", gulp.parallel(libs.map(libName => libTask(libName, "generate"))));
 
 gulp.task("dist:clean", gulp.parallel(libs.map(libName => libTask(libName, "clean"))));
 
+//
+// Tests
+//
 const tests = [
-    "test/Ice/adapterDeactivation",
-    "test/Ice/ami",
-    "test/Ice/binding",
-    "test/Ice/defaultValue",
-    "test/Ice/defaultServant",
-    "test/Ice/enums",
-    "test/Ice/exceptions",
-    "test/Ice/facets",
-    "test/Ice/idleTimeout",
-    "test/Ice/inactivityTimeout",
-    "test/Ice/info",
-    "test/Ice/inheritance",
-    "test/Ice/location",
-    "test/Ice/middleware",
-    "test/Ice/moduleAggregation",
-    "test/Ice/objects",
-    "test/Ice/operations",
-    "test/Ice/optional",
-    "test/Ice/properties",
-    "test/Ice/proxy",
-    "test/Ice/retry",
-    "test/Ice/servantLocator",
-    "test/Ice/slicing/exceptions",
-    "test/Ice/slicing/objects",
-    "test/Ice/stream",
-    "test/Ice/timeout",
-    "test/Ice/scope",
-    "test/Glacier2/router",
-    "test/Slice/escape",
-    "test/Slice/macros",
-    "test/Slice/moduleMapping",
-    "test/Slice/moduleName",
+    "Ice/adapterDeactivation",
+    "Ice/ami",
+    "Ice/binding",
+    "Ice/defaultValue",
+    "Ice/defaultServant",
+    "Ice/enums",
+    "Ice/exceptions",
+    "Ice/facets",
+    "Ice/idleTimeout",
+    "Ice/inactivityTimeout",
+    "Ice/info",
+    "Ice/inheritance",
+    "Ice/location",
+    "Ice/middleware",
+    "Ice/moduleAggregation",
+    "Ice/objects",
+    "Ice/operations",
+    "Ice/optional",
+    "Ice/properties",
+    "Ice/proxy",
+    "Ice/retry",
+    "Ice/servantLocator",
+    "Ice/slicing/exceptions",
+    "Ice/slicing/objects",
+    "Ice/stream",
+    "Ice/timeout",
+    "Ice/scope",
+    "Glacier2/router",
+    "Slice/escape",
+    "Slice/macros",
+    "Slice/moduleMapping",
+    "Slice/moduleName",
 ];
 
-gulp.task("test:common:generate", cb => {
-    pump([gulp.src(["../scripts/Controller.ice"]), slice2js(), gulp.dest("test/Common")], cb);
-});
+// Shared TypeScript compiler options for all test builds.
+const tsCompilerOptions = {
+    lib: ["dom", "es2020"],
+    target: "es2020",
+    module: "es2020",
+    moduleResolution: "bundler",
+    strict: true,
+    noImplicitAny: true,
+    noImplicitOverride: true,
+    noFallthroughCasesInSwitch: true,
+    noImplicitReturns: true,
+    noUnusedLocals: true,
+    noUnusedParameters: true,
+};
 
+// Ice bundle: bundle the Ice runtime for browser usage.
 gulp.task("ice:bundle", async () => {
-    // Tell rollup to use the browser version of Ice.
     const plugins = [resolve({ browser: true })];
     if (optimize) {
         plugins.push(
@@ -162,13 +188,14 @@ gulp.task("ice:bundle", async () => {
     }
 
     let bundle = await rollup({
-        input: "src/index.js",
+        input: "packages/ice/src/index.js",
         plugins: plugins,
     });
-    bundle.write({
+    await bundle.write({
         file: "dist/ice.js",
         format: "esm",
     });
+    await bundle.close();
 });
 
 // A rollup resolver plugin to resolve "@zeroc/ice" module as an external file.
@@ -184,67 +211,68 @@ function IceResolver() {
     };
 }
 
-gulp.task("test:common:bundle", async () => {
+// Test common: compile Controller.ice and bundle common test infrastructure.
+gulp.task("test:common:build", async () => {
+    await runSlice2js({
+        inputs: [path.resolve("../scripts/Controller.ice")],
+        outputDir: path.resolve("packages/test/Common"),
+        ...sliceOptions,
+    });
+
     let bundle = await rollup({
-        input: ["test/Common/ControllerI.js", "test/Common/ControllerWorker.js"],
+        input: ["packages/test/Common/ControllerI.js", "packages/test/Common/ControllerWorker.js"],
         plugins: [IceResolver()],
     });
-    bundle.write({
+    await bundle.write({
         format: "esm",
-        output: {
-            dir: "dist/test/Common/",
-        },
+        dir: "dist/test/Common/",
     });
+    await bundle.close();
 });
 
-gulp.task("test:common:clean", cb => {
-    deleteAsync(["test/Common/Controller.js", "test/Common/.depend"]);
-    cb();
+gulp.task("test:common:clean", async () => {
+    await deleteAsync(["packages/test/Common/Controller.js", "packages/test/Common/.depend"]);
 });
 
 const testTask = (testName, taskName) => testName.replace(/\//g, "_") + ":" + taskName;
 
 for (const name of tests) {
-    gulp.task(testTask(name, "build"), cb => {
-        const outputDirectory = `${root}/${name}`;
-        pump(
-            [
-                gulp.src(`${outputDirectory}/*.ice`),
-                slice2js({
-                    include: [outputDirectory],
-                    args: ["--typescript"],
-                }),
-                gulp.dest(outputDirectory),
-            ],
-            cb,
-        );
-    });
+    const testDir = `${root}/packages/test/${name}`;
 
-    gulp.task(testTask(name, "ts-compile"), cb => {
-        pump(
-            [
-                gulp.src([`${root}/${name}/*.ts`, `!${root}/${name}/*.d.ts`]),
-                tsc({
-                    lib: ["dom", "es2020"],
-                    target: "es2020",
-                    module: "es2020",
-                    moduleResolution: "bundler",
-                    strict: true,
-                    noImplicitAny: true,
-                    noImplicitOverride: true,
-                    noFallthroughCasesInSwitch: true,
-                    noImplicitReturns: true,
-                    noUnusedLocals: true,
-                    noUnusedParameters: true,
-                }),
-                gulp.dest(`${root}/${name}`),
-            ],
-            cb,
-        );
-    });
+    // Build test: compile .ice → .js/.d.ts, compile .ts → .js (in-place for Node.js), then bundle for browser.
+    gulp.task(testTask(name, "build"), async () => {
+        // Step 1: Compile .ice → .js + .d.ts
+        const iceFiles = fs.existsSync(testDir)
+            ? fs
+                  .readdirSync(testDir)
+                  .filter(f => f.endsWith(".ice"))
+                  .map(f => path.resolve(testDir, f))
+            : [];
 
-    gulp.task(testTask(name, "bundle"), async () => {
-        let input = fs.existsSync(`${name}/index.js`) ? `${name}/index.js` : `${name}/Client.js`;
+        if (iceFiles.length > 0) {
+            await runSlice2js({
+                inputs: iceFiles,
+                outputDir: testDir,
+                args: ["--typescript"],
+                ...sliceOptions,
+            });
+        }
+
+        // Step 2: Compile .ts → .js in-place (for Node.js test runner)
+        await finished(
+            gulp
+                .src([`${testDir}/*.ts`, `!${testDir}/*.d.ts`])
+                .pipe(tsc(tsCompilerOptions))
+                .pipe(gulp.dest(testDir)),
+        );
+
+        // Step 3: Bundle .js files for browser
+        let input;
+        if (fs.existsSync(`packages/test/${name}/index.js`)) {
+            input = `packages/test/${name}/index.js`;
+        } else {
+            input = `packages/test/${name}/Client.js`;
+        }
 
         // Use node-resolve plugin for tests that use npm modules (e.g., test_nested_modules)
         let plugins = [IceResolver(), resolve()];
@@ -252,15 +280,9 @@ for (const name of tests) {
         let bundle = await rollup({
             input: input,
             plugins: plugins,
+            external: ["fs", "path"],
             onwarn: (warning, next) => {
-                // Ignore the "this is undefined" warning, let rollup silently rewrite it.
-                // This avoids warnings from the TypeScript polyfills for async disposable resources.
                 if (warning.code === "THIS_IS_UNDEFINED") return;
-
-                // Ignore unresolved fs/path dynamic imports (Node-only usage)
-                if (warning.code === "UNRESOLVED_IMPORT" && ["fs", "path"].includes(warning.source)) {
-                    return;
-                }
                 next(warning);
             },
         });
@@ -268,61 +290,91 @@ for (const name of tests) {
             file: path.join("dist", name, "index.js"),
             format: "esm",
         });
+        await bundle.close();
     });
 
-    gulp.task(testTask(name, "copy:assets"), async cb => {
-        pump([gulp.src(["test/Common/controller.html", "test/Common/style.css"]), gulp.dest(`dist/${name}`)], cb);
+    gulp.task(testTask(name, "copy:assets"), () => {
+        return gulp
+            .src(["packages/test/Common/controller.html", "packages/test/Common/style.css"])
+            .pipe(gulp.dest(`dist/${name}`));
     });
 
-    createCleanTask(testTask(name, "clean:js"), [`${name}/*.ice`], ".js");
-    createCleanTask(testTask(name, "clean:d.ts"), [`${name}/*.ice`], ".d.ts");
-    createCleanTask(testTask(name, "clean:ts"), [`${name}/*.ts`], ".js");
+    gulp.task(testTask(name, "clean"), async () => {
+        const toDelete = [];
 
-    gulp.task(
-        testTask(name, "clean"),
-        gulp.series(testTask(name, "clean:js"), testTask(name, "clean:d.ts"), testTask(name, "clean:ts")),
-    );
+        if (fs.existsSync(testDir)) {
+            for (const file of fs.readdirSync(testDir)) {
+                // Delete generated .js and .d.ts from .ice sources.
+                if (file.endsWith(".ice")) {
+                    const baseName = path.basename(file, ".ice");
+                    toDelete.push(path.join(testDir, `${baseName}.js`));
+                    toDelete.push(path.join(testDir, `${baseName}.d.ts`));
+                }
+                // Delete compiled .js from .ts sources.
+                // Hand-written .js files (like index.js) won't match since they have no .ts counterpart.
+                if (file.endsWith(".ts") && !file.endsWith(".d.ts")) {
+                    const baseName = path.basename(file, ".ts");
+                    toDelete.push(path.join(testDir, `${baseName}.js`));
+                }
+            }
+        }
+
+        await deleteAsync(toDelete, { force: true });
+    });
 }
 
 // Special handling for moduleAggregation subdirectories (relative, module, and external)
 // These directories contain Slice files but no Client.ts
 const moduleAggregationSubdirs = [
-    "test/Ice/moduleAggregation/relative",
-    "test/Ice/moduleAggregation/module",
-    "test/Ice/moduleAggregation/external",
+    "Ice/moduleAggregation/relative",
+    "Ice/moduleAggregation/module",
+    "Ice/moduleAggregation/external",
 ];
 
 for (const name of moduleAggregationSubdirs) {
-    gulp.task(testTask(name, "build"), cb => {
-        const outputDirectory = `${root}/${name}`;
-        pump(
-            [
-                gulp.src(`${outputDirectory}/*.ice`),
-                slice2js({
-                    include: [outputDirectory],
-                    args: ["--typescript"],
-                }),
-                gulp.dest(outputDirectory),
-            ],
-            cb,
-        );
+    const subDir = `${root}/packages/test/${name}`;
+
+    gulp.task(testTask(name, "build"), async () => {
+        const iceFiles = fs.existsSync(subDir)
+            ? fs
+                  .readdirSync(subDir)
+                  .filter(f => f.endsWith(".ice"))
+                  .map(f => path.resolve(subDir, f))
+            : [];
+
+        if (iceFiles.length > 0) {
+            await runSlice2js({
+                inputs: iceFiles,
+                outputDir: subDir,
+                include: [subDir],
+                args: ["--typescript"],
+                ...sliceOptions,
+            });
+        }
     });
 
-    createCleanTask(testTask(name, "clean:js"), [`${name}/*.ice`], ".js");
-    createCleanTask(testTask(name, "clean:d.ts"), [`${name}/*.ice`], ".d.ts");
-
-    gulp.task(testTask(name, "clean"), gulp.series(testTask(name, "clean:js"), testTask(name, "clean:d.ts")));
+    gulp.task(testTask(name, "clean"), async () => {
+        const toDelete = [];
+        if (fs.existsSync(subDir)) {
+            for (const file of fs.readdirSync(subDir)) {
+                if (file.endsWith(".ice")) {
+                    const baseName = path.basename(file, ".ice");
+                    toDelete.push(path.join(subDir, `${baseName}.js`));
+                    toDelete.push(path.join(subDir, `${baseName}.d.ts`));
+                }
+            }
+        }
+        await deleteAsync(toDelete, { force: true });
+    });
 }
 
 gulp.task(
     "test",
     gulp.series(
         "ice:bundle",
-        "test:common:generate",
-        "test:common:bundle",
-        gulp.series([...tests, ...moduleAggregationSubdirs].map(testName => testTask(testName, "build"))),
-        gulp.series(tests.map(testName => testTask(testName, "ts-compile"))),
-        gulp.series(tests.map(testName => testTask(testName, "bundle"))),
+        "test:common:build",
+        gulp.series(moduleAggregationSubdirs.map(testName => testTask(testName, "build"))),
+        gulp.series(tests.map(testName => testTask(testName, "build"))),
         gulp.series(tests.map(testName => testTask(testName, "copy:assets"))),
     ),
 );
@@ -338,6 +390,35 @@ gulp.task(
     ),
 );
 
-gulp.task("build", gulp.series("dist", "test"));
-gulp.task("clean", gulp.series("dist:clean", "test:clean"));
+gulp.task("test:unplugin", () => {
+    return new Promise((resolve, reject) => {
+        const testDir = path.join("packages/test/Slice/unplugin");
+        const testFiles = fs
+            .readdirSync(path.resolve(root, testDir), { withFileTypes: true })
+            .filter(d => d.isDirectory())
+            .flatMap(d =>
+                fs
+                    .readdirSync(path.resolve(root, testDir, d.name))
+                    .filter(f => f.endsWith(".test.ts"))
+                    .map(f => path.join(testDir, d.name, f)),
+            );
+        execFile("node", ["--test", ...testFiles], { cwd: root }, (err, stdout, stderr) => {
+            if (err) {
+                process.stdout.write(stdout);
+                process.stderr.write(stderr);
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
+    });
+});
+
+gulp.task("build", gulp.series("dist", "test", "test:unplugin"));
+gulp.task(
+    "clean",
+    gulp.series("dist:clean", "test:clean", async () => {
+        await deleteAsync(["node_modules/", "packages/slice2js/dist/"]);
+    }),
+);
 gulp.task("default", gulp.series("build"));

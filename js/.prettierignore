@@ -5,4 +5,4 @@ assets/*
 package-lock.json
 
 # Generated file
-src/Ice/PropertyNames.js
+packages/ice/src/Ice/PropertyNames.js

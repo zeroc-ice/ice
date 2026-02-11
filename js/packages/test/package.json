@@ -1,0 +1,5 @@
+{
+    "name": "@zeroc/ice-test",
+    "private": true,
+    "type": "module"
+}

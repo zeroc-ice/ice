@@ -5,9 +5,10 @@
 - [Table of contents](#table-of-contents)
 - [Prerequisites](#prerequisites)
 - [Build roadmap](#build-roadmap)
+- [Workspace layout](#workspace-layout)
 - [Building Ice for JavaScript](#building-ice-for-javascript)
 - [Running the tests](#running-the-tests)
-- [Creating the NPM package](#creating-the-npm-package)
+- [Creating the NPM packages](#creating-the-npm-packages)
   - [Slice Compilers](#slice-compilers)
 - [Generating the API Reference](#generating-the-api-reference)
 
@@ -29,6 +30,18 @@ flowchart LR
     ice --> tests(Tests)
 ```
 
+## Workspace Layout
+
+The `js/` directory is an npm workspace with three packages:
+
+| Package           | Path                 | Description                                                  |
+|-------------------|----------------------|--------------------------------------------------------------|
+| `@zeroc/ice`      | `packages/ice/`      | Ice for JavaScript runtime (published)                       |
+| `@zeroc/slice2js` | `packages/slice2js/` | Slice-to-JavaScript compiler plugin for bundlers (published) |
+| `@zeroc/ice-test` | `packages/test/`     | Test suite (private, not published)                          |
+
+Build tooling (gulpfile, eslint, prettier configs) lives at the `js/` workspace root.
+
 ## Building Ice for JavaScript
 
 Before building Ice for JavaScript, you must first build the Ice for C++ source distribution.
@@ -42,7 +55,7 @@ npm install
 npm run build
 ```
 
-> On Windows, if you’re not using the default C++ build configuration (i.e., x64/Release), you need to ensure that the
+> On Windows, if you're not using the default C++ build configuration (i.e., x64/Release), you need to ensure that the
 > JavaScript build process can locate the correct `slice2js` compiler. To do this, set the `CPP_PLATFORM` and
 > `CPP_CONFIGURATION` environment variables, or pass the `--cppPlatform` and `--cppConfiguration` arguments to the
 > `npm run build` command to match your C++ platform and configuration settings.
@@ -77,20 +90,27 @@ to load the provided URL in the browser.
 python allTests.py --all --browser Manual
 ```
 
-## Creating the NPM package
+## Creating the NPM Packages
 
-To create the `@zeroc/ice` NPM package, open a command prompt and change to the `js` subdirectory. Then run the
-following command:
+To create the `@zeroc/ice` NPM package, run:
 
 ```shell
+cd packages/ice
+npm pack
+```
+
+To create the `@zeroc/slice2js` NPM package, run:
+
+```shell
+cd packages/slice2js
 npm pack
 ```
 
 ### Slice Compilers
 
-By default, the NPM package `@zeroc/ice` includes only the `slice2js` compiler created by the local C++ build.
+By default, the NPM packages include only the `slice2js` compiler created by the local C++ build.
 
-If you set the environment variable `SLICE2JS_STAGING_PATH`, `@zeroc/ice` includes the `slice2js` compiler for all
+If you set the environment variable `SLICE2JS_STAGING_PATH`, the packages include the `slice2js` compiler for all
 supported platforms. The expected layout of the staging directory is `<os-name>-<os-arch>/<compiler-executable>`,
 with the following subdirectories:
 

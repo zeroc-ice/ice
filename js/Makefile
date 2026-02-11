@@ -22,13 +22,4 @@ npminstall:
 	$(NPM) install
 
 doc: srcs
-	mkdir -p dist
-	node dts-bundle.js
-	npx typedoc \
-        --router structure dist/bundle.d.ts \
-        --disableGit \
-        --disableSources \
-        --customFooterHtml "© ZeroC" \
-        --favicon ../assets/favicon-96x96.png \
-        --hostedBaseUrl https://code.zeroc.com/ice/main/api/javascript/ \
-        --hideGenerator
+	$(NPM) run build-doc
