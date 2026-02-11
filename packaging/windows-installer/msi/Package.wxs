@@ -15,7 +15,7 @@
 
         <SummaryInformation
             Description="Ice Services $(Version)"
-            Comments="Ice Services $(Version) MSI Installer"
+            Comments="Ice Services $(Version) Installer"
             Keywords="DataStorm, Glacier2, Ice, IceBridge, IceGrid, IceStorm" />
 
         <!-- Embed CAB files in MSI -->
@@ -31,7 +31,6 @@
         <Feature Id="MainFeature" Title="Ice" Level="1">
             <ComponentGroupRef Id="InstallFolderComponents" />
             <ComponentGroupRef Id="StartMenuComponents"/>
-            <MergeRef Id="VC143CRT"/>
             <ComponentRef Id="AddToPath" />
         </Feature>
 

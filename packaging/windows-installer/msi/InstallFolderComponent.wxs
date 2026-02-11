@@ -29,7 +29,7 @@
             <!-- The IceGrid GUI jar -->
             <File Source="!(bindpath.SOURCE_ROOT)java\lib\icegridgui.jar" Directory="BinFolder" />
             <!-- Config Files -->
-            <Files Include="!(bindpath.SOURCE_ROOT)packaging\msi\config\*.cfg" Directory="ConfigFolder" />
+            <Files Include="!(bindpath.SOURCE_ROOT)packaging\windows-installer\config\*.cfg" Directory="ConfigFolder" />
             <Files Include="!(bindpath.SOURCE_ROOT)cpp\config\templates.xml" Directory="ConfigFolder" />
             <!-- License Files -->
             <File Id="License"
@@ -39,7 +39,7 @@
                   Source="!(bindpath.SOURCE_ROOT)ICE_LICENSE"
                   Name="ICE_LICENSE.txt"/>
             <File Id="ThirdPartyLicense"
-                  Source="!(bindpath.SOURCE_ROOT)packaging\msi\docs\THIRD_PARTY_LICENSE.txt"/>
+                  Source="!(bindpath.SOURCE_ROOT)packaging\windows-installer\docs\THIRD_PARTY_LICENSE.txt"/>
         </ComponentGroup>
     </Fragment>
 </Wix>

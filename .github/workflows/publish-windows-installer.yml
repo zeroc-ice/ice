@@ -1,0 +1,97 @@
+name: "Publish Windows Installer"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The release channel (e.g., 3.9, 3.8)"
+        required: true
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
+        required: true
+        default: "nightly"
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      quality:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+  publish-windows-installer:
+    name: "Publish Windows Installer"
+    runs-on: "ubuntu-24.04"
+    steps:
+      - name: Download installer artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "windows-installer" --dir staging
+
+      - name: Publish Installer Packages
+        run: |
+          if [ "${QUALITY}" = "stable" ]; then
+            UPLOAD_PATH="ice/${CHANNEL}"
+            aws s3 cp staging/windows-installer/*.exe "s3://zeroc-downloads/${UPLOAD_PATH}/"
+          else
+            UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}"
+            # Rename the installer for non-stable releases to include the quality in the filename
+            aws s3 cp staging/windows-installer/*.exe "s3://zeroc-downloads/${UPLOAD_PATH}/Ice-Services-${QUALITY}.exe"
+          fi
+
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          CHANNEL: ${{ inputs.channel }}
+          QUALITY: ${{ inputs.quality }}
+
+  publish-winget:
+    name: "Publish to WinGet"
+    if: ${{ inputs.quality == 'stable' }}
+    continue-on-error: true
+    needs: publish-windows-installer
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Load version
+        run: |
+          source ./config/version.env
+          echo "BASE_VERSION=${BASE_VERSION}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Download installer artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run download "${{ inputs.run_id }}" --repo zeroc-ice/ice --pattern "windows-installer" --dir staging
+
+      - name: Submit to WinGet
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          WINGET_PAT: ${{ secrets.WINGET_GITHUB_PAT }}
+        run: |
+          $exeFile = Get-ChildItem staging/windows-installer/*.exe | Select-Object -First 1
+          $downloadUrl = "https://download.zeroc.com/ice/${env:CHANNEL}/$($exeFile.Name)"
+
+          Write-Host "Download URL: $downloadUrl"
+          Write-Host "Version: $env:BASE_VERSION"
+
+          Invoke-WebRequest https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+
+          .\wingetcreate.exe update ZeroC.IceServices `
+            --urls $downloadUrl `
+            --version $env:BASE_VERSION `
+            --submit `
+            --token $env:WINGET_PAT
+        shell: pwsh

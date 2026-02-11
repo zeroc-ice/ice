@@ -7,7 +7,7 @@
         <Property Id="UiFragment" Hidden="true"/>
 
         <!-- Define the product icon -->
-        <Icon Id="icon.ico" SourceFile="!(bindpath.SOURCE_ROOT)packaging\msi\resources\product.ico"/>
+        <Icon Id="icon.ico" SourceFile="!(bindpath.SOURCE_ROOT)packaging\windows-installer\resources\product.ico"/>
         <Property Id="ARPPRODUCTICON" Value="icon.ico" />
 
         <!-- Set the default install folder -->
@@ -17,11 +17,11 @@
         <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="View Release Notes" />
 
         <!-- Use the default WixUI_InstallDir dialog set and personalize the license an images -->
-        <WixVariable Id="WixUILicenseRtf" Value="!(bindpath.SOURCE_ROOT)packaging\msi\docs\LICENSE.rtf"/>
-        <WixVariable Id="WixUIBannerBmp" Value="!(bindpath.SOURCE_ROOT)packaging\msi\resources\top-banner.png"/>
-        <WixVariable Id="WixUIDialogBmp" Value="!(bindpath.SOURCE_ROOT)packaging\msi\resources\dialog.png"/>
+        <WixVariable Id="WixUILicenseRtf" Value="!(bindpath.SOURCE_ROOT)packaging\windows-installer\docs\LICENSE.rtf"/>
+        <WixVariable Id="WixUIBannerBmp" Value="!(bindpath.SOURCE_ROOT)packaging\windows-installer\resources\top-banner.png"/>
+        <WixVariable Id="WixUIDialogBmp" Value="!(bindpath.SOURCE_ROOT)packaging\windows-installer\resources\dialog.png"/>
 
-        <!-- This UI is and updated version of WixUI_InstallDir to use IceInstallDirDlg instead of the default InstallDirDlg
+        <!-- This UI is an updated version of WixUI_InstallDir to use IceInstallDirDlg instead of the default InstallDirDlg
         see: https://github.com/wixtoolset/wix/blob/ffbfeb3c0b9cb8084bd366404c0cb06d42e8caaf/src/ext/UI/wixlib/WixUI_InstallDir.wxs#L1
          -->
        <UI Id="IceInstallerUI">
