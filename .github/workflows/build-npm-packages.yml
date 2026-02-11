@@ -80,6 +80,9 @@ jobs:
         with:
           path: ice
 
+      - name: Setup Node
+        uses: ./ice/.github/actions/setup-node
+
       - name: Download All slice2js Compiler Artifacts
         uses: actions/download-artifact@v4
         with:
@@ -109,7 +112,7 @@ jobs:
           chmod +x $GITHUB_WORKSPACE/ice/cpp/bin/slice2js
 
       - name: Build JS
-        run: make
+        run: make srcs
         working-directory: ice/js
 
       - name: Update Version - @zeroc/ice
