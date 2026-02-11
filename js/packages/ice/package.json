@@ -31,7 +31,6 @@
     "bin": {
         "slice2js": "./bin/slice2js"
     },
-    "browserslist": "> 0.25%, not dead",
     "files": [
         "src/",
         "bin/",

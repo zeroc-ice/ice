@@ -34,11 +34,11 @@ flowchart LR
 
 The `js/` directory is an npm workspace with three packages:
 
-| Package | Path | Description |
-|---------|------|-------------|
-| `@zeroc/ice` | `packages/ice/` | Ice for JavaScript runtime (published) |
+| Package           | Path                 | Description                                                  |
+|-------------------|----------------------|--------------------------------------------------------------|
+| `@zeroc/ice`      | `packages/ice/`      | Ice for JavaScript runtime (published)                       |
 | `@zeroc/slice2js` | `packages/slice2js/` | Slice-to-JavaScript compiler plugin for bundlers (published) |
-| `@zeroc/ice-test` | `packages/test/` | Test suite (private, not published) |
+| `@zeroc/ice-test` | `packages/test/`     | Test suite (private, not published)                          |
 
 Build tooling (gulpfile, eslint, prettier configs) lives at the `js/` workspace root.
 

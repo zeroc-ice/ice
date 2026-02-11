@@ -1,0 +1,46 @@
+#!/usr/bin/env node
+
+// Copyright (c) ZeroC, Inc.
+
+import { spawn } from "node:child_process";
+import path from "node:path";
+import os from "node:os";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+let platformPrefix;
+let archPrefix;
+let exe;
+
+switch (os.platform()) {
+    case "win32":
+        platformPrefix = "windows";
+        archPrefix = "x64";
+        exe = "slice2js.exe";
+        break;
+    case "darwin":
+        platformPrefix = "macos";
+        archPrefix = "arm64";
+        exe = "slice2js";
+        break;
+    case "linux":
+        platformPrefix = "linux";
+        archPrefix = os.arch();
+        exe = "slice2js";
+        break;
+    default:
+        console.error(`Unsupported platform: ${os.platform()}`);
+        process.exit(1);
+}
+
+const compiler = path.resolve(__dirname, `${platformPrefix}-${archPrefix}`, exe);
+const slicePath = path.resolve(__dirname, "..", "slice");
+const args = [...process.argv.slice(2), `-I${slicePath}`];
+
+const proc = spawn(compiler, args, { stdio: "inherit" });
+proc.on("error", (err) => {
+    console.error(`Error executing slice2js: ${err.message}`);
+    process.exit(1);
+});
+proc.on("exit", (code) => process.exit(code ?? 1));
