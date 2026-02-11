@@ -343,11 +343,6 @@ Slice::Csharp::writeDocLines(Output& out, const string& openTag, const StringLis
             return;
         }
 
-        if (!closeTag)
-        {
-            closeTag = openTag;
-        }
-
         bool firstLine = true;
 
         for (const auto& line : lines)
@@ -367,7 +362,7 @@ Slice::Csharp::writeDocLines(Output& out, const string& openTag, const StringLis
             }
             out << line;
         }
-        out << "</" << *closeTag << ">";
+        out << "</" << closeTag.value_or(openTag) << ">";
     }
 }
 
