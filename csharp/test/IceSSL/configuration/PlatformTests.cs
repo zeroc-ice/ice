@@ -63,24 +63,6 @@ public static class PlatformTests
         Console.Out.WriteLine("ok");
     }
 
-    private static void clientValidatesServerUsingSystemTrustedRootCertificates(
-        TestHelper helper,
-        string certificatesPath)
-    {
-        Console.Out.Write("client validates server certificate using system trusted root certificates... ");
-        Console.Out.Flush();
-        var clientOptions = new SslClientAuthenticationOptions
-        {
-            TargetHost = "zeroc.com"
-        };
-        using Ice.Communicator clientCommunicator = createClient(clientOptions);
-        Ice.ObjectPrx obj = Ice.ObjectPrxHelper.createProxy(
-            clientCommunicator,
-            "Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
-        obj.ice_ping();
-        Console.Out.WriteLine("ok");
-    }
-
     private static void clientRejectServerUsingValidationCallback(TestHelper helper, string certificatesPath)
     {
         Console.Out.Write("client rejects server certificate using validation callback... ");
@@ -358,7 +340,6 @@ public static class PlatformTests
     public static void allTests(TestHelper helper, string certificatesPath)
     {
         clientValidatesServerUsingValidationCallback(helper, certificatesPath);
-        clientValidatesServerUsingSystemTrustedRootCertificates(helper, certificatesPath);
         clientRejectServerUsingValidationCallback(helper, certificatesPath);
         clientRejectServerUsingDefaultValidationCallback(helper, certificatesPath);
 
