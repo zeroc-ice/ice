@@ -3,9 +3,7 @@
 package test.IceSSL.configuration;
 
 import com.zeroc.Ice.Communicator;
-import com.zeroc.Ice.ConnectTimeoutException;
 import com.zeroc.Ice.ConnectionLostException;
-import com.zeroc.Ice.DNSException;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.InitializationException;
 import com.zeroc.Ice.LocalException;
@@ -13,8 +11,6 @@ import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.SSL.ConnectionInfo;
 import com.zeroc.Ice.SecurityException;
-import com.zeroc.Ice.SocketException;
-import com.zeroc.Ice.WSConnectionInfo;
 
 import test.IceSSL.configuration.Test.ServerFactoryPrx;
 import test.IceSSL.configuration.Test.ServerPrx;
@@ -1238,87 +1234,6 @@ public class AllTests {
                 test(false);
             }
             fact.destroyServer(server);
-            comm.destroy();
-        }
-        out.println("ok");
-
-        out.print("testing system CAs... ");
-        out.flush();
-        {
-            // Retry a few times in case there are connectivity problems with demo.zeroc.com.
-            final int retryMax = 5;
-            final int retryDelay = 1000;
-            int retryCount = 0;
-
-            initData = createClientProps(defaultProperties);
-            Communicator comm = new Communicator(initData);
-            ObjectPrx p =
-                comm.stringToProxy(
-                    "dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
-            while (true) {
-                try {
-                    p.ice_ping();
-                    test(false);
-                } catch (SecurityException ex) {
-                    // Expected, by default we don't check for system CAs.
-                    break;
-                } catch (LocalException ex) {
-                    if ((ex instanceof ConnectTimeoutException)
-                        || (ex instanceof SocketException)
-                        || (ex instanceof DNSException)) {
-                        if (++retryCount < retryMax) {
-                            out.print("retrying... ");
-                            out.flush();
-                            try {
-                                Thread.sleep(retryDelay);
-                            } catch (InterruptedException e) {
-                                break;
-                            }
-                            continue;
-                        }
-                    }
-
-                    out.print("warning: unable to connect to demo.zeroc.com to check system CA\n");
-                    ex.printStackTrace();
-                    break;
-                }
-            }
-            comm.destroy();
-
-            retryCount = 0;
-            initData = createClientProps(defaultProperties);
-            initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
-            comm = new Communicator(initData);
-            p = comm.stringToProxy("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
-            while (true) {
-                try {
-                    WSConnectionInfo info =
-                        (WSConnectionInfo) p.ice_getConnection().getInfo();
-                    ConnectionInfo sslinfo =
-                        (ConnectionInfo) info.underlying;
-                    test(sslinfo.verified);
-                    break;
-                } catch (LocalException ex) {
-                    if ((ex instanceof ConnectTimeoutException)
-                        || (ex instanceof SocketException)
-                        || (ex instanceof DNSException)) {
-                        if (++retryCount < retryMax) {
-                            out.print("retrying... ");
-                            out.flush();
-                            try {
-                                Thread.sleep(retryDelay);
-                            } catch (InterruptedException e) {
-                                break;
-                            }
-                            continue;
-                        }
-                    }
-
-                    out.print("warning: unable to connect to demo.zeroc.com to check system CA\n");
-                    ex.printStackTrace();
-                    break;
-                }
-            }
             comm.destroy();
         }
         out.println("ok");

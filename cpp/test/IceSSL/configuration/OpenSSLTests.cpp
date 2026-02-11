@@ -170,22 +170,6 @@ clientValidatesServerUsingValidationCallback(Test::TestHelper* helper, const str
 }
 
 void
-clientValidatesServerUsingSystemTrustedRootCertificates(Test::TestHelper*, const string&)
-{
-    cout << "client validates server using system trusted root certificates... " << flush;
-    SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_client_method());
-    SSL_CTX_set_default_verify_paths(clientSSLContext);
-    Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{};
-    Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
-
-    Ice::ObjectPrx obj(
-        clientCommunicator.communicator(),
-        "Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
-    obj->ice_ping();
-    cout << "ok" << endl;
-}
-
-void
 clientRejectsServerUsingCAFile(Test::TestHelper* helper, const string& testDir)
 {
     cout << "client rejects server certificate using a CAFile... " << flush;
@@ -826,7 +810,6 @@ allAuthenticationOptionsTests(Test::TestHelper* helper, const string& testDir)
 
     clientValidatesServerUsingCAFile(helper, testDir);
     clientValidatesServerUsingValidationCallback(helper, testDir);
-    clientValidatesServerUsingSystemTrustedRootCertificates(helper, testDir);
     clientRejectsServerUsingCAFile(helper, testDir);
     clientRejectsServerUsingDefaultSettings(helper, testDir);
     clientRejectsServerUsingValidationCallback(helper, testDir);

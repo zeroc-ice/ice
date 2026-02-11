@@ -2358,96 +2358,6 @@ testOcspRevocation(const string&, const string&, const Ice::PropertiesPtr&, bool
 }
 #endif
 
-void
-testSystemCAs(const Ice::PropertiesPtr& defaultProps)
-{
-    cout << "testing system CAs... " << flush;
-    //
-    // Retry a few times in case there are connectivity problems with demo.zeroc.com.
-    //
-    const int retryMax = 5;
-    const int retryDelay = 1000;
-
-    {
-        int retryCount = 0;
-        InitializationData initData;
-        initData.properties = createClientProps(defaultProps, false);
-        initData.properties->setProperty("IceSSL.DefaultDir", "");
-        initData.properties->setProperty("IceSSL.CheckCertName", "2");
-        initData.pluginFactories = {Ice::wsPluginFactory()};
-        CommunicatorPtr comm = initialize(initData);
-        Ice::ObjectPrx p(comm, "Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
-        while (true)
-        {
-            try
-            {
-                p->ice_ping();
-                test(false);
-            }
-            catch (const Ice::SecurityException&)
-            {
-                // Expected, by default we don't check for system CAs.
-                break;
-            }
-            catch (const Ice::LocalException& ex)
-            {
-                if ((dynamic_cast<const Ice::ConnectTimeoutException*>(&ex)) ||
-                    (dynamic_cast<const Ice::SocketException*>(&ex)) || (dynamic_cast<const Ice::DNSException*>(&ex)))
-                {
-                    if (++retryCount < retryMax)
-                    {
-                        cout << "retrying... " << flush;
-                        this_thread::sleep_for(chrono::milliseconds(retryDelay));
-                        continue;
-                    }
-                }
-
-                cerr << "warning: unable to connect to demo.zeroc.com to check system CA:\n" << ex << endl;
-                break;
-            }
-        }
-        comm->destroy();
-    }
-
-    {
-        int retryCount = 0;
-        InitializationData initData;
-        initData.properties = createClientProps(defaultProps, false);
-        initData.properties->setProperty("IceSSL.DefaultDir", "");
-        initData.properties->setProperty("IceSSL.UsePlatformCAs", "1");
-        initData.properties->setProperty("IceSSL.CheckCertName", "2");
-        initData.pluginFactories = {Ice::wsPluginFactory()};
-        CommunicatorPtr comm = initialize(initData);
-        Ice::ObjectPrx p(comm, "Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
-        while (true)
-        {
-            try
-            {
-                p->ice_ping();
-                break;
-            }
-            catch (const Ice::LocalException& ex)
-            {
-                if ((dynamic_cast<const Ice::ConnectTimeoutException*>(&ex)) ||
-                    (dynamic_cast<const Ice::SocketException*>(&ex)) || (dynamic_cast<const Ice::DNSException*>(&ex)))
-                {
-                    if (++retryCount < retryMax)
-                    {
-                        cout << "retrying... " << flush;
-                        this_thread::sleep_for(chrono::milliseconds(retryDelay));
-                        continue;
-                    }
-                }
-
-                cerr << "warning: unable to connect to demo.zeroc.com to check system CA:\n" << ex << endl;
-                break;
-            }
-        }
-        comm->destroy();
-    }
-    cout << "ok" << endl;
-}
-
 Test::ServerFactoryPrx
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
 allTests(Test::TestHelper* helper, const string& defaultDir, bool p12)
@@ -2473,7 +2383,6 @@ allTests(Test::TestHelper* helper, const string& defaultDir, bool p12)
     testTrustOnly(factory, defaultProps, p12);
     testCrlRevocation(factory, defaultDir, defaultProps, p12);
     testOcspRevocation(factory, defaultDir, defaultProps, p12);
-    testSystemCAs(defaultProps);
 
     return Test::ServerFactoryPrx{communicator, factory};
 }
