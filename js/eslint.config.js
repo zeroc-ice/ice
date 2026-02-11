@@ -6,7 +6,7 @@ export default tseslint.config(
     eslint.configs.recommended,
     tseslint.configs.recommended,
     {
-        ignores: ["packages/test/**/*.js", "dist/**", "coverage-report/**", "docs/**"],
+        ignores: ["packages/test/**/*.js", "dist/**", "packages/slice2js/dist/**", "coverage-report/**", "docs/**"],
     },
     {
         linterOptions: {
