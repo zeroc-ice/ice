@@ -4,9 +4,9 @@ The Slice-to-JavaScript compiler and build plugin for [Ice].
 
 This package provides:
 
-- The `slice2js` compiler, which compiles Slice definitions (`.ice` files) into JavaScript and TypeScript
-- Build plugins for [Vite], [Rollup], [webpack], and [esbuild] via [unplugin]
-- A programmatic API for running the compiler
+- The `slice2js` compiler, which compiles Slice definitions (`.ice` files) into JavaScript and TypeScript.
+- Build plugins for [Vite], [Rollup], [webpack], and [esbuild] via [unplugin].
+- A programmatic API for running the compiler.
 
 ## Installation
 
