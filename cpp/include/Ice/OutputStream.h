@@ -676,6 +676,26 @@ namespace Ice
         //
         void writeConverted(const char*, size_t);
 
+        /// Writes a 1-byte size placeholder and returns its position; after writing the data, call
+        /// #endOneByteSize to patch the placeholder with the actual size at the given position.
+        /// @return The position of the 1-byte size placeholder.
+        size_type startOneByteSize()
+        {
+            size_type position = b.size();
+            write(std::uint8_t(0)); // placeholder
+            return position;
+        }
+
+        /// Updates the 1-byte size value at the given position. The new size is computed from the stream's current
+        /// position. The size must be <= 254.
+        /// @param position The position of the 1-byte size placeholder as returned by #startOneByteSize.
+        void endOneByteSize(size_type position)
+        {
+            auto size = static_cast<std::int32_t>(b.size() - position - 1);
+            assert(size >= 0 && size <= 254);
+            rewriteSize(size, b.begin() + position);
+        }
+
         StringConverterPtr _stringConverter;
         WstringConverterPtr _wstringConverter;
 
