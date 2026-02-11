@@ -2986,7 +2986,7 @@ class BrowserProcessController(RemoteProcessController):
             protocol = "http"
             port = "8080"
             cport = "15002"
-        url = "{0}://{5}:{1}/test/{2}/controller.html?port={3}&worker={4}".format(
+        url = "{0}://{5}:{1}/{2}/controller.html?port={3}&worker={4}".format(
             protocol, port, testsuite, cport, current.config.worker, self.host
         )
         if url != self.url:

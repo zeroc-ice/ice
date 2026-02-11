@@ -99,7 +99,7 @@ class ProcessControllerI extends Test.Common.BrowserProcessController {
                 "Client.js": "Client",
             };
 
-            const module = await import(`/test/${testSuite}/index.js`);
+            const module = await import(`/${testSuite}/index.js`);
             const cls = module[entryPoints[exe]];
             const test = new cls();
             test.setControllerHelper(helper);

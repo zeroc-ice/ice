@@ -22,7 +22,7 @@ self.onmessage = async e => {
             "Client.js": "Client",
         };
 
-        const module = await import(`/test/${e.data.testSuite}/index.js`);
+        const module = await import(`/${e.data.testSuite}/index.js`);
         const cls = module[entryPoints[e.data.exe]];
 
         const test = new cls();
