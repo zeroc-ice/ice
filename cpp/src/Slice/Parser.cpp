@@ -641,11 +641,20 @@ string
 Slice::Contained::mappedName() const
 {
     // First check if any 'xxx:identifier' has been applied to this element.
-    // If so, we return that instead of the element's Slice identifier.
-    const string metadata = unit()->languageName() + ":identifier";
-    if (auto customName = getMetadataArgs(metadata))
+    // If so, we return it as-is.
+    if (auto customName = getCustomMappedName())
     {
         return *customName;
+    }
+
+    if (unit()->normalizeCase())
+    {
+        if (unit()->languageName() == "cs")
+        {
+            // Most C# identifiers use PascalCase. We override mappedName for camel case identifiers.
+            return toPascalCase(_name);
+        }
+        // We currently don't support case-normalization for other languages.
     }
 
     return _name;
@@ -805,6 +814,19 @@ Slice::Contained::Contained(const ContainerPtr& container, string name) : _conta
     _docComment = DocComment::createUnparsed(unit->currentDocComment());
     _includeLevel = unit->currentIncludeLevel();
     _definitionContext = unit->currentDefinitionContext();
+}
+
+optional<string>
+Slice::Contained::getCustomMappedName() const
+{
+    if (auto customName = getMetadataArgs(unit()->languageName() + ":identifier"))
+    {
+        return *customName;
+    }
+    else
+    {
+        return nullopt;
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -4203,6 +4225,27 @@ Slice::Parameter::kindOf() const
     return "parameter";
 }
 
+string
+Slice::Parameter::mappedName() const
+{
+    // First check if any 'xxx:identifier' has been applied to this element.
+    // If so, we return it as-is.
+    if (auto customName = getCustomMappedName())
+    {
+        return *customName;
+    }
+
+    if (unit()->normalizeCase())
+    {
+        if (unit()->languageName() == "cs")
+        {
+            return toCamelCase(_name);
+        }
+    }
+
+    return _name;
+}
+
 void
 Slice::Parameter::visit(ParserVisitor* visitor)
 {
@@ -4262,6 +4305,27 @@ Slice::DataMember::kindOf() const
     return "data member";
 }
 
+string
+Slice::DataMember::mappedParamName() const
+{
+    // First check if any 'xxx:identifier' has been applied to this element.
+    // If so, we return it as-is.
+    if (auto customName = getCustomMappedName())
+    {
+        return *customName;
+    }
+
+    if (unit()->normalizeCase())
+    {
+        if (unit()->languageName() == "cs")
+        {
+            return toCamelCase(_name);
+        }
+    }
+
+    return _name;
+}
+
 void
 Slice::DataMember::visit(ParserVisitor* visitor)
 {
@@ -4292,15 +4356,21 @@ Slice::DataMember::DataMember(
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(string languageName, bool all)
+Slice::Unit::createUnit(string languageName, UnitOptions options)
 {
-    return make_shared<Unit>(std::move(languageName), all);
+    return make_shared<Unit>(std::move(languageName), std::move(options));
 }
 
 string
 Slice::Unit::languageName() const
 {
     return _languageName;
+}
+
+bool
+Slice::Unit::normalizeCase() const
+{
+    return _normalizeCase;
 }
 
 void
@@ -4842,9 +4912,10 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(string languageName, bool all) : _languageName(std::move(languageName)), _all(all)
+Slice::Unit::Unit(string languageName, UnitOptions options)
+    : _languageName(std::move(languageName)), _all(options.all), _normalizeCase(options.normalizeCase)
 {
-    if (!languageName.empty())
+    if (!_languageName.empty())
     {
         assert(binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], _languageName));
     }

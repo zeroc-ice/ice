@@ -388,7 +388,7 @@ namespace Slice
         // Functions for getting the mapped name of an element.
 
         /// Returns the mapped identifier that this element will use in the target language.
-        [[nodiscard]] std::string mappedName() const;
+        [[nodiscard]] virtual std::string mappedName() const;
 
         /// Returns the mapped fully-scoped identifier that this element will use in the target language.
         /// @param separator This string will be used to separate scope segments.
@@ -436,6 +436,8 @@ namespace Slice
         friend class DocCommentParser;
 
         Contained(const ContainerPtr& container, std::string name);
+
+        [[nodiscard]] std::optional<std::string> getCustomMappedName() const;
 
         ContainerPtr _container;
         std::string _name;
@@ -1017,6 +1019,9 @@ namespace Slice
         [[nodiscard]] bool optional() const;
         [[nodiscard]] std::int32_t tag() const;
         [[nodiscard]] std::string kindOf() const final;
+
+        [[nodiscard]] std::string mappedName() const final;
+
         void visit(ParserVisitor* visitor) final;
 
     private:
@@ -1049,6 +1054,10 @@ namespace Slice
         [[nodiscard]] std::optional<std::string> defaultValue() const;
         [[nodiscard]] SyntaxTreeBasePtr defaultValueType() const;
         [[nodiscard]] std::string kindOf() const final;
+
+        /// Gets the name of the corresponding constructor parameter in the target language.
+        [[nodiscard]] std::string mappedParamName() const;
+
         void visit(ParserVisitor* visitor) final;
 
     private:
@@ -1063,14 +1072,28 @@ namespace Slice
     // Unit
     // ----------------------------------------------------------------------
 
+    /// Options for creating a Unit.
+    struct UnitOptions
+    {
+        /// When true, generate code for Slice definitions in included files.
+        bool all{false};
+
+        /// When true, mappedName and related functions normalize the case of identifiers to match the target
+        /// language's conventions unless a lang:identifier is explicitly provided.
+        /// When false, mappedName and related functions return the raw Slice identifier unless a lang:identifier is
+        /// explicitly provided.
+        bool normalizeCase{false};
+    };
+
     class Unit final : public Container
     {
     public:
-        static UnitPtr createUnit(std::string languageName, bool all);
+        static UnitPtr createUnit(std::string languageName, UnitOptions options = {});
 
-        Unit(std::string languageName, bool all);
+        Unit(std::string languageName, UnitOptions options);
 
         [[nodiscard]] std::string languageName() const;
+        [[nodiscard]] bool normalizeCase() const;
 
         /// Sets `_currentDocComment` to the provided string, erasing anything currently stored in it.
         /// @param comment The raw comment string. It can span multiple lines and include comment formatting characters
@@ -1154,6 +1177,7 @@ namespace Slice
 
         const std::string _languageName;
         bool _all;
+        bool _normalizeCase;
         int _errors{0};
         std::string _currentDocComment;
         int _currentIncludeLevel{0};

@@ -207,7 +207,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            unit = Unit::createUnit("cpp", false);
+            unit = Unit::createUnit("cpp");
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
             preprocessor->close();

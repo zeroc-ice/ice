@@ -14,6 +14,15 @@ namespace Slice
     std::string removeExtension(const std::string& path);
     std::string baseName(const std::string& path);
     std::string dirName(const std::string& path);
+
+    /// Converts a string to Pascal case. The input string must be a valid Slice identifier. For example, "myClass"
+    /// becomes "MyClass".
+    std::string toPascalCase(const std::string& s);
+
+    /// Converts a string to camel case. The input string must be a valid Slice identifier. For example, "MyClass"
+    /// becomes "myClass".
+    std::string toCamelCase(const std::string& s);
+
     void emitError(std::string_view file, int line, std::string_view message);
     void emitWarning(std::string_view file, int line, std::string_view message);
     void emitRaw(const char* message);

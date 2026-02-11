@@ -232,7 +232,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            unit = Unit::createUnit("cs", false);
+            unit = Unit::createUnit("cs");
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
             preprocessor->close();

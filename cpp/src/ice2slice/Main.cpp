@@ -178,7 +178,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            unit = Unit::createUnit("", false);
+            unit = Unit::createUnit("");
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
             preprocessor->close();
