@@ -28,7 +28,8 @@
             Variable="VCRedistInstalled" />
 
         <Chain>
-            <!-- VC++ 2015-2022 Redistributable (x64) — always installed silently -->
+            <!-- VC++ 2015-2022 Redistributable (x64) — installed silently; vc_redist.x64.exe
+                 handles upgrade scenarios internally when an older version is detected. -->
             <ExePackage
                 Id="VCRedist_x64"
                 Name="vc_redist.x64.exe"
@@ -39,8 +40,7 @@
                 Protocol="burn"
                 DetectCondition="VCRedistInstalled = 1"
                 InstallArguments="/install /quiet /norestart"
-                RepairArguments="/repair /quiet /norestart"
-                UninstallArguments="/uninstall /quiet /norestart" />
+                RepairArguments="/repair /quiet /norestart" />
 
             <!-- Ice Services MSI — the MSI's internal UI handles all user interaction -->
             <MsiPackage
