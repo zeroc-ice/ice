@@ -36,6 +36,8 @@ switch (os.platform()) {
 const allSupportedPlatforms = ["windows-x64", "macos-arm64", "linux-x64", "linux-arm64"];
 
 const iceHome = path.resolve(__dirname, "../../../..");
+const readmeSource = path.resolve(iceHome, "js/README.md");
+const readmeDest = path.resolve(__dirname, "../README.md");
 const sliceSourceDir = path.resolve(iceHome, "slice");
 const sliceDestDir = path.resolve(__dirname, "../slice");
 let cppBinDir = path.resolve(iceHome, "cpp/bin");
@@ -57,6 +59,10 @@ function copyFolderSync(src, dest) {
         }
     });
 }
+
+console.log(`Copying README.md from ${readmeSource} to ${readmeDest}...`);
+fs.copyFileSync(readmeSource, readmeDest);
+console.log("Done.");
 
 if (!fs.existsSync(sliceSourceDir)) {
     console.error(`Slice source directory not found: ${sliceSourceDir}`);
