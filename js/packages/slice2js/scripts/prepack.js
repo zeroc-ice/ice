@@ -1,5 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
+// Prepack script for @zeroc/slice2js. Bundles the Slice definitions and platform-specific slice2js compiler
+// binaries into the package directory before packing. When SLICE2JS_STAGING_PATH is set, all supported
+// platform binaries are copied from the staging directory; otherwise, the locally built binary is used.
+
 import fs from "fs";
 import os from "os";
 import path from "path";
