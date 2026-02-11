@@ -311,7 +311,7 @@ Slice::Csharp::isMappedToRequiredField(const DataMemberPtr& p)
 }
 
 void
-Slice::Csharp::writeDocLine(Output& out, const string& openTag, const string& comment, std::optional<string> closeTag)
+Slice::Csharp::writeDocLine(Output& out, const string& openTag, const string& comment, const std::optional<string>& closeTag)
 {
     if (comment.empty())
     {
@@ -322,7 +322,7 @@ Slice::Csharp::writeDocLine(Output& out, const string& openTag, const string& co
 }
 
 void
-Slice::Csharp::writeDocLines(Output& out, const string& openTag, const StringList& lines, optional<string> closeTag)
+Slice::Csharp::writeDocLines(Output& out, const string& openTag, const StringList& lines, const optional<string>& closeTag)
 {
     // If there is a single line, write the doc-comment as a single line. Otherwise, write the doc-comment on
     // multiple lines.
