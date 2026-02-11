@@ -333,7 +333,6 @@ Slice::Csharp::writeDocLines(Output& out, const string& openTag, const StringLis
     }
     else if (lines.size() > 1)
     {
-
         bool firstLine = true;
 
         for (const auto& line : lines)
