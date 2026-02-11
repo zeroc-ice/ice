@@ -7,6 +7,7 @@
 #include "Util.h"
 #include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <climits>
 #include <cstring>
 

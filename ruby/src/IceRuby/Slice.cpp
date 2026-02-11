@@ -100,7 +100,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
                     throw RubyException(rb_eArgError, "Slice preprocessing failed");
                 }
 
-                unit = Unit::createUnit("ruby", all);
+                unit = Unit::createUnit("ruby", {.all = all});
                 int parseStatus = unit->parse(file, preprocessedHandle, debug);
 
                 preprocessor->close();
