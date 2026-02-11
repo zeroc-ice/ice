@@ -69,13 +69,23 @@ namespace
         // the object with a new one and then that new one was quickly deallocated.
         if (auto p = cachedObjects->find(_cppObject.get()); p != cachedObjects->end())
         {
-            // The object in the cache is either nil or NOT the current object. The later can happen if this thread was
-            // trying to deallocate the object while another thread was trying to create a new one.
-            assert(p->second == nil || p->second != self);
+            // Load the weak reference once into a local strong variable. Each implicit read of a __weak
+            // variable (p->second) calls objc_loadWeakRetained, creating a temporary strong reference that ARC
+            // releases immediately after use. If that release drops the refcount to 0, it triggers a recursive
+            // dealloc on the same thread. Since @synchronized is reentrant, the recursive dealloc can enter this
+            // critical section and erase the same map entry—invalidating iterator p and causing a crash.
+            //
+            // By loading once, there is a single release at scope exit—after erase(p) has already consumed the
+            // iterator (when cached is nil) or after p is no longer used (when cached is non-nil).
+            ICELocalObject* cached = p->second;
 
-            // When the last reference on this object is released, p->second is nil and we remove the stale entry from
-            // the cache.
-            if (p->second == nil)
+            // The object in the cache is either nil or NOT the current object. The latter can happen if this
+            // thread was trying to deallocate the object while another thread was trying to create a new one.
+            assert(cached == nil || cached != self);
+
+            // When the last reference on this object is released, cached is nil and we remove the stale entry
+            // from the cache.
+            if (cached == nil)
             {
                 cachedObjects->erase(p);
             }
