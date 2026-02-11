@@ -318,12 +318,7 @@ Slice::Csharp::writeDocLine(Output& out, const string& openTag, const string& co
         return;
     }
 
-    if (!closeTag)
-    {
-        closeTag = openTag;
-    }
-
-    out << nl << "/// <" << openTag << ">" << comment << "</" << *closeTag << ">";
+    out << nl << "/// <" << openTag << ">" << comment << "</" << closeTag.value_or(openTag) << ">";
 }
 
 void
@@ -336,12 +331,8 @@ Slice::Csharp::writeDocLines(Output& out, const string& openTag, const StringLis
     {
         writeDocLine(out, openTag, lines.front(), closeTag);
     }
-    else
+    else if (lines.size() > 1)
     {
-        if (lines.empty())
-        {
-            return;
-        }
 
         bool firstLine = true;
 
