@@ -78,10 +78,28 @@ RPM_BUILD_ROOT="/workspace/build"
 # Ensure necessary directories exist
 mkdir -p "$RPM_BUILD_ROOT"/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
-# Copy spec file
-SPEC_SRC="/workspace/ice/packaging/rpm/$PACKAGE_NAME.spec"
+# Generate spec file from template
+SPEC_TEMPLATE="/workspace/ice/packaging/rpm/ice-repo.spec.in"
 SPEC_DEST="$RPM_BUILD_ROOT/SPECS/$PACKAGE_NAME.spec"
-cp "$SPEC_SRC" "$SPEC_DEST"
+
+# Determine description/summary text based on quality
+if [[ "$QUALITY" == "stable" ]]; then
+    SUMMARY_SUFFIX="$CHANNEL"
+    DESCRIPTION_SUFFIX="the $CHANNEL release"
+    CHANGELOG_SUFFIX="$CHANNEL builds"
+else
+    SUMMARY_SUFFIX="$CHANNEL $QUALITY builds"
+    DESCRIPTION_SUFFIX="the $QUALITY builds"
+    CHANGELOG_SUFFIX="$CHANNEL $QUALITY builds"
+fi
+
+# Generate spec from template
+sed -e "s/@PACKAGE_NAME@/$PACKAGE_NAME/g" \
+    -e "s/@REPO_FILENAME@/$REPO_FILENAME/g" \
+    -e "s/@SUMMARY_SUFFIX@/$SUMMARY_SUFFIX/g" \
+    -e "s/@DESCRIPTION_SUFFIX@/$DESCRIPTION_SUFFIX/g" \
+    -e "s/@CHANGELOG_SUFFIX@/$CHANGELOG_SUFFIX/g" \
+    "$SPEC_TEMPLATE" > "$SPEC_DEST"
 
 # Set up ~/.rpmmacros for rpmbuild and rpmsign
 cat > ~/.rpmmacros <<EOF
