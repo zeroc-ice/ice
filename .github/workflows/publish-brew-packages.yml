@@ -48,10 +48,11 @@ jobs:
       - name: Publish Homebrew Bottle Packages
         run: |
           UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}"
-          aws s3 sync staging/homebrew-bottle/ "s3://zeroc-downloads/${UPLOAD_PATH}/" --exclude "*" --include "*.tar.gz"
+          aws s3 sync staging/homebrew-bottle/ "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/" --exclude "*" --include "*.tar.gz"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          S3_DOWNLOADS_BUCKET: ${{ vars.S3_DOWNLOADS_BUCKET }}
 
       - name: Clone Repository
         run: |
