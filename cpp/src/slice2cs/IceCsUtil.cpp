@@ -189,12 +189,10 @@ Slice::Csharp::isValueType(const TypePtr& type)
             case Builtin::KindValue:
             {
                 return false;
-                break;
             }
             default:
             {
                 return true;
-                break;
             }
         }
     }
