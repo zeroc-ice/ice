@@ -9,14 +9,16 @@
         Version="$(Version).0"
         InstallerVersion="500"
         Compressed="yes"
-        ProductCode="A88CEE67-24BF-42CE-9D2D-7427DDEE395E"
         UpgradeCode="B7AB6233-5E08-42CA-9003-912FD3432ACA"
         Id="Ice_Services_$(Version)">
 
         <SummaryInformation
             Description="Ice Services $(Version)"
-            Comments="Ice Services $(Version) MSI Installer"
+            Comments="Ice Services $(Version) Installer"
             Keywords="DataStorm, Glacier2, Ice, IceBridge, IceGrid, IceStorm" />
+
+        <!-- Allow upgrading from previous versions; prevent downgrades -->
+        <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
         <!-- Embed CAB files in MSI -->
         <MediaTemplate EmbedCab="yes" />
@@ -31,7 +33,6 @@
         <Feature Id="MainFeature" Title="Ice" Level="1">
             <ComponentGroupRef Id="InstallFolderComponents" />
             <ComponentGroupRef Id="StartMenuComponents"/>
-            <MergeRef Id="VC143CRT"/>
             <ComponentRef Id="AddToPath" />
         </Feature>
 

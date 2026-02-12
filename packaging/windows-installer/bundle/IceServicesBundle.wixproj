@@ -1,0 +1,24 @@
+<Project Sdk="WixToolset.Sdk/6.0.0">
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\config\ice.version.props" />
+  <PropertyGroup>
+    <!-- Numeric-only version for Burn metadata (strip any prerelease suffix like -alpha0) -->
+    <BundleVersion>$([System.String]::Copy('$(IcePackageVersion)').Split('-')[0])</BundleVersion>
+    <OutputType>Bundle</OutputType>
+    <OutputName>Ice-Services-$(IcePackageVersion)</OutputName>
+    <DefineConstants>Version=$(BundleVersion)</DefineConstants>
+    <DefineConstants>$(DefineConstants);IcePackageVersion=$(IcePackageVersion)</DefineConstants>
+    <!-- Path to the built MSI from the parent project -->
+    <IceMsiDir Condition="'$(IceMsiDir)' == ''">$(MSBuildThisFileDirectory)..\msi\bin\x64\Release\</IceMsiDir>
+    <!-- Path to vc_redist.x64.exe -->
+    <VCRedistDir Condition="'$(VCRedistDir)' == ''">$(MSBuildThisFileDirectory)..\redist\</VCRedistDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <BindPath Include="$(IceMsiDir)" BindName="ICE_MSI_DIR" />
+    <BindPath Include="$(VCRedistDir)" BindName="VCREDIST_DIR" />
+    <BindPath Include="$(MSBuildThisFileDirectory)..\..\..\" BindName="SOURCE_ROOT" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="WixToolset.BootstrapperApplications.wixext" Version="6.0.0" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="6.0.0" />
+  </ItemGroup>
+</Project>

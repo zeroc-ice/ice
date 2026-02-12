@@ -1,7 +1,7 @@
 <!--
 Updated from https://github.com/wixtoolset/wix/blob/ffbfeb3c0b9cb8084bd366404c0cb06d42e8caaf/src/ext/UI/wixlib/InstallDirDlg.wxs#L4
 
-This is and updated version of the InstallDirDlg from the WiX toolset. It includes and additional checkbox to allow deciding
+This is an updated version of the InstallDirDlg from the WiX toolset. It includes an additional checkbox to allow deciding
 whether the bin folder should be added to the system PATH environment variable.
 -->
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">

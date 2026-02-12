@@ -67,8 +67,8 @@ jobs:
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
-  publish-msi-packages:
-    uses: ./.github/workflows/publish-msi-packages.yml
+  publish-windows-installer:
+    uses: ./.github/workflows/publish-windows-installer.yml
     with:
       channel: ${{ inputs.channel }}
       quality: ${{ inputs.quality }}
@@ -139,7 +139,7 @@ jobs:
       - publish-gem-packages
       - publish-matlab-packages
       - publish-maven-packages
-      - publish-msi-packages
+      - publish-windows-installer
       - publish-npm-packages
       - publish-nuget-packages
       - publish-pip-packages
@@ -171,7 +171,7 @@ jobs:
       - publish-gem-packages
       - publish-matlab-packages
       - publish-maven-packages
-      - publish-msi-packages
+      - publish-windows-installer
       - publish-npm-packages
       - publish-nuget-packages
       - publish-pip-packages
