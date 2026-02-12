@@ -73,5 +73,3 @@ jobs:
             echo "Publishing package: $pkg"
             npm publish "$pkg" --provenance
           done
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
