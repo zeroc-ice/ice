@@ -388,7 +388,11 @@ namespace Slice
         // Functions for getting the mapped name of an element.
 
         /// Returns the mapped identifier that this element will use in the target language.
-        [[nodiscard]] virtual std::string mappedName() const;
+        [[nodiscard]] std::string mappedName() const;
+
+        /// Returns the mapped name for this element in the target language if it has been customized with the
+        /// 'lang:name' metadata, or `nullopt` if it doesn't have a custom name.
+        [[nodiscard]] std::optional<std::string> customMappedName() const;
 
         /// Returns the mapped fully-scoped identifier that this element will use in the target language.
         /// @param separator This string will be used to separate scope segments.
@@ -436,8 +440,6 @@ namespace Slice
         friend class DocCommentParser;
 
         Contained(const ContainerPtr& container, std::string name);
-
-        [[nodiscard]] std::optional<std::string> getCustomMappedName() const;
 
         ContainerPtr _container;
         std::string _name;
@@ -1020,8 +1022,6 @@ namespace Slice
         [[nodiscard]] std::int32_t tag() const;
         [[nodiscard]] std::string kindOf() const final;
 
-        [[nodiscard]] std::string mappedName() const final;
-
         void visit(ParserVisitor* visitor) final;
 
     private:
@@ -1055,9 +1055,6 @@ namespace Slice
         [[nodiscard]] SyntaxTreeBasePtr defaultValueType() const;
         [[nodiscard]] std::string kindOf() const final;
 
-        /// Gets the name of the corresponding constructor parameter in the target language.
-        [[nodiscard]] std::string mappedParamName() const;
-
         void visit(ParserVisitor* visitor) final;
 
     private:
@@ -1078,11 +1075,9 @@ namespace Slice
         /// When true, generate code for Slice definitions in included files.
         bool all{false};
 
-        /// When true, mappedName and related functions normalize the case of identifiers to match the target
-        /// language's conventions unless a lang:identifier is explicitly provided.
-        /// When false, mappedName and related functions return the raw Slice identifier unless a lang:identifier is
-        /// explicitly provided.
-        bool normalizeCase{false};
+        /// Provides a function that returns the default mapped name for a Contained element. nullptr, the default,
+        /// is equivalent to using the element's Slice name as its mapped name.
+        std::function<std::string(const Contained&)> defaultMappedName{nullptr};
     };
 
     class Unit final : public Container
@@ -1093,7 +1088,7 @@ namespace Slice
         Unit(std::string languageName, UnitOptions options);
 
         [[nodiscard]] std::string languageName() const;
-        [[nodiscard]] bool normalizeCase() const;
+        [[nodiscard]] std::string defaultMappedName(const Contained& contained) const;
 
         /// Sets `_currentDocComment` to the provided string, erasing anything currently stored in it.
         /// @param comment The raw comment string. It can span multiple lines and include comment formatting characters
@@ -1177,7 +1172,7 @@ namespace Slice
 
         const std::string _languageName;
         bool _all;
-        bool _normalizeCase;
+        std::function<std::string(const Contained&)> _defaultMappedName;
         int _errors{0};
         std::string _currentDocComment;
         int _currentIncludeLevel{0};
