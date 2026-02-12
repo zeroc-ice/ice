@@ -1,0 +1,56 @@
+# Copyright (c) ZeroC.
+
+<<<<<<<< HEAD:packaging/rpm/ice-repo-3.8.spec
+Name: ice-repo-3.8
+Version: 1.0.0
+Summary: Yum repo configuration for ZeroC Ice 3.8
+========
+Name: @PACKAGE_NAME@
+Version: 1.0.0
+Summary: Yum repo configuration for ZeroC Ice @SUMMARY_SUFFIX@
+>>>>>>>> 8d2f4b8622 (Replace duplicate repo specs with single template (#5059)):packaging/rpm/ice-repo.spec.in
+Release: 1%{?dist}
+License: GPLv2 with exceptions
+Vendor: ZeroC, Inc.
+URL: https://zeroc.com/
+<<<<<<<< HEAD:packaging/rpm/ice-repo-3.8.spec
+Source0: zeroc-ice-3.8.repo
+Group: System Environment/Base
+BuildArch: noarch
+
+%description
+This package installs the yum repo file for the 3.8 release of the ZeroC Ice RPC framework.
+========
+Source0: @REPO_FILENAME@
+BuildArch: noarch
+
+%description
+This package installs the yum repo file for @DESCRIPTION_SUFFIX@ of the ZeroC Ice RPC framework.
+>>>>>>>> 8d2f4b8622 (Replace duplicate repo specs with single template (#5059)):packaging/rpm/ice-repo.spec.in
+
+%prep
+%setup -q -T -c
+
+%install
+install -dm 755 %{buildroot}%{_sysconfdir}/yum.repos.d
+<<<<<<<< HEAD:packaging/rpm/ice-repo-3.8.spec
+install -pm 644 %{SOURCE0} %{buildroot}%{_sysconfdir}/yum.repos.d/zeroc-ice-3.8.repo
+
+%files
+%defattr(-,root,root,-)
+%config(noreplace) %{_sysconfdir}/yum.repos.d/zeroc-ice-3.8.repo
+
+%changelog
+* Thu Jun 19 2025 Jose Gutierrez de la Concha <jose@zeroc.com> 1.0.0-1
+- Add repository for ZeroC Ice 3.8 builds
+========
+install -pm 644 %{SOURCE0} %{buildroot}%{_sysconfdir}/yum.repos.d/@REPO_FILENAME@
+
+%files
+%defattr(-,root,root,-)
+%config(noreplace) %{_sysconfdir}/yum.repos.d/@REPO_FILENAME@
+
+%changelog
+* Mon Dec 22 2025 Jose Gutierrez de la Concha <jose@zeroc.com> 1.0.0-1
+- Add repository for ZeroC Ice @CHANGELOG_SUFFIX@
+>>>>>>>> 8d2f4b8622 (Replace duplicate repo specs with single template (#5059)):packaging/rpm/ice-repo.spec.in
