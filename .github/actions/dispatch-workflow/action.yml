@@ -17,13 +17,9 @@ runs:
       run: |
         set -euo pipefail
         echo "Dispatching ${WORKFLOW} on ref ${REF}"
-        curl -sSf -X POST \
-          -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer ${TOKEN}" \
-          "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/${WORKFLOW}/dispatches" \
-          -d "{\"ref\":\"${REF}\"}"
+        gh workflow run "${WORKFLOW}" --ref "${REF}"
       env:
+        GH_TOKEN: ${{ inputs.token }}
         REF: ${{ inputs.ref }}
         WORKFLOW: ${{ inputs.workflow }}
-        TOKEN: ${{ inputs.token }}
       shell: bash
