@@ -1008,7 +1008,7 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
                 if (marshal)
                 {
                     // TODO: we have to pass "param!" because the comparison with null suggests it can be null.
-                    // Note that the write method called deals accepts nulls too even though its signature is
+                    // Note that the write method called also accepts nulls too even though its signature is
                     // non-nullable.
                     if (isArray)
                     {
