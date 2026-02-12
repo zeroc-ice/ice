@@ -39,20 +39,23 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ inputs.run_id }}
         run: |
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "gem-packages" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "gem-packages" --dir staging
 
       - name: Publish Nightly GEM Packages
         if: ${{ inputs.quality == 'nightly' }}
         run: |
-          curl -u "nightly:${NEXUS_NIGHTLY_PASSWORD}" \
-            --upload-file staging/gem-packages/zeroc-ice-*.gem \
-            --output /dev/null \
-            --silent \
-            --retry 3 \
-            --fail \
-            --show-error \
-            https://download.zeroc.com/nexus/repository/rubygems-${CHANNEL}-${QUALITY}/gems/ \
-            || { echo "Gem upload failed"; exit 1; }
+          for gem in staging/gem-packages/zeroc-ice-*.gem; do
+            echo "Uploading $(basename "$gem")..."
+            curl -u "nightly:${NEXUS_NIGHTLY_PASSWORD}" \
+              --upload-file "$gem" \
+              --output /dev/null \
+              --silent \
+              --retry 3 \
+              --fail \
+              --show-error \
+              "https://download.zeroc.com/nexus/repository/rubygems-${CHANNEL}-${QUALITY}/gems/$(basename "$gem")" \
+              || { echo "Gem upload failed for $gem"; exit 1; }
+          done
         env:
           NEXUS_NIGHTLY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
           CHANNEL: ${{ inputs.channel }}
