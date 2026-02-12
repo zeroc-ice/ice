@@ -1,5 +1,8 @@
 # Copyright (c) ZeroC, Inc.
 
+# Capture the directory containing this script so we can locate the helper script at build time.
+set(_slice2cpp_cmake_dir "${CMAKE_CURRENT_LIST_DIR}")
+
 # Function to generate C++ source files from Slice (.ice) files for a target using slice2cpp
 # The target must have the Slice files in its sources
 # The generated files are added to the target sources
@@ -22,8 +25,9 @@ function(slice2cpp_generate target)
   target_include_directories(${target} PRIVATE ${output_dir})
 
   # Process each Slice (.ice) file in the source list
-  # 1. Run the slice2cpp command to generate the header and source files
-  # 2. Add the generated files to the target sources
+  # 1. Run slice2cpp --depend to generate a dependency file for incremental builds
+  # 2. Run the slice2cpp command to generate the header and source files
+  # 3. Add the generated files to the target sources
   foreach(file IN LISTS sources)
     if(file MATCHES "\\.ice$")
 
@@ -31,11 +35,20 @@ function(slice2cpp_generate target)
       get_filename_component(slice_file_path ${file} ABSOLUTE)
 
       set(output_files ${output_dir}/${slice_file_name}.h ${output_dir}/${slice_file_name}.cpp)
+      set(depfile ${output_dir}/${slice_file_name}.d)
 
       add_custom_command(
         OUTPUT ${output_files}
+        COMMAND ${CMAKE_COMMAND}
+          -DSLICE2CPP=$<TARGET_FILE:Ice::slice2cpp>
+          -DSLICE_FILE=${slice_file_path}
+          -DSLICE_INCLUDE_DIR=${Ice_SLICE_DIR}
+          -DOUTPUT_DIR=${output_dir}
+          -DDEPFILE=${depfile}
+          -P ${_slice2cpp_cmake_dir}/slice2cpp_depend.cmake
         COMMAND $<TARGET_FILE:Ice::slice2cpp> -I${Ice_SLICE_DIR} ${slice_file_path} --output-dir ${output_dir}
-        DEPENDS ${slice_file_path}
+        DEPENDS ${slice_file_path} $<TARGET_FILE:Ice::slice2cpp>
+        DEPFILE ${depfile}
         COMMENT "Compiling Slice ${file} -> ${output_dir_relative}/${slice_file_name}.cpp ${output_dir_relative}/${slice_file_name}.h"
       )
 
