@@ -213,7 +213,7 @@ Slice::Csharp::isValueType(const TypePtr& type)
         }
         return true;
     }
-    return dynamic_pointer_cast<Enum>(type);
+    return dynamic_pointer_cast<Enum>(type) != nullptr;
 }
 
 bool
