@@ -269,9 +269,9 @@ which is provided by a [cask](#macos-brew-formula-and-cask).
 ### Windows
 
 The Ice services (Glacier2, IceGrid, IceStorm, etc.) and all admin tools for these services (IceGridGUI, icegridadmin,
-etc.) are provided in a Windows installer MSI package:
+etc.) are provided in a Windows installer package:
 
-- [Ice-Services-nightly.msi](https://download.zeroc.com/ice/nightly/3.8/Ice-Services-nightly.msi)
+- [Ice-Services-nightly.exe](https://download.zeroc.com/ice/nightly/3.8/Ice-Services-nightly.exe)
 
 ## Linux Repositories
 

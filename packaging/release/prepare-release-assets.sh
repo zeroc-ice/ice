@@ -30,8 +30,8 @@ cp -v "${STAGING_DIR}/cpp-swift-deps"/*.zip .
 # Include MATLAB toolbox packages (.mltbx).
 cp -v "${STAGING_DIR}"/matlab-packages-*/*.mltbx .
 
-# Include Windows MSI installers.
-cp -v "${STAGING_DIR}/windows-msi"/*.msi .
+# Include Windows installer.
+cp -v "${STAGING_DIR}/windows-installer"/*.exe .
 
 # Create Java package archives (.zip and .tar.gz) with all Java artifacts.
 mkdir -p java-packages/{lib,tools}
