@@ -1,5 +1,7 @@
 etc/icegridnode.conf
 etc/icegridregistry.conf
+lib/systemd/system/icegridnode.service
+lib/systemd/system/icegridregistry.service
 usr/bin/icegridnode
 usr/bin/icegridregistry
 usr/share/ice/templates.xml

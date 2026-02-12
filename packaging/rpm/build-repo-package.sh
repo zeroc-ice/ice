@@ -16,6 +16,11 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source shared GPG setup
+source "${SCRIPT_DIR}/../common/setup-gpg.sh"
+
 DISTRIBUTION=""
 CHANNEL=""
 QUALITY=""
@@ -46,8 +51,6 @@ done
 : "${DISTRIBUTION:?Missing --distribution}"
 : "${CHANNEL:?Missing --channel}"
 : "${QUALITY:?Missing --quality}"
-: "${GPG_KEY:?GPG_KEY environment variable is not set}"
-: "${GPG_KEY_ID:?GPG_KEY_ID environment variable is not set}"
 
 # Define package name based on quality
 if [[ "$QUALITY" == "stable" ]]; then
@@ -63,14 +66,8 @@ fi
 # mutt GPG tty setting
 export GPG_TTY=$(tty)
 
-# Import the GPG key
-echo "$GPG_KEY" | gpg --batch --import
-
-# Check that the key was successfully imported
-if ! gpg --list-secret-keys "$GPG_KEY_ID" > /dev/null 2>&1; then
-  echo "Error: GPG key ID $GPG_KEY_ID was not imported successfully."
-  exit 1
-fi
+# Import and validate GPG key
+setup_gpg
 
 # Define build root directory
 RPM_BUILD_ROOT="/workspace/build"

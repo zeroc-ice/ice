@@ -43,15 +43,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ inputs.run_id }}
         run: |
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "homebrew-bottle" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "homebrew-bottle" --dir staging
 
       - name: Publish Homebrew Bottle Packages
         run: |
-          if [ "${QUALITY}" = "stable" ]; then
-            UPLOAD_PATH="ice/${CHANNEL}"
-          else
-            UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}"
-          fi
+          UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}"
           aws s3 sync staging/homebrew-bottle/ "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/" --exclude "*" --include "*.tar.gz"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

@@ -26,7 +26,7 @@ on:
         type: string
 
 jobs:
-  build:
+  publish:
     name: "Publish Maven Packages"
     runs-on: ubuntu-24.04
     env:
@@ -41,8 +41,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ inputs.run_id }}
         run: |
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "java-packages" --dir "${STAGING_DIR}"
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "slice-tools-packages" --dir "${STAGING_DIR}"
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "java-packages" --dir "${STAGING_DIR}"
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "slice-tools-packages" --dir "${STAGING_DIR}"
 
       - name: Publish Java Packages
         run: packaging/maven/publish-maven-release.sh

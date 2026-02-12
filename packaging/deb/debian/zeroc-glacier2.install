@@ -1,3 +1,4 @@
 etc/glacier2router.conf
+lib/systemd/system/glacier2router.service
 usr/bin/glacier2router
 usr/share/man/man1/glacier2router.1
