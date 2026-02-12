@@ -3,7 +3,7 @@
 # Copyright (c) ZeroC, Inc.
 
 """
-process_crash_dumps.py - gather binaries & PDBs referenced by crash dumps
+process_windows_crash_dumps.py - gather binaries & PDBs referenced by crash dumps
 
 For every *.dmp* file found in the specified dumps directory this script:
   1. Launches `cdb.exe` to generate a *modules.txt* file containing full module list corresponding

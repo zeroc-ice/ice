@@ -352,11 +352,19 @@ jobs:
           if-no-files-found: ignore
         if: always()
 
-      - name: Upload Linux core dumps
+      - name: Process Linux crash dumps
+        if: runner.os == 'Linux' && always()
+        run: |
+          python3 scripts/process_linux_crash_dumps.py \
+              --workspace $GITHUB_WORKSPACE \
+              --reports LinuxDumpReports
+        shell: bash
+
+      - name: Upload Linux crash dump reports
         uses: actions/upload-artifact@v4
         with:
-          name: core-dumps-${{ matrix.config }}-${{ matrix.os }}
-          path: /var/lib/systemd/coredump/*
+          name: crash-dumps-${{ matrix.config }}-${{ matrix.os }}
+          path: ${{ github.workspace }}/LinuxDumpReports/*
           if-no-files-found: ignore
         if: runner.os == 'Linux' && always()
 
@@ -375,7 +383,7 @@ jobs:
           $dumpDir   = Join-Path $env:GITHUB_WORKSPACE 'LocalDumps'
           $reportsDir = Join-Path $env:GITHUB_WORKSPACE 'LocalDumpReports'
 
-          python scripts\process_crash_dumps.py `
+          python scripts\process_windows_crash_dumps.py `
               --dumps     $dumpDir `
               --workspace $env:GITHUB_WORKSPACE `
               --reports   $reportsDir `
