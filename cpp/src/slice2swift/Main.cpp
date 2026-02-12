@@ -180,7 +180,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            unit = Unit::createUnit("swift", false);
+            unit = Unit::createUnit("swift");
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
             preprocessor->close();

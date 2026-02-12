@@ -213,7 +213,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            unit = Unit::createUnit("js", false);
+            unit = Unit::createUnit("js");
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
             preprocessor->close();

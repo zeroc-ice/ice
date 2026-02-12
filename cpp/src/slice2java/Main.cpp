@@ -181,7 +181,7 @@ namespace
                     return EXIT_FAILURE;
                 }
 
-                unit = Unit::createUnit("java", false);
+                unit = Unit::createUnit("java");
                 int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
                 preprocessor->close();

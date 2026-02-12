@@ -1249,7 +1249,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            unit = Unit::createUnit("php", all);
+            unit = Unit::createUnit("php", {.all = all});
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
             preprocessor->close();

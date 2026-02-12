@@ -7,6 +7,7 @@
 #include "Util.h"
 #include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <climits>
 #include <cstring>
 
@@ -237,6 +238,43 @@ Slice::dirName(const string& path)
         // Otherwise, return the directory part of the path.
         return path.substr(0, pos);
     }
+}
+
+string
+Slice::toPascalCase(const string& s)
+{
+    string result;
+    result.reserve(s.size());
+    bool capitalizeNext = true;
+    for (char c : s)
+    {
+        if (c == '_')
+        {
+            capitalizeNext = true;
+            // and consume this underscore
+        }
+        else if (capitalizeNext)
+        {
+            result += static_cast<char>(toupper(static_cast<unsigned char>(c)));
+            capitalizeNext = false;
+        }
+        else
+        {
+            result += c;
+        }
+    }
+    return result;
+}
+
+string
+Slice::toCamelCase(const string& s)
+{
+    string result = toPascalCase(s);
+    if (!result.empty())
+    {
+        result[0] = static_cast<char>(tolower(static_cast<unsigned char>(result[0])));
+    }
+    return result;
 }
 
 void
