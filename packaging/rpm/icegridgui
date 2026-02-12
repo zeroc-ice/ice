@@ -2,4 +2,4 @@
 
 # Copyright (c) ZeroC, Inc. All rights reserved.
 
-exec java -cp `build-classpath icegridgui` com.zeroc.IceGridGUI.Main $@
+exec java -jar /usr/share/java/icegridgui.jar "$@"
