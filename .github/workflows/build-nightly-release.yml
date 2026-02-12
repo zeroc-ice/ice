@@ -10,3 +10,4 @@ jobs:
     with:
       quality: nightly
       publish: true
+      build_number: ${{ github.run_attempt }}
