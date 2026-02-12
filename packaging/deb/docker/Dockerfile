@@ -1,4 +1,8 @@
-FROM debian:trixie
+# Unified Dockerfile for DEB package building
+# Usage: docker build --build-arg BASE_IMAGE=debian:bookworm .
+
+ARG BASE_IMAGE=debian:bookworm
+FROM ${BASE_IMAGE}
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
