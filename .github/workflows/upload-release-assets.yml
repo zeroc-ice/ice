@@ -53,20 +53,20 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "deb-packages-*" --dir staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "dotnet-nuget-packages" --dir staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "gem-packages" --dir staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "cpp-swift-deps" --dir staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "matlab-packages-*" --dir staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "windows-installer" --dir staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "java-packages" --dir staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "slice-tools-packages" --dir staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "js-npm-packages" --dir staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "pip-sdist" --dir staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "pip-packages-*" --dir staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "rpm-packages-*" --dir staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "icegridgui-jar" --dir staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "windows-symbols-sources" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "deb-packages-*" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "dotnet-nuget-packages" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "gem-packages" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "cpp-swift-deps" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "matlab-packages-*" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "windows-installer" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "java-packages" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "slice-tools-packages" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "js-npm-packages" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "pip-sdist" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "pip-packages-*" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "rpm-packages-*" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "icegridgui-jar" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "windows-symbols-sources" --dir staging
 
       - name: Prepare Release Assets
         run: ./packaging/release/prepare-release-assets.sh
