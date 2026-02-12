@@ -89,7 +89,7 @@ if [[ "$QUALITY" == "stable" ]]; then
     CHANGELOG_SUFFIX="$CHANNEL builds"
 else
     SUMMARY_SUFFIX="$CHANNEL $QUALITY builds"
-    DESCRIPTION_SUFFIX="the $QUALITY builds"
+    DESCRIPTION_SUFFIX="the $CHANNEL $QUALITY builds"
     CHANGELOG_SUFFIX="$CHANNEL $QUALITY builds"
 fi
 
