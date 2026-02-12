@@ -3,6 +3,7 @@
 #include "IceVisitors.h"
 #include "../Slice/Util.h"
 #include "CsUtil.h"
+#include "IceCsUtil.h"
 
 #include <algorithm>
 #include <cassert>

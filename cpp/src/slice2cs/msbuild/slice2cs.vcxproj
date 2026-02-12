@@ -112,6 +112,7 @@
     <ClCompile Include="..\CsUtil.cpp" />
     <ClCompile Include="..\CsVisitor.cpp" />
     <ClCompile Include="..\Gen.cpp" />
+    <ClCompile Include="..\IceCsUtil.cpp" />
     <ClCompile Include="..\IceVisitors.cpp" />
     <ClCompile Include="..\Main.cpp" />
   </ItemGroup>
@@ -123,6 +124,7 @@
     <ClInclude Include="..\CsUtil.h" />
     <ClInclude Include="..\CsVisitor.h" />
     <ClInclude Include="..\Gen.h" />
+    <ClInclude Include="..\IceCsUtil.h" />
     <ClInclude Include="..\IceVisitors.h" />
   </ItemGroup>
   <ItemGroup>
