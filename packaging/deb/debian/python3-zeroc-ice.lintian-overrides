@@ -1,1 +1,2 @@
-python3-zeroc-ice: statically-linked-binary *
+# Python extension modules are statically linked with mcpp
+python3-zeroc-ice: statically-linked-binary usr/lib/python3/dist-packages/IcePy.*.so

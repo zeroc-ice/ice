@@ -31,7 +31,7 @@ endif
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
 	MAKEFLAGS += -j$(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
 else
-	PROCESSORS := $(shell cat /proc/cpuinfo | grep processor | wc -l)
+	PROCESSORS := $(shell nproc 2>/dev/null || echo 1)
 	ifneq ($(PROCESSORS),0)
 	    MAKEFLAGS += -j$(PROCESSORS)
 	endif
@@ -123,11 +123,3 @@ override_dh_strip:
 
 override_dh_installdocs:
 	dh_installdocs -A debian/README
-
-override_mh_install-arch:
-
-override_mh_install-indep:
-	mh_install
-
-get-orig-source:
-	uscan --download-current-version --rename --force-download

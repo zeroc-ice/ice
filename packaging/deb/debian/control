@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: José Gutiérrez de la Concha <jose@zeroc.com>
 Uploaders: Ondřej Surý <ondrej@debian.org>
 Build-Depends: debhelper,
-               debhelper-compat (= 10),
+               debhelper-compat (= 13),
                dh-exec,
                dh-php (>= 0.20),
                dh-python,
@@ -25,10 +25,10 @@ Build-Depends: debhelper,
                python3-dev (>= 3.12) <!no-python312>,
                python3-setuptools,
                python3-passlib
-Standards-Version: 4.6.1
+Standards-Version: 4.7.2
 Homepage: https://zeroc.com
 Vcs-Git: https://github.com/zeroc-ice/ice.git
-Vcs-Browser: https://github.com/zeroc-ice/ice.git
+Vcs-Browser: https://github.com/zeroc-ice/ice
 
 Package: libzeroc-ice-dev
 Architecture: any
@@ -186,10 +186,11 @@ Section: net
 Depends: libzeroc-ice3.9 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
-Description: This package contains the DataStorm node server. The DataStorm
- node server allows other DataStorm nodes to exchange topic discovery
- information without relying on UDP multicast. It also helps create deployments
- that span multiple IP networks.
+Description: DataStorm node server
+ This package contains the DataStorm node server. The DataStorm node server
+ allows other DataStorm nodes to exchange topic discovery information without
+ relying on UDP multicast. It also helps create deployments that span multiple
+ IP networks.
  .
  Ice is a comprehensive RPC framework that helps you network your software
  with minimal effort. Ice takes care of all interactions with low-level

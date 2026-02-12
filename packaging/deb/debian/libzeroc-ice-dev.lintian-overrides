@@ -1,1 +1,2 @@
-libzeroc-ice-dev: statically-linked-binary *
+# slice2cpp is statically linked with mcpp
+libzeroc-ice-dev: statically-linked-binary usr/bin/slice2cpp
