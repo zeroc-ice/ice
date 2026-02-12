@@ -1674,7 +1674,7 @@ Slice::Csharp::csLinkFormatter(const string& rawLink, const ContainedPtr& source
     }
     else
     {
-        // Replace "::"" by "." in the raw link. This is for the situation where the user passes a Slice type
+        // Replace "::" by "." in the raw link. This is for the situation where the user passes a Slice type
         // reference but (a) the source Slice file does not include this type and (b) there is no cs:identifier or
         // other identifier renaming.
         string targetS = rawLink;
