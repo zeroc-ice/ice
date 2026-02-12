@@ -399,13 +399,13 @@ mkdir -p %{buildroot}%{_sysconfdir}/php.d
 cp -p packaging/rpm/ice.ini %{buildroot}%{_sysconfdir}/php.d
 
 #
-# systemd files (for servers)
+# systemd files (for servers) - use common files shared between DEB and RPM
 #
 mkdir -p %{buildroot}%{_sysconfdir}
 for i in icegridregistry icegridnode glacier2router
 do
-    cp packaging/rpm/$i.conf %{buildroot}%{_sysconfdir}
-    install -m 644 -p -D packaging/rpm/$i.service %{buildroot}%{_unitdir}/$i.service
+    cp packaging/common/$i.conf %{buildroot}%{_sysconfdir}
+    install -m 644 -p -D packaging/common/$i.service %{buildroot}%{_unitdir}/$i.service
 done
 
 #

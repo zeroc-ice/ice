@@ -17,6 +17,12 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source shared scripts
+source "${SCRIPT_DIR}/../common/setup-gpg.sh"
+source "${SCRIPT_DIR}/../common/codenames.sh"
+
 # Default values
 DISTRIBUTION=""
 CHANNEL=""
@@ -60,24 +66,11 @@ done
 : "${QUALITY:?Missing --quality}"
 : "${STAGING:?Missing --staging}"
 : "${REPODIR:?Missing --repo}"
-: "${GPG_KEY:?GPG_KEY environment variable is not set}"
-: "${GPG_KEY_ID:?GPG_KEY_ID environment variable is not set}"
 
-# Import the GPG key
-echo "$GPG_KEY" | gpg --batch --import
+# Import and validate GPG key
+setup_gpg
 
-# Check that the key was successfully imported
-if ! gpg --list-secret-keys "$GPG_KEY_ID" > /dev/null 2>&1; then
-  echo "Error: GPG key ID $GPG_KEY_ID was not imported successfully."
-  exit 1
-fi
-
-declare -A CODENAMES=(
-    ["debian12"]="bookworm"
-    ["debian13"]="trixie"
-    ["ubuntu24.04"]="noble"
-)
-
+# Map distribution to codename
 CODENAME="${CODENAMES[$DISTRIBUTION]}"
 DIST_DIR="$REPODIR/$DISTRIBUTION"
 CONF_DIR="$DIST_DIR/conf"
