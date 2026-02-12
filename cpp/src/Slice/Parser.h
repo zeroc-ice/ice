@@ -390,6 +390,10 @@ namespace Slice
         /// Returns the mapped identifier that this element will use in the target language.
         [[nodiscard]] std::string mappedName() const;
 
+        /// Returns the mapped name for this element in the target language if it has been customized with the
+        /// 'lang:name' metadata, or `nullopt` if it doesn't have a custom name.
+        [[nodiscard]] std::optional<std::string> customMappedName() const;
+
         /// Returns the mapped fully-scoped identifier that this element will use in the target language.
         /// @param separator This string will be used to separate scope segments.
         /// @param leading If true, the returned string will have a leading `separator` (defaults to false).
@@ -1017,6 +1021,7 @@ namespace Slice
         [[nodiscard]] bool optional() const;
         [[nodiscard]] std::int32_t tag() const;
         [[nodiscard]] std::string kindOf() const final;
+
         void visit(ParserVisitor* visitor) final;
 
     private:
@@ -1049,6 +1054,7 @@ namespace Slice
         [[nodiscard]] std::optional<std::string> defaultValue() const;
         [[nodiscard]] SyntaxTreeBasePtr defaultValueType() const;
         [[nodiscard]] std::string kindOf() const final;
+
         void visit(ParserVisitor* visitor) final;
 
     private:
@@ -1063,14 +1069,26 @@ namespace Slice
     // Unit
     // ----------------------------------------------------------------------
 
+    /// Options for creating a Unit.
+    struct UnitOptions
+    {
+        /// When true, generate code for Slice definitions in included files.
+        bool all{false};
+
+        /// Provides a function that returns the default mapped name for a Contained element. nullptr, the default,
+        /// is equivalent to using the element's Slice name as its mapped name.
+        std::function<std::string(const Contained&)> defaultMappedName{nullptr};
+    };
+
     class Unit final : public Container
     {
     public:
-        static UnitPtr createUnit(std::string languageName, bool all);
+        static UnitPtr createUnit(std::string languageName, UnitOptions options = {});
 
-        Unit(std::string languageName, bool all);
+        Unit(std::string languageName, UnitOptions options);
 
         [[nodiscard]] std::string languageName() const;
+        [[nodiscard]] std::string defaultMappedName(const Contained& contained) const;
 
         /// Sets `_currentDocComment` to the provided string, erasing anything currently stored in it.
         /// @param comment The raw comment string. It can span multiple lines and include comment formatting characters
@@ -1154,6 +1172,7 @@ namespace Slice
 
         const std::string _languageName;
         bool _all;
+        std::function<std::string(const Contained&)> _defaultMappedName;
         int _errors{0};
         std::string _currentDocComment;
         int _currentIncludeLevel{0};

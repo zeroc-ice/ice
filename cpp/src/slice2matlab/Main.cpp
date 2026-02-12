@@ -218,7 +218,7 @@ namespace
                     return EXIT_FAILURE;
                 }
 
-                unit = Unit::createUnit("matlab", all);
+                unit = Unit::createUnit("matlab", {.all = all});
                 int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
                 preprocessor->close();

@@ -640,15 +640,13 @@ Slice::Contained::scope() const
 string
 Slice::Contained::mappedName() const
 {
-    // First check if any 'xxx:identifier' has been applied to this element.
-    // If so, we return that instead of the element's Slice identifier.
-    const string metadata = unit()->languageName() + ":identifier";
-    if (auto customName = getMetadataArgs(metadata))
-    {
-        return *customName;
-    }
+    return customMappedName().value_or(unit()->defaultMappedName(*this));
+}
 
-    return _name;
+optional<string>
+Slice::Contained::customMappedName() const
+{
+    return getMetadataArgs(unit()->languageName() + ":identifier");
 }
 
 string
@@ -4292,15 +4290,28 @@ Slice::DataMember::DataMember(
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(string languageName, bool all)
+Slice::Unit::createUnit(string languageName, UnitOptions options)
 {
-    return make_shared<Unit>(std::move(languageName), all);
+    return make_shared<Unit>(std::move(languageName), std::move(options));
 }
 
 string
 Slice::Unit::languageName() const
 {
     return _languageName;
+}
+
+string
+Slice::Unit::defaultMappedName(const Contained& contained) const
+{
+    if (_defaultMappedName)
+    {
+        return _defaultMappedName(contained);
+    }
+    else
+    {
+        return contained.name();
+    }
 }
 
 void
@@ -4842,9 +4853,12 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(string languageName, bool all) : _languageName(std::move(languageName)), _all(all)
+Slice::Unit::Unit(string languageName, UnitOptions options)
+    : _languageName(std::move(languageName)),
+      _all(options.all),
+      _defaultMappedName(std::move(options.defaultMappedName))
 {
-    if (!languageName.empty())
+    if (!_languageName.empty())
     {
         assert(binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], _languageName));
     }
