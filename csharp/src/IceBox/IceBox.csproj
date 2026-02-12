@@ -8,6 +8,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <!-- Packaging properties -->
     <PackageId>ZeroC.IceBox</PackageId>
+    <PackageIcon>icebox-128x128.png</PackageIcon>
     <PackageTags>ice;icebox;rpc</PackageTags>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -31,7 +32,7 @@
     <!-- Packaging files -->
     <Content Include="../../../LICENSE" Pack="true" PackagePath="/" />
     <Content Include="../../../ICE_LICENSE" Pack="true" PackagePath="/" />
-    <Content Include="../../../assets/logo-128x128.png" Pack="true" PackagePath="/" />
+    <Content Include="../../../assets/icebox-128x128.png" Pack="true" PackagePath="/" />
     <Content Include="README.md" Pack="true" PackagePath="/" />
     <Content Include="@(SliceCompile)" Pack="true" PackagePath="/slice/IceBox"/>
     <Content Include="ZeroC.IceBox.props" Pack="true" PackagePath="buildTransitive/" />
