@@ -1,5 +1,14 @@
 # Copyright (c) ZeroC, Inc.
 
+# Major.minor version for library sonames and package names
+%define mmversion 3.9
+
+# Macro for creating the ice user and group
+%define create_ice_user() \
+getent group ice > /dev/null || groupadd -r ice \
+getent passwd ice > /dev/null || \\\
+  useradd -r -g ice -d %{_localstatedir}/lib/ice -s /sbin/nologin -c "Ice Service account" ice
+
 # git_tag, when defined, is typically a branch, for example 3.7
 %if 0%{?git_tag:1}
    %define archive_tag %{git_tag}
@@ -7,7 +16,7 @@
   %define archive_tag main
 %endif
 
-# Java is required to build IceGridGUI. The RPM packages doesn't include the Ice for Java JAR files.
+# Java is required to build IceGridGUI. The RPM packages do not include the Ice for Java JAR files.
 %define javaversion 17-openjdk
 
 %if "%{dist}" == ".amzn2023"
@@ -42,7 +51,7 @@
 %endif
 
 Name: %{?nameprefix}ice
-Version: 3.8.0~alpha0
+Version: 3.9.0~alpha0
 Release: 1%{?dist}
 Summary: Comprehensive RPC framework with support for C++, Java, JavaScript, Python and more.
 %if "%{?ice_license}"
@@ -120,9 +129,9 @@ your application logic.
 #
 # libiceMm-c++ package
 #
-%package -n lib%{?nameprefix}ice3.9-c++
+%package -n lib%{?nameprefix}ice%{mmversion}-c++
 Summary: Ice for C++ run-time libraries.
-%description -n lib%{?nameprefix}ice3.9-c++
+%description -n lib%{?nameprefix}ice%{mmversion}-c++
 This package contains the C++ run-time libraries for the Ice framework.
 
 Ice is a comprehensive RPC framework that helps you network your software
@@ -135,7 +144,7 @@ your application logic.
 #
 %package -n %{?nameprefix}icebox
 Summary: IceBox server, a framework for Ice application services.
-Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice%{mmversion}-c++ = %{version}-%{release}
 Requires: %{?nameprefix}ice-utils = %{version}-%{release}
 %description -n %{?nameprefix}icebox
 This package contains the IceBox server, an easy-to-use framework for
@@ -151,7 +160,7 @@ your application logic.
 #
 %package -n %{?nameprefix}icestorm
 Summary: IceStorm publish-subscribe event distribution service.
-Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice%{mmversion}-c++ = %{version}-%{release}
 Requires: %{?nameprefix}icebox = %{version}-%{release}
 Requires: %{?nameprefix}ice-utils = %{version}-%{release}
 %description -n %{?nameprefix}icestorm
@@ -173,7 +182,7 @@ your application logic.
 #
 %package -n lib%{?nameprefix}ice-c++-devel
 Summary: Libraries and headers for developing Ice applications in C++.
-Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice%{mmversion}-c++ = %{version}-%{release}
 Requires: %{?nameprefix}ice-slice = %{version}-%{release}
 Requires: glibc-devel
 Requires: openssl-devel
@@ -193,11 +202,11 @@ your application logic.
 Summary: The Ice-to-Slice compiler (ice2slice)
 Requires: %{?nameprefix}ice-slice = %{version}-%{release}
 %description -n %{?nameprefix}ice2slice
- This package contains the Ice-to-Slice compiler (ice2slice). The Ice-to-Slice
- compiler converts Slice definitions in .ice files into Slice definitions in .slice
- files. .ice is the Slice syntax and format understood by the Slice compilers provided
- by Ice; .slice is the Slice syntax and format understood by slicec, the Slice compiler
- provided by IceRPC.
+This package contains the Ice-to-Slice compiler (ice2slice). The Ice-to-Slice
+compiler converts Slice definitions in .ice files into Slice definitions in .slice
+files. .ice is the Slice syntax and format understood by the Slice compilers provided
+by Ice; .slice is the Slice syntax and format understood by slicec, the Slice compiler
+provided by IceRPC.
 
 Ice is a comprehensive RPC framework that helps you network your software
 with minimal effort. Ice takes care of all interactions with low-level
@@ -209,7 +218,7 @@ your application logic.
 #
 %package -n %{?nameprefix}ice-utils
 Summary: Ice utilities and admin tools.
-Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice%{mmversion}-c++ = %{version}-%{release}
 %description -n %{?nameprefix}ice-utils
 This package contains Ice utilities and admin tools.
 
@@ -223,7 +232,7 @@ your application logic.
 #
 %package -n %{?nameprefix}icegrid
 Summary: Locate, deploy, and manage Ice servers.
-Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice%{mmversion}-c++ = %{version}-%{release}
 Requires: %{?nameprefix}icestorm = %{version}-%{release}
 Requires: %{?nameprefix}ice-utils = %{version}-%{release}
 # Requirements for the users
@@ -243,7 +252,7 @@ your application logic.
 #
 %package -n %{?nameprefix}dsnode
 Summary: DataStorm node server.
-Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice%{mmversion}-c++ = %{version}-%{release}
 %description -n %{?nameprefix}dsnode
 This package contains the DataStorm node server. The DataStorm node server allows
 other DataStorm nodes to exchange topic discovery information without relying on
@@ -259,7 +268,7 @@ your application logic.
 #
 %package -n %{?nameprefix}glacier2
 Summary: Glacier2 router.
-Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice%{mmversion}-c++ = %{version}-%{release}
 Requires(pre): %{shadow}
 %{?systemd_requires: %systemd_requires}
 %description -n %{?nameprefix}glacier2
@@ -279,7 +288,7 @@ your application logic.
 #
 %package -n %{?nameprefix}icebridge
 Summary: IceBridge service.
-Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice%{mmversion}-c++ = %{version}-%{release}
 %description -n %{?nameprefix}icebridge
 This package contains the IceBridge service. IceBridge allows you to bridge
 connections securely between one or multiple clients and a server. It
@@ -296,7 +305,7 @@ your application logic.
 #
 %package -n %{phpname}-%{?nameprefix}ice
 Summary: PHP extension for Ice.
-Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice%{mmversion}-c++ = %{version}-%{release}
 Requires: %{?nameprefix}ice-slice = %{version}-%{release}
 Requires: %{phpcommon}
 
@@ -313,7 +322,7 @@ your application logic.
 #
 %package -n python3-%{?nameprefix}ice
 Summary: Python extension for Ice.
-Requires: lib%{?nameprefix}ice3.9-c++ = %{version}-%{release}
+Requires: lib%{?nameprefix}ice%{mmversion}-c++ = %{version}-%{release}
 Requires: %{?nameprefix}ice-slice = %{version}-%{release}
 Requires: python3
 %description -n python3-%{?nameprefix}ice
@@ -412,7 +421,7 @@ cp -p java/lib/icegridgui.jar %{buildroot}%{_javadir}/icegridgui.jar
 #
 # libice-Mm-c++ package
 #
-%files -n lib%{?nameprefix}ice3.9-c++
+%files -n lib%{?nameprefix}ice%{mmversion}-c++
 %license LICENSE
 %license ICE_LICENSE
 %license packaging/rpm/LMDB_LICENSE
@@ -428,8 +437,8 @@ cp -p java/lib/icegridgui.jar %{buildroot}%{_javadir}/icegridgui.jar
 %{_libdir}/libIceLocatorDiscovery.so.*
 %{_libdir}/libIceStorm.so.*
 %{_libdir}/cmake/*/*.cmake
-%post -n lib%{?nameprefix}ice3.9-c++ -p /sbin/ldconfig
-%postun -n lib%{?nameprefix}ice3.9-c++
+%post -n lib%{?nameprefix}ice%{mmversion}-c++ -p /sbin/ldconfig
+%postun -n lib%{?nameprefix}ice%{mmversion}-c++
 /sbin/ldconfig
 exit 0
 
@@ -442,10 +451,6 @@ exit 0
 %doc packaging/rpm/README
 %{_bindir}/icebox
 %{_mandir}/man1/icebox.1*
-%post -n %{?nameprefix}icebox -p /sbin/ldconfig
-%postun -n %{?nameprefix}icebox
-/sbin/ldconfig
-exit 0
 
 #
 # libice-c++devel package
@@ -517,10 +522,6 @@ exit 0
 %{_mandir}/man1/icegridadmin.1*
 %{_bindir}/icegriddb
 %{_mandir}/man1/icegriddb.1*
-%post -n %{?nameprefix}ice-utils -p /sbin/ldconfig
-%postun -n %{?nameprefix}ice-utils
-/sbin/ldconfig
-exit 0
 
 #
 # icegrid package
@@ -542,9 +543,7 @@ exit 0
 
 %pre -n %{?nameprefix}icegrid
 %if "%{_prefix}" == "/usr"
-getent group ice > /dev/null || groupadd -r ice
-getent passwd ice > /dev/null || \
-  useradd -r -g ice -d %{_localstatedir}/lib/ice -s /sbin/nologin -c "Ice Service account" ice
+%create_ice_user
 test -d %{_localstatedir}/lib/ice/icegrid/registry || \
   mkdir -p %{_localstatedir}/lib/ice/icegrid/registry; chown -R ice.ice %{_localstatedir}/lib/ice
 test -d %{_localstatedir}/lib/ice/icegrid/node1 || \
@@ -553,7 +552,6 @@ exit 0
 %endif
 
 %post -n %{?nameprefix}icegrid
-/sbin/ldconfig
 %if "%{_prefix}" == "/usr"
   %systemd_post icegridregistry.service
   %systemd_post icegridnode.service
@@ -570,8 +568,6 @@ exit 0
   %systemd_postun_with_restart icegridnode.service
   %systemd_postun_with_restart icegridregistry.service
 %endif
-/sbin/ldconfig
-exit 0
 
 #
 # dsnode package
@@ -582,10 +578,6 @@ exit 0
 %doc packaging/rpm/README
 %{_bindir}/dsnode
 %{_mandir}/man1/dsnode.1*
-%post -n %{?nameprefix}dsnode -p /sbin/ldconfig
-%postun -n %{?nameprefix}dsnode
-/sbin/ldconfig
-exit 0
 
 #
 # glacier2 package
@@ -601,15 +593,11 @@ exit 0
 
 %pre -n %{?nameprefix}glacier2
 %if "%{_prefix}" == "/usr"
-  getent group ice > /dev/null || groupadd -r ice
-  getent passwd ice > /dev/null || \
-         useradd -r -g ice -d %{_localstatedir}/lib/ice \
-         -s /sbin/nologin -c "Ice Service account" ice
-  exit 0
+%create_ice_user
+exit 0
 %endif
 
 %post -n %{?nameprefix}glacier2
-/sbin/ldconfig
 %if "%{_prefix}" == "/usr"
   %systemd_post glacier2router.service
 %endif
@@ -623,8 +611,6 @@ exit 0
 %if "%{_prefix}" == "/usr"
   %systemd_postun_with_restart glacier2router.service
 %endif
-/sbin/ldconfig
-exit 0
 
 #
 # icebridge package
@@ -635,10 +621,6 @@ exit 0
 %doc packaging/rpm/README
 %{_bindir}/icebridge
 %{_mandir}/man1/icebridge.1*
-%post -n %{?nameprefix}icebridge -p /sbin/ldconfig
-%postun -n %{?nameprefix}icebridge
-/sbin/ldconfig
-exit 0
 
 #
 # php-ice package

@@ -8,7 +8,6 @@ License: GPLv2 with exceptions
 Vendor: ZeroC, Inc.
 URL: https://zeroc.com/
 Source0: zeroc-ice-3.9.repo
-Group: System Environment/Base
 BuildArch: noarch
 
 %description
