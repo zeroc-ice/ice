@@ -1,5 +1,5 @@
 name: "Dispatch Workflow"
-description: "Trigger a workflow_dispatch on a given ref"
+description: "Trigger a workflow_dispatch on a given ref with optional inputs"
 inputs:
   ref:
     description: "Git ref to dispatch"
@@ -10,6 +10,10 @@ inputs:
   token:
     description: "GitHub token with workflow scope"
     required: true
+  inputs:
+    description: "JSON object of inputs to pass to the workflow"
+    required: false
+    default: "{}"
 runs:
   using: "composite"
   steps:
@@ -17,13 +21,19 @@ runs:
       run: |
         set -euo pipefail
         echo "Dispatching ${WORKFLOW} on ref ${REF}"
+        if [[ "${INPUTS}" == "{}" ]]; then
+          BODY="{\"ref\":\"${REF}\"}"
+        else
+          BODY=$(jq -n --arg ref "${REF}" --argjson inputs "${INPUTS}" '{ref: $ref, inputs: $inputs}')
+        fi
         curl -sSf -X POST \
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${TOKEN}" \
           "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/${WORKFLOW}/dispatches" \
-          -d "{\"ref\":\"${REF}\"}"
+          -d "${BODY}"
       env:
         REF: ${{ inputs.ref }}
         WORKFLOW: ${{ inputs.workflow }}
         TOKEN: ${{ inputs.token }}
+        INPUTS: ${{ inputs.inputs }}
       shell: bash
