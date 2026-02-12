@@ -97,7 +97,7 @@ override_dh_clean:
 	find . -iname "*.pyc" -exec rm -rf {} \;
 	dh_clean
 
-override_dh_systemd_enable:
+override_dh_installsystemd:
 	dh_installsystemd --name icegridregistry --no-enable --no-start
 	dh_installsystemd --name icegridnode --no-enable --no-start
 	dh_installsystemd --name glacier2router --no-enable --no-start
