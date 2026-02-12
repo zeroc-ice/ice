@@ -39,7 +39,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ inputs.run_id }}
         run: |
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "js-npm-packages" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "js-npm-packages" --dir staging
 
       - name: Publish Nightly NPM Packages
         if: ${{ inputs.quality != 'stable' }}

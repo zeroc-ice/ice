@@ -42,22 +42,28 @@ jobs:
             dockerfile: packaging/deb/docker/deb-repo-builder/Dockerfile
           - platform: amd64
             image: ice-deb-builder-debian12
-            dockerfile: packaging/deb/docker/debian12/Dockerfile
+            dockerfile: packaging/deb/docker/Dockerfile
+            base_image: debian:bookworm
           - platform: arm64
             image: ice-deb-builder-debian12
-            dockerfile: packaging/deb/docker/debian12/Dockerfile
+            dockerfile: packaging/deb/docker/Dockerfile
+            base_image: debian:bookworm
           - platform: amd64
             image: ice-deb-builder-debian13
-            dockerfile: packaging/deb/docker/debian13/Dockerfile
+            dockerfile: packaging/deb/docker/Dockerfile
+            base_image: debian:trixie
           - platform: arm64
             image: ice-deb-builder-debian13
-            dockerfile: packaging/deb/docker/debian13/Dockerfile
+            dockerfile: packaging/deb/docker/Dockerfile
+            base_image: debian:trixie
           - platform: amd64
             image: ice-deb-builder-ubuntu24.04
-            dockerfile: packaging/deb/docker/ubuntu24.04/Dockerfile
+            dockerfile: packaging/deb/docker/Dockerfile
+            base_image: ubuntu:24.04
           - platform: arm64
             image: ice-deb-builder-ubuntu24.04
-            dockerfile: packaging/deb/docker/ubuntu24.04/Dockerfile
+            dockerfile: packaging/deb/docker/Dockerfile
+            base_image: ubuntu:24.04
 
     env:
       # On Red Hat-based images, we need to provide credentials to access the Red Hat repositories.
@@ -103,6 +109,11 @@ jobs:
             --push
             -f ${{ matrix.dockerfile }}
           )
+
+          # Add BASE_IMAGE build arg if specified
+          if [[ -n "${{ matrix.base_image }}" ]]; then
+            args+=( --build-arg "BASE_IMAGE=${{ matrix.base_image }}" )
+          fi
 
           # Add secret with Red Hat credentials if needed
           if [[ "$USE_RH_CREDENTIALS" == "true" ]]; then

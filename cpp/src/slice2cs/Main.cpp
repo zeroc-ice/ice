@@ -2,13 +2,13 @@
 
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/Options.h"
-#include "../Slice/DocCommentParser.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
 #include "CsUtil.h"
 #include "Gen.h"
 #include "Ice/CtrlCHandler.h"
+#include "IceCsUtil.h"
 
 #include <algorithm>
 #include <cassert>
@@ -23,65 +23,6 @@ namespace
     mutex globalMutex;
     bool interrupted = false;
 }
-
-class CsharpDocCommentFormatter final : public DocCommentFormatter
-{
-    void preprocess(StringList& rawComment) final
-    {
-        for (auto& line : rawComment)
-        {
-            // Escape any XML special characters in the comment.
-            string::size_type pos = 0;
-            while ((pos = line.find_first_of("&<>", pos)) != string::npos)
-            {
-                switch (line[pos])
-                {
-                    case '&':
-                        line.replace(pos, 1, "&amp;");
-                        break;
-                    case '<':
-                        line.replace(pos, 1, "&lt;");
-                        break;
-                    case '>':
-                        line.replace(pos, 1, "&gt;");
-                        break;
-                }
-                // Skip over the leading '&' character to avoid 'find'ing it again.
-                pos += 1;
-            }
-        }
-    }
-
-    string formatCode(const string& rawText) final { return "<c>" + rawText + "</c>"; }
-
-    string formatParamRef(const string& param) final { return "<paramref name=\"" + param + "\" />"; }
-
-    string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
-    {
-        auto [mapToLink, qualifiedName] = Slice::Csharp::csLinkFormatter(rawLink, source, target);
-        if (mapToLink)
-        {
-            return "<see " + qualifiedName + " />";
-        }
-        else
-        {
-            return "<c>" + qualifiedName + "</c>";
-        }
-    }
-
-    string formatSeeAlso(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
-    {
-        auto [mapToLink, qualifiedName] = Slice::Csharp::csLinkFormatter(rawLink, source, target);
-        if (mapToLink)
-        {
-            return "<seealso " + qualifiedName + " />";
-        }
-        else
-        {
-            return "";
-        }
-    }
-};
 
 void
 interruptedCallback(int /*signal*/)
@@ -254,8 +195,8 @@ compile(const vector<string>& argv)
             }
             else
             {
-                CsharpDocCommentFormatter formatter;
-                parseAllDocComments(unit, formatter);
+                Slice::Csharp::IceDocCommentFormatter iceFormatter;
+                parseAllDocComments(unit, iceFormatter);
 
                 Gen gen(preprocessor->getBaseName(), output, enableAnalysis);
                 gen.generate(unit);
