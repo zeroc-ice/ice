@@ -35,22 +35,23 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ inputs.run_id }}
         run: |
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "windows-installer" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "windows-installer" --dir staging
 
       - name: Publish Installer Packages
         run: |
           if [ "${QUALITY}" = "stable" ]; then
             UPLOAD_PATH="ice/${CHANNEL}"
-            aws s3 cp staging/windows-installer/*.exe "s3://zeroc-downloads/${UPLOAD_PATH}/"
+            aws s3 cp staging/windows-installer/*.exe "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/"
           else
             UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}"
             # Rename the installer for non-stable releases to include the quality in the filename
-            aws s3 cp staging/windows-installer/*.exe "s3://zeroc-downloads/${UPLOAD_PATH}/Ice-Services-${QUALITY}.exe"
+            aws s3 cp staging/windows-installer/*.exe "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/Ice-Services-${QUALITY}.exe"
           fi
 
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          S3_DOWNLOADS_BUCKET: ${{ vars.S3_DOWNLOADS_BUCKET }}
           CHANNEL: ${{ inputs.channel }}
           QUALITY: ${{ inputs.quality }}
 
@@ -74,7 +75,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh run download "${{ inputs.run_id }}" --repo zeroc-ice/ice --pattern "windows-installer" --dir staging
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --pattern "windows-installer" --dir staging
 
       - name: Submit to WinGet
         env:

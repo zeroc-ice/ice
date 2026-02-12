@@ -30,6 +30,9 @@
     <ClCompile Include="..\CsVisitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\IceCsUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\IceVisitors.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -50,6 +53,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\CsVisitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\IceCsUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\IceVisitors.h">

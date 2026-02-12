@@ -21,19 +21,16 @@ runs:
       run: |
         set -euo pipefail
         echo "Dispatching ${WORKFLOW} on ref ${REF}"
-        if [[ "${INPUTS}" == "{}" ]]; then
-          BODY="{\"ref\":\"${REF}\"}"
-        else
-          BODY=$(jq -n --arg ref "${REF}" --argjson inputs "${INPUTS}" '{ref: $ref, inputs: $inputs}')
+        # Build -f flags from JSON inputs
+        INPUT_ARGS=""
+        if [[ "${INPUTS}" != "{}" ]]; then
+          INPUT_ARGS=$(echo "${INPUTS}" | jq -r 'to_entries | .[] | "-f \(.key)=\(.value)"' | tr '\n' ' ')
         fi
-        curl -sSf -X POST \
-          -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer ${TOKEN}" \
-          "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/${WORKFLOW}/dispatches" \
-          -d "${BODY}"
+        # shellcheck disable=SC2086
+        gh workflow run "${WORKFLOW}" --ref "${REF}" ${INPUT_ARGS}
       env:
+        GH_TOKEN: ${{ inputs.token }}
         REF: ${{ inputs.ref }}
         WORKFLOW: ${{ inputs.workflow }}
-        TOKEN: ${{ inputs.token }}
         INPUTS: ${{ inputs.inputs }}
       shell: bash
