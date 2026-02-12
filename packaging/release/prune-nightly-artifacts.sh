@@ -4,7 +4,8 @@ set -euo pipefail
 trap 'echo "🔥 ERROR: command \"$BASH_COMMAND\" exited with code $?" >&2' ERR
 
 # Config (override via env)
-BUCKET="${BUCKET:-zeroc-downloads}"         # S3 bucket name
+# Note: Set S3_DOWNLOADS_BUCKET in GitHub repository variables
+BUCKET="${BUCKET:-${S3_DOWNLOADS_BUCKET:-zeroc-downloads}}"  # S3 bucket name
 CHANNEL="${CHANNEL:-3.9}"                   # release channel (e.g., 3.9, 3.8)
 PREFIX="${PREFIX:-ice/nightly/$CHANNEL/}"   # no leading slash
 DAYS_TO_KEEP="${DAYS_TO_KEEP:-7}"           # default: keep last 7 days
@@ -47,9 +48,19 @@ for key in $keys; do
         continue
     fi
 
-    # Extract nightly date part: nightly.20250821
-    if [[ "$key" =~ nightly[.-]?([0-9]{8}) ]]; then
+    # Extract date part from various nightly formats:
+    # - nightly.20250821, nightly-20250821, nightly20250821
+    # - pre.20250821, pre-20250821
+    # - dev.20250821, dev-20250821
+    # - bare date like 20250821 in filename
+    date_part=""
+    if [[ "$key" =~ (nightly|pre|dev)[.-]?([0-9]{8}) ]]; then
+        date_part="${BASH_REMATCH[2]}"
+    elif [[ "$key" =~ ([0-9]{8}) ]]; then
         date_part="${BASH_REMATCH[1]}"
+    fi
+
+    if [[ -n "$date_part" ]]; then
         # Convert YYYYMMDD to epoch seconds (GNU date); handle failure
         pkg_date_sec=$(date -d "$date_part" +%s 2>/dev/null || echo 0)
         if (( pkg_date_sec <= 0 )); then
