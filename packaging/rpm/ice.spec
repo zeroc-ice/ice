@@ -7,7 +7,7 @@
 %define create_ice_user() \
 getent group ice > /dev/null || groupadd -r ice \
 getent passwd ice > /dev/null || \\\
-  useradd -r -g ice -d %{_localstatedir}/lib/ice -s /sbin/nologin -c "Ice Service account" ice
+  useradd -r -g ice -d %{_localstatedir}/lib/ice -s /sbin/nologin -c "Ice service account" ice
 
 # git_tag, when defined, is typically a branch, for example 3.7
 %if 0%{?git_tag:1}
