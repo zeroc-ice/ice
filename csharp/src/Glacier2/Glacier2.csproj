@@ -8,6 +8,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <!-- Packaging properties -->
     <PackageId>ZeroC.Glacier2</PackageId>
+    <PackageIcon>glacier2-128x128.png</PackageIcon>
     <PackageTags>ice;glacier2;rpc</PackageTags>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -31,7 +32,7 @@
     <!-- Packaging files -->
     <Content Include="../../../LICENSE" Pack="true" PackagePath="/" />
     <Content Include="../../../ICE_LICENSE" Pack="true" PackagePath="/" />
-    <Content Include="../../../assets/logo-128x128.png" Pack="true" PackagePath="/" />
+    <Content Include="../../../assets/glacier2-128x128.png" Pack="true" PackagePath="/" />
     <Content Include="README.md" Pack="true" PackagePath="/" />
     <Content Include="@(SliceCompile)" Pack="true" PackagePath="/slice/Glacier2"/>
     <Content Include="ZeroC.Glacier2.props" Pack="true" PackagePath="buildTransitive/" />
