@@ -1,5 +1,5 @@
 name: "Dispatch Workflow"
-description: "Trigger a workflow_dispatch on a given ref"
+description: "Trigger a workflow_dispatch on a given ref with optional inputs"
 inputs:
   ref:
     description: "Git ref to dispatch"
@@ -10,6 +10,10 @@ inputs:
   token:
     description: "GitHub token with workflow scope"
     required: true
+  inputs:
+    description: "JSON object of inputs to pass to the workflow"
+    required: false
+    default: "{}"
 runs:
   using: "composite"
   steps:
@@ -17,9 +21,16 @@ runs:
       run: |
         set -euo pipefail
         echo "Dispatching ${WORKFLOW} on ref ${REF}"
-        gh workflow run "${WORKFLOW}" --ref "${REF}"
+        # Build -f flags from JSON inputs
+        INPUT_ARGS=""
+        if [[ "${INPUTS}" != "{}" ]]; then
+          INPUT_ARGS=$(echo "${INPUTS}" | jq -r 'to_entries | .[] | "-f \(.key)=\(.value)"' | tr '\n' ' ')
+        fi
+        # shellcheck disable=SC2086
+        gh workflow run "${WORKFLOW}" --ref "${REF}" ${INPUT_ARGS}
       env:
         GH_TOKEN: ${{ inputs.token }}
         REF: ${{ inputs.ref }}
         WORKFLOW: ${{ inputs.workflow }}
+        INPUTS: ${{ inputs.inputs }}
       shell: bash
