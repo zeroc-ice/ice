@@ -1321,13 +1321,13 @@ export class InputStream {
         if (len === 0) {
             return "";
         }
-        if (this._buf.remaining < len) {
-            throw new MarshalException(endOfBufferMessage);
-        }
         try {
             return textDecoder.decode(this._buf.getView(len));
-        } catch {
-            throw new MarshalException(endOfBufferMessage);
+        } catch (cause) {
+            if (cause instanceof RangeError) {
+                throw new MarshalException(endOfBufferMessage);
+            }
+            throw new MarshalException("invalid UTF-8 string", { cause });
         }
     }
 
