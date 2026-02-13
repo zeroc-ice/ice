@@ -1,8 +1,5 @@
 # Copyright (c) ZeroC, Inc.
 
-# Capture the directory containing this script so we can locate the helper script at build time.
-set(_slice2cpp_cmake_dir "${CMAKE_CURRENT_LIST_DIR}")
-
 # Function to generate C++ source files from Slice (.ice) files for a target using slice2cpp
 # The target must have the Slice files in its sources
 # The generated files are added to the target sources
@@ -45,7 +42,7 @@ function(slice2cpp_generate target)
           -DSLICE_INCLUDE_DIR=${Ice_SLICE_DIR}
           -DOUTPUT_DIR=${output_dir}
           -DDEPFILE=${depfile}
-          -P ${_slice2cpp_cmake_dir}/slice2cpp_depend.cmake
+          -P ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/slice2cpp_depend.cmake
         COMMAND $<TARGET_FILE:Ice::slice2cpp> -I${Ice_SLICE_DIR} ${slice_file_path} --output-dir ${output_dir}
         DEPENDS ${slice_file_path} $<TARGET_FILE:Ice::slice2cpp>
         DEPFILE ${depfile}
