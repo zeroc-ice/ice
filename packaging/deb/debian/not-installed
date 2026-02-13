@@ -1,0 +1,3 @@
+# These license files are already included in each package via debian/copyright
+usr/share/ice/ICE_LICENSE
+usr/share/ice/LICENSE

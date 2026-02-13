@@ -112,7 +112,6 @@ override_dh_install:
 	install -m 0644 debian/zeroc-icegrid.icegridregistry.conf $(DESTDIR)/etc/icegridregistry.conf
 
 	dh_install
-	dh_missing -Xusr/share/ice/ICE_LICENSE -Xusr/share/ice/LICENSE
 
 override_dh_strip:
 	dh_strip
