@@ -68,7 +68,7 @@ git archive --format=tar.gz --prefix=zeroc-ice-${UPSTREAM_VERSION}/ \
 Unpack the source archive in the build directory:
 
 ```bash
-cd cd $HOME/packaging/zeroc-ice/build
+cd $HOME/packaging/zeroc-ice/build
 tar xzf ../zeroc-ice_${UPSTREAM_VERSION}.orig.tar.gz --strip-components=1
 ```
 

@@ -605,13 +605,13 @@ zeroc-ice (3.5.0-1) experimental; urgency=low
 
 zeroc-ice (3.5~beta1-4) experimental; urgency=low
 
-  * FIXME
+  * Bug fixes and improvements for experimental release
 
  -- Cleto Martín <cleto@debian.org>  Tue, 26 Jan 2013 23:07:11 +0100
 
 zeroc-ice (3.5~beta1-3) experimental; urgency=low
 
-  * FIXME
+  * Bug fixes and improvements for experimental release
 
  -- Cleto Martín <cleto@debian.org>  Tue, 25 Jan 2013 23:07:11 +0100
 

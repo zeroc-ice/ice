@@ -1,1 +1,2 @@
-php-zeroc-ice: statically-linked-binary *
+# PHP extension module is statically linked with mcpp
+php-zeroc-ice: statically-linked-binary usr/lib/php/*/ice.so
