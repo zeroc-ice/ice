@@ -82,15 +82,13 @@ let binDestDir = path.resolve(__dirname, "../bin");
 const typesSourceDir = path.resolve(__dirname, "../types/unplugin");
 const typesDestDir = path.resolve(__dirname, "../dist/unplugin");
 
-if (fs.existsSync(typesSourceDir)) {
-    console.log(`Copying unplugin type declarations from ${typesSourceDir} to ${typesDestDir}...`);
-    fs.readdirSync(typesSourceDir).forEach(file => {
-        if (file.endsWith(".d.ts")) {
-            fs.copyFileSync(path.join(typesSourceDir, file), path.join(typesDestDir, file));
-        }
-    });
-    console.log("Done.");
-}
+console.log(`Copying unplugin type declarations from ${typesSourceDir} to ${typesDestDir}...`);
+fs.readdirSync(typesSourceDir).forEach(file => {
+    if (file.endsWith(".d.ts")) {
+        fs.copyFileSync(path.join(typesSourceDir, file), path.join(typesDestDir, file));
+    }
+});
+console.log("Done.");
 
 if (stagingPath) {
     // Check that all compilers are available in the staging path
