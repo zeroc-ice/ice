@@ -108,15 +108,15 @@ override_dh_install:
 	install -d -m 0755 $(DESTDIR)/etc/
 
 	# Install config files from common directory
-	install -m 0644 ../common/glacier2router.conf $(DESTDIR)/etc/glacier2router.conf
-	install -m 0644 ../common/icegridnode.conf $(DESTDIR)/etc/icegridnode.conf
-	install -m 0644 ../common/icegridregistry.conf $(DESTDIR)/etc/icegridregistry.conf
+	install -m 0644 packaging/common/glacier2router.conf $(DESTDIR)/etc/glacier2router.conf
+	install -m 0644 packaging/common/icegridnode.conf $(DESTDIR)/etc/icegridnode.conf
+	install -m 0644 packaging/common/icegridregistry.conf $(DESTDIR)/etc/icegridregistry.conf
 
 	# Install service files from common directory
 	install -d -m 0755 $(DESTDIR)/lib/systemd/system
-	install -m 0644 ../common/glacier2router.service $(DESTDIR)/lib/systemd/system/glacier2router.service
-	install -m 0644 ../common/icegridnode.service $(DESTDIR)/lib/systemd/system/icegridnode.service
-	install -m 0644 ../common/icegridregistry.service $(DESTDIR)/lib/systemd/system/icegridregistry.service
+	install -m 0644 packaging/common/glacier2router.service $(DESTDIR)/lib/systemd/system/glacier2router.service
+	install -m 0644 packaging/common/icegridnode.service $(DESTDIR)/lib/systemd/system/icegridnode.service
+	install -m 0644 packaging/common/icegridregistry.service $(DESTDIR)/lib/systemd/system/icegridregistry.service
 
 	dh_install
 
