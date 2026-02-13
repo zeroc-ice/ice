@@ -76,6 +76,22 @@ console.log("Done.");
 const stagingPath = process.env.SLICE2JS_STAGING_PATH;
 let binDestDir = path.resolve(__dirname, "../bin");
 
+// Copy hand-written type declarations for unplugin adapters.
+// These replace the auto-generated ones to avoid leaking all bundler dependencies via unplugin's barrel types.
+// See https://github.com/zeroc-ice/ice/issues/5067
+const typesSourceDir = path.resolve(__dirname, "../types/unplugin");
+const typesDestDir = path.resolve(__dirname, "../dist/unplugin");
+
+if (fs.existsSync(typesSourceDir)) {
+    console.log(`Copying unplugin type declarations from ${typesSourceDir} to ${typesDestDir}...`);
+    fs.readdirSync(typesSourceDir).forEach(file => {
+        if (file.endsWith(".d.ts")) {
+            fs.copyFileSync(path.join(typesSourceDir, file), path.join(typesDestDir, file));
+        }
+    });
+    console.log("Done.");
+}
+
 if (stagingPath) {
     // Check that all compilers are available in the staging path
     for (const platform of allSupportedPlatforms) {
