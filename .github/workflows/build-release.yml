@@ -151,9 +151,17 @@ jobs:
       authenticode_sign: ${{ needs.configure.outputs.authenticode_sign == 'true' }}
     secrets: inherit
 
-  build-maven-packages:
-    name: Build Maven Packages
-    uses: ./.github/workflows/build-maven-packages.yml
+  build-java-packages:
+    name: Build Java Packages
+    uses: ./.github/workflows/build-java-packages.yml
+    needs: configure
+    with:
+      ice_version: ${{ needs.configure.outputs.maven_version }}
+    secrets: inherit
+
+  build-slice-tools-packages:
+    name: Build Slice Tools Packages
+    uses: ./.github/workflows/build-slice-tools-packages.yml
     needs: configure
     with:
       ice_version: ${{ needs.configure.outputs.maven_version }}
@@ -256,7 +264,8 @@ jobs:
       - build-dotnet-packages
       - build-gem-packages
       - build-matlab-packages
-      - build-maven-packages
+      - build-java-packages
+      - build-slice-tools-packages
       - build-npm-packages
       - build-pip-packages
       - build-rpm-packages
