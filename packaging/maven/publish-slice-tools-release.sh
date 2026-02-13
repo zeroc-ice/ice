@@ -1,7 +1,7 @@
 set -xeuo pipefail
 
 plugin_staging_dir="${STAGING_DIR}/slice-tools-packages/com/zeroc/slice-tools"
-ice_version=$(basename "$(ls -d "${plugin_staging_dir}"/*/)")
+ice_version=$(basename "$(ls -d "${plugin_staging_dir}"/[0-9]*/)")
 
 if [ "$QUALITY" = "stable" ]; then
   echo "Publishing Slice Tools plugin to the Gradle Plugin Portal"
