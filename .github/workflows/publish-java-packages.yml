@@ -1,0 +1,71 @@
+name: "Publish Java Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The release channel (e.g., 3.8, 3.7)"
+        required: true
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
+        required: true
+        default: "nightly"
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      quality:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+  publish:
+    name: "Publish Java Packages"
+    runs-on: ubuntu-24.04
+    env:
+      STAGING_DIR: ${{ github.workspace }}/staging
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Java artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "java-packages" --dir "${STAGING_DIR}"
+
+      - name: Publish Java Packages
+        run: packaging/maven/publish-java-release.sh
+        if: ${{ inputs.quality == 'nightly' }}
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          QUALITY: ${{ inputs.quality }}
+          MAVEN_USERNAME: "nightly"
+          MAVEN_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
+          GPG_KEY: ${{ secrets.ICE_CI_SIGNER_KEY }}
+          GPG_KEY_ID: ${{ secrets.ICE_CI_SIGNER_KEY_ID }}
+
+      - name: Publish Java Packages
+        run: packaging/maven/publish-java-release.sh
+        if: ${{ inputs.quality == 'stable' }}
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          QUALITY: ${{ inputs.quality }}
+          MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_API_KEY }}
+          MAVEN_CENTRAL_BEARER_AUTH_TOKEN: ${{ secrets.MAVEN_CENTRAL_BEARER_AUTH_TOKEN }}
+          GPG_KEY: ${{ secrets.ICE_CI_SIGNER_KEY }}
+          GPG_KEY_ID: ${{ secrets.ICE_CI_SIGNER_KEY_ID }}
+
+      - name: Clean Credentials
+        if: always()
+        run: rm -f ~/.m2/settings.xml

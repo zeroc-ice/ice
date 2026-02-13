@@ -1,0 +1,47 @@
+name: "Build Java Packages"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+jobs:
+  build-java-packages:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup Java
+        uses: ./.github/actions/setup-java
+
+      - name: Build slice2java
+        run: make -C cpp slice2java
+
+      - name: Update Ice Version
+        run: |
+          sed -i "s/^iceVersion = .*/iceVersion = ${{ inputs.ice_version }}/" gradle.properties
+        working-directory: java
+        if: ${{ inputs.ice_version != '' }}
+
+      - name: Build Ice for Java Packages
+        run: ./gradlew dist
+        working-directory: java
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-packages
+          path: |
+            java/lib/*.jar
+            java/lib/*.pom
