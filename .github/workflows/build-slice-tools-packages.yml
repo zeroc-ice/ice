@@ -1,4 +1,4 @@
-name: "Build Maven Packages"
+name: "Build Slice Tools Packages"
 
 on:
   workflow_call:
@@ -67,7 +67,7 @@ jobs:
           name: slice2java-${{ matrix.target }}
           path: ${{ matrix.artifact-path }}
 
-  build-maven-packages:
+  build-slice-tools-packages:
     runs-on: ubuntu-24.04
     needs: build-slice-compilers
     env:
@@ -102,11 +102,6 @@ jobs:
           chmod +x $SLICE2JAVA_STAGING_PATH/linux-arm64/slice2java
           cp -v artifacts/slice2java-windows-x64/slice2java.exe "$SLICE2JAVA_STAGING_PATH/windows-x64/"
 
-          # Copy the slice2java binary to the cpp/bin directory to avoid rebuilding it.
-          mkdir -p ice/cpp/bin
-          cp -v artifacts/slice2java-linux-x64/slice2java $GITHUB_WORKSPACE/ice/cpp/bin/slice2java
-          chmod +x $GITHUB_WORKSPACE/ice/cpp/bin/slice2java
-
           for component in DataStorm Glacier2 Ice IceBox IceGrid IceStorm; do
             mkdir -p $SLICE2JAVA_STAGING_PATH/slice/$component
             cp -v ice/slice/$component/*.ice $SLICE2JAVA_STAGING_PATH/slice/$component
@@ -114,7 +109,6 @@ jobs:
 
       - name: Update Ice Version
         run: |
-          sed -i "s/^iceVersion = .*/iceVersion = ${{ inputs.ice_version }}/" gradle.properties
           sed -i "s/^sliceToolsVersion = .*/sliceToolsVersion = ${{ inputs.ice_version }}/" tools/slice-tools/gradle.properties
         working-directory: ice/java
         if: ${{ inputs.ice_version != '' }}
@@ -124,18 +118,6 @@ jobs:
           ../../gradlew publishAllPublicationsToSliceToolsRepository \
             -PmavenRepository=file://${{ github.workspace }}/local-repo
         working-directory: ice/java/tools/slice-tools
-
-      - name: Build Ice for Java Packages
-        run: ./gradlew dist
-        working-directory: ice/java
-
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: java-packages
-          path: |
-            ice/java/lib/*.jar
-            ice/java/lib/*.pom
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
