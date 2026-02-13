@@ -1,1 +1,2 @@
-libzeroc-ice3.8: package-name-doesnt-match-sonames *
+# Package bundles multiple Ice libraries with different sonames
+libzeroc-ice3.8: package-name-doesnt-match-sonames libDataStorm3.8 libGlacier23.8 libIce3.8 libIceBT3.8 libIceBox3.8 libIceDiscovery3.8 libIceGrid3.8 libIceLocatorDiscovery3.8 libIceStorm3.8

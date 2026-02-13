@@ -31,7 +31,7 @@ endif
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
 	MAKEFLAGS += -j$(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
 else
-	PROCESSORS := $(shell cat /proc/cpuinfo | grep processor | wc -l)
+	PROCESSORS := $(shell nproc 2>/dev/null || echo 1)
 	ifneq ($(PROCESSORS),0)
 	    MAKEFLAGS += -j$(PROCESSORS)
 	endif
@@ -97,7 +97,7 @@ override_dh_clean:
 	find . -iname "*.pyc" -exec rm -rf {} \;
 	dh_clean
 
-override_dh_systemd_enable:
+override_dh_installsystemd:
 	dh_installsystemd --name icegridregistry --no-enable --no-start
 	dh_installsystemd --name icegridnode --no-enable --no-start
 	dh_installsystemd --name glacier2router --no-enable --no-start
@@ -119,7 +119,6 @@ override_dh_install:
 	install -m 0644 ../common/icegridregistry.service $(DESTDIR)/lib/systemd/system/icegridregistry.service
 
 	dh_install
-	dh_missing --list-missing -XICE_LICENSE -XLICENSE
 
 override_dh_strip:
 	dh_strip
@@ -130,11 +129,3 @@ override_dh_strip:
 
 override_dh_installdocs:
 	dh_installdocs -A debian/README
-
-override_mh_install-arch:
-
-override_mh_install-indep:
-	mh_install
-
-get-orig-source:
-	uscan --download-current-version --rename --force-download

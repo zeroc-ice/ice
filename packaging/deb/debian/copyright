@@ -5,11 +5,11 @@ Source: https://github.com/zeroc-ice/
 Files-Excluded: */gradle/GRADLE_LICENSE */gradle/wrapper */gradlew* cpp/src/IceUtil/ConvertUTF.*
 
 Files: *
-Copyright: 2003-2019 ZeroC, Inc.
+Copyright: 2003-2026 ZeroC, Inc.
 License: GPL-2.0+exceptions
 
 Files: debian/*
-Copyright: 2003-2019 ZeroC, Inc.
+Copyright: 2003-2026 ZeroC, Inc.
            2016 Ondřej Surý
 License: GPL-2.0+exceptions
 
