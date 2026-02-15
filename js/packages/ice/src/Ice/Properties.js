@@ -91,7 +91,7 @@ export class Properties {
     }
 
     getPropertyAsList(key) {
-        return this.getPropertyAsListWithDefault(key, 0);
+        return this.getPropertyAsListWithDefault(key, []);
     }
 
     getIcePropertyAsList(key) {
@@ -216,7 +216,7 @@ export class Properties {
     }
 
     parse(data) {
-        data.match(/[^\r\n]+/g).forEach(line => this.parseLine(line));
+        (data.match(/[^\r\n]+/g) ?? []).forEach(line => this.parseLine(line));
     }
 
     parseLine(line) {
