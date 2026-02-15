@@ -19,6 +19,11 @@ import { SliceType } from "./SliceType.js";
 
 const endOfBufferMessage = "Attempting to unmarshal past the end of the buffer.";
 
+// Reusable TextDecoder instance for UTF-8 string decoding.
+// - fatal: true throws on invalid UTF-8 sequences instead of replacing with U+FFFD
+// - ignoreBOM: true does not interpret a leading BOM as a special character
+const textDecoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
+
 const slicingIds = new Map();
 function traceSlicing(kind, typeId, slicingCat, logger) {
     if (!slicingIds.has(typeId)) {
@@ -1316,17 +1321,13 @@ export class InputStream {
         if (len === 0) {
             return "";
         }
-        //
-        // Check the buffer has enough bytes to read.
-        //
-        if (this._buf.remaining < len) {
-            throw new MarshalException(endOfBufferMessage);
-        }
-
         try {
-            return this._buf.getString(len);
-        } catch {
-            throw new MarshalException(endOfBufferMessage);
+            return textDecoder.decode(this._buf.getView(len));
+        } catch (cause) {
+            if (cause instanceof RangeError) {
+                throw new MarshalException(endOfBufferMessage);
+            }
+            throw new MarshalException("invalid UTF-8 string", { cause });
         }
     }
 
