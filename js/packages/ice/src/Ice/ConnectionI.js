@@ -491,7 +491,7 @@ export class ConnectionI {
                     encodingVersion._read(this._readStream);
                     if (
                         encodingVersion.major != Protocol.currentProtocolEncoding.major ||
-                        protocolVersion.minor != Protocol.currentProtocolEncoding.minor
+                        encodingVersion.minor != Protocol.currentProtocolEncoding.minor
                     ) {
                         throw new MarshalException(
                             `Invalid protocol encoding version in message header: ${encodingVersion.major}.${encodingVersion.minor}`,
@@ -1068,7 +1068,7 @@ export class ConnectionI {
         encodingVersion._read(this._readStream);
         if (
             encodingVersion.major != Protocol.currentProtocolEncoding.major ||
-            protocolVersion.minor != Protocol.currentProtocolEncoding.minor
+            encodingVersion.minor != Protocol.currentProtocolEncoding.minor
         ) {
             throw new MarshalException(
                 `Invalid protocol encoding version in message header: ${encodingVersion.major}.${encodingVersion.minor}`,
