@@ -395,6 +395,9 @@ OpenSSL::SSLEngine::initialize()
             _ctx,
             reinterpret_cast<unsigned char*>(this),
             static_cast<unsigned int>(sizeof(this)));
+
+        // Clear password from memory after initialization is complete.
+        _password.clear();
     }
     catch (...)
     {
