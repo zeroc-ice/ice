@@ -428,7 +428,7 @@ const Property IceSSLPropsData[] =
     Property{"KeyFile", "", false, false, nullptr},
     Property{"Password", "", false, false, nullptr},
     Property{"RevocationCheck", "0", false, false, nullptr},
-    Property{"RevocationCheckCacheOnly", "0", false, false, nullptr},
+    Property{"RevocationCheckCacheOnly", "1", false, false, nullptr},
     Property{"Trace.Security", "0", false, false, nullptr},
     Property{"TrustOnly", "", false, false, nullptr},
     Property{"TrustOnly.Client", "", false, false, nullptr},
