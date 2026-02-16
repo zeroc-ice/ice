@@ -44,7 +44,10 @@ namespace
     SSL_CTX* defaultSSLContextSelectionCallback(const string&)
     {
         SSL_CTX* defaultSSLContext = SSL_CTX_new(TLS_method());
-        SSL_CTX_set_default_verify_paths(defaultSSLContext);
+        if (defaultSSLContext)
+        {
+            SSL_CTX_set_default_verify_paths(defaultSSLContext);
+        }
         return defaultSSLContext;
     }
 }
@@ -90,7 +93,13 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         }
         SSL_set_bio(_ssl, bio, bio);
 
-        SSL_set_ex_data(_ssl, 0, this);
+        if (!SSL_set_ex_data(_ssl, 0, this))
+        {
+            throw SecurityException(
+                __FILE__,
+                __LINE__,
+                "SSL transport: error setting ex data:\n" + _engine->sslErrors());
+        }
         SSL_set_verify(_ssl, SSL_get_verify_mode(_ssl), Ice_SSL_opensslVerifyCallback);
         // Enable SNI by default for outgoing connections. The SNI host name is always empty for incoming connections.
         if (!_host.empty() && !IceInternal::isIpAddress(_host) && !SSL_set_tlsext_host_name(_ssl, _host.c_str()))
@@ -108,6 +117,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
 
     while (!SSL_is_init_finished(_ssl))
     {
+        ERR_clear_error();
         int ret = _incoming ? SSL_accept(_ssl) : SSL_connect(_ssl);
 
         if (ret <= 0)

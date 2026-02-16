@@ -154,7 +154,10 @@ OpenSSL::SSLEngine::initialize()
             }
             else if (properties->getIcePropertyAsInt("IceSSL.UsePlatformCAs") > 0)
             {
-                SSL_CTX_set_default_verify_paths(_ctx);
+                if (!SSL_CTX_set_default_verify_paths(_ctx))
+                {
+                    getLogger()->warning("SSL transport: error setting default verify paths");
+                }
             }
         }
 
