@@ -60,9 +60,9 @@ namespace Ice::SSL
 
         std::string _password;
 
-        bool _checkCertName;
-        int _verifyPeer;
-        int _securityTraceLevel;
+        bool _checkCertName{false};
+        int _verifyPeer{0};
+        int _securityTraceLevel{0};
         std::string _securityTraceCategory;
         const bool _revocationCheckCacheOnly{false};
         const int _revocationCheck{0};
