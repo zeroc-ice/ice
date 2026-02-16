@@ -48,6 +48,9 @@ namespace IceInternal
         [[nodiscard]] std::size_t hash() const noexcept final;
 
         [[nodiscard]] TcpEndpointIPtr endpoint(const TcpAcceptorPtr&) const;
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+        [[nodiscard]] TcpEndpointIPtr endpoint(const NetworkFrameworkAcceptorPtr&) const;
+#endif
 
         using IPEndpointI::connectionId;
 

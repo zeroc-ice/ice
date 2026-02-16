@@ -327,7 +327,7 @@ Ice::ConnectionI::OutgoingMessage::sent()
 
     if (outAsync)
     {
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
         invokeSent = outAsync->sent();
         return invokeSent || receivedReply;
 #else
@@ -1064,7 +1064,7 @@ Ice::ConnectionI::setAdapterFromAdapter(const ObjectAdapterIPtr& adapter)
     _info = nullptr;
 }
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
 bool
 Ice::ConnectionI::startAsync(SocketOperation operation)
 {
@@ -1513,7 +1513,7 @@ ConnectionI::upcall(
     {
         for (const auto& sentCB : sentCBs)
         {
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
             if (sentCB.invokeSent)
             {
                 sentCB.outAsync->invokeSent();
@@ -1694,7 +1694,7 @@ Ice::ConnectionI::finish(bool close)
             OutgoingMessage* message = &_sendStreams.front();
             _writeStream.swap(*message->stream);
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
             //
             // The current message might be sent but not yet removed from _sendStreams. If
             // the response has been received in the meantime, we remove the message from
@@ -3324,7 +3324,7 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     // The message stream is adopted by the outgoing.
                     *outAsync->getIs() = std::move(stream);
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
                     //
                     // If we just received the reply of a request which isn't acknowledge as
                     // sent yet, we queue the reply instead of processing it right away. It

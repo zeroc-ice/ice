@@ -2,7 +2,7 @@
 
 #include "Ice/Config.h"
 
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
+#if !defined(__APPLE__)
 
 #    include "Ice/LoggerUtil.h"
 #    include "Network.h"

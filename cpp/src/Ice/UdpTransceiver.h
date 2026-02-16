@@ -39,7 +39,7 @@ namespace IceInternal
         EndpointIPtr bind() final;
         SocketOperation write(Buffer&) final;
         SocketOperation read(Buffer&) final;
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
         bool startWrite(Buffer&) final;
         void finishWrite(Buffer&) final;
         void startRead(Buffer&) final;

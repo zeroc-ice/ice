@@ -625,3 +625,34 @@ Ice::SSL::SecureTransport::TransceiverI::readRaw(byte* data, size_t* length) con
     }
     return noErr;
 }
+
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+//
+// Stubs — SecureTransport is not used with Network.framework connections.
+// TLS for NF is handled by nw_parameters TLS configuration instead.
+//
+bool
+Ice::SSL::SecureTransport::TransceiverI::startWrite(IceInternal::Buffer&)
+{
+    assert(false);
+    return false;
+}
+
+void
+Ice::SSL::SecureTransport::TransceiverI::finishWrite(IceInternal::Buffer&)
+{
+    assert(false);
+}
+
+void
+Ice::SSL::SecureTransport::TransceiverI::startRead(IceInternal::Buffer&)
+{
+    assert(false);
+}
+
+void
+Ice::SSL::SecureTransport::TransceiverI::finishRead(IceInternal::Buffer&)
+{
+    assert(false);
+}
+#endif

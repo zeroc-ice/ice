@@ -13,6 +13,10 @@
 #    include "TcpAcceptor.h"
 #    include "TcpConnector.h"
 #    include "TcpEndpointI.h"
+#    if defined(ICE_USE_NETWORK_FRAMEWORK)
+#        include "apple/NetworkFrameworkAcceptor.h"
+#        include "apple/NetworkFrameworkConnector.h"
+#    endif
 
 #    include "TcpTransceiver.h"
 #    include <utility>
@@ -168,13 +172,22 @@ IceInternal::TcpEndpointI::transceiver() const
 AcceptorPtr
 IceInternal::TcpEndpointI::acceptor(const string&, const optional<Ice::SSL::ServerAuthenticationOptions>&) const
 {
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    return make_shared<NetworkFrameworkAcceptor>(
+        dynamic_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()),
+        _instance,
+        _host,
+        _port);
+#else
     return make_shared<TcpAcceptor>(
         static_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()),
         _instance,
         _host,
         _port);
+#endif
 }
 
+#if !defined(ICE_USE_NETWORK_FRAMEWORK)
 TcpEndpointIPtr
 IceInternal::TcpEndpointI::endpoint(const TcpAcceptorPtr& acceptor) const
 {
@@ -188,6 +201,23 @@ IceInternal::TcpEndpointI::endpoint(const TcpAcceptorPtr& acceptor) const
         return make_shared<TcpEndpointI>(_instance, _host, port, _sourceAddr, _timeout, _connectionId, _compress);
     }
 }
+#endif
+
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+TcpEndpointIPtr
+IceInternal::TcpEndpointI::endpoint(const NetworkFrameworkAcceptorPtr& acceptor) const
+{
+    int port = acceptor->effectivePort();
+    if (_port == port)
+    {
+        return dynamic_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this());
+    }
+    else
+    {
+        return make_shared<TcpEndpointI>(_instance, _host, port, _sourceAddr, _timeout, _connectionId, _compress);
+    }
+}
+#endif
 
 string
 IceInternal::TcpEndpointI::options() const
@@ -364,7 +394,18 @@ IceInternal::TcpEndpointI::checkOption(const string& option, const string& argum
 ConnectorPtr
 IceInternal::TcpEndpointI::createConnector(const Address& address, const NetworkProxyPtr& proxy) const
 {
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    //
+    // Network.framework handles connections directly — no need for NetworkProxy or source address
+    // at the connector level. Network.framework uses system proxy settings automatically.
+    //
+    string host;
+    int port;
+    addrToAddressAndPort(address, host, port);
+    return make_shared<NetworkFrameworkConnector>(_instance, host, port, _sourceAddr, _timeout, _connectionId);
+#else
     return make_shared<TcpConnector>(_instance, address, proxy, _sourceAddr, _timeout, _connectionId);
+#endif
 }
 
 IPEndpointIPtr
