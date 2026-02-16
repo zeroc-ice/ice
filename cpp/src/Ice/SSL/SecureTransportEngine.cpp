@@ -750,7 +750,10 @@ SecureTransport::SSLEngine::validationCallback(SecTrustRef trust, const Connecti
 {
     OSStatus err = noErr;
     UniqueRef<CFErrorRef> trustErr;
-    assert(trust);
+    if (!trust)
+    {
+        throw SecurityException(__FILE__, __LINE__, "SSL transport: peer trust is null");
+    }
 
     // Do not allow to fetch missing intermediate certificates from the network.
     if ((err = SecTrustSetNetworkFetchAllowed(trust, false)))
