@@ -1408,7 +1408,8 @@ Schannel::SSLEngine::validationCallback(
         extraPolicyPara.dwAuthType = incoming ? AUTHTYPE_CLIENT : AUTHTYPE_SERVER;
         // Disable because the policy only matches the CN of the certificate, not the SAN.
         extraPolicyPara.fdwChecks = SECURITY_FLAG_IGNORE_CERT_CN_INVALID;
-        extraPolicyPara.pwszServerName = const_cast<wchar_t*>(Ice::stringToWstring(host).c_str());
+        wstring hostW = Ice::stringToWstring(host);
+        extraPolicyPara.pwszServerName = const_cast<wchar_t*>(hostW.c_str());
 
         CERT_CHAIN_POLICY_PARA policyPara;
         memset(&policyPara, 0, sizeof(policyPara));
