@@ -145,8 +145,6 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
             _credentials.paCred = &_allCerts[0];
         }
 
-        _credentials.hRootStore = _rootStore;
-
         err = AcquireCredentialsHandle(
             0,
             const_cast<char*>(UNISP_NAME),
