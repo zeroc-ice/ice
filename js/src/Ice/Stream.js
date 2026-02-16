@@ -41,16 +41,6 @@ const SliceType =
 };
 
 //
-// Number.isNaN polyfill for compatibility with IE
-//
-// see: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Number/isNaN
-//
-Number.isNaN = Number.isNaN || function(value)
-{
-    return typeof value === "number" && isNaN(value);
-};
-
-//
 // InputStream
 //
 
