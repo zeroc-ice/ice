@@ -81,7 +81,7 @@ namespace IceInternal
 
         bool ioCompleted(ThreadPoolCurrent&);
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
         bool startMessage(ThreadPoolCurrent&);
         void finishMessage(ThreadPoolCurrent&);
 #else
@@ -118,7 +118,7 @@ namespace IceInternal
 
         std::set<EventHandlerThreadPtr> _threads; // All threads, running or not.
         int _inUse{0};                            // Number of threads that are currently in use.
-#if !defined(ICE_USE_IOCP)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_USE_NETWORK_FRAMEWORK)
         int _inUseIO{0}; // Number of threads that are currently performing IO.
         std::vector<std::pair<EventHandler*, SocketOperation>> _handlers;
         std::vector<std::pair<EventHandler*, SocketOperation>>::const_iterator _nextHandler;
@@ -141,7 +141,7 @@ namespace IceInternal
             return _threadPool->ioCompleted(const_cast<ThreadPoolCurrent&>(*this));
         }
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
         bool startMessage() { return _threadPool->startMessage(const_cast<ThreadPoolCurrent&>(*this)); }
 
         void finishMessage() { _threadPool->finishMessage(const_cast<ThreadPoolCurrent&>(*this)); }
@@ -154,10 +154,13 @@ namespace IceInternal
         ThreadPool::EventHandlerThreadPtr _thread;
         EventHandlerPtr _handler;
         bool _ioCompleted{false};
-#if !defined(ICE_USE_IOCP)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_USE_NETWORK_FRAMEWORK)
         bool _leader{false};
-#else
+#elif defined(ICE_USE_IOCP)
         DWORD _count;
+        int _error;
+#else // ICE_USE_NETWORK_FRAMEWORK
+        size_t _count;
         int _error;
 #endif
         friend class ThreadPool;
@@ -171,9 +174,9 @@ namespace IceInternal
         void destroy();
         void queue(std::function<void(ThreadPoolCurrent&)>);
 
-#if defined(ICE_USE_IOCP)
-        bool startAsync(SocketOperation);
-        bool finishAsync(SocketOperation);
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
+        bool startAsync(SocketOperation) override;
+        bool finishAsync(SocketOperation) override;
 #endif
 
         void message(ThreadPoolCurrent&) override;
@@ -197,7 +200,7 @@ namespace IceInternal
 // the IOCP implementation and ensures that finishMessage isn't called multiple
 // times.
 //
-#if !defined(ICE_USE_IOCP)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_USE_NETWORK_FRAMEWORK)
     template<class T> class ThreadPoolMessage
     {
     public:

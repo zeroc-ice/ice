@@ -43,6 +43,15 @@ namespace Ice::SSL::SecureTransport
         [[nodiscard]] IceInternal::SocketOperation write(IceInternal::Buffer&) final;
         [[nodiscard]] IceInternal::SocketOperation read(IceInternal::Buffer&) final;
 
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+        // Stubs — SecureTransport is not used with Network.framework connections.
+        // TLS for NF is handled by nw_parameters TLS configuration instead.
+        bool startWrite(IceInternal::Buffer&) final;
+        void finishWrite(IceInternal::Buffer&) final;
+        void startRead(IceInternal::Buffer&) final;
+        void finishRead(IceInternal::Buffer&) final;
+#endif
+
         [[nodiscard]] std::string protocol() const final;
         [[nodiscard]] std::string toString() const final;
         [[nodiscard]] std::string toDetailedString() const final;

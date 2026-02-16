@@ -33,12 +33,12 @@ typedef int ssize_t;
 
 #if defined(__linux__)
 #    define ICE_USE_EPOLL 1
-#elif defined(__APPLE__) && TARGET_OS_IPHONE != 0
-#    define ICE_USE_CFSTREAM 1
-#elif defined(__APPLE__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
-#    define ICE_USE_KQUEUE 1
+#elif defined(__APPLE__)
+#    define ICE_USE_NETWORK_FRAMEWORK 1
 #elif defined(_WIN32)
 #    define ICE_USE_IOCP 1
+#elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+#    define ICE_USE_KQUEUE 1
 #else
 #    error "Unsupported platform"
 #endif
@@ -96,7 +96,7 @@ namespace IceInternal
         // With BSD sockets, write and connect readiness are the same so
         // we use the same value for both.
         SocketOperationWrite = 2,
-#ifdef ICE_USE_CFSTREAM
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
         SocketOperationConnect = 4
 #else
         SocketOperationConnect = 2
@@ -136,7 +136,7 @@ namespace IceInternal
 
         NativeInfo(SOCKET socketFd = INVALID_SOCKET)
             : _fd(socketFd)
-#if !defined(ICE_USE_IOCP)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_USE_NETWORK_FRAMEWORK)
               ,
               _newFd(INVALID_SOCKET)
 #endif
@@ -164,6 +164,9 @@ namespace IceInternal
         virtual AsyncInfo* getAsyncInfo(SocketOperation) = 0;
         void initialize(HANDLE, ULONG_PTR);
         void completed(SocketOperation);
+#elif defined(ICE_USE_NETWORK_FRAMEWORK)
+        void initialize(class Selector*, class EventHandler*);
+        void completed(SocketOperation);
 #else
         bool newFd();
         void setNewFd(SOCKET);
@@ -176,6 +179,9 @@ namespace IceInternal
 #if defined(ICE_USE_IOCP)
         HANDLE _handle;
         ULONG_PTR _key;
+#elif defined(ICE_USE_NETWORK_FRAMEWORK)
+        class Selector* _selector{nullptr};
+        class EventHandler* _eventHandler{nullptr};
 #else
         SOCKET _newFd;
 #endif

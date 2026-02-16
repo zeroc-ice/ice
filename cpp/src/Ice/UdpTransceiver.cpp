@@ -451,6 +451,34 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
     buf.b.resize(ret);
     buf.i = buf.b.end();
 }
+#elif defined(ICE_USE_NETWORK_FRAMEWORK)
+//
+// Stubs — UDP will be reimplemented with Network.framework's UDP transport.
+//
+bool
+IceInternal::UdpTransceiver::startWrite(Buffer&)
+{
+    assert(false);
+    return false;
+}
+
+void
+IceInternal::UdpTransceiver::finishWrite(Buffer&)
+{
+    assert(false);
+}
+
+void
+IceInternal::UdpTransceiver::startRead(Buffer&)
+{
+    assert(false);
+}
+
+void
+IceInternal::UdpTransceiver::finishRead(Buffer&)
+{
+    assert(false);
+}
 #endif
 
 string

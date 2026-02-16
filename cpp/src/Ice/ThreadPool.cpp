@@ -42,7 +42,7 @@ IceInternal::ThreadPoolWorkQueue::destroy()
     // lock_guard lock(_mutex); Called with the thread pool locked
     assert(!_destroyed);
     _destroyed = true;
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
     _threadPool._selector.completed(this, SocketOperationRead);
 #else
     _threadPool._selector.ready(this, SocketOperationRead, true);
@@ -54,7 +54,7 @@ IceInternal::ThreadPoolWorkQueue::queue(function<void(ThreadPoolCurrent&)> item)
 {
     // lock_guard lock(_mutex); Called with the thread pool locked
     _workItems.push_back(std::move(item));
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
     _threadPool._selector.completed(this, SocketOperationRead);
 #else
     if (_workItems.size() == 1)
@@ -64,7 +64,7 @@ IceInternal::ThreadPoolWorkQueue::queue(function<void(ThreadPoolCurrent&)> item)
 #endif
 }
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
 bool
 IceInternal::ThreadPoolWorkQueue::startAsync(SocketOperation)
 {
@@ -91,7 +91,7 @@ IceInternal::ThreadPoolWorkQueue::message(ThreadPoolCurrent& current)
             workItem = std::move(_workItems.front());
             _workItems.pop_front();
         }
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
         else
         {
             assert(_destroyed);
@@ -150,7 +150,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, string prefix, 
       _selector(instance),
       _serialize(_instance->initializationData().properties->getPropertyAsInt(_prefix + ".Serialize") > 0),
       _serverIdleTime(timeout)
-#if !defined(ICE_USE_IOCP)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_USE_NETWORK_FRAMEWORK)
       ,
       _nextHandler(_handlers.end())
 #endif
@@ -235,7 +235,7 @@ IceInternal::ThreadPool::initialize()
     const_cast<int&>(_sizeIO) = min(sizeMax, nProcessors);
     const_cast<int&>(_threadIdleTime) = threadIdleTime;
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
     _selector.setup(_sizeIO);
 #endif
 
@@ -345,7 +345,7 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler, bool closeNow)
 {
     lock_guard lock(_mutex);
     assert(!_destroyed);
-#if !defined(ICE_USE_IOCP)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_USE_NETWORK_FRAMEWORK)
     closeNow = _selector.finish(handler.get(), closeNow); // This must be called before!
     _workQueue->queue(
         [handler, closeNow](ThreadPoolCurrent& current)
@@ -362,7 +362,7 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler, bool closeNow)
         });
     return closeNow;
 #else
-    UNREFERENCED_PARAMETER(closeNow);
+    (void)closeNow;
 
     // If there are no pending asynchronous operations, we can call finish on the handler now.
     if (!handler->_pending)
@@ -471,7 +471,7 @@ IceInternal::ThreadPool::joinWithAllThreads()
 void
 IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 {
-#if !defined(ICE_USE_IOCP)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_USE_NETWORK_FRAMEWORK)
     ThreadPoolCurrent current(shared_from_this(), thread);
     bool select = false;
     while (true)
@@ -642,12 +642,14 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 }
                 else if (_inUse < static_cast<int>(_threads.size() - 1)) // If not the last idle thread, we can exit.
                 {
+#if defined(ICE_USE_IOCP)
                     BOOL hasIO = false;
                     GetThreadIOPendingFlag(GetCurrentThread(), &hasIO);
                     if (hasIO)
                     {
                         continue;
                     }
+#endif
 
                     if (_instance->traceLevels()->threadPool >= 1)
                     {
@@ -737,7 +739,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
 
     if (_sizeMax > 1)
     {
-#if !defined(ICE_USE_IOCP)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_USE_NETWORK_FRAMEWORK)
         --_inUseIO;
 
         if (!_destroyed)
@@ -802,7 +804,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
     return _sizeMax > 1 && _serialize && current._handler.get() != _workQueue.get();
 }
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
 bool
 IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
 {
@@ -814,9 +816,11 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
         current._handler->_completed = static_cast<SocketOperation>(current._handler->_completed | current.operation);
         current._handler->_started = static_cast<SocketOperation>(current._handler->_started & ~current.operation);
 
+#if defined(ICE_USE_IOCP)
         AsyncInfo* info = current._handler->getNativeInfo()->getAsyncInfo(current.operation);
         info->count = current._count;
         info->error = current._error;
+#endif
 
         if (!current._handler->finishAsync(current.operation)) // Returns false if the handler is finished.
         {
@@ -898,7 +902,7 @@ IceInternal::ThreadPool::finishMessage(ThreadPoolCurrent& current)
         finish(current._handler, false);
     }
 }
-#else
+#else // readiness-based (epoll/kqueue)
 void
 IceInternal::ThreadPool::promoteFollower(ThreadPoolCurrent& current)
 {

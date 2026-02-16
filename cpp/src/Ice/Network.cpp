@@ -7,6 +7,9 @@
 #include "NetworkProxy.h"
 #include "ProtocolInstance.h" // For setTcpBufSize
 #include "Random.h"
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+#    include "Selector.h"
+#endif
 
 #include "DisableWarnings.h"
 
@@ -496,6 +499,22 @@ IceInternal::NativeInfo::completed(SocketOperation operation)
     {
         throw Ice::SocketException(__FILE__, __LINE__, GetLastError());
     }
+}
+
+#elif defined(ICE_USE_NETWORK_FRAMEWORK)
+
+void
+IceInternal::NativeInfo::initialize(Selector* selector, EventHandler* handler)
+{
+    _selector = selector;
+    _eventHandler = handler;
+}
+
+void
+IceInternal::NativeInfo::completed(SocketOperation operation)
+{
+    assert(_selector);
+    _selector->completed(_eventHandler, operation);
 }
 
 #else
