@@ -38,7 +38,7 @@ Current.prototype.createEmptyOutgoingResponse = function () {
         try {
             ostr.writeEmptyEncapsulation(this.encoding);
         } catch (ex) {
-            return this.createOutgoingResponse(ex);
+            return this.createOutgoingResponseWithException(ex);
         }
     }
     return new OutgoingResponse(ostr);
@@ -47,9 +47,9 @@ Current.prototype.createEmptyOutgoingResponse = function () {
 Current.prototype.createOutgoingResponseWithException = function (exception) {
     try {
         return createOutgoingResponseCore(this, exception);
-    } catch {
+    } catch (ex) {
         // Try a second time with the marshal exception. This should not fail.
-        return createOutgoingResponseCore(this, exception);
+        return createOutgoingResponseCore(this, ex);
     }
 };
 
