@@ -317,7 +317,7 @@
         <property name="KeystoreType" languages="java" />
         <property name="Password" languages="cpp,csharp,java" />
         <property name="RevocationCheck" languages="cpp" default="0"/>
-        <property name="RevocationCheckCacheOnly" languages="cpp" default="0" />
+        <property name="RevocationCheckCacheOnly" languages="cpp" default="1" />
         <property name="Trace.Security" languages="cpp,csharp,java" default="0" />
         <property name="TrustOnly" languages="cpp,csharp,java" />
         <property name="TrustOnly.Client" languages="cpp,csharp,java" />
