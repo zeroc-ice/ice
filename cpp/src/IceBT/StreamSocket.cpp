@@ -131,7 +131,7 @@ IceBT::StreamSocket::read(char* buf, size_t length)
             }
             else
             {
-                throw Ice::ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
+                throw Ice::SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
         }
 
