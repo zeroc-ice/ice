@@ -6,6 +6,3 @@ RUN dnf install -y \
     gnupg2 \
     rpm-sign && \
     dnf clean all
-
-COPY packaging/rpm/create-rpm-repo.sh /usr/local/bin/create-rpm-repo
-RUN chmod +x /usr/local/bin/create-rpm-repo
