@@ -8,106 +8,217 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
-- [Changes since Ice 3.7.10](#changes-since-ice-3710)
-  - [C++ Changes](#c-changes)
-  - [C# Changes](#c-changes)
-- [Changes in Ice 3.7.10](#changes-in-ice-3710)
+- [Changes in Ice 3.7.11](#changes-in-ice-3711)
+  - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
   - [Java Changes](#java-changes)
+  - [JavaScript Changes](#javascript-changes)
+  - [MATLAB Changes](#matlab-changes)
   - [Python Changes](#python-changes)
-- [Changes in Ice 3.7.9](#changes-in-ice-379)
+  - [Ruby Changes](#ruby-changes)
+  - [Swift Changes](#swift-changes)
+  - [IceSSL Changes](#icessl-changes)
+  - [IceStorm Changes](#icestorm-changes)
+- [Changes in Ice 3.7.10](#changes-in-ice-3710)
   - [C++ Changes](#c-changes-2)
   - [C# Changes](#c-changes-3)
   - [Java Changes](#java-changes-1)
-  - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes-1)
-  - [Ruby Changes](#ruby-changes)
-  - [Swift Changes](#swift-changes)
-- [Changes in Ice 3.7.8](#changes-in-ice-378)
+- [Changes in Ice 3.7.9](#changes-in-ice-379)
   - [C++ Changes](#c-changes-4)
-  - [JavaScript Changes](#javascript-changes)
-  - [MATLAB Changes](#matlab-changes)
-  - [PHP Changes](#php-changes-1)
-  - [Python Changes](#python-changes-2)
-- [Changes in Ice 3.7.7](#changes-in-ice-377)
-  - [C++ Changes](#c-changes-5)
+  - [C# Changes](#c-changes-5)
   - [Java Changes](#java-changes-2)
-- [Changes in Ice 3.7.6](#changes-in-ice-376)
-  - [General Changes](#general-changes)
-  - [C++ Changes](#c-changes-6)
-  - [Java Changes](#java-changes-3)
-  - [JavaScript Changes](#javascript-changes-1)
-  - [Swift Changes](#swift-changes-1)
-- [Changes in Ice 3.7.5](#changes-in-ice-375)
-  - [General Changes](#general-changes-1)
-  - [C++ Changes](#c-changes-7)
-  - [C# Changes](#c-changes-8)
-  - [JavaScript Changes](#javascript-changes-2)
-  - [PHP Changes](#php-changes-2)
-  - [Python Changes](#python-changes-3)
+  - [PHP Changes](#php-changes)
+  - [Python Changes](#python-changes-2)
   - [Ruby Changes](#ruby-changes-1)
+  - [Swift Changes](#swift-changes-1)
+- [Changes in Ice 3.7.8](#changes-in-ice-378)
+  - [C++ Changes](#c-changes-6)
+  - [JavaScript Changes](#javascript-changes-1)
+  - [MATLAB Changes](#matlab-changes-1)
+  - [PHP Changes](#php-changes-1)
+  - [Python Changes](#python-changes-3)
+- [Changes in Ice 3.7.7](#changes-in-ice-377)
+  - [C++ Changes](#c-changes-7)
+  - [Java Changes](#java-changes-3)
+- [Changes in Ice 3.7.6](#changes-in-ice-376)
+  - [General Changes](#general-changes-1)
+  - [C++ Changes](#c-changes-8)
+  - [Java Changes](#java-changes-4)
+  - [JavaScript Changes](#javascript-changes-2)
   - [Swift Changes](#swift-changes-2)
-- [Changes in Ice 3.7.4](#changes-in-ice-374)
+- [Changes in Ice 3.7.5](#changes-in-ice-375)
   - [General Changes](#general-changes-2)
   - [C++ Changes](#c-changes-9)
   - [C# Changes](#c-changes-10)
   - [JavaScript Changes](#javascript-changes-3)
-  - [MATLAB Changes](#matlab-changes-1)
+  - [PHP Changes](#php-changes-2)
   - [Python Changes](#python-changes-4)
   - [Ruby Changes](#ruby-changes-2)
   - [Swift Changes](#swift-changes-3)
-- [Changes in Ice 3.7.3](#changes-in-ice-373)
+- [Changes in Ice 3.7.4](#changes-in-ice-374)
   - [General Changes](#general-changes-3)
   - [C++ Changes](#c-changes-11)
   - [C# Changes](#c-changes-12)
-  - [Java Changes](#java-changes-4)
   - [JavaScript Changes](#javascript-changes-4)
   - [MATLAB Changes](#matlab-changes-2)
   - [Python Changes](#python-changes-5)
-- [Changes in Ice 3.7.2](#changes-in-ice-372)
+  - [Ruby Changes](#ruby-changes-3)
+  - [Swift Changes](#swift-changes-4)
+- [Changes in Ice 3.7.3](#changes-in-ice-373)
   - [General Changes](#general-changes-4)
   - [C++ Changes](#c-changes-13)
   - [C# Changes](#c-changes-14)
   - [Java Changes](#java-changes-5)
   - [JavaScript Changes](#javascript-changes-5)
   - [MATLAB Changes](#matlab-changes-3)
-  - [Objective-C Changes](#objective-c-changes)
-  - [PHP Changes](#php-changes-3)
   - [Python Changes](#python-changes-6)
-- [Changes in Ice 3.7.1](#changes-in-ice-371)
+- [Changes in Ice 3.7.2](#changes-in-ice-372)
   - [General Changes](#general-changes-5)
   - [C++ Changes](#c-changes-15)
   - [C# Changes](#c-changes-16)
   - [Java Changes](#java-changes-6)
   - [JavaScript Changes](#javascript-changes-6)
   - [MATLAB Changes](#matlab-changes-4)
-  - [Objective-C Changes](#objective-c-changes-1)
-  - [PHP Changes](#php-changes-4)
+  - [Objective-C Changes](#objective-c-changes)
+  - [PHP Changes](#php-changes-3)
   - [Python Changes](#python-changes-7)
-  - [Ruby Changes](#ruby-changes-3)
-- [Changes in Ice 3.7.0](#changes-in-ice-370)
+- [Changes in Ice 3.7.1](#changes-in-ice-371)
   - [General Changes](#general-changes-6)
   - [C++ Changes](#c-changes-17)
   - [C# Changes](#c-changes-18)
   - [Java Changes](#java-changes-7)
   - [JavaScript Changes](#javascript-changes-7)
-  - [Objective-C Changes](#objective-c-changes-2)
-  - [PHP Changes](#php-changes-5)
+  - [MATLAB Changes](#matlab-changes-5)
+  - [Objective-C Changes](#objective-c-changes-1)
+  - [PHP Changes](#php-changes-4)
   - [Python Changes](#python-changes-8)
   - [Ruby Changes](#ruby-changes-4)
+- [Changes in Ice 3.7.0](#changes-in-ice-370)
+  - [General Changes](#general-changes-7)
+  - [C++ Changes](#c-changes-19)
+  - [C# Changes](#c-changes-20)
+  - [Java Changes](#java-changes-8)
+  - [JavaScript Changes](#javascript-changes-8)
+  - [Objective-C Changes](#objective-c-changes-2)
+  - [PHP Changes](#php-changes-5)
+  - [Python Changes](#python-changes-9)
+  - [Ruby Changes](#ruby-changes-5)
 
-# Changes since Ice 3.7.10
+# Changes in Ice 3.7.11
+
+These are the changes since Ice 3.7.10.
+
+## General Changes
+
+- The minimum supported macOS version is now 14.0 (Sonoma).
+
+- Updated MCPP preprocessor to version [2.7.2.20](https://github.com/zeroc-ice/mcpp/releases/tag/v2.7.2.20).
+  This applies to Windows and RHEL builds that use zeroc-ice/mcpp packages; other platforms use the system-provided MCPP.
+
+- Fixed a concurrent directory creation issue in the Slice compilers that could cause failures when multiple
+  slice2* processes ran in parallel. ([#1846](https://github.com/zeroc-ice/ice/issues/1846))
 
 ## C++ Changes
 
-- Fix bug with the Ice.ServerIdleTime affecting Apple platforms. (https://github.com/zeroc-ice/ice/issues/2025)
+- Fixed multiple bugs affecting `Ice.ServerIdleTime` on Apple platforms and AIX.
+  ([#2025](https://github.com/zeroc-ice/ice/issues/2025),
+  [#4897](https://github.com/zeroc-ice/ice/pull/4897))
+
+- Fixed a bug in C++ user exception marshaling that affected the C++11 mapping only.
+  ([#4823](https://github.com/zeroc-ice/ice/pull/4823))
+
+- Fixed C++ build failures with recent compilers including Clang 16, Clang in C++23 mode, and Xcode on macOS.
+  ([#2774](https://github.com/zeroc-ice/ice/pull/2774),
+  [#4799](https://github.com/zeroc-ice/ice/pull/4799),
+  [#4827](https://github.com/zeroc-ice/ice/pull/4827))
+
+- Fixed a bug in the OpenSSL IceSSL implementation where `ERR_get_error` was called incorrectly, which could
+  result in misleading error messages. ([#2153](https://github.com/zeroc-ice/ice/issues/2153))
 
 ## C# Changes
 
-- Fixed bug in the Ice for C# connection code. A connection no longer reads messages off the network when its
-  associated thread-pool has no thread available to process these messages. As a result, back-pressure now works in
-  Ice for C# just like in other language mappings.
+- Fixed a bug in the Ice for C# connection code. A connection no longer reads messages off the network when its
+  associated thread pool has no thread available to process these messages. As a result, back-pressure now works
+  in Ice for C# just like in other language mappings.
+  ([#2270](https://github.com/zeroc-ice/ice/pull/2270),
+  [#2372](https://github.com/zeroc-ice/ice/pull/2372))
+
+- Fixed a bug where C# connections did not correctly mark messages as sent.
+  ([#4861](https://github.com/zeroc-ice/ice/pull/4861))
+
+- Filter-out non-operational network interfaces when listening on a multicast endpoint.
+
+- The minimum supported .NET Framework version is now 4.7.2. The minimum supported .NET Standard version
+  remains 2.0. ([#4826](https://github.com/zeroc-ice/ice/pull/4826))
+
+## Java Changes
+
+- Fixed a `NullPointerException` in the Java Selector that could occur under certain conditions.
+  ([#4894](https://github.com/zeroc-ice/ice/pull/4894))
+
+- Fixed a bug where `ice_invoke` and `ice_invokeAsync` did not handle empty result buffers correctly.
+  ([#1733](https://github.com/zeroc-ice/ice/pull/1733))
+
+- Fixed IceGrid Glacier2 session managers to properly keep sessions alive.
+  ([#2756](https://github.com/zeroc-ice/ice/pull/2756))
+
+- Fixed an incorrect `synchronized` block in `ConnectionI.setAdapter`.
+  ([#2939](https://github.com/zeroc-ice/ice/pull/2939))
+
+- Fixed IceGridGUI look and feel issues. ([#4737](https://github.com/zeroc-ice/ice/pull/4737))
+
+## JavaScript Changes
+
+- Fixed a bug in the Ice for JavaScript property validation code, which resulted in incorrect property
+  validation for Ice properties. ([#4860](https://github.com/zeroc-ice/ice/pull/4860))
+
+- Stopped building ES5 JavaScript libraries with Babel. The Ice for JavaScript library now requires
+  an ES6-compatible runtime. ([#4893](https://github.com/zeroc-ice/ice/pull/4893))
+
+## MATLAB Changes
+
+- Fixed compatibility issues with MATLAB R2025a.
+  ([#4330](https://github.com/zeroc-ice/ice/pull/4330))
+
+## Python Changes
+
+- Added support for Python 3.13.
+  ([#4801](https://github.com/zeroc-ice/ice/pull/4801))
+
+- Fixed the `__repr__` method for `Ice.Unset`.
+  ([#2484](https://github.com/zeroc-ice/ice/pull/2484))
+
+## Ruby Changes
+
+- Fixed Ruby build failures on macOS.
+  ([#4814](https://github.com/zeroc-ice/ice/pull/4814))
+
+## Swift Changes
+
+- Added support for Swift 6. Exceptions are now marked as `@unchecked Sendable` to comply with
+  the Swift 6 error protocol requirements.
+  ([#3051](https://github.com/zeroc-ice/ice/pull/3051))
+
+- Fixed a race condition in the Swift mapping.
+  ([#3054](https://github.com/zeroc-ice/ice/pull/3054))
+
+## IceSSL Changes
+
+- Added `IceSSL.SecurityLevel` to the known property names to prevent "unknown property" warnings.
+  ([#2141](https://github.com/zeroc-ice/ice/issues/2141))
+
+- Fixed loading of certificates without a password.
+  ([#1812](https://github.com/zeroc-ice/ice/pull/1812))
+
+## IceStorm Changes
+
+- Fixed a bug in IceStorm transient topic destruction that could cause issues when destroying topics.
+  ([#4841](https://github.com/zeroc-ice/ice/pull/4841))
+
+- Fixed a bug with IceStorm subscriber observers.
+  ([#708](https://github.com/zeroc-ice/ice/issues/708))
 
 # Changes in Ice 3.7.10
 
