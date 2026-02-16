@@ -40,6 +40,11 @@ jobs:
       CHANNEL: ${{ inputs.channel }}
       MCPP_VERSION: v2.7.2.20
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          path: ice
+
       - name: Download RPM artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -89,7 +94,7 @@ jobs:
             -e GPG_KEY_ID="${GPG_KEY_ID}"
             ghcr.io/zeroc-ice/rpm-repo-builder:${CHANNEL}
           )
-          docker run "${docker_args[@]}" /usr/local/bin/create-rpm-repo \
+          docker run "${docker_args[@]}" /workspace/ice/packaging/rpm/create-rpm-repo.sh \
             --staging /workspace/staging/ \
             --repository "/workspace/${DISTRIBUTION}"
 
