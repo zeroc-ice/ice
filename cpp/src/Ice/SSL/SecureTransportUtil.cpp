@@ -83,6 +83,7 @@ namespace
                 case ';':
                 {
                     os << '\\';
+                    [[fallthrough]];
                 }
                 default:
                 {
