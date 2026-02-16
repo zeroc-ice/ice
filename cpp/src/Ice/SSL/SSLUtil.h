@@ -34,7 +34,7 @@ namespace Ice::SSL
     const int AltNameDirectory = 4;
     // const int AltNameEDIPartyName = 5;
     const int AltNameURL = 6;
-    const int AltNAmeIP = 7;
+    const int AltNameIP = 7;
     // const AltNameObjectIdentifier = 8;
 
     // Read a file into memory buffer.
