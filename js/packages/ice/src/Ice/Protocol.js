@@ -186,7 +186,7 @@ function stringToMajor(str) {
         }
         return majVersion;
     } catch (ex) {
-        throw new ParseException(`invalid version value in '${str}'`, ex);
+        throw new ParseException(`invalid version value in '${str}'`, { cause: ex });
     }
 }
 
@@ -203,7 +203,7 @@ function stringToMinor(str) {
         }
         return minVersion;
     } catch (ex) {
-        throw new ParseException(`invalid version value in '${str}'`, ex);
+        throw new ParseException(`invalid version value in '${str}'`, { cause: ex });
     }
 }
 

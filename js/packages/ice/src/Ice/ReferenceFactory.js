@@ -210,7 +210,7 @@ export class ReferenceFactory {
                     try {
                         facet = StringUtil.unescapeString(argument, 0, argument.length);
                     } catch (ex) {
-                        throw new ParseException(`invalid facet in ${s}': `, ex);
+                        throw new ParseException(`invalid facet in ${s}': `, { cause: ex });
                     }
 
                     break;
@@ -272,7 +272,7 @@ export class ReferenceFactory {
                     try {
                         encoding = stringToEncodingVersion(argument);
                     } catch (e) {
-                        throw new ParseException(`invalid encoding version '${argument}' in '${s}'`, e);
+                        throw new ParseException(`invalid encoding version '${argument}' in '${s}'`, { cause: e });
                     }
                     break;
                 }
@@ -287,7 +287,7 @@ export class ReferenceFactory {
                     } catch (
                         e // ParseException
                     ) {
-                        throw new ParseException(`invalid protocol version '${argument}' in '${s}'`, e);
+                        throw new ParseException(`invalid protocol version '${argument}' in '${s}'`, { cause: e });
                     }
                     break;
                 }
@@ -397,7 +397,7 @@ export class ReferenceFactory {
             try {
                 adapter = StringUtil.unescapeString(adapterstr, 0, adapterstr.length);
             } catch (ex) {
-                throw new ParseException(`invalid adapter id in '${s}'`, ex);
+                throw new ParseException(`invalid adapter id in '${s}'`, { cause: ex });
             }
             if (adapter.length === 0) {
                 throw new ParseException(`empty adapter id in '${s}'`);
