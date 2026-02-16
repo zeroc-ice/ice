@@ -24,6 +24,11 @@ require("../Ice/Version");
 // Singleton TextEncoder for UTF-8 string encoding
 const textEncoder = new TextEncoder();
 
+// Reusable TextDecoder instance for UTF-8 string decoding.
+// - fatal: true throws on invalid UTF-8 sequences instead of replacing with U+FFFD
+// - ignoreBOM: true does not interpret a leading BOM as a special character
+const textDecoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
+
 const ArrayUtil = Ice.ArrayUtil;
 const Debug = Ice.Debug;
 const ExUtil = Ice.ExUtil;
@@ -1744,21 +1749,17 @@ class InputStream
         {
             return "";
         }
-        //
-        // Check the buffer has enough bytes to read.
-        //
-        if(this._buf.remaining < len)
-        {
-            throw new Ice.UnmarshalOutOfBoundsException();
-        }
-
         try
         {
-            return this._buf.getString(len);
+            return textDecoder.decode(this._buf.getView(len));
         }
         catch(ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            if(ex instanceof RangeError)
+            {
+                throw new Ice.UnmarshalOutOfBoundsException();
+            }
+            throw new Ice.MarshalException("invalid UTF-8 string");
         }
     }
 
