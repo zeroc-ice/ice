@@ -45,7 +45,7 @@ extern "C"
         assert(p);
         string passwd = p->password();
         int sz = static_cast<int>(passwd.size());
-        if (sz > size)
+        if (sz >= size)
         {
             sz = size - 1;
         }
