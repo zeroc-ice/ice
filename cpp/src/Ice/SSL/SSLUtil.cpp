@@ -95,7 +95,7 @@ Ice::SSL::readFile(const string& file, vector<char>& buffer)
     streampos size = is.tellg();
     if (size == streampos(-1))
     {
-        throw CertificateReadException(__FILE__, __LINE__, "error determining file size " + file);
+        throw CertificateReadException(__FILE__, __LINE__, "error determining file size: " + file);
     }
     buffer.resize(static_cast<size_t>(size));
     is.seekg(0, is.beg);
