@@ -59,8 +59,9 @@ Ice::SSL::SSLEngine::initialize()
     _securityTraceLevel = properties->getIcePropertyAsInt("IceSSL.Trace.Security");
     _securityTraceCategory = "Security";
 
-    _revocationCheckCacheOnly = properties->getIcePropertyAsInt("IceSSL.RevocationCheckCacheOnly") > 0;
-    _revocationCheck = properties->getIcePropertyAsInt("IceSSL.RevocationCheck");
+    const_cast<bool&>(_revocationCheckCacheOnly) =
+        properties->getIcePropertyAsInt("IceSSL.RevocationCheckCacheOnly") > 0;
+    const_cast<int&>(_revocationCheck) = properties->getIcePropertyAsInt("IceSSL.RevocationCheck");
 }
 
 void
