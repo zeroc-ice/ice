@@ -968,7 +968,7 @@ Schannel::SSLEngine::initialize()
                     if (strcmp(keyInfo->Algorithm.pszObjId, szOID_RSA_RSA))
                     {
                         ostringstream os;
-                        os << "SSL transport: error unknown key algorithm: '" << keyInfo->Algorithm.pszObjId << "'";
+                        os << "SSL transport: unknown key algorithm: '" << keyInfo->Algorithm.pszObjId << "'";
                         throw InitializationException(__FILE__, __LINE__, os.str());
                     }
 
