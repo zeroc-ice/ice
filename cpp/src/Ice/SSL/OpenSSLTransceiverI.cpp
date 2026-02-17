@@ -41,7 +41,7 @@ namespace
 {
     bool defaultVerificationCallback(bool ok, X509_STORE_CTX*, const Ice::SSL::ConnectionInfoPtr&) { return ok; }
 
-    // Returns nullptr if SSL_CTX_new fails; the caller is responsible for checking the return value.
+    /// Returns nullptr if SSL_CTX_new fails; the caller is responsible for checking the return value.
     SSL_CTX* defaultSSLContextSelectionCallback(const string&)
     {
         SSL_CTX* defaultSSLContext = SSL_CTX_new(TLS_method());
