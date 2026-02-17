@@ -180,6 +180,7 @@ internal sealed class TrustManager
             {
                 _communicator.getLogger().warning(
                     $"IceSSL: unable to parse certificate DN `{subjectName}'\nreason: {e.Message}");
+                return false;
             }
 
             // At this point we accept the connection if there are no explicit accept rules.
