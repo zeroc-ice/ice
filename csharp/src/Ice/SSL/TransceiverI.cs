@@ -464,7 +464,8 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
 
         if (_incoming && (errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) != 0 && _verifyPeer <= 1)
         {
-            // The client certificate is optional when IceSSL.VerifyPeer = 1, and not required when IceSSL.VerifyPeer = 0
+            // The client certificate is optional when IceSSL.VerifyPeer = 1, and not required when IceSSL.VerifyPeer = 0.
+            // Clear the error to allow the connection to proceed without a client certificate.
             errors &= ~(int)SslPolicyErrors.RemoteCertificateNotAvailable;
         }
 

@@ -18,7 +18,7 @@ public final class ConnectionInfo extends com.zeroc.Ice.ConnectionInfo {
     ConnectionInfo(com.zeroc.Ice.ConnectionInfo underlying, String cipher, Certificate[] certs, boolean verified) {
         super(underlying);
         this.cipher = cipher;
-        this.certs = certs != null ? certs.clone() : null;
+        this.certs = certs;
         this.verified = verified;
     }
 }
