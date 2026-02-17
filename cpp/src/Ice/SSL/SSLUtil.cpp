@@ -475,7 +475,7 @@ namespace
         BIO* out = BIO_new(BIO_s_mem());
         if (!out)
         {
-            return "";
+            throw CertificateEncodingException(__FILE__, __LINE__, "SSL transport: error allocating BIO");
         }
         X509_NAME_print_ex(out, name, 0, XN_FLAG_RFC2253);
         BUF_MEM* p;
