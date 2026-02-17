@@ -118,69 +118,70 @@ internal sealed class TrustManager
             X500DistinguishedName subjectDN = info.certs[0].SubjectName;
             string subjectName = subjectDN.Name;
             Debug.Assert(subjectName != null);
+            // Decompose the subject DN into the RDNs.
+            if (_traceLevel > 0)
+            {
+                if (info.incoming)
+                {
+                    _communicator.getLogger().trace("Security", "trust manager evaluating client:\n" +
+                        "subject = " + subjectName + "\n" + "adapter = " + info.adapterName + "\n" + description);
+                }
+                else
+                {
+                    _communicator.getLogger().trace("Security", "trust manager evaluating server:\n" +
+                        "subject = " + subjectName + "\n" + description);
+                }
+            }
+
+            List<RFC2253.RDNPair> dn;
             try
             {
-                // Decompose the subject DN into the RDNs.
-                if (_traceLevel > 0)
-                {
-                    if (info.incoming)
-                    {
-                        _communicator.getLogger().trace("Security", "trust manager evaluating client:\n" +
-                            "subject = " + subjectName + "\n" + "adapter = " + info.adapterName + "\n" + description);
-                    }
-                    else
-                    {
-                        _communicator.getLogger().trace("Security", "trust manager evaluating server:\n" +
-                            "subject = " + subjectName + "\n" + description);
-                    }
-                }
-
-                List<RFC2253.RDNPair> dn = RFC2253.parseStrict(subjectName);
-
-                // Unescape the DN. Note that this isn't done in the parser in order to keep the various RFC2253
-                // implementations as close as possible.
-                for (int i = 0; i < dn.Count; ++i)
-                {
-                    RFC2253.RDNPair p = dn[i];
-                    p.value = RFC2253.unescape(p.value);
-                    dn[i] = p;
-                }
-
-                // Fail if we match anything in the reject set.
-                foreach (List<List<RFC2253.RDNPair>> matchSet in reject)
-                {
-                    if (_traceLevel > 0)
-                    {
-                        var s = new StringBuilder("trust manager rejecting PDNs:\n");
-                        stringify(matchSet, s);
-                        _communicator.getLogger().trace("Security", s.ToString());
-                    }
-                    if (match(matchSet, dn))
-                    {
-                        return false;
-                    }
-                }
-
-                // Succeed if we match anything in the accept set.
-                foreach (List<List<RFC2253.RDNPair>> matchSet in accept)
-                {
-                    if (_traceLevel > 0)
-                    {
-                        var s = new StringBuilder("trust manager accepting PDNs:\n");
-                        stringify(matchSet, s);
-                        _communicator.getLogger().trace("Security", s.ToString());
-                    }
-                    if (match(matchSet, dn))
-                    {
-                        return true;
-                    }
-                }
+                dn = RFC2253.parseStrict(subjectName);
             }
             catch (ParseException e)
             {
                 _communicator.getLogger().warning(
                     $"IceSSL: unable to parse certificate DN `{subjectName}'\nreason: {e.Message}");
                 return false;
+            }
+
+            // Unescape the DN. Note that this isn't done in the parser in order to keep the various RFC2253
+            // implementations as close as possible.
+            for (int i = 0; i < dn.Count; ++i)
+            {
+                RFC2253.RDNPair p = dn[i];
+                p.value = RFC2253.unescape(p.value);
+                dn[i] = p;
+            }
+
+            // Fail if we match anything in the reject set.
+            foreach (List<List<RFC2253.RDNPair>> matchSet in reject)
+            {
+                if (_traceLevel > 0)
+                {
+                    var s = new StringBuilder("trust manager rejecting PDNs:\n");
+                    stringify(matchSet, s);
+                    _communicator.getLogger().trace("Security", s.ToString());
+                }
+                if (match(matchSet, dn))
+                {
+                    return false;
+                }
+            }
+
+            // Succeed if we match anything in the accept set.
+            foreach (List<List<RFC2253.RDNPair>> matchSet in accept)
+            {
+                if (_traceLevel > 0)
+                {
+                    var s = new StringBuilder("trust manager accepting PDNs:\n");
+                    stringify(matchSet, s);
+                    _communicator.getLogger().trace("Security", s.ToString());
+                }
+                if (match(matchSet, dn))
+                {
+                    return true;
+                }
             }
 
             // At this point we accept the connection if there are no explicit accept rules.
