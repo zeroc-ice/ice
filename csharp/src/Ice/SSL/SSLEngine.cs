@@ -308,6 +308,10 @@ internal class SSLEngine
     {
         // Skip whitespace
         path = path.Trim();
+        if (path.Length == 0)
+        {
+            return false;
+        }
 
         if (AssemblyUtil.isWindows)
         {
@@ -323,11 +327,7 @@ internal class SSLEngine
                 return path[1] == ':' && (path[2] == '\\' || path[2] == '/');
             }
         }
-        // Check for UNC path
-        if (path.Length == 0)
-        {
-            return false;
-        }
+        // Check for UNC path or Unix absolute path
         return (path.Length >= 2 && path[0] == '\\' && path[1] == '\\') || path[0] == '/';
     }
 
