@@ -32,8 +32,10 @@ namespace Ice::SSL
         ///
         /// This callback is invoked by the SSL transport for each new outgoing connection before starting the SSL
         /// handshake to determine the appropriate client credentials. The callback must return a `SCH_CREDENTIALS` that
-        /// represents the client's credentials. The SSL transport takes ownership of the credentials' `paCred` and
-        /// `hRootStore` members and releases them when the connection is closed.
+        /// represents the client's credentials. The SSL transport takes ownership of the credentials' `paCred`
+        /// member and releases it when the connection is closed. The `hRootStore` from the returned credentials is not
+        /// used for certificate validation; use `trustedRootCertificates` or `serverCertificateValidationCallback`
+        /// instead.
         ///
         /// @param host The target host name.
         /// @return The client SSL credentials.
