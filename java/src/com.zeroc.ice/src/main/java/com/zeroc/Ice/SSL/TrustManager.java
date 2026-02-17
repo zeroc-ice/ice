@@ -157,6 +157,7 @@ class TrustManager {
             } catch (ParseException ex) {
                 String m = "Ice.SSL: unable to parse certificate DN `" + subjectName + "'\nreason: " + ex.getMessage();
                 _communicator.getLogger().warning(m);
+                return false;
             }
 
             // At this point we accept the connection if there are no explicit accept rules.
