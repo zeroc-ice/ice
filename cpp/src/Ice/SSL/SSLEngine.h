@@ -57,10 +57,9 @@ namespace Ice::SSL
     private:
         const IceInternal::InstancePtr _instance;
         const TrustManagerPtr _trustManager;
-
-        bool _checkCertName;
-        int _verifyPeer;
-        int _securityTraceLevel;
+        bool _checkCertName{false};
+        int _verifyPeer{0};
+        int _securityTraceLevel{0};
         std::string _securityTraceCategory;
         const bool _revocationCheckCacheOnly{false};
         const int _revocationCheck{0};

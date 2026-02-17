@@ -258,8 +258,8 @@ class RFC2253 {
         }
 
         if (special.indexOf(state.data.charAt(state.pos)) != -1
-            || state.data.charAt(state.pos) != '\\'
-            || state.data.charAt(state.pos) != '"') {
+            || state.data.charAt(state.pos) == '\\'
+            || state.data.charAt(state.pos) == '"') {
             result += state.data.charAt(state.pos);
             ++state.pos;
             return result;

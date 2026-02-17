@@ -274,7 +274,6 @@ internal class SSLEngine
             ServerCertificate = cert,
             ClientCertificateRequired = _verifyPeer > 0,
             RemoteCertificateValidationCallback = remoteCertificateValidationCallback,
-            CertificateRevocationCheckMode = X509RevocationMode.NoCheck
         };
 
         authenticationOptions.CertificateChainPolicy = new X509ChainPolicy();

@@ -101,62 +101,70 @@ class TrustManager {
             X500Principal subjectDN = ((X509Certificate) info.certs[0]).getSubjectX500Principal();
             String subjectName = subjectDN.getName(X500Principal.RFC2253);
             assert subjectName != null;
+            // Decompose the subject DN into the RDNs.
+            if (_traceLevel > 0) {
+                if (info.incoming) {
+                    _communicator
+                        .getLogger()
+                        .trace(
+                            "Security",
+                            "trust manager evaluating client:\n"
+                                + "subject = "
+                                + subjectName
+                                + "\n"
+                                + "adapter = "
+                                + info.adapterName
+                                + "\n"
+                                + desc);
+                } else {
+                    _communicator
+                        .getLogger()
+                        .trace(
+                            "Security",
+                            "trust manager evaluating server:\n"
+                                + "subject = "
+                                + subjectName
+                                + "\n"
+                                + desc);
+                }
+            }
+
+            List<RFC2253.RDNPair> dn;
             try {
-                // Decompose the subject DN into the RDNs.
-                if (_traceLevel > 0) {
-                    if (info.incoming) {
-                        _communicator
-                            .getLogger()
-                            .trace(
-                                "Security",
-                                "trust manager evaluating client:\n"
-                                    + "subject = "
-                                    + subjectName
-                                    + "\n"
-                                    + "adapter = "
-                                    + info.adapterName
-                                    + "\n"
-                                    + desc);
-                    } else {
-                        _communicator
-                            .getLogger()
-                            .trace(
-                                "Security",
-                                "trust manager evaluating server:\n"
-                                    + "subject = "
-                                    + subjectName
-                                    + "\n"
-                                    + desc);
-                    }
-                }
-                List<RFC2253.RDNPair> dn = RFC2253.parseStrict(subjectName);
-
-                // Fail if we match anything in the reject set.
-                for (List<List<RFC2253.RDNPair>> matchSet : reject) {
-                    if (_traceLevel > 1) {
-                        StringBuilder s = new StringBuilder("trust manager rejecting PDNs:\n");
-                        stringify(matchSet, s);
-                        _communicator.getLogger().trace("Security", s.toString());
-                    }
-                    if (match(matchSet, dn)) {
-                        return false;
-                    }
-                }
-
-                // Succeed if we match anything in the accept set.
-                for (List<List<RFC2253.RDNPair>> matchSet : accept) {
-                    if (_traceLevel > 1) {
-                        StringBuilder s = new StringBuilder("trust manager accepting PDNs:\n");
-                        stringify(matchSet, s);
-                        _communicator.getLogger().trace("Security", s.toString());
-                    }
-                    if (match(matchSet, dn)) {
-                        return true;
-                    }
-                }
+                dn = RFC2253.parseStrict(subjectName);
             } catch (ParseException ex) {
-                String m = "Ice.SSL: unable to parse certificate DN `" + subjectName + "'\nreason: " + ex.getMessage();
-                _communicator.getLogger().warning(m);
+                _communicator
+                    .getLogger()
+                    .warning(
+                        "Ice.SSL: unable to parse certificate DN `"
+                            + subjectName
+                            + "'\nreason: "
+                            + ex.getMessage());
+                return false;
+            }
+
+            // Fail if we match anything in the reject set.
+            for (List<List<RFC2253.RDNPair>> matchSet : reject) {
+                if (_traceLevel > 1) {
+                    StringBuilder s = new StringBuilder("trust manager rejecting PDNs:\n");
+                    stringify(matchSet, s);
+                    _communicator.getLogger().trace("Security", s.toString());
+                }
+                if (match(matchSet, dn)) {
+                    return false;
+                }
+            }
+
+            // Succeed if we match anything in the accept set.
+            for (List<List<RFC2253.RDNPair>> matchSet : accept) {
+                if (_traceLevel > 1) {
+                    StringBuilder s = new StringBuilder("trust manager accepting PDNs:\n");
+                    stringify(matchSet, s);
+                    _communicator.getLogger().trace("Security", s.toString());
+                }
+                if (match(matchSet, dn)) {
+                    return true;
+                }
             }
 
             // At this point we accept the connection if there are no explicit accept rules.

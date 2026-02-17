@@ -44,20 +44,18 @@ extern "C"
         auto* p = reinterpret_cast<OpenSSL::SSLEngine*>(userData);
         assert(p);
         string passwd = p->password();
-        int sz = static_cast<int>(passwd.size());
-        if (sz > size)
-        {
-            sz = size - 1;
-        }
-        strncpy(buf, passwd.c_str(), sz);
-        buf[sz] = '\0';
+
+        // Follow the OpenSSL documentation example: copy the password into the buffer, truncating if necessary, and
+        // null-terminate. See https://docs.openssl.org/3.0/man3/SSL_CTX_set_default_passwd_cb/#examples
+        strncpy(buf, passwd.c_str(), static_cast<size_t>(size));
+        buf[size - 1] = '\0';
 
         for (auto& character : passwd)
         {
             character = '\0';
         }
 
-        return sz;
+        return static_cast<int>(strlen(buf));
     }
 }
 
@@ -154,7 +152,10 @@ OpenSSL::SSLEngine::initialize()
             }
             else if (properties->getIcePropertyAsInt("IceSSL.UsePlatformCAs") > 0)
             {
-                SSL_CTX_set_default_verify_paths(_ctx);
+                if (!SSL_CTX_set_default_verify_paths(_ctx))
+                {
+                    throw InitializationException(__FILE__, __LINE__, "IceSSL: unable to set default verify paths");
+                }
             }
         }
 

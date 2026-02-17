@@ -138,14 +138,10 @@ public class SSLEngine {
 
                     String algorithm = KeyManagerFactory.getDefaultAlgorithm();
                     KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-                    char[] passwordChars = new char[0]; // This password cannot be null.
-                    if (!password.isEmpty()) {
-                        passwordChars = password.toCharArray();
-                    }
+                    // This password cannot be null.
+                    char[] passwordChars = password.isEmpty() ? new char[0] : password.toCharArray();
                     kmf.init(keys, passwordChars);
-                    if (passwordChars.length > 0) {
-                        Arrays.fill(passwordChars, '\0');
-                    }
+                    Arrays.fill(passwordChars, '\0');
                     password = null;
                     keyManagers = kmf.getKeyManagers();
 
@@ -315,7 +311,7 @@ public class SSLEngine {
         } else {
             // Enable the HTTPS hostname verification algorithm
             if (_checkCertName && _verifyPeer > 0 && host != null) {
-                SSLParameters params = new SSLParameters();
+                SSLParameters params = engine.getSSLParameters();
                 params.setEndpointIdentificationAlgorithm("HTTPS");
                 engine.setSSLParameters(params);
             }

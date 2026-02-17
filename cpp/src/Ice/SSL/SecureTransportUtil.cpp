@@ -72,22 +72,9 @@ namespace
         ostringstream os;
         for (char i : name)
         {
-            switch (i)
+            if (i == ',' || i == '=' || i == '+' || i == '<' || i == '>' || i == '#' || i == ';')
             {
-                case ',':
-                case '=':
-                case '+':
-                case '<':
-                case '>':
-                case '#':
-                case ';':
-                {
-                    os << '\\';
-                }
-                default:
-                {
-                    break;
-                }
+                os << '\\';
             }
             os << i;
         }
@@ -481,7 +468,7 @@ namespace
         UniqueRef<SecKeyRef> key;
         for (CFIndex i = 0; i < count; ++i)
         {
-            auto itemRef = static_cast<SecKeychainItemRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), 0)));
+            auto itemRef = static_cast<SecKeychainItemRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), i)));
             if (SecKeyGetTypeID() == CFGetTypeID(itemRef))
             {
                 key.retain(reinterpret_cast<SecKeyRef>(itemRef));
