@@ -45,12 +45,12 @@ extern "C"
         assert(p);
         string passwd = p->password();
         int sz = static_cast<int>(passwd.size());
-        if (sz >= size)
+        if (sz > size)
         {
-            sz = size - 1;
+            // Password too long for the buffer.
+            return -1;
         }
-        strncpy(buf, passwd.c_str(), sz);
-        buf[sz] = '\0';
+        memcpy(buf, passwd.c_str(), sz);
 
         for (auto& character : passwd)
         {
