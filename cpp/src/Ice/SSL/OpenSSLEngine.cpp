@@ -396,11 +396,15 @@ OpenSSL::SSLEngine::initialize()
             reinterpret_cast<unsigned char*>(this),
             static_cast<unsigned int>(sizeof(this)));
 
-        // Clear password from memory after initialization is complete.
+        // Scrub the password from memory now that initialization is complete.
+        OPENSSL_cleanse(_password.data(), _password.size());
         _password.clear();
     }
     catch (...)
     {
+        // Scrub the password from memory even if initialization fails.
+        OPENSSL_cleanse(_password.data(), _password.size());
+        _password.clear();
         SSL_CTX_free(_ctx);
         _ctx = nullptr;
         throw;
