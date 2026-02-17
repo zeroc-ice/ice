@@ -72,7 +72,7 @@ namespace Ice::SSL::SecureTransport
             SSLWantWrite = 0x2
         };
 
-        mutable std::uint8_t _tflags;
+        mutable std::uint8_t _tflags{0};
         IceInternal::UniqueRef<SecCertificateRef> _peerCertificate;
         size_t _buffered;
         std::function<void(SSLContextRef, const std::string&)> _sslNewSessionCallback;
