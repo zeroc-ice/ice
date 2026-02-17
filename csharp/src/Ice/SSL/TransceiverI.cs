@@ -508,7 +508,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
     private bool _authenticated;
     private Task _writeResult;
     private Task<int> _readResult;
-    private string _cipher;
+    private string _cipher = "";
     private bool _verified;
     private readonly SslServerAuthenticationOptions _serverAuthenticationOptions;
     private readonly CancellationTokenSource _sslHandshakeCts = new();

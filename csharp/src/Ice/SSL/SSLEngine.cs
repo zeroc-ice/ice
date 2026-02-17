@@ -29,6 +29,10 @@ internal class SSLEngine
         _defaultDir = properties.getIceProperty("IceSSL.DefaultDir");
 
         _verifyPeer = properties.getIcePropertyAsInt("IceSSL.VerifyPeer");
+        if (_verifyPeer < 0 || _verifyPeer > 2)
+        {
+            throw new Ice.InitializationException("SSL transport: invalid value for IceSSL.VerifyPeer");
+        }
 
         // CheckCRL determines whether the certificate revocation list is checked, and how strictly.
         _checkCRL = properties.getIcePropertyAsInt("IceSSL.CheckCRL");
@@ -303,6 +307,10 @@ internal class SSLEngine
     {
         // Skip whitespace
         path = path.Trim();
+        if (path.Length == 0)
+        {
+            return false;
+        }
 
         if (AssemblyUtil.isWindows)
         {
@@ -318,8 +326,8 @@ internal class SSLEngine
                 return path[1] == ':' && (path[2] == '\\' || path[2] == '/');
             }
         }
-        // Check for UNC path
-        return (path[0] == '\\' && path[1] == '\\') || path[0] == '/';
+        // Check for UNC path or Unix absolute path
+        return (path.Length >= 2 && path[0] == '\\' && path[1] == '\\') || path[0] == '/';
     }
 
     private static X509Certificate2Collection findCertificates(
