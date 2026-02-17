@@ -72,23 +72,9 @@ namespace
         ostringstream os;
         for (char i : name)
         {
-            switch (i)
+            if (i == ',' || i == '=' || i == '+' || i == '<' || i == '>' || i == '#' || i == ';')
             {
-                case ',':
-                case '=':
-                case '+':
-                case '<':
-                case '>':
-                case '#':
-                case ';':
-                {
-                    os << '\\';
-                    [[fallthrough]];
-                }
-                default:
-                {
-                    break;
-                }
+                os << '\\';
             }
             os << i;
         }
