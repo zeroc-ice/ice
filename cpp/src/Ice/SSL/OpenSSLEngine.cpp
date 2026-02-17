@@ -156,10 +156,7 @@ OpenSSL::SSLEngine::initialize()
             {
                 if (!SSL_CTX_set_default_verify_paths(_ctx))
                 {
-                    throw InitializationException(
-                        __FILE__,
-                        __LINE__,
-                        "IceSSL: unable to set default verify paths");
+                    throw InitializationException(__FILE__, __LINE__, "IceSSL: unable to set default verify paths");
                 }
             }
         }
