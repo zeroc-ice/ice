@@ -59,6 +59,8 @@ namespace Ice::SSL
         ScopedCertificate(PCCERT_CONTEXT certificate) : _certificate(certificate) {}
         ScopedCertificate(const ScopedCertificate&) = delete;
         ScopedCertificate& operator=(const ScopedCertificate&) = delete;
+        ScopedCertificate(ScopedCertificate&&) = delete;
+        ScopedCertificate& operator=(ScopedCertificate&&) = delete;
         ~ScopedCertificate();
         PCCERT_CONTEXT get() const { return _certificate; }
 
@@ -78,6 +80,8 @@ namespace Ice::SSL
         ScopedCertificate(SecCertificateRef certificate) : _certificate(certificate) {}
         ScopedCertificate(const ScopedCertificate&) = delete;
         ScopedCertificate& operator=(const ScopedCertificate&) = delete;
+        ScopedCertificate(ScopedCertificate&&) = delete;
+        ScopedCertificate& operator=(ScopedCertificate&&) = delete;
         ~ScopedCertificate();
         [[nodiscard]] SecCertificateRef get() const { return _certificate; }
 
@@ -97,6 +101,8 @@ namespace Ice::SSL
         ScopedCertificate(X509* certificate) : _certificate(certificate) {}
         ScopedCertificate(const ScopedCertificate&) = delete;
         ScopedCertificate& operator=(const ScopedCertificate&) = delete;
+        ScopedCertificate(ScopedCertificate&&) = delete;
+        ScopedCertificate& operator=(ScopedCertificate&&) = delete;
         ~ScopedCertificate();
         [[nodiscard]] X509* get() const { return _certificate; }
 
