@@ -143,7 +143,7 @@ public class SSLEngine {
                         passwordChars = password.toCharArray();
                     }
                     kmf.init(keys, passwordChars);
-                    if (passwordChars.length > 0) {
+                    if (passwordChars != null) {
                         Arrays.fill(passwordChars, '\0');
                     }
                     password = null;

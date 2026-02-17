@@ -62,7 +62,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
 
     @Override
     public com.zeroc.Ice.EndpointI connectionId(String connectionId) {
-        if (connectionId == _delegate.connectionId()) {
+        if (connectionId.equals(_delegate.connectionId())) {
             return this;
         } else {
             return new EndpointI(_instance, _delegate.connectionId(connectionId));
