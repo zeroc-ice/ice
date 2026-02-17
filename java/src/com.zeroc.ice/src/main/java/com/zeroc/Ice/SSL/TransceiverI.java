@@ -187,7 +187,9 @@ final class TransceiverI implements Transceiver {
                 _netInput.b.compact();
 
                 Status status = result.getStatus();
-                assert status != Status.BUFFER_OVERFLOW;
+                if (status == Status.BUFFER_OVERFLOW) {
+                    throw new SecurityException("SSL transport: buffer overflow during unwrap");
+                }
 
                 if (status == Status.CLOSED) {
                     throw new ConnectionLostException();
