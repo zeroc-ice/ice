@@ -20,7 +20,6 @@
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
-#include <iostream>
 #include <mutex>
 
 using namespace std;
