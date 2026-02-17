@@ -190,7 +190,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         }
     }
 
-    if (!_configFile.find("HKLM\\") == 0)
+    if (_configFile.find("HKLM\\") != 0)
     {
         grantPermissions(_configFile);
     }
@@ -245,7 +245,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     //
     // Get the full path of config file.
     //
-    if (!_configFile.find("HKLM\\") == 0)
+    if (_configFile.find("HKLM\\") != 0)
     {
         char fullPath[MAX_PATH];
         if (GetFullPathName(_configFile.c_str(), MAX_PATH, fullPath, 0) > MAX_PATH)
@@ -447,7 +447,7 @@ IceServiceInstaller::getServiceInstallerPath()
     }
 
     string path = wstringToString(buffer);
-    assert(path.find_last_of("/\\"));
+    assert(path.find_last_of("/\\") != string::npos);
     return path.substr(0, path.find_last_of("/\\"));
 }
 
@@ -804,13 +804,14 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
     // the "EventMessageFile" key should contain the path to this
     // DLL.
     //
+    wstring wResourceFile = stringToWstring(resourceFile);
     res = RegSetValueExW(
         key,
         L"EventMessageFile",
         0,
         REG_EXPAND_SZ,
-        reinterpret_cast<const BYTE*>(stringToWstring(resourceFile).c_str()),
-        static_cast<DWORD>(resourceFile.length() + 1) * sizeof(wchar_t));
+        reinterpret_cast<const BYTE*>(wResourceFile.c_str()),
+        static_cast<DWORD>((wResourceFile.length() + 1) * sizeof(wchar_t)));
 
     if (res == ERROR_SUCCESS)
     {

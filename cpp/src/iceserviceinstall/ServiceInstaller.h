@@ -29,7 +29,6 @@ public:
 private:
     void initializeSid(const std::string&);
 
-    bool fileExists(const std::string&) const;
     void grantPermissions(
         const std::string& path,
         SE_OBJECT_TYPE type = SE_FILE_OBJECT,
