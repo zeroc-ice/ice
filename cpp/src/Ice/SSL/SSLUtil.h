@@ -46,6 +46,8 @@ namespace Ice::SSL
     // Determine if a directory exists, with an optional parent directory.
     std::optional<std::string> resolveDirPath(const std::string& path, const std::string& parentDir = "");
 
+    // Parse a hex string (e.g., "AB:CD:EF" or "ABCDEF") into a byte buffer. Spaces and colons are ignored.
+    // Returns false if the string contains invalid characters or has an odd number of hex digits.
     bool parseBytes(const std::string&, std::vector<unsigned char>&);
 
 #if defined(ICE_USE_SCHANNEL)

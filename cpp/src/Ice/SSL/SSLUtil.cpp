@@ -67,6 +67,7 @@ Ice::SSL::parseBytes(const string& arg, vector<unsigned char>& buffer)
     }
     v = s.str();
 
+    // Each byte requires exactly two hex digits; reject odd-length strings.
     if (v.size() % 2 != 0)
     {
         return false;
