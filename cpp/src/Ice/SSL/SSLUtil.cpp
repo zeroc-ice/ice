@@ -473,6 +473,10 @@ namespace
     string convertX509NameToString(X509_name_st* name)
     {
         BIO* out = BIO_new(BIO_s_mem());
+        if (!out)
+        {
+            throw CertificateEncodingException(__FILE__, __LINE__, "SSL transport: error allocating BIO");
+        }
         X509_NAME_print_ex(out, name, 0, XN_FLAG_RFC2253);
         BUF_MEM* p;
         BIO_get_mem_ptr(out, &p);
@@ -621,6 +625,10 @@ string
 Ice::SSL::encodeCertificate(X509* certificate)
 {
     BIO* out = BIO_new(BIO_s_mem());
+    if (!out)
+    {
+        throw CertificateEncodingException(__FILE__, __LINE__, "SSL transport: error allocating BIO");
+    }
     int i = PEM_write_bio_X509(out, certificate);
     if (i <= 0)
     {
