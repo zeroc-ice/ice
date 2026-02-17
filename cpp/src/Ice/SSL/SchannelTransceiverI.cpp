@@ -145,7 +145,32 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
             _credentials.paCred = &_allCerts[0];
         }
 
-        _credentials.hRootStore = _rootStore;
+        // Create the chain engine for the default validation callback now that we know the final hRootStore
+        // value (which may have been set by the credentials selection callback).
+        if (_initDefaultChainEngine)
+        {
+            _chainEngine = defaultChainEngine(_credentials.hRootStore);
+            _initDefaultChainEngine = false;
+        }
+        // For outgoing connections, if the credentials callback provided an hRootStore but no validation
+        // callback was set up (because trustedRootCertificates was not configured), create a chain engine and
+        // a default validation callback so the callback's root store is used for server certificate validation.
+        // Without this, Schannel's automatic validation ignores hRootStore on the client side.
+        else if (!_incoming && _credentials.hRootStore && !_remoteCertificateValidationCallback)
+        {
+            _chainEngine = defaultChainEngine(_credentials.hRootStore);
+            _remoteCertificateValidationCallback = [this](CtxtHandle ssl, const ConnectionInfoPtr&)
+            {
+                return SSLEngine::validationCallback(
+                    _chainEngine, // The chain engine configured to trust the provided trusted root certificates.
+                    ssl,          // The SSL context handle.
+                    false,        // This is an outgoing connection.
+                    _host,        // The target host.
+                    true,         // Whether or not the peer must provide a certificate.
+                    0,            // Disable revocation checking.
+                    false);       // Whether or not revocation checks only uses cached information.
+            };
+        }
 
         err = AcquireCredentialsHandle(
             0,
@@ -995,14 +1020,16 @@ Schannel::TransceiverI::TransceiverI(
       _rootStore(serverAuthenticationOptions.trustedRootCertificates),
       _ssl({}),
       _chainEngine(nullptr),
+      _initDefaultChainEngine(false),
       _sslConnectionRenegotiating(false)
 {
     if (!_remoteCertificateValidationCallback)
     {
-        // If the user didn't provide a validation callback. We setup a  default validation callback that exclusively
-        // trust the provided trusted root certificates if any, or uses the current user store if no trusted root
-        // certificates were provided. Schannel doesn't provide a default validation mechanism for client credentials.
-        _chainEngine = defaultChainEngine(_rootStore);
+        // If the user didn't provide a validation callback, we setup a default validation callback. The chain engine
+        // for this callback is created lazily during the SSL handshake (after the credentials selection callback
+        // returns) so that it uses the correct hRootStore - which may be provided by the credentials callback rather
+        // than through trustedRootCertificates.
+        _initDefaultChainEngine = true;
         _remoteCertificateValidationCallback = [this](CtxtHandle ssl, const ConnectionInfoPtr&)
         {
             return SSLEngine::validationCallback(
@@ -1043,6 +1070,7 @@ Schannel::TransceiverI::TransceiverI(
       _rootStore(clientAuthenticationOptions.trustedRootCertificates),
       _ssl({}),
       _chainEngine(nullptr),
+      _initDefaultChainEngine(false),
       _sslConnectionRenegotiating(false)
 {
     if (_rootStore && !_remoteCertificateValidationCallback)
