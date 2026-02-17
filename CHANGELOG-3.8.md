@@ -5,9 +5,17 @@ entries reflect significant new additions, while others represent minor correcti
 comprehensive report of every change we made in a release, it does provide details on the changes we feel Ice users
 might need to be aware of.
 
-- [Changes in Ice 3.8.0](#changes-in-ice-380)
+- [Changes in Ice 3.8.1](#changes-in-ice-381)
   - [General Changes](#general-changes)
+  - [C++ Changes](#c-changes)
+  - [C# Changes](#c-changes-1)
+  - [JavaScript Changes](#javascript-changes)
+  - [Python Changes](#python-changes)
+  - [Swift Changes](#swift-changes)
   - [Packaging Changes](#packaging-changes)
+- [Changes in Ice 3.8.0](#changes-in-ice-380)
+  - [General Changes](#general-changes-1)
+  - [Packaging Changes](#packaging-changes-1)
   - [Slice Language Changes](#slice-language-changes)
   - [IceSSL Changes](#icessl-changes)
     - [Integration with Platform SSL Engines](#integration-with-platform-ssl-engines)
@@ -15,16 +23,16 @@ might need to be aware of.
     - [Removed IceSSL APIs](#removed-icessl-apis)
     - [Updated IceSSL Properties](#updated-icessl-properties)
     - [Removed IceSSL Properties](#removed-icessl-properties)
-  - [C++ Changes](#c-changes)
-  - [C# Changes](#c-changes-1)
-  - [Java Changes](#java-changes)
-  - [JavaScript Changes](#javascript-changes)
+  - [C++ Changes](#c-changes-2)
+  - [C# Changes](#c-changes-3)
+  - [Java Changes](#java-changes-1)
+  - [JavaScript Changes](#javascript-changes-1)
   - [MATLAB Changes](#matlab-changes)
   - [Objective-C Changes](#objective-c-changes)
   - [PHP Changes](#php-changes)
-  - [Python Changes](#python-changes)
+  - [Python Changes](#python-changes-1)
   - [Ruby Changes](#ruby-changes)
-  - [Swift Changes](#swift-changes)
+  - [Swift Changes](#swift-changes-1)
   - [Ice Service Changes](#ice-service-changes)
     - [DataStorm](#datastorm)
     - [Glacier2](#glacier2)
@@ -32,6 +40,119 @@ might need to be aware of.
     - [IceGrid](#icegrid)
     - [IcePatch2](#icepatch2)
     - [IceStorm](#icestorm)
+
+## Changes in Ice 3.8.1
+
+These are the changes since the Ice 3.8.0 release.
+
+### General Changes
+
+- Updated MCPP to [2.7.2.20](https://github.com/zeroc-ice/mcpp/releases/tag/v2.7.2.20), which fixes a heap-based
+  buffer overflow (CVE-2019-14274) and a segfault caused by macro parameter corruption. This update applies to the
+  EL9, EL10, and Windows builds; other platforms use MCPP packages provided by the system.
+
+- The IceBox client library is now available in Swift, MATLAB, and JavaScript, matching the functionality already
+  available in C++, C#, Java, and Python. (https://github.com/zeroc-ice/ice/pull/5030)
+
+### C++ Changes
+
+- Fixed build failures with Clang in C++23 and C++26 modes. (https://github.com/zeroc-ice/ice/pull/4811)
+
+- Improved `OutputStream::writeConverted` performance by simplifying the size encoding logic, eliminating unnecessary
+  memory operations when marshaling strings. This applies to applications that use a narrow string converter (non-UTF-8
+  encoding). (https://github.com/zeroc-ice/ice/pull/5039)
+
+- Fixed `iceserviceinstall` to correctly accept IceGrid and Glacier2 property prefixes. (https://github.com/zeroc-ice/ice/pull/4810)
+
+- Fixed the default value for `IceSSL.RevocationCheckCacheOnly` from 0 to 1, so that certificate revocation checks use
+  only the local cache by default. (https://github.com/zeroc-ice/ice/issues/2133)
+
+- Fixed a data race in the IceBT DBus message handler. (https://github.com/zeroc-ice/ice/issues/5073)
+
+- Fixed duplicate error handling in the IceBT stream socket read path. (https://github.com/zeroc-ice/ice/issues/5074)
+
+- Added Slice dependency tracking to the CMake `slice2cpp_generate` function, so changes to included `.ice` files
+  automatically trigger recompilation. (https://github.com/zeroc-ice/ice/issues/3642)
+
+### C# Changes
+
+- Enabled deterministic builds for C# assemblies.
+
+### JavaScript Changes
+
+- Created new `@zeroc/slice2js` npm package, which includes the `slice2js` compiler and an unplugin plugin compatible
+  with modern JavaScript build tools (Vite, Rollup, Webpack, esbuild). (https://github.com/zeroc-ice/ice/pull/5031)
+
+- Added module aggregation support to `slice2js`. The compiler now automatically aggregates nested submodules from
+  direct and transitive includes, making module imports more natural in JavaScript and TypeScript projects.
+  (https://github.com/zeroc-ice/ice/pull/5020)
+
+- Fixed inactivity timeout not being correctly converted from seconds to milliseconds, which could cause incorrect
+  connection timeout behavior. (https://github.com/zeroc-ice/ice/issues/4956)
+
+- Fixed missing `onerror` handler on WebSocket connections, which could cause unhandled errors during connection
+  establishment. (https://github.com/zeroc-ice/ice/issues/4968)
+
+- Fixed `slice2js` generating invalid JavaScript identifiers from Slice files or modules with hyphenated names.
+  (https://github.com/zeroc-ice/ice/pull/5029)
+
+- Fixed `slice2js` generating malformed import statements when including Slice files from built-in Ice services such
+  as Glacier2, IceGrid, or IceStorm. (https://github.com/zeroc-ice/ice/issues/4913)
+
+- Added address information to socket exceptions for better error diagnostics. (https://github.com/zeroc-ice/ice/pull/4997)
+
+- Improved string encoding and decoding performance by using the `TextEncoder.encodeInto()` and `TextDecoder` APIs.
+  (https://github.com/zeroc-ice/ice/pull/5021, https://github.com/zeroc-ice/ice/pull/5069)
+
+- Fixed WebSocket URL construction to properly bracket IPv6 addresses and use port 443 as the default for `wss`
+  connections. (https://github.com/zeroc-ice/ice/issues/5083, https://github.com/zeroc-ice/ice/issues/5084)
+
+- Fixed encoding version validation incorrectly checking the protocol version field instead of the encoding version
+  field in message headers. (https://github.com/zeroc-ice/ice/issues/5078)
+
+- Fixed `getPropertyAsList` returning an incorrect default value and `Properties.parse` crashing on empty content.
+  (https://github.com/zeroc-ice/ice/issues/5079, https://github.com/zeroc-ice/ice/issues/5082)
+
+- Fixed exception handling in `createEmptyOutgoingResponse` and `createOutgoingResponseWithException`.
+  (https://github.com/zeroc-ice/ice/issues/5080, https://github.com/zeroc-ice/ice/issues/5081)
+
+- Fixed exception chaining to use `{ cause: ex }` consistently across the runtime.
+  (https://github.com/zeroc-ice/ice/issues/5085)
+
+### Python Changes
+
+- Improved generated doc-comments in the Python Slice compiler (`slice2py`) and `IcePy` extension, including
+  source-ordered member output, doc-comments for constants, and more complete and consistent documentation.
+  ([#4817](https://github.com/zeroc-ice/ice/pull/4817),
+  [#4834](https://github.com/zeroc-ice/ice/pull/4834),
+  [#4835](https://github.com/zeroc-ice/ice/pull/4835),
+  [#4862](https://github.com/zeroc-ice/ice/pull/4862),
+  [#4883](https://github.com/zeroc-ice/ice/pull/4883))
+
+- Fixed `python-config` usage in the build system to use `--includes` instead of `--cflags`, avoiding invalid
+  C-specific flags during C++ compilation. (https://github.com/zeroc-ice/ice/pull/4866)
+
+### Swift Changes
+
+- The `CompileSlice` SwiftPM plugin now auto-detects the Ice slice directory, eliminating the need for manual
+  configuration when including Ice Slice definitions. (https://github.com/zeroc-ice/ice/pull/4999)
+
+- SwiftPM now uses a prebuilt `slice2swift` artifact bundle, reducing build times and removing the MCPP dependency from
+  the Ice for Swift SPM package.
+
+- Fixed a crash in `ICELocalObject` dealloc caused by recursive deallocation via ARC weak reference reads.
+  (https://github.com/zeroc-ice/ice/issues/4143)
+
+### Packaging Changes
+
+- The Windows installer is now distributed as a Burn bundle (.exe) that automatically installs the Visual C++
+  Redistributable as a prerequisite.
+
+- Ice is now available as a WinGet package.
+
+- Added IceBT library to RPM distributions. (https://github.com/zeroc-ice/ice/issues/4749)
+
+- Added symbols server support for Windows releases.
 
 ## Changes in Ice 3.8.0
 
