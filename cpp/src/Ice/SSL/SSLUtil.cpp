@@ -345,7 +345,7 @@ Ice::SSL::getSubjectAltNames(PCCERT_CONTEXT cert)
                                 os << ".";
                             }
                         }
-                        altNames.push_back(make_pair(AltNAmeIP, os.str()));
+                        altNames.push_back(make_pair(AltNameIP, os.str()));
                     }
                     //
                     // TODO IPv6 Address support.
