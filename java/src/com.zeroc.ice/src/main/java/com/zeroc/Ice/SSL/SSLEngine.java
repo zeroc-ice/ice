@@ -62,6 +62,10 @@ public class SSLEngine {
 
         // VerifyPeer determines whether certificate validation failures abort a connection.
         _verifyPeer = properties.getIcePropertyAsInt("IceSSL.VerifyPeer");
+        if (_verifyPeer < 0 || _verifyPeer > 2) {
+            throw new com.zeroc.Ice.InitializationException(
+                "SSL transport: invalid value for IceSSL.VerifyPeer");
+        }
 
         // If the user doesn't supply an SSLContext, we need to create one based on property settings.
         if (_context == null) {
