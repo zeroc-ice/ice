@@ -137,8 +137,21 @@ run(const Ice::StringSeq& args)
         dbPath = opts.optArg("dbpath");
     }
 
+    int mapSizeValue = 0;
     string mapSizeStr = opts.optArg("mapsize");
-    size_t mapSize = IceDB::getMapSize(atoi(mapSizeStr.c_str()));
+    if (!mapSizeStr.empty())
+    {
+        try
+        {
+            mapSizeValue = stoi(mapSizeStr);
+        }
+        catch (const std::exception&)
+        {
+            consoleErr << args[0] << ": invalid value '" << mapSizeStr << "' for --mapsize" << endl;
+            return 1;
+        }
+    }
+    size_t mapSize = IceDB::getMapSize(mapSizeValue);
 
     try
     {
@@ -187,9 +200,8 @@ run(const Ice::StringSeq& args)
             fs.seekg(0, ios::beg);
 
             vector<Ice::Byte> buf;
-            buf.reserve(static_cast<size_t>(fileSize));
-            buf.insert(buf.begin(), istream_iterator<Ice::Byte>(fs), istream_iterator<Ice::Byte>());
-
+            buf.resize(static_cast<size_t>(fileSize));
+            fs.read(reinterpret_cast<char*>(buf.data()), fileSize);
             fs.close();
 
             string type;
