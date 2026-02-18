@@ -316,21 +316,18 @@ class Buffer
         return new Long(high, low);
     }
 
-    getString(length)
+    // Returns a zero-copy Uint8Array view over the underlying ArrayBuffer and advances the position.
+    // Unlike getArray, the returned view shares memory with the buffer.
+    // Throws RangeError if there are not enough bytes remaining.
+    getView(length)
     {
         if(this._position + length > this._limit)
         {
             throw new RangeError(bufferUnderflowExceptionMsg);
         }
-
-        const data = new DataView(this.b, this._position, length);
-        let s = "";
-        for(let i = 0; i < length; ++i)
-        {
-            s += String.fromCharCode(data.getUint8(i));
-        }
+        const view = new Uint8Array(this.b, this._position, length);
         this._position += length;
-        return decodeURIComponent(escape(s));
+        return view;
     }
 
     get position()
