@@ -32,10 +32,13 @@ namespace Ice::SSL
         ///
         /// This callback is invoked by the SSL transport for each new outgoing connection before starting the SSL
         /// handshake to determine the appropriate client credentials. The callback must return a `SCH_CREDENTIALS` that
-        /// represents the client's credentials. The SSL transport takes ownership of the credentials' `paCred`
-        /// member and releases it when the connection is closed. The `hRootStore` from the returned credentials is not
-        /// used for certificate validation; use `trustedRootCertificates` or `serverCertificateValidationCallback`
-        /// instead.
+        /// represents the client's credentials. The SSL transport takes ownership of the credentials' `paCred` and
+        /// `hRootStore` members and releases them when the connection is closed.
+        ///
+        /// If the returned credentials include an `hRootStore`, it takes precedence over `trustedRootCertificates` for
+        /// server certificate validation. This allows the callback to dynamically select the trusted root certificates
+        /// on a per-connection basis. When `hRootStore` is not set by the callback, `trustedRootCertificates` is used
+        /// instead; if neither is set, the system's default root certificates are used.
         ///
         /// @param host The target host name.
         /// @return The client SSL credentials.
@@ -59,6 +62,8 @@ namespace Ice::SSL
         /// The trusted root certificates used for validating the server's certificate chain. If this field is set, the
         /// server's certificate chain is validated against these certificates; otherwise, the system's default root
         /// certificates are used.
+        ///
+        /// If the credentials selection callback returns an `hRootStore`, that store takes precedence over this field.
         ///
         /// Example of setting `trustedRootCertificates`:
         /// @snippet Ice/SSL/SchannelClientAuthenticationOptions.cpp trustedRootCertificates

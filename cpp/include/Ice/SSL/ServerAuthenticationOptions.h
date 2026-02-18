@@ -33,10 +33,13 @@ namespace Ice::SSL
         ///
         /// This callback is invoked by the SSL transport for each new incoming connection before starting the SSL
         /// handshake to determine the appropriate server credentials. The callback must return a `SCH_CREDENTIALS` that
-        /// represents the server's credentials. The SSL transport takes ownership of the credentials' `paCred`
-        /// member and releases it when the connection is closed. The `hRootStore` from the returned credentials is not
-        /// used for certificate validation; use `trustedRootCertificates` or `clientCertificateValidationCallback`
-        /// instead.
+        /// represents the server's credentials. The SSL transport takes ownership of the credentials' `paCred` and
+        /// `hRootStore` members and releases them when the connection is closed.
+        ///
+        /// If the returned credentials include an `hRootStore`, it takes precedence over `trustedRootCertificates` for
+        /// client certificate validation. This allows the callback to dynamically select the trusted root certificates
+        /// on a per-connection basis. When `hRootStore` is not set by the callback, `trustedRootCertificates` is used
+        /// instead; if neither is set, the system's default root certificates are used.
         ///
         /// @param adapterName The name of the object adapter that accepted the connection.
         /// @return The server SSL credentials.
@@ -63,6 +66,8 @@ namespace Ice::SSL
         /// The trusted root certificates used for validating the client's certificate chain. If this field is set, the
         /// client's certificate chain is validated against these certificates; otherwise, the system's default root
         /// certificates are used.
+        ///
+        /// If the credentials selection callback returns an `hRootStore`, that store takes precedence over this field.
         ///
         /// Example of setting `trustedRootCertificates`:
         /// @snippet Ice/SSL/SchannelServerAuthenticationOptions.cpp trustedRootCertificates
