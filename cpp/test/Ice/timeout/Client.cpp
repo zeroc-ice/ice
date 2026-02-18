@@ -22,8 +22,16 @@ Client::run(int argc, char** argv)
     //
     properties->setProperty("Ice.RetryIntervals", "-1");
 
-    properties->setProperty("Ice.Connection.Client.ConnectTimeout", "1");
-    properties->setProperty("Ice.Connection.Client.CloseTimeout", "1");
+    // Use a longer timeout on Windows with SSL to account for the slower SSL handshake.
+    string timeout = "1";
+#ifdef _WIN32
+    if (getTestProtocol(properties).find("ssl") != string::npos)
+    {
+        timeout = "3";
+    }
+#endif
+    properties->setProperty("Ice.Connection.Client.ConnectTimeout", timeout);
+    properties->setProperty("Ice.Connection.Client.CloseTimeout", timeout);
 
     //
     // Limit the send buffer size, this test relies on the socket

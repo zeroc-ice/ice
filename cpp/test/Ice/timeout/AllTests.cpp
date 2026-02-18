@@ -41,6 +41,15 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
     Ice::CommunicatorPtr communicator = helper->communicator();
     string sref = "timeout:" + helper->getTestEndpoint();
 
+    // SSL is slower on Windows, use a multiplier for invocation timeouts that expect success.
+    [[maybe_unused]] int sslMultiplier = 1;
+#ifdef _WIN32
+    if (helper->getTestProtocol().find("ssl") != string::npos)
+    {
+        sslMultiplier = 3;
+    }
+#endif
+
     TimeoutPrx timeout(communicator, sref);
 
     cout << "testing connect timeout... " << flush;
@@ -109,7 +118,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         {
         }
         timeout->ice_ping();
-        to = timeout->ice_invocationTimeout(1000);
+        to = timeout->ice_invocationTimeout(1000 * sslMultiplier);
         test(connection == to->ice_getConnection());
         try
         {
@@ -146,7 +155,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         //
         // Expect success.
         //
-        TimeoutPrx to = timeout->ice_invocationTimeout(1000);
+        TimeoutPrx to = timeout->ice_invocationTimeout(1000 * sslMultiplier);
         auto f = to->sleepAsync(100);
         try
         {
