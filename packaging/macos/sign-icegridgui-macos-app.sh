@@ -11,7 +11,7 @@
 #                 and APPLE_APP_SPECIFIC_PASSWORD environment variables)
 #
 # Environment:
-#   SIGNING_IDENTITY              Code signing identity (default: "Developer ID Application: ZeroC, Inc. (N37GL5B2N6)")
+#   SIGNING_IDENTITY              Code signing identity (default: "Developer ID Application: ZeroC, Inc. (U4TBVKNQ7F)")
 #   APPLE_ID                      Apple ID for notarization (required with --notarize)
 #   APPLE_TEAM_ID                 Apple Team ID for notarization (required with --notarize)
 #   APPLE_APP_SPECIFIC_PASSWORD   App-specific password for notarization (required with --notarize)
