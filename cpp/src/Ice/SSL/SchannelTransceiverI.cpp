@@ -124,6 +124,11 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
     {
         assert(!initialBuffer); // Always null for the initial handshake.
         _credentials = _localCredentialsSelectionCallback(_incoming ? _adapterName : _host);
+
+        // Set hRootStore for AcquireCredentialsHandle. Schannel uses hRootStore on the server side to specify
+        // the CAs trusted for client authentication (sent in the CertificateRequest message). This is not used
+        // for certificate validation — the transport handles validation separately using the chain engine.
+        // If the callback already provided an hRootStore, keep it; otherwise fall back to trustedRootCertificates.
         if (_rootStore && !_credentials.hRootStore)
         {
             _credentials.hRootStore = CertDuplicateStore(_rootStore);
