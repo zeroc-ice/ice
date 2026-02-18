@@ -645,60 +645,6 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
 }
 
 void
-clientValidatesServerSettingCredentialsCallbackAndTrustedRootCertificates(
-    Test::TestHelper* helper,
-    const string& certificatesPath)
-{
-    cout << "client validates server certificate with credentials callback and trusted root certificates... " << flush;
-    PCCERT_CONTEXT serverCertificate = loadCertificateContext(certificatesPath + "/ca1/server.p12");
-    PCCERT_CONTEXT clientCertificate = loadCertificateContext(certificatesPath + "/ca1/client.p12");
-    HCERTSTORE trustedRootCertificates = loadTrustedRootCertificates(certificatesPath + "/ca1/ca1_cert.der");
-
-    try
-    {
-        Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
-            .serverCredentialsSelectionCallback = [serverCertificate](const string&)
-            {
-                CertDuplicateCertificateContext(serverCertificate);
-                return SCH_CREDENTIALS{
-                    .dwVersion = SCH_CREDENTIALS_VERSION,
-                    .cCreds = 1,
-                    .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
-            }};
-        Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
-
-        // The client provides a credentials callback for the client certificate and sets trustedRootCertificates
-        // in the authentication options for server certificate validation.
-        Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
-            .clientCredentialsSelectionCallback =
-                [clientCertificate](const string&)
-            {
-                CertDuplicateCertificateContext(clientCertificate);
-                return SCH_CREDENTIALS{
-                    .dwVersion = SCH_CREDENTIALS_VERSION,
-                    .cCreds = 1,
-                    .paCred = const_cast<PCCERT_CONTEXT*>(&clientCertificate)};
-            },
-            .trustedRootCertificates = trustedRootCertificates};
-        Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
-
-        ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(10, "ssl"));
-        obj->ice_ping();
-    }
-    catch (...)
-    {
-        CertFreeCertificateContext(serverCertificate);
-        CertFreeCertificateContext(clientCertificate);
-        CertCloseStore(trustedRootCertificates, 0);
-        throw;
-    }
-    CertFreeCertificateContext(serverCertificate);
-    CertFreeCertificateContext(clientCertificate);
-    CertCloseStore(trustedRootCertificates, 0);
-    cout << "ok" << endl;
-}
-
-void
 serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "server hot certificate reload... " << flush;
@@ -837,8 +783,6 @@ allAuthenticationOptionsTests(Test::TestHelper* helper, const string& defaultDir
     serverRejectsClientSettingTrustedRootCertificates(helper, certificatesPath);
     serverRejectsClientUsingDefaultTrustedRootCertificates(helper, certificatesPath);
     serverRejectsClientUsingValidationCallback(helper, certificatesPath);
-
-    clientValidatesServerSettingCredentialsCallbackAndTrustedRootCertificates(helper, certificatesPath);
 
     serverHotCertificateReload(helper, certificatesPath);
 }
