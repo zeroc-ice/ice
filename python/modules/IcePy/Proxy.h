@@ -14,15 +14,15 @@ namespace IcePy
 
     PyObject* createProxy(const Ice::ObjectPrx&, const Ice::CommunicatorPtr&, PyObject* = nullptr);
 
-    /// Verifies that the given Python object is a proxy. A value of ``None`` is not considered legal here.
+    /// Verifies that the given Python object is a proxy. A value of `None` is not considered legal here.
     bool checkProxy(PyObject*);
 
     /// Extracts a proxy from the given Python object. The Python object *must* be a proxy.
-    /// ``None`` is not legal here.
+    /// `None` is not legal here.
     Ice::ObjectPrx getProxy(PyObject*);
 
-    /// Extracts a proxy argument from the given Python object. ``None`` is accepted here. If the Python
-    /// object contains an invalid value, the function raises a :class:`ValueError` and returns ``False``.
+    /// Extracts a proxy argument from the given Python object. `None` is accepted here. If the Python
+    /// object contains an invalid value, the function raises a ValueError and returns false.
     /// The optional trailing string provides the Python class name of a derived Slice
     /// interface that the caller requires.
     bool getProxyArg(
