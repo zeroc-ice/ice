@@ -121,9 +121,7 @@ namespace IcePy
     /// Extracts the members of an encoding version.
     bool getEncodingVersion(PyObject*, Ice::EncodingVersion&);
 
-    /// Call a Python method.
     PyObject* callMethod(PyObject*, const std::string&, PyObject* = nullptr, PyObject* = nullptr);
-    /// Call a Python method.
     PyObject* callMethod(PyObject*, PyObject* = nullptr, PyObject* = nullptr);
 
     /// Returns true if the current thread is the main thread.

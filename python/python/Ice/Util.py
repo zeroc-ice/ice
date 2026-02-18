@@ -184,7 +184,7 @@ def loadSlice(args: list[str]) -> None:
     RuntimeError
         If an error occurs during Slice parsing or compilation.
     """
-    return IcePy.loadSlice(args)
+    IcePy.loadSlice(args)
 
 
 def getSliceDir() -> str | None:
