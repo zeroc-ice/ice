@@ -78,7 +78,9 @@ if [ "${NOTARIZE}" == "true" ]; then
     xcrun stapler staple "${DMG_PATH}"
 fi
 
-echo "==> Verifying DMG with spctl..."
-spctl -a -t open --context context:primary-signature -vv "${DMG_PATH}"
+if [ "${SIGN}" == "true" ]; then
+    echo "==> Verifying DMG with spctl..."
+    spctl -a -t open --context context:primary-signature -vv "${DMG_PATH}"
+fi
 
 echo "==> Done. Created: ${DMG_PATH}"
