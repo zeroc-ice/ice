@@ -1,0 +1,366 @@
+name: Binary Compatibility
+
+on:
+  schedule:
+    # Run 3.8 binary compat test at 5:00 AM UTC (after nightly release at 3:00 AM)
+    - cron: "0 5 * * *"
+
+    # Run 3.7 binary compat test at 6:00 AM UTC (after nightly release at 4:00 AM)
+    - cron: "0 6 * * *"
+
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to test compatibility for (e.g., 3.8)"
+        required: true
+        type: string
+
+# Builds tests from the latest stable tag and distribution libraries from the branch HEAD, then swaps the HEAD
+# libraries into the stable test tree and runs the tests. If the tests pass, the HEAD libraries are binary-compatible
+# with the stable release.
+
+jobs:
+  configure:
+    # Only run scheduled jobs on the official repository.
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'zeroc-ice/ice'
+    runs-on: ubuntu-24.04
+    outputs:
+      branch: ${{ steps.branch.outputs.branch }}
+      stable_tag: ${{ steps.tag.outputs.stable_tag }}
+      should_run: ${{ steps.tag.outputs.should_run }}
+    steps:
+      - name: Determine branch
+        id: branch
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "branch=${{ inputs.branch }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.schedule }}" = "0 5 * * *" ]; then
+            echo "branch=3.8" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.schedule }}" = "0 6 * * *" ]; then
+            echo "branch=3.7" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.branch.outputs.branch }}
+          fetch-depth: 0
+
+      - name: Find latest stable tag
+        id: tag
+        run: |
+          source config/version.env
+          BRANCH_MM="${CHANNEL}"
+          echo "Looking for stable tags matching v${BRANCH_MM}.*"
+
+          # Find the latest stable tag (exclude pre-release tags like -alpha, -beta, -rc).
+          LATEST_TAG=$(git tag --list "v${BRANCH_MM}.*" | \
+                       grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | \
+                       sort -V | tail -1)
+
+          if [ -z "$LATEST_TAG" ]; then
+            echo "::warning::No stable tag found for ${BRANCH_MM}. Skipping compat test."
+            echo "should_run=false" >> $GITHUB_OUTPUT
+            echo "stable_tag=" >> $GITHUB_OUTPUT
+          else
+            TAG_SHA=$(git rev-parse "$LATEST_TAG^{commit}")
+            HEAD_SHA=$(git rev-parse HEAD)
+            echo "Latest stable tag: $LATEST_TAG ($TAG_SHA)"
+            echo "Branch HEAD: $HEAD_SHA"
+
+            if [ "$TAG_SHA" = "$HEAD_SHA" ]; then
+              echo "::notice::HEAD is the same as ${LATEST_TAG}. Nothing to test."
+              echo "should_run=false" >> $GITHUB_OUTPUT
+            else
+              echo "should_run=true" >> $GITHUB_OUTPUT
+            fi
+            echo "stable_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+  compat:
+    name: compat on ${{ matrix.os }}
+    needs: configure
+    if: needs.configure.outputs.should_run == 'true'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-26
+          - os: ubuntu-24.04
+          - os: ubuntu-24.04-arm
+          - os: windows-2022
+            platform: x64
+            build_flags: "/p:Platform=x64"
+            test_flags: "--platform=x64"
+          - os: windows-2025
+            platform: x64
+            build_flags: "/p:Platform=x64"
+            test_flags: "--platform=x64"
+    env:
+      # Tests to exclude from binary compat testing. These are tests known to be sensitive to version details rather
+      # than ABI compatibility. Expand this list as false positives are discovered.
+      COMPAT_RFILTER: ""
+
+    steps:
+      # Checkout main at the workspace root to provide the composite actions from .github/actions/.
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Checkout HEAD (${{ needs.configure.outputs.branch }})
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.configure.outputs.branch }}
+          path: head
+
+      - name: Checkout stable (${{ needs.configure.outputs.stable_tag }})
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.configure.outputs.stable_tag }}
+          path: stable
+
+      - name: Print System Info
+        uses: ./.github/actions/system-info
+
+      - name: macOS FQDN Fix
+        uses: ./.github/actions/macos-fqdn
+        if: runner.os == 'macOS'
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+
+      - name: Setup Cache
+        uses: ./.github/actions/setup-cache
+        with:
+          prefix: compat
+
+      - name: Install Windows Debug Tools
+        if: runner.os == 'Windows'
+        uses: ./.github/actions/install-windows-debug-tools
+
+      - name: Enable Windows crash dumps
+        run: |
+          reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpType /t REG_DWORD /d 2 /f
+          reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpFolder /t REG_EXPAND_SZ /d ${{ github.workspace }}\LocalDumps /f
+          reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\Windows Error Reporting" /v DontShowUI /t REG_DWORD /d 1 /f
+        shell: powershell
+        if: runner.os == 'Windows'
+
+      # Align the HEAD version/soversion with stable so that shared library filenames match (e.g., libIce.so.38 stays
+      # the same). Without this, HEAD might produce libIce.so.381a0 which the stable test binaries won't find.
+      - name: Align HEAD version with stable (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          STABLE_VERSION=$(awk '/^version /{print $NF}' stable/config/Make.rules)
+          STABLE_MMVERSION=$(awk '/^mmversion/{print $NF}' stable/config/Make.rules)
+          STABLE_SOVERSION=$(awk '/^soversion/{print $NF}' stable/config/Make.rules)
+          HEAD_VERSION=$(awk '/^version /{print $NF}' head/config/Make.rules)
+          HEAD_SOVERSION=$(awk '/^soversion/{print $NF}' head/config/Make.rules)
+
+          echo "Stable: version=$STABLE_VERSION soversion=$STABLE_SOVERSION"
+          echo "HEAD:   version=$HEAD_VERSION soversion=$HEAD_SOVERSION"
+
+          if [ "$HEAD_SOVERSION" != "$STABLE_SOVERSION" ]; then
+            echo "Patching HEAD to use stable version identifiers..."
+            perl -pi -e "s/^version\s*=.*/version                 = $STABLE_VERSION/" head/config/Make.rules
+            perl -pi -e "s/^mmversion\s*=.*/mmversion               = $STABLE_MMVERSION/" head/config/Make.rules
+            perl -pi -e "s/^soversion\s*=.*/soversion               = $STABLE_SOVERSION/" head/config/Make.rules
+          else
+            echo "Soversions already match. No patching needed."
+          fi
+        shell: bash
+
+      - name: Align HEAD version with stable (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          # Copy the stable version properties to HEAD so DLL names match.
+          $stableProps = "stable\config\ice.version.props"
+          $headProps = "head\config\ice.version.props"
+
+          Write-Host "Stable version props:"
+          Get-Content $stableProps
+          Write-Host "HEAD version props:"
+          Get-Content $headProps
+
+          Copy-Item $stableProps $headProps -Force
+          Write-Host "HEAD version props (after patching):"
+          Get-Content $headProps
+        shell: powershell
+
+      # Build HEAD C++ distribution libraries only.
+      - name: Build HEAD C++ dist (Unix)
+        if: runner.os != 'Windows'
+        run: make -C head/cpp srcs
+        shell: bash
+        timeout-minutes: 60
+
+      - name: Build HEAD C++ dist (Windows)
+        if: runner.os == 'Windows'
+        run: msbuild /m ${{ matrix.build_flags }} /t:BuildDist head\cpp\msbuild\ice.proj
+        shell: powershell
+        timeout-minutes: 60
+
+      # Build stable C++ completely (distribution + tests).
+      - name: Build stable C++ (Unix)
+        if: runner.os != 'Windows'
+        run: make -C stable/cpp
+        shell: bash
+        timeout-minutes: 90
+
+      - name: Build stable C++ (Windows)
+        if: runner.os == 'Windows'
+        run: msbuild /m ${{ matrix.build_flags }} stable\cpp\msbuild\ice.proj
+        shell: powershell
+        timeout-minutes: 90
+
+      # Swap HEAD libraries into the stable tree, replacing the stable distribution libraries while keeping the stable
+      # test binaries. This is the core of the binary compatibility test.
+      - name: Swap HEAD C++ libraries (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          echo "::group::Library swap details"
+
+          # Find directories containing shared libraries and swap them.
+          for dir in $(find head/cpp/lib -name "*.so*" -printf '%h\n' 2>/dev/null | sort -u); do
+            relative="${dir#head/}"
+            stable_dir="stable/${relative}"
+            if [ -d "$stable_dir" ]; then
+              echo "Swapping: $dir -> $stable_dir"
+              echo "  HEAD:"
+              ls -la "$dir"/*.so* 2>/dev/null || true
+              echo "  Stable (before):"
+              ls -la "$stable_dir"/*.so* 2>/dev/null || true
+
+              find "$stable_dir" \( -name "*.so" -o -name "*.so.*" \) -delete
+              cp -a "$dir"/*.so* "$stable_dir/"
+
+              echo "  Stable (after):"
+              ls -la "$stable_dir"/*.so* 2>/dev/null || true
+            fi
+          done
+
+          echo "::endgroup::"
+        shell: bash
+
+      - name: Swap HEAD C++ libraries (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          echo "::group::Library swap details"
+
+          echo "HEAD:"
+          ls -la head/cpp/lib/*.dylib 2>/dev/null || echo "  (none)"
+          echo "Stable (before):"
+          ls -la stable/cpp/lib/*.dylib 2>/dev/null || echo "  (none)"
+
+          rm -f stable/cpp/lib/*.dylib
+          cp -a head/cpp/lib/*.dylib stable/cpp/lib/
+
+          echo "Stable (after):"
+          ls -la stable/cpp/lib/*.dylib 2>/dev/null || echo "  (none)"
+
+          echo "::endgroup::"
+        shell: bash
+
+      - name: Swap HEAD C++ libraries (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          $platform = "${{ matrix.platform }}"
+          $config = "Release"
+          $headBinDir = "head\cpp\bin\$platform\$config"
+          $stableBinDir = "stable\cpp\bin\$platform\$config"
+
+          Write-Host "HEAD DLLs:"
+          Get-ChildItem $headBinDir -Filter *.dll -ErrorAction SilentlyContinue | Format-Table Name, Length
+
+          Write-Host "Stable DLLs (before swap):"
+          Get-ChildItem $stableBinDir -Filter *.dll -ErrorAction SilentlyContinue | Format-Table Name, Length
+
+          # Remove stable DLLs and PDBs, then copy HEAD versions. Only copy DLLs (not .exe) to avoid replacing the
+          # Slice compilers and other tools that are part of the stable build.
+          Remove-Item "$stableBinDir\*.dll" -Force -ErrorAction SilentlyContinue
+          Remove-Item "$stableBinDir\*.pdb" -Force -ErrorAction SilentlyContinue
+          Copy-Item "$headBinDir\*.dll" "$stableBinDir\" -Force
+          Copy-Item "$headBinDir\*.pdb" "$stableBinDir\" -Force -ErrorAction SilentlyContinue
+
+          Write-Host "Stable DLLs (after swap):"
+          Get-ChildItem $stableBinDir -Filter *.dll -ErrorAction SilentlyContinue | Format-Table Name, Length
+        shell: powershell
+
+      - name: Install testing dependencies
+        run: python3 -m pip install passlib cryptography numpy
+        shell: bash
+
+      # Run the stable test suite against the HEAD libraries. Uses stable/cpp/allTests.py which only discovers C++
+      # tests, so no --languages flag is needed.
+      - name: Run compatibility tests
+        uses: ./.github/actions/test
+        timeout-minutes: 45
+        with:
+          working_directory: stable/cpp
+          flags: ${{ matrix.test_flags }}
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: compat-test-report-${{ matrix.os }}
+          path: stable/cpp/test-report.xml
+          if-no-files-found: ignore
+        if: always()
+
+      - name: Upload test logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: compat-test-logs-${{ matrix.os }}
+          path: stable/**/*.log
+          if-no-files-found: ignore
+        if: always()
+
+      - name: Process Linux crash dumps
+        if: runner.os == 'Linux' && always()
+        run: |
+          python3 scripts/process_linux_crash_dumps.py \
+              --workspace $GITHUB_WORKSPACE/stable \
+              --reports LinuxDumpReports
+        shell: bash
+
+      - name: Upload Linux crash dump reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: compat-crash-dumps-${{ matrix.os }}
+          path: ${{ github.workspace }}/LinuxDumpReports/*
+          if-no-files-found: ignore
+        if: runner.os == 'Linux' && always()
+
+      - name: Upload macOS crash diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: compat-crash-diagnostics-${{ matrix.os }}
+          path: ~/Library/Logs/DiagnosticReports/*.ips
+          if-no-files-found: ignore
+        if: runner.os == 'macOS' && always()
+
+      - name: Process Windows crash dumps
+        if: runner.os == 'Windows' && always()
+        shell: pwsh
+        run: |
+          $dumpDir   = Join-Path $env:GITHUB_WORKSPACE 'LocalDumps'
+          $reportsDir = Join-Path $env:GITHUB_WORKSPACE 'LocalDumpReports'
+
+          python scripts\process_windows_crash_dumps.py `
+              --dumps     $dumpDir `
+              --workspace (Join-Path $env:GITHUB_WORKSPACE 'stable') `
+              --reports   $reportsDir `
+              --cdb "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\cdb.exe"
+
+      - name: Upload Windows crash dump reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: compat-crash-dumps-${{ matrix.os }}
+          path: ${{ github.workspace }}/LocalDumpReports/*
+          if-no-files-found: ignore
+        if: runner.os == 'Windows' && always()
