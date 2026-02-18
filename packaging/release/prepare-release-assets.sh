@@ -52,8 +52,8 @@ for dir in "${STAGING_DIR}"/pip-packages-*; do
 done
 cp -v "${STAGING_DIR}/pip-sdist"/zeroc_ice-*.tar.gz .
 
-# IceGridGUI JAR package
-cp -v "${STAGING_DIR}/icegridgui-jar/icegridgui.jar" .
+# IceGridGUI JAR package (Windows)
+cp -v "${STAGING_DIR}/icegridgui-jar-Windows/icegridgui.jar" .
 
 # IceGridGUI macOS App (DMG)
 cp -v "${STAGING_DIR}/icegridgui-macos-app"/*.dmg .
