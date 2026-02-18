@@ -7,6 +7,7 @@
 #include "../Network.h"
 #include "../ProtocolInstanceF.h"
 #include "../TransceiverF.h"
+#include "Ice/SSL/ServerAuthenticationOptions.h"
 
 #include <Network/Network.h>
 #include <dispatch/dispatch.h>
@@ -14,13 +15,20 @@
 #include <condition_variable>
 #include <deque>
 #include <mutex>
+#include <optional>
 
 namespace IceInternal
 {
     class NetworkFrameworkAcceptor final : public Acceptor, public std::enable_shared_from_this<NetworkFrameworkAcceptor>
     {
     public:
-        NetworkFrameworkAcceptor(TcpEndpointIPtr, const ProtocolInstancePtr&, const std::string&, int);
+        NetworkFrameworkAcceptor(
+            TcpEndpointIPtr,
+            const ProtocolInstancePtr&,
+            const std::string& host,
+            int port,
+            const std::string& adapterName = "",
+            const std::optional<Ice::SSL::ServerAuthenticationOptions>& = std::nullopt);
         ~NetworkFrameworkAcceptor() override;
 
         NativeInfoPtr getNativeInfo() final;
@@ -49,6 +57,7 @@ namespace IceInternal
 
         std::string _host;
         uint16_t _port;
+        bool _secure{false};
 
         //
         // Shared state for accepted connections — accessed by dispatch blocks

@@ -907,7 +907,12 @@ SecureTransport::SSLEngine::validationCallback(SecTrustRef trust, const Connecti
         }
         throw SecurityException(__FILE__, __LINE__, msg);
     }
-    verifyPeer(info);
+    // Skip trust manager verification when connection info is not yet available (e.g., during the
+    // Network.framework TLS handshake where the verify block fires before the connection is established).
+    if (info)
+    {
+        verifyPeer(info);
+    }
     return true;
 }
 

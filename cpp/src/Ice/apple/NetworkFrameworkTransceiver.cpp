@@ -8,8 +8,11 @@
 #    include "Ice/Connection.h"
 #    include "Ice/LocalExceptions.h"
 #    include "Ice/LoggerUtil.h"
+#    include "Ice/SSL/ConnectionInfo.h"
 #    include "../ProtocolInstance.h"
 #    include "NetworkFrameworkTransceiver.h"
+
+#    include <Security/Security.h>
 
 #    include <utility>
 
@@ -34,14 +37,16 @@ namespace
 
 IceInternal::NetworkFrameworkTransceiver::NetworkFrameworkTransceiver(
     ProtocolInstancePtr instance,
-    nw_connection_t connection)
+    nw_connection_t connection,
+    bool secure)
     : _instance(std::move(instance)),
       _nativeInfo(make_shared<NativeInfo>(INVALID_SOCKET)),
       _connection(connection),
       _state(StateNeedsConnect),
       _connectState(make_shared<ConnectState>()),
       _readState(make_shared<ReadState>()),
-      _writeState(make_shared<WriteState>())
+      _writeState(make_shared<WriteState>()),
+      _secure(secure)
 {
     assert(_connection);
     nw_retain(_connection);
@@ -80,6 +85,7 @@ IceInternal::NetworkFrameworkTransceiver::initialize(Buffer&, Buffer&)
         //
         auto connectState = _connectState;
         NativeInfoPtr nativeInfo = _nativeInfo;
+        bool secure = _secure;
         nw_connection_set_state_changed_handler(_connection, ^(nw_connection_state_t state, nw_error_t error) {
             switch (state)
             {
@@ -97,6 +103,10 @@ IceInternal::NetworkFrameworkTransceiver::initialize(Buffer&, Buffer&)
                     // would be processed after the handler is destroyed, causing bad_weak_ptr.
                     if (!connectState->connected.load())
                     {
+                        if (error && nw_error_get_error_domain(error) == nw_error_domain_tls)
+                        {
+                            connectState->tlsError.store(true);
+                        }
                         connectState->error.store(error ? nw_error_get_error_code(error) : ECONNREFUSED);
                         nativeInfo->completed(SocketOperationConnect);
                     }
@@ -109,6 +119,10 @@ IceInternal::NetworkFrameworkTransceiver::initialize(Buffer&, Buffer&)
                     // built-in reconnection behavior. Only signal if not yet connected.
                     if (!connectState->connected.load())
                     {
+                        if (error && nw_error_get_error_domain(error) == nw_error_domain_tls)
+                        {
+                            connectState->tlsError.store(true);
+                        }
                         connectState->error.store(error ? nw_error_get_error_code(error) : ECONNREFUSED);
                         nativeInfo->completed(SocketOperationConnect);
                     }
@@ -127,6 +141,7 @@ IceInternal::NetworkFrameworkTransceiver::initialize(Buffer&, Buffer&)
                     break;
                 }
                 case nw_connection_state_preparing:
+                    break;
                 case nw_connection_state_invalid:
                     break;
             }
@@ -145,6 +160,27 @@ IceInternal::NetworkFrameworkTransceiver::initialize(Buffer&, Buffer&)
         int error = _connectState->error.load();
         if (error != 0)
         {
+            if (_connectState->tlsError.load())
+            {
+                // If _localVerifyRejected is set, our local verify block called complete(false),
+                // meaning we rejected the peer's certificate → SecurityException.
+                // If _localVerifyRejected is not set or is false, the peer rejected us (e.g.,
+                // server rejected our client cert) → ConnectionLostException.
+                if (!_localVerifyRejected || _localVerifyRejected->load())
+                {
+                    throw Ice::SecurityException(
+                        __FILE__,
+                        __LINE__,
+                        "SSL transport: TLS handshake failed with error " + to_string(error));
+                }
+                else
+                {
+                    throw ConnectionLostException(
+                        __FILE__,
+                        __LINE__,
+                        "connection lost (TLS error " + to_string(error) + ")");
+                }
+            }
             throw ConnectFailedException(__FILE__, __LINE__, error);
         }
 
@@ -397,7 +433,7 @@ IceInternal::NetworkFrameworkTransceiver::getInfo(bool incoming, string adapterN
         nw_release(remoteEndpoint);
     }
 
-    return make_shared<TCPConnectionInfo>(
+    auto tcpInfo = make_shared<TCPConnectionInfo>(
         incoming,
         std::move(adapterName),
         std::move(connectionId),
@@ -408,6 +444,42 @@ IceInternal::NetworkFrameworkTransceiver::getInfo(bool incoming, string adapterN
         0, // rcvSize — Network.framework manages buffers internally
         0  // sndSize — Network.framework manages buffers internally
     );
+
+    if (_secure)
+    {
+        // Extract the peer certificate from the TLS protocol metadata.
+        __block SecCertificateRef peerCertificate = nullptr;
+
+        nw_protocol_definition_t tlsDefinition = nw_protocol_copy_tls_definition();
+        nw_protocol_metadata_t tlsMetadata = nw_connection_copy_protocol_metadata(_connection, tlsDefinition);
+        nw_release(tlsDefinition);
+
+        if (tlsMetadata)
+        {
+            sec_protocol_metadata_t secMetadata = nw_tls_copy_sec_protocol_metadata(tlsMetadata);
+            if (secMetadata)
+            {
+                sec_protocol_metadata_access_peer_certificate_chain(
+                    secMetadata,
+                    ^(sec_certificate_t cert) {
+                        if (!peerCertificate)
+                        {
+                            SecCertificateRef secCert = sec_certificate_copy_ref(cert);
+                            if (secCert)
+                            {
+                                peerCertificate = secCert; // Retained — ownership transferred to ConnectionInfo
+                            }
+                        }
+                    });
+                sec_release(secMetadata);
+            }
+            nw_release(tlsMetadata);
+        }
+
+        return make_shared<Ice::SSL::ConnectionInfo>(tcpInfo, peerCertificate);
+    }
+
+    return tcpInfo;
 }
 
 void

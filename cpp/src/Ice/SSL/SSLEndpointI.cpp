@@ -4,6 +4,7 @@
 #include "../TargetCompare.h"
 #include "SSLAcceptorI.h"
 #include "SSLConnectorI.h"
+#include "SSLEngine.h"
 #include "SSLInstance.h"
 
 #include <algorithm>
@@ -219,12 +220,29 @@ Ice::SSL::EndpointI::acceptor(
     const string& adapterName,
     const optional<Ice::SSL::ServerAuthenticationOptions>& serverAuthenticationOptions) const
 {
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    // For Network.framework, TLS is configured at the listener level when the acceptor is created.
+    // If no explicit authentication options were provided, get them from the SSL engine now —
+    // they must be available before the NF listener is created.
+    optional<Ice::SSL::ServerAuthenticationOptions> authOptions = serverAuthenticationOptions;
+    if (!authOptions)
+    {
+        authOptions = _instance->engine()->createServerAuthenticationOptions();
+    }
+    return make_shared<AcceptorI>(
+        const_cast<EndpointI*>(this)->shared_from_this(),
+        _instance,
+        _delegate->acceptor(adapterName, authOptions),
+        adapterName,
+        authOptions);
+#else
     return make_shared<AcceptorI>(
         const_cast<EndpointI*>(this)->shared_from_this(),
         _instance,
         _delegate->acceptor(adapterName, serverAuthenticationOptions),
         adapterName,
         serverAuthenticationOptions);
+#endif
 }
 
 EndpointIPtr
