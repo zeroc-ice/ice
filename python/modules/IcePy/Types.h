@@ -29,9 +29,7 @@ namespace IcePy
     class ProxyInfo;
     using ProxyInfoPtr = std::shared_ptr<ProxyInfo>;
 
-    //
-    // This class is raised as an exception when object marshaling needs to be aborted.
-    //
+    /// This class is raised as an exception when object marshaling needs to be aborted.
     class AbortMarshaling
     {
     };
@@ -41,32 +39,25 @@ namespace IcePy
     class ValueReader;
     using ValueReaderPtr = std::shared_ptr<ValueReader>;
 
-    //
-    // The delayed nature of class unmarshaling in the Ice protocol requires us to
-    // handle unmarshaling using a callback strategy. An instance of UnmarshalCallback
-    // is supplied to each type's unmarshal() member function. For all types except
-    // classes, the callback is invoked with the unmarshaled value before unmarshal()
-    // returns. For class instances, however, the callback may not be invoked until
-    // the stream's finished() function is called.
-    //
+    /// The delayed nature of class unmarshaling in the Ice protocol requires us to
+    /// handle unmarshaling using a callback strategy. An instance of UnmarshalCallback
+    /// is supplied to each type's unmarshal() member function. For all types except
+    /// classes, the callback is invoked with the unmarshaled value before unmarshal()
+    /// returns. For class instances, however, the callback may not be invoked until
+    /// the stream's finished() function is called.
     class UnmarshalCallback
     {
     public:
         virtual ~UnmarshalCallback();
 
-        //
-        // The unmarshaled() member function receives the unmarshaled value. The
-        // last two arguments are the values passed to unmarshal() for use by
-        // UnmarshalCallback implementations.
-        //
+        /// The unmarshaled() member function receives the unmarshaled value. The last two arguments are the values
+        /// passed to unmarshal() for use by UnmarshalCallback implementations.
         virtual void unmarshaled(PyObject*, PyObject*, void*) = 0;
     };
     using UnmarshalCallbackPtr = std::shared_ptr<UnmarshalCallback>;
 
-    //
-    // ReadValueCallback retains all of the information necessary to store an unmarshaled
-    // Slice value as a Python object.
-    //
+    /// ReadValueCallback retains all of the information necessary to store an unmarshaled
+    /// Slice value as a Python object.
     class ReadValueCallback
     {
     public:
@@ -83,29 +74,20 @@ namespace IcePy
     };
     using ReadValueCallbackPtr = std::shared_ptr<ReadValueCallback>;
 
-    //
-    // This class assists during unmarshaling of Slice classes and exceptions.
-    // We attach an instance to a stream.
-    //
+    /// This class assists during unmarshaling of Slice classes and exceptions. We attach an instance to a stream.
     class StreamUtil
     {
     public:
         StreamUtil();
         ~StreamUtil();
 
-        //
-        // Keep a reference to a ReadValueCallback for patching purposes.
-        //
+        /// Keep a reference to a ReadValueCallback for patching purposes.
         void add(const ReadValueCallbackPtr&);
 
-        //
-        // Keep track of object instances that have preserved slices.
-        //
+        /// Keep track of object instances that have preserved slices.
         void add(const ValueReaderPtr&);
 
-        //
-        // Updated the sliced data information for all stored object instances.
-        //
+        /// Updated the sliced data information for all stored object instances.
         void updateSlicedData();
 
         static void setSlicedDataMember(PyObject*, const Ice::SlicedDataPtr&);
@@ -124,9 +106,7 @@ namespace IcePy
         std::map<PyObject*, int> objects;
     };
 
-    //
-    // Base class for type information.
-    //
+    /// Base class for type information.
     class TypeInfo : public UnmarshalCallback
     {
     public:
@@ -142,10 +122,9 @@ namespace IcePy
         void unmarshaled(PyObject*, PyObject*, void*) override; // Default implementation is assert(false).
 
         virtual void destroy();
-        //
-        // The marshal and unmarshal functions can raise Ice exceptions, and may raise
-        // AbortMarshaling if an error occurs.
-        //
+
+        /// The marshal and unmarshal functions can raise Ice exceptions, and may raise
+        /// AbortMarshaling if an error occurs.
         virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) = 0;
         virtual void unmarshal(
             Ice::InputStream*,
@@ -157,9 +136,7 @@ namespace IcePy
     };
     using TypeInfoPtr = std::shared_ptr<TypeInfo>;
 
-    //
-    // Primitive type information.
-    //
+    /// Primitive type information.
     class PrimitiveInfo final : public TypeInfo
     {
     public:
@@ -196,11 +173,9 @@ namespace IcePy
     };
     using PrimitiveInfoPtr = std::shared_ptr<PrimitiveInfo>;
 
-    //
-    // Enum information.
-    //
     using EnumeratorMap = std::map<std::int32_t, PyObjectHandle>;
 
+    /// Enum information.
     class EnumInfo final : public TypeInfo
     {
     public:
@@ -247,9 +222,7 @@ namespace IcePy
     using DataMemberPtr = std::shared_ptr<DataMember>;
     using DataMemberList = std::vector<DataMemberPtr>;
 
-    //
-    // Struct information.
-    //
+    /// Struct information.
     class StructInfo final : public TypeInfo
     {
     public:
@@ -286,9 +259,7 @@ namespace IcePy
     };
     using StructInfoPtr = std::shared_ptr<StructInfo>;
 
-    //
-    // Sequence information.
-    //
+    /// Sequence information.
     class SequenceInfo final : public TypeInfo
     {
     public:
@@ -372,9 +343,7 @@ namespace IcePy
     };
     using SequenceInfoPtr = std::shared_ptr<SequenceInfo>;
 
-    //
-    // Dictionary information.
-    //
+    /// Dictionary information.
     class DictionaryInfo final : public TypeInfo, public std::enable_shared_from_this<DictionaryInfo>
     {
     public:
@@ -420,10 +389,7 @@ namespace IcePy
     using DictionaryInfoPtr = std::shared_ptr<DictionaryInfo>;
     using TypeInfoList = std::vector<TypeInfoPtr>;
 
-    //
-    // Value type information
-    //
-
+    /// Value type information
     class ValueInfo final : public TypeInfo, public std::enable_shared_from_this<ValueInfo>
     {
     public:
@@ -464,9 +430,7 @@ namespace IcePy
         ValueInfo(std::string);
     };
 
-    //
-    // Proxy information.
-    //
+    /// Proxy information.
     class ProxyInfo final : public TypeInfo
     {
     public:
@@ -497,9 +461,7 @@ namespace IcePy
         ProxyInfo(std::string);
     };
 
-    //
-    // Exception information.
-    //
+    /// Exception information.
     class ExceptionInfo final : public std::enable_shared_from_this<ExceptionInfo>
     {
     public:
@@ -517,9 +479,7 @@ namespace IcePy
         void writeMembers(PyObject*, Ice::OutputStream*, const DataMemberList&, ObjectMap*) const;
     };
 
-    //
-    // ValueWriter wraps a Python object for marshaling.
-    //
+    /// ValueWriter wraps a Python object for marshaling.
     class ValueWriter final : public Ice::Value
     {
     public:
@@ -538,9 +498,7 @@ namespace IcePy
         ValueInfoPtr _formal;
     };
 
-    //
-    // ValueReader unmarshals the state of an Ice object.
-    //
+    /// ValueReader unmarshals the state of an Ice object.
     class ValueReader final : public std::enable_shared_from_this<ValueReader>, public Ice::Value
     {
     public:
@@ -563,9 +521,7 @@ namespace IcePy
         Ice::SlicedDataPtr _slicedData;
     };
 
-    //
-    // ExceptionWriter wraps a Python user exception for marshaling.
-    //
+    /// ExceptionWriter wraps a Python user exception for marshaling.
     class ExceptionWriter final : public Ice::UserException
     {
     public:
@@ -593,9 +549,7 @@ namespace IcePy
         ObjectMap _objects;
     };
 
-    //
-    // ExceptionReader creates a Python user exception and unmarshals it.
-    //
+    /// ExceptionReader creates a Python user exception and unmarshals it.
     class ExceptionReader final : public Ice::UserException
     {
     public:

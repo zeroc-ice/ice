@@ -21,8 +21,9 @@ if TYPE_CHECKING:
 class ObjectAdapter:
     """
     An object adapter is the main server-side Ice API. It has two main purposes:
-    - accept incoming connections from clients and dispatch requests received over these connections (see
-      :func:`activate`); and
+
+    - accept incoming connections from clients and dispatch requests received over these connections
+      (see :func:`activate`); and
     - maintain servants that handle the requests (see :func:`add`, :func:`addDefaultServant`).
 
     An object adapter can dispatch "bidirectional requests"--requests it receives over an outgoing connection
@@ -228,17 +229,23 @@ class ObjectAdapter:
         Adds a default servant to handle requests for a specific category. When an object adapter dispatches an
         incoming request, it tries to find a servant for the identity and facet carried by the request in the
         following order:
-         - The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
-         - If this fails, the object adapter tries to find a default servant for the category component of the
-           identity.
-         - If this fails, the object adapter tries to find a default servant for the empty category, regardless of
-           the category contained in the identity.
-         - If this fails, the object adapter tries to find a servant locator for the category component of the
-           identity. If there is no such servant locator, the object adapter tries to find a servant locator for the
-           empty category.
-           - If a servant locator is found, the object adapter tries to find a servant using this servant locator.
-         - If all the previous steps fail, the object adapter gives up and the caller receives an
-           :class:`ObjectNotExistException` or a :class:`FacetNotExistException`.
+
+        - The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
+
+        - If this fails, the object adapter tries to find a default servant for the category component of the
+          identity.
+
+        - If this fails, the object adapter tries to find a default servant for the empty category, regardless of
+          the category contained in the identity.
+
+        - If this fails, the object adapter tries to find a servant locator for the category component of the
+          identity. If there is no such servant locator, the object adapter tries to find a servant locator for the
+          empty category.
+
+          - If a servant locator is found, the object adapter tries to find a servant using this servant locator.
+
+        - If all the previous steps fail, the object adapter gives up and the caller receives an
+          :class:`ObjectNotExistException` or a :class:`FacetNotExistException`.
 
         Parameters
         ----------
