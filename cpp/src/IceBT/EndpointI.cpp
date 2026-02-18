@@ -493,6 +493,7 @@ IceBT::EndpointI::hash() const noexcept
     size_t h = 5381;
     IceInternal::hashAdd(h, _addr);
     IceInternal::hashAdd(h, _uuid);
+    IceInternal::hashAdd(h, _channel);
     IceInternal::hashAdd(h, _timeout);
     IceInternal::hashAdd(h, _connectionId);
     IceInternal::hashAdd(h, _compress);
