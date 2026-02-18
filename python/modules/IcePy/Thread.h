@@ -9,10 +9,7 @@
 
 namespace IcePy
 {
-    //
-    // Release Python's Global Interpreter Lock during potentially time-consuming
-    // (and non-Python related) work.
-    //
+    /// Release Python's Global Interpreter Lock during potentially time-consuming (and non-Python related) work.
     class AllowThreads
     {
     public:
@@ -23,9 +20,7 @@ namespace IcePy
         PyThreadState* _state;
     };
 
-    //
-    // Ensure that the current thread is capable of calling into Python.
-    //
+    /// Ensure that the current thread is capable of calling into Python.
     class AdoptThread
     {
     public:
@@ -36,8 +31,8 @@ namespace IcePy
         PyGILState_STATE _state;
     };
 
-    // ThreadHook ensures that every Ice thread is ready to invoke the Python API. It also acts as a wrapper thread
-    // notification callbacks.
+    /// ThreadHook ensures that every Ice thread is ready to invoke the Python API.
+    /// It also acts as a wrapper thread notification callbacks.
     class ThreadHook final
     {
     public:

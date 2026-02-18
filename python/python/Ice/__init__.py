@@ -165,7 +165,16 @@ from .UDPEndpointType import UDPEndpointType
 from .UnknownSlicedValue import UnknownSlicedValue
 from .URIEndpointType import URIEndpointType
 from .UserException import UserException
-from .Util import createProperties, getSliceDir, identityToString, initialize, stringToIdentity
+from .Util import (
+    createProperties,
+    getSliceDir,
+    identityToString,
+    initialize,
+    intVersion,
+    loadSlice,
+    stringToIdentity,
+    stringVersion,
+)
 from .Value import Value
 from .WSEndpointType import WSEndpointType
 from .WSSEndpointType import WSSEndpointType

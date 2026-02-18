@@ -32,11 +32,13 @@ if TYPE_CHECKING:
 class Communicator:
     """
     Communicator is the central object in Ice. Its responsibilities include:
+
     - creating and managing outgoing connections
     - executing callbacks in its client thread pool
     - creating and destroying object adapters
     - loading plug-ins
     - managing properties (configuration), retries, logging, instrumentation, and more.
+
     A communicator is usually the first object you create when programming with Ice.
     You can create multiple communicators in a single program, but this is not common.
 

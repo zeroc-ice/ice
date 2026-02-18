@@ -143,11 +143,11 @@ args : list[str]
 
     Supported compiler options:
 
-        - `-DNAME` Define NAME as 1.
-        - `-DNAME=DEF` Define NAME as DEF.
-        - `-UNAME` Remove any definition for NAME.
-        - `-IDIR` Put DIR in the include file search path.
-        - `-d`, `--debug`  Print debug messages.
+        - ``-DNAME``:  Define NAME as 1.
+        - ``-DNAME=DEF``:  Define NAME as DEF.
+        - ``-UNAME``:  Remove any definition for NAME.
+        - ``-IDIR``:  Put DIR in the include file search path.
+        - ``-d``, ``--debug``:  Print debug messages.
 
 Raises
 ------
@@ -158,7 +158,7 @@ RuntimeError
 
 Compiles Slice definitions. The behavior is identical to that of the `slice2py` compiler.
 
-Slice compilation errors and warnings are printed to standard error (stderr).
+Any errors or warnings raised during compilation are printed to 'stderr'.
 
 This is an internal function used in the implementation of the `slice2py` Python script included in the Ice Python package.
 
