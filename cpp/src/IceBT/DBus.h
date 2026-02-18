@@ -204,7 +204,7 @@ namespace IceBT::DBus
     class VariantValue;
     using VariantValuePtr = std::shared_ptr<VariantValue>;
 
-    class VariantValue : public Value, public std::enable_shared_from_this<VariantValue>
+    class VariantValue : public Value
     {
     public:
         VariantValue() : _type(make_shared<VariantType>()) {}
@@ -213,7 +213,7 @@ namespace IceBT::DBus
 
         TypePtr getType() const override { return _type; }
 
-        ValuePtr clone() const override { return const_cast<VariantValue*>(this)->shared_from_this(); }
+        ValuePtr clone() const override { return make_shared<VariantValue>(v ? v->clone() : nullptr); }
 
         std::string toString() const override { return v ? v->toString() : "nil"; }
 
