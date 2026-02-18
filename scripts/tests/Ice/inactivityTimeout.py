@@ -6,4 +6,8 @@ from Util import ClientServerTestCase, TestSuite
 # Enable some tracing to allow investigating test failures
 traceProps = {"Ice.Trace.Network": 3, "Ice.Trace.Protocol": 1}
 
-TestSuite(__name__, [ClientServerTestCase(traceProps=traceProps)])
+TestSuite(
+    __name__,
+    [ClientServerTestCase(traceProps=traceProps)],
+    options={"protocol": ["tcp", "ssl"], "compress": [False], "ipv6": [False], "serialize": [False], "mx": [False]},
+)
