@@ -32,7 +32,7 @@ namespace IcePy
     };
 
     /// ThreadHook ensures that every Ice thread is ready to invoke the Python API.
-    /// It also acts as a wrapper thread notification callbacks.
+    /// It also acts as a wrapper for thread notification callbacks.
     class ThreadHook final
     {
     public:

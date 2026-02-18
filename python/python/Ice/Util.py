@@ -57,8 +57,8 @@ def initialize(
         The new communicator.
     """
     return Communicator(initData=initData) if initData is not None else Communicator(args, eventLoop)
-    
-    
+
+
 def stringVersion() -> str:
     """
     Returns the Ice version in the form ``A.B.C``, where ``A`` indicates the major version,
@@ -70,7 +70,7 @@ def stringVersion() -> str:
         The Ice version.
     """
     return IcePy.stringVersion()
-    
+
 
 def intVersion() -> int:
     """
@@ -232,4 +232,13 @@ def getSliceDir() -> str | None:
     return None
 
 
-__all__ = ["initialize", "stringVersion", "intVersion", "identityToString", "stringToIdentity", "createProperties", "loadSlice", "getSliceDir"]
+__all__ = [
+    "initialize",
+    "stringVersion",
+    "intVersion",
+    "identityToString",
+    "stringToIdentity",
+    "createProperties",
+    "loadSlice",
+    "getSliceDir",
+]

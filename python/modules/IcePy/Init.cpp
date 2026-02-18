@@ -158,7 +158,7 @@ RuntimeError
 
 Compiles Slice definitions. The behavior is identical to that of the `slice2py` compiler.
 
-Any errors or warnings raised during compilation are printed to 'stderr'.
+Any errors or warnings emitted during compilation are printed to 'stderr'.
 
 This is an internal function used in the implementation of the `slice2py` Python script included in the Ice Python package.
 
