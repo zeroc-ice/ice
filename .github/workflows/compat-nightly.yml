@@ -99,11 +99,6 @@ jobs:
             platform: x64
             build_flags: "/p:Platform=x64"
             test_flags: "--platform=x64"
-    env:
-      # Tests to exclude from binary compat testing. These are tests known to be sensitive to version details rather
-      # than ABI compatibility. Expand this list as false positives are discovered.
-      COMPAT_RFILTER: ""
-
     steps:
       # Checkout main at the workspace root to provide the composite actions from .github/actions/.
       - name: Checkout main
@@ -173,7 +168,7 @@ jobs:
           echo "Stable lib (before):"
           ls -la stable/cpp/lib/
           rm -rf stable/cpp/lib
-          cp -a head/cpp/lib stable/cpp/lib
+          cp -R head/cpp/lib stable/cpp/lib
           echo "Stable lib (after):"
           ls -la stable/cpp/lib/
         shell: bash
