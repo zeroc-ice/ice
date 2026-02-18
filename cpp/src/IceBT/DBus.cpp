@@ -592,7 +592,7 @@ namespace
                 {
                     dbus_bool_t v;
                     ::dbus_message_iter_get_basic(_iter, &v);
-                    return make_shared<BooleanValue>(v != 0);
+                    return make_shared<BooleanValue>(v != FALSE);
                 }
                 case Type::KindByte:
                 {
