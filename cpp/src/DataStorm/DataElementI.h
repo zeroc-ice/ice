@@ -323,8 +323,6 @@ namespace DataStormI
         virtual void forward(const Ice::ByteSeq&, const Ice::Current&) const;
 
         const std::shared_ptr<TopicI> _parent;
-        mutable size_t _waiters{0};
-        mutable size_t _notified{0};
         bool _destroyed{false};
 
         std::function<void(DataStorm::CallbackReason, std::shared_ptr<Key>)> _onConnectedKeys;

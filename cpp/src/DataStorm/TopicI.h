@@ -179,9 +179,6 @@ namespace DataStormI
         // The number of connected listeners.
         size_t _listenerCount{0};
 
-        // The number of threads waiting for a listener notification. See waitForListeners().
-        mutable size_t _waiters{0};
-        mutable size_t _notified{0};
         std::int64_t _nextId{0};
         std::int64_t _nextFilteredId{0};
         std::int64_t _nextSampleId{0};

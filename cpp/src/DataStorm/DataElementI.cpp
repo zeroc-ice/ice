@@ -545,22 +545,18 @@ void
 DataElementI::waitForListeners(int count) const
 {
     unique_lock<mutex> lock(_parent->_mutex);
-    ++_waiters;
     while (true)
     {
         _parent->instance()->checkShutdown();
         if (count < 0 && _listenerCount == 0)
         {
-            --_waiters;
             return;
         }
         else if (count >= 0 && _listenerCount >= static_cast<size_t>(count))
         {
-            --_waiters;
             return;
         }
         _parent->_cond.wait(lock);
-        ++_notified;
     }
 }
 
@@ -617,14 +613,9 @@ DataElementI::removeConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Su
 }
 
 void
-DataElementI::notifyListenerWaiters(unique_lock<mutex>& lock) const
+DataElementI::notifyListenerWaiters(unique_lock<mutex>&) const
 {
-    if (_waiters > 0)
-    {
-        _notified = 0;
-        _parent->_cond.notify_all();
-        _parent->_cond.wait(lock, [&]() { return _notified < _waiters; }); // Wait until all the waiters are notified.
-    }
+    _parent->_cond.notify_all();
 }
 
 void
@@ -1357,8 +1348,8 @@ KeyDataWriterI::forward(const ByteSeq& inParams, const Current& current) const
         // If there's at least one subscriber interested in the update (check the key if any writer)
         if (!_sample || listener.matchOne(_sample, _keys.empty()))
         {
-            // Forward the call using the listener's session proxy don't need to wait for the result.
-            auto cancel = listener.proxy->ice_invokeAsync(
+            // Forward the call using the listener's session proxy, don't need to wait for the result.
+            listener.proxy->ice_invokeAsync(
                 current.operation,
                 current.mode,
                 inParams,
