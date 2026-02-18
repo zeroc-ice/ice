@@ -645,7 +645,7 @@ DataElementI::disconnect()
             const auto& k = ks.first;
             if (k.second < 0)
             {
-                listener.first.session->disconnectFromFilter(k.first, k.second, shared_from_this(), ks.second->id);
+                listener.first.session->disconnectFromFilter(k.first, -k.second, shared_from_this(), ks.second->id);
             }
             else
             {

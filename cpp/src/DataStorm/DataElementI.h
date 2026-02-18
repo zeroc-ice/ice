@@ -377,7 +377,7 @@ namespace DataStormI
 
         std::deque<std::shared_ptr<Sample>> _samples;
         std::shared_ptr<Sample> _last;
-        int _instanceCount;
+        int _instanceCount{0};
         DataStorm::DiscardPolicy _discardPolicy;
         std::chrono::time_point<std::chrono::system_clock> _lastSendTime;
         std::function<void(const std::shared_ptr<Sample>&)> _onSamples;
