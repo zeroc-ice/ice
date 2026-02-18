@@ -139,18 +139,6 @@ jobs:
         with:
           prefix: compat
 
-      - name: Install Windows Debug Tools
-        if: runner.os == 'Windows'
-        uses: ./.github/actions/install-windows-debug-tools
-
-      - name: Enable Windows crash dumps
-        run: |
-          reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpType /t REG_DWORD /d 2 /f
-          reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpFolder /t REG_EXPAND_SZ /d ${{ github.workspace }}\LocalDumps /f
-          reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\Windows Error Reporting" /v DontShowUI /t REG_DWORD /d 1 /f
-        shell: powershell
-        if: runner.os == 'Windows'
-
       # Build HEAD C++ distribution libraries only.
       - name: Build HEAD C++ dist (Unix)
         if: runner.os != 'Windows'
@@ -219,63 +207,12 @@ jobs:
           working_directory: stable/cpp
           flags: ${{ matrix.test_flags }}
 
-      - name: Upload test report
+      - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
-          name: compat-test-report-${{ matrix.os }}
-          path: stable/cpp/test-report.xml
+          name: compat-test-results-${{ matrix.os }}
+          path: |
+            stable/cpp/test-report.xml
+            stable/**/*.log
           if-no-files-found: ignore
         if: always()
-
-      - name: Upload test logs
-        uses: actions/upload-artifact@v4
-        with:
-          name: compat-test-logs-${{ matrix.os }}
-          path: stable/**/*.log
-          if-no-files-found: ignore
-        if: always()
-
-      - name: Process Linux crash dumps
-        if: runner.os == 'Linux' && always()
-        run: |
-          python3 scripts/process_linux_crash_dumps.py \
-              --workspace $GITHUB_WORKSPACE/stable \
-              --reports LinuxDumpReports
-        shell: bash
-
-      - name: Upload Linux crash dump reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: compat-crash-dumps-${{ matrix.os }}
-          path: ${{ github.workspace }}/LinuxDumpReports/*
-          if-no-files-found: ignore
-        if: runner.os == 'Linux' && always()
-
-      - name: Upload macOS crash diagnostics
-        uses: actions/upload-artifact@v4
-        with:
-          name: compat-crash-diagnostics-${{ matrix.os }}
-          path: ~/Library/Logs/DiagnosticReports/*.ips
-          if-no-files-found: ignore
-        if: runner.os == 'macOS' && always()
-
-      - name: Process Windows crash dumps
-        if: runner.os == 'Windows' && always()
-        shell: pwsh
-        run: |
-          $dumpDir   = Join-Path $env:GITHUB_WORKSPACE 'LocalDumps'
-          $reportsDir = Join-Path $env:GITHUB_WORKSPACE 'LocalDumpReports'
-
-          python scripts\process_windows_crash_dumps.py `
-              --dumps     $dumpDir `
-              --workspace (Join-Path $env:GITHUB_WORKSPACE 'stable') `
-              --reports   $reportsDir `
-              --cdb "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\cdb.exe"
-
-      - name: Upload Windows crash dump reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: compat-crash-dumps-${{ matrix.os }}
-          path: ${{ github.workspace }}/LocalDumpReports/*
-          if-no-files-found: ignore
-        if: runner.os == 'Windows' && always()
