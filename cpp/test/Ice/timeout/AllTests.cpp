@@ -44,7 +44,8 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
     // SSL is slower on Windows, use a multiplier for invocation timeouts that expect success.
     [[maybe_unused]] int sslMultiplier = 1;
 #ifdef _WIN32
-    if (helper->getTestProtocol().find("ssl") != string::npos)
+    string protocol = helper->getTestProtocol();
+    if (protocol == "ssl" || protocol == "wss")
     {
         sslMultiplier = 3;
     }

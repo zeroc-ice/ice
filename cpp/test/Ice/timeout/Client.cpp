@@ -25,7 +25,8 @@ Client::run(int argc, char** argv)
     // Use a longer timeout on Windows with SSL to account for the slower SSL handshake.
     string timeout = "1";
 #ifdef _WIN32
-    if (getTestProtocol(properties).find("ssl") != string::npos)
+    string protocol = getTestProtocol(properties);
+    if (protocol == "ssl" || protocol == "wss")
     {
         timeout = "3";
     }
