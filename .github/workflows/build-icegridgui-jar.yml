@@ -14,7 +14,10 @@ on:
 
 jobs:
   build-icegridgui-jar:
-    runs-on: windows-2022
+    strategy:
+      matrix:
+        os: [windows-2022, macos-26]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,15 +29,23 @@ jobs:
         uses: ./.github/actions/setup-java
 
       - name: Build IceGrid GUI
+        if: runner.os == 'Windows'
         run: |
           nuget restore ..\cpp\msbuild\ice.slnx
-          MSBuild ..\cpp\msbuild\ice.slnx /t:"slice2java;ice2slice" /p:Configuration=Release /p:Platform=x64
+          MSBuild ..\cpp\msbuild\ice.slnx /t:"slice2java" /p:Configuration=Release /p:Platform=x64
           ./gradlew.bat dist -PcppPlatform=x64 -PcppConfiguration=Release
+        working-directory: java
+
+      - name: Build IceGrid GUI
+        if: runner.os == 'macOS'
+        run: |
+          make -C ../cpp slice2java
+          ./gradlew dist
         working-directory: java
 
       - name: Upload IceGrid GUI JAR
         uses: actions/upload-artifact@v4
         with:
-          name: icegridgui-jar
+          name: icegridgui-jar-${{ runner.os }}
           path: |
             java/lib/icegridgui.jar

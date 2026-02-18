@@ -38,7 +38,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name windows-cpp-x64-Release-build --dir cpp
-          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name icegridgui-jar --dir java/lib
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name icegridgui-jar-Windows --dir java/lib
 
       - name: Download VC++ Redistributable
         run: |
