@@ -151,47 +151,6 @@ jobs:
         shell: powershell
         if: runner.os == 'Windows'
 
-      # Align the HEAD version/soversion with stable so that shared library filenames match (e.g., libIce.so.38 stays
-      # the same). Without this, HEAD might produce libIce.so.381a0 which the stable test binaries won't find.
-      - name: Align HEAD version with stable (Unix)
-        if: runner.os != 'Windows'
-        run: |
-          STABLE_VERSION=$(awk '/^version /{print $NF}' stable/config/Make.rules)
-          STABLE_MMVERSION=$(awk '/^mmversion/{print $NF}' stable/config/Make.rules)
-          STABLE_SOVERSION=$(awk '/^soversion/{print $NF}' stable/config/Make.rules)
-          HEAD_VERSION=$(awk '/^version /{print $NF}' head/config/Make.rules)
-          HEAD_SOVERSION=$(awk '/^soversion/{print $NF}' head/config/Make.rules)
-
-          echo "Stable: version=$STABLE_VERSION soversion=$STABLE_SOVERSION"
-          echo "HEAD:   version=$HEAD_VERSION soversion=$HEAD_SOVERSION"
-
-          if [ "$HEAD_SOVERSION" != "$STABLE_SOVERSION" ]; then
-            echo "Patching HEAD to use stable version identifiers..."
-            perl -pi -e "s/^version\s*=.*/version                 = $STABLE_VERSION/" head/config/Make.rules
-            perl -pi -e "s/^mmversion\s*=.*/mmversion               = $STABLE_MMVERSION/" head/config/Make.rules
-            perl -pi -e "s/^soversion\s*=.*/soversion               = $STABLE_SOVERSION/" head/config/Make.rules
-          else
-            echo "Soversions already match. No patching needed."
-          fi
-        shell: bash
-
-      - name: Align HEAD version with stable (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          # Copy the stable version properties to HEAD so DLL names match.
-          $stableProps = "stable\config\ice.version.props"
-          $headProps = "head\config\ice.version.props"
-
-          Write-Host "Stable version props:"
-          Get-Content $stableProps
-          Write-Host "HEAD version props:"
-          Get-Content $headProps
-
-          Copy-Item $stableProps $headProps -Force
-          Write-Host "HEAD version props (after patching):"
-          Get-Content $headProps
-        shell: powershell
-
       # Build HEAD C++ distribution libraries only.
       - name: Build HEAD C++ dist (Unix)
         if: runner.os != 'Windows'
@@ -220,50 +179,15 @@ jobs:
 
       # Swap HEAD libraries into the stable tree, replacing the stable distribution libraries while keeping the stable
       # test binaries. This is the core of the binary compatibility test.
-      - name: Swap HEAD C++ libraries (Linux)
-        if: runner.os == 'Linux'
+      - name: Swap HEAD C++ libraries (Unix)
+        if: runner.os != 'Windows'
         run: |
-          echo "::group::Library swap details"
-
-          # Find directories containing shared libraries and swap them.
-          for dir in $(find head/cpp/lib -name "*.so*" -printf '%h\n' 2>/dev/null | sort -u); do
-            relative="${dir#head/}"
-            stable_dir="stable/${relative}"
-            if [ -d "$stable_dir" ]; then
-              echo "Swapping: $dir -> $stable_dir"
-              echo "  HEAD:"
-              ls -la "$dir"/*.so* 2>/dev/null || true
-              echo "  Stable (before):"
-              ls -la "$stable_dir"/*.so* 2>/dev/null || true
-
-              find "$stable_dir" \( -name "*.so" -o -name "*.so.*" \) -delete
-              cp -a "$dir"/*.so* "$stable_dir/"
-
-              echo "  Stable (after):"
-              ls -la "$stable_dir"/*.so* 2>/dev/null || true
-            fi
-          done
-
-          echo "::endgroup::"
-        shell: bash
-
-      - name: Swap HEAD C++ libraries (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          echo "::group::Library swap details"
-
-          echo "HEAD:"
-          ls -la head/cpp/lib/*.dylib 2>/dev/null || echo "  (none)"
-          echo "Stable (before):"
-          ls -la stable/cpp/lib/*.dylib 2>/dev/null || echo "  (none)"
-
-          rm -f stable/cpp/lib/*.dylib
-          cp -a head/cpp/lib/*.dylib stable/cpp/lib/
-
-          echo "Stable (after):"
-          ls -la stable/cpp/lib/*.dylib 2>/dev/null || echo "  (none)"
-
-          echo "::endgroup::"
+          echo "Stable lib (before):"
+          ls -la stable/cpp/lib/
+          rm -rf stable/cpp/lib
+          cp -a head/cpp/lib stable/cpp/lib
+          echo "Stable lib (after):"
+          ls -la stable/cpp/lib/
         shell: bash
 
       - name: Swap HEAD C++ libraries (Windows)
@@ -274,21 +198,12 @@ jobs:
           $headBinDir = "head\cpp\bin\$platform\$config"
           $stableBinDir = "stable\cpp\bin\$platform\$config"
 
-          Write-Host "HEAD DLLs:"
-          Get-ChildItem $headBinDir -Filter *.dll -ErrorAction SilentlyContinue | Format-Table Name, Length
-
-          Write-Host "Stable DLLs (before swap):"
-          Get-ChildItem $stableBinDir -Filter *.dll -ErrorAction SilentlyContinue | Format-Table Name, Length
-
-          # Remove stable DLLs and PDBs, then copy HEAD versions. Only copy DLLs (not .exe) to avoid replacing the
-          # Slice compilers and other tools that are part of the stable build.
-          Remove-Item "$stableBinDir\*.dll" -Force -ErrorAction SilentlyContinue
-          Remove-Item "$stableBinDir\*.pdb" -Force -ErrorAction SilentlyContinue
-          Copy-Item "$headBinDir\*.dll" "$stableBinDir\" -Force
-          Copy-Item "$headBinDir\*.pdb" "$stableBinDir\" -Force -ErrorAction SilentlyContinue
-
-          Write-Host "Stable DLLs (after swap):"
-          Get-ChildItem $stableBinDir -Filter *.dll -ErrorAction SilentlyContinue | Format-Table Name, Length
+          Write-Host "Stable bin (before):"
+          Get-ChildItem $stableBinDir | Format-Table Name, Length
+          Remove-Item $stableBinDir -Recurse -Force
+          Copy-Item $headBinDir $stableBinDir -Recurse
+          Write-Host "Stable bin (after):"
+          Get-ChildItem $stableBinDir | Format-Table Name, Length
         shell: powershell
 
       - name: Install testing dependencies
