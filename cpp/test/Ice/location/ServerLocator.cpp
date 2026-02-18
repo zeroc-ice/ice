@@ -102,7 +102,7 @@ ServerLocator::ServerLocator(ServerLocatorRegistryPtr registry, const optional<L
 optional<ObjectPrx>
 ServerLocator::findObjectById(Identity id, const Current&) const
 {
-    ++const_cast<int&>(_requestCount);
+    ++_requestCount;
     // We add a small delay to make sure locator request queuing gets tested when
     // running the test on a fast machine
     this_thread::sleep_for(chrono::milliseconds(1));
@@ -112,7 +112,7 @@ ServerLocator::findObjectById(Identity id, const Current&) const
 std::optional<ObjectPrx>
 ServerLocator::findAdapterById(string id, const Current& current) const
 {
-    ++const_cast<int&>(_requestCount);
+    ++_requestCount;
     if (id == "TestAdapter10" || id == "TestAdapter10-2")
     {
         test(current.encoding == Encoding_1_0);

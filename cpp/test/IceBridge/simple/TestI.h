@@ -5,6 +5,8 @@
 
 #include "Test.h"
 
+#include <atomic>
+
 class MyClassI final : public Test::MyClass, public std::enable_shared_from_this<MyClassI>
 {
 public:
@@ -42,7 +44,7 @@ private:
 
     std::mutex _lock;
     std::condition_variable _condVar;
-    int _datagramCount = 0;
+    std::atomic<int> _datagramCount = 0;
     std::map<Ice::ConnectionPtr, int> _connections;
     int _counter = 0;
 };

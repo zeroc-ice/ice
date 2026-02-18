@@ -6,6 +6,8 @@
 #include "Ice/Locator.h"
 #include "Test.h"
 
+#include <atomic>
+
 class ServerLocatorRegistry final : public Test::TestLocatorRegistry
 {
 public:
@@ -32,7 +34,7 @@ public:
 private:
     std::map<std::string, std::optional<Ice::ObjectPrx>> _adapters;
     std::map<Ice::Identity, std::optional<Ice::ObjectPrx>> _objects;
-    std::int32_t _setRequestCount{0};
+    std::atomic<std::int32_t> _setRequestCount{0};
 };
 using ServerLocatorRegistryPtr = std::shared_ptr<ServerLocatorRegistry>;
 
@@ -52,7 +54,7 @@ public:
 private:
     ServerLocatorRegistryPtr _registry;
     std::optional<Ice::LocatorRegistryPrx> _registryPrx;
-    int _requestCount{0};
+    mutable std::atomic<int> _requestCount{0};
 };
 
 #endif
