@@ -119,7 +119,18 @@ TrustManager::verify(const ConnectionInfoPtr& info) const
     // If there is no certificate then we match false.
     if (info->peerCertificate)
     {
-        auto subject = DistinguishedName(getSubjectName(info->peerCertificate));
+        DistinguishedName subject{list<pair<string, string>>{}};
+        try
+        {
+            subject = DistinguishedName(getSubjectName(info->peerCertificate));
+        }
+        catch (const ParseException& ex)
+        {
+            Ice::Warning warn(_instance->initializationData().logger);
+            warn << "IceSSL: unable to parse certificate DN:\n" << ex.what();
+            return false;
+        }
+
         if (_traceLevel > 0)
         {
             Ice::Trace trace(_instance->initializationData().logger, "Security");
