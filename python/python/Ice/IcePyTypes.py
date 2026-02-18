@@ -20,9 +20,6 @@ from IcePy import (
     UDPEndpointInfo,
     WSConnectionInfo,
     WSEndpointInfo,
-    intVersion,
-    loadSlice,
-    stringVersion,
 )
 
 __all__ = [
@@ -43,7 +40,4 @@ __all__ = [
     "UDPEndpointInfo",
     "WSConnectionInfo",
     "WSEndpointInfo",
-    "intVersion",
-    "loadSlice",
-    "stringVersion",
 ]

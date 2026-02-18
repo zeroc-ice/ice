@@ -57,9 +57,6 @@ from .IcePyTypes import (
     UDPEndpointInfo,
     WSConnectionInfo,
     WSEndpointInfo,
-    intVersion,
-    loadSlice,
-    stringVersion,
 )
 from .Identity import Identity, _Ice_Identity_t
 from .IdentitySeq import _Ice_IdentitySeq_t
@@ -165,7 +162,16 @@ from .UDPEndpointType import UDPEndpointType
 from .UnknownSlicedValue import UnknownSlicedValue
 from .URIEndpointType import URIEndpointType
 from .UserException import UserException
-from .Util import createProperties, getSliceDir, identityToString, initialize, stringToIdentity
+from .Util import (
+    createProperties,
+    getSliceDir,
+    identityToString,
+    initialize,
+    intVersion,
+    loadSlice,
+    stringToIdentity,
+    stringVersion,
+)
 from .Value import Value
 from .WSEndpointType import WSEndpointType
 from .WSSEndpointType import WSSEndpointType
