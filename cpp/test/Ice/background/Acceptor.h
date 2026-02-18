@@ -14,7 +14,7 @@ public:
 
     void close() override;
     IceInternal::EndpointIPtr listen() override;
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
     virtual void startAccept();
     virtual void finishAccept();
 #endif

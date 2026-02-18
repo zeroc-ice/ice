@@ -18,7 +18,7 @@ IceInternal::SocketOperation
 Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
 {
     IceInternal::SocketOperation status = IceInternal::SocketOperationNone;
-#ifndef ICE_USE_IOCP
+#if !defined(ICE_USE_IOCP) && !defined(ICE_USE_NETWORK_FRAMEWORK)
     status = _configuration->initializeSocketOperation();
     if (status == IceInternal::SocketOperationConnect || status == IceInternal::SocketOperationWrite)
     {
@@ -125,7 +125,7 @@ Transceiver::read(IceInternal::Buffer& buf)
     }
 }
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_NETWORK_FRAMEWORK)
 bool
 Transceiver::startWrite(IceInternal::Buffer& buf)
 {
