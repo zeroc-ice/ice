@@ -30,6 +30,9 @@ namespace IceInternal
         bool operator==(const Connector&) const final;
         bool operator<(const Connector&) const final;
 
+        [[nodiscard]] const std::string& host() const { return _host; }
+        [[nodiscard]] std::int32_t port() const { return _port; }
+
     private:
         const ProtocolInstancePtr _instance;
         const std::string _host;

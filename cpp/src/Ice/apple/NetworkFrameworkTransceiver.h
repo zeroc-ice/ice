@@ -39,12 +39,13 @@ namespace IceInternal
     {
         std::atomic<bool> connected{false};
         std::atomic<int> error{0};
+        std::atomic<bool> tlsError{false};
     };
 
     class NetworkFrameworkTransceiver final : public Transceiver
     {
     public:
-        NetworkFrameworkTransceiver(ProtocolInstancePtr, nw_connection_t);
+        NetworkFrameworkTransceiver(ProtocolInstancePtr, nw_connection_t, bool secure = false);
         ~NetworkFrameworkTransceiver();
 
         NativeInfoPtr getNativeInfo() final;
@@ -69,6 +70,8 @@ namespace IceInternal
         void checkSendSize(const Buffer&) final;
         void setBufferSize(int rcvSize, int sndSize) final;
 
+        void setLocalVerifyRejected(std::shared_ptr<std::atomic<bool>> flag) { _localVerifyRejected = std::move(flag); }
+
     private:
         enum State
         {
@@ -90,6 +93,13 @@ namespace IceInternal
         std::shared_ptr<WriteState> _writeState;
 
         std::string _desc;
+        bool _secure;
+
+        // Optional flag shared with the verify block in SSLConnectorI. When the
+        // local verify block calls complete(false), it sets this flag so we can
+        // distinguish "we rejected the peer" (SecurityException) from "the peer
+        // rejected us" (ConnectionLostException).
+        std::shared_ptr<std::atomic<bool>> _localVerifyRejected;
     };
 }
 

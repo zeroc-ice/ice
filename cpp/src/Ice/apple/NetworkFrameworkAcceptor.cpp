@@ -4,13 +4,17 @@
 
 #if defined(ICE_USE_NETWORK_FRAMEWORK)
 
+#    include "Ice/Connection.h"
 #    include "Ice/LocalExceptions.h"
 #    include "Ice/LoggerUtil.h"
 #    include "Ice/Properties.h"
+#    include "Ice/SSL/ConnectionInfo.h"
 #    include "../ProtocolInstance.h"
 #    include "../TcpEndpointI.h"
 #    include "NetworkFrameworkAcceptor.h"
 #    include "NetworkFrameworkTransceiver.h"
+
+#    include <Security/Security.h>
 
 #    include <utility>
 
@@ -173,7 +177,7 @@ IceInternal::NetworkFrameworkAcceptor::accept()
 
     try
     {
-        auto transceiver = make_shared<NetworkFrameworkTransceiver>(_instance, connection);
+        auto transceiver = make_shared<NetworkFrameworkTransceiver>(_instance, connection, _secure);
         nw_release(connection); // The transceiver retains its own reference.
         return transceiver;
     }
@@ -212,21 +216,181 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
     TcpEndpointIPtr endpoint,
     const ProtocolInstancePtr& instance,
     const string& host,
-    int port)
+    int port,
+    const string& adapterName,
+    const optional<Ice::SSL::ServerAuthenticationOptions>& serverAuthenticationOptions)
     : _endpoint(std::move(endpoint)),
       _instance(instance),
       _nativeInfo(make_shared<NativeInfo>(INVALID_SOCKET)),
       _listener(nullptr),
       _dispatchQueue(nullptr),
       _host(host),
-      _port(static_cast<uint16_t>(port))
+      _port(static_cast<uint16_t>(port)),
+      _secure(serverAuthenticationOptions.has_value())
 {
     //
-    // Create TCP parameters (no TLS for plain TCP).
+    // Create TCP parameters — with or without TLS.
     //
-    nw_parameters_t parameters = nw_parameters_create_secure_tcp(
-        NW_PARAMETERS_DISABLE_PROTOCOL,
-        NW_PARAMETERS_DEFAULT_CONFIGURATION);
+    nw_parameters_t parameters;
+    if (serverAuthenticationOptions)
+    {
+        auto authOptions = *serverAuthenticationOptions;
+        parameters = nw_parameters_create_secure_tcp(
+            ^(nw_protocol_options_t tlsOptions) {
+                sec_protocol_options_t secOptions = nw_tls_copy_sec_protocol_options(tlsOptions);
+
+                // Set server certificate identity per-connection. The configure_tls block
+                // is called for each incoming connection on a listener, allowing hot cert reload.
+                if (authOptions.serverCertificateSelectionCallback)
+                {
+                    auto certCallback = authOptions.serverCertificateSelectionCallback;
+                    CFArrayRef certs = certCallback(adapterName);
+                    if (certs && CFArrayGetCount(certs) > 0)
+                    {
+                        SecIdentityRef identity = (SecIdentityRef)CFArrayGetValueAtIndex(certs, 0);
+                        sec_identity_t secIdentity = nullptr;
+
+                        // If the callback returned intermediate certificates (items after the
+                        // identity), include them so NF sends the full chain during the TLS
+                        // handshake. Without this, clients cannot verify certificate chains
+                        // that have intermediate CAs.
+                        CFIndex count = CFArrayGetCount(certs);
+                        if (count > 1)
+                        {
+                            CFMutableArrayRef intermediateCerts =
+                                CFArrayCreateMutable(kCFAllocatorDefault, count - 1, &kCFTypeArrayCallBacks);
+                            for (CFIndex i = 1; i < count; ++i)
+                            {
+                                CFArrayAppendValue(intermediateCerts, CFArrayGetValueAtIndex(certs, i));
+                            }
+                            secIdentity = sec_identity_create_with_certificates(identity, intermediateCerts);
+                            CFRelease(intermediateCerts);
+                        }
+                        else
+                        {
+                            secIdentity = sec_identity_create(identity);
+                        }
+
+                        if (secIdentity)
+                        {
+                            sec_protocol_options_set_local_identity(secOptions, secIdentity);
+                            sec_release(secIdentity);
+                        }
+                        CFRelease(certs);
+                    }
+                }
+
+                // Configure client certificate authentication.
+                //
+                // Network.framework only supports binary peer authentication: required or not
+                // requested. The sec_protocol_options_set_peer_authentication_optional() API exists
+                // in headers but is API_UNAVAILABLE on all platforms. When peer_authentication_required
+                // is true, NF enforces the requirement at the TLS protocol level (before the verify
+                // block fires), so clients without certificates are rejected immediately.
+                //
+                // As a result, kTryAuthenticate (VerifyPeer=1) cannot be faithfully implemented.
+                // We treat it as kNeverAuthenticate: the server does not request a client certificate.
+                // This preserves the primary kTryAuthenticate behavior of allowing clients without
+                // certificates to connect, but means client certificates are not verified even when
+                // the client has one (since the server never requests it).
+                SSLAuthenticate clientCertRequired = authOptions.clientCertificateRequired;
+                if (clientCertRequired == kAlwaysAuthenticate)
+                {
+                    CFArrayRef trustedRoots = authOptions.trustedRootCertificates;
+                    auto validationCallback = authOptions.clientCertificateValidationCallback;
+
+                    sec_protocol_options_set_peer_authentication_required(secOptions, true);
+
+                    dispatch_queue_t verifyQueue =
+                        dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+                    sec_protocol_options_set_verify_block(
+                        secOptions,
+                        ^(sec_protocol_metadata_t metadata, sec_trust_t trustRef, sec_protocol_verify_complete_t complete) {
+                            // NF's sec_trust_copy_ref only provides the leaf certificate. Extract
+                            // the full peer certificate chain from the protocol metadata.
+                            CFMutableArrayRef peerCerts =
+                                CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks);
+                            sec_protocol_metadata_access_peer_certificate_chain(
+                                metadata,
+                                ^(sec_certificate_t cert) {
+                                    SecCertificateRef secCert = sec_certificate_copy_ref(cert);
+                                    CFArrayAppendValue(peerCerts, secCert);
+                                    CFRelease(secCert);
+                                });
+
+                            SecPolicyRef policy = SecPolicyCreateBasicX509();
+                            SecTrustRef trust;
+                            OSStatus status = SecTrustCreateWithCertificates(peerCerts, policy, &trust);
+                            CFRelease(policy);
+                            CFRelease(peerCerts);
+
+                            if (status != errSecSuccess || !trust)
+                            {
+                                complete(false);
+                                return;
+                            }
+
+                            if (trustedRoots)
+                            {
+                                SecTrustSetAnchorCertificates(trust, trustedRoots);
+                                SecTrustSetAnchorCertificatesOnly(trust, true);
+                            }
+
+                            if (validationCallback)
+                            {
+                                try
+                                {
+                                    // Construct a minimal ConnectionInfo with the peer certificate
+                                    // for TrustOnly and other DN-based checks. Server-side: incoming=true.
+                                    SecCertificateRef peerCert = nullptr;
+                                    if (SecTrustGetCertificateCount(trust) > 0)
+                                    {
+                                        peerCert = SecTrustGetCertificateAtIndex(trust, 0);
+                                        if (peerCert)
+                                        {
+                                            CFRetain(peerCert); // SecureTransportConnectionInfo releases it.
+                                        }
+                                    }
+                                    auto underlying = make_shared<Ice::TCPConnectionInfo>(
+                                        true, adapterName, "", "", 0, "", 0, 0, 0);
+                                    auto info = make_shared<Ice::SSL::SecureTransportConnectionInfo>(
+                                        underlying, peerCert);
+                                    bool valid = validationCallback(trust, info);
+                                    complete(valid);
+                                }
+                                catch (...)
+                                {
+                                    complete(false);
+                                }
+                            }
+                            else
+                            {
+                                CFErrorRef error = nullptr;
+                                bool valid = SecTrustEvaluateWithError(trust, &error);
+                                if (error)
+                                {
+                                    CFRelease(error);
+                                }
+                                complete(valid);
+                            }
+                            CFRelease(trust);
+                        },
+                        verifyQueue);
+                }
+                else
+                {
+                    // kNeverAuthenticate or kTryAuthenticate — do not request client certificate.
+                    sec_protocol_options_set_peer_authentication_required(secOptions, false);
+                }
+            },
+            NW_PARAMETERS_DEFAULT_CONFIGURATION);
+    }
+    else
+    {
+        parameters = nw_parameters_create_secure_tcp(
+            NW_PARAMETERS_DISABLE_PROTOCOL,
+            NW_PARAMETERS_DEFAULT_CONFIGURATION);
+    }
 
     if (!parameters)
     {

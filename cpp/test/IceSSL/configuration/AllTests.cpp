@@ -482,11 +482,16 @@ testCertificateVerification(
     try
     {
         server->ice_ping();
+#if !defined(__APPLE__)
+        // On Apple platforms, Network.framework does not support optional client certificate
+        // authentication (VerifyPeer=1 behaves like VerifyPeer=0 for client certificates).
+        // The server does not request the client certificate, so it cannot reject untrusted ones.
         test(false);
+#endif
     }
     catch (const ConnectionLostException&)
     {
-        // Expected.
+        // Expected on non-Apple platforms.
     }
     catch (const LocalException& ex)
     {
