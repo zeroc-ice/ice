@@ -8,7 +8,12 @@
 #include "Ice/OutputStream.h"
 #include "Network.h"
 #include "ProtocolInstance.h"
-#include "UdpConnector.h"
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+#    include "apple/NetworkFrameworkUdpConnector.h"
+#    include "apple/NetworkFrameworkUdpTransceiver.h"
+#else
+#    include "UdpConnector.h"
+#endif
 #include "UdpTransceiver.h"
 
 using namespace std;
@@ -161,12 +166,21 @@ IceInternal::UdpEndpointI::toPublishedEndpoint(string publishedHost) const
 TransceiverPtr
 IceInternal::UdpEndpointI::transceiver() const
 {
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    return make_shared<NetworkFrameworkUdpTransceiver>(
+        dynamic_pointer_cast<UdpEndpointI>(const_cast<UdpEndpointI*>(this)->shared_from_this()),
+        _instance,
+        _host,
+        _port,
+        _mcastInterface);
+#else
     return make_shared<UdpTransceiver>(
         static_pointer_cast<UdpEndpointI>(const_cast<UdpEndpointI*>(this)->shared_from_this()),
         _instance,
         _host,
         _port,
         _mcastInterface);
+#endif
 }
 
 AcceptorPtr
@@ -189,6 +203,22 @@ IceInternal::UdpEndpointI::endpoint(const UdpTransceiverPtr& transceiver) const
             UdpEndpointI>(_instance, _host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId, _compress);
     }
 }
+
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+UdpEndpointIPtr
+IceInternal::UdpEndpointI::endpoint(int port) const
+{
+    if (port == _port)
+    {
+        return dynamic_pointer_cast<UdpEndpointI>(const_cast<UdpEndpointI*>(this)->shared_from_this());
+    }
+    else
+    {
+        return make_shared<
+            UdpEndpointI>(_instance, _host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId, _compress);
+    }
+}
+#endif
 
 void
 IceInternal::UdpEndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
@@ -436,7 +466,21 @@ IceInternal::UdpEndpointI::checkOption(const string& option, const string& argum
 ConnectorPtr
 IceInternal::UdpEndpointI::createConnector(const Address& address, const NetworkProxyPtr&) const
 {
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    string host;
+    int port;
+    addrToAddressAndPort(address, host, port);
+    return make_shared<NetworkFrameworkUdpConnector>(
+        _instance,
+        host,
+        port,
+        _sourceAddr,
+        _mcastInterface,
+        _mcastTtl,
+        _connectionId);
+#else
     return make_shared<UdpConnector>(_instance, address, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId);
+#endif
 }
 
 IPEndpointIPtr
