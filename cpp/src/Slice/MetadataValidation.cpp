@@ -95,8 +95,21 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
              typeid(DataMember)},
         .acceptedArgumentKind = MetadataArgumentKind::OptionalTextArgument,
     };
-    knownMetadata.emplace("deprecate", deprecatedInfo); // Kept as an alias for 'deprecated'.
-    knownMetadata.emplace("deprecated", std::move(deprecatedInfo));
+    knownMetadata.emplace("deprecated", deprecatedInfo);
+
+    // We keep support for 'deprecate' as an alias for 'deprecated', but disallow using both on the same element.
+    deprecatedInfo.extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
+        {
+            if (auto contained = dynamic_pointer_cast<Contained>(p))
+            {
+                if (contained->hasMetadata("deprecated"))
+                {
+                    return "you cannot apply both 'deprecated' and 'deprecate' metadata to the same element";
+                }
+            }
+            return nullopt;
+        },
+    knownMetadata.emplace("deprecate", std::move(deprecatedInfo));
 
     // "format"
     MetadataInfo formatInfo = {

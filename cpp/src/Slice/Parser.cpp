@@ -11,7 +11,6 @@
 #include <cassert>
 #include <cstring>
 #include <iterator>
-#include <limits>
 
 using namespace std;
 using namespace Slice;
@@ -782,6 +781,8 @@ Slice::Contained::isDeprecated() const
 optional<string>
 Slice::Contained::getDeprecationReason() const
 {
+    // The compiler doesn't allow both 'deprecate' and 'deprecated' to be applied to the same element.
+    // If both are present, 'deprecated' will be kept, and 'deprecate' will be thrown away.
     string reasonMessage;
     if (auto reason = getMetadataArgs("deprecate"))
     {
@@ -2197,7 +2198,7 @@ Slice::ClassDecl::isClassType() const
 size_t
 Slice::ClassDecl::minWireSize() const
 {
-    return 1; // At least four bytes for an instance, if the instance is marshaled as an index.
+    return 1; // A class can be marshaled as an index, which uses the size encoding, which uses either 1 or 5 bytes.
 }
 
 string
@@ -2955,10 +2956,9 @@ Slice::Operation::hasMarshaledResult() const
             return true;
         }
 
-        for (const auto& p : _contents)
+        for (const auto& p : outParameters())
         {
-            ParameterPtr q = dynamic_pointer_cast<Parameter>(p);
-            if (q->isOutParam() && isMutableAfterReturnType(q->type()))
+            if (isMutableAfterReturnType(p->type()))
             {
                 return true;
             }
@@ -3068,7 +3068,6 @@ ParameterList
 Slice::Operation::outParameters() const
 {
     ParameterList result;
-
     for (const auto& p : _contents)
     {
         ParameterPtr q = dynamic_pointer_cast<Parameter>(p);
@@ -4048,9 +4047,7 @@ Slice::Enum::destroy()
     destroyContents();
 }
 
-Slice::Enum::Enum(const ContainerPtr& container, const string& name)
-    : Contained(container, name),
-      _minValue(numeric_limits<int32_t>::max())
+Slice::Enum::Enum(const ContainerPtr& container, const string& name) : Contained(container, name)
 {
 }
 
