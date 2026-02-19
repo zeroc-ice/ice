@@ -4047,9 +4047,7 @@ Slice::Enum::destroy()
     destroyContents();
 }
 
-Slice::Enum::Enum(const ContainerPtr& container, const string& name) : Contained(container, name)
-{
-}
+Slice::Enum::Enum(const ContainerPtr& container, const string& name) : Contained(container, name) {}
 
 // ----------------------------------------------------------------------
 // Enumerator
