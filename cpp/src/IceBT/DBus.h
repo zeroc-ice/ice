@@ -211,11 +211,11 @@ namespace IceBT::DBus
 
         VariantValue(ValuePtr val) : v(std::move(val)), _type(make_shared<VariantType>()) {}
 
-        TypePtr getType() const override { return _type; }
+        [[nodiscard]] TypePtr getType() const override { return _type; }
 
-        ValuePtr clone() const override { return make_shared<VariantValue>(v ? v->clone() : nullptr); }
+        [[nodiscard]] ValuePtr clone() const override { return make_shared<VariantValue>(v ? v->clone() : nullptr); }
 
-        std::string toString() const override { return v ? v->toString() : "nil"; }
+        [[nodiscard]] std::string toString() const override { return v ? v->toString() : "nil"; }
 
         ValuePtr v;
 
