@@ -1220,9 +1220,6 @@ namespace IceBT
         RemoteDeviceMap _remoteDevices;
         string _defaultAdapterAddress;
         vector<thread> _connectThreads;
-
-        bool _discovering;
-        vector<function<void(const string&, const PropertyMap&)>> _discoveryCallbacks;
     };
 }
 

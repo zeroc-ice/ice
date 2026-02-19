@@ -33,7 +33,6 @@ namespace IceBT
         void init(SOCKET);
 
         const InstancePtr _instance;
-        SocketAddress _addr;
         std::string _desc;
     };
     using StreamSocketPtr = std::shared_ptr<StreamSocket>;
