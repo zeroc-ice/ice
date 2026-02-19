@@ -28,7 +28,6 @@ on:
         required: false
         type: boolean
         default: false
-  pull_request:
 
 jobs:
   build-icegridgui-macos-app:
