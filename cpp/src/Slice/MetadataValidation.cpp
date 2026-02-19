@@ -98,9 +98,9 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
     knownMetadata.emplace("deprecated", deprecatedInfo);
 
     // We keep support for 'deprecate' as an alias for 'deprecated', but disallow using both on the same element.
-    deprecatedInfo.extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
+    deprecatedInfo.extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& q) -> optional<string>
         {
-            if (auto contained = dynamic_pointer_cast<Contained>(p))
+            if (auto contained = dynamic_pointer_cast<Contained>(q))
             {
                 if (contained->hasMetadata("deprecated"))
                 {
