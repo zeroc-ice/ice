@@ -395,6 +395,16 @@ CreateSession::unexpectedAuthorizeException(exception_ptr ex)
             Warning out(_instance->logger());
             out << "exception while verifying permissions:\n" << e;
         }
+        catch (const std::exception& e)
+        {
+            Warning out(_instance->logger());
+            out << "exception while verifying permissions:\n" << e.what();
+        }
+        catch (...)
+        {
+            Warning out(_instance->logger());
+            out << "unknown exception while verifying permissions";
+        }
     }
 
     exception(make_exception_ptr(PermissionDeniedException("internal server error")));
@@ -484,6 +494,16 @@ CreateSession::unexpectedCreateSessionException(exception_ptr ex)
         {
             Trace out(_instance->logger(), "Glacier2");
             out << "exception while creating session with session manager:\n" << e;
+        }
+        catch (const std::exception& e)
+        {
+            Trace out(_instance->logger(), "Glacier2");
+            out << "exception while creating session with session manager:\n" << e.what();
+        }
+        catch (...)
+        {
+            Trace out(_instance->logger(), "Glacier2");
+            out << "unknown exception while creating session with session manager";
         }
     }
     exception(make_exception_ptr(CannotCreateSessionException("internal server error")));
@@ -904,6 +924,16 @@ SessionRouterI::sessionDestroyException(exception_ptr ex) const
         {
             Trace out(_instance->logger(), "Glacier2");
             out << "exception while destroying session\n" << e;
+        }
+        catch (const std::exception& e)
+        {
+            Trace out(_instance->logger(), "Glacier2");
+            out << "exception while destroying session\n" << e.what();
+        }
+        catch (...)
+        {
+            Trace out(_instance->logger(), "Glacier2");
+            out << "unknown exception while destroying session";
         }
     }
 }
