@@ -181,7 +181,8 @@ namespace Glacier2
 
         bool match(const string& space, string::size_type& pos) override
         {
-            if (strncmp(space.c_str(), _criteria.c_str(), _criteria.size()) == 0)
+            if (pos + _criteria.size() <= space.size() &&
+                strncmp(space.c_str() + pos, _criteria.c_str(), _criteria.size()) == 0)
             {
                 pos += _criteria.size();
                 return true;
@@ -212,7 +213,7 @@ namespace Glacier2
             {
                 return false;
             }
-            pos = offset + _criteria.size() + 1;
+            pos = offset + _criteria.size();
             return true;
         }
 
@@ -279,7 +280,6 @@ namespace Glacier2
                     ostr << range.start << " up to " << range.end;
                 }
             }
-            ostr << ends;
             _description = ostr.str();
         }
 
@@ -351,26 +351,6 @@ namespace Glacier2
         }
     };
 
-    class EndsWithNumber final : public MatchesNumber
-    {
-    public:
-        EndsWithNumber(const vector<int>& values, const vector<Range>& ranges)
-            : MatchesNumber(values, ranges, "ends with ")
-        {
-        }
-
-        bool match(const string& space, string::size_type& pos) override
-        {
-            pos = space.find_last_not_of("0123456789", pos);
-            if (pos == space.size() - 1)
-            {
-                return false;
-            }
-
-            return MatchesNumber::match(space, pos);
-        }
-    };
-
     //
     // AddressMatcher factories abstract away the logic of which matching
     // objects need to be created depending on the state of the filter
@@ -425,9 +405,10 @@ namespace Glacier2
     public:
         AddressMatcher* create(const string& criteria) override { return new EndsWithString(criteria); }
 
-        AddressMatcher* create(const vector<int>& ports, const vector<Range>& ranges) override
+        AddressMatcher* create(const vector<int>&, const vector<Range>&) override
         {
-            return new EndsWithNumber(ports, ranges);
+            assert(false); // unreachable — groups are always processed inside the parser loop
+            return nullptr;
         }
     };
 
