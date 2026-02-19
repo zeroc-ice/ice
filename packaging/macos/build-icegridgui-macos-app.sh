@@ -43,14 +43,10 @@ ICON_PATH="${REPO_ROOT}/java/src/IceGridGUI/src/main/resources/icons/icegrid.icn
 WORKDIR=$(mktemp -d)
 trap 'rm -rf "$WORKDIR"' EXIT
 
-echo "==> Preparing icegridgui.jar..."
+echo "==> Preparing input directory..."
 INPUT_DIR="${WORKDIR}/input"
-mkdir -p "${INPUT_DIR}/unzip"
-unzip "${JAR_PATH}" -d "${INPUT_DIR}/unzip/" > /dev/null
-pushd "${INPUT_DIR}/unzip" > /dev/null
-zip -r "${INPUT_DIR}/icegridgui.jar" ./* > /dev/null
-popd > /dev/null
-rm -rf "${INPUT_DIR}/unzip"
+mkdir -p "${INPUT_DIR}"
+cp "${JAR_PATH}" "${INPUT_DIR}/icegridgui.jar"
 
 echo "==> Building Java JRE with jlink..."
 # Module list determined by: jdeps --list-deps icegridgui.jar
@@ -71,7 +67,6 @@ mkdir -p "${DEST_DIR}"
     --main-class com.zeroc.IceGridGUI/Main \
     --main-jar "icegridgui.jar" \
     --icon "${ICON_PATH}" \
-    --java-options "-Dapple.laf.useScreenMenuBar=true -Dcom.apple.macos.use-file-dialog-packages=true -Dcom.apple.macos.useScreenMenuBar=true '-Xdock:name=${APP_NAME}' '-Dcom.apple.mrj.application.apple.menu.about.name=${APP_NAME}'" \
     --copyright "Copyright © ZeroC, Inc. All rights reserved." \
     --vendor "ZeroC, Inc." \
     --input "${INPUT_DIR}" \
