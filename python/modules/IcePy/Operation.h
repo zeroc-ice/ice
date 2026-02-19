@@ -21,7 +21,7 @@ namespace IcePy
     PyObject* iceInvoke(PyObject*, PyObject*);
     PyObject* iceInvokeAsync(PyObject*, PyObject*);
 
-    // Used as the callback for getConnectionAsync operation.
+    /// Used as the callback for getConnectionAsync operation.
     class GetConnectionAsyncCallback
     {
     public:
@@ -42,7 +42,7 @@ namespace IcePy
     };
     using GetConnectionAsyncCallbackPtr = std::shared_ptr<GetConnectionAsyncCallback>;
 
-    // Used as the callback for the various flushBatchRequestAsync operations.
+    /// Used as the callback for the various flushBatchRequestAsync operations.
     class FlushAsyncCallback
     {
     public:
@@ -63,7 +63,7 @@ namespace IcePy
     };
     using FlushAsyncCallbackPtr = std::shared_ptr<FlushAsyncCallback>;
 
-    // ServantWrapper handles dispatching to a Python servant.
+    /// ServantWrapper handles dispatching to a Python servant.
     class ServantWrapper : public Ice::BlobjectArrayAsync
     {
     public:

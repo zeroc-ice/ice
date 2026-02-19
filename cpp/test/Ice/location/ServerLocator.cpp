@@ -15,6 +15,7 @@ ServerLocatorRegistry::ServerLocatorRegistry() = default;
 void
 ServerLocatorRegistry::setAdapterDirectProxy(string adapter, optional<ObjectPrx> object, const Current&)
 {
+    lock_guard lock(_mutex);
     ++_setRequestCount;
     if (!object)
     {
@@ -33,6 +34,7 @@ ServerLocatorRegistry::setReplicatedAdapterDirectProxy(
     optional<ObjectPrx> object,
     const Current&)
 {
+    lock_guard lock(_mutex);
     ++_setRequestCount;
     if (!object)
     {
@@ -49,6 +51,7 @@ ServerLocatorRegistry::setReplicatedAdapterDirectProxy(
 void
 ServerLocatorRegistry::setServerProcessProxy(string, optional<ProcessPrx>, const Current&)
 {
+    lock_guard lock(_mutex);
     ++_setRequestCount;
 }
 
@@ -61,14 +64,16 @@ ServerLocatorRegistry::addObject(optional<ObjectPrx> object, const Current&)
 int32_t
 ServerLocatorRegistry::getSetRequestCount(const Current&)
 {
+    lock_guard lock(_mutex);
     return _setRequestCount;
 }
 
 optional<ObjectPrx>
 ServerLocatorRegistry::getAdapter(const string& adapter) const
 {
+    lock_guard lock(_mutex);
     auto p = _adapters.find(adapter);
-    if (_adapters.find(adapter) == _adapters.end())
+    if (p == _adapters.end())
     {
         throw AdapterNotFoundException();
     }
@@ -78,18 +83,19 @@ ServerLocatorRegistry::getAdapter(const string& adapter) const
 optional<ObjectPrx>
 ServerLocatorRegistry::getObject(const Identity& id) const
 {
+    lock_guard lock(_mutex);
     auto p = _objects.find(id);
     if (p == _objects.end())
     {
         throw ObjectNotFoundException();
     }
-
     return p->second;
 }
 
 void
 ServerLocatorRegistry::addObject(const optional<ObjectPrx>& object)
 {
+    lock_guard lock(_mutex);
     _objects[object->ice_getIdentity()] = object;
 }
 
@@ -102,7 +108,7 @@ ServerLocator::ServerLocator(ServerLocatorRegistryPtr registry, const optional<L
 optional<ObjectPrx>
 ServerLocator::findObjectById(Identity id, const Current&) const
 {
-    ++const_cast<int&>(_requestCount);
+    ++_requestCount;
     // We add a small delay to make sure locator request queuing gets tested when
     // running the test on a fast machine
     this_thread::sleep_for(chrono::milliseconds(1));
@@ -112,7 +118,7 @@ ServerLocator::findObjectById(Identity id, const Current&) const
 std::optional<ObjectPrx>
 ServerLocator::findAdapterById(string id, const Current& current) const
 {
-    ++const_cast<int&>(_requestCount);
+    ++_requestCount;
     if (id == "TestAdapter10" || id == "TestAdapter10-2")
     {
         test(current.encoding == Encoding_1_0);

@@ -6,6 +6,9 @@
 #include "Ice/Locator.h"
 #include "Test.h"
 
+#include <atomic>
+#include <mutex>
+
 class ServerLocatorRegistry final : public Test::TestLocatorRegistry
 {
 public:
@@ -30,6 +33,7 @@ public:
     void addObject(const std::optional<Ice::ObjectPrx>&);
 
 private:
+    mutable std::mutex _mutex;
     std::map<std::string, std::optional<Ice::ObjectPrx>> _adapters;
     std::map<Ice::Identity, std::optional<Ice::ObjectPrx>> _objects;
     std::int32_t _setRequestCount{0};
@@ -52,7 +56,7 @@ public:
 private:
     ServerLocatorRegistryPtr _registry;
     std::optional<Ice::LocatorRegistryPrx> _registryPrx;
-    int _requestCount{0};
+    mutable std::atomic<int> _requestCount{0};
 };
 
 #endif

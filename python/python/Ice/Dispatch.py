@@ -21,6 +21,7 @@ def dispatch(cb: IcePy.DispatchCallback, method: Callable, args: list[Any]):
     with the given arguments. The method's result is then sent back to IcePy using the provided callback.
 
     The method parameter can return:
+
     - A direct result, which is immediately sent back via the callback.
     - A coroutine.
     - A future.

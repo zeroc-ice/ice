@@ -59,6 +59,33 @@ def initialize(
     return Communicator(initData=initData) if initData is not None else Communicator(args, eventLoop)
 
 
+def stringVersion() -> str:
+    """
+    Returns the Ice version in the form ``A.B.C``, where ``A`` indicates the major version,
+    ``B`` indicates the minor version, and ``C`` indicates the patch level.
+
+    Returns
+    -------
+    str
+        The Ice version.
+    """
+    return IcePy.stringVersion()
+
+
+def intVersion() -> int:
+    """
+    Returns the Ice version as an integer in the form ``AABBCC``, where ``AA`` indicates the major version,
+    ``BB`` indicates the minor version, and ``CC`` indicates the patch level.
+    For example, for Ice 3.9.1, the returned value is 30901.
+
+    Returns
+    -------
+    int
+        The Ice version.
+    """
+    return IcePy.intVersion()
+
+
 def identityToString(identity: Identity, toStringMode: ToStringMode | None = None) -> str:
     """
     Converts an Identity into a string using the specified mode.
@@ -123,6 +150,43 @@ def createProperties(args: list[str] | None = None, defaults: Properties | None 
     return Properties(args, defaults)
 
 
+def loadSlice(args: list[str]) -> None:
+    """
+    Compiles Slice definitions and loads the generated code directly into the current Python environment.
+
+    This function does not generate any Python source files. Instead, the generated Python code is loaded directly into
+    the running interpreter.
+
+    This function does not generate any code for Slice files included by the Slice files being loaded.
+    It is the caller's responsibility to load all necessary Slice definitions. This can be done in a single call to
+    :func:`loadSlice` by providing all Slice files (including included files) in the `args` parameter,
+    or by making multiple calls to :func:`loadSlice`.
+
+    When :func:`loadSlice` is called multiple times with the same Slice file,
+    the corresponding Python code is not reloaded.
+
+    Parameters
+    ----------
+    args : list[str]
+        The list of command-line arguments for the Slice loader. These arguments may include both compiler options and
+        the Slice files to compile.
+
+        Supported compiler options:
+
+            - ``-DNAME``:  Define NAME as 1.
+            - ``-DNAME=DEF``:  Define NAME as DEF.
+            - ``-UNAME``:  Remove any definition for NAME.
+            - ``-IDIR``:  Put DIR in the include file search path.
+            - ``-d``, ``--debug``:  Print debug messages.
+
+    Raises
+    ------
+    RuntimeError
+        If an error occurs during Slice parsing or compilation.
+    """
+    IcePy.loadSlice(args)
+
+
 def getSliceDir() -> str | None:
     """
     This helper function locates the installation directory for the Ice Slice files, and returns its path.
@@ -168,4 +232,13 @@ def getSliceDir() -> str | None:
     return None
 
 
-__all__ = ["initialize", "identityToString", "stringToIdentity", "createProperties", "getSliceDir"]
+__all__ = [
+    "initialize",
+    "stringVersion",
+    "intVersion",
+    "identityToString",
+    "stringToIdentity",
+    "createProperties",
+    "loadSlice",
+    "getSliceDir",
+]
