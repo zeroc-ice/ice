@@ -1349,14 +1349,8 @@ KeyDataWriterI::forward(const ByteSeq& inParams, const Current& current) const
         if (!_sample || listener.matchOne(_sample, _keys.empty()))
         {
             // Forward the call using the listener's session proxy, don't need to wait for the result.
-            listener.proxy->ice_invokeAsync(
-                current.operation,
-                current.mode,
-                inParams,
-                nullptr,
-                nullptr,
-                nullptr,
-                current.ctx);
+            listener.proxy
+                ->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, nullptr, nullptr, current.ctx);
         }
     }
 }
