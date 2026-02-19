@@ -9,6 +9,7 @@
 #include "IceBT/Plugin.h"
 #include "IceBT/Types.h"
 
+#include <atomic>
 #include <mutex>
 
 namespace IceBT
@@ -77,7 +78,7 @@ namespace IceBT
 
     private:
         const Ice::CommunicatorPtr _communicator;
-        bool _initialized{false};
+        std::atomic<bool> _initialized{false};
         mutable std::mutex _mutex;
         BluetoothServicePtr _service;
     };
