@@ -76,9 +76,7 @@ if [ "${NOTARIZE}" == "true" ]; then
 
     echo "==> Stapling notarization ticket..."
     xcrun stapler staple "${DMG_PATH}"
-fi
 
-if [ "${SIGN}" == "true" ]; then
     echo "==> Verifying DMG with spctl..."
     spctl -a -t open --context context:primary-signature -vv "${DMG_PATH}"
 fi

@@ -82,6 +82,10 @@ if [ "${NOTARIZE}" == "true" ]; then
 
     echo "==> Stapling notarization ticket..."
     xcrun stapler staple "${APP_PATH}"
+
+    echo "==> Verifying stapled app with Gatekeeper..."
+    xcrun stapler validate "${APP_PATH}"
+    spctl -a -t exec -vv "${APP_PATH}"
 fi
 
 echo "==> Done. Signed: ${APP_PATH}"
