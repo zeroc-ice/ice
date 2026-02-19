@@ -29,10 +29,11 @@ public:
 void
 PermissionsVerifierServer::run(int argc, char** argv)
 {
-    shutdownOnInterrupt();
     auto properties = createTestProperties(argc, argv);
     properties->parseCommandLineOptions("", Ice::argsToStringSeq(argc, argv));
     Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv, properties);
+    // Must be called after initialize() so that _communicator is set before the sigwait thread can access it.
+    shutdownOnInterrupt();
     auto adapter = communicatorHolder->createObjectAdapter("PermissionsVerifier");
     adapter->add(make_shared<AdminPermissionsVerifierI>(), Ice::stringToIdentity("AdminPermissionsVerifier"));
     adapter->activate();
