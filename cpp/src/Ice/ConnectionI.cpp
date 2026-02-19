@@ -2317,12 +2317,13 @@ Ice::ConnectionI::idleCheck(const chrono::seconds& idleTimeout) noexcept
     {
         setState(
             StateClosed,
-            make_exception_ptr(ConnectionAbortedException{
-                __FILE__,
-                __LINE__,
-                "connection aborted by the idle check because it did not receive any bytes for " +
-                    to_string(idleTimeout.count()) + "s",
-                false})); // closedByApplication: false
+            make_exception_ptr(
+                ConnectionAbortedException{
+                    __FILE__,
+                    __LINE__,
+                    "connection aborted by the idle check because it did not receive any bytes for " +
+                        to_string(idleTimeout.count()) + "s",
+                    false})); // closedByApplication: false
     }
     // else, nothing to do
 }
@@ -2343,11 +2344,12 @@ Ice::ConnectionI::inactivityCheck() noexcept
         {
             setState(
                 StateClosing,
-                make_exception_ptr(ConnectionClosedException{
-                    __FILE__,
-                    __LINE__,
-                    "connection closed because it remained inactive for longer than the inactivity timeout",
-                    false}));
+                make_exception_ptr(
+                    ConnectionClosedException{
+                        __FILE__,
+                        __LINE__,
+                        "connection closed because it remained inactive for longer than the inactivity timeout",
+                        false}));
         }
     }
 }
@@ -3254,7 +3256,6 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     stream.read(requestCount);
                     if (requestCount < 0)
                     {
-                        requestCount = 0;
                         throw MarshalException{
                             __FILE__,
                             __LINE__,
