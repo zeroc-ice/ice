@@ -129,9 +129,14 @@ namespace Glacier2
             {
                 exception(ex);
             }
-            catch (...)
+            catch (const Ice::Exception& e)
             {
-                unexpectedAuthorizeException(ex);
+                if (_sessionRouter->sessionTraceLevel() >= 1)
+                {
+                    Warning out(_instance->logger());
+                    out << "exception while verifying permissions:\n" << e;
+                }
+                exception(make_exception_ptr(PermissionDeniedException("internal server error")));
             }
         }
 
@@ -228,9 +233,14 @@ namespace Glacier2
             {
                 exception(ex);
             }
-            catch (...)
+            catch (const Ice::Exception& e)
             {
-                unexpectedAuthorizeException(ex);
+                if (_sessionRouter->sessionTraceLevel() >= 1)
+                {
+                    Warning out(_instance->logger());
+                    out << "exception while verifying permissions:\n" << e;
+                }
+                exception(make_exception_ptr(PermissionDeniedException("internal server error")));
             }
         }
 
@@ -379,25 +389,6 @@ CreateSession::authorized(bool createSession)
     {
         sessionCreated(nullopt);
     }
-}
-
-void
-CreateSession::unexpectedAuthorizeException(exception_ptr ex)
-{
-    if (_sessionRouter->sessionTraceLevel() >= 1)
-    {
-        try
-        {
-            rethrow_exception(ex);
-        }
-        catch (const Ice::Exception& e)
-        {
-            Warning out(_instance->logger());
-            out << "exception while verifying permissions:\n" << e;
-        }
-    }
-
-    exception(make_exception_ptr(PermissionDeniedException("internal server error")));
 }
 
 void
