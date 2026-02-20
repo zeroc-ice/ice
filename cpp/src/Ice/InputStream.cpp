@@ -143,8 +143,6 @@ Ice::InputStream::operator=(InputStream&& other) noexcept
         _closure = other._closure;
         _startSeq = other._startSeq;
         _minSeqSize = other._minSeqSize;
-        _startSeq = -1;
-        _minSeqSize = 0;
         resetEncapsulation();
 
         // Reset other to its default state.
