@@ -83,7 +83,7 @@ jobs:
 
       - name: Create DMG
         run: |
-          ./packaging/macos/create-icegridgui-dmg.sh "output/IceGrid GUI.app" output "${APP_VERSION}" $SIGN_ARGS --sign --notarize
+          ./packaging/macos/create-icegridgui-dmg.sh "output/IceGrid GUI.app" output "${APP_VERSION}" --sign --notarize
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
