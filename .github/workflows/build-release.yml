@@ -108,10 +108,12 @@ jobs:
             echo "matlab_version=" >> $GITHUB_OUTPUT
           fi
 
-  build-brew-packages:
+   build-brew-packages:
     name: Build Brew Packages
     uses: ./.github/workflows/build-brew-packages.yml
-    needs: configure
+    needs:
+      - configure
+      - build-icegridgui-macos-app
     with:
       ice_version: ${{ needs.configure.outputs.semver_version }}
       channel: ${{ needs.configure.outputs.channel }}
@@ -253,9 +255,7 @@ jobs:
       - configure
       - build-icegridgui-jar
     with:
-      ice_version: ${{ needs.configure.outputs.semver_version }}
       run_id: ${{ github.run_id }}
-      sign: true
     secrets: inherit
 
   build-cpp-swift-deps:

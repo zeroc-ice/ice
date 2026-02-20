@@ -3,18 +3,10 @@ name: "Build IceGrid GUI macOS App"
 on:
   workflow_call:
     inputs:
-      ice_version:
-        required: false
-        type: string
       run_id:
         description: "The run ID to use for downloading the IceGrid GUI JAR artifact"
         required: true
         type: string
-      sign:
-        description: "Whether to sign and notarize the macOS app"
-        required: false
-        type: boolean
-        default: false
   workflow_dispatch:
     inputs:
       ice_version:
@@ -23,11 +15,6 @@ on:
       run_id:
         description: "The run ID to use for downloading the IceGrid GUI JAR artifact"
         required: true
-      sign:
-        description: "Whether to sign and notarize the macOS app"
-        required: false
-        type: boolean
-        default: false
 
 jobs:
   build-icegridgui-macos-app:
@@ -46,7 +33,7 @@ jobs:
             echo "APP_VERSION=${{ inputs.ice_version }}" >> $GITHUB_ENV
           else
             source config/version.env
-            echo "APP_VERSION=${VERSION}" >> $GITHUB_ENV
+            echo "APP_VERSION=${BASE_VERSION}" >> $GITHUB_ENV
           fi
 
       - name: Download IceGrid GUI JAR
@@ -63,7 +50,6 @@ jobs:
       # the APPLE_CERTIFICATE_P12 repository secret (exported from Keychain Access with an empty
       # password, then encoded with: base64 -i certificate.p12).
       - name: Import signing certificate
-        if: ${{ inputs.sign }}
         env:
           APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
         run: |
@@ -89,7 +75,6 @@ jobs:
           security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | tr -d '"')
 
       - name: Sign macOS App
-        if: ${{ inputs.sign }}
         run: ./packaging/macos/sign-icegridgui-macos-app.sh "output/IceGrid GUI.app" --notarize
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -98,11 +83,7 @@ jobs:
 
       - name: Create DMG
         run: |
-          SIGN_ARGS=""
-          if [ "${{ inputs.sign }}" == "true" ]; then
-            SIGN_ARGS="--sign --notarize"
-          fi
-          ./packaging/macos/create-icegridgui-dmg.sh "output/IceGrid GUI.app" output "${APP_VERSION}" $SIGN_ARGS
+          ./packaging/macos/create-icegridgui-dmg.sh "output/IceGrid GUI.app" output "${APP_VERSION}" --sign --notarize
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}

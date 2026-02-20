@@ -1,0 +1,54 @@
+name: "Publish IceGridGUI macOS App"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The release channel (e.g., 3.9, 3.8)"
+        required: true
+      quality:
+        description: "Release quality (e.g., stable, nightly, RC)"
+        required: true
+        default: "nightly"
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      quality:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+  publish-icegridgui-macos-app:
+    name: "Publish IceGridGUI macOS App"
+    runs-on: "ubuntu-24.04"
+    steps:
+      - name: Download IceGridGUI macOS App artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "icegridgui-macos-app" --dir staging
+
+      - name: Publish IceGridGUI macOS App
+        run: |
+          if [ "${QUALITY}" = "stable" ]; then
+            UPLOAD_PATH="ice/${CHANNEL}"
+            aws s3 cp staging/icegridgui-macos-app/*.dmg "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/"
+          else
+            UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}"
+            aws s3 cp staging/icegridgui-macos-app/*.dmg "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/IceGridGUI-${QUALITY}.dmg"
+          fi
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          S3_DOWNLOADS_BUCKET: ${{ vars.S3_DOWNLOADS_BUCKET }}
+          CHANNEL: ${{ inputs.channel }}
+          QUALITY: ${{ inputs.quality }}
