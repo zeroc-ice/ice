@@ -325,7 +325,7 @@ DataElementI::attachFilter(
     const shared_ptr<SessionI>& session,
     SessionPrx prx,
     const string& facet,
-    int64_t filterId,
+    int64_t subscriberId,
     const shared_ptr<Filter>& filter,
     const string& name,
     int priority)
@@ -338,8 +338,13 @@ DataElementI::attachFilter(
         p = _listeners.emplace(std::move(listenerKey), Listener{std::move(prx), facet}).first;
     }
 
+    // Negate the element ID for internal storage — filter subscriptions use negative IDs to distinguish them from
+    // key subscriptions. All subsequent internal functions receive and use this negated ID directly.
+    int64_t filterId = -elementId;
+
     bool added = false;
-    auto subscriber = p->second.addOrGet(topicId, -elementId, filterId, filter, sampleFilter, name, priority, added);
+    auto subscriber =
+        p->second.addOrGet(topicId, filterId, subscriberId, filter, sampleFilter, name, priority, added);
     if (_onConnectedElements && added)
     {
         _executor->queue([self = shared_from_this(), name]
@@ -356,7 +361,7 @@ DataElementI::attachFilter(
         if (_traceLevels->data > 1)
         {
             Trace out(_traceLevels->logger, _traceLevels->dataCat);
-            out << this << ": attach e" << elementId << ":" << name;
+            out << this << ": attach e" << abs(filterId) << ":" << name;
             if (!facet.empty())
             {
                 out << ":" << facet;
@@ -366,7 +371,7 @@ DataElementI::attachFilter(
 
         ++_listenerCount;
         _parent->incListenerCount(session);
-        session->subscribeToFilter(topicId, elementId, shared_from_this(), facet, key, name, priority);
+        session->subscribeToFilter(topicId, filterId, shared_from_this(), facet, key, name, priority);
         notifyListenerWaiters(session->getTopicLock());
         return true;
     }
@@ -376,12 +381,13 @@ DataElementI::attachFilter(
 void
 DataElementI::detachFilter(
     int64_t topicId,
-    int64_t elementId,
+    int64_t filterId,
     const shared_ptr<Key>& key,
     const shared_ptr<SessionI>& session,
     const string& facet,
     bool unsubscribe)
 {
+    assert(filterId < 0);
     // No locking necessary, called by the session with the mutex locked
     auto p = _listeners.find({session, facet});
     if (p == _listeners.end())
@@ -389,7 +395,7 @@ DataElementI::detachFilter(
         return;
     }
 
-    auto subscriber = p->second.get(topicId, -elementId);
+    auto subscriber = p->second.get(topicId, filterId);
     if (removeConnectedKey(key, subscriber))
     {
         if (key)
@@ -404,7 +410,7 @@ DataElementI::detachFilter(
                     [self = shared_from_this(), subscriber]
                     { self->_onConnectedElements(DataStorm::CallbackReason::Disconnect, subscriber->name); });
             }
-            if (p->second.remove(topicId, -elementId))
+            if (p->second.remove(topicId, filterId))
             {
                 _listeners.erase(p);
             }
@@ -413,7 +419,7 @@ DataElementI::detachFilter(
         if (_traceLevels->data > 1)
         {
             Trace out(_traceLevels->logger, _traceLevels->dataCat);
-            out << this << ": detach e" << elementId << ":" << subscriber->name;
+            out << this << ": detach e" << abs(filterId) << ":" << subscriber->name;
             if (!facet.empty())
             {
                 out << ":" << facet;
@@ -425,7 +431,7 @@ DataElementI::detachFilter(
         _parent->decListenerCount(session);
         if (unsubscribe)
         {
-            session->unsubscribeFromFilter(topicId, elementId, shared_from_this(), subscriber->id);
+            session->unsubscribeFromFilter(topicId, filterId, shared_from_this());
         }
         notifyListenerWaiters(session->getTopicLock());
     }
@@ -645,7 +651,7 @@ DataElementI::disconnect()
             const auto& k = ks.first;
             if (k.second < 0)
             {
-                listener.first.session->disconnectFromFilter(k.first, -k.second, shared_from_this(), ks.second->id);
+                listener.first.session->disconnectFromFilter(k.first, k.second, shared_from_this());
             }
             else
             {
