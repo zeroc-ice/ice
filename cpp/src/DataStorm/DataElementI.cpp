@@ -343,8 +343,7 @@ DataElementI::attachFilter(
     int64_t filterId = -elementId;
 
     bool added = false;
-    auto subscriber =
-        p->second.addOrGet(topicId, filterId, subscriberId, filter, sampleFilter, name, priority, added);
+    auto subscriber = p->second.addOrGet(topicId, filterId, subscriberId, filter, sampleFilter, name, priority, added);
     if (_onConnectedElements && added)
     {
         _executor->queue([self = shared_from_this(), name]

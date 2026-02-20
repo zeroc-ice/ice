@@ -1066,10 +1066,7 @@ SessionI::subscribeToFilter(
 }
 
 void
-SessionI::unsubscribeFromFilter(
-    int64_t topicId,
-    int64_t filterId,
-    const std::shared_ptr<DataElementI>& element)
+SessionI::unsubscribeFromFilter(int64_t topicId, int64_t filterId, const std::shared_ptr<DataElementI>& element)
 {
     assert(filterId < 0);
     assert(_topics.find(topicId) != _topics.end());
@@ -1091,10 +1088,7 @@ SessionI::unsubscribeFromFilter(
 }
 
 void
-SessionI::disconnectFromFilter(
-    int64_t topicId,
-    int64_t filterId,
-    const std::shared_ptr<DataElementI>& element)
+SessionI::disconnectFromFilter(int64_t topicId, int64_t filterId, const std::shared_ptr<DataElementI>& element)
 {
     assert(filterId < 0);
     lock_guard<mutex> lock(_mutex); // Called by DataElementI::destroy
