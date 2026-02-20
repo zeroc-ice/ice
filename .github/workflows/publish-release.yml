@@ -83,6 +83,14 @@ jobs:
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
+  publish-icegridgui-macos-app:
+    uses: ./.github/workflows/publish-icegridgui-macos-app.yml
+    with:
+      channel: ${{ inputs.channel }}
+      quality: ${{ inputs.quality }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
+
   publish-npm-packages:
     uses: ./.github/workflows/publish-npm-packages.yml
     with:
@@ -151,6 +159,7 @@ jobs:
       - publish-java-packages
       - publish-slice-tools-packages
       - publish-windows-installer
+      - publish-icegridgui-macos-app
       - publish-npm-packages
       - publish-nuget-packages
       - publish-pip-packages
