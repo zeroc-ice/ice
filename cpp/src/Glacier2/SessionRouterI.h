@@ -29,7 +29,6 @@ namespace Glacier2
         void addPendingCallback(std::shared_ptr<CreateSession>);
 
         void authorized(bool);
-        void unexpectedAuthorizeException(std::exception_ptr);
 
         void sessionCreated(std::optional<SessionPrx>);
         void unexpectedCreateSessionException(std::exception_ptr);
