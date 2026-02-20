@@ -1,0 +1,199 @@
+name: Binary Compatibility
+
+on:
+  schedule:
+    # Run 3.8 binary compat test at 5:00 AM UTC (after nightly release at 3:00 AM)
+    - cron: "0 5 * * *"
+
+    # Run 3.7 binary compat test at 6:00 AM UTC (after nightly release at 4:00 AM)
+    - cron: "0 6 * * *"
+
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to test compatibility for (e.g., 3.8)"
+        required: true
+        type: string
+
+# Builds tests from the latest stable tag and distribution libraries from the branch HEAD, then swaps the HEAD
+# libraries into the stable test tree and runs the tests. If the tests pass, the HEAD libraries are binary-compatible
+# with the stable release.
+
+jobs:
+  configure:
+    # Only run scheduled jobs on the official repository.
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'zeroc-ice/ice'
+    runs-on: ubuntu-24.04
+    outputs:
+      branch: ${{ steps.config.outputs.branch }}
+      stable_tag: ${{ steps.config.outputs.stable_tag }}
+    steps:
+      - name: Determine branch and stable tag
+        id: config
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            BRANCH="${{ inputs.branch }}"
+          elif [ "${{ github.event.schedule }}" = "0 5 * * *" ]; then
+            BRANCH="3.8"
+          elif [ "${{ github.event.schedule }}" = "0 6 * * *" ]; then
+            BRANCH="3.7"
+          fi
+
+          case "$BRANCH" in
+            3.8) STABLE_TAG="v3.8.0" ;;
+            3.7) STABLE_TAG="v3.7.11" ;;
+            *)   echo "::error::Unknown branch '$BRANCH'"; exit 1 ;;
+          esac
+
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "stable_tag=$STABLE_TAG" >> $GITHUB_OUTPUT
+          echo "Branch: $BRANCH, Stable tag: $STABLE_TAG"
+        shell: bash
+
+  compat:
+    name: compat on ${{ matrix.os }}
+    needs: configure
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-26, ubuntu-24.04, ubuntu-24.04-arm, windows-2025]
+    steps:
+      # Checkout main at the workspace root to provide the composite actions from .github/actions/.
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Checkout HEAD (${{ needs.configure.outputs.branch }})
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.configure.outputs.branch }}
+          path: head
+
+      - name: Checkout stable (${{ needs.configure.outputs.stable_tag }})
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.configure.outputs.stable_tag }}
+          path: stable
+
+      - name: macOS FQDN Fix
+        uses: ./.github/actions/macos-fqdn
+        if: runner.os == 'macOS'
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
+        if: matrix.os == 'ubuntu-24.04'
+
+      - name: Setup Java
+        uses: ./.github/actions/setup-java
+        if: matrix.os == 'ubuntu-24.04'
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+
+      - name: Setup Cache
+        uses: ./.github/actions/setup-cache
+        with:
+          prefix: compat
+
+      # Build HEAD distribution libraries only.
+      - name: Build HEAD C++ dist (Unix)
+        if: runner.os != 'Windows'
+        run: make -C head/cpp srcs
+        shell: bash
+        timeout-minutes: 60
+
+      - name: Build HEAD C++ dist (Windows)
+        if: runner.os == 'Windows'
+        run: msbuild /m /t:BuildDist head\cpp\msbuild\ice.proj /p:Platform=x64 /p:Configuration=Release
+        shell: powershell
+        timeout-minutes: 60
+
+      - name: Build HEAD C# and Java dist
+        if: matrix.os == 'ubuntu-24.04'
+        run: |
+          make -C head/csharp srcs
+          make -C head/java srcs
+        shell: bash
+        timeout-minutes: 30
+
+      # Build stable completely (distribution + tests).
+      - name: Build stable C++ (Unix)
+        if: runner.os != 'Windows'
+        run: make -C stable/cpp
+        shell: bash
+        timeout-minutes: 90
+
+      - name: Build stable C++ (Windows)
+        if: runner.os == 'Windows'
+        run: msbuild /m stable\cpp\msbuild\ice.proj /p:Platform=x64 /p:Configuration=Release
+        shell: powershell
+        timeout-minutes: 90
+
+      - name: Build stable C# and Java
+        if: matrix.os == 'ubuntu-24.04'
+        run: |
+          make -C stable/csharp
+          make -C stable/java
+        shell: bash
+        timeout-minutes: 60
+
+      # Swap HEAD libraries into the stable tree, replacing the stable distribution libraries while keeping the stable
+      # test binaries. This is the core of the binary compatibility test.
+      - name: Swap HEAD C++ libraries (Unix)
+        if: runner.os != 'Windows'
+        run: cp -af head/cpp/lib/. stable/cpp/lib/
+        shell: bash
+
+      - name: Swap HEAD C++ libraries (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          Copy-Item head\cpp\bin\x64\Release\*.dll stable\cpp\bin\x64\Release\ -Force
+        shell: powershell
+
+      - name: Swap HEAD C# libraries
+        if: matrix.os == 'ubuntu-24.04'
+        run: |
+          for dll in Ice Glacier2 IceBox IceDiscovery IceGrid IceLocatorDiscovery IceStorm; do
+            find stable/csharp/test -name "${dll}.dll" -exec cp "head/csharp/src/${dll}/bin/Release/net8.0/${dll}.dll" {} \;
+          done
+        shell: bash
+
+      - name: Swap HEAD Java libraries
+        if: matrix.os == 'ubuntu-24.04'
+        run: |
+          STABLE_VER=$(grep '^iceVersion' stable/java/gradle.properties | cut -d= -f2 | tr -d ' ')
+          HEAD_VER=$(grep '^iceVersion' head/java/gradle.properties | cut -d= -f2 | tr -d ' ')
+          for jar in head/java/lib/*-${HEAD_VER}.jar; do
+            name=$(basename "$jar" | sed "s/${HEAD_VER}/${STABLE_VER}/")
+            cp "$jar" "stable/java/lib/${name}"
+          done
+        shell: bash
+
+      - name: Install testing dependencies
+        run: python3 -m pip install passlib cryptography numpy
+        shell: bash
+
+      # Run the stable test suite against the HEAD libraries.
+      # Exclude IceSSL/configuration because the 3.8.0 test connects to the decommissioned Glacier2 demo proxy on
+      # zeroc.com (removed from HEAD by #5047).
+      - name: Run compatibility tests
+        uses: ./.github/actions/test
+        timeout-minutes: 45
+        with:
+          working_directory: stable
+          flags: >-
+            --rfilter=IceSSL/configuration
+            ${{ matrix.os == 'ubuntu-24.04' && '--languages=cpp,csharp,java' || '--languages=cpp' }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: compat-test-results-${{ matrix.os }}
+          path: |
+            stable/cpp/test-report.xml
+            stable/**/*.log
+          if-no-files-found: ignore
+        if: always()
