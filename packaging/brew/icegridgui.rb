@@ -1,4 +1,4 @@
-cask "icegridgui@${CHANNEL}" do
+cask "${ICEGRIDGUI_CASK_NAME}" do
   version "${ICE_VERSION}"
   sha256 "${ICEGRIDGUI_DMG_SHA256}"
 

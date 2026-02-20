@@ -87,7 +87,7 @@ export ICE_URL=$archive_url
 export ICE_VERSION=$ice_version
 export ICE_URL_SHA256=$archive_hash
 export ICE_FORMULA_CLASS="IceAT${channel//./}"
-export CHANNEL=$channel
+export ICEGRIDGUI_CASK_NAME="icegridgui@${channel}"
 export ICEGRIDGUI_DMG_URL=$icegridgui_dmg_url
 export ICEGRIDGUI_DMG_SHA256=$icegridgui_dmg_sha256
 
