@@ -340,6 +340,7 @@ DataElementI::attachFilter(
 
     // Negate the element ID for internal storage — filter subscriptions use negative IDs to distinguish them from
     // key subscriptions. All subsequent internal functions receive and use this negated ID directly.
+    assert(elementId > 0);
     int64_t filterId = -elementId;
 
     bool added = false;
