@@ -347,7 +347,11 @@ The ice@3.8 formula includes:
 - the Ice for C++ runtime and dev kit.
 - all Ice services (Glacier2, IceGrid, IceStorm, etc.) and all admin tools except IceGrid GUI.
 
-IceGridGUI is distributed in its own brew cask. This cask is not yet available.
+You can install the nightly IceGridGUI cask by running:
+
+```shell
+brew install --cask zeroc-ice/nightly/icegridgui@3.9
+```
 
 [RPM packages README]: packaging/rpm/README
 [DEB packages README]: packaging/deb/debian/README
