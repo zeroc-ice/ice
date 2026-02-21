@@ -108,7 +108,7 @@ jobs:
             echo "matlab_version=" >> $GITHUB_OUTPUT
           fi
 
-   build-brew-packages:
+  build-brew-packages:
     name: Build Brew Packages
     uses: ./.github/workflows/build-brew-packages.yml
     needs:
