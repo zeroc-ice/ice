@@ -93,11 +93,6 @@ jobs:
       - name: Setup Python
         uses: ./.github/actions/setup-python
 
-      - name: Setup Cache
-        uses: ./.github/actions/setup-cache
-        with:
-          prefix: compat
-
       # Build HEAD distribution libraries only.
       - name: Build HEAD C++ dist (Unix)
         if: runner.os != 'Windows'
