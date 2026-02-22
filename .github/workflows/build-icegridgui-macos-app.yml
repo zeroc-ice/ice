@@ -8,10 +8,6 @@ on:
         required: true
         type: string
   workflow_dispatch:
-    inputs:
-      ice_version:
-        description: "The Ice version to use (leave empty for release version)"
-        required: false
       run_id:
         description: "The run ID to use for downloading the IceGrid GUI JAR artifact"
         required: true
@@ -29,12 +25,8 @@ jobs:
 
       - name: Set Version
         run: |
-          if [ -n "${{ inputs.ice_version }}" ]; then
-            echo "APP_VERSION=${{ inputs.ice_version }}" >> $GITHUB_ENV
-          else
-            source config/version.env
-            echo "APP_VERSION=${BASE_VERSION}" >> $GITHUB_ENV
-          fi
+	  source config/version.env
+          echo "APP_VERSION=${BASE_VERSION}" >> $GITHUB_ENV
 
       - name: Download IceGrid GUI JAR
         env:
