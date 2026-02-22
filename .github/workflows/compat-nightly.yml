@@ -15,9 +15,9 @@ on:
         required: true
         type: string
 
-# Builds tests from the latest stable tag and distribution libraries from the branch HEAD, then swaps the HEAD
-# libraries into the stable test tree and runs the tests. If the tests pass, the HEAD libraries are binary-compatible
-# with the stable release.
+# Builds tests from a stable tag (configured per branch below) and distribution libraries from the branch HEAD, then
+# swaps the HEAD libraries into the stable test tree and runs the tests. If the tests pass, the HEAD libraries are
+# binary-compatible with that stable release.
 
 jobs:
   configure:
@@ -59,10 +59,6 @@ jobs:
       matrix:
         os: [macos-26, ubuntu-24.04, ubuntu-24.04-arm, windows-2025]
     steps:
-      # Checkout main at the workspace root to provide the composite actions from .github/actions/.
-      - name: Checkout main
-        uses: actions/checkout@v4
-
       - name: Checkout HEAD (${{ needs.configure.outputs.branch }})
         uses: actions/checkout@v4
         with:
@@ -76,22 +72,22 @@ jobs:
           path: stable
 
       - name: macOS FQDN Fix
-        uses: ./.github/actions/macos-fqdn
+        uses: ./head/.github/actions/macos-fqdn
         if: runner.os == 'macOS'
 
       - name: Setup C++
-        uses: ./.github/actions/setup-cpp
+        uses: ./head/.github/actions/setup-cpp
 
       - name: Setup .NET
-        uses: ./.github/actions/setup-dotnet
+        uses: ./head/.github/actions/setup-dotnet
         if: matrix.os == 'ubuntu-24.04'
 
       - name: Setup Java
-        uses: ./.github/actions/setup-java
+        uses: ./head/.github/actions/setup-java
         if: matrix.os == 'ubuntu-24.04'
 
       - name: Setup Python
-        uses: ./.github/actions/setup-python
+        uses: ./head/.github/actions/setup-python
 
       # Build HEAD distribution libraries only.
       - name: Build HEAD C++ dist (Unix)
@@ -175,7 +171,7 @@ jobs:
       # Exclude IceSSL/configuration because the 3.8.0 test connects to the decommissioned Glacier2 demo proxy on
       # zeroc.com (removed from HEAD by #5047).
       - name: Run compatibility tests
-        uses: ./.github/actions/test
+        uses: ./head/.github/actions/test
         timeout-minutes: 45
         with:
           working_directory: stable
