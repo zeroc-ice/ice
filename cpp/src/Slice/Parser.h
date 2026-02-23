@@ -6,6 +6,7 @@
 #include <array>
 #include <cstdint>
 #include <functional>
+#include <limits>
 #include <list>
 #include <map>
 #include <memory>
@@ -943,7 +944,7 @@ namespace Slice
 
     private:
         bool _hasExplicitValues{false};
-        std::int32_t _minValue;
+        std::int32_t _minValue{std::numeric_limits<std::int32_t>::max()};
         std::int32_t _maxValue{0};
         std::int32_t _lastValue{-1};
     };

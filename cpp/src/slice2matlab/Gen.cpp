@@ -819,13 +819,15 @@ namespace
         }
         else if (auto dict = dynamic_pointer_cast<Dictionary>(type))
         {
+            out << "dictionary(";
+
             auto keyStr = typeToString(dict->keyType());
             if (keyStr == "char")
             {
                 keyStr = "string";
             }
-
             out << keyStr << ", ";
+
             if (isMappedToScalar(dict->valueType()))
             {
                 auto valueStr = typeToString(dict->valueType());
@@ -3316,7 +3318,7 @@ Slice::matlabLinkFormatter(const string& rawLink, const ContainedPtr&, const Syn
             displayText = opTarget->mappedName();
             linkText = interfaceDef->mappedScoped(".") + "Prx" + "/" + displayText;
         }
-        else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+        else if (dynamic_pointer_cast<InterfaceDecl>(target))
         {
             displayText = contained->mappedName() + "Prx";
             linkText = contained->mappedScoped(".") + "Prx";

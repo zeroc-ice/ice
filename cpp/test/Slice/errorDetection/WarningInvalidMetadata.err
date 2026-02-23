@@ -38,10 +38,11 @@ WarningInvalidMetadata.ice:74: warning: ignoring duplicate metadata: 'format' ha
 WarningInvalidMetadata.ice:78: warning: 'cpp:const' metadata cannot be applied to structs
 WarningInvalidMetadata.ice:78: warning: 'cpp:ice_print' metadata cannot be applied to structs
 WarningInvalidMetadata.ice:78: warning: 'cpp:ice_print' is deprecated; use 'cpp:custom-print' instead
-WarningInvalidMetadata.ice:84: warning: ignoring unknown metadata: 'cpp:virtual'
-WarningInvalidMetadata.ice:89: warning: ignoring unknown metadata: 'bad'
-WarningInvalidMetadata.ice:89: warning: ignoring unknown metadata: 'cpp:nope'
-WarningInvalidMetadata.ice:94: warning: ignoring unknown metadata: 'cpp98:foo'
-WarningInvalidMetadata.ice:94: warning: ignoring unknown metadata: 'cpp11:bar'
-WarningInvalidMetadata.ice:105: warning: ignoring duplicate metadata: 'deprecated:goodbye' does not match previously applied metadata of 'deprecated:hello'
-WarningInvalidMetadata.ice:110: warning: ignoring duplicate metadata: 'deprecated' does not match previously applied metadata of 'deprecated:hello'
+WarningInvalidMetadata.ice:79: warning: you cannot apply both 'deprecated' and 'deprecate' metadata to the same element
+WarningInvalidMetadata.ice:85: warning: ignoring unknown metadata: 'cpp:virtual'
+WarningInvalidMetadata.ice:90: warning: ignoring unknown metadata: 'bad'
+WarningInvalidMetadata.ice:90: warning: ignoring unknown metadata: 'cpp:nope'
+WarningInvalidMetadata.ice:95: warning: ignoring unknown metadata: 'cpp98:foo'
+WarningInvalidMetadata.ice:95: warning: ignoring unknown metadata: 'cpp11:bar'
+WarningInvalidMetadata.ice:106: warning: ignoring duplicate metadata: 'deprecated:goodbye' does not match previously applied metadata of 'deprecated:hello'
+WarningInvalidMetadata.ice:111: warning: ignoring duplicate metadata: 'deprecated' does not match previously applied metadata of 'deprecated:hello'

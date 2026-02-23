@@ -86,7 +86,7 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
     //
     // MCPP does not handle "-IC:/" well as an include path.
     //
-    if (path.size() != 3 || !(path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z') ||
+    if (path.size() != 3 || !((path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z')) ||
         path[1] != ':' || path[2] != '\\')
 #endif
     {

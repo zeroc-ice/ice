@@ -48,21 +48,14 @@ namespace
         EscapeMode escapeMode,
         unsigned char cutOff)
         : _nonPrintableEscaped(std::move(nonPrintableEscaped)),
-          _printableEscaped(printableEscaped + "\\"),
+          // Double quotes don't need to be escaped in Matlab because the string delimiter is a single quote.
+          _printableEscaped(printableEscaped + "\\" + (escapeMode != Matlab ? "\"" : "")),
           _escapeMode(escapeMode),
           _cutOff(cutOff),
           _shortUCNPrefix(escapeMode == Matlab ? "\\x" : "\\u"),
           _octalChars("01234567"),
-          _hexChars("01234567890ABCDEFabcdef")
-
+          _hexChars("0123456789ABCDEFabcdef")
     {
-        //
-        // Double quotes don't need to be escaped in Matlab because the string delimiter is a single quote.
-        //
-        if (_escapeMode != Matlab)
-        {
-            const_cast<string&>(_printableEscaped) += '"';
-        }
     }
 
     string StringLiteralGenerator::escapeASCIIChar(char c)

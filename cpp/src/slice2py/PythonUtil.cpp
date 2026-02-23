@@ -1879,7 +1879,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             out << ')';
         }
 
-        // A trailing command to ensure that the outut is interpreted as a Python tuple.
+        // A trailing comma to ensure that the output is interpreted as a Python tuple.
         if (operation->outParameters().size() == 1)
         {
             out << ',';
@@ -1919,7 +1919,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             out << getMetaType(ex);
         }
 
-        // A trailing command to ensure that the outut is interpreted as a Python tuple.
+        // A trailing comma to ensure that the output is interpreted as a Python tuple.
         if (operation->throws().size() == 1)
         {
             out << ',';
@@ -2708,9 +2708,9 @@ namespace
                 {
                     for (const auto& [name, alias] : moduleImports.definitions)
                     {
-                        bool allreadyImported = !allImports.insert(alias.empty() ? name : alias).second;
+                        bool alreadyImported = !allImports.insert(alias.empty() ? name : alias).second;
 
-                        if (allreadyImported)
+                        if (alreadyImported)
                         {
                             continue; // Skip already imported names.
                         }
@@ -2963,7 +2963,7 @@ Slice::Python::pyLinkFormatter(const string& rawLink, const ContainedPtr&, const
         {
             string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".");
             result << ":class:`" << targetScoped;
-            if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+            if (dynamic_pointer_cast<InterfaceDecl>(target))
             {
                 // link to the proxy interface
                 result << "Prx";

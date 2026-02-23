@@ -10,7 +10,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <iostream>
 #include <iterator>
 
 using namespace std;
@@ -32,7 +31,7 @@ namespace
         {
             f = relativePath(f, Slice::dirName(relativeTo));
         }
-        else if (f[0] != '.')
+        else if (!f.empty() && f[0] != '.')
         {
             f = "./" + f;
         }
@@ -2075,13 +2074,11 @@ bool
 Slice::Gen::TypeScriptImportVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     // Add imports required for base exception types.
-    ExceptionPtr base = p->base();
-    if (base)
+    if (ExceptionPtr base = p->base())
     {
         addImport(dynamic_pointer_cast<Contained>(base));
     }
 
-    const DataMemberList allDataMembers = p->allDataMembers();
     for (const auto& dataMember : p->allDataMembers())
     {
         auto type = dynamic_pointer_cast<Contained>(dataMember->type());
