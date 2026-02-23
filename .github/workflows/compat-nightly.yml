@@ -98,13 +98,37 @@ jobs:
       - name: Swap HEAD C++ libraries (Unix)
         if: runner.os != 'Windows'
         run: |
-          echo "=== HEAD C++ libraries (source) ==="
+          HEAD_SO=$(awk -F= '/^soversion/{gsub(/[ \t]+/,"",$2); print $2}' head/config/Make.rules)
+          STABLE_SO=$(awk -F= '/^soversion/{gsub(/[ \t]+/,"",$2); print $2}' stable/config/Make.rules)
+          HEAD_VER=$(awk -F= '/^version[[:space:]]/{gsub(/[ \t]+/,"",$2); print $2}' head/config/Make.rules)
+          STABLE_VER=$(awk -F= '/^version[[:space:]]/{gsub(/[ \t]+/,"",$2); print $2}' stable/config/Make.rules)
+          echo "HEAD: version=${HEAD_VER}, soversion=${HEAD_SO}"
+          echo "Stable: version=${STABLE_VER}, soversion=${STABLE_SO}"
+          echo ""
+          echo "=== HEAD C++ libraries ==="
           ls -la head/cpp/lib/
           echo ""
           echo "=== Stable C++ libraries BEFORE swap ==="
           ls -la stable/cpp/lib/
           echo ""
-          cp -afv head/cpp/lib/. stable/cpp/lib/
+          # Replace each stable versioned library with its HEAD equivalent.
+          for stable_lib in stable/cpp/lib/lib*; do
+            [ -L "$stable_lib" ] && continue
+            [ -f "$stable_lib" ] || continue
+            base=$(basename "$stable_lib")
+            # Try soversion match (macOS: lib{name}.{soversion}.dylib)
+            head_name="${base/${STABLE_SO}/${HEAD_SO}}"
+            if [ "$head_name" != "$base" ] && [ -f "head/cpp/lib/${head_name}" ]; then
+              cp -fv "head/cpp/lib/${head_name}" "$stable_lib"
+              continue
+            fi
+            # Try version match (Linux: lib{name}.so.{version})
+            head_name="${base/${STABLE_VER}/${HEAD_VER}}"
+            if [ "$head_name" != "$base" ] && [ -f "head/cpp/lib/${head_name}" ]; then
+              cp -fv "head/cpp/lib/${head_name}" "$stable_lib"
+              continue
+            fi
+          done
           echo ""
           echo "=== Stable C++ libraries AFTER swap ==="
           ls -la stable/cpp/lib/
@@ -113,13 +137,27 @@ jobs:
       - name: Swap HEAD C++ libraries (Windows)
         if: runner.os == 'Windows'
         run: |
-          Write-Host "=== HEAD C++ DLLs (source) ==="
+          [xml]$headProps = Get-Content head\config\ice.version.props
+          [xml]$stableProps = Get-Content stable\config\ice.version.props
+          $headSo = ($headProps.Project.PropertyGroup.IceSoVersion | Where-Object { $_ -is [string] })
+          $stableSo = ($stableProps.Project.PropertyGroup.IceSoVersion | Where-Object { $_ -is [string] })
+          Write-Host "HEAD soversion: $headSo"
+          Write-Host "Stable soversion: $stableSo"
+          Write-Host ""
+          Write-Host "=== HEAD C++ DLLs ==="
           Get-ChildItem head\cpp\bin\x64\Release\*.dll | Format-Table Name, Length, LastWriteTime
           Write-Host ""
           Write-Host "=== Stable C++ DLLs BEFORE swap ==="
           Get-ChildItem stable\cpp\bin\x64\Release\*.dll | Format-Table Name, Length, LastWriteTime
           Write-Host ""
-          Copy-Item head\cpp\bin\x64\Release\*.dll stable\cpp\bin\x64\Release\ -Force -Verbose
+          foreach ($headDll in Get-ChildItem head\cpp\bin\x64\Release\*.dll) {
+            $stableName = $headDll.Name -replace [regex]::Escape($headSo), $stableSo
+            $stablePath = "stable\cpp\bin\x64\Release\$stableName"
+            if (Test-Path $stablePath) {
+              Write-Host "Copying: $($headDll.Name) -> $stableName"
+              Copy-Item $headDll.FullName $stablePath -Force
+            }
+          }
           Write-Host ""
           Write-Host "=== Stable C++ DLLs AFTER swap ==="
           Get-ChildItem stable\cpp\bin\x64\Release\*.dll | Format-Table Name, Length, LastWriteTime
