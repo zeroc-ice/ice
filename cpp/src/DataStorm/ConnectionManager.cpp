@@ -3,8 +3,6 @@
 #include "ConnectionManager.h"
 #include "CallbackExecutor.h"
 
-#include <iostream>
-
 using namespace std;
 using namespace DataStormI;
 using namespace Ice;

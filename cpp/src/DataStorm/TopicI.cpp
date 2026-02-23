@@ -694,17 +694,17 @@ TopicI::getUpdaters() const
 }
 
 void
-TopicI::incListenerCount(const shared_ptr<SessionI>& session)
+TopicI::incListenerCount()
 {
     ++_listenerCount;
-    notifyListenerWaiters(session->getTopicLock());
+    notifyListenerWaiters();
 }
 
 void
-TopicI::decListenerCount(const shared_ptr<SessionI>& session)
+TopicI::decListenerCount()
 {
     --_listenerCount;
-    notifyListenerWaiters(session->getTopicLock());
+    notifyListenerWaiters();
 }
 
 void
@@ -754,24 +754,18 @@ void
 TopicI::waitForListeners(int count) const
 {
     unique_lock<mutex> lock(_mutex);
-    ++_waiters;
     while (true)
     {
         _instance->checkShutdown();
         if (count < 0 && _listenerCount == 0)
         {
-            --_waiters;
             return;
         }
         else if (count >= 0 && _listenerCount >= static_cast<size_t>(count))
         {
-            --_waiters;
             return;
         }
         _cond.wait(lock);
-        ++_notified;
-        // Ensure that notifyListenerWaiters checks the wait condition after _notified is incremented.
-        _cond.notify_all();
     }
 }
 
@@ -783,14 +777,9 @@ TopicI::hasListeners() const
 }
 
 void
-TopicI::notifyListenerWaiters(unique_lock<mutex>& lock) const
+TopicI::notifyListenerWaiters() const
 {
-    if (_waiters > 0)
-    {
-        _notified = 0;
-        _cond.notify_all();
-        _cond.wait(lock, [&]() { return _notified < _waiters; }); // Wait until all the waiters are notified.
-    }
+    _cond.notify_all();
 }
 
 void

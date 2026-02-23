@@ -301,7 +301,7 @@ namespace DataStormI
         virtual bool addConnectedKey(const std::shared_ptr<Key>& key, const std::shared_ptr<Subscriber>& subscriber);
         virtual bool removeConnectedKey(const std::shared_ptr<Key>&, const std::shared_ptr<Subscriber>&);
 
-        void notifyListenerWaiters(std::unique_lock<std::mutex>&) const;
+        void notifyListenerWaiters() const;
         void disconnect();
         virtual void destroyImpl() = 0;
 
@@ -326,8 +326,6 @@ namespace DataStormI
         virtual void forward(const Ice::ByteSeq&, const Ice::Current&) const;
 
         const std::shared_ptr<TopicI> _parent;
-        mutable size_t _waiters{0};
-        mutable size_t _notified{0};
         bool _destroyed{false};
 
         std::function<void(DataStorm::CallbackReason, std::shared_ptr<Key>)> _onConnectedKeys;
