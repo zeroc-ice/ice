@@ -176,6 +176,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                     {
                         single[0] = q;
                         _lookups[key] = (LookupReplyPrx)lookupReply.ice_endpoints(single);
+                        break;
                     }
                 }
             }

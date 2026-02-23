@@ -237,6 +237,7 @@ internal class LookupI : LookupDisp_
                     {
                         single[0] = q;
                         _lookups[key] = (LookupReplyPrx)lookupReply.ice_endpoints(single);
+                        break;
                     }
                 }
             }

@@ -429,6 +429,7 @@ LocatorI::setLookupReply(const LookupReplyPrx& lookupReply)
                 if (r && r->host == info->mcastInterface)
                 {
                     reply = reply->ice_endpoints(Ice::EndpointSeq{replyEndpoint});
+                    break;
                 }
             }
         }
@@ -574,7 +575,6 @@ LocatorI::foundLocator(const optional<Ice::LocatorPrx>& reply)
     {
         // We found another locator replica, append its endpoints to the current locator proxy endpoints.
         Ice::EndpointSeq newEndpoints = i->second->ice_getEndpoints();
-        Ice::EndpointSeq endpts = locator->ice_getEndpoints();
         for (const auto& endpoint : locator->ice_getEndpoints())
         {
             if (std::find(newEndpoints.begin(), newEndpoints.end(), endpoint) == newEndpoints.end())

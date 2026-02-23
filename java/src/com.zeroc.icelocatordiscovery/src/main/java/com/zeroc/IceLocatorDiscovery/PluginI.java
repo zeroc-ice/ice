@@ -178,6 +178,7 @@ class PluginI implements Plugin {
                         if (r instanceof IPEndpointInfo && ((IPEndpointInfo) r).host.equals(info.mcastInterface)) {
                             single[0] = q;
                             entry.setValue(lookupReply.ice_endpoints(single));
+                            break;
                         }
                     }
                 }
