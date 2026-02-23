@@ -917,8 +917,7 @@ These are the changes since Ice 3.7.0.
 
 # Changes in Ice 3.7.0
 
-These are the changes since the Ice 3.6 release or snapshot described in
-[CHANGELOG-3.6.md](./CHANGELOG-3.6.md).
+These are the changes since the most recent [Ice 3.6] release.
 
 ## General Changes
 
@@ -1503,3 +1502,4 @@ These are the changes since the Ice 3.6 release or snapshot described in
   being defined correctly.
 
 [1]: https://docs.python.org/3/c-api/buffer.html
+[Ice 3.6]: https://github.com/zeroc-ice/ice/blob/3.6/CHANGELOG-3.6.md
