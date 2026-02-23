@@ -54,7 +54,9 @@ Now you're ready to build Ice for MATLAB:
 msbuild msbuild\ice.proj
 ```
 
-To build in debug mode instead:
+This builds Ice for MATLAB for the default configuration (i.e., `x64/Release`). Ice for MATLAB only supports the `x64` platform.
+
+To build in debug mode, set the `Configuration` property:
 
 ```shell
 msbuild msbuild\ice.proj /p:Configuration=Debug
