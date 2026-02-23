@@ -2088,7 +2088,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
             _logs.push_back(_node->getPlatformInfo().getCwd() + '/' + path);
         }
     }
-    sort(_logs.begin(), _logs.begin());
+    sort(_logs.begin(), _logs.end());
 
     PropertyDescriptorSeqDict properties = getProperties(_desc);
     PropertyDescriptorSeq& props = properties["config"];

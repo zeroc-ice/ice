@@ -1556,9 +1556,8 @@ Database::addOrUpdateObject(const ObjectInfo& info, int64_t dbSerial)
         {
             IceDB::ReadWriteTxn txn(_env);
 
-            Ice::Identity k;
             ObjectInfo v;
-            update = _objects.get(txn, k, v);
+            update = _objects.get(txn, id, v);
             if (update)
             {
                 _objectsByType.del(txn, v.type, v.proxy->ice_getIdentity());
