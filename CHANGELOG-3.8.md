@@ -25,7 +25,7 @@ might need to be aware of.
     - [Removed IceSSL Properties](#removed-icessl-properties)
   - [C++ Changes](#c-changes-2)
   - [C# Changes](#c-changes-3)
-  - [Java Changes](#java-changes-1)
+  - [Java Changes](#java-changes)
   - [JavaScript Changes](#javascript-changes-1)
   - [MATLAB Changes](#matlab-changes)
   - [Objective-C Changes](#objective-c-changes)
@@ -156,7 +156,7 @@ These are the changes since the Ice 3.8.0 release.
 
 ## Changes in Ice 3.8.0
 
-These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANGELOG-3.7.md).
+These are the changes since the [Ice 3.7.10] release.
 
 ### General Changes
 
@@ -1308,5 +1308,6 @@ service.
 - Added a new operation on `TopicManager`: `createOrRetrieve` creates or retrieves a topic with the specified name, and
   returns the corresponding proxy (the returned proxy is never null).
 
+[Ice 3.7.10]: https://github.com/zeroc-ice/ice/blob/3.7/CHANGELOG-3.7.md
 [IceRPC]: https://github.com/icerpc
 [Slice/print]: cpp/test/Slice/print
