@@ -298,7 +298,7 @@ namespace DataStormI
         virtual bool addConnectedKey(const std::shared_ptr<Key>& key, const std::shared_ptr<Subscriber>& subscriber);
         virtual bool removeConnectedKey(const std::shared_ptr<Key>&, const std::shared_ptr<Subscriber>&);
 
-        void notifyListenerWaiters(std::unique_lock<std::mutex>&) const;
+        void notifyListenerWaiters() const;
         void disconnect();
         virtual void destroyImpl() = 0;
 

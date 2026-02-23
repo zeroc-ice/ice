@@ -110,8 +110,8 @@ namespace DataStormI
             return _sampleFilterFactories;
         }
 
-        void incListenerCount(const std::shared_ptr<SessionI>&);
-        void decListenerCount(const std::shared_ptr<SessionI>&);
+        void incListenerCount();
+        void decListenerCount();
         void decListenerCount(size_t);
 
         void removeFiltered(const std::shared_ptr<DataElementI>&, const std::shared_ptr<Filter>&);
@@ -120,7 +120,7 @@ namespace DataStormI
     protected:
         void waitForListeners(int count) const;
         [[nodiscard]] bool hasListeners() const;
-        void notifyListenerWaiters(std::unique_lock<std::mutex>&) const;
+        void notifyListenerWaiters() const;
 
         void disconnect();
 

@@ -694,17 +694,17 @@ TopicI::getUpdaters() const
 }
 
 void
-TopicI::incListenerCount(const shared_ptr<SessionI>& session)
+TopicI::incListenerCount()
 {
     ++_listenerCount;
-    notifyListenerWaiters(session->getTopicLock());
+    notifyListenerWaiters();
 }
 
 void
-TopicI::decListenerCount(const shared_ptr<SessionI>& session)
+TopicI::decListenerCount()
 {
     --_listenerCount;
-    notifyListenerWaiters(session->getTopicLock());
+    notifyListenerWaiters();
 }
 
 void
@@ -777,7 +777,7 @@ TopicI::hasListeners() const
 }
 
 void
-TopicI::notifyListenerWaiters(unique_lock<mutex>&) const
+TopicI::notifyListenerWaiters() const
 {
     _cond.notify_all();
 }

@@ -251,9 +251,9 @@ DataElementI::attachKey(
         }
 
         ++_listenerCount;
-        _parent->incListenerCount(session);
+        _parent->incListenerCount();
         session->subscribeToKey(topicId, elementId, shared_from_this(), facet, key, keyId, name, priority);
-        notifyListenerWaiters(session->getTopicLock());
+        notifyListenerWaiters();
         return true;
     }
     return false;
@@ -307,12 +307,12 @@ DataElementI::detachKey(
             out << ":[" << key << "]@" << topicId;
         }
         --_listenerCount;
-        _parent->decListenerCount(session);
+        _parent->decListenerCount();
         if (unsubscribe)
         {
             session->unsubscribeFromKey(topicId, elementId, shared_from_this(), subscriber->id);
         }
-        notifyListenerWaiters(session->getTopicLock());
+        notifyListenerWaiters();
     }
 }
 
@@ -365,9 +365,9 @@ DataElementI::attachFilter(
         }
 
         ++_listenerCount;
-        _parent->incListenerCount(session);
+        _parent->incListenerCount();
         session->subscribeToFilter(topicId, elementId, shared_from_this(), facet, key, name, priority);
-        notifyListenerWaiters(session->getTopicLock());
+        notifyListenerWaiters();
         return true;
     }
     return false;
@@ -422,12 +422,12 @@ DataElementI::detachFilter(
         }
 
         --_listenerCount;
-        _parent->decListenerCount(session);
+        _parent->decListenerCount();
         if (unsubscribe)
         {
             session->unsubscribeFromFilter(topicId, elementId, shared_from_this(), subscriber->id);
         }
-        notifyListenerWaiters(session->getTopicLock());
+        notifyListenerWaiters();
     }
 }
 
@@ -613,7 +613,7 @@ DataElementI::removeConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Su
 }
 
 void
-DataElementI::notifyListenerWaiters(unique_lock<mutex>&) const
+DataElementI::notifyListenerWaiters() const
 {
     _parent->_cond.notify_all();
 }
@@ -627,7 +627,7 @@ DataElementI::disconnect()
         listeners.swap(_listeners);
         _parent->decListenerCount(_listenerCount);
         _listenerCount = 0;
-        notifyListenerWaiters(lock);
+        notifyListenerWaiters();
     }
     for (const auto& listener : listeners)
     {
