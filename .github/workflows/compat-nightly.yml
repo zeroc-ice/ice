@@ -97,20 +97,45 @@ jobs:
       # test binaries. This is the core of the binary compatibility test.
       - name: Swap HEAD C++ libraries (Unix)
         if: runner.os != 'Windows'
-        run: cp -af head/cpp/lib/. stable/cpp/lib/
+        run: |
+          echo "=== HEAD C++ libraries (source) ==="
+          ls -la head/cpp/lib/
+          echo ""
+          echo "=== Stable C++ libraries BEFORE swap ==="
+          ls -la stable/cpp/lib/
+          echo ""
+          cp -afv head/cpp/lib/. stable/cpp/lib/
+          echo ""
+          echo "=== Stable C++ libraries AFTER swap ==="
+          ls -la stable/cpp/lib/
         shell: bash
 
       - name: Swap HEAD C++ libraries (Windows)
         if: runner.os == 'Windows'
         run: |
-          Copy-Item head\cpp\bin\x64\Release\*.dll stable\cpp\bin\x64\Release\ -Force
+          Write-Host "=== HEAD C++ DLLs (source) ==="
+          Get-ChildItem head\cpp\bin\x64\Release\*.dll | Format-Table Name, Length, LastWriteTime
+          Write-Host ""
+          Write-Host "=== Stable C++ DLLs BEFORE swap ==="
+          Get-ChildItem stable\cpp\bin\x64\Release\*.dll | Format-Table Name, Length, LastWriteTime
+          Write-Host ""
+          Copy-Item head\cpp\bin\x64\Release\*.dll stable\cpp\bin\x64\Release\ -Force -Verbose
+          Write-Host ""
+          Write-Host "=== Stable C++ DLLs AFTER swap ==="
+          Get-ChildItem stable\cpp\bin\x64\Release\*.dll | Format-Table Name, Length, LastWriteTime
         shell: powershell
 
       - name: Swap HEAD C# libraries
         if: matrix.os == 'ubuntu-24.04'
         run: |
           for dll in Ice Glacier2 IceBox IceDiscovery IceGrid IceLocatorDiscovery IceStorm; do
-            find stable/csharp/test -name "${dll}.dll" -exec cp "head/csharp/src/${dll}/bin/Release/net8.0/${dll}.dll" {} \;
+            echo "=== Swapping ${dll}.dll ==="
+            echo "Source: head/csharp/src/${dll}/bin/Release/net8.0/${dll}.dll"
+            ls -la "head/csharp/src/${dll}/bin/Release/net8.0/${dll}.dll" 2>&1 || echo "  WARNING: source not found!"
+            echo "Targets in stable tree:"
+            find stable/csharp/test -name "${dll}.dll" -exec ls -la {} \;
+            find stable/csharp/test -name "${dll}.dll" -exec cp -v "head/csharp/src/${dll}/bin/Release/net8.0/${dll}.dll" {} \;
+            echo ""
           done
         shell: bash
 
@@ -119,10 +144,23 @@ jobs:
         run: |
           STABLE_VER=$(grep '^iceVersion' stable/java/gradle.properties | cut -d= -f2 | tr -d ' ')
           HEAD_VER=$(grep '^iceVersion' head/java/gradle.properties | cut -d= -f2 | tr -d ' ')
+          echo "Stable version: ${STABLE_VER}"
+          echo "HEAD version: ${HEAD_VER}"
+          echo ""
+          echo "=== HEAD Java JARs ==="
+          ls -la head/java/lib/*-${HEAD_VER}.jar
+          echo ""
+          echo "=== Stable Java JARs BEFORE swap ==="
+          ls -la stable/java/lib/
+          echo ""
           for jar in head/java/lib/*-${HEAD_VER}.jar; do
             name=$(basename "$jar" | sed "s/${HEAD_VER}/${STABLE_VER}/")
-            cp "$jar" "stable/java/lib/${name}"
+            echo "Copying: $jar -> stable/java/lib/${name}"
+            cp -v "$jar" "stable/java/lib/${name}"
           done
+          echo ""
+          echo "=== Stable Java JARs AFTER swap ==="
+          ls -la stable/java/lib/
         shell: bash
 
       - name: Install testing dependencies
