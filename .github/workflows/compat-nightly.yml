@@ -1,0 +1,190 @@
+name: Binary Compatibility
+
+on:
+  workflow_dispatch:
+
+# Builds tests from a stable tag and distribution libraries from the branch HEAD, then swaps the HEAD libraries into
+# the stable test tree and runs the tests. If the tests pass, the HEAD libraries are binary-compatible with that stable
+# release.
+#
+# Each stable branch (3.7, 3.8) maintains its own copy of this workflow with branch-specific configuration below.
+
+# Branch-specific configuration:
+env:
+  STABLE_TAG: "v3.8.0"
+
+jobs:
+  compat:
+    name: compat on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-26, ubuntu-24.04, ubuntu-24.04-arm, windows-2025]
+    steps:
+      - name: Checkout HEAD
+        uses: actions/checkout@v4
+        with:
+          path: head
+
+      - name: Checkout stable (${{ env.STABLE_TAG }})
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.STABLE_TAG }}
+          path: stable
+
+      - name: macOS FQDN Fix
+        uses: ./head/.github/actions/macos-fqdn
+        if: runner.os == 'macOS'
+
+      - name: Setup C++
+        uses: ./head/.github/actions/setup-cpp
+
+      - name: Setup .NET
+        uses: ./head/.github/actions/setup-dotnet
+        if: matrix.os == 'ubuntu-24.04'
+
+      - name: Setup Java
+        uses: ./head/.github/actions/setup-java
+        if: matrix.os == 'ubuntu-24.04'
+
+      - name: Setup Python
+        uses: ./head/.github/actions/setup-python
+
+      # Build HEAD distribution libraries only.
+      - name: Build HEAD C++ dist (Unix)
+        if: runner.os != 'Windows'
+        run: make -C head/cpp srcs
+        shell: bash
+        timeout-minutes: 60
+
+      - name: Build HEAD C++ dist (Windows)
+        if: runner.os == 'Windows'
+        run: msbuild /m /t:BuildDist head\cpp\msbuild\ice.proj /p:Platform=x64 /p:Configuration=Release
+        shell: powershell
+        timeout-minutes: 60
+
+      - name: Build HEAD C# and Java dist
+        if: matrix.os == 'ubuntu-24.04'
+        run: |
+          make -C head/csharp srcs
+          make -C head/java srcs
+        shell: bash
+        timeout-minutes: 30
+
+      # Build stable completely (distribution + tests).
+      - name: Build stable C++ (Unix)
+        if: runner.os != 'Windows'
+        run: make -C stable/cpp
+        shell: bash
+        timeout-minutes: 90
+
+      - name: Build stable C++ (Windows)
+        if: runner.os == 'Windows'
+        run: msbuild /m stable\cpp\msbuild\ice.proj /p:Platform=x64 /p:Configuration=Release
+        shell: powershell
+        timeout-minutes: 90
+
+      - name: Build stable C# and Java
+        if: matrix.os == 'ubuntu-24.04'
+        run: |
+          make -C stable/csharp
+          make -C stable/java
+        shell: bash
+        timeout-minutes: 60
+
+      # Swap HEAD libraries into the stable tree, replacing the stable distribution libraries while keeping the stable
+      # test binaries. This is the core of the binary compatibility test.
+      - name: Swap HEAD C++ libraries (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          echo "=== HEAD C++ libraries ==="
+          ls -la head/cpp/lib/
+          echo ""
+          echo "=== Stable C++ libraries BEFORE swap ==="
+          ls -la stable/cpp/lib/
+          echo ""
+          cp -afv head/cpp/lib/. stable/cpp/lib/
+          echo ""
+          echo "=== Stable C++ libraries AFTER swap ==="
+          ls -la stable/cpp/lib/
+        shell: bash
+
+      - name: Swap HEAD C++ libraries (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          Write-Host "=== HEAD C++ DLLs ==="
+          Get-ChildItem head\cpp\bin\x64\Release\*.dll | Format-Table Name, Length, LastWriteTime
+          Write-Host ""
+          Write-Host "=== Stable C++ DLLs BEFORE swap ==="
+          Get-ChildItem stable\cpp\bin\x64\Release\*.dll | Format-Table Name, Length, LastWriteTime
+          Write-Host ""
+          Copy-Item head\cpp\bin\x64\Release\*.dll stable\cpp\bin\x64\Release\ -Force -Verbose
+          Write-Host ""
+          Write-Host "=== Stable C++ DLLs AFTER swap ==="
+          Get-ChildItem stable\cpp\bin\x64\Release\*.dll | Format-Table Name, Length, LastWriteTime
+        shell: powershell
+
+      - name: Swap HEAD C# libraries
+        if: matrix.os == 'ubuntu-24.04'
+        run: |
+          for dll in Ice Glacier2 IceBox IceDiscovery IceGrid IceLocatorDiscovery IceStorm; do
+            echo "=== Swapping ${dll}.dll ==="
+            echo "Source: head/csharp/src/${dll}/bin/Release/net8.0/${dll}.dll"
+            ls -la "head/csharp/src/${dll}/bin/Release/net8.0/${dll}.dll" 2>&1 || echo "  WARNING: source not found!"
+            echo "Targets in stable tree:"
+            find stable/csharp/test -name "${dll}.dll" -exec ls -la {} \;
+            find stable/csharp/test -name "${dll}.dll" -exec cp -v "head/csharp/src/${dll}/bin/Release/net8.0/${dll}.dll" {} \;
+            echo ""
+          done
+        shell: bash
+
+      - name: Swap HEAD Java libraries
+        if: matrix.os == 'ubuntu-24.04'
+        run: |
+          STABLE_VER=$(grep '^iceVersion' stable/java/gradle.properties | cut -d= -f2 | tr -d ' ')
+          HEAD_VER=$(grep '^iceVersion' head/java/gradle.properties | cut -d= -f2 | tr -d ' ')
+          echo "Stable version: ${STABLE_VER}"
+          echo "HEAD version: ${HEAD_VER}"
+          echo ""
+          echo "=== HEAD Java JARs ==="
+          ls -la head/java/lib/*-${HEAD_VER}.jar
+          echo ""
+          echo "=== Stable Java JARs BEFORE swap ==="
+          ls -la stable/java/lib/
+          echo ""
+          for jar in head/java/lib/*-${HEAD_VER}.jar; do
+            name=$(basename "$jar" | sed "s/${HEAD_VER}/${STABLE_VER}/")
+            echo "Copying: $jar -> stable/java/lib/${name}"
+            cp -v "$jar" "stable/java/lib/${name}"
+          done
+          echo ""
+          echo "=== Stable Java JARs AFTER swap ==="
+          ls -la stable/java/lib/
+        shell: bash
+
+      - name: Install testing dependencies
+        run: python3 -m pip install passlib cryptography numpy
+        shell: bash
+
+      # Run the stable test suite against the HEAD libraries.
+      # Exclude IceSSL/configuration because the 3.8.0 test connects to the decommissioned Glacier2 demo proxy on
+      # zeroc.com (removed from HEAD by #5047).
+      - name: Run compatibility tests
+        uses: ./head/.github/actions/test
+        timeout-minutes: 45
+        with:
+          working_directory: stable
+          flags: >-
+            --rfilter=IceSSL/configuration
+            ${{ matrix.os == 'ubuntu-24.04' && '--languages=cpp,csharp,java' || '--languages=cpp' }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: compat-test-results-${{ matrix.os }}
+          path: |
+            stable/cpp/test-report.xml
+            stable/**/*.log
+          if-no-files-found: ignore
+        if: always()

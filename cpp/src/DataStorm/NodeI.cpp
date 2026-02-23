@@ -668,6 +668,7 @@ void
 NodeI::forwardToPublishers(const ByteSeq& inParams, const Current& current) const
 {
     // Forward the invocation to all publishers with an active session, don't need to wait for the result.
+    lock_guard<mutex> lock(_mutex);
     assert(current.id == _publisherForwarder->ice_getIdentity());
     for (const auto& [_, publisher] : _publishers)
     {

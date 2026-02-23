@@ -251,9 +251,9 @@ DataElementI::attachKey(
         }
 
         ++_listenerCount;
-        _parent->incListenerCount(session);
+        _parent->incListenerCount();
         session->subscribeToKey(topicId, elementId, shared_from_this(), facet, key, keyId, name, priority);
-        notifyListenerWaiters(session->getTopicLock());
+        notifyListenerWaiters();
         return true;
     }
     return false;
@@ -307,12 +307,12 @@ DataElementI::detachKey(
             out << ":[" << key << "]@" << topicId;
         }
         --_listenerCount;
-        _parent->decListenerCount(session);
+        _parent->decListenerCount();
         if (unsubscribe)
         {
             session->unsubscribeFromKey(topicId, elementId, shared_from_this(), subscriber->id);
         }
-        notifyListenerWaiters(session->getTopicLock());
+        notifyListenerWaiters();
     }
 }
 
@@ -325,7 +325,7 @@ DataElementI::attachFilter(
     const shared_ptr<SessionI>& session,
     SessionPrx prx,
     const string& facet,
-    int64_t filterId,
+    int64_t subscriberId,
     const shared_ptr<Filter>& filter,
     const string& name,
     int priority)
@@ -338,8 +338,13 @@ DataElementI::attachFilter(
         p = _listeners.emplace(std::move(listenerKey), Listener{std::move(prx), facet}).first;
     }
 
+    // Negate the element ID for internal storage — filter subscriptions use negative IDs to distinguish them from
+    // key subscriptions. All subsequent internal functions receive and use this negated ID directly.
+    assert(elementId > 0);
+    const int64_t filterId = -elementId;
+
     bool added = false;
-    auto subscriber = p->second.addOrGet(topicId, -elementId, filterId, filter, sampleFilter, name, priority, added);
+    auto subscriber = p->second.addOrGet(topicId, filterId, subscriberId, filter, sampleFilter, name, priority, added);
     if (_onConnectedElements && added)
     {
         _executor->queue([self = shared_from_this(), name]
@@ -356,7 +361,7 @@ DataElementI::attachFilter(
         if (_traceLevels->data > 1)
         {
             Trace out(_traceLevels->logger, _traceLevels->dataCat);
-            out << this << ": attach e" << elementId << ":" << name;
+            out << this << ": attach e" << abs(filterId) << ":" << name;
             if (!facet.empty())
             {
                 out << ":" << facet;
@@ -365,9 +370,9 @@ DataElementI::attachFilter(
         }
 
         ++_listenerCount;
-        _parent->incListenerCount(session);
-        session->subscribeToFilter(topicId, elementId, shared_from_this(), facet, key, name, priority);
-        notifyListenerWaiters(session->getTopicLock());
+        _parent->incListenerCount();
+        session->subscribeToFilter(topicId, filterId, shared_from_this(), facet, key, name, priority);
+        notifyListenerWaiters();
         return true;
     }
     return false;
@@ -376,12 +381,13 @@ DataElementI::attachFilter(
 void
 DataElementI::detachFilter(
     int64_t topicId,
-    int64_t elementId,
+    int64_t filterId,
     const shared_ptr<Key>& key,
     const shared_ptr<SessionI>& session,
     const string& facet,
     bool unsubscribe)
 {
+    assert(filterId < 0);
     // No locking necessary, called by the session with the mutex locked
     auto p = _listeners.find({session, facet});
     if (p == _listeners.end())
@@ -389,7 +395,7 @@ DataElementI::detachFilter(
         return;
     }
 
-    auto subscriber = p->second.get(topicId, -elementId);
+    auto subscriber = p->second.get(topicId, filterId);
     if (removeConnectedKey(key, subscriber))
     {
         if (key)
@@ -404,7 +410,7 @@ DataElementI::detachFilter(
                     [self = shared_from_this(), subscriber]
                     { self->_onConnectedElements(DataStorm::CallbackReason::Disconnect, subscriber->name); });
             }
-            if (p->second.remove(topicId, -elementId))
+            if (p->second.remove(topicId, filterId))
             {
                 _listeners.erase(p);
             }
@@ -413,7 +419,7 @@ DataElementI::detachFilter(
         if (_traceLevels->data > 1)
         {
             Trace out(_traceLevels->logger, _traceLevels->dataCat);
-            out << this << ": detach e" << elementId << ":" << subscriber->name;
+            out << this << ": detach e" << abs(filterId) << ":" << subscriber->name;
             if (!facet.empty())
             {
                 out << ":" << facet;
@@ -422,12 +428,12 @@ DataElementI::detachFilter(
         }
 
         --_listenerCount;
-        _parent->decListenerCount(session);
+        _parent->decListenerCount();
         if (unsubscribe)
         {
-            session->unsubscribeFromFilter(topicId, elementId, shared_from_this(), subscriber->id);
+            session->unsubscribeFromFilter(topicId, filterId, shared_from_this());
         }
-        notifyListenerWaiters(session->getTopicLock());
+        notifyListenerWaiters();
     }
 }
 
@@ -545,22 +551,18 @@ void
 DataElementI::waitForListeners(int count) const
 {
     unique_lock<mutex> lock(_parent->_mutex);
-    ++_waiters;
     while (true)
     {
         _parent->instance()->checkShutdown();
         if (count < 0 && _listenerCount == 0)
         {
-            --_waiters;
             return;
         }
         else if (count >= 0 && _listenerCount >= static_cast<size_t>(count))
         {
-            --_waiters;
             return;
         }
         _parent->_cond.wait(lock);
-        ++_notified;
     }
 }
 
@@ -617,14 +619,9 @@ DataElementI::removeConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Su
 }
 
 void
-DataElementI::notifyListenerWaiters(unique_lock<mutex>& lock) const
+DataElementI::notifyListenerWaiters() const
 {
-    if (_waiters > 0)
-    {
-        _notified = 0;
-        _parent->_cond.notify_all();
-        _parent->_cond.wait(lock, [&]() { return _notified < _waiters; }); // Wait until all the waiters are notified.
-    }
+    _parent->_cond.notify_all();
 }
 
 void
@@ -636,7 +633,7 @@ DataElementI::disconnect()
         listeners.swap(_listeners);
         _parent->decListenerCount(_listenerCount);
         _listenerCount = 0;
-        notifyListenerWaiters(lock);
+        notifyListenerWaiters();
     }
     for (const auto& listener : listeners)
     {
@@ -645,7 +642,7 @@ DataElementI::disconnect()
             const auto& k = ks.first;
             if (k.second < 0)
             {
-                listener.first.session->disconnectFromFilter(k.first, k.second, shared_from_this(), ks.second->id);
+                listener.first.session->disconnectFromFilter(k.first, k.second, shared_from_this());
             }
             else
             {
@@ -1357,15 +1354,9 @@ KeyDataWriterI::forward(const ByteSeq& inParams, const Current& current) const
         // If there's at least one subscriber interested in the update (check the key if any writer)
         if (!_sample || listener.matchOne(_sample, _keys.empty()))
         {
-            // Forward the call using the listener's session proxy don't need to wait for the result.
-            auto cancel = listener.proxy->ice_invokeAsync(
-                current.operation,
-                current.mode,
-                inParams,
-                nullptr,
-                nullptr,
-                nullptr,
-                current.ctx);
+            // Forward the call using the listener's session proxy, don't need to wait for the result.
+            listener.proxy
+                ->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, nullptr, nullptr, current.ctx);
         }
     }
 }

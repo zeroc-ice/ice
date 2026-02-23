@@ -106,7 +106,7 @@ namespace DataStormI
             [[nodiscard]] std::shared_ptr<Subscriber> addOrGet(
                 std::int64_t topicId,
                 std::int64_t elementId,
-                std::int64_t id,
+                std::int64_t subscriberId,
                 const std::shared_ptr<Filter>& filter,
                 const std::shared_ptr<Filter>& sampleFilter,
                 const std::string& name,
@@ -118,7 +118,10 @@ namespace DataStormI
                 if (p == subscribers.end())
                 {
                     added = true;
-                    p = subscribers.emplace(k, std::make_shared<Subscriber>(id, filter, sampleFilter, name, priority))
+                    p = subscribers
+                            .emplace(
+                                k,
+                                std::make_shared<Subscriber>(subscriberId, filter, sampleFilter, name, priority))
                             .first;
                 }
                 return p->second;
@@ -298,7 +301,7 @@ namespace DataStormI
         virtual bool addConnectedKey(const std::shared_ptr<Key>& key, const std::shared_ptr<Subscriber>& subscriber);
         virtual bool removeConnectedKey(const std::shared_ptr<Key>&, const std::shared_ptr<Subscriber>&);
 
-        void notifyListenerWaiters(std::unique_lock<std::mutex>&) const;
+        void notifyListenerWaiters() const;
         void disconnect();
         virtual void destroyImpl() = 0;
 
@@ -323,8 +326,6 @@ namespace DataStormI
         virtual void forward(const Ice::ByteSeq&, const Ice::Current&) const;
 
         const std::shared_ptr<TopicI> _parent;
-        mutable size_t _waiters{0};
-        mutable size_t _notified{0};
         bool _destroyed{false};
 
         std::function<void(DataStorm::CallbackReason, std::shared_ptr<Key>)> _onConnectedKeys;
@@ -377,7 +378,7 @@ namespace DataStormI
 
         std::deque<std::shared_ptr<Sample>> _samples;
         std::shared_ptr<Sample> _last;
-        int _instanceCount;
+        int _instanceCount{0};
         DataStorm::DiscardPolicy _discardPolicy;
         std::chrono::time_point<std::chrono::system_clock> _lastSendTime;
         std::function<void(const std::shared_ptr<Sample>&)> _onSamples;

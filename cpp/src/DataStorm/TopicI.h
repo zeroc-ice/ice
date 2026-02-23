@@ -110,8 +110,8 @@ namespace DataStormI
             return _sampleFilterFactories;
         }
 
-        void incListenerCount(const std::shared_ptr<SessionI>&);
-        void decListenerCount(const std::shared_ptr<SessionI>&);
+        void incListenerCount();
+        void decListenerCount();
         void decListenerCount(size_t);
 
         void removeFiltered(const std::shared_ptr<DataElementI>&, const std::shared_ptr<Filter>&);
@@ -120,7 +120,7 @@ namespace DataStormI
     protected:
         void waitForListeners(int count) const;
         [[nodiscard]] bool hasListeners() const;
-        void notifyListenerWaiters(std::unique_lock<std::mutex>&) const;
+        void notifyListenerWaiters() const;
 
         void disconnect();
 
@@ -179,9 +179,6 @@ namespace DataStormI
         // The number of connected listeners.
         size_t _listenerCount{0};
 
-        // The number of threads waiting for a listener notification. See waitForListeners().
-        mutable size_t _waiters{0};
-        mutable size_t _notified{0};
         std::int64_t _nextId{0};
         std::int64_t _nextFilteredId{0};
         std::int64_t _nextSampleId{0};

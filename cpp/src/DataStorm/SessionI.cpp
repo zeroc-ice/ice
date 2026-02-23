@@ -421,7 +421,7 @@ SessionI::detachElements(int64_t id, LongSeq elements, const Current&)
                         else
                         {
                             dataElement
-                                ->detachFilter(id, -element, key, shared_from_this(), elementSubscriber.facet, true);
+                                ->detachFilter(id, element, key, shared_from_this(), elementSubscriber.facet, true);
                         }
                     }
                 }
@@ -914,7 +914,7 @@ SessionI::unsubscribe(int64_t topicId, TopicI* topic)
                 }
                 else
                 {
-                    element->detachFilter(topicId, -elementId, key, shared_from_this(), elementSubscriber.facet, false);
+                    element->detachFilter(topicId, elementId, key, shared_from_this(), elementSubscriber.facet, false);
                 }
             }
         }
@@ -1043,59 +1043,54 @@ SessionI::disconnectFromKey(
 void
 SessionI::subscribeToFilter(
     int64_t topicId,
-    int64_t elementId,
+    int64_t filterId,
     const std::shared_ptr<DataElementI>& element,
     const string& facet,
     const shared_ptr<Key>& key,
     const string& name,
     int priority)
 {
+    assert(filterId < 0);
     assert(_topics.find(topicId) != _topics.end());
     auto& subscriber = _topics.at(topicId).getSubscriber(element->getTopic());
     if (_traceLevels->session > 1)
     {
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-        out << _id << ": subscribed 'e" << elementId << '@' << topicId << "' to '" << element << "'";
+        out << _id << ": subscribed 'e" << abs(filterId) << '@' << topicId << "' to '" << element << "'";
         if (!facet.empty())
         {
             out << " (facet=" << facet << ')';
         }
     }
-    subscriber.add(-elementId, name, priority)->addSubscriber(element, key, facet, _sessionInstanceId);
+    subscriber.add(filterId, name, priority)->addSubscriber(element, key, facet, _sessionInstanceId);
 }
 
 void
-SessionI::unsubscribeFromFilter(
-    int64_t topicId,
-    int64_t elementId,
-    const std::shared_ptr<DataElementI>& element,
-    int64_t)
+SessionI::unsubscribeFromFilter(int64_t topicId, int64_t filterId, const std::shared_ptr<DataElementI>& element)
 {
+    assert(filterId < 0);
     assert(_topics.find(topicId) != _topics.end());
     auto& subscriber = _topics.at(topicId).getSubscriber(element->getTopic());
-    auto f = subscriber.get(-elementId);
+    auto f = subscriber.get(filterId);
     if (f)
     {
         if (_traceLevels->session > 1)
         {
             Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-            out << _id << ": unsubscribed 'e" << elementId << '@' << topicId << "' from '" << element << "'";
+            out << _id << ": unsubscribed 'e" << abs(filterId) << '@' << topicId << "' from '" << element << "'";
         }
         f->removeSubscriber(element);
         if (f->getSubscribers().empty())
         {
-            subscriber.remove(-elementId);
+            subscriber.remove(filterId);
         }
     }
 }
 
 void
-SessionI::disconnectFromFilter(
-    int64_t topicId,
-    int64_t elementId,
-    const std::shared_ptr<DataElementI>& element,
-    int64_t filterId)
+SessionI::disconnectFromFilter(int64_t topicId, int64_t filterId, const std::shared_ptr<DataElementI>& element)
 {
+    assert(filterId < 0);
     lock_guard<mutex> lock(_mutex); // Called by DataElementI::destroy
     if (!_session)
     {
@@ -1105,7 +1100,7 @@ SessionI::disconnectFromFilter(
     runWithTopic(
         topicId,
         element->getTopic(),
-        [&](TopicSubscriber&) { unsubscribeFromFilter(topicId, elementId, element, filterId); });
+        [&](TopicSubscriber&) { unsubscribeFromFilter(topicId, filterId, element); });
 }
 
 LongLongDict
@@ -1269,7 +1264,7 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
     lock_guard<mutex> lock(_mutex);
     if (!_session || current.con != _connection)
     {
-        if (current.con != _connection)
+        if (current.con != _connection && _traceLevels->session > 0)
         {
             Trace out(_traceLevels->logger, _traceLevels->sessionCat);
             out << _id << ": discarding sample '" << dataSample.id << "' from 'e" << elementId << '@' << topicId

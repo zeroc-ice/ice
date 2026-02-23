@@ -10,10 +10,11 @@ set -eux -o pipefail
 BASE_URL="https://download.zeroc.com/ice"
 
 usage() {
-    echo "Usage: $0 <channel> <quality> <ice_version>"
+    echo "Usage: $0 <channel> <quality> <ice_version> <icegridgui_dmg_sha256>"
     echo "  <channel>      The Ice channel (e.g., 3.8, 3.9)"
     echo "  <quality>      The release quality (e.g., nightly, stable)"
     echo "  <ice_version>  The version of Ice to build (e.g., 3.9.0-nightly-20231020)"
+    echo "  <icegridgui_dmg_sha256>  The SHA256 of the IceGrid GUI DMG"
 }
 
 channel="${1:-}"
@@ -33,6 +34,13 @@ fi
 ice_version="${3:-}"
 
 if [ -z "$ice_version" ]; then
+    usage
+    exit 1
+fi
+
+icegridgui_dmg_sha256="${4:-}"
+
+if [ -z "$icegridgui_dmg_sha256" ]; then
     usage
     exit 1
 fi
@@ -75,13 +83,6 @@ if [ "$quality" = "stable" ]; then
 else
     icegridgui_dmg_url="${BASE_URL}/${quality}/${channel}/IceGridGUI-${quality}.dmg"
 fi
-
-echo "Downloading $icegridgui_dmg_url"
-curl -fsSL "$icegridgui_dmg_url" -o "IceGridGUI.dmg"
-
-echo "Computing SHA256 of IceGridGUI.dmg"
-icegridgui_dmg_sha256=$(shasum -a 256 "IceGridGUI.dmg" | cut -d ' ' -f 1)
-rm IceGridGUI.dmg
 
 export ICE_URL=$archive_url
 export ICE_VERSION=$ice_version
