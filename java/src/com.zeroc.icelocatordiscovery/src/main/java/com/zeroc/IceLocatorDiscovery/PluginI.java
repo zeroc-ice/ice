@@ -228,13 +228,6 @@ class PluginI implements Plugin {
         }
 
         public synchronized void foundLocator(LocatorPrx locator) {
-            if (locator == null) {
-                if (_traceLevel > 2) {
-                    _lookup.ice_getCommunicator().getLogger().trace("Lookup", "ignoring locator reply: (null locator)");
-                }
-                return;
-            }
-
             if (!_instanceName.isEmpty() && !locator.ice_getIdentity().category.equals(_instanceName)) {
                 if (_traceLevel > 2) {
                     StringBuffer s = new StringBuffer("ignoring locator reply: instance name doesn't match\n");
@@ -524,6 +517,7 @@ class PluginI implements Plugin {
 
         @Override
         public void foundLocator(LocatorPrx locator, Current curr) {
+            ObjectPrx.checkNotNull(locator, curr);
             _locator.foundLocator(locator);
         }
 

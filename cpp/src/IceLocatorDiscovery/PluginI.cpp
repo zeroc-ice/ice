@@ -71,7 +71,7 @@ namespace
             function<void(exception_ptr)>,
             const Ice::Current&) final;
 
-        void foundLocator(const optional<Ice::LocatorPrx>&);
+        void foundLocator(const Ice::LocatorPrx&);
         void invoke(const optional<Ice::LocatorPrx>&, const RequestPtr&);
 
         vector<Ice::LocatorPrx> getLocators(const string&, const chrono::milliseconds&);
@@ -506,21 +506,9 @@ LocatorI::getLocators(const string& instanceName, const chrono::milliseconds& wa
 }
 
 void
-LocatorI::foundLocator(const optional<Ice::LocatorPrx>& reply)
+LocatorI::foundLocator(const Ice::LocatorPrx& locator)
 {
     lock_guard lock(_mutex);
-
-    if (!reply)
-    {
-        if (_traceLevel > 2)
-        {
-            Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
-            out << "ignoring locator reply: (null locator)";
-        }
-        return;
-    }
-
-    Ice::LocatorPrx locator = *reply;
     if (!_instanceName.empty() && locator->ice_getIdentity().category != _instanceName)
     {
         if (_traceLevel > 2)
@@ -815,7 +803,8 @@ LocatorI::runTimerTask()
 }
 
 void
-LookupReplyI::foundLocator(optional<Ice::LocatorPrx> locator, const Ice::Current&)
+LookupReplyI::foundLocator(optional<Ice::LocatorPrx> locator, const Ice::Current& current)
 {
-    _locator->foundLocator(locator);
+    checkNotNull(locator, __FILE__, __LINE__, current);
+    _locator->foundLocator(*locator);
 }

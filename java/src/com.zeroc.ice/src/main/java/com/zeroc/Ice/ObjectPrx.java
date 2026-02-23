@@ -733,4 +733,21 @@ public interface ObjectPrx {
      * does not override the current implicit context (if any).
      */
     static final Map<String, String> noExplicitContext = new HashMap<>();
+
+    /**
+     * Ensures that a proxy received over the wire is not null.
+     *
+     * @param proxy the proxy to check.
+     * @param current the current object of the corresponding incoming request.
+     * @throws MarshalException if the proxy is null.
+     */
+    static void checkNotNull(ObjectPrx proxy, Current current) {
+        if (proxy == null) {
+            throw new MarshalException(
+                String.format(
+                    "Null proxy passed to '%s' on object '%s'.",
+                    current.operation,
+                    current.adapter.getCommunicator().identityToString(current.id)));
+        }
+    }
 }

@@ -252,6 +252,7 @@ internal class LookupI : LookupDisp_
 
     public override void findObjectById(string domainId, Ice.Identity id, LookupReplyPrx reply, Ice.Current current)
     {
+        Ice.ObjectPrx.checkNotNull(reply, current);
         if (!domainId.Equals(_domainId, StringComparison.Ordinal))
         {
             return; // Ignore
@@ -276,6 +277,7 @@ internal class LookupI : LookupDisp_
 
     public override void findAdapterById(string domainId, string adapterId, LookupReplyPrx reply, Ice.Current current)
     {
+        Ice.ObjectPrx.checkNotNull(reply, current);
         if (!domainId.Equals(_domainId, StringComparison.Ordinal))
         {
             return; // Ignore
