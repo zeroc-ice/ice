@@ -83,6 +83,10 @@ IceBT::ConnectorI::operator<(const IceInternal::Connector& r) const
     {
         return true;
     }
+    else if (p->_addr < _addr)
+    {
+        return false;
+    }
 
     if (_uuid < p->_uuid)
     {
