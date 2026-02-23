@@ -10,8 +10,8 @@ might need to be aware of.
 
 ## Changes in Ice 3.9.0
 
-These are the changes since the [Ice 3.8.1 release].
+These are the changes since the [Ice 3.8.1] release.
 
 ### General Changes
 
-[Ice 3.8.1 release]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
+[Ice 3.8.1]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
