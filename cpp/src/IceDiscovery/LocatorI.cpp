@@ -25,7 +25,7 @@ LocatorRegistryI::setAdapterDirectProxy(string adapterId, optional<ObjectPrx> pr
     lock_guard lock(_mutex);
     if (proxy)
     {
-        _adapters.insert({adapterId, std::move(*proxy)});
+        _adapters.insert_or_assign(adapterId, std::move(*proxy));
     }
     else
     {
@@ -43,7 +43,7 @@ LocatorRegistryI::setReplicatedAdapterDirectProxy(
     lock_guard lock(_mutex);
     if (proxy)
     {
-        _adapters.insert({adapterId, std::move(*proxy)});
+        _adapters.insert_or_assign(adapterId, std::move(*proxy));
         auto p = _replicaGroups.find(replicaGroupId);
         if (p == _replicaGroups.end())
         {
