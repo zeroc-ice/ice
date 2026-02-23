@@ -47,7 +47,7 @@ jobs:
         run: |
           gh run download --repo ${{ github.repository }} --name icegridgui-macos-app --dir staging
           icegridgui_dmg_sha256=$(shasum -a 256 "staging/IceGridGUI.dmg" | cut -d ' ' -f 1)
-          echo "icegridgui_dmg_sha256=$icegridgui_dmg_sha256" >> $GITHUB_ENV
+          echo "icegridgui_dmg_sha256=$icegridgui_dmg_sha256" >> $GITHUB_OUTPUT
 
       - name: Update Nightly Tap
         run: |
