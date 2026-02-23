@@ -92,9 +92,16 @@ Node::waitForShutdown() const noexcept
 Node&
 Node::operator=(Node&& node) noexcept
 {
-    _instance = std::move(node._instance);
-    _factory = std::move(node._factory);
-    _ownsCommunicator = node._ownsCommunicator;
+    if (this != &node)
+    {
+        if (_instance)
+        {
+            _instance->destroy(_ownsCommunicator);
+        }
+        _instance = std::move(node._instance);
+        _factory = std::move(node._factory);
+        _ownsCommunicator = node._ownsCommunicator;
+    }
     return *this;
 }
 
