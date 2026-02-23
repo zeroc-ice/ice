@@ -45,7 +45,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh run download --repo ${{ github.repository }} --name icegridgui-jar-macOS --dir staging
+          gh run download --repo ${{ github.repository }} --name icegridgui-macos-app --dir staging
           icegridgui_dmg_sha256=$(shasum -a 256 "staging/IceGridGUI.dmg" | cut -d ' ' -f 1)
           echo "icegridgui_dmg_sha256=$icegridgui_dmg_sha256" >> $GITHUB_ENV
 
