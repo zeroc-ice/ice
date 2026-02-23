@@ -237,6 +237,7 @@ class LookupI implements Lookup {
                     if (r instanceof IPEndpointInfo && ((IPEndpointInfo) r).host.equals(info.mcastInterface)) {
                         single[0] = q;
                         entry.setValue(lookupReply.ice_endpoints(single));
+                        break;
                     }
                 }
             }
@@ -250,6 +251,7 @@ class LookupI implements Lookup {
 
     @Override
     public void findObjectById(String domainId, Identity id, LookupReplyPrx reply, Current c) {
+        ObjectPrx.checkNotNull(reply, c);
         if (!domainId.equals(_domainId)) {
             return; // Ignore.
         }
@@ -267,6 +269,7 @@ class LookupI implements Lookup {
 
     @Override
     public void findAdapterById(String domainId, String adapterId, LookupReplyPrx reply, Current c) {
+        ObjectPrx.checkNotNull(reply, c);
         if (!domainId.equals(_domainId)) {
             return; // Ignore.
         }

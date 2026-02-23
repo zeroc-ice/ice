@@ -71,7 +71,7 @@ namespace
             function<void(exception_ptr)>,
             const Ice::Current&) final;
 
-        void foundLocator(const optional<Ice::LocatorPrx>&);
+        void foundLocator(const Ice::LocatorPrx&);
         void invoke(const optional<Ice::LocatorPrx>&, const RequestPtr&);
 
         vector<Ice::LocatorPrx> getLocators(const string&, const chrono::milliseconds&);
@@ -149,7 +149,6 @@ namespace
         [[nodiscard]] vector<Ice::LocatorPrx> getLocators(const string&, const chrono::milliseconds&) const final;
 
     private:
-        const string _name;
         const Ice::CommunicatorPtr _communicator;
         Ice::ObjectAdapterPtr _locatorAdapter;
         Ice::ObjectAdapterPtr _replyAdapter;
@@ -429,6 +428,7 @@ LocatorI::setLookupReply(const LookupReplyPrx& lookupReply)
                 if (r && r->host == info->mcastInterface)
                 {
                     reply = reply->ice_endpoints(Ice::EndpointSeq{replyEndpoint});
+                    break;
                 }
             }
         }
@@ -506,21 +506,9 @@ LocatorI::getLocators(const string& instanceName, const chrono::milliseconds& wa
 }
 
 void
-LocatorI::foundLocator(const optional<Ice::LocatorPrx>& reply)
+LocatorI::foundLocator(const Ice::LocatorPrx& locator)
 {
     lock_guard lock(_mutex);
-
-    if (!reply)
-    {
-        if (_traceLevel > 2)
-        {
-            Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
-            out << "ignoring locator reply: (null locator)";
-        }
-        return;
-    }
-
-    Ice::LocatorPrx locator = *reply;
     if (!_instanceName.empty() && locator->ice_getIdentity().category != _instanceName)
     {
         if (_traceLevel > 2)
@@ -574,7 +562,6 @@ LocatorI::foundLocator(const optional<Ice::LocatorPrx>& reply)
     {
         // We found another locator replica, append its endpoints to the current locator proxy endpoints.
         Ice::EndpointSeq newEndpoints = i->second->ice_getEndpoints();
-        Ice::EndpointSeq endpts = locator->ice_getEndpoints();
         for (const auto& endpoint : locator->ice_getEndpoints())
         {
             if (std::find(newEndpoints.begin(), newEndpoints.end(), endpoint) == newEndpoints.end())
@@ -816,7 +803,8 @@ LocatorI::runTimerTask()
 }
 
 void
-LookupReplyI::foundLocator(optional<Ice::LocatorPrx> locator, const Ice::Current&)
+LookupReplyI::foundLocator(optional<Ice::LocatorPrx> locator, const Ice::Current& current)
 {
-    _locator->foundLocator(locator);
+    checkNotNull(locator, __FILE__, __LINE__, current);
+    _locator->foundLocator(*locator);
 }
