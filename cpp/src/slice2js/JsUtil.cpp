@@ -524,7 +524,7 @@ Slice::JavaScript::jsLinkFormatter(const string& rawLink, const ContainedPtr&, c
             else
             {
                 string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".");
-                if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+                if (dynamic_pointer_cast<InterfaceDecl>(target))
                 {
                     // link to the proxy interface
                     result << targetScoped << "Prx";

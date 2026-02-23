@@ -10,10 +10,11 @@ set -eux -o pipefail
 BASE_URL="https://download.zeroc.com/ice"
 
 usage() {
-    echo "Usage: $0 <channel> <quality> <ice_version>"
+    echo "Usage: $0 <channel> <quality> <ice_version> <icegridgui_dmg_sha256>"
     echo "  <channel>      The Ice channel (e.g., 3.8, 3.9)"
     echo "  <quality>      The release quality (e.g., nightly, stable)"
     echo "  <ice_version>  The version of Ice to build (e.g., 3.9.0-nightly-20231020)"
+    echo "  <icegridgui_dmg_sha256>  The SHA256 of the IceGrid GUI DMG"
 }
 
 channel="${1:-}"
@@ -33,6 +34,13 @@ fi
 ice_version="${3:-}"
 
 if [ -z "$ice_version" ]; then
+    usage
+    exit 1
+fi
+
+icegridgui_dmg_sha256="${4:-}"
+
+if [ -z "$icegridgui_dmg_sha256" ]; then
     usage
     exit 1
 fi
@@ -67,13 +75,25 @@ fi
 
 tap_formula_path=$tap_path/Formula/ice@${channel}.rb
 ice_formula_template=packaging/brew/ice.rb
+tap_cask_path=$tap_path/Casks/icegridgui@${channel}.rb
+icegridgui_cask_template=packaging/brew/icegridgui.rb
+
+if [ "$quality" = "stable" ]; then
+    icegridgui_dmg_url="${BASE_URL}/${channel}/IceGridGUI-${ice_version}.dmg"
+else
+    icegridgui_dmg_url="${BASE_URL}/${quality}/${channel}/IceGridGUI-${quality}.dmg"
+fi
 
 export ICE_URL=$archive_url
 export ICE_VERSION=$ice_version
 export ICE_URL_SHA256=$archive_hash
 export ICE_FORMULA_CLASS="IceAT${channel//./}"
+export ICEGRIDGUI_CASK_NAME="icegridgui@${channel}"
+export ICEGRIDGUI_DMG_URL=$icegridgui_dmg_url
+export ICEGRIDGUI_DMG_SHA256=$icegridgui_dmg_sha256
 
 envsubst < "$ice_formula_template" > "$tap_formula_path"
+envsubst < "$icegridgui_cask_template" > "$tap_cask_path"
 
 brew install --build-bottle zeroc-ice/nightly/ice@${channel}
 brew bottle zeroc-ice/nightly/ice@${channel} --root-url="$root_url" --json
@@ -87,9 +107,9 @@ done
 git -C "$tap_path" config user.name "ZeroC"
 git -C "$tap_path" config user.email "git@zeroc.com"
 
-# Add the formula and commit
-git -C "$tap_path" add Formula/ice@${channel}.rb
-git -C "$tap_path" commit -m "ice@${channel}: $ice_version"
+# Add the formula and cask and commit
+git -C "$tap_path" add Formula/ice@${channel}.rb Casks/icegridgui@${channel}.rb
+git -C "$tap_path" commit -m "ice@${channel}, icegridgui@${channel}: $ice_version"
 
 # Create a patch to attach to the GitHub release
 git -C "$tap_path" format-patch -1 HEAD --stdout > "ice@${channel}-$ice_version.patch"

@@ -25,6 +25,8 @@ endif()
 #    /path/to/Identity.ice
 #
 # Replace the target with the full output path so it matches the OUTPUT of add_custom_command.
-string(REGEX REPLACE "^([^:]+):" "${OUTPUT_DIR}/\\1:" depend_output "${depend_output}")
+# We match ": \" (the depfile target separator) instead of just ":" to avoid matching the drive
+# letter in Windows paths like C:/... (where the colon is followed by / or \, never by " \").
+string(REGEX REPLACE "^([^:]+)(: \\\\)" "${OUTPUT_DIR}/\\1\\2" depend_output "${depend_output}")
 
 file(WRITE "${DEPFILE}" "${depend_output}")

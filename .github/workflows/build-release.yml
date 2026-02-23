@@ -111,7 +111,9 @@ jobs:
   build-brew-packages:
     name: Build Brew Packages
     uses: ./.github/workflows/build-brew-packages.yml
-    needs: configure
+    needs:
+      - configure
+      - build-icegridgui-macos-app
     with:
       ice_version: ${{ needs.configure.outputs.semver_version }}
       channel: ${{ needs.configure.outputs.channel }}
@@ -246,6 +248,16 @@ jobs:
       authenticode_sign: ${{ needs.configure.outputs.authenticode_sign == 'true' }}
     secrets: inherit
 
+  build-icegridgui-macos-app:
+    name: Build IceGrid GUI macOS App
+    uses: ./.github/workflows/build-icegridgui-macos-app.yml
+    needs:
+      - configure
+      - build-icegridgui-jar
+    with:
+      run_id: ${{ github.run_id }}
+    secrets: inherit
+
   build-cpp-swift-deps:
     name: Build macOS Packages
     uses: ./.github/workflows/build-cpp-swift-deps.yml
@@ -270,6 +282,7 @@ jobs:
       - build-pip-packages
       - build-rpm-packages
       - build-windows-installer
+      - build-icegridgui-macos-app
       - build-cpp-swift-deps
       - build-symbols-sources-store
       - build-cpp-nuget-packages

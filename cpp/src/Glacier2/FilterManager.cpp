@@ -15,19 +15,22 @@ using namespace Ice;
 // Parse a space delimited string into a sequence of strings.
 //
 
-static void
-stringToSeq(const string& str, vector<string>& seq)
+static vector<string>
+stringToStringSeq(const string& str)
 {
+    vector<string> seq;
     IceInternal::splitString(str, " \t", seq);
 
     //
     // TODO: do something about unmatched quotes
     //
+    return seq;
 }
 
-static void
-stringToSeq(const string& str, vector<Identity>& seq)
+static vector<Identity>
+stringToIdentitySeq(const string& str)
 {
+    vector<Identity> seq;
     string const ws = " \t";
 
     //
@@ -93,6 +96,7 @@ stringToSeq(const string& str, vector<Identity>& seq)
         }
         current = str.find_first_not_of(ws, end);
     }
+    return seq;
 }
 
 Glacier2::FilterManager::~FilterManager() { destroy(); }
@@ -167,9 +171,7 @@ shared_ptr<Glacier2::FilterManager>
 Glacier2::FilterManager::create(shared_ptr<Instance> instance, const string& userId, bool allowAddUser)
 {
     auto props = instance->properties();
-    string allow = props->getIceProperty("Glacier2.Filter.Category.Accept");
-    vector<string> allowSeq;
-    stringToSeq(allow, allowSeq);
+    vector<string> allowSeq = stringToStringSeq(props->getIceProperty("Glacier2.Filter.Category.Accept"));
 
     if (allowAddUser)
     {
@@ -190,20 +192,11 @@ Glacier2::FilterManager::create(shared_ptr<Instance> instance, const string& use
 
     auto categoryFilter = make_shared<Glacier2::StringSetI>(allowSeq);
 
-    //
-    // TODO: refactor initialization of filters.
-    //
-    allow = props->getIceProperty("Glacier2.Filter.AdapterId.Accept");
-    stringToSeq(allow, allowSeq);
-    auto adapterIdFilter = make_shared<Glacier2::StringSetI>(allowSeq);
+    auto adapterIdFilter =
+        make_shared<Glacier2::StringSetI>(stringToStringSeq(props->getIceProperty("Glacier2.Filter.AdapterId.Accept")));
 
-    //
-    // TODO: Object id's from configurations?
-    //
-    IdentitySeq allowIdSeq;
-    allow = props->getIceProperty("Glacier2.Filter.Identity.Accept");
-    stringToSeq(allow, allowIdSeq);
-    auto identityFilter = make_shared<Glacier2::IdentitySetI>(allowIdSeq);
+    auto identityFilter = make_shared<Glacier2::IdentitySetI>(
+        stringToIdentitySeq(props->getIceProperty("Glacier2.Filter.Identity.Accept")));
 
     return make_shared<Glacier2::FilterManager>(
         std::move(instance),

@@ -106,7 +106,7 @@ namespace DataStormI
             [[nodiscard]] std::shared_ptr<Subscriber> addOrGet(
                 std::int64_t topicId,
                 std::int64_t elementId,
-                std::int64_t id,
+                std::int64_t subscriberId,
                 const std::shared_ptr<Filter>& filter,
                 const std::shared_ptr<Filter>& sampleFilter,
                 const std::string& name,
@@ -118,7 +118,10 @@ namespace DataStormI
                 if (p == subscribers.end())
                 {
                     added = true;
-                    p = subscribers.emplace(k, std::make_shared<Subscriber>(id, filter, sampleFilter, name, priority))
+                    p = subscribers
+                            .emplace(
+                                k,
+                                std::make_shared<Subscriber>(subscriberId, filter, sampleFilter, name, priority))
                             .first;
                 }
                 return p->second;
@@ -375,7 +378,7 @@ namespace DataStormI
 
         std::deque<std::shared_ptr<Sample>> _samples;
         std::shared_ptr<Sample> _last;
-        int _instanceCount;
+        int _instanceCount{0};
         DataStorm::DiscardPolicy _discardPolicy;
         std::chrono::time_point<std::chrono::system_clock> _lastSendTime;
         std::function<void(const std::shared_ptr<Sample>&)> _onSamples;

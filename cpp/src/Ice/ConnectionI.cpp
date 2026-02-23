@@ -118,7 +118,7 @@ namespace
     string createBadMagicMessage(const byte m[])
     {
         ostringstream os;
-        os << "bag magic in message header: ";
+        os << "bad magic in message header: ";
         for (size_t i = 0; i < sizeof(magic); ++i)
         {
             os << hex << setw(2) << setfill('0') << static_cast<int>(m[i]) << ' ';
@@ -3254,7 +3254,6 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     stream.read(requestCount);
                     if (requestCount < 0)
                     {
-                        requestCount = 0;
                         throw MarshalException{
                             __FILE__,
                             __LINE__,

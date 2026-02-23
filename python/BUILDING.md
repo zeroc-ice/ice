@@ -65,6 +65,8 @@ make
 MSBuild msbuild\ice.proj
 ```
 
+This builds Ice for Python for the default platform and configuration (i.e., `x64/Release`).
+
 By default, the Windows build uses the Python installation located at:
 
 * `C:\Program Files\Python314` for `x64` builds
@@ -76,13 +78,7 @@ If your Python installation is in a different location, set the `PythonHome` MSB
 MSBuild msbuild\ice.proj /p:PythonHome=C:\Python314
 ```
 
-To build a debug version for use with `python_d`, set the `Configuration` property to `Debug`:
-
-```shell
-MSBuild msbuild\ice.proj /p:Configuration=Debug
-```
-
-To change the target platform, use the `Platform` property. For example, to build for `Win32` in debug mode:
+You can select a different platform and configuration by setting the MSBuild `Platform` and `Configuration` properties. For example, to build for `Win32` in debug mode:
 
 ```shell
 MSBuild msbuild\ice.proj /p:Platform=Win32 /p:Configuration=Debug

@@ -11,9 +11,7 @@
 
 namespace IcePy
 {
-    //
     // LoggerWrapper delegates to a Python implementation.
-    //
     class LoggerWrapper final : public Ice::Logger
     {
     public:
@@ -36,9 +34,7 @@ namespace IcePy
 
     void cleanupLogger();
 
-    //
-    // Create a Python object that delegates to a C++ implementation.
-    //
+    /// Create a Python object that delegates to a C++ implementation.
     PyObject* createLogger(const Ice::LoggerPtr&);
 }
 

@@ -202,8 +202,21 @@ run(const Ice::StringSeq& args, const CustomSliceLoaderPtr& customSliceLoader)
         dbPath = opts.optArg("dbpath");
     }
 
+    int mapSizeValue = 0;
     string mapSizeStr = opts.optArg("mapsize");
-    size_t mapSize = IceDB::getMapSize(stoi(mapSizeStr));
+    if (!mapSizeStr.empty())
+    {
+        try
+        {
+            mapSizeValue = stoi(mapSizeStr);
+        }
+        catch (const std::exception&)
+        {
+            consoleErr << args[0] << ": invalid value '" << mapSizeStr << "' for --mapsize" << endl;
+            return 1;
+        }
+    }
+    size_t mapSize = IceDB::getMapSize(mapSizeValue);
     customSliceLoader->setServerVersion(opts.optArg("server-version"));
 
     try
@@ -249,7 +262,7 @@ run(const Ice::StringSeq& args, const CustomSliceLoaderPtr& customSliceLoader)
             fs.seekg(0, ios::beg);
 
             vector<byte> buf;
-            buf.reserve(static_cast<size_t>(fileSize));
+            buf.resize(static_cast<size_t>(fileSize));
             fs.read(reinterpret_cast<char*>(buf.data()), fileSize);
             fs.close();
 

@@ -1,0 +1,90 @@
+name: "Build IceGrid GUI macOS App"
+
+on:
+  workflow_call:
+    inputs:
+      run_id:
+        description: "The run ID to use for downloading the IceGrid GUI JAR artifact"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "The run ID to use for downloading the IceGrid GUI JAR artifact"
+        required: true
+
+jobs:
+  build-icegridgui-macos-app:
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: ./.github/actions/setup-java
+
+      - name: Set Version
+        run: |
+          source config/version.env
+          echo "APP_VERSION=${BASE_VERSION}" >> $GITHUB_ENV
+
+      - name: Download IceGrid GUI JAR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name icegridgui-jar-macOS --dir staging
+
+      - name: Build macOS App
+        run: ./packaging/macos/build-icegridgui-macos-app.sh staging/icegridgui.jar output "${APP_VERSION}"
+
+      # Import the Apple "Developer ID Application" signing certificate into a temporary keychain
+      # on the runner. The certificate and private key are stored as a base64-encoded P12 file in
+      # the APPLE_CERTIFICATE_P12 repository secret (exported from Keychain Access with an empty
+      # password, then encoded with: base64 -i certificate.p12).
+      - name: Import signing certificate
+        env:
+          APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
+        run: |
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
+
+          # Decode the certificate
+          echo "$APPLE_CERTIFICATE_P12" | base64 --decode > $RUNNER_TEMP/certificate.p12
+
+          # Create and configure a temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          # Import the certificate
+          security import $RUNNER_TEMP/certificate.p12 -P "" \
+            -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+
+          # Allow codesign to access the keychain without prompting
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          # Add temporary keychain to the search list
+          security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | tr -d '"')
+
+      - name: Sign macOS App
+        run: ./packaging/macos/sign-icegridgui-macos-app.sh "output/IceGrid GUI.app" --notarize
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+
+      - name: Create DMG
+        run: |
+          ./packaging/macos/create-icegridgui-dmg.sh "output/IceGrid GUI.app" output "${APP_VERSION}" --sign --notarize
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+
+      - name: Upload IceGrid GUI macOS App
+        uses: actions/upload-artifact@v4
+        with:
+          name: icegridgui-macos-app
+          path: |
+            output/IceGridGUI-*.dmg
