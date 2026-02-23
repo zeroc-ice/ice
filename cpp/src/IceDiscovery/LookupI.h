@@ -70,7 +70,7 @@ namespace IceDiscovery
     using AdapterCB =
         std::pair<std::function<void(const std::optional<Ice::ObjectPrx>&)>, std::function<void(std::exception_ptr)>>;
 
-    class ObjectRequest : public RequestT<Ice::Identity, ObjectCB>, public std::enable_shared_from_this<ObjectRequest>
+    class ObjectRequest final : public RequestT<Ice::Identity, ObjectCB>, public std::enable_shared_from_this<ObjectRequest>
     {
     public:
         ObjectRequest(const LookupIPtr&, const Ice::Identity&, int);

@@ -149,7 +149,6 @@ namespace
         [[nodiscard]] vector<Ice::LocatorPrx> getLocators(const string&, const chrono::milliseconds&) const final;
 
     private:
-        const string _name;
         const Ice::CommunicatorPtr _communicator;
         Ice::ObjectAdapterPtr _locatorAdapter;
         Ice::ObjectAdapterPtr _replyAdapter;

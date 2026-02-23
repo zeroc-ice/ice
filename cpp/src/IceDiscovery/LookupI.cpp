@@ -2,7 +2,6 @@
 
 #include "LookupI.h"
 #include "Ice/Communicator.h"
-#include "Ice/Connection.h"
 #include "Ice/Initialize.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
@@ -228,7 +227,7 @@ LookupI::setLookupReply(const LookupReplyPrx& lookupReply)
 void
 LookupI::findObjectById(string domainId, Ice::Identity id, optional<LookupReplyPrx> reply, const Ice::Current&)
 {
-    if (domainId != _domainId)
+    if (domainId != _domainId || !reply)
     {
         return; // Ignore.
     }
@@ -251,7 +250,7 @@ LookupI::findObjectById(string domainId, Ice::Identity id, optional<LookupReplyP
 void
 LookupI::findAdapterById(string domainId, string adapterId, optional<LookupReplyPrx> reply, const Ice::Current&)
 {
-    if (domainId != _domainId)
+    if (domainId != _domainId || !reply)
     {
         return; // Ignore.
     }
