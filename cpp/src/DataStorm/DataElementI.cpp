@@ -370,9 +370,9 @@ DataElementI::attachFilter(
         }
 
         ++_listenerCount;
-        _parent->incListenerCount(session);
+        _parent->incListenerCount();
         session->subscribeToFilter(topicId, filterId, shared_from_this(), facet, key, name, priority);
-        notifyListenerWaiters(session->getTopicLock());
+        notifyListenerWaiters();
         return true;
     }
     return false;
