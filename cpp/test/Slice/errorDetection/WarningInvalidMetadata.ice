@@ -76,6 +76,7 @@ module Test
     }
 
     ["cpp:const"] ["cpp:ice_print"]
+    ["deprecate"] ["deprecated"] // You cannot apply both 'deprecate' and 'deprecated' to the same element.
     struct S
     {
         int i;

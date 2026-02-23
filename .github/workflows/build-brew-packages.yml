@@ -40,9 +40,18 @@ jobs:
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
+      - name: Download IceGrid GUI JAR
+        id: icegridgui
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run download --repo ${{ github.repository }} --name icegridgui-macos-app --dir staging
+          icegridgui_dmg_sha256=$(shasum -a 256 "staging/IceGridGUI.dmg" | cut -d ' ' -f 1)
+          echo "icegridgui_dmg_sha256=$icegridgui_dmg_sha256" >> $GITHUB_OUTPUT
+
       - name: Update Nightly Tap
         run: |
-          ./packaging/brew/update-nightly-tap.sh "${{ inputs.channel }}" "${{ inputs.quality }}" "${{ inputs.ice_version }}"
+          ./packaging/brew/update-nightly-tap.sh "${{ inputs.channel }}" "${{ inputs.quality }}" "${{ inputs.ice_version }}" "${{ steps.icegridgui.outputs.icegridgui_dmg_sha256 }}"
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4

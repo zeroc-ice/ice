@@ -1895,7 +1895,7 @@ YY_RULE_SETUP
     {
         literal = literal.substr(0, literal.size() - 1);    // Clobber trailing 'f' or 'F' suffix
     }
-    ftp->v = strtod(literal.c_str(), 0);
+    ftp->v = strtod(literal.c_str(), nullptr);
     if ((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
     {
         currentUnit->error("floating-point constant '" + string{yytext} + "' too large (overflow)");

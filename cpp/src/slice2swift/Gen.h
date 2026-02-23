@@ -5,9 +5,6 @@
 
 #include "SwiftUtil.h"
 
-using namespace std;
-using namespace Slice;
-
 namespace Slice
 {
     class Gen final

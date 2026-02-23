@@ -327,8 +327,8 @@ namespace DataStormI
             const std::shared_ptr<Key>&,
             const std::string&,
             int);
-        void unsubscribeFromFilter(std::int64_t, std::int64_t, const std::shared_ptr<DataElementI>&, std::int64_t);
-        void disconnectFromFilter(std::int64_t, std::int64_t, const std::shared_ptr<DataElementI>&, std::int64_t);
+        void unsubscribeFromFilter(std::int64_t, std::int64_t, const std::shared_ptr<DataElementI>&);
+        void disconnectFromFilter(std::int64_t, std::int64_t, const std::shared_ptr<DataElementI>&);
 
         /// Retrieves a map of the last sample IDs read by a data element for a specified topic and key.
         ///

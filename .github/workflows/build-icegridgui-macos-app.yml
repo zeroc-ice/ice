@@ -8,6 +8,7 @@ on:
         required: true
         type: string
   workflow_dispatch:
+    inputs:
       run_id:
         description: "The run ID to use for downloading the IceGrid GUI JAR artifact"
         required: true

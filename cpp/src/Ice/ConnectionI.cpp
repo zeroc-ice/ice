@@ -3254,7 +3254,6 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     stream.read(requestCount);
                     if (requestCount < 0)
                     {
-                        requestCount = 0;
                         throw MarshalException{
                             __FILE__,
                             __LINE__,
