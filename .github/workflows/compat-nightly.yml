@@ -1,74 +1,36 @@
 name: Binary Compatibility
 
 on:
-  schedule:
-    # Run 3.8 binary compat test at 5:00 AM UTC (after nightly release at 3:00 AM)
-    - cron: "0 5 * * *"
-
-    # Run 3.7 binary compat test at 6:00 AM UTC (after nightly release at 4:00 AM)
-    - cron: "0 6 * * *"
-
   workflow_dispatch:
-    inputs:
-      branch:
-        description: "Branch to test compatibility for (e.g., 3.8)"
-        required: true
-        type: string
 
-# Builds tests from a stable tag (configured per branch below) and distribution libraries from the branch HEAD, then
-# swaps the HEAD libraries into the stable test tree and runs the tests. If the tests pass, the HEAD libraries are
-# binary-compatible with that stable release.
+# Builds tests from a stable tag and distribution libraries from the branch HEAD, then swaps the HEAD libraries into
+# the stable test tree and runs the tests. If the tests pass, the HEAD libraries are binary-compatible with that stable
+# release.
+#
+# Each stable branch (3.7, 3.8) maintains its own copy of this workflow with branch-specific configuration below.
+
+# Branch-specific configuration:
+env:
+  STABLE_TAG: "v3.8.0"
 
 jobs:
-  configure:
-    # Only run scheduled jobs on the official repository.
-    if: github.event_name == 'workflow_dispatch' || github.repository == 'zeroc-ice/ice'
-    runs-on: ubuntu-24.04
-    outputs:
-      branch: ${{ steps.config.outputs.branch }}
-      stable_tag: ${{ steps.config.outputs.stable_tag }}
-    steps:
-      - name: Determine branch and stable tag
-        id: config
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            BRANCH="${{ inputs.branch }}"
-          elif [ "${{ github.event.schedule }}" = "0 5 * * *" ]; then
-            BRANCH="3.8"
-          elif [ "${{ github.event.schedule }}" = "0 6 * * *" ]; then
-            BRANCH="3.7"
-          fi
-
-          case "$BRANCH" in
-            3.8) STABLE_TAG="v3.8.0" ;;
-            3.7) STABLE_TAG="v3.7.11" ;;
-            *)   echo "::error::Unknown branch '$BRANCH'"; exit 1 ;;
-          esac
-
-          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
-          echo "stable_tag=$STABLE_TAG" >> $GITHUB_OUTPUT
-          echo "Branch: $BRANCH, Stable tag: $STABLE_TAG"
-        shell: bash
-
   compat:
     name: compat on ${{ matrix.os }}
-    needs: configure
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [macos-26, ubuntu-24.04, ubuntu-24.04-arm, windows-2025]
     steps:
-      - name: Checkout HEAD (${{ needs.configure.outputs.branch }})
+      - name: Checkout HEAD
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs.configure.outputs.branch }}
           path: head
 
-      - name: Checkout stable (${{ needs.configure.outputs.stable_tag }})
+      - name: Checkout stable (${{ env.STABLE_TAG }})
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs.configure.outputs.stable_tag }}
+          ref: ${{ env.STABLE_TAG }}
           path: stable
 
       - name: macOS FQDN Fix
