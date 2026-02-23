@@ -1264,7 +1264,7 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
     lock_guard<mutex> lock(_mutex);
     if (!_session || current.con != _connection)
     {
-        if (current.con != _connection)
+        if (current.con != _connection && _traceLevels->session > 0)
         {
             Trace out(_traceLevels->logger, _traceLevels->sessionCat);
             out << _id << ": discarding sample '" << dataSample.id << "' from 'e" << elementId << '@' << topicId
