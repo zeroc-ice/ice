@@ -1,0 +1,23 @@
+name: Dispatch Binary Compatibility Nightly
+
+on:
+  # Central scheduler (runs from the default branch)
+  schedule:
+    # Run 3.8 binary compat test at 5:00 AM UTC (after nightly release at 3:00 AM)
+    - cron: "0 5 * * *"
+
+jobs:
+  dispatch-compat-nightly:
+    if: github.repository == 'zeroc-ice/ice'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Dispatch binary compat test for 3.8 (5:00 UTC)
+        if: github.event.schedule == '0 5 * * *'
+        uses: ./.github/actions/dispatch-workflow
+        with:
+          ref: 3.8
+          workflow: compat-nightly.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
