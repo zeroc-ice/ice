@@ -488,6 +488,21 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// </summary>
     /// <returns>The task scheduler object.</returns>
     TaskScheduler ice_scheduler();
+
+    /// <summary>
+    /// Ensures that a proxy received over the wire is not null.
+    /// </summary>
+    /// <param name="proxy">The proxy to check.</param>
+    /// <param name="current">The current object of the corresponding incoming request.</param>
+    /// <exception cref="MarshalException">Thrown when the proxy is null.</exception>
+    static void checkNotNull(ObjectPrx? proxy, Current current)
+    {
+        if (proxy is null)
+        {
+            throw new MarshalException(
+                $"Null proxy passed to '{current.operation}' on object '{current.adapter.getCommunicator().identityToString(current.id)}'.");
+        }
+    }
 }
 
 /// <summary>

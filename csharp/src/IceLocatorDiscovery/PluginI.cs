@@ -176,6 +176,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                     {
                         single[0] = q;
                         _lookups[key] = (LookupReplyPrx)lookupReply.ice_endpoints(single);
+                        break;
                     }
                 }
             }
@@ -204,17 +205,6 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
     {
         lock (_mutex)
         {
-            if (locator == null)
-            {
-                if (_traceLevel > 2)
-                {
-                    _lookup.ice_getCommunicator().getLogger().trace(
-                        "Lookup",
-                        "ignoring locator reply: (null locator)");
-                }
-                return;
-            }
-
             if (_instanceName.Length > 0 &&
                 !locator.ice_getIdentity().category.Equals(_instanceName, StringComparison.Ordinal))
             {
@@ -580,7 +570,11 @@ internal class LookupReplyI : LookupReplyDisp_
     public LookupReplyI(LocatorI locator) => _locator = locator;
 
     public override void
-    foundLocator(Ice.LocatorPrx locator, Ice.Current current) => _locator.foundLocator(locator);
+    foundLocator(Ice.LocatorPrx locator, Ice.Current current)
+    {
+        Ice.ObjectPrx.checkNotNull(locator, current);
+        _locator.foundLocator(locator);
+    }
 
     private readonly LocatorI _locator;
 }
