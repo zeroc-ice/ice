@@ -2197,7 +2197,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
         H << sp;
         H << nl << "/// Creates a tuple with all the fields of this class.";
         H << nl << "/// @return A tuple with all the fields of this class.";
-        writeIceTuple(H, p->allDataMembers(), _useWstring);
+        writeIceTuple(H, allDataMembers, _useWstring);
     }
 
     H << sp;

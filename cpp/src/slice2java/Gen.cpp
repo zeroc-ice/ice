@@ -3,13 +3,9 @@
 #include "Gen.h"
 #include "../Slice/Util.h"
 #include "Ice/StringUtil.h"
-#include <cstring>
 
 #include <algorithm>
 #include <cassert>
-#include <limits>
-
-#include <iostream>
 
 using namespace std;
 using namespace Slice;
@@ -18,7 +14,7 @@ using namespace IceInternal;
 
 namespace
 {
-    static const char* builtinNameTable[] = {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String"};
+    const char* builtinNameTable[] = {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String"};
 
     string sliceModeToIceMode(Operation::Mode opMode)
     {
