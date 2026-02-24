@@ -47,7 +47,7 @@ jobs:
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
-      - name: Download IceGrid GUI JAR
+      - name: Download IceGrid GUI DMG
         id: icegridgui
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

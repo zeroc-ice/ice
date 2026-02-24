@@ -257,6 +257,7 @@ jobs:
       - build-icegridgui-jar
     with:
       run_id: ${{ github.run_id }}
+      ice_version: ${{ needs.configure.outputs.semver_version }}
     secrets: inherit
 
   build-cpp-swift-deps:
