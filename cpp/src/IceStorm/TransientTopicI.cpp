@@ -150,6 +150,7 @@ TransientTopicImpl::subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> o
                 {
                     out << ',';
                 }
+                out << '[' << p->first << "," << p->second << ']';
             }
         }
     }

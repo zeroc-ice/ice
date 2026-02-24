@@ -510,6 +510,7 @@ TopicImpl::subscribeAndGetPublisher(QoS qos, Ice::ObjectPrx obj)
                 {
                     out << ',';
                 }
+                out << '[' << p->first << "," << p->second << ']';
             }
             out << " subscriptions: ";
             trace(out, _instance, _subscribers);

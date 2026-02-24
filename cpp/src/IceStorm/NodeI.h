@@ -75,7 +75,7 @@ namespace IceStormElection
         NodeState _state{NodeState::NodeStateInactive};
         int _updateCounter{0};
 
-        int _coord;         // Id of the coordinator.
+        int _coord{-1};     // Id of the coordinator.
         std::string _group; // My group id.
 
         std::set<GroupNodeInfo> _up;    // Set of nodes in my group.

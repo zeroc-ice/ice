@@ -794,10 +794,7 @@ Subscriber::shutdown()
     unique_lock lock(_mutex);
 
     _shutdown = true;
-    while (_outstanding > 0 && !_events.empty())
-    {
-        _condVar.wait(lock);
-    }
+    _condVar.wait(lock, [this] { return _outstanding == 0 && _events.empty(); });
 
     _observer.detach();
 }

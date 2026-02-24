@@ -408,26 +408,25 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
 
         _subscriberMap.clear(txn);
 
-        for (auto p = content.begin(); p != content.end(); ++p)
-            for (const auto& c : content)
+        for (const auto& c : content)
+        {
+            SubscriberRecordKey srkey;
+            srkey.topic = c.id;
+            SubscriberRecord rec;
+            rec.link = false;
+            rec.cost = 0;
+
+            _subscriberMap.put(txn, srkey, rec);
+
+            for (const auto& record : c.records)
             {
-                SubscriberRecordKey srkey;
-                srkey.topic = c.id;
-                SubscriberRecord rec;
-                rec.link = false;
-                rec.cost = 0;
+                SubscriberRecordKey key;
+                key.topic = c.id;
+                key.id = record.id;
 
-                _subscriberMap.put(txn, srkey, rec);
-
-                for (const auto& record : c.records)
-                {
-                    SubscriberRecordKey key;
-                    key.topic = c.id;
-                    key.id = record.id;
-
-                    _subscriberMap.put(txn, key, record);
-                }
+                _subscriberMap.put(txn, key, record);
             }
+        }
         txn.commit();
     }
     catch (const IceDB::LMDBException& ex)
@@ -578,10 +577,8 @@ TopicManagerImpl::observerRemoveSubscriber(const LogUpdate& llu, const string& n
 void
 TopicManagerImpl::getContent(LogUpdate& llu, TopicContentSeq& content)
 {
-    {
-        lock_guard lock(_mutex);
-        reap();
-    }
+    lock_guard lock(_mutex);
+    reap();
 
     try
     {
