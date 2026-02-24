@@ -77,12 +77,8 @@ tap_formula_path=$tap_path/Formula/ice@${channel}.rb
 ice_formula_template=packaging/brew/ice.rb
 tap_cask_path=$tap_path/Casks/icegridgui@${channel}.rb
 icegridgui_cask_template=packaging/brew/icegridgui.rb
+icegridgui_dmg_url="${BASE_URL}/${channel}/IceGridGUI-${ice_version}.dmg"
 
-if [ "$quality" = "stable" ]; then
-    icegridgui_dmg_url="${BASE_URL}/${channel}/IceGridGUI-${ice_version}.dmg"
-else
-    icegridgui_dmg_url="${BASE_URL}/${quality}/${channel}/IceGridGUI-${quality}.dmg"
-fi
 
 export ICE_URL=$archive_url
 export ICE_VERSION=$ice_version

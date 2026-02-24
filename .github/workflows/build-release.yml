@@ -118,6 +118,7 @@ jobs:
       ice_version: ${{ needs.configure.outputs.semver_version }}
       channel: ${{ needs.configure.outputs.channel }}
       quality: ${{ inputs.quality }}
+      run_id: ${{ github.run_id }}
     secrets: inherit
 
   build-deb-packages:
