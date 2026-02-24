@@ -79,7 +79,6 @@ tap_cask_path=$tap_path/Casks/icegridgui@${channel}.rb
 icegridgui_cask_template=packaging/brew/icegridgui.rb
 icegridgui_dmg_url="${BASE_URL}/${channel}/IceGridGUI-${ice_version}.dmg"
 
-
 export ICE_URL=$archive_url
 export ICE_VERSION=$ice_version
 export ICE_URL_SHA256=$archive_hash
