@@ -13,7 +13,6 @@ on:
         required: true
         type: string
       run_id:
-        description: "The run ID to use for downloading the IceGrid GUI dmg artifact"
         required: true
         type: string
   workflow_dispatch:
