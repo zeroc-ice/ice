@@ -37,7 +37,7 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
       _configFile(fixDirSeparator(configFile)),
       _communicator(communicator),
       _serviceProperties(make_shared<Properties>("IceGrid", "Glacier2")),
-      _sid(0),
+      _sid(nullptr),
       _debug(false)
 {
     _serviceProperties->load(_configFile);

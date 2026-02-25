@@ -79,6 +79,7 @@ Env::Env(const string& path, MDB_dbi maxDbs, size_t mapSize, unsigned int maxRea
         rc = mdb_env_set_maxdbs(_menv, maxDbs);
         if (rc != MDB_SUCCESS)
         {
+            mdb_env_close(_menv);
             throw LMDBException(__FILE__, __LINE__, rc);
         }
     }
@@ -103,6 +104,7 @@ Env::Env(const string& path, MDB_dbi maxDbs, size_t mapSize, unsigned int maxRea
         rc = mdb_env_set_mapsize(_menv, mapSize);
         if (rc != MDB_SUCCESS)
         {
+            mdb_env_close(_menv);
             throw LMDBException(__FILE__, __LINE__, rc);
         }
     }
@@ -112,6 +114,7 @@ Env::Env(const string& path, MDB_dbi maxDbs, size_t mapSize, unsigned int maxRea
         rc = mdb_env_set_maxreaders(_menv, maxReaders);
         if (rc != MDB_SUCCESS)
         {
+            mdb_env_close(_menv);
             throw LMDBException(__FILE__, __LINE__, rc);
         }
     }
@@ -119,6 +122,7 @@ Env::Env(const string& path, MDB_dbi maxDbs, size_t mapSize, unsigned int maxRea
     rc = mdb_env_open(_menv, path.c_str(), 0, 0644);
     if (rc != MDB_SUCCESS)
     {
+        mdb_env_close(_menv);
         throw LMDBException(__FILE__, __LINE__, rc);
     }
 

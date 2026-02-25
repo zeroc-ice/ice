@@ -1,16 +1,18 @@
 // Copyright (c) ZeroC, Inc.
 
+#include "../Ice/ConsoleUtil.h"
 #include "DataStorm/DataStorm.h"
 
 #include <iostream>
 
 using namespace std;
+using namespace IceInternal;
 
 static void
 usage(const string& n)
 {
-    cerr << "Usage: " << n << " [options]\n";
-    cerr << "Options:\n"
+    consoleErr << "Usage: " << n << " [options]\n";
+    consoleErr << "Options:\n"
             "-h, --help               Show this message.\n"
             "-v, --version            Display the DataStorm version.\n";
 }
@@ -43,7 +45,7 @@ main(int argc, char* argv[])
 
         if (argc > 1)
         {
-            cerr << "unrecognized arguments" << endl;
+            consoleErr << "unrecognized arguments" << endl;
             usage(argv[0]);
             return 1;
         }
@@ -56,7 +58,7 @@ main(int argc, char* argv[])
     }
     catch (const std::exception& ex)
     {
-        cerr << ex.what() << endl;
+        consoleErr << ex.what() << endl;
         return 1;
     }
     return 0;
