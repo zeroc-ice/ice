@@ -45,10 +45,10 @@ namespace
         vector<string> _targets;
         string _data;
         string _previousElementName;
-        int _targetCounter;
+        int _targetCounter{0};
         bool _isCurrentTargetDeployable{true};
-        int _line;
-        int _column;
+        int _line{0};
+        int _column{0};
 
         unique_ptr<ApplicationDescriptorBuilder> _currentApplication;
         unique_ptr<NodeDescriptorBuilder> _currentNode;

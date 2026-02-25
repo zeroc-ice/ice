@@ -2088,7 +2088,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
             _logs.push_back(_node->getPlatformInfo().getCwd() + '/' + path);
         }
     }
-    sort(_logs.begin(), _logs.begin());
+    sort(_logs.begin(), _logs.end());
 
     PropertyDescriptorSeqDict properties = getProperties(_desc);
     PropertyDescriptorSeq& props = properties["config"];
@@ -2408,7 +2408,7 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
 
         //
         // If the node isn't running as root and if the uid of the
-        // configured user is different from the uid of the userr
+        // configured user is different from the uid of the user
         // running the node we throw, a regular user can't run a
         // process as another user.
         //

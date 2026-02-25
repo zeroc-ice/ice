@@ -263,6 +263,7 @@ RegistryPluginFacadeI::getReplicaGroupFilters(const string& id) const
 bool
 RegistryPluginFacadeI::hasReplicaGroupFilters() const
 {
+    lock_guard lock(_mutex);
     return !_replicaGroupFilters.empty();
 }
 
@@ -281,6 +282,7 @@ RegistryPluginFacadeI::getTypeFilters(const string& id) const
 bool
 RegistryPluginFacadeI::hasTypeFilters() const
 {
+    lock_guard lock(_mutex);
     return !_typeFilters.empty();
 }
 
