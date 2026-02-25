@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+#include "../Ice/ConsoleUtil.h"
 #include "../Ice/Options.h"
 #include "Ice/Connection.h"
 #include "Ice/ObjectAdapter.h"
@@ -11,6 +12,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 
 namespace
 {
@@ -371,7 +373,7 @@ BridgeI::ice_invokeAsync(
     function<void(exception_ptr)> error,
     const Current& current)
 {
-    shared_ptr<BridgeConnection> bc;
+    shared_ptr<BridgeConnection> bridgeConnection;
     {
         lock_guard<mutex> lg(_lock);
 
@@ -397,8 +399,8 @@ BridgeI::ice_invokeAsync(
             //
             target = target->ice_connectionId(Ice::generateUUID());
 
-            bc = make_shared<BridgeConnection>(_adapter, target, current.con);
-            _connections.emplace(current.con, bc);
+            bridgeConnection = make_shared<BridgeConnection>(_adapter, target, current.con);
+            _connections.emplace(current.con, bridgeConnection);
 
             auto self = shared_from_this();
             current.con->setCloseCallback([self](const auto& con) { self->closed(con); });
@@ -413,25 +415,28 @@ BridgeI::ice_invokeAsync(
                 // especially when using Bluetooth.
                 //
                 target->ice_getConnectionAsync(
-                    [self, bc](auto outgoing) { self->outgoingSuccess(bc, std::move(outgoing)); },
-                    [self, bc](auto ex) { self->outgoingException(bc, ex); });
+                    [self, bridgeConnection](auto outgoing)
+                    { self->outgoingSuccess(bridgeConnection, std::move(outgoing)); },
+                    [self, bridgeConnection](auto ex) { self->outgoingException(bridgeConnection, ex); });
             }
             catch (const std::exception&)
             {
+                _connections.erase(current.con);
+                bridgeConnection->outgoingException(current_exception());
                 error(current_exception());
                 return;
             }
         }
         else
         {
-            bc = p->second;
+            bridgeConnection = p->second;
         }
     }
 
     //
     // Delegate the invocation to the BridgeConnection object.
     //
-    bc->dispatch(inParams, std::move(response), std::move(error), current);
+    bridgeConnection->dispatch(inParams, std::move(response), std::move(error), current);
 }
 
 void
@@ -440,39 +445,39 @@ BridgeI::closed(const ConnectionPtr& con)
     //
     // Notify the BridgeConnection that a connection has closed. We also need to remove it from our map.
     //
-    shared_ptr<BridgeConnection> bc;
+    shared_ptr<BridgeConnection> bridgeConnection;
     {
         lock_guard<mutex> lg(_lock);
         auto p = _connections.find(con);
         assert(p != _connections.end());
-        bc = p->second;
+        bridgeConnection = p->second;
         _connections.erase(p);
     }
-    assert(bc && con);
-    bc->closed(con);
+    assert(bridgeConnection && con);
+    bridgeConnection->closed(con);
 }
 
 void
-BridgeI::outgoingSuccess(const shared_ptr<BridgeConnection>& bc, ConnectionPtr outgoing)
+BridgeI::outgoingSuccess(const shared_ptr<BridgeConnection>& bridgeConnection, ConnectionPtr outgoing)
 {
     //
     // An outgoing connection was established. Notify the BridgeConnection object.
     //
     {
         lock_guard<mutex> lg(_lock);
-        _connections.emplace(outgoing, bc);
+        _connections.emplace(outgoing, bridgeConnection);
         outgoing->setCloseCallback([self = shared_from_this()](const auto& con) { self->closed(con); });
     }
-    bc->outgoingSuccess(std::move(outgoing));
+    bridgeConnection->outgoingSuccess(std::move(outgoing));
 }
 
 void
-BridgeI::outgoingException(const shared_ptr<BridgeConnection>& bc, exception_ptr ex)
+BridgeI::outgoingException(const shared_ptr<BridgeConnection>& bridgeConnection, exception_ptr ex)
 {
     //
     // An outgoing connection attempt failed. Notify the BridgeConnection object.
     //
-    bc->outgoingException(ex);
+    bridgeConnection->outgoingException(ex);
 }
 
 bool
@@ -509,7 +514,7 @@ BridgeService::start(int argc, char* argv[], int& status)
 
     if (!args.empty())
     {
-        cerr << argv[0] << ": too many arguments" << endl;
+        consoleErr << argv[0] << ": too many arguments" << endl;
         usage(argv[0]);
         return false;
     }
