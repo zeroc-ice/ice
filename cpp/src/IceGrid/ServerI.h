@@ -143,8 +143,8 @@ namespace IceGrid
 
         std::shared_ptr<InternalServerDescriptor> _desc;
 #ifndef _WIN32
-        uid_t _uid{0};
-        gid_t _gid{0};
+        uid_t _uid{static_cast<uid_t>(-1)};
+        gid_t _gid{static_cast<gid_t>(-1)};
 #endif
         InternalServerState _state{ServerI::Inactive};
         ServerActivation _activation{ServerI::Disabled};
