@@ -143,22 +143,22 @@ namespace IceGrid
 
         std::shared_ptr<InternalServerDescriptor> _desc;
 #ifndef _WIN32
-        uid_t _uid;
-        gid_t _gid;
+        uid_t _uid{static_cast<uid_t>(-1)};
+        gid_t _gid{static_cast<gid_t>(-1)};
 #endif
         InternalServerState _state{ServerI::Inactive};
         ServerActivation _activation{ServerI::Disabled};
-        std::chrono::seconds _activationTimeout;
-        std::chrono::seconds _deactivationTimeout;
+        std::chrono::seconds _activationTimeout{0};
+        std::chrono::seconds _deactivationTimeout{0};
         using ServerAdapterDict = std::map<std::string, std::shared_ptr<ServerAdapterI>>;
         ServerAdapterDict _adapters;
         std::set<std::string> _serverLifetimeAdapters;
         std::optional<Ice::ProcessPrx> _process;
         std::set<std::string> _activatedAdapters;
         std::optional<std::chrono::steady_clock::time_point> _failureTime;
-        ServerActivation _previousActivation;
+        ServerActivation _previousActivation{ServerI::Disabled};
         std::shared_ptr<IceInternal::TimerTask> _timerTask;
-        bool _waitForReplication;
+        bool _waitForReplication{false};
         std::string _stdErrFile;
         std::string _stdOutFile;
         Ice::StringSeq _logs;
