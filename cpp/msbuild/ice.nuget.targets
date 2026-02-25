@@ -11,10 +11,8 @@
                             $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\libexpat*.dll" />
 
         <!-- The import libraries to link with -->
-        <ImportLibraries Include="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\*.lib"
-                         Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icestormservice*.lib;
-                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\iceutil*.lib;
-                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\slice*.lib"/>
+        <ImportLibraries Include="@(Libraries->'$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\%(Filename).lib')"
+                         Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\bzip2*.lib" />
 
         <!-- The Slice to C++ compiler is included as a Tool -->
         <Tools Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2cpp.exe" />
