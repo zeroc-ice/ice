@@ -183,7 +183,7 @@ Observers::wait(const string& op)
             int id = p->id;
             p = _observers.erase(p);
 
-            lock_guard<mutex> reapedLock(_mutex);
+            lock_guard<mutex> reapedLock(_reapedMutex);
             _reaped.push_back(id);
             continue;
         }
@@ -193,8 +193,11 @@ Observers::wait(const string& op)
     // If we now no longer have the majority of observers we raise.
     if (_observers.size() < _majority)
     {
-        Ice::Trace out(_traceLevels->logger, _traceLevels->replicationCat);
-        out << "number of observers '" << _observers.size() << "' is less than the majority '" << _majority << "'";
+        if (_traceLevels->replication > 0)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->replicationCat);
+            out << "number of observers '" << _observers.size() << "' is less than the majority '" << _majority << "'";
+        }
         throw Ice::UnknownException(__FILE__, __LINE__, "too few observers");
     }
 }
