@@ -196,8 +196,7 @@ Observers::wait(const string& op)
         if (_traceLevels->replication > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->replicationCat);
-            out << "number of observers '" << _observers.size() << "' is less than the majority '" << _majority
-                << "'";
+            out << "number of observers '" << _observers.size() << "' is less than the majority '" << _majority << "'";
         }
         throw Ice::UnknownException(__FILE__, __LINE__, "too few observers");
     }
