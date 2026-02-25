@@ -7,10 +7,17 @@ on:
         description: "The run ID to use for downloading the IceGrid GUI JAR artifact"
         required: true
         type: string
+      dmg_version:
+        description: "The version number to use in the DMG filename"
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       run_id:
         description: "The run ID to use for downloading the IceGrid GUI JAR artifact"
+        required: true
+      dmg_version:
+        description: "The version number to use in the DMG filename"
         required: true
 
 jobs:
@@ -24,16 +31,16 @@ jobs:
       - name: Setup Java
         uses: ./.github/actions/setup-java
 
-      - name: Set Version
-        run: |
-          source config/version.env
-          echo "APP_VERSION=${BASE_VERSION}" >> $GITHUB_ENV
-
       - name: Download IceGrid GUI JAR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name icegridgui-jar-macOS --dir staging
+
+      - name: Set Version
+        run: |
+          source config/version.env
+          echo "APP_VERSION=${BASE_VERSION}" >> $GITHUB_ENV
 
       - name: Build macOS App
         run: ./packaging/macos/build-icegridgui-macos-app.sh staging/icegridgui.jar output "${APP_VERSION}"
@@ -76,7 +83,7 @@ jobs:
 
       - name: Create DMG
         run: |
-          ./packaging/macos/create-icegridgui-dmg.sh "output/IceGrid GUI.app" output "${APP_VERSION}" --sign --notarize
+          ./packaging/macos/create-icegridgui-dmg.sh "output/IceGrid GUI.app" output "${{ inputs.dmg_version }}" --sign --notarize
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
