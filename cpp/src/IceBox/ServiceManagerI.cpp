@@ -817,16 +817,16 @@ IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const s
 {
     if (services.size() > 0)
     {
-        try
+        for (const auto& observer : observers)
         {
-            for (const auto& observer : observers)
+            try
             {
                 observer->servicesStartedAsync(services, nullptr, makeObserverCompletedCallback(observer));
             }
-        }
-        catch (const CommunicatorDestroyedException&)
-        {
-            // Expected during shutdown if the observer's communicator is destroyed.
+            catch (const CommunicatorDestroyedException&)
+            {
+                // Expected during shutdown if the observer's communicator is destroyed.
+            }
         }
     }
 }
@@ -836,16 +836,16 @@ IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const s
 {
     if (services.size() > 0)
     {
-        try
+        for (const auto& observer : observers)
         {
-            for (const auto& observer : observers)
+            try
             {
                 observer->servicesStoppedAsync(services, nullptr, makeObserverCompletedCallback(observer));
             }
-        }
-        catch (const CommunicatorDestroyedException&)
-        {
-            // Expected during shutdown if the observer's communicator is destroyed.
+            catch (const CommunicatorDestroyedException&)
+            {
+                // Expected during shutdown if the observer's communicator is destroyed.
+            }
         }
     }
 }

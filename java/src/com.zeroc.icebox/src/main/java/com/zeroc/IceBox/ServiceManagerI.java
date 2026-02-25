@@ -2,20 +2,6 @@
 
 package com.zeroc.IceBox;
 
-import com.zeroc.Ice.Communicator;
-import com.zeroc.Ice.CommunicatorDestroyedException;
-import com.zeroc.Ice.Current;
-import com.zeroc.Ice.InitializationData;
-import com.zeroc.Ice.LocalException;
-import com.zeroc.Ice.Logger;
-import com.zeroc.Ice.Object;
-import com.zeroc.Ice.ObjectAdapterDeactivatedException;
-import com.zeroc.Ice.ObjectAdapterDestroyedException;
-import com.zeroc.Ice.Options;
-import com.zeroc.Ice.ParseException;
-import com.zeroc.Ice.Properties;
-import com.zeroc.Ice.Util;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -33,6 +19,20 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.CommunicatorDestroyedException;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.Logger;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectAdapterDeactivatedException;
+import com.zeroc.Ice.ObjectAdapterDestroyedException;
+import com.zeroc.Ice.Options;
+import com.zeroc.Ice.ParseException;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
 
 final class ServiceManagerI implements ServiceManager {
     public ServiceManagerI(Communicator communicator, String[] args) {
@@ -214,7 +214,7 @@ final class ServiceManagerI implements ServiceManager {
                             return null;
                         });
             } catch (CommunicatorDestroyedException ex) {
-                // Ignored, the service is being shutdown.
+                observerFailed(observer, ex);
             }
         }
     }
@@ -605,12 +605,16 @@ final class ServiceManagerI implements ServiceManager {
             String[] servicesArray = services.toArray(new String[0]);
 
             for (final ServiceObserverPrx observer : observers) {
-                observer.servicesStartedAsync(servicesArray)
-                    .exceptionally(
-                        ex -> {
-                            observerFailed(observer, ex);
-                            return null;
-                        });
+                try {
+                    observer.servicesStartedAsync(servicesArray)
+                        .exceptionally(
+                            ex -> {
+                                observerFailed(observer, ex);
+                                return null;
+                            });
+                } catch (CommunicatorDestroyedException ex) {
+                    // Expected during shutdown if the observer's communicator is destroyed.
+                }
             }
         }
     }
@@ -628,7 +632,7 @@ final class ServiceManagerI implements ServiceManager {
                                 return null;
                             });
                 } catch (CommunicatorDestroyedException ex) {
-                    // Ignored, the service is being shutdown.
+                    // Expected during shutdown if the observer's communicator is destroyed.
                 }
             }
         }
