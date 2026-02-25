@@ -6,7 +6,6 @@
 #include "Ice/CommunicatorF.h"
 #include "Ice/Logger.h"
 #include "IceBox/IceBox.h"
-#include <map>
 
 namespace IceBox
 {
@@ -25,8 +24,6 @@ namespace IceBox
         void addObserver(std::optional<ServiceObserverPrx>, const Ice::Current&) final;
 
         void shutdown(const Ice::Current&) final;
-
-        int run();
 
         bool start();
         void stop();
@@ -47,8 +44,7 @@ namespace IceBox
             std::string name;
             ServicePtr service;
             Ice::CommunicatorPtr communicator;
-            std::string envName;
-            ServiceStatus status;
+            ServiceStatus status{Stopped};
             Ice::StringSeq args;
         };
 

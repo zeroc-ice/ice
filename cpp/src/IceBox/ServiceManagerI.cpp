@@ -3,10 +3,8 @@
 #include "ServiceManagerI.h"
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/DynamicLibrary.h"
-#include "../Ice/Instance.h"
 #include "../Ice/Options.h"
 #include "Ice/Ice.h"
-#include "Ice/Initialize.h"
 #include "Ice/StringUtil.h"
 
 using namespace Ice;
@@ -156,6 +154,7 @@ IceBox::ServiceManagerI::startService(string name, const Current&)
         out << "ServiceManager: unknown exception in start for service " << info.name;
     }
 
+    set<ServiceObserverPrx> observers;
     {
         lock_guard<mutex> lock(_mutex);
         for (auto& service : _services)
@@ -165,10 +164,7 @@ IceBox::ServiceManagerI::startService(string name, const Current&)
                 if (started)
                 {
                     service.status = Started;
-
-                    vector<string> services;
-                    services.push_back(name);
-                    servicesStarted(services, _observers);
+                    observers = _observers;
                 }
                 else
                 {
@@ -179,6 +175,14 @@ IceBox::ServiceManagerI::startService(string name, const Current&)
         }
         _pendingStatusChanges = false;
         _conditionVariable.notify_all();
+    }
+
+    // Notify observers without holding _mutex.
+    if (started)
+    {
+        vector<string> services;
+        services.push_back(name);
+        servicesStarted(services, observers);
     }
 }
 
@@ -232,6 +236,7 @@ IceBox::ServiceManagerI::stopService(string name, const Current&)
         out << "ServiceManager: unknown exception while stopping service " << info.name;
     }
 
+    set<ServiceObserverPrx> observers;
     {
         lock_guard<mutex> lock(_mutex);
         for (auto& service : _services)
@@ -241,10 +246,7 @@ IceBox::ServiceManagerI::stopService(string name, const Current&)
                 if (stopped)
                 {
                     service.status = Stopped;
-
-                    vector<string> services;
-                    services.push_back(name);
-                    servicesStopped(services, _observers);
+                    observers = _observers;
                 }
                 else
                 {
@@ -255,6 +257,14 @@ IceBox::ServiceManagerI::stopService(string name, const Current&)
         }
         _pendingStatusChanges = false;
         _conditionVariable.notify_all();
+    }
+
+    // Notify observers without holding _mutex.
+    if (stopped)
+    {
+        vector<string> services;
+        services.push_back(name);
+        servicesStopped(services, observers);
     }
 }
 
@@ -286,18 +296,21 @@ IceBox::ServiceManagerI::addObserver(optional<ServiceObserverPrx> observer, cons
 void
 IceBox::ServiceManagerI::addObserver(ServiceObserverPrx observer) // NOLINT(performance-unnecessary-value-param)
 {
-    // Duplicate registrations are ignored
-
-    lock_guard<mutex> lock(_mutex);
-    if (_observers.insert(observer).second)
+    vector<string> activeServices;
     {
+        lock_guard<mutex> lock(_mutex);
+        // Duplicate registrations are ignored
+        if (!_observers.insert(observer).second)
+        {
+            return;
+        }
+
         if (_traceServiceObserver >= 1)
         {
             Trace out(_logger, "IceBox.ServiceObserver");
             out << "Added service observer " << observer;
         }
 
-        vector<string> activeServices;
         for (const auto& info : _services)
         {
             if (info.status == Started)
@@ -305,11 +318,12 @@ IceBox::ServiceManagerI::addObserver(ServiceObserverPrx observer) // NOLINT(perf
                 activeServices.push_back(info.name);
             }
         }
+    }
 
-        if (activeServices.size() > 0)
-        {
-            observer->servicesStartedAsync(activeServices, nullptr, makeObserverCompletedCallback(observer));
-        }
+    // Notify observer without holding _mutex.
+    if (activeServices.size() > 0)
+    {
+        observer->servicesStartedAsync(activeServices, nullptr, makeObserverCompletedCallback(observer));
     }
 }
 
@@ -798,7 +812,11 @@ IceBox::ServiceManagerI::stopAll()
 
     _services.clear();
 
-    servicesStopped(stoppedServices, _observers);
+    // Notify observers without holding _mutex.
+    set<ServiceObserverPrx> observers(_observers);
+    lock.unlock();
+
+    servicesStopped(stoppedServices, observers);
 }
 
 function<void(exception_ptr)>
