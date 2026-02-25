@@ -45,6 +45,7 @@ namespace IceStormElection
         };
         std::vector<ObserverInfo> _observers;
 
+        // _mutex must always be locked before _reapedMutex when both are needed.
         std::mutex _reapedMutex;
         std::vector<int> _reaped;
 
