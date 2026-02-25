@@ -577,18 +577,20 @@ TopicManagerImpl::observerRemoveSubscriber(const LogUpdate& llu, const string& n
 void
 TopicManagerImpl::getContent(LogUpdate& llu, TopicContentSeq& content)
 {
-    lock_guard lock(_mutex);
-    reap();
-
-    try
     {
+        lock_guard lock(_mutex);
+        reap();
+
         content.clear();
         for (const auto& topic : _topics)
         {
             TopicContent rec = topic.second->getContent();
             content.push_back(rec);
         }
+    }
 
+    try
+    {
         IceDB::ReadOnlyTxn txn(_instance->dbEnv());
         _lluMap.get(txn, lluDbKey, llu);
     }

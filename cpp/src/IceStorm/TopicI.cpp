@@ -508,9 +508,9 @@ TopicImpl::subscribeAndGetPublisher(QoS qos, Ice::ObjectPrx obj)
             {
                 if (p != qos.begin())
                 {
-                    out << ',';
+                    out << ", ";
                 }
-                out << '[' << p->first << "," << p->second << ']';
+                out << '[' << p->first << " = " << p->second << ']';
             }
             out << " subscriptions: ";
             trace(out, _instance, _subscribers);
@@ -1006,9 +1006,9 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
             {
                 if (p != record.theQoS.begin())
                 {
-                    out << ',';
+                    out << ", ";
                 }
-                out << '[' << p->first << "," << p->second << ']';
+                out << '[' << p->first << " = " << p->second << ']';
             }
         }
         out << " llu: " << llu.generation << "/" << llu.iteration;
