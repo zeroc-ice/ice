@@ -87,6 +87,9 @@ export ICEGRIDGUI_CASK_NAME="icegridgui@${channel}"
 export ICEGRIDGUI_DMG_URL=$icegridgui_dmg_url
 export ICEGRIDGUI_DMG_SHA256=$icegridgui_dmg_sha256
 
+mkdir -p "$tap_path/Formula"
+mkdir -p "$tap_path/Casks"
+
 envsubst < "$ice_formula_template" > "$tap_formula_path"
 envsubst < "$icegridgui_cask_template" > "$tap_cask_path"
 
