@@ -2,6 +2,20 @@
 
 package com.zeroc.IceBox;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.CommunicatorDestroyedException;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.Logger;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectAdapterDeactivatedException;
+import com.zeroc.Ice.ObjectAdapterDestroyedException;
+import com.zeroc.Ice.Options;
+import com.zeroc.Ice.ParseException;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -19,20 +33,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-
-import com.zeroc.Ice.Communicator;
-import com.zeroc.Ice.CommunicatorDestroyedException;
-import com.zeroc.Ice.Current;
-import com.zeroc.Ice.InitializationData;
-import com.zeroc.Ice.LocalException;
-import com.zeroc.Ice.Logger;
-import com.zeroc.Ice.Object;
-import com.zeroc.Ice.ObjectAdapterDeactivatedException;
-import com.zeroc.Ice.ObjectAdapterDestroyedException;
-import com.zeroc.Ice.Options;
-import com.zeroc.Ice.ParseException;
-import com.zeroc.Ice.Properties;
-import com.zeroc.Ice.Util;
 
 final class ServiceManagerI implements ServiceManager {
     public ServiceManagerI(Communicator communicator, String[] args) {

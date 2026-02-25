@@ -813,7 +813,9 @@ IceBox::ServiceManagerI::makeObserverCompletedCallback(ServiceObserverPrx observ
     };
 }
 void
-IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const set<ServiceObserverPrx>& observers) noexcept
+IceBox::ServiceManagerI::servicesStarted(
+    const vector<string>& services,
+    const set<ServiceObserverPrx>& observers) noexcept
 {
     if (services.size() > 0)
     {
@@ -832,7 +834,9 @@ IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const s
 }
 
 void
-IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const set<ServiceObserverPrx>& observers) noexcept
+IceBox::ServiceManagerI::servicesStopped(
+    const vector<string>& services,
+    const set<ServiceObserverPrx>& observers) noexcept
 {
     if (services.size() > 0)
     {
