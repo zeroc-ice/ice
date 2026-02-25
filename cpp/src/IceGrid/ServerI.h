@@ -156,7 +156,7 @@ namespace IceGrid
         std::optional<Ice::ProcessPrx> _process;
         std::set<std::string> _activatedAdapters;
         std::optional<std::chrono::steady_clock::time_point> _failureTime;
-        ServerActivation _previousActivation{Disabled};
+        ServerActivation _previousActivation{ServerI::Disabled};
         std::shared_ptr<IceInternal::TimerTask> _timerTask;
         bool _waitForReplication{false};
         std::string _stdErrFile;
