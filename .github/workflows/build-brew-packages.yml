@@ -12,6 +12,9 @@ on:
       quality:
         required: true
         type: string
+      run_id:
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       ice_version:
@@ -24,6 +27,9 @@ on:
         description: "Release quality (e.g., stable, nightly, RC)"
         required: true
         default: "nightly"
+      run_id:
+        description: "The run ID to use for downloading the IceGrid GUI dmg artifact"
+        required: true
 
 permissions:
   contents: write
@@ -40,13 +46,21 @@ jobs:
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
-      - name: Download IceGrid GUI JAR
+      - name: Download IceGrid GUI DMG
         id: icegridgui
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh run download --repo ${{ github.repository }} --name icegridgui-macos-app --dir staging
-          icegridgui_dmg_sha256=$(shasum -a 256 "staging/IceGridGUI.dmg" | cut -d ' ' -f 1)
+          set -o pipefail
+
+          gh run download "${{ inputs.run_id }}" --repo ${{ github.repository }} --name icegridgui-macos-app --dir staging
+          icegridgui_dmg_sha256=$(shasum -a 256 "staging/IceGridGUI-${{ inputs.ice_version }}.dmg" | cut -d ' ' -f 1)
+
+          if [[ -z "$icegridgui_dmg_sha256" ]]; then
+            echo "Failed to calculate SHA256 checksum for IceGrid GUI DMG"
+            exit 1
+          fi
+
           echo "icegridgui_dmg_sha256=$icegridgui_dmg_sha256" >> $GITHUB_OUTPUT
 
       - name: Update Nightly Tap
