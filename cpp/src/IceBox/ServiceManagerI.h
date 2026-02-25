@@ -52,8 +52,8 @@ namespace IceBox
         void stopAll();
 
         void addObserver(ServiceObserverPrx);
-        void servicesStarted(const std::vector<std::string>&, const std::set<ServiceObserverPrx>&);
-        void servicesStopped(const std::vector<std::string>&, const std::set<ServiceObserverPrx>&);
+        void servicesStarted(const std::vector<std::string>&, const std::set<ServiceObserverPrx>&) noexcept;
+        void servicesStopped(const std::vector<std::string>&, const std::set<ServiceObserverPrx>&) noexcept;
         std::function<void(std::exception_ptr)> makeObserverCompletedCallback(ServiceObserverPrx);
         void observerRemoved(const ServiceObserverPrx&, std::exception_ptr);
 

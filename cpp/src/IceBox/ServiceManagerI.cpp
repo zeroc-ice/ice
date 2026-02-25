@@ -154,7 +154,6 @@ IceBox::ServiceManagerI::startService(string name, const Current&)
         out << "ServiceManager: unknown exception in start for service " << info.name;
     }
 
-    set<ServiceObserverPrx> observers;
     {
         lock_guard<mutex> lock(_mutex);
         for (auto& service : _services)
@@ -164,7 +163,10 @@ IceBox::ServiceManagerI::startService(string name, const Current&)
                 if (started)
                 {
                     service.status = Started;
-                    observers = _observers;
+
+                    vector<string> services;
+                    services.push_back(name);
+                    servicesStarted(services, _observers);
                 }
                 else
                 {
@@ -175,14 +177,6 @@ IceBox::ServiceManagerI::startService(string name, const Current&)
         }
         _pendingStatusChanges = false;
         _conditionVariable.notify_all();
-    }
-
-    // Notify observers without holding _mutex.
-    if (started)
-    {
-        vector<string> services;
-        services.push_back(name);
-        servicesStarted(services, observers);
     }
 }
 
@@ -236,7 +230,6 @@ IceBox::ServiceManagerI::stopService(string name, const Current&)
         out << "ServiceManager: unknown exception while stopping service " << info.name;
     }
 
-    set<ServiceObserverPrx> observers;
     {
         lock_guard<mutex> lock(_mutex);
         for (auto& service : _services)
@@ -246,7 +239,10 @@ IceBox::ServiceManagerI::stopService(string name, const Current&)
                 if (stopped)
                 {
                     service.status = Stopped;
-                    observers = _observers;
+
+                    vector<string> services;
+                    services.push_back(name);
+                    servicesStopped(services, _observers);
                 }
                 else
                 {
@@ -257,14 +253,6 @@ IceBox::ServiceManagerI::stopService(string name, const Current&)
         }
         _pendingStatusChanges = false;
         _conditionVariable.notify_all();
-    }
-
-    // Notify observers without holding _mutex.
-    if (stopped)
-    {
-        vector<string> services;
-        services.push_back(name);
-        servicesStopped(services, observers);
     }
 }
 
@@ -296,21 +284,18 @@ IceBox::ServiceManagerI::addObserver(optional<ServiceObserverPrx> observer, cons
 void
 IceBox::ServiceManagerI::addObserver(ServiceObserverPrx observer) // NOLINT(performance-unnecessary-value-param)
 {
-    vector<string> activeServices;
-    {
-        lock_guard<mutex> lock(_mutex);
-        // Duplicate registrations are ignored
-        if (!_observers.insert(observer).second)
-        {
-            return;
-        }
+    // Duplicate registrations are ignored
 
+    lock_guard<mutex> lock(_mutex);
+    if (_observers.insert(observer).second)
+    {
         if (_traceServiceObserver >= 1)
         {
             Trace out(_logger, "IceBox.ServiceObserver");
             out << "Added service observer " << observer;
         }
 
+        vector<string> activeServices;
         for (const auto& info : _services)
         {
             if (info.status == Started)
@@ -318,12 +303,11 @@ IceBox::ServiceManagerI::addObserver(ServiceObserverPrx observer) // NOLINT(perf
                 activeServices.push_back(info.name);
             }
         }
-    }
 
-    // Notify observer without holding _mutex.
-    if (activeServices.size() > 0)
-    {
-        observer->servicesStartedAsync(activeServices, nullptr, makeObserverCompletedCallback(observer));
+        if (activeServices.size() > 0)
+        {
+            observer->servicesStartedAsync(activeServices, nullptr, makeObserverCompletedCallback(observer));
+        }
     }
 }
 
@@ -812,11 +796,7 @@ IceBox::ServiceManagerI::stopAll()
 
     _services.clear();
 
-    // Notify observers without holding _mutex.
-    set<ServiceObserverPrx> observers(_observers);
-    lock.unlock();
-
-    servicesStopped(stoppedServices, observers);
+    servicesStopped(stoppedServices, _observers);
 }
 
 function<void(exception_ptr)>
@@ -833,25 +813,39 @@ IceBox::ServiceManagerI::makeObserverCompletedCallback(ServiceObserverPrx observ
     };
 }
 void
-IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const set<ServiceObserverPrx>& observers)
+IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const set<ServiceObserverPrx>& observers) noexcept
 {
     if (services.size() > 0)
     {
-        for (const auto& observer : observers)
+        try
         {
-            observer->servicesStartedAsync(services, nullptr, makeObserverCompletedCallback(observer));
+            for (const auto& observer : observers)
+            {
+                observer->servicesStartedAsync(services, nullptr, makeObserverCompletedCallback(observer));
+            }
+        }
+        catch (const CommunicatorDestroyedException&)
+        {
+            // Expected during shutdown if the observer's communicator is destroyed.
         }
     }
 }
 
 void
-IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const set<ServiceObserverPrx>& observers)
+IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const set<ServiceObserverPrx>& observers) noexcept
 {
     if (services.size() > 0)
     {
-        for (const auto& observer : observers)
+        try
         {
-            observer->servicesStoppedAsync(services, nullptr, makeObserverCompletedCallback(observer));
+            for (const auto& observer : observers)
+            {
+                observer->servicesStoppedAsync(services, nullptr, makeObserverCompletedCallback(observer));
+            }
+        }
+        catch (const CommunicatorDestroyedException&)
+        {
+            // Expected during shutdown if the observer's communicator is destroyed.
         }
     }
 }
