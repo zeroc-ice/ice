@@ -32,7 +32,7 @@
   </Choose>
 
   <PropertyGroup>
-    <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
+    <_IceSliceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</_IceSliceToolsPath>
   </PropertyGroup>
 
   <!-- Common properties set for all builds, configurations and platforms. -->
