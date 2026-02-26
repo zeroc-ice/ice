@@ -41,11 +41,10 @@ jobs:
         run: |
           if [ "${QUALITY}" = "stable" ]; then
             UPLOAD_PATH="ice/${CHANNEL}"
-            aws s3 cp staging/icegridgui-macos-app/*.dmg "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/"
           else
             UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}"
-            aws s3 cp staging/icegridgui-macos-app/*.dmg "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/IceGridGUI-${QUALITY}.dmg"
           fi
+          aws s3 cp staging/icegridgui-macos-app/*.dmg "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
