@@ -60,8 +60,8 @@ def parse_args() -> argparse.Namespace:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  %(prog)s -s C:\\workspace\\ice --version 3.8.0 --source-base-url https://sources.zeroc.com/ice -o C:\\output\\symbols
-  %(prog)s -s C:\\workspace\\ice --version 3.8.0-nightly.20251210.2 --source-base-url https://sources.zeroc.com/ice -o symbols --verbose
+  %(prog)s -s C:\\workspace\\ice --version 3.8.1 --source-base-url https://sources.zeroc.com/ice -o C:\\output\\symbols
+  %(prog)s -s C:\\workspace\\ice --version 3.8.1-nightly.20251210.2 --source-base-url https://sources.zeroc.com/ice -o symbols --verbose
         """,
     )
     parser.add_argument(

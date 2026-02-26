@@ -80,6 +80,6 @@ To build the Ruby Gem package, run the following command from the `ruby` subdire
 rake
 ```
 
-This will create the `zeroc-ice-3.8.0.gem` file in the current directory.
+This will create the `zeroc-ice-3.8.1.gem` file in the current directory.
 
 [yard]: https://yardoc.org/

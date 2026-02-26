@@ -28,8 +28,8 @@ if sys.platform == "win32":
 project = "Ice"
 copyright = "ZeroC Inc."
 author = "ZeroC Inc."
-release = "3.8.0"
-html_title = "Ice 3.8.0"
+release = "3.8.1"
+html_title = "Ice 3.8.1"
 
 # =============================================================================
 # Sphinx Extensions

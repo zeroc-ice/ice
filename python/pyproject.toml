@@ -1,6 +1,6 @@
 [project]
 name = "zeroc-ice"
-version = "3.8.0"
+version = "3.8.1"
 description = "Ice is a comprehensive RPC framework with support for Python, C++, .NET, Java, JavaScript and more."
 authors = [{ name = "ZeroC, Inc.", email = "info@zeroc.com" }]
 requires-python = ">=3.12"

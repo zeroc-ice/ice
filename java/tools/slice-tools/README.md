@@ -29,7 +29,7 @@ Apply the plugin to your `build.gradle` (Groovy) or `build.gradle.kts` (Kotlin):
 
 ```groovy
 plugins {
-    id 'com.zeroc.slice-tools' version '3.8.0'
+    id 'com.zeroc.slice-tools' version '3.8.1'
 }
 ```
 
@@ -37,7 +37,7 @@ plugins {
 
 ```kotlin
 plugins {
-    id("com.zeroc.slice-tools") version "3.8.0"
+    id("com.zeroc.slice-tools") version "3.8.1"
 }
 ```
 
@@ -178,7 +178,7 @@ A minimal Java project with Slice support:
 ```groovy
 plugins {
     id 'java'
-    id 'com.zeroc.slice-tools' version '3.8.0'
+    id 'com.zeroc.slice-tools' version '3.8.1'
 }
 ```
 
