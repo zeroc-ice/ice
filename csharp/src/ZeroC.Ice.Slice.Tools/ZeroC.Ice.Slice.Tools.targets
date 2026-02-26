@@ -13,23 +13,23 @@
     <Choose>
         <When Condition="Exists('$(MSBuildThisFileDirectory)..\tasks\ZeroC.Ice.Slice.Tools.dll')">
             <PropertyGroup>
-                <SliceToolsAssembly>$(MSBuildThisFileDirectory)..\tasks\ZeroC.Ice.Slice.Tools.dll</SliceToolsAssembly>
+                <_IceSliceToolsAssembly>$(MSBuildThisFileDirectory)..\tasks\ZeroC.Ice.Slice.Tools.dll</_IceSliceToolsAssembly>
             </PropertyGroup>
         </When>
         <When Condition="Exists('$(MSBuildThisFileDirectory)bin\Any CPU\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.dll')">
             <PropertyGroup>
-                <SliceToolsAssembly>$(MSBuildThisFileDirectory)bin\Any CPU\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.dll</SliceToolsAssembly>
+                <_IceSliceToolsAssembly>$(MSBuildThisFileDirectory)bin\Any CPU\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.dll</_IceSliceToolsAssembly>
             </PropertyGroup>
         </When>
         <Otherwise>
             <!-- Fallback to bin directory without "Any CPU" subdirectory -->
             <PropertyGroup>
-                <SliceToolsAssembly>$(MSBuildThisFileDirectory)bin\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.dll</SliceToolsAssembly>
+                <_IceSliceToolsAssembly>$(MSBuildThisFileDirectory)bin\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.dll</_IceSliceToolsAssembly>
             </PropertyGroup>
         </Otherwise>
     </Choose>
 
-    <ItemGroup Condition="'$(SliceToolsSourceBuild)' == 'true'">
+    <ItemGroup Condition="'$(_IceSliceToolsSourceBuild)' == 'true'">
       <!-- Add a reference to the Tools project to ensure it's built before we use its tasks -->
       <ProjectReference Include="$(MSBuildThisFileDirectory)ZeroC.Ice.Slice.Tools.csproj" ReferenceOutputAssembly="false" />
     </ItemGroup>
@@ -37,12 +37,12 @@
     <!-- Import the MSBuild tasks required to compile Slice files using the slice2cs compiler. -->
     <UsingTask
         TaskName="ZeroC.Ice.Slice.Tools.Slice2CSharpTask"
-        TaskFactory="$(SliceToolsTaskFactory)"
-        AssemblyFile="$(SliceToolsAssembly)"/>
+        TaskFactory="$(_IceSliceToolsTaskFactory)"
+        AssemblyFile="$(_IceSliceToolsAssembly)"/>
     <UsingTask
         TaskName="ZeroC.Ice.Slice.Tools.Slice2CSharpDependTask"
-        TaskFactory="$(SliceToolsTaskFactory)"
-        AssemblyFile="$(SliceToolsAssembly)"/>
+        TaskFactory="$(_IceSliceToolsTaskFactory)"
+        AssemblyFile="$(_IceSliceToolsAssembly)"/>
 
     <PropertyGroup>
         <EnableDefaultSliceCompileItems Condition="'$(EnableDefaultSliceCompileItems)' == ''">true</EnableDefaultSliceCompileItems>
@@ -82,14 +82,14 @@
     <Target Name="SliceCompile" BeforeTargets="CoreCompile"
             Condition="@(SliceCompile) != ''">
 
-        <Error Text="IceToolsPath is set to a non-existing directory: `$(IceToolsPath)'. Did you forget to build the slice2cs compiler?"
-           Condition="!Exists('$(IceToolsPath)')" />
+        <Error Text="_IceSliceToolsPath is set to a non-existing directory: `$(_IceSliceToolsPath)'. Did you forget to build the slice2cs compiler?"
+           Condition="!Exists('$(_IceSliceToolsPath)')" />
 
         <MakeDir Directories="%(SliceCompile.OutputDir)"/>
 
-        <!-- Normalize IceToolsPath -->
+        <!-- Normalize _IceSliceToolsPath -->
         <PropertyGroup>
-            <_IceToolsPathNormalized>$([MSBuild]::NormalizePath('$(IceToolsPath)'))</_IceToolsPathNormalized>
+            <_IceSliceToolsPathNormalized>$([MSBuild]::NormalizePath('$(_IceSliceToolsPath)'))</_IceSliceToolsPathNormalized>
         </PropertyGroup>
 
         <!-- Normalize the paths in SliceCompile item metadata -->
@@ -102,7 +102,7 @@
         <!-- First we check dependencies and compute which Slice files need to be recompiled -->
         <Slice2CSharpDependTask
             WorkingDirectory      = "$(MSBuildProjectDirectory)"
-            IceToolsPath          = "$(_IceToolsPathNormalized)"
+            IceSliceToolsPath     = "$(_IceSliceToolsPathNormalized)"
             Sources               = "@(_SliceCompileNormalized)">
 
             <Output
@@ -117,7 +117,7 @@
         <!-- Compile the Slice files -->
         <Slice2CSharpTask
             WorkingDirectory      = "$(MSBuildProjectDirectory)"
-            IceToolsPath          = "$(_IceToolsPathNormalized)"
+            IceSliceToolsPath     = "$(_IceSliceToolsPathNormalized)"
             OutputDir             = "%(_SliceCompile.OutputDir)"
             IncludeDirectories    = "%(_SliceCompile.IncludeDirectories)"
             AdditionalOptions     = "%(_SliceCompile.AdditionalOptions)"
