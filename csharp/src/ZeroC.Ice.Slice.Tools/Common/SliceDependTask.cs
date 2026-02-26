@@ -16,7 +16,7 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
     public ITaskItem[] Sources { get; set; } = Array.Empty<ITaskItem>();
 
     [Required]
-    public string IceToolsPath { get; set; } = "";
+    public string IceSliceToolsPath { get; set; } = "";
 
     [Required]
     public string WorkingDirectory { get; set; } = "";
@@ -44,7 +44,7 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
     {
         var options = new Dictionary<string, string>
         {
-            ["IceToolsPath"] = IceToolsPath,
+            ["IceSliceToolsPath"] = IceSliceToolsPath,
             ["OutputDir"] = item.GetMetadata("OutputDir").TrimEnd('\\')
         };
 
@@ -90,7 +90,7 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
             //
             // Check if the Slice compiler is older than the source file
             //
-            var sliceCompiler = new FileInfo(Path.Combine(IceToolsPath, ToolName));
+            var sliceCompiler = new FileInfo(Path.Combine(IceSliceToolsPath, ToolName));
             FileInfo? generatedInfo = null;
             if (skip)
             {

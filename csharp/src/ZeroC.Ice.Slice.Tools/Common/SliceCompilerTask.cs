@@ -17,7 +17,7 @@ public abstract class SliceCompilerTask : ToolTask
     public string WorkingDirectory { get; set; } = "";
 
     [Required]
-    public string IceToolsPath { get; set; } = "";
+    public string IceSliceToolsPath { get; set; } = "";
 
     [Required]
     public string OutputDir { get; set; } = "";
@@ -45,7 +45,7 @@ public abstract class SliceCompilerTask : ToolTask
     {
         var options = new Dictionary<string, string>
         {
-            ["IceToolsPath"] = IceToolsPath,
+            ["IceSliceToolsPath"] = IceSliceToolsPath,
             ["OutputDir"] = OutputDir.TrimEnd('\\')
         };
 
@@ -160,7 +160,7 @@ public abstract class SliceCompilerTask : ToolTask
 
     protected override string GenerateFullPathToTool()
     {
-        string path = Path.Combine(IceToolsPath, ToolName);
+        string path = Path.Combine(IceSliceToolsPath, ToolName);
         if (!File.Exists(path))
         {
             Log.LogError(string.Format("Slice compiler `{0}' not found. Review Ice Home setting", path));
