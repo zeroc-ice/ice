@@ -87,7 +87,7 @@ namespace IceDB
         [[nodiscard]] MDB_env* menv() const;
 
     private:
-        MDB_env* _menv;
+        MDB_env* _menv{nullptr};
     };
 
     class Txn
