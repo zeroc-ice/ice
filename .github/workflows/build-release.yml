@@ -77,25 +77,25 @@ jobs:
             BUILD=${{ inputs.build_number }}
             # Set version variables for nightly packages according to platform conventions:
 
-            # e.g. 3.8.0-nightly.20250625.1
+            # e.g. 3.8.1-nightly.20250625.1
             echo "semver_version=${NIGHTLY_BASE_VERSION}-nightly.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
 
-            # e.g. 3.8.0~0.nightly20250625.1-1
+            # e.g. 3.8.1~0.nightly20250625.1-1
             echo "deb_version=${NIGHTLY_BASE_VERSION}~0.nightly${DATE}.${BUILD}-1" >> $GITHUB_OUTPUT
 
-            # e.g. 3.8.0.pre.20250625.1
+            # e.g. 3.8.1.pre.20250625.1
             echo "gem_version=${NIGHTLY_BASE_VERSION}.pre.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
 
-            # e.g. 3.8.0-nightly-20250625.1-SNAPSHOT
+            # e.g. 3.8.1-nightly-20250625.1-SNAPSHOT
             echo "maven_version=${NIGHTLY_BASE_VERSION}-nightly-${DATE}.${BUILD}-SNAPSHOT" >> $GITHUB_OUTPUT
 
-            # e.g. 3.8.0.dev202506251
+            # e.g. 3.8.1.dev202506251
             echo "pypi_version=${NIGHTLY_BASE_VERSION}.dev${DATE}${BUILD}" >> $GITHUB_OUTPUT
 
-            # e.g. 3.8.0~0.nightly20250625.1
+            # e.g. 3.8.1~0.nightly20250625.1
             echo "rpm_version=${NIGHTLY_BASE_VERSION}~0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
 
-            # e.g. 3.8.0.202506251
+            # e.g. 3.8.1.202506251
             echo "matlab_version=${NIGHTLY_BASE_VERSION}.${DATE}${BUILD}" >> $GITHUB_OUTPUT
           else
             # Define version variables as empty for stable channels to use the version from the repository

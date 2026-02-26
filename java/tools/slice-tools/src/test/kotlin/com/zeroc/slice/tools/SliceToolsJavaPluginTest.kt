@@ -13,13 +13,13 @@ class SliceToolsJavaPluginTest {
     @Test fun `plugin registers task`() {
         // Create a test project and apply the plugin
         val project = ProjectBuilder.builder().build()
-        project.extensions.extraProperties.set("sliceToolsVersion", "3.8.0")
+        project.extensions.extraProperties.set("sliceToolsVersion", "3.8.1")
         project.plugins.apply("java")
         project.plugins.apply("com.zeroc.slice-tools")
 
         // Set toolsPath in the plugin extension
         val extension = project.extensions.getByType(SliceExtension::class.java)
-        extension.toolsPath.set("/opt/Ice-3.8.0/bin")
+        extension.toolsPath.set("/opt/Ice-3.8.1/bin")
 
         // Verify the result
         assertNotNull(project.tasks.findByName("compileSlice"))

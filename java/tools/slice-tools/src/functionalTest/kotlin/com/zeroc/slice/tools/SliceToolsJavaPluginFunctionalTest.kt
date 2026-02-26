@@ -22,7 +22,7 @@ class SliceToolsJavaPluginFunctionalTest {
     @Test fun `can run task`() {
         // Set up the test build
         settingsFile.writeText("")
-        propsFile.writeText("sliceToolsVersion=3.8.0")
+        propsFile.writeText("sliceToolsVersion=3.8.1")
         buildFile.writeText(
             """
             plugins {
@@ -31,7 +31,7 @@ class SliceToolsJavaPluginFunctionalTest {
             }
 
             slice {
-                toolsPath = "/opt/Ice-3.8.0/bin"
+                toolsPath = "/opt/Ice-3.8.1/bin"
             }
             """.trimIndent(),
         )

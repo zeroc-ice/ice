@@ -5,8 +5,8 @@
 
 #include "winver.h"
 
-#define ICE_VERSION 3, 8, 0, 0
-#define ICE_STRING_VERSION "3.8.0\0"
+#define ICE_VERSION 3, 8, 1, 0
+#define ICE_STRING_VERSION "3.8.1\0"
 #define ICE_SO_VERSION "38\0"
 #define ICE_COMPANY_NAME "ZeroC, Inc.\0"
 #define ICE_COPYRIGHT "\251 ZeroC, Inc.\0"
