@@ -97,7 +97,7 @@ These are the changes since the Ice 3.8.0 release.
 - Fixed duplicate error handling in the IceBT stream socket read path. (https://github.com/zeroc-ice/ice/issues/5074)
 
 - Added Slice dependency tracking to the CMake `slice2cpp_generate` function, so changes to included `.ice` files
-  automatically trigger recompilation. (https://github.com/zeroc-ice/ice/issues/3642)
+  automatically trigger recompilation. (https://github.com/zeroc-ice/ice/pull/5065)
 
 - Fixed `icegriddb` and `icestormdb` import failures caused by using `vector::reserve` instead of `vector::resize`,
   and a crash when passing an empty `--mapsize` argument. (https://github.com/zeroc-ice/ice/pull/5137)
@@ -126,7 +126,7 @@ These are the changes since the Ice 3.8.0 release.
 - Added address information to socket exceptions for better error diagnostics. (https://github.com/zeroc-ice/ice/pull/4997)
 
 - Improved string encoding and decoding performance by using the `TextEncoder` and `TextDecoder` APIs.
-  (https://github.com/zeroc-ice/ice/pull/5021, https://github.com/zeroc-ice/ice/pull/5069)
+  (https://github.com/zeroc-ice/ice/issues/5008, https://github.com/zeroc-ice/ice/pull/5069)
 
 - Fixed WebSocket URL construction to properly bracket IPv6 addresses and use port 443 as the default for `wss`
   connections. (https://github.com/zeroc-ice/ice/issues/5083, https://github.com/zeroc-ice/ice/issues/5084)
@@ -159,7 +159,7 @@ These are the changes since the Ice 3.8.0 release.
   configuration when including Ice Slice definitions. (https://github.com/zeroc-ice/ice/pull/4999)
 
 - SwiftPM now uses a prebuilt `slice2swift` artifact bundle, reducing build times and removing the MCPP dependency from
-  the Ice for Swift SPM package.
+  the Ice for Swift SPM package. (https://github.com/zeroc-ice/ice/pull/5007)
 
 - Fixed a crash in `ICELocalObject` dealloc caused by recursive deallocation via ARC weak reference reads.
   (https://github.com/zeroc-ice/ice/issues/4143)
@@ -178,8 +178,8 @@ These are the changes since the Ice 3.8.0 release.
 
 #### IceDiscovery
 
-- Fixed IceDiscovery silently keeping a stale adapter proxy when an adapter ID is re-registered, for example after a
-  server crash or a network failure during shutdown. (https://github.com/zeroc-ice/ice/pull/5170)
+- Fixed the C++ IceDiscovery implementation silently keeping a stale adapter proxy when an adapter ID is re-registered,
+  for example after a server crash or a network failure during shutdown. (https://github.com/zeroc-ice/ice/pull/5170)
 
 ### Packaging Changes
 
