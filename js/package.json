@@ -23,7 +23,7 @@
         "gulp-typescript": "^5.0.1",
         "http-server": "^14.1.1",
         "prettier": "^3.7.0",
-        "rollup": "^4.34.0",
+        "rollup": "^4.59.0",
         "test_nested_modules": "file:packages/test/Ice/moduleAggregation/module",
         "ts-loader": "^9.5.4",
         "tslib": "^2.8.1",
