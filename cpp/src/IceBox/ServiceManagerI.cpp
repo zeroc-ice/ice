@@ -3,10 +3,8 @@
 #include "ServiceManagerI.h"
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/DynamicLibrary.h"
-#include "../Ice/Instance.h"
 #include "../Ice/Options.h"
 #include "Ice/Ice.h"
-#include "Ice/Initialize.h"
 #include "Ice/StringUtil.h"
 
 using namespace Ice;
@@ -815,25 +813,45 @@ IceBox::ServiceManagerI::makeObserverCompletedCallback(ServiceObserverPrx observ
     };
 }
 void
-IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const set<ServiceObserverPrx>& observers)
+IceBox::ServiceManagerI::servicesStarted(
+    const vector<string>& services,
+    const set<ServiceObserverPrx>& observers) noexcept
 {
     if (services.size() > 0)
     {
         for (const auto& observer : observers)
         {
-            observer->servicesStartedAsync(services, nullptr, makeObserverCompletedCallback(observer));
+            try
+            {
+                observer->servicesStartedAsync(services, nullptr, makeObserverCompletedCallback(observer));
+            }
+            catch (const CommunicatorDestroyedException&)
+            {
+                // Expected during shutdown if the observer's communicator is destroyed.
+                break;
+            }
         }
     }
 }
 
 void
-IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const set<ServiceObserverPrx>& observers)
+IceBox::ServiceManagerI::servicesStopped(
+    const vector<string>& services,
+    const set<ServiceObserverPrx>& observers) noexcept
 {
     if (services.size() > 0)
     {
         for (const auto& observer : observers)
         {
-            observer->servicesStoppedAsync(services, nullptr, makeObserverCompletedCallback(observer));
+            try
+            {
+                observer->servicesStoppedAsync(services, nullptr, makeObserverCompletedCallback(observer));
+            }
+            catch (const CommunicatorDestroyedException&)
+            {
+                // Expected during shutdown if the observer's communicator is destroyed.
+                break;
+            }
         }
     }
 }

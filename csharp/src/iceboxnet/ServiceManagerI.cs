@@ -746,10 +746,6 @@ internal class ServiceManagerI : ServiceManagerDisp_, IDisposable
 
     private void servicesStarted(List<string> services, Dictionary<ServiceObserverPrx, bool>.KeyCollection observers)
     {
-        //
-        // Must be called with 'this' unlocked
-        //
-
         if (services.Count > 0)
         {
             string[] servicesArray = services.ToArray();
@@ -775,10 +771,6 @@ internal class ServiceManagerI : ServiceManagerDisp_, IDisposable
 
     private void servicesStopped(List<string> services, Dictionary<ServiceObserverPrx, bool>.KeyCollection observers)
     {
-        //
-        // Must be called with 'this' unlocked
-        //
-
         if (services.Count > 0)
         {
             string[] servicesArray = services.ToArray();

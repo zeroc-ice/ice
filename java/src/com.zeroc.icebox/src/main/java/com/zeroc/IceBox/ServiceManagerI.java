@@ -206,12 +206,16 @@ final class ServiceManagerI implements ServiceManager {
         }
 
         if (!activeServices.isEmpty()) {
-            observer.servicesStartedAsync(activeServices.toArray(new String[0]))
-                .exceptionally(
-                    ex -> {
-                        observerFailed(observer, ex);
-                        return null;
-                    });
+            try {
+                observer.servicesStartedAsync(activeServices.toArray(new String[0]))
+                    .exceptionally(
+                        ex -> {
+                            observerFailed(observer, ex);
+                            return null;
+                        });
+            } catch (CommunicatorDestroyedException ex) {
+                observerFailed(observer, ex);
+            }
         }
     }
 
@@ -601,12 +605,16 @@ final class ServiceManagerI implements ServiceManager {
             String[] servicesArray = services.toArray(new String[0]);
 
             for (final ServiceObserverPrx observer : observers) {
-                observer.servicesStartedAsync(servicesArray)
-                    .exceptionally(
-                        ex -> {
-                            observerFailed(observer, ex);
-                            return null;
-                        });
+                try {
+                    observer.servicesStartedAsync(servicesArray)
+                        .exceptionally(
+                            ex -> {
+                                observerFailed(observer, ex);
+                                return null;
+                            });
+                } catch (CommunicatorDestroyedException ex) {
+                    observerFailed(observer, ex);
+                }
             }
         }
     }
@@ -616,12 +624,16 @@ final class ServiceManagerI implements ServiceManager {
             String[] servicesArray = services.toArray(new String[0]);
 
             for (final ServiceObserverPrx observer : observers) {
-                observer.servicesStoppedAsync(servicesArray)
-                    .exceptionally(
-                        ex -> {
-                            observerFailed(observer, ex);
-                            return null;
-                        });
+                try {
+                    observer.servicesStoppedAsync(servicesArray)
+                        .exceptionally(
+                            ex -> {
+                                observerFailed(observer, ex);
+                                return null;
+                            });
+                } catch (CommunicatorDestroyedException ex) {
+                    observerFailed(observer, ex);
+                }
             }
         }
     }
