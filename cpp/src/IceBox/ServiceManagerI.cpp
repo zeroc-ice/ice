@@ -828,6 +828,7 @@ IceBox::ServiceManagerI::servicesStarted(
             catch (const CommunicatorDestroyedException&)
             {
                 // Expected during shutdown if the observer's communicator is destroyed.
+                break;
             }
         }
     }
@@ -849,6 +850,7 @@ IceBox::ServiceManagerI::servicesStopped(
             catch (const CommunicatorDestroyedException&)
             {
                 // Expected during shutdown if the observer's communicator is destroyed.
+                break;
             }
         }
     }
