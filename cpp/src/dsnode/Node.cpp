@@ -13,8 +13,8 @@ usage(const string& n)
 {
     consoleErr << "Usage: " << n << " [options]\n";
     consoleErr << "Options:\n"
-            "-h, --help               Show this message.\n"
-            "-v, --version            Display the DataStorm version.\n";
+                  "-h, --help               Show this message.\n"
+                  "-v, --version            Display the DataStorm version.\n";
 }
 
 int
