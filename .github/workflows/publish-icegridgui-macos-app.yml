@@ -39,7 +39,11 @@ jobs:
 
       - name: Publish IceGridGUI macOS App
         run: |
-          UPLOAD_PATH="ice/${CHANNEL}"
+          if [ "${QUALITY}" = "stable" ]; then
+            UPLOAD_PATH="ice/${CHANNEL}"
+          else
+            UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}"
+          fi
           aws s3 cp staging/icegridgui-macos-app/*.dmg "s3://${S3_DOWNLOADS_BUCKET}/${UPLOAD_PATH}/"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
