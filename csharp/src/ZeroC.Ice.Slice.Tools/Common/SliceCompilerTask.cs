@@ -17,7 +17,7 @@ public abstract class SliceCompilerTask : ToolTask
     public string WorkingDirectory { get; set; } = "";
 
     [Required]
-    public string IceToolsPath { get; set; } = "";
+    public string IceSliceToolsPath { get; set; } = "";
 
     [Required]
     public string OutputDir { get; set; } = "";
@@ -41,11 +41,20 @@ public abstract class SliceCompilerTask : ToolTask
 
     protected abstract string GeneratedExtensions { get; }
 
+    /// <summary>
+    /// Gets the compilation options for a source item. The options correspond to the public task properties that
+    /// affect the compilation command. They are persisted in the generated dependency file (<c>.d</c>) by
+    /// <see cref="ExecuteTool"/>. On subsequent builds, <see cref="SliceDependTask.GetOptions"/> computes the
+    /// current options and compares them with the persisted values to determine whether recompilation is needed.
+    /// Both methods must return the same set of keys for the comparison to work correctly.
+    /// </summary>
+    /// <param name="item">The source item for which to get the options.</param>
+    /// <returns>A dictionary of option names to values for the source item.</returns>
     protected virtual Dictionary<string, string> GetOptions(ITaskItem item)
     {
         var options = new Dictionary<string, string>
         {
-            ["IceToolsPath"] = IceToolsPath,
+            ["IceSliceToolsPath"] = IceSliceToolsPath,
             ["OutputDir"] = OutputDir.TrimEnd('\\')
         };
 
@@ -160,7 +169,7 @@ public abstract class SliceCompilerTask : ToolTask
 
     protected override string GenerateFullPathToTool()
     {
-        string path = Path.Combine(IceToolsPath, ToolName);
+        string path = Path.Combine(IceSliceToolsPath, ToolName);
         if (!File.Exists(path))
         {
             Log.LogError(string.Format("Slice compiler `{0}' not found. Review Ice Home setting", path));

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (c) 2009-2018 ZeroC, Inc. All rights reserved. -->
+<!-- Copyright (c) ZeroC, Inc. -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <!--
@@ -13,18 +13,18 @@
     <Choose>
         <When Condition="Exists('$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll')">
             <PropertyGroup>
-                <SliceToolsAssembly>$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll</SliceToolsAssembly>
+                <_IceSliceToolsAssembly>$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll</_IceSliceToolsAssembly>
             </PropertyGroup>
         </When>
         <When Condition="Exists('$(MSBuildThisFileDirectory)bin\Any CPU\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll')">
             <PropertyGroup>
-                <SliceToolsAssembly>$(MSBuildThisFileDirectory)bin\Any CPU\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll</SliceToolsAssembly>
+                <_IceSliceToolsAssembly>$(MSBuildThisFileDirectory)bin\Any CPU\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll</_IceSliceToolsAssembly>
             </PropertyGroup>
         </When>
         <Otherwise>
             <!-- Fallback to bin directory without "Any CPU" subdirectory -->
             <PropertyGroup>
-                <SliceToolsAssembly>$(MSBuildThisFileDirectory)bin\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll</SliceToolsAssembly>
+                <_IceSliceToolsAssembly>$(MSBuildThisFileDirectory)bin\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll</_IceSliceToolsAssembly>
             </PropertyGroup>
         </Otherwise>
     </Choose>
@@ -32,12 +32,12 @@
     <!-- Import the MSBuild tasks required to compile Slice files using the slice2cpp compiler. -->
     <UsingTask
         TaskName="ZeroC.Ice.Slice.Tools.Cpp.Slice2CppTask"
-        TaskFactory="$(SliceToolsTaskFactory)"
-        AssemblyFile="$(SliceToolsAssembly)"/>
+        TaskFactory="$(_IceSliceToolsTaskFactory)"
+        AssemblyFile="$(_IceSliceToolsAssembly)"/>
     <UsingTask
         TaskName="ZeroC.Ice.Slice.Tools.Cpp.Slice2CppDependTask"
-        TaskFactory="$(SliceToolsTaskFactory)"
-        AssemblyFile="$(SliceToolsAssembly)"/>
+        TaskFactory="$(_IceSliceToolsTaskFactory)"
+        AssemblyFile="$(_IceSliceToolsAssembly)"/>
 
     <PropertyGroup>
         <EnableDefaultSliceCompileItems Condition="'$(EnableDefaultSliceCompileItems)' == ''">true</EnableDefaultSliceCompileItems>
@@ -62,8 +62,8 @@
     <Target Name="SliceCompile" BeforeTargets="CLCompile"
             Condition="@(SliceCompile) != ''">
 
-        <Error Text="IceToolsPath is set to a non-existing directory: `$(IceToolsPath)'. Did you forget to build the slice2cpp compiler?"
-           Condition="!Exists('$(IceToolsPath)')" />
+        <Error Text="_IceSliceToolsPath is set to a non-existing directory: `$(_IceSliceToolsPath)'. Did you forget to build the slice2cpp compiler?"
+           Condition="!Exists('$(_IceSliceToolsPath)')" />
 
         <!--
             Create the output directories
@@ -73,7 +73,7 @@
 
         <!-- First we check dependencies to compute which Slice files need to be recompiled -->
         <Slice2CppDependTask
-            IceToolsPath                      = "$(IceToolsPath)"
+            IceSliceToolsPath                 = "$(_IceSliceToolsPath)"
             WorkingDirectory                  = "$(MSBuildProjectDirectory)"
             Sources                           = "@(SliceCompile)">
 
@@ -89,7 +89,7 @@
 
         <!-- Compile the Slice files -->
         <Slice2CppTask
-            IceToolsPath                      = "$(IceToolsPath)"
+            IceSliceToolsPath                 = "$(_IceSliceToolsPath)"
             WorkingDirectory                  = "$(MSBuildProjectDirectory)"
             OutputDir                         = "%(_SliceCompile.OutputDir)"
             HeaderOutputDir                   = "%(_SliceCompile.HeaderOutputDir)"

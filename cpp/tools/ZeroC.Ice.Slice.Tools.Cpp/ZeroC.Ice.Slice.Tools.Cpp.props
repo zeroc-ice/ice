@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (c) 2009-2018 ZeroC, Inc. All rights reserved. -->
+<!-- Copyright (c) ZeroC, Inc. -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <!-- default values -->
     <Choose>
         <When Condition="Exists('$(MSBuildThisFileDirectory)..\tools\slice2cpp.exe')">
             <!-- Use the Slice compiler from this NuGet package -->
             <PropertyGroup>
-                <IceToolsPath>$(MSBuildThisFileDirectory)..\tools\</IceToolsPath>
+                <_IceSliceToolsPath>$(MSBuildThisFileDirectory)..\tools\</_IceSliceToolsPath>
 
                 <!-- AssemblyTaskFactory is the default value when no TaskFactory is specified -->
-                <SliceToolsTaskFactory>AssemblyTaskFactory</SliceToolsTaskFactory>
+                <_IceSliceToolsTaskFactory>AssemblyTaskFactory</_IceSliceToolsTaskFactory>
             </PropertyGroup>
         </When>
         <Otherwise>
-            <PropertyGroup >
+            <PropertyGroup>
                 <!-- Use the Slice compiler from this Source distribution -->
-                <IceToolsPath>$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\$(Configuration)</IceToolsPath>
+                <_IceSliceToolsPath>$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\$(Configuration)</_IceSliceToolsPath>
 
                 <!-- Force task to run out of process to avoid issues with files in use -->
-                <SliceToolsTaskFactory>TaskHostFactory</SliceToolsTaskFactory>
+                <_IceSliceToolsTaskFactory>TaskHostFactory</_IceSliceToolsTaskFactory>
             </PropertyGroup>
         </Otherwise>
     </Choose>

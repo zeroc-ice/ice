@@ -18,10 +18,10 @@
       <PackageTags>ice;rpc;msbuild;slice</PackageTags>
 
       <!-- Internal properties used to compute the slice2cs compiler location for the current platform. -->
-      <IceOSName Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</IceOSName>
-      <IceOSName Condition="$([MSBuild]::IsOSPlatform('Windows'))">windows</IceOSName>
-      <IceOSName Condition="$([MSBuild]::IsOSPlatform('OSX'))">macos</IceOSName>
-      <IceOSArch>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLower())</IceOSArch>
+      <_IceOSName Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</_IceOSName>
+      <_IceOSName Condition="$([MSBuild]::IsOSPlatform('Windows'))">windows</_IceOSName>
+      <_IceOSName Condition="$([MSBuild]::IsOSPlatform('OSX'))">macos</_IceOSName>
+      <_IceOSArch>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLower())</_IceOSArch>
     </PropertyGroup>
 
     <ItemGroup>
@@ -63,12 +63,12 @@
             </Content>
         </ItemGroup>
       </When>
-      <When Condition="'$(IceOSName)' == 'windows'">
+      <When Condition="'$(_IceOSName)' == 'windows'">
         <!-- Use the compilers from this source build. -->
         <ItemGroup>
           <Content Include="$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\$(Configuration)\slice2cs.exe">
             <Pack>true</Pack>
-            <PackagePath>tools\$(IceOSName)-$(IceOSArch)</PackagePath>
+            <PackagePath>tools\$(_IceOSName)-$(_IceOSArch)</PackagePath>
           </Content>
         </ItemGroup>
       </When>
@@ -77,7 +77,7 @@
           <!-- Use the compilers from this source build. -->
           <Content Include="$(MSBuildThisFileDirectory)..\..\..\cpp\bin\slice2cs">
             <Pack>true</Pack>
-            <PackagePath>tools\$(IceOSName)-$(IceOSArch)</PackagePath>
+            <PackagePath>tools\$(_IceOSName)-$(_IceOSArch)</PackagePath>
           </Content>
         </ItemGroup>
       </Otherwise>
