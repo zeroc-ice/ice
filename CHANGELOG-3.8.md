@@ -59,23 +59,22 @@ These are the changes since the Ice 3.8.0 release.
 
 ### IceSSL Changes
 
-- Fixed the TrustManager in C++, C#, and Java to reject connections when a certificate's subject DN cannot be parsed, instead
-  of silently accepting them. (https://github.com/zeroc-ice/ice/pull/5146,
-  https://github.com/zeroc-ice/ice/pull/5117)
+- Fixed the TrustManager in C# and Java to properly handle the rare situation where Ice's RFC 2253 parser cannot parse a
+  certificate's subject DN string produced by the platform's SSL stack. Previously, a parse failure could bypass
+  `IceSSL.TrustOnly` reject rules. (https://github.com/zeroc-ice/ice/pull/5117)
 
 - Fixed a dangling pointer in Schannel hostname verification where a temporary string was destroyed before
   `CertVerifyCertificateChainPolicy` read from it, potentially causing incorrect hostname validation or crashes on
   Windows. (https://github.com/zeroc-ice/ice/pull/5100)
 
-- Added missing null and return value checks in the OpenSSL backend to prevent null dereferences and misleading
-  handshake failure messages from stale OpenSSL errors. (https://github.com/zeroc-ice/ice/pull/5106)
+- Fixed misleading OpenSSL handshake error messages caused by stale errors in the OpenSSL error queue.
+  (https://github.com/zeroc-ice/ice/pull/5106)
 
 - SSL passwords are now cleared from memory after engine initialization instead of persisting for the engine's entire
   lifetime. (https://github.com/zeroc-ice/ice/pull/5108)
 
-- Fixed the Java SSL engine overwriting all `SSLParameters` (including cipher suites and protocols) with defaults when
-  setting SNI parameters, effectively resetting any previously configured restrictions.
-  (https://github.com/zeroc-ice/ice/pull/5116)
+- Fixed the Java SSL engine creating a new default `SSLParameters` object instead of preserving the existing engine
+  parameters when enabling `IceSSL.CheckCertName` hostname verification. (https://github.com/zeroc-ice/ice/pull/5116)
 
 - Added `IceSSL.VerifyPeer` range validation (0-2) in C# and Java, matching the existing C++ behavior.
   (https://github.com/zeroc-ice/ice/pull/5119)
@@ -179,8 +178,8 @@ These are the changes since the Ice 3.8.0 release.
 
 #### IceDiscovery
 
-- Fixed IceDiscovery silently keeping a stale adapter proxy when an adapter ID is re-registered (e.g., after a server
-  restart with new endpoints). (https://github.com/zeroc-ice/ice/pull/5170)
+- Fixed IceDiscovery silently keeping a stale adapter proxy when an adapter ID is re-registered, for example after a
+  server crash or a network failure during shutdown. (https://github.com/zeroc-ice/ice/pull/5170)
 
 ### Packaging Changes
 
