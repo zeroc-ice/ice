@@ -7,24 +7,27 @@ might need to be aware of.
 
 - [Changes in Ice 3.8.1](#changes-in-ice-381)
   - [General Changes](#general-changes)
+  - [IceSSL Changes](#icessl-changes)
   - [C++ Changes](#c-changes)
-  - [C# Changes](#c-changes-1)
   - [JavaScript Changes](#javascript-changes)
   - [Python Changes](#python-changes)
   - [Swift Changes](#swift-changes)
+  - [Ice Service Changes](#ice-service-changes)
+    - [Glacier2](#glacier2)
+    - [IceDiscovery](#icediscovery)
   - [Packaging Changes](#packaging-changes)
 - [Changes in Ice 3.8.0](#changes-in-ice-380)
   - [General Changes](#general-changes-1)
   - [Packaging Changes](#packaging-changes-1)
   - [Slice Language Changes](#slice-language-changes)
-  - [IceSSL Changes](#icessl-changes)
+  - [IceSSL Changes](#icessl-changes-1)
     - [Integration with Platform SSL Engines](#integration-with-platform-ssl-engines)
     - [Removed Support for OpenSSL on Windows](#removed-support-for-openssl-on-windows)
     - [Removed IceSSL APIs](#removed-icessl-apis)
     - [Updated IceSSL Properties](#updated-icessl-properties)
     - [Removed IceSSL Properties](#removed-icessl-properties)
-  - [C++ Changes](#c-changes-2)
-  - [C# Changes](#c-changes-3)
+  - [C++ Changes](#c-changes-1)
+  - [C# Changes](#c-changes-2)
   - [Java Changes](#java-changes)
   - [JavaScript Changes](#javascript-changes-1)
   - [MATLAB Changes](#matlab-changes)
@@ -33,9 +36,9 @@ might need to be aware of.
   - [Python Changes](#python-changes-1)
   - [Ruby Changes](#ruby-changes)
   - [Swift Changes](#swift-changes-1)
-  - [Ice Service Changes](#ice-service-changes)
+  - [Ice Service Changes](#ice-service-changes-1)
     - [DataStorm](#datastorm)
-    - [Glacier2](#glacier2)
+    - [Glacier2](#glacier2-1)
     - [IceBox](#icebox)
     - [IceGrid](#icegrid)
     - [IcePatch2](#icepatch2)
@@ -53,6 +56,25 @@ These are the changes since the Ice 3.8.0 release.
 
 - The IceBox client library is now available in Swift, MATLAB, and JavaScript, matching the functionality already
   available in C++, C#, Java, and Python. (https://github.com/zeroc-ice/ice/pull/5030)
+
+### IceSSL Changes
+
+- Fixed the TrustManager in C# and Java to properly handle the rare situation where Ice's RFC 2253 parser cannot parse a
+  certificate's subject DN string produced by the platform's SSL stack. Previously, a parse failure could bypass
+  `IceSSL.TrustOnly` reject rules. (https://github.com/zeroc-ice/ice/pull/5117)
+
+- Fixed a dangling pointer in Schannel hostname verification where a temporary string was destroyed before
+  `CertVerifyCertificateChainPolicy` read from it, potentially causing incorrect hostname validation or crashes on
+  Windows. (https://github.com/zeroc-ice/ice/pull/5100)
+
+- Fixed misleading OpenSSL handshake error messages caused by stale errors in the OpenSSL error queue.
+  (https://github.com/zeroc-ice/ice/pull/5106)
+
+- SSL passwords are now cleared from memory after engine initialization instead of persisting for the engine's entire
+  lifetime. (https://github.com/zeroc-ice/ice/pull/5108)
+
+- Fixed the Java SSL engine creating a new default `SSLParameters` object instead of preserving the existing engine
+  parameters when enabling `IceSSL.CheckCertName` hostname verification. (https://github.com/zeroc-ice/ice/pull/5116)
 
 ### C++ Changes
 
@@ -72,11 +94,10 @@ These are the changes since the Ice 3.8.0 release.
 - Fixed duplicate error handling in the IceBT stream socket read path. (https://github.com/zeroc-ice/ice/issues/5074)
 
 - Added Slice dependency tracking to the CMake `slice2cpp_generate` function, so changes to included `.ice` files
-  automatically trigger recompilation. (https://github.com/zeroc-ice/ice/issues/3642)
+  automatically trigger recompilation. (https://github.com/zeroc-ice/ice/pull/5065)
 
-### C# Changes
-
-- Enabled deterministic builds for C# assemblies.
+- Fixed `icegriddb` and `icestormdb` import failures caused by using `vector::reserve` instead of `vector::resize`,
+  and a crash when passing an empty `--mapsize` argument. (https://github.com/zeroc-ice/ice/pull/5137)
 
 ### JavaScript Changes
 
@@ -101,8 +122,8 @@ These are the changes since the Ice 3.8.0 release.
 
 - Added address information to socket exceptions for better error diagnostics. (https://github.com/zeroc-ice/ice/pull/4997)
 
-- Improved string encoding and decoding performance by using the `TextEncoder.encodeInto()` and `TextDecoder` APIs.
-  (https://github.com/zeroc-ice/ice/pull/5021, https://github.com/zeroc-ice/ice/pull/5069)
+- Improved string encoding and decoding performance by using the `TextEncoder` and `TextDecoder` APIs.
+  (https://github.com/zeroc-ice/ice/issues/5008, https://github.com/zeroc-ice/ice/pull/5069)
 
 - Fixed WebSocket URL construction to properly bracket IPv6 addresses and use port 443 as the default for `wss`
   connections. (https://github.com/zeroc-ice/ice/issues/5083, https://github.com/zeroc-ice/ice/issues/5084)
@@ -112,9 +133,6 @@ These are the changes since the Ice 3.8.0 release.
 
 - Fixed `getPropertyAsList` returning an incorrect default value and `Properties.parse` crashing on empty content.
   (https://github.com/zeroc-ice/ice/issues/5079, https://github.com/zeroc-ice/ice/issues/5082)
-
-- Fixed exception handling in `createEmptyOutgoingResponse` and `createOutgoingResponseWithException`.
-  (https://github.com/zeroc-ice/ice/issues/5080, https://github.com/zeroc-ice/ice/issues/5081)
 
 - Fixed exception chaining to use `{ cause: ex }` consistently across the runtime.
   (https://github.com/zeroc-ice/ice/issues/5085)
@@ -138,10 +156,27 @@ These are the changes since the Ice 3.8.0 release.
   configuration when including Ice Slice definitions. (https://github.com/zeroc-ice/ice/pull/4999)
 
 - SwiftPM now uses a prebuilt `slice2swift` artifact bundle, reducing build times and removing the MCPP dependency from
-  the Ice for Swift SPM package.
+  the Ice for Swift SPM package. (https://github.com/zeroc-ice/ice/pull/5007)
 
-- Fixed a crash in `ICELocalObject` dealloc caused by recursive deallocation via ARC weak reference reads.
+- Fixed a rare crash in `ICELocalObject` dealloc caused by recursive deallocation via ARC weak reference reads.
   (https://github.com/zeroc-ice/ice/issues/4143)
+
+### Ice Service Changes
+
+#### Glacier2
+
+- Fixed `FilterManager` adapter ID filter being polluted with category filter entries when both
+  `Glacier2.Filter.Category.Accept` and `Glacier2.Filter.AdapterId.Accept` were configured.
+  (https://github.com/zeroc-ice/ice/pull/5152)
+
+- Fixed `MatchesString::match` in the proxy address verifier ignoring the `pos` parameter, which could cause incorrect
+  proxy filtering behavior with address filters containing numeric ranges.
+  (https://github.com/zeroc-ice/ice/pull/5154)
+
+#### IceDiscovery
+
+- Fixed the C++ IceDiscovery implementation silently keeping a stale adapter proxy when an adapter ID is re-registered,
+  for example after a server crash or a network failure during shutdown. (https://github.com/zeroc-ice/ice/pull/5170)
 
 ### Packaging Changes
 
@@ -153,6 +188,8 @@ These are the changes since the Ice 3.8.0 release.
 - Added IceBT library to RPM distributions. (https://github.com/zeroc-ice/ice/issues/4749)
 
 - Added symbols server support for Windows releases.
+
+- NuGet packages now use service-specific icons. (https://github.com/zeroc-ice/ice/pull/5053)
 
 ## Changes in Ice 3.8.0
 
