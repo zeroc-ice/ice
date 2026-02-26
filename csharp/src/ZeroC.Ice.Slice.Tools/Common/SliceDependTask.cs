@@ -40,6 +40,14 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
             outputDir,
             Path.GetFileName(Path.ChangeExtension(item.GetMetadata("Identity"), ext)));
 
+    /// <summary>
+    /// Gets the current compilation options for a source item. The returned options are compared with the values
+    /// previously persisted in the dependency file (<c>.d</c>) by <see cref="SliceCompilerTask.GetOptions"/> to
+    /// determine whether the source item needs to be recompiled. Both methods must return the same set of keys for
+    /// the comparison to work correctly.
+    /// </summary>
+    /// <param name="item">The source item for which to get the options.</param>
+    /// <returns>A dictionary of option names to values for the source item.</returns>
     public virtual Dictionary<string, string> GetOptions(ITaskItem item)
     {
         var options = new Dictionary<string, string>
