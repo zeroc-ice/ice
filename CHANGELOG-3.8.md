@@ -76,9 +76,6 @@ These are the changes since the Ice 3.8.0 release.
 - Fixed the Java SSL engine creating a new default `SSLParameters` object instead of preserving the existing engine
   parameters when enabling `IceSSL.CheckCertName` hostname verification. (https://github.com/zeroc-ice/ice/pull/5116)
 
-- Added `IceSSL.VerifyPeer` range validation (0-2) in C# and Java, matching the existing C++ behavior.
-  (https://github.com/zeroc-ice/ice/pull/5119)
-
 ### C++ Changes
 
 - Fixed build failures with Clang in C++23 and C++26 modes. (https://github.com/zeroc-ice/ice/pull/4811)
@@ -161,7 +158,7 @@ These are the changes since the Ice 3.8.0 release.
 - SwiftPM now uses a prebuilt `slice2swift` artifact bundle, reducing build times and removing the MCPP dependency from
   the Ice for Swift SPM package. (https://github.com/zeroc-ice/ice/pull/5007)
 
-- Fixed a crash in `ICELocalObject` dealloc caused by recursive deallocation via ARC weak reference reads.
+- Fixed a rare crash in `ICELocalObject` dealloc caused by recursive deallocation via ARC weak reference reads.
   (https://github.com/zeroc-ice/ice/issues/4143)
 
 ### Ice Service Changes
