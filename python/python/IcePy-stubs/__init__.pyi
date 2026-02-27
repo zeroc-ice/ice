@@ -7,7 +7,8 @@
 # 1. Sphinx uses the doc comments from the IcePy native module directly.
 # 2. IcePy stubs (this file) are used by pyright and IDEs for type checking and code completion.
 #
-# It would be nice if this file could be generated automatically from the C++ files using `stubgen`,
+# It would be nice if this file could be generated automatically from the C++ files using `stubgen`:
+# `stubgen -m IcePy --include-docstrings --include-private -o IcePy-stubs`
 # but for now we maintain it manually since the generated stubs are incomplete for use with pyright.
 
 from collections.abc import Awaitable, Callable
@@ -341,7 +342,7 @@ class Endpoint:
 
         Returns
         -------
-        Ice.EndpointInfo
+        EndpointInfo
             This endpoint's information class.
         """
         ...

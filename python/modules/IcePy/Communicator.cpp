@@ -1392,7 +1392,7 @@ static PyMethodDef CommunicatorMethods[] = {
     {"shutdownCompleted",
      reinterpret_cast<PyCFunction>(communicatorShutdownCompleted),
      METH_NOARGS,
-     PyDoc_STR("shutdownCompleted() -> Ice.Future")},
+     PyDoc_STR("shutdownCompleted() -> Awaitable[None]")},
     {"isShutdown",
      reinterpret_cast<PyCFunction>(communicatorIsShutdown),
      METH_NOARGS,
@@ -1500,8 +1500,11 @@ static PyMethodDef CommunicatorMethods[] = {
     {"_setWrapper",
      reinterpret_cast<PyCFunction>(communicatorSetWrapper),
      METH_VARARGS,
-     PyDoc_STR("internal function")},
-    {"_getWrapper", reinterpret_cast<PyCFunction>(communicatorGetWrapper), METH_NOARGS, PyDoc_STR("internal function")},
+     PyDoc_STR("_setWrapper(self, wrapper: Ice.Communicator) -> None")},
+    {"_getWrapper",
+     reinterpret_cast<PyCFunction>(communicatorGetWrapper),
+     METH_NOARGS,
+     PyDoc_STR("_getWrapper(self) -> Ice.Communicator")},
     {} /* sentinel */
 };
 
