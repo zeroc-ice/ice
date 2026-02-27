@@ -692,7 +692,19 @@ namespace
             // name dnsNames.
             if (dnsNames.empty())
             {
-                auto d = DistinguishedName(getSubjectName(cert));
+                DistinguishedName d{list<pair<string, string>>{}};
+                try
+                {
+                    d = DistinguishedName(getSubjectName(cert));
+                }
+                catch (const Ice::ParseException& ex)
+                {
+                    throw SecurityException(
+                        __FILE__,
+                        __LINE__,
+                        "SSL transport: certificate verification failure:\nunable to parse certificate DN:\n" +
+                            string{ex.what()});
+                }
                 string dn = IceInternal::toLower(string(d));
                 string cn = "cn=" + addrLower;
                 string::size_type pos = dn.find(cn);
