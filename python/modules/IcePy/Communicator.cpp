@@ -1500,11 +1500,11 @@ static PyMethodDef CommunicatorMethods[] = {
     {"_setWrapper",
      reinterpret_cast<PyCFunction>(communicatorSetWrapper),
      METH_VARARGS,
-     PyDoc_STR("_setWrapper(self, wrapper: Ice.Communicator) -> None")},
+     PyDoc_STR("_setWrapper(wrapper: Ice.Communicator) -> None")},
     {"_getWrapper",
      reinterpret_cast<PyCFunction>(communicatorGetWrapper),
      METH_NOARGS,
-     PyDoc_STR("_getWrapper(self) -> Ice.Communicator")},
+     PyDoc_STR("_getWrapper() -> Ice.Communicator")},
     {} /* sentinel */
 };
 
