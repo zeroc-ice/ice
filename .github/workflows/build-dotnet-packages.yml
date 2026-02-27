@@ -112,9 +112,10 @@ jobs:
         run: |
           Get-ChildItem -Path csharp\src -Directory | ForEach-Object {
               $name = $_.Name
-              "csharp\src\$name\bin\Release\net8.0\$name.dll"
+              $csproj = "csharp\src\$name\$name.csproj"
+              $tfm = (Select-Xml -Path $csproj -XPath "//TargetFramework").Node.InnerText
+              "csharp\src\$name\bin\Release\$tfm\$name.dll"
           } | Set-Content -Path ${{ github.workspace }}\catalog.txt -Encoding UTF8
-          Add-Content -Path "${{ github.workspace }}\catalog.txt" -Value "csharp\tools\ZeroC.Ice.Slice.Tools\bin\Release\netstandard2.0\ZeroC.Ice.Slice.Tools.dll"
 
       - name: Sign .NET Assemblies with Trusted Signing
         if: ${{ inputs.authenticode_sign }}
@@ -143,5 +144,3 @@ jobs:
           path: |
             csharp/src/**/bin/Release/*.nupkg
             csharp/src/**/bin/Release/*.snupkg
-            csharp/tools/ZeroC.Ice.Slice.Tools/bin/Release/*.nupkg
-            csharp/tools/ZeroC.Ice.Slice.Tools/bin/Release/*.snupkg

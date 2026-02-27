@@ -5,7 +5,7 @@
     <AssemblyName>IceGrid</AssemblyName>
     <Description>Client library for the IceGrid service</Description>
     <AssemblyTitle>$(Description)</AssemblyTitle>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <!-- Packaging properties -->
     <PackageId>ZeroC.IceGrid</PackageId>
     <PackageIcon>icegrid-128x128.png</PackageIcon>
