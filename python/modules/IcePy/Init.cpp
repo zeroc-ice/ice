@@ -232,11 +232,13 @@ static PyMethodDef methods[] = {
     {"defineValue",
      reinterpret_cast<PyCFunction>(IcePy_defineValue),
      METH_VARARGS,
-     PyDoc_STR("defineValue(sliceId: str, valueType: Type[Ice.Value], compactId: int, meta: tuple, isInterface: bool, baseType: Type[Ice.Value] | None, members: tuple)")},
+     PyDoc_STR("defineValue(sliceId: str, valueType: Type[Ice.Value], compactId: int, meta: tuple, isInterface: bool, "
+               "baseType: Type[Ice.Value] | None, members: tuple)")},
     {"defineException",
      reinterpret_cast<PyCFunction>(IcePy_defineException),
      METH_VARARGS,
-     PyDoc_STR("defineException(sliceId: str, type: Type[BaseException], meta: tuple, base: Type[BaseException] | None, members: tuple)")},
+     PyDoc_STR("defineException(sliceId: str, type: Type[BaseException], meta: tuple, base: Type[BaseException] | "
+               "None, members: tuple)")},
     {"loadSlice", reinterpret_cast<PyCFunction>(IcePy_loadSlice), METH_VARARGS, PyDoc_STR(IcePy_loadSlice_doc)},
     {"compileSlice",
      reinterpret_cast<PyCFunction>(IcePy_compileSlice),
