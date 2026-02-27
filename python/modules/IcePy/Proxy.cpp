@@ -1430,7 +1430,7 @@ static PyMethodDef ProxyMethods[] = {
     {"newProxy",
      reinterpret_cast<PyCFunction>(proxyNewProxy),
      METH_VARARGS | METH_STATIC,
-     PyDoc_STR("newProxy(type: Type[T], proxy: Ice.ObjectPrx) -> proxy")},
+     PyDoc_STR("newProxy(type: Type[T], proxy: Ice.ObjectPrx) -> T")},
     {} /* sentinel */
 };
 
