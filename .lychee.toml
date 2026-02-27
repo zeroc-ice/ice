@@ -41,7 +41,7 @@ exclude = [
 exclude_path = [
     "cpp/doxygen",
     "doxygen",
-    "js/test/Common/controller.html",
+    "js/packages/test/Common/controller.html",
 ]
 
 # Accept these status codes as valid
