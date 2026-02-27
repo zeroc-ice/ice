@@ -10,6 +10,54 @@ zeroc-ice (3.8.0-1) unstable; urgency=medium
 
  -- José Gutiérrez de la Concha <jose@zeroc.com>  Tue, 16 Dec 2025 15:24:28 +0100
 
+zeroc-ice (3.7.10-4) unstable; urgency=medium
+
+  *  add libcrypt-dev to Build-Depends closes #1106950
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Wed, 19 Nov 2025 16:11:01 +0100
+
+zeroc-ice (3.7.10-3.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Address Python 3.13 incompatibility (Closes: #1092441).
+
+ -- Simon Quigley <tsimonq2@debian.org>  Mon, 24 Feb 2025 14:12:52 -0600
+
+zeroc-ice (3.7.10-3) unstable; urgency=medium
+
+  * Rebuild with PHP 8.4
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 04 Dec 2024 20:48:33 +0100
+
+zeroc-ice (3.7.10-2.3) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * debian/rules:
+    - Add GRADLE_OPTS=-Xmx512M to fix FTBFS on armel due to Java heap space
+      memory error
+      Thanks to Vladimir Petko <vladimir.petko@canonical.com> and
+      Tony Mancill <tmancill@debian.org> for the fix
+    (Closes: #1069538)
+
+ -- Christopher Knadle <Chris.Knadle@coredump.us>  Sat, 04 May 2024 13:55:38 -0400
+
+zeroc-ice (3.7.10-2.2) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * debian/patches:
+    - Add remove-Werror-build-option.patch to fix FTBFS bug due to injection
+      of "inplicit-function-declaration" flag during time_t 64bit transition
+      (Closes: #1067911)
+
+ -- Christopher Knadle <Chris.Knadle@coredump.us>  Wed, 10 Apr 2024 10:48:17 -0400
+
+zeroc-ice (3.7.10-2.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Rename libraries for 64-bit time_t transition.  Closes: #1063309
+
+ -- Steve Langasek <vorlon@debian.org>  Fri, 01 Mar 2024 00:14:45 +0000
+
 zeroc-ice (3.7.10-2) unstable; urgency=medium
 
   * Set javaTargetRelease for java-compat builds using $java_compat_level (Closes: #1057672)
