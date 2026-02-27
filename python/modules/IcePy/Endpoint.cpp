@@ -19,13 +19,13 @@ Returns
 str
     The string representation of this endpoint.)";
 
-    constexpr const char* endpointGetInfo_doc = R"(getInfo() -> Ice.EndpointInfo
+    constexpr const char* endpointGetInfo_doc = R"(getInfo() -> EndpointInfo
 
 Returns this endpoint's information.
 
 Returns
 -------
-Ice.EndpointInfo
+EndpointInfo
     This endpoint's information class.)";
 
     constexpr const char* EndpointType_doc =

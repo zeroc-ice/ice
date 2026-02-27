@@ -41,8 +41,8 @@ Ice.ObjectPrx
 Queues this request.)";
 
     constexpr const char* BatchRequestType_doc =
-        R"(Represents a batch request. A batch request is created by invoking an operation on a batch-oneway or
-batch-datagram proxy.)";
+        R"(Represents a batch request.
+A batch request is created by invoking an operation on a batch-oneway or batch-datagram proxy.)";
 }
 
 namespace IcePy
