@@ -26,7 +26,7 @@ DEST_DIR="${2:?Usage: $0 <jar-path> <output-dir>}"
 
 # shellcheck source=../../config/version.env
 source "${REPO_ROOT}/config/version.env"
-APP_VERSION="${VERSION}"
+APP_VERSION="${BASE_VERSION}"
 
 JAVA_HOME="${JAVA_HOME:?JAVA_HOME must be set to a Java 17+ installation}"
 JPACKAGE="${JAVA_HOME}/bin/jpackage"

@@ -32,9 +32,11 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 APP_PATH="${1:?Usage: $0 <app-path> <output-dir> [version] [--sign [--notarize]]}"
 OUTPUT_DIR="${2:?Usage: $0 <app-path> <output-dir> [version] [--sign [--notarize]]}"
+shift 2
 
-if [ -n "${3:-}" ]; then
-    VERSION="$3"
+if [ -n "${1:-}" ]; then
+    VERSION="$1"
+    shift
 else
     # shellcheck source=../../config/version.env
     source "${REPO_ROOT}/config/version.env"
@@ -43,7 +45,6 @@ fi
 
 SIGN=false
 NOTARIZE=false
-shift 3
 while [ $# -gt 0 ]; do
     case "$1" in
         --sign) SIGN=true ;;
