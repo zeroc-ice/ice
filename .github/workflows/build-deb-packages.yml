@@ -45,6 +45,12 @@ jobs:
 
           - distribution: debian13
             arch: arm64
+
+          - distribution: sid
+            arch: amd64
+
+          - distribution: sid
+            arch: arm64
     env:
       DEB_BUILD_OPTIONS: "nocheck parallel=4"
     steps:

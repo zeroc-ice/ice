@@ -67,6 +67,13 @@ jobs:
             arch: arm64
             image_type: deb
 
+          - distribution: sid
+            arch: amd64
+            image_type: deb
+          - distribution: sid
+            arch: arm64
+            image_type: deb
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

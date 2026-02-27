@@ -57,6 +57,14 @@ jobs:
             dockerfile: packaging/deb/docker/Dockerfile
             base_image: debian:trixie
           - platform: amd64
+            image: ice-deb-builder-sid
+            dockerfile: packaging/deb/docker/Dockerfile
+            base_image: debian:sid
+          - platform: arm64
+            image: ice-deb-builder-sid
+            dockerfile: packaging/deb/docker/Dockerfile
+            base_image: debian:sid
+          - platform: amd64
             image: ice-deb-builder-ubuntu24.04
             dockerfile: packaging/deb/docker/Dockerfile
             base_image: ubuntu:24.04
@@ -137,6 +145,7 @@ jobs:
           - deb-repo-builder
           - ice-deb-builder-debian12
           - ice-deb-builder-debian13
+          - ice-deb-builder-sid
           - ice-deb-builder-ubuntu24.04
           - ice-rpm-builder-amzn2023
           - ice-rpm-builder-el10

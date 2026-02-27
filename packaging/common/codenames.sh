@@ -8,5 +8,6 @@
 declare -A CODENAMES=(
     ["debian12"]="bookworm"
     ["debian13"]="trixie"
+    ["sid"]="sid"
     ["ubuntu24.04"]="noble"
 )
