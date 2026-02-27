@@ -3,18 +3,17 @@
 # Build the IceGrid GUI macOS application bundle (.app) from icegridgui.jar.
 #
 # Usage:
-#   ./build-icegridgui-macos-app.sh <jar-path> <output-dir> [version]
+#   ./build-icegridgui-macos-app.sh <jar-path> <output-dir>
 #
 # Arguments:
 #   jar-path    Path to icegridgui.jar
 #   output-dir  Directory where "IceGrid GUI.app" will be created
-#   version     Application version (default: read from config/version.env)
 #
 # Environment:
 #   JAVA_HOME   Must point to a Java 17+ installation
 #
 # Example:
-#   ./build-icegridgui-macos-app.sh java/lib/icegridgui.jar output 3.9.0
+#   ./build-icegridgui-macos-app.sh java/lib/icegridgui.jar output
 #
 
 set -euo pipefail
@@ -22,16 +21,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
-JAR_PATH="${1:?Usage: $0 <jar-path> <output-dir> [version]}"
-DEST_DIR="${2:?Usage: $0 <jar-path> <output-dir> [version]}"
+JAR_PATH="${1:?Usage: $0 <jar-path> <output-dir>}"
+DEST_DIR="${2:?Usage: $0 <jar-path> <output-dir>}"
 
-if [ -n "${3:-}" ]; then
-    APP_VERSION="$3"
-else
-    # shellcheck source=../../config/version.env
-    source "${REPO_ROOT}/config/version.env"
-    APP_VERSION="${VERSION}"
-fi
+# shellcheck source=../../config/version.env
+source "${REPO_ROOT}/config/version.env"
+APP_VERSION="${VERSION}"
 
 JAVA_HOME="${JAVA_HOME:?JAVA_HOME must be set to a Java 17+ installation}"
 JPACKAGE="${JAVA_HOME}/bin/jpackage"

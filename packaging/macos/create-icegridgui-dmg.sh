@@ -4,12 +4,12 @@
 # sign and notarize it.
 #
 # Usage:
-#   ./create-icegridgui-dmg.sh <app-path> <output-dir> <version> [--sign [--notarize]]
+#   ./create-icegridgui-dmg.sh <app-path> <output-dir> [version] [--sign [--notarize]]
 #
 # Arguments:
 #   app-path      Path to "IceGrid GUI.app"
 #   output-dir    Directory where the DMG will be created
-#   version       Version string for the DMG filename
+#   version       Version string for the DMG filename (default: read from config/version.env)
 #   --sign        Sign the DMG
 #   --notarize    Also notarize and staple the DMG (requires APPLE_ID, APPLE_TEAM_ID,
 #                 and APPLE_APP_SPECIFIC_PASSWORD environment variables)
@@ -21,15 +21,26 @@
 #   APPLE_APP_SPECIFIC_PASSWORD   App-specific password for notarization (required with --notarize)
 #
 # Example:
-#   ./create-icegridgui-dmg.sh "output/IceGrid GUI.app" output 3.9.0
+#   ./create-icegridgui-dmg.sh "output/IceGrid GUI.app" output
 #   ./create-icegridgui-dmg.sh "output/IceGrid GUI.app" output 3.9.0 --sign --notarize
 #
 
 set -euo pipefail
 
-APP_PATH="${1:?Usage: $0 <app-path> <output-dir> <version> [--sign [--notarize]]}"
-OUTPUT_DIR="${2:?Usage: $0 <app-path> <output-dir> <version> [--sign [--notarize]]}"
-VERSION="${3:?Usage: $0 <app-path> <output-dir> <version> [--sign [--notarize]]}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+
+APP_PATH="${1:?Usage: $0 <app-path> <output-dir> [version] [--sign [--notarize]]}"
+OUTPUT_DIR="${2:?Usage: $0 <app-path> <output-dir> [version] [--sign [--notarize]]}"
+
+if [ -n "${3:-}" ]; then
+    VERSION="$3"
+else
+    # shellcheck source=../../config/version.env
+    source "${REPO_ROOT}/config/version.env"
+    VERSION="${BASE_VERSION}"
+fi
+
 SIGN=false
 NOTARIZE=false
 shift 3
