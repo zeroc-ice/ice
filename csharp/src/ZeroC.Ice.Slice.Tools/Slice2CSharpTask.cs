@@ -17,6 +17,10 @@ public class Slice2CSharpTask : Common.SliceCompilerTask
         {
             string message = string.Format("Compiling {0} Generating -> ", source.GetMetadata("Identity"));
             message += Common.TaskUtil.MakeRelative(WorkingDirectory, GetGeneratedPath(source, OutputDir, ".cs"));
+            if (Rpc == "icerpc")
+            {
+                message += ", " + Common.TaskUtil.MakeRelative(WorkingDirectory, GetGeneratedPath(source, OutputDir, ".IceRpc.cs"));
+            }
             Log.LogMessage(MessageImportance.High, message);
         }
     }

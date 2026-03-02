@@ -549,7 +549,7 @@ Slice::IceRpc::TypesVisitor::writePrimaryConstructor(
         _out << nl << "[global::System.Diagnostics.CodeAnalysis.SetsRequiredMembers]";
     }
 
-    _out << nl << "public " << name << spar << ctorParams << epar;
+    _out << nl << "public " << escapedName << spar << ctorParams << epar;
     if (!baseParams.empty())
     {
         _out.inc();
