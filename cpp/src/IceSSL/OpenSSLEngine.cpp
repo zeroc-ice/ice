@@ -105,24 +105,22 @@ IceSSL_opensslPasswordCallback(char* buf, int size, int flag, void* userData)
     OpenSSL::SSLEngine* p = reinterpret_cast<OpenSSL::SSLEngine*>(userData);
     assert(p);
     string passwd = p->password(flag == 1);
-    int sz = static_cast<int>(passwd.size());
-    if(sz > size)
-    {
-        sz = size - 1;
-    }
+
+    // Follow the OpenSSL documentation example: copy the password into the buffer, truncating if necessary, and
+    // null-terminate. See https://docs.openssl.org/3.0/man3/SSL_CTX_set_default_passwd_cb/#examples
 #if defined(_WIN32)
-    strncpy_s(buf, size, passwd.c_str(), sz);
+    strncpy_s(buf, size, passwd.c_str(), _TRUNCATE);
 #else
-    strncpy(buf, passwd.c_str(), sz);
+    strncpy(buf, passwd.c_str(), static_cast<size_t>(size));
 #endif
-    buf[sz] = '\0';
+    buf[size - 1] = '\0';
 
     for(string::iterator i = passwd.begin(); i != passwd.end(); ++i)
     {
         *i = '\0';
     }
 
-    return sz;
+    return static_cast<int>(strlen(buf));
 }
 
 #ifndef OPENSSL_NO_DH
