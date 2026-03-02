@@ -8,8 +8,7 @@ The following versions of Ice are currently supported with security updates.
 | ------- | ------------------ |
 | 3.8     | :white_check_mark: |
 | 3.7     | :white_check_mark: |
-| 3.6     | :white_check_mark: |
-| < 3.6   | :x:                |
+| < 3.7   | :x:                |
 
 ## Reporting a Vulnerability
 
