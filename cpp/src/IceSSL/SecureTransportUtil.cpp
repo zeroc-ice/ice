@@ -365,7 +365,7 @@ loadPrivateKey(const string& file, SecCertificateRef cert, SecKeychainRef keycha
     for(CFIndex i = 0; i < count; ++i)
     {
         SecKeychainItemRef itemRef =
-            static_cast<SecKeychainItemRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), 0)));
+            static_cast<SecKeychainItemRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), i)));
         if(SecKeyGetTypeID() == CFGetTypeID(itemRef))
         {
             key.retain(reinterpret_cast<SecKeyRef>(itemRef));
