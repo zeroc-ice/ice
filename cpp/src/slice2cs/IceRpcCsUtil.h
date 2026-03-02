@@ -18,7 +18,7 @@ namespace Slice::Csharp
         OutgoingParam
     };
 
-    /// Does this type maps to a value type in C#?
+    /// Does this type map to a value type in C#?
     [[nodiscard]] bool isCsValueType(const TypePtr& type);
 
     /// Maps a Slice type to a C# field type.
