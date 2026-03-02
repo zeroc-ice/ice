@@ -44,7 +44,8 @@ tar -czf java-packages.tar.gz java-packages
 rm -rf java-packages
 
 # Include JavaScript NPM package.
-cp -v "${STAGING_DIR}/js-npm-packages"/*.tgz .
+cp -v "${STAGING_DIR}/js-npm-packages/ice"/*.tgz .
+cp -v "${STAGING_DIR}/js-npm-packages/slice2js"/*.tgz .
 
 # Include Python wheels and PIP source distributions.
 for dir in "${STAGING_DIR}"/pip-packages-*; do
