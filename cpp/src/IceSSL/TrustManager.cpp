@@ -128,7 +128,21 @@ TrustManager::verify(const ConnectionInfoPtr& info, const std::string& desc)
     //
     if(info->certs.size() != 0)
     {
-        DistinguishedName subject = info->certs[0]->getSubjectDN();
+        DistinguishedName subject(list<pair<string, string> >());
+        try
+        {
+            subject = info->certs[0]->getSubjectDN();
+        }
+        catch(const IceSSL::ParseException& ex)
+        {
+            if(_communicator->getLogger())
+            {
+                Ice::Warning warn(_communicator->getLogger());
+                warn << "IceSSL: unable to parse certificate DN:\n" << ex.what();
+            }
+            return false;
+        }
+
         if(_traceLevel > 0)
         {
             Ice::Trace trace(_communicator->getLogger(), "Security");
