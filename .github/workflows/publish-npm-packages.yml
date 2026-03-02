@@ -62,7 +62,7 @@ jobs:
       - uses: actions/setup-node@v4
         if: ${{ inputs.quality == 'stable' }}
         with:
-          node-version: '22'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Publish Release NPM Packages
