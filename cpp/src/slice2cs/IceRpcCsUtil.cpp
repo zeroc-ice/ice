@@ -4,6 +4,7 @@
 #include "../Slice/Util.h"
 #include "CsUtil.h"
 
+#include <algorithm>
 #include <cassert>
 
 using namespace std;
