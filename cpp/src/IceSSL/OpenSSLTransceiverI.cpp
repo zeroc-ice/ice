@@ -242,7 +242,11 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         //
         // Store a pointer to ourself for use in OpenSSL callbacks.
         //
-        SSL_set_ex_data(_ssl, 0, this);
+        if(!SSL_set_ex_data(_ssl, 0, this))
+        {
+            throw SecurityException(__FILE__, __LINE__,
+                "IceSSL: error setting ex data:\n" + IceSSL::OpenSSL::getSslErrors(false));
+        }
 
         //
         // Determine whether a certificate is required from the peer.
@@ -323,6 +327,8 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(sslMutex);
 #endif
 
+        // Clear the error queue before the TLS I/O operation; SSL_get_error requires an empty queue to work reliably.
+        ERR_clear_error();
         int ret = _incoming ? SSL_accept(_ssl) : SSL_connect(_ssl);
 
 #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x100000bfL && !defined(LIBRESSL_VERSION_NUMBER)
