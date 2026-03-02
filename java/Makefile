@@ -15,5 +15,8 @@ tests:
 srcs:
 	$(GRADLE) $(GRADLEARGS) dist
 
+install:
+# Nothing to install for Java.
+
 distclean clean:
 	$(GRADLE) $(GRADLEARGS) clean
