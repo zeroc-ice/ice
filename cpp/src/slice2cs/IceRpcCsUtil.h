@@ -1,11 +1,11 @@
 // Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_RPC_CS_UTIL_H
-#    define ICE_RPC_CS_UTIL_H
+#define ICE_RPC_CS_UTIL_H
 
-#    include "../Ice/OutputUtil.h"
-#    include "../Slice/DocCommentParser.h"
-#    include "../Slice/Parser.h"
+#include "../Ice/OutputUtil.h"
+#include "../Slice/DocCommentParser.h"
+#include "../Slice/Parser.h"
 
 // IceRPC-specific helper functions for C# code generation.
 
