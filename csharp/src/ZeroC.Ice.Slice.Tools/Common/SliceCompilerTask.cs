@@ -69,6 +69,12 @@ public abstract class SliceCompilerTask : ToolTask
             options["IncludeDirectories"] = value;
         }
 
+        value = item.GetMetadata("Rpc");
+        if (!string.IsNullOrEmpty(value) && value != "ice")
+        {
+            options["Rpc"] = value;
+        }
+
         if (AdditionalOptions.Length > 0)
         {
             options["AdditionalOptions"] = string.Join(";", AdditionalOptions);
@@ -94,7 +100,7 @@ public abstract class SliceCompilerTask : ToolTask
             builder.AppendSwitchIfNotNull("-I", Path.GetFullPath(path));
         }
 
-        if (Rpc != "ice")
+        if (Rpc.Length > 0 && Rpc != "ice")
         {
             builder.AppendSwitchIfNotNull("--rpc ", Rpc);
         }

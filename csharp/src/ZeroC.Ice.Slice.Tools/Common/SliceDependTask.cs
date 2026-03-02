@@ -66,11 +66,13 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
         {
             options["IncludeDirectories"] = value;
         }
+
         value = item.GetMetadata("Rpc");
-        if (!string.IsNullOrEmpty(value))
+        if (!string.IsNullOrEmpty(value) && value != "ice")
         {
             options["Rpc"] = value;
         }
+
         value = item.GetMetadata("AdditionalOptions");
         if (!string.IsNullOrEmpty(value))
         {
