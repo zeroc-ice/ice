@@ -397,7 +397,7 @@ Slice::Csharp::encodeOptionalField(
 
     if (tagFormat == "VSize" && ((seq && !readOnlyMemory) || dynamic_pointer_cast<Dictionary>(type)))
     {
-        out << nl << "int count_ = " << fieldName << ".Count();"; // may be slow
+        out << nl << "int count_ = global::System.Linq.Enumerable.Count(" << fieldName << ");"; // may be slow
         out << sp;
     }
 
