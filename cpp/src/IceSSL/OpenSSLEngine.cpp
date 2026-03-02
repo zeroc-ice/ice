@@ -109,7 +109,7 @@ IceSSL_opensslPasswordCallback(char* buf, int size, int flag, void* userData)
     // Follow the OpenSSL documentation example: copy the password into the buffer, truncating if necessary, and
     // null-terminate. See https://docs.openssl.org/3.0/man3/SSL_CTX_set_default_passwd_cb/#examples
 #if defined(_WIN32)
-    strncpy_s(buf, size, passwd.c_str(), static_cast<size_t>(size));
+    strncpy_s(buf, size, passwd.c_str(), _TRUNCATE);
 #else
     strncpy(buf, passwd.c_str(), static_cast<size_t>(size));
 #endif
