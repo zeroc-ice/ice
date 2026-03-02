@@ -810,7 +810,7 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
     assert(cont);
     if (useHelper)
     {
-        string helperName = getUnqualified(seq, ns, "" , "Helper");
+        string helperName = getUnqualified(seq, ns, "", "Helper");
         if (marshal)
         {
             out << nl << helperName << ".write(" << stream << ", " << param << ");";
