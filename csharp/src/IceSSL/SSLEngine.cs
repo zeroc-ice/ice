@@ -611,10 +611,15 @@ namespace IceSSL
                 }
             }
 
+            if(path.Length == 0)
+            {
+                return false;
+            }
+
             //
-            // Check for UNC path
+            // Check for UNC path or Unix absolute path
             //
-            return (path[0] == '\\' && path[1] == '\\') || path[0] == '/';
+            return (path.Length >= 2 && path[0] == '\\' && path[1] == '\\') || path[0] == '/';
         }
 
         private bool checkPath(ref string path)

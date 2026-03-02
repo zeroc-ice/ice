@@ -212,7 +212,10 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
                 _netInput.b.compact();
 
                 Status status = result.getStatus();
-                assert status != Status.BUFFER_OVERFLOW;
+                if(status == Status.BUFFER_OVERFLOW)
+                {
+                    throw new com.zeroc.Ice.SecurityException("IceSSL: buffer overflow during unwrap");
+                }
 
                 if(status == Status.CLOSED)
                 {

@@ -209,7 +209,10 @@ final class TransceiverI implements IceInternal.Transceiver
                 _netInput.b.compact();
 
                 Status status = result.getStatus();
-                assert status != Status.BUFFER_OVERFLOW;
+                if(status == Status.BUFFER_OVERFLOW)
+                {
+                    throw new Ice.SecurityException("IceSSL: buffer overflow during unwrap");
+                }
 
                 if(status == Status.CLOSED)
                 {

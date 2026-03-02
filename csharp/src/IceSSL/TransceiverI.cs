@@ -795,7 +795,7 @@ namespace IceSSL
         private Task<int> _readResult;
         private int _maxSendPacketSize;
         private int _maxRecvPacketSize;
-        private string _cipher;
+        private string _cipher = "";
         private X509Certificate2[] _certs;
         private bool _verified;
     }
