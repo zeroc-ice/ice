@@ -947,9 +947,14 @@ OpenSSL::SSLEngine::initialize()
             SSL_free(ssl);
             getLogger()->trace(securityTraceCategory(), os.str());
         }
+
+        // Clear the password from memory now that initialization is complete.
+        setPassword("");
     }
     catch(...)
     {
+        // Clear the password from memory even if initialization fails.
+        setPassword("");
         //
         // We free the SSL context regardless of whether the plugin created it
         // or the application supplied it.
