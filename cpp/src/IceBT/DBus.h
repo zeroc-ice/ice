@@ -268,7 +268,7 @@ public:
 
     virtual ValuePtr clone() const
     {
-        return new VariantValue(v ? v->clone() : 0);
+        return new VariantValue(v ? v->clone() : nullptr);
     }
 
     virtual std::string toString() const
