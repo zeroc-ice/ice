@@ -1152,7 +1152,7 @@ public:
         if(msg->isMethodCall())
         {
             map<string, ServicePtr>::iterator p = services.find(msg->getPath());
-            if(p != _services.end())
+            if(p != services.end())
             {
                 try
                 {
