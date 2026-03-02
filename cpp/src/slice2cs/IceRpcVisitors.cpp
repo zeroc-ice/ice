@@ -745,7 +745,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     for (const auto& base : p->bases())
     {
         _out << sp;
-        string baseName = getUnqualified(base, ns) + "Proxy";
+        string baseName = getUnqualified(base, ns, "", "Proxy");
         writeDocLine(_out, "summary", "Provides an implicit conversion to <see cref =\"" + baseName + "\" />.");
 
         _out << nl << "public static implicit operator " << baseName << "(" << name << "Proxy proxy) =>";

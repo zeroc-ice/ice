@@ -111,7 +111,7 @@ Slice::Csharp::csFieldType(const TypePtr& type, const string& ns, bool optional)
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        return getUnqualified(proxy, ns) + "Proxy?";
+        return getUnqualified(proxy, ns, "", "Proxy") + "?";
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
@@ -290,7 +290,7 @@ Slice::Csharp::encodeField(
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        out << getUnqualified(proxy, ns) << "ProxySliceEncoderExtensions.EncodeNullable"
+        out << getUnqualified(proxy, ns, "", "ProxySliceEncoderExtensions") << ".EncodeNullable"
             << removeEscapePrefix(proxy->mappedName()) << "Proxy(ref " << encoderName << ", " << fieldName << ")";
         return;
     }
@@ -298,7 +298,7 @@ Slice::Csharp::encodeField(
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if (en)
     {
-        out << getUnqualified(en, ns) << "SliceEncoderExtensions.Encode" << removeEscapePrefix(en->mappedName())
+        out << getUnqualified(en, ns, "", "SliceEncoderExtensions") << ".Encode" << removeEscapePrefix(en->mappedName())
             << "(ref " << encoderName << ", " << fieldName << ")";
         return;
     }
@@ -492,7 +492,7 @@ Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns, T
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        out << getUnqualified(proxy, ns) << "ProxySliceDecoderExtensions.DecodeNullable"
+        out << getUnqualified(proxy, ns, "", "ProxySliceDecoderExtensions") << ".DecodeNullable"
             << removeEscapePrefix(proxy->mappedName()) << "Proxy(ref decoder)";
 
         return;
@@ -501,7 +501,7 @@ Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns, T
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if (en)
     {
-        out << getUnqualified(en, ns) << "SliceDecoderExtensions.Decode" << removeEscapePrefix(en->mappedName())
+        out << getUnqualified(en, ns, "", "SliceDecoderExtensions") << ".Decode" << removeEscapePrefix(en->mappedName())
             << "(ref decoder)";
         return;
     }

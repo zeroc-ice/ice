@@ -83,7 +83,7 @@ Slice::Csharp::typeToString(const TypePtr& type, const string& ns, bool optional
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        return getUnqualified(proxy, ns) + "Prx?";
+        return getUnqualified(proxy, ns, "", "Prx") + "?";
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
@@ -468,7 +468,7 @@ Slice::Csharp::writeMarshalUnmarshalCode(
     DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if (d)
     {
-        helperName = getUnqualified(d, ns) + "Helper";
+        helperName = getUnqualified(d, ns, "", "Helper");
     }
     else
     {
@@ -810,7 +810,7 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
     assert(cont);
     if (useHelper)
     {
-        string helperName = getUnqualified(seq, ns) + "Helper";
+        string helperName = getUnqualified(seq, ns, "" , "Helper");
         if (marshal)
         {
             out << nl << helperName << ".write(" << stream << ", " << param << ");";
@@ -1323,11 +1323,11 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
     string helperName;
     if (dynamic_pointer_cast<InterfaceDecl>(type))
     {
-        helperName = getUnqualified(dynamic_pointer_cast<InterfaceDecl>(type), ns) + "PrxHelper";
+        helperName = getUnqualified(dynamic_pointer_cast<InterfaceDecl>(type), ns, "", "PrxHelper");
     }
     else
     {
-        helperName = getUnqualified(dynamic_pointer_cast<Contained>(type), ns) + "Helper";
+        helperName = getUnqualified(dynamic_pointer_cast<Contained>(type), ns, "", "Helper");
     }
 
     string func;
@@ -1654,13 +1654,13 @@ Slice::Csharp::iceLinkFormatter(const string& rawLink, const ContainedPtr& sourc
         if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
         {
             // link to the method on the proxy interface
-            result << getUnqualified(operationTarget->interface(), sourceScope) << "Prx."
+            result << getUnqualified(operationTarget->interface(), sourceScope, "", "Prx") << "."
                    << operationTarget->mappedName() << "Async";
         }
         else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
         {
             // link to the proxy interface
-            result << getUnqualified(interfaceTarget, sourceScope) << "Prx";
+            result << getUnqualified(interfaceTarget, sourceScope, "", "Prx");
         }
         else
         {

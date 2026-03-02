@@ -2827,6 +2827,24 @@ Slice::InterfaceDef::operations() const
 }
 
 OperationList
+Slice::InterfaceDef::allOperations() const
+{
+    OperationList result = allInheritedOperations();
+
+    for (const auto& q : operations())
+    {
+        if (none_of(
+                result.begin(),
+                result.end(),
+                [name = q->name()](const auto& other) { return other->name() == name; }))
+        {
+            result.push_back(q);
+        }
+    }
+    return result;
+}
+
+OperationList
 Slice::InterfaceDef::allInheritedOperations() const
 {
     OperationList result;
@@ -2841,24 +2859,6 @@ Slice::InterfaceDef::allInheritedOperations() const
             {
                 result.push_back(q);
             }
-        }
-    }
-    return result;
-}
-
-OperationList
-Slice::InterfaceDef::allOperations() const
-{
-    OperationList result = allInheritedOperations();
-
-    for (const auto& q : operations())
-    {
-        if (none_of(
-                result.begin(),
-                result.end(),
-                [name = q->name()](const auto& other) { return other->name() == name; }))
-        {
-            result.push_back(q);
         }
     }
     return result;

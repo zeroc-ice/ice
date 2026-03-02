@@ -1073,7 +1073,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     vector<string> baseInterfaces;
     for (const auto& base : p->bases())
     {
-        baseInterfaces.push_back(getUnqualified(base, ns) + "Prx");
+        baseInterfaces.push_back(getUnqualified(base, ns, "", "Prx"));
     }
 
     if (baseInterfaces.empty())
