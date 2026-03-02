@@ -149,7 +149,7 @@ RFC2253::unescape(const string& data)
                 {
                     throw ParseException(__FILE__, __LINE__, "unescape: invalid escape sequence");
                 }
-                if(special.find(data[pos]) != string::npos || data[pos] != '\\' || data[pos] != '"')
+                if(special.find(data[pos]) != string::npos || data[pos] == '\\' || data[pos] == '"')
                 {
                     result += data[pos];
                     ++pos;
@@ -188,7 +188,7 @@ static char
 unescapeHex(const string& data, size_t pos)
 {
     assert(pos < data.size());
-    if(pos + 2 >= data.size())
+    if(pos + 2 > data.size())
     {
         throw ParseException(__FILE__, __LINE__, "unescape: invalid hex pair");
     }
@@ -434,7 +434,7 @@ parsePair(const string& data, size_t& pos)
         throw ParseException(__FILE__, __LINE__, "invalid escape format (unexpected end of data)");
     }
 
-    if(special.find(data[pos]) != string::npos || data[pos] != '\\' || data[pos] != '"')
+    if(special.find(data[pos]) != string::npos || data[pos] == '\\' || data[pos] == '"')
     {
         result += data[pos];
         ++pos;
