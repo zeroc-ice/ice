@@ -68,9 +68,47 @@ jobs:
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
 
+      - name: Install WiX CLI
+        if: ${{ inputs.authenticode_sign }}
+        run: dotnet tool install --global wix --version 6.0.0
+
       - name: Build Bundle
         run: dotnet build -c Release -p:Platform=x64
         working-directory: packaging/windows-installer/bundle
+
+      # WiX Burn bundles require a detach/reattach workflow for Authenticode signing.
+      # Directly signing the bundle EXE corrupts the attached container offsets, preventing
+      # the Burn engine from extracting embedded payloads (MSI, VC++ Redist).
+      - name: Detach Burn engine for signing
+        if: ${{ inputs.authenticode_sign }}
+        run: |
+          $bundle = Get-ChildItem packaging\windows-installer\bundle\bin\x64\Release\*.exe | Select-Object -First 1
+          New-Item -ItemType Directory -Force -Path packaging\windows-installer\bundle\engine
+          wix burn detach $bundle.FullName -engine packaging\windows-installer\bundle\engine\engine.exe
+        shell: pwsh
+
+      - name: Sign Burn engine with Trusted Signing
+        if: ${{ inputs.authenticode_sign }}
+        uses: azure/trusted-signing-action@v0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          trusted-signing-account-name: zeroc
+          certificate-profile-name: zeroc-ice
+          files-folder: ./packaging/windows-installer/bundle/engine/
+          files-folder-filter: exe
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Reattach signed Burn engine
+        if: ${{ inputs.authenticode_sign }}
+        run: |
+          $bundle = Get-ChildItem packaging\windows-installer\bundle\bin\x64\Release\*.exe | Select-Object -First 1
+          wix burn reattach $bundle.FullName -engine packaging\windows-installer\bundle\engine\engine.exe
+        shell: pwsh
 
       - name: Sign Bundle installer with Trusted Signing
         if: ${{ inputs.authenticode_sign }}
