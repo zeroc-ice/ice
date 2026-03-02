@@ -369,8 +369,8 @@ class RFC2253
             throw new ParseException("invalid escape format (unexpected end of state.data)");
         }
 
-        if(special.indexOf(state.data.charAt(state.pos)) != -1 || state.data.charAt(state.pos) != '\\' ||
-           state.data.charAt(state.pos) != '"')
+        if(special.indexOf(state.data.charAt(state.pos)) != -1 || state.data.charAt(state.pos) == '\\' ||
+           state.data.charAt(state.pos) == '"')
         {
             result += state.data.charAt(state.pos);
             ++state.pos;

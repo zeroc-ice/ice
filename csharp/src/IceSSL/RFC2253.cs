@@ -157,7 +157,7 @@ namespace IceSSL
                         {
                             throw new ParseException("unescape: invalid escape sequence");
                         }
-                        if(special.IndexOf(data[pos]) != -1 || data[pos] != '\\' || data[pos] != '"')
+                        if(special.IndexOf(data[pos]) != -1 || data[pos] == '\\' || data[pos] == '"')
                         {
                             result.Append(data[pos]);
                             ++pos;
@@ -193,7 +193,7 @@ namespace IceSSL
         private static char unescapeHex(string data, int pos)
         {
             Debug.Assert(pos < data.Length);
-            if(pos + 2 >= data.Length)
+            if(pos + 2 > data.Length)
             {
                 throw new ParseException("unescape: invalid hex pair");
             }
@@ -438,8 +438,8 @@ namespace IceSSL
                 throw new ParseException("invalid escape format (unexpected end of data)");
             }
 
-            if(special.IndexOf(data[pos]) != -1 || data[pos] != '\\' ||
-               data[pos] != '"')
+            if(special.IndexOf(data[pos]) != -1 || data[pos] == '\\' ||
+               data[pos] == '"')
             {
                 result += data[pos];
                 ++pos;
