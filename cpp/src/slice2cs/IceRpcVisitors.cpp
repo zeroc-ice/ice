@@ -904,14 +904,15 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(
         _out,
         "summary",
-        "Provides an extension method for <see cref=\"SliceEncoder\" /> to encode a <see cref=\"" + name +
-            "Proxy\" />.");
+        R"(Provides an extension method for <see cref="SliceEncoder" /> to encode a <see cref=")" + name +
+            R"(Proxy" />."))");
     _out << nl << "public static class " << name << "ProxySliceEncoderExtensions";
     _out << sb;
     writeDocLine(
         _out,
         "summary",
-        "Encodes a nullable <see cref=\"" + name + "Proxy\" /> as a nullable <see cref=\"IceRpc.ServiceAddress\" />.");
+        R"(Encodes a nullable <see cref=")" + name +
+            R"(Proxy" /> as a nullable <see cref="IceRpc.ServiceAddress" />.)");
     writeDocLine(_out, "param name=\"encoder\"", "The Slice encoder.", "param");
     writeDocLine(_out, "param name=\"proxy\"", "The proxy to encode as a service address (can be null).", "param");
     _out << nl << "public static void EncodeNullable" << name << "Proxy(this ref SliceEncoder encoder, " << name
@@ -925,16 +926,16 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(
         _out,
         "summary",
-        "Provides an extension method for <see cref=\"SliceDecoder\" /> to decode a <see cref=\"" + name +
-            "Proxy\" />.");
+        R"(Provides an extension method for <see cref="SliceDecoder" /> to decode a <see cref=")" + name +
+            R"(Proxy" />.)");
 
     _out << nl << "public static class " << name << "ProxySliceDecoderExtensions";
     _out << sb;
     writeDocLine(
         _out,
         "summary",
-        "Decodes a nullable <see cref=\"IceRpc.ServiceAddress\" /> into a nullable <see cref=\"" + name +
-            "Proxy\" />.");
+        R"(Decodes a nullable <see cref="IceRpc.ServiceAddress" /> into a nullable <see cref=")" + name +
+            R"(Proxy" />.)");
     writeDocLine(_out, "param name=\"decoder\"", "The Slice decoder.", "param");
     _out << nl << "public static " << name << "Proxy? DecodeNullable" << name
          << "Proxy(this ref SliceDecoder decoder) =>";
@@ -1161,7 +1162,7 @@ Slice::IceRpc::ProxyVisitor::writeProxyResponseClass(const InterfaceDefPtr& inte
                 _out << '(';
                 for (auto q = exceptionList.begin(); q != exceptionList.end(); ++q)
                 {
-                    ExceptionPtr exception = *q;
+                    const ExceptionPtr& exception = *q;
                     if (q != exceptionList.begin())
                     {
                         _out << " or ";

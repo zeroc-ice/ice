@@ -158,7 +158,7 @@ compile(const vector<string>& argv)
     if (genMode == Slice::GenMode::None || genMode == Slice::GenMode::IceRpc)
     {
         // Both none and icerpc use the new mapping provided by IceRPC.
-        preprocessorArgs.push_back("-D__ICERPC__");
+        preprocessorArgs.emplace_back("-D__ICERPC__");
     }
 
     if (sliceFiles.empty())
