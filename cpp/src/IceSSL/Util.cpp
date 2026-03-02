@@ -103,6 +103,12 @@ IceSSL::parseBytes(const string& arg, vector<unsigned char>& buffer)
     }
     v = s.str();
 
+    // Each byte requires exactly two hex digits; reject odd-length strings.
+    if(v.size() % 2 != 0)
+    {
+        return false;
+    }
+
     //
     // Convert the bytes.
     //
@@ -124,7 +130,12 @@ IceSSL::readFile(const string& file, vector<char>& buffer)
     }
 
     is.seekg(0, is.end);
-    buffer.resize(static_cast<size_t>(is.tellg()));
+    streampos size = is.tellg();
+    if(size == streampos(-1))
+    {
+        throw CertificateReadException(__FILE__, __LINE__, "error determining file size: " + file);
+    }
+    buffer.resize(static_cast<size_t>(size));
     is.seekg(0, is.beg);
 
     if(!buffer.empty())
