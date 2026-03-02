@@ -22,8 +22,14 @@ public class Slice2CSharpTask : Common.SliceCompilerTask
     }
 
     protected override ITaskItem[] GeneratedItems(ITaskItem source) =>
-        new ITaskItem[]
-        {
-            new TaskItem(GetGeneratedPath(source, OutputDir, ".cs"))
-        };
+        Rpc == "icerpc" ?
+            new ITaskItem[]
+            {
+                new TaskItem(GetGeneratedPath(source, OutputDir, ".cs")),
+                new TaskItem(GetGeneratedPath(source, OutputDir, ".IceRpc.cs"))
+            } :
+            new ITaskItem[]
+            {
+                new TaskItem(GetGeneratedPath(source, OutputDir, ".cs"))
+            };
 }

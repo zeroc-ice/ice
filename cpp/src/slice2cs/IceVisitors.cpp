@@ -321,24 +321,6 @@ namespace
 Slice::Ice::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
-Slice::Ice::TypesVisitor::visitModuleStart(const ModulePtr& p)
-{
-    namespacePrefixStart(p);
-    _out << sp;
-    _out << nl << "namespace " << p->mappedName();
-    _out << sb;
-
-    return true;
-}
-
-void
-Slice::Ice::TypesVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
-    namespacePrefixEnd(p);
-}
-
-bool
 Slice::Ice::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     string ns = getNamespace(p);
@@ -1809,21 +1791,11 @@ namespace
 bool
 Slice::Ice::ResultVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (hasResultType(p))
+    if (!hasResultType(p))
     {
-        namespacePrefixStart(p);
-        _out << sp << nl << "namespace " << p->mappedName();
-        _out << sb;
-        return true;
+        return false;
     }
-    return false;
-}
-
-void
-Slice::Ice::ResultVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
-    namespacePrefixEnd(p);
+    return CsVisitor::visitModuleStart(p);
 }
 
 void
@@ -1901,18 +1873,7 @@ Slice::Ice::SkeletonVisitor::visitModuleStart(const ModulePtr& p)
     {
         return false;
     }
-
-    namespacePrefixStart(p);
-    _out << sp << nl << "namespace " << p->mappedName();
-    _out << sb;
-    return true;
-}
-
-void
-Slice::Ice::SkeletonVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
-    namespacePrefixEnd(p);
+    return CsVisitor::visitModuleStart(p);
 }
 
 bool

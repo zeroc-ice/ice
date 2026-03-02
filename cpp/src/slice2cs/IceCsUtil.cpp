@@ -1619,7 +1619,7 @@ Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
 }
 
 std::pair<bool, string>
-Slice::Csharp::csLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
+Slice::Csharp::iceLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
 {
     ostringstream result;
 
@@ -1692,77 +1692,4 @@ Slice::Csharp::csLinkFormatter(const string& rawLink, const ContainedPtr& source
     }
 
     return {true, result.str()};
-}
-
-void
-Slice::Csharp::IceDocCommentFormatter::preprocess(StringList& rawComment)
-{
-    for (auto& line : rawComment)
-    {
-        // Escape any XML special characters in the comment.
-        string::size_type pos = 0;
-        while ((pos = line.find_first_of("&<>", pos)) != string::npos)
-        {
-            switch (line[pos])
-            {
-                case '&':
-                    line.replace(pos, 1, "&amp;");
-                    break;
-                case '<':
-                    line.replace(pos, 1, "&lt;");
-                    break;
-                case '>':
-                    line.replace(pos, 1, "&gt;");
-                    break;
-            }
-            // Skip over the leading '&' character to avoid 'find'ing it again.
-            pos += 1;
-        }
-    }
-}
-
-string
-Slice::Csharp::IceDocCommentFormatter::formatCode(const string& rawText)
-{
-    return "<c>" + rawText + "</c>";
-}
-
-string
-Slice::Csharp::IceDocCommentFormatter::formatParamRef(const string& param)
-{
-    return "<paramref name=\"" + param + "\" />";
-}
-
-string
-Slice::Csharp::IceDocCommentFormatter::formatLink(
-    const string& rawLink,
-    const ContainedPtr& source,
-    const SyntaxTreeBasePtr& target)
-{
-    auto [mapToLink, qualifiedName] = Slice::Csharp::csLinkFormatter(rawLink, source, target);
-    if (mapToLink)
-    {
-        return "<see " + qualifiedName + " />";
-    }
-    else
-    {
-        return "<c>" + qualifiedName + "</c>";
-    }
-}
-
-string
-Slice::Csharp::IceDocCommentFormatter::formatSeeAlso(
-    const string& rawLink,
-    const ContainedPtr& source,
-    const SyntaxTreeBasePtr& target)
-{
-    auto [mapToLink, qualifiedName] = Slice::Csharp::csLinkFormatter(rawLink, source, target);
-    if (mapToLink)
-    {
-        return "<seealso " + qualifiedName + " />";
-    }
-    else
-    {
-        return "";
-    }
 }

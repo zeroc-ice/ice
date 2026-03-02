@@ -21,6 +21,11 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
     [Required]
     public string WorkingDirectory { get; set; } = "";
 
+    /// <summary>
+    /// The RPC provider to generate code for, corresponds to the <c>--rpc</c> compiler option.
+    /// </summary>
+    public string Rpc { get; set; } = "ice";
+
     [Output]
     public ITaskItem[] ComputedSources { get; private set; } = Array.Empty<ITaskItem>();
 
@@ -61,6 +66,11 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
         {
             options["IncludeDirectories"] = value;
         }
+        value = item.GetMetadata("Rpc");
+        if (!string.IsNullOrEmpty(value))
+        {
+            options["Rpc"] = value;
+        }
         value = item.GetMetadata("AdditionalOptions");
         if (!string.IsNullOrEmpty(value))
         {
@@ -70,6 +80,7 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
                 options["AdditionalOptions"] = value;
             }
         }
+
         return options;
     }
 

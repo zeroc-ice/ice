@@ -27,6 +27,11 @@ public abstract class SliceCompilerTask : ToolTask
 
     public string[] IncludeDirectories { get; set; } = Array.Empty<string>();
 
+    /// <summary>
+    /// The RPC provider to generate code for, corresponds to the <c>--rpc</c> compiler option.
+    /// </summary>
+    public string Rpc { get; set; } = "ice";
+
     public string[] AdditionalOptions { get; set; } = Array.Empty<string>();
 
     [Output]
@@ -87,6 +92,11 @@ public abstract class SliceCompilerTask : ToolTask
         foreach (string path in IncludeDirectories)
         {
             builder.AppendSwitchIfNotNull("-I", Path.GetFullPath(path));
+        }
+
+        if (Rpc != "ice")
+        {
+            builder.AppendSwitchIfNotNull("--rpc ", Rpc);
         }
 
         foreach (string option in AdditionalOptions)

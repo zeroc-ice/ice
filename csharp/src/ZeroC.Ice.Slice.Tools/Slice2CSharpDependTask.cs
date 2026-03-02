@@ -8,10 +8,16 @@ namespace ZeroC.Ice.Slice.Tools;
 public class Slice2CSharpDependTask : Common.SliceDependTask
 {
     protected override ITaskItem[] GeneratedItems(ITaskItem source) =>
-        new ITaskItem[]
-        {
-            new TaskItem(GetGeneratedPath(source, source.GetMetadata("OutputDir"), ".cs")),
-        };
+        Rpc == "icerpc" ?
+            new ITaskItem[]
+            {
+                new TaskItem(GetGeneratedPath(source, source.GetMetadata("OutputDir"), ".cs")),
+                new TaskItem(GetGeneratedPath(source, source.GetMetadata("OutputDir"), ".IceRpc.cs"))
+            } :
+            new ITaskItem[]
+            {
+                new TaskItem(GetGeneratedPath(source, source.GetMetadata("OutputDir"), ".cs"))
+            };
 
     // Same as generated items but only returns the generated items that need to be compiled
     // for example it excludes C++ headers

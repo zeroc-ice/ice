@@ -82,19 +82,7 @@ namespace Slice::Csharp
     /// - @c false if the link was to a Slice element which isn't mapped in C#; @c true otherwise.
     /// - The C# formatted link.
     std::pair<bool, std::string>
-    csLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
-
-    class IceDocCommentFormatter final : public DocCommentFormatter
-    {
-    public:
-        void preprocess(StringList& rawComment) final;
-        std::string formatCode(const std::string& rawText) final;
-        std::string formatParamRef(const std::string& param) final;
-        std::string
-        formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final;
-        std::string
-        formatSeeAlso(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final;
-    };
+    iceLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 }
 
 #endif

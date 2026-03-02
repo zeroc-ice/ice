@@ -8,20 +8,29 @@
 
 namespace Slice
 {
+    enum class GenMode
+    {
+        None,
+        Ice,
+        IceRpc
+    };
+
     class Gen final
     {
     public:
-        Gen(const std::string&, const std::string&, bool);
+        Gen(const std::string& base, const std::string& dir, GenMode genMode, bool enableAnalysis);
         Gen(const Gen&) = delete;
         ~Gen();
 
         void generate(const UnitPtr&);
 
     private:
+        const GenMode _genMode;
         IceInternal::Output _out;
-        bool _enableAnalysis;
+        IceInternal::Output _iceRpcOut;
+        const bool _enableAnalysis;
 
-        void printHeader();
+        static void printHeader(IceInternal::Output& out, const std::string& iceFile, bool enableAnalysis);
     };
 }
 
