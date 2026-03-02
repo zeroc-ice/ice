@@ -104,7 +104,7 @@
             WorkingDirectory      = "$(MSBuildProjectDirectory)"
             IceSliceToolsPath     = "$(_IceSliceToolsPathNormalized)"
             Sources               = "@(_SliceCompileNormalized)"
-            Rpc                   = "%(SliceCompile.Rpc)">
+            Rpc                   = "%(_SliceCompileNormalized.Rpc)">
 
             <Output
                 ItemName          = "_SliceCompile"
