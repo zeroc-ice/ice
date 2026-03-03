@@ -57,8 +57,6 @@ public:
     {
     }
 
-    string reason;
-
 private:
 
     void init(const DBusError& err)
@@ -642,9 +640,9 @@ private:
             return 0;
         case Type::KindBoolean:
         {
-            bool v;
+            dbus_bool_t v;
             ::dbus_message_iter_get_basic(_iter, &v);
-            return new BooleanValue(v);
+            return new BooleanValue(v != FALSE);
         }
         case Type::KindByte:
         {
@@ -1152,7 +1150,7 @@ public:
         if(msg->isMethodCall())
         {
             map<string, ServicePtr>::iterator p = services.find(msg->getPath());
-            if(p != _services.end())
+            if(p != services.end())
             {
                 try
                 {
