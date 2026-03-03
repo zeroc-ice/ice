@@ -1150,7 +1150,8 @@ SChannel::TransceiverI::TransceiverI(const InstancePtr& instance,
     _bufferedW(0),
     _sslInitialized(false),
     _credentialsInitialized(false),
-    _verified(false)
+    _verified(false),
+    _trustError(IceSSL::ICE_ENUM(TrustError, NoError))
 {
 }
 

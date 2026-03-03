@@ -643,6 +643,8 @@ IceSSL::SecureTransport::TransceiverI::TransceiverI(const IceSSL::InstancePtr& i
     _incoming(incoming),
     _delegate(delegate),
     _connected(false),
+    _tflags(0),
+    _trustError(IceSSL::ICE_ENUM(TrustError, NoError)),
     _verified(false),
     _buffered(0)
 {
