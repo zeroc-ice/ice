@@ -28,6 +28,11 @@ IceSSL::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator),
     _logger(communicator->getLogger()),
     _trustManager(new TrustManager(communicator)),
+    _checkCertName(false),
+    _serverNameIndication(false),
+    _verifyDepthMax(0),
+    _verifyPeer(0),
+    _securityTraceLevel(0),
     _revocationCheckCacheOnly(false),
     _revocationCheck(0)
 {

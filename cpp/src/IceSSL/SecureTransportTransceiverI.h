@@ -72,13 +72,13 @@ private:
         SSLWantWrite = 0x2
     };
 
-    mutable Ice::Byte _tflags{0};
+    mutable Ice::Byte _tflags;
     size_t _maxSendPacketSize;
     size_t _maxRecvPacketSize;
     std::string _cipher;
     std::vector<CertificatePtr> _certs;
-    TrustError _trustError{IceSSL::ICE_ENUM(TrustError, NoError)};
-    bool _verified{false};
+    TrustError _trustError;
+    bool _verified;
     size_t _buffered;
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;

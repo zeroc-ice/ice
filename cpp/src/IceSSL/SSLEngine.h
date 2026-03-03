@@ -85,11 +85,11 @@ private:
     CertificateVerifierPtr _verifier;
     PasswordPromptPtr _prompt;
 
-    bool _checkCertName{false};
-    bool _serverNameIndication{false};
-    int _verifyDepthMax{0};
-    int _verifyPeer{0};
-    int _securityTraceLevel{0};
+    bool _checkCertName;
+    bool _serverNameIndication;
+    int _verifyDepthMax;
+    int _verifyPeer;
+    int _securityTraceLevel;
     std::string _securityTraceCategory;
     const bool _revocationCheckCacheOnly;
     const int _revocationCheck;

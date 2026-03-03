@@ -70,8 +70,8 @@ private:
     bool _connected;
     std::string _cipher;
     std::vector<IceSSL::CertificatePtr> _certs;
-    bool _verified{false};
-    TrustError _trustError{IceSSL::ICE_ENUM(TrustError, NoError)};
+    bool _verified;
+    TrustError _trustError;
 
     SSL* _ssl;
     BIO* _memBio;
