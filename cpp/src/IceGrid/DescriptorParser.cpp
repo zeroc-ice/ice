@@ -78,12 +78,16 @@ private:
 DescriptorHandler::DescriptorHandler(const string& filename, const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator),
     _filename(filename),
+    _targetCounter(0),
     _isCurrentTargetDeployable(true),
+    _line(0),
+    _column(0),
     _currentCommunicator(0),
     _isTopLevel(true),
     _inAdapter(false),
     _inReplicaGroup(false),
-    _inDbEnv(false)
+    _inDbEnv(false),
+    _inDistrib(false)
 {
 }
 
