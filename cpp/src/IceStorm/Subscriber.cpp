@@ -927,7 +927,7 @@ Subscriber::shutdown()
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(_lock);
 
     _shutdown = true;
-    while(_outstanding > 0 && !_events.empty())
+    while(_outstanding > 0 || !_events.empty())
     {
         _lock.wait();
     }

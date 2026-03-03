@@ -587,17 +587,17 @@ TopicManagerImpl::getContent(LogUpdate& llu, TopicContentSeq& content)
     {
         Lock sync(*this);
         reap();
-    }
 
-    try
-    {
         content.clear();
         for(map<string, TopicImplPtr>::const_iterator p = _topics.begin(); p != _topics.end(); ++p)
         {
             TopicContent rec = p->second->getContent();
             content.push_back(rec);
         }
+    }
 
+    try
+    {
         IceDB::ReadOnlyTxn txn(_instance->dbEnv());
         _lluMap.get(txn, lluDbKey, llu);
     }

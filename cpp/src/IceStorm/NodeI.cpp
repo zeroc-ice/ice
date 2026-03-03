@@ -160,6 +160,7 @@ NodeI::NodeI(const InstancePtr& instance,
     _nodes(nodes),
     _state(NodeStateInactive),
     _updateCounter(0),
+    _coord(-1),
     _max(0),
     _generation(-1),
     _destroy(false)
