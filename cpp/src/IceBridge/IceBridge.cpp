@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include <Ice/ConsoleUtil.h>
 #include <Ice/Connection.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/Service.h>
@@ -10,6 +11,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 
 namespace
 {
@@ -544,6 +546,8 @@ BridgeI::ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
             }
             catch(const Exception& ex)
             {
+                _connections.erase(current.con);
+                bc->outgoingException(ex);
                 cb->ice_exception(ex);
                 return;
             }
@@ -639,7 +643,7 @@ BridgeService::start(int argc, char* argv[], int& status)
 
     if(!args.empty())
     {
-        cerr << argv[0] << ": too many arguments" << endl;
+        consoleErr << argv[0] << ": too many arguments" << endl;
         usage(argv[0]);
         return false;
     }
