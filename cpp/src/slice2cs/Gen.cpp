@@ -63,6 +63,7 @@ Slice::Gen::Gen(const string& base, const string& dir, GenMode genMode, bool ena
 
     if (_genMode == GenMode::Ice)
     {
+        _out << sp;
         _out << nl << "[assembly:Ice.Slice(\"" << fileBase << ".ice\")]";
     }
     else
@@ -78,7 +79,6 @@ Slice::Gen::Gen(const string& base, const string& dir, GenMode genMode, bool ena
             _iceRpcOut << nl << "using ZeroC.Slice;";
             _iceRpcOut << nl << "using IceRpc.Slice;";
             _iceRpcOut << sp;
-            _iceRpcOut << nl << "[assembly:Slice(\"" << fileBase << ".ice\")]";
         }
     }
 }

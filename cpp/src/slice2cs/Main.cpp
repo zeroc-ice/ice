@@ -208,7 +208,7 @@ compile(const vector<string>& argv)
             }
 
             UnitOptions unitOptions{};
-            if (genMode != Slice::GenMode::Ice)
+            if (genMode == Slice::GenMode::None || genMode == Slice::GenMode::IceRpc)
             {
                 unitOptions.defaultMappedName = [](const Contained& contained)
                 {

@@ -96,47 +96,38 @@ Slice::Csharp::csFieldType(const TypePtr& type, const string& ns, bool optional)
     static const char* builtinTable[] =
         {"byte", "bool", "short", "int", "long", "float", "double", "string", "IceRpc.ServiceAddress?", "SliceClass?"};
 
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if (builtin)
+    if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
         return builtinTable[builtin->kind()];
     }
-
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if (cl)
+    else if (auto cl = dynamic_pointer_cast<ClassDecl>(type))
     {
         assert(!optional); // Optional classes are disallowed by the parser.
         return getUnqualified(cl, ns) + "?";
     }
-
-    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-    if (proxy)
+    else if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
     {
         return getUnqualified(proxy, ns, "", "Proxy") + "?";
     }
-
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if (seq)
+    else if (auto seq = dynamic_pointer_cast<Sequence>(type))
     {
         return "global::System.Collections.Generic.IList<" + csFieldType(seq->type(), ns) + ">";
     }
-
-    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
-    if (d)
+    else if (auto d = dynamic_pointer_cast<Dictionary>(type))
     {
         return "global::System.Collections.Generic.IDictionary<" + csFieldType(d->keyType(), ns) + ", " +
                csFieldType(d->valueType(), ns) + ">";
     }
-
-    // Struct, Enum
-    ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
-    if (contained)
+    else if (auto contained = dynamic_pointer_cast<Contained>(type))
     {
+        // Struct, Enum
         return getUnqualified(contained, ns);
     }
-
-    assert(false);
-    return "???";
+    else
+    {
+        assert(false);
+        return "???";
+    }
 }
 
 string
@@ -148,8 +139,7 @@ Slice::Csharp::csIncomingParamType(const TypePtr& type, const string& ns, bool o
         return csIncomingParamType(type, ns) + "?";
     }
 
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if (seq)
+    if (auto seq = dynamic_pointer_cast<Sequence>(type))
     {
         if (auto metadata = seq->getMetadataArgs("cs:generic"))
         {
@@ -165,23 +155,22 @@ Slice::Csharp::csIncomingParamType(const TypePtr& type, const string& ns, bool o
         }
         return csFieldType(seq->type(), ns) + "[]";
     }
-
-    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
-    if (d)
+    else if (auto d = dynamic_pointer_cast<Dictionary>(type))
     {
         string typeName = d->getMetadataArgs("cs:generic").value_or("Dictionary");
         return "global::System.Collections.Generic." + typeName + "<" + csFieldType(d->keyType(), ns) + ", " +
                csFieldType(d->valueType(), ns) + ">";
     }
-
-    return csFieldType(type, ns);
+    else
+    {
+        return csFieldType(type, ns);
+    }
 }
 
 string
 Slice::Csharp::csOutgoingParamType(const TypePtr& type, const string& ns, bool optional)
 {
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if (seq)
+    if (auto seq = dynamic_pointer_cast<Sequence>(type))
     {
         bool hasGenericMetadata = seq->hasMetadata("cs:generic");
 
@@ -199,15 +188,15 @@ Slice::Csharp::csOutgoingParamType(const TypePtr& type, const string& ns, bool o
             return "global::System.Collections.Generic.IEnumerable<" + elementTypeStr + ">" + (optional ? "?" : "");
         }
     }
-
-    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
-    if (d)
+    else if (auto d = dynamic_pointer_cast<Dictionary>(type))
     {
         return "global::System.Collections.Generic.IEnumerable<global::System.Collections.Generic.KeyValuePair<" +
-               csFieldType(d->keyType(), ns) + ", " + csFieldType(d->valueType(), ns) + ">>" + (optional ? "?" : "");
+               csFieldType(d->keyType(), ns) + ", " + csFieldType(d->valueType(), ns) + ">>";
     }
-
-    return csFieldType(type, ns, optional);
+    else
+    {
+        return csFieldType(type, ns, optional);
+    }
 }
 
 string
@@ -235,13 +224,8 @@ Slice::Csharp::csRequired(const DataMemberPtr& field)
         return false;
     }
 
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(field->type());
-    if (builtin)
-    {
-        return builtin->kind() == Builtin::KindString;
-    }
-
-    return dynamic_pointer_cast<Sequence>(field->type()) || dynamic_pointer_cast<Dictionary>(field->type());
+    return isString(field->type()) || dynamic_pointer_cast<Sequence>(field->type()) ||
+           dynamic_pointer_cast<Dictionary>(field->type());
 }
 
 void
@@ -267,45 +251,29 @@ Slice::Csharp::encodeField(
         "NullableServiceAddress",
         "NullableClass"};
 
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if (builtin)
+    if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
         out << encoderName << ".Encode" << builtinTable[builtin->kind()] << "(" << fieldName << ")";
-        return;
     }
-
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if (cl)
+    else if (auto cl = dynamic_pointer_cast<ClassDecl>(type))
     {
         out << encoderName << ".EncodeNullableClass(" << fieldName << ")";
-        return;
     }
-
-    StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if (st)
+    else if (auto st = dynamic_pointer_cast<Struct>(type))
     {
         out << fieldName << ".Encode(ref " << encoderName << ")";
-        return;
     }
-
-    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-    if (proxy)
+    else if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
     {
         out << getUnqualified(proxy, ns, "", "ProxySliceEncoderExtensions") << ".EncodeNullable"
             << removeEscapePrefix(proxy->mappedName()) << "Proxy(ref " << encoderName << ", " << fieldName << ")";
-        return;
     }
-
-    EnumPtr en = dynamic_pointer_cast<Enum>(type);
-    if (en)
+    else if (auto en = dynamic_pointer_cast<Enum>(type))
     {
         out << getUnqualified(en, ns, "", "SliceEncoderExtensions") << ".Encode" << removeEscapePrefix(en->mappedName())
             << "(ref " << encoderName << ", " << fieldName << ")";
-        return;
     }
-
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if (seq)
+    else if (auto seq = dynamic_pointer_cast<Sequence>(type))
     {
         if (hasFixedSizeBuiltinElements(seq) && !seq->hasMetadata("cs:generic"))
         {
@@ -333,11 +301,8 @@ Slice::Csharp::encodeField(
             out << ")";
             out.dec();
         }
-        return;
     }
-
-    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
-    if (dict)
+    else if (auto dict = dynamic_pointer_cast<Dictionary>(type))
     {
         TypePtr keyType = dict->keyType();
         TypePtr valueType = dict->valueType();
@@ -357,10 +322,11 @@ Slice::Csharp::encodeField(
         out.dec();
         out << ")";
         out.dec();
-        return;
     }
-
-    assert(false);
+    else
+    {
+        assert(false);
+    }
 }
 
 void
@@ -453,7 +419,7 @@ Slice::Csharp::encodeOptionalField(
 }
 
 void
-Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns, TypeContext)
+Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns)
 {
     assert(type);
 
@@ -469,46 +435,29 @@ Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns, T
         "NullableServiceAddress",
         "NullableClass<SliceClass>"};
 
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if (builtin)
+    if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
         out << "decoder.Decode" << builtinTable[builtin->kind()] << "()";
-        return;
     }
-
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if (cl)
+    else if (auto cl = dynamic_pointer_cast<ClassDecl>(type))
     {
         out << "decoder.DecodeNullableClass<" << getUnqualified(cl, ns) << ">()";
-        return;
     }
-
-    StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if (st)
+    else if (auto st = dynamic_pointer_cast<Struct>(type))
     {
         out << "new " << getUnqualified(st, ns) << "(ref decoder)";
-        return;
     }
-
-    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-    if (proxy)
+    else if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
     {
         out << getUnqualified(proxy, ns, "", "ProxySliceDecoderExtensions") << ".DecodeNullable"
             << removeEscapePrefix(proxy->mappedName()) << "Proxy(ref decoder)";
-
-        return;
     }
-
-    EnumPtr en = dynamic_pointer_cast<Enum>(type);
-    if (en)
+    else if (auto en = dynamic_pointer_cast<Enum>(type))
     {
         out << getUnqualified(en, ns, "", "SliceDecoderExtensions") << ".Decode" << removeEscapePrefix(en->mappedName())
             << "(ref decoder)";
-        return;
     }
-
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if (seq)
+    else if (auto seq = dynamic_pointer_cast<Sequence>(type))
     {
         bool hasGenericMetadata = seq->hasMetadata("cs:generic");
 
@@ -544,15 +493,12 @@ Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns, T
             }
             out << nl << "(ref SliceDecoder decoder) => ";
             castToNestedFieldType(out, seq->type(), ns);
-            decodeField(out, seq->type(), ns, TypeContext::Field);
+            decodeField(out, seq->type(), ns);
             out << ")";
             out.dec();
         }
-        return;
     }
-
-    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
-    if (dict)
+    else if (auto dict = dynamic_pointer_cast<Dictionary>(type))
     {
         TypePtr keyType = dict->keyType();
         TypePtr valueType = dict->valueType();
@@ -564,17 +510,18 @@ Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns, T
         out.inc();
         out << nl << "size => new " << csDict << "(size),";
         out << nl << "(ref SliceDecoder decoder) => ";
-        decodeField(out, keyType, ns, TypeContext::Field);
+        decodeField(out, keyType, ns);
         out << ",";
         out << nl << "(ref SliceDecoder decoder) => ";
         castToNestedFieldType(out, valueType, ns);
-        decodeField(out, valueType, ns, TypeContext::Field);
+        decodeField(out, valueType, ns);
         out << ")";
         out.dec();
-        return;
     }
-
-    assert(false);
+    else
+    {
+        assert(false);
+    }
 }
 
 void
@@ -587,7 +534,7 @@ Slice::Csharp::decodeOptionalField(Output& out, int tag, const TypePtr& type, co
     out << nl << "(ref SliceDecoder decoder) => ";
     // We need to cast to the optional type. This is especially important for value types.
     out << "(" << csType(type, ns, context) << "?)";
-    decodeField(out, type, ns, context);
+    decodeField(out, type, ns);
     out << ",";
     out << nl << "useTagEndMarker: " << (context == TypeContext::Field ? "true" : "false");
     out << ")";

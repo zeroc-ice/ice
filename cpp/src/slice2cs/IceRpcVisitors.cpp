@@ -130,7 +130,14 @@ namespace
         }
     }
 
-    void writeMethod(IceInternal::Output& out, const OperationPtr& operation, const std::string& ns, bool dispatch)
+    /// Writes the method signature for an operation, without access or semicolon.
+    /// @param out The output to write to.
+    /// @param operation The Slice operation being mapped to C#.
+    /// @param ns The current C# namespace.
+    /// @param dispatch If true, writes the signature for the dispatch method (with incoming parameter types and a
+    /// ValueTask return type); if false, writes the signature for the proxy method.
+    void
+    writeMethodSignature(IceInternal::Output& out, const OperationPtr& operation, const std::string& ns, bool dispatch)
     {
         TypeContext paramContext = dispatch ? TypeContext::IncomingParam : TypeContext::OutgoingParam;
 
@@ -211,7 +218,7 @@ Slice::IceRpc::TypesVisitor::visitStructEnd(const StructPtr& p)
     for (const auto& field : p->dataMembers())
     {
         _out << nl << "this." + field->mappedName() << " = ";
-        decodeField(_out, field->type(), ns, TypeContext::Field);
+        decodeField(_out, field->type(), ns);
         _out << ';';
     }
     _out << eb;
@@ -629,7 +636,7 @@ Slice::IceRpc::TypesVisitor::writeEncodeDecode(
         if (!field->optional())
         {
             _out << nl << "this." + field->mappedName() << " = ";
-            decodeField(_out, field->type(), ns, TypeContext::Field);
+            decodeField(_out, field->type(), ns);
             _out << ';';
         }
     }
@@ -821,18 +828,18 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     for (const auto& operation : p->allInheritedOperations())
     {
         _out << sp;
-        _out << nl << "/// <inheritdoc/>";
+        _out << nl << "/// <inheritdoc />";
         _out << nl << "public ";
 
         string featureParam = escapeParamName("features", operation->inParameters());
         string cancellationTokenParam = escapeParamName("cancellationToken", operation->inParameters());
 
-        writeMethod(_out, operation, ns, false);
+        writeMethodSignature(_out, operation, ns, false);
 
         _out << " =>";
         _out.inc();
         _out << nl << "(" << getUnqualified(operation->interface(), ns, "", "Proxy") << ")this."
-             << operation->mappedName();
+             << removeEscapePrefix(operation->mappedName()) << "Async";
         _out << spar;
         for (const auto& param : operation->inParameters())
         {
@@ -856,12 +863,14 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         string featureParam = escapeParamName("features", operation->inParameters());
         string cancellationTokenParam = escapeParamName("cancellationToken", operation->inParameters());
 
-        writeMethod(_out, operation, ns, false);
+        writeMethodSignature(_out, operation, ns, false);
 
         _out << " =>";
         _out.inc();
 
-        // There is no equivalent for [compress] in Ice-Slice.
+        // IceRPC-Slice provides a `[compress]` attribute to compress request/response payloads for requests/responses
+        // sent over the icerpc protocol. There is no equivalent for [compress] in Ice-Slice; this is not a serious
+        // limitation since Ice-Slice is used primarily with the ice protocol.
 
         _out << nl << "this.InvokeOperationAsync(";
         _out.inc();
@@ -905,7 +914,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         _out,
         "summary",
         R"(Provides an extension method for <see cref="SliceEncoder" /> to encode a <see cref=")" + name +
-            R"(Proxy" />."))");
+            R"(Proxy" />.")");
     _out << nl << "public static class " << name << "ProxySliceEncoderExtensions";
     _out << sb;
     writeDocLine(
@@ -913,8 +922,8 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "summary",
         R"(Encodes a nullable <see cref=")" + name +
             R"(Proxy" /> as a nullable <see cref="IceRpc.ServiceAddress" />.)");
-    writeDocLine(_out, "param name=\"encoder\"", "The Slice encoder.", "param");
-    writeDocLine(_out, "param name=\"proxy\"", "The proxy to encode as a service address (can be null).", "param");
+    writeDocLine(_out, R"(param name="encoder")", "The Slice encoder.", "param");
+    writeDocLine(_out, R"(param name="proxy")", "The proxy to encode as a service address (can be null).", "param");
     _out << nl << "public static void EncodeNullable" << name << "Proxy(this ref SliceEncoder encoder, " << name
          << "Proxy? proxy) =>";
     _out.inc();
@@ -936,7 +945,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "summary",
         R"(Decodes a nullable <see cref="IceRpc.ServiceAddress" /> into a nullable <see cref=")" + name +
             R"(Proxy" />.)");
-    writeDocLine(_out, "param name=\"decoder\"", "The Slice decoder.", "param");
+    writeDocLine(_out, R"(param name="decoder")", "The Slice decoder.", "param");
     _out << nl << "public static " << name << "Proxy? DecodeNullable" << name
          << "Proxy(this ref SliceDecoder decoder) =>";
     _out.inc();
@@ -955,7 +964,7 @@ Slice::IceRpc::ProxyVisitor::visitOperation(const OperationPtr& p)
     // TODO: doc comment for operation
     emitObsoleteAttribute(p);
     _out << nl;
-    writeMethod(_out, p, ns, false);
+    writeMethodSignature(_out, p, ns, false);
     _out << ';';
 }
 
@@ -975,8 +984,8 @@ Slice::IceRpc::ProxyVisitor::writeProxyRequestClass(const InterfaceDefPtr& inter
             "summary",
             "Encodes the argument(s) of operation <c>" + operation->name() + "</c> into a request payload.");
         // TODO: param doc comments
-        writeDocLine(_out, "param name=\"encodeOptions\"", "The Slice encode options.", "param");
-        writeDocLine(_out, "returns", "The Slice-encoded payload.");
+        writeDocLine(_out, R"(param name="encodeOptions")", "The Slice encode options.", "param");
+        writeDocLine(_out, "returns", "The Slice-encoded payload.", "returns");
 
         _out << nl << "public static global::System.IO.Pipelines.PipeReader Encode"
              << removeEscapePrefix(operation->mappedName()) << "(";
@@ -1089,7 +1098,7 @@ Slice::IceRpc::ProxyVisitor::writeProxyResponseClass(const InterfaceDefPtr& inte
                 }
                 else
                 {
-                    decodeField(_out, returnParams.front()->type(), ns, TypeContext::IncomingParam);
+                    decodeField(_out, returnParams.front()->type(), ns);
                 }
             }
             else
@@ -1107,7 +1116,7 @@ Slice::IceRpc::ProxyVisitor::writeProxyResponseClass(const InterfaceDefPtr& inte
                     }
                     else
                     {
-                        decodeField(_out, param->type(), ns, TypeContext::IncomingParam);
+                        decodeField(_out, param->type(), ns);
                     }
                     _out << ';';
                 }
@@ -1289,7 +1298,7 @@ Slice::IceRpc::SkeletonVisitor::visitOperation(const OperationPtr& p)
     _out << ")]";
 
     _out << nl;
-    writeMethod(_out, p, ns, true);
+    writeMethodSignature(_out, p, ns, true);
     _out << ';';
 }
 
@@ -1350,7 +1359,7 @@ Slice::IceRpc::SkeletonVisitor::writeRequestClass(const InterfaceDefPtr& interfa
                 }
                 else
                 {
-                    decodeField(_out, inParameters.front()->type(), ns, TypeContext::IncomingParam);
+                    decodeField(_out, inParameters.front()->type(), ns);
                 }
             }
             else
@@ -1368,7 +1377,7 @@ Slice::IceRpc::SkeletonVisitor::writeRequestClass(const InterfaceDefPtr& interfa
                     }
                     else
                     {
-                        decodeField(_out, param->type(), ns, TypeContext::IncomingParam);
+                        decodeField(_out, param->type(), ns);
                     }
                     _out << ';';
                 }
