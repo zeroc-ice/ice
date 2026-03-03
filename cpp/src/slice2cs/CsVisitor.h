@@ -14,6 +14,9 @@ namespace Slice
     public:
         CsVisitor(IceInternal::Output&);
 
+        bool visitModuleStart(const ModulePtr&) override;
+        void visitModuleEnd(const ModulePtr&) override;
+
     protected:
         void emitNonBrowsableAttribute();
 
@@ -45,10 +48,11 @@ namespace Slice
         writeOpDocComment(const OperationPtr& operation, const std::vector<std::string>& extraParams, bool isAsync);
         void writeParameterDocComments(const DocComment&, const ParameterList&);
 
+        IceInternal::Output& _out;
+
+    private:
         void namespacePrefixStart(const ModulePtr&);
         void namespacePrefixEnd(const ModulePtr&);
-
-        IceInternal::Output& _out;
     };
 }
 

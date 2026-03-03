@@ -103,7 +103,8 @@
         <Slice2CSharpDependTask
             WorkingDirectory      = "$(MSBuildProjectDirectory)"
             IceSliceToolsPath     = "$(_IceSliceToolsPathNormalized)"
-            Sources               = "@(_SliceCompileNormalized)">
+            Sources               = "@(_SliceCompileNormalized)"
+            Rpc                   = "%(_SliceCompileNormalized.Rpc)">
 
             <Output
                 ItemName          = "_SliceCompile"
@@ -120,6 +121,7 @@
             IceSliceToolsPath     = "$(_IceSliceToolsPathNormalized)"
             OutputDir             = "%(_SliceCompile.OutputDir)"
             IncludeDirectories    = "%(_SliceCompile.IncludeDirectories)"
+            Rpc                   = "%(_SliceCompile.Rpc)"
             AdditionalOptions     = "%(_SliceCompile.AdditionalOptions)"
             Sources               = "@(_SliceCompile)"
             Condition             = "'%(_SliceCompile.BuildRequired)' == 'True'"/>
@@ -141,6 +143,7 @@
 
     <Target Name="SliceCompileClean" BeforeTargets="Clean">
         <Delete Files="@(SliceCompile->'%(OutputDir)\%(Filename).cs')"/>
+        <Delete Files="@(SliceCompile->'%(OutputDir)\%(Filename).IceRpc.cs')"/>
         <Delete Files="@(SliceCompile->'%(OutputDir)\SliceCompile.%(Filename).d')"/>
     </Target>
 </Project>

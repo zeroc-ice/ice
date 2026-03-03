@@ -28,6 +28,24 @@ namespace
 
 Slice::CsVisitor::CsVisitor(Output& out) : _out(out) {}
 
+bool
+Slice::CsVisitor::visitModuleStart(const ModulePtr& p)
+{
+    namespacePrefixStart(p);
+    _out << sp;
+    _out << nl << "namespace " << p->mappedName();
+    _out << sb;
+
+    return true;
+}
+
+void
+Slice::CsVisitor::visitModuleEnd(const ModulePtr& p)
+{
+    _out << eb;
+    namespacePrefixEnd(p);
+}
+
 void
 Slice::CsVisitor::emitNonBrowsableAttribute()
 {

@@ -17,13 +17,23 @@ public class Slice2CSharpTask : Common.SliceCompilerTask
         {
             string message = string.Format("Compiling {0} Generating -> ", source.GetMetadata("Identity"));
             message += Common.TaskUtil.MakeRelative(WorkingDirectory, GetGeneratedPath(source, OutputDir, ".cs"));
+            if (Rpc == "icerpc")
+            {
+                message += ", " + Common.TaskUtil.MakeRelative(WorkingDirectory, GetGeneratedPath(source, OutputDir, ".IceRpc.cs"));
+            }
             Log.LogMessage(MessageImportance.High, message);
         }
     }
 
     protected override ITaskItem[] GeneratedItems(ITaskItem source) =>
-        new ITaskItem[]
-        {
-            new TaskItem(GetGeneratedPath(source, OutputDir, ".cs"))
-        };
+        Rpc == "icerpc" ?
+            new ITaskItem[]
+            {
+                new TaskItem(GetGeneratedPath(source, OutputDir, ".cs")),
+                new TaskItem(GetGeneratedPath(source, OutputDir, ".IceRpc.cs"))
+            } :
+            new ITaskItem[]
+            {
+                new TaskItem(GetGeneratedPath(source, OutputDir, ".cs"))
+            };
 }

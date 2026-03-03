@@ -9,6 +9,7 @@
 #include "Gen.h"
 #include "Ice/CtrlCHandler.h"
 #include "IceCsUtil.h"
+#include "IceRpcCsUtil.h"
 
 #include <algorithm>
 #include <cassert>
@@ -43,6 +44,7 @@ usage(const string& n)
                   "-UNAME                   Remove any definition for NAME.\n"
                   "-IDIR                    Put DIR in the include file search path.\n"
                   "--output-dir DIR         Create files in the directory DIR.\n"
+                  "--rpc [none|ice|icerpc]  Generate code for the specified RPC framework. Default is 'ice'.\n"
                   "-d, --debug              Print debug messages.\n"
                   "--depend                 Generate Makefile dependencies.\n"
                   "--depend-xml             Generate dependencies in XML format.\n"
@@ -63,6 +65,7 @@ compile(const vector<string>& argv)
     opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("", "output-dir", IceInternal::Options::NeedArg);
+    opts.addOpt("", "rpc", IceInternal::Options::NeedArg, "ice");
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
     opts.addOpt("", "depend-file", IceInternal::Options::NeedArg, "");
@@ -129,6 +132,35 @@ compile(const vector<string>& argv)
 
     bool debug = opts.isSet("debug");
 
+    Slice::GenMode genMode;
+    string rpcArg = opts.optArg("rpc");
+    if (rpcArg == "none")
+    {
+        genMode = Slice::GenMode::None;
+    }
+    else if (rpcArg == "ice")
+    {
+        genMode = Slice::GenMode::Ice;
+    }
+    else if (rpcArg == "icerpc")
+    {
+        genMode = Slice::GenMode::IceRpc;
+    }
+    else
+    {
+        consoleErr << argv[0] << ": error: invalid argument for --rpc: " << rpcArg << endl;
+        if (!validate)
+        {
+            usage(argv[0]);
+        }
+        return EXIT_FAILURE;
+    }
+    if (genMode == Slice::GenMode::None || genMode == Slice::GenMode::IceRpc)
+    {
+        // Both none and icerpc use the new mapping provided by IceRPC.
+        preprocessorArgs.emplace_back("-D__ICERPC__");
+    }
+
     if (sliceFiles.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
@@ -169,12 +201,30 @@ compile(const vector<string>& argv)
         {
             preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
             FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2CS__");
+
             if (preprocessedHandle == nullptr)
             {
                 return EXIT_FAILURE;
             }
 
-            unit = Unit::createUnit("cs");
+            UnitOptions unitOptions{};
+            if (genMode == Slice::GenMode::None || genMode == Slice::GenMode::IceRpc)
+            {
+                unitOptions.defaultMappedName = [](const Contained& contained)
+                {
+                    // Convert all names to pascal case except for parameters, which are converted to camel case.
+                    if (dynamic_cast<const Parameter*>(&contained))
+                    {
+                        return toCamelCase(contained.name());
+                    }
+                    else
+                    {
+                        return toPascalCase(contained.name());
+                    }
+                };
+            }
+
+            unit = Unit::createUnit("cs", unitOptions);
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
             preprocessor->close();
@@ -195,10 +245,13 @@ compile(const vector<string>& argv)
             }
             else
             {
-                Slice::Csharp::IceDocCommentFormatter iceFormatter;
-                parseAllDocComments(unit, iceFormatter);
+                Slice::Csharp::CsharpDocCommentFormatter docCommentFormatter{
+                    genMode == Slice::GenMode::Ice ? Slice::Csharp::iceLinkFormatter
+                                                   : Slice::Csharp::icerpcLinkFormatter};
 
-                Gen gen(preprocessor->getBaseName(), output, enableAnalysis);
+                parseAllDocComments(unit, docCommentFormatter);
+
+                Gen gen(preprocessor->getBaseName(), output, genMode, enableAnalysis);
                 gen.generate(unit);
 
                 status |= unit->getStatus();

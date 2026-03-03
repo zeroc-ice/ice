@@ -2738,8 +2738,9 @@ Slice::InterfaceDef::createOperation(
                 break;
             }
         }
-        // Check the operations of the Object pseudo-interface.
-        if (!checkBaseOperationNames(name, {"ice_id", "ice_ids", "ice_ping", "ice_isA"}))
+
+        // Check the operations of the Object pseudo-interface unless we're generating code for Object itself.
+        if (scoped() != "::Ice::Object" && !checkBaseOperationNames(name, {"ice_id", "ice_ids", "ice_ping", "ice_isA"}))
         {
             hasConflictingIdentifier = true;
         }
@@ -2828,6 +2829,24 @@ Slice::InterfaceDef::operations() const
 OperationList
 Slice::InterfaceDef::allOperations() const
 {
+    OperationList result = allInheritedOperations();
+
+    for (const auto& q : operations())
+    {
+        if (none_of(
+                result.begin(),
+                result.end(),
+                [name = q->name()](const auto& other) { return other->name() == name; }))
+        {
+            result.push_back(q);
+        }
+    }
+    return result;
+}
+
+OperationList
+Slice::InterfaceDef::allInheritedOperations() const
+{
     OperationList result;
     for (const auto& p : _bases)
     {
@@ -2840,17 +2859,6 @@ Slice::InterfaceDef::allOperations() const
             {
                 result.push_back(q);
             }
-        }
-    }
-
-    for (const auto& q : operations())
-    {
-        if (none_of(
-                result.begin(),
-                result.end(),
-                [name = q->name()](const auto& other) { return other->name() == name; }))
-        {
-            result.push_back(q);
         }
     }
     return result;

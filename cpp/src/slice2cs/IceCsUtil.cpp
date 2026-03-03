@@ -83,7 +83,7 @@ Slice::Csharp::typeToString(const TypePtr& type, const string& ns, bool optional
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        return getUnqualified(proxy, ns) + "Prx?";
+        return getUnqualified(proxy, ns, "", "Prx") + "?";
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
@@ -468,7 +468,7 @@ Slice::Csharp::writeMarshalUnmarshalCode(
     DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if (d)
     {
-        helperName = getUnqualified(d, ns) + "Helper";
+        helperName = getUnqualified(d, ns, "", "Helper");
     }
     else
     {
@@ -810,7 +810,7 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
     assert(cont);
     if (useHelper)
     {
-        string helperName = getUnqualified(seq, ns) + "Helper";
+        string helperName = getUnqualified(seq, ns, "", "Helper");
         if (marshal)
         {
             out << nl << helperName << ".write(" << stream << ", " << param << ");";
@@ -1323,11 +1323,11 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
     string helperName;
     if (dynamic_pointer_cast<InterfaceDecl>(type))
     {
-        helperName = getUnqualified(dynamic_pointer_cast<InterfaceDecl>(type), ns) + "PrxHelper";
+        helperName = getUnqualified(dynamic_pointer_cast<InterfaceDecl>(type), ns, "", "PrxHelper");
     }
     else
     {
-        helperName = getUnqualified(dynamic_pointer_cast<Contained>(type), ns) + "Helper";
+        helperName = getUnqualified(dynamic_pointer_cast<Contained>(type), ns, "", "Helper");
     }
 
     string func;
@@ -1619,7 +1619,7 @@ Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
 }
 
 std::pair<bool, string>
-Slice::Csharp::csLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
+Slice::Csharp::iceLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
 {
     ostringstream result;
 
@@ -1654,13 +1654,13 @@ Slice::Csharp::csLinkFormatter(const string& rawLink, const ContainedPtr& source
         if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
         {
             // link to the method on the proxy interface
-            result << getUnqualified(operationTarget->interface(), sourceScope) << "Prx."
+            result << getUnqualified(operationTarget->interface(), sourceScope, "", "Prx") << "."
                    << operationTarget->mappedName() << "Async";
         }
         else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
         {
             // link to the proxy interface
-            result << getUnqualified(interfaceTarget, sourceScope) << "Prx";
+            result << getUnqualified(interfaceTarget, sourceScope, "", "Prx");
         }
         else
         {
@@ -1692,77 +1692,4 @@ Slice::Csharp::csLinkFormatter(const string& rawLink, const ContainedPtr& source
     }
 
     return {true, result.str()};
-}
-
-void
-Slice::Csharp::IceDocCommentFormatter::preprocess(StringList& rawComment)
-{
-    for (auto& line : rawComment)
-    {
-        // Escape any XML special characters in the comment.
-        string::size_type pos = 0;
-        while ((pos = line.find_first_of("&<>", pos)) != string::npos)
-        {
-            switch (line[pos])
-            {
-                case '&':
-                    line.replace(pos, 1, "&amp;");
-                    break;
-                case '<':
-                    line.replace(pos, 1, "&lt;");
-                    break;
-                case '>':
-                    line.replace(pos, 1, "&gt;");
-                    break;
-            }
-            // Skip over the leading '&' character to avoid 'find'ing it again.
-            pos += 1;
-        }
-    }
-}
-
-string
-Slice::Csharp::IceDocCommentFormatter::formatCode(const string& rawText)
-{
-    return "<c>" + rawText + "</c>";
-}
-
-string
-Slice::Csharp::IceDocCommentFormatter::formatParamRef(const string& param)
-{
-    return "<paramref name=\"" + param + "\" />";
-}
-
-string
-Slice::Csharp::IceDocCommentFormatter::formatLink(
-    const string& rawLink,
-    const ContainedPtr& source,
-    const SyntaxTreeBasePtr& target)
-{
-    auto [mapToLink, qualifiedName] = Slice::Csharp::csLinkFormatter(rawLink, source, target);
-    if (mapToLink)
-    {
-        return "<see " + qualifiedName + " />";
-    }
-    else
-    {
-        return "<c>" + qualifiedName + "</c>";
-    }
-}
-
-string
-Slice::Csharp::IceDocCommentFormatter::formatSeeAlso(
-    const string& rawLink,
-    const ContainedPtr& source,
-    const SyntaxTreeBasePtr& target)
-{
-    auto [mapToLink, qualifiedName] = Slice::Csharp::csLinkFormatter(rawLink, source, target);
-    if (mapToLink)
-    {
-        return "<seealso " + qualifiedName + " />";
-    }
-    else
-    {
-        return "";
-    }
 }

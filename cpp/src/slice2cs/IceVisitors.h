@@ -15,8 +15,6 @@ namespace Slice::Ice
     public:
         TypesVisitor(IceInternal::Output&);
 
-        bool visitModuleStart(const ModulePtr&) final;
-        void visitModuleEnd(const ModulePtr&) final;
         bool visitClassDefStart(const ClassDefPtr&) final;
         void visitClassDefEnd(const ClassDefPtr&) final;
         bool visitExceptionStart(const ExceptionPtr&) final;
@@ -52,7 +50,7 @@ namespace Slice::Ice
         ResultVisitor(IceInternal::Output&);
 
         bool visitModuleStart(const ModulePtr&) final;
-        void visitModuleEnd(const ModulePtr&) final;
+
         void visitOperation(const OperationPtr&) final;
     };
 
@@ -63,7 +61,7 @@ namespace Slice::Ice
         SkeletonVisitor(IceInternal::Output& output, bool async);
 
         bool visitModuleStart(const ModulePtr&) final;
-        void visitModuleEnd(const ModulePtr&) final;
+
         bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
         void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
         void visitOperation(const OperationPtr&) final;

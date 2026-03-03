@@ -68,7 +68,6 @@
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-
     </ClCompile>
     <Link>
       <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -79,7 +78,6 @@
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-
     </ClCompile>
     <Link>
       <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -90,7 +88,6 @@
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-
     </ClCompile>
     <Link>
       <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -101,7 +98,6 @@
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-
     </ClCompile>
     <Link>
       <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -113,6 +109,8 @@
     <ClCompile Include="..\CsVisitor.cpp" />
     <ClCompile Include="..\Gen.cpp" />
     <ClCompile Include="..\IceCsUtil.cpp" />
+    <ClCompile Include="..\IceRpcCsUtil.cpp" />
+    <ClCompile Include="..\IceRpcVisitors.cpp" />
     <ClCompile Include="..\IceVisitors.cpp" />
     <ClCompile Include="..\Main.cpp" />
   </ItemGroup>
@@ -125,6 +123,8 @@
     <ClInclude Include="..\CsVisitor.h" />
     <ClInclude Include="..\Gen.h" />
     <ClInclude Include="..\IceCsUtil.h" />
+    <ClInclude Include="..\IceRpcCsUtil.h" />
+    <ClInclude Include="..\IceRpcVisitors.h" />
     <ClInclude Include="..\IceVisitors.h" />
   </ItemGroup>
   <ItemGroup>
