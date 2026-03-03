@@ -390,8 +390,9 @@ if (typeof WebSocket !== 'undefined')
         {
             const transceiver = new WSTransceiver(instance);
             let url = secure ? "wss" : "ws";
-            url += "://" + addr.host;
-            if(addr.port !== 80)
+            const isIPv6 = addr.host.indexOf(":") !== -1;
+            url += "://" + (isIPv6 ? `[${addr.host}]` : addr.host);
+            if(addr.port !== (secure ? 443 : 80))
             {
                 url += ":" + addr.port;
             }
