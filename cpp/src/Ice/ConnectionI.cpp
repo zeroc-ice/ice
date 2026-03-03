@@ -3340,7 +3340,6 @@ Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& request
                     stream.read(invokeNum);
                     if(invokeNum < 0)
                     {
-                        invokeNum = 0;
                         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
                     }
                     servantManager = _servantManager;
