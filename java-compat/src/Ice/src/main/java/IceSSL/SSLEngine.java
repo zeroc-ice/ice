@@ -866,7 +866,7 @@ class SSLEngine
             //
             if(_checkCertName && _verifyPeer > 0 && host != null && !IceInternal.Util.isAndroid())
             {
-                SSLParameters params = new SSLParameters();
+                SSLParameters params = engine.getSSLParameters();
                 params.setEndpointIdentificationAlgorithm("HTTPS");
                 engine.setSSLParameters(params);
             }
