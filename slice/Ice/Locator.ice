@@ -15,14 +15,12 @@
 ["java:identifier:com.zeroc.Ice"]
 module Ice
 {
-    /// The exception that is thrown by a {@link Locator} implementation when it cannot find an object adapter with the
-    /// provided adapter ID.
+    /// The exception that is thrown by a {@link Locator} implementation when it cannot find an object adapter.
     exception AdapterNotFoundException
     {
     }
 
-    /// The exception that is thrown by a {@link Locator} implementation when it cannot find an object with the provided
-    /// identity.
+    /// The exception that is thrown by a {@link Locator} implementation when it cannot find an object.
     exception ObjectNotFoundException
     {
     }
@@ -34,7 +32,7 @@ module Ice
     /// their object adapters.
     interface Locator
     {
-        /// Finds an object by identity and returns a dummy proxy with the endpoint(s) that can be used to reach this
+        /// Finds an object by identity and returns a dummy proxy with endpoint(s) that can be used to reach this
         /// object. This dummy proxy may be an indirect proxy that requires further resolution using
         /// {@link findAdapterById}.
         /// @param id The identity.
