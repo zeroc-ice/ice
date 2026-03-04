@@ -17,19 +17,22 @@ using namespace Ice;
 // Parse a space delimited string into a sequence of strings.
 //
 
-static void
-stringToSeq(const string& str, vector<string>& seq)
+static vector<string>
+stringToStringSeq(const string& str)
 {
+    vector<string> seq;
     IceUtilInternal::splitString(str, " \t", seq);
 
     //
     // TODO: do something about unmatched quotes
     //
+    return seq;
 }
 
-static void
-stringToSeq(const string& str, vector<Identity>& seq)
+static vector<Identity>
+stringToIdentitySeq(const string& str)
 {
+    vector<Identity> seq;
     string const ws = " \t";
 
     //
@@ -95,6 +98,7 @@ stringToSeq(const string& str, vector<Identity>& seq)
         }
         current = str.find_first_not_of(ws, end);
     }
+    return seq;
 }
 
 Glacier2::FilterManager::~FilterManager()
@@ -170,9 +174,7 @@ Glacier2::FilterManagerPtr
 Glacier2::FilterManager::create(const InstancePtr& instance, const string& userId, const bool allowAddUser)
 {
     PropertiesPtr props = instance->properties();
-    string allow = props->getProperty("Glacier2.Filter.Category.Accept");
-    vector<string> allowSeq;
-    stringToSeq(allow, allowSeq);
+    vector<string> allowSeq = stringToStringSeq(props->getProperty("Glacier2.Filter.Category.Accept"));
 
     if(allowAddUser)
     {
@@ -196,20 +198,11 @@ Glacier2::FilterManager::create(const InstancePtr& instance, const string& userI
     }
     Glacier2::StringSetIPtr categoryFilter = new Glacier2::StringSetI(allowSeq);
 
-    //
-    // TODO: refactor initialization of filters.
-    //
-    allow = props->getProperty("Glacier2.Filter.AdapterId.Accept");
-    stringToSeq(allow, allowSeq);
-    Glacier2::StringSetIPtr adapterIdFilter = new Glacier2::StringSetI(allowSeq);
+    Glacier2::StringSetIPtr adapterIdFilter =
+        new Glacier2::StringSetI(stringToStringSeq(props->getProperty("Glacier2.Filter.AdapterId.Accept")));
 
-    //
-    // TODO: Object id's from configurations?
-    //
-    IdentitySeq allowIdSeq;
-    allow = props->getProperty("Glacier2.Filter.Identity.Accept");
-    stringToSeq(allow, allowIdSeq);
-    Glacier2::IdentitySetIPtr identityFilter = new Glacier2::IdentitySetI(allowIdSeq);
+    Glacier2::IdentitySetIPtr identityFilter =
+        new Glacier2::IdentitySetI(stringToIdentitySeq(props->getProperty("Glacier2.Filter.Identity.Accept")));
 
     return new Glacier2::FilterManager(instance, categoryFilter, adapterIdFilter, identityFilter);
 }
