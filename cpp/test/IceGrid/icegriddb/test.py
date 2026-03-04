@@ -12,10 +12,10 @@ class IceGridDb(ProcessFromBinDir, SimpleClient):
     def __init__(self, quiet=True, *args, **kargs):
         SimpleClient.__init__(
             self,
+            *args,
             exe="icegriddb",
             quiet=quiet,
             mapping=Mapping.getByName("cpp"),
-            *args,
             **kargs,
         )
 
