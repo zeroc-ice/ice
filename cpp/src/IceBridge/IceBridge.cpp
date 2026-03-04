@@ -544,10 +544,10 @@ BridgeI::ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
                                                          &GetConnectionCallback::exception);
                 target->begin_ice_getConnection(d);
             }
-            catch(const Exception& ex)
+            catch(const Ice::CommunicatorDestroyedException& ex)
             {
-                _connections.erase(current.con);
-                bc->outgoingException(ex);
+                // The only exception thrown synchronously should be CommunicatorDestroyedException, 
+                // and we can ignore it since it means the service is being shutdown.
                 cb->ice_exception(ex);
                 return;
             }
