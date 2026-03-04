@@ -786,7 +786,7 @@ class ServiceManagerI : ServiceManagerDisp_
                     observer.servicesStartedAsync(servicesArray).ContinueWith(
                         t => observerCompleted(observer, t));
                 }
-                catch (CommunicatorDestroyedException)
+                catch (Ice.CommunicatorDestroyedException)
                 {
                     // Expected during shutdown if the observer's communicator is destroyed.
                     break;
@@ -808,7 +808,7 @@ class ServiceManagerI : ServiceManagerDisp_
                     observer.servicesStoppedAsync(servicesArray).ContinueWith(
                         (t) => observerCompleted(observer, t));
                 }
-                catch (CommunicatorDestroyedException)
+                catch (Ice.CommunicatorDestroyedException)
                 {
                     // Expected during shutdown if the observer's communicator is destroyed.
                     break;
