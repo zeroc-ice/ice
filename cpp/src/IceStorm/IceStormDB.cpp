@@ -144,6 +144,10 @@ run(const Ice::StringSeq& args)
         try
         {
             mapSizeValue = stoi(mapSizeStr);
+            if (mapSizeValue < 0)
+            {
+                throw std::out_of_range("negative value");
+            }
         }
         catch (const std::exception&)
         {
@@ -201,7 +205,12 @@ run(const Ice::StringSeq& args)
 
             vector<Ice::Byte> buf;
             buf.resize(static_cast<size_t>(fileSize));
-            fs.read(reinterpret_cast<char*>(buf.data()), fileSize);
+            fs.read(reinterpret_cast<char*>(buf.data()), static_cast<streamsize>(fileSize));
+            if (!fs)
+            {
+                consoleErr << args[0] << ": failed to read input file" << endl;
+                return 1;
+            }
             fs.close();
 
             string type;
