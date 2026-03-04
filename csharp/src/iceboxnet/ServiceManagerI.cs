@@ -762,6 +762,10 @@ internal class ServiceManagerI : ServiceManagerDisp_, IDisposable
             {
                 await observer.servicesStartedAsync(services).ConfigureAwait(false);
             }
+            catch (Ice.CommunicatorDestroyedException)
+            {
+                // Expected during shutdown if the observer's communicator is destroyed.
+            }
             catch (System.Exception ex)
             {
                 removeObserver(observer, ex);
@@ -786,6 +790,10 @@ internal class ServiceManagerI : ServiceManagerDisp_, IDisposable
             try
             {
                 await observer.servicesStoppedAsync(services).ConfigureAwait(false);
+            }
+            catch (Ice.CommunicatorDestroyedException)
+            {
+                // Expected during shutdown if the observer's communicator is destroyed.
             }
             catch (System.Exception ex)
             {
