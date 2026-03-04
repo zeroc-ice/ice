@@ -2,21 +2,23 @@
 
 module Test
 {
-    sequence<string> StringSeq;
-    ["cs:generic:List"]sequence<int> IntList;
-    dictionary<string, string> StringDict;
+    ["cs:internal"] sequence<string> StringSeq;
+    ["cs:generic:List", "cs:internal"] sequence<int> IntList;
+    ["cs:internal"] dictionary<string, string> StringDict;
 
+    ["cs:internal"]
     class C
     {
         int i;
     }
 
-    ["cs:class"]
+    ["cs:internal", "cs:readonly"]
     struct S1
     {
         string name;
     }
 
+    ["cs:internal"]
     struct S2
     {
         bool bo;

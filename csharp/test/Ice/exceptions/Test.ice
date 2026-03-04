@@ -28,6 +28,7 @@ module Test
         int cMem;
     }
 
+    ["cs:internal"]
     exception D
     {
         int dMem;
