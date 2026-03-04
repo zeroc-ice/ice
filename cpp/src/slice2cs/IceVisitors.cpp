@@ -1889,7 +1889,7 @@ Slice::Ice::ResultVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "_ostr.endEncapsulation();";
         _out << eb;
         _out << sp;
-        _out << nl << accessModifier(interface) << " Ice.OutputStream outputStream => _ostr;";
+        _out << nl << "public Ice.OutputStream outputStream => _ostr;";
         _out << sp;
         _out << nl << "private readonly Ice.OutputStream _ostr;";
         _out << eb;
