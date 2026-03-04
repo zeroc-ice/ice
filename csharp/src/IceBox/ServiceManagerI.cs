@@ -235,7 +235,15 @@ class ServiceManagerI : ServiceManagerDisp_
 
         if(activeServices.Count > 0)
         {
-            observer.servicesStartedAsync(activeServices.ToArray()).ContinueWith((t) => observerCompleted(observer, t));
+            try
+            {
+                observer.servicesStartedAsync(activeServices.ToArray()).ContinueWith(
+                    (t) => observerCompleted(observer, t));
+            }
+            catch(Ice.CommunicatorDestroyedException)
+            {
+                _observers.Remove(observer);
+            }
         }
     }
 

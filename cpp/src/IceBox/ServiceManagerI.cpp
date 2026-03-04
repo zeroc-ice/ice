@@ -309,14 +309,9 @@ IceBox::ServiceManagerI::addObserver(ICE_IN(ServiceObserverPrxPtr) observer, con
                 observer->begin_servicesStarted(activeServices, _observerCompletedCB);
 #endif
             }
-            catch(const CommunicatorDestroyedException& ex)
+            catch(const CommunicatorDestroyedException&)
             {
                 _observers.erase(observer);
-#ifdef ICE_CPP11_MAPPING
-                observerRemoved(observer, current_exception());
-#else
-                observerRemoved(observer, ex);
-#endif
             }
         }
     }
