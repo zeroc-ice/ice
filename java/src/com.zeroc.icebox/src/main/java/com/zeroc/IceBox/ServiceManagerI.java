@@ -613,7 +613,8 @@ final class ServiceManagerI implements ServiceManager {
                                 return null;
                             });
                 } catch (CommunicatorDestroyedException ex) {
-                    observerFailed(observer, ex);
+                    // Expected during shutdown if the observer's communicator is destroyed.
+                    break;
                 }
             }
         }
@@ -632,7 +633,8 @@ final class ServiceManagerI implements ServiceManager {
                                 return null;
                             });
                 } catch (CommunicatorDestroyedException ex) {
-                    observerFailed(observer, ex);
+                    // Expected during shutdown if the observer's communicator is destroyed.
+                    break;
                 }
             }
         }
