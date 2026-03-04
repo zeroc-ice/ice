@@ -819,9 +819,17 @@ ServerI::ServerI(const NodeIPtr& node, const ServerPrx& proxy, const string& ser
     _waitTime(wt),
     _serverDir(serversDir + "/" + id),
     _disableOnFailure(0),
+#ifndef _WIN32
+    _uid(static_cast<uid_t>(-1)),
+    _gid(static_cast<gid_t>(-1)),
+#endif
     _state(ServerI::Inactive),
     _activation(ServerI::Disabled),
+    _activationTimeout(0),
+    _deactivationTimeout(0),
     _failureTime(IceUtil::Time::now(IceUtil::Time::Monotonic)), // Ensure that _activation is init. in updateImpl().
+    _previousActivation(ServerI::Disabled),
+    _waitForReplication(false),
     _pid(0)
 {
     assert(_node->getActivator());
@@ -2245,7 +2253,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
             _logs.push_back(_node->getPlatformInfo().getCwd() + '/' + path);
         }
     }
-    sort(_logs.begin(), _logs.begin());
+    sort(_logs.begin(), _logs.end());
 
     PropertyDescriptorSeqDict properties = getProperties(_desc);
     PropertyDescriptorSeq& props = properties["config"];
@@ -2624,7 +2632,7 @@ ServerI::checkAndUpdateUser(const InternalServerDescriptorPtr& desc, bool /*upda
 
         //
         // If the node isn't running as root and if the uid of the
-        // configured user is different from the uid of the userr
+        // configured user is different from the uid of the user
         // running the node we throw, a regular user can't run a
         // process as another user.
         //

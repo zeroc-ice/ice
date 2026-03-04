@@ -278,6 +278,7 @@ RegistryPluginFacadeI::getReplicaGroupFilters(const string& id) const
 bool
 RegistryPluginFacadeI::hasReplicaGroupFilters() const
 {
+    Lock sync(*this);
     return !_replicaGroupFilters.empty();
 }
 
@@ -296,6 +297,7 @@ RegistryPluginFacadeI::getTypeFilters(const string& id) const
 bool
 RegistryPluginFacadeI::hasTypeFilters() const
 {
+    Lock sync(*this);
     return !_typeFilters.empty();
 }
 

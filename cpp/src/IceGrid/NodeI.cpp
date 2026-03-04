@@ -1218,10 +1218,6 @@ NodeI::canRemoveServerDirectory(const string& name)
         }
         serviceDataDirs.push_back(*p);
     }
-    if(!contents.empty())
-    {
-        return false;
-    }
 
     c = readDirectory(_serversDir + "/" + name + "/config");
     for(Ice::StringSeq::const_iterator p = c.begin() ; p != c.end(); ++p)
