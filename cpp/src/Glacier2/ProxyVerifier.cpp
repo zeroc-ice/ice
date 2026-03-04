@@ -489,7 +489,7 @@ public:
     create(const vector<int>&, const vector<Range>&)
     {
         assert(false); // unreachable -- groups are always processed inside the parser loop
-        return 0;
+        return ICE_NULLPTR;
     }
 };
 
