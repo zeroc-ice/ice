@@ -419,10 +419,10 @@ BridgeI::ice_invokeAsync(
                     { self->outgoingSuccess(bridgeConnection, std::move(outgoing)); },
                     [self, bridgeConnection](auto ex) { self->outgoingException(bridgeConnection, ex); });
             }
-            catch (const std::exception&)
+            catch (const Ice::CommunicatorDestroyedException&)
             {
-                _connections.erase(current.con);
-                bridgeConnection->outgoingException(current_exception());
+                // The only exception thrown synchronously should be CommunicatorDestroyedException,
+                // and we can ignore it since it means the service is being shutdown.
                 error(current_exception());
                 return;
             }
