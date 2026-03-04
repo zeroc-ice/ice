@@ -221,7 +221,8 @@ public:
     bool
     match(const string& space, string::size_type& pos)
     {
-        if(strncmp(space.c_str(), _criteria.c_str(), _criteria.size()) == 0)
+        if(pos + _criteria.size() <= space.size() &&
+           strncmp(space.c_str() + pos, _criteria.c_str(), _criteria.size()) == 0)
         {
             pos += _criteria.size();
             return true;
@@ -261,7 +262,7 @@ public:
         {
             return false;
         }
-        pos = offset + _criteria.size() +1;
+        pos = offset + _criteria.size();
         return true;
     }
 
@@ -330,7 +331,6 @@ public:
                 ostr << i->start << " up to " << i->end;
             }
         }
-        ostr << ends;
         _description = ostr.str();
     }
 
@@ -405,27 +405,6 @@ public:
             }
         }
         return false;
-    }
-};
-
-class EndsWithNumber : public MatchesNumber
-{
-public:
-    EndsWithNumber(const vector<int>& values, const vector<Range>& ranges):
-        MatchesNumber(values, ranges, "ends with ")
-    {
-    }
-
-    bool
-    match(const string& space, string::size_type& pos)
-    {
-        pos = space.find_last_not_of("0123456789", pos);
-        if(pos == space.size()-1)
-        {
-            return false;
-        }
-
-        return MatchesNumber::match(space, pos);
     }
 };
 
@@ -507,9 +486,10 @@ public:
     }
 
     AddressMatcher*
-    create(const vector<int>& ports, const vector<Range>& ranges)
+    create(const vector<int>&, const vector<Range>&)
     {
-        return new EndsWithNumber(ports, ranges);
+        assert(false); // unreachable -- groups are always processed inside the parser loop
+        return ICE_NULLPTR;
     }
 };
 

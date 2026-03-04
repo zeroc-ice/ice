@@ -227,6 +227,14 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                         (False, '"a funny id/that might mess it up":tcp -h 127.0.0.1 -p 12010')], []),
                 ]
 
+        testcases.extend([
+                ('testing address filter with numeric range in hostname',
+                    ('12[7].0.0.*', '', '', '', '', ''),
+                    [(True, 'hello:tcp -h 127.0.0.1 -p 12010'),
+                    (False, 'hello:tcp -h 128.0.0.1 -p 12010'),
+                    (False, 'hello:tcp -h 126.0.0.1 -p 12010')], []),
+                ])
+
         if not limitedTests:
             testcases.extend([
                     ('testing reject all',
