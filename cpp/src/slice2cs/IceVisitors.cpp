@@ -317,7 +317,10 @@ namespace
         }
     }
 
-    string accessModifier(const ContainedPtr& p) { return p->hasMetadata("cs:internal") ? "internal" : "public"; }
+    string accessModifier(const ContainedPtr& p)
+    {
+        return p->hasMetadata("cs:internal") ? "internal" : "public";
+    }
 }
 
 Slice::Ice::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out) {}
@@ -808,8 +811,8 @@ Slice::Ice::TypesVisitor::visitStructStart(const StructPtr& p)
 
     writeDocComment(p, mappedType);
     emitObsoleteAttribute(p);
-    _out << nl << accessModifier(p) << " " << (classMapping ? "sealed " : "") << modifier << "partial " << mappedType
-         << ' ' << name;
+    _out << nl << accessModifier(p) << " "
+        << (classMapping ? "sealed " : "") << modifier << "partial " << mappedType << ' ' << name;
     _out << sb;
     return true;
 }
@@ -1407,8 +1410,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(_out, R"(param name="communicator")", "The communicator.", "param");
     writeDocLine(_out, R"(param name="proxyString")", "The stringified proxy.", "param");
     writeDocLine(_out, "returns", "A new proxy.");
-    _out << nl << accessModifier(p) << " static " << name
-         << "Prx createProxy(Ice.Communicator communicator, string proxyString) =>";
+    _out << nl << accessModifier(p) << " static " << name << "Prx createProxy(Ice.Communicator communicator, string proxyString) =>";
     _out.inc();
     _out << nl << "new " << name << "PrxHelper(Ice.ObjectPrxHelper.createProxy(communicator, proxyString));";
     _out.dec();
@@ -1469,8 +1471,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(_out, R"(param name="progress")", "The sent progress reporter.", "param");
     writeDocLine(_out, R"(param name="cancel")", "The cancellation token.", "param");
     writeDocLine(_out, "returns", checkedCastReturns.str());
-    _out << nl << accessModifier(p) << " static async global::System.Threading.Tasks.Task<" << name
-         << "Prx?> checkedCastAsync";
+    _out << nl << accessModifier(p) << " static async global::System.Threading.Tasks.Task<" << name << "Prx?> checkedCastAsync";
     _out.spar("(", true);
     _out << "Ice.ObjectPrx proxy"
          << "global::System.Collections.Generic.Dictionary<string, string>? context = null"
@@ -1489,8 +1490,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(_out, R"(param name="progress")", "The sent progress reporter.", "param");
     writeDocLine(_out, R"(param name="cancel")", "The cancellation token.", "param");
     writeDocLine(_out, "returns", checkedCastWithFacetReturns.str());
-    _out << nl << accessModifier(p) << " static global::System.Threading.Tasks.Task<" << name
-         << "Prx?> checkedCastAsync";
+    _out << nl << accessModifier(p) << " static global::System.Threading.Tasks.Task<" << name << "Prx?> checkedCastAsync";
     _out.spar("(", true);
     _out << "Ice.ObjectPrx proxy"
          << "string facet"
@@ -1523,8 +1523,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(_out, R"(param name="facet")", "The facet.", "param");
     writeDocLine(_out, "returns", "A new proxy with the requested type, or null if the source proxy is null.");
     _out << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(proxy))]";
-    _out << nl << accessModifier(p) << " static " << name
-         << "Prx? uncheckedCast(Ice.ObjectPrx? proxy, string facet) =>";
+    _out << nl << accessModifier(p) << " static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? proxy, string facet) =>";
     _out.inc();
     _out << nl << "uncheckedCast(proxy?.ice_facet(facet));";
     _out.dec();
@@ -1832,8 +1831,6 @@ Slice::Ice::ResultVisitor::visitModuleStart(const ModulePtr& p)
 void
 Slice::Ice::ResultVisitor::visitOperation(const OperationPtr& p)
 {
-    // The generated Result struct is always public (cs:internal has no effect).
-
     InterfaceDefPtr interface = p->interface();
     string ns = getNamespace(interface);
     ParameterList outParams = p->outParameters();
@@ -1852,7 +1849,7 @@ Slice::Ice::ResultVisitor::visitOperation(const OperationPtr& p)
         }
 
         _out << sp;
-        _out << nl << "public record struct " << name;
+        _out << nl << accessModifier(interface) << " record struct " << name;
         _out << spar;
         if (ret)
         {
@@ -1872,14 +1869,13 @@ Slice::Ice::ResultVisitor::visitOperation(const OperationPtr& p)
         string name = resultStructName(interface->mappedName(), p->mappedName(), true);
 
         _out << sp;
-        _out << nl << "public readonly record struct " << name << " : Ice.MarshaledResult";
+        _out << nl << accessModifier(interface) << " readonly record struct " << name << " : Ice.MarshaledResult";
         _out << sb;
 
         //
         // Marshaling constructor
         //
-        _out << nl << "public " << name << spar << getOutParams(p, ns, true, false)
-             << "Ice.Current current" << epar;
+        _out << nl << accessModifier(interface) << " " << name << spar << getOutParams(p, ns, true, false) << "Ice.Current current" << epar;
         _out << sb;
         _out << nl << "_ostr = Ice.CurrentExtensions.startReplyStream(current);";
         _out << nl << "_ostr.startEncapsulation(current.encoding, " << opFormatTypeToString(p) << ");";
