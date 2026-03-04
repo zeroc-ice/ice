@@ -253,7 +253,20 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
         if(activeServices.size() > 0)
         {
-            observer.begin_servicesStarted(activeServices.toArray(new String[0]), _observerCompletedCB);
+            try
+            {
+                observer.begin_servicesStarted(activeServices.toArray(new String[0]), _observerCompletedCB);
+            }
+            catch(Ice.CommunicatorDestroyedException ex)
+            {
+                synchronized(this)
+                {
+                    if(_observers.remove(observer))
+                    {
+                        observerRemoved(observer, ex);
+                    }
+                }
+            }
         }
     }
 
@@ -841,7 +854,15 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
             for(final ServiceObserverPrx observer: observers)
             {
-                observer.begin_servicesStarted(servicesArray, _observerCompletedCB);
+                try
+                {
+                    observer.begin_servicesStarted(servicesArray, _observerCompletedCB);
+                }
+                catch(Ice.CommunicatorDestroyedException ex)
+                {
+                    // Expected during shutdown if the observer's communicator is destroyed.
+                    break;
+                }
             }
         }
     }
@@ -855,7 +876,15 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
             for(final ServiceObserverPrx observer: observers)
             {
-                observer.begin_servicesStopped(servicesArray, _observerCompletedCB);
+                try
+                {
+                    observer.begin_servicesStopped(servicesArray, _observerCompletedCB);
+                }
+                catch(Ice.CommunicatorDestroyedException ex)
+                {
+                    // Expected during shutdown if the observer's communicator is destroyed.
+                    break;
+                }
             }
         }
     }

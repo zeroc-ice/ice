@@ -844,7 +844,8 @@ public class ServiceManagerI implements ServiceManager
                 }
                 catch(com.zeroc.Ice.CommunicatorDestroyedException ex)
                 {
-                    observerFailed(observer, ex);
+                    // Expected during shutdown if the observer's communicator is destroyed.
+                    break;
                 }
             }
         }
@@ -868,7 +869,8 @@ public class ServiceManagerI implements ServiceManager
                 }
                 catch(com.zeroc.Ice.CommunicatorDestroyedException ex)
                 {
-                    observerFailed(observer, ex);
+                    // Expected during shutdown if the observer's communicator is destroyed.
+                    break;
                 }
             }
         }

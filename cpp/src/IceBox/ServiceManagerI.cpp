@@ -301,11 +301,23 @@ IceBox::ServiceManagerI::addObserver(ICE_IN(ServiceObserverPrxPtr) observer, con
 
         if(activeServices.size() > 0)
         {
+            try
+            {
 #ifdef ICE_CPP11_MAPPING
-            observer->servicesStartedAsync(activeServices, nullptr, makeObserverCompletedCallback(observer));
+                observer->servicesStartedAsync(activeServices, nullptr, makeObserverCompletedCallback(observer));
 #else
-            observer->begin_servicesStarted(activeServices, _observerCompletedCB);
+                observer->begin_servicesStarted(activeServices, _observerCompletedCB);
 #endif
+            }
+            catch(const CommunicatorDestroyedException& ex)
+            {
+                _observers.erase(observer);
+#ifdef ICE_CPP11_MAPPING
+                observerRemoved(observer, current_exception());
+#else
+                observerRemoved(observer, ex);
+#endif
+            }
         }
     }
 }

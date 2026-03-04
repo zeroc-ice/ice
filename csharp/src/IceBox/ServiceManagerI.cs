@@ -781,7 +781,16 @@ class ServiceManagerI : ServiceManagerDisp_
 
             foreach(ServiceObserverPrx observer in observers)
             {
-                observer.servicesStartedAsync(servicesArray).ContinueWith((t) => observerCompleted(observer, t));
+                try
+                {
+                    observer.servicesStartedAsync(servicesArray).ContinueWith(
+                        t => observerCompleted(observer, t));
+                }
+                catch (CommunicatorDestroyedException)
+                {
+                    // Expected during shutdown if the observer's communicator is destroyed.
+                    break;
+                }
             }
         }
     }
@@ -794,7 +803,16 @@ class ServiceManagerI : ServiceManagerDisp_
 
             foreach(ServiceObserverPrx observer in observers)
             {
-                observer.servicesStoppedAsync(servicesArray).ContinueWith((t) => observerCompleted(observer, t));
+                try
+                {
+                    observer.servicesStoppedAsync(servicesArray).ContinueWith(
+                        (t) => observerCompleted(observer, t));
+                }
+                catch (CommunicatorDestroyedException)
+                {
+                    // Expected during shutdown if the observer's communicator is destroyed.
+                    break;
+                }
             }
         }
     }
