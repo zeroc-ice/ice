@@ -1233,7 +1233,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         ExceptionList throws = op->throws();
         throws.sort(Slice::DerivedToBaseCompare());
 
-        // Write the public or internal Async method.
+        // Write the public Async method.
         _out << sp;
         _out << nl << "public global::System.Threading.Tasks.Task";
         if (!returnTypeS.empty())
