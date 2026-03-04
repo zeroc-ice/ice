@@ -306,7 +306,14 @@ IceBox::ServiceManagerI::addObserver(ServiceObserverPrx observer) // NOLINT(perf
 
         if (activeServices.size() > 0)
         {
-            observer->servicesStartedAsync(activeServices, nullptr, makeObserverCompletedCallback(observer));
+            try
+            {
+                observer->servicesStartedAsync(activeServices, nullptr, makeObserverCompletedCallback(observer));
+            }
+            catch (const CommunicatorDestroyedException&)
+            {
+                _observers.erase(observer);
+            }
         }
     }
 }
