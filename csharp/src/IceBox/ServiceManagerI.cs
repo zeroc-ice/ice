@@ -235,7 +235,18 @@ class ServiceManagerI : ServiceManagerDisp_
 
         if(activeServices.Count > 0)
         {
-            observer.servicesStartedAsync(activeServices.ToArray()).ContinueWith((t) => observerCompleted(observer, t));
+            try
+            {
+                observer.servicesStartedAsync(activeServices.ToArray()).ContinueWith(
+                    (t) => observerCompleted(observer, t));
+            }
+            catch(Ice.CommunicatorDestroyedException)
+            {
+                lock(this)
+                {
+                    _observers.Remove(observer);
+                }
+            }
         }
     }
 
@@ -775,34 +786,44 @@ class ServiceManagerI : ServiceManagerDisp_
 
     private void servicesStarted(List<string> services, Dictionary<ServiceObserverPrx, bool>.KeyCollection observers)
     {
-        //
-        // Must be called with 'this' unlocked
-        //
-
         if(services.Count > 0)
         {
             string[] servicesArray = services.ToArray();
 
             foreach(ServiceObserverPrx observer in observers)
             {
-                observer.servicesStartedAsync(servicesArray).ContinueWith((t) => observerCompleted(observer, t));
+                try
+                {
+                    observer.servicesStartedAsync(servicesArray).ContinueWith(
+                        t => observerCompleted(observer, t));
+                }
+                catch (Ice.CommunicatorDestroyedException)
+                {
+                    // Expected during shutdown if the observer's communicator is destroyed.
+                    break;
+                }
             }
         }
     }
 
     private void servicesStopped(List<string> services, Dictionary<ServiceObserverPrx, bool>.KeyCollection observers)
     {
-        //
-        // Must be called with 'this' unlocked
-        //
-
         if(services.Count > 0)
         {
             string[] servicesArray = services.ToArray();
 
             foreach(ServiceObserverPrx observer in observers)
             {
-                observer.servicesStoppedAsync(servicesArray).ContinueWith((t) => observerCompleted(observer, t));
+                try
+                {
+                    observer.servicesStoppedAsync(servicesArray).ContinueWith(
+                        (t) => observerCompleted(observer, t));
+                }
+                catch (Ice.CommunicatorDestroyedException)
+                {
+                    // Expected during shutdown if the observer's communicator is destroyed.
+                    break;
+                }
             }
         }
     }

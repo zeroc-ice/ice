@@ -301,11 +301,18 @@ IceBox::ServiceManagerI::addObserver(ICE_IN(ServiceObserverPrxPtr) observer, con
 
         if(activeServices.size() > 0)
         {
+            try
+            {
 #ifdef ICE_CPP11_MAPPING
-            observer->servicesStartedAsync(activeServices, nullptr, makeObserverCompletedCallback(observer));
+                observer->servicesStartedAsync(activeServices, nullptr, makeObserverCompletedCallback(observer));
 #else
-            observer->begin_servicesStarted(activeServices, _observerCompletedCB);
+                observer->begin_servicesStarted(activeServices, _observerCompletedCB);
 #endif
+            }
+            catch(const CommunicatorDestroyedException&)
+            {
+                _observers.erase(observer);
+            }
         }
     }
 }
@@ -897,7 +904,15 @@ IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const s
     {
         for(auto p : observers)
         {
-            p->servicesStartedAsync(services, nullptr, makeObserverCompletedCallback(p));
+            try
+            {
+                p->servicesStartedAsync(services, nullptr, makeObserverCompletedCallback(p));
+            }
+            catch(const CommunicatorDestroyedException&)
+            {
+                // Expected during shutdown if the observer's communicator is destroyed.
+                break;
+            }
         }
     }
 }
@@ -909,7 +924,15 @@ IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const s
     {
         for(auto p : observers)
         {
-            p->servicesStoppedAsync(services, nullptr, makeObserverCompletedCallback(p));
+            try
+            {
+                p->servicesStoppedAsync(services, nullptr, makeObserverCompletedCallback(p));
+            }
+            catch(const CommunicatorDestroyedException&)
+            {
+                // Expected during shutdown if the observer's communicator is destroyed.
+                break;
+            }
         }
     }
 }
@@ -948,7 +971,15 @@ IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const s
     {
         for(set<ServiceObserverPrx>::const_iterator p = observers.begin(); p != observers.end(); ++p)
         {
-            (*p)->begin_servicesStarted(services, _observerCompletedCB);
+            try
+            {
+                (*p)->begin_servicesStarted(services, _observerCompletedCB);
+            }
+            catch(const CommunicatorDestroyedException&)
+            {
+                // Expected during shutdown if the observer's communicator is destroyed.
+                break;
+            }
         }
     }
 }
@@ -960,7 +991,15 @@ IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const s
     {
         for(set<ServiceObserverPrx>::const_iterator p = observers.begin(); p != observers.end(); ++p)
         {
-            (*p)->begin_servicesStopped(services, _observerCompletedCB);
+            try
+            {
+                (*p)->begin_servicesStopped(services, _observerCompletedCB);
+            }
+            catch(const CommunicatorDestroyedException&)
+            {
+                // Expected during shutdown if the observer's communicator is destroyed.
+                break;
+            }
         }
     }
 }
