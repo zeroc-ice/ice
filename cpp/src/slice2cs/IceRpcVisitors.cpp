@@ -178,6 +178,11 @@ namespace
         out << ')';
         out.dec();
     }
+
+    string accessModifier(const ContainedPtr& p)
+    {
+        return p->hasMetadata("cs:internal") ? "internal" : "public";
+    }
 }
 
 Slice::IceRpc::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out) {}
@@ -188,7 +193,9 @@ Slice::IceRpc::TypesVisitor::visitStructStart(const StructPtr& p)
     _out << sp;
     writeDocComment(p, "record struct");
     emitObsoleteAttribute(p);
-    _out << nl << "public partial record struct " << p->mappedName();
+
+    _out << nl << accessModifier(p) << (p->hasMetadata("cs:readonly") ? " readonly" : "")
+        << " partial record struct " << p->mappedName();
     _out << sb;
     return true;
 }
@@ -213,7 +220,7 @@ Slice::IceRpc::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out << nl << "[global::System.Diagnostics.CodeAnalysis.SetsRequiredMembers]";
     }
 
-    _out << nl << "public " << escapedName << "(ref SliceDecoder decoder)";
+    _out << nl << accessModifier(p) << ' ' << escapedName << "(ref SliceDecoder decoder)";
     _out << sb;
     for (const auto& field : p->dataMembers())
     {
@@ -227,7 +234,7 @@ Slice::IceRpc::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sp;
     writeDocLine(_out, "summary", "Encodes the fields of this struct with a Slice encoder.");
 
-    _out << nl << "public void Encode(ref SliceEncoder encoder)";
+    _out << nl << accessModifier(p) << " readonly void Encode(ref SliceEncoder encoder)";
     _out << sb;
     for (const auto& field : p->dataMembers())
     {
@@ -253,7 +260,7 @@ Slice::IceRpc::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << nl << "[CompactSliceTypeId(" << p->compactId() << ")]";
     }
-    _out << nl << "public partial class " << p->mappedName() << " : ";
+    _out << nl << accessModifier(p) << " partial class " << p->mappedName() << " : ";
 
     ClassDefPtr base = p->base();
     if (base)
@@ -295,7 +302,7 @@ Slice::IceRpc::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         writePrimaryConstructor(p, p->dataMembers(), allBaseFields, "class");
 
-        // Public parameterless constructor.
+        // Public parameterless constructor. Must be public for decoding to work.
         _out << sp;
         writeDocLine(_out, "summary", "Initializes a new instance of the <see cref=\"" + escapedName + "\" /> class.");
         _out << nl << "public " << escapedName << "()";
@@ -318,7 +325,7 @@ Slice::IceRpc::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     writeDocComment(p, "exception class");
     emitObsoleteAttribute(p);
     _out << nl << "[SliceTypeId(\"" << p->scoped() << "\")]";
-    _out << nl << "public partial class " << p->mappedName() << " : ";
+    _out << nl << accessModifier(p) << " partial class " << p->mappedName() << " : ";
 
     ExceptionPtr base = p->base();
     if (base)
@@ -355,7 +362,7 @@ Slice::IceRpc::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         writePrimaryConstructor(p, p->dataMembers(), allBaseFields, "exception class");
 
-        // Public parameterless constructor.
+        // Public parameterless constructor. Must be public for decoding to work.
         _out << sp;
         writeDocLine(
             _out,
@@ -383,12 +390,21 @@ Slice::IceRpc::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     writeDocComment(p);
     emitObsoleteAttribute(p);
     emitAttributes(p);
-    _out << nl << "public ";
+    _out << nl << accessModifier(cont) << ' ';
     if (csRequired(p))
     {
         _out << "required ";
     }
-    _out << csFieldType(p->type(), ns, p->optional()) << ' ' << p->mappedName() << " { get; set; }";
+    _out << csFieldType(p->type(), ns, p->optional()) << ' ' << p->mappedName();
+
+    if (cont->hasMetadata("cs:readonly"))
+    {
+        _out << " { get; init; }";
+    }
+    else
+    {
+        _out << " { get; set; }";
+    }
 }
 
 void
@@ -404,7 +420,7 @@ Slice::IceRpc::TypesVisitor::visitEnum(const EnumPtr& p)
     writeDocComment(p, "enum");
     emitObsoleteAttribute(p);
     emitAttributes(p);
-    _out << nl << "public enum " << escapedName;
+    _out << nl << accessModifier(p) << " enum " << escapedName;
     _out << sb;
     for (const auto& enumerator : enumerators)
     {
@@ -433,7 +449,7 @@ Slice::IceRpc::TypesVisitor::visitEnum(const EnumPtr& p)
     intExtensionsComment << "Provides an extension method for creating " << getArticleFor(name) << " <see cref=\""
                          << escapedName << "\" /> from an int.";
     writeHelperDocComment(p, intExtensionsComment.str(), "enum helper class");
-    _out << nl << "public static class " << name << "IntExtensions";
+    _out << nl << accessModifier(p) << " static class " << name << "IntExtensions";
     _out << sb;
 
     // When the number of enumerators is smaller than the distance between the min and max
@@ -457,7 +473,7 @@ Slice::IceRpc::TypesVisitor::visitEnum(const EnumPtr& p)
     }
 
     // TODO: doc-comment
-    _out << nl << "public static " << escapedName << " As" << name << "(this int value) =>";
+    _out << nl << accessModifier(p) << " static " << escapedName << " As" << name << "(this int value) =>";
     _out.inc();
     if (useSet)
     {
@@ -483,11 +499,11 @@ Slice::IceRpc::TypesVisitor::visitEnum(const EnumPtr& p)
     encoderExtensionsComment << "Provides an extension method for encoding " << getArticleFor(name) << " <see cref=\""
                              << escapedName << "\" />.";
     writeHelperDocComment(p, encoderExtensionsComment.str(), "enum helper class");
-    _out << nl << "public static class " << name << "SliceEncoderExtensions";
+    _out << nl << accessModifier(p) << " static class " << name << "SliceEncoderExtensions";
     _out << sb;
 
     // TODO: doc-comment
-    _out << nl << "public static void Encode" << name << "(this ref SliceEncoder encoder, " << escapedName
+    _out << nl << accessModifier(p) << " static void Encode" << name << "(this ref SliceEncoder encoder, " << escapedName
          << " value) => encoder.EncodeSize((int)value);";
     _out << eb;
 
@@ -496,11 +512,11 @@ Slice::IceRpc::TypesVisitor::visitEnum(const EnumPtr& p)
     decoderExtensionsComment << "Provides an extension method for decoding " << getArticleFor(name) << " <see cref=\""
                              << escapedName << "\" />.";
     writeHelperDocComment(p, decoderExtensionsComment.str(), "enum helper class");
-    _out << nl << "public static class " << name << "SliceDecoderExtensions";
+    _out << nl << accessModifier(p) << " static class " << name << "SliceDecoderExtensions";
     _out << sb;
 
     // TODO: doc-comment
-    _out << nl << "public static " << escapedName << " Decode" << name << "(this ref SliceDecoder decoder) => " << name
+    _out << nl << accessModifier(p) << " static " << escapedName << " Decode" << name << "(this ref SliceDecoder decoder) => " << name
          << "IntExtensions.As" << name << "(decoder.DecodeSize());";
     _out << eb;
 }
@@ -556,7 +572,7 @@ Slice::IceRpc::TypesVisitor::writePrimaryConstructor(
         _out << nl << "[global::System.Diagnostics.CodeAnalysis.SetsRequiredMembers]";
     }
 
-    _out << nl << "public " << escapedName << spar << ctorParams << epar;
+    _out << nl << accessModifier(p) << ' ' << escapedName << spar << ctorParams << epar;
     if (!baseParams.empty())
     {
         _out.inc();
@@ -679,7 +695,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp;
     writeDocComment(p, "client-side interface");
     emitObsoleteAttribute(p);
-    _out << nl << "public partial interface I" << name;
+    _out << nl << accessModifier(p) << " partial interface I" << name;
     if (!p->bases().empty())
     {
         _out << " : ";
@@ -716,7 +732,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     _out << nl << "[SliceTypeId(\"" << p->scoped() << "\")]";
     emitObsoleteAttribute(p);
-    _out << nl << "public readonly partial record struct " << name << "Proxy : " << 'I' << name << ", IProxy";
+    _out << nl << accessModifier(p) << " readonly partial record struct " << name << "Proxy : " << 'I' << name << ", IProxy";
 
     _out << sb;
 
@@ -725,9 +741,11 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeProxyResponseClass(p);
     _out << sp;
 
+    // EncodeOptions, Invoker and ServiceAddress come from IProxy; they must be public.
+
     _out << nl << "/// <summary>Represents the default path for IceRPC services that implement Slice interface";
     _out << nl << "/// <c>" << p->scoped() << "</c>.</summary>";
-    _out << nl << "public const string DefaultServicePath = \"" << defaultServicePath(p) << "\";";
+    _out << nl << accessModifier(p) << " const string DefaultServicePath = \"" << defaultServicePath(p) << "\";";
     _out << sp;
     _out << nl << "/// <inheritdoc/>";
     _out << nl << "public SliceEncodeOptions? EncodeOptions { get; init; }";
@@ -755,7 +773,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         string baseName = getUnqualified(base, ns, "", "Proxy");
         writeDocLine(_out, "summary", "Provides an implicit conversion to <see cref =\"" + baseName + "\" />.");
 
-        _out << nl << "public static implicit operator " << baseName << "(" << name << "Proxy proxy) =>";
+        _out << nl << accessModifier(p) << " static implicit operator " << baseName << "(" << name << "Proxy proxy) =>";
         _out.inc();
         _out << nl
              << "new() { EncodeOptions = proxy.EncodeOptions, Invoker = proxy.Invoker, ServiceAddress = "
@@ -768,7 +786,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl << "/// <summary>Creates a relative proxy from a path.</summary>";
     _out << nl << "/// <param name=\"path\">The path.</param>";
     _out << nl << "/// <returns>The new relative proxy.</returns>";
-    _out << nl << "public static " << name << "Proxy FromPath(string path) =>";
+    _out << nl << accessModifier(p) << " static " << name << "Proxy FromPath(string path) =>";
     _out.inc();
     _out << nl << "new(IceRpc.InvalidInvoker.Instance, new IceRpc.ServiceAddress { Path = path });";
     _out.dec();
@@ -785,7 +803,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
          << "/// <param name=\"encodeOptions\">The encode options, used to customize the encoding of request "
             "payloads.</param>";
     _out << nl << "[System.Diagnostics.CodeAnalysis.SetsRequiredMembers]";
-    _out << nl << "public " << name << "Proxy(";
+    _out << nl << accessModifier(p) << ' ' << name << "Proxy(";
     _out.inc();
     _out << nl << "IceRpc.IInvoker invoker,";
     _out << nl << "IceRpc.ServiceAddress? serviceAddress = null,";
@@ -807,7 +825,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
          << "/// <param name=\"encodeOptions\">The encode options, used to customize the encoding of request "
             "payloads.</param>";
     _out << nl << "[System.Diagnostics.CodeAnalysis.SetsRequiredMembers]";
-    _out << nl << "public " << name
+    _out << nl << accessModifier(p) << ' ' << name
          << "Proxy(IceRpc.IInvoker invoker, System.Uri serviceAddressUri, SliceEncodeOptions? encodeOptions = null)";
     _out.inc();
     _out << nl << ": this(invoker, new IceRpc.ServiceAddress(serviceAddressUri), encodeOptions)";
@@ -820,13 +838,14 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl
          << "/// <summary>Constructs a proxy with an IceRPC service address with path <see cref=\"DefaultServicePath\" "
             "/>.</summary>";
-    _out << nl << "public " << name << "Proxy()";
+    _out << nl << accessModifier(p) << ' ' << name << "Proxy()";
     _out << sb;
     _out << eb;
 
     // Inherited operations
     for (const auto& operation : p->allInheritedOperations())
     {
+        // The implementation of interface methods must be public.
         _out << sp;
         _out << nl << "/// <inheritdoc />";
         _out << nl << "public ";
@@ -855,6 +874,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     // My operations
     for (const auto& operation : p->operations())
     {
+        // The implementation of interface methods must be public.
         _out << sp;
         _out << nl << "/// <inheritdoc/>";
         _out << nl << "public ";
@@ -915,7 +935,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "summary",
         R"(Provides an extension method for <see cref="SliceEncoder" /> to encode a <see cref=")" + name +
             R"(Proxy" />.")");
-    _out << nl << "public static class " << name << "ProxySliceEncoderExtensions";
+    _out << nl << accessModifier(p) << " static class " << name << "ProxySliceEncoderExtensions";
     _out << sb;
     writeDocLine(
         _out,
@@ -924,7 +944,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             R"(Proxy" /> as a nullable <see cref="IceRpc.ServiceAddress" />.)");
     writeDocLine(_out, R"(param name="encoder")", "The Slice encoder.", "param");
     writeDocLine(_out, R"(param name="proxy")", "The proxy to encode as a service address (can be null).", "param");
-    _out << nl << "public static void EncodeNullable" << name << "Proxy(this ref SliceEncoder encoder, " << name
+    _out << nl << accessModifier(p) << " static void EncodeNullable" << name << "Proxy(this ref SliceEncoder encoder, " << name
          << "Proxy? proxy) =>";
     _out.inc();
     _out << nl << "encoder.EncodeNullableServiceAddress(proxy?.ServiceAddress);";
@@ -938,7 +958,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         R"(Provides an extension method for <see cref="SliceDecoder" /> to decode a <see cref=")" + name +
             R"(Proxy" />.)");
 
-    _out << nl << "public static class " << name << "ProxySliceDecoderExtensions";
+    _out << nl << accessModifier(p) << " static class " << name << "ProxySliceDecoderExtensions";
     _out << sb;
     writeDocLine(
         _out,
@@ -946,7 +966,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         R"(Decodes a nullable <see cref="IceRpc.ServiceAddress" /> into a nullable <see cref=")" + name +
             R"(Proxy" />.)");
     writeDocLine(_out, R"(param name="decoder")", "The Slice decoder.", "param");
-    _out << nl << "public static " << name << "Proxy? DecodeNullable" << name
+    _out << nl << accessModifier(p) << " static " << name << "Proxy? DecodeNullable" << name
          << "Proxy(this ref SliceDecoder decoder) =>";
     _out.inc();
     _out << nl << "decoder.DecodeNullableProxy<" << name << "Proxy>();";
@@ -974,7 +994,7 @@ Slice::IceRpc::ProxyVisitor::writeProxyRequestClass(const InterfaceDefPtr& inter
     string ns = getNamespace(interface);
 
     writeDocLine(_out, "summary", "Provides static methods that encode operation arguments into request payloads.");
-    _out << nl << "public static class Request";
+    _out << nl << accessModifier(interface) << " static class Request";
     _out << sb;
 
     for (const auto& operation : interface->operations())
@@ -987,7 +1007,7 @@ Slice::IceRpc::ProxyVisitor::writeProxyRequestClass(const InterfaceDefPtr& inter
         writeDocLine(_out, R"(param name="encodeOptions")", "The Slice encode options.", "param");
         writeDocLine(_out, "returns", "The Slice-encoded payload.", "returns");
 
-        _out << nl << "public static global::System.IO.Pipelines.PipeReader Encode"
+        _out << nl << accessModifier(interface) << " static global::System.IO.Pipelines.PipeReader Encode"
              << removeEscapePrefix(operation->mappedName()) << "(";
 
         _out.inc();
@@ -1052,13 +1072,13 @@ Slice::IceRpc::ProxyVisitor::writeProxyResponseClass(const InterfaceDefPtr& inte
         "summary",
         "Provides a <see cref=\"ResponseDecodeFunc{T}\" /> for each operation defined in Slice interface <c>" +
             interface->scoped() + "</c>.");
-    _out << nl << "public static class Response";
+    _out << nl << accessModifier(interface) << " static class Response";
     _out << sb;
 
     for (const auto& operation : interface->operations())
     {
         writeDocLine(_out, "summary", "Decodes an incoming response for operation <c>" + operation->name() + "</c>.");
-        _out << nl << "public static async ";
+        _out << nl << accessModifier(interface) << " static async ";
         writeReturnTask(_out, operation, "ValueTask", false);
         _out << " Decode" << removeEscapePrefix(operation->mappedName()) << "Async(";
         _out.inc();
@@ -1220,7 +1240,7 @@ Slice::IceRpc::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "[SliceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << "[IceRpc.DefaultServicePath(\"" << defaultServicePath(p) << "\")]";
     emitObsoleteAttribute(p);
-    _out << nl << "public partial interface I" << name << "Service";
+    _out << nl << accessModifier(p) << " partial interface I" << name << "Service";
     if (!p->bases().empty())
     {
         _out << " : ";
@@ -1310,8 +1330,8 @@ Slice::IceRpc::SkeletonVisitor::writeRequestClass(const InterfaceDefPtr& interfa
     writeDocLine(_out, "summary", "Provides static methods that decode request payloads.");
 
     // Check if any of the base interfaces already has a Request class.
-    // A Rest class is generated for any interface that defines at least one operation.
-    _out << nl << "public static ";
+    // A Request class is generated for any interface that defines at least one operation.
+    _out << nl << accessModifier(interface) << " static ";
     if (!interface->allInheritedOperations().empty())
     {
         _out << "new ";
@@ -1325,7 +1345,7 @@ Slice::IceRpc::SkeletonVisitor::writeRequestClass(const InterfaceDefPtr& interfa
         _out << sp;
         writeDocLine(_out, "summary", "Decodes the request payload of operation <c>" + operation->name() + "</c>.");
         // TODO: param doc comments
-        _out << nl << "public static ";
+        _out << nl << accessModifier(interface) << " static ";
         writeParamsValueTask(_out, operation);
         _out << " Decode" << removeEscapePrefix(operation->mappedName()) << "Async(";
         _out.inc();
@@ -1412,7 +1432,7 @@ Slice::IceRpc::SkeletonVisitor::writeResponseClass(const InterfaceDefPtr& interf
 
     // Check if any of the base interfaces already has a Response class.
     // A Response class is generated for any interface that defines at least one operation.
-    _out << nl << "public static ";
+    _out << nl << accessModifier(interface) << " static ";
     if (!interface->allInheritedOperations().empty())
     {
         _out << "new ";
@@ -1433,7 +1453,7 @@ Slice::IceRpc::SkeletonVisitor::writeResponseClass(const InterfaceDefPtr& interf
         writeDocLine(_out, "param name=\"encodeOptions\"", "The Slice encode options.", "param");
         writeDocLine(_out, "returns", "The Slice-encoded payload.");
 
-        _out << nl << "public static global::System.IO.Pipelines.PipeReader Encode"
+        _out << nl << accessModifier(interface) << " static global::System.IO.Pipelines.PipeReader Encode"
              << removeEscapePrefix(operation->mappedName()) << "(";
 
         _out.inc();
