@@ -12,10 +12,18 @@
 
 [["js:module:@zeroc/ice"]]
 
+#ifdef __ICERPC__
+// In IceRPC, OperationMode is an internal implementation detail of the Ice protocol; the corresponding generated code
+// is not publicly visible.
+["cs:identifier:IceRpc.Internal"]
+#endif
 ["java:identifier:com.zeroc.Ice"]
 module Ice
 {
     /// Specifies if an operation is idempotent, which affects the retry behavior of the Ice client runtime.
+    #ifdef __ICERPC__
+    ["cs:internal"]
+    #endif
     enum OperationMode
     {
         /// A non-idempotent operation (the default). The Ice client runtime guarantees that it will not violate
