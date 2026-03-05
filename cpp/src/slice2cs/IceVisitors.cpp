@@ -808,7 +808,7 @@ Slice::Ice::TypesVisitor::visitStructStart(const StructPtr& p)
 
     writeDocComment(p, mappedType);
     emitObsoleteAttribute(p);
-    _out << nl << accessModifier(p) << " " << (classMapping ? "sealed " : "") << modifier << "partial " << mappedType
+    _out << nl << accessModifier(p) << ' ' << (classMapping ? "sealed " : "") << modifier << "partial " << mappedType
          << ' ' << name;
     _out << sb;
     return true;
