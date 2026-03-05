@@ -13,7 +13,7 @@
 [["js:module:@zeroc/ice"]]
 
 #ifdef __ICERPC__
-// In IceRPC, OperationMode is an internal implementation detail of the ice protocol; the corresponding generated code
+// In IceRPC, OperationMode is an internal implementation detail of the Ice protocol; the corresponding generated code
 // is not publicly visible.
 ["cs:identifier:IceRpc.Internal"]
 #endif
