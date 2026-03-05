@@ -11,6 +11,8 @@ module Test
     {
         int i;
     }
+    ["cs:internal"] sequence<C> CSeq;
+
 
     ["cs:internal", "cs:readonly"]
     struct S1
@@ -35,5 +37,35 @@ module Test
         S1 s;
         C cls;
         Object* prx;
+    }
+
+    ["cs:readonly", "cs:internal"]
+    struct S3
+    {
+        int x;
+        C cls; // Mapped to a read-write field.
+    }
+
+    ["cs:readonly", "cs:property", "cs:internal"]
+    struct S4
+    {
+        int x;
+        C cls; // Mapped to a get-set property.
+    }
+
+    ["cs:readonly", "cs:internal"]
+    struct S5
+    {
+        int x;
+        S3 s3; // Mapped to a read-only field.
+        CSeq seq; // Mapped to a read-only field.
+    }
+
+    ["cs:readonly", "cs:property", "cs:internal"]
+    struct S6
+    {
+        int x;
+        S4 s4; // Mapped to a get-only property.
+        CSeq seq; // Mapped to a get-only property.
     }
 }

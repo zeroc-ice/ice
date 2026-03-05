@@ -1021,7 +1021,9 @@ Slice::Ice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     StructPtr st = dynamic_pointer_cast<Struct>(cont);
     string ns = getNamespace(cont);
 
-    bool isReadOnly = st && st->hasMetadata("cs:readonly");
+    // We can't map class fields to read-only fields/properties because the 1.0 encoding requires "patching": the field
+    // is set later via a lambda, at the end of the unmarshaling process.
+    bool isReadOnly = st && st->hasMetadata("cs:readonly") && !p->type()->isClassType();
 
     _out << sp;
 
