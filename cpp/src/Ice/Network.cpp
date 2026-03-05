@@ -504,17 +504,24 @@ IceInternal::NativeInfo::completed(SocketOperation operation)
 #elif defined(ICE_USE_NETWORK_FRAMEWORK)
 
 void
-IceInternal::NativeInfo::initialize(Selector* selector, EventHandler* handler)
+IceInternal::NativeInfo::initialize(Selector* selector, EventHandler* handler, shared_ptr<SelectorCompletionToken> token)
 {
     _selector = selector;
     _eventHandler = handler;
+    _completionToken = std::move(token);
 }
 
 void
 IceInternal::NativeInfo::completed(SocketOperation operation)
 {
-    assert(_selector);
-    _selector->completed(_eventHandler, operation);
+    // The NW dispatch callback may fire after the Selector has been destroyed (e.g., when
+    // a communicator is destroyed while async operations are pending). Guard with the
+    // completion token's mutex to prevent accessing a destroyed Selector.
+    lock_guard lock(_completionToken->mutex);
+    if (_completionToken->valid)
+    {
+        _selector->completed(_eventHandler, operation);
+    }
 }
 
 #else

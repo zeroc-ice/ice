@@ -10,17 +10,12 @@
 #    include "SchannelEngine.h"
 #    include "SchannelTransceiverI.h"
 using namespace Ice::SSL::Schannel;
-#elif defined(ICE_USE_SECURE_TRANSPORT)
-#    if defined(ICE_USE_NETWORK_FRAMEWORK)
-#        include "../apple/NetworkFrameworkConnector.h"
-#        include "../apple/NetworkFrameworkTransceiver.h"
-#        include "Ice/Connection.h"
-#        include "Ice/SSL/ConnectionInfo.h"
-#        include <Network/Network.h>
-#    else
-#        include "SecureTransportTransceiverI.h"
-using namespace Ice::SSL::SecureTransport;
-#    endif
+#elif defined(ICE_USE_APPLE_SSL)
+#    include "../apple/NetworkFrameworkConnector.h"
+#    include "../apple/NetworkFrameworkTransceiver.h"
+#    include "Ice/Connection.h"
+#    include "Ice/SSL/ConnectionInfo.h"
+#    include <Network/Network.h>
 #elif defined(ICE_USE_OPENSSL)
 #    include "OpenSSLEngine.h"
 #    include "OpenSSLTransceiverI.h"
@@ -174,12 +169,12 @@ Ice::SSL::ConnectorI::connect()
                                 peerCert = SecTrustGetCertificateAtIndex(trust, 0);
                                 if (peerCert)
                                 {
-                                    CFRetain(peerCert); // SecureTransportConnectionInfo releases it.
+                                    CFRetain(peerCert); // AppleConnectionInfo releases it.
                                 }
                             }
                             auto underlying = make_shared<Ice::TCPConnectionInfo>(
                                 false, "", "", "", 0, "", 0, 0, 0);
-                            auto info = make_shared<Ice::SSL::SecureTransportConnectionInfo>(
+                            auto info = make_shared<Ice::SSL::AppleConnectionInfo>(
                                 underlying, peerCert);
                             bool valid = validationCallback(trust, info);
                             if (!valid)
@@ -249,8 +244,6 @@ Ice::SSL::ConnectorI::connect()
         nw_release(connection);
         throw;
     }
-#else
-    return make_shared<TransceiverI>(_instance, _delegate->connect(), _host, *clientAuthenticationOptions);
 #endif
 }
 

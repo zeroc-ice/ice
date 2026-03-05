@@ -13,6 +13,9 @@
 
 #include <cassert>
 #include <cstring>
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+#    include <mutex>
+#endif
 
 #if defined(_WIN32)
 #    define NOMINMAX
@@ -129,6 +132,17 @@ namespace IceInternal
     };
     using ReadyCallbackPtr = std::shared_ptr<ReadyCallback>;
 
+#if defined(ICE_USE_NETWORK_FRAMEWORK)
+    // Token shared between the Selector and all NativeInfo instances it registers.
+    // Used to safely guard NativeInfo::completed() against calling into a destroyed Selector
+    // when Network.framework async callbacks fire after the Selector has been torn down.
+    struct SelectorCompletionToken
+    {
+        std::mutex mutex;
+        bool valid{true};
+    };
+#endif
+
     class ICE_API NativeInfo
     {
     public:
@@ -165,7 +179,7 @@ namespace IceInternal
         void initialize(HANDLE, ULONG_PTR);
         void completed(SocketOperation);
 #elif defined(ICE_USE_NETWORK_FRAMEWORK)
-        void initialize(class Selector*, class EventHandler*);
+        void initialize(class Selector*, class EventHandler*, std::shared_ptr<struct SelectorCompletionToken>);
         void completed(SocketOperation);
 #else
         bool newFd();
@@ -182,6 +196,7 @@ namespace IceInternal
 #elif defined(ICE_USE_NETWORK_FRAMEWORK)
         class Selector* _selector{nullptr};
         class EventHandler* _eventHandler{nullptr};
+        std::shared_ptr<struct SelectorCompletionToken> _completionToken;
 #else
         SOCKET _newFd;
 #endif

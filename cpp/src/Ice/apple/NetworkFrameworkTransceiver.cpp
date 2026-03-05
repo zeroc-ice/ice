@@ -193,14 +193,28 @@ IceInternal::NetworkFrameworkTransceiver::initialize(Buffer&, Buffer&)
 
         _state = StateConnected;
 
-        // Build a description from the endpoint.
-        nw_endpoint_t remoteEndpoint = nw_connection_copy_endpoint(_connection);
-        if (remoteEndpoint)
+        // Build a description from the connection path endpoints.
+        nw_path_t path = nw_connection_copy_current_path(_connection);
+        if (path)
         {
-            _desc = "local address = <nw> remote address = " + nwEndpointToString(remoteEndpoint);
-            nw_release(remoteEndpoint);
+            nw_endpoint_t localEndpoint = nw_path_copy_effective_local_endpoint(path);
+            nw_endpoint_t remoteEndpoint = nw_path_copy_effective_remote_endpoint(path);
+            if (localEndpoint && remoteEndpoint)
+            {
+                _desc = "local address = " + nwEndpointToString(localEndpoint) +
+                        " remote address = " + nwEndpointToString(remoteEndpoint);
+            }
+            if (localEndpoint)
+            {
+                nw_release(localEndpoint);
+            }
+            if (remoteEndpoint)
+            {
+                nw_release(remoteEndpoint);
+            }
+            nw_release(path);
         }
-        else
+        if (_desc.empty())
         {
             _desc = "<nw connection>";
         }
@@ -425,12 +439,24 @@ IceInternal::NetworkFrameworkTransceiver::getInfo(bool incoming, string adapterN
     string remoteAddress;
     int remotePort = -1;
 
-    nw_endpoint_t remoteEndpoint = nw_connection_copy_endpoint(_connection);
-    if (remoteEndpoint)
+    nw_path_t path = nw_connection_copy_current_path(_connection);
+    if (path)
     {
-        remoteAddress = nw_endpoint_get_hostname(remoteEndpoint);
-        remotePort = nw_endpoint_get_port(remoteEndpoint);
-        nw_release(remoteEndpoint);
+        nw_endpoint_t localEndpoint = nw_path_copy_effective_local_endpoint(path);
+        if (localEndpoint)
+        {
+            localAddress = nw_endpoint_get_hostname(localEndpoint);
+            localPort = nw_endpoint_get_port(localEndpoint);
+            nw_release(localEndpoint);
+        }
+        nw_endpoint_t remoteEndpoint = nw_path_copy_effective_remote_endpoint(path);
+        if (remoteEndpoint)
+        {
+            remoteAddress = nw_endpoint_get_hostname(remoteEndpoint);
+            remotePort = nw_endpoint_get_port(remoteEndpoint);
+            nw_release(remoteEndpoint);
+        }
+        nw_release(path);
     }
 
     auto tcpInfo = make_shared<TCPConnectionInfo>(
@@ -441,9 +467,8 @@ IceInternal::NetworkFrameworkTransceiver::getInfo(bool incoming, string adapterN
         localPort,
         std::move(remoteAddress),
         remotePort,
-        0, // rcvSize — Network.framework manages buffers internally
-        0  // sndSize — Network.framework manages buffers internally
-    );
+        _rcvSize,
+        _sndSize);
 
     if (_secure)
     {
@@ -488,9 +513,10 @@ IceInternal::NetworkFrameworkTransceiver::checkSendSize(const Buffer&)
 }
 
 void
-IceInternal::NetworkFrameworkTransceiver::setBufferSize(int, int)
+IceInternal::NetworkFrameworkTransceiver::setBufferSize(int rcvSize, int sndSize)
 {
-    // Network.framework manages buffers internally.
+    _rcvSize = rcvSize;
+    _sndSize = sndSize;
 }
 
 #endif

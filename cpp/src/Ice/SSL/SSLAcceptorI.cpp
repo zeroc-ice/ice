@@ -9,9 +9,6 @@
 #    include "SchannelEngine.h"
 #    include "SchannelTransceiverI.h"
 #elif defined(__APPLE__)
-#    if !defined(ICE_USE_NETWORK_FRAMEWORK)
-#        include "SecureTransportTransceiverI.h"
-#    endif
 #else
 #    include "OpenSSLTransceiverI.h"
 #endif
@@ -81,11 +78,9 @@ Ice::SSL::AcceptorI::accept()
         _adapterName,
         *serverAuthenticationOptions);
 #elif defined(__APPLE__)
-    return make_shared<Ice::SSL::SecureTransport::TransceiverI>(
-        _instance,
-        _delegate->accept(),
-        _adapterName,
-        *serverAuthenticationOptions);
+    // Unreachable: Network.framework handles TLS at the listener level.
+    assert(false);
+    return _delegate->accept();
 #else
     return make_shared<Ice::SSL::OpenSSL::TransceiverI>(
         _instance,

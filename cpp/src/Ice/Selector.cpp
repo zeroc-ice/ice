@@ -787,11 +787,20 @@ Selector::setup(int)
 {
     _queue = dispatch_queue_create("com.zeroc.ice.network-framework", DISPATCH_QUEUE_CONCURRENT);
     _semaphore = dispatch_semaphore_create(0);
+    _completionToken = make_shared<SelectorCompletionToken>();
 }
 
 void
 Selector::destroy()
 {
+    // Invalidate the completion token before releasing resources. This prevents
+    // Network.framework async callbacks from calling completed() on a destroyed Selector.
+    if (_completionToken)
+    {
+        lock_guard lock(_completionToken->mutex);
+        _completionToken->valid = false;
+    }
+
     if (_queue)
     {
         dispatch_release(_queue);
@@ -810,7 +819,7 @@ Selector::initialize(EventHandler* handler)
     NativeInfoPtr nativeInfo = handler->getNativeInfo();
     if (nativeInfo)
     {
-        nativeInfo->initialize(this, handler);
+        nativeInfo->initialize(this, handler, _completionToken);
     }
 }
 

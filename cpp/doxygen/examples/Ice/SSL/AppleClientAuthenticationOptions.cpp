@@ -1,10 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
 #include <Ice/Ice.h>
-// Disable deprecation warnings from SecureTransport APIs
-#include "../../src/Ice/DisableWarnings.h"
 
-#if defined(ICE_USE_SECURE_TRANSPORT)
+#if defined(ICE_USE_APPLE_SSL)
 // NOLINTBEGIN(clang-analyzer-osx.coreFoundation.CFRetainRelease)
 
 void
@@ -12,8 +10,8 @@ clientCertificateSelectionCallbackExample()
 {
     //! [clientCertificateSelectionCallback]
     CFArrayRef clientCertificateChain = {};
-    // Load the client certificate chain from the keychain using SecureTransport
-    // APIs.
+    // Load the client certificate chain from the keychain using Security
+    // framework APIs.
     auto initData = Ice::InitializationData{
         .clientAuthenticationOptions = Ice::SSL::ClientAuthenticationOptions{
             .clientCertificateSelectionCallback =
@@ -51,13 +49,9 @@ clientSetNewSessionCallbackExample()
     //! [sslNewSessionCallback]
     auto initData = Ice::InitializationData{
         .clientAuthenticationOptions = Ice::SSL::ClientAuthenticationOptions{
-            .sslNewSessionCallback = [](SSLContextRef context, const std::string&)
+            .sslNewSessionCallback = [](sec_protocol_options_t secOptions, const std::string&)
             {
-                OSStatus status = SSLSetProtocolVersionMin(context, kTLSProtocol13);
-                if (status != noErr)
-                {
-                    // Handle error
-                }
+                sec_protocol_options_set_min_tls_protocol_version(secOptions, tls_protocol_version_TLSv13);
             }}};
     //! [sslNewSessionCallback]
 }
