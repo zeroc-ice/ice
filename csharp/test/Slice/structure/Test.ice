@@ -13,7 +13,6 @@ module Test
     }
     ["cs:internal"] sequence<C> CSeq;
 
-
     ["cs:internal", "cs:readonly"]
     struct S1
     {
