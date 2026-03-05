@@ -4,9 +4,9 @@
 
 namespace Ice.proxy;
 
-public sealed class CI : Test.CDisp_, Ice.Object
+internal sealed class CI : Test.CDisp_, Ice.Object
 {
-    public CI()
+    internal CI()
     {
     }
 

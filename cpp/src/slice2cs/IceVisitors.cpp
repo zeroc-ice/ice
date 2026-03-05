@@ -316,6 +316,8 @@ namespace
             return "null";
         }
     }
+
+    string accessModifier(const ContainedPtr& p) { return p->hasMetadata("cs:internal") ? "internal" : "public"; }
 }
 
 Slice::Ice::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out) {}
@@ -352,7 +354,7 @@ Slice::Ice::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << nl << "[Ice.CompactSliceTypeId(" << p->compactId() << ")]";
     }
-    _out << nl << "public partial class " << p->mappedName() << " : ";
+    _out << nl << accessModifier(p) << " partial class " << p->mappedName() << " : ";
 
     if (base)
     {
@@ -375,6 +377,9 @@ Slice::Ice::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
     ClassDefPtr base = p->base();
+
+    // We keep all the constructors public, even with the cs:internal metadata. The parameterless constructor must be
+    // public for unmarshaling to work.
 
     _out << sp << nl << "partial void ice_initialize();";
     if (allDataMembers.empty())
@@ -514,19 +519,19 @@ Slice::Ice::TypesVisitor::visitSequence(const SequencePtr& p)
     ostringstream summary;
     summary << "Provides methods to marshal and unmarshal a <c>" << p->name() << "</c>.";
     writeHelperDocComment(p, summary.str(), "sequence helper class");
-    _out << nl << "public sealed class " << name << "Helper";
+    _out << nl << accessModifier(p) << " sealed class " << name << "Helper";
     _out << sb;
 
     _out << sp;
     writeMarshalDocComment(_out);
-    _out << nl << "public static void write(Ice.OutputStream ostr, " << typeS << " v)";
+    _out << nl << accessModifier(p) << " static void write(Ice.OutputStream ostr, " << typeS << " v)";
     _out << sb;
     writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", true, false);
     _out << eb;
 
     _out << sp;
     writeUnmarshalDocComment(_out);
-    _out << nl << "public static " << typeS << " read(Ice.InputStream istr)";
+    _out << nl << accessModifier(p) << " static " << typeS << " read(Ice.InputStream istr)";
     _out << sb;
     _out << nl << typeS << " v;";
     writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", false, false);
@@ -552,12 +557,12 @@ Slice::Ice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     ostringstream summary;
     summary << "Provides methods to marshal and unmarshal a <c>" << p->name() << "</c>.";
     writeHelperDocComment(p, summary.str(), "dictionary helper class");
-    _out << nl << "public sealed class " << p->mappedName() << "Helper";
+    _out << nl << accessModifier(p) << " sealed class " << p->mappedName() << "Helper";
     _out << sb;
 
     _out << sp;
     writeMarshalDocComment(_out);
-    _out << nl << "public static void write(";
+    _out << nl << accessModifier(p) << " static void write(";
     _out << "Ice.OutputStream ostr, " << name << " v)";
     _out << sb;
     _out << nl << "if (v is null)";
@@ -579,7 +584,7 @@ Slice::Ice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp;
     writeUnmarshalDocComment(_out);
-    _out << nl << "public static " << name << " read(Ice.InputStream istr)";
+    _out << nl << accessModifier(p) << " static " << name << " read(Ice.InputStream istr)";
     _out << sb;
     _out << nl << "int sz = istr.readSize();";
     _out << nl << "var r = new " << name << "();";
@@ -617,7 +622,7 @@ Slice::Ice::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     writeDocComment(p, "exception class");
     emitObsoleteAttribute(p);
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
-    _out << nl << "public partial class " << p->mappedName() << " : ";
+    _out << nl << accessModifier(p) << " partial class " << p->mappedName() << " : ";
     if (base)
     {
         _out << getUnqualified(base, ns);
@@ -639,6 +644,9 @@ Slice::Ice::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList optionalMembers = p->orderedOptionalDataMembers();
     ExceptionPtr base = p->base();
+
+    // We keep all the constructors public, even with the cs:internal metadata. The parameterless constructor must be
+    // public for unmarshaling to work.
 
     if (!allDataMembers.empty())
     {
@@ -814,10 +822,12 @@ Slice::Ice::TypesVisitor::visitStructStart(const StructPtr& p)
     _out << sp;
 
     string mappedType = classMapping ? "record class" : "record struct";
+    string modifier = (p->hasMetadata("cs:readonly") && !classMapping) ? "readonly " : "";
 
     writeDocComment(p, mappedType);
     emitObsoleteAttribute(p);
-    _out << nl << "public " << (classMapping ? "sealed " : "") << "partial " << mappedType << ' ' << name;
+    _out << nl << accessModifier(p) << ' ' << (classMapping ? "sealed " : "") << modifier << "partial " << mappedType
+         << ' ' << name;
     _out << sb;
     return true;
 }
@@ -858,7 +868,7 @@ Slice::Ice::TypesVisitor::visitStructEnd(const StructPtr& p)
         {
             _out << sp;
             writeDocLine(_out, "summary", "Initializes a new instance of the <see cref=\"" + name + "\" /> class.");
-            _out << nl << "public " << name << spar << ctorParams << epar;
+            _out << nl << accessModifier(p) << ' ' << name << spar << ctorParams << epar;
             _out << sb;
             for (const auto& q : ctorParamNames)
             {
@@ -874,7 +884,7 @@ Slice::Ice::TypesVisitor::visitStructEnd(const StructPtr& p)
     // Primary constructor.
     _out << sp;
     writeDocLine(_out, "summary", "Initializes a new instance of the <see cref=\"" + name + "\" /> " + kind + ".");
-    _out << nl << "public " << name << spar;
+    _out << nl << accessModifier(p) << ' ' << name << spar;
     vector<string> parameters;
     for (const auto& q : dataMembers)
     {
@@ -911,7 +921,7 @@ Slice::Ice::TypesVisitor::visitStructEnd(const StructPtr& p)
         {
             _out << sp;
             writeDocLine(_out, "summary", "Initializes a new instance of the <see cref=\"" + name + "\" /> struct.");
-            _out << nl << "public " << name << "() => ice_initialize();";
+            _out << nl << accessModifier(p) << ' ' << name << "() => ice_initialize();";
         }
     }
 
@@ -921,7 +931,7 @@ Slice::Ice::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out,
         "summary",
         "Initializes a new instance of the <see cref=\"" + name + "\" /> " + kind + " from an input stream.");
-    _out << nl << "public " << name << "(Ice.InputStream istr)";
+    _out << nl << accessModifier(p) << ' ' << name << "(Ice.InputStream istr)";
     _out << sb;
     for (const auto& q : dataMembers)
     {
@@ -932,7 +942,7 @@ Slice::Ice::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp;
     writeMarshalDocComment(_out);
-    _out << nl << "public static void ice_write(Ice.OutputStream ostr, " << name << " v)";
+    _out << nl << accessModifier(p) << " static void ice_write(Ice.OutputStream ostr, " << name << " v)";
     _out << sb;
     for (const auto& dataMember : dataMembers)
     {
@@ -942,7 +952,7 @@ Slice::Ice::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp;
     writeUnmarshalDocComment(_out);
-    _out << nl << "public static " << name << " ice_read(Ice.InputStream istr) => new(istr);";
+    _out << nl << accessModifier(p) << " static " << name << " ice_read(Ice.InputStream istr) => new(istr);";
     _out << eb;
 }
 
@@ -958,7 +968,7 @@ Slice::Ice::TypesVisitor::visitEnum(const EnumPtr& p)
     writeDocComment(p, "enum");
     emitObsoleteAttribute(p);
     emitAttributes(p);
-    _out << nl << "public enum " << name;
+    _out << nl << accessModifier(p) << " enum " << name;
     _out << sb;
     for (const auto& enumerator : enumerators)
     {
@@ -984,18 +994,18 @@ Slice::Ice::TypesVisitor::visitEnum(const EnumPtr& p)
     classComment << "Provides methods to marshal and unmarshal " << getArticleFor(name) << " <see cref=\"" << name
                  << "\" />.";
     writeHelperDocComment(p, classComment.str(), "enum helper class");
-    _out << nl << "public sealed class " << name << "Helper";
+    _out << nl << accessModifier(p) << " sealed class " << name << "Helper";
     _out << sb;
     _out << sp;
     writeMarshalDocComment(_out);
-    _out << nl << "public static void write(Ice.OutputStream ostr, " << name << " v)";
+    _out << nl << accessModifier(p) << " static void write(Ice.OutputStream ostr, " << name << " v)";
     _out << sb;
     writeMarshalUnmarshalCode(_out, p, ns, "v", true);
     _out << eb;
 
     _out << sp;
     writeUnmarshalDocComment(_out);
-    _out << nl << "public static " << name << " read(Ice.InputStream istr)";
+    _out << nl << accessModifier(p) << " static " << name << " read(Ice.InputStream istr)";
     _out << sb;
     _out << nl << name << " v;";
     writeMarshalUnmarshalCode(_out, p, ns, "v", false);
@@ -1011,10 +1021,10 @@ Slice::Ice::TypesVisitor::visitConst(const ConstPtr& p)
     _out << sp;
     writeHelperDocComment(p, "Provides the " + p->mappedName() + " constant.", "helper class");
     emitAttributes(p);
-    _out << nl << "public abstract class " << p->mappedName();
+    _out << nl << accessModifier(p) << " abstract class " << p->mappedName();
     _out << sb;
     writeDocComment(p);
-    _out << nl << "public const " << typeToString(p->type(), "") << " value = ";
+    _out << nl << accessModifier(p) << " const " << typeToString(p->type(), "") << " value = ";
     writeConstantValue(p->type(), p->valueType(), p->value());
     _out << ";";
     _out << eb;
@@ -1029,20 +1039,39 @@ Slice::Ice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     StructPtr st = dynamic_pointer_cast<Struct>(cont);
     string ns = getNamespace(cont);
 
+    // We can't map class fields to read-only fields/properties because the 1.0 encoding requires "patching": the field
+    // is set later via a lambda, at the end of the unmarshaling process.
+    bool isReadOnly = st && st->hasMetadata("cs:readonly") && !p->type()->isClassType();
+
     _out << sp;
 
     string type = typeToString(p->type(), ns, p->optional());
+    bool addSemicolon = true;
 
     writeDocComment(p);
     emitObsoleteAttribute(p);
     emitAttributes(p);
-    _out << nl << "public " << type << ' ' << p->mappedName();
-
-    bool addSemicolon = true;
+    _out << nl << accessModifier(cont) << ' ';
     if (isProperty)
     {
-        _out << " { get; set; }";
+        _out << type << ' ' << p->mappedName();
+        if (isReadOnly)
+        {
+            _out << " { get; }";
+        }
+        else
+        {
+            _out << " { get; set; }";
+        }
         addSemicolon = false;
+    }
+    else
+    {
+        if (isReadOnly)
+        {
+            _out << "readonly ";
+        }
+        _out << type << ' ' << p->mappedName();
     }
 
     if (p->defaultValue())
@@ -1086,7 +1115,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     notes << "Use the methods of this interface to invoke operations on a remote Ice object that implements <c>"
           << p->name() << "</c>.";
     writeDocComment(p, "proxy interface", notes.str());
-    _out << nl << "public partial interface " << p->mappedName() << "Prx : ";
+    _out << nl << accessModifier(p) << " partial interface " << p->mappedName() << "Prx : ";
 
     vector<string> baseInterfaces;
     for (const auto& base : p->bases())
@@ -1126,7 +1155,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     ostringstream summary;
     summary << "Helper class for proxy <see cref=\"" << name << "Prx\" />.";
     writeHelperDocComment(p, summary.str(), "proxy helper class");
-    _out << nl << "public sealed partial class " << name << "PrxHelper : "
+    _out << nl << accessModifier(p) << " sealed partial class " << name << "PrxHelper : "
          << "Ice.ObjectPrxHelperBase, " << name << "Prx";
     _out << sb;
 
@@ -1146,7 +1175,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         string context = getEscapedParamName(op->parameters(), "context");
 
         _out << sp;
-        _out << nl << "public " << retS << " " << opName;
+        _out << nl << "public " << retS << ' ' << opName;
         _out.spar("(", true);
         _out << params << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
              << epar;
@@ -1398,7 +1427,8 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(_out, R"(param name="communicator")", "The communicator.", "param");
     writeDocLine(_out, R"(param name="proxyString")", "The stringified proxy.", "param");
     writeDocLine(_out, "returns", "A new proxy.");
-    _out << nl << "public static " << name << "Prx createProxy(Ice.Communicator communicator, string proxyString) =>";
+    _out << nl << accessModifier(p) << " static " << name
+         << "Prx createProxy(Ice.Communicator communicator, string proxyString) =>";
     _out.inc();
     _out << nl << "new " << name << "PrxHelper(Ice.ObjectPrxHelper.createProxy(communicator, proxyString));";
     _out.dec();
@@ -1417,7 +1447,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(_out, R"(param name="proxy")", "The source proxy.", "param");
     writeDocLine(_out, R"(param name="context")", "The request context.", "param");
     writeDocLine(_out, "returns", checkedCastReturns.str());
-    _out << nl << "public static " << name << "Prx? checkedCast";
+    _out << nl << accessModifier(p) << " static " << name << "Prx? checkedCast";
     _out.spar("(", true);
     _out << "Ice.ObjectPrx? proxy"
          << "global::System.Collections.Generic.Dictionary<string, string>? context = null";
@@ -1443,7 +1473,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(_out, R"(param name="facet")", "The facet.", "param");
     writeDocLine(_out, R"(param name="context")", "The request context.", "param");
     writeDocLine(_out, "returns", checkedCastWithFacetReturns.str());
-    _out << nl << "public static " << name << "Prx? checkedCast";
+    _out << nl << accessModifier(p) << " static " << name << "Prx? checkedCast";
     _out.spar("(", true);
     _out << "Ice.ObjectPrx? proxy"
          << "string facet"
@@ -1459,7 +1489,8 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(_out, R"(param name="progress")", "The sent progress reporter.", "param");
     writeDocLine(_out, R"(param name="cancel")", "The cancellation token.", "param");
     writeDocLine(_out, "returns", checkedCastReturns.str());
-    _out << nl << "public static async global::System.Threading.Tasks.Task<" << name << "Prx?> checkedCastAsync";
+    _out << nl << accessModifier(p) << " static async global::System.Threading.Tasks.Task<" << name
+         << "Prx?> checkedCastAsync";
     _out.spar("(", true);
     _out << "Ice.ObjectPrx proxy"
          << "global::System.Collections.Generic.Dictionary<string, string>? context = null"
@@ -1478,7 +1509,8 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(_out, R"(param name="progress")", "The sent progress reporter.", "param");
     writeDocLine(_out, R"(param name="cancel")", "The cancellation token.", "param");
     writeDocLine(_out, "returns", checkedCastWithFacetReturns.str());
-    _out << nl << "public static global::System.Threading.Tasks.Task<" << name << "Prx?> checkedCastAsync";
+    _out << nl << accessModifier(p) << " static global::System.Threading.Tasks.Task<" << name
+         << "Prx?> checkedCastAsync";
     _out.spar("(", true);
     _out << "Ice.ObjectPrx proxy"
          << "string facet"
@@ -1496,7 +1528,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(_out, R"(param name="proxy")", "The source proxy.", "param");
     writeDocLine(_out, "returns", "A new proxy with the requested type, or null if the source proxy is null.");
     _out << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(proxy))]";
-    _out << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? proxy) =>";
+    _out << nl << accessModifier(p) << " static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? proxy) =>";
     _out.inc();
     _out << nl << "proxy is not null ? new " << name << "PrxHelper(proxy) : null;";
     _out.dec();
@@ -1511,7 +1543,8 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(_out, R"(param name="facet")", "The facet.", "param");
     writeDocLine(_out, "returns", "A new proxy with the requested type, or null if the source proxy is null.");
     _out << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(proxy))]";
-    _out << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? proxy, string facet) =>";
+    _out << nl << accessModifier(p) << " static " << name
+         << "Prx? uncheckedCast(Ice.ObjectPrx? proxy, string facet) =>";
     _out.inc();
     _out << nl << "uncheckedCast(proxy?.ice_facet(facet));";
     _out.dec();
@@ -1522,18 +1555,18 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << sp;
     writeDocLine(_out, "summary", "Gets the type ID of the associated Slice interface.");
     writeDocLine(_out, "returns", staticId.str());
-    _out << nl << R"(public static string ice_staticId() => ")" << p->scoped() << R"(";)";
+    _out << nl << accessModifier(p) << R"( static string ice_staticId() => ")" << p->scoped() << R"(";)";
 
     _out << sp;
     writeMarshalDocComment(_out);
-    _out << nl << "public static void write(Ice.OutputStream ostr, " << name << "Prx? v)";
+    _out << nl << accessModifier(p) << " static void write(Ice.OutputStream ostr, " << name << "Prx? v)";
     _out << sb;
     _out << nl << "ostr.writeProxy(v);";
     _out << eb;
 
     _out << sp;
     writeUnmarshalDocComment(_out);
-    _out << nl << "public static " << name << "Prx? read(Ice.InputStream istr) =>";
+    _out << nl << accessModifier(p) << " static " << name << "Prx? read(Ice.InputStream istr) =>";
     _out.inc();
     _out << nl << "istr.readProxy() is Ice.ObjectPrx proxy ? new " << name << "PrxHelper(proxy) : null;";
     _out.dec();
@@ -1847,7 +1880,7 @@ Slice::Ice::ResultVisitor::visitOperation(const OperationPtr& p)
         }
 
         _out << sp;
-        _out << nl << "public record struct " << name;
+        _out << nl << accessModifier(interface) << " record struct " << name;
         _out << spar;
         if (ret)
         {
@@ -1867,13 +1900,14 @@ Slice::Ice::ResultVisitor::visitOperation(const OperationPtr& p)
         string name = resultStructName(interface->mappedName(), p->mappedName(), true);
 
         _out << sp;
-        _out << nl << "public readonly record struct " << name << " : Ice.MarshaledResult";
+        _out << nl << accessModifier(interface) << " readonly record struct " << name << " : Ice.MarshaledResult";
         _out << sb;
 
         //
         // Marshaling constructor
         //
-        _out << nl << "public " << name << spar << getOutParams(p, ns, true, false) << "Ice.Current current" << epar;
+        _out << nl << accessModifier(interface) << " " << name << spar << getOutParams(p, ns, true, false)
+             << "Ice.Current current" << epar;
         _out << sb;
         _out << nl << "_ostr = Ice.CurrentExtensions.startReplyStream(current);";
         _out << nl << "_ostr.startEncapsulation(current.encoding, " << opFormatTypeToString(p) << ");";
@@ -1932,7 +1966,7 @@ Slice::Ice::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     writeDocComment(p, "skeleton interface", notes.str());
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
-    _out << nl << "public partial interface " << name << " : ";
+    _out << nl << accessModifier(p) << " partial interface " << name << " : ";
 
     auto baseInterfaces = p->bases();
     if (baseInterfaces.empty())
@@ -1976,7 +2010,7 @@ Slice::Ice::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             << "</c>.";
 
     writeHelperDocComment(p, summary.str(), "skeleton class", remarks.str());
-    _out << nl << "public abstract partial class " << name << "Disp_ : " << name;
+    _out << nl << accessModifier(p) << " abstract partial class " << name << "Disp_ : " << name;
 
     _out << sb;
 
@@ -1985,7 +2019,7 @@ Slice::Ice::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     writeDocLine(_out, "summary", "Gets the type ID of the associated Slice interface.");
     writeDocLine(_out, "returns", staticId.str());
-    _out << nl << R"(public static string ice_staticId() => ")" << p->scoped() << R"(";)";
+    _out << nl << accessModifier(p) << R"( static string ice_staticId() => ")" << p->scoped() << R"(";)";
 
     for (const auto& op : p->allOperations())
     {
