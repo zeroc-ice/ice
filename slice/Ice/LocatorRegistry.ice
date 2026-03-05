@@ -12,6 +12,9 @@
 
 #include "Locator.ice"
 
+#ifdef __ICERPC__
+["cs:identifier:IceRpc.Ice"]
+#endif
 ["java:identifier:com.zeroc.Ice"]
 module Ice
 {
