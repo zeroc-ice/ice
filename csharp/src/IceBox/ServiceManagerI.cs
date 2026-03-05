@@ -242,7 +242,10 @@ class ServiceManagerI : ServiceManagerDisp_
             }
             catch(Ice.CommunicatorDestroyedException)
             {
-                _observers.Remove(observer);
+                lock(this)
+                {
+                    _observers.Remove(observer);
+                }
             }
         }
     }
