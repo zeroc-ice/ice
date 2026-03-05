@@ -179,10 +179,7 @@ namespace
         out.dec();
     }
 
-    string accessModifier(const ContainedPtr& p)
-    {
-        return p->hasMetadata("cs:internal") ? "internal" : "public";
-    }
+    string accessModifier(const ContainedPtr& p) { return p->hasMetadata("cs:internal") ? "internal" : "public"; }
 }
 
 Slice::IceRpc::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out) {}
@@ -194,8 +191,8 @@ Slice::IceRpc::TypesVisitor::visitStructStart(const StructPtr& p)
     writeDocComment(p, "record struct");
     emitObsoleteAttribute(p);
 
-    _out << nl << accessModifier(p) << (p->hasMetadata("cs:readonly") ? " readonly" : "")
-        << " partial record struct " << p->mappedName();
+    _out << nl << accessModifier(p) << (p->hasMetadata("cs:readonly") ? " readonly" : "") << " partial record struct "
+         << p->mappedName();
     _out << sb;
     return true;
 }
@@ -503,8 +500,8 @@ Slice::IceRpc::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << sb;
 
     // TODO: doc-comment
-    _out << nl << accessModifier(p) << " static void Encode" << name << "(this ref SliceEncoder encoder, " << escapedName
-         << " value) => encoder.EncodeSize((int)value);";
+    _out << nl << accessModifier(p) << " static void Encode" << name << "(this ref SliceEncoder encoder, "
+         << escapedName << " value) => encoder.EncodeSize((int)value);";
     _out << eb;
 
     _out << sp;
@@ -516,8 +513,8 @@ Slice::IceRpc::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << sb;
 
     // TODO: doc-comment
-    _out << nl << accessModifier(p) << " static " << escapedName << " Decode" << name << "(this ref SliceDecoder decoder) => " << name
-         << "IntExtensions.As" << name << "(decoder.DecodeSize());";
+    _out << nl << accessModifier(p) << " static " << escapedName << " Decode" << name
+         << "(this ref SliceDecoder decoder) => " << name << "IntExtensions.As" << name << "(decoder.DecodeSize());";
     _out << eb;
 }
 
@@ -732,7 +729,8 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     _out << nl << "[SliceTypeId(\"" << p->scoped() << "\")]";
     emitObsoleteAttribute(p);
-    _out << nl << accessModifier(p) << " readonly partial record struct " << name << "Proxy : " << 'I' << name << ", IProxy";
+    _out << nl << accessModifier(p) << " readonly partial record struct " << name << "Proxy : " << 'I' << name
+         << ", IProxy";
 
     _out << sb;
 
@@ -944,8 +942,8 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             R"(Proxy" /> as a nullable <see cref="IceRpc.ServiceAddress" />.)");
     writeDocLine(_out, R"(param name="encoder")", "The Slice encoder.", "param");
     writeDocLine(_out, R"(param name="proxy")", "The proxy to encode as a service address (can be null).", "param");
-    _out << nl << accessModifier(p) << " static void EncodeNullable" << name << "Proxy(this ref SliceEncoder encoder, " << name
-         << "Proxy? proxy) =>";
+    _out << nl << accessModifier(p) << " static void EncodeNullable" << name << "Proxy(this ref SliceEncoder encoder, "
+         << name << "Proxy? proxy) =>";
     _out.inc();
     _out << nl << "encoder.EncodeNullableServiceAddress(proxy?.ServiceAddress);";
     _out.dec();
