@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-#include "../../src/Ice/SSL/SecureTransportUtil.h"
+#include "../../src/Ice/SSL/AppleSSLUtil.h"
 #include "../../src/Ice/UniqueRef.h"
 #include "Ice/SSL/ClientAuthenticationOptions.h"
 #include "Ice/SSL/ServerAuthenticationOptions.h"
@@ -16,7 +16,7 @@ using namespace Ice;
 using namespace Ice::SSL;
 using namespace Test;
 
-#ifdef ICE_USE_SECURE_TRANSPORT
+#ifdef ICE_USE_APPLE_SSL
 
 atomic<int> nextKeyChain = 1000;
 
@@ -28,7 +28,7 @@ getKeyChainPath(const string& basePath)
     return os.str();
 }
 
-#    ifdef ICE_USE_SECURE_TRANSPORT_IOS
+#    ifdef ICE_USE_APPLE_SSL_IOS
 string
 getResourcePath(const string& path)
 {
@@ -83,13 +83,13 @@ void
 clientValidatesServerSettingTrustedRootCertificates(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "client validates server certificate setting trusted root certificates... " << flush;
-    CFArrayRef serverCertificateChain = SecureTransport::loadCertificateChain(
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
         certificatesPath + "/ca1/server.p12",
         "",
         getKeyChainPath(certificatesPath),
         keychainPassword,
         password);
-    CFArrayRef trustedRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
+    CFArrayRef trustedRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
@@ -122,7 +122,7 @@ void
 clientValidatesServerUsingValidationCallback(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "client validates server certificate using validation callback... " << flush;
-    CFArrayRef serverCertificateChain = SecureTransport::loadCertificateChain(
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
         certificatesPath + "/ca1/server.p12",
         "",
         getKeyChainPath(certificatesPath),
@@ -130,7 +130,7 @@ clientValidatesServerUsingValidationCallback(Test::TestHelper* helper, const str
         password);
     // The server certificate is not trusted by the client CA, but the validation callback accepts the server
     // certificate.
-    CFArrayRef trustedRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/ca2/ca2_cert.pem");
+    CFArrayRef trustedRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca2/ca2_cert.pem");
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
@@ -165,13 +165,13 @@ void
 clientRejectsServerSettingTrustedRootCertificates(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "client rejects server certificate setting trusted root certificates... " << flush;
-    CFArrayRef serverCertificateChain = SecureTransport::loadCertificateChain(
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
         certificatesPath + "/ca1/server.p12",
         "",
         getKeyChainPath(certificatesPath),
         keychainPassword,
         password);
-    CFArrayRef trustedRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/ca2/ca2_cert.pem");
+    CFArrayRef trustedRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca2/ca2_cert.pem");
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
@@ -212,7 +212,7 @@ void
 clientRejectsServerUsingDefaultTrustedRootCertificates(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "client rejects server certificate using default trusted root certificates... " << flush;
-    CFArrayRef serverCertificateChain = SecureTransport::loadCertificateChain(
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
         certificatesPath + "/ca1/server.p12",
         "",
         getKeyChainPath(certificatesPath),
@@ -254,7 +254,7 @@ void
 clientRejectsServerUsingValidationCallback(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "client rejects server certificate using validation callback... " << flush;
-    CFArrayRef serverCertificateChain = SecureTransport::loadCertificateChain(
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
         certificatesPath + "/ca1/server.p12",
         "",
         getKeyChainPath(certificatesPath),
@@ -262,7 +262,7 @@ clientRejectsServerUsingValidationCallback(Test::TestHelper* helper, const strin
         password);
     // The client trusted root certificates include the server certificate CA, but the validation callback
     // rejects the server certificate.
-    CFArrayRef trustedRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
+    CFArrayRef trustedRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
@@ -305,20 +305,20 @@ void
 serverValidatesClientSettingTrustedRootCertificates(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "server validates client certificate setting trusted root certificates... " << flush;
-    CFArrayRef serverCertificateChain = SecureTransport::loadCertificateChain(
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
         certificatesPath + "/ca1/server.p12",
         "",
         getKeyChainPath(certificatesPath),
         keychainPassword,
         password);
-    CFArrayRef clientCertificateChain = SecureTransport::loadCertificateChain(
+    CFArrayRef clientCertificateChain = Apple::loadCertificateChain(
         certificatesPath + "/ca1/client.p12",
         "",
         getKeyChainPath(certificatesPath),
         keychainPassword,
         password);
     // The client certificate is trusted by the server CA.
-    CFArrayRef trustedRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
+    CFArrayRef trustedRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
@@ -328,7 +328,7 @@ serverValidatesClientSettingTrustedRootCertificates(Test::TestHelper* helper, co
                 CFRetain(serverCertificateChain);
                 return serverCertificateChain;
             },
-            .clientCertificateRequired = kAlwaysAuthenticate,
+            .clientCertificateRequired = true,
             .trustedRootCertificates = trustedRootCertificates};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
@@ -362,7 +362,7 @@ void
 serverValidatesClientUsingValidationCallback(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "server validates client certificate using validation callback... " << flush;
-    CFArrayRef serverCertificateChain = SecureTransport::loadCertificateChain(
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
         certificatesPath + "/ca1/server.p12",
         "",
         getKeyChainPath(certificatesPath),
@@ -370,15 +370,15 @@ serverValidatesClientUsingValidationCallback(Test::TestHelper* helper, const str
         password);
     // The client certificate is not trusted by the server CA, but the validation callback accepts the client
     // certificate.
-    CFArrayRef serverRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/ca2/ca2_cert.pem");
+    CFArrayRef serverRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca2/ca2_cert.pem");
 
-    CFArrayRef clientCertificateChain = SecureTransport::loadCertificateChain(
+    CFArrayRef clientCertificateChain = Apple::loadCertificateChain(
         certificatesPath + "/ca1/client.p12",
         "",
         getKeyChainPath(certificatesPath),
         keychainPassword,
         password);
-    CFArrayRef clientRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
+    CFArrayRef clientRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
@@ -388,7 +388,7 @@ serverValidatesClientUsingValidationCallback(Test::TestHelper* helper, const str
                 CFRetain(serverCertificateChain);
                 return serverCertificateChain;
             },
-            .clientCertificateRequired = kAlwaysAuthenticate,
+            .clientCertificateRequired = true,
             .trustedRootCertificates = serverRootCertificates,
             .clientCertificateValidationCallback = [](SecTrustRef, const Ice::SSL::ConnectionInfoPtr&)
             { return true; }};
@@ -426,20 +426,20 @@ void
 serverRejectsClientSettingTrustedRootCertificates(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "server rejects client certificate setting trusted root certificates... " << flush;
-    CFArrayRef serverCertificateChain = SecureTransport::loadCertificateChain(
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
         certificatesPath + "/ca1/server.p12",
         "",
         getKeyChainPath(certificatesPath),
         keychainPassword,
         password);
-    CFArrayRef clientCertificateChain = SecureTransport::loadCertificateChain(
+    CFArrayRef clientCertificateChain = Apple::loadCertificateChain(
         certificatesPath + "/ca1/client.p12",
         "",
         getKeyChainPath(certificatesPath),
         keychainPassword,
         password);
-    CFArrayRef clientRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
-    CFArrayRef serverRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/ca2/ca2_cert.pem");
+    CFArrayRef clientRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
+    CFArrayRef serverRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca2/ca2_cert.pem");
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
@@ -449,7 +449,7 @@ serverRejectsClientSettingTrustedRootCertificates(Test::TestHelper* helper, cons
                 CFRetain(serverCertificateChain);
                 return serverCertificateChain;
             },
-            .clientCertificateRequired = kAlwaysAuthenticate,
+            .clientCertificateRequired = true,
             .trustedRootCertificates = serverRootCertificates};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
@@ -493,19 +493,19 @@ void
 serverRejectsClientUsingDefaultTrustedRootCertificates(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "server rejects client certificate using default root certificates... " << flush;
-    CFArrayRef serverCertificateChain = SecureTransport::loadCertificateChain(
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
         certificatesPath + "/ca1/server.p12",
         "",
         getKeyChainPath(certificatesPath),
         keychainPassword,
         password);
-    CFArrayRef clientCertificateChain = SecureTransport::loadCertificateChain(
+    CFArrayRef clientCertificateChain = Apple::loadCertificateChain(
         certificatesPath + "/ca1/client.p12",
         "",
         getKeyChainPath(certificatesPath),
         keychainPassword,
         password);
-    CFArrayRef trustedRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
+    CFArrayRef trustedRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
@@ -515,7 +515,7 @@ serverRejectsClientUsingDefaultTrustedRootCertificates(Test::TestHelper* helper,
                 CFRetain(serverCertificateChain);
                 return serverCertificateChain;
             },
-            .clientCertificateRequired = kAlwaysAuthenticate};
+            .clientCertificateRequired = true};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
         Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
@@ -556,19 +556,19 @@ void
 serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const string& certificatesPath)
 {
     cout << "server rejects client certificate using validation callback... " << flush;
-    CFArrayRef serverCertificateChain = SecureTransport::loadCertificateChain(
+    CFArrayRef serverCertificateChain = Apple::loadCertificateChain(
         certificatesPath + "/ca1/server.p12",
         "",
         getKeyChainPath(certificatesPath),
         keychainPassword,
         password);
-    CFArrayRef clientCertificateChain = SecureTransport::loadCertificateChain(
+    CFArrayRef clientCertificateChain = Apple::loadCertificateChain(
         certificatesPath + "/ca1/client.p12",
         "",
         getKeyChainPath(certificatesPath),
         keychainPassword,
         password);
-    CFArrayRef trustedRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
+    CFArrayRef trustedRootCertificates = Apple::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
@@ -578,7 +578,7 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
                 CFRetain(serverCertificateChain);
                 return serverCertificateChain;
             },
-            .clientCertificateRequired = kAlwaysAuthenticate,
+            .clientCertificateRequired = true,
             .trustedRootCertificates = trustedRootCertificates,
             .clientCertificateValidationCallback = [](SecTrustRef, const Ice::SSL::ConnectionInfoPtr&)
             { return false; }};
@@ -627,7 +627,7 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesP
     public:
         ServerState(const string& certificatePath, const string& keyChainPath)
             : _serverCertificateChain(
-                  SecureTransport::loadCertificateChain(certificatePath, "", keyChainPath, keychainPassword, password))
+                  Apple::loadCertificateChain(certificatePath, "", keyChainPath, keychainPassword, password))
         {
         }
 
@@ -648,7 +648,7 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesP
                 CFRelease(_serverCertificateChain);
             }
             _serverCertificateChain =
-                SecureTransport::loadCertificateChain(certificatePath, "", keyChainPath, keychainPassword, password);
+                Apple::loadCertificateChain(certificatePath, "", keyChainPath, keychainPassword, password);
         }
 
     private:
@@ -657,8 +657,8 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesP
 
     ServerState serverState(certificatesPath + "/ca1/server.p12", getKeyChainPath(certificatesPath));
 
-    CFArrayRef trustedRootCertificatesCA1 = SecureTransport::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
-    CFArrayRef trustedRootCertificatesCA2 = SecureTransport::loadCACertificates(certificatesPath + "/ca2/ca2_cert.pem");
+    CFArrayRef trustedRootCertificatesCA1 = Apple::loadCACertificates(certificatesPath + "/ca1/ca1_cert.pem");
+    CFArrayRef trustedRootCertificatesCA2 = Apple::loadCACertificates(certificatesPath + "/ca2/ca2_cert.pem");
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
@@ -738,7 +738,7 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesP
     cout << "ok" << endl;
 }
 
-#    ifdef ICE_USE_SECURE_TRANSPORT_IOS
+#    ifdef ICE_USE_APPLE_SSL_IOS
 void
 allAuthenticationOptionsTests(Test::TestHelper* helper, const string&)
 {
@@ -750,7 +750,7 @@ allAuthenticationOptionsTests(Test::TestHelper* helper, const string& defaultDir
     const string certificatesPath = defaultDir;
 #    endif
 
-    cout << "testing with SecureTransport native APIs..." << endl;
+    cout << "testing with Apple SSL native APIs..." << endl;
 
     clientValidatesServerSettingTrustedRootCertificates(helper, certificatesPath);
     clientValidatesServerUsingValidationCallback(helper, certificatesPath);

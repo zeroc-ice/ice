@@ -151,6 +151,7 @@ namespace IceInternal
         };
         std::mutex _mutex;
         std::deque<CompletionEntry> _completionQueue;
+        std::shared_ptr<SelectorCompletionToken> _completionToken;
     };
 
 #endif

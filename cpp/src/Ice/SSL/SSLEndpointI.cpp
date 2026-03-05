@@ -70,8 +70,8 @@ Ice::SSL::SchannelConnectionInfo::~SchannelConnectionInfo()
         CertFreeCertificateContext(peerCertificate);
     }
 }
-#elif defined(ICE_USE_SECURE_TRANSPORT)
-Ice::SSL::SecureTransportConnectionInfo::~SecureTransportConnectionInfo()
+#elif defined(ICE_USE_APPLE_SSL)
+Ice::SSL::AppleConnectionInfo::~AppleConnectionInfo()
 {
     if (peerCertificate)
     {

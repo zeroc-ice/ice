@@ -12,7 +12,7 @@ ifeq ($(os),Darwin)
 Ice_extra_sources       := $(filter-out src/Ice/SSL/OpenSSL%.cpp src/Ice/SSL/Schannel%.cpp, $(wildcard src/Ice/SSL/*.cpp)) \
                            $(wildcard src/Ice/apple/*.cpp)
 else
-Ice_extra_sources       := $(filter-out src/Ice/SSL/SecureTransport%.cpp src/Ice/SSL/Schannel%.cpp, $(wildcard src/Ice/SSL/*.cpp))
+Ice_extra_sources       := $(filter-out src/Ice/SSL/Apple%.cpp src/Ice/SSL/Schannel%.cpp, $(wildcard src/Ice/SSL/*.cpp))
 endif
 
 Ice[shared]_excludes    = src/Ice/AddDefaultPluginFactories_min.cpp

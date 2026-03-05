@@ -22,8 +22,11 @@ namespace IceInternal
     class NetworkFrameworkUdpTransceiver final : public Transceiver
     {
     public:
-        // Client constructor (connected UDP via connector)
+        // Client constructor (connected UDP via connector, unicast)
         NetworkFrameworkUdpTransceiver(ProtocolInstancePtr, nw_connection_t);
+
+        // Client constructor for multicast (connected BSD socket)
+        NetworkFrameworkUdpTransceiver(ProtocolInstancePtr, SOCKET mcastFd);
 
         // Server constructor (listener UDP via endpoint->transceiver())
         NetworkFrameworkUdpTransceiver(

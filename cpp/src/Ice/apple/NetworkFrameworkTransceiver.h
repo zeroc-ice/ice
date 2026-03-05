@@ -95,6 +95,9 @@ namespace IceInternal
         std::string _desc;
         bool _secure;
 
+        int _rcvSize{0};
+        int _sndSize{0};
+
         // Optional flag shared with the verify block in SSLConnectorI. When the
         // local verify block calls complete(false), it sets this flag so we can
         // distinguish "we rejected the peer" (SecurityException) from "the peer

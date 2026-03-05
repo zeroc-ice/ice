@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
-#ifndef ICE_SSL_SECURE_TRANSPORT_ENGINE_H
-#define ICE_SSL_SECURE_TRANSPORT_ENGINE_H
+#ifndef ICE_SSL_APPLE_ENGINE_H
+#define ICE_SSL_APPLE_ENGINE_H
 
 #ifdef __APPLE__
 
@@ -11,10 +11,9 @@
 #    include "Ice/SSL/ServerAuthenticationOptions.h"
 #    include "SSLEngine.h"
 
-#    include <Security/SecureTransport.h>
 #    include <Security/Security.h>
 
-namespace Ice::SSL::SecureTransport
+namespace Ice::SSL::Apple
 {
     class SSLEngine final : public Ice::SSL::SSLEngine, public std::enable_shared_from_this<SSLEngine>
     {
@@ -27,17 +26,14 @@ namespace Ice::SSL::SecureTransport
         [[nodiscard]] Ice::SSL::ClientAuthenticationOptions
         createClientAuthenticationOptions(const std::string& host) const final;
         [[nodiscard]] Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const final;
-        [[nodiscard]] SSLContextRef newContext(bool) const;
         [[nodiscard]] bool
         validationCallback(SecTrustRef trust, const Ice::SSL::ConnectionInfoPtr&, const std::string&) const;
-
-        [[nodiscard]] std::string getCipherName(SSLCipherSuite) const;
 
     private:
         IceInternal::UniqueRef<CFArrayRef> _certificateAuthorities;
         IceInternal::UniqueRef<CFArrayRef> _chain;
 
-#    if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+#    if defined(ICE_USE_APPLE_SSL_MACOS)
         // Path of the temporary directory holding the imported certificate's keychain, removed by the destructor.
         // Empty when IceSSL.Keychain is set or no certificate is configured.
         std::string _temporaryKeychainDir;

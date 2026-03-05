@@ -148,6 +148,27 @@ IceInternal::NetworkFrameworkUdpTransceiver::NetworkFrameworkUdpTransceiver(
 }
 
 //
+// Client constructor — multicast via BSD socket (NF doesn't support multicast on all interfaces).
+//
+IceInternal::NetworkFrameworkUdpTransceiver::NetworkFrameworkUdpTransceiver(ProtocolInstancePtr instance, SOCKET mcastFd)
+    : _instance(std::move(instance)),
+      _nativeInfo(make_shared<NativeInfo>(INVALID_SOCKET)),
+      _connection(nullptr),
+      _listener(nullptr),
+      _mcastReadSource(nullptr),
+      _incoming(false),
+      _state(StateConnected),
+      _port(0),
+      _writeState(make_shared<WriteState>()),
+      _currentPeer(nullptr),
+      _rcvSize(_maxPacketSize),
+      _sndSize(_maxPacketSize)
+{
+    _mcastFd = mcastFd;
+    _dispatchQueue = dispatch_queue_create("com.zeroc.ice.nw-udp-mcast", DISPATCH_QUEUE_SERIAL);
+}
+
+//
 // Server constructor — listener UDP via endpoint->transceiver().
 //
 IceInternal::NetworkFrameworkUdpTransceiver::NetworkFrameworkUdpTransceiver(
@@ -353,6 +374,14 @@ IceInternal::NetworkFrameworkUdpTransceiver::close()
     if (_mcastReadSource)
     {
         dispatch_source_cancel(_mcastReadSource);
+    }
+
+    // Multicast BSD socket mode (client send-only) — signal read completion to unblock the thread pool.
+    // The pending startRead() never started a real async operation; this completion
+    // allows the thread pool to call finishRead() which throws ConnectionLostException.
+    if (!_incoming && _mcastFd != INVALID_SOCKET && !_connection)
+    {
+        _nativeInfo->completed(SocketOperationRead);
     }
 
     // Cancel all peer connections and release queued datagrams.
@@ -585,6 +614,11 @@ IceInternal::NetworkFrameworkUdpTransceiver::write(Buffer& buf)
 SocketOperation
 IceInternal::NetworkFrameworkUdpTransceiver::read(Buffer& buf)
 {
+    // Multicast BSD socket mode (client send-only) — no data will be received on the send-only socket.
+    if (!_incoming && _mcastFd != INVALID_SOCKET && !_connection)
+    {
+        return SocketOperationNone;
+    }
     if (buf.i == buf.b.end())
     {
         return SocketOperationNone;
@@ -608,8 +642,6 @@ IceInternal::NetworkFrameworkUdpTransceiver::startWrite(Buffer& buf)
 
     size_t length = buf.b.size();
 
-    dispatch_data_t data = dispatch_data_create(&*buf.i, length, _dispatchQueue, DISPATCH_DATA_DESTRUCTOR_DEFAULT);
-
     // Reset write state before starting the operation.
     {
         lock_guard lock(_writeState->mutex);
@@ -618,6 +650,23 @@ IceInternal::NetworkFrameworkUdpTransceiver::startWrite(Buffer& buf)
 
     auto writeState = _writeState;
     NativeInfoPtr nativeInfo = _nativeInfo;
+
+    // Multicast BSD socket mode (client send-only) — send via the connected BSD socket.
+    if (!_incoming && _mcastFd != INVALID_SOCKET && _state == StateConnected && !_connection)
+    {
+        ssize_t ret = ::send(_mcastFd, &*buf.i, buf.b.size(), 0);
+        {
+            lock_guard lock(writeState->mutex);
+            if (ret < 0)
+            {
+                writeState->error = errno;
+            }
+        }
+        nativeInfo->completed(SocketOperationWrite);
+        return true;
+    }
+
+    dispatch_data_t data = dispatch_data_create(&*buf.i, length, _dispatchQueue, DISPATCH_DATA_DESTRUCTOR_DEFAULT);
 
     // Determine which connection to send on.
     nw_connection_t sendConnection;
@@ -690,6 +739,14 @@ IceInternal::NetworkFrameworkUdpTransceiver::startRead(Buffer& buf)
     buf.b.resize(static_cast<size_t>(packetSize));
     buf.i = buf.b.begin();
 
+    // Multicast BSD socket mode (client send-only) — no reads expected.
+    // Don't start any async read. The read stays "started but not completed" until close()
+    // signals completion to unblock the thread pool.
+    if (!_incoming && _mcastFd != INVALID_SOCKET && !_connection)
+    {
+        return;
+    }
+
     if (_state == StateNotConnected)
     {
         // Server mode — check if a datagram is already queued.
@@ -750,6 +807,13 @@ IceInternal::NetworkFrameworkUdpTransceiver::startRead(Buffer& buf)
 void
 IceInternal::NetworkFrameworkUdpTransceiver::finishRead(Buffer& buf)
 {
+    // Multicast BSD socket mode (client send-only) — finishRead is only called during close() when the
+    // pending read completion fires. Throw to indicate the connection is done.
+    if (!_incoming && _mcastFd != INVALID_SOCKET && !_connection)
+    {
+        throw ConnectionLostException(__FILE__, __LINE__);
+    }
+
     if (_state == StateNotConnected)
     {
         // Server mode — dequeue the next datagram.
@@ -861,12 +925,24 @@ IceInternal::NetworkFrameworkUdpTransceiver::getInfo(bool incoming, string adapt
     }
     else if (_connection)
     {
-        nw_endpoint_t remoteEndpoint = nw_connection_copy_endpoint(_connection);
-        if (remoteEndpoint)
+        nw_path_t path = nw_connection_copy_current_path(_connection);
+        if (path)
         {
-            remoteAddress = nw_endpoint_get_hostname(remoteEndpoint);
-            remotePort = nw_endpoint_get_port(remoteEndpoint);
-            nw_release(remoteEndpoint);
+            nw_endpoint_t localEndpoint = nw_path_copy_effective_local_endpoint(path);
+            if (localEndpoint)
+            {
+                localAddress = nw_endpoint_get_hostname(localEndpoint);
+                localPort = nw_endpoint_get_port(localEndpoint);
+                nw_release(localEndpoint);
+            }
+            nw_endpoint_t remoteEndpoint = nw_path_copy_effective_remote_endpoint(path);
+            if (remoteEndpoint)
+            {
+                remoteAddress = nw_endpoint_get_hostname(remoteEndpoint);
+                remotePort = nw_endpoint_get_port(remoteEndpoint);
+                nw_release(remoteEndpoint);
+            }
+            nw_release(path);
         }
     }
 

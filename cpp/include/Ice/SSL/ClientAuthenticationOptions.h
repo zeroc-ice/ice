@@ -24,7 +24,7 @@ namespace Ice::SSL
     ///
     /// The SchannelClientAuthenticationOptions structure is only available when the Ice library is built on Windows.
     /// For Linux, refer to OpenSSLClientAuthenticationOptions, and for macOS and iOS, refer to
-    /// SecureTransportClientAuthenticationOptions.
+    /// AppleClientAuthenticationOptions.
     /// @see ::Ice::SSL::ClientAuthenticationOptions
     struct SchannelClientAuthenticationOptions
     {
@@ -88,7 +88,7 @@ namespace Ice::SSL
         /// certificate chain is invalid and the connection should be aborted.
         /// @throws Ice::SecurityException if the certificate chain is invalid and the connection should be aborted.
         /// @see SSL::OpenSSLConnectionInfo
-        /// @see SSL::SecureTransportConnectionInfo
+        /// @see SSL::AppleConnectionInfo
         /// @see SSL::SchannelConnectionInfo
         std::function<bool(CtxtHandle context, const ConnectionInfoPtr& info)> serverCertificateValidationCallback;
     };
@@ -99,14 +99,14 @@ namespace Ice::SSL
     /// @endcond
 #endif
 
-#if defined(ICE_USE_SECURE_TRANSPORT) || defined(ICE_DOXYGEN)
+#if defined(ICE_USE_APPLE_SSL) || defined(ICE_DOXYGEN)
     /// SSL transport options for client connections on macOS and iOS.
     ///
-    /// The SecureTransportClientAuthenticationOptions structure is only available when the Ice library is built on
+    /// The AppleClientAuthenticationOptions structure is only available when the Ice library is built on
     /// macOS and iOS. For Linux, refer to OpenSSLClientAuthenticationOptions, and for Windows, refer to
     /// SchannelClientAuthenticationOptions.
     /// @see ::Ice::SSL::ClientAuthenticationOptions
-    struct SecureTransportClientAuthenticationOptions
+    struct AppleClientAuthenticationOptions
     {
         /// A callback for selecting the client's SSL certificate chain based on the target host name.
         ///
@@ -121,23 +121,18 @@ namespace Ice::SSL
         /// is used.
         ///
         /// Example of setting `clientCertificateSelectionCallback`:
-        /// @snippet Ice/SSL/SecureTransportClientAuthenticationOptions.cpp clientCertificateSelectionCallback
-        ///
-        /// See the [SSLSetCertificate] documentation for requirements on the certificate chain format.
-        ///
-        /// [SSLSetCertificate]:
-        /// https://developer.apple.com/documentation/security/1392400-sslsetcertificate?changes=_3&language=objc
+        /// @snippet Ice/SSL/AppleClientAuthenticationOptions.cpp clientCertificateSelectionCallback
         std::function<CFArrayRef(const std::string& host)> clientCertificateSelectionCallback;
 
         /// A callback invoked before initiating a new SSL handshake, providing an opportunity to customize the SSL
         /// parameters for the session based on specific client settings or requirements.
         ///
-        /// @param context An opaque type that represents an SSL session context object.
+        /// @param secOptions The `sec_protocol_options_t` object for the new TLS session.
         /// @param host The target host name.
         ///
         /// Example of setting `sslNewSessionCallback`:
-        /// @snippet Ice/SSL/SecureTransportClientAuthenticationOptions.cpp sslNewSessionCallback
-        std::function<void(SSLContextRef context, const std::string& host)> sslNewSessionCallback;
+        /// @snippet Ice/SSL/AppleClientAuthenticationOptions.cpp sslNewSessionCallback
+        std::function<void(sec_protocol_options_t secOptions, const std::string& host)> sslNewSessionCallback;
 
         /// The trusted root certificates used for validating the server's certificate chain. If this field is set, the
         /// server's certificate chain is validated against these certificates; otherwise, the system's default root
@@ -150,7 +145,7 @@ namespace Ice::SSL
         /// [SecTrustSetAnchorCertificatesOnly] with the `anchorCertificatesOnly` parameter set to true.
         ///
         /// Example of setting `trustedRootCertificates`:
-        /// @snippet Ice/SSL/SecureTransportClientAuthenticationOptions.cpp trustedRootCertificates
+        /// @snippet Ice/SSL/AppleClientAuthenticationOptions.cpp trustedRootCertificates
         ///
         /// [SecTrustSetAnchorCertificates]:
         /// https://developer.apple.com/documentation/security/1396098-sectrustsetanchorcertificates?language=objc
@@ -167,7 +162,7 @@ namespace Ice::SSL
         /// evaluating trust. This setting can be modified by the application using [SecTrustSetAnchorCertificates].
         ///
         /// Example of setting `serverCertificateValidationCallback`:
-        /// @snippet Ice/SSL/SecureTransportClientAuthenticationOptions.cpp serverCertificateValidationCallback
+        /// @snippet Ice/SSL/AppleClientAuthenticationOptions.cpp serverCertificateValidationCallback
         ///
         /// @param trust The trust object that contains the server's certificate chain.
         /// @param info The connection info object that provides additional connection-related data. The
@@ -183,14 +178,14 @@ namespace Ice::SSL
         /// [SecTrustEvaluateWithError]:
         /// https://developer.apple.com/documentation/security/2980705-sectrustevaluatewitherror?language=objc
         /// @see SSL::OpenSSLConnectionInfo
-        /// @see SSL::SecureTransportConnectionInfo
+        /// @see SSL::AppleConnectionInfo
         /// @see SSL::SchannelConnectionInfo
         std::function<bool(SecTrustRef trust, const ConnectionInfoPtr& info)> serverCertificateValidationCallback;
     };
 
     /// @cond INTERNAL
     // An alias for the platform-specific implementation of the SSL ClientAuthenticationOptions on macOS and iOS.
-    using ClientAuthenticationOptions = SecureTransportClientAuthenticationOptions;
+    using ClientAuthenticationOptions = AppleClientAuthenticationOptions;
     /// @endcond
 #endif
 
@@ -198,7 +193,7 @@ namespace Ice::SSL
     /// SSL transport options for client connections on Linux.
     ///
     /// The OpenSSLClientAuthenticationOptions structure is only available when the Ice library is built on
-    /// Linux. For macOS and iOS, refer to SecureTransportClientAuthenticationOptions, and for Windows, refer to
+    /// Linux. For macOS and iOS, refer to AppleClientAuthenticationOptions, and for Windows, refer to
     /// SchannelClientAuthenticationOptions.
     /// @see ::Ice::SSL::ClientAuthenticationOptions
     struct OpenSSLClientAuthenticationOptions
@@ -259,7 +254,7 @@ namespace Ice::SSL
         ///
         /// [SSL_set_verify]: https://www.openssl.org/docs/manmaster/man3/SSL_set_verify.html
         /// @see SSL::OpenSSLConnectionInfo
-        /// @see SSL::SecureTransportConnectionInfo
+        /// @see SSL::AppleConnectionInfo
         /// @see SSL::SchannelConnectionInfo
         std::function<bool(bool verified, X509_STORE_CTX* ctx, const ConnectionInfoPtr& info)>
             serverCertificateValidationCallback{};

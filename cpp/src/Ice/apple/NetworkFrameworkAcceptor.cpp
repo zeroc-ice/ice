@@ -33,7 +33,21 @@ IceInternal::NetworkFrameworkAcceptor::close()
 {
     if (_listener)
     {
+        // Cancel the listener and wait for it to reach the cancelled state. This ensures the
+        // listening port is fully released before close() returns, preventing "Address already
+        // in use" errors when the same port is reused immediately (e.g., adapter destroy/recreate).
+        dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+        nw_listener_set_state_changed_handler(
+            _listener,
+            ^(nw_listener_state_t state, [[maybe_unused]] nw_error_t error) {
+                if (state == nw_listener_state_cancelled)
+                {
+                    dispatch_semaphore_signal(sem);
+                }
+            });
         nw_listener_cancel(_listener);
+        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+        dispatch_release(sem);
     }
 
     // Release any queued connections that haven't been accepted.
@@ -288,13 +302,13 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
                 // is true, NF enforces the requirement at the TLS protocol level (before the verify
                 // block fires), so clients without certificates are rejected immediately.
                 //
-                // As a result, kTryAuthenticate (VerifyPeer=1) cannot be faithfully implemented.
-                // We treat it as kNeverAuthenticate: the server does not request a client certificate.
-                // This preserves the primary kTryAuthenticate behavior of allowing clients without
-                // certificates to connect, but means client certificates are not verified even when
-                // the client has one (since the server never requests it).
-                SSLAuthenticate clientCertRequired = authOptions.clientCertificateRequired;
-                if (clientCertRequired == kAlwaysAuthenticate)
+                // As a result, IceSSL.VerifyPeer=1 (try authenticate) cannot be faithfully
+                // implemented. We treat it as "not required": the server does not request a
+                // client certificate. This preserves the primary behavior of allowing clients
+                // without certificates to connect, but means client certificates are not verified
+                // even when the client has one (since the server never requests it).
+                bool clientCertRequired = authOptions.clientCertificateRequired;
+                if (clientCertRequired)
                 {
                     CFArrayRef trustedRoots = authOptions.trustedRootCertificates;
                     auto validationCallback = authOptions.clientCertificateValidationCallback;
@@ -348,12 +362,12 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
                                         peerCert = SecTrustGetCertificateAtIndex(trust, 0);
                                         if (peerCert)
                                         {
-                                            CFRetain(peerCert); // SecureTransportConnectionInfo releases it.
+                                            CFRetain(peerCert); // AppleConnectionInfo releases it.
                                         }
                                     }
                                     auto underlying = make_shared<Ice::TCPConnectionInfo>(
                                         true, adapterName, "", "", 0, "", 0, 0, 0);
-                                    auto info = make_shared<Ice::SSL::SecureTransportConnectionInfo>(
+                                    auto info = make_shared<Ice::SSL::AppleConnectionInfo>(
                                         underlying, peerCert);
                                     bool valid = validationCallback(trust, info);
                                     complete(valid);
@@ -379,7 +393,7 @@ IceInternal::NetworkFrameworkAcceptor::NetworkFrameworkAcceptor(
                 }
                 else
                 {
-                    // kNeverAuthenticate or kTryAuthenticate — do not request client certificate.
+                    // Client certificate not required — do not request one.
                     sec_protocol_options_set_peer_authentication_required(secOptions, false);
                 }
             },

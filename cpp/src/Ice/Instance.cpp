@@ -44,7 +44,7 @@
 #if defined(_WIN32)
 #    include "SSL/SchannelEngine.h"
 #elif defined(__APPLE__)
-#    include "SSL/SecureTransportEngine.h"
+#    include "SSL/AppleEngine.h"
 #else
 #    include "SSL/OpenSSLEngine.h"
 #endif
@@ -941,7 +941,7 @@ IceInternal::Instance::Instance(InitializationData initData)
     {
         CertDuplicateStore(_initData.clientAuthenticationOptions->trustedRootCertificates);
     }
-#elif defined(ICE_USE_SECURE_TRANSPORT)
+#elif defined(ICE_USE_APPLE_SSL)
     if (_initData.clientAuthenticationOptions && _initData.clientAuthenticationOptions->trustedRootCertificates)
     {
         CFRetain(_initData.clientAuthenticationOptions->trustedRootCertificates);
@@ -1271,7 +1271,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 #if defined(_WIN32)
         _sslEngine = make_shared<Ice::SSL::Schannel::SSLEngine>(shared_from_this());
 #elif defined(__APPLE__)
-        _sslEngine = make_shared<Ice::SSL::SecureTransport::SSLEngine>(shared_from_this());
+        _sslEngine = make_shared<Ice::SSL::Apple::SSLEngine>(shared_from_this());
 #else
         _sslEngine = make_shared<Ice::SSL::OpenSSL::SSLEngine>(shared_from_this());
 #endif
@@ -1657,7 +1657,7 @@ IceInternal::Instance::destroy() noexcept
         CertCloseStore(_initData.clientAuthenticationOptions->trustedRootCertificates, 0);
         const_cast<Ice::InitializationData&>(_initData).clientAuthenticationOptions = nullopt;
     }
-#elif defined(ICE_USE_SECURE_TRANSPORT)
+#elif defined(ICE_USE_APPLE_SSL)
     if (_initData.clientAuthenticationOptions && _initData.clientAuthenticationOptions->trustedRootCertificates)
     {
         CFRelease(_initData.clientAuthenticationOptions->trustedRootCertificates);

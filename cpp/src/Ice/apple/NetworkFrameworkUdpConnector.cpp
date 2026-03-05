@@ -20,7 +20,33 @@ TransceiverPtr
 IceInternal::NetworkFrameworkUdpConnector::connect()
 {
     //
-    // Create the Network.framework endpoint from host and port.
+    // Check if the target is a multicast address. Network.framework doesn't support multicast
+    // on all interfaces (notably loopback), so we fall back to BSD sockets for multicast sends,
+    // matching the server side which already uses BSD sockets for multicast receive.
+    //
+    Address addr = getNumericAddress(_host);
+    if (isAddressValid(addr) && isMulticast(addr))
+    {
+        setPort(addr, _port);
+        SOCKET fd = createSocket(true, addr); // true = UDP
+        setReuseAddress(fd, true);
+        setBlock(fd, false);
+
+        if (!_mcastInterface.empty())
+        {
+            setMcastInterface(fd, _mcastInterface, addr);
+        }
+        if (_mcastTtl != -1)
+        {
+            setMcastTtl(fd, _mcastTtl, addr);
+        }
+
+        doConnect(fd, addr, _sourceAddr);
+        return make_shared<NetworkFrameworkUdpTransceiver>(_instance, fd);
+    }
+
+    //
+    // Unicast — use Network.framework.
     //
     nw_endpoint_t endpoint = nw_endpoint_create_host(_host.c_str(), to_string(_port).c_str());
     if (!endpoint)
@@ -28,9 +54,6 @@ IceInternal::NetworkFrameworkUdpConnector::connect()
         throw ConnectFailedException(__FILE__, __LINE__, 0);
     }
 
-    //
-    // Create UDP parameters (no security).
-    //
     nw_parameters_t parameters =
         nw_parameters_create_secure_udp(NW_PARAMETERS_DISABLE_PROTOCOL, NW_PARAMETERS_DEFAULT_CONFIGURATION);
     if (!parameters)
@@ -39,17 +62,15 @@ IceInternal::NetworkFrameworkUdpConnector::connect()
         throw ConnectFailedException(__FILE__, __LINE__, 0);
     }
 
-    // Enable IP fragmentation for large UDP datagrams. Network.framework disables fragmentation by default,
-    // but BSD sockets allow it, so we need to match that behavior.
+    // Enable IP fragmentation for large UDP datagrams.
     nw_protocol_stack_t stack = nw_parameters_copy_default_protocol_stack(parameters);
     nw_protocol_options_t ipOptions = nw_protocol_stack_copy_internet_protocol(stack);
     nw_ip_options_set_disable_fragmentation(ipOptions, false);
     nw_release(ipOptions);
     nw_release(stack);
 
-    //
-    // Create the Network.framework connection.
-    //
+    nw_parameters_set_reuse_local_address(parameters, true);
+
     nw_connection_t connection = nw_connection_create(endpoint, parameters);
     nw_release(endpoint);
     nw_release(parameters);
