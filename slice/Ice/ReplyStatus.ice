@@ -12,12 +12,20 @@
 
 [["js:module:@zeroc/ice"]]
 
+#ifdef __ICERPC__
+// In IceRPC, ReplyStatus is an internal implementation detail of the ice protocol; the corresponding generated code is
+// not publicly visible.
+["cs:identifier:IceRpc.Internal"]
+#endif
 ["java:identifier:com.zeroc.Ice"]
 module Ice
 {
     /// Represents the status of a reply.
     /// A reply status can have any value in the range 0..255. Do not use this enum to marshal or unmarshal a reply
     /// status unless you know its value corresponds to one of the enumerators defined below.
+    #ifdef __ICERPC__
+    ["cs:internal"]
+    #endif
     enum ReplyStatus
     {
         /// The dispatch completed successfully.
