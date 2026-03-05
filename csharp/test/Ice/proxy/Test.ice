@@ -35,6 +35,7 @@ module Test
         B* b;
     }
 
+    ["cs:internal"]
     interface C extends A, B
     {
         C* opC(C* c);

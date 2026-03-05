@@ -74,6 +74,21 @@ Slice::validateCsMetadata(const UnitPtr& unit)
     };
     knownMetadata.emplace("cs:identifier", std::move(identifierInfo));
 
+    // "cs:internal"
+    MetadataInfo internalInfo = {
+        .validOn =
+            {typeid(InterfaceDecl),
+             typeid(ClassDecl),
+             typeid(Slice::Exception),
+             typeid(Struct),
+             typeid(Sequence),
+             typeid(Dictionary),
+             typeid(Enum),
+             typeid(Const)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
+    knownMetadata.emplace("cs:internal", std::move(internalInfo));
+
     // "cs:namespace"
     MetadataInfo namespaceInfo = {
         .validOn = {typeid(Module)},
@@ -105,6 +120,13 @@ Slice::validateCsMetadata(const UnitPtr& unit)
         .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
     };
     knownMetadata.emplace("cs:property", std::move(propertyInfo));
+
+    // "cs:readonly"
+    MetadataInfo readonlyInfo = {
+        .validOn = {typeid(Struct)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
+    knownMetadata.emplace("cs:readonly", std::move(readonlyInfo));
 
     // Pass this information off to the parser's metadata validation logic.
     Slice::validateMetadata(unit, "cs", std::move(knownMetadata));
