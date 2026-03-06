@@ -54,7 +54,7 @@ jobs:
           zip -r "windows-symbols-sources-${VERSION}.zip" windows-symbols-sources
           popd
           # Upload zip to S3
-          aws s3 sync "staging/windows-symbols-sources-${VERSION}.zip" "s3://zeroc-downloads/${UPLOAD_PATH}/windows-symbols-sources-${VERSION}.zip"
+          aws s3 cp "staging/windows-symbols-sources-${VERSION}.zip" "s3://zeroc-downloads/${UPLOAD_PATH}/windows-symbols-sources-${VERSION}.zip"
 
           # Upload sources to S3 (version is already in the directory structure)
           aws s3 sync "staging/windows-symbols-sources/sources/" "s3://zeroc-downloads/${UPLOAD_PATH}/sources/"
