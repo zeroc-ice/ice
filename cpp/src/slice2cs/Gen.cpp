@@ -77,8 +77,7 @@ Slice::Gen::Gen(const string& base, const string& dir, GenMode genMode, bool ena
         {
             _iceRpcOut << sp;
             _iceRpcOut << nl << "using ZeroC.Slice.Codec;";
-            _iceRpcOut << nl << "using IceRpc.Slice;";
-            _iceRpcOut << sp;
+            _iceRpcOut << nl << "using IceRpc.Ice;";
         }
     }
 }
