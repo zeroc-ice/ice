@@ -69,6 +69,7 @@ jobs:
           gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "icegridgui-jar-macOS" --dir staging
           gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "icegridgui-macos-app" --dir staging
           gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "windows-symbols-sources" --dir staging
+          gh run download "$RUN_ID" --repo ${{ github.repository }} --pattern "windows-indexed-pdbs" --dir staging
 
       - name: Prepare Release Assets
         run: ./packaging/release/prepare-release-assets.sh
