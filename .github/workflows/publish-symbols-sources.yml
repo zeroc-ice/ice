@@ -118,7 +118,7 @@ jobs:
             /t "Ice" `
             /v "${{ steps.version.outputs.ice_version }}" `
             /s ${{ github.workspace }}/symbol-store `
-            /f "${{ github.workspace }}/windows-indexed-pdbs"
+            /f "${{ github.workspace }}/staging/windows-indexed-pdbs"
         shell: pwsh
 
       - name: Publish Symbols and Sources to S3
