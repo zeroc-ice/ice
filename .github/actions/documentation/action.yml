@@ -105,7 +105,7 @@ runs:
         ./tools/phpDocumentor --config ./phpdoc.dist.xml
       shell: bash
 
-    # This will perform a wwfull sync of the documentation to S3 every time the workflow is run since
+    # This will perform a full sync of the documentation to S3 every time the workflow is run since
     # the timestamps will always be different. Using --size-only is not sufficient since the
     # documentation may be updated without changing the size of the files. S3 does not offer a hash based sync.
     #
