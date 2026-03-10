@@ -1,7 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
 # Major.minor version for library sonames and package names
-%define mmversion 3.9
+%define mmversion 3.8
 
 # Macro for creating the ice user and group
 %define create_ice_user() \
