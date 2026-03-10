@@ -79,10 +79,6 @@ for arch in "${ARCHES[@]}"; do
 
   for rpm in "${rpms[@]}"; do
     target="$REPODIR/$arch/$(basename "$rpm")"
-    if [[ -f "$target" ]]; then
-      echo "Skipping existing: $(basename "$rpm")"
-      continue
-    fi
     echo "Copying: $(basename "$rpm")"
     cp "$rpm" "$target"
   done
@@ -109,10 +105,6 @@ mkdir -p "$REPODIR/SRPMS"
 
 for srpm in "${srpms[@]}"; do
   target="$REPODIR/SRPMS/$(basename "$srpm")"
-  if [[ -f "$target" ]]; then
-    echo "Skipping existing: $(basename "$srpm")"
-    continue
-  fi
   echo "Copying: $(basename "$srpm")"
   cp "$srpm" "$target"
 done
