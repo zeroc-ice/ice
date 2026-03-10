@@ -730,7 +730,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl << "[SliceTypeId(\"" << p->scoped() << "\")]";
     emitObsoleteAttribute(p);
     _out << nl << accessModifier(p) << " readonly partial record struct " << name << "Proxy : " << 'I' << name
-         << ", IProxy";
+         << ", IIceProxy";
 
     _out << sb;
 
@@ -739,14 +739,14 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeProxyResponseClass(p);
     _out << sp;
 
-    // EncodeOptions, Invoker and ServiceAddress come from IProxy; they must be public.
+    // EncodeOptions, Invoker and ServiceAddress come from IIceProxy; they must be public.
 
     _out << nl << "/// <summary>Represents the default path for IceRPC services that implement Slice interface";
     _out << nl << "/// <c>" << p->scoped() << "</c>.</summary>";
     _out << nl << accessModifier(p) << " const string DefaultServicePath = \"" << defaultServicePath(p) << "\";";
     _out << sp;
     _out << nl << "/// <inheritdoc/>";
-    _out << nl << "public SliceEncodeOptions? EncodeOptions { get; init; }";
+    _out << nl << "public IceEncodeOptions? EncodeOptions { get; init; }";
     _out << sp;
     _out << nl << "/// <inheritdoc/>";
     _out << nl << "public required IceRpc.IInvoker Invoker { get; init; }";
@@ -805,7 +805,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out.inc();
     _out << nl << "IceRpc.IInvoker invoker,";
     _out << nl << "IceRpc.ServiceAddress? serviceAddress = null,";
-    _out << nl << "SliceEncodeOptions? encodeOptions = null)";
+    _out << nl << "IceEncodeOptions? encodeOptions = null)";
     _out.dec();
     _out << sb;
     _out << nl << "Invoker = invoker;";
@@ -824,7 +824,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             "payloads.</param>";
     _out << nl << "[System.Diagnostics.CodeAnalysis.SetsRequiredMembers]";
     _out << nl << accessModifier(p) << ' ' << name
-         << "Proxy(IceRpc.IInvoker invoker, System.Uri serviceAddressUri, SliceEncodeOptions? encodeOptions = null)";
+         << "Proxy(IceRpc.IInvoker invoker, System.Uri serviceAddressUri, IceEncodeOptions? encodeOptions = null)";
     _out.inc();
     _out << nl << ": this(invoker, new IceRpc.ServiceAddress(serviceAddressUri), encodeOptions)";
     _out.dec();
@@ -1014,7 +1014,7 @@ Slice::IceRpc::ProxyVisitor::writeProxyRequestClass(const InterfaceDefPtr& inter
             _out << nl << csOutgoingParamType(param->type(), ns, param->optional()) << ' ' << param->mappedName()
                  << ',';
         }
-        _out << nl << "SliceEncodeOptions? encodeOptions = null)";
+        _out << nl << "IceEncodeOptions? encodeOptions = null)";
         _out.dec();
         _out << sb;
         if (operation->inParameters().empty())
@@ -1025,7 +1025,7 @@ Slice::IceRpc::ProxyVisitor::writeProxyRequestClass(const InterfaceDefPtr& inter
         {
             _out << nl << "var pipe_ = new global::System.IO.Pipelines.Pipe(";
             _out.inc();
-            _out << nl << "encodeOptions?.PipeOptions ?? SliceEncodeOptions.Default.PipeOptions);";
+            _out << nl << "encodeOptions?.PipeOptions ?? IceEncodeOptions.Default.PipeOptions);";
             _out.dec();
             _out << nl << "var encoder_ = new SliceEncoder(pipe_.Writer, SliceEncoding.Slice1, "
                  << classFormat(operation) << ");";
@@ -1082,7 +1082,7 @@ Slice::IceRpc::ProxyVisitor::writeProxyResponseClass(const InterfaceDefPtr& inte
         _out.inc();
         _out << nl << "IceRpc.IncomingResponse response,";
         _out << nl << "IceRpc.OutgoingRequest request,";
-        _out << nl << "IProxy sender,";
+        _out << nl << "IIceProxy sender,";
         _out << nl << "global::System.Threading.CancellationToken cancellationToken)";
         _out.dec();
         _out << sb;
@@ -1095,7 +1095,6 @@ Slice::IceRpc::ProxyVisitor::writeProxyResponseClass(const InterfaceDefPtr& inte
             _out << nl << "return await response.DecodeReturnValueAsync(";
             _out.inc();
             _out << nl << "request,";
-            _out << nl << "SliceEncoding.Slice1,";
             _out << nl << "sender,";
             _out << nl << "(ref SliceDecoder decoder) => ";
 
@@ -1167,7 +1166,6 @@ Slice::IceRpc::ProxyVisitor::writeProxyResponseClass(const InterfaceDefPtr& inte
             _out << nl << "await response.DecodeVoidReturnValueAsync(";
             _out.inc();
             _out << nl << "request,";
-            _out << nl << "SliceEncoding.Slice1,";
             _out << nl << "sender,";
             _out << nl << "_defaultActivator,";
             _out << nl << "cancellationToken).ConfigureAwait(false);";
@@ -1292,7 +1290,7 @@ Slice::IceRpc::SkeletonVisitor::visitOperation(const OperationPtr& p)
 
     // TODO: doc comment for operation
 
-    _out << nl << "[SliceOperation(\"" << p->name() << "\"";
+    _out << nl << "[IceOperation(\"" << p->name() << "\"";
 
     if (p->hasMarshaledResult())
     {
@@ -1354,13 +1352,12 @@ Slice::IceRpc::SkeletonVisitor::writeRequestClass(const InterfaceDefPtr& interfa
 
         if (inParameters.empty())
         {
-            _out << nl << "request.DecodeEmptyArgsAsync(SliceEncoding.Slice1, cancellationToken);";
+            _out << nl << "request.DecodeEmptyArgsAsync(cancellationToken);";
         }
         else
         {
             _out << nl << "request.DecodeArgsAsync(";
             _out.inc();
-            _out << nl << "SliceEncoding.Slice1,";
             _out << nl << "(ref SliceDecoder decoder) => ";
 
             if (inParameters.size() == 1)
@@ -1467,14 +1464,14 @@ Slice::IceRpc::SkeletonVisitor::writeResponseClass(const InterfaceDefPtr& interf
             _out << nl << csOutgoingParamType(param->type(), ns, param->optional()) << ' ' << param->mappedName()
                  << ',';
         }
-        _out << nl << "SliceEncodeOptions? encodeOptions = null)";
+        _out << nl << "IceEncodeOptions? encodeOptions = null)";
         _out.dec();
         _out << sb;
         if (operation->returnsAnyValues())
         {
             _out << nl << "var pipe_ = new global::System.IO.Pipelines.Pipe(";
             _out.inc();
-            _out << nl << "encodeOptions?.PipeOptions ?? SliceEncodeOptions.Default.PipeOptions);";
+            _out << nl << "encodeOptions?.PipeOptions ?? IceEncodeOptions.Default.PipeOptions);";
             _out.dec();
             _out << nl << "var encoder_ = new SliceEncoder(pipe_.Writer, SliceEncoding.Slice1, "
                  << classFormat(operation) << ");";
