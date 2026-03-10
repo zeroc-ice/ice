@@ -74,4 +74,10 @@ pushd "${STAGING_DIR}"
 zip -r "$zip_path" "windows-symbols-sources"
 popd
 
+# Create Windows indexed PDBs archive (.zip)
+zip_path="${PWD}/windows-indexed-pdbs.zip"
+pushd "${STAGING_DIR}"
+zip -r "$zip_path" "windows-indexed-pdbs"
+popd
+
 popd # release

@@ -35,26 +35,29 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
-      - name: Download Symbols and Sources artifacts
+      - name: Download Symbols, Sources, and PDB artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh run download "${{ inputs.run_id }}" --repo zeroc-ice/ice --pattern "windows-symbols-sources" --dir staging
+          gh run download "${{ inputs.run_id }}" --repo zeroc-ice/ice --pattern "windows-indexed-pdbs" --dir staging
 
-      - name: Publish Symbols and Sources
+      - name: Publish Symbols, Sources, and PDBs to S3
         run: |
+          # Get the version from the directory structure (assumes staging/windows-indexed-pdbs/pdbs/<version>/...)
+          VERSION=$(basename $(find staging/windows-indexed-pdbs/pdbs/ -mindepth 1 -maxdepth 1))
+          echo "Version: ${VERSION}"
+
+          # Create a zip which includes the version
+          pushd staging
+          zip -r "windows-indexed-pdbs-${VERSION}.zip" windows-indexed-pdbs
+          popd
+
           # Non-stable only, so path is always ice/${QUALITY}/${CHANNEL}
           UPLOAD_PATH="ice/${QUALITY}/${CHANNEL}"
 
-          # Get the version from the directory structure (assumes staging/windows-symbols-sources/symbols/<version>/...)
-          VERSION=$(basename $(find staging/windows-symbols-sources/symbols/ -mindepth 1 -maxdepth 1))
-          echo "Version: ${VERSION}"
-          # Create a zip of the sources for this version
-          pushd staging
-          zip -r "windows-symbols-sources-${VERSION}.zip" windows-symbols-sources
-          popd
           # Upload zip to S3
-          aws s3 cp "staging/windows-symbols-sources-${VERSION}.zip" "s3://zeroc-downloads/${UPLOAD_PATH}/windows-symbols-sources-${VERSION}.zip"
+          aws s3 cp "staging/windows-indexed-pdbs-${VERSION}.zip" "s3://zeroc-downloads/${UPLOAD_PATH}/windows-indexed-pdbs-${VERSION}.zip"
 
           # Upload sources to S3 (version is already in the directory structure)
           aws s3 sync "staging/windows-symbols-sources/sources/" "s3://zeroc-downloads/${UPLOAD_PATH}/sources/"
@@ -86,6 +89,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh run download "${{ inputs.run_id }}" --repo zeroc-ice/ice --pattern "windows-symbols-sources" --dir staging
+          gh run download "${{ inputs.run_id }}" --repo zeroc-ice/ice --pattern "windows-indexed-pdbs" --dir staging
 
       - name: Read version from config
         id: version
@@ -114,7 +118,7 @@ jobs:
             /t "Ice" `
             /v "${{ steps.version.outputs.ice_version }}" `
             /s ${{ github.workspace }}/symbol-store `
-            /f "${{ github.workspace }}/staging"
+            /f "${{ github.workspace }}/staging/windows-indexed-pdbs"
         shell: pwsh
 
       - name: Publish Symbols and Sources to S3
