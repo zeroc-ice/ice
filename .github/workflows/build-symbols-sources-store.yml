@@ -100,8 +100,13 @@ jobs:
             ${{ github.workspace }}/symbols-sources/symbols
             ${{ github.workspace }}/symbols-sources/sources
 
+      # Use symbols-sources as the root directory so that the unzipped artifact as a pdb directory.
+      # This means we need to exclude the symbols and sources directories.
       - name: Upload Indexed PDBs
         uses: actions/upload-artifact@v4
         with:
           name: windows-indexed-pdbs
-          path: ${{ github.workspace }}/symbols-sources/pdbs
+          path: |
+            ${{ github.workspace }}/symbols-sources
+            !${{ github.workspace }}/symbols-sources/symbols
+            !${{ github.workspace }}/symbols-sources/sources
