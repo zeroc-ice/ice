@@ -33,7 +33,7 @@ jobs:
         platform-toolset: [v143, v142]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -75,7 +75,7 @@ jobs:
           timestamp-digest: SHA256
 
       - name: Upload C++ Build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: windows-cpp-${{matrix.platform-toolset}}-${{ matrix.platform }}-${{ matrix.configuration }}-build
           path: |

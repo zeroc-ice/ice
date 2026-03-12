@@ -40,7 +40,7 @@ jobs:
         platform-toolset: [v143, v142]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set ICE_VERSION
         shell: bash
@@ -94,7 +94,7 @@ jobs:
             /f "${{ github.workspace }}/symbols-sources/pdbs/$env:ICE_VERSION/"
 
       - name: Upload Symbols and Sources
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: windows-${{ matrix.platform-toolset }}-symbols-sources
           path: ${{ github.workspace }}/symbols-sources/
