@@ -24,7 +24,7 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -52,7 +52,7 @@ jobs:
         working-directory: cpp/msbuild
 
       - name: Upload NuGet Packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: windows-cpp-nuget-packages
           path: |

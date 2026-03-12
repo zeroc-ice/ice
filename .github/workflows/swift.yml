@@ -18,7 +18,7 @@ jobs:
         - ${{ github.workspace }}:${{ github.workspace }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # https://github.com/actions/runner/issues/2033
       - name: Set safe directory
