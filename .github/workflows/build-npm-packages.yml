@@ -44,7 +44,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -60,7 +60,7 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: Upload Compiler Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: slice2js-${{ matrix.target }}
           path: ${{ matrix.artifact-path }}
@@ -73,12 +73,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: ice
 
       - name: Download All slice2js Compiler Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: artifacts
           pattern: slice2js-*
@@ -133,7 +133,7 @@ jobs:
         working-directory: ice/js
 
       - name: Upload NPM Packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: js-npm-packages
           path: |

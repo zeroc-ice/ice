@@ -34,7 +34,7 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -130,7 +130,7 @@ jobs:
           timestamp-digest: SHA256
 
       - name: Upload MSI
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: windows-msi
           path: |

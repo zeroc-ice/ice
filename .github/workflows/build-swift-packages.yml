@@ -18,7 +18,7 @@ jobs:
     runs-on: macos-15
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -31,7 +31,7 @@ jobs:
         run: tar -czvf spm-sources-${{ inputs.ice_version }}.tar.gz -C packaging/swift spm
 
       - name: Upload SPM sources artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: spm-sources
           path: spm-sources-${{ inputs.ice_version }}.tar.gz
