@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -59,7 +59,7 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: Upload Compiler Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: slice2cs-${{ matrix.target }}
           path: ${{ matrix.artifact-path }}
@@ -70,13 +70,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup .NET
         uses: ./.github/actions/setup-dotnet
 
       - name: Download All slice2cs Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: slice2cs-*
 
@@ -138,7 +138,7 @@ jobs:
           SLICE2CS_STAGING_PATH: "${{ github.workspace }}\\tools"
 
       - name: Upload NuGet Packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: dotnet-nuget-packages
           path: |

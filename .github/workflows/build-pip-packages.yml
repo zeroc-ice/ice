@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -41,7 +41,7 @@ jobs:
         run: python3 -m build --sdist
 
       - name: Upload sdist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: pip-sdist
           path: python/dist/zeroc_ice-*.tar.gz
@@ -73,7 +73,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -86,7 +86,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Download sdist
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: pip-sdist
           path: sdist
@@ -105,7 +105,7 @@ jobs:
           pip wheel (Get-ChildItem sdist\*.tar.gz).FullName --no-deps -w dist/
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: pip-packages-${{ matrix.os }}-${{ matrix.python-version }}
           path: dist/zeroc_ice-*.whl
