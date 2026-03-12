@@ -20,7 +20,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -44,7 +44,7 @@ jobs:
         working-directory: java
 
       - name: Upload IceGrid GUI JAR
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: icegridgui-jar-${{ runner.os }}
           path: |

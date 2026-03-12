@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Java
         uses: ./.github/actions/setup-java
@@ -89,7 +89,7 @@ jobs:
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
 
       - name: Upload IceGrid GUI macOS App
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: icegridgui-macos-app
           path: |
