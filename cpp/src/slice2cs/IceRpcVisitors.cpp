@@ -824,7 +824,8 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             "payloads.</param>";
     _out << nl << "[System.Diagnostics.CodeAnalysis.SetsRequiredMembers]";
     _out << nl << accessModifier(p) << ' ' << name
-         << "Proxy(IceRpc.IInvoker invoker, System.Uri serviceAddressUri, IceRpc.Ice.IceEncodeOptions? encodeOptions = null)";
+         << "Proxy(IceRpc.IInvoker invoker, System.Uri serviceAddressUri, IceRpc.Ice.IceEncodeOptions? encodeOptions = "
+            "null)";
     _out.inc();
     _out << nl << ": this(invoker, new IceRpc.ServiceAddress(serviceAddressUri), encodeOptions)";
     _out.dec();
@@ -945,7 +946,9 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl << accessModifier(p) << " static void EncodeNullable" << name << "Proxy(this ref SliceEncoder encoder, "
          << name << "Proxy? proxy) =>";
     _out.inc();
-    _out << nl << "IceRpc.Ice.ServiceAddressIceEncoderExtensions.EncodeNullableServiceAddress(ref encoder, proxy?.ServiceAddress);";
+    _out << nl
+         << "IceRpc.Ice.ServiceAddressIceEncoderExtensions.EncodeNullableServiceAddress(ref encoder, "
+            "proxy?.ServiceAddress);";
     _out.dec();
     _out << eb;
 
