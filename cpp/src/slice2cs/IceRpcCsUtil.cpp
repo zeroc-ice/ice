@@ -94,7 +94,7 @@ Slice::Csharp::csFieldType(const TypePtr& type, const string& ns, bool optional)
     // else, just use the regular mapping.
 
     static const char* builtinTable[] =
-        {"byte", "bool", "short", "int", "long", "float", "double", "string", "IceRpc.ServiceAddress?", "SliceClass?"};
+        {"byte", "bool", "short", "int", "long", "float", "double", "string", "IceRpc.ServiceAddress?", "IceClass?"};
 
     if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
@@ -265,12 +265,12 @@ Slice::Csharp::encodeField(
     }
     else if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
     {
-        out << getUnqualified(proxy, ns, "", "ProxySliceEncoderExtensions") << ".EncodeNullable"
+        out << getUnqualified(proxy, ns, "", "ProxyIceEncoderExtensions") << ".EncodeNullable"
             << removeEscapePrefix(proxy->mappedName()) << "Proxy(ref " << encoderName << ", " << fieldName << ")";
     }
     else if (auto en = dynamic_pointer_cast<Enum>(type))
     {
-        out << getUnqualified(en, ns, "", "SliceEncoderExtensions") << ".Encode" << removeEscapePrefix(en->mappedName())
+        out << getUnqualified(en, ns, "", "IceEncoderExtensions") << ".Encode" << removeEscapePrefix(en->mappedName())
             << "(ref " << encoderName << ", " << fieldName << ")";
     }
     else if (auto seq = dynamic_pointer_cast<Sequence>(type))
@@ -293,7 +293,7 @@ Slice::Csharp::encodeField(
             out << encoderName << ".EncodeSequence(";
             out.inc();
             out << nl << fieldName << ",";
-            out << nl << "(ref SliceEncoder encoder, " << csFieldType(elementType, ns) << " value) =>";
+            out << nl << "(ref IceEncoder encoder, " << csFieldType(elementType, ns) << " value) =>";
             out << nl;
             out.inc();
             encodeField(out, "value", elementType, ns, TypeContext::Field, "encoder");
@@ -309,13 +309,13 @@ Slice::Csharp::encodeField(
         out << encoderName << ".EncodeDictionary(";
         out.inc();
         out << nl << fieldName << ",";
-        out << nl << "(ref SliceEncoder encoder, " << csFieldType(keyType, ns) << " key) =>";
+        out << nl << "(ref IceEncoder encoder, " << csFieldType(keyType, ns) << " key) =>";
         out << nl;
         out.inc();
         encodeField(out, "key", keyType, ns, TypeContext::Field, "encoder");
         out.dec();
         out << ',';
-        out << nl << "(ref SliceEncoder encoder, " << csFieldType(valueType, ns) << " value) =>";
+        out << nl << "(ref IceEncoder encoder, " << csFieldType(valueType, ns) << " value) =>";
         out << nl;
         out.inc();
         encodeField(out, "value", valueType, ns, TypeContext::Field, "encoder");
@@ -381,16 +381,16 @@ Slice::Csharp::encodeOptionalField(
         }
         else if (readOnlyMemory)
         {
-            out << encoderName << ".GetSizeLength(" << fieldName << ".Length) + " << seq->type()->minWireSize() << " * "
+            out << "IceEncoder.GetSizeLength(" << fieldName << ".Length) + " << seq->type()->minWireSize() << " * "
                 << fieldName << ".Length";
         }
         else if (seq)
         {
-            out << encoderName << ".GetSizeLength(count_) + " << seq->type()->minWireSize() << " * count_";
+            out << "IceEncoder.GetSizeLength(count_) + " << seq->type()->minWireSize() << " * count_";
         }
         else if (auto dict = dynamic_pointer_cast<Dictionary>(type))
         {
-            out << encoderName << ".GetSizeLength(count_) + "
+            out << "IceEncoder.GetSizeLength(count_) + "
                 << (dict->keyType()->minWireSize() + dict->valueType()->minWireSize()) << " * count_";
         }
         else
@@ -407,7 +407,7 @@ Slice::Csharp::encodeOptionalField(
     }
 
     out << nl << fieldName << (isCsValueType(type) ? ".Value" : "") << ",";
-    out << nl << "(ref SliceEncoder encoder, " << csType(type, ns, context) << " value) => ";
+    out << nl << "(ref IceEncoder encoder, " << csType(type, ns, context) << " value) => ";
     out.inc();
     encodeField(out, "value", type, ns, context, "encoder");
     out.dec();
@@ -433,7 +433,7 @@ Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns)
         "Double",
         "String",
         "NullableServiceAddress",
-        "NullableClass<SliceClass>"};
+        "NullableClass<IceClass>"};
 
     if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
@@ -449,12 +449,12 @@ Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns)
     }
     else if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
     {
-        out << getUnqualified(proxy, ns, "", "ProxySliceDecoderExtensions") << ".DecodeNullable"
+        out << getUnqualified(proxy, ns, "", "ProxyIceDecoderExtensions") << ".DecodeNullable"
             << removeEscapePrefix(proxy->mappedName()) << "Proxy(ref decoder)";
     }
     else if (auto en = dynamic_pointer_cast<Enum>(type))
     {
-        out << getUnqualified(en, ns, "", "SliceDecoderExtensions") << ".Decode" << removeEscapePrefix(en->mappedName())
+        out << getUnqualified(en, ns, "", "IceDecoderExtensions") << ".Decode" << removeEscapePrefix(en->mappedName())
             << "(ref decoder)";
     }
     else if (auto seq = dynamic_pointer_cast<Sequence>(type))
@@ -474,7 +474,7 @@ Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns)
             out << "decoder.DecodeSequence<" << Slice::Csharp::csFieldType(seq->type(), ns) << ">(";
             if (isBool(seq->type()))
             {
-                out << "checkElement: SliceDecoder.CheckBoolValue";
+                out << "checkElement: IceDecoder.CheckBoolValue";
             }
             out << ")";
 
@@ -491,7 +491,7 @@ Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns)
             {
                 out << nl << "sequenceFactory: size => new " << csSeq << "(size),";
             }
-            out << nl << "(ref SliceDecoder decoder) => ";
+            out << nl << "(ref IceDecoder decoder) => ";
             castToNestedFieldType(out, seq->type(), ns);
             decodeField(out, seq->type(), ns);
             out << ")";
@@ -509,10 +509,10 @@ Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns)
         out << "decoder.DecodeDictionary(";
         out.inc();
         out << nl << "size => new " << csDict << "(size),";
-        out << nl << "(ref SliceDecoder decoder) => ";
+        out << nl << "(ref IceDecoder decoder) => ";
         decodeField(out, keyType, ns);
         out << ",";
-        out << nl << "(ref SliceDecoder decoder) => ";
+        out << nl << "(ref IceDecoder decoder) => ";
         castToNestedFieldType(out, valueType, ns);
         decodeField(out, valueType, ns);
         out << ")";
@@ -531,7 +531,7 @@ Slice::Csharp::decodeOptionalField(Output& out, int tag, const TypePtr& type, co
     out.inc();
     out << nl << "tag: " << tag << ",";
     out << nl << "TagFormat." << getTagFormat(type) << ",";
-    out << nl << "(ref SliceDecoder decoder) => ";
+    out << nl << "(ref IceDecoder decoder) => ";
     // We need to cast to the optional type. This is especially important for value types.
     out << "(" << csType(type, ns, context) << "?)";
     decodeField(out, type, ns);
