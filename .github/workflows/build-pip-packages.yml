@@ -41,7 +41,7 @@ jobs:
         run: python3 -m build --sdist
 
       - name: Upload sdist
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: pip-sdist
           path: python/dist/zeroc_ice-*.tar.gz
@@ -105,7 +105,7 @@ jobs:
           pip wheel (Get-ChildItem sdist\*.tar.gz).FullName --no-deps -w dist/
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: pip-packages-${{ matrix.os }}-${{ matrix.python-version }}
           path: dist/zeroc_ice-*.whl

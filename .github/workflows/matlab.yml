@@ -35,7 +35,7 @@ jobs:
         shell: bash
 
       - name: Upload Analyzer Report
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: matlab-analyzer-report
           path: ./matlab/config/result.json

@@ -59,7 +59,7 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: Upload Compiler Artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: slice2cs-${{ matrix.target }}
           path: ${{ matrix.artifact-path }}
@@ -138,7 +138,7 @@ jobs:
           SLICE2CS_STAGING_PATH: "${{ github.workspace }}\\tools"
 
       - name: Upload NuGet Packages
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: dotnet-nuget-packages
           path: |
