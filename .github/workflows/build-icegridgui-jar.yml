@@ -44,7 +44,7 @@ jobs:
         working-directory: java
 
       - name: Upload IceGrid GUI JAR
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: icegridgui-jar-${{ runner.os }}
           path: |

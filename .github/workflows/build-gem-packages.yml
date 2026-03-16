@@ -39,7 +39,7 @@ jobs:
         run: rake
 
       - name: Upload Gem Packages
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: gem-packages
           path: ruby/zeroc-ice-*.gem

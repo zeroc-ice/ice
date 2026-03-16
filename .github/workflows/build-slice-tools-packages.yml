@@ -62,7 +62,7 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: Upload Compiler Artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: slice2java-${{ matrix.target }}
           path: ${{ matrix.artifact-path }}
@@ -120,7 +120,7 @@ jobs:
         working-directory: ice/java/tools/slice-tools
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: slice-tools-packages
           path: |

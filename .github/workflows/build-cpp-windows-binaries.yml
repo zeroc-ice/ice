@@ -58,7 +58,7 @@ jobs:
           timestamp-digest: SHA256
 
       - name: Upload C++ Build
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: windows-cpp-${{ matrix.platform }}-${{ matrix.configuration }}-build
           path: |
@@ -69,7 +69,7 @@ jobs:
             cpp/src/**/msbuild/**/${{ matrix.platform }}/${{ matrix.configuration }}/*.h
 
       - name: Upload C++ Slice Tools
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         # We only need to upload the Slice Tools once (Release x64 build) which are included in the Nuget packages
         if: ${{ matrix.configuration == 'Release' && matrix.platform == 'x64' }}
         with:
