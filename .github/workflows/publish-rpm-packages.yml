@@ -41,7 +41,7 @@ jobs:
       MCPP_VERSION: v2.7.2.20
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: ice
 

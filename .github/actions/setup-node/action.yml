@@ -3,6 +3,6 @@ description: Installs Node.js 22 using the actions/setup-node action.
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v6
       with:
         node-version: "22"

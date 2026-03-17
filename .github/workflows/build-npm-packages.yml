@@ -44,7 +44,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -76,7 +76,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: ice
 
@@ -84,7 +84,7 @@ jobs:
         uses: ./ice/.github/actions/setup-node
 
       - name: Download All slice2js Compiler Artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           path: artifacts
           pattern: slice2js-*

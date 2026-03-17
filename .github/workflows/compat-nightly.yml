@@ -23,12 +23,12 @@ jobs:
         os: [macos-26, ubuntu-24.04, ubuntu-24.04-arm, windows-2025]
     steps:
       - name: Checkout HEAD
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: head
 
       - name: Checkout stable (${{ env.STABLE_TAG }})
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ env.STABLE_TAG }}
           path: stable

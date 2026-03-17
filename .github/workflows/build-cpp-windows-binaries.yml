@@ -31,7 +31,7 @@ jobs:
         configuration: [Release, Debug]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
