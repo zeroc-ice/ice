@@ -132,7 +132,7 @@ namespace
 
     /// Writes the method signature for an operation, without access or semicolon.
     /// @param out The output to write to.
-    /// @param operation The Slice operation being mapped to C#.
+    /// @param operation The operation being mapped to C#.
     /// @param ns The current C# namespace.
     /// @param dispatch If true, writes the signature for the dispatch method (with incoming parameter types and a
     /// ValueTask return type); if false, writes the signature for the proxy method.
@@ -229,7 +229,7 @@ Slice::IceRpc::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     // Encode method.
     _out << sp;
-    writeDocLine(_out, "summary", "Encodes the fields of this struct with a Slice encoder.");
+    writeDocLine(_out, "summary", "Encodes the fields of this struct with a Ice encoder.");
 
     _out << nl << accessModifier(p) << " readonly void Encode(ref IceEncoder encoder)";
     _out << sb;
@@ -725,7 +725,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         _out,
         "summary",
         {"Implements <see cref=\"I" + name + "\" /> by making invocations on a remote IceRPC service.",
-         "This remote service must implement Slice interface <c>" + p->scoped() + "</c>."});
+         "This remote service must implement Ice interface <c>" + p->scoped() + "</c>."});
 
     _out << nl << "[IceTypeId(\"" << p->scoped() << "\")]";
     emitObsoleteAttribute(p);
@@ -741,7 +741,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     // EncodeOptions, Invoker and ServiceAddress come from IIceProxy; they must be public.
 
-    _out << nl << "/// <summary>Represents the default path for IceRPC services that implement Slice interface";
+    _out << nl << "/// <summary>Represents the default path for IceRPC services that implement Ice interface";
     _out << nl << "/// <c>" << p->scoped() << "</c>.</summary>";
     _out << nl << accessModifier(p) << " const string DefaultServicePath = \"" << defaultServicePath(p) << "\";";
     _out << sp;
@@ -941,7 +941,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "summary",
         R"(Encodes a nullable <see cref=")" + name +
             R"(Proxy" /> as a nullable <see cref="IceRpc.ServiceAddress" />.)");
-    writeDocLine(_out, R"(param name="encoder")", "The Slice encoder.", "param");
+    writeDocLine(_out, R"(param name="encoder")", "The Ice encoder.", "param");
     writeDocLine(_out, R"(param name="proxy")", "The proxy to encode as a service address (can be null).", "param");
     _out << nl << accessModifier(p) << " static void EncodeNullable" << name << "Proxy(this ref IceEncoder encoder, "
          << name << "Proxy? proxy) =>";
@@ -964,7 +964,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "summary",
         R"(Decodes a nullable <see cref="IceRpc.ServiceAddress" /> into a nullable <see cref=")" + name +
             R"(Proxy" />.)");
-    writeDocLine(_out, R"(param name="decoder")", "The Slice decoder.", "param");
+    writeDocLine(_out, R"(param name="decoder")", "The Ice decoder.", "param");
     _out << nl << accessModifier(p) << " static " << name << "Proxy? DecodeNullable" << name
          << "Proxy(this ref IceDecoder decoder) =>";
     _out.inc();
@@ -1003,8 +1003,8 @@ Slice::IceRpc::ProxyVisitor::writeProxyRequestClass(const InterfaceDefPtr& inter
             "summary",
             "Encodes the argument(s) of operation <c>" + operation->name() + "</c> into a request payload.");
         // TODO: param doc comments
-        writeDocLine(_out, R"(param name="encodeOptions")", "The Slice encode options.", "param");
-        writeDocLine(_out, "returns", "The Slice-encoded payload.", "returns");
+        writeDocLine(_out, R"(param name="encodeOptions")", "The Ice encode options.", "param");
+        writeDocLine(_out, "returns", "The Ice-encoded payload.", "returns");
 
         _out << nl << accessModifier(interface) << " static global::System.IO.Pipelines.PipeReader Encode"
              << removeEscapePrefix(operation->mappedName()) << "(";
@@ -1068,7 +1068,7 @@ Slice::IceRpc::ProxyVisitor::writeProxyResponseClass(const InterfaceDefPtr& inte
     writeDocLine(
         _out,
         "summary",
-        "Provides a <see cref=\"ResponseDecodeFunc{T}\" /> for each operation defined in Slice interface <c>" +
+        "Provides a <see cref=\"ResponseDecodeFunc{T}\" /> for each operation defined in Ice interface <c>" +
             interface->scoped() + "</c>.");
     _out << nl << accessModifier(interface) << " static class Response";
     _out << sb;
@@ -1445,8 +1445,8 @@ Slice::IceRpc::SkeletonVisitor::writeResponseClass(const InterfaceDefPtr& interf
             "Encodes the return value and out parameter(s) of operation <c>" + operation->name() +
                 "</c> into a response payload.");
         // TODO: param doc comments
-        writeDocLine(_out, "param name=\"encodeOptions\"", "The Slice encode options.", "param");
-        writeDocLine(_out, "returns", "The Slice-encoded payload.");
+        writeDocLine(_out, "param name=\"encodeOptions\"", "The Ice encode options.", "param");
+        writeDocLine(_out, "returns", "The Ice-encoded payload.");
 
         _out << nl << accessModifier(interface) << " static global::System.IO.Pipelines.PipeReader Encode"
              << removeEscapePrefix(operation->mappedName()) << "(";
