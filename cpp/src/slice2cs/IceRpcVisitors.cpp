@@ -229,7 +229,7 @@ Slice::IceRpc::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     // Encode method.
     _out << sp;
-    writeDocLine(_out, "summary", "Encodes the fields of this struct with a Ice encoder.");
+    writeDocLine(_out, "summary", "Encodes the fields of this struct with an Ice encoder.");
 
     _out << nl << accessModifier(p) << " readonly void Encode(ref IceEncoder encoder)";
     _out << sb;
