@@ -34,7 +34,7 @@ jobs:
     if: ${{ inputs.quality == 'nightly' }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Download C++ Dependencies for Swift
         env:

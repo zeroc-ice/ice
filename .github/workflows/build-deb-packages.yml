@@ -55,7 +55,7 @@ jobs:
       DEB_BUILD_OPTIONS: "nocheck parallel=4"
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: ice
 

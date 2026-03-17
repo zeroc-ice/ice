@@ -82,7 +82,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: ice
 
@@ -154,7 +154,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: ice
 

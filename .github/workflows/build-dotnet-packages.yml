@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -70,13 +70,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup .NET
         uses: ./.github/actions/setup-dotnet
 
       - name: Download All slice2cs Artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           pattern: slice2cs-*
 
