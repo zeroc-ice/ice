@@ -35,15 +35,14 @@ namespace
     [[nodiscard]] string getTagFormat(const TypePtr& type)
     {
         SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-        string tagFormat = type->getOptionalFormat();
-        if (tagFormat == "VSize")
+        if (isString(type) || (seq && seq->type()->minWireSize() == 1))
         {
-            if (isString(type) || (seq && seq->type()->minWireSize() == 1))
-            {
-                tagFormat = "OptimizedVSize";
-            }
+            return "OptimizedVSize";
         }
-        return tagFormat;
+        else
+        {
+            return type->getOptionalFormat();
+        }
     }
 
     void castToNestedFieldType(Output& out, const TypePtr& type, const string& ns)
