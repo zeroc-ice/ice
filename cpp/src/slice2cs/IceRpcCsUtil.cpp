@@ -368,8 +368,8 @@ Slice::Csharp::encodeOptionalField(
         if (context == TypeContext::OutgoingParam)
         {
             // Since fieldName is a regular parameter, we can assign a new variable into it.
-            out << nl
-                << "if (!global::System.Linq.Enumerable.TryGetNonEnumeratedCount(" << fieldName << ", out int count_))";
+            out << nl << "if (!global::System.Linq.Enumerable.TryGetNonEnumeratedCount(" << fieldName
+                << ", out int count_))";
             out << sb;
             out << nl << "var array_ = global::System.Linq.Enumerable.ToArray(" << fieldName << ");";
             out << nl << "count_ = array_.Length;";
