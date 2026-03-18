@@ -93,7 +93,7 @@ Slice::Csharp::csFieldType(const TypePtr& type, const string& ns, bool optional)
     // else, just use the regular mapping.
 
     static const char* builtinTable[] =
-        {"byte", "bool", "short", "int", "long", "float", "double", "string", "IceRpc.ServiceAddress?", "IceClass?"};
+        {"byte", "bool", "short", "int", "long", "float", "double", "string", "IceObjectProxy?", "IceClass?"};
 
     if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
@@ -238,17 +238,8 @@ Slice::Csharp::encodeField(
 {
     assert(type);
 
-    static const char* builtinTable[] = {
-        "UInt8",
-        "Bool",
-        "Int16",
-        "Int32",
-        "Int64",
-        "Float",
-        "Double",
-        "String",
-        "NullableServiceAddress",
-        "NullableClass"};
+    static const char* builtinTable[] =
+        {"UInt8", "Bool", "Int16", "Int32", "Int64", "Float", "Double", "String", "IceObjectProxy", "Class"};
 
     if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
@@ -256,7 +247,7 @@ Slice::Csharp::encodeField(
     }
     else if (auto cl = dynamic_pointer_cast<ClassDecl>(type))
     {
-        out << encoderName << ".EncodeNullableClass(" << fieldName << ")";
+        out << encoderName << ".EncodeClass(" << fieldName << ")";
     }
     else if (auto st = dynamic_pointer_cast<Struct>(type))
     {
@@ -264,7 +255,7 @@ Slice::Csharp::encodeField(
     }
     else if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
     {
-        out << getUnqualified(proxy, ns, "", "ProxyIceEncoderExtensions") << ".EncodeNullable"
+        out << getUnqualified(proxy, ns, "", "ProxyIceEncoderExtensions") << ".Encode"
             << removeEscapePrefix(proxy->mappedName()) << "Proxy(ref " << encoderName << ", " << fieldName << ")";
     }
     else if (auto en = dynamic_pointer_cast<Enum>(type))
@@ -437,17 +428,8 @@ Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns)
 {
     assert(type);
 
-    static const char* builtinTable[] = {
-        "UInt8",
-        "Bool",
-        "Int16",
-        "Int32",
-        "Int64",
-        "Float",
-        "Double",
-        "String",
-        "NullableServiceAddress",
-        "NullableClass<IceClass>"};
+    static const char* builtinTable[] =
+        {"UInt8", "Bool", "Int16", "Int32", "Int64", "Float", "Double", "String", "IceObjectProxy", "Class<IceClass>"};
 
     if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
@@ -455,7 +437,7 @@ Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns)
     }
     else if (auto cl = dynamic_pointer_cast<ClassDecl>(type))
     {
-        out << "decoder.DecodeNullableClass<" << getUnqualified(cl, ns) << ">()";
+        out << "decoder.DecodeClass<" << getUnqualified(cl, ns) << ">()";
     }
     else if (auto st = dynamic_pointer_cast<Struct>(type))
     {
@@ -463,7 +445,7 @@ Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns)
     }
     else if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
     {
-        out << getUnqualified(proxy, ns, "", "ProxyIceDecoderExtensions") << ".DecodeNullable"
+        out << getUnqualified(proxy, ns, "", "ProxyIceDecoderExtensions") << ".Decode"
             << removeEscapePrefix(proxy->mappedName()) << "Proxy(ref decoder)";
     }
     else if (auto en = dynamic_pointer_cast<Enum>(type))

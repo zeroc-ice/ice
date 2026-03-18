@@ -936,17 +936,13 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             R"(Proxy" />.")");
     _out << nl << accessModifier(p) << " static class " << name << "ProxyIceEncoderExtensions";
     _out << sb;
-    writeDocLine(
-        _out,
-        "summary",
-        R"(Encodes a nullable <see cref=")" + name +
-            R"(Proxy" /> as a nullable <see cref="IceRpc.ServiceAddress" />.)");
+    writeDocLine(_out, "summary", R"(Encodes a <see cref=")" + name + R"(Proxy" />.)");
     writeDocLine(_out, R"(param name="encoder")", "The Ice encoder.", "param");
-    writeDocLine(_out, R"(param name="proxy")", "The proxy to encode as a service address (can be null).", "param");
-    _out << nl << accessModifier(p) << " static void EncodeNullable" << name << "Proxy(this ref IceEncoder encoder, "
-         << name << "Proxy? proxy) =>";
+    writeDocLine(_out, R"(param name="proxy")", "The proxy to encode (can be null).", "param");
+    _out << nl << accessModifier(p) << " static void Encode" << name << "Proxy(this ref IceEncoder encoder, " << name
+         << "Proxy? proxy) =>";
     _out.inc();
-    _out << nl << "encoder.EncodeNullableServiceAddress(proxy?.ServiceAddress);";
+    _out << nl << "encoder.EncodeProxy(proxy);";
     _out.dec();
     _out << eb;
 
@@ -959,16 +955,12 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     _out << nl << accessModifier(p) << " static class " << name << "ProxyIceDecoderExtensions";
     _out << sb;
-    writeDocLine(
-        _out,
-        "summary",
-        R"(Decodes a nullable <see cref="IceRpc.ServiceAddress" /> into a nullable <see cref=")" + name +
-            R"(Proxy" />.)");
+    writeDocLine(_out, "summary", R"(Decodes a <see cref=")" + name + R"(Proxy" />.)");
     writeDocLine(_out, R"(param name="decoder")", "The Ice decoder.", "param");
-    _out << nl << accessModifier(p) << " static " << name << "Proxy? DecodeNullable" << name
+    _out << nl << accessModifier(p) << " static " << name << "Proxy? Decode" << name
          << "Proxy(this ref IceDecoder decoder) =>";
     _out.inc();
-    _out << nl << "decoder.DecodeNullableProxy<" << name << "Proxy>();";
+    _out << nl << "decoder.DecodeProxy<" << name << "Proxy>();";
     _out.dec();
     _out << eb;
 }
