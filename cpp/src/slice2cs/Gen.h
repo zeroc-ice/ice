@@ -10,7 +10,6 @@ namespace Slice
 {
     enum class GenMode
     {
-        None,
         Ice,
         IceRpc
     };

@@ -44,7 +44,7 @@ usage(const string& n)
                   "-UNAME                   Remove any definition for NAME.\n"
                   "-IDIR                    Put DIR in the include file search path.\n"
                   "--output-dir DIR         Create files in the directory DIR.\n"
-                  "--rpc [none|ice|icerpc]  Generate code for the specified RPC framework. Default is 'ice'.\n"
+                  "--icerpc                 Generate code for use with IceRPC instead of Ice.\n"
                   "-d, --debug              Print debug messages.\n"
                   "--depend                 Generate Makefile dependencies.\n"
                   "--depend-xml             Generate dependencies in XML format.\n"
@@ -65,7 +65,7 @@ compile(const vector<string>& argv)
     opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("", "output-dir", IceInternal::Options::NeedArg);
-    opts.addOpt("", "rpc", IceInternal::Options::NeedArg, "ice");
+    opts.addOpt("", "icerpc");
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
     opts.addOpt("", "depend-file", IceInternal::Options::NeedArg, "");
@@ -132,32 +132,9 @@ compile(const vector<string>& argv)
 
     bool debug = opts.isSet("debug");
 
-    Slice::GenMode genMode;
-    string rpcArg = opts.optArg("rpc");
-    if (rpcArg == "none")
+    Slice::GenMode genMode = opts.isSet("icerpc") ? Slice::GenMode::IceRpc : Slice::GenMode::Ice;
+    if (genMode == Slice::GenMode::IceRpc)
     {
-        genMode = Slice::GenMode::None;
-    }
-    else if (rpcArg == "ice")
-    {
-        genMode = Slice::GenMode::Ice;
-    }
-    else if (rpcArg == "icerpc")
-    {
-        genMode = Slice::GenMode::IceRpc;
-    }
-    else
-    {
-        consoleErr << argv[0] << ": error: invalid argument for --rpc: " << rpcArg << endl;
-        if (!validate)
-        {
-            usage(argv[0]);
-        }
-        return EXIT_FAILURE;
-    }
-    if (genMode == Slice::GenMode::None || genMode == Slice::GenMode::IceRpc)
-    {
-        // Both none and icerpc use the new mapping provided by IceRPC.
         preprocessorArgs.emplace_back("-D__ICERPC__");
     }
 
@@ -208,7 +185,7 @@ compile(const vector<string>& argv)
             }
 
             UnitOptions unitOptions{};
-            if (genMode == Slice::GenMode::None || genMode == Slice::GenMode::IceRpc)
+            if (genMode == Slice::GenMode::IceRpc)
             {
                 unitOptions.defaultMappedName = [](const Contained& contained)
                 {

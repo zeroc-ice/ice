@@ -22,7 +22,7 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
     public string WorkingDirectory { get; set; } = "";
 
     /// <summary>
-    /// The RPC provider to generate code for, corresponds to the <c>--rpc</c> compiler option.
+    /// The RPC provider to generate code for.
     /// </summary>
     public string Rpc { get; set; } = "ice";
 

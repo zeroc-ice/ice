@@ -59,28 +59,22 @@ Slice::Gen::Gen(const string& base, const string& dir, GenMode genMode, bool ena
     if (_genMode == GenMode::IceRpc)
     {
         printHeader(_iceRpcOut, fileBase + ".ice", _enableAnalysis);
-    }
 
-    if (_genMode == GenMode::Ice)
-    {
-        _out << sp;
-        _out << nl << "[assembly:Ice.Slice(\"" << fileBase << ".ice\")]";
-    }
-    else
-    {
         _out << sp;
         _out << nl << "using IceRpc.Ice;";
         _out << nl << "using IceRpc.Ice.Codec;";
         _out << sp;
         _out << nl << "[assembly:Ice(\"" << fileBase << ".ice\")]";
 
-        if (_genMode == GenMode::IceRpc)
-        {
-            _iceRpcOut << sp;
-            _iceRpcOut << nl << "using IceRpc.Ice;";
-            _iceRpcOut << nl << "using IceRpc.Ice.Codec;";
-            _iceRpcOut << nl << "using IceRpc.Ice.Operations;";
-        }
+        _iceRpcOut << sp;
+        _iceRpcOut << nl << "using IceRpc.Ice;";
+        _iceRpcOut << nl << "using IceRpc.Ice.Codec;";
+        _iceRpcOut << nl << "using IceRpc.Ice.Operations;";
+    }
+    else
+    {
+        _out << sp;
+        _out << nl << "[assembly:Ice.Slice(\"" << fileBase << ".ice\")]";
     }
 }
 
@@ -124,14 +118,11 @@ Slice::Gen::generate(const UnitPtr& p)
         Slice::IceRpc::TypesVisitor typesVisitor(_out);
         p->visit(&typesVisitor);
 
-        if (_genMode == GenMode::IceRpc)
-        {
-            Slice::IceRpc::ProxyVisitor proxyVisitor(_iceRpcOut);
-            p->visit(&proxyVisitor);
+        Slice::IceRpc::ProxyVisitor proxyVisitor(_iceRpcOut);
+        p->visit(&proxyVisitor);
 
-            Slice::IceRpc::SkeletonVisitor skeletonVisitor(_iceRpcOut);
-            p->visit(&skeletonVisitor);
-        }
+        Slice::IceRpc::SkeletonVisitor skeletonVisitor(_iceRpcOut);
+        p->visit(&skeletonVisitor);
     }
 }
 

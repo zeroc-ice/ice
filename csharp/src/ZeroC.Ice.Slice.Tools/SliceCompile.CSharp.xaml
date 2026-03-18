@@ -50,7 +50,6 @@
     </StringListProperty>
 
     <EnumProperty Name="Rpc" DisplayName="RPC Provider" Description="Generate code for the specified RPC framework.">
-        <EnumValue Name="none" DisplayName="None" />
         <EnumValue Name="ice" DisplayName="Ice" />
         <EnumValue Name="icerpc" DisplayName="IceRPC" />
         <EnumProperty.DataSource>
