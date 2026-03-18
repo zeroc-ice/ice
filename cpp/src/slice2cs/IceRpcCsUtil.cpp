@@ -363,8 +363,23 @@ Slice::Csharp::encodeOptionalField(
 
     if (tagFormat == "VSize" && ((seq && !readOnlyMemory) || dynamic_pointer_cast<Dictionary>(type)))
     {
-        out << nl << "int count_ = global::System.Linq.Enumerable.Count(" << fieldName << ");"; // may be slow
-        out << sp;
+        // Generate count_ variable.
+
+        if (context == TypeContext::OutgoingParam)
+        {
+            // Since fieldName is a regular parameter, we can assign a new variable into it.
+            out << nl
+                << "if (!global::System.Linq.Enumerable.TryGetNonEnumeratedCount(" << fieldName << ", out int count_))";
+            out << sb;
+            out << nl << "var array_ = global::System.Linq.Enumerable.ToArray(" << fieldName << ");";
+            out << nl << "count_ = array_.Length;";
+            out << nl << fieldName << " = array_;";
+            out << eb;
+        }
+        else
+        {
+            out << nl << "int count_ = " << fieldName << ".Count;";
+        }
     }
 
     out << nl << encoderName << ".EncodeTagged(";
