@@ -752,7 +752,20 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl << "public required IceRpc.IInvoker Invoker { get; init; }";
     _out << sp;
     _out << nl << "/// <inheritdoc/>";
-    _out << nl << "public IceRpc.ServiceAddress ServiceAddress { get; init; } = _defaultServiceAddress;";
+    _out << nl << "public IceRpc.ServiceAddress ServiceAddress";
+    _out << sb;
+    _out << nl << "get;";
+    _out << nl << "init";
+    _out << sb;
+    _out << nl << "if (value.Protocol is null)";
+    _out << sb;
+    _out << nl
+         << R"(throw new System.ArgumentException("An Ice proxy's service address must have a non-null protocol.", )"
+         << "nameof(value));";
+    _out << eb;
+    _out << nl << "field = value;";
+    _out << eb;
+    _out << eb << " = _defaultServiceAddress;";
     _out << sp;
     _out << nl << "private static IceRpc.ServiceAddress _defaultServiceAddress =";
     _out.inc();
@@ -798,15 +811,6 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl << "IceEncodeOptions? encodeOptions = null)";
     _out.dec();
     _out << sb;
-    // We can't encode/decode relative proxies with the Ice encoding, so we reject them. This constructor is called
-    // by the other constructor.
-    _out << nl << "if (serviceAddress is not null && serviceAddress.Protocol is null)";
-    _out << sb;
-    _out << nl
-         << R"(throw new System.ArgumentException("An Ice proxy's service address must have a non-null protocol.", )"
-         << "nameof(serviceAddress));";
-    _out << eb;
-
     _out << nl << "Invoker = invoker;";
     _out << nl << "ServiceAddress = serviceAddress ?? _defaultServiceAddress;";
     _out << nl << "EncodeOptions = encodeOptions;";
@@ -833,7 +837,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     // Parameterless constructor.
     // This constructor does not generate [System.Diagnostics.CodeAnalysis.SetsRequiredMembers], so the caller must
-    // initialize the required Invoker (for example, via an object initializer).
+    // initialize the required Invoker.
     _out << sp;
     _out << nl << "/// <summary>Constructs a proxy that uses the default service address: its protocol is <c>ice</c>"
          << nl << "/// and its path is <see cref=\"DefaultServicePath\" />.</summary>";
