@@ -936,7 +936,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             R"(Proxy" />.")");
     _out << nl << accessModifier(p) << " static class " << name << "ProxyIceEncoderExtensions";
     _out << sb;
-    writeDocLine(_out, "summary", R"(Encodes a <see cref=")" + name + R"(Proxy" />.)");
+    writeDocLine(_out, "summary", R"(Encodes a <see cref=")" + name + R"(Proxy" /> instance.)");
     writeDocLine(_out, R"(param name="encoder")", "The Ice encoder.", "param");
     writeDocLine(_out, R"(param name="proxy")", "The proxy to encode (can be null).", "param");
     _out << nl << accessModifier(p) << " static void Encode" << name << "Proxy(this ref IceEncoder encoder, " << name
@@ -950,12 +950,12 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(
         _out,
         "summary",
-        R"(Provides an extension method for <see cref="IceDecoder" /> to decode a <see cref=")" + name +
-            R"(Proxy" />.)");
+        R"(Provides an extension method for <see cref="IceDecoder" /> to decode a nullable <see cref=")" + name +
+            R"(Proxy" /> instance.)");
 
     _out << nl << accessModifier(p) << " static class " << name << "ProxyIceDecoderExtensions";
     _out << sb;
-    writeDocLine(_out, "summary", R"(Decodes a <see cref=")" + name + R"(Proxy" />.)");
+    writeDocLine(_out, "summary", R"(Decodes a nullable <see cref=")" + name + R"(Proxy" /> instance.)");
     writeDocLine(_out, R"(param name="decoder")", "The Ice decoder.", "param");
     _out << nl << accessModifier(p) << " static " << name << "Proxy? Decode" << name
          << "Proxy(this ref IceDecoder decoder) =>";
