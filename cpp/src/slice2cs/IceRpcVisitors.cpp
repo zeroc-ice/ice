@@ -784,9 +784,9 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl << "/// <summary>Constructs a proxy from an invoker, a service address and encode options.</summary>";
     _out << nl << "/// <param name=\"invoker\">The invocation pipeline of the proxy.</param>";
     _out << nl
-         << "/// <param name=\"serviceAddress\">The service address. <see langword=\"null\" /> is equivalent to a "
-            "service address";
-    _out << nl << "/// for the ice protocol with path <see cref=\"DefaultServicePath\" />.</param>";
+         << "/// <param name=\"serviceAddress\">The service address. <see langword=\"null\" /> is equivalent to the ";
+    _out << nl
+         << "/// default service address (protocol: <c>ice</c>, path: <see cref=\"DefaultServicePath\" />).</param>";
     _out << nl
          << "/// <param name=\"encodeOptions\">The encode options, used to customize the encoding of request "
             "payloads.</param>";
@@ -834,8 +834,8 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     // Parameterless constructor.
     // Since we don't generate `[...SetsRequiredMembers]`, the caller needs to initialize the Invoker.
     _out << sp;
-    _out << nl << "/// <summary>Constructs a proxy with a service address for the ice protocol with path" << nl
-         << "/// <see cref=\"DefaultServicePath\" />.</summary>";
+    _out << nl << "/// <summary>Constructs a proxy that uses the default service address: its protocol is <c>ice</c>"
+         << nl << "/// and its path is <see cref=\"DefaultServicePath\" />.</summary>";
     _out << nl << accessModifier(p) << ' ' << name << "Proxy()";
     _out << sb;
     _out << eb;
