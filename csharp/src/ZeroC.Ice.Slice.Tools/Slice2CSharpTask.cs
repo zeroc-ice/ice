@@ -17,7 +17,7 @@ public class Slice2CSharpTask : Common.SliceCompilerTask
         {
             string message = string.Format("Compiling {0} Generating -> ", source.GetMetadata("Identity"));
             message += Common.TaskUtil.MakeRelative(WorkingDirectory, GetGeneratedPath(source, OutputDir, ".cs"));
-            if (GenerateIceRpc)
+            if (IceRpc)
             {
                 message += ", " + Common.TaskUtil.MakeRelative(WorkingDirectory, GetGeneratedPath(source, OutputDir, ".IceRpc.cs"));
             }
@@ -26,7 +26,7 @@ public class Slice2CSharpTask : Common.SliceCompilerTask
     }
 
     protected override ITaskItem[] GeneratedItems(ITaskItem source) =>
-        GenerateIceRpc ?
+        IceRpc ?
             new ITaskItem[]
             {
                 new TaskItem(GetGeneratedPath(source, OutputDir, ".cs")),

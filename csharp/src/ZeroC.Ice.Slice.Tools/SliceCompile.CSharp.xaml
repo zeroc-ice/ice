@@ -50,9 +50,9 @@
     </StringListProperty>
 
     <BoolProperty
-        Name="GenerateIceRpc"
-        DisplayName="Generate IceRpc"
-        Description="Generate code for use with IceRpc projects.">
+        Name="IceRpc"
+        DisplayName="IceRpc"
+        Description="Generate code for use with IceRPC projects.">
         <BoolProperty.DataSource>
             <DataSource
                 Persistence="ProjectFile"
