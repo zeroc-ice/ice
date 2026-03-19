@@ -239,7 +239,7 @@ Slice::Csharp::encodeField(
     assert(type);
 
     static const char* builtinTable[] =
-        {"UInt8", "Bool", "Int16", "Int32", "Int64", "Float", "Double", "String", "IceObjectProxy", "Class"};
+        {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String", "IceObjectProxy", "Class"};
 
     if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
@@ -429,7 +429,7 @@ Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns)
     assert(type);
 
     static const char* builtinTable[] =
-        {"UInt8", "Bool", "Int16", "Int32", "Int64", "Float", "Double", "String", "IceObjectProxy", "Class<IceClass>"};
+        {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String", "IceObjectProxy", "Class<IceClass>"};
 
     if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
