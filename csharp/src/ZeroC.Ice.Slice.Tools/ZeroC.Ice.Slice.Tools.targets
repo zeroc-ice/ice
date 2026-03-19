@@ -104,7 +104,7 @@
             WorkingDirectory      = "$(MSBuildProjectDirectory)"
             IceSliceToolsPath     = "$(_IceSliceToolsPathNormalized)"
             Sources               = "@(_SliceCompileNormalized)"
-            Rpc                   = "%(_SliceCompileNormalized.Rpc)">
+            GenerateIceRpc        = "%(_SliceCompileNormalized.GenerateIceRpc)">
 
             <Output
                 ItemName          = "_SliceCompile"
@@ -121,7 +121,7 @@
             IceSliceToolsPath     = "$(_IceSliceToolsPathNormalized)"
             OutputDir             = "%(_SliceCompile.OutputDir)"
             IncludeDirectories    = "%(_SliceCompile.IncludeDirectories)"
-            Rpc                   = "%(_SliceCompile.Rpc)"
+            GenerateIceRpc        = "%(_SliceCompile.GenerateIceRpc)"
             AdditionalOptions     = "%(_SliceCompile.AdditionalOptions)"
             Sources               = "@(_SliceCompile)"
             Condition             = "'%(_SliceCompile.BuildRequired)' == 'True'"/>

@@ -8,7 +8,7 @@ namespace ZeroC.Ice.Slice.Tools;
 public class Slice2CSharpDependTask : Common.SliceDependTask
 {
     protected override ITaskItem[] GeneratedItems(ITaskItem source) =>
-        Rpc == "icerpc" ?
+        GenerateIceRpc ?
             new ITaskItem[]
             {
                 new TaskItem(GetGeneratedPath(source, source.GetMetadata("OutputDir"), ".cs")),

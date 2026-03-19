@@ -49,18 +49,19 @@
         </StringListProperty.DataSource>
     </StringListProperty>
 
-    <EnumProperty Name="Rpc" DisplayName="RPC Provider" Description="Generate code for the specified RPC framework.">
-        <EnumValue Name="ice" DisplayName="Ice" />
-        <EnumValue Name="icerpc" DisplayName="IceRPC" />
-        <EnumProperty.DataSource>
+    <BoolProperty
+        Name="GenerateIceRpc"
+        DisplayName="Generate IceRpc"
+        Description="Generate code for use with IceRpc projects.">
+        <BoolProperty.DataSource>
             <DataSource
                 Persistence="ProjectFile"
                 ItemType="SliceCompile"
                 Label="SliceTools"
                 HasConfigurationCondition="false"
                 SourceOfDefaultValue="AfterContext"/>
-        </EnumProperty.DataSource>
-    </EnumProperty>
+        </BoolProperty.DataSource>
+    </BoolProperty>
 
     <StringListProperty
         DisplayName="Additional Options"

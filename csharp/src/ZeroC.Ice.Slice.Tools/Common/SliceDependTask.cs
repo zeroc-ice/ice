@@ -22,9 +22,9 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
     public string WorkingDirectory { get; set; } = "";
 
     /// <summary>
-    /// The RPC provider to generate code for.
+    /// Specifies whether to pass '--icerpc' to 'slice2cs'.
     /// </summary>
-    public string Rpc { get; set; } = "ice";
+    public bool GenerateIceRpc { get; set; } = false;
 
     [Output]
     public ITaskItem[] ComputedSources { get; private set; } = Array.Empty<ITaskItem>();
@@ -67,10 +67,10 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
             options["IncludeDirectories"] = value;
         }
 
-        value = item.GetMetadata("Rpc");
-        if (!string.IsNullOrEmpty(value) && value != "ice")
+        value = item.GetMetadata("GenerateIceRpc");
+        if (!string.IsNullOrEmpty(value))
         {
-            options["Rpc"] = value;
+            options["GenerateIceRpc"] = value;
         }
 
         value = item.GetMetadata("AdditionalOptions");
