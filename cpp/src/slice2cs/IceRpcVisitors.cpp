@@ -832,7 +832,8 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << eb;
 
     // Parameterless constructor.
-    // Since we don't generate `[...SetsRequiredMembers]`, the caller needs to initialize the Invoker.
+    // This constructor does not generate [System.Diagnostics.CodeAnalysis.SetsRequiredMembers], so the caller must
+    // initialize the required Invoker (for example, via an object initializer).
     _out << sp;
     _out << nl << "/// <summary>Constructs a proxy that uses the default service address: its protocol is <c>ice</c>"
          << nl << "/// and its path is <see cref=\"DefaultServicePath\" />.</summary>";
