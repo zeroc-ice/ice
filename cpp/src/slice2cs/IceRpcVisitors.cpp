@@ -819,7 +819,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     // Constructor (invoker, serviceAddressUri, encodeOptions).
     _out << sp;
     _out << nl
-         << R"(/// <summary>Constructs a proxy from an invoker, a service address URI and encode options.</summary>)";
+         << "/// <summary>Constructs a proxy from an invoker, a service address URI and encode options.</summary>";
     _out << nl << R"(/// <param name="invoker">The invocation pipeline of the proxy.</param>)";
     _out << nl << R"(/// <param name="serviceAddressUri">A URI that represents a service address.</param>)";
     _out << nl
@@ -839,7 +839,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     // This constructor does not generate [System.Diagnostics.CodeAnalysis.SetsRequiredMembers], so the caller must
     // initialize the required Invoker.
     _out << sp;
-    _out << nl << R"(/// <summary>Constructs a proxy that uses the default service address: its protocol is <c>ice</c>)"
+    _out << nl << "/// <summary>Constructs a proxy that uses the default service address: its protocol is <c>ice</c>"
          << nl << R"(/// and its path is <see cref="DefaultServicePath" />.</summary>)";
     _out << nl << accessModifier(p) << ' ' << name << "Proxy()";
     _out << sb;
