@@ -756,7 +756,7 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << sp;
     _out << nl << "private static IceRpc.ServiceAddress _defaultServiceAddress =";
     _out.inc();
-    _out << nl << "new(IceRpc.Protocol.IceRpc) { Path = DefaultServicePath };";
+    _out << nl << "new(IceRpc.Protocol.Ice) { Path = DefaultServicePath };";
     _out.dec();
     _out << sp;
     _out << nl << "private static readonly IActivator _defaultActivator =";
@@ -779,24 +779,14 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         _out.dec();
     }
 
-    // FromPath static method.
-    _out << sp;
-    _out << nl << "/// <summary>Creates a relative proxy from a path.</summary>";
-    _out << nl << "/// <param name=\"path\">The path.</param>";
-    _out << nl << "/// <returns>The new relative proxy.</returns>";
-    _out << nl << accessModifier(p) << " static " << name << "Proxy FromPath(string path) =>";
-    _out.inc();
-    _out << nl << "new(IceRpc.InvalidInvoker.Instance, new IceRpc.ServiceAddress { Path = path });";
-    _out.dec();
-
     // Primary constructor (invoker, serviceAddress, encodeOptions).
     _out << sp;
     _out << nl << "/// <summary>Constructs a proxy from an invoker, a service address and encode options.</summary>";
     _out << nl << "/// <param name=\"invoker\">The invocation pipeline of the proxy.</param>";
     _out << nl
-         << "/// <param name=\"serviceAddress\">The service address. <see langword=\"null\" /> is equivalent to an "
-            "IceRPC service address";
-    _out << nl << "/// with path <see cref=\"DefaultServicePath\" />.</param>";
+         << "/// <param name=\"serviceAddress\">The service address. <see langword=\"null\" /> is equivalent to a "
+            "service address";
+    _out << nl << "/// for the ice protocol with path <see cref=\"DefaultServicePath\" />.</param>";
     _out << nl
          << "/// <param name=\"encodeOptions\">The encode options, used to customize the encoding of request "
             "payloads.</param>";
@@ -808,6 +798,15 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl << "IceEncodeOptions? encodeOptions = null)";
     _out.dec();
     _out << sb;
+    // We can't encode/decode relative proxies with the Ice encoding, so we reject them. This constructor is called
+    // by the other constructor.
+    _out << nl << "if (serviceAddress is not null && serviceAddress.Protocol is null)";
+    _out << sb;
+    _out << nl
+         << R"(throw new System.ArgumentException("An Ice proxy's service address must have a non-null protocol.", )"
+         << "nameof(serviceAddress));";
+    _out << eb;
+
     _out << nl << "Invoker = invoker;";
     _out << nl << "ServiceAddress = serviceAddress ?? _defaultServiceAddress;";
     _out << nl << "EncodeOptions = encodeOptions;";
@@ -833,10 +832,10 @@ Slice::IceRpc::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << eb;
 
     // Parameterless constructor.
+    // Since we don't generate `[...SetsRequiredMembers]`, the caller needs to initialize the Invoker.
     _out << sp;
-    _out << nl
-         << "/// <summary>Constructs a proxy with an IceRPC service address with path <see cref=\"DefaultServicePath\" "
-            "/>.</summary>";
+    _out << nl << "/// <summary>Constructs a proxy with a service address for the ice protocol with path" << nl
+         << "/// <see cref=\"DefaultServicePath\" />.</summary>";
     _out << nl << accessModifier(p) << ' ' << name << "Proxy()";
     _out << sb;
     _out << eb;
