@@ -26,10 +26,10 @@ namespace Slice
     private:
         const GenMode _genMode;
         IceInternal::Output _out;
-        IceInternal::Output _iceRpcOut;
         const bool _enableAnalysis;
+        std::string _fileBase;
 
-        static void printHeader(IceInternal::Output& out, const std::string& iceFile, bool enableAnalysis);
+        void printHeader(const std::string& iceFile);
     };
 }
 

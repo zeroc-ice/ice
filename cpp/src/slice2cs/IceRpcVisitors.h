@@ -13,7 +13,9 @@ namespace Slice::IceRpc
     class TypesVisitor final : public CsVisitor
     {
     public:
-        TypesVisitor(IceInternal::Output&);
+        TypesVisitor(IceInternal::Output& out, std::string fileBase);
+
+        bool visitUnitStart(const UnitPtr&) final;
 
         bool visitStructStart(const StructPtr&) final;
         void visitStructEnd(const StructPtr&) final;
@@ -28,6 +30,10 @@ namespace Slice::IceRpc
 
         void visitEnum(const EnumPtr&) final;
 
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+        void visitOperation(const OperationPtr&) final;
+
     private:
         bool writePrimaryConstructor(
             const ContainedPtr& p,
@@ -41,23 +47,11 @@ namespace Slice::IceRpc
             bool hasBase,
             const DataMemberList& fields,
             const DataMemberList& allBaseFields);
-    };
 
-    // Generates proxies.
-    class ProxyVisitor final : public CsVisitor
-    {
-    public:
-        ProxyVisitor(IceInternal::Output&);
-
-        bool visitModuleStart(const ModulePtr&) final;
-
-        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-        void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
-        void visitOperation(const OperationPtr&) final;
-
-    private:
         void writeProxyRequestClass(const InterfaceDefPtr& interface);
         void writeProxyResponseClass(const InterfaceDefPtr& interface);
+
+        std::string _fileBase;
     };
 
     // Generates skeleton interfaces.
