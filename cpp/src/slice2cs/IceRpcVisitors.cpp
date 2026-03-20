@@ -182,26 +182,7 @@ namespace
     string accessModifier(const ContainedPtr& p) { return p->hasMetadata("cs:internal") ? "internal" : "public"; }
 }
 
-Slice::IceRpc::TypesVisitor::TypesVisitor(IceInternal::Output& out, std::string fileBase)
-    : CsVisitor(out),
-      _fileBase(std::move(fileBase))
-{
-}
-
-bool
-Slice::IceRpc::TypesVisitor::visitUnitStart(const UnitPtr& unit)
-{
-    if (unit->contains<InterfaceDef>())
-    {
-        // The proxy and skeleton code depends on this using directive.
-        _out << nl << "using IceRpc.Ice.Operations;";
-    }
-
-    _out << nl << "[assembly:IceGeneratedCode(\"" << _fileBase << ".ice\")]";
-    _out << sp;
-
-    return true;
-}
+Slice::IceRpc::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
 Slice::IceRpc::TypesVisitor::visitStructStart(const StructPtr& p)

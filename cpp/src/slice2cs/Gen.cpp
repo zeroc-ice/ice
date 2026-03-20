@@ -87,9 +87,15 @@ Slice::Gen::generate(const UnitPtr& p)
     }
     else
     {
-        // The types visitor must be the first visitor since it optionally generates a using directive for all
-        // visitors to use.
-        Slice::IceRpc::TypesVisitor typesVisitor(_out, _fileBase);
+        if (p->contains<InterfaceDef>())
+        {
+            // The proxy and skeleton code depends on this using directive.
+            _out << nl << "using IceRpc.Ice.Operations;";
+        }
+        _out << sp;
+        _out << nl << "[assembly:IceGeneratedCode(\"" << _fileBase << ".ice\")]";
+
+        Slice::IceRpc::TypesVisitor typesVisitor(_out);
         p->visit(&typesVisitor);
 
         Slice::IceRpc::SkeletonVisitor skeletonVisitor(_out);

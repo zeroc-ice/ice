@@ -13,9 +13,7 @@ namespace Slice::IceRpc
     class TypesVisitor final : public CsVisitor
     {
     public:
-        TypesVisitor(IceInternal::Output& out, std::string fileBase);
-
-        bool visitUnitStart(const UnitPtr&) final;
+        TypesVisitor(IceInternal::Output& out);
 
         bool visitStructStart(const StructPtr&) final;
         void visitStructEnd(const StructPtr&) final;
@@ -50,8 +48,6 @@ namespace Slice::IceRpc
 
         void writeProxyRequestClass(const InterfaceDefPtr& interface);
         void writeProxyResponseClass(const InterfaceDefPtr& interface);
-
-        std::string _fileBase;
     };
 
     // Generates skeleton interfaces.
