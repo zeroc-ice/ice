@@ -1711,7 +1711,7 @@ namespace
         }
         if (!interface && expectInterfaceType)
         {
-            string msg = "'" + name + "' must be an interface";
+            string msg = "'*' cannot be used with '" + name + "' as it is not an interface";
             currentUnit->error(msg);
         }
 

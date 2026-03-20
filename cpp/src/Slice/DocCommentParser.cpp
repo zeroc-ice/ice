@@ -237,8 +237,19 @@ namespace
 
     /// Returns a pointer to the Slice element referenced by `linkText`, relative to the scope of `source`.
     /// If the link cannot be resolved, `nullptr` is returned instead.
+    ///
+    /// @remark For classes and interfaces, the resolved type will always be an `xxxDecl` and never an `xxxDef`.
     SyntaxTreeBasePtr resolveDocLink(string linkText, const ContainedPtr& source)
     {
+        assert(!linkText.empty());
+
+        // If the link ends with '*' (i.e. the syntax for linking to a proxy), remove it so we can lookup the type.
+        bool useProxyType = linkText.back() == '*';
+        if (useProxyType)
+        {
+            linkText.pop_back();
+        }
+
         // First we check if the link is to a builtin type.
         if (auto kind = Builtin::kindFromString(linkText))
         {
@@ -253,20 +264,33 @@ namespace
         }
 
         // Perform the actual lookup.
+        ContainedList results;
         auto separatorPos = linkText.find('#');
         if (separatorPos == 0)
         {
             // If the link starts with '#', it is explicitly relative to the `linkSourceScope` container.
-            ContainedList results = source->unit()->findContents(linkSourceScope->thisScope() + linkText.substr(1));
-            return (results.empty() ? nullptr : results.front());
+            results = source->unit()->findContents(linkSourceScope->thisScope() + linkText.substr(1));
         }
-        else if (separatorPos != string::npos)
+        else
         {
-            // If the link has a '#' anywhere else, convert it to '::' so we can look it up.
-            linkText.replace(separatorPos, 1, "::");
+            if (separatorPos != string::npos)
+            {
+                // If the link has a '#' anywhere else, convert it to '::' so we can look it up.
+                linkText.replace(separatorPos, 1, "::");
+            }
+            results = linkSourceScope->lookupContained(linkText, false);
         }
-        ContainedList results = linkSourceScope->lookupContained(linkText, false);
-        return (results.empty() ? nullptr : results.front());
+        // We want to use the first match, if there were any.
+        ContainedPtr result = (results.empty() ? nullptr : results.front());
+
+        // If the link ended with '*', emit a warning if the link was to a non-interface.
+        if (useProxyType && result && !dynamic_pointer_cast<InterfaceDecl>(result))
+        {
+            string msg = "'*' cannot be used with '" + result->name() + "' as it is not an interface";
+            source->unit()->warning(source->file(), source->line(), InvalidComment, msg);
+        }
+
+        return result;
     }
 
     /// Formats a code-span starting at \p pos.
@@ -334,6 +358,14 @@ namespace
 
             // Then erase the entire '{@link foo}' tag from the comment.
             line.erase(pos, endpos - pos + 1);
+
+            // If the user is missing a target after '@link', emit a warning and don't attempt a lookup.
+            if (linkText.empty())
+            {
+                const string msg = "missing link target after '" + linkTag + "' tag";
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                return;
+            }
 
             // Attempt to resolve the link, and issue a warning if the link is invalid.
             SyntaxTreeBasePtr linkTarget = resolveDocLink(linkText, p);
@@ -452,7 +484,7 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
         while (true)
         {
             // We check for all inline tags all at the same time, to prevent overlap.
-            // For example: `@p hello` should _only_ be a code-span, not also a param-ref.
+            // For example: 'this `@p hello` is good' should _only_ have a code-span, not also a param-ref.
             size_t nextBacktickPos = line.find('`', pos);
             size_t nextLinkPos = line.find("{@link ", pos);
             size_t nextParamrefPos = line.find("@p", pos);
