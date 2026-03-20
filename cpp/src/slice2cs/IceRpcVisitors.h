@@ -46,7 +46,7 @@ namespace Slice::IceRpc
             const std::string& ns,
             bool hasBase,
             const DataMemberList& fields,
-            const DataMemberList& allBaseFields);
+            const DataMemberList& orderedOptionalFields);
 
         void writeProxyRequestClass(const InterfaceDefPtr& interface);
         void writeProxyResponseClass(const InterfaceDefPtr& interface);

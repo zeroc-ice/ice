@@ -215,7 +215,8 @@ compile(const vector<string>& argv)
                 dependencyGenerator.addDependenciesFor(unit);
                 if (depend)
                 {
-                    string target = removeExtension(baseName(fileName)) + ".cs";
+                    string target = removeExtension(baseName(fileName)) +
+                                    (genMode == Slice::GenMode::IceRpc ? ".IceRpc.cs" : ".cs");
                     dependencyGenerator.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
                 }
                 // else XML dependencies are written below after all units have been processed.
