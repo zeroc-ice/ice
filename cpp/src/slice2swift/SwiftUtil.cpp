@@ -302,6 +302,7 @@ Slice::Swift::swiftLinkFormatter(const string& rawLink, const ContainedPtr& sour
     if (auto contained = dynamic_pointer_cast<Contained>(target))
     {
         string nameSuffix;
+        bool useProxyType = rawLink.back() == '*';
 
         // If the link is to a data member or an enumerator, we store its name in `nameSuffix`, then navigate up to
         // its parent. Due to the flat nature of Swift, we always need to work up to something defined in a module.
@@ -327,17 +328,12 @@ Slice::Swift::swiftLinkFormatter(const string& rawLink, const ContainedPtr& sour
             }
             nameSuffix += "context:)";
 
-            // Move up a level to the interface type.
-            // Afterwards, we are guaranteed to hit the 'interfaceDef' branch underneath this block.
-            contained = dynamic_pointer_cast<Contained>(contained->container());
+            // Move up a level to the interface-declaration type.
+            contained = operation->interface()->declaration();
             assert(contained);
-        }
 
-        // If the link involves an interface definition, we need to switch to its declaration.
-        // The code-gen considers `Def` the servant type, and `Decl` the proxy type. We want to link to the proxy.
-        if (auto interfaceDef = dynamic_pointer_cast<InterfaceDef>(contained))
-        {
-            contained = interfaceDef->declaration();
+            // We always link to methods on the proxy type, never the servant.
+            useProxyType = true;
         }
 
         const string sourceModule = Slice::Swift::getSwiftModule(source->getTopLevelModule());
@@ -347,6 +343,14 @@ Slice::Swift::swiftLinkFormatter(const string& rawLink, const ContainedPtr& sour
         // DocC uses forward slashes to separate symbols instead of periods.
         string mappedLink = Slice::Swift::getRelativeTypeString(contained, sourceModule) + nameSuffix;
         std::replace(mappedLink.begin(), mappedLink.end(), '.', '/');
+
+        // Unfortunately, we always have to get the mapped name of the proxy type, then fix it afterwards.
+        // The code-gen takes `InterfaceDecl` to mean "a proxy" and `InterfaceDef` to mean "a servant". But it's
+        // possible a user only declared an interface, and didn't define it, so we can't assume the `Def` exists.
+        if (dynamic_pointer_cast<InterfaceDecl>(contained) && !useProxyType)
+        {
+            mappedLink.erase(mappedLink.length() - 3);
+        }
 
         // DocC does not support cross-module linking.
         // So we can only generate a DocC link (using double back-ticks) if the source and target are in the same

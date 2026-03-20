@@ -612,8 +612,7 @@ Slice::Java::javaLinkFormatter(const string& rawLink, const ContainedPtr& source
     }
     else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
     {
-        // Link to the proxy interface.
-        mappedLink = getUnqualified(interfaceTarget, sourceScope) + "Prx";
+        mappedLink = getUnqualified(interfaceTarget, sourceScope) + (rawLink.back() == '*' ? "Prx" : "");
     }
     else if (auto contained = dynamic_pointer_cast<Contained>(target))
     {

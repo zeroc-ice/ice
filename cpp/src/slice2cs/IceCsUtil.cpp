@@ -1657,10 +1657,10 @@ Slice::Csharp::iceLinkFormatter(const string& rawLink, const ContainedPtr& sourc
             result << getUnqualified(operationTarget->interface(), sourceScope, "", "Prx") << "."
                    << operationTarget->mappedName() << "Async";
         }
-        else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+        else if (dynamic_pointer_cast<InterfaceDecl>(target) && rawLink.back() == '*')
         {
             // link to the proxy interface
-            result << getUnqualified(interfaceTarget, sourceScope, "", "Prx");
+            result << getUnqualified(contained, sourceScope, "", "Prx");
         }
         else
         {

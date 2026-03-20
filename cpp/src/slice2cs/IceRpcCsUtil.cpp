@@ -572,14 +572,14 @@ Slice::Csharp::icerpcLinkFormatter(const string& rawLink, const ContainedPtr& so
         result << "cref=\"";
         if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
         {
-            // link to the method on the proxy interface
+            // link to the method on the proxy interface.
             result << getUnqualified(operationTarget->interface(), sourceScope, "", "Proxy") << "."
                    << removeEscapePrefix(operationTarget->mappedName()) << "Async";
         }
-        else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+        else if (dynamic_pointer_cast<InterfaceDecl>(target) && rawLink.back() == '*')
         {
             // link to the proxy interface
-            result << getUnqualified(interfaceTarget, sourceScope, "", "Proxy");
+            result << getUnqualified(contained, sourceScope, "", "Proxy");
         }
         else
         {

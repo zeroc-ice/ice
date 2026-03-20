@@ -3318,7 +3318,7 @@ Slice::matlabLinkFormatter(const string& rawLink, const ContainedPtr&, const Syn
             displayText = opTarget->mappedName();
             linkText = interfaceDef->mappedScoped(".") + "Prx" + "/" + displayText;
         }
-        else if (dynamic_pointer_cast<InterfaceDecl>(target))
+        else if (dynamic_pointer_cast<InterfaceDecl>(target) && rawLink.back() == '*')
         {
             displayText = contained->mappedName() + "Prx";
             linkText = contained->mappedScoped(".") + "Prx";

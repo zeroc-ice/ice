@@ -2963,11 +2963,13 @@ Slice::Python::pyLinkFormatter(const string& rawLink, const ContainedPtr&, const
         {
             string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".");
             result << ":class:`" << targetScoped;
-            if (dynamic_pointer_cast<InterfaceDecl>(target))
+
+            if (dynamic_pointer_cast<InterfaceDecl>(target) && rawLink.back() == '*')
             {
                 // link to the proxy interface
                 result << "Prx";
             }
+
             result << "`";
         }
     }

@@ -865,8 +865,8 @@ Slice::cppLinkFormatter(const string& rawLink, const ContainedPtr& source, const
         }
         if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
         {
-            // Links to Slice interfaces should always point to the generated proxy type, not the servant type.
-            return getUnqualified(interfaceTarget->mappedScoped("::", true) + "Prx", source->mappedScope("::", true));
+            string suffix = rawLink.back() == '*' ? "Prx" : "";
+            return getUnqualified(interfaceTarget->mappedScoped("::", true) + suffix, source->mappedScope("::", true));
         }
         if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
         {

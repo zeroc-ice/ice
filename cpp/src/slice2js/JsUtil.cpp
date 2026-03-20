@@ -516,22 +516,19 @@ Slice::JavaScript::jsLinkFormatter(const string& rawLink, const ContainedPtr&, c
         {
             if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
             {
+                // link to the method on the proxy interface.
                 string targetScoped = operationTarget->interface()->mappedScoped(".");
-
-                // link to the method on the proxy interface
                 result << targetScoped << "Prx." << operationTarget->mappedName();
             }
             else
             {
                 string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".");
-                if (dynamic_pointer_cast<InterfaceDecl>(target))
+                result << targetScoped;
+
+                if (dynamic_pointer_cast<InterfaceDecl>(target) && rawLink.back() == '*')
                 {
-                    // link to the proxy interface
-                    result << targetScoped << "Prx";
-                }
-                else
-                {
-                    result << targetScoped;
+                    // link to the proxy interface.
+                    result << "Prx";
                 }
             }
         }
