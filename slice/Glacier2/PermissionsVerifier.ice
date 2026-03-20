@@ -23,7 +23,7 @@ module Glacier2
     }
 
     /// Represents an object that checks user permissions. The Glacier2 router and other services use a
-    /// {@link PermissionsVerifier} proxy when the user is authenticated using a user ID and password.
+    /// {@link PermissionsVerifier*} when the user is authenticated using a user ID and password.
     interface PermissionsVerifier
     {
         /// Checks if a user is authorized to establish a session.
@@ -39,7 +39,7 @@ module Glacier2
     }
 
     /// Represents an object that checks user permissions. The Glacier2 router and other services use an
-    /// {@link SSLPermissionsVerifier} proxy when the user is authenticated through an SSL certificate.
+    /// {@link SSLPermissionsVerifier*} when the user is authenticated through an SSL certificate.
     interface SSLPermissionsVerifier
     {
         /// Checks if a user is authorized to establish a session.
