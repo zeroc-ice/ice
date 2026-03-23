@@ -31,7 +31,7 @@ jobs:
         run: tar -czvf spm-sources-${{ inputs.ice_version }}.tar.gz -C packaging/swift spm
 
       - name: Upload SPM sources artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: spm-sources
           path: spm-sources-${{ inputs.ice_version }}.tar.gz

@@ -45,7 +45,7 @@ jobs:
           ./packaging/brew/update-nightly-tap.sh "${{ inputs.channel }}" "${{ inputs.quality }}" "${{ inputs.ice_version }}"
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: homebrew-bottle
           path: |

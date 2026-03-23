@@ -59,7 +59,7 @@ jobs:
           QUALITY: ${{ inputs.quality }}
           NEXUS_NIGHTLY_NPM_AUTH_TOKEN: ${{ secrets.NEXUS_NIGHTLY_NPM_AUTH_TOKEN }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         if: ${{ inputs.quality == 'stable' }}
         with:
           node-version: '24'

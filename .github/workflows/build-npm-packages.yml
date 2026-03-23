@@ -60,7 +60,7 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: Upload Compiler Artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: slice2js-${{ matrix.target }}
           path: ${{ matrix.artifact-path }}
@@ -78,7 +78,7 @@ jobs:
           path: ice
 
       - name: Download All slice2js Compiler Artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
           pattern: slice2js-*
@@ -133,7 +133,7 @@ jobs:
         working-directory: ice/js
 
       - name: Upload NPM Packages
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: js-npm-packages
           path: |

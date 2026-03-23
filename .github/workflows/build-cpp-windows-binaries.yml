@@ -75,7 +75,7 @@ jobs:
           timestamp-digest: SHA256
 
       - name: Upload C++ Build
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: windows-cpp-${{matrix.platform-toolset}}-${{ matrix.platform }}-${{ matrix.configuration }}-build
           path: |
