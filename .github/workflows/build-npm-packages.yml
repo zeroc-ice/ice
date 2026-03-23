@@ -84,7 +84,7 @@ jobs:
         uses: ./ice/.github/actions/setup-node
 
       - name: Download All slice2js Compiler Artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
           pattern: slice2js-*

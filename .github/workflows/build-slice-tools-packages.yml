@@ -80,7 +80,7 @@ jobs:
           path: ice
 
       - name: Download All slice2java Artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
           pattern: slice2java-*
