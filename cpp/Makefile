@@ -15,8 +15,8 @@ load_first = Ice IceBox Glacier2Lib IceGridLib IceStormLib DataStorm
 
 projects :=
 
-# Create projects for all the Slice translators from src/slice2* and src/ice2slice.
-slice_translators := $(wildcard $(lang_srcdir)/src/slice2*) $(lang_srcdir)/src/ice2slice
+# Create projects for all the Slice translators from src/slice2*.
+slice_translators := $(wildcard $(lang_srcdir)/src/slice2*)
 $(foreach t, $(slice_translators), $(eval $(call create-translator-project,$(call project,$t))))
 
 # Do not install Slice compilers that are not distributed via the OS packaging system.
