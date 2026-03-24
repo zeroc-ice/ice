@@ -1282,10 +1282,6 @@ Slice::IceRpc::SkeletonVisitor::visitOperation(const OperationPtr& p)
 
     _out << nl << "[IceOperation(\"" << p->name() << "\"";
 
-    if (p->hasMarshaledResult())
-    {
-        _out << ", EncodedReturn = true";
-    }
     if (p->mode() == Operation::Idempotent)
     {
         _out << ", Idempotent = true";
