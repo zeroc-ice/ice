@@ -3318,7 +3318,8 @@ Slice::matlabLinkFormatter(const string& rawLink, const ContainedPtr&, const Syn
             displayText = opTarget->mappedName();
             linkText = interfaceDef->mappedScoped(".") + "Prx" + "/" + displayText;
         }
-        else if (dynamic_pointer_cast<InterfaceDecl>(target) && rawLink.back() == '*')
+        // Don't check for trailing '*', since MATLAB _only_ generates proxy types, not servant types.
+        else if (dynamic_pointer_cast<InterfaceDecl>(target))
         {
             displayText = contained->mappedName() + "Prx";
             linkText = contained->mappedScoped(".") + "Prx";
