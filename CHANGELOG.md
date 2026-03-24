@@ -14,4 +14,6 @@ These are the changes since the [Ice 3.8.1] release.
 
 ### General Changes
 
+- Removed the 'ice2slice' compiler
+
 [Ice 3.8.1]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
