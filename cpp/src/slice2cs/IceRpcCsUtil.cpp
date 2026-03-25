@@ -535,8 +535,6 @@ Slice::Csharp::decodeOptionalField(Output& out, int tag, const TypePtr& type, co
         out << "(" << csType(type, ns, context) << "?)";
     }
     decodeField(out, type, ns);
-    out << ",";
-    out << nl << "useTagEndMarker: " << (context == TypeContext::Field ? "true" : "false");
     out << ")";
     out.dec();
 }
