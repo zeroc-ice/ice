@@ -196,6 +196,15 @@ network programming interfaces and allows you to focus your efforts on
 your application logic.
 
 #
+# ice2slice package
+#
+%package -n %{?nameprefix}ice2slice
+Summary: The Ice-to-Slice compiler (ice2slice)
+Obsoletes: %{?nameprefix}ice2slice < %{version}-%{release}
+%description -n %{?nameprefix}ice2slice
+Transitional package - safe to remove
+
+#
 # ice-utils package
 #
 %package -n %{?nameprefix}ice-utils
@@ -475,6 +484,12 @@ exit 0
 %postun -n %{?nameprefix}icestorm
 /sbin/ldconfig
 exit 0
+
+#
+# ice2slice package
+#
+%files -n %{?nameprefix}ice2slice
+# Intentionally left blank
 
 #
 # ice-utils package
