@@ -145,5 +145,6 @@
         <Delete Files="@(SliceCompile->'%(OutputDir)\%(Filename).cs')"/>
         <Delete Files="@(SliceCompile->'%(OutputDir)\%(Filename).IceRpc.cs')"/>
         <Delete Files="@(SliceCompile->'%(OutputDir)\SliceCompile.%(Filename).d')"/>
+        <Delete Files="@(SliceCompile->'%(OutputDir)\SliceCompile.%(Filename).IceRpc.d')"/>
     </Target>
 </Project>

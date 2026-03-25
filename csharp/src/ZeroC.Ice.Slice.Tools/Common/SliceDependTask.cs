@@ -135,8 +135,9 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
             var dependsDoc = new XmlDocument();
             if (skip)
             {
+                string dependSuffix = IceRpc ? ".IceRpc.d" : ".d";
                 var dependInfo = new FileInfo(Path.Combine(WorkingDirectory, source.GetMetadata("OutputDir"),
-                    string.Format("SliceCompile.{0}.d", Path.GetFileNameWithoutExtension(sourceInfo.Name))));
+                    string.Format("SliceCompile.{0}{1}", Path.GetFileNameWithoutExtension(sourceInfo.Name), dependSuffix)));
                 //
                 // Check that the depend file exists
                 //
