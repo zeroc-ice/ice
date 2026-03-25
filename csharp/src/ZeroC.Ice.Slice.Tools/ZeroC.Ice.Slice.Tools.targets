@@ -111,7 +111,7 @@
                 TaskParameter     = "ComputedSources"/>
 
             <Output
-                PropertyName      = "_SliceCompileGeneratedPaths"
+                ItemName          = "_SliceCompileGeneratedPaths"
                 TaskParameter     = "GeneratedCompiledPaths"/>
         </Slice2CSharpDependTask>
 
@@ -136,7 +136,7 @@
         -->
 
         <ItemGroup>
-            <Compile Include="$(_SliceCompileGeneratedPaths)"
+            <Compile Include="@(_SliceCompileGeneratedPaths)"
                      Exclude="@(Compile->'%(FullPath)');@(Compile->'%(Identity)')" />
         </ItemGroup>
     </Target>
