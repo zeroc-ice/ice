@@ -9,7 +9,7 @@ Binary compatibility includes changes such as:
 - Removing or renaming public classes, methods, or functions
 - Changing method signatures (parameters, return types)
 - Changing class hierarchy or virtual table layout
-- Removing or reordering public data members
+- Removing or reordering data members of public types
 - Changing enum values or constants
 
 ### Rules by branch:
