@@ -21,7 +21,6 @@
   <Project Path="../src/Ice/msbuild/ice/ice.vcxproj">
     <BuildDependency Project="../src/slice2cpp/msbuild/slice2cpp.vcxproj" />
   </Project>
-  <Project Path="../src/ice2slice/msbuild/ice2slice.vcxproj" />
   <Project Path="../src/IceBox/msbuild/icebox/icebox.vcxproj">
     <BuildDependency Project="../src/IceBox/msbuild/iceboxlib/iceboxlib.vcxproj" />
   </Project>

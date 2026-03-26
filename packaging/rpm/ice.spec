@@ -227,18 +227,9 @@ your application logic.
 #
 %package -n %{?nameprefix}ice2slice
 Summary: The Ice-to-Slice compiler (ice2slice)
-Requires: %{?nameprefix}ice-slice = %{version}-%{release}
+Obsoletes: %{?nameprefix}ice2slice < %{version}-%{release}
 %description -n %{?nameprefix}ice2slice
-This package contains the Ice-to-Slice compiler (ice2slice). The Ice-to-Slice
-compiler converts Slice definitions in .ice files into Slice definitions in .slice
-files. .ice is the Slice syntax and format understood by the Slice compilers provided
-by Ice; .slice is the Slice syntax and format understood by slicec, the Slice compiler
-provided by IceRPC.
-
-Ice is a comprehensive RPC framework that helps you network your software
-with minimal effort. Ice takes care of all interactions with low-level
-network programming interfaces and allows you to focus your efforts on
-your application logic.
+Transitional package - safe to remove
 
 #
 # ice-utils package
@@ -541,12 +532,7 @@ exit 0
 # ice2slice package
 #
 %files -n %{?nameprefix}ice2slice
-%license LICENSE
-%license ICE_LICENSE
-%license packaging/rpm/MCPP_LICENSE
-%doc packaging/rpm/README
-%{_bindir}/ice2slice
-%{_mandir}/man1/ice2slice.1*
+# Intentionally left blank
 
 #
 # ice-utils package

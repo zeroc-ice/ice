@@ -23,8 +23,7 @@
   <ItemGroup>
     <Libraries Include="$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\Release\*.dll" />
     <Executables Include="$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\Release\*.exe"
-      Exclude="$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\Release\slice2*.exe;
-               $(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\Release\ice2slice.exe" />
+      Exclude="$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\Release\slice2*.exe" />
   </ItemGroup>
   <!-- Copy required files to staging before MSI build -->
   <Target Name="CopyToStaging" BeforeTargets="CoreCompile">

@@ -139,21 +139,11 @@ Description: Glacier2 router
 
 Package: zeroc-ice-ice2slice
 Architecture: any
-Section: devel
-Depends: zeroc-ice-slice (= ${binary:Version}),
-         ${misc:Depends}
+Section: oldlibs
+Depends: ${misc:Depends}
+Breaks: zeroc-ice-slice (<< ${binary:Version})
 Description: Ice to Slice compiler
- This package provides the ice2slice compiler. It converts Slice definitions
- written in ".ice" files into Slice definitions in ".slice" files.
- .
- The ".ice" format is the syntax understood by the Slice compilers included
- with Ice. The ".slice" format is the syntax understood by slicec, the Slice
- compiler provided by IceRPC
- .
- Ice is a comprehensive RPC framework that helps you network your software
- with minimal effort. Ice takes care of all interactions with low-level
- network programming interfaces and allows you to focus your efforts on
- your application logic.
+ Transitional package - safe to remove
 
 Package: zeroc-ice-slice
 Architecture: all

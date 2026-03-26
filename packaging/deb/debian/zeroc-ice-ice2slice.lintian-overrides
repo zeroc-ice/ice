@@ -1,2 +1,0 @@
-# ice2slice is statically linked with mcpp
-zeroc-ice-ice2slice: statically-linked-binary usr/bin/ice2slice
