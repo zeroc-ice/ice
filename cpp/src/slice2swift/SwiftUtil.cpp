@@ -349,7 +349,7 @@ Slice::Swift::swiftLinkFormatter(const string& rawLink, const ContainedPtr& sour
         // possible a user only declared an interface, and didn't define it, so we can't assume the `Def` exists.
         if (dynamic_pointer_cast<InterfaceDecl>(contained) && !useProxyType)
         {
-            mappedLink.erase(mappedLink.length() - 3);
+            mappedLink.erase(mappedLink.length() - strlen("Prx"));
         }
 
         // DocC does not support cross-module linking.
