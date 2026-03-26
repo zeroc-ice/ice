@@ -25,12 +25,9 @@ public sealed class DefaultsAndOverrides
         val = properties.getIceProperty("Ice.Default.SourceAddress");
         if (val.Length > 0)
         {
-            defaultSourceAddress = Network.getNumericAddress(val);
-            if (defaultSourceAddress == null)
-            {
-                throw new Ice.InitializationException("invalid IP address set for Ice.Default.SourceAddress: `" +
-                                                      val + "'");
-            }
+            defaultSourceAddress = Network.getNumericAddress(val) ??
+                throw new Ice.InitializationException(
+                    "invalid IP address set for Ice.Default.SourceAddress: '" + val + "'");
         }
         else
         {

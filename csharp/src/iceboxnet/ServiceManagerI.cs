@@ -615,11 +615,8 @@ internal class ServiceManagerI : ServiceManagerDisp_, IDisposable
                         //
                         try
                         {
-                            info.service = (Service)Ice.Internal.AssemblyUtil.createInstance(c);
-                            if (info.service == null)
-                            {
+                            info.service = (Service)Ice.Internal.AssemblyUtil.createInstance(c) ??
                                 throw new FailureException($"{err}no default constructor for '{className}'.");
-                            }
                         }
                         catch (UnauthorizedAccessException ex)
                         {

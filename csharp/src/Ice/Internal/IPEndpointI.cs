@@ -302,12 +302,9 @@ public abstract class IPEndpointI : EndpointI
             {
                 throw new ParseException($"no argument provided for --sourceAddress option in endpoint '{endpoint}'");
             }
-            sourceAddr_ = Network.getNumericAddress(argument);
-            if (sourceAddr_ == null)
-            {
+            sourceAddr_ = Network.getNumericAddress(argument) ??
                 throw new ParseException(
                     $"invalid IP address provided for --sourceAddress option in endpoint '{endpoint}'");
-            }
         }
         else
         {
