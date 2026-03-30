@@ -928,12 +928,8 @@ internal sealed class WSTransceiver : Transceiver
         //  trailing whitespace, the client MUST _Fail the WebSocket
         //  Connection_."
         //
-        val = _parser.getHeader("Sec-WebSocket-Accept", false);
-        if (val == null)
-        {
+        val = _parser.getHeader("Sec-WebSocket-Accept", false) ??
             throw new WebSocketException("missing value for Sec-WebSocket-Accept");
-        }
-
         string input = _key + _wsUUID;
 #pragma warning disable CA5350 // SHA1 is used for compatibility with the WebSocket protocol
         using var sha1 = SHA1.Create();

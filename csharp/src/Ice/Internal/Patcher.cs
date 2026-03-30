@@ -67,11 +67,8 @@ public sealed class Patcher
                 throw new Ice.MarshalException("Cannot patch a collection without an indexer");
             MethodInfo? sm = pi.GetSetMethod() ??
                 throw new Ice.MarshalException("Cannot patch a collection without an indexer to set a value");
-            pi = t.GetProperty("Count");
-            if (pi == null)
-            {
+            pi = t.GetProperty("Count") ??
                 throw new Ice.MarshalException("Cannot patch a collection without a Count property");
-            }
             MethodInfo? cm = pi.GetGetMethod() ??
                 throw new Ice.MarshalException("Cannot patch a collection without a readable Count property");
             i = new InvokeInfo(am, sm, cm);
