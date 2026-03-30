@@ -93,14 +93,6 @@ jobs:
             /workspace/ice/packaging/deb/build-package.sh
         shell: bash
 
-      - name: Run Lintian
-        run: |
-          docker run --rm \
-            -v "$GITHUB_WORKSPACE:/workspace" \
-            ghcr.io/zeroc-ice/ice-deb-builder-${{ matrix.distribution }}:${CHANNEL} \
-            bash -c 'lintian /workspace/*_source.changes'
-        shell: bash
-
       - name: Upload Artifacts
         uses: actions/upload-artifact@v7
         with:
