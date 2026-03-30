@@ -138,14 +138,6 @@ Description: Glacier2 router
  network programming interfaces and allows you to focus your efforts on
  your application logic.
 
-Package: zeroc-ice-ice2slice
-Architecture: any
-Section: oldlibs
-Depends: ${misc:Depends}
-Breaks: zeroc-ice-slice (<< ${source:Version})
-Description: Ice to Slice compiler
- Transitional package - safe to remove
-
 Package: zeroc-ice-slice
 Architecture: all
 Section: devel
