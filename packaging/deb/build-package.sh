@@ -39,7 +39,7 @@ git archive --format=tar.gz \
     -o /workspace/zeroc-ice_${UPSTREAM_VERSION}.orig.tar.gz \
     HEAD \
     ':(exclude)*/gradle/GRADLE_LICENSE' \
-    ':(exclude)*/gradle/wrapper' \
+    ':(exclude)*/gradle/wrapper/*' \
     ':(exclude)*/gradlew*' \
     ':(exclude)cpp/src/IceUtil/ConvertUTF.*'
 
