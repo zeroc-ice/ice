@@ -1,6 +1,5 @@
 Source: zeroc-ice
 Section: devel
-Priority: optional
 Maintainer: José Gutiérrez de la Concha <jose@zeroc.com>
 Uploaders: Ondřej Surý <ondrej@debian.org>
 Build-Depends: debhelper,
@@ -8,10 +7,10 @@ Build-Depends: debhelper,
                dh-exec,
                dh-php (>= 0.20),
                dh-python,
-               libbluetooth-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
+               libbluetooth-dev [!hurd-i386],
                libbz2-dev,
                libcrypt-dev,
-               libdbus-1-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
+               libdbus-1-dev [!hurd-i386],
                libedit-dev,
                libexpat1-dev,
                liblmdb-dev,
@@ -27,7 +26,6 @@ Build-Depends: debhelper,
                python3-setuptools,
                python3-passlib
 Standards-Version: 4.7.3
-Rules-Requires-Root: no
 Homepage: https://zeroc.com
 Vcs-Git: https://github.com/zeroc-ice/ice.git
 Vcs-Browser: https://github.com/zeroc-ice/ice
