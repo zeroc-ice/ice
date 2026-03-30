@@ -98,7 +98,7 @@ jobs:
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/workspace" \
             ghcr.io/zeroc-ice/ice-deb-builder-${{ matrix.distribution }}:${CHANNEL} \
-            lintian /workspace/*_source.changes
+            bash -c 'lintian /workspace/*_source.changes'
         shell: bash
 
       - name: Upload Artifacts
