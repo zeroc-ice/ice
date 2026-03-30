@@ -39,7 +39,7 @@ endif
 
 DHARGS	= --parallel --with php
 
-ifeq (,$(filter no-python312,$(DEB_BUILD_PROFILES)))
+ifeq (,$(filter nopython,$(DEB_BUILD_PROFILES)))
 	DHARGS += --with python3
 endif
 
@@ -50,7 +50,7 @@ MAKEOPTS = V=1 prefix=/usr DESTDIR=$(DESTDIR)
 
 override_dh_auto_build-arch:
 	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) LANGUAGES="cpp" CONFIGS="shared static" srcs
-ifeq (,$(filter no-python312,$(DEB_BUILD_PROFILES)))
+ifeq (,$(filter nopython,$(DEB_BUILD_PROFILES)))
 	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python3 LANGUAGES="python" srcs
 endif
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
@@ -66,7 +66,7 @@ override_dh_auto_build-indep:
 
 override_dh_auto_install-arch:
 	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) LANGUAGES="cpp" CONFIGS="shared static" install
-ifeq (,$(filter no-python312,$(DEB_BUILD_PROFILES)))
+ifeq (,$(filter nopython,$(DEB_BUILD_PROFILES)))
 	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python3 LANGUAGES="python" install
 endif
 	for v in $(PHP_VERSIONS); do \
@@ -78,7 +78,7 @@ override_dh_auto_install-indep:
 
 override_dh_auto_clean-arch:
 	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) LANGUAGES="cpp" CONFIGS="shared static" distclean
-ifeq (,$(filter no-python312,$(DEB_BUILD_PROFILES)))
+ifeq (,$(filter nopython,$(DEB_BUILD_PROFILES)))
 	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python3 LANGUAGES="python" distclean
 endif
 	for v in $(PHP_VERSIONS); do \

@@ -1,6 +1,5 @@
 Source: zeroc-ice
 Section: devel
-Priority: optional
 Maintainer: José Gutiérrez de la Concha <jose@zeroc.com>
 Uploaders: Ondřej Surý <ondrej@debian.org>
 Build-Depends: debhelper,
@@ -8,10 +7,10 @@ Build-Depends: debhelper,
                dh-exec,
                dh-php (>= 0.20),
                dh-python,
-               libbluetooth-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
+               libbluetooth-dev [!hurd-i386],
                libbz2-dev,
                libcrypt-dev,
-               libdbus-1-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
+               libdbus-1-dev [!hurd-i386],
                libedit-dev,
                libexpat1-dev,
                liblmdb-dev,
@@ -22,11 +21,11 @@ Build-Depends: debhelper,
                openssl,
                php-all-dev,
                php-cli,
-               python3 (>= 3.12) <!no-python312>,
-               python3-dev (>= 3.12) <!no-python312>,
+               python3 (>= 3.12) <!nopython>,
+               python3-dev (>= 3.12) <!nopython>,
                python3-setuptools,
                python3-passlib
-Standards-Version: 4.7.2
+Standards-Version: 4.7.3
 Homepage: https://zeroc.com
 Vcs-Git: https://github.com/zeroc-ice/ice.git
 Vcs-Browser: https://github.com/zeroc-ice/ice
@@ -35,7 +34,7 @@ Package: libzeroc-ice-dev
 Architecture: any
 Section: libdevel
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
-         zeroc-ice-slice (= ${binary:Version}),
+         zeroc-ice-slice (= ${source:Version}),
          libssl-dev,
          ${misc:Depends}
 Description: libraries and headers for developing Ice applications in C++
@@ -89,7 +88,7 @@ Package: php-zeroc-ice
 Architecture: any
 Section: php
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
-         zeroc-ice-slice (= ${binary:Version}),
+         zeroc-ice-slice (= ${source:Version}),
          ${misc:Depends},
          ${php:Depends},
          ${shlibs:Depends}
@@ -103,11 +102,11 @@ Description: PHP extension for Ice
  your application logic.
 
 Package: python3-zeroc-ice
-Build-Profiles: <!no-python312>
+Build-Profiles: <!nopython>
 Architecture: any
 Section: python
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
-         zeroc-ice-slice (= ${binary:Version}),
+         zeroc-ice-slice (= ${source:Version}),
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}
@@ -131,24 +130,6 @@ Description: Glacier2 router
  and a private network behind a firewall. With Glacier2, you only need to open
  one port in your firewall to make multiple back-end Ice servers reachable by
  remote Ice clients on the Internet.
- .
- Ice is a comprehensive RPC framework that helps you network your software
- with minimal effort. Ice takes care of all interactions with low-level
- network programming interfaces and allows you to focus your efforts on
- your application logic.
-
-Package: zeroc-ice-ice2slice
-Architecture: any
-Section: devel
-Depends: zeroc-ice-slice (= ${binary:Version}),
-         ${misc:Depends}
-Description: Ice to Slice compiler
- This package provides the ice2slice compiler. It converts Slice definitions
- written in ".ice" files into Slice definitions in ".slice" files.
- .
- The ".ice" format is the syntax understood by the Slice compilers included
- with Ice. The ".slice" format is the syntax understood by slicec, the Slice
- compiler provided by IceRPC
  .
  Ice is a comprehensive RPC framework that helps you network your software
  with minimal effort. Ice takes care of all interactions with low-level
@@ -250,19 +231,17 @@ Description: IceBridge service
 Package: zeroc-ice-compilers
 Architecture: all
 Section: oldlibs
-Priority: optional
-Depends: libzeroc-ice-dev (= ${binary:Version}),
-        python3-zeroc-ice (= ${binary:Version}) <!no-python312>,
-        php-zeroc-ice (= ${binary:Version}),
+Depends: libzeroc-ice-dev (>= ${source:Version}),
+        python3-zeroc-ice (>= ${source:Version}) <!nopython>,
+        php-zeroc-ice (>= ${source:Version}),
         ${misc:Depends}
-Description: transitional dummy package for Ice 3.7 all-dev metapackage
+Description: transitional dummy package for Ice 3.7 compilers metapackage
  This empty package ensures a smooth upgrade from Ice 3.7 by replacing
  the obsolete zeroc-ice-compilers. It can be safely removed.
 
 Package: zeroc-ice-all-dev
 Architecture: all
 Section: oldlibs
-Priority: optional
 Depends: ${misc:Depends}
 Description: transitional dummy package for Ice 3.7 all-dev metapackage
  This empty package ensures a smooth upgrade from Ice 3.7 by replacing
@@ -271,7 +250,6 @@ Description: transitional dummy package for Ice 3.7 all-dev metapackage
 Package: zeroc-ice-all-runtime
 Architecture: all
 Section: oldlibs
-Priority: optional
 Depends: ${misc:Depends}
 Description: transitional dummy package for Ice 3.7 all-runtime metapackage
  This empty package ensures a smooth upgrade from Ice 3.7 by replacing

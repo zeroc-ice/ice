@@ -55,12 +55,18 @@ export UPSTREAM_VERSION=$(echo $ICE_VERSION | cut -f1 -d'-')
 
 ### 4. Create Source Archive
 
-Generate the upstream tarball from the Git repository:
+Generate the upstream tarball from the Git repository, excluding files listed in
+`Files-Excluded` in `debian/copyright`:
 
 ```bash
 cd ice
 git archive --format=tar.gz --prefix=zeroc-ice-${UPSTREAM_VERSION}/ \
-    -o $HOME/packaging/zeroc-ice/zeroc-ice_${UPSTREAM_VERSION}.orig.tar.gz HEAD
+    -o $HOME/packaging/zeroc-ice/zeroc-ice_${UPSTREAM_VERSION}.orig.tar.gz \
+    HEAD \
+    ':(exclude)*/gradle/GRADLE_LICENSE' \
+    ':(exclude)*/gradle/wrapper/*' \
+    ':(exclude)*/gradlew*' \
+    ':(exclude)cpp/src/IceUtil/ConvertUTF.*'
 ```
 
 ### 5. Extract Source
@@ -80,10 +86,11 @@ Install the required build dependencies:
 sudo mk-build-deps -ir -t 'apt-get -y' debian/control
 ```
 
-**For Debian 12:** Use the `no-python312` build profile to exclude Python 3.12 support:
+**For Debian 12:** Use the `nopython` build profile to skip building the Python package (requires Python >= 3.12,
+which Debian 12 doesn't provide):
 
 ```bash
-sudo DEB_BUILD_PROFILES="no-python312" mk-build-deps -ir -t 'apt-get -y' debian/control
+sudo DEB_BUILD_PROFILES="nopython" mk-build-deps -ir -t 'apt-get -y' debian/control
 ```
 
 ### 7. Build Packages
@@ -96,10 +103,10 @@ Build the source package (generates .dsc and .tar.gz files):
 dpkg-buildpackage -S -uc -us
 ```
 
-**For Debian 12:** Use the `no-python312` build profile:
+**For Debian 12:** Use the `nopython` build profile:
 
 ```bash
-DEB_BUILD_PROFILES="no-python312" dpkg-buildpackage -S -uc -us
+DEB_BUILD_PROFILES="nopython" dpkg-buildpackage -S -uc -us
 ```
 
 #### Binary Packages
@@ -110,10 +117,10 @@ Build the binary packages:
 dpkg-buildpackage -b -uc -us
 ```
 
-**For Debian 12:** Use the `no-python312` build profile:
+**For Debian 12:** Use the `nopython` build profile:
 
 ```bash
-DEB_BUILD_PROFILES="no-python312" dpkg-buildpackage -b -uc -us
+DEB_BUILD_PROFILES="nopython" dpkg-buildpackage -b -uc -us
 ```
 
 The built packages will be available in the parent directory (`$HOME/packaging/zeroc-ice/`):
