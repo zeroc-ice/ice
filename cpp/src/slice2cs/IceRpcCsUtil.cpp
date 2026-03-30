@@ -339,7 +339,10 @@ Slice::Csharp::encodeOptionalField(
 
     if (readOnlyMemory)
     {
-        out << nl << "if (" << fieldName << ".Span != null)";
+        // A null ReadOnlyMemory is represented as a ReadOnlyMemory with a default Span. That's what you get when
+        // you construct a ReadOnlyMemory from a null array. Span != default when the ReadOnlyMemory is constructed
+        // from a non-null array, including an empty array.
+        out << nl << "if (" << fieldName << ".Span != default)";
     }
     else if (isCsValueType(type))
     {
