@@ -1,5 +1,6 @@
 Source: zeroc-ice
 Section: devel
+Priority: optional
 Maintainer: José Gutiérrez de la Concha <jose@zeroc.com>
 Uploaders: Ondřej Surý <ondrej@debian.org>
 Build-Depends: debhelper,
@@ -26,6 +27,7 @@ Build-Depends: debhelper,
                python3-setuptools,
                python3-passlib
 Standards-Version: 4.7.3
+Rules-Requires-Root: no
 Homepage: https://zeroc.com
 Vcs-Git: https://github.com/zeroc-ice/ice.git
 Vcs-Browser: https://github.com/zeroc-ice/ice
@@ -138,7 +140,6 @@ Description: Glacier2 router
 
 Package: zeroc-ice-slice
 Architecture: all
-Section: devel
 Depends: ${misc:Depends}
 Description: Slice files for Ice
  This package contains Slice files used by the Ice framework.
