@@ -531,7 +531,10 @@ Slice::IceRpc::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     // Generate the client interface.
     _out << sp;
-    writeIceRpcDocComment(_out, p, "client-side interface");
+    ostringstream notes;
+    notes << "Use the methods of this interface to invoke operations on a remote Ice service that implements <c>"
+          << p->name() << "</c>.";
+    writeIceRpcDocComment(_out, p, "client-side interface", notes.str());
     emitObsoleteAttribute(p);
     _out << nl << accessModifier(p) << " partial interface I" << name;
     if (!p->bases().empty())
@@ -1246,7 +1249,9 @@ Slice::IceRpc::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     // Generate the server-side interface.
     _out << sp;
-    writeIceRpcDocComment(_out, p, "server-side interface");
+    ostringstream notes;
+    notes << R"(Apply <see cref="IceRpc.ServiceAttribute" /> to the partial class that implements this interface.)";
+    writeIceRpcDocComment(_out, p, "server-side interface", notes.str());
     _out << nl << "[IceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << "[IceRpc.DefaultServicePath(\"" << defaultServicePath(p) << "\")]";
     emitObsoleteAttribute(p);
