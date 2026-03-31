@@ -12,6 +12,24 @@ using namespace std;
 using namespace Slice;
 using namespace IceInternal;
 
+namespace
+{
+    void writeParameterDocComments(Output& out, const DocComment& comment, const ParameterList& parameters)
+    {
+        const auto& commentParameters = comment.parameters();
+        for (const auto& param : parameters)
+        {
+            auto q = commentParameters.find(param->name());
+            if (q != commentParameters.end())
+            {
+                ostringstream openTag;
+                openTag << "param name=\"" << Csharp::removeEscapePrefix(param->mappedName()) << "\"";
+                Csharp::writeDocLines(out, openTag.str(), q->second, "param");
+            }
+        }
+    }
+}
+
 string
 Slice::Csharp::toArrayAlloc(const string& decl, const string& size)
 {
@@ -1616,6 +1634,118 @@ Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
         out << nl << param << " = null;";
         out << eb;
     }
+}
+
+void
+Slice::Csharp::writeIceDocComment(Output& out, const ContainedPtr& p, const string& generatedType, const string& notes)
+{
+    const optional<DocComment>& comment = p->docComment();
+    StringList remarks;
+    if (comment)
+    {
+        writeDocLines(out, "summary", comment->overview());
+        remarks = comment->remarks();
+    }
+
+    if (!generatedType.empty())
+    {
+        // If there's user-provided remarks, and a generated-type message, we introduce a paragraph between them.
+        if (!remarks.empty())
+        {
+            remarks.emplace_back("<para />");
+        }
+
+        remarks.push_back(
+            "The Slice compiler generated this " + generatedType + " from Slice " + p->kindOf() + " <c>" + p->scoped() +
+            "</c>.");
+        if (!notes.empty())
+        {
+            remarks.push_back(notes);
+        }
+    }
+
+    if (!remarks.empty())
+    {
+        writeDocLines(out, "remarks", remarks);
+    }
+
+    if (comment)
+    {
+        writeSeeAlso(out, comment->seeAlso());
+    }
+}
+
+void
+Slice::Csharp::writeIceHelperDocComment(
+    Output& out,
+    const ContainedPtr& p,
+    const string& comment,
+    const string& generatedType,
+    const string& notes)
+{
+    // Called only for module-level types.
+    assert(dynamic_pointer_cast<Module>(p->container()));
+    assert(!generatedType.empty());
+
+    writeDocLine(out, "summary", comment);
+    out << nl << "/// <remarks>" << "The Slice compiler generated this " << generatedType << " from Slice "
+        << p->kindOf() << " <c>" << p->scoped() << "</c>.";
+    if (!notes.empty())
+    {
+        out << nl << "/// " << notes;
+    }
+    out << "</remarks>";
+}
+
+void
+Slice::Csharp::writeIceOpDocComment(
+    Output& out,
+    const OperationPtr& op,
+    const vector<string>& extraParams,
+    bool isAsync)
+{
+    const optional<DocComment>& comment = op->docComment();
+    if (!comment)
+    {
+        return;
+    }
+
+    writeDocLines(out, "summary", comment->overview());
+
+    writeParameterDocComments(out, *comment, isAsync ? op->inParameters() : op->parameters());
+
+    for (const auto& extraParam : extraParams)
+    {
+        out << nl << "/// " << extraParam;
+    }
+
+    if (isAsync)
+    {
+        out << nl << "/// <returns>A task that represents the asynchronous operation.</returns>";
+    }
+    else if (op->returnType())
+    {
+        writeDocLines(out, "returns", comment->returns());
+    }
+
+    for (const auto& [exceptionName, exceptionLines] : comment->exceptions())
+    {
+        string name = exceptionName;
+        ExceptionPtr ex = op->container()->lookupException(exceptionName, false);
+        if (ex)
+        {
+            name = ex->mappedScoped(".");
+        }
+
+        ostringstream openTag;
+        openTag << "exception cref=\"" << name << "\"";
+
+        writeDocLines(out, openTag.str(), exceptionLines, "exception");
+    }
+
+    writeDocLines(out, "remarks", comment->remarks());
+
+    writeSeeAlso(out, comment->seeAlso());
 }
 
 std::pair<bool, string>

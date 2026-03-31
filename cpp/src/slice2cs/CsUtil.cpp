@@ -122,6 +122,20 @@ Slice::Csharp::writeDocLines(
     }
 }
 
+void
+Slice::Csharp::writeSeeAlso(Output& out, const StringList& seeAlso)
+{
+    for (const auto& line : seeAlso)
+    {
+        // An empty line means that the see-also was referencing a Slice element which isn't mapped in C#.
+        // There's nothing we can do about this in C#, so we just skip it.
+        if (!line.empty())
+        {
+            out << nl << "/// " << line;
+        }
+    }
+}
+
 Slice::Csharp::CsharpDocCommentFormatter::CsharpDocCommentFormatter(
     function<pair<bool, string>(const string&, const ContainedPtr&, const SyntaxTreeBasePtr&)> linkFormatter)
     : _linkFormatter(std::move(linkFormatter))

@@ -329,7 +329,7 @@ Slice::Ice::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassDefPtr base = p->base();
 
     _out << sp;
-    writeDocComment(p, "class");
+    writeIceDocComment(_out, p, "class");
     emitObsoleteAttribute(p);
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
     if (p->compactId() != -1)
@@ -500,7 +500,7 @@ Slice::Ice::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << sp;
     ostringstream summary;
     summary << "Provides methods to marshal and unmarshal a <c>" << p->name() << "</c>.";
-    writeHelperDocComment(p, summary.str(), "sequence helper class");
+    writeIceHelperDocComment(_out, p, summary.str(), "sequence helper class");
     _out << nl << accessModifier(p) << " sealed class " << name << "Helper";
     _out << sb;
 
@@ -538,7 +538,7 @@ Slice::Ice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sp;
     ostringstream summary;
     summary << "Provides methods to marshal and unmarshal a <c>" << p->name() << "</c>.";
-    writeHelperDocComment(p, summary.str(), "dictionary helper class");
+    writeIceHelperDocComment(_out, p, summary.str(), "dictionary helper class");
     _out << nl << accessModifier(p) << " sealed class " << p->mappedName() << "Helper";
     _out << sb;
 
@@ -601,7 +601,7 @@ Slice::Ice::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     ExceptionPtr base = p->base();
 
     _out << sp;
-    writeDocComment(p, "exception class");
+    writeIceDocComment(_out, p, "exception class");
     emitObsoleteAttribute(p);
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << accessModifier(p) << " partial class " << p->mappedName() << " : ";
@@ -806,7 +806,7 @@ Slice::Ice::TypesVisitor::visitStructStart(const StructPtr& p)
     string mappedType = classMapping ? "record class" : "record struct";
     string modifier = (p->hasMetadata("cs:readonly") && !classMapping) ? "readonly " : "";
 
-    writeDocComment(p, mappedType);
+    writeIceDocComment(_out, p, mappedType);
     emitObsoleteAttribute(p);
     _out << nl << accessModifier(p) << ' ' << (classMapping ? "sealed " : "") << modifier << "partial " << mappedType
          << ' ' << name;
@@ -947,7 +947,7 @@ Slice::Ice::TypesVisitor::visitEnum(const EnumPtr& p)
     const bool hasExplicitValues = p->hasExplicitValues();
 
     _out << sp;
-    writeDocComment(p, "enum");
+    writeIceDocComment(_out, p, "enum");
     emitObsoleteAttribute(p);
     emitAttributes(p);
     _out << nl << accessModifier(p) << " enum " << name;
@@ -960,7 +960,7 @@ Slice::Ice::TypesVisitor::visitEnum(const EnumPtr& p)
             _out << sp;
         }
 
-        writeDocComment(enumerator);
+        writeIceDocComment(_out, enumerator);
         emitObsoleteAttribute(enumerator);
         emitAttributes(enumerator);
         _out << nl << enumerator->mappedName();
@@ -975,7 +975,7 @@ Slice::Ice::TypesVisitor::visitEnum(const EnumPtr& p)
     ostringstream classComment;
     classComment << "Provides methods to marshal and unmarshal " << getArticleFor(name) << " <see cref=\"" << name
                  << "\" />.";
-    writeHelperDocComment(p, classComment.str(), "enum helper class");
+    writeIceHelperDocComment(_out, p, classComment.str(), "enum helper class");
     _out << nl << accessModifier(p) << " sealed class " << name << "Helper";
     _out << sb;
     _out << sp;
@@ -1001,11 +1001,11 @@ void
 Slice::Ice::TypesVisitor::visitConst(const ConstPtr& p)
 {
     _out << sp;
-    writeHelperDocComment(p, "Provides the " + p->mappedName() + " constant.", "helper class");
+    writeIceHelperDocComment(_out, p, "Provides the " + p->mappedName() + " constant.", "helper class");
     emitAttributes(p);
     _out << nl << accessModifier(p) << " abstract class " << p->mappedName();
     _out << sb;
-    writeDocComment(p);
+    writeIceDocComment(_out, p);
     _out << nl << accessModifier(p) << " const " << typeToString(p->type(), "") << " value = ";
     writeConstantValue(p->type(), p->valueType(), p->value());
     _out << ";";
@@ -1030,7 +1030,7 @@ Slice::Ice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     string type = typeToString(p->type(), ns, p->optional());
     bool addSemicolon = true;
 
-    writeDocComment(p);
+    writeIceDocComment(_out, p);
     emitObsoleteAttribute(p);
     emitAttributes(p);
     _out << nl << accessModifier(cont) << ' ';
@@ -1096,7 +1096,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     ostringstream notes;
     notes << "Use the methods of this interface to invoke operations on a remote Ice object that implements <c>"
           << p->name() << "</c>.";
-    writeDocComment(p, "proxy interface", notes.str());
+    writeIceDocComment(_out, p, "proxy interface", notes.str());
     _out << nl << accessModifier(p) << " partial interface " << p->mappedName() << "Prx : ";
 
     vector<string> baseInterfaces;
@@ -1136,7 +1136,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << sp;
     ostringstream summary;
     summary << "Helper class for proxy <see cref=\"" << name << "Prx\" />.";
-    writeHelperDocComment(p, summary.str(), "proxy helper class");
+    writeIceHelperDocComment(_out, p, summary.str(), "proxy helper class");
     _out << nl << accessModifier(p) << " sealed partial class " << name << "PrxHelper : "
          << "Ice.ObjectPrxHelperBase, " << name << "Prx";
     _out << sb;
@@ -1591,7 +1591,7 @@ Slice::Ice::TypesVisitor::visitOperation(const OperationPtr& p)
         //
         string context = getEscapedParamName(p->parameters(), "context");
         _out << sp;
-        writeOpDocComment(p, {"<param name=\"" + context + "\">The request context.</param>"}, false);
+        writeIceOpDocComment(_out, p, {"<param name=\"" + context + "\">The request context.</param>"}, false);
         emitObsoleteAttribute(p);
         _out << nl << retS << " " << name;
         _out.spar("(", true);
@@ -1609,7 +1609,8 @@ Slice::Ice::TypesVisitor::visitOperation(const OperationPtr& p)
         string progress = getEscapedParamName(p->parameters(), "progress");
 
         _out << sp;
-        writeOpDocComment(
+        writeIceOpDocComment(
+            _out,
             p,
             {"<param name=\"" + context + "\">The request context.</param>",
              "<param name=\"" + progress + "\">The sent progress provider.</param>",
@@ -1925,7 +1926,7 @@ Slice::Ice::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     notes << "Your servant class implements this interface by deriving from"
           << "<see cref=\"" << name << "Disp_\" /> or from the Disp_ class for a derived interface.";
 
-    writeDocComment(p, "skeleton interface", notes.str());
+    writeIceDocComment(_out, p, "skeleton interface", notes.str());
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << accessModifier(p) << " partial interface " << name << " : ";
 
@@ -1970,7 +1971,7 @@ Slice::Ice::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     remarks << "Your servant class derives from this abstract class to implement Slice interface <c>" << p->name()
             << "</c>.";
 
-    writeHelperDocComment(p, summary.str(), "skeleton class", remarks.str());
+    writeIceHelperDocComment(_out, p, summary.str(), "skeleton class", remarks.str());
     _out << nl << accessModifier(p) << " abstract partial class " << name << "Disp_ : " << name;
 
     _out << sb;
@@ -2017,7 +2018,11 @@ Slice::Ice::SkeletonVisitor::visitOperation(const OperationPtr& op)
         _out << sp;
     }
 
-    writeOpDocComment(op, {"<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>"}, amd);
+    writeIceOpDocComment(
+        _out,
+        op,
+        {"<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>"},
+        amd);
 
     emitObsoleteAttribute(op);
     _out << nl << retS << " " << opName;

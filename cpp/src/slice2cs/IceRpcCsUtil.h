@@ -79,6 +79,33 @@ namespace Slice::Csharp
         const std::string& ns,
         TypeContext context);
 
+    //
+    // Doc-comments
+    //
+
+    /// Writes a doc-comment for the given Slice element, using this element's doc-comment, if any.
+    /// @param p The Slice element.
+    /// @param generatedType The kind of mapped element, used for the remarks. For example, "skeleton interface".
+    /// This function does not write any remarks when this argument is empty.
+    /// @param notes Optional notes included at the end of the remarks.
+    void writeIceRpcDocComment(
+        IceInternal::Output& out,
+        const ContainedPtr& p,
+        const std::string& generatedType = "",
+        const std::string& notes = "");
+
+    /// Writes a doc-comment for a helper class generated for a Slice element.
+    /// @param p The Slice element.
+    /// @param comment The summary.
+    /// @param generatedType The kind of mapped element, used for the remarks. Must not be empty.
+    /// @param notes Optional notes included at the end of the remarks.
+    void writeIceRpcHelperDocComment(
+        IceInternal::Output& out,
+        const ContainedPtr& p,
+        const std::string& comment,
+        const std::string& generatedType,
+        const std::string& notes = "");
+
     /// Converts a Slice-formatted link into a C# formatted link.
     /// @param rawLink The reference's raw text, taken verbatim from the doc-comment.
     /// @param source A pointer to the Slice element that the doc-comment (and reference) are written on.

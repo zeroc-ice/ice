@@ -195,7 +195,7 @@ bool
 Slice::IceRpc::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     _out << sp;
-    writeDocComment(p, "record struct");
+    writeIceRpcDocComment(_out, p, "record struct");
     emitObsoleteAttribute(p);
 
     _out << nl << accessModifier(p) << (p->hasMetadata("cs:readonly") ? " readonly" : "") << " partial record struct "
@@ -257,7 +257,7 @@ Slice::IceRpc::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     string ns = getNamespace(p);
 
     _out << sp;
-    writeDocComment(p, "class");
+    writeIceRpcDocComment(_out, p, "class");
     emitObsoleteAttribute(p);
     _out << nl << "[IceTypeId(\"" << p->scoped() << "\")]";
     if (p->compactId() != -1)
@@ -326,7 +326,7 @@ Slice::IceRpc::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     string ns = getNamespace(p);
 
     _out << sp;
-    writeDocComment(p, "exception class");
+    writeIceRpcDocComment(_out, p, "exception class");
     emitObsoleteAttribute(p);
     _out << nl << "[IceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << accessModifier(p) << " partial class " << p->mappedName() << " : ";
@@ -391,7 +391,7 @@ Slice::IceRpc::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     string ns = getNamespace(cont);
 
     _out << sp;
-    writeDocComment(p);
+    writeIceRpcDocComment(_out, p);
     emitObsoleteAttribute(p);
     emitAttributes(p);
     _out << nl << accessModifier(cont) << ' ';
@@ -421,7 +421,7 @@ Slice::IceRpc::TypesVisitor::visitEnum(const EnumPtr& p)
     const bool hasExplicitValues = p->hasExplicitValues();
 
     _out << sp;
-    writeDocComment(p, "enum");
+    writeIceRpcDocComment(_out, p, "enum");
     emitObsoleteAttribute(p);
     emitAttributes(p);
     _out << nl << accessModifier(p) << " enum " << escapedName;
@@ -434,7 +434,7 @@ Slice::IceRpc::TypesVisitor::visitEnum(const EnumPtr& p)
             _out << sp;
         }
 
-        writeDocComment(enumerator);
+        writeIceRpcDocComment(_out, enumerator);
         emitObsoleteAttribute(enumerator);
         emitAttributes(enumerator);
         _out << nl << enumerator->mappedName();
@@ -452,7 +452,7 @@ Slice::IceRpc::TypesVisitor::visitEnum(const EnumPtr& p)
     ostringstream intExtensionsComment;
     intExtensionsComment << "Provides an extension method for creating " << getArticleFor(name) << " <see cref=\""
                          << escapedName << "\" /> from an int.";
-    writeHelperDocComment(p, intExtensionsComment.str(), "enum helper class");
+    writeIceRpcHelperDocComment(_out, p, intExtensionsComment.str(), "enum helper class");
     _out << nl << accessModifier(p) << " static class " << name << "IntExtensions";
     _out << sb;
 
@@ -502,7 +502,7 @@ Slice::IceRpc::TypesVisitor::visitEnum(const EnumPtr& p)
     ostringstream encoderExtensionsComment;
     encoderExtensionsComment << "Provides an extension method for encoding " << getArticleFor(name) << " <see cref=\""
                              << escapedName << "\" />.";
-    writeHelperDocComment(p, encoderExtensionsComment.str(), "enum helper class");
+    writeIceRpcHelperDocComment(_out, p, encoderExtensionsComment.str(), "enum helper class");
     _out << nl << accessModifier(p) << " static class " << name << "IceEncoderExtensions";
     _out << sb;
 
@@ -515,7 +515,7 @@ Slice::IceRpc::TypesVisitor::visitEnum(const EnumPtr& p)
     ostringstream decoderExtensionsComment;
     decoderExtensionsComment << "Provides an extension method for decoding " << getArticleFor(name) << " <see cref=\""
                              << escapedName << "\" />.";
-    writeHelperDocComment(p, decoderExtensionsComment.str(), "enum helper class");
+    writeIceRpcHelperDocComment(_out, p, decoderExtensionsComment.str(), "enum helper class");
     _out << nl << accessModifier(p) << " static class " << name << "IceDecoderExtensions";
     _out << sb;
 
@@ -534,7 +534,7 @@ Slice::IceRpc::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     // Generate the client interface.
     _out << sp;
-    writeDocComment(p, "client-side interface");
+    writeIceRpcDocComment(_out, p, "client-side interface");
     emitObsoleteAttribute(p);
     _out << nl << accessModifier(p) << " partial interface I" << name;
     if (!p->bases().empty())
@@ -1222,7 +1222,7 @@ Slice::IceRpc::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     // Generate the server-side interface.
     _out << sp;
-    writeDocComment(p, "server-side interface");
+    writeIceRpcDocComment(_out, p, "server-side interface");
     _out << nl << "[IceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << "[IceRpc.DefaultServicePath(\"" << defaultServicePath(p) << "\")]";
     emitObsoleteAttribute(p);

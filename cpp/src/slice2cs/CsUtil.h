@@ -39,6 +39,8 @@ namespace Slice::Csharp
         const StringList& lines,
         const std::optional<std::string>& closeTag = std::nullopt);
 
+    void writeSeeAlso(IceInternal::Output& out, const StringList& seeAlso);
+
     class CsharpDocCommentFormatter final : public DocCommentFormatter
     {
     public:

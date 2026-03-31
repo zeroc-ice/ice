@@ -544,6 +544,71 @@ Slice::Csharp::decodeOptionalField(Output& out, int tag, const TypePtr& type, co
     out.dec();
 }
 
+void
+Slice::Csharp::writeIceRpcDocComment(
+    Output& out,
+    const ContainedPtr& p,
+    const string& generatedType,
+    const string& notes)
+{
+    const optional<DocComment>& comment = p->docComment();
+    StringList remarks;
+    if (comment)
+    {
+        writeDocLines(out, "summary", comment->overview());
+        remarks = comment->remarks();
+    }
+
+    if (!generatedType.empty())
+    {
+        // If there's user-provided remarks, and a generated-type message, we introduce a paragraph between them.
+        if (!remarks.empty())
+        {
+            remarks.emplace_back("<para />");
+        }
+
+        remarks.push_back(
+            "The Ice-Slice compiler generated this " + generatedType + " from Ice " + p->kindOf() + " <c>" +
+            p->scoped() + "</c>.");
+        if (!notes.empty())
+        {
+            remarks.push_back(notes);
+        }
+    }
+
+    if (!remarks.empty())
+    {
+        writeDocLines(out, "remarks", remarks);
+    }
+
+    if (comment)
+    {
+        writeSeeAlso(out, comment->seeAlso());
+    }
+}
+
+void
+Slice::Csharp::writeIceRpcHelperDocComment(
+    Output& out,
+    const ContainedPtr& p,
+    const string& comment,
+    const string& generatedType,
+    const string& notes)
+{
+    // Called only for module-level types.
+    assert(dynamic_pointer_cast<Module>(p->container()));
+    assert(!generatedType.empty());
+
+    writeDocLine(out, "summary", comment);
+    out << nl << "/// <remarks>" << "The Ice-Slice compiler generated this " << generatedType << " from Ice "
+        << p->kindOf() << " <c>" << p->scoped() << "</c>.";
+    if (!notes.empty())
+    {
+        out << nl << "/// " << notes;
+    }
+    out << "</remarks>";
+}
+
 std::pair<bool, string>
 Slice::Csharp::icerpcLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
 {
