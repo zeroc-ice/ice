@@ -623,14 +623,14 @@ Slice::Csharp::writeIceRpcOpDocComment(Output& out, const OperationPtr& op, bool
         out << nl << R"(/// <list type="bullet">)";
         if (op->returnType())
         {
-            writeDocLines(out, "item><description", comment->returns());
+            writeDocLines(out, "item><description", comment->returns(), "description></item");
         }
         for (const auto& outParam : op->outParameters())
         {
             auto q = comment->parameters().find(outParam->name());
             if (q != comment->parameters().end())
             {
-                writeDocLines(out, "item><description", q->second);
+                writeDocLines(out, "item><description", q->second, "description></item");
             }
         }
         out << nl << "/// </list></returns>";
