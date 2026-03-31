@@ -619,7 +619,7 @@ Slice::Csharp::writeIceRpcOpDocComment(Output& out, const OperationPtr& op, bool
     {
         // This tuple description may be confusing if some doc-comments are missing; the user should fix the Ice
         // doc-comments in this case.
-        out << nl << "/// <returns>A tuple containing";
+        out << nl << "/// <returns>A tuple with the following elements:";
         out << nl << R"(/// <list type="bullet">)";
         if (op->returnType())
         {
