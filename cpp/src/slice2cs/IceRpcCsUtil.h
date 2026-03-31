@@ -79,8 +79,6 @@ namespace Slice::Csharp
         const std::string& ns,
         TypeContext context);
 
-    std::string escapeParamName(std::string paramName, const ParameterList& params);
-
     //
     // Doc-comments
     //
