@@ -12,24 +12,6 @@ using namespace std;
 using namespace Slice;
 using namespace IceInternal;
 
-namespace
-{
-    void writeParameterDocComments(Output& out, const DocComment& comment, const ParameterList& parameters)
-    {
-        const auto& commentParameters = comment.parameters();
-        for (const auto& param : parameters)
-        {
-            auto q = commentParameters.find(param->name());
-            if (q != commentParameters.end())
-            {
-                ostringstream openTag;
-                openTag << "param name=\"" << Csharp::removeEscapePrefix(param->mappedName()) << "\"";
-                Csharp::writeDocLines(out, openTag.str(), q->second, "param");
-            }
-        }
-    }
-}
-
 string
 Slice::Csharp::toArrayAlloc(const string& decl, const string& size)
 {
@@ -1637,7 +1619,11 @@ Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
 }
 
 void
-Slice::Csharp::writeIceDocComment(Output& out, const ContainedPtr& p, const string& generatedType, const string& notes)
+Slice::Csharp::writeIceDocComment(
+    Output& out,
+    const ContainedPtr& p,
+    optional<string> generatedType,
+    const string& notes)
 {
     const optional<DocComment>& comment = p->docComment();
     StringList remarks;
@@ -1647,7 +1633,7 @@ Slice::Csharp::writeIceDocComment(Output& out, const ContainedPtr& p, const stri
         remarks = comment->remarks();
     }
 
-    if (!generatedType.empty())
+    if (generatedType.has_value())
     {
         // If there's user-provided remarks, and a generated-type message, we introduce a paragraph between them.
         if (!remarks.empty())
@@ -1655,13 +1641,14 @@ Slice::Csharp::writeIceDocComment(Output& out, const ContainedPtr& p, const stri
             remarks.emplace_back("<para />");
         }
 
-        remarks.push_back(
-            "The Slice compiler generated this " + generatedType + " from Slice " + p->kindOf() + " <c>" + p->scoped() +
-            "</c>.");
         if (!notes.empty())
         {
             remarks.push_back(notes);
         }
+
+        remarks.push_back(
+            "The Slice compiler generated this " + *generatedType + " from Slice " + p->kindOf() + " <c>" +
+            p->scoped() + "</c>.");
     }
 
     if (!remarks.empty())
@@ -1688,12 +1675,16 @@ Slice::Csharp::writeIceHelperDocComment(
     assert(!generatedType.empty());
 
     writeDocLine(out, "summary", comment);
-    out << nl << "/// <remarks>" << "The Slice compiler generated this " << generatedType << " from Slice "
-        << p->kindOf() << " <c>" << p->scoped() << "</c>.";
+    out << nl << "/// <remarks>";
     if (!notes.empty())
     {
-        out << nl << "/// " << notes;
+        out << notes;
+        out << nl << "/// ";
     }
+
+    out << "The Slice compiler generated this " << generatedType << " from Slice " << p->kindOf() << " <c>"
+        << p->scoped() << "</c>.";
+
     out << "</remarks>";
 }
 
@@ -1702,7 +1693,8 @@ Slice::Csharp::writeIceOpDocComment(
     Output& out,
     const OperationPtr& op,
     const vector<string>& extraParams,
-    bool isAsync)
+    bool isAsync,
+    bool dispatch)
 {
     const optional<DocComment>& comment = op->docComment();
     if (!comment)
@@ -1711,7 +1703,6 @@ Slice::Csharp::writeIceOpDocComment(
     }
 
     writeDocLines(out, "summary", comment->overview());
-
     writeParameterDocComments(out, *comment, isAsync ? op->inParameters() : op->parameters());
 
     for (const auto& extraParam : extraParams)
@@ -1721,7 +1712,37 @@ Slice::Csharp::writeIceOpDocComment(
 
     if (isAsync)
     {
-        out << nl << "/// <returns>A task that represents the asynchronous operation.</returns>";
+        if (op->returnsMultipleValues() || !op->returnsAnyValues())
+        {
+            if (dispatch)
+            {
+                out << nl << "/// <returns>A task that completes when the dispatch completes.</returns>";
+            }
+            else if (op->returnsData())
+            {
+                out << nl << "/// <returns>A task that completes when the response is received.</returns>";
+            }
+            else
+            {
+                out << nl
+                    << "/// <returns>For two-way invocations: a task that completes when the response is received.";
+                out << nl << "/// For one-way invocations: a task that completes when the request is sent.</returns>";
+            }
+        }
+        else if (op->returnType())
+        {
+            writeDocLines(out, "returns", comment->returns());
+        }
+        else
+        {
+            assert(op->outParameters().size() == 1);
+            const auto& commentParameters = comment->parameters();
+            auto q = commentParameters.find(op->outParameters().front()->name());
+            if (q != commentParameters.end())
+            {
+                writeDocLines(out, "returns", q->second);
+            }
+        }
     }
     else if (op->returnType())
     {
@@ -1740,11 +1761,20 @@ Slice::Csharp::writeIceOpDocComment(
         ostringstream openTag;
         openTag << "exception cref=\"" << name << "\"";
 
-        writeDocLines(out, openTag.str(), exceptionLines, "exception");
+        if (isAsync && !dispatch)
+        {
+            StringList asyncExceptionLines{exceptionLines};
+            asyncExceptionLines.push_back(
+                "This exception is provided through the returned task; it's never thrown synchronously.");
+            writeDocLines(out, openTag.str(), asyncExceptionLines, "exception");
+        }
+        else
+        {
+            writeDocLines(out, openTag.str(), exceptionLines, "exception");
+        }
     }
 
     writeDocLines(out, "remarks", comment->remarks());
-
     writeSeeAlso(out, comment->seeAlso());
 }
 

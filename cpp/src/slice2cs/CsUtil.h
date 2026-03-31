@@ -41,6 +41,9 @@ namespace Slice::Csharp
 
     void writeSeeAlso(IceInternal::Output& out, const StringList& seeAlso);
 
+    void
+    writeParameterDocComments(IceInternal::Output& out, const DocComment& comment, const ParameterList& parameters);
+
     class CsharpDocCommentFormatter final : public DocCommentFormatter
     {
     public:

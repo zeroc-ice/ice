@@ -123,6 +123,22 @@ Slice::Csharp::writeDocLines(
 }
 
 void
+Slice::Csharp::writeParameterDocComments(Output& out, const DocComment& comment, const ParameterList& parameters)
+{
+    const auto& commentParameters = comment.parameters();
+    for (const auto& param : parameters)
+    {
+        auto q = commentParameters.find(param->name());
+        if (q != commentParameters.end())
+        {
+            ostringstream openTag;
+            openTag << "param name=\"" << removeEscapePrefix(param->mappedName()) << "\"";
+            writeDocLines(out, openTag.str(), q->second, "param");
+        }
+    }
+}
+
+void
 Slice::Csharp::writeSeeAlso(Output& out, const StringList& seeAlso)
 {
     for (const auto& line : seeAlso)

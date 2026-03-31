@@ -548,7 +548,7 @@ void
 Slice::Csharp::writeIceRpcDocComment(
     Output& out,
     const ContainedPtr& p,
-    const string& generatedType,
+    optional<string> generatedType,
     const string& notes)
 {
     const optional<DocComment>& comment = p->docComment();
@@ -559,7 +559,7 @@ Slice::Csharp::writeIceRpcDocComment(
         remarks = comment->remarks();
     }
 
-    if (!generatedType.empty())
+    if (generatedType.has_value())
     {
         // If there's user-provided remarks, and a generated-type message, we introduce a paragraph between them.
         if (!remarks.empty())
@@ -567,13 +567,13 @@ Slice::Csharp::writeIceRpcDocComment(
             remarks.emplace_back("<para />");
         }
 
-        remarks.push_back(
-            "The Ice-Slice compiler generated this " + generatedType + " from Ice " + p->kindOf() + " <c>" +
-            p->scoped() + "</c>.");
         if (!notes.empty())
         {
             remarks.push_back(notes);
         }
+        remarks.push_back(
+            "The Ice compiler generated this " + *generatedType + " from Ice " + p->kindOf() + " <c>" + p->scoped() +
+            "</c>.");
     }
 
     if (!remarks.empty())
@@ -588,25 +588,132 @@ Slice::Csharp::writeIceRpcDocComment(
 }
 
 void
+Slice::Csharp::writeIceRpcOpDocComment(Output& out, const OperationPtr& op, bool dispatch)
+{
+    const optional<DocComment>& comment = op->docComment();
+    if (!comment)
+    {
+        return;
+    }
+
+    writeDocLines(out, "summary", comment->overview());
+    writeParameterDocComments(out, *comment, op->inParameters());
+
+    // Extra params
+
+    string featuresParam = getEscapedParamName(op->inParameters(), "features");
+    string cancellationTokenParam = getEscapedParamName(op->inParameters(), "cancellationToken");
+
+    if (dispatch)
+    {
+        out << nl << "/// <param name=\"" << featuresParam << "\">The features of this dispatch.</param>";
+    }
+    else
+    {
+        out << nl << "/// <param name=\"" << featuresParam << "\">The features of this invocation.</param>";
+    }
+    out << nl << "/// <param name=\"" << cancellationTokenParam
+        << "\">A cancellation token that receives the cancellation requests.</param>";
+
+    if (op->returnsMultipleValues())
+    {
+        // This tuple description may be confusing if some doc-comments are missing; the user should fix the Ice
+        // doc-comments in this case.
+        out << nl << "/// <returns>A tuple containing";
+        out << nl << R"(/// <list type="bullet">)";
+        if (op->returnType())
+        {
+            writeDocLines(out, "item><description", comment->returns());
+        }
+        for (const auto& outParam : op->outParameters())
+        {
+            auto q = comment->parameters().find(outParam->name());
+            if (q != comment->parameters().end())
+            {
+                writeDocLines(out, "item><description", q->second);
+            }
+        }
+        out << nl << "/// </list></returns>";
+    }
+    else if (op->returnType())
+    {
+        writeDocLines(out, "returns", comment->returns());
+    }
+    else if (op->outParameters().size() == 1)
+    {
+        auto q = comment->parameters().find(op->outParameters().front()->name());
+        if (q != comment->parameters().end())
+        {
+            writeDocLines(out, "returns", q->second);
+        }
+    }
+    else
+    {
+        // Returns nothing
+        if (dispatch)
+        {
+            out << nl << "/// <returns>A value task that completes when the dispatch completes.</returns>";
+        }
+        else
+        {
+            // TODO: check for oneway operations
+            out << nl << "/// <returns>A task that completes when the response is received.</returns>";
+        }
+    }
+
+    if (!dispatch)
+    {
+        writeDocLines(
+            out,
+            R"(exception cref="IceRpc.DispatchException")",
+            {"Thrown when the dispatch of the operation failed.",
+             "This exception is provided through the returned task; it's never thrown synchronously."},
+            "exception");
+    }
+
+    for (const auto& [exceptionName, exceptionLines] : comment->exceptions())
+    {
+        string name = exceptionName;
+        ExceptionPtr ex = op->container()->lookupException(exceptionName, false);
+        if (ex)
+        {
+            name = ex->mappedScoped(".");
+        }
+
+        ostringstream openTag;
+        openTag << "exception cref=\"" << name << "\"";
+
+        if (dispatch)
+        {
+            writeDocLines(out, openTag.str(), exceptionLines, "exception");
+        }
+        else
+        {
+            StringList asyncExceptionLines{exceptionLines};
+            asyncExceptionLines.push_back(
+                "This exception is provided through the returned task; it's never thrown synchronously.");
+            writeDocLines(out, openTag.str(), asyncExceptionLines, "exception");
+        }
+    }
+
+    writeDocLines(out, "remarks", comment->remarks());
+    writeSeeAlso(out, comment->seeAlso());
+}
+
+void
 Slice::Csharp::writeIceRpcHelperDocComment(
     Output& out,
     const ContainedPtr& p,
     const string& comment,
-    const string& generatedType,
-    const string& notes)
+    const string& generatedType)
 {
     // Called only for module-level types.
     assert(dynamic_pointer_cast<Module>(p->container()));
     assert(!generatedType.empty());
 
     writeDocLine(out, "summary", comment);
-    out << nl << "/// <remarks>" << "The Ice-Slice compiler generated this " << generatedType << " from Ice "
-        << p->kindOf() << " <c>" << p->scoped() << "</c>.";
-    if (!notes.empty())
-    {
-        out << nl << "/// " << notes;
-    }
-    out << "</remarks>";
+    out << nl << "/// <remarks>" << "The Ice compiler generated this " << generatedType << " from Ice " << p->kindOf()
+        << " <c>" << p->scoped() << "</c>.</remarks>";
 }
 
 std::pair<bool, string>

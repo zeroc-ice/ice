@@ -1591,7 +1591,7 @@ Slice::Ice::TypesVisitor::visitOperation(const OperationPtr& p)
         //
         string context = getEscapedParamName(p->parameters(), "context");
         _out << sp;
-        writeIceOpDocComment(_out, p, {"<param name=\"" + context + "\">The request context.</param>"}, false);
+        writeIceOpDocComment(_out, p, {"<param name=\"" + context + "\">The request context.</param>"}, false, false);
         emitObsoleteAttribute(p);
         _out << nl << retS << " " << name;
         _out.spar("(", true);
@@ -1615,7 +1615,8 @@ Slice::Ice::TypesVisitor::visitOperation(const OperationPtr& p)
             {"<param name=\"" + context + "\">The request context.</param>",
              "<param name=\"" + progress + "\">The sent progress provider.</param>",
              "<param name=\"" + cancel + "\">A cancellation token that receives the cancellation requests.</param>"},
-            true);
+            true,
+            false);
         emitObsoleteAttribute(p);
         _out << nl << taskResultType(p, ns);
         _out << " " << name << "Async";
@@ -2022,7 +2023,8 @@ Slice::Ice::SkeletonVisitor::visitOperation(const OperationPtr& op)
         _out,
         op,
         {"<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>"},
-        amd);
+        amd,
+        true);
 
     emitObsoleteAttribute(op);
     _out << nl << retS << " " << opName;
