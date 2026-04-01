@@ -1,2 +1,2 @@
 # Package bundles multiple Ice libraries with different sonames
-libzeroc-ice3.9: package-name-doesnt-match-sonames libDataStorm3.9 libGlacier23.9 libIce3.9 libIceBT3.9 libIceBox3.9 libIceDiscovery3.9 libIceGrid3.9 libIceLocatorDiscovery3.9 libIceStorm3.9
+libzeroc-ice3.9: package-name-doesnt-match-sonames

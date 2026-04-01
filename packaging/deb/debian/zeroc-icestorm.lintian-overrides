@@ -1,2 +1,2 @@
 # Package contains multiple libraries with different sonames
-zeroc-icestorm: package-name-doesnt-match-sonames libIceStormService3.9
+zeroc-icestorm: package-name-doesnt-match-sonames

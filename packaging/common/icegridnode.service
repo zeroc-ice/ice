@@ -4,7 +4,7 @@
 Description=IceGrid node daemon
 Documentation=man:icegridnode(1)
 Documentation=https://docs.zeroc.com/ice/latest/cpp/icegridnode
-After=syslog.target network.target icegridregistry.service
+After=network.target icegridregistry.service
 
 [Service]
 ExecStart=/usr/bin/icegridnode --Ice.Config=/etc/icegridnode.conf
