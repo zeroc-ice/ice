@@ -110,7 +110,7 @@ mkdir -p "$REPODIR/SRPMS"
 for srpm in "${srpms[@]}"; do
   target="$REPODIR/SRPMS/$(basename "$srpm")"
   if [[ -f "$target" ]]; then
-    echo "Skipping existing: $(basename "$rpm")"
+    echo "Skipping existing: $(basename "$srpm")"
     continue
   fi
   echo "Copying: $(basename "$srpm")"
