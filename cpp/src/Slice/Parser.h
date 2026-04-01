@@ -743,12 +743,16 @@ namespace Slice
 
         /// Returns true if this operation uses class types in any of its in parameters.
         [[nodiscard]] bool sendsClasses() const;
+
         /// Returns true if this operation uses class types in its return type, or any of its out parameters.
         [[nodiscard]] bool returnsClasses() const;
+
         /// Returns true if this operation has any out parameters, a non-void return type, or can throw any exceptions.
         [[nodiscard]] bool returnsData() const;
+
         /// Returns true if this operation has any out parameters or a non-void return type.
         [[nodiscard]] bool returnsAnyValues() const;
+
         /// Returns true if this operation's output parameters, plus any non-void return type, is greater than 1.
         [[nodiscard]] bool returnsMultipleValues() const;
 
