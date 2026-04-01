@@ -1,0 +1,24 @@
+Description: Fix typo in icegriddb and icestormdb man pages
+ Fix "specifed" -> "specified" in the --import option description.
+Author: José Gutiérrez de la Concha <jose@zeroc.com>
+Origin: upstream, https://github.com/zeroc-ice/ice/commit/88dd46cc27fbab5d0d7cda4ae0b9bf4258ba085e
+Last-Update: 2026-04-01
+---
+--- a/man/man1/icegriddb.1
++++ b/man/man1/icegriddb.1
+@@ -31,7 +31,7 @@
+ .BR \-\-import " " FILE\fR
+ .br
+-Import database from the specifed file.
++Import database from the specified file.
+
+ .TP
+ --- a/man/man1/icestormdb.1
++++ b/man/man1/icestormdb.1
+@@ -36,7 +36,7 @@
+ .BR \-\-import " " FILE\fR
+ .br
+-Import database from the specifed file.
++Import database from the specified file.
+
+ .TP
