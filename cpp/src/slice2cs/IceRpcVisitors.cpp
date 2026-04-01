@@ -17,7 +17,8 @@ using namespace IceInternal;
 
 namespace
 {
-    // paramName does not start with an escape prefix.
+    // Returns paramName as-is or escaped if it conflicts with any of the parameter names in params.
+    // paramName never starts with an escape prefix.
     string escapeCapitalizedParamName(const ParameterList& params, string paramName)
     {
         for (const auto& param : params)

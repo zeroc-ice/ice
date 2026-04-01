@@ -87,7 +87,7 @@ namespace Slice::Csharp
     /// @param p The Slice element.
     /// @param generatedType The kind of mapped element, used for the remarks. For example, "server-side interface".
     /// This function does not write any remarks when this argument is nullopt.
-    /// @param notes Optional notes included after @p p 's remarks.
+    /// @param notes Optional notes included after @p p's remarks.
     void writeIceRpcDocComment(
         IceInternal::Output& out,
         const ContainedPtr& p,
