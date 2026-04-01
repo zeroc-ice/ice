@@ -63,11 +63,12 @@ cd ice
 git archive --format=tar.gz --prefix=zeroc-ice-${UPSTREAM_VERSION}/ \
     -o $HOME/packaging/zeroc-ice/zeroc-ice_${UPSTREAM_VERSION}.orig.tar.gz \
     HEAD \
-    ':(exclude)*/gradle/GRADLE_LICENSE' \
-    ':(exclude)*/gradle/wrapper/*' \
-    ':(exclude)*/gradlew*' \
     ':(exclude)cpp/src/IceUtil/ConvertUTF.*' \
-    ':(exclude)packaging/rpm/*'
+    ':(exclude)cpp/msbuild/*' \
+    ':(exclude)csharp/*' \
+    ':(exclude)java/*' \
+    ':(exclude)packaging/rpm/*' \
+    ':(exclude)packaging/windows-installer/*'
 ```
 
 ### 5. Extract Source
