@@ -1761,16 +1761,16 @@ Slice::Csharp::writeIceOpDocComment(
         ostringstream openTag;
         openTag << "exception cref=\"" << name << "\"";
 
-        if (isAsync && !dispatch)
+        if (dispatch || !isAsync)
         {
-            StringList asyncExceptionLines{exceptionLines};
-            asyncExceptionLines.push_back(
-                "This exception is provided through the returned task; it's never thrown synchronously.");
-            writeDocLines(out, openTag.str(), asyncExceptionLines, "exception");
+            writeDocLines(out, openTag.str(), exceptionLines, "exception");
         }
         else
         {
-            writeDocLines(out, openTag.str(), exceptionLines, "exception");
+            StringList asyncExceptionLines{exceptionLines};
+            asyncExceptionLines.emplace_back(
+                "This exception is provided through the returned task; it's never thrown synchronously.");
+            writeDocLines(out, openTag.str(), asyncExceptionLines, "exception");
         }
     }
 

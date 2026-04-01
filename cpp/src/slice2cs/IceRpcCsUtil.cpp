@@ -690,7 +690,7 @@ Slice::Csharp::writeIceRpcOpDocComment(Output& out, const OperationPtr& op, bool
         else
         {
             StringList asyncExceptionLines{exceptionLines};
-            asyncExceptionLines.push_back(
+            asyncExceptionLines.emplace_back(
                 "This exception is provided through the returned task; it's never thrown synchronously.");
             writeDocLines(out, openTag.str(), asyncExceptionLines, "exception");
         }
