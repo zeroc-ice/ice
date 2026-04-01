@@ -42,6 +42,7 @@ git archive --format=tar.gz \
     ':(exclude)cpp/msbuild/*' \
     ':(exclude)csharp/*' \
     ':(exclude)java/*' \
+    ':(exclude)js/*' \
     ':(exclude)packaging/rpm/*' \
     ':(exclude)packaging/windows-installer/*'
 

@@ -67,6 +67,7 @@ git archive --format=tar.gz --prefix=zeroc-ice-${UPSTREAM_VERSION}/ \
     ':(exclude)cpp/msbuild/*' \
     ':(exclude)csharp/*' \
     ':(exclude)java/*' \
+    ':(exclude)js/*' \
     ':(exclude)packaging/rpm/*' \
     ':(exclude)packaging/windows-installer/*'
 ```
