@@ -93,7 +93,7 @@ namespace Slice::Csharp
     /// @param p The Slice element.
     /// @param comment The summary.
     /// @param generatedType The kind of mapped element, used for the remarks. Must not be empty.
-    /// @param notes Optional notes includes at the beginning of the remarks.
+    /// @param notes Optional notes included at the beginning of the remarks.
     void writeIceHelperDocComment(
         IceInternal::Output& out,
         const ContainedPtr& p,
