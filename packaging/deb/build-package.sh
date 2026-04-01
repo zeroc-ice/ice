@@ -41,7 +41,8 @@ git archive --format=tar.gz \
     ':(exclude)*/gradle/GRADLE_LICENSE' \
     ':(exclude)*/gradle/wrapper/*' \
     ':(exclude)*/gradlew*' \
-    ':(exclude)cpp/src/IceUtil/ConvertUTF.*'
+    ':(exclude)cpp/src/IceUtil/ConvertUTF.*' \
+    ':(exclude)packaging/rpm/*'
 
 # Unpack the source tarball
 cd /workspace/build

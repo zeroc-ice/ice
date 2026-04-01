@@ -3,6 +3,7 @@ Description: Remove ice2slice from the build
  excludes it from the build so the zeroc-ice-ice2slice package can be
  dropped.
 Author: José Gutiérrez de la Concha <jose@zeroc.com>
+Origin: upstream, https://github.com/zeroc-ice/ice/commit/620380d9566ae9f20d0ef9010617107a5dbbb5cf
 Last-Update: 2026-03-30
 ---
 --- a/cpp/Makefile

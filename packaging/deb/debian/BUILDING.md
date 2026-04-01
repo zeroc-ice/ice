@@ -66,7 +66,8 @@ git archive --format=tar.gz --prefix=zeroc-ice-${UPSTREAM_VERSION}/ \
     ':(exclude)*/gradle/GRADLE_LICENSE' \
     ':(exclude)*/gradle/wrapper/*' \
     ':(exclude)*/gradlew*' \
-    ':(exclude)cpp/src/IceUtil/ConvertUTF.*'
+    ':(exclude)cpp/src/IceUtil/ConvertUTF.*' \
+    ':(exclude)packaging/rpm/*'
 ```
 
 ### 5. Extract Source
