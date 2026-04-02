@@ -3088,12 +3088,11 @@ ParameterList
 Slice::Operation::inParameters() const
 {
     ParameterList result;
-    for (const auto& p : _contents)
+    for (const auto& p : parameters())
     {
-        ParameterPtr q = dynamic_pointer_cast<Parameter>(p);
-        if (q && !q->isOutParam())
+        if (!p->isOutParam())
         {
-            result.push_back(q);
+            result.push_back(p);
         }
     }
     return result;
@@ -3128,12 +3127,11 @@ ParameterList
 Slice::Operation::outParameters() const
 {
     ParameterList result;
-    for (const auto& p : _contents)
+    for (const auto& p : parameters())
     {
-        ParameterPtr q = dynamic_pointer_cast<Parameter>(p);
-        if (q && q->isOutParam())
+        if (p->isOutParam())
         {
-            result.push_back(q);
+            result.push_back(p);
         }
     }
     return result;
@@ -3253,9 +3251,9 @@ Slice::Operation::setExceptionList(const ExceptionList& exceptions)
 bool
 Slice::Operation::sendsClasses() const
 {
-    for (const auto& i : parameters())
+    for (const auto& i : inParameters())
     {
-        if (!i->isOutParam() && i->type()->usesClasses())
+        if (i->type()->usesClasses())
         {
             return true;
         }
@@ -3272,9 +3270,9 @@ Slice::Operation::returnsClasses() const
         return true;
     }
 
-    for (const auto& i : parameters())
+    for (const auto& i : outParameters())
     {
-        if (i->isOutParam() && i->type()->usesClasses())
+        if (i->type()->usesClasses())
         {
             return true;
         }
@@ -3285,25 +3283,7 @@ Slice::Operation::returnsClasses() const
 bool
 Slice::Operation::returnsData() const
 {
-    TypePtr t = returnType();
-    if (t)
-    {
-        return true;
-    }
-
-    for (const auto& i : parameters())
-    {
-        if (i->isOutParam())
-        {
-            return true;
-        }
-    }
-
-    if (!throws().empty())
-    {
-        return true;
-    }
-    return false;
+    return returnsAnyValues() || !throws().empty();
 }
 
 bool
