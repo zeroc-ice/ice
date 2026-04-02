@@ -7,6 +7,7 @@ might need to be aware of.
 
 - [Changes in Ice 3.9.0](#changes-in-ice-390)
   - [General Changes](#general-changes)
+  - [Slice Language Changes](#slice-language-changes)
 
 ## Changes in Ice 3.9.0
 
@@ -17,3 +18,7 @@ These are the changes since the [Ice 3.8.1] release.
 - Removed the 'ice2slice' compiler
 
 [Ice 3.8.1]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
+
+### Slice Language Changes
+
+- Removed support for using `@p` tags in doc-comments to reference out parameters.
