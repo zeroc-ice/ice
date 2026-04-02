@@ -404,7 +404,15 @@ namespace
             {
                 if (param->name() == parameterName)
                 {
-                    parameterName = param->mappedName();
+                    if (param->isOutParam())
+                    {
+                        string msg = "'out' parameters cannot be referenced with '@p' tags";
+                        p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    }
+                    else
+                    {
+                        parameterName = param->mappedName();
+                    }
                     doesParameterExist = true;
                     break;
                 }
