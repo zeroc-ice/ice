@@ -47,8 +47,8 @@ module Test
         void voidOp();
 
         /// We disallow linking to out parameters like @p myOut
-        /// @param value no warning, because this ia a real parameter. @p
-        /// @param value should give a duplicate-tag warning. But This is fine: @p value.
+        /// @param value no warning, because this is a real parameter. @p
+        /// @param value should give a duplicate-tag warning. But this is fine: @p value.
         /// @param namess should give a no-matching-parameter warning.
         /// @return Something because it's non-void.
         /// @return Should give a duplicate-tag warning.
