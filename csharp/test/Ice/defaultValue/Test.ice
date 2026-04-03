@@ -69,7 +69,7 @@ module Test
     const float ConstZeroF = 0;
     const float ConstZeroDotF = 0.0;
     const double ConstZeroD = 0;
-    const double ConstZeroDotD = 0;
+    const double ConstZeroDotD = 0.0;
 
     struct Struct2
     {

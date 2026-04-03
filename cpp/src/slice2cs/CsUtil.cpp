@@ -97,6 +97,10 @@ Slice::Csharp::writeConstantValue(
         {
             out << value << "F";
         }
+        else if (bp && bp->kind() == Builtin::KindDouble)
+        {
+            out << value << "D";
+        }
         else if (dynamic_pointer_cast<Enum>(type))
         {
             EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
