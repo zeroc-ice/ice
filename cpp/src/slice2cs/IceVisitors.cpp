@@ -1007,7 +1007,7 @@ Slice::Ice::TypesVisitor::visitConst(const ConstPtr& p)
     _out << sb;
     writeIceDocComment(_out, p);
     _out << nl << accessModifier(p) << " const " << typeToString(p->type(), "") << " value = ";
-    writeConstantValue(p->type(), p->valueType(), p->value());
+    writeConstantValue(_out, p->type(), p->valueType(), p->value(), getNamespace(p));
     _out << ";";
     _out << eb;
 }
@@ -1065,7 +1065,7 @@ Slice::Ice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         if (!builtin || builtin->kind() == Builtin::KindString || (defaultValue != "0" && defaultValue != "false"))
         {
             _out << " = ";
-            writeConstantValue(p->type(), p->defaultValueType(), defaultValue);
+            writeConstantValue(_out, p->type(), p->defaultValueType(), defaultValue, ns);
             addSemicolon = true;
         }
     }
@@ -1624,45 +1624,6 @@ Slice::Ice::TypesVisitor::visitOperation(const OperationPtr& p)
         _out << inParams << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
              << ("global::System.IProgress<bool>? " + progress + " = null")
              << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar << ";";
-    }
-}
-
-void
-Slice::Ice::TypesVisitor::writeConstantValue(
-    const TypePtr& type,
-    const SyntaxTreeBasePtr& valueType,
-    const string& value)
-{
-    ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
-    if (constant)
-    {
-        _out << constant->mappedScoped(".") << ".value";
-    }
-    else
-    {
-        BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
-        if (bp && bp->kind() == Builtin::KindString)
-        {
-            _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\0", "", UCN, 0) << "\"";
-        }
-        else if (bp && bp->kind() == Builtin::KindLong)
-        {
-            _out << value << "L";
-        }
-        else if (bp && bp->kind() == Builtin::KindFloat)
-        {
-            _out << value << "F";
-        }
-        else if (dynamic_pointer_cast<Enum>(type))
-        {
-            EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
-            assert(lte);
-            _out << lte->mappedScoped(".");
-        }
-        else
-        {
-            _out << value;
-        }
     }
 }
 

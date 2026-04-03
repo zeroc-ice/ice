@@ -69,6 +69,48 @@ Slice::Csharp::removeEscapePrefix(const string& identifier)
 }
 
 void
+Slice::Csharp::writeConstantValue(
+    Output& out,
+    const TypePtr& type,
+    const SyntaxTreeBasePtr& valueType,
+    const string& value,
+    const string& ns,
+    const string& fieldName)
+{
+    ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
+    if (constant)
+    {
+        out << getUnqualified(constant, ns) << "." << fieldName;
+    }
+    else
+    {
+        BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
+        if (bp && bp->kind() == Builtin::KindString)
+        {
+            out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\0", "", UCN, 0) << "\"";
+        }
+        else if (bp && bp->kind() == Builtin::KindLong)
+        {
+            out << value << "L";
+        }
+        else if (bp && bp->kind() == Builtin::KindFloat)
+        {
+            out << value << "F";
+        }
+        else if (dynamic_pointer_cast<Enum>(type))
+        {
+            EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
+            assert(lte);
+            out << getUnqualified(lte, ns);
+        }
+        else
+        {
+            out << value;
+        }
+    }
+}
+
+void
 Slice::Csharp::writeDocLine(
     Output& out,
     const string& openTag,

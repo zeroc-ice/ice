@@ -33,7 +33,6 @@ namespace Slice::Ice
         void visitOperation(const OperationPtr&) final;
 
     private:
-        void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
         void writeMarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
         void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
         void writeMarshaling(const ClassDefPtr&);

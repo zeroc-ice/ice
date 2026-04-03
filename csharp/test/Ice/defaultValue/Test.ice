@@ -48,7 +48,9 @@ module Test
         double zeroDotD = 0;
     }
 
+    /// My bool constant.
     const bool ConstBool = true;
+
     const byte ConstByte = 254;
     const short ConstShort = 16000;
     const int ConstInt = 3;

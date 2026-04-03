@@ -24,6 +24,21 @@ namespace Slice::Csharp
     /// Returns the namespace prefix of a Contained entity.
     [[nodiscard]] std::string getNamespacePrefix(const ContainedPtr& p);
 
+    /// Writes a C# constant value.
+    /// @param out The output to write to.
+    /// @param type The type of the constant.
+    /// @param valueType The syntax tree node associated with the value. It can be null, an enum, or a const.
+    /// @param value The value of the constant, e.g. "42" or "SomeEnum.SomeValue".
+    /// @param ns The namespace of the caller.
+    /// @param fieldName The name of the mapped constant field (used when @p valueType is a const).
+    void writeConstantValue(
+        IceInternal::Output& out,
+        const TypePtr& type,
+        const SyntaxTreeBasePtr& valueType,
+        const std::string& value,
+        const std::string& ns,
+        const std::string& fieldName = "value");
+
     /// Writes a one-line XML doc-comment.
     void writeDocLine(
         IceInternal::Output& out,

@@ -223,8 +223,12 @@ Slice::Csharp::csRequired(const DataMemberPtr& field)
         return false;
     }
 
-    return isString(field->type()) || dynamic_pointer_cast<Sequence>(field->type()) ||
-           dynamic_pointer_cast<Dictionary>(field->type());
+    if (isString(field->type()))
+    {
+        return field->defaultValue() == nullopt;
+    }
+
+    return dynamic_pointer_cast<Sequence>(field->type()) || dynamic_pointer_cast<Dictionary>(field->type());
 }
 
 void

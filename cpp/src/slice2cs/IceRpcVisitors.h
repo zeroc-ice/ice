@@ -9,7 +9,7 @@
 
 namespace Slice::IceRpc
 {
-    /// Generates code for Slice types (including proxies) and Slice exceptions.
+    /// Generates code for Slice types (including proxies), Slice exceptions, and Slice constants.
     class TypesVisitor final : public CsVisitor
     {
     public:
@@ -31,6 +31,8 @@ namespace Slice::IceRpc
         bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
         void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
         void visitOperation(const OperationPtr&) final;
+
+        void visitConst(const ConstPtr&) final;
 
     private:
         bool writePrimaryConstructor(
