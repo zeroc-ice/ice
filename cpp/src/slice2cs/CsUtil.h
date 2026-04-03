@@ -27,7 +27,7 @@ namespace Slice::Csharp
     /// Writes a C# constant value.
     /// @param out The output to write to.
     /// @param type The type of the constant.
-    /// @param valueType The syntax tree node associated with the value. It can be null, an enumerator, or a const.
+    /// @param valueType The syntax tree node associated with the value. It can be null, an enumerator, or a constant.
     /// @param value The value of the constant, e.g. "42" or "SomeEnum.SomeValue".
     /// @param ns The namespace of the caller.
     /// @param fieldName The name of the mapped constant field (used when @p valueType is a const).
