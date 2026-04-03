@@ -205,7 +205,8 @@ Slice::IceRpc::TypesVisitor::visitStructEnd(const StructPtr& p)
             _out << sp;
             writeDocLine(
                 _out,
-                "summary", "Initializes a new instance of the <see cref=\"" + escapedName + "\" /> struct.");
+                "summary",
+                "Initializes a new instance of the <see cref=\"" + escapedName + "\" /> struct.");
             _out << nl << "public " << escapedName << "()";
             _out << sb;
             _out << eb;
