@@ -406,7 +406,7 @@ Slice::IceRpc::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         if (!builtin || builtin->kind() == Builtin::KindString || (defaultValue != "0" && defaultValue != "false"))
         {
             _out << " = ";
-            writeConstantValue(_out, p->type(), p->defaultValueType(), defaultValue, ns);
+            writeConstantValue(_out, p->type(), p->defaultValueType(), defaultValue, ns, "Value");
             _out << ';';
         }
     }
