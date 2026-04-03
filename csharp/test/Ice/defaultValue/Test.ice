@@ -45,7 +45,7 @@ module Test
         float zeroF = 0;
         float zeroDotF = 0.0;
         double zeroD = 0;
-        double zeroDotD = 0;
+        double zeroDotD = 0.0;
     }
 
     /// My bool constant.
@@ -205,7 +205,7 @@ module Test
         float zeroF = 0;
         float zeroDotF = 0.0;
         double zeroD = 0;
-        double zeroDotD = 0;
+        double zeroDotD = 0.0;
     }
 
     exception DerivedEx extends BaseEx
@@ -237,7 +237,7 @@ module Test
         float zeroF = 0;
         float zeroDotF = 0.0;
         double zeroD = 0;
-        double zeroDotD = 0;
+        double zeroDotD = 0.0;
     }
 
     ["cs:property"]
@@ -258,7 +258,7 @@ module Test
         float zeroF = 0;
         float zeroDotF = 0.0;
         double zeroD = 0;
-        double zeroDotD = 0;
+        double zeroDotD = 0.0;
     }
 
     ["cs:property"]
@@ -279,7 +279,7 @@ module Test
         float zeroF = 0;
         float zeroDotF = 0.0;
         double zeroD = 0;
-        double zeroDotD = 0;
+        double zeroDotD = 0.0;
     }
 
     sequence<byte> ByteSeq;

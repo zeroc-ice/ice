@@ -197,6 +197,22 @@ Slice::IceRpc::TypesVisitor::visitStructEnd(const StructPtr& p)
     string escapedName = p->mappedName();
     string ns = getNamespace(p);
 
+    // We need an explicit public parameterless constructor if the struct has any default values.
+    for (const auto& field : p->dataMembers())
+    {
+        if (field->defaultValue())
+        {
+            _out << sp;
+            writeDocLine(
+                _out,
+                "summary", "Initializes a new instance of the <see cref=\"" + escapedName + "\" /> struct.");
+            _out << nl << "public " << escapedName << "()";
+            _out << sb;
+            _out << eb;
+            break;
+        }
+    }
+
     bool hasRequiredField = writePrimaryConstructor(p, p->dataMembers(), {}, "struct");
 
     // Decoding constructor.
