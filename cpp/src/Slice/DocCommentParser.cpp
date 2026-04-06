@@ -60,9 +60,9 @@ DocCommentFormatter::formatCode(const string& rawText)
 }
 
 string
-DocCommentFormatter::formatParamRef(const string& param)
+DocCommentFormatter::formatParamRef(const string& paramName, const ParameterPtr&)
 {
-    return formatCode(param);
+    return formatCode(paramName);
 }
 
 string
@@ -397,19 +397,19 @@ namespace
         // Extract the parameter's name and check if matches an operation parameter.
         // If it does, make sure to use the mapped name instead of the Slice name.
         string parameterName = line.substr(nameStart, nameEnd - nameStart);
+        ParameterPtr parameterPtr = nullptr;
         if (auto operationTarget = dynamic_pointer_cast<Operation>(p))
         {
-            bool doesParameterExist = false;
             for (const auto& param : operationTarget->parameters())
             {
                 if (param->name() == parameterName)
                 {
                     parameterName = param->mappedName();
-                    doesParameterExist = true;
+                    parameterPtr = param;
                     break;
                 }
             }
-            if (!doesParameterExist)
+            if (parameterPtr == nullptr)
             {
                 string opName = operationTarget->name();
                 string msg = "No parameter named '" + parameterName + "' exists on operation '" + opName + "'";
@@ -422,7 +422,7 @@ namespace
         }
 
         // Format the parameter's name and insert it in-place of the original '@p name'.
-        const string formattedParamName = formatter.formatParamRef(parameterName);
+        const string formattedParamName = formatter.formatParamRef(parameterName, parameterPtr);
         line.erase(pos, nameEnd - pos);
         line.insert(pos, formattedParamName);
 

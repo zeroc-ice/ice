@@ -69,7 +69,7 @@ namespace Slice::Csharp
 
         void preprocess(StringList& rawComment) final;
         std::string formatCode(const std::string& rawText) final;
-        std::string formatParamRef(const std::string& param) final;
+        std::string formatParamRef(const std::string& paramName, const ParameterPtr& paramPtr) final;
 
         std::string
         formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final;
