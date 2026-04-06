@@ -240,7 +240,7 @@ Slice::Csharp::CsharpDocCommentFormatter::formatCode(const string& rawText)
 string
 Slice::Csharp::CsharpDocCommentFormatter::formatParamRef(const string& paramName, const ParameterPtr& paramPtr)
 {
-    if (paramPtr->isOutParam())
+    if (paramPtr && paramPtr->isOutParam())
     {
         return formatCode(paramName);
     }
