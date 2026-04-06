@@ -46,8 +46,9 @@ module Test
         /// @throws CommentDummy should give a not-thrown-by-this-operation warning.
         void voidOp();
 
-        /// @param value no warning, because this ia a real parameter. @p
-        /// @param value should give a duplicate-tag warning. But This is fine: @p value.
+        /// We disallow linking to out parameters like @p myOut
+        /// @param value no warning, because this is a real parameter. @p
+        /// @param value should give a duplicate-tag warning. But this is fine: @p value.
         /// @param namess should give a no-matching-parameter warning.
         /// @return Something because it's non-void.
         /// @return Should give a duplicate-tag warning.
@@ -55,6 +56,6 @@ module Test
         /// @throws CommentDummy should be fine, this matches the exception specification.
         /// @throws SomeOtherException should give a not-thrown-by-this-operation warning.
         /// @throws CommentDummy should give a duplicate-tag warning.
-        string stringOp(string name, int value) throws CommentDummy;
+        string stringOp(string name, int value, out byte myOut) throws CommentDummy;
     }
 }
