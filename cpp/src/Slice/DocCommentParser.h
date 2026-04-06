@@ -27,12 +27,13 @@ namespace Slice
         [[nodiscard]] virtual std::string formatCode(const std::string& rawText);
 
         /// This function is called by the doc-comment parser to map '@p' tags into each language's syntax.
-        /// @param param The mapped name of the parameter that is being referenced.
+        /// @param paramName The mapped name of the parameter that is being referenced.
+        /// @param paramPtr A pointer to the parameter object that is being referenced.
         /// @return A properly formatted parameters reference in the target language. The doc-comment parser will
         /// replace the entire "@p <rawParamName>" string with the returned value.
         //
         // By default we just emit the parameter's name in code formatting.
-        [[nodiscard]] virtual std::string formatParamRef(const std::string& param);
+        [[nodiscard]] virtual std::string formatParamRef(const std::string& paramName, const ParameterPtr& paramPtr);
 
         /// This function is called by the doc-comment parser to map doc-links ('{@link <rawLink>}') into each
         /// language's syntax.

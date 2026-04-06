@@ -238,9 +238,16 @@ Slice::Csharp::CsharpDocCommentFormatter::formatCode(const string& rawText)
 }
 
 string
-Slice::Csharp::CsharpDocCommentFormatter::formatParamRef(const string& param)
+Slice::Csharp::CsharpDocCommentFormatter::formatParamRef(const string& paramName, const ParameterPtr& paramPtr)
 {
-    return "<paramref name=\"" + param + "\" />";
+    if (paramPtr->isOutParam())
+    {
+        return formatCode(paramName);
+    }
+    else
+    {
+        return "<paramref name=\"" + paramName + "\" />";
+    }
 }
 
 string
