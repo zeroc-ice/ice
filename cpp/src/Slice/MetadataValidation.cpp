@@ -130,8 +130,7 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
     MetadataInfo onewayInfo = {
         .validOn = {typeid(Operation)},
         .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
-        .extraValidation =
-            [](const MetadataPtr&, const SyntaxTreeBasePtr& q) -> optional<string>
+        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& q) -> optional<string>
         {
             if (auto op = dynamic_pointer_cast<Operation>(q))
             {
