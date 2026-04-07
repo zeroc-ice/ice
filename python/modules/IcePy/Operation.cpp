@@ -370,17 +370,18 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
         return -1;
     }
 
-    self->op = new OperationPtr(make_shared<Operation>(
-        sliceName,
-        mappedName,
-        mode,
-        format,
-        metadata,
-        inParams,
-        outParams,
-        returnType,
-        exceptions,
-        onewayOnly));
+    self->op = new OperationPtr(
+        make_shared<Operation>(
+            sliceName,
+            mappedName,
+            mode,
+            format,
+            metadata,
+            inParams,
+            outParams,
+            returnType,
+            exceptions,
+            onewayOnly));
     return 0;
 }
 
