@@ -57,7 +57,8 @@ namespace IcePy
             PyObject*,
             PyObject*,
             PyObject*,
-            PyObject*);
+            PyObject*,
+            bool);
 
         void marshalResult(Ice::OutputStream&, PyObject*);
 
@@ -76,6 +77,7 @@ namespace IcePy
         ExceptionInfoList exceptions;
         bool sendsClasses;
         bool returnsClasses;
+        bool onewayOnly;
 
     private:
         string _deprecateMessage;
@@ -345,9 +347,10 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
     PyObject* outParams;
     PyObject* returnType;
     PyObject* exceptions;
+    int onewayOnly;
     if (!PyArg_ParseTuple(
             args,
-            "ssO!OO!O!O!OO!",
+            "ssO!OO!O!O!OO!p",
             &sliceName,
             &mappedName,
             modeType,
@@ -361,14 +364,24 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
             &outParams,
             &returnType,
             &PyTuple_Type,
-            &exceptions))
+            &exceptions,
+            &onewayOnly))
     {
         return -1;
     }
 
     self->op = new OperationPtr(
-        make_shared<
-            Operation>(sliceName, mappedName, mode, format, metadata, inParams, outParams, returnType, exceptions));
+        make_shared<Operation>(
+            sliceName,
+            mappedName,
+            mode,
+            format,
+            metadata,
+            inParams,
+            outParams,
+            returnType,
+            exceptions,
+            onewayOnly));
     return 0;
 }
 
@@ -563,10 +576,12 @@ IcePy::Operation::Operation(
     PyObject* in,
     PyObject* out,
     PyObject* ret,
-    PyObject* ex)
+    PyObject* ex,
+    bool owo)
 {
     sliceName = name;
     mappedName = mapped;
+    onewayOnly = owo;
 
     //
     // mode
@@ -1162,7 +1177,7 @@ IcePy::Invocation::checkTwowayOnly(const OperationPtr& op, const Ice::ObjectPrx&
 void
 IcePy::Invocation::checkOnewayOnly(const OperationPtr& op, const Ice::ObjectPrx& proxy) const
 {
-    if (find(op->metadata.begin(), op->metadata.end(), "oneway") != op->metadata.end() && proxy->ice_isTwoway())
+    if (op->onewayOnly && proxy->ice_isTwoway())
     {
         throw Ice::OnewayOnlyException{__FILE__, __LINE__, op->sliceName};
     }

@@ -1924,7 +1924,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             out << ',';
         }
-        out << "))";
+        out << ")," << nl << (operation->hasMetadata("oneway") ? "True" : "False") << ")";
         out.dec();
 
         if (operation->isDeprecated())
@@ -2102,8 +2102,7 @@ Slice::Python::CodeVisitor::writeMetadata(const MetadataList& metadata, Output& 
     auto newEnd = remove_if(
         pythonMetadata.begin(),
         pythonMetadata.end(),
-        [](const MetadataPtr& meta)
-        { return meta->directive().find("python:") != 0 && meta->directive() != "oneway"; });
+        [](const MetadataPtr& meta) { return meta->directive().find("python:") != 0; });
     pythonMetadata.erase(newEnd, pythonMetadata.end());
 
     out << '(';
