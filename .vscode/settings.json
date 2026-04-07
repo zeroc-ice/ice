@@ -14,5 +14,8 @@
     "[xml]": {
         "editor.formatOnSave": false
     },
+    "[php]": {
+        "editor.formatOnSave": false
+    },
     "markdown.extension.toc.levels": "1..4"
 }

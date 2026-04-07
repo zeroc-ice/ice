@@ -762,7 +762,7 @@ ZEND_FUNCTION(IcePHP_defineOperation)
         outParams,
         returnType,
         exceptions,
-        oneway != 0);
+        oneway);
 
     c->addOperation(mappedName, op);
 }
