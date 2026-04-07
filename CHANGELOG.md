@@ -21,4 +21,8 @@ These are the changes since the [Ice 3.8.1] release.
 
 ### Slice Language Changes
 
+- Added the `["oneway"]` metadata directive for Slice operations. When applied to an operation that does not return
+  data (no return type, out parameters, or exception specification), the generated proxy code throws
+  `OnewayOnlyException` if the operation is invoked on a twoway proxy.
+
 - Removed support for using `@p` tags in doc-comments to reference out parameters.
