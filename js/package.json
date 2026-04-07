@@ -31,7 +31,7 @@
         "typescript": "^5.9.2",
         "typescript-eslint": "^8.39.0",
         "vinyl": "^3.0.1",
-        "vite": "^6.3.0",
+        "vite": "^6.4.2",
         "webpack": "^5.99.0"
     },
     "scripts": {
