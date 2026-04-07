@@ -412,6 +412,8 @@ final class MyDerivedClassI: MyDerivedClass {
         try _helper.test(current.mode == .idempotent)
     }
 
+    func opOneway(current _: Ice.Current) {}
+
     func opDerived(current _: Ice.Current) {}
 
     func opByte1(opByte1: UInt8, current _: Ice.Current) -> UInt8 {

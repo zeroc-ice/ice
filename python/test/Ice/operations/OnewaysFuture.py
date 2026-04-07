@@ -39,6 +39,13 @@ def onewaysFuture(helper: TestHelper, proxy: Test.MyClassPrx) -> None:
     assert isinstance(f, Ice.InvocationFuture)
     f.sent()
 
+    # Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
+    try:
+        Test.MyClassPrx.uncheckedCast(proxy.ice_twoway()).opOnewayAsync()
+        test(False)
+    except Ice.OnewayOnlyException:
+        pass
+
     try:
         p.opByteAsync(0xFF, 0x0F)
         test(False)

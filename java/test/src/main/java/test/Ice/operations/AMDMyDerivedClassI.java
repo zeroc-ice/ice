@@ -657,6 +657,11 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
+    public CompletionStage<Void> opOnewayAsync(Current current) {
+        return CompletableFuture.completedFuture((Void) null);
+    }
+
+    @Override
     public CompletionStage<Void> opDerivedAsync(Current current) {
         return CompletableFuture.completedFuture((Void) null);
     }

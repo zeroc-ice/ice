@@ -730,6 +730,12 @@ MyDerivedClassI::opIdempotentAsync(function<void()> response, function<void(exce
 }
 
 void
+MyDerivedClassI::opOnewayAsync(function<void()> response, function<void(exception_ptr)>, const Current&)
+{
+    response();
+}
+
+void
 MyDerivedClassI::opDerivedAsync(function<void()> response, function<void(exception_ptr)>, const Current&)
 {
     response();

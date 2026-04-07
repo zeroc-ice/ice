@@ -571,6 +571,12 @@ Ice::TwowayOnlyException::ice_id() const noexcept
 }
 
 const char*
+Ice::OnewayOnlyException::ice_id() const noexcept
+{
+    return "::Ice::OnewayOnlyException";
+}
+
+const char*
 Ice::PropertyException::ice_id() const noexcept
 {
     return "::Ice::PropertyException";

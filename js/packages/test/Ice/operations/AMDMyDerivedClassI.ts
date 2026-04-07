@@ -356,6 +356,8 @@ export class AMDMyDerivedClassI extends Test.MyDerivedClass {
         this._opByteSOnewayCount += 1;
     }
 
+    opOneway(_: Ice.Current): void {}
+
     opByteSOnewayCallCount(_: Ice.Current): number {
         const count = this._opByteSOnewayCount;
         this._opByteSOnewayCount = 0;

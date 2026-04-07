@@ -714,6 +714,9 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     }
 
     public override Task
+    opOnewayAsync(Current current) => Task.CompletedTask;
+
+    public override Task
     opDerivedAsync(Current current) => Task.CompletedTask;
 
     public override Task<byte>

@@ -1,6 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
 require './Twoways'
+require './Oneways'
 require './BatchOneways'
 
 def allTests(helper, communicator)
@@ -13,6 +14,11 @@ def allTests(helper, communicator)
     twoways(helper, communicator, cl)
     twoways(helper, communicator, derived)
     derived.opDerived()
+    puts "ok"
+
+    print "testing oneway operations... "
+    STDOUT.flush
+    oneways(helper, cl)
     puts "ok"
 
     print "testing batch oneway operations... "

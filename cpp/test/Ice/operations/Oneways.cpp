@@ -57,6 +57,18 @@ oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
     }
 
     {
+        // Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
+        try
+        {
+            proxy->ice_twoway()->opOneway();
+            test(false);
+        }
+        catch (const Ice::OnewayOnlyException&)
+        {
+        }
+    }
+
+    {
         uint8_t b;
 
         try

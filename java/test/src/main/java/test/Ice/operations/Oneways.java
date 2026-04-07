@@ -3,6 +3,7 @@
 package test.Ice.operations;
 
 import com.zeroc.Ice.TwowayOnlyException;
+import com.zeroc.Ice.OnewayOnlyException;
 
 import test.Ice.operations.Test.MyClassPrx;
 import test.TestHelper;
@@ -25,6 +26,12 @@ class Oneways {
             p.opByte((byte) 0xff, (byte) 0x0f);
             test(false);
         } catch (TwowayOnlyException ex) {}
+
+        // Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
+        try {
+            p.ice_twoway().opOneway();
+            test(false);
+        } catch (OnewayOnlyException ex) {}
     }
 
     private Oneways() {}

@@ -1579,6 +1579,12 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 _out << "true";
             }
+            _out << ", ";
+
+            if (op->hasMetadata("oneway"))
+            {
+                _out << "true";
+            }
 
             _out << ']';
         }

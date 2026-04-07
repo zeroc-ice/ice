@@ -445,6 +445,10 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return Ice.Future.completed(None)
 
     @override
+    def opOneway(self, current: Ice.Current) -> Awaitable[None]:
+        return Ice.Future.completed(None)
+
+    @override
     def opByteSOnewayCallCount(self, current: Ice.Current) -> Awaitable[int]:
         with self.lock:
             count = self.opByteSOnewayCount

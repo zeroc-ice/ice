@@ -608,6 +608,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
+    public void opOneway(Current current) {}
+
+    @Override
     public void opDerived(Current current) {}
 
     @Override

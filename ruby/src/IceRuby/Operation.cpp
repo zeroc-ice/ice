@@ -38,7 +38,7 @@ namespace IceRuby
     class OperationI final : public Operation
     {
     public:
-        OperationI(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
+        OperationI(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
 
         VALUE invoke(const Ice::ObjectPrx&, VALUE, VALUE) final;
         void deprecate(const string&) final;
@@ -56,6 +56,7 @@ namespace IceRuby
         ExceptionInfoList _exceptions;
         bool _sendsClasses;
         bool _returnsClasses;
+        bool _onewayOnly;
         string _deprecateMessage;
 
         void convertParams(VALUE, ParamInfoList&, long, bool&);
@@ -65,6 +66,7 @@ namespace IceRuby
         VALUE unmarshalException(const vector<byte>&, const Ice::CommunicatorPtr&);
         bool validateException(VALUE) const;
         void checkTwowayOnly(const Ice::ObjectPrx&) const;
+        void checkOnewayOnly(const Ice::ObjectPrx&) const;
     };
     using OperationIPtr = shared_ptr<OperationI>;
 }
@@ -94,12 +96,21 @@ IceRuby_defineOperation(
     VALUE inParams,
     VALUE outParams,
     VALUE returnType,
-    VALUE exceptions)
+    VALUE exceptions,
+    VALUE onewayOnly)
 {
     ICE_RUBY_TRY
     {
-        OperationIPtr op =
-            make_shared<OperationI>(sliceName, mappedName, mode, format, inParams, outParams, returnType, exceptions);
+        OperationIPtr op = make_shared<OperationI>(
+            sliceName,
+            mappedName,
+            mode,
+            format,
+            inParams,
+            outParams,
+            returnType,
+            exceptions,
+            onewayOnly);
         return TypedData_Wrap_Struct(_operationClass, &IceRuby_OperationType, new OperationPtr(op));
     }
     ICE_RUBY_CATCH
@@ -162,7 +173,8 @@ IceRuby::OperationI::OperationI(
     VALUE inParams,
     VALUE outParams,
     VALUE returnType,
-    VALUE exceptions)
+    VALUE exceptions,
+    VALUE onewayOnly)
 {
     _sliceName = getString(name);
     _mappedName = getString(mapped);
@@ -245,6 +257,8 @@ IceRuby::OperationI::OperationI(
     {
         _exceptions.push_back(getException(RARRAY_AREF(exceptions, i)));
     }
+
+    _onewayOnly = onewayOnly == Qtrue;
 }
 
 VALUE
@@ -266,6 +280,7 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
     }
 
     checkTwowayOnly(proxy);
+    checkOnewayOnly(proxy);
 
     //
     // Invoke the operation.
@@ -596,10 +611,19 @@ IceRuby::OperationI::checkTwowayOnly(const Ice::ObjectPrx& proxy) const
     }
 }
 
+void
+IceRuby::OperationI::checkOnewayOnly(const Ice::ObjectPrx& proxy) const
+{
+    if (_onewayOnly && proxy->ice_isTwoway())
+    {
+        throw Ice::OnewayOnlyException{__FILE__, __LINE__, _sliceName};
+    }
+}
+
 bool
 IceRuby::initOperation(VALUE iceModule)
 {
-    rb_define_module_function(iceModule, "__defineOperation", CAST_METHOD(IceRuby_defineOperation), 8);
+    rb_define_module_function(iceModule, "__defineOperation", CAST_METHOD(IceRuby_defineOperation), 9);
 
     //
     // Define a class to represent an operation.

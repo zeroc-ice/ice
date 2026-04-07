@@ -65,6 +65,15 @@ Ice::ObjectPrx::_checkTwowayOnly(string_view name) const
     }
 }
 
+void
+Ice::ObjectPrx::_checkOnewayOnly(string_view name) const
+{
+    if (ice_isTwoway())
+    {
+        throw Ice::OnewayOnlyException(__FILE__, __LINE__, name);
+    }
+}
+
 ostream&
 Ice::operator<<(ostream& os, const Ice::ObjectPrx& p)
 {

@@ -2,9 +2,10 @@
 
 #nullable enable
 
-using Ice.Internal;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using Ice.Internal;
+
 
 namespace Ice;
 
@@ -1526,6 +1527,15 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         if (!ice_isTwoway())
         {
             throw new ArgumentException("`" + name + "' can only be called with a twoway proxy");
+        }
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void iceCheckOnewayOnly(string name)
+    {
+        if (ice_isTwoway())
+        {
+            throw new OnewayOnlyException(name);
         }
     }
 

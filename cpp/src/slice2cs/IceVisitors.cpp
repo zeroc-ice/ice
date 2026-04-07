@@ -1275,6 +1275,10 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         {
             _out << nl << "iceCheckTwowayOnly(" << flatName << ");";
         }
+        if (op->hasMetadata("oneway"))
+        {
+            _out << nl << "iceCheckOnewayOnly(" << flatName << ");";
+        }
         if (returnTypeS.empty())
         {
             _out << nl << "var completed = "

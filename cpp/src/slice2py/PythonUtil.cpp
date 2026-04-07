@@ -2102,7 +2102,8 @@ Slice::Python::CodeVisitor::writeMetadata(const MetadataList& metadata, Output& 
     auto newEnd = remove_if(
         pythonMetadata.begin(),
         pythonMetadata.end(),
-        [](const MetadataPtr& meta) { return meta->directive().find("python:") != 0; });
+        [](const MetadataPtr& meta)
+        { return meta->directive().find("python:") != 0 && meta->directive() != "oneway"; });
     pythonMetadata.erase(newEnd, pythonMetadata.end());
 
     out << '(';

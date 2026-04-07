@@ -128,6 +128,7 @@ function parseOperation(name, arr) {
 
     r.sendsClasses = arr[7] === true;
     r.returnsClasses = arr[8] === true;
+    r.onewayOnly = arr[9] === true;
 
     return r;
 }
@@ -493,6 +494,7 @@ function addProxyOperation(proxyType, name, data) {
             unmarshalFn,
             op.exceptions,
             Array.prototype.slice.call(args),
+            op.onewayOnly,
         );
     };
 }

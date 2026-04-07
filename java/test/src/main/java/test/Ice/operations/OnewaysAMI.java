@@ -3,6 +3,7 @@
 package test.Ice.operations;
 
 import com.zeroc.Ice.TwowayOnlyException;
+import com.zeroc.Ice.OnewayOnlyException;
 import com.zeroc.Ice.Util;
 
 import test.Ice.operations.Test.MyClassPrx;
@@ -102,6 +103,14 @@ class OnewaysAMI {
                         cb.called();
                     });
             cb.check();
+        }
+
+        {
+            // Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
+            try {
+                proxy.ice_twoway().opOnewayAsync();
+                test(false);
+            } catch (OnewayOnlyException ex) {}
         }
 
         {

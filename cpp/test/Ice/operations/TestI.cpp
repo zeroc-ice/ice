@@ -568,6 +568,11 @@ MyDerivedClassI::opIdempotent(const Ice::Current& current)
 }
 
 void
+MyDerivedClassI::opOneway(const Ice::Current&)
+{
+}
+
+void
 MyDerivedClassI::opDerived(const Ice::Current&)
 {
 }

@@ -189,7 +189,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 obj (1, 1) Ice.ObjectPrx
                 context (1, 1) dictionary = dictionary
             end
-            obj.iceInvoke('ice_ping', 2, false, [], false, {}, context);
+            obj.iceInvoke('ice_ping', 2, false, false, [], false, {}, context);
         end
 
         function r = ice_pingAsync(obj, context)
@@ -209,7 +209,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 obj (1, 1) Ice.ObjectPrx
                 context (1, 1) dictionary = dictionary
             end
-            r = obj.iceInvokeAsync('ice_ping', 2, false, [], 0, [], {}, context);
+            r = obj.iceInvokeAsync('ice_ping', 2, false, false, [], 0, [], {}, context);
         end
 
         function r = ice_isA(obj, id, context)
@@ -234,7 +234,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             os = obj.iceStartWriteParams([]);
             os.writeString(id);
             obj.iceEndWriteParams(os);
-            is = obj.iceInvoke('ice_isA', 2, true, os, true, {}, context);
+            is = obj.iceInvoke('ice_isA', 2, true, false, os, true, {}, context);
             is.startEncapsulation();
             r = is.readBool();
             is.endEncapsulation();
@@ -268,7 +268,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 varargout{1} = is.readBool();
                 is.endEncapsulation();
             end
-            r = obj.iceInvokeAsync('ice_isA', 2, true, os, 1, @unmarshal, {}, context);
+            r = obj.iceInvokeAsync('ice_isA', 2, true, false, os, 1, @unmarshal, {}, context);
         end
 
         function r = ice_id(obj, context)
@@ -287,7 +287,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 obj (1, 1) Ice.ObjectPrx
                 context (1, 1) dictionary = dictionary
             end
-            is = obj.iceInvoke('ice_id', 2, true, [], true, {}, context);
+            is = obj.iceInvoke('ice_id', 2, true, false, [], true, {}, context);
             is.startEncapsulation();
             r = is.readString();
             is.endEncapsulation();
@@ -316,7 +316,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 varargout{1} = is.readString();
                 is.endEncapsulation();
             end
-            r = obj.iceInvokeAsync('ice_id', 2, true, [], 1, @unmarshal, {}, context);
+            r = obj.iceInvokeAsync('ice_id', 2, true, false, [], 1, @unmarshal, {}, context);
         end
 
         function r = ice_ids(obj, context)
@@ -334,7 +334,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 obj (1, 1) Ice.ObjectPrx
                 context (1, 1) dictionary = dictionary
             end
-            is = obj.iceInvoke('ice_ids', 2, true, [], true, {}, context);
+            is = obj.iceInvoke('ice_ids', 2, true, false, [], true, {}, context);
             is.startEncapsulation();
             r = is.readStringSeq();
             is.endEncapsulation();
@@ -362,7 +362,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 varargout{1} = is.readStringSeq();
                 is.endEncapsulation();
             end
-            r = obj.iceInvokeAsync('ice_ids', 2, true, [], 1, @unmarshal, {}, context);
+            r = obj.iceInvokeAsync('ice_ids', 2, true, false, [], 1, @unmarshal, {}, context);
         end
 
         function r = ice_getIdentity(obj)
@@ -1131,7 +1131,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             os.endEncapsulation();
         end
 
-        function is = iceInvoke(obj, op, mode, twowayOnly, os, hasOutParams, exceptions, ctx)
+        function is = iceInvoke(obj, op, mode, twowayOnly, onewayOnly, os, hasOutParams, exceptions, ctx)
             try
                 % Replace unconfigured dictionary with empty array.
                 if ~isConfigured(ctx)
@@ -1140,6 +1140,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
                 if twowayOnly && ~obj.isTwoway
                     throw(Ice.TwowayOnlyException(op));
+                end
+
+                if onewayOnly && obj.isTwoway
+                    throw(Ice.OnewayOnlyException(op));
                 end
 
                 if isempty(os)
@@ -1175,7 +1179,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
         end
 
-        function fut = iceInvokeAsync(obj, op, mode, twowayOnly, os, numOutArgs, unmarshalFunc, exceptions, ctx)
+        function fut = iceInvokeAsync(obj, op, mode, twowayOnly, onewayOnly, os, numOutArgs, unmarshalFunc, exceptions, ctx)
             isTwoway = obj.isTwoway;
 
             % This nested function is invoked by Future.fetchOutputs()
@@ -1224,6 +1228,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
                 if twowayOnly && ~isTwoway
                     throw(Ice.TwowayOnlyException(op));
+                end
+
+                if onewayOnly && isTwoway
+                    throw(Ice.OnewayOnlyException(op));
                 end
                 if isempty(os)
                     buf = [];

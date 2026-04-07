@@ -1473,6 +1473,13 @@ Slice::JavaVisitor::writeIceIHelperMethods(
     out << nl << futureImplType << " f = new com.zeroc.Ice.OutgoingAsync<>(this, \"" << p->name() << "\", "
         << sliceModeToIceMode(p->mode()) << ", sync, " << (hasExceptionSpecification ? "_iceE_" + name : "null")
         << ");";
+    if (p->hasMetadata("oneway"))
+    {
+        out << nl << "if (this.ice_isTwoway())";
+        out << sb;
+        out << nl << "throw new com.zeroc.Ice.OnewayOnlyException(\"" << p->name() << "\");";
+        out << eb;
+    }
     out << nl << "f.invoke(";
     out.useCurrentPosAsIndent();
     out << (p->returnsData() ? "true" : "false") << ", context, " << opFormatTypeToString(p) << ", ";

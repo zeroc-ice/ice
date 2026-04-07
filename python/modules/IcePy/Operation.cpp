@@ -112,6 +112,7 @@ namespace IcePy
         PyObject* unmarshalException(const OperationPtr&, pair<const byte*, const byte*>);
         bool validateException(const OperationPtr&, PyObject*) const;
         void checkTwowayOnly(const OperationPtr&, const Ice::ObjectPrx&) const;
+        void checkOnewayOnly(const OperationPtr&, const Ice::ObjectPrx&) const;
 
         Ice::ObjectPrx _prx;
         Ice::CommunicatorPtr _communicator;
@@ -1158,6 +1159,15 @@ IcePy::Invocation::checkTwowayOnly(const OperationPtr& op, const Ice::ObjectPrx&
     }
 }
 
+void
+IcePy::Invocation::checkOnewayOnly(const OperationPtr& op, const Ice::ObjectPrx& proxy) const
+{
+    if (find(op->metadata.begin(), op->metadata.end(), "oneway") != op->metadata.end() && proxy->ice_isTwoway())
+    {
+        throw Ice::OnewayOnlyException{__FILE__, __LINE__, op->sliceName};
+    }
+}
+
 //
 // SyncTypedInvocation
 //
@@ -1189,6 +1199,7 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     try
     {
         checkTwowayOnly(_op, _prx);
+        checkOnewayOnly(_op, _prx);
 
         //
         // Invoke the operation.
@@ -1332,6 +1343,14 @@ IcePy::AsyncInvocation::invoke(PyObject* args, PyObject* kwds)
     {
         //
         // TwowayOnlyException can propagate directly.
+        //
+        setPythonException(current_exception());
+        return nullptr;
+    }
+    catch (const Ice::OnewayOnlyException&)
+    {
+        //
+        // OnewayOnlyException can propagate directly.
         //
         setPythonException(current_exception());
         return nullptr;
@@ -1577,6 +1596,7 @@ IcePy::AsyncTypedInvocation::handleInvoke(PyObject* args, PyObject* /* kwds */)
     }
 
     checkTwowayOnly(_op, _prx);
+    checkOnewayOnly(_op, _prx);
 
     // Invoke the operation asynchronously.
     Ice::Context context;

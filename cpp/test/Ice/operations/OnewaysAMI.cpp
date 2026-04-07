@@ -106,6 +106,18 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
     }
 
     {
+        // Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
+        try
+        {
+            proxy->ice_twoway()->opOnewayAsync(nullptr, [](exception_ptr) { test(false);});
+            test(false);
+        }
+        catch (const Ice::OnewayOnlyException&)
+        {
+        }
+    }
+
+    {
         try
         {
             p->opByteAsync(uint8_t(0xff), uint8_t(0x0f), [](uint8_t, uint8_t) { test(false); });

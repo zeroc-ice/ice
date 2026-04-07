@@ -6,7 +6,7 @@ import { ArrayUtil } from "./ArrayUtil.js";
 import { OutgoingAsync, ProxyFlushBatch, ProxyGetConnection } from "./OutgoingAsync.js";
 import { ReferenceMode } from "./ReferenceMode.js";
 import { UserException } from "./UserException.js";
-import { ParseException, TwowayOnlyException, UnknownUserException } from "./LocalExceptions.js";
+import { ParseException, TwowayOnlyException, OnewayOnlyException, UnknownUserException } from "./LocalExceptions.js";
 import { ConnectionI } from "./ConnectionI.js";
 import { TypeRegistry } from "./TypeRegistry.js";
 import { Communicator } from "./Communicator.js";
@@ -308,6 +308,12 @@ ObjectPrx.prototype._checkAsyncTwowayOnly = function (name) {
     }
 };
 
+ObjectPrx.prototype._checkOnewayOnly = function (name) {
+    if (this.ice_isTwoway()) {
+        throw new OnewayOnlyException(name);
+    }
+};
+
 //
 // Only for use by ObjectPrx constructor
 //
@@ -347,9 +353,12 @@ ObjectPrx.prototype.ice_instanceof = function (T) {
 //
 // Generic invocation for operations that have input parameters.
 //
-ObjectPrx._invoke = function (p, name, mode, fmt, ctx, marshalFn, unmarshalFn, userEx, args) {
+ObjectPrx._invoke = function (p, name, mode, fmt, ctx, marshalFn, unmarshalFn, userEx, args, onewayOnly) {
     if (unmarshalFn !== null || userEx.length > 0) {
         p._checkAsyncTwowayOnly(name);
+    }
+    if (onewayOnly) {
+        p._checkOnewayOnly(name);
     }
 
     const r = new OutgoingAsync(p, name, res => {
