@@ -12,7 +12,7 @@ import { Timer } from "./Timer.js";
 //
 // We need to check for Edge browser as it might include Chrome in its user agent.
 //
-const IsChrome = navigator.userAgent.indexOf("Edge/") === -1 && navigator.userAgent.indexOf("Chrome/") !== -1;
+const IsChrome = !navigator.userAgent.includes("Edge/") && navigator.userAgent.includes("Chrome/");
 const IsSafari = /^((?!chrome).)*safari/i.test(navigator.userAgent);
 
 const StateNeedConnect = 0;
@@ -29,7 +29,7 @@ class WSTransceiver {
         this._writeReadyTimeout = 0;
 
         let url = secure ? "wss" : "ws";
-        const isIPv6 = addr.host.indexOf(":") !== -1;
+        const isIPv6 = addr.host.includes(":");
         url += "://" + (isIPv6 ? `[${addr.host}]` : addr.host);
         if (addr.port !== (secure ? 443 : 80)) {
             url += ":" + addr.port;

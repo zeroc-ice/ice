@@ -12,7 +12,7 @@ export class StringUtil {
         start = start === undefined ? 0 : start;
         for (let i = start; i < str.length; i++) {
             const ch = str.charAt(i);
-            if (match.indexOf(ch) != -1) {
+            if (match.includes(ch)) {
                 return i;
             }
         }
@@ -28,7 +28,7 @@ export class StringUtil {
         start = start === undefined ? 0 : start;
         for (let i = start; i < str.length; i++) {
             const ch = str.charAt(i);
-            if (match.indexOf(ch) == -1) {
+            if (!match.includes(ch)) {
                 return i;
             }
         }
@@ -151,7 +151,7 @@ export class StringUtil {
                 ++pos;
                 quoteChar = null;
                 continue; // Skip the quote.
-            } else if (delim.indexOf(str.charAt(pos)) !== -1) {
+            } else if (delim.includes(str.charAt(pos))) {
                 if (quoteChar === null) {
                     ++pos;
                     if (s.length > 0) {
@@ -293,7 +293,7 @@ function encodeChar(c, sb, special, toStringMode) {
         default: {
             const s = String.fromCharCode(c);
 
-            if (special !== null && special.indexOf(s) !== -1) {
+            if (special !== null && special.includes(s)) {
                 sb.push("\\");
                 sb.push(s);
             } else if (c < 32 || c > 126) {
@@ -514,7 +514,7 @@ function decodeChar(s, start, end, special, result) {
                 break;
             }
             default: {
-                if (special === null || special.length === 0 || special.indexOf(c) === -1) {
+                if (special === null || special.length === 0 || !special.includes(c)) {
                     result.push("\\"); // not in special, so we keep the backslash
                 }
                 result.push(checkChar(s, start++));

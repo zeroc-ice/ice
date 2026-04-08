@@ -120,7 +120,7 @@ export class WSEndpoint extends EndpointI {
 
         if (this._resource !== null && this._resource.length > 0) {
             s += " -r ";
-            s += this._resource.indexOf(":") !== -1 ? '"' + this._resource + '"' : this._resource;
+            s += this._resource.includes(":") ? '"' + this._resource + '"' : this._resource;
         }
 
         return s;

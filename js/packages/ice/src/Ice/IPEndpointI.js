@@ -86,7 +86,7 @@ export class IPEndpointI extends EndpointI {
 
         if (this._host !== null && this._host.length > 0) {
             s += " -h ";
-            const addQuote = this._host.indexOf(":") != -1;
+            const addQuote = this._host.includes(":");
             if (addQuote) {
                 s += '"';
             }
@@ -100,7 +100,7 @@ export class IPEndpointI extends EndpointI {
 
         if (this._sourceAddr !== null && this._sourceAddr.length > 0) {
             s += " --sourceAddress ";
-            const addQuote = this._sourceAddr.indexOf(":") != -1;
+            const addQuote = this._sourceAddr.includes(":");
             if (addQuote) {
                 s += '"';
             }

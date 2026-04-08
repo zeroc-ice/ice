@@ -2,7 +2,7 @@
 
 export class Object {
     ice_isA(s) {
-        return this._iceMostDerivedType()._iceIds.indexOf(s) >= 0;
+        return this._iceMostDerivedType()._iceIds.includes(s);
     }
 
     ice_ping() {}

@@ -267,10 +267,10 @@ export class OutgoingConnectionFactory {
                 this._pending.delete(endpt);
                 cbs.forEach(cc => {
                     if (cc.hasEndpoint(endpoint)) {
-                        if (connectionCallbacks.indexOf(cc) === -1) {
+                        if (!connectionCallbacks.includes(cc)) {
                             connectionCallbacks.push(cc);
                         }
-                    } else if (callbacks.indexOf(cc) === -1) {
+                    } else if (!callbacks.includes(cc)) {
                         callbacks.push(cc);
                     }
                 });
@@ -308,10 +308,10 @@ export class OutgoingConnectionFactory {
                 this._pending.delete(endpt);
                 cbs.forEach(cc => {
                     if (cc.removeEndpoints(endpoints)) {
-                        if (failedCallbacks.indexOf(cc) === -1) {
+                        if (!failedCallbacks.includes(cc)) {
                             failedCallbacks.push(cc);
                         }
-                    } else if (callbacks.indexOf(cc) === -1) {
+                    } else if (!callbacks.includes(cc)) {
                         callbacks.push(cc);
                     }
                 });
@@ -319,7 +319,7 @@ export class OutgoingConnectionFactory {
         });
 
         callbacks.forEach(cc => {
-            console.assert(failedCallbacks.indexOf(cc) === -1);
+            console.assert(!failedCallbacks.includes(cc));
             cc.removeFromPending();
         });
         this.checkFinished();
@@ -336,7 +336,7 @@ export class OutgoingConnectionFactory {
             const cbs = this._pending.get(p);
             if (cbs !== undefined) {
                 found = true;
-                if (cbs.indexOf(cb) === -1) {
+                if (!cbs.includes(cb)) {
                     cbs.push(cb); // Add the callback to each pending endpoint.
                 }
             }
