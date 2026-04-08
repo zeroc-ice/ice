@@ -181,7 +181,7 @@ const tsCompilerOptions = {
 async function compileTypeScript(testDir) {
     let errorCount = 0;
     const reporter = {
-        error: (error) => {
+        error: error => {
             console.error(error.message);
             errorCount++;
         },
