@@ -302,7 +302,7 @@ ObjectPrx.prototype._getReference = function () {
     return this._reference;
 };
 
-ObjectPrx.prototype._checkAsyncTwowayOnly = function (name) {
+ObjectPrx.prototype._checkTwowayOnly = function (name) {
     if (!this.ice_isTwoway()) {
         throw new TwowayOnlyException(name);
     }
@@ -349,7 +349,7 @@ ObjectPrx.prototype.ice_instanceof = function (T) {
 //
 ObjectPrx._invoke = function (p, name, mode, fmt, ctx, marshalFn, unmarshalFn, userEx, args) {
     if (unmarshalFn !== null || userEx.length > 0) {
-        p._checkAsyncTwowayOnly(name);
+        p._checkTwowayOnly(name);
     }
 
     const r = new OutgoingAsync(p, name, res => {

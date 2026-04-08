@@ -6,6 +6,7 @@ using Ice.Internal;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
+
 namespace Ice;
 
 /// <summary>
@@ -605,7 +606,6 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         OutgoingAsyncCompletionCallback completed,
         bool synchronous)
     {
-        iceCheckAsyncTwowayOnly(_ice_isA_name);
         getOutgoingAsync<bool>(completed).invoke(
             _ice_isA_name,
             OperationMode.Idempotent,
@@ -721,7 +721,6 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         OutgoingAsyncCompletionCallback completed,
         bool synchronous)
     {
-        iceCheckAsyncTwowayOnly(_ice_ids_name);
         getOutgoingAsync<string[]>(completed).invoke(
             _ice_ids_name,
             OperationMode.Idempotent,
@@ -1512,20 +1511,6 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         if (!ice_isTwoway())
         {
             throw new TwowayOnlyException(name);
-        }
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public void iceCheckAsyncTwowayOnly(string name)
-    {
-        //
-        // No mutex lock necessary, there is nothing mutable in this
-        // operation.
-        //
-
-        if (!ice_isTwoway())
-        {
-            throw new ArgumentException("`" + name + "' can only be called with a twoway proxy");
         }
     }
 
