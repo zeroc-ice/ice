@@ -345,7 +345,7 @@ ObjectPrx.prototype.ice_instanceof = function (T) {
 };
 
 //
-// Generic invocation for operations that have input parameters.
+// Generic invocation for a proxy operation.
 //
 ObjectPrx._invoke = function (p, name, mode, fmt, ctx, marshalFn, unmarshalFn, userEx, args, onewayOnly) {
     if (unmarshalFn !== null || userEx.length > 0) {

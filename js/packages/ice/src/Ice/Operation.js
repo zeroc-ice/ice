@@ -66,6 +66,7 @@ function parseParam(p) {
 //  6: exceptions (undefined if none, or array of types)
 //  7: sends classes (true or undefined)
 //  8: returns classes (true or undefined)
+//  9: oneway only (true or undefined)
 //
 function parseOperation(name, arr) {
     const r = {};
