@@ -77,7 +77,7 @@ internal sealed class AssemblySliceLoaderFactory
         {
             return loader;
         }
-        else if (assembly.GetCustomAttributes<SliceAttribute>().Any())
+        else if (assembly.IsDefined(typeof(SliceAttribute)))
         {
             return _cache.GetOrAdd(
                 assembly,
