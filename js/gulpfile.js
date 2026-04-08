@@ -174,7 +174,31 @@ const tsCompilerOptions = {
     noImplicitReturns: true,
     noUnusedLocals: true,
     noUnusedParameters: true,
+    noEmitOnError: true,
 };
+
+// Compile TypeScript sources and fail the build if there are any errors.
+async function compileTypeScript(testDir) {
+    let errorCount = 0;
+    const reporter = {
+        error: error => {
+            console.error(error.message);
+            errorCount++;
+        },
+        finish: () => {},
+    };
+
+    await finished(
+        gulp
+            .src([`${testDir}/*.ts`, `!${testDir}/*.d.ts`])
+            .pipe(tsc(tsCompilerOptions, reporter))
+            .pipe(gulp.dest(testDir)),
+    );
+
+    if (errorCount > 0) {
+        throw new Error(`TypeScript: ${errorCount} error(s)`);
+    }
+}
 
 // Ice bundle: bundle the Ice runtime for browser usage.
 gulp.task("ice:bundle", async () => {
@@ -259,12 +283,7 @@ for (const name of tests) {
         }
 
         // Step 2: Compile .ts → .js in-place (for Node.js test runner)
-        await finished(
-            gulp
-                .src([`${testDir}/*.ts`, `!${testDir}/*.d.ts`])
-                .pipe(tsc(tsCompilerOptions))
-                .pipe(gulp.dest(testDir)),
-        );
+        await compileTypeScript(testDir);
 
         // Step 3: Bundle .js files for browser
         let input;
