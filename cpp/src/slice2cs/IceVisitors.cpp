@@ -1002,10 +1002,10 @@ Slice::Ice::TypesVisitor::visitConst(const ConstPtr& p)
 {
     _out << sp;
     writeIceHelperDocComment(_out, p, "Provides the " + p->mappedName() + " constant.", "helper class");
-    emitAttributes(p);
     _out << nl << accessModifier(p) << " abstract class " << p->mappedName();
     _out << sb;
     writeIceDocComment(_out, p);
+    emitAttributes(p);
     _out << nl << accessModifier(p) << " const " << typeToString(p->type(), "") << " value = ";
     writeConstantValue(_out, p->type(), p->valueType(), p->value(), getNamespace(p));
     _out << ";";
