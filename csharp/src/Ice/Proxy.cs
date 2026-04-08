@@ -6,7 +6,6 @@ using Ice.Internal;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
-
 namespace Ice;
 
 /// <summary>
