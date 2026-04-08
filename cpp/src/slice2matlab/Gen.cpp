@@ -1308,8 +1308,8 @@ CodeVisitor::visitOperation(const OperationPtr& op)
         out << "is_ = ";
     }
     out << self << ".iceInvoke('" << op->name() << "', " << getOperationMode(op->mode()) << ", "
-        << (twowayOnly ? "true" : "false") << ", "
-        << (inParams.empty() ? "[]" : "os_") << ", " << (returnsAnyValues ? "true" : "false");
+        << (twowayOnly ? "true" : "false") << ", " << (inParams.empty() ? "[]" : "os_") << ", "
+        << (returnsAnyValues ? "true" : "false");
     if (exceptions.empty())
     {
         out << ", {}";
@@ -1483,9 +1483,8 @@ CodeVisitor::visitOperation(const OperationPtr& op)
     }
 
     out << nl << "future = " << self << ".iceInvokeAsync('" << op->name() << "', " << getOperationMode(op->mode())
-        << ", " << (twowayOnly ? "true" : "false") << ", "
-        << (inParams.empty() ? "[]" : "os_") << ", " << returnAndOutParameters.size() << ", "
-        << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
+        << ", " << (twowayOnly ? "true" : "false") << ", " << (inParams.empty() ? "[]" : "os_") << ", "
+        << returnAndOutParameters.size() << ", " << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
     if (exceptions.empty())
     {
         out << ", {}";

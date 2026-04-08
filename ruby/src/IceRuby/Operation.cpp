@@ -98,8 +98,8 @@ IceRuby_defineOperation(int argc, VALUE* argv, VALUE /*self*/)
             throw RubyException(rb_eArgError, "wrong number of arguments (%d for 8..9)", argc);
         }
         VALUE onewayOnly = argc >= 9 ? argv[8] : Qfalse;
-        OperationIPtr op = make_shared<OperationI>(
-            argv[0], argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], onewayOnly);
+        OperationIPtr op =
+            make_shared<OperationI>(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], onewayOnly);
         return TypedData_Wrap_Struct(_operationClass, &IceRuby_OperationType, new OperationPtr(op));
     }
     ICE_RUBY_CATCH
