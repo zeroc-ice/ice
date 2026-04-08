@@ -185,7 +185,7 @@ export class Client extends TestHelper {
 
         // Firefox has a configuration that causes failed connections to be delayed on retry
         // (network.websocket.delay-failed-reconnects=true by default), so we prefer to disable this test with Firefox.
-        if (typeof navigator === "undefined" || navigator.userAgent.indexOf("Firefox") === -1) {
+        if (typeof navigator === "undefined" || !navigator.userAgent.includes("Firefox")) {
             out.write("testing binding with multiple random endpoints... ");
 
             const adapters = (await Promise.all([
@@ -230,7 +230,7 @@ export class Client extends TestHelper {
                 const connections: Ice.Connection[] = [];
                 for (let i = 0; i < proxies.length; i++) {
                     if (proxies[i].ice_getCachedConnection() !== null) {
-                        if (connections.indexOf(proxies[i].ice_getCachedConnection()) === -1) {
+                        if (!connections.includes(proxies[i].ice_getCachedConnection())) {
                             connections.push(proxies[i].ice_getCachedConnection());
                         }
                     }
@@ -450,7 +450,7 @@ export class Client extends TestHelper {
         }
         out.writeLine("ok");
 
-        if (typeof navigator === "undefined" || navigator.userAgent.indexOf("Firefox") === -1) {
+        if (typeof navigator === "undefined" || !navigator.userAgent.includes("Firefox")) {
             //
             // Firefox adds a delay on websocket failed reconnects that causes this test to take too
             // much time to complete.

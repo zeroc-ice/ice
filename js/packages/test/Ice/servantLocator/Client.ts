@@ -82,7 +82,7 @@ export class Client extends TestHelper {
             } catch (ex) {
                 test(
                     ex instanceof Ice.OperationNotExistException ||
-                        (ex instanceof Ice.UnknownException && ex.unknown.indexOf("") >= 0),
+                        (ex instanceof Ice.UnknownException && ex.unknown.length > 0),
                     ex as Error,
                 );
             }

@@ -267,7 +267,7 @@ export class Client extends TestHelper {
             test(false);
         } catch (ex) {
             const err = ex as Error;
-            test(err.toString().indexOf("ConnectionLostException") > 0, err);
+            test(err.toString().includes("ConnectionLostException"), err);
         }
         out.writeLine("ok");
 

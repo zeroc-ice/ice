@@ -26,7 +26,7 @@ function parseArg(argv, key) {
         const e = argv[i];
         if (e == key) {
             return argv[i + 1];
-        } else if (e.indexOf(key + "=") === 0) {
+        } else if (e.startsWith(key + "=")) {
             return e.substr(key.length + 1);
         }
     }

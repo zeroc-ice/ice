@@ -39,7 +39,7 @@ export class ObjectAdapterFactory {
                     promise,
                 );
             } else {
-                if (this._adapterNamesInUse.indexOf(name) !== -1) {
+                if (this._adapterNamesInUse.includes(name)) {
                     throw new AlreadyRegisteredException("object adapter", name);
                 }
                 adapter = new ObjectAdapter(this._instance, this._communicator, this, name, router, false, promise);
