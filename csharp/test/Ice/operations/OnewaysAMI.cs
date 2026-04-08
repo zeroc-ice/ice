@@ -42,6 +42,9 @@ public static class OnewaysAMI
         await p.opVoidAsync();
         await p.opIdempotentAsync();
 
+        // Calling a ["oneway"] operation on a oneway proxy succeeds.
+        await p.opOnewayAsync();
+
         // Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
         try
         {

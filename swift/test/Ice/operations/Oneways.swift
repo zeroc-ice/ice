@@ -10,6 +10,9 @@ func oneways(_ helper: TestHelper, _ prx: MyClassPrx) async throws {
     try await p.opVoid()
     try await p.opIdempotent()
 
+    // Calling a ["oneway"] operation on a oneway proxy succeeds.
+    try await p.opOneway()
+
     // Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
     do {
         try await prx.ice_twoway().opOneway()

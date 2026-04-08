@@ -308,12 +308,6 @@ ObjectPrx.prototype._checkAsyncTwowayOnly = function (name) {
     }
 };
 
-ObjectPrx.prototype._checkOnewayOnly = function (name) {
-    if (this.ice_isTwoway()) {
-        throw new OnewayOnlyException(name);
-    }
-};
-
 //
 // Only for use by ObjectPrx constructor
 //
@@ -357,8 +351,8 @@ ObjectPrx._invoke = function (p, name, mode, fmt, ctx, marshalFn, unmarshalFn, u
     if (unmarshalFn !== null || userEx.length > 0) {
         p._checkAsyncTwowayOnly(name);
     }
-    if (onewayOnly) {
-        p._checkOnewayOnly(name);
+    if (onewayOnly && p.ice_isTwoway()) {
+        throw new OnewayOnlyException(name);
     }
 
     const r = new OutgoingAsync(p, name, res => {

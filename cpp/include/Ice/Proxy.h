@@ -660,7 +660,6 @@ namespace Ice
         }
 
         void _checkTwowayOnly(std::string_view) const;
-        void _checkOnewayOnly(std::string_view) const;
 
         [[nodiscard]] size_t _hash() const noexcept;
 

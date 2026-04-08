@@ -1293,13 +1293,22 @@ CodeVisitor::visitOperation(const OperationPtr& op)
         out << nl << self << ".iceEndWriteParams(os_);";
     }
 
+    if (onewayOnly)
+    {
+        out << nl << "if " << self << ".isTwoway";
+        out.inc();
+        out << nl << "throw(Ice.OnewayOnlyException('" << op->name() << "'));";
+        out.dec();
+        out << nl << "end";
+    }
+
     out << nl;
     if (returnsAnyValues)
     {
         out << "is_ = ";
     }
     out << self << ".iceInvoke('" << op->name() << "', " << getOperationMode(op->mode()) << ", "
-        << (twowayOnly ? "true" : "false") << ", " << (onewayOnly ? "true" : "false") << ", "
+        << (twowayOnly ? "true" : "false") << ", "
         << (inParams.empty() ? "[]" : "os_") << ", " << (returnsAnyValues ? "true" : "false");
     if (exceptions.empty())
     {
@@ -1464,8 +1473,17 @@ CodeVisitor::visitOperation(const OperationPtr& op)
         out << nl << "end";
     }
 
+    if (onewayOnly)
+    {
+        out << nl << "if " << self << ".isTwoway";
+        out.inc();
+        out << nl << "throw(Ice.OnewayOnlyException('" << op->name() << "'));";
+        out.dec();
+        out << nl << "end";
+    }
+
     out << nl << "future = " << self << ".iceInvokeAsync('" << op->name() << "', " << getOperationMode(op->mode())
-        << ", " << (twowayOnly ? "true" : "false") << ", " << (onewayOnly ? "true" : "false") << ", "
+        << ", " << (twowayOnly ? "true" : "false") << ", "
         << (inParams.empty() ? "[]" : "os_") << ", " << returnAndOutParameters.size() << ", "
         << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
     if (exceptions.empty())

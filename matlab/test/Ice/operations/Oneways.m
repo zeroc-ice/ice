@@ -11,6 +11,9 @@ classdef Oneways
 
             p.opIdempotent();
 
+            % Calling a ["oneway"] operation on a oneway proxy succeeds.
+            p.opOneway();
+
             % Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
             try
                 p.ice_twoway().opOneway();

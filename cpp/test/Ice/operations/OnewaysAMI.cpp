@@ -106,6 +106,13 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
     }
 
     {
+        // Calling a ["oneway"] operation on a oneway proxy succeeds.
+        CallbackPtr cb = std::make_shared<Callback>();
+        p->opOnewayAsync(nullptr, [](exception_ptr) { test(false); }, [&](bool sent) { cb->sent(sent); });
+        cb->check();
+    }
+
+    {
         // Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
         try
         {

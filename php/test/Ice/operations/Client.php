@@ -964,6 +964,11 @@ function twoways($communicator, $p)
         $p->opIdempotent();
     }
 
+    // Calling a ["oneway"] operation on a oneway proxy succeeds.
+    {
+        $p->ice_oneway()->opOneway();
+    }
+
     // Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
     {
         try

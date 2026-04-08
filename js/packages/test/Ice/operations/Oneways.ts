@@ -35,6 +35,9 @@ export async function oneways(prx: Test.MyClassPrx) {
     await prx.opVoid();
     await prx.opIdempotent();
 
+    // Calling a ["oneway"] operation on a oneway proxy succeeds.
+    await prx.opOneway();
+
     // Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
     try {
         await prx.ice_twoway().opOneway();

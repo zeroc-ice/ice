@@ -1529,15 +1529,6 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         }
     }
 
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public void iceCheckOnewayOnly(string name)
-    {
-        if (ice_isTwoway())
-        {
-            throw new OnewayOnlyException(name);
-        }
-    }
-
     internal RequestHandlerCache iceGetRequestHandlerCache() => _requestHandlerCache;
 
     protected ObjectPrxHelperBase(ObjectPrx proxy)
