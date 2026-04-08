@@ -1295,7 +1295,7 @@ CodeVisitor::visitOperation(const OperationPtr& op)
 
     if (onewayOnly)
     {
-        out << nl << "if " << self << ".isTwoway";
+        out << nl << "if " << self << ".ice_isTwoway()";
         out.inc();
         out << nl << "throw(Ice.OnewayOnlyException('" << op->name() << "'));";
         out.dec();
@@ -1475,7 +1475,7 @@ CodeVisitor::visitOperation(const OperationPtr& op)
 
     if (onewayOnly)
     {
-        out << nl << "if " << self << ".isTwoway";
+        out << nl << "if " << self << ".ice_isTwoway()";
         out.inc();
         out << nl << "throw(Ice.OnewayOnlyException('" << op->name() << "'));";
         out.dec();
