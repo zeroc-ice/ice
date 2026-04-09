@@ -502,7 +502,6 @@ Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns)
             }
             else
             {
-                // The concrete type we create.
                 out << "decoder.DecodeCollection(";
                 out.inc();
                 out << nl << "collectionFactory: _ => new " << csIncomingParamType(seq, ns) << "(),";
