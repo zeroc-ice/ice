@@ -3,7 +3,7 @@ Upstream-Name: ZeroC Ice
 Upstream-Contact: ZeroC Info <info@zeroc.com>
 Source: https://github.com/zeroc-ice/
 Comment: Repackaged to remove files not needed for the Debian build.
-Files-Excluded: cpp/src/IceUtil/ConvertUTF.* cpp/msbuild/* csharp/* java/* js/* packaging/rpm/* packaging/windows-installer/*
+Files-Excluded: ICE_LICENSE cpp/src/IceUtil/ConvertUTF.* cpp/msbuild/* csharp/* java/* js/* packaging/rpm/* packaging/windows-installer/*
 
 Files: *
 Copyright: 2003-2026 ZeroC, Inc.
@@ -59,17 +59,6 @@ License: GPL-2.0+exceptions
  .
  On Debian systems, the complete text of the GNU General Public
  License version 2 can be found in "/usr/share/common-licenses/GPL-2".
- .
- Linking Ice statically or dynamically with other software (such as a
- library, module or application) is making a combined work based on Ice.
- Thus, the terms and conditions of the GNU General Public License version
- 2 cover this combined work.
- .
- If such software can only be used together with Ice, then not only the
- combined work but the software itself is a work derived from Ice and as
- such shall be licensed under the terms of the GNU General Public License
- version 2. This includes the situation where Ice is only being used
- through an abstraction layer.
  .
  As a special exception to the above, ZeroC grants to the copyright
  holders and contributors of the Mumble project (http://www.mumble.info)

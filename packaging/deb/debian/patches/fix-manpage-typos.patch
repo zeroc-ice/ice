@@ -13,7 +13,7 @@ Last-Update: 2026-04-01
 +Import database from the specified file.
 
  .TP
- --- a/man/man1/icestormdb.1
+--- a/man/man1/icestormdb.1
 +++ b/man/man1/icestormdb.1
 @@ -36,7 +36,7 @@
  .BR \-\-import " " FILE\fR

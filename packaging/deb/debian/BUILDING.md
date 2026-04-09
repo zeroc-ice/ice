@@ -63,6 +63,7 @@ cd ice
 git archive --format=tar.gz --prefix=zeroc-ice-${UPSTREAM_VERSION}/ \
     -o $HOME/packaging/zeroc-ice/zeroc-ice_${UPSTREAM_VERSION}.orig.tar.gz \
     HEAD \
+    ':(exclude)ICE_LICENSE' \
     ':(exclude)cpp/src/IceUtil/ConvertUTF.*' \
     ':(exclude)cpp/msbuild/*' \
     ':(exclude)csharp/*' \
