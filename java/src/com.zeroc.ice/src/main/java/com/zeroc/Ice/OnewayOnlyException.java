@@ -4,7 +4,7 @@ package com.zeroc.Ice;
 
 /**
  * The exception that is thrown when attempting to invoke a oneway-only operation (an operation with the
- * {@code ["oneway"]} metadata directive) on a twoway proxy.
+ * {@code ["oneway"]} metadata directive) using a twoway proxy.
  */
 public final class OnewayOnlyException extends LocalException {
     /**

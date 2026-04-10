@@ -568,8 +568,9 @@ MyDerivedClassI::opIdempotent(const Ice::Current& current)
 }
 
 void
-MyDerivedClassI::opOneway(const Ice::Current&)
+MyDerivedClassI::opOneway(const Ice::Current& current)
 {
+    test(current.requestId == 0);
 }
 
 void

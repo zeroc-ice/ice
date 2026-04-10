@@ -446,6 +446,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
     @override
     def opOneway(self, current: Ice.Current) -> Awaitable[None]:
+        test(current.requestId == 0)
         return Ice.Future.completed(None)
 
     @override

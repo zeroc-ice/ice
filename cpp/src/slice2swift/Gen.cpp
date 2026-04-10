@@ -1313,7 +1313,6 @@ Gen::TypesVisitor::visitOperation(const OperationPtr& op)
     //
     // Invoke
     //
-    out << sp;
 
     if (op->hasMetadata("oneway"))
     {

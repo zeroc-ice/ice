@@ -1269,18 +1269,17 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
              << "global::System.Threading.CancellationToken cancel"
              << "bool synchronous" << epar;
         _out << sb;
-
         string flatName = "_" + removeEscapePrefix(opName) + "_name";
-        if (op->returnsData())
-        {
-            _out << nl << "iceCheckTwowayOnly(" << flatName << ");";
-        }
         if (op->hasMetadata("oneway"))
         {
             _out << nl << "if (ice_isTwoway())";
             _out << sb;
             _out << nl << "throw new Ice.OnewayOnlyException(" << flatName << ");";
             _out << eb;
+        }
+        if (op->returnsData())
+        {
+            _out << nl << "iceCheckTwowayOnly(" << flatName << ");";
         }
         if (returnTypeS.empty())
         {

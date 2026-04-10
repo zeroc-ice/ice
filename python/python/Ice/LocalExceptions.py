@@ -487,7 +487,7 @@ class TwowayOnlyException(LocalException):
 class OnewayOnlyException(LocalException):
     """
     The exception that is raised when attempting to invoke a oneway-only operation (an operation with the
-    ``["oneway"]`` metadata directive) on a twoway proxy.
+    ``["oneway"]`` metadata directive) using a twoway proxy.
     """
 
 

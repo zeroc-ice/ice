@@ -1272,6 +1272,15 @@ CodeVisitor::visitOperation(const OperationPtr& op)
     writeOpDocSummary(out, op, false);
     writeArguments(out, self, prxAbs, inParams, contextParam);
 
+    if (onewayOnly)
+    {
+        out << nl << "if " << self << ".ice_isTwoway()";
+        out.inc();
+        out << nl << "throw(Ice.OnewayOnlyException('" << op->name() << "'));";
+        out.dec();
+        out << nl << "end";
+    }
+
     if (!inParams.empty())
     {
         if (op->format())
@@ -1291,15 +1300,6 @@ CodeVisitor::visitOperation(const OperationPtr& op)
             out << nl << "os_.writePendingValues();";
         }
         out << nl << self << ".iceEndWriteParams(os_);";
-    }
-
-    if (onewayOnly)
-    {
-        out << nl << "if " << self << ".ice_isTwoway()";
-        out.inc();
-        out << nl << "throw(Ice.OnewayOnlyException('" << op->name() << "'));";
-        out.dec();
-        out << nl << "end";
     }
 
     out << nl;
@@ -1395,6 +1395,15 @@ CodeVisitor::visitOperation(const OperationPtr& op)
     writeOpDocSummary(out, op, true);
     writeArguments(out, self, prxAbs, inParams, contextParam);
 
+    if (onewayOnly)
+    {
+        out << nl << "if " << self << ".ice_isTwoway()";
+        out.inc();
+        out << nl << "throw(Ice.OnewayOnlyException('" << op->name() << "'));";
+        out.dec();
+        out << nl << "end";
+    }
+
     if (!inParams.empty())
     {
         if (op->format())
@@ -1469,15 +1478,6 @@ CodeVisitor::visitOperation(const OperationPtr& op)
             }
             i++;
         }
-        out.dec();
-        out << nl << "end";
-    }
-
-    if (onewayOnly)
-    {
-        out << nl << "if " << self << ".ice_isTwoway()";
-        out.inc();
-        out << nl << "throw(Ice.OnewayOnlyException('" << op->name() << "'));";
         out.dec();
         out << nl << "end";
     }

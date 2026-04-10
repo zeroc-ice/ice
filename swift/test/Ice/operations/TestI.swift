@@ -412,7 +412,9 @@ final class MyDerivedClassI: MyDerivedClass {
         try _helper.test(current.mode == .idempotent)
     }
 
-    func opOneway(current _: Ice.Current) {}
+    func opOneway(current: Ice.Current) throws {
+        try _helper.test(current.requestId == 0)
+    }
 
     func opDerived(current _: Ice.Current) {}
 

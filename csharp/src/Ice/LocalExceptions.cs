@@ -957,7 +957,7 @@ public sealed class TwowayOnlyException : LocalException
 
 /// <summary>
 /// The exception that is thrown when attempting to invoke a oneway-only operation (an operation with the
-/// ["oneway"] metadata directive) on a twoway proxy.
+/// ["oneway"] metadata directive) using a twoway proxy.
 /// </summary>
 public sealed class OnewayOnlyException : LocalException
 {

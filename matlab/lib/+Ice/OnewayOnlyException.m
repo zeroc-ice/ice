@@ -1,6 +1,6 @@
 classdef (Sealed) OnewayOnlyException < Ice.LocalException
     %ONEWAYONLYEXCEPTION The exception that is thrown when attempting to invoke a oneway-only operation
-    %   (an operation with the ["oneway"] metadata directive) on a twoway proxy.
+    %   (an operation with the ["oneway"] metadata directive) using a twoway proxy.
 
     % Copyright (c) ZeroC, Inc.
 

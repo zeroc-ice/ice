@@ -477,7 +477,7 @@ public final class TwowayOnlyException: LocalException, @unchecked Sendable {
 }
 
 /// The exception that is thrown when attempting to invoke a oneway-only operation (an operation with the
-/// ["oneway"] metadata directive) on a twoway proxy.
+/// ["oneway"] metadata directive) using a twoway proxy.
 public final class OnewayOnlyException: LocalException, @unchecked Sendable {
     /// Creates an OnewayOnlyException.
     ///

@@ -608,7 +608,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public void opOneway(Current current) {}
+    public void opOneway(Current current) {
+        test(current.requestId == 0);
+    }
 
     @Override
     public void opDerived(Current current) {}

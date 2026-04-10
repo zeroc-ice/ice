@@ -409,7 +409,9 @@ export class MyDerivedClassI extends Test.MyDerivedClass {
         test(current.mode === Ice.OperationMode.Idempotent);
     }
 
-    opOneway(_: Ice.Current) {}
+    opOneway(current: Ice.Current) {
+        test(current.requestId === 0);
+    }
 
     opDerived(_: Ice.Current) {}
 

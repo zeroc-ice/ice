@@ -416,7 +416,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
     @override
     def opOneway(self, current: Ice.Current) -> None:
-        pass
+        test(current.requestId == 0)
 
     @override
     def opDerived(self, current: Ice.Current) -> None:

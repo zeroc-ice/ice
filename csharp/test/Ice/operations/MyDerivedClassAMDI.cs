@@ -714,7 +714,11 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
     }
 
     public override Task
-    opOnewayAsync(Current current) => Task.CompletedTask;
+    opOnewayAsync(Current current)
+    {
+        test(current.requestId == 0);
+        return Task.CompletedTask;
+    }
 
     public override Task
     opDerivedAsync(Current current) => Task.CompletedTask;
