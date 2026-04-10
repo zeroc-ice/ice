@@ -319,6 +319,14 @@ declare module "@zeroc/ice" {
         }
 
         /**
+         * The exception that is thrown when attempting to invoke a oneway-only operation (an operation with the
+         * ["oneway"] metadata directive) using a twoway proxy.
+         */
+        class OnewayOnlyException extends LocalException {
+            constructor(operation: string);
+        }
+
+        /**
          * The exception that is thrown when a property cannot be set or retrieved. For example, this exception is
          * thrown when attempting to set an unknown Ice property.
          */

@@ -32,6 +32,7 @@ class Object:
         (),
         ((), IcePy._t_bool, False, 0),
         (),
+        False,
     )
 
     _op_ice_ping = IcePy.Operation(
@@ -44,6 +45,7 @@ class Object:
         (),
         None,
         (),
+        False,
     )
 
     _op_ice_ids = IcePy.Operation(
@@ -56,6 +58,7 @@ class Object:
         (),
         ((), _Ice_StringSeq_t, False, 0),
         (),
+        False,
     )
 
     _op_ice_id = IcePy.Operation(
@@ -68,6 +71,7 @@ class Object:
         (),
         ((), IcePy._t_string, False, 0),
         (),
+        False,
     )
 
     def ice_isA(self, id: str, current: Current) -> bool | Awaitable[bool]:

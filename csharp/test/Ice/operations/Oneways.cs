@@ -14,6 +14,19 @@ internal class Oneways
         p.opVoid();
         p.opIdempotent();
 
+        // Calling a ["oneway"] operation on a oneway proxy succeeds.
+        p.opOneway();
+
+        // Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
+        try
+        {
+            Test.MyClassPrxHelper.uncheckedCast(p.ice_twoway()).opOneway();
+            test(false);
+        }
+        catch (Ice.OnewayOnlyException)
+        {
+        }
+
         try
         {
             p.opByte(0xff, 0x0f, out byte b);

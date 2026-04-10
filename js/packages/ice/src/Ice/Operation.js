@@ -66,6 +66,7 @@ function parseParam(p) {
 //  6: exceptions (undefined if none, or array of types)
 //  7: sends classes (true or undefined)
 //  8: returns classes (true or undefined)
+//  9: oneway only (true or undefined)
 //
 function parseOperation(name, arr) {
     const r = {};
@@ -128,6 +129,7 @@ function parseOperation(name, arr) {
 
     r.sendsClasses = arr[7] === true;
     r.returnsClasses = arr[8] === true;
+    r.onewayOnly = arr[9] === true;
 
     return r;
 }
@@ -493,6 +495,7 @@ function addProxyOperation(proxyType, name, data) {
             unmarshalFn,
             op.exceptions,
             Array.prototype.slice.call(args),
+            op.onewayOnly,
         );
     };
 }

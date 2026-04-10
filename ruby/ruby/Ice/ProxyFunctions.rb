@@ -35,7 +35,8 @@ module ::Ice
         [],
         [],
         nil,
-        [])
+        [],
+        false)
 
     ObjectPrx_mixin::OP_ice_ids = Ice::__defineOperation(
         'ice_ids',
@@ -45,7 +46,8 @@ module ::Ice
         [],
         [],
         [::Ice::T_StringSeq, false, 0],
-        [])
+        [],
+        false)
 
     ObjectPrx_mixin::OP_ice_id = Ice::__defineOperation(
         'ice_id',
@@ -55,7 +57,8 @@ module ::Ice
         [],
         [],
         [Ice::T_string, false, 0],
-        [])
+        [],
+        false)
 
     ObjectPrx_mixin::OP_ice_isA = Ice::__defineOperation(
         'ice_isA',
@@ -65,5 +68,6 @@ module ::Ice
         [[Ice::T_string, false, 0]],
         [],
         [Ice::T_bool, false, 0],
-        [])
+        [],
+        false)
 end

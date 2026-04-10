@@ -476,5 +476,21 @@ public final class TwowayOnlyException: LocalException, @unchecked Sendable {
     }
 }
 
+/// The exception that is thrown when attempting to invoke a oneway-only operation (an operation with the
+/// ["oneway"] metadata directive) using a twoway proxy.
+public final class OnewayOnlyException: LocalException, @unchecked Sendable {
+    /// Creates an OnewayOnlyException.
+    ///
+    /// - Parameters:
+    ///   - operation: The name of the oneway-only operation.
+    ///   - file: The file where the exception was thrown.
+    ///   - line: The line where the exception was thrown.
+    public convenience init(operation: String, file: String = #fileID, line: Int32 = #line) {
+        self.init(
+            "cannot invoke oneway operation '\(operation)' with a twoway proxy",
+            file: file, line: line)
+    }
+}
+
 /// This exception is raised when there is an error while getting or setting a property.
 public final class PropertyException: LocalException, @unchecked Sendable {}

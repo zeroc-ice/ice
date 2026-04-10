@@ -753,6 +753,8 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
 
     public override void opIdempotent(Ice.Current current) => test(current.mode == Ice.OperationMode.Idempotent);
 
+    public override void opOneway(Ice.Current current) => test(current.requestId == 0);
+
     public override void opDerived(Ice.Current current)
     {
     }

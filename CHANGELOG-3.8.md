@@ -5,6 +5,8 @@ entries reflect significant new additions, while others represent minor correcti
 comprehensive report of every change we made in a release, it does provide details on the changes we feel Ice users
 might need to be aware of.
 
+- [Changes in Ice 3.8.2](#changes-in-ice-382)
+  - [Slice Language Changes](#slice-language-changes)
 - [Changes in Ice 3.8.1](#changes-in-ice-381)
   - [General Changes](#general-changes)
   - [IceSSL Changes](#icessl-changes)
@@ -19,7 +21,7 @@ might need to be aware of.
 - [Changes in Ice 3.8.0](#changes-in-ice-380)
   - [General Changes](#general-changes-1)
   - [Packaging Changes](#packaging-changes-1)
-  - [Slice Language Changes](#slice-language-changes)
+  - [Slice Language Changes](#slice-language-changes-1)
   - [IceSSL Changes](#icessl-changes-1)
     - [Integration with Platform SSL Engines](#integration-with-platform-ssl-engines)
     - [Removed Support for OpenSSL on Windows](#removed-support-for-openssl-on-windows)
@@ -43,6 +45,17 @@ might need to be aware of.
     - [IceGrid](#icegrid)
     - [IcePatch2](#icepatch2)
     - [IceStorm](#icestorm)
+
+## Changes in Ice 3.8.2
+
+These are the changes since the Ice 3.8.1 release.
+
+### Slice Language Changes
+
+- Added the `["oneway"]` metadata directive for Slice operations. This directive can only be applied to operations
+  that do not return data (no return type, out parameters, or exception specification). `OnewayOnlyException` is
+  thrown if a `["oneway"]` operation is invoked using a twoway proxy. In languages where exceptions can be thrown
+  synchronously or asynchronously, this exception is always thrown synchronously.
 
 ## Changes in Ice 3.8.1
 

@@ -57,7 +57,8 @@ namespace IcePy
             PyObject*,
             PyObject*,
             PyObject*,
-            PyObject*);
+            PyObject*,
+            bool);
 
         void marshalResult(Ice::OutputStream&, PyObject*);
 
@@ -76,6 +77,7 @@ namespace IcePy
         ExceptionInfoList exceptions;
         bool sendsClasses;
         bool returnsClasses;
+        bool onewayOnly;
 
     private:
         string _deprecateMessage;
@@ -112,6 +114,7 @@ namespace IcePy
         PyObject* unmarshalException(const OperationPtr&, pair<const byte*, const byte*>);
         bool validateException(const OperationPtr&, PyObject*) const;
         void checkTwowayOnly(const OperationPtr&, const Ice::ObjectPrx&) const;
+        void checkOnewayOnly(const OperationPtr&, const Ice::ObjectPrx&) const;
 
         Ice::ObjectPrx _prx;
         Ice::CommunicatorPtr _communicator;
@@ -344,9 +347,10 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
     PyObject* outParams;
     PyObject* returnType;
     PyObject* exceptions;
+    int onewayOnly = 0;
     if (!PyArg_ParseTuple(
             args,
-            "ssO!OO!O!O!OO!",
+            "ssO!OO!O!O!OO!|p",
             &sliceName,
             &mappedName,
             modeType,
@@ -360,14 +364,23 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
             &outParams,
             &returnType,
             &PyTuple_Type,
-            &exceptions))
+            &exceptions,
+            &onewayOnly))
     {
         return -1;
     }
 
-    self->op = new OperationPtr(
-        make_shared<
-            Operation>(sliceName, mappedName, mode, format, metadata, inParams, outParams, returnType, exceptions));
+    self->op = new OperationPtr(make_shared<Operation>(
+        sliceName,
+        mappedName,
+        mode,
+        format,
+        metadata,
+        inParams,
+        outParams,
+        returnType,
+        exceptions,
+        onewayOnly));
     return 0;
 }
 
@@ -562,10 +575,12 @@ IcePy::Operation::Operation(
     PyObject* in,
     PyObject* out,
     PyObject* ret,
-    PyObject* ex)
+    PyObject* ex,
+    bool owo)
 {
     sliceName = name;
     mappedName = mapped;
+    onewayOnly = owo;
 
     //
     // mode
@@ -1158,6 +1173,15 @@ IcePy::Invocation::checkTwowayOnly(const OperationPtr& op, const Ice::ObjectPrx&
     }
 }
 
+void
+IcePy::Invocation::checkOnewayOnly(const OperationPtr& op, const Ice::ObjectPrx& proxy) const
+{
+    if (op->onewayOnly && proxy->ice_isTwoway())
+    {
+        throw Ice::OnewayOnlyException{__FILE__, __LINE__, op->sliceName};
+    }
+}
+
 //
 // SyncTypedInvocation
 //
@@ -1189,6 +1213,7 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     try
     {
         checkTwowayOnly(_op, _prx);
+        checkOnewayOnly(_op, _prx);
 
         //
         // Invoke the operation.
@@ -1332,6 +1357,14 @@ IcePy::AsyncInvocation::invoke(PyObject* args, PyObject* kwds)
     {
         //
         // TwowayOnlyException can propagate directly.
+        //
+        setPythonException(current_exception());
+        return nullptr;
+    }
+    catch (const Ice::OnewayOnlyException&)
+    {
+        //
+        // OnewayOnlyException can propagate directly.
         //
         setPythonException(current_exception());
         return nullptr;
@@ -1577,6 +1610,7 @@ IcePy::AsyncTypedInvocation::handleInvoke(PyObject* args, PyObject* /* kwds */)
     }
 
     checkTwowayOnly(_op, _prx);
+    checkOnewayOnly(_op, _prx);
 
     // Invoke the operation asynchronously.
     Ice::Context context;
