@@ -92,7 +92,7 @@ module IceMX
         /// @param view The name of the metrics view.
         /// @param timestamp The local time of the process when the metrics objects were retrieved.
         /// @return The metrics view data, a dictionary of metric maps for each metrics class configured with the view.
-        /// The `timestamp` allows the client to compute averages which are not dependent of the invocation latency for
+        /// The @p timestamp allows the client to compute averages which are not dependent of the invocation latency for
         /// this operation.
         /// @throws UnknownMetricsView Thrown when the metrics view cannot be found.
         ["format:sliced"]

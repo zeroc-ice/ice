@@ -263,7 +263,7 @@ export class Client extends TestHelper {
             properties.setProperty("Ice.Warn.Dispatch", "1");
             properties.setProperty("Ice.Warn.Connections", "0");
             [communicator] = this.initialize(properties);
-            await this.allTests(args.indexOf("--shutdown") > -1);
+            await this.allTests(args.includes("--shutdown"));
         } finally {
             if (communicator) {
                 communicator.shutdown();

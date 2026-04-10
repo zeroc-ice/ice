@@ -865,10 +865,10 @@ Slice::IceRpc::TypesVisitor::visitConst(const ConstPtr& p)
 
     _out << sp;
     writeIceRpcHelperDocComment(_out, p, "Provides the " + p->mappedName() + " constant.", "helper class");
-    emitAttributes(p);
     _out << nl << accessModifier(p) << " static class " << p->mappedName();
     _out << sb;
     writeIceRpcDocComment(_out, p);
+    emitAttributes(p);
     _out << nl << accessModifier(p) << " const " << csFieldType(p->type(), ns) << " Value = ";
     writeConstantValue(_out, p->type(), p->valueType(), p->value(), ns, "Value");
     _out << ';';

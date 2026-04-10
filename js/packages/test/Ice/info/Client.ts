@@ -116,8 +116,8 @@ export class Client extends TestHelper {
         if (conn.type() == "ws" || conn.type() == "wss") {
             test(getHeader(ctx, "ws.Upgrade")!.toLowerCase() == "websocket");
             test(
-                getHeader(ctx, "ws.Connection")!.indexOf("Upgrade") >= 0 ||
-                    getHeader(ctx, "ws.Connection")!.indexOf("upgrade") >= 0,
+                getHeader(ctx, "ws.Connection")!.includes("Upgrade") ||
+                    getHeader(ctx, "ws.Connection")!.includes("upgrade"),
             );
             test(getHeader(ctx, "ws.Sec-WebSocket-Protocol") == "ice.zeroc.com");
             test(getHeader(ctx, "ws.Sec-WebSocket-Version") == "13");

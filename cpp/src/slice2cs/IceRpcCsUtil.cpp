@@ -47,11 +47,21 @@ namespace
 
     void castToNestedFieldType(Output& out, const TypePtr& type, const string& ns)
     {
-        if (dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type))
+        if (auto seq = dynamic_pointer_cast<Sequence>(type))
         {
-            out << "(" << Slice::Csharp::csFieldType(type, ns) << ")";
+            auto metadata = seq->getMetadataArgs("cs:generic");
+            if (metadata && *metadata != "List")
+            {
+                // We only need to cast for the default sequence mapping and cs:generic:List, as they both map to
+                // IList<T>.
+                return;
+            }
         }
-        // else no need to cast
+        else if (!dynamic_pointer_cast<Dictionary>(type))
+        {
+            return; // no need to cast
+        }
+        out << "(" << Slice::Csharp::csFieldType(type, ns) << ")";
     }
 }
 
@@ -110,6 +120,19 @@ Slice::Csharp::csFieldType(const TypePtr& type, const string& ns, bool optional)
     }
     else if (auto seq = dynamic_pointer_cast<Sequence>(type))
     {
+        if (auto metadata = seq->getMetadataArgs("cs:generic"))
+        {
+            const string& customType = *metadata;
+            if (customType == "LinkedList" || customType == "Queue" || customType == "Stack")
+            {
+                return "global::System.Collections.Generic." + customType + "<" + csFieldType(seq->type(), ns) + ">";
+            }
+            else if (customType != "List")
+            {
+                return "global::" + customType + "<" + csFieldType(seq->type(), ns) + ">";
+            }
+            // else use default mapping to IList below
+        }
         return "global::System.Collections.Generic.IList<" + csFieldType(seq->type(), ns) + ">";
     }
     else if (auto d = dynamic_pointer_cast<Dictionary>(type))
@@ -464,38 +487,45 @@ Slice::Csharp::decodeField(Output& out, const TypePtr& type, const string& ns)
     }
     else if (auto seq = dynamic_pointer_cast<Sequence>(type))
     {
-        bool hasGenericMetadata = seq->hasMetadata("cs:generic");
-
-        // The concrete type we create.
-        string csSeq = csIncomingParamType(seq, ns);
-
-        if (hasFixedSizeBuiltinElements(seq))
+        if (auto metadata = seq->getMetadataArgs("cs:generic"))
         {
-            if (hasGenericMetadata)
+            const string& customType = *metadata;
+            if (customType == "Queue" || customType == "LinkedList" || customType == "List" || customType == "Stack")
             {
-                out << "new " << csSeq << "(";
+                out << "decoder.Decode" << customType << "(";
+                out.inc();
+                out << nl << "(ref IceDecoder decoder) => ";
+                castToNestedFieldType(out, seq->type(), ns);
+                decodeField(out, seq->type(), ns);
+                out << ")";
+                out.dec();
             }
-
+            else
+            {
+                out << "decoder.DecodeCollection(";
+                out.inc();
+                out << nl << "collectionFactory: _ => new " << csIncomingParamType(seq, ns) << "(),";
+                out << nl << "addElement: (collection, element) => collection.Add(element),";
+                out << nl << "(ref IceDecoder decoder) => ";
+                castToNestedFieldType(out, seq->type(), ns);
+                decodeField(out, seq->type(), ns);
+                out << ")";
+                out.dec();
+            }
+        }
+        else if (hasFixedSizeBuiltinElements(seq))
+        {
             out << "decoder.DecodeSequence<" << Slice::Csharp::csFieldType(seq->type(), ns) << ">(";
             if (isBool(seq->type()))
             {
                 out << "checkElement: IceDecoder.CheckBoolValue";
             }
             out << ")";
-
-            if (hasGenericMetadata)
-            {
-                out << ")";
-            }
         }
         else
         {
             out << "decoder.DecodeSequence(";
             out.inc();
-            if (hasGenericMetadata)
-            {
-                out << nl << "sequenceFactory: size => new " << csSeq << "(size),";
-            }
             out << nl << "(ref IceDecoder decoder) => ";
             castToNestedFieldType(out, seq->type(), ns);
             decodeField(out, seq->type(), ns);

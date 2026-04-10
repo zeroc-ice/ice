@@ -194,8 +194,8 @@ export class Properties {
         const result = [];
 
         options.forEach(opt => {
-            if (opt.indexOf(pfx) === 0) {
-                if (opt.indexOf("=") === -1) {
+            if (opt.startsWith(pfx)) {
+                if (!opt.includes("=")) {
                     opt += "=1";
                 }
 

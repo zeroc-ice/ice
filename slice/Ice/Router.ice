@@ -21,7 +21,7 @@ module Ice
         /// router. If a null proxy is returned, the client will forward requests to the router's endpoints.
         /// @param hasRoutingTable Indicates whether or not the router supports a routing table. If `true`, the Ice
         /// runtime will call {@link addProxies} to populate the routing table. The Ice runtime assumes the router has
-        /// a routing table when `hasRoutingTable` is not set.
+        /// a routing table when @p hasRoutingTable is not set.
         /// @return The router's client proxy.
         /// @remark Introduced in Ice 3.7.
         ["cpp:const"]

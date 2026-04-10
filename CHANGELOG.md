@@ -17,8 +17,6 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Removed the 'ice2slice' compiler
 
-[Ice 3.8.1]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
-
 ### Slice Language Changes
 
 - Added the `["oneway"]` metadata directive for Slice operations. When applied to an operation that does not return
@@ -27,3 +25,5 @@ These are the changes since the [Ice 3.8.1] release.
   synchronously or asynchronously, this exception is always thrown synchronously.
 
 - Removed support for using `@p` tags in doc-comments to reference out parameters.
+
+[Ice 3.8.1]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md

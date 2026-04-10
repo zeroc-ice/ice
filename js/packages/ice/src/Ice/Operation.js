@@ -309,7 +309,7 @@ function getServantMethodFromInterfaces(interfaces, methodName, all) {
         const intf = interfaces[i];
         method = intf[methodName];
         if (method === undefined) {
-            if (all.indexOf(intf) === -1) {
+            if (!all.includes(intf)) {
                 all.push(intf);
             }
             if (intf._iceImplements) {
