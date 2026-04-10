@@ -2,7 +2,7 @@
     "C_Cpp.autoAddFileAssociations": false,
     "files.associations": {
         "Make.*": "makefile",
-        "**/matlab/**/*.m": "matlab",
+        "**/matlab/**/*.m": "matlab"
     },
     "C_Cpp.default.cppStandard": "c++20",
     "[java]": {
