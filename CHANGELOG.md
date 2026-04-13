@@ -24,8 +24,6 @@ These are the changes since the [Ice 3.8.1] release.
   do not return data (no return type, out parameters, or exception specification). `OnewayOnlyException` is thrown
   if a `["oneway"]` operation is invoked using a twoway proxy. In languages where exceptions can be thrown synchronously or asynchronously, this exception is always thrown synchronously.
 
-- Removed support for using `@p` tags in doc-comments to reference out parameters.
-
 ### C# Changes
 
 - Changed the mapping of `@p` tags which reference out parameters in Slice.
