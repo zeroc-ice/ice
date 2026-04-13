@@ -187,19 +187,15 @@ async function compileTypeScript(testDir) {
     try {
         const tscPath = path.resolve(root, "node_modules/typescript/bin/tsc");
         await new Promise((resolve, reject) => {
-            execFile(
-                process.execPath,
-                [tscPath, "--project", configPath],
-                (error, stdout, stderr) => {
-                    if (error) {
-                        if (stdout) process.stdout.write(stdout);
-                        if (stderr) process.stderr.write(stderr);
-                        reject(new Error("TypeScript compilation failed"));
-                    } else {
-                        resolve();
-                    }
-                },
-            );
+            execFile(process.execPath, [tscPath, "--project", configPath], (error, stdout, stderr) => {
+                if (error) {
+                    if (stdout) process.stdout.write(stdout);
+                    if (stderr) process.stderr.write(stderr);
+                    reject(new Error("TypeScript compilation failed"));
+                } else {
+                    resolve();
+                }
+            });
         });
     } finally {
         fs.rmSync(configPath, { force: true });
