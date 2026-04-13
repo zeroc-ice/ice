@@ -10,6 +10,7 @@ LICENSE
 # Test generated files
 packages/test/**/Test.js
 packages/test/**/Test.d.ts
+packages/test/**/.tsconfig.gulp-tests.json
 
 packages/test/Common/Controller.js
 packages/test/Glacier2/router/Callback.d.ts

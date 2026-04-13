@@ -84,7 +84,6 @@ export class Client extends TestHelper {
                 test(ex instanceof Ice.AlreadyRegisteredException, ex as Error);
             }
             adapter.destroy();
-            out.writeLine("ok");
         }
         out.writeLine("ok");
 
