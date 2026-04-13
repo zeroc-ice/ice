@@ -1411,6 +1411,10 @@ export class InputStream {
 
             const format = OptionalFormat.valueOf(v & 0x07); // First 3 bits.
             let tag = v >> 3;
+            if (tag > 30)
+            {
+                throw new MarshalException(`invalid tag '${tag}': tags larger than 29 must be encoded as a size`);
+            }
             if (tag === 30) {
                 tag = this.readSize();
             }

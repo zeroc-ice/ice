@@ -565,6 +565,10 @@ classdef InputStream < handle
 
                     format = bitand(v, uint8(7)); % First 3 bits.
                     tag = uint32(bitshift(v, -3));
+                    if tag > 30
+                        throw(Ice.MarshalException(...
+                            sprintf('invalid tag ''%d'': tags larger than 29 must be encoded as a size', tag)));
+                    end
                     if tag == 30
                         tag = obj.readSize();
                     end

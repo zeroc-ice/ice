@@ -1327,6 +1327,10 @@ public final class InputStream {
 
             OptionalFormat format = OptionalFormat.valueOf(v & 0x07); // First 3 bits.
             int tag = v >> 3;
+            if (tag > 30)
+            {
+                throw new MarshalException("invalid tag '" + tag + "': tags larger than 29 must be encoded as a size");
+            }
             if (tag == 30) {
                 tag = readSize();
             }
@@ -1339,7 +1343,7 @@ public final class InputStream {
                 skipOptional(format); // Skip optional data members
             } else {
                 if (format != expectedFormat) {
-                    throw new MarshalException("invalid optional data member `" + tag + "': unexpected format");
+                    throw new MarshalException("invalid optional data member '" + tag + "': unexpected format");
                 }
                 return true;
             }
