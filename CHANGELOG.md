@@ -7,6 +7,7 @@ might need to be aware of.
 
 - [Changes in Ice 3.9.0](#changes-in-ice-390)
   - [General Changes](#general-changes)
+  - [C# Changes](#c-changes)
 
 ## Changes in Ice 3.9.0
 
@@ -15,5 +16,10 @@ These are the changes since the [Ice 3.8.1] release.
 ### General Changes
 
 - Removed the 'ice2slice' compiler
+
+### C# Changes
+
+- Changed the mapping of `@p` tags which reference out parameters in Slice.
+These now generate a `<c>...</c>` instead of a `<paramref name=... />`.
 
 [Ice 3.8.1]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
