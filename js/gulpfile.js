@@ -185,10 +185,11 @@ async function compileTypeScript(testDir) {
     );
 
     try {
+        const tscPath = path.resolve(root, "node_modules/typescript/bin/tsc");
         await new Promise((resolve, reject) => {
             execFile(
-                path.resolve(root, "node_modules/.bin/tsc"),
-                ["--project", configPath],
+                process.execPath,
+                [tscPath, "--project", configPath],
                 (error, stdout, stderr) => {
                     if (error) {
                         if (stdout) process.stdout.write(stdout);
