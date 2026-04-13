@@ -1924,7 +1924,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             out << ',';
         }
-        out << "))";
+        out << ")," << nl << (operation->hasMetadata("oneway") ? "True" : "False") << ")";
         out.dec();
 
         if (operation->isDeprecated())

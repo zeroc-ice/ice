@@ -152,6 +152,8 @@ public:
 
     void opIdempotent(const Ice::Current&) final;
 
+    void opOneway(const Ice::Current&) final;
+
     void opDerived(const Ice::Current&) final;
 
     std::uint8_t opByte1(std::uint8_t, const Ice::Current&) final;

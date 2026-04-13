@@ -344,6 +344,8 @@ public:
 
     void opIdempotentAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
 
+    void opOnewayAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
+
     void opDerivedAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
 
     void opByte1Async(

@@ -1,7 +1,8 @@
 {
     "C_Cpp.autoAddFileAssociations": false,
     "files.associations": {
-        "Make.*": "makefile"
+        "Make.*": "makefile",
+        "**/matlab/**/*.m": "matlab"
     },
     "C_Cpp.default.cppStandard": "c++20",
     "[java]": {
@@ -11,6 +12,9 @@
         "editor.formatOnSave": false
     },
     "[xml]": {
+        "editor.formatOnSave": false
+    },
+    "[php]": {
         "editor.formatOnSave": false
     },
     "markdown.extension.toc.levels": "1..4"

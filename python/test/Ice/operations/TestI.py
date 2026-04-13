@@ -415,6 +415,10 @@ class MyDerivedClassI(Test.MyDerivedClass):
         test(current.mode == Ice.OperationMode.Idempotent)
 
     @override
+    def opOneway(self, current: Ice.Current) -> None:
+        test(current.requestId == 0)
+
+    @override
     def opDerived(self, current: Ice.Current) -> None:
         return
 

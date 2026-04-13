@@ -25,6 +25,20 @@ def oneways(helper: TestHelper, p: Test.MyClassPrx) -> None:
     p.opIdempotent()
 
     #
+    # Calling a ["oneway"] operation on a oneway proxy succeeds.
+    #
+    p.opOneway()
+
+    #
+    # Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
+    #
+    try:
+        Test.MyClassPrx.uncheckedCast(p.ice_twoway()).opOneway()
+        test(False)
+    except Ice.OnewayOnlyException:
+        pass
+
+    #
     # opByte
     #
     try:

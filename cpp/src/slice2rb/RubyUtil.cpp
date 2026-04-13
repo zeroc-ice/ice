@@ -456,6 +456,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << getMetaTypeReference(ex);
         }
         _out.epar("]");
+        _out << ", " << (op->hasMetadata("oneway") ? "true" : "false");
         _out << ")";
 
         if (op->isDeprecated())

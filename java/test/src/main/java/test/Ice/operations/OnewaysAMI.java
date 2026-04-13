@@ -2,6 +2,7 @@
 
 package test.Ice.operations;
 
+import com.zeroc.Ice.OnewayOnlyException;
 import com.zeroc.Ice.TwowayOnlyException;
 import com.zeroc.Ice.Util;
 
@@ -102,6 +103,28 @@ class OnewaysAMI {
                         cb.called();
                     });
             cb.check();
+        }
+
+        {
+            // Calling a ["oneway"] operation on a oneway proxy succeeds.
+            final Callback cb = new Callback();
+            CompletableFuture<Void> f = p.opOnewayAsync();
+            f.whenComplete((result, ex) -> test(ex == null));
+            Util.getInvocationFuture(f)
+                .whenSent(
+                    (sentSynchronously, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
+            cb.check();
+        }
+
+        {
+            // Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
+            try {
+                proxy.ice_twoway().opOnewayAsync();
+                test(false);
+            } catch (OnewayOnlyException ex) {}
         }
 
         {

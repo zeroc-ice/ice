@@ -484,6 +484,14 @@ class TwowayOnlyException(LocalException):
 
 
 @final
+class OnewayOnlyException(LocalException):
+    """
+    The exception that is raised when attempting to invoke a oneway-only operation (an operation with the
+    ``["oneway"]`` metadata directive) using a twoway proxy.
+    """
+
+
+@final
 class PropertyException(LocalException):
     """
     The exception that is raised when a property cannot be set or retrieved.
@@ -530,5 +538,6 @@ __all__ = [
     "ParseException",
     "SecurityException",
     "TwowayOnlyException",
+    "OnewayOnlyException",
     "PropertyException",
 ]

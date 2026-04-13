@@ -412,6 +412,17 @@ export class TwowayOnlyException extends LocalException {
     }
 }
 
+export class OnewayOnlyException extends LocalException {
+    static get _ice_id() {
+        return "::Ice::OnewayOnlyException";
+    }
+
+    constructor(operation) {
+        super(`Cannot invoke oneway operation '${operation}' with a twoway proxy.`);
+        this.operation = operation;
+    }
+}
+
 export class PropertyException extends LocalException {
     static get _ice_id() {
         return "::Ice::PropertyException";

@@ -126,6 +126,25 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
     };
     knownMetadata.emplace("marshaled-result", std::move(marshaledResultInfo));
 
+    // "oneway"
+    MetadataInfo onewayInfo = {
+        .validOn = {typeid(Operation)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& q) -> optional<string>
+        {
+            if (auto op = dynamic_pointer_cast<Operation>(q))
+            {
+                if (op->returnsData())
+                {
+                    return "'oneway' metadata cannot be applied to an operation that has a return type, out parameters,"
+                           " or an exception specification";
+                }
+            }
+            return nullopt;
+        },
+    };
+    knownMetadata.emplace("oneway", std::move(onewayInfo));
+
     // "suppress-warning"
     MetadataInfo suppressWarningInfo = {
         .validOn = {typeid(Unit)},

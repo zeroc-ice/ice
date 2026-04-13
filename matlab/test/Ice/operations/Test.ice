@@ -229,6 +229,8 @@ module Test
 
         idempotent void opIdempotent();
 
+        ["oneway"] void opOneway();
+
         byte opByte1(byte opByte1);
         short opShort1(short opShort1);
         int opInt1(int opInt1);

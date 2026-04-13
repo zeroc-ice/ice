@@ -57,7 +57,8 @@ namespace IcePHP
             zval*,
             zval*,
             zval*,
-            zval*);
+            zval*,
+            bool);
         ~OperationI();
 
         zend_function* function() final;
@@ -74,6 +75,7 @@ namespace IcePHP
         ExceptionInfoList exceptions;
         bool sendsClasses;
         bool returnsClasses;
+        bool onewayOnly;
         int numParams;
 
     private:
@@ -116,6 +118,7 @@ namespace IcePHP
         void unmarshalException(zval*, pair<const byte*, const byte*>);
         bool validateException(const ExceptionInfoPtr&) const;
         void checkTwowayOnly(const Ice::ObjectPrx&) const;
+        void checkOnewayOnly(const Ice::ObjectPrx&) const;
     };
 
     // A synchronous typed invocation.
@@ -163,7 +166,8 @@ IcePHP::OperationI::OperationI(
     zval* in,
     zval* out,
     zval* ret,
-    zval* ex)
+    zval* ex,
+    bool oneway)
     : sliceName(name),
       mappedName(mapped),
       mode(m),
@@ -172,6 +176,7 @@ IcePHP::OperationI::OperationI(
 {
     // inParams
     sendsClasses = false;
+    onewayOnly = oneway;
     if (in)
     {
         convertParams(in, inParams, sendsClasses);
@@ -597,6 +602,15 @@ IcePHP::TypedInvocation::checkTwowayOnly(const Ice::ObjectPrx& proxy) const
     }
 }
 
+void
+IcePHP::TypedInvocation::checkOnewayOnly(const Ice::ObjectPrx& proxy) const
+{
+    if (_op->onewayOnly && proxy->ice_isTwoway())
+    {
+        throw Ice::OnewayOnlyException(__FILE__, __LINE__, _op->sliceName);
+    }
+}
+
 // SyncTypedInvocation
 IcePHP::SyncTypedInvocation::SyncTypedInvocation(Ice::ObjectPrx prx, CommunicatorInfoPtr communicator, OperationIPtr op)
     : TypedInvocation(std::move(prx), std::move(communicator), std::move(op))
@@ -636,6 +650,7 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     try
     {
         checkTwowayOnly(_prx);
+        checkOnewayOnly(_prx);
 
         // Invoke the operation.
         vector<byte> result;
@@ -707,10 +722,11 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     zval* outParams;
     zval* returnType;
     zval* exceptions;
+    zend_bool oneway = 0;
 
     if (zend_parse_parameters(
             ZEND_NUM_ARGS(),
-            const_cast<char*>("osslla!a!a!a!"),
+            const_cast<char*>("osslla!a!a!a!|b"),
             &cls,
             &sliceName,
             &sliceNameLen,
@@ -721,7 +737,8 @@ ZEND_FUNCTION(IcePHP_defineOperation)
             &inParams,
             &outParams,
             &returnType,
-            &exceptions) == FAILURE)
+            &exceptions,
+            &oneway) == FAILURE)
     {
         return;
     }
@@ -744,7 +761,8 @@ ZEND_FUNCTION(IcePHP_defineOperation)
         inParams,
         outParams,
         returnType,
-        exceptions);
+        exceptions,
+        oneway);
 
     c->addOperation(mappedName, op);
 }
