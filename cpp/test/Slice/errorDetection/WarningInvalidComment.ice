@@ -46,7 +46,7 @@ module Test
         /// @throws CommentDummy should give a not-thrown-by-this-operation warning.
         void voidOp();
 
-        /// We disallow linking to out parameters like @p myOut
+        /// We allow linking to out parameters like @p myOut
         /// @param value no warning, because this is a real parameter. @p
         /// @param value should give a duplicate-tag warning. But this is fine: @p value.
         /// @param namess should give a no-matching-parameter warning.
