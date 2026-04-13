@@ -690,8 +690,14 @@ Slice::Csharp::writeIceRpcOpDocComment(Output& out, const OperationPtr& op, bool
         }
         else
         {
-            // TODO: check for oneway operations
-            out << nl << "/// <returns>A task that completes when the response is received.</returns>";
+            if (op->hasMetadata("oneway"))
+            {
+                out << nl << "/// <returns>A task that completes when the request is sent.</returns>";
+            }
+            else
+            {
+                out << nl << "/// <returns>A task that completes when the response is received.</returns>";
+            }
         }
     }
 

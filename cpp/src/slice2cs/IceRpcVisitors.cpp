@@ -798,7 +798,10 @@ Slice::IceRpc::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         {
             _out << nl << "idempotent: true,";
         }
-        // TODO: oneway attribute
+        if (operation->hasMetadata("oneway"))
+        {
+            _out << nl << "oneway: true,";
+        }
 
         _out << nl << "cancellationToken: " << cancellationTokenParam << ");";
         _out.dec();
