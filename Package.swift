@@ -67,24 +67,20 @@ let package = Package(
         ),
         .binaryTarget(
             name: "IceCpp",
-            url: "https://download.zeroc.com/ice/3.8/Ice-3.8.1.xcframework.zip",
-            checksum: "22d6ddc85a895321a8fb12b7cac06c12504b56849cef198517324342be719ad6"
+            path: "cpp/lib/XCFrameworks/Ice.xcframework"
         ),
         .binaryTarget(
             name: "IceDiscoveryCpp",
-            url: "https://download.zeroc.com/ice/3.8/IceDiscovery-3.8.1.xcframework.zip",
-            checksum: "943a3293a08fdf4d94288519c0d9d4f8815dcfd9bd83d18743b3c8361655f5cc"
+            path: "cpp/lib/XCFrameworks/IceDiscovery.xcframework"
 
         ),
         .binaryTarget(
             name: "IceLocatorDiscoveryCpp",
-            url: "https://download.zeroc.com/ice/3.8/IceLocatorDiscovery-3.8.1.xcframework.zip",
-            checksum: "371a9a8cfccb84666eba311a46e37c81d3a071dc036cfc4ba78df8e9f9e37f4a"
+            path: "cpp/lib/XCFrameworks/IceLocatorDiscovery.xcframework"
         ),
         .binaryTarget(
             name: "slice2swift",
-            url: "https://download.zeroc.com/ice/3.8/slice2swift-3.8.1.artifactbundle.zip",
-            checksum: "9efbeafe341c8c99c92c1fc20d4cea69dac54627dc7a9aeaa7877ad15e512ec6"
+            path: "cpp/bin/slice2swift.artifactbundle.zip"
         ),
         .plugin(
             name: "CompileSlice",
