@@ -1327,8 +1327,7 @@ public final class InputStream {
 
             OptionalFormat format = OptionalFormat.valueOf(v & 0x07); // First 3 bits.
             int tag = v >> 3;
-            if (tag > 30)
-            {
+            if (tag > 30) {
                 throw new MarshalException("invalid tag '" + tag + "': tags larger than 29 must be encoded as a size");
             }
             if (tag == 30) {
