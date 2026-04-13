@@ -1144,6 +1144,7 @@ Ice::InputStream::readOptImpl(int32_t readTag, OptionalFormat expectedFormat)
         auto tag = static_cast<int32_t>(v >> 3);
         if (tag > 30)
         {
+            // We check for '> 30' instead of '> 29' because 30 is special sentinel tag, handled by the next block.
             ostringstream os;
             os << "invalid tag '" << tag << "': tags larger than 29 must be encoded as a size";
             throw MarshalException(__FILE__, __LINE__, os.str());

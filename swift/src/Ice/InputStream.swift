@@ -639,6 +639,7 @@ extension InputStream {
             }
             var tag = Int32(v >> 3)
             if tag > 30 {
+                // We check for '> 30' instead of '> 29' because 30 is special sentinel tag, handled by the next block.
                 throw MarshalException("invalid tag '\(tag)': tags larger than 29 must be encoded as a size")
             }
             if tag == 30 {
