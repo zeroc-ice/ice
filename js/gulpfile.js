@@ -7,9 +7,7 @@
 import { deleteAsync } from "del";
 import fs from "fs";
 import gulp from "gulp";
-import tsc from "gulp-typescript";
 import path from "path";
-import { finished } from "node:stream/promises";
 import { rollup } from "rollup";
 import strip from "@rollup/plugin-strip";
 import resolve from "@rollup/plugin-node-resolve";
@@ -161,42 +159,46 @@ const tests = [
     "Slice/moduleName",
 ];
 
-// Shared TypeScript compiler options for all test builds.
-const tsCompilerOptions = {
-    lib: ["dom", "es2020"],
-    target: "es2020",
-    module: "es2020",
-    moduleResolution: "bundler",
-    strict: true,
-    noImplicitAny: true,
-    noImplicitOverride: true,
-    noFallthroughCasesInSwitch: true,
-    noImplicitReturns: true,
-    noUnusedLocals: true,
-    noUnusedParameters: true,
-    noEmitOnError: true,
-};
-
 // Compile TypeScript sources and fail the build if there are any errors.
 async function compileTypeScript(testDir) {
-    let errorCount = 0;
-    const reporter = {
-        error: error => {
-            console.error(error.message);
-            errorCount++;
-        },
-        finish: () => {},
-    };
+    const files = fs.readdirSync(testDir).filter(f => f.endsWith(".ts") && !f.endsWith(".d.ts"));
 
-    await finished(
-        gulp
-            .src([`${testDir}/*.ts`, `!${testDir}/*.d.ts`])
-            .pipe(tsc(tsCompilerOptions, reporter))
-            .pipe(gulp.dest(testDir)),
+    if (files.length === 0) return;
+
+    const configPath = path.join(testDir, ".tsconfig.gulp-tests.json");
+    const extendsPath = path.relative(testDir, path.resolve(root, "tsconfig.gulp-tests.json")).replace(/\\/g, "/");
+
+    fs.writeFileSync(
+        configPath,
+        JSON.stringify(
+            {
+                extends: extendsPath,
+                compilerOptions: {
+                    outDir: ".",
+                    rootDir: ".",
+                },
+                files,
+            },
+            null,
+            4,
+        ),
     );
 
-    if (errorCount > 0) {
-        throw new Error(`TypeScript: ${errorCount} error(s)`);
+    try {
+        const tscPath = path.resolve(root, "node_modules/typescript/bin/tsc");
+        await new Promise((resolve, reject) => {
+            execFile(process.execPath, [tscPath, "--project", configPath], (error, stdout, stderr) => {
+                if (error) {
+                    if (stdout) process.stdout.write(stdout);
+                    if (stderr) process.stderr.write(stderr);
+                    reject(new Error("TypeScript compilation failed"));
+                } else {
+                    resolve();
+                }
+            });
+        });
+    } finally {
+        fs.rmSync(configPath, { force: true });
     }
 }
 
