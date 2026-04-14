@@ -40,7 +40,7 @@ namespace Slice::Csharp
     // Generate code to marshal or unmarshal a type
     //
     void writeMarshalUnmarshalCode(
-        ::IceInternal::Output& out,
+        IceInternal::Output& out,
         const TypePtr& type,
         const std::string& ns,
         const std::string& param,
@@ -48,7 +48,7 @@ namespace Slice::Csharp
         const std::string& customStream = "");
 
     void writeOptionalMarshalUnmarshalCode(
-        ::IceInternal::Output& out,
+        IceInternal::Output& out,
         const TypePtr& type,
         const std::string& ns,
         const std::string& param,
@@ -57,7 +57,7 @@ namespace Slice::Csharp
         const std::string& customStream = "");
 
     void writeSequenceMarshalUnmarshalCode(
-        ::IceInternal::Output& out,
+        IceInternal::Output& out,
         const SequencePtr& seq,
         const std::string& ns,
         const std::string& param,
@@ -66,13 +66,47 @@ namespace Slice::Csharp
         const std::string& customStream = "");
 
     void writeOptionalSequenceMarshalUnmarshalCode(
-        ::IceInternal::Output& out,
+        IceInternal::Output& out,
         const SequencePtr& seq,
         const std::string& ns,
         const std::string& param,
         int tag,
         bool marshal,
         const std::string& customStream = "");
+
+    //
+    // Doc-comments
+    //
+
+    /// Writes a doc-comment for the given Slice element, using this element's doc-comment, if any.
+    /// @param p The Slice element.
+    /// @param generatedType The kind of mapped element, used for the remarks. For example, "skeleton interface".
+    /// This function does not write any remarks when this argument is nullopt.
+    /// @param notes Optional notes included after @p p's remarks.
+    void writeIceDocComment(
+        IceInternal::Output& out,
+        const ContainedPtr& p,
+        std::optional<std::string> generatedType = std::nullopt,
+        const std::string& notes = "");
+
+    /// Writes a doc-comment for a helper class generated for a Slice element.
+    /// @param p The Slice element.
+    /// @param comment The summary.
+    /// @param generatedType The kind of mapped element, used for the remarks. Must not be empty.
+    /// @param notes Optional notes included at the beginning of the remarks.
+    void writeIceHelperDocComment(
+        IceInternal::Output& out,
+        const ContainedPtr& p,
+        const std::string& comment,
+        const std::string& generatedType,
+        const std::string& notes = "");
+
+    void writeIceOpDocComment(
+        IceInternal::Output& out,
+        const OperationPtr& operation,
+        const std::vector<std::string>& extraParams,
+        bool isAsync,
+        bool dispatch);
 
     /// Converts a Slice-formatted link into a C# formatted link.
     /// @param rawLink The reference's raw text, taken verbatim from the doc-comment.
@@ -82,19 +116,7 @@ namespace Slice::Csharp
     /// - @c false if the link was to a Slice element which isn't mapped in C#; @c true otherwise.
     /// - The C# formatted link.
     std::pair<bool, std::string>
-    csLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
-
-    class IceDocCommentFormatter final : public DocCommentFormatter
-    {
-    public:
-        void preprocess(StringList& rawComment) final;
-        std::string formatCode(const std::string& rawText) final;
-        std::string formatParamRef(const std::string& param) final;
-        std::string
-        formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final;
-        std::string
-        formatSeeAlso(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final;
-    };
+    iceLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 }
 
 #endif

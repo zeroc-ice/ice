@@ -27,6 +27,11 @@ public abstract class SliceCompilerTask : ToolTask
 
     public string[] IncludeDirectories { get; set; } = Array.Empty<string>();
 
+    /// <summary>
+    /// Specifies whether to pass '--icerpc' to 'slice2cs'.
+    /// </summary>
+    public bool IceRpc { get; set; } = false;
+
     public string[] AdditionalOptions { get; set; } = Array.Empty<string>();
 
     [Output]
@@ -64,6 +69,12 @@ public abstract class SliceCompilerTask : ToolTask
             options["IncludeDirectories"] = value;
         }
 
+        value = item.GetMetadata("IceRpc");
+        if (!string.IsNullOrEmpty(value))
+        {
+            options["IceRpc"] = value;
+        }
+
         if (AdditionalOptions.Length > 0)
         {
             options["AdditionalOptions"] = string.Join(";", AdditionalOptions);
@@ -87,6 +98,11 @@ public abstract class SliceCompilerTask : ToolTask
         foreach (string path in IncludeDirectories)
         {
             builder.AppendSwitchIfNotNull("-I", Path.GetFullPath(path));
+        }
+
+        if (IceRpc)
+        {
+            builder.AppendSwitch("--icerpc");
         }
 
         foreach (string option in AdditionalOptions)

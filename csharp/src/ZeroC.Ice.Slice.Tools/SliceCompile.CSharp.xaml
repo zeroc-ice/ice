@@ -49,6 +49,20 @@
         </StringListProperty.DataSource>
     </StringListProperty>
 
+    <BoolProperty
+        Name="IceRpc"
+        DisplayName="IceRpc"
+        Description="Generate code for use with IceRPC projects.">
+        <BoolProperty.DataSource>
+            <DataSource
+                Persistence="ProjectFile"
+                ItemType="SliceCompile"
+                Label="SliceTools"
+                HasConfigurationCondition="false"
+                SourceOfDefaultValue="AfterContext"/>
+        </BoolProperty.DataSource>
+    </BoolProperty>
+
     <StringListProperty
         DisplayName="Additional Options"
         Name="AdditionalOptions"

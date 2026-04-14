@@ -10,7 +10,7 @@ public class Slice2CSharpDependTask : Common.SliceDependTask
     protected override ITaskItem[] GeneratedItems(ITaskItem source) =>
         new ITaskItem[]
         {
-            new TaskItem(GetGeneratedPath(source, source.GetMetadata("OutputDir"), ".cs")),
+            new TaskItem(GetGeneratedPath(source, source.GetMetadata("OutputDir"), IceRpc ? ".IceRpc.cs" : ".cs"))
         };
 
     // Same as generated items but only returns the generated items that need to be compiled
