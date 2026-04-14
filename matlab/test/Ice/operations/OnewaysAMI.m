@@ -31,6 +31,17 @@ classdef OnewaysAMI
 
             call(p, 'opIdempotent');
 
+            % Calling a ["oneway"] operation on a oneway proxy succeeds.
+            call(p, 'opOneway');
+
+            % Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
+            try
+                p.ice_twoway().opOnewayAsync();
+                assert(false);
+            catch ex
+                assert(isa(ex, 'Ice.OnewayOnlyException'));
+            end
+
             try
                 p.opByteAsync(hex2dec('ff'), hex2dec('0f'));
             catch ex

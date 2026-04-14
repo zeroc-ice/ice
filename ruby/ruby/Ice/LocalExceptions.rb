@@ -163,6 +163,9 @@ module Ice
     class TwowayOnlyException < LocalException
     end
 
+    class OnewayOnlyException < LocalException
+    end
+
     class PropertyException < LocalException
     end
 end

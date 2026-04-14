@@ -1230,6 +1230,7 @@ CodeVisitor::visitOperation(const OperationPtr& op)
     }
 
     const bool twowayOnly = op->returnsData();
+    const bool onewayOnly = op->hasMetadata("oneway");
     const ExceptionList exceptions = op->throws();
     const string self = getEscapedParamName(inParams, "obj");
     const string contextParam = getEscapedParamName(inParams, "context");
@@ -1270,6 +1271,15 @@ CodeVisitor::visitOperation(const OperationPtr& op)
 
     writeOpDocSummary(out, op, false);
     writeArguments(out, self, prxAbs, inParams, contextParam);
+
+    if (onewayOnly)
+    {
+        out << nl << "if " << self << ".ice_isTwoway()";
+        out.inc();
+        out << nl << "throw(Ice.OnewayOnlyException('" << op->name() << "'));";
+        out.dec();
+        out << nl << "end";
+    }
 
     if (!inParams.empty())
     {
@@ -1384,6 +1394,15 @@ CodeVisitor::visitOperation(const OperationPtr& op)
 
     writeOpDocSummary(out, op, true);
     writeArguments(out, self, prxAbs, inParams, contextParam);
+
+    if (onewayOnly)
+    {
+        out << nl << "if " << self << ".ice_isTwoway()";
+        out.inc();
+        out << nl << "throw(Ice.OnewayOnlyException('" << op->name() << "'));";
+        out.dec();
+        out << nl << "end";
+    }
 
     if (!inParams.empty())
     {

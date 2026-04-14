@@ -396,7 +396,8 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     // Define each operation. The arguments to IcePHP_defineOperation are:
     //
-    // $ClassType, 'sliceOpName', 'mappedOpName', Mode, FormatType, (InParams), (OutParams), ReturnParam, (Exceptions)
+    // $ClassType, 'sliceOpName', 'mappedOpName', Mode, FormatType, (InParams), (OutParams), ReturnParam, (Exceptions),
+    // OnewayOnly
     //
     // where InParams and OutParams are arrays of type descriptions, and Exceptions is an array of exception type ids.
 
@@ -543,6 +544,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 _out << "null";
             }
+            _out << ", " << (op->hasMetadata("oneway") ? "true" : "false");
             _out << ");";
         }
     }

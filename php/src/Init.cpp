@@ -86,6 +86,7 @@ ZEND_ARG_INFO(0, inParams)
 ZEND_ARG_INFO(0, outParams)
 ZEND_ARG_INFO(0, returnType)
 ZEND_ARG_INFO(0, exceptions)
+ZEND_ARG_INFO(0, oneway)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_register_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))

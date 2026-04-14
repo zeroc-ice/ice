@@ -956,6 +956,24 @@ public sealed class TwowayOnlyException : LocalException
 }
 
 /// <summary>
+/// The exception that is thrown when attempting to invoke a oneway-only operation (an operation with the
+/// ["oneway"] metadata directive) using a twoway proxy.
+/// </summary>
+public sealed class OnewayOnlyException : LocalException
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OnewayOnlyException" /> class.
+    /// </summary>
+    /// <param name="operation">The operation name.</param>
+    public OnewayOnlyException(string operation)
+        : base($"Cannot invoke oneway operation '{operation}' with a twoway proxy.")
+    {
+    }
+
+    public override string ice_id() => "::Ice::OnewayOnlyException";
+}
+
+/// <summary>
 /// This exception is raised when there is an error while getting or setting a property. For example, when
 /// trying to set an unknown Ice property.
 /// </summary>

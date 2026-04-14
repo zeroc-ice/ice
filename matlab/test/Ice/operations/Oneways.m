@@ -11,6 +11,17 @@ classdef Oneways
 
             p.opIdempotent();
 
+            % Calling a ["oneway"] operation on a oneway proxy succeeds.
+            p.opOneway();
+
+            % Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
+            try
+                p.ice_twoway().opOneway();
+                assert(false);
+            catch ex
+                assert(isa(ex, 'Ice.OnewayOnlyException'));
+            end
+
             try
                 p.opByte(hex2dec('ff'), hex2dec('0f'));
                 assert(false);

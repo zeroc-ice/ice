@@ -1691,6 +1691,13 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     {
         C << nl << "_checkTwowayOnly(operationName);";
     }
+    if (p->hasMetadata("oneway"))
+    {
+        C << nl << "if (ice_isTwoway())";
+        C << sb;
+        C << nl << "throw Ice::OnewayOnlyException{__FILE__, __LINE__, operationName};";
+        C << eb;
+    }
     C << nl << "outAsync->invoke(";
     C.inc();
     C << nl << "operationName,";

@@ -40,8 +40,7 @@ require_once 'Ice/Version.php';
 $Ice_Encoding_1_0 = new Ice\EncodingVersion(1, 0);
 $Ice_Encoding_1_1 = new Ice\EncodingVersion(1, 1);
 
-IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_isA', 'ice_isA', 2, 0, array(array($IcePHP__t_string)), null,
-    array($IcePHP__t_bool), null);
-IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_ping', 'ice_ping', 2, 0, null, null, null, null);
-IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_id', 'ice_id', 2, 0, null, null, array($IcePHP__t_string), null);
-IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_ids', 'ice_ids', 2, 0, null, null, array($Ice__t_StringSeq), null);
+IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_isA', 'ice_isA', 2, 0, array(array($IcePHP__t_string)), null, array($IcePHP__t_bool), null, false);
+IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_ping', 'ice_ping', 2, 0, null, null, null, null, false);
+IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_id', 'ice_id', 2, 0, null, null, array($IcePHP__t_string), null, false);
+IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_ids', 'ice_ids', 2, 0, null, null, array($Ice__t_StringSeq), null, false);

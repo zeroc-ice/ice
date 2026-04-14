@@ -856,6 +856,27 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
+    /// The exception that is thrown when attempting to invoke a oneway-only operation (an operation with the
+    /// ["oneway"] metadata directive) using a twoway proxy.
+    /// @headerfile Ice/Ice.h
+    class ICE_API OnewayOnlyException final : public LocalException
+    {
+    public:
+        /// Constructs an OnewayOnlyException.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
+        /// @param operation The oneway-only operation used to create the message returned by what().
+        OnewayOnlyException(const char* file, int line, std::string_view operation)
+            : LocalException(
+                  file,
+                  line,
+                  "cannot invoke oneway operation '" + std::string{operation} + "' with a twoway proxy")
+        {
+        }
+
+        [[nodiscard]] const char* ice_id() const noexcept final;
+    };
+
     /// The exception that is thrown when a property cannot be set or retrieved. For example, this exception is thrown
     /// when attempting to set an unknown Ice property.
     class ICE_API PropertyException final : public LocalException
