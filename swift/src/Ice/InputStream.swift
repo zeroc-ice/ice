@@ -648,6 +648,10 @@ extension InputStream {
                 throw MarshalException("invalid optional format")
             }
             var tag = Int32(v >> 3)
+            if tag > 30 {
+                // We check for '> 30' instead of '> 29' because 30 is special sentinel tag, handled by the next block.
+                throw MarshalException("invalid tag '\(tag)': tags larger than 29 must be encoded as a size")
+            }
             if tag == 30 {
                 tag = try readSize()
             }
@@ -660,8 +664,7 @@ extension InputStream {
                 try skipOptional(format: format)  // Skip optional fields
             } else {
                 if format != expectedFormat {
-                    throw MarshalException(
-                        "invalid optional field `\(tag)': unexpected format")
+                    throw MarshalException("invalid optional field '\(tag)': unexpected format")
                 }
                 return true
             }

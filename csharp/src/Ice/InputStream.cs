@@ -1560,7 +1560,7 @@ public sealed class InputStream
         }
         catch (ArgumentException ex)
         {
-            throw new MarshalException("Invalid UTF8 string", ex);
+            throw new MarshalException("Invalid UTF8 string.", ex);
         }
     }
 
@@ -1862,6 +1862,11 @@ public sealed class InputStream
 
             var format = (OptionalFormat)(v & 0x07); // First 3 bits.
             int tag = v >> 3;
+            if (tag > 30)
+            {
+                // We check for '> 30' instead of '> 29' because 30 is special sentinel tag, handled by the next block.
+                throw new MarshalException($"Invalid tag '{tag}': tags larger than 29 must be encoded as a size.");
+            }
             if (tag == 30)
             {
                 tag = readSize();
@@ -1881,7 +1886,7 @@ public sealed class InputStream
             {
                 if (format != expectedFormat)
                 {
-                    throw new MarshalException("invalid optional data member `" + tag + "': unexpected format");
+                    throw new MarshalException($"Invalid optional tag '{tag}': unexpected format.");
                 }
                 return true;
             }
@@ -1929,7 +1934,7 @@ public sealed class InputStream
             }
             case OptionalFormat.Class:
             {
-                throw new MarshalException("cannot skip an optional class");
+                throw new MarshalException("Cannot skip an optional class.");
             }
         }
     }
@@ -2170,7 +2175,7 @@ public sealed class InputStream
             int index = _stream.readInt();
             if (index > 0)
             {
-                throw new MarshalException("invalid object id");
+                throw new MarshalException("Invalid object id.");
             }
             index = -index;
 
@@ -2238,7 +2243,7 @@ public sealed class InputStream
                     // An oversight in the 1.0 encoding means there is no marker to indicate
                     // the last slice of an exception. As a result, we just try to read the
                     // next type ID, which raises MarshalException when the input buffer underflows.
-                    throw new MarshalException($"unknown exception type '{mostDerivedId}'");
+                    throw new MarshalException($"Unknown exception type '{mostDerivedId}'.");
                 }
             }
         }
@@ -2260,7 +2265,7 @@ public sealed class InputStream
                 int sz = _stream.readSize(); // For compatibility with the old AFM.
                 if (sz != 0)
                 {
-                    throw new MarshalException("invalid Object slice");
+                    throw new MarshalException("Invalid Object slice.");
                 }
                 endSlice();
             }
@@ -2347,7 +2352,7 @@ public sealed class InputStream
                 // If any entries remain in the patch map, the sender has sent an index for an instance, but failed
                 // to supply the instance.
                 //
-                throw new MarshalException("index for class received, but no instance");
+                throw new MarshalException("Index for class received, but no instance.");
             }
         }
 
@@ -2357,7 +2362,7 @@ public sealed class InputStream
 
             if (index <= 0)
             {
-                throw new MarshalException("invalid object id");
+                throw new MarshalException("Invalid object id.");
             }
 
             _sliceType = SliceType.ValueSlice;
@@ -2416,7 +2421,7 @@ public sealed class InputStream
 
             if (++_classGraphDepth > _classGraphDepthMax)
             {
-                throw new MarshalException("maximum class graph depth reached");
+                throw new MarshalException("Maximum class graph depth reached.");
             }
 
             //
@@ -2448,7 +2453,7 @@ public sealed class InputStream
             int index = _stream.readSize();
             if (index < 0)
             {
-                throw new MarshalException("invalid object id");
+                throw new MarshalException("Invalid object id.");
             }
             else if (index == 0)
             {
@@ -2510,7 +2515,7 @@ public sealed class InputStream
 
                 if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
                 {
-                    throw new MarshalException($"Cannot unmarshal exception with type ID '{mostDerivedId}'");
+                    throw new MarshalException($"Cannot unmarshal exception with type ID '{mostDerivedId}'.");
                 }
 
                 startSlice();
@@ -2634,12 +2639,12 @@ public sealed class InputStream
                 //
                 if (indirectionTable.Length == 0)
                 {
-                    throw new MarshalException("empty indirection table");
+                    throw new MarshalException("Empty indirection table.");
                 }
                 if ((_current.indirectPatchList == null || _current.indirectPatchList.Count == 0) &&
                    (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0)
                 {
-                    throw new MarshalException("no references to indirection table");
+                    throw new MarshalException("No references to indirection table.");
                 }
 
                 //
@@ -2652,7 +2657,7 @@ public sealed class InputStream
                         Debug.Assert(e.index >= 0);
                         if (e.index >= indirectionTable.Length)
                         {
-                            throw new MarshalException("indirection out of range");
+                            throw new MarshalException("Indirection out of range.");
                         }
                         addPatchEntry(indirectionTable[e.index], e.patcher);
                     }
@@ -2839,7 +2844,7 @@ public sealed class InputStream
 
             if (++_classGraphDepth > _classGraphDepthMax)
             {
-                throw new MarshalException("maximum class graph depth reached");
+                throw new MarshalException("Maximum class graph depth reached.");
             }
 
             //
@@ -2855,7 +2860,7 @@ public sealed class InputStream
                 // If any entries remain in the patch map, the sender has sent an index for an instance, but failed
                 // to supply the instance.
                 //
-                throw new MarshalException("index for class received, but no instance");
+                throw new MarshalException("Index for class received, but no instance.");
             }
 
             cb?.Invoke(v);
