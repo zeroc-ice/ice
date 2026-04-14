@@ -1318,7 +1318,8 @@ Gen::TypesVisitor::visitOperation(const OperationPtr& op)
     {
         out << nl << "if _impl.ice_isTwoway()";
         out << sb;
-        out << nl << "throw OnewayOnlyException(operation: \"" << op->name() << "\")";
+        out << nl << "throw " << getUnqualified("Ice.OnewayOnlyException", swiftModule) << "(operation: \""
+            << op->name() << "\")";
         out << eb;
     }
 
