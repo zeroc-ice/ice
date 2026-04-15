@@ -21,6 +21,11 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
     [Required]
     public string WorkingDirectory { get; set; } = "";
 
+    /// <summary>
+    /// Specifies whether to pass '--icerpc' to 'slice2cs'.
+    /// </summary>
+    public bool IceRpc { get; set; } = false;
+
     [Output]
     public ITaskItem[] ComputedSources { get; private set; } = Array.Empty<ITaskItem>();
 
@@ -61,6 +66,13 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
         {
             options["IncludeDirectories"] = value;
         }
+
+        value = item.GetMetadata("IceRpc");
+        if (!string.IsNullOrEmpty(value))
+        {
+            options["IceRpc"] = value;
+        }
+
         value = item.GetMetadata("AdditionalOptions");
         if (!string.IsNullOrEmpty(value))
         {
@@ -70,6 +82,7 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
                 options["AdditionalOptions"] = value;
             }
         }
+
         return options;
     }
 

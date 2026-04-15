@@ -14,6 +14,9 @@ namespace Slice
     public:
         CsVisitor(IceInternal::Output&);
 
+        bool visitModuleStart(const ModulePtr&) override;
+        void visitModuleEnd(const ModulePtr&) override;
+
     protected:
         void emitNonBrowsableAttribute();
 
@@ -22,33 +25,11 @@ namespace Slice
 
         void emitObsoleteAttribute(const ContainedPtr&);
 
-        /// Writes a doc-comment for the given Slice element, using this element's doc-comment, if any.
-        /// @param p The Slice element.
-        /// @param generatedType The kind of mapped element, used for the remarks. For example, "skeleton interface".
-        /// This function does not write any remarks when this argument is empty.
-        /// @param notes Optional notes included at the end of the remarks.
-        void
-        writeDocComment(const ContainedPtr& p, const std::string& generatedType = "", const std::string& notes = "");
+        IceInternal::Output& _out;
 
-        /// Writes a doc-comment for a helper class generated for a Slice element.
-        /// @param p The Slice element.
-        /// @param comment The summary.
-        /// @param generatedType The kind of mapped element, used for the remarks. Must not be empty.
-        /// @param notes Optional notes included at the end of the remarks.
-        void writeHelperDocComment(
-            const ContainedPtr& p,
-            const std::string& comment,
-            const std::string& generatedType,
-            const std::string& notes = "");
-
-        void
-        writeOpDocComment(const OperationPtr& operation, const std::vector<std::string>& extraParams, bool isAsync);
-        void writeParameterDocComments(const DocComment&, const ParameterList&);
-
+    private:
         void namespacePrefixStart(const ModulePtr&);
         void namespacePrefixEnd(const ModulePtr&);
-
-        IceInternal::Output& _out;
     };
 }
 

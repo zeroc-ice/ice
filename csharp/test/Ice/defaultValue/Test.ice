@@ -45,10 +45,12 @@ module Test
         float zeroF = 0;
         float zeroDotF = 0.0;
         double zeroD = 0;
-        double zeroDotD = 0;
+        double zeroDotD = 0.0;
     }
 
+    /// My bool constant.
     const bool ConstBool = true;
+
     const byte ConstByte = 254;
     const short ConstShort = 16000;
     const int ConstInt = 3;
@@ -67,7 +69,7 @@ module Test
     const float ConstZeroF = 0;
     const float ConstZeroDotF = 0.0;
     const double ConstZeroD = 0;
-    const double ConstZeroDotD = 0;
+    const double ConstZeroDotD = 0.0;
 
     struct Struct2
     {
@@ -203,7 +205,7 @@ module Test
         float zeroF = 0;
         float zeroDotF = 0.0;
         double zeroD = 0;
-        double zeroDotD = 0;
+        double zeroDotD = 0.0;
     }
 
     exception DerivedEx extends BaseEx
@@ -235,7 +237,7 @@ module Test
         float zeroF = 0;
         float zeroDotF = 0.0;
         double zeroD = 0;
-        double zeroDotD = 0;
+        double zeroDotD = 0.0;
     }
 
     ["cs:property"]
@@ -256,7 +258,7 @@ module Test
         float zeroF = 0;
         float zeroDotF = 0.0;
         double zeroD = 0;
-        double zeroDotD = 0;
+        double zeroDotD = 0.0;
     }
 
     ["cs:property"]
@@ -277,7 +279,7 @@ module Test
         float zeroF = 0;
         float zeroDotF = 0.0;
         double zeroD = 0;
-        double zeroDotD = 0;
+        double zeroDotD = 0.0;
     }
 
     sequence<byte> ByteSeq;

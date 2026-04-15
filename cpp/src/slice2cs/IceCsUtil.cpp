@@ -83,7 +83,7 @@ Slice::Csharp::typeToString(const TypePtr& type, const string& ns, bool optional
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        return getUnqualified(proxy, ns) + "Prx?";
+        return getUnqualified(proxy, ns, "", "Prx") + "?";
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
@@ -468,7 +468,7 @@ Slice::Csharp::writeMarshalUnmarshalCode(
     DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if (d)
     {
-        helperName = getUnqualified(d, ns) + "Helper";
+        helperName = getUnqualified(d, ns, "", "Helper");
     }
     else
     {
@@ -810,7 +810,7 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
     assert(cont);
     if (useHelper)
     {
-        string helperName = getUnqualified(seq, ns) + "Helper";
+        string helperName = getUnqualified(seq, ns, "", "Helper");
         if (marshal)
         {
             out << nl << helperName << ".write(" << stream << ", " << param << ");";
@@ -1323,11 +1323,11 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
     string helperName;
     if (dynamic_pointer_cast<InterfaceDecl>(type))
     {
-        helperName = getUnqualified(dynamic_pointer_cast<InterfaceDecl>(type), ns) + "PrxHelper";
+        helperName = getUnqualified(dynamic_pointer_cast<InterfaceDecl>(type), ns, "", "PrxHelper");
     }
     else
     {
-        helperName = getUnqualified(dynamic_pointer_cast<Contained>(type), ns) + "Helper";
+        helperName = getUnqualified(dynamic_pointer_cast<Contained>(type), ns, "", "Helper");
     }
 
     string func;
@@ -1618,8 +1618,168 @@ Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
     }
 }
 
+void
+Slice::Csharp::writeIceDocComment(
+    Output& out,
+    const ContainedPtr& p,
+    optional<string> generatedType,
+    const string& notes)
+{
+    const optional<DocComment>& comment = p->docComment();
+    StringList remarks;
+    if (comment)
+    {
+        writeDocLines(out, "summary", comment->overview());
+        remarks = comment->remarks();
+    }
+
+    if (generatedType.has_value())
+    {
+        // If there's user-provided remarks, and a generated-type message, we introduce a paragraph between them.
+        if (!remarks.empty())
+        {
+            remarks.emplace_back("<para />");
+        }
+
+        if (!notes.empty())
+        {
+            remarks.push_back(notes);
+        }
+
+        remarks.push_back(
+            "The Slice compiler generated this " + *generatedType + " from Slice " + p->kindOf() + " <c>" +
+            p->scoped() + "</c>.");
+    }
+
+    if (!remarks.empty())
+    {
+        writeDocLines(out, "remarks", remarks);
+    }
+
+    if (comment)
+    {
+        writeSeeAlso(out, comment->seeAlso());
+    }
+}
+
+void
+Slice::Csharp::writeIceHelperDocComment(
+    Output& out,
+    const ContainedPtr& p,
+    const string& comment,
+    const string& generatedType,
+    const string& notes)
+{
+    // Called only for module-level types.
+    assert(dynamic_pointer_cast<Module>(p->container()));
+    assert(!generatedType.empty());
+
+    writeDocLine(out, "summary", comment);
+    out << nl << "/// <remarks>";
+    if (!notes.empty())
+    {
+        out << notes;
+        out << nl << "/// ";
+    }
+
+    out << "The Slice compiler generated this " << generatedType << " from Slice " << p->kindOf() << " <c>"
+        << p->scoped() << "</c>.";
+
+    out << "</remarks>";
+}
+
+void
+Slice::Csharp::writeIceOpDocComment(
+    Output& out,
+    const OperationPtr& op,
+    const vector<string>& extraParams,
+    bool isAsync,
+    bool dispatch)
+{
+    const optional<DocComment>& comment = op->docComment();
+    if (!comment)
+    {
+        return;
+    }
+
+    writeDocLines(out, "summary", comment->overview());
+    writeParameterDocComments(out, *comment, isAsync ? op->inParameters() : op->parameters());
+
+    for (const auto& extraParam : extraParams)
+    {
+        out << nl << "/// " << extraParam;
+    }
+
+    if (isAsync)
+    {
+        if (op->returnsMultipleValues() || !op->returnsAnyValues())
+        {
+            if (dispatch)
+            {
+                out << nl << "/// <returns>A task that completes when the dispatch completes.</returns>";
+            }
+            else if (op->returnsData())
+            {
+                out << nl << "/// <returns>A task that completes when the response is received.</returns>";
+            }
+            else
+            {
+                out << nl
+                    << "/// <returns>For two-way invocations: a task that completes when the response is received.";
+                out << nl << "/// For one-way invocations: a task that completes when the request is sent.</returns>";
+            }
+        }
+        else if (op->returnType())
+        {
+            writeDocLines(out, "returns", comment->returns());
+        }
+        else
+        {
+            assert(op->outParameters().size() == 1);
+            const auto& commentParameters = comment->parameters();
+            auto q = commentParameters.find(op->outParameters().front()->name());
+            if (q != commentParameters.end())
+            {
+                writeDocLines(out, "returns", q->second);
+            }
+        }
+    }
+    else if (op->returnType())
+    {
+        writeDocLines(out, "returns", comment->returns());
+    }
+
+    for (const auto& [exceptionName, exceptionLines] : comment->exceptions())
+    {
+        string name = exceptionName;
+        ExceptionPtr ex = op->container()->lookupException(exceptionName, false);
+        if (ex)
+        {
+            name = ex->mappedScoped(".");
+        }
+
+        ostringstream openTag;
+        openTag << "exception cref=\"" << name << "\"";
+
+        if (dispatch || !isAsync)
+        {
+            writeDocLines(out, openTag.str(), exceptionLines, "exception");
+        }
+        else
+        {
+            StringList asyncExceptionLines{exceptionLines};
+            asyncExceptionLines.emplace_back(
+                "This exception is provided through the returned task; it's never thrown synchronously.");
+            writeDocLines(out, openTag.str(), asyncExceptionLines, "exception");
+        }
+    }
+
+    writeDocLines(out, "remarks", comment->remarks());
+    writeSeeAlso(out, comment->seeAlso());
+}
+
 std::pair<bool, string>
-Slice::Csharp::csLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
+Slice::Csharp::iceLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
 {
     ostringstream result;
 
@@ -1654,13 +1814,13 @@ Slice::Csharp::csLinkFormatter(const string& rawLink, const ContainedPtr& source
         if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
         {
             // link to the method on the proxy interface
-            result << getUnqualified(operationTarget->interface(), sourceScope) << "Prx."
+            result << getUnqualified(operationTarget->interface(), sourceScope, "", "Prx") << "."
                    << operationTarget->mappedName() << "Async";
         }
         else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
         {
             // link to the proxy interface
-            result << getUnqualified(interfaceTarget, sourceScope) << "Prx";
+            result << getUnqualified(interfaceTarget, sourceScope, "", "Prx");
         }
         else
         {
@@ -1692,77 +1852,4 @@ Slice::Csharp::csLinkFormatter(const string& rawLink, const ContainedPtr& source
     }
 
     return {true, result.str()};
-}
-
-void
-Slice::Csharp::IceDocCommentFormatter::preprocess(StringList& rawComment)
-{
-    for (auto& line : rawComment)
-    {
-        // Escape any XML special characters in the comment.
-        string::size_type pos = 0;
-        while ((pos = line.find_first_of("&<>", pos)) != string::npos)
-        {
-            switch (line[pos])
-            {
-                case '&':
-                    line.replace(pos, 1, "&amp;");
-                    break;
-                case '<':
-                    line.replace(pos, 1, "&lt;");
-                    break;
-                case '>':
-                    line.replace(pos, 1, "&gt;");
-                    break;
-            }
-            // Skip over the leading '&' character to avoid 'find'ing it again.
-            pos += 1;
-        }
-    }
-}
-
-string
-Slice::Csharp::IceDocCommentFormatter::formatCode(const string& rawText)
-{
-    return "<c>" + rawText + "</c>";
-}
-
-string
-Slice::Csharp::IceDocCommentFormatter::formatParamRef(const string& param)
-{
-    return "<paramref name=\"" + param + "\" />";
-}
-
-string
-Slice::Csharp::IceDocCommentFormatter::formatLink(
-    const string& rawLink,
-    const ContainedPtr& source,
-    const SyntaxTreeBasePtr& target)
-{
-    auto [mapToLink, qualifiedName] = Slice::Csharp::csLinkFormatter(rawLink, source, target);
-    if (mapToLink)
-    {
-        return "<see " + qualifiedName + " />";
-    }
-    else
-    {
-        return "<c>" + qualifiedName + "</c>";
-    }
-}
-
-string
-Slice::Csharp::IceDocCommentFormatter::formatSeeAlso(
-    const string& rawLink,
-    const ContainedPtr& source,
-    const SyntaxTreeBasePtr& target)
-{
-    auto [mapToLink, qualifiedName] = Slice::Csharp::csLinkFormatter(rawLink, source, target);
-    if (mapToLink)
-    {
-        return "<seealso " + qualifiedName + " />";
-    }
-    else
-    {
-        return "";
-    }
 }

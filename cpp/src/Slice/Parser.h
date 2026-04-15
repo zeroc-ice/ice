@@ -792,6 +792,7 @@ namespace Slice
         [[nodiscard]] InterfaceList allBases() const;
         [[nodiscard]] OperationList operations() const;
         [[nodiscard]] OperationList allOperations() const;
+        [[nodiscard]] OperationList allInheritedOperations() const;
         [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
