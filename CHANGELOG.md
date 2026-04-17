@@ -28,11 +28,11 @@ These are the changes since the [Ice 3.8.1] release.
 ### C++ Changes
 
 - Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice.
-These now generate `` `[NAME]` `` instead of `@p [NAME]`.
+  These now generate `` `[NAME]` `` instead of `@p [NAME]`.
 
 ### C# Changes
 
 - Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice.
-These now generate `<c>[NAME]</c>` instead of `<paramref name=[NAME] />`.
+  These now generate `<c>[NAME]</c>` instead of `<paramref name=[NAME] />`.
 
 [Ice 3.8.1]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
