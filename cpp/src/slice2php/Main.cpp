@@ -321,8 +321,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out.inc();
             _out << nl << "array('" << (*q)->mappedName() << "', ";
             _out << getType((*q)->type());
-            _out << ", " << (isOptional ? "true" : "false") << ", " << (isOptional ? (*q)->tag() : 0)
-                 << ')';
+            _out << ", " << (isOptional ? "true" : "false") << ", " << (isOptional ? (*q)->tag() : 0) << ')';
             _out.dec();
         }
         _out << ')';

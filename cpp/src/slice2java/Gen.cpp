@@ -969,9 +969,11 @@ Slice::JavaVisitor::writeResultType(
                 out << nl << " */";
             }
         }
-        out << nl << "public "
-            << typeToString(outParam->type(), TypeModeIn, package, outParam->getMetadata(), true, outParam->isOptional())
-            << ' ' << outParam->mappedName() << ';';
+
+        string typeString =
+            typeToString(outParam->type(), TypeModeIn, package, outParam->getMetadata(), true, outParam->isOptional());
+
+        out << nl << "public " << typeString << ' ' << outParam->mappedName() << ';';
         out << sp;
     }
 
@@ -4560,9 +4562,11 @@ Slice::Gen::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
             for (const auto& value : values)
             {
+                string typeString =
+                    typeToString(value->type(), TypeModeIn, package, value->getMetadata(), true, value->isOptional());
+
                 out << nl;
-                out << typeToString(value->type(), TypeModeIn, package, value->getMetadata(), true, value->isOptional());
-                out << " iceP_" << value->mappedName() << " = icePP_" << value->mappedName() << ".value;";
+                out << typeString << " iceP_" << value->mappedName() << " = icePP_" << value->mappedName() << ".value;";
             }
         }
         else

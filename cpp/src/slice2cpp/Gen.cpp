@@ -1663,7 +1663,8 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
 
     for (const auto& q : inParams)
     {
-        string typeString = inputTypeToString(q->type(), q->isOptional(), interfaceScope, q->getMetadata(), _useWstring);
+        string typeString =
+            inputTypeToString(q->type(), q->isOptional(), interfaceScope, q->getMetadata(), _useWstring);
 
         inParamsS.push_back(typeString);
         inParamsImplDecl.push_back(typeString + ' ' + paramPrefix + q->mappedName());
@@ -2362,8 +2363,13 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 
         for (const auto& dataMember : allDataMembers)
         {
-            string typeName =
-                typeToString(dataMember->type(), dataMember->isOptional(), scope, dataMember->getMetadata(), _useWstring);
+            string typeName = typeToString(
+                dataMember->type(),
+                dataMember->isOptional(),
+                scope,
+                dataMember->getMetadata(),
+                _useWstring);
+
             allParameters.push_back(typeName + " " + dataMember->mappedName());
             if (const auto& comment = dataMember->docComment())
             {
@@ -2433,8 +2439,8 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
     }
 
     writeDocSummary(H, p);
-    H << nl << getDeprecatedAttribute(p) << typeToString(p->type(), p->isOptional(), scope, p->getMetadata(), _useWstring)
-      << ' ' << name;
+    H << nl << getDeprecatedAttribute(p)
+      << typeToString(p->type(), p->isOptional(), scope, p->getMetadata(), _useWstring) << ' ' << name;
 
     if (p->defaultValue())
     {
@@ -2784,8 +2790,13 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
                 args.push_back(condMove(isMovable(type) && !isOutParam, prefixedParamName));
             }
 
-            string responseTypeS =
-                inputTypeToString(param->type(), param->isOptional(), interfaceScope, param->getMetadata(), _useWstring);
+            string responseTypeS = inputTypeToString(
+                param->type(),
+                param->isOptional(),
+                interfaceScope,
+                param->getMetadata(),
+                _useWstring);
+
             responseParams.push_back(responseTypeS + " " + paramName);
             responseParamsDecl.push_back(responseTypeS + " " + prefixedParamName);
             responseParamsImplDecl.push_back(responseTypeS + " " + prefixedParamName);

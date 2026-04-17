@@ -126,7 +126,7 @@ namespace Slice::Java
 
     void validateJavaMetadata(const UnitPtr& unit);
 
-    class JavaOutput final : public ::IceInternal::Output
+    class JavaOutput final : public IceInternal::Output
     {
     public:
         JavaOutput();
@@ -164,7 +164,7 @@ namespace Slice::Java
 
     private:
         std::string _dir;
-        ::IceInternal::Output* _out{nullptr};
+        IceInternal::Output* _out{nullptr};
     };
 }
 

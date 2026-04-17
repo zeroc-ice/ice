@@ -71,7 +71,7 @@ namespace Slice::Swift
     void writeMembers(IceInternal::Output& out, const DataMemberList& members, const ContainedPtr& p);
 
     void writeMarshalUnmarshalCode(
-        ::IceInternal::Output& out,
+        IceInternal::Output& out,
         const TypePtr& type,
         const ContainedPtr& p,
         const std::string& param,

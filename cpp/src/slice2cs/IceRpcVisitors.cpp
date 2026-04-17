@@ -130,8 +130,7 @@ namespace
     /// @param ns The current C# namespace.
     /// @param dispatch If true, writes the signature for the dispatch method (with incoming parameter types and a
     /// ValueTask return type); if false, writes the signature for the proxy method.
-    void
-    writeMethodSignature(IceInternal::Output& out, const OperationPtr& operation, const string& ns, bool dispatch)
+    void writeMethodSignature(IceInternal::Output& out, const OperationPtr& operation, const string& ns, bool dispatch)
     {
         TypeContext paramContext = dispatch ? TypeContext::IncomingParam : TypeContext::OutgoingParam;
 
@@ -1191,8 +1190,8 @@ Slice::IceRpc::TypesVisitor::writeProxyResponseClass(const InterfaceDefPtr& inte
                 // Decode all return params
                 for (const auto& param : returnParams)
                 {
-                    _out << nl << csType(param->type(), ns, TypeContext::IncomingParam, param->isOptional()) << " sliceP_"
-                         << removeEscapePrefix(param->mappedName()) << " = ";
+                    _out << nl << csType(param->type(), ns, TypeContext::IncomingParam, param->isOptional())
+                         << " sliceP_" << removeEscapePrefix(param->mappedName()) << " = ";
                     if (param->isOptional())
                     {
                         decodeOptionalField(_out, param->tag(), param->type(), ns, TypeContext::IncomingParam);
@@ -1464,8 +1463,8 @@ Slice::IceRpc::SkeletonVisitor::writeRequestClass(const InterfaceDefPtr& interfa
                 // Decode all params (2 or more).
                 for (const auto& param : inParameters)
                 {
-                    _out << nl << csType(param->type(), ns, TypeContext::IncomingParam, param->isOptional()) << " sliceP_"
-                         << removeEscapePrefix(param->mappedName()) << " = ";
+                    _out << nl << csType(param->type(), ns, TypeContext::IncomingParam, param->isOptional())
+                         << " sliceP_" << removeEscapePrefix(param->mappedName()) << " = ";
                     if (param->isOptional())
                     {
                         decodeOptionalField(_out, param->tag(), param->type(), ns, TypeContext::IncomingParam);

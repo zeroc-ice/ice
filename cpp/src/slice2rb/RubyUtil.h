@@ -9,11 +9,8 @@
 namespace Slice::Ruby
 {
     /// Generates Ruby code for the provided translation unit.
-    void generate(
-        const UnitPtr& unit,
-        bool all,
-        const std::vector<std::string>& includePaths,
-        IceInternal::Output& out);
+    void
+    generate(const UnitPtr& unit, bool all, const std::vector<std::string>& includePaths, IceInternal::Output& out);
 
     /// This enum is used by ::getMappedName to control the casing of the identifier it returns.
     enum IdentStyle

@@ -51,7 +51,7 @@ namespace Slice::Csharp
 
     /// Encodes a non-optional field.
     void encodeField(
-        ::IceInternal::Output& out,
+        IceInternal::Output& out,
         const std::string& fieldName,
         const TypePtr& type,
         const std::string& ns,
@@ -60,7 +60,7 @@ namespace Slice::Csharp
 
     /// Encodes an optional field.
     void encodeOptionalField(
-        ::IceInternal::Output& out,
+        IceInternal::Output& out,
         int tag,
         const std::string& fieldName,
         const TypePtr& type,
@@ -73,7 +73,7 @@ namespace Slice::Csharp
 
     /// Decodes an optional field.
     void decodeOptionalField(
-        ::IceInternal::Output& out,
+        IceInternal::Output& out,
         int tag,
         const TypePtr& type,
         const std::string& ns,

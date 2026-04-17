@@ -367,8 +367,7 @@ namespace
         }
     }
 
-    template<class T>
-    void writePropertiesSummary(IceInternal::Output& out, const string& name, const list<T>& list)
+    template<class T> void writePropertiesSummary(IceInternal::Output& out, const string& name, const list<T>& list)
     {
         if (!list.empty())
         {

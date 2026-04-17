@@ -33,8 +33,16 @@ namespace Slice::Ice
         void visitOperation(const OperationPtr&) final;
 
     private:
-        void writeMarshalDataMember(const DataMemberPtr& member, const std::string& name, const std::string& ns, bool forStruct = false);
-        void writeUnmarshalDataMember(const DataMemberPtr& member, const std::string& name, const std::string& ns, bool forStruct = false);
+        void writeMarshalDataMember(
+            const DataMemberPtr& member,
+            const std::string& name,
+            const std::string& ns,
+            bool forStruct = false);
+        void writeUnmarshalDataMember(
+            const DataMemberPtr& member,
+            const std::string& name,
+            const std::string& ns,
+            bool forStruct = false);
         void writeMarshaling(const ClassDefPtr& p);
 
         /// Writes "= null!" for non-nullable fields (Slice class and exception only).

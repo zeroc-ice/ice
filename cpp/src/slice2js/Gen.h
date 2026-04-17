@@ -32,7 +32,8 @@ namespace Slice
 
         std::string getValue(const TypePtr& type);
 
-        std::string writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const std::string& value);
+        std::string
+        writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const std::string& value);
 
         /// Generates and outputs a doc-summary for Slice definition @p p.
         /// @param p The Slice definition to be documented.
@@ -129,8 +130,9 @@ namespace Slice
             void visitEnum(const EnumPtr&) final;
 
             // Emit the import statements for the given unit and return a list of the imported modules.
-            std::set<std::string>
-            writeImports(const UnitPtr& unit, const std::map<std::string, std::map<std::string, std::set<std::string>>>& nestedModulesByTopLevel);
+            std::set<std::string> writeImports(
+                const UnitPtr& unit,
+                const std::map<std::string, std::map<std::string, std::set<std::string>>>& nestedModulesByTopLevel);
 
         private:
             bool _seenClass{false};
@@ -182,7 +184,9 @@ namespace Slice
         class TypeScriptImportVisitor final : public JsVisitor
         {
         public:
-            TypeScriptImportVisitor(IceInternal::Output& out, std::map<std::string, std::set<std::string>> importedTypesByInclude);
+            TypeScriptImportVisitor(
+                IceInternal::Output& out,
+                std::map<std::string, std::set<std::string>> importedTypesByInclude);
 
             bool visitUnitStart(const UnitPtr&) final;
             bool visitClassDefStart(const ClassDefPtr&) final;
@@ -233,7 +237,9 @@ namespace Slice
 
         private:
             [[nodiscard]] std::string importPrefix(const std::string& scopedName) const;
-            [[nodiscard]] std::string typeToTsString(const TypePtr& type, bool nullable = false, bool forParameter = false, bool optional = false) const;
+            [[nodiscard]] std::string
+            typeToTsString(const TypePtr& type, bool nullable = false, bool forParameter = false, bool optional = false)
+                const;
             void writeOpDocSummary(IceInternal::Output& out, const OperationPtr& op, bool forDispatch);
             void writeNestedModuleExports(const std::string& currentModuleScope);
 

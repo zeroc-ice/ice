@@ -55,8 +55,12 @@ namespace Slice
 
     void writeMarshalCode(IceInternal::Output& out, const ParameterList& params, const OperationPtr& op);
     void writeUnmarshalCode(IceInternal::Output& out, const ParameterList& params, const OperationPtr& op);
-    void
-    writeAllocateCode(IceInternal::Output& out, const ParameterList& params, const OperationPtr& op, const std::string& clScope, TypeContext typeCtx);
+    void writeAllocateCode(
+        IceInternal::Output& out,
+        const ParameterList& params,
+        const OperationPtr& op,
+        const std::string& clScope,
+        TypeContext typeCtx);
 
     /// Writes the StreamReader specialization for a struct.
     void writeStreamReader(IceInternal::Output& out, const StructPtr& p, const DataMemberList& dataMembers);

@@ -416,8 +416,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             isFirst = false;
             _out << '[';
             writeType(param->type());
-            _out << ", " << (isOptional ? "true" : "false") << ", " << (isOptional ? param->tag() : 0)
-                 << ']';
+            _out << ", " << (isOptional ? "true" : "false") << ", " << (isOptional ? param->tag() : 0) << ']';
         }
         _out << "], [";
         isFirst = true;
@@ -431,8 +430,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             isFirst = false;
             _out << '[';
             writeType(param->type());
-            _out << ", " << (isOptional ? "true" : "false") << ", " << (isOptional ? param->tag() : 0)
-                 << ']';
+            _out << ", " << (isOptional ? "true" : "false") << ", " << (isOptional ? param->tag() : 0) << ']';
         }
         _out << "], ";
         TypePtr returnType = op->returnType();
@@ -558,8 +556,7 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
         _out << "[\"" << getMappedName(*dmli) << "\", ";
         writeType((*dmli)->type());
-        _out << ", " << (isOptional ? "true" : "false") << ", " << (isOptional ? (*dmli)->tag() : 0)
-             << ']';
+        _out << ", " << (isOptional ? "true" : "false") << ", " << (isOptional ? (*dmli)->tag() : 0) << ']';
     }
     if (members.size() > 1)
     {

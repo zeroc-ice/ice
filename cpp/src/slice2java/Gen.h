@@ -143,7 +143,10 @@ namespace Slice
             const std::string& package);
 
         /// Generate assignment statements for those data members that have default values.
-        static void writeDataMemberInitializers(IceInternal::Output& out, const DataMemberList& members, const std::string& package);
+        static void writeDataMemberInitializers(
+            IceInternal::Output& out,
+            const DataMemberList& members,
+            const std::string& package);
 
         //
         // Handle doc comments.
@@ -165,7 +168,11 @@ namespace Slice
             const std::optional<DocComment>& dc,
             bool async,
             const std::string& contextParam);
-        static void writeServantOpDocComment(IceInternal::Output& out, const OperationPtr& p, const std::string& package, bool async);
+        static void writeServantOpDocComment(
+            IceInternal::Output& out,
+            const OperationPtr& p,
+            const std::string& package,
+            bool async);
         static void writeSeeAlso(IceInternal::Output& out, const StringList& seeAlso);
         static void writeParamDocComments(IceInternal::Output& out, const DataMemberList& members);
 

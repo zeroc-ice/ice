@@ -2575,7 +2575,8 @@ Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind 
         {
             assert(outParams.size() == 1);
             const auto& param = outParams.front();
-            out << nl << typeToTypeHintString(param->type(), param->isOptional(), p, methodKind == MethodKind::Dispatch);
+            out << nl;
+            out << typeToTypeHintString(param->type(), param->isOptional(), p, methodKind == MethodKind::Dispatch);
             const auto r = parametersDoc.find(param->name());
             if (r != parametersDoc.end())
             {
