@@ -347,10 +347,10 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
     PyObject* outParams;
     PyObject* returnType;
     PyObject* exceptions;
-    int onewayOnly = 0;
+    int onewayOnly;
     if (!PyArg_ParseTuple(
             args,
-            "ssO!OO!O!O!OO!|p",
+            "ssO!OO!O!O!OO!p",
             &sliceName,
             &mappedName,
             modeType,
