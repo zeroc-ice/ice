@@ -48,7 +48,7 @@ namespace
     DataMemberList filterOrderedOptionalDataMembers(const DataMemberList& members)
     {
         DataMemberList result;
-        copy_if(members.begin(), members.end(), back_inserter(result), [](const auto& p) { return p->optional(); });
+        copy_if(members.begin(), members.end(), back_inserter(result), [](const auto& p) { return p->isOptional(); });
         result.sort(compareTag<DataMemberPtr>);
         return result;
     }
@@ -563,7 +563,7 @@ Slice::Builtin::kindAsString() const
     return builtinTable[_kind];
 }
 
-optional<Slice::Builtin::Kind>
+optional<Builtin::Kind>
 Slice::Builtin::kindFromString(string_view str)
 {
     // Object is an alias for Value that we don't put in the builtinTable.
@@ -749,7 +749,7 @@ Slice::Contained::getMetadataArgs(string_view directive) const
     return nullopt;
 }
 
-std::optional<FormatType>
+optional<FormatType>
 Slice::Contained::parseFormatMetadata() const
 {
     if (auto metadata = getMetadataArgs("format"))
@@ -2310,7 +2310,7 @@ Slice::ClassDef::createDataMember(
         // Validate the tag.
         for (const auto& q : dataMembers())
         {
-            if (q->optional() && tag == q->tag())
+            if (q->isOptional() && tag == q->tag())
             {
                 unit()->error("tag for optional data member '" + name + "' is already in use");
                 break;
@@ -2615,7 +2615,7 @@ Slice::InterfaceDecl::addPartition(
 // list of lists, with each member list containing the operation
 // names defined by the interfaces in each partition.
 //
-Slice::InterfaceDecl::StringPartitionList
+InterfaceDecl::StringPartitionList
 Slice::InterfaceDecl::toStringPartitionList(const GraphPartitionList& partitions)
 {
     StringPartitionList spl;
@@ -3004,7 +3004,7 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
         {
             for (const auto& param : parameters())
             {
-                if (param->optional() && param->tag() == tag)
+                if (param->isOptional() && param->tag() == tag)
                 {
                     unit()->error(msg);
                     break;
@@ -3053,7 +3053,7 @@ Slice::Operation::sortedInParameters() const
     ParameterList required, optional;
     for (const auto& param : inParameters())
     {
-        if (param->optional())
+        if (param->isOptional())
         {
             optional.push_back(param);
         }
@@ -3128,7 +3128,7 @@ Slice::Operation::sortedReturnAndOutParameters(const string& returnName)
     // First sort each parameter into either 'required' or 'optional'.
     for (auto i = required.begin(); i != required.end();)
     {
-        if ((*i)->optional())
+        if ((*i)->isOptional())
         {
             optional.push_back(*i);
             i = required.erase(i);
@@ -3258,7 +3258,7 @@ Slice::Operation::sendsOptionals() const
 {
     for (const auto& i : inParameters())
     {
-        if (i->optional())
+        if (i->isOptional())
         {
             return true;
         }
@@ -3271,7 +3271,7 @@ Slice::Operation::receivesOptionals() const
 {
     for (const auto& i : outParameters())
     {
-        if (i->optional())
+        if (i->isOptional())
         {
             return true;
         }
@@ -3279,10 +3279,10 @@ Slice::Operation::receivesOptionals() const
     return returnIsOptional();
 }
 
-std::optional<FormatType>
+optional<FormatType>
 Slice::Operation::format() const
 {
-    std::optional<FormatType> format = parseFormatMetadata();
+    optional<FormatType> format = parseFormatMetadata();
     if (!format)
     {
         ContainedPtr cont = dynamic_pointer_cast<Contained>(container());
@@ -3407,7 +3407,7 @@ Slice::Exception::createDataMember(
         // Validate the tag.
         for (const auto& q : dataMembers())
         {
-            if (q->optional() && tag == q->tag())
+            if (q->isOptional() && tag == q->tag())
             {
                 unit()->error("tag for optional data member '" + name + "' is already in use");
                 break;
@@ -4167,7 +4167,7 @@ Slice::Parameter::setIsOutParam()
 }
 
 bool
-Slice::Parameter::optional() const
+Slice::Parameter::isOptional() const
 {
     return _optional;
 }
@@ -4214,7 +4214,7 @@ Slice::DataMember::type() const
 }
 
 bool
-Slice::DataMember::optional() const
+Slice::DataMember::isOptional() const
 {
     return _optional;
 }
@@ -4256,7 +4256,7 @@ Slice::DataMember::DataMember(
     bool isOptional,
     int32_t tag,
     SyntaxTreeBasePtr defaultValueType,
-    std::optional<string> defaultValueString)
+    optional<string> defaultValueString)
     : Contained(container, name),
       _type(std::move(type)),
       _optional(isOptional),
@@ -4391,7 +4391,7 @@ Slice::Unit::currentLine() const
 }
 
 int
-Slice::Unit::setCurrentFile(std::string currentFile, int lineNumber)
+Slice::Unit::setCurrentFile(string currentFile, int lineNumber)
 {
     assert(!currentFile.empty());
 
@@ -4677,12 +4677,12 @@ Slice::Unit::findContents(const string& scopedName) const
 }
 
 void
-Slice::Unit::addTypeId(int32_t compactId, const std::string& typeId)
+Slice::Unit::addTypeId(int32_t compactId, const string& typeId)
 {
     _typeIds.insert(make_pair(compactId, typeId));
 }
 
-std::string
+string
 Slice::Unit::getTypeId(int32_t compactId) const
 {
     auto p = _typeIds.find(compactId);

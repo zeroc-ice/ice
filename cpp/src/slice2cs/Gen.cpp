@@ -65,29 +65,29 @@ Slice::Gen::~Gen()
 }
 
 void
-Slice::Gen::generate(const UnitPtr& p)
+Slice::Gen::generate(const UnitPtr& unit)
 {
-    Slice::validateCsMetadata(p);
+    Slice::validateCsMetadata(unit);
 
     if (_genMode == GenMode::Ice)
     {
         Slice::Ice::TypesVisitor typesVisitor(_out);
-        p->visit(&typesVisitor);
+        unit->visit(&typesVisitor);
 
         Slice::Ice::ResultVisitor resultVisitor(_out);
-        p->visit(&resultVisitor);
+        unit->visit(&resultVisitor);
 
         // Default skeleton.
         Slice::Ice::SkeletonVisitor skeletonVisitor(_out, false);
-        p->visit(&skeletonVisitor);
+        unit->visit(&skeletonVisitor);
 
         // Async skeleton.
         Slice::Ice::SkeletonVisitor asyncSkeletonVisitor(_out, true);
-        p->visit(&asyncSkeletonVisitor);
+        unit->visit(&asyncSkeletonVisitor);
     }
     else
     {
-        if (p->contains<InterfaceDef>())
+        if (unit->contains<InterfaceDef>())
         {
             // The proxy and skeleton code depends on this using directive.
             _out << nl << "using IceRpc.Ice.Operations;";
@@ -96,10 +96,10 @@ Slice::Gen::generate(const UnitPtr& p)
         _out << nl << "[assembly:IceGeneratedCode(\"" << _fileBase << ".ice\")]";
 
         Slice::IceRpc::TypesVisitor typesVisitor(_out);
-        p->visit(&typesVisitor);
+        unit->visit(&typesVisitor);
 
         Slice::IceRpc::SkeletonVisitor skeletonVisitor(_out);
-        p->visit(&skeletonVisitor);
+        unit->visit(&skeletonVisitor);
     }
 }
 

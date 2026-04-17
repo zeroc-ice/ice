@@ -489,7 +489,7 @@ Slice::getArticleFor(const string& s)
     return (vowels.find_first_of(s[0]) != string::npos) ? "an" : "a";
 }
 
-std::string
+string
 Slice::pluralKindOf(const ContainedPtr& p)
 {
     string kindOf = p->kindOf();
@@ -635,7 +635,7 @@ Slice::getFirstSentence(const StringList& lines)
 }
 
 string
-Slice::getEscapedParamName(const ParameterList& params, std::string_view param)
+Slice::getEscapedParamName(const ParameterList& params, string_view param)
 {
     for (const auto& p : params)
     {
@@ -650,14 +650,14 @@ Slice::getEscapedParamName(const ParameterList& params, std::string_view param)
 string
 Slice::getTypeScopedName(const TypePtr& type)
 {
-    if (auto builtin = std::dynamic_pointer_cast<Builtin>(type))
+    if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
         return builtin->kindAsString();
     }
     else
     {
         // a type is either built-in or contained
-        auto contained = std::dynamic_pointer_cast<Contained>(type);
+        auto contained = dynamic_pointer_cast<Contained>(type);
         assert(contained);
         return contained->scoped();
     }
@@ -755,7 +755,7 @@ Slice::DependencyGenerator::writeMakefileDependencies(
 }
 
 void
-Slice::DependencyGenerator::writeXMLDependencies(const std::string& dependFile)
+Slice::DependencyGenerator::writeXMLDependencies(const string& dependFile)
 {
     ostringstream os;
     os << R"(<?xml version="1.0" encoding="UTF-8"?>)";
@@ -777,7 +777,7 @@ Slice::DependencyGenerator::writeXMLDependencies(const std::string& dependFile)
 }
 
 void
-Slice::DependencyGenerator::writeJSONDependencies(const std::string& dependFile)
+Slice::DependencyGenerator::writeJSONDependencies(const string& dependFile)
 {
     ostringstream os;
     os << "{";

@@ -101,6 +101,6 @@ namespace Slice
     ///               (i.e. parser metadata) is always checked.
     /// @param knownMetadata A map containing the directives that should be validated, and information describing
     ///                      the various constraints and conditions that should be upheld for it and its arguments.
-    void validateMetadata(const UnitPtr& p, std::string_view prefix, std::map<std::string, MetadataInfo> knownMetadata);
+    void validateMetadata(const UnitPtr& unit, std::string_view prefix, std::map<std::string, MetadataInfo> knownMetadata);
 }
 #endif

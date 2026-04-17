@@ -185,7 +185,7 @@ namespace Slice::Python
     std::vector<std::string> getAll(const ContainedPtr& definition);
 
     /// Get sequence metadata associated with the given sequence and any local metadata.
-    Slice::MetadataPtr getSequenceMetadata(const SequencePtr& seq, const MetadataList& localMetadata);
+    MetadataPtr getSequenceMetadata(const SequencePtr& seq, const MetadataList& localMetadata);
 
     /// Splits a fully qualified name (FQN) into its Module and Name components.
     /// @param fqn The fully qualified name to split.
@@ -233,7 +233,7 @@ namespace Slice::Python
     pyLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 
     /// Validates the Slice Python metadata for the given unit.
-    void validatePythonMetadata(const UnitPtr&);
+    void validatePythonMetadata(const UnitPtr& unit);
 
     // Collects Python definitions for each generated Python package.
     // Each package corresponds to a Slice module and includes an `__init__.py` file that re-exports selected
@@ -431,10 +431,10 @@ namespace Slice::Python
         std::string operationReturnTypeHint(const OperationPtr& operation, MethodKind methodKind);
 
         // Emit Python code for operations
-        void writeOperations(const InterfaceDefPtr&, IceInternal::Output&);
+        void writeOperations(const InterfaceDefPtr& p, IceInternal::Output& out);
 
         // Write Python metadata as a tuple.
-        void writeMetadata(const MetadataList&, IceInternal::Output&);
+        void writeMetadata(const MetadataList& metadata, IceInternal::Output& out);
 
         // Write the data members meta-info for a meta type declaration.
         void writeMetaTypeDataMembers(
@@ -445,10 +445,10 @@ namespace Slice::Python
         // Write a constant value.
         void writeConstantValue(
             const ContainedPtr& source,
-            const TypePtr&,
-            const SyntaxTreeBasePtr&,
-            const std::string&,
-            IceInternal::Output&);
+            const TypePtr& type,
+            const SyntaxTreeBasePtr& valueType,
+            const std::string& value,
+            IceInternal::Output& out);
 
         /// Writes the provided @p remarks in its own subheading in the current comment (if @p remarks is non-empty).
         void writeRemarksDocComment(const StringList& remarks, bool needsNewline, IceInternal::Output& out);
@@ -460,7 +460,7 @@ namespace Slice::Python
 
         void writeEnumeratorDocstring(const EnumeratorPtr& p, IceInternal::Output& out);
 
-        void writeOpDocstring(const OperationPtr&, MethodKind, IceInternal::Output&);
+        void writeOpDocstring(const OperationPtr& op, MethodKind methodKind, IceInternal::Output& out);
 
         std::string getImportAlias(const ContainedPtr& source, const SyntaxTreeBasePtr& definition);
         std::string

@@ -119,7 +119,7 @@ Slice::Csharp::writeDocLine(
     Output& out,
     const string& openTag,
     const string& comment,
-    const std::optional<string>& closeTag)
+    const optional<string>& closeTag)
 {
     if (comment.empty())
     {

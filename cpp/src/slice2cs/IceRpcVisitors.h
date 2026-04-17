@@ -56,7 +56,7 @@ namespace Slice::IceRpc
     class SkeletonVisitor final : public CsVisitor
     {
     public:
-        SkeletonVisitor(IceInternal::Output&);
+        SkeletonVisitor(IceInternal::Output& output);
 
         bool visitModuleStart(const ModulePtr&) final;
 

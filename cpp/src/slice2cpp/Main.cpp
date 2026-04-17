@@ -190,7 +190,7 @@ compile(const vector<string>& argv)
     Ice::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
-    std::map<string, StringList> dependencyMap;
+    map<string, StringList> dependencyMap;
 
     DependencyGenerator dependencyGenerator;
 

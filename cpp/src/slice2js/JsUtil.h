@@ -47,7 +47,7 @@ namespace Slice::JavaScript
     std::string
     jsLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 
-    void validateJsMetadata(const UnitPtr&);
+    void validateJsMetadata(const UnitPtr& unit);
 }
 
 #endif

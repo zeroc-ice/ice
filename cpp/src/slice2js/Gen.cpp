@@ -263,7 +263,7 @@ Slice::IncludeAggregationVisitor::addImportedType(const ContainedPtr& definition
     }
 }
 
-std::optional<std::string>
+optional<string>
 Slice::IncludeAggregationVisitor::resolveDirectInclude(const DefinitionContextPtr& dc) const
 {
     auto it = _transitiveToDirectInclude.find(dc->resolvedFilename());
@@ -354,17 +354,17 @@ Slice::IncludeAggregationVisitor::visitEnum(const EnumPtr& p)
     addImportedType(p);
 }
 
-const std::map<std::string, std::map<std::string, std::set<std::string>>>&
+const map<string, map<string, set<string>>>&
 Slice::IncludeAggregationVisitor::nestedModulesByTopLevel() const
 {
     return _nestedModulesByTopLevel;
 }
 
-std::map<std::string, std::set<std::string>>
-Slice::IncludeAggregationVisitor::importedTypesByTopLevel(const std::string& topLevelFile) const
+map<string, set<string>>
+Slice::IncludeAggregationVisitor::importedTypesByTopLevel(const string& topLevelFile) const
 {
     auto it = _importedTypesByTopLevel.find(topLevelFile);
-    return it != _importedTypesByTopLevel.end() ? it->second : std::map<std::string, std::set<std::string>>{};
+    return it != _importedTypesByTopLevel.end() ? it->second : map<string, set<string>>{};
 }
 
 bool
@@ -382,7 +382,7 @@ Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, con
 {
     for (const auto& dataMember : dataMembers)
     {
-        if (!dataMember->optional())
+        if (!dataMember->isOptional())
         {
             writeMarshalUnmarshalCode(_out, dataMember->type(), "this." + dataMember->mappedName(), true, _jsModule);
         }
@@ -405,7 +405,7 @@ Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, c
 {
     for (const auto& dataMember : dataMembers)
     {
-        if (!dataMember->optional())
+        if (!dataMember->isOptional())
         {
             writeMarshalUnmarshalCode(_out, dataMember->type(), "this." + dataMember->mappedName(), false, _jsModule);
         }
@@ -433,7 +433,7 @@ Slice::JsVisitor::writeOneShotConstructorArguments(const DataMemberList& members
         {
             value = writeConstantValue(member->type(), member->defaultValueType(), *member->defaultValue());
         }
-        else if (member->optional())
+        else if (member->isOptional())
         {
             value = "undefined";
         }
@@ -648,7 +648,7 @@ Slice::Gen::Gen(const string& base, const string& dir, bool typeScript)
     }
 }
 
-Slice::Gen::Gen(const string& base, const string& /*dir*/, bool typeScript, ostream& out)
+Slice::Gen::Gen(const string& base, ostream& out, bool typeScript)
     : _javaScriptOutput(out, false, true),
       _typeScriptOutput(out, false, true),
       _useStdout(true),
@@ -678,11 +678,11 @@ Slice::Gen::~Gen()
 }
 
 void
-Slice::Gen::generate(const UnitPtr& p)
+Slice::Gen::generate(const UnitPtr& unit)
 {
-    validateJsMetadata(p);
+    validateJsMetadata(unit);
 
-    string module = getJavaScriptModule(p->findDefinitionContext(p->topLevelFile()));
+    string module = getJavaScriptModule(unit->findDefinitionContext(unit->topLevelFile()));
 
     if (_useStdout)
     {
@@ -700,21 +700,21 @@ Slice::Gen::generate(const UnitPtr& p)
 
     {
         IncludeAggregationVisitor moduleVisitor;
-        p->visit(&moduleVisitor);
+        unit->visit(&moduleVisitor);
 
         ImportVisitor importVisitor(_javaScriptOutput);
-        p->visit(&importVisitor);
-        set<string> importedModules = importVisitor.writeImports(p, moduleVisitor.nestedModulesByTopLevel());
+        unit->visit(&importVisitor);
+        set<string> importedModules = importVisitor.writeImports(unit, moduleVisitor.nestedModulesByTopLevel());
 
         ExportsVisitor exportsVisitor(_javaScriptOutput, importedModules);
-        p->visit(&exportsVisitor);
+        unit->visit(&exportsVisitor);
         set<string> exportedModules = exportsVisitor.exportedModules();
 
         set<string> seenModules = importedModules;
         seenModules.merge(exportedModules);
 
         TypesVisitor typesVisitor(_javaScriptOutput, module);
-        p->visit(&typesVisitor);
+        unit->visit(&typesVisitor);
     }
 
     if (_useStdout)
@@ -737,16 +737,16 @@ Slice::Gen::generate(const UnitPtr& p)
         printGeneratedHeader(_typeScriptOutput, _fileBase + ".ice");
 
         IncludeAggregationVisitor moduleVisitor;
-        p->visit(&moduleVisitor);
+        unit->visit(&moduleVisitor);
 
-        map<string, set<string>> importedTypesByInclude = moduleVisitor.importedTypesByTopLevel(p->topLevelFile());
+        map<string, set<string>> importedTypesByInclude = moduleVisitor.importedTypesByTopLevel(unit->topLevelFile());
 
         TypeScriptImportVisitor importVisitor(_typeScriptOutput, importedTypesByInclude);
-        p->visit(&importVisitor);
+        unit->visit(&importVisitor);
         map<string, string> importedTypes = importVisitor.writeImports();
 
         TypeScriptVisitor typeScriptVisitor(_typeScriptOutput, importedTypes, importedTypesByInclude);
-        p->visit(&typeScriptVisitor);
+        unit->visit(&typeScriptVisitor);
 
         if (_useStdout)
         {
@@ -843,11 +843,11 @@ Slice::Gen::ImportVisitor::visitEnum(const EnumPtr&)
 
 set<string>
 Slice::Gen::ImportVisitor::writeImports(
-    const UnitPtr& p,
-    const std::map<std::string, std::map<std::string, std::set<std::string>>>& nestedModulesByTopLevel)
+    const UnitPtr& unit,
+    const map<string, map<string, set<string>>>& nestedModulesByTopLevel)
 {
     // The JavaScript module we are building as specified by "js:module:" metadata.
-    string jsModule = getJavaScriptModule(p->findDefinitionContext(p->topLevelFile()));
+    string jsModule = getJavaScriptModule(unit->findDefinitionContext(unit->topLevelFile()));
 
     // The set of top-level modules that we need to import in the generated JavaScript code.
     set<string> importedModules = {"Ice"};
@@ -931,18 +931,18 @@ Slice::Gen::ImportVisitor::writeImports(
     // Group the top-level modules from each included file by their JavaScript import path.
     // Imports from files in the same js:module (or without a js:module) are tracked as "local" for aggregation.
     set<string> localImports;
-    for (const auto& included : p->includeFiles())
+    for (const auto& included : unit->includeFiles())
     {
-        set<string> sliceTopLevelModules = p->getTopLevelModules(included);
+        set<string> sliceTopLevelModules = unit->getTopLevelModules(included);
 
         // The JavaScript module corresponding to the 'js:module' metadata in the included file.
-        string jsImportedModule = getJavaScriptModule(p->findDefinitionContext(included));
+        string jsImportedModule = getJavaScriptModule(unit->findDefinitionContext(included));
 
         if (jsModule == jsImportedModule || jsImportedModule.empty())
         {
             // For Slice modules mapped to the same JavaScript module, or Slice files that doesn't use "js:module".
             // We import them using their Slice include relative path.
-            string f = toRelativePath(removeExtension(included) + ".js", p->topLevelFile());
+            string f = toRelativePath(removeExtension(included) + ".js", unit->topLevelFile());
             imports[f] = sliceTopLevelModules;
             localImports.insert(f);
 
@@ -1074,7 +1074,7 @@ Slice::Gen::ImportVisitor::writeImports(
     // This must be done in a top-down order.
     // Foo.Bar = { ...Foo_Bar_1.Bar, ...Foo_Bar_2.Bar, ... }
     // Foo.Bar.Baz = { ...Foo_Bar_1.Bar.Baz, ...Foo_Bar_2.Bar.Baz, ... }
-    auto it = nestedModulesByTopLevel.find(p->topLevelFile());
+    auto it = nestedModulesByTopLevel.find(unit->topLevelFile());
     if (it != nestedModulesByTopLevel.end())
     {
         auto& nestedModulesByIncludeKey = it->second;
@@ -1093,11 +1093,11 @@ Slice::Gen::ImportVisitor::writeImports(
         }
 
         // Sort by nesting depth (number of dots) to aggregate parent modules before their children.
-        std::vector<std::string> sortedNestedModules(uniqueNestedModules.begin(), uniqueNestedModules.end());
+        vector<string> sortedNestedModules(uniqueNestedModules.begin(), uniqueNestedModules.end());
         std::sort(
             sortedNestedModules.begin(),
             sortedNestedModules.end(),
-            [](const std::string& a, const std::string& b)
+            [](const string& a, const string& b)
             {
                 auto dotsA = std::count(a.begin(), a.end(), '.');
                 auto dotsB = std::count(b.begin(), b.end(), '.');
@@ -1128,7 +1128,7 @@ Slice::Gen::ImportVisitor::writeImports(
     return importedModules;
 }
 
-Slice::Gen::ExportsVisitor::ExportsVisitor(::IceInternal::Output& out, std::set<std::string> importedModules)
+Slice::Gen::ExportsVisitor::ExportsVisitor(IceInternal::Output& out, set<string> importedModules)
     : JsVisitor(out),
       _importedModules(std::move(importedModules))
 {
@@ -1493,7 +1493,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     {
                         _out << ", true";
                     }
-                    if ((*pli)->optional())
+                    if ((*pli)->isOptional())
                     {
                         if (!isObj)
                         {
@@ -1526,7 +1526,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     {
                         _out << ", true";
                     }
-                    if ((*pli)->optional())
+                    if ((*pli)->isOptional())
                     {
                         if (!isObj)
                         {
@@ -1933,7 +1933,7 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
 
 Slice::Gen::TypeScriptImportVisitor::TypeScriptImportVisitor(
     IceInternal::Output& out,
-    std::map<std::string, std::set<std::string>> importedTypesByInclude)
+    map<string, set<string>> importedTypesByInclude)
     : JsVisitor(out),
       _importedTypesByInclude(std::move(importedTypesByInclude))
 {
@@ -2126,7 +2126,7 @@ Slice::Gen::TypeScriptImportVisitor::visitDictionary(const DictionaryPtr& dict)
     }
 }
 
-std::map<std::string, std::string>
+map<string, string>
 Slice::Gen::TypeScriptImportVisitor::writeImports()
 {
     _out << sp;
@@ -2139,9 +2139,9 @@ Slice::Gen::TypeScriptImportVisitor::writeImports()
 }
 
 string
-Slice::Gen::TypeScriptVisitor::importPrefix(const string& s) const
+Slice::Gen::TypeScriptVisitor::importPrefix(const string& scopedName) const
 {
-    const auto it = _importedTypes.find(s);
+    const auto it = _importedTypes.find(scopedName);
     if (it != _importedTypes.end())
     {
         return it->second;
@@ -2286,8 +2286,8 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
 
 Slice::Gen::TypeScriptVisitor::TypeScriptVisitor(
     IceInternal::Output& out,
-    std::map<std::string, std::string> importedTypes,
-    std::map<std::string, std::set<std::string>> importedTypesByInclude)
+    map<string, string> importedTypes,
+    map<string, set<string>> importedTypesByInclude)
     : JsVisitor(out),
       _importedTypes(std::move(importedTypes)),
       _importedTypesByInclude(std::move(importedTypesByInclude))
@@ -2415,7 +2415,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << sp;
             writeDocSummary(dataMember);
-            const string optionalModifier = dataMember->optional() ? "?" : "";
+            const string optionalModifier = dataMember->isOptional() ? "?" : "";
             _out << nl << dataMember->mappedName() << optionalModifier << ": "
                  << typeToTsString(dataMember->type(), true) << ";";
         }
@@ -2439,7 +2439,7 @@ namespace
 
         for (; it != params.end(); ++it)
         {
-            if (!(*it)->optional())
+            if (!(*it)->isOptional())
             {
                 return false;
             }
@@ -2515,7 +2515,7 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr
             auto q = paramDoc.find(param->name());
             if (q != paramDoc.end())
             {
-                out << nl << " * - " << typeToTsString(param->type(), true, false, param->optional()) << " : ";
+                out << nl << " * - " << typeToTsString(param->type(), true, false, param->isOptional()) << " : ";
                 writeDocLines(out, q->second, false, "   ");
             }
         }
@@ -2705,10 +2705,10 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             // TypeScript doesn't allow optional parameters with '?' prefix before required parameters.
             const string optionalPrefix =
-                param->optional() && areRemainingParamsOptional(paramList, param->name()) ? "?" : "";
+                param->isOptional() && areRemainingParamsOptional(paramList, param->name()) ? "?" : "";
             _out
                 << (param->mappedName() + optionalPrefix + ": " +
-                    typeToTsString(param->type(), true, true, param->optional()));
+                    typeToTsString(param->type(), true, true, param->isOptional()));
         }
         _out << "context?: Map<string, string>";
         _out << epar;
@@ -2721,7 +2721,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         else if ((ret && outParams.empty()) || (!ret && outParams.size() == 1))
         {
             TypePtr t = ret ? ret : outParams.front()->type();
-            bool optional = ret ? op->returnIsOptional() : outParams.front()->optional();
+            bool optional = ret ? op->returnIsOptional() : outParams.front()->isOptional();
             _out << "<" << typeToTsString(t, true, false, optional) << ">";
         }
         else
@@ -2734,7 +2734,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             for (auto i = outParams.begin(); i != outParams.end();)
             {
-                _out << typeToTsString((*i)->type(), true, false, (*i)->optional());
+                _out << typeToTsString((*i)->type(), true, false, (*i)->isOptional());
                 if (++i != outParams.end())
                 {
                     _out << ", ";
@@ -2823,7 +2823,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << nl << "abstract " << op->mappedName() << spar;
         for (const auto& param : inParams)
         {
-            _out << (param->mappedName() + ": " + typeToTsString(param->type(), true, true, param->optional()));
+            _out << (param->mappedName() + ": " + typeToTsString(param->type(), true, true, param->isOptional()));
         }
         _out << ("current: " + _iceImportPrefix + "Ice.Current");
         _out << epar << ": ";
@@ -2848,7 +2848,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             for (auto i = outParams.begin(); i != outParams.end();)
             {
-                os << typeToTsString((*i)->type(), true, false, (*i)->optional());
+                os << typeToTsString((*i)->type(), true, false, (*i)->isOptional());
                 if (++i != outParams.end())
                 {
                     os << ", ";
@@ -2927,7 +2927,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             _out << sp;
             writeDocSummary(dataMember);
-            const string optionalModifier = dataMember->optional() ? "?" : "";
+            const string optionalModifier = dataMember->isOptional() ? "?" : "";
             _out << nl << dataMember->mappedName() << optionalModifier << ": "
                  << typeToTsString(dataMember->type(), true) << ";";
         }

@@ -21,7 +21,7 @@ namespace Slice
         Gen(const Gen&) = delete;
         ~Gen();
 
-        void generate(const UnitPtr&);
+        void generate(const UnitPtr& unit);
 
     private:
         const GenMode _genMode;

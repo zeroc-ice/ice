@@ -692,7 +692,14 @@ namespace Slice
             Idempotent = 2
         };
 
-        Operation(const ContainerPtr&, const std::string&, TypePtr, bool, std::int32_t, Mode);
+        Operation(
+            const ContainerPtr& container,
+            const std::string& name,
+            TypePtr returnType,
+            bool returnIsOptional,
+            std::int32_t returnTag,
+            Mode mode);
+
         [[nodiscard]] InterfaceDefPtr interface() const;
         [[nodiscard]] TypePtr returnType() const;
         [[nodiscard]] bool returnIsOptional() const;
@@ -1027,7 +1034,7 @@ namespace Slice
         [[nodiscard]] TypePtr type() const;
         [[nodiscard]] bool isOutParam() const;
         void setIsOutParam();
-        [[nodiscard]] bool optional() const;
+        [[nodiscard]] bool isOptional() const;
         [[nodiscard]] std::int32_t tag() const;
         [[nodiscard]] std::string kindOf() const final;
 
@@ -1056,7 +1063,7 @@ namespace Slice
             SyntaxTreeBasePtr defaultValueType,
             std::optional<std::string> defaultValueString);
         [[nodiscard]] TypePtr type() const;
-        [[nodiscard]] bool optional() const;
+        [[nodiscard]] bool isOptional() const;
         [[nodiscard]] std::int32_t tag() const;
 
         // defaultValue() and defaultValueType() are either both null (no default value) or both non-null.

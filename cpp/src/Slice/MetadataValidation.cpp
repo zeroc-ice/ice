@@ -67,7 +67,7 @@ Slice::misappliedMetadataMessage(const MetadataPtr& metadata, const SyntaxTreeBa
 }
 
 void
-Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, MetadataInfo> knownMetadata)
+Slice::validateMetadata(const UnitPtr& unit, string_view prefix, map<string, MetadataInfo> knownMetadata)
 {
     // We want to perform all the metadata validation in the same pass, to keep all the diagnostics in order.
     // So, we add all the language-agnostic metadata validation into the provided list.
@@ -156,7 +156,7 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
 
     // Then we pass this list off the internal visitor, which performs the heavy lifting.
     auto visitor = MetadataVisitor(prefix, std::move(knownMetadata));
-    p->visit(&visitor);
+    unit->visit(&visitor);
 }
 
 MetadataVisitor::MetadataVisitor(string_view language, map<string, MetadataInfo> knownMetadata)
@@ -167,11 +167,11 @@ MetadataVisitor::MetadataVisitor(string_view language, map<string, MetadataInfo>
 }
 
 bool
-MetadataVisitor::visitUnitStart(const UnitPtr& p)
+MetadataVisitor::visitUnitStart(const UnitPtr& unit)
 {
-    DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
+    DefinitionContextPtr dc = unit->findDefinitionContext(unit->topLevelFile());
     assert(dc);
-    dc->setMetadata(validate(dc->getMetadata(), p));
+    dc->setMetadata(validate(dc->getMetadata(), unit));
     return true;
 }
 

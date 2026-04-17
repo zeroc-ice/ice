@@ -40,7 +40,7 @@ namespace
             {
                 param = "out ";
             }
-            param += typeToString(q->type(), ns, q->optional()) + " " + q->mappedName();
+            param += typeToString(q->type(), ns, q->isOptional()) + " " + q->mappedName();
             params.push_back(param);
         }
         return params;
@@ -52,7 +52,7 @@ namespace
         for (const auto& q : op->inParameters())
         {
             string param = (internal ? ("iceP_" + removeEscapePrefix(q->mappedName())) : q->mappedName());
-            params.push_back(typeToString(q->type(), ns, q->optional()) + " " + param);
+            params.push_back(typeToString(q->type(), ns, q->isOptional()) + " " + param);
         }
         return params;
     }
@@ -76,7 +76,7 @@ namespace
             {
                 s = "out ";
             }
-            s += typeToString(q->type(), ns, q->optional()) + ' ' + q->mappedName();
+            s += typeToString(q->type(), ns, q->isOptional()) + ' ' + q->mappedName();
             params.push_back(s);
         }
 
@@ -157,7 +157,7 @@ namespace
                 param = paramPrefix + param;
             }
 
-            if (pli->optional())
+            if (pli->isOptional())
             {
                 optionals.push_back(pli);
             }
@@ -381,7 +381,7 @@ Slice::Ice::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         for (const auto& q : allDataMembers)
         {
             string memberName = q->mappedName();
-            string memberType = typeToString(q->type(), ns, q->optional());
+            string memberType = typeToString(q->type(), ns, q->isOptional());
             parameters.push_back(memberType + " " + memberName);
 
             // The secondary constructor initializes the fields that would be marked "required" if we generated the
@@ -640,7 +640,7 @@ Slice::Ice::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         for (const auto& q : allDataMembers)
         {
             string memberName = q->mappedName();
-            string memberType = typeToString(q->type(), ns, q->optional());
+            string memberType = typeToString(q->type(), ns, q->isOptional());
             parameters.push_back(memberType + " " + memberName);
 
             // The secondary constructor initializes the fields that would be marked "required" if we generated the
@@ -740,7 +740,7 @@ Slice::Ice::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << nl << "ostr_.startSlice(\"" << scoped << "\", -1, " << (!base ? "true" : "false") << ");";
     for (const auto& dataMember : dataMembers)
     {
-        if (!dataMember->optional())
+        if (!dataMember->isOptional())
         {
             writeMarshalDataMember(dataMember, dataMember->mappedName(), ns);
         }
@@ -766,7 +766,7 @@ Slice::Ice::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     for (const auto& dataMember : dataMembers)
     {
-        if (!dataMember->optional())
+        if (!dataMember->isOptional())
         {
             writeUnmarshalDataMember(dataMember, dataMember->mappedName(), ns);
         }
@@ -1027,7 +1027,7 @@ Slice::Ice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     _out << sp;
 
-    string type = typeToString(p->type(), ns, p->optional());
+    string type = typeToString(p->type(), ns, p->isOptional());
     bool addSemicolon = true;
 
     writeIceDocComment(_out, p);
@@ -1069,7 +1069,7 @@ Slice::Ice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             addSemicolon = true;
         }
     }
-    else if (!p->optional())
+    else if (!p->isOptional())
     {
         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
         if (builtin && builtin->kind() == Builtin::KindString)
@@ -1384,7 +1384,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             else
             {
                 TypePtr t = outParams.front()->type();
-                _out << nl << typeToString(t, ns, (outParams.front()->optional())) << " iceP_"
+                _out << nl << typeToString(t, ns, (outParams.front()->isOptional())) << " iceP_"
                      << removeEscapePrefix(outParams.front()->mappedName()) << (t->isClassType() ? " = null;" : ";");
             }
 
@@ -1640,7 +1640,7 @@ Slice::Ice::TypesVisitor::writeMarshalDataMember(
     const string& ns,
     bool forStruct)
 {
-    if (member->optional())
+    if (member->isOptional())
     {
         assert(!forStruct);
         writeOptionalMarshalUnmarshalCode(_out, member->type(), ns, name, member->tag(), true, "ostr_");
@@ -1677,7 +1677,7 @@ Slice::Ice::TypesVisitor::writeUnmarshalDataMember(
         param = "this." + name;
     }
 
-    if (member->optional())
+    if (member->isOptional())
     {
         assert(!forStruct);
         writeOptionalMarshalUnmarshalCode(_out, member->type(), ns, param, member->tag(), false, "istr_");
@@ -1707,7 +1707,7 @@ Slice::Ice::TypesVisitor::writeMarshaling(const ClassDefPtr& p)
     _out << nl << "ostr_.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
     for (const auto& member : members)
     {
-        if (!member->optional())
+        if (!member->isOptional())
         {
             writeMarshalDataMember(member, member->mappedName(), ns);
         }
@@ -1730,7 +1730,7 @@ Slice::Ice::TypesVisitor::writeMarshaling(const ClassDefPtr& p)
     _out << nl << "istr_.startSlice();";
     for (const auto& member : members)
     {
-        if (!member->optional())
+        if (!member->isOptional())
         {
             writeUnmarshalDataMember(member, member->mappedName(), ns);
         }
@@ -1830,7 +1830,7 @@ Slice::Ice::ResultVisitor::visitOperation(const OperationPtr& p)
 
         for (const auto& q : outParams)
         {
-            _out << (typeToString(q->type(), ns, q->optional()) + " " + q->mappedName());
+            _out << (typeToString(q->type(), ns, q->isOptional()) + " " + q->mappedName());
         }
         _out << epar;
         _out << ";";
@@ -2026,7 +2026,7 @@ Slice::Ice::SkeletonVisitor::visitOperation(const OperationPtr& op)
         for (const auto& pli : inParams)
         {
             string param = "iceP_" + removeEscapePrefix(pli->mappedName());
-            string typeS = typeToString(pli->type(), ns, pli->optional());
+            string typeS = typeToString(pli->type(), ns, pli->isOptional());
 
             _out << nl << typeS << ' ' << param << (pli->type()->isClassType() ? " = null;" : ";");
         }
@@ -2108,7 +2108,7 @@ Slice::Ice::SkeletonVisitor::visitOperation(const OperationPtr& op)
     {
         for (const auto& pli : outParams)
         {
-            string typeS = typeToString(pli->type(), ns, pli->optional());
+            string typeS = typeToString(pli->type(), ns, pli->isOptional());
             _out << nl << typeS << " iceP_" << removeEscapePrefix(pli->mappedName()) << ";";
         }
         _out << nl;

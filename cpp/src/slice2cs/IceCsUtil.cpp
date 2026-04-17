@@ -155,7 +155,7 @@ Slice::Csharp::resultType(const OperationPtr& op, const string& ns, bool dispatc
         }
         else
         {
-            t = typeToString(outParams.front()->type(), ns, outParams.front()->optional());
+            t = typeToString(outParams.front()->type(), ns, outParams.front()->isOptional());
         }
     }
 
@@ -219,7 +219,7 @@ Slice::Csharp::isValueType(const TypePtr& type)
 bool
 Slice::Csharp::isMappedToNonNullableReference(const DataMemberPtr& p)
 {
-    if (p->optional())
+    if (p->isOptional())
     {
         return false;
     }
@@ -244,7 +244,7 @@ Slice::Csharp::isMappedToNonNullableReference(const DataMemberPtr& p)
 bool
 Slice::Csharp::isMappedToRequiredField(const DataMemberPtr& p)
 {
-    if (p->optional())
+    if (p->isOptional())
     {
         return false;
     }
@@ -1778,7 +1778,7 @@ Slice::Csharp::writeIceOpDocComment(
     writeSeeAlso(out, comment->seeAlso());
 }
 
-std::pair<bool, string>
+pair<bool, string>
 Slice::Csharp::iceLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
 {
     ostringstream result;

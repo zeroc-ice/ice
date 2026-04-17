@@ -12,7 +12,7 @@ namespace Slice
     class CsVisitor : public ParserVisitor
     {
     public:
-        CsVisitor(IceInternal::Output&);
+        CsVisitor(IceInternal::Output& out);
 
         bool visitModuleStart(const ModulePtr&) override;
         void visitModuleEnd(const ModulePtr&) override;
@@ -21,15 +21,15 @@ namespace Slice
         void emitNonBrowsableAttribute();
 
         /// Generates C# attributes from any 'cs:attribute' metadata.
-        void emitAttributes(const ContainedPtr&);
+        void emitAttributes(const ContainedPtr& p);
 
-        void emitObsoleteAttribute(const ContainedPtr&);
+        void emitObsoleteAttribute(const ContainedPtr& p);
 
         IceInternal::Output& _out;
 
     private:
-        void namespacePrefixStart(const ModulePtr&);
-        void namespacePrefixEnd(const ModulePtr&);
+        void namespacePrefixStart(const ModulePtr& p);
+        void namespacePrefixEnd(const ModulePtr& p);
     };
 }
 

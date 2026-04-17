@@ -121,14 +121,14 @@ namespace
 
     // TODO this is probably unnecessary. Search for `orderedOptionalDataMembers` in 'libSlice'.
     /// Split data members in required and optional members; the optional members are sorted in tag order.
-    std::pair<DataMemberList, DataMemberList> split(const DataMemberList& dataMembers)
+    pair<DataMemberList, DataMemberList> split(const DataMemberList& dataMembers)
     {
         DataMemberList requiredMembers;
         DataMemberList optionalMembers;
 
         for (const auto& q : dataMembers)
         {
-            if (q->optional())
+            if (q->isOptional())
             {
                 optionalMembers.push_back(q);
             }
@@ -190,7 +190,7 @@ namespace
         ParameterList optionals;
         for (const auto& param : params)
         {
-            if (param->optional())
+            if (param->isOptional())
             {
                 optionals.push_back(param);
             }
@@ -434,7 +434,7 @@ Slice::isMovable(const TypePtr& type)
 }
 
 string
-Slice::getUnqualified(const std::string& type, const std::string& scope)
+Slice::getUnqualified(const string& type, const string& scope)
 {
     if (type.find("::") != string::npos)
     {
@@ -650,7 +650,7 @@ Slice::writeAllocateCode(
 {
     for (const auto& param : params)
     {
-        string s = typeToString(param->type(), param->optional(), clScope, param->getMetadata(), typeCtx);
+        string s = typeToString(param->type(), param->isOptional(), clScope, param->getMetadata(), typeCtx);
         out << nl << s << ' ' << paramPrefix << param->mappedName() << ';';
     }
 
@@ -762,7 +762,7 @@ Slice::writeIceTuple(IceInternal::Output& out, const DataMemberList& dataMembers
             out << ", ";
         }
         out << "const ";
-        out << typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetadata(), typeCtx) << "&";
+        out << typeToString((*q)->type(), (*q)->isOptional(), scope, (*q)->getMetadata(), typeCtx) << "&";
     }
     out << "> ice_tuple() const";
 
@@ -894,7 +894,7 @@ Slice::cppLinkFormatter(const string& rawLink, const ContainedPtr& source, const
 }
 
 void
-Slice::validateCppMetadata(const UnitPtr& u)
+Slice::validateCppMetadata(const UnitPtr& unit)
 {
     map<string, MetadataInfo> knownMetadata;
 
@@ -1082,5 +1082,5 @@ Slice::validateCppMetadata(const UnitPtr& u)
     knownMetadata.emplace("cpp:type", typeInfo);
 
     // Pass this information off to the parser's metadata validation logic.
-    Slice::validateMetadata(u, "cpp", std::move(knownMetadata));
+    Slice::validateMetadata(unit, "cpp", std::move(knownMetadata));
 }

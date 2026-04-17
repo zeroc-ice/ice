@@ -13,26 +13,26 @@ namespace Slice
     class Gen final
     {
     public:
-        Gen(std::string,
-            std::string,
-            std::string,
-            const std::vector<std::string>&,
-            std::string,
-            const std::vector<std::string>&,
-            std::string,
-            std::string);
+        Gen(std::string base,
+            std::string headerExtension,
+            std::string sourceExtension,
+            const std::vector<std::string>& extraHeaders,
+            std::string include,
+            const std::vector<std::string>& includePaths,
+            std::string dllExport,
+            std::string dir);
         ~Gen();
 
         Gen(const Gen&) = delete;
         Gen& operator=(const Gen&) = delete;
 
-        void generate(const UnitPtr&);
+        void generate(const UnitPtr& unit);
 
-        static TypeContext setUseWstring(const ContainedPtr&, std::list<TypeContext>&, TypeContext);
-        static TypeContext resetUseWstring(std::list<TypeContext>&);
+        static TypeContext setUseWstring(const ContainedPtr& p, std::list<TypeContext>& hist, TypeContext typeCtx);
+        static TypeContext resetUseWstring(std::list<TypeContext>& hist);
 
     private:
-        void writeExtraHeaders(IceInternal::Output&);
+        void writeExtraHeaders(IceInternal::Output& out);
 
         /// Returns the header extension defined in the file metadata for a given file,
         /// or an empty string if no file metadata was found.
@@ -62,7 +62,7 @@ namespace Slice
         class ForwardDeclVisitor final : public ParserVisitor
         {
         public:
-            ForwardDeclVisitor(IceInternal::Output&, IceInternal::Output&, std::string);
+            ForwardDeclVisitor(IceInternal::Output& h, IceInternal::Output& c, std::string dllExport);
             ForwardDeclVisitor(const ForwardDeclVisitor&) = delete;
 
             bool visitModuleStart(const ModulePtr&) final;
@@ -89,7 +89,7 @@ namespace Slice
         class SliceLoaderVisitor final : public ParserVisitor
         {
         public:
-            SliceLoaderVisitor(IceInternal::Output&);
+            SliceLoaderVisitor(IceInternal::Output& c);
             SliceLoaderVisitor(const SliceLoaderVisitor&) = delete;
 
             bool visitUnitStart(const UnitPtr&) final;
@@ -106,7 +106,7 @@ namespace Slice
         class ProxyVisitor final : public ParserVisitor
         {
         public:
-            ProxyVisitor(IceInternal::Output&, IceInternal::Output&, std::string);
+            ProxyVisitor(IceInternal::Output& h, IceInternal::Output& c, std::string dllExport);
             ProxyVisitor(const ProxyVisitor&) = delete;
 
             bool visitModuleStart(const ModulePtr&) final;
@@ -134,7 +134,7 @@ namespace Slice
         class DataDefVisitor final : public ParserVisitor
         {
         public:
-            DataDefVisitor(IceInternal::Output&, IceInternal::Output&, std::string);
+            DataDefVisitor(IceInternal::Output& h, IceInternal::Output& c, std::string dllExport);
             DataDefVisitor(const DataDefVisitor&) = delete;
 
             bool visitModuleStart(const ModulePtr&) final;
@@ -148,9 +148,9 @@ namespace Slice
             void visitDataMember(const DataMemberPtr&) final;
 
         private:
-            bool emitBaseInitializers(const ClassDefPtr&);
-            void emitOneShotConstructor(const ClassDefPtr&);
-            void emitDataMember(const DataMemberPtr&);
+            bool emitBaseInitializers(const ClassDefPtr& p);
+            void emitOneShotConstructor(const ClassDefPtr& p);
+            void emitDataMember(const DataMemberPtr& p);
 
             void printFields(const DataMemberList& fields, bool firstField);
 
@@ -194,7 +194,7 @@ namespace Slice
         class StreamVisitor final : public ParserVisitor
         {
         public:
-            StreamVisitor(IceInternal::Output&);
+            StreamVisitor(IceInternal::Output& h);
             StreamVisitor(const StreamVisitor&) = delete;
 
             bool visitModuleStart(const ModulePtr&) final;
