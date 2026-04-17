@@ -87,16 +87,22 @@ static const rb_data_type_t IceRuby_OperationType = {
 };
 
 extern "C" VALUE
-IceRuby_defineOperation(int argc, VALUE* argv, VALUE /*self*/)
+IceRuby_defineOperation(
+    VALUE /*self*/,
+    VALUE sliceName,
+    VALUE mappedName,
+    VALUE mode,
+    VALUE format,
+    VALUE inParams,
+    VALUE outParams,
+    VALUE returnType,
+    VALUE exceptions,
+    VALUE onewayOnly)
 {
     ICE_RUBY_TRY
     {
-        if (argc != 9)
-        {
-            throw RubyException(rb_eArgError, "wrong number of arguments (%d for 9)", argc);
-        }
-        OperationIPtr op =
-            make_shared<OperationI>(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8]);
+        OperationIPtr op = make_shared<
+            OperationI>(sliceName, mappedName, mode, format, inParams, outParams, returnType, exceptions, onewayOnly);
         return TypedData_Wrap_Struct(_operationClass, &IceRuby_OperationType, new OperationPtr(op));
     }
     ICE_RUBY_CATCH
@@ -609,7 +615,7 @@ IceRuby::OperationI::checkOnewayOnly(const Ice::ObjectPrx& proxy) const
 bool
 IceRuby::initOperation(VALUE iceModule)
 {
-    rb_define_module_function(iceModule, "__defineOperation", CAST_METHOD(IceRuby_defineOperation), -1);
+    rb_define_module_function(iceModule, "__defineOperation", CAST_METHOD(IceRuby_defineOperation), 9);
 
     //
     // Define a class to represent an operation.
