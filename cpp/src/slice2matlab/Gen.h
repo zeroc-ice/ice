@@ -48,13 +48,15 @@ namespace Slice
         std::string getOptionalFormat(const TypePtr& type);
         std::string getFormatType(FormatType type);
 
-        void marshal(IceInternal::Output& out,
+        void marshal(
+            IceInternal::Output& out,
             const std::string& stream,
             const std::string& v,
             const TypePtr& type,
             bool optional,
             std::int32_t tag);
-        void unmarshal(IceInternal::Output& out,
+        void unmarshal(
+            IceInternal::Output& out,
             const std::string& stream,
             const std::string& v,
             const TypePtr& type,
