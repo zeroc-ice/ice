@@ -152,7 +152,8 @@ public abstract class SliceCompilerTask : ToolTask
 
                     // Save the dependencies for each source to a dependency file
                     //
-                    // Foo.ice -> $(OutputDir)/SliceCompile.Foo.d
+                    // Foo.ice            -> $(OutputDir)/SliceCompile.Foo.d
+                    // Foo.ice --icerpc   -> $(OutputDir)/SliceCompile.Foo.IceRpc.d
                     var doc = new XDocument(
                         new XDeclaration("1.0", "utf-8", "yes"),
                         new XElement("dependencies",
@@ -161,8 +162,9 @@ public abstract class SliceCompilerTask : ToolTask
                                 new XElement("options",
                                     GetOptions(source).Select(e => new XElement(e.Key, e.Value))))));
 
+                    string dependSuffix = IceRpc ? ".IceRpc.d" : ".d";
                     doc.Save(Path.Combine(OutputDir,
-                                            string.Format("SliceCompile.{0}.d", source.GetMetadata("Filename"))));
+                                            string.Format("SliceCompile.{0}{1}", source.GetMetadata("Filename"), dependSuffix)));
                     // Update the Inputs and Outputs metadata of the output sources, these info will be use to write
                     // the TLog files used by MSBuild to compute what has to be build.
                     inputs = inputs.Select(path => Path.GetFullPath(path)).ToList();
