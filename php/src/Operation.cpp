@@ -722,11 +722,11 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     zval* outParams;
     zval* returnType;
     zval* exceptions;
-    zend_bool oneway = 0;
+    zend_bool oneway;
 
     if (zend_parse_parameters(
             ZEND_NUM_ARGS(),
-            const_cast<char*>("osslla!a!a!a!|b"),
+            const_cast<char*>("osslla!a!a!a!b"),
             &cls,
             &sliceName,
             &sliceNameLen,
