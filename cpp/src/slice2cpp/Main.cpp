@@ -27,7 +27,7 @@ class CppDocCommentFormatter final : public DocCommentFormatter
 {
     string formatParamRef(const string& paramName, const ParameterPtr& paramPtr) final
     {
-        if (paramPtr && paramPtr->isOutParam()) 
+        if (paramPtr && paramPtr->isOutParam())
         {
             return formatCode(paramName);
         }
