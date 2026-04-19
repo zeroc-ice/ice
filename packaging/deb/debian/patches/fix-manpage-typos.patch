@@ -7,18 +7,22 @@ Last-Update: 2026-04-01
 --- a/man/man1/icegriddb.1
 +++ b/man/man1/icegriddb.1
 @@ -31,7 +31,7 @@
+ .TP
  .BR \-\-import " " FILE\fR
  .br
 -Import database from the specifed file.
 +Import database from the specified file.
 
  .TP
+ .BR \-\-export " " FILE\fR
 --- a/man/man1/icestormdb.1
 +++ b/man/man1/icestormdb.1
 @@ -36,7 +36,7 @@
+ .TP
  .BR \-\-import " " FILE\fR
  .br
 -Import database from the specifed file.
 +Import database from the specified file.
 
  .TP
+ .BR \-\-export " " FILE\fR
