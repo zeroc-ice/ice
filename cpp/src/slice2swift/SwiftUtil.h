@@ -79,12 +79,12 @@ namespace Slice::Swift
         std::int32_t tag = -1);
 
     bool usesMarshalHelper(const TypePtr& type);
-    void writeMarshalInParams(::IceInternal::Output& out, const OperationPtr& op);
-    void writeMarshalAsyncOutParams(::IceInternal::Output& out, const OperationPtr& op);
-    void writeUnmarshalInParams(::IceInternal::Output& out, const OperationPtr& op);
-    void writeUnmarshalOutParams(::IceInternal::Output& out, const OperationPtr& op);
-    void writeUnmarshalUserException(::IceInternal::Output& out, const OperationPtr& op);
-    void writeSwiftAttributes(::IceInternal::Output& out, const MetadataList& metadata);
+    void writeMarshalInParams(IceInternal::Output& out, const OperationPtr& op);
+    void writeMarshalAsyncOutParams(IceInternal::Output& out, const OperationPtr& op);
+    void writeUnmarshalInParams(IceInternal::Output& out, const OperationPtr& op);
+    void writeUnmarshalOutParams(IceInternal::Output& out, const OperationPtr& op);
+    void writeUnmarshalUserException(IceInternal::Output& out, const OperationPtr& op);
+    void writeSwiftAttributes(IceInternal::Output& out, const MetadataList& metadata);
 }
 
 #endif
