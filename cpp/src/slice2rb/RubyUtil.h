@@ -12,7 +12,7 @@ namespace Slice::Ruby
     void
     generate(const UnitPtr& unit, bool all, const std::vector<std::string>& includePaths, IceInternal::Output& out);
 
-    /// This enum is used by ::getMappedName to control the casing of the identifier it returns.
+    /// This enum is used by `getMappedName` to control the casing of the identifier it returns.
     enum IdentStyle
     {
         /// No change will be made to the mapped identifier.
@@ -31,13 +31,13 @@ namespace Slice::Ruby
     std::string getMappedName(const ContainedPtr& p, IdentStyle style = IdentNormal);
 
     /// Returns the fully-qualified mapped-identifier of the provided Slice element.
-    /// This is equivalent to calling ::getMappedName on @p p and all it's containers.
+    /// This is equivalent to calling `getMappedName` on @p p and all it's containers.
     std::string getAbsolute(const ContainedPtr& p);
 
-    /// Equivalent to ::getMappedName but with "T_" preprended to the name.
+    /// Equivalent to `getMappedName` but with "T_" preprended to the name.
     std::string getMetaTypeName(const ContainedPtr& p);
 
-    /// Equivalent to ::getAbsolute but with "T_" preprended to the name.
+    /// Equivalent to `getAbsolute` but with "T_" preprended to the name.
     std::string getMetaTypeReference(const ContainedPtr& p);
 
     /// Emits a comment header for a generated file.

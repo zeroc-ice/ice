@@ -1214,7 +1214,7 @@ Slice::Swift::operationReturnDeclaration(const OperationPtr& op)
 }
 
 void
-Slice::Swift::writeMarshalInParams(::IceInternal::Output& out, const OperationPtr& op)
+Slice::Swift::writeMarshalInParams(IceInternal::Output& out, const OperationPtr& op)
 {
     // Marshal parameters in this order '(required..., optional...)'.
 
@@ -1234,7 +1234,7 @@ Slice::Swift::writeMarshalInParams(::IceInternal::Output& out, const OperationPt
 }
 
 void
-Slice::Swift::writeMarshalAsyncOutParams(::IceInternal::Output& out, const OperationPtr& op)
+Slice::Swift::writeMarshalAsyncOutParams(IceInternal::Output& out, const OperationPtr& op)
 {
     // Marshal parameters in this order '(required..., optional...)'.
 
@@ -1256,7 +1256,7 @@ Slice::Swift::writeMarshalAsyncOutParams(::IceInternal::Output& out, const Opera
 }
 
 void
-Slice::Swift::writeUnmarshalOutParams(::IceInternal::Output& out, const OperationPtr& op)
+Slice::Swift::writeUnmarshalOutParams(IceInternal::Output& out, const OperationPtr& op)
 {
     // We need a separate nested function for the nonisolated(unsafe) variable when unmarshaling classes.
 
@@ -1321,7 +1321,7 @@ Slice::Swift::writeUnmarshalOutParams(::IceInternal::Output& out, const Operatio
 }
 
 void
-Slice::Swift::writeUnmarshalInParams(::IceInternal::Output& out, const OperationPtr& op)
+Slice::Swift::writeUnmarshalInParams(IceInternal::Output& out, const OperationPtr& op)
 {
     // Unmarshal parameters in this order '(required..., optional...)'.
 
@@ -1350,7 +1350,7 @@ Slice::Swift::writeUnmarshalInParams(::IceInternal::Output& out, const Operation
 }
 
 void
-Slice::Swift::writeUnmarshalUserException(::IceInternal::Output& out, const OperationPtr& op)
+Slice::Swift::writeUnmarshalUserException(IceInternal::Output& out, const OperationPtr& op)
 {
     const string swiftModule = getSwiftModule(op->getTopLevelModule());
 
@@ -1380,7 +1380,7 @@ Slice::Swift::writeUnmarshalUserException(::IceInternal::Output& out, const Oper
 }
 
 void
-Slice::Swift::writeSwiftAttributes(::IceInternal::Output& out, const MetadataList& metadata)
+Slice::Swift::writeSwiftAttributes(IceInternal::Output& out, const MetadataList& metadata)
 {
     for (const auto& meta : metadata)
     {

@@ -1364,7 +1364,7 @@ Gen::TypesVisitor::visitOperation(const OperationPtr& op)
     out << eb;
 }
 
-Gen::ServantVisitor::ServantVisitor(::IceInternal::Output& o) : out(o) {}
+Gen::ServantVisitor::ServantVisitor(IceInternal::Output& o) : out(o) {}
 
 bool
 Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
@@ -1433,7 +1433,7 @@ Gen::ServantVisitor::visitOperation(const OperationPtr& op)
     }
 }
 
-Gen::ServantExtVisitor::ServantExtVisitor(::IceInternal::Output& o) : out(o) {}
+Gen::ServantExtVisitor::ServantExtVisitor(IceInternal::Output& o) : out(o) {}
 
 bool
 Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
