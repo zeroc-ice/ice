@@ -125,6 +125,8 @@ tasks.withType<Checkstyle>().configureEach {
 rewrite {
     activeRecipe("com.zeroc.IceRewriteRecipes")
     activeStyle("com.zeroc.IceRewriteStyle")
+
+    throwOnParseFailures = true
 }
 
 // Set whether or not 'rewriteDryRun' should be considered 'failed' when it would make changes.

@@ -112,7 +112,9 @@ rewrite {
     activeRecipe('com.zeroc.IceRewriteRecipes')
     activeStyle('com.zeroc.IceRewriteStyle')
 
-    setExportDatatables(true)
+    exportDatatables = true
+    throwOnParseFailures = true
+
     exclusion(
         // OpenRewrite is technically capable of modifying Groovy and Kotlin files, but we are avoiding this for now.
         '**/*.gradle',
