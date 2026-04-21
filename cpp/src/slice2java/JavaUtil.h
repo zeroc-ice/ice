@@ -137,7 +137,7 @@ namespace Slice::Java
         /// @param cls The class name (including an optional leading package).
         /// @param prefix Specifies a directory prefix in which to generate the class.
         /// @param sliceFile The Slice file that the class is being generated from.
-        void openClass(const std::string& cls, const std::string& prefix, const std::string& sliceFile = std::string());
+        void openClass(const std::string& cls, const std::string& prefix, const std::string& sliceFile);
 
         void printHeader();
     };
