@@ -10,13 +10,13 @@ namespace Slice
     class Gen final
     {
     public:
-        Gen(const std::string&, const std::string&);
+        Gen(const std::string& base, const std::string& dir);
         Gen(const Gen&) = delete;
         ~Gen();
 
         Gen& operator=(const Gen&) = delete;
 
-        void generate(const UnitPtr&);
+        void generate(const UnitPtr& unit);
         void printHeader();
 
     private:

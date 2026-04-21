@@ -166,7 +166,7 @@ namespace
         {
             return constantValue(m->type(), m->defaultValueType(), *m->defaultValue());
         }
-        else if (m->optional() && !isProxyType(m->type()))
+        else if (m->isOptional() && !isProxyType(m->type()))
         {
             // We don't distinguish between unset and "null" (empty) for proxy types. We always use empty for them.
             return "IceInternal.UnsetI.Instance";
@@ -367,8 +367,7 @@ namespace
         }
     }
 
-    template<class T>
-    void writePropertiesSummary(IceInternal::Output& out, const string& name, const std::list<T>& list)
+    template<class T> void writePropertiesSummary(IceInternal::Output& out, const string& name, const list<T>& list)
     {
         if (!list.empty())
         {
@@ -703,7 +702,7 @@ namespace
 
         // We can't specify a type for optional parameter because we can't represent "not set" with the same MATLAB
         // type.
-        if (!param->optional())
+        if (!param->isOptional())
         {
             if (auto seq = dynamic_pointer_cast<Sequence>(type))
             {
@@ -856,7 +855,7 @@ namespace
 
     void documentArgument(IceInternal::Output& out, const ParameterPtr& param, const string& name, StringList docLines)
     {
-        documentArgumentOrProperty(out, name, param->type(), param->optional(), std::move(docLines), true);
+        documentArgumentOrProperty(out, name, param->type(), param->isOptional(), std::move(docLines), true);
     }
 
     void documentProperty(IceInternal::Output& out, const DataMemberPtr& field)
@@ -866,7 +865,7 @@ namespace
             out,
             toUpper(field->mappedName()),
             field->type(),
-            field->optional(),
+            field->isOptional(),
             doc ? doc->overview() : StringList{},
             false);
 
@@ -1057,7 +1056,7 @@ CodeVisitor::visitClassDefEnd(const ClassDefPtr& p)
         for (const auto& convertMember : convertMembers)
         {
             string m = "obj." + convertMember->mappedName();
-            convertValueType(out, m, m, convertMember->type(), convertMember->optional());
+            convertValueType(out, m, m, convertMember->type(), convertMember->isOptional());
         }
         if (base)
         {
@@ -1080,7 +1079,7 @@ CodeVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << nl << "os.startSlice('" << scoped << "', " << p->compactId() << (!base ? ", true" : ", false") << ");";
     for (const auto& member : members)
     {
-        if (!member->optional())
+        if (!member->isOptional())
         {
             marshal(out, "os", "obj." + member->mappedName(), member->type(), false, 0);
         }
@@ -1101,7 +1100,7 @@ CodeVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << nl << "is.startSlice();";
     for (const auto& dm : members)
     {
-        if (!dm->optional())
+        if (!dm->isOptional())
         {
             if (dm->type()->isClassType())
             {
@@ -1293,7 +1292,7 @@ CodeVisitor::visitOperation(const OperationPtr& op)
         }
         for (const auto& param : sortedInParams)
         {
-            marshal(out, "os_", param->mappedName(), param->type(), param->optional(), param->tag());
+            marshal(out, "os_", param->mappedName(), param->type(), param->isOptional(), param->tag());
         }
         if (op->sendsClasses())
         {
@@ -1348,7 +1347,7 @@ CodeVisitor::visitOperation(const OperationPtr& op)
             {
                 paramString = paramName;
             }
-            unmarshal(out, "is_", paramString, paramType, param->optional(), param->tag());
+            unmarshal(out, "is_", paramString, paramType, param->isOptional(), param->tag());
 
             if (needsConversion(paramType))
             {
@@ -1371,7 +1370,7 @@ CodeVisitor::visitOperation(const OperationPtr& op)
         for (const auto& param : convertParams)
         {
             const string paramName = param->mappedName();
-            convertValueType(out, paramName, paramName, param->type(), param->optional());
+            convertValueType(out, paramName, paramName, param->type(), param->isOptional());
         }
     }
 
@@ -1416,7 +1415,7 @@ CodeVisitor::visitOperation(const OperationPtr& op)
         }
         for (const auto& param : sortedInParams)
         {
-            marshal(out, "os_", param->mappedName(), param->type(), param->optional(), param->tag());
+            marshal(out, "os_", param->mappedName(), param->type(), param->isOptional(), param->tag());
         }
         if (op->sendsClasses())
         {
@@ -1451,7 +1450,7 @@ CodeVisitor::visitOperation(const OperationPtr& op)
             {
                 paramString = paramName;
             }
-            unmarshal(out, "is_", paramString, paramType, param->optional(), param->tag());
+            unmarshal(out, "is_", paramString, paramType, param->isOptional(), param->tag());
         }
         if (op->returnsClasses())
         {
@@ -1470,7 +1469,7 @@ CodeVisitor::visitOperation(const OperationPtr& op)
             {
                 ostringstream dest;
                 dest << "varargout{" << i << "}";
-                convertValueType(out, dest.str(), paramName, param->type(), param->optional());
+                convertValueType(out, dest.str(), paramName, param->type(), param->isOptional());
             }
             else
             {
@@ -1777,7 +1776,7 @@ CodeVisitor::visitExceptionEnd(const ExceptionPtr& p)
         for (const auto& convertMember : convertMembers)
         {
             string m = "obj." + convertMember->mappedName();
-            convertValueType(out, m, m, convertMember->type(), convertMember->optional());
+            convertValueType(out, m, m, convertMember->type(), convertMember->isOptional());
         }
         if (base && base->usesClasses())
         {
@@ -1798,7 +1797,7 @@ CodeVisitor::visitExceptionEnd(const ExceptionPtr& p)
     for (const auto& dm : members)
     {
         const string m = dm->mappedName();
-        if (!dm->optional())
+        if (!dm->isOptional())
         {
             if (dm->type()->isClassType())
             {
@@ -2059,7 +2058,7 @@ CodeVisitor::visitDataMember(const DataMemberPtr& p)
     // We also can't specify a type for class fields (in structs and exceptions, because we convert them in place;
     // we do the same for class fields in classes for consistency). Likewise, we can't specify a type for fields
     // that use classes (but are not classes), since we convert them in place.
-    if (!p->optional() && !type->usesClasses())
+    if (!p->isOptional() && !type->usesClasses())
     {
         if (auto seq = dynamic_pointer_cast<Sequence>(type))
         {
@@ -2773,7 +2772,7 @@ CodeVisitor::closeClass()
 }
 
 string
-CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
+CodeVisitor::getOperationMode(Operation::Mode mode)
 {
     switch (mode)
     {
@@ -3314,7 +3313,7 @@ CodeVisitor::convertStruct(IceInternal::Output& out, const StructPtr& p, const s
     }
 }
 
-std::pair<std::string, std::string>
+pair<string, string>
 Slice::matlabLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
 {
     string displayText; // The hyperlink text that will be visible to the user.

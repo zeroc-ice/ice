@@ -76,7 +76,7 @@ namespace
 
                 if (returnParams.size() == 1)
                 {
-                    out << csType(returnParams.front()->type(), ns, returnContext, returnParams.front()->optional());
+                    out << csType(returnParams.front()->type(), ns, returnContext, returnParams.front()->isOptional());
                 }
                 else
                 {
@@ -84,7 +84,7 @@ namespace
                     for (const auto& param : returnParams)
                     {
                         out
-                            << (csType(param->type(), ns, returnContext, param->optional()) + " " +
+                            << (csType(param->type(), ns, returnContext, param->isOptional()) + " " +
                                 toPascalCase(param->mappedName()));
                     }
                     out << epar;
@@ -107,7 +107,7 @@ namespace
             out << '<';
             if (inParameters.size() == 1)
             {
-                out << csIncomingParamType(inParameters.front()->type(), ns, inParameters.front()->optional());
+                out << csIncomingParamType(inParameters.front()->type(), ns, inParameters.front()->isOptional());
             }
             else
             {
@@ -115,7 +115,7 @@ namespace
                 for (const auto& param : inParameters)
                 {
                     out
-                        << (csIncomingParamType(param->type(), ns, param->optional()) + " " +
+                        << (csIncomingParamType(param->type(), ns, param->isOptional()) + " " +
                             toPascalCase(param->mappedName()));
                 }
                 out << epar;
@@ -130,8 +130,7 @@ namespace
     /// @param ns The current C# namespace.
     /// @param dispatch If true, writes the signature for the dispatch method (with incoming parameter types and a
     /// ValueTask return type); if false, writes the signature for the proxy method.
-    void
-    writeMethodSignature(IceInternal::Output& out, const OperationPtr& operation, const std::string& ns, bool dispatch)
+    void writeMethodSignature(IceInternal::Output& out, const OperationPtr& operation, const string& ns, bool dispatch)
     {
         TypeContext paramContext = dispatch ? TypeContext::IncomingParam : TypeContext::OutgoingParam;
 
@@ -157,7 +156,7 @@ namespace
         out.inc();
         for (const auto& param : operation->inParameters())
         {
-            out << nl << csType(param->type(), ns, paramContext, param->optional()) << ' ' << param->mappedName()
+            out << nl << csType(param->type(), ns, paramContext, param->isOptional()) << ' ' << param->mappedName()
                 << ',';
         }
 
@@ -403,7 +402,7 @@ Slice::IceRpc::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
         _out << "required ";
     }
-    _out << csFieldType(p->type(), ns, p->optional()) << ' ' << p->mappedName();
+    _out << csFieldType(p->type(), ns, p->isOptional()) << ' ' << p->mappedName();
 
     if (cont->hasMetadata("cs:readonly"))
     {
@@ -904,7 +903,7 @@ Slice::IceRpc::TypesVisitor::writePrimaryConstructor(
     for (const auto& field : allBaseFields)
     {
         string paramName = field->customMappedName().value_or(toCamelCase(field->name()));
-        ctorParams.push_back(csFieldType(field->type(), ns, field->optional()) + " " + paramName);
+        ctorParams.push_back(csFieldType(field->type(), ns, field->isOptional()) + " " + paramName);
         if (csRequired(field))
         {
             hasRequiredField = true;
@@ -915,7 +914,7 @@ Slice::IceRpc::TypesVisitor::writePrimaryConstructor(
     for (const auto& field : fields)
     {
         string paramName = field->customMappedName().value_or(toCamelCase(field->name()));
-        ctorParams.push_back(csFieldType(field->type(), ns, field->optional()) + " " + paramName);
+        ctorParams.push_back(csFieldType(field->type(), ns, field->isOptional()) + " " + paramName);
         if (csRequired(field))
         {
             hasRequiredField = true;
@@ -967,7 +966,7 @@ Slice::IceRpc::TypesVisitor::writeEncodeDecode(
     // Encode non-optional fields
     for (const auto& field : fields)
     {
-        if (!field->optional())
+        if (!field->isOptional())
         {
             _out << nl;
             encodeField(_out, "this." + field->mappedName(), field->type(), ns, TypeContext::Field, "encoder");
@@ -1006,7 +1005,7 @@ Slice::IceRpc::TypesVisitor::writeEncodeDecode(
     // Decode non-optional fields
     for (const auto& field : fields)
     {
-        if (!field->optional())
+        if (!field->isOptional())
         {
             _out << nl << "this." + field->mappedName() << " = ";
             decodeField(_out, field->type(), ns);
@@ -1061,7 +1060,7 @@ Slice::IceRpc::TypesVisitor::writeProxyRequestClass(const InterfaceDefPtr& inter
         _out.inc();
         for (const auto& param : operation->inParameters())
         {
-            _out << nl << csOutgoingParamType(param->type(), ns, param->optional()) << ' ' << param->mappedName()
+            _out << nl << csOutgoingParamType(param->type(), ns, param->isOptional()) << ' ' << param->mappedName()
                  << ',';
         }
         _out << nl << "IceEncodeOptions? " << encodeOptionsParam << " = null)";
@@ -1081,7 +1080,7 @@ Slice::IceRpc::TypesVisitor::writeProxyRequestClass(const InterfaceDefPtr& inter
 
             for (const auto& param : operation->sortedInParameters())
             {
-                if (param->optional())
+                if (param->isOptional())
                 {
                     encodeOptionalField(
                         _out,
@@ -1173,7 +1172,7 @@ Slice::IceRpc::TypesVisitor::writeProxyResponseClass(const InterfaceDefPtr& inte
             if (returnParams.size() == 1)
             {
                 // Simplified decoding function for a single return value.
-                if (returnParams.front()->optional())
+                if (returnParams.front()->isOptional())
                 {
                     decodeOptionalField(
                         _out,
@@ -1194,9 +1193,9 @@ Slice::IceRpc::TypesVisitor::writeProxyResponseClass(const InterfaceDefPtr& inte
                 // Decode all return params
                 for (const auto& param : returnParams)
                 {
-                    _out << nl << csType(param->type(), ns, TypeContext::IncomingParam, param->optional()) << " sliceP_"
-                         << removeEscapePrefix(param->mappedName()) << " = ";
-                    if (param->optional())
+                    _out << nl << csType(param->type(), ns, TypeContext::IncomingParam, param->isOptional())
+                         << " sliceP_" << removeEscapePrefix(param->mappedName()) << " = ";
+                    if (param->isOptional())
                     {
                         decodeOptionalField(_out, param->tag(), param->type(), ns, TypeContext::IncomingParam);
                     }
@@ -1446,7 +1445,7 @@ Slice::IceRpc::SkeletonVisitor::writeRequestClass(const InterfaceDefPtr& interfa
             if (inParameters.size() == 1)
             {
                 // Simplified decoding function for a single parameter.
-                if (inParameters.front()->optional())
+                if (inParameters.front()->isOptional())
                 {
                     decodeOptionalField(
                         _out,
@@ -1467,9 +1466,9 @@ Slice::IceRpc::SkeletonVisitor::writeRequestClass(const InterfaceDefPtr& interfa
                 // Decode all params (2 or more).
                 for (const auto& param : inParameters)
                 {
-                    _out << nl << csType(param->type(), ns, TypeContext::IncomingParam, param->optional()) << " sliceP_"
-                         << removeEscapePrefix(param->mappedName()) << " = ";
-                    if (param->optional())
+                    _out << nl << csType(param->type(), ns, TypeContext::IncomingParam, param->isOptional())
+                         << " sliceP_" << removeEscapePrefix(param->mappedName()) << " = ";
+                    if (param->isOptional())
                     {
                         decodeOptionalField(_out, param->tag(), param->type(), ns, TypeContext::IncomingParam);
                     }
@@ -1546,7 +1545,7 @@ Slice::IceRpc::SkeletonVisitor::writeResponseClass(const InterfaceDefPtr& interf
         }
         for (const auto& param : operation->outParameters())
         {
-            _out << nl << csOutgoingParamType(param->type(), ns, param->optional()) << ' ' << param->mappedName()
+            _out << nl << csOutgoingParamType(param->type(), ns, param->isOptional()) << ' ' << param->mappedName()
                  << ',';
         }
         _out << nl << "IceEncodeOptions? " << encodeOptionsParam << " = null)";
@@ -1562,7 +1561,7 @@ Slice::IceRpc::SkeletonVisitor::writeResponseClass(const InterfaceDefPtr& interf
 
             for (const auto& param : operation->sortedReturnAndOutParameters(returnParamName))
             {
-                if (param->optional())
+                if (param->isOptional())
                 {
                     encodeOptionalField(
                         _out,

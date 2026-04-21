@@ -20,9 +20,9 @@ using namespace IceInternal;
 
 namespace
 {
-    string getClassResolverPrefix(const UnitPtr& p)
+    string getClassResolverPrefix(const UnitPtr& unit)
     {
-        DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
+        DefinitionContextPtr dc = unit->findDefinitionContext(unit->topLevelFile());
         assert(dc);
         return dc->getMetadataArgs("swift:class-resolver-prefix").value_or("");
     }
@@ -93,23 +93,23 @@ Gen::~Gen()
 }
 
 void
-Gen::generate(const UnitPtr& p)
+Gen::generate(const UnitPtr& unit)
 {
-    validateSwiftMetadata(p);
-    validateSwiftModuleMappings(p);
+    validateSwiftMetadata(unit);
+    validateSwiftModuleMappings(unit);
 
     ImportVisitor importVisitor(_out);
-    p->visit(&importVisitor);
+    unit->visit(&importVisitor);
     importVisitor.writeImports();
 
     TypesVisitor typesVisitor(_out);
-    p->visit(&typesVisitor);
+    unit->visit(&typesVisitor);
 
     ServantVisitor servantVisitor(_out);
-    p->visit(&servantVisitor);
+    unit->visit(&servantVisitor);
 
     ServantExtVisitor servantExtVisitor(_out);
-    p->visit(&servantExtVisitor);
+    unit->visit(&servantExtVisitor);
 }
 
 void
@@ -344,7 +344,7 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         for (const auto& member : members)
         {
-            if (!member->optional())
+            if (!member->isOptional())
             {
                 writeMarshalUnmarshalCode(out, member->type(), p, "iceP_self." + member->mappedName(), false);
             }
@@ -376,7 +376,7 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     for (const auto& member : members)
     {
         TypePtr type = member->type();
-        if (!member->optional())
+        if (!member->isOptional())
         {
             writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), true);
         }
@@ -478,7 +478,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         << ".ice_staticId(), compactId: -1, last: " << (!base ? "true" : "false") << ")";
     for (const auto& member : members)
     {
-        if (!member->optional())
+        if (!member->isOptional())
         {
             writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), true);
         }
@@ -502,7 +502,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "_ = try istr.startSlice()";
     for (const auto& member : members)
     {
-        if (!member->optional())
+        if (!member->isOptional())
         {
             writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), false);
         }
@@ -1294,7 +1294,7 @@ Gen::TypesVisitor::visitOperation(const OperationPtr& op)
     out << spar;
     for (const auto& param : inParams)
     {
-        const bool isOptional = param->optional();
+        const bool isOptional = param->isOptional();
         const string typeString = typeToString(param->type(), op, isOptional);
         const string paramName = "iceP_" + removeEscaping(param->mappedName());
         const string paramLabel = (inParams.size() == 1 ? "_" : param->mappedName());
@@ -1365,7 +1365,7 @@ Gen::TypesVisitor::visitOperation(const OperationPtr& op)
     out << eb;
 }
 
-Gen::ServantVisitor::ServantVisitor(::IceInternal::Output& o) : out(o) {}
+Gen::ServantVisitor::ServantVisitor(IceInternal::Output& o) : out(o) {}
 
 bool
 Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
@@ -1421,7 +1421,7 @@ Gen::ServantVisitor::visitOperation(const OperationPtr& op)
     out << spar;
     for (const auto& param : op->inParameters())
     {
-        const string typeString = typeToString(param->type(), op, param->optional());
+        const string typeString = typeToString(param->type(), op, param->isOptional());
         out << param->mappedName() + ": " + (param->type()->usesClasses() ? "sending " : "") + typeString;
     }
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));
@@ -1434,7 +1434,7 @@ Gen::ServantVisitor::visitOperation(const OperationPtr& op)
     }
 }
 
-Gen::ServantExtVisitor::ServantExtVisitor(::IceInternal::Output& o) : out(o) {}
+Gen::ServantExtVisitor::ServantExtVisitor(IceInternal::Output& o) : out(o) {}
 
 bool
 Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)

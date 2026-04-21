@@ -75,7 +75,7 @@ Slice::Java::getResultType(const OperationPtr& op, const string& package, bool o
             {
                 assert(outParams.size() == 1);
                 type = outParams.front()->type();
-                optional = outParams.front()->optional();
+                optional = outParams.front()->isOptional();
             }
         }
         if (type)
@@ -112,7 +112,7 @@ Slice::Java::getParamsProxy(const OperationPtr& op, const string& package, bool 
             package,
             param->getMetadata(),
             true,
-            optionalMapping && param->optional());
+            optionalMapping && param->isOptional());
         params.push_back(typeString + ' ' + (internal ? "iceP_" : "") + param->mappedName());
     }
     return params;
@@ -268,7 +268,7 @@ Slice::Java::getPackage(const ContainedPtr& contained)
 }
 
 string
-Slice::Java::getUnqualified(const std::string& type, const std::string& package)
+Slice::Java::getUnqualified(const string& type, const string& package)
 {
     if (type.find('.') != string::npos && type.find(package) == 0 && type.find('.', package.size() + 1) == string::npos)
     {
@@ -589,7 +589,7 @@ Slice::Java::getSequenceTypes(
     return false;
 }
 
-std::pair<bool, string>
+pair<bool, string>
 Slice::Java::javaLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
 {
     string sourceScope = getPackage(source);
@@ -635,7 +635,7 @@ Slice::Java::javaLinkFormatter(const string& rawLink, const ContainedPtr& source
 }
 
 void
-Slice::Java::validateJavaMetadata(const UnitPtr& u)
+Slice::Java::validateJavaMetadata(const UnitPtr& unit)
 {
     map<string, MetadataInfo> knownMetadata;
 
@@ -798,7 +798,7 @@ Slice::Java::validateJavaMetadata(const UnitPtr& u)
     knownMetadata.emplace("java:UserException", std::move(userExceptionInfo));
 
     // Pass this information off to the parser's metadata validation logic.
-    Slice::validateMetadata(u, "java", std::move(knownMetadata));
+    Slice::validateMetadata(unit, "java", std::move(knownMetadata));
 }
 
 Slice::Java::JavaOutput::JavaOutput() : Output(false, false) {}

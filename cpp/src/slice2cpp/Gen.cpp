@@ -529,7 +529,7 @@ namespace
         for (const auto& param : p->outParameters())
         {
             elements.push_back(
-                typeToString(param->type(), param->optional(), scope, param->getMetadata(), typeContext));
+                typeToString(param->type(), param->isOptional(), scope, param->getMetadata(), typeContext));
         }
         return elements;
     }
@@ -586,20 +586,20 @@ Slice::Gen::~Gen()
 }
 
 void
-Slice::Gen::generate(const UnitPtr& p)
+Slice::Gen::generate(const UnitPtr& unit)
 {
-    string_view file = p->topLevelFile();
-    DefinitionContextPtr dc = p->findDefinitionContext(file);
+    string_view file = unit->topLevelFile();
+    DefinitionContextPtr dc = unit->findDefinitionContext(file);
     assert(dc);
 
     // Give precedence to header-ext/source-ext file metadata.
-    string headerExtension = getHeaderExt(file, p);
+    string headerExtension = getHeaderExt(file, unit);
     if (!headerExtension.empty())
     {
         _headerExtension = headerExtension;
     }
 
-    string sourceExtension = getSourceExt(file, p);
+    string sourceExtension = getSourceExt(file, unit);
     if (!sourceExtension.empty())
     {
         _sourceExtension = sourceExtension;
@@ -659,7 +659,7 @@ Slice::Gen::generate(const UnitPtr& p)
     H << "\n#define " << s << "_";
     H << '\n';
 
-    validateCppMetadata(p);
+    validateCppMetadata(unit);
 
     C << sp;
 
@@ -689,9 +689,9 @@ Slice::Gen::generate(const UnitPtr& p)
         H << "\n#include <Ice/Ice.h>";
     }
 
-    for (const string& includeFile : p->includeFiles())
+    for (const string& includeFile : unit->includeFiles())
     {
-        string extension = getHeaderExt(includeFile, p);
+        string extension = getHeaderExt(includeFile, unit);
         if (extension.empty())
         {
             extension = _headerExtension;
@@ -764,29 +764,29 @@ Slice::Gen::generate(const UnitPtr& p)
 
     {
         ForwardDeclVisitor forwardDeclVisitor(H, C, _dllExport);
-        p->visit(&forwardDeclVisitor);
+        unit->visit(&forwardDeclVisitor);
 
         SliceLoaderVisitor sliceLoaderVisitor(C);
-        p->visit(&sliceLoaderVisitor);
+        unit->visit(&sliceLoaderVisitor);
 
         ProxyVisitor proxyVisitor(H, C, _dllExport);
-        p->visit(&proxyVisitor);
+        unit->visit(&proxyVisitor);
 
         DataDefVisitor dataDefVisitor(H, C, _dllExport);
-        p->visit(&dataDefVisitor);
+        unit->visit(&dataDefVisitor);
 
         // Generate the default (usually synchronous) skeletons.
         InterfaceVisitor interfaceVisitor(H, C, _dllExport, false);
-        p->visit(&interfaceVisitor);
+        unit->visit(&interfaceVisitor);
 
         // Generate the async skeletons.
         InterfaceVisitor asyncInterfaceVisitor(H, C, _dllExport, true);
-        p->visit(&asyncInterfaceVisitor);
+        unit->visit(&asyncInterfaceVisitor);
 
         if (!dc->hasMetadata("cpp:no-stream"))
         {
             StreamVisitor streamVisitor(H);
-            p->visit(&streamVisitor);
+            unit->visit(&streamVisitor);
         }
     }
 }
@@ -844,17 +844,17 @@ Slice::Gen::resetUseWstring(list<TypeContext>& hist)
 }
 
 string
-Slice::Gen::getHeaderExt(string_view file, const UnitPtr& ut)
+Slice::Gen::getHeaderExt(string_view file, const UnitPtr& unit)
 {
-    DefinitionContextPtr dc = ut->findDefinitionContext(file);
+    DefinitionContextPtr dc = unit->findDefinitionContext(file);
     assert(dc);
     return dc->getMetadataArgs("cpp:header-ext").value_or("");
 }
 
 string
-Slice::Gen::getSourceExt(string_view file, const UnitPtr& ut)
+Slice::Gen::getSourceExt(string_view file, const UnitPtr& unit)
 {
-    DefinitionContextPtr dc = ut->findDefinitionContext(file);
+    DefinitionContextPtr dc = unit->findDefinitionContext(file);
     assert(dc);
     return dc->getMetadataArgs("cpp:source-ext").value_or("");
 }
@@ -1422,14 +1422,14 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         if (q->isOutParam())
         {
             string outputTypeString =
-                outputTypeToString(q->type(), q->optional(), interfaceScope, metadata, _useWstring);
+                outputTypeToString(q->type(), q->isOptional(), interfaceScope, metadata, _useWstring);
 
             paramsDecl.push_back(outputTypeString + ' ' + paramName);
             paramsImplDecl.push_back(outputTypeString + ' ' + prefixedParamName);
         }
         else
         {
-            string typeString = inputTypeToString(q->type(), q->optional(), interfaceScope, metadata, _useWstring);
+            string typeString = inputTypeToString(q->type(), q->isOptional(), interfaceScope, metadata, _useWstring);
 
             paramsDecl.push_back(typeString + ' ' + paramName);
             paramsImplDecl.push_back(typeString + ' ' + prefixedParamName);
@@ -1636,7 +1636,7 @@ void
 Slice::Gen::ProxyVisitor::emitOperationImpl(
     const OperationPtr& p,
     const string& prefix,
-    const std::vector<std::string>& outgoingAsyncParams)
+    const vector<string>& outgoingAsyncParams)
 {
     const InterfaceDefPtr container = p->interface();
     const string opName = p->mappedName();
@@ -1659,11 +1659,12 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
         outParamsHasOpt |= p->returnIsOptional();
     }
     outParamsHasOpt |=
-        std::any_of(outParams.begin(), outParams.end(), [](const ParameterPtr& q) { return q->optional(); });
+        std::any_of(outParams.begin(), outParams.end(), [](const ParameterPtr& q) { return q->isOptional(); });
 
     for (const auto& q : inParams)
     {
-        string typeString = inputTypeToString(q->type(), q->optional(), interfaceScope, q->getMetadata(), _useWstring);
+        string typeString =
+            inputTypeToString(q->type(), q->isOptional(), interfaceScope, q->getMetadata(), _useWstring);
 
         inParamsS.push_back(typeString);
         inParamsImplDecl.push_back(typeString + ' ' + paramPrefix + q->mappedName());
@@ -1910,7 +1911,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     for (const auto& dataMember : allDataMembers)
     {
         string typeName =
-            typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetadata(), _useWstring);
+            typeToString(dataMember->type(), dataMember->isOptional(), scope, dataMember->getMetadata(), _useWstring);
         allParameters.push_back(typeName + " " + dataMember->mappedName());
 
         if (const auto& comment = dataMember->docComment())
@@ -2362,8 +2363,13 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 
         for (const auto& dataMember : allDataMembers)
         {
-            string typeName =
-                typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetadata(), _useWstring);
+            string typeName = typeToString(
+                dataMember->type(),
+                dataMember->isOptional(),
+                scope,
+                dataMember->getMetadata(),
+                _useWstring);
+
             allParameters.push_back(typeName + " " + dataMember->mappedName());
             if (const auto& comment = dataMember->docComment())
             {
@@ -2433,14 +2439,14 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
     }
 
     writeDocSummary(H, p);
-    H << nl << getDeprecatedAttribute(p) << typeToString(p->type(), p->optional(), scope, p->getMetadata(), _useWstring)
-      << ' ' << name;
+    H << nl << getDeprecatedAttribute(p)
+      << typeToString(p->type(), p->isOptional(), scope, p->getMetadata(), _useWstring) << ' ' << name;
 
     if (p->defaultValue())
     {
         H << '{';
         // We don't want to generate `string{""}` because it uses a constructor that is not noexcept.
-        if (!p->defaultValue()->empty() || p->optional())
+        if (!p->defaultValue()->empty() || p->isOptional())
         {
             writeConstantValue(
                 H,
@@ -2767,7 +2773,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             params.push_back(
                 typeToString(
                     type,
-                    param->optional(),
+                    param->isOptional(),
                     interfaceScope,
                     param->getMetadata(),
                     _useWstring | TypeContext::UnmarshalParamZeroCopy) +
@@ -2779,13 +2785,18 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             if (!p->hasMarshaledResult() && !amd)
             {
                 params.push_back(
-                    outputTypeToString(type, param->optional(), interfaceScope, param->getMetadata(), _useWstring) +
+                    outputTypeToString(type, param->isOptional(), interfaceScope, param->getMetadata(), _useWstring) +
                     " " + paramName);
                 args.push_back(condMove(isMovable(type) && !isOutParam, prefixedParamName));
             }
 
-            string responseTypeS =
-                inputTypeToString(param->type(), param->optional(), interfaceScope, param->getMetadata(), _useWstring);
+            string responseTypeS = inputTypeToString(
+                param->type(),
+                param->isOptional(),
+                interfaceScope,
+                param->getMetadata(),
+                _useWstring);
+
             responseParams.push_back(responseTypeS + " " + paramName);
             responseParamsDecl.push_back(responseTypeS + " " + prefixedParamName);
             responseParamsImplDecl.push_back(responseTypeS + " " + prefixedParamName);

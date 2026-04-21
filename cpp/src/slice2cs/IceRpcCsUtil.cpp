@@ -241,7 +241,7 @@ Slice::Csharp::csType(const TypePtr& type, const string& ns, TypeContext context
 bool
 Slice::Csharp::csRequired(const DataMemberPtr& field)
 {
-    if (field->optional())
+    if (field->isOptional())
     {
         return false;
     }
@@ -756,7 +756,7 @@ Slice::Csharp::writeIceRpcHelperDocComment(
         << " <c>" << p->scoped() << "</c>.</remarks>";
 }
 
-std::pair<bool, string>
+pair<bool, string>
 Slice::Csharp::icerpcLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
 {
     ostringstream result;

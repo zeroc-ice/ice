@@ -892,7 +892,7 @@ Slice::JavaVisitor::writeResultTypeMarshalUnmarshalCode(
 
     for (const auto& param : op->sortedReturnAndOutParameters(retval))
     {
-        const bool isOptional = param->optional();
+        const bool isOptional = param->isOptional();
         const string name = paramPrefix + param->mappedName();
         const string patchParams = isMarshaling ? getPatcher(param->type(), package, name) : "";
 
@@ -969,9 +969,11 @@ Slice::JavaVisitor::writeResultType(
                 out << nl << " */";
             }
         }
-        out << nl << "public "
-            << typeToString(outParam->type(), TypeModeIn, package, outParam->getMetadata(), true, outParam->optional())
-            << ' ' << outParam->mappedName() << ';';
+
+        string typeString =
+            typeToString(outParam->type(), TypeModeIn, package, outParam->getMetadata(), true, outParam->isOptional());
+
+        out << nl << "public " << typeString << ' ' << outParam->mappedName() << ';';
         out << sp;
     }
 
@@ -1058,7 +1060,7 @@ Slice::JavaVisitor::writeResultType(
                         package,
                         outParam->getMetadata(),
                         true,
-                        !generateMandatoryOnly && outParam->optional()) +
+                        !generateMandatoryOnly && outParam->isOptional()) +
                     " " + outParam->mappedName());
         }
         out << epar;
@@ -1079,7 +1081,7 @@ Slice::JavaVisitor::writeResultType(
         {
             const string name = outParam->mappedName();
             out << nl << "this." << name << " = ";
-            if (outParam->optional() && generateMandatoryOnly)
+            if (outParam->isOptional() && generateMandatoryOnly)
             {
                 out << ofFactory(outParam->type()) << "(" << name << ");";
             }
@@ -1181,10 +1183,10 @@ Slice::JavaVisitor::writeMarshaledResultType(
                     package,
                     outParam->getMetadata(),
                     true,
-                    outParam->optional()) +
+                    outParam->isOptional()) +
                 " " + outParam->mappedName());
 
-        hasOpt = hasOpt || outParam->optional();
+        hasOpt = hasOpt || outParam->isOptional();
     }
     out << currentParam << epar;
     out << sb;
@@ -1263,7 +1265,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
         }
         for (const auto& outParam : outParams)
         {
-            if (outParam->optional())
+            if (outParam->isOptional())
             {
                 out << ofFactory(outParam->type()) + "(" + outParam->mappedName() + ")";
             }
@@ -1528,8 +1530,8 @@ Slice::JavaVisitor::writeMarshalProxyParams(
             out,
             package,
             param->type(),
-            param->optional(),
-            param->optional() && optionalMapping,
+            param->isOptional(),
+            param->isOptional() && optionalMapping,
             param->tag(),
             "iceP_" + param->mappedName(),
             true,
@@ -1580,7 +1582,7 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
         else
         {
             assert(outParams.size() == 1);
-            isOptional = outParams.front()->optional();
+            isOptional = outParams.front()->isOptional();
             type = outParams.front()->type();
             tag = outParams.front()->tag();
             metadata = outParams.front()->getMetadata();
@@ -1659,7 +1661,7 @@ Slice::JavaVisitor::writeMarshalServantResults(
         else
         {
             assert(params.size() == 1);
-            isOptional = params.front()->optional();
+            isOptional = params.front()->isOptional();
             type = params.front()->type();
             tag = params.front()->tag();
             metadata = params.front()->getMetadata();
@@ -1705,7 +1707,7 @@ Slice::JavaVisitor::writeThrowsClause(
 void
 Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, const DataMemberPtr& member, int& iter)
 {
-    const bool isOptional = member->optional();
+    const bool isOptional = member->isOptional();
     const bool forStruct = dynamic_pointer_cast<Struct>(member->container()) != nullptr;
     const string memberName = (forStruct ? "this." : "") + member->mappedName();
 
@@ -1742,7 +1744,7 @@ void
 Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package, const DataMemberPtr& member, int& iter)
 {
     const TypePtr& type = member->type();
-    const bool isOptional = member->optional();
+    const bool isOptional = member->isOptional();
     const bool forStruct = (bool)dynamic_pointer_cast<Struct>(member->container());
     const string stream = forStruct ? "istr" : "istr_";
     assert(!isOptional || !forStruct);           // optional members aren't allowed in structs.
@@ -1879,7 +1881,7 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
         TypePtr t = member->type();
         if (member->defaultValue())
         {
-            if (member->optional())
+            if (member->isOptional())
             {
                 string capName = member->mappedName();
                 capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
@@ -2332,20 +2334,20 @@ Slice::Gen::Gen(string base, string dir) : _base(std::move(base)), _dir(std::mov
 Slice::Gen::~Gen() = default;
 
 void
-Slice::Gen::generate(const UnitPtr& p)
+Slice::Gen::generate(const UnitPtr& unit)
 {
-    validateJavaMetadata(p);
+    validateJavaMetadata(unit);
 
     TypesVisitor typesVisitor(_dir);
-    p->visit(&typesVisitor);
+    unit->visit(&typesVisitor);
 
     // Generate the default skeletons.
     SkeletonVisitor skeletonVisitor(_dir, false);
-    p->visit(&skeletonVisitor);
+    unit->visit(&skeletonVisitor);
 
     // Generate the async skeletons.
     SkeletonVisitor asyncSkeletonVisitor(_dir, true);
-    p->visit(&asyncSkeletonVisitor);
+    unit->visit(&asyncSkeletonVisitor);
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(const string& dir) : JavaVisitor(dir) {}
@@ -2423,7 +2425,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     DataMemberList requiredMembers;
     for (const auto& member : allDataMembers)
     {
-        if (!member->optional())
+        if (!member->isOptional())
         {
             requiredMembers.push_back(member);
         }
@@ -2484,7 +2486,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                     bool hasBaseRequired = false;
                     for (const auto& baseDataMember : baseDataMembers)
                     {
-                        if (!baseDataMember->optional())
+                        if (!baseDataMember->isOptional())
                         {
                             hasBaseRequired = true;
                             break;
@@ -2496,7 +2498,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                         vector<string> baseParamNames;
                         for (const auto& baseDataMember : baseDataMembers)
                         {
-                            if (!baseDataMember->optional())
+                            if (!baseDataMember->isOptional())
                             {
                                 baseParamNames.push_back(baseDataMember->mappedName());
                             }
@@ -2507,7 +2509,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
                 for (const auto& member : members)
                 {
-                    if (!member->optional())
+                    if (!member->isOptional())
                     {
                         string paramName = member->mappedName();
                         out << nl << "this." << paramName << " = " << paramName << ';';
@@ -2549,7 +2551,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             for (const auto& member : members)
             {
                 string paramName = member->mappedName();
-                if (member->optional())
+                if (member->isOptional())
                 {
                     string capName = paramName;
                     capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
@@ -2605,7 +2607,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << nl << "ostr_.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
     for (const auto& member : members)
     {
-        if (!member->optional())
+        if (!member->isOptional())
         {
             writeMarshalDataMember(out, package, member, iter);
         }
@@ -2634,7 +2636,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << nl << "istr_.startSlice();";
     for (const auto& member : members)
     {
-        if (!member->optional())
+        if (!member->isOptional())
         {
             writeUnmarshalDataMember(out, package, member, iter);
         }
@@ -2714,7 +2716,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     DataMemberList optionalMembers = p->orderedOptionalDataMembers();
     for (const auto& member : allDataMembers)
     {
-        if (!member->optional())
+        if (!member->isOptional())
         {
             requiredMembers.push_back(member);
         }
@@ -2741,7 +2743,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 bool hasBaseRequired = false;
                 for (const auto& member : baseDataMembers)
                 {
-                    if (!member->optional())
+                    if (!member->isOptional())
                     {
                         hasBaseRequired = true;
                         break;
@@ -2776,7 +2778,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                         vector<string> baseParamNames;
                         for (const auto& member : baseDataMembers)
                         {
-                            if (!member->optional())
+                            if (!member->isOptional())
                             {
                                 baseParamNames.push_back(member->mappedName());
                             }
@@ -2787,7 +2789,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
                 for (const auto& member : members)
                 {
-                    if (!member->optional())
+                    if (!member->isOptional())
                     {
                         string paramName = member->mappedName();
                         out << nl << "this." << paramName << " = " << paramName << ';';
@@ -2833,7 +2835,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             for (const auto& member : members)
             {
                 string paramName = member->mappedName();
-                if (member->optional())
+                if (member->isOptional())
                 {
                     string capName = paramName;
                     capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
@@ -2868,7 +2870,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     iter = 0;
     for (const auto& member : members)
     {
-        if (!member->optional())
+        if (!member->isOptional())
         {
             writeMarshalDataMember(out, package, member, iter);
         }
@@ -2896,7 +2898,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     iter = 0;
     for (const auto& member : members)
     {
-        if (!member->optional())
+        if (!member->isOptional())
         {
             writeUnmarshalDataMember(out, package, member, iter);
         }
@@ -3282,7 +3284,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     const string name = p->mappedName();
     const bool getSet = p->hasMetadata("java:getset") || contained->hasMetadata("java:getset");
-    const bool isOptional = p->optional();
+    const bool isOptional = p->isOptional();
     const TypePtr type = p->type();
     const BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
     const bool classType = type->isClassType();
@@ -4518,14 +4520,14 @@ Slice::Gen::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
                 const TypePtr paramType = param->type();
                 if (paramType->isClassType())
                 {
-                    assert(!param->optional()); // Optional classes are disallowed by the parser.
+                    assert(!param->isOptional()); // Optional classes are disallowed by the parser.
                     allocatePatcher(out, paramType, package, "icePP_" + param->mappedName());
                     values.push_back(param);
                 }
                 else
                 {
                     const string typeS =
-                        typeToString(paramType, TypeModeIn, package, param->getMetadata(), true, param->optional());
+                        typeToString(paramType, TypeModeIn, package, param->getMetadata(), true, param->isOptional());
                     out << nl << typeS << " iceP_" << param->mappedName() << ';';
                 }
             }
@@ -4542,8 +4544,8 @@ Slice::Gen::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
                     out,
                     package,
                     param->type(),
-                    param->optional(),
-                    param->optional(),
+                    param->isOptional(),
+                    param->isOptional(),
                     param->tag(),
                     paramName,
                     false,
@@ -4560,9 +4562,11 @@ Slice::Gen::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
             for (const auto& value : values)
             {
+                string typeString =
+                    typeToString(value->type(), TypeModeIn, package, value->getMetadata(), true, value->isOptional());
+
                 out << nl;
-                out << typeToString(value->type(), TypeModeIn, package, value->getMetadata(), true, value->optional());
-                out << " iceP_" << value->mappedName() << " = icePP_" << value->mappedName() << ".value;";
+                out << typeString << " iceP_" << value->mappedName() << " = icePP_" << value->mappedName() << ".value;";
             }
         }
         else

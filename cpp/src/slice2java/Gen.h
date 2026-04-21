@@ -136,53 +136,60 @@ namespace Slice
 
         /// Write a constant or default value initializer.
         static void writeConstantValue(
-            IceInternal::Output&,
-            const TypePtr&,
-            const SyntaxTreeBasePtr&,
-            const std::string&,
-            const std::string&);
+            IceInternal::Output& out,
+            const TypePtr& type,
+            const SyntaxTreeBasePtr& valueType,
+            const std::string& value,
+            const std::string& package);
 
         /// Generate assignment statements for those data members that have default values.
-        static void writeDataMemberInitializers(IceInternal::Output&, const DataMemberList&, const std::string&);
+        static void writeDataMemberInitializers(
+            IceInternal::Output& out,
+            const DataMemberList& members,
+            const std::string& package);
 
         //
         // Handle doc comments.
         //
         static void writeExceptionDocComment(IceInternal::Output& out, const OperationPtr& op, const DocComment& dc);
         static void writeRemarksDocComment(IceInternal::Output& out, const StringList& remarks);
-        static void writeHiddenDocComment(IceInternal::Output&);
-        static void writeDocCommentLines(IceInternal::Output&, const StringList&);
-        static void writeDocCommentLines(IceInternal::Output&, const std::string&);
+        static void writeHiddenDocComment(IceInternal::Output& out);
+        static void writeDocCommentLines(IceInternal::Output& out, const StringList& lines);
+        static void writeDocCommentLines(IceInternal::Output& out, const std::string& text);
         static void writeDocComment(
-            IceInternal::Output&,
-            const ContainedPtr&,
+            IceInternal::Output& out,
+            const ContainedPtr& p,
             const std::optional<std::string>& generatedType = std::nullopt);
-        static void writeDocComment(IceInternal::Output&, const std::string&);
+        static void writeDocComment(IceInternal::Output& out, const std::string& text);
         static void writeProxyOpDocComment(
-            IceInternal::Output&,
-            const OperationPtr&,
-            const std::string&,
-            const std::optional<DocComment>&,
-            bool,
-            const std::string&);
-        static void writeServantOpDocComment(IceInternal::Output&, const OperationPtr&, const std::string&, bool);
+            IceInternal::Output& out,
+            const OperationPtr& p,
+            const std::string& package,
+            const std::optional<DocComment>& dc,
+            bool async,
+            const std::string& contextParam);
+        static void writeServantOpDocComment(
+            IceInternal::Output& out,
+            const OperationPtr& p,
+            const std::string& package,
+            bool async);
         static void writeSeeAlso(IceInternal::Output& out, const StringList& seeAlso);
         static void writeParamDocComments(IceInternal::Output& out, const DataMemberList& members);
 
     protected:
-        JavaVisitor(const std::string&);
+        JavaVisitor(const std::string& dir);
     };
 
     class Gen final
     {
     public:
-        Gen(std::string, std::string);
+        Gen(std::string base, std::string dir);
         Gen(const Gen&) = delete;
         ~Gen();
 
         Gen& operator=(const Gen&) = delete;
 
-        void generate(const UnitPtr&);
+        void generate(const UnitPtr& unit);
 
     private:
         std::string _base;
@@ -191,7 +198,7 @@ namespace Slice
         class TypesVisitor final : public JavaVisitor
         {
         public:
-            TypesVisitor(const std::string&);
+            TypesVisitor(const std::string& dir);
 
             bool visitModuleStart(const ModulePtr&) final;
 

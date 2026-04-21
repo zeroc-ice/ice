@@ -124,26 +124,20 @@ namespace Slice::Java
     std::pair<bool, std::string>
     javaLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 
-    void validateJavaMetadata(const UnitPtr&);
+    void validateJavaMetadata(const UnitPtr& unit);
 
-    class JavaOutput final : public ::IceInternal::Output
+    class JavaOutput final : public IceInternal::Output
     {
     public:
         JavaOutput();
 
-        //
-        // Open a file to hold the source for a Java class. The first
-        // argument is the class name (including an optional leading
-        // package). Intermediate directories will be created as
-        // necessary to open the file in the package. The second
-        // argument specifies a directory prefix in which to locate
-        // the class.
-        //
-        // After successfully opening the file, the function invokes
-        // printHeader() and then emits a "package" statement if
-        // necessary.
-        //
-        void openClass(const std::string&, const std::string&, const std::string& = std::string());
+        /// Open a file to hold the source for a Java class. After successfully opening the file,
+        /// the function invokes `printHeader()` and then emits a "package" statement if necessary.
+        /// Intermediate directories will be created as necessary to open the file in the package.
+        /// @param cls The class name (including an optional leading package).
+        /// @param prefix Specifies a directory prefix in which to generate the class.
+        /// @param sliceFile The Slice file that the class is being generated from.
+        void openClass(const std::string& cls, const std::string& prefix, const std::string& sliceFile);
 
         void printHeader();
     };
@@ -158,7 +152,7 @@ namespace Slice::Java
 
         void close();
 
-        JavaGenerator(std::string);
+        JavaGenerator(std::string dir);
 
         /// Creates a new '.java' file (and any necessary intermediate directories) for generating 'qualifiedEntity's
         /// source code into. After calling this function, `_out` will be set to write into this new file.
@@ -170,7 +164,7 @@ namespace Slice::Java
 
     private:
         std::string _dir;
-        ::IceInternal::Output* _out{nullptr};
+        IceInternal::Output* _out{nullptr};
     };
 }
 

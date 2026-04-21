@@ -241,13 +241,14 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     for (auto q = members.begin(); q != members.end(); ++q)
     {
+        const bool isOptional = (*q)->isOptional();
         if (q != members.begin())
         {
             _out << ',' << nl;
         }
         _out << "['" << getMappedName(*q) << "', ";
         writeType((*q)->type());
-        _out << ", " << ((*q)->optional() ? "true" : "false") << ", " << ((*q)->optional() ? (*q)->tag() : 0) << ']';
+        _out << ", " << (isOptional ? "true" : "false") << ", " << (isOptional ? (*q)->tag() : 0) << ']';
     }
     if (members.size() > 1)
     {
@@ -407,6 +408,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         bool isFirst = true;
         for (const auto& param : op->inParameters())
         {
+            const bool isOptional = param->isOptional();
             if (!isFirst)
             {
                 _out << ", ";
@@ -414,13 +416,13 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             isFirst = false;
             _out << '[';
             writeType(param->type());
-            _out << ", " << (param->optional() ? "true" : "false") << ", " << (param->optional() ? param->tag() : 0)
-                 << ']';
+            _out << ", " << (isOptional ? "true" : "false") << ", " << (isOptional ? param->tag() : 0) << ']';
         }
         _out << "], [";
         isFirst = true;
         for (const auto& param : op->outParameters())
         {
+            const bool isOptional = param->isOptional();
             if (!isFirst)
             {
                 _out << ", ";
@@ -428,8 +430,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             isFirst = false;
             _out << '[';
             writeType(param->type());
-            _out << ", " << (param->optional() ? "true" : "false") << ", " << (param->optional() ? param->tag() : 0)
-                 << ']';
+            _out << ", " << (isOptional ? "true" : "false") << ", " << (isOptional ? param->tag() : 0) << ']';
         }
         _out << "], ";
         TypePtr returnType = op->returnType();
@@ -548,14 +549,14 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     for (auto dmli = members.begin(); dmli != members.end(); ++dmli)
     {
+        const bool isOptional = (*dmli)->isOptional();
         if (dmli != members.begin())
         {
             _out << ',' << nl;
         }
         _out << "[\"" << getMappedName(*dmli) << "\", ";
         writeType((*dmli)->type());
-        _out << ", " << ((*dmli)->optional() ? "true" : "false") << ", " << ((*dmli)->optional() ? (*dmli)->tag() : 0)
-             << ']';
+        _out << ", " << (isOptional ? "true" : "false") << ", " << (isOptional ? (*dmli)->tag() : 0) << ']';
     }
     if (members.size() > 1)
     {
@@ -1039,7 +1040,7 @@ Slice::Ruby::CodeVisitor::writeConstructorParams(const DataMemberList& members)
         {
             writeConstantValue(member->type(), member->defaultValueType(), *member->defaultValue());
         }
-        else if (member->optional())
+        else if (member->isOptional())
         {
             _out << "Ice::Unset";
         }

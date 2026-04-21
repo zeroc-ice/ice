@@ -420,7 +420,7 @@ Slice::JavaScript::writeOptionalMarshalUnmarshalCode(
     }
 }
 
-std::string
+string
 Slice::JavaScript::getHelper(const TypePtr& type, const string& currentJsModule)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
@@ -557,7 +557,7 @@ Slice::JavaScript::jsLinkFormatter(const string& rawLink, const ContainedPtr&, c
 }
 
 void
-Slice::JavaScript::validateJsMetadata(const UnitPtr& u)
+Slice::JavaScript::validateJsMetadata(const UnitPtr& unit)
 {
     map<string, MetadataInfo> knownMetadata;
 
@@ -596,5 +596,5 @@ Slice::JavaScript::validateJsMetadata(const UnitPtr& u)
     knownMetadata.emplace("js:identifier", std::move(identifierInfo));
 
     // Pass this information off to the parser's metadata validation logic.
-    Slice::validateMetadata(u, "js", std::move(knownMetadata));
+    Slice::validateMetadata(unit, "js", std::move(knownMetadata));
 }

@@ -77,7 +77,7 @@ namespace
 class CodeVisitor final : public ParserVisitor
 {
 public:
-    CodeVisitor(IceInternal::Output&);
+    CodeVisitor(IceInternal::Output& out);
 
     bool visitModuleStart(const ModulePtr&) final;
     void visitModuleEnd(const ModulePtr&) final;
@@ -95,25 +95,25 @@ public:
 
 private:
     // Return the PHP variable for the given object's type.
-    string getTypeVar(const ContainedPtr&);
+    string getTypeVar(const ContainedPtr& p);
 
-    string getType(const TypePtr&);
+    string getType(const TypePtr& p);
 
     // Write a default value for a given type.
-    void writeDefaultValue(const DataMemberPtr&);
+    void writeDefaultValue(const DataMemberPtr& m);
 
     // Write a member assignment statement for a constructor.
     void writeAssign(const DataMemberPtr& member);
 
     // Write constant value.
-    void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const string&);
+    void writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const string& value);
 
     /// Write constructor parameters with default values.
     void writeConstructorParams(const DataMemberList& members);
 
     Output& _out;
     set<string> _classHistory;
-    std::stack<string> _parentNamespaces;
+    stack<string> _parentNamespaces;
 };
 
 // CodeVisitor implementation.
@@ -313,6 +313,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << "array(";
         for (auto q = members.begin(); q != members.end(); ++q)
         {
+            const bool isOptional = (*q)->isOptional();
             if (q != members.begin())
             {
                 _out << ',';
@@ -320,8 +321,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out.inc();
             _out << nl << "array('" << (*q)->mappedName() << "', ";
             _out << getType((*q)->type());
-            _out << ", " << ((*q)->optional() ? "true" : "false") << ", " << ((*q)->optional() ? (*q)->tag() : 0)
-                 << ')';
+            _out << ", " << (isOptional ? "true" : "false") << ", " << (isOptional ? (*q)->tag() : 0) << ')';
             _out.dec();
         }
         _out << ')';
@@ -458,7 +458,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     }
                     _out << "array(";
                     _out << getType((*t)->type());
-                    if ((*t)->optional())
+                    if ((*t)->isOptional())
                     {
                         _out << ", " << (*t)->tag();
                     }
@@ -489,7 +489,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     }
                     _out << "array(";
                     _out << getType((*t)->type());
-                    if ((*t)->optional())
+                    if ((*t)->isOptional())
                     {
                         _out << ", " << (*t)->tag();
                     }
@@ -632,6 +632,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << "array(";
         for (auto dmli = members.begin(); dmli != members.end(); ++dmli)
         {
+            const bool isOptional = (*dmli)->isOptional();
             if (dmli != members.begin())
             {
                 _out << ',';
@@ -639,8 +640,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             _out.inc();
             _out << nl << "array('" << (*dmli)->mappedName() << "', ";
             _out << getType((*dmli)->type());
-            _out << ", " << ((*dmli)->optional() ? "true" : "false") << ", "
-                 << ((*dmli)->optional() ? (*dmli)->tag() : 0) << ')';
+            _out << ", " << (isOptional ? "true" : "false") << ", " << (isOptional ? (*dmli)->tag() : 0) << ')';
             _out.dec();
         }
         _out << ')';
@@ -972,23 +972,23 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
     }
     else
     {
-        Slice::BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
-        Slice::EnumPtr en = dynamic_pointer_cast<Enum>(type);
+        BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
+        EnumPtr en = dynamic_pointer_cast<Enum>(type);
         if (b)
         {
             switch (b->kind())
             {
-                case Slice::Builtin::KindBool:
-                case Slice::Builtin::KindByte:
-                case Slice::Builtin::KindShort:
-                case Slice::Builtin::KindInt:
-                case Slice::Builtin::KindFloat:
-                case Slice::Builtin::KindDouble:
+                case Builtin::KindBool:
+                case Builtin::KindByte:
+                case Builtin::KindShort:
+                case Builtin::KindInt:
+                case Builtin::KindFloat:
+                case Builtin::KindDouble:
                 {
                     _out << value;
                     break;
                 }
-                case Slice::Builtin::KindLong:
+                case Builtin::KindLong:
                 {
                     int64_t l = std::stoll(value, nullptr, 0); // NOLINT(clang-analyzer-deadcode.DeadStores)
                     // The platform's 'long' type may not be 64 bits, so we store 64-bit values as a string.
@@ -1002,14 +1002,14 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
                     }
                     break;
                 }
-                case Slice::Builtin::KindString:
+                case Builtin::KindString:
                 {
                     // PHP 7.x also supports an EC6UCN-like notation, see: https://wiki.php.net/rfc/unicode_escape
                     _out << "\"" << toStringLiteral(value, "\f\n\r\t\v\x1b", "$", Octal, 0) << "\"";
                     break;
                 }
-                case Slice::Builtin::KindObjectProxy:
-                case Slice::Builtin::KindValue:
+                case Builtin::KindObjectProxy:
+                case Builtin::KindValue:
                     assert(false);
             }
         }
@@ -1043,7 +1043,7 @@ CodeVisitor::writeConstructorParams(const DataMemberList& members)
         {
             writeConstantValue(member->type(), member->defaultValueType(), *member->defaultValue());
         }
-        else if (member->optional())
+        else if (member->isOptional())
         {
             _out << "\\Ice\\None";
         }
@@ -1055,7 +1055,7 @@ CodeVisitor::writeConstructorParams(const DataMemberList& members)
 }
 
 static void
-generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output& out)
+generate(const UnitPtr& unit, bool all, const vector<string>& includePaths, Output& out)
 {
     if (!all)
     {
@@ -1065,7 +1065,7 @@ generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output
             path = fullPath(path);
         }
 
-        StringList includes = un->includeFiles();
+        StringList includes = unit->includeFiles();
         if (!includes.empty())
         {
             out << sp;
@@ -1080,10 +1080,10 @@ generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output
         }
     }
 
-    validatePhpMetadata(un);
+    validatePhpMetadata(unit);
 
     CodeVisitor codeVisitor(out);
-    un->visit(&codeVisitor);
+    unit->visit(&codeVisitor);
 
     out << nl; // Trailing newline.
 }

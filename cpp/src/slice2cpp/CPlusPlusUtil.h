@@ -16,65 +16,69 @@ namespace Slice
         char operator()(char);
     };
 
-    void printHeader(IceInternal::Output&);
-    void printVersionCheck(IceInternal::Output&);
-    void printDllExportStuff(IceInternal::Output&, const std::string&);
+    void printHeader(IceInternal::Output& out);
+    void printVersionCheck(IceInternal::Output& out);
+    void printDllExportStuff(IceInternal::Output& out, const std::string& dllExport);
 
-    bool isMovable(const TypePtr&);
+    bool isMovable(const TypePtr& type);
 
-    std::string getUnqualified(const std::string&, const std::string&);
+    std::string getUnqualified(const std::string& type, const std::string& scope);
 
     /// Gets the C++ type for a Slice parameter or field.
     std::string typeToString(
-        const TypePtr&,
-        bool,
-        const std::string& = "",
-        const MetadataList& = MetadataList(),
-        TypeContext = TypeContext::None);
+        const TypePtr& type,
+        bool optional,
+        const std::string& scope = "",
+        const MetadataList& metadata = MetadataList(),
+        TypeContext typeCtx = TypeContext::None);
 
     // TODO: find a better name.
     /// Gets the C++ type for a Slice parameter to be marshaled.
     std::string inputTypeToString(
-        const TypePtr&,
-        bool,
-        const std::string& = "",
-        const MetadataList& = MetadataList(),
-        TypeContext = TypeContext::None);
+        const TypePtr& type,
+        bool optional,
+        const std::string& scope = "",
+        const MetadataList& metadata = MetadataList(),
+        TypeContext typeCtx = TypeContext::None);
 
     // TODO: find a better name.
     /// Gets the C++ type for a Slice out parameter when mapped to a C++ out parameter.
     std::string outputTypeToString(
-        const TypePtr&,
-        bool,
-        const std::string& = "",
-        const MetadataList& = MetadataList(),
-        TypeContext = TypeContext::None);
+        const TypePtr& type,
+        bool optional,
+        const std::string& scope = "",
+        const MetadataList& metadata = MetadataList(),
+        TypeContext typeCtx = TypeContext::None);
 
-    std::string operationModeToString(Operation::Mode);
-    std::string opFormatTypeToString(const OperationPtr&);
+    std::string operationModeToString(Operation::Mode mode);
+    std::string opFormatTypeToString(const OperationPtr& op);
 
-    void writeMarshalCode(IceInternal::Output&, const ParameterList&, const OperationPtr&);
-    void writeUnmarshalCode(IceInternal::Output&, const ParameterList&, const OperationPtr&);
-    void
-    writeAllocateCode(IceInternal::Output&, const ParameterList&, const OperationPtr&, const std::string&, TypeContext);
+    void writeMarshalCode(IceInternal::Output& out, const ParameterList& params, const OperationPtr& op);
+    void writeUnmarshalCode(IceInternal::Output& out, const ParameterList& params, const OperationPtr& op);
+    void writeAllocateCode(
+        IceInternal::Output& out,
+        const ParameterList& params,
+        const OperationPtr& op,
+        const std::string& clScope,
+        TypeContext typeCtx);
 
     /// Writes the StreamReader specialization for a struct.
-    void writeStreamReader(IceInternal::Output&, const StructPtr&, const DataMemberList&);
+    void writeStreamReader(IceInternal::Output& out, const StructPtr& p, const DataMemberList& dataMembers);
 
     /// Reads or writes the data members of a class or exception slice.
-    void readDataMembers(IceInternal::Output&, const DataMemberList&);
-    void writeDataMembers(IceInternal::Output&, const DataMemberList&);
+    void readDataMembers(IceInternal::Output& out, const DataMemberList& dataMembers);
+    void writeDataMembers(IceInternal::Output& out, const DataMemberList& dataMembers);
 
-    void writeIceTuple(IceInternal::Output&, const DataMemberList&, TypeContext);
+    void writeIceTuple(IceInternal::Output& out, const DataMemberList& dataMembers, TypeContext typeCtx);
 
-    std::string findMetadata(const MetadataList&, TypeContext = TypeContext::None);
-    bool inWstringModule(const SequencePtr&);
+    std::string findMetadata(const MetadataList& metadata, TypeContext typeCtx = TypeContext::None);
+    bool inWstringModule(const SequencePtr& seq);
 
     /// Returns a doxygen formatted link to the provided Slice identifier.
     std::string
     cppLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 
-    void validateCppMetadata(const UnitPtr&);
+    void validateCppMetadata(const UnitPtr& unit);
 }
 
 #endif

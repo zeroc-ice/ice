@@ -106,7 +106,7 @@ Slice::Python::getImportAlias(
 string
 Slice::Python::getImportAlias(
     const ContainedPtr& source,
-    const std::map<std::string, std::string>& allImports,
+    const map<string, string>& allImports,
     const string& moduleName,
     const string& name)
 {
@@ -413,7 +413,7 @@ Slice::Python::CodeVisitor::returnTypeHint(const OperationPtr& operation, Method
 
         for (const auto& param : outParameters)
         {
-            os << typeToTypeHintString(param->type(), param->optional(), source, forMarshaling, param->getMetadata());
+            os << typeToTypeHintString(param->type(), param->isOptional(), source, forMarshaling, param->getMetadata());
             if (param != outParameters.back())
             {
                 os << ", ";
@@ -435,7 +435,7 @@ Slice::Python::CodeVisitor::returnTypeHint(const OperationPtr& operation, Method
     {
         const auto& param = outParameters.front();
         returnTypeHint =
-            typeToTypeHintString(param->type(), param->optional(), source, forMarshaling, param->getMetadata());
+            typeToTypeHintString(param->type(), param->isOptional(), source, forMarshaling, param->getMetadata());
     }
     else
     {
@@ -518,14 +518,14 @@ Slice::Python::writeHeader(IceInternal::Output& out)
 }
 
 void
-Slice::Python::writePackageIndex(const std::map<std::string, std::set<std::string>>& imports, IceInternal::Output& out)
+Slice::Python::writePackageIndex(const map<string, set<string>>& imports, IceInternal::Output& out)
 {
     out << sp;
     writeHeader(out);
     if (!imports.empty())
     {
         out << sp;
-        std::list<string> allDefinitions;
+        list<string> allDefinitions;
         for (const auto& [moduleName, definitions] : imports)
         {
             for (const auto& name : definitions)
@@ -610,8 +610,8 @@ Slice::Python::ImportVisitor::visitDataMember(const DataMemberPtr& p)
 
     // Import 'field' from dataclasses to initialize non-optional Struct, Dictionary, and Sequence members.
     // These types cannot use direct field initializers.
-    if (!p->optional() && (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Sequence>(type) ||
-                           dynamic_pointer_cast<Dictionary>(type)))
+    if (!p->isOptional() && (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Sequence>(type) ||
+                             dynamic_pointer_cast<Dictionary>(type)))
     {
         addRuntimeImport("dataclasses", "field", parent);
     }
@@ -1203,7 +1203,7 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p, Output& ou
         {
             out
                 << (param->mappedName() + ": " +
-                    typeToTypeHintString(param->type(), param->optional(), p, false, param->getMetadata()));
+                    typeToTypeHintString(param->type(), param->isOptional(), p, false, param->getMetadata()));
         }
 
         const string currentParamName = getEscapedParamName(operation->parameters(), "current");
@@ -1433,14 +1433,14 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
     const string fieldAlias = getImportAlias(parent, "dataclasses", "field");
 
     out << nl << p->mappedName() << ": "
-        << typeToTypeHintString(p->type(), p->optional(), parent, false, p->getMetadata());
+        << typeToTypeHintString(p->type(), p->isOptional(), parent, false, p->getMetadata());
 
     if (p->defaultValue())
     {
         out << " = ";
         writeConstantValue(parent, p->type(), p->defaultValueType(), *p->defaultValue(), out);
     }
-    else if (p->optional())
+    else if (p->isOptional())
     {
         out << " = None";
     }
@@ -1601,7 +1601,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         ParameterPtr lastRequiredParameter;
         for (const auto& q : operation->inParameters())
         {
-            if (!q->optional())
+            if (!q->isOptional())
             {
                 lastRequiredParameter = q;
             }
@@ -1617,7 +1617,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             string param = q->mappedName();
             inParams.append(param);
-            param += ": " + typeToTypeHintString(q->type(), q->optional(), p, true);
+            param += ": " + typeToTypeHintString(q->type(), q->isOptional(), p, true);
             if (afterLastRequiredParameter)
             {
                 param += " = None";
@@ -1840,7 +1840,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             writeMetadata(param->getMetadata(), out);
             out << ", " << getMetaType(param->type());
             out << ", ";
-            if (param->optional())
+            if (param->isOptional())
             {
                 out << "True, " << param->tag();
             }
@@ -1868,7 +1868,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             writeMetadata(param->getMetadata(), out);
             out << ", " << getMetaType(param->type());
             out << ", ";
-            if (param->optional())
+            if (param->isOptional())
             {
                 out << "True, " << param->tag();
             }
@@ -2074,8 +2074,9 @@ Slice::Python::CodeVisitor::writeMetaTypeDataMembers(
         out << ", " << getMetaType(member->type());
         if (includeOptional)
         {
-            out << ", " << (member->optional() ? "True" : "False");
-            out << ", " << (member->optional() ? member->tag() : 0);
+            const bool isOptional = member->isOptional();
+            out << ", " << (isOptional ? "True" : "False");
+            out << ", " << (isOptional ? member->tag() : 0);
         }
         out << ')';
     }
@@ -2131,7 +2132,7 @@ Slice::Python::CodeVisitor::writeConstantValue(
     {
         out << getImportAlias(source, constant);
     }
-    else if (auto builtin = dynamic_pointer_cast<Slice::Builtin>(type))
+    else if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
         switch (builtin->kind())
         {
@@ -2163,7 +2164,7 @@ Slice::Python::CodeVisitor::writeConstantValue(
                 assert(false);
         }
     }
-    else if (auto enumeration = dynamic_pointer_cast<Slice::Enum>(type))
+    else if (auto enumeration = dynamic_pointer_cast<Enum>(type))
     {
         EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(valueType);
         assert(enumerator);
@@ -2197,7 +2198,7 @@ Slice::Python::getAll(const ContainedPtr& definition)
     return all;
 }
 
-Slice::MetadataPtr
+MetadataPtr
 Slice::Python::getSequenceMetadata(const SequencePtr& seq, const MetadataList& localMetadata)
 {
     auto sequenceMetaData =
@@ -2348,7 +2349,7 @@ Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, c
         for (const auto& field : fields)
         {
             out << nl << field->mappedName() << " : "
-                << typeToTypeHintString(field->type(), field->optional(), p, false);
+                << typeToTypeHintString(field->type(), field->isOptional(), p, false);
             auto q = fieldDocs.find(field->name());
             if (q != fieldDocs.end())
             {
@@ -2459,7 +2460,7 @@ Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind 
         for (const auto& param : inParams)
         {
             out << nl << param->mappedName() << " : "
-                << typeToTypeHintString(param->type(), param->optional(), p, methodKind != MethodKind::Dispatch);
+                << typeToTypeHintString(param->type(), param->isOptional(), p, methodKind != MethodKind::Dispatch);
             const auto r = parametersDoc.find(param->name());
             if (r != parametersDoc.end())
             {
@@ -2543,7 +2544,7 @@ Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind 
             for (const auto& param : outParams)
             {
                 out << nl << "        - "
-                    << typeToTypeHintString(param->type(), param->optional(), p, methodKind == MethodKind::Dispatch);
+                    << typeToTypeHintString(param->type(), param->isOptional(), p, methodKind == MethodKind::Dispatch);
                 const auto r = parametersDoc.find(param->name());
                 if (r != parametersDoc.end())
                 {
@@ -2574,7 +2575,8 @@ Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind 
         {
             assert(outParams.size() == 1);
             const auto& param = outParams.front();
-            out << nl << typeToTypeHintString(param->type(), param->optional(), p, methodKind == MethodKind::Dispatch);
+            out << nl;
+            out << typeToTypeHintString(param->type(), param->isOptional(), p, methodKind == MethodKind::Dispatch);
             const auto r = parametersDoc.find(param->name());
             if (r != parametersDoc.end())
             {
@@ -2736,8 +2738,8 @@ namespace
 
 Slice::Python::CompilationResult
 Slice::Python::compile(
-    const std::string& programName,
-    const std::unique_ptr<DependencyGenerator>& dependencyGenerator,
+    const string& programName,
+    const unique_ptr<DependencyGenerator>& dependencyGenerator,
     PackageVisitor& packageVisitor,
     const vector<string>& files,
     const vector<string>& preprocessorArgs,
@@ -3074,7 +3076,7 @@ Slice::Python::validatePythonMetadata(const UnitPtr& unit)
              typeid(Enum),
              typeid(Enumerator),
              typeid(Const),
-             typeid(Slice::Parameter),
+             typeid(Parameter),
              typeid(DataMember)},
         .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
     };
@@ -3152,7 +3154,7 @@ namespace
 }
 
 int
-Slice::Python::compile(const std::vector<std::string>& args)
+Slice::Python::compile(const vector<string>& args)
 {
     const string programName = args[0]; // NOLINT(performance-unnecessary-copy-initialization)
 
@@ -3319,7 +3321,7 @@ Slice::Python::compile(const std::vector<std::string>& args)
     }
     else if (!listArg.empty())
     {
-        std::set<string> generated;
+        set<string> generated;
 
         for (const auto& [source, files] : packageVisitor.generated())
         {

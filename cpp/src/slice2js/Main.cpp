@@ -239,7 +239,7 @@ compile(const vector<string>& argv)
 
                 if (useStdout)
                 {
-                    Gen gen(preprocessor->getBaseName(), output, typeScript, cout);
+                    Gen gen(preprocessor->getBaseName(), cout, typeScript);
                     gen.generate(unit);
                 }
                 else

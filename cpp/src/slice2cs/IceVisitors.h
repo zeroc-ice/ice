@@ -13,7 +13,7 @@ namespace Slice::Ice
     class TypesVisitor final : public CsVisitor
     {
     public:
-        TypesVisitor(IceInternal::Output&);
+        TypesVisitor(IceInternal::Output& out);
 
         bool visitClassDefStart(const ClassDefPtr&) final;
         void visitClassDefEnd(const ClassDefPtr&) final;
@@ -33,12 +33,20 @@ namespace Slice::Ice
         void visitOperation(const OperationPtr&) final;
 
     private:
-        void writeMarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
-        void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
-        void writeMarshaling(const ClassDefPtr&);
+        void writeMarshalDataMember(
+            const DataMemberPtr& member,
+            const std::string& name,
+            const std::string& ns,
+            bool forStruct = false);
+        void writeUnmarshalDataMember(
+            const DataMemberPtr& member,
+            const std::string& name,
+            const std::string& ns,
+            bool forStruct = false);
+        void writeMarshaling(const ClassDefPtr& p);
 
         /// Writes "= null!" for non-nullable fields (Slice class and exception only).
-        void writeDataMemberInitializers(const DataMemberList&);
+        void writeDataMemberInitializers(const DataMemberList& dataMembers);
     };
 
     /// Generates Result record structs for any operation that returns multiple values or a marshaled result; does not
@@ -46,7 +54,7 @@ namespace Slice::Ice
     class ResultVisitor final : public CsVisitor
     {
     public:
-        ResultVisitor(IceInternal::Output&);
+        ResultVisitor(IceInternal::Output& out);
 
         bool visitModuleStart(const ModulePtr&) final;
 
@@ -57,7 +65,7 @@ namespace Slice::Ice
     class SkeletonVisitor final : public CsVisitor
     {
     public:
-        SkeletonVisitor(IceInternal::Output& output, bool async);
+        SkeletonVisitor(IceInternal::Output& out, bool async);
 
         bool visitModuleStart(const ModulePtr&) final;
 
@@ -66,17 +74,17 @@ namespace Slice::Ice
         void visitOperation(const OperationPtr&) final;
 
     private:
-        void writeDispatch(const InterfaceDefPtr&);
+        void writeDispatch(const InterfaceDefPtr& p);
 
         std::string getDispatchParams(
-            const OperationPtr&,
-            std::string&,
-            std::vector<std::string>&,
-            std::vector<std::string>&,
-            const std::string&);
+            const OperationPtr& op,
+            std::string& retS,
+            std::vector<std::string>& params,
+            std::vector<std::string>& args,
+            const std::string& ns);
 
         [[nodiscard]] std::string skeletonPrefix() const;
-        [[nodiscard]] std::string prependSkeletonPrefix(const std::string&) const;
+        [[nodiscard]] std::string prependSkeletonPrefix(const std::string& name) const;
         const bool _async;
     };
 }

@@ -43,17 +43,28 @@ namespace Slice
         //
         // Convert an operation mode into a string.
         //
-        std::string getOperationMode(Operation::Mode);
+        std::string getOperationMode(Operation::Mode mode);
 
-        std::string getOptionalFormat(const TypePtr&);
-        std::string getFormatType(FormatType);
+        std::string getOptionalFormat(const TypePtr& type);
+        std::string getFormatType(FormatType type);
 
-        void marshal(IceInternal::Output&, const std::string&, const std::string&, const TypePtr&, bool, std::int32_t);
-        void
-        unmarshal(IceInternal::Output&, const std::string&, const std::string&, const TypePtr&, bool, std::int32_t);
+        void marshal(
+            IceInternal::Output& out,
+            const std::string& stream,
+            const std::string& v,
+            const TypePtr& type,
+            bool optional,
+            std::int32_t tag);
+        void unmarshal(
+            IceInternal::Output& out,
+            const std::string& stream,
+            const std::string& v,
+            const TypePtr& type,
+            bool optional,
+            std::int32_t tag);
 
-        void unmarshalStruct(IceInternal::Output&, const StructPtr&, const std::string&);
-        void convertStruct(IceInternal::Output&, const StructPtr&, const std::string&);
+        void unmarshalStruct(IceInternal::Output& out, const StructPtr& p, const std::string& v);
+        void convertStruct(IceInternal::Output& out, const StructPtr& p, const std::string& v);
 
         const std::string _dir;
 

@@ -368,7 +368,7 @@ Slice::Swift::swiftLinkFormatter(const string& rawLink, const ContainedPtr& sour
 }
 
 void
-Slice::Swift::validateSwiftMetadata(const UnitPtr& u)
+Slice::Swift::validateSwiftMetadata(const UnitPtr& unit)
 {
     map<string, MetadataInfo> knownMetadata;
 
@@ -426,7 +426,7 @@ Slice::Swift::validateSwiftMetadata(const UnitPtr& u)
     knownMetadata.emplace("swift:module", moduleInfo);
 
     // Pass this information off to the parser's metadata validation logic.
-    Slice::validateMetadata(u, "swift", std::move(knownMetadata));
+    Slice::validateMetadata(unit, "swift", std::move(knownMetadata));
 }
 
 void
@@ -799,7 +799,7 @@ Slice::Swift::writeMemberwiseInitializer(
                 out << ", ";
             }
 
-            out << m->mappedName() << ": " << typeToString(m->type(), p, m->optional());
+            out << m->mappedName() << ": " << typeToString(m->type(), p, m->isOptional());
             if (m->defaultValueType())
             {
                 out << " = ";
@@ -809,7 +809,7 @@ Slice::Swift::writeMemberwiseInitializer(
                     m->defaultValueType(),
                     m->defaultValue().value_or(""),
                     getSwiftModule(p->getTopLevelModule()),
-                    m->optional());
+                    m->isOptional());
             }
         }
         out << ")";
@@ -844,7 +844,7 @@ Slice::Swift::writeMembers(IceInternal::Output& out, const DataMemberList& membe
         TypePtr type = member->type();
 
         const string memberName = member->mappedName();
-        string memberType = typeToString(type, p, member->optional());
+        string memberType = typeToString(type, p, member->isOptional());
 
         // If the member type is equal to the member name, create a local type alias to avoid ambiguity.
         string alias;
@@ -866,7 +866,7 @@ Slice::Swift::writeMembers(IceInternal::Output& out, const DataMemberList& membe
                 member->defaultValueType(),
                 member->defaultValue().value_or(""),
                 swiftModule,
-                member->optional());
+                member->isOptional());
         }
         else
         {
@@ -1166,7 +1166,7 @@ Slice::Swift::operationReturnType(const OperationPtr& op)
             os << (*q)->mappedName() << ": ";
         }
 
-        os << typeToString((*q)->type(), *q, (*q)->optional());
+        os << typeToString((*q)->type(), *q, (*q)->isOptional());
     }
 
     if (returnIsTuple)
@@ -1177,7 +1177,7 @@ Slice::Swift::operationReturnType(const OperationPtr& op)
     return os.str();
 }
 
-std::string
+string
 Slice::Swift::operationReturnDeclaration(const OperationPtr& op)
 {
     ostringstream os;
@@ -1214,7 +1214,7 @@ Slice::Swift::operationReturnDeclaration(const OperationPtr& op)
 }
 
 void
-Slice::Swift::writeMarshalInParams(::IceInternal::Output& out, const OperationPtr& op)
+Slice::Swift::writeMarshalInParams(IceInternal::Output& out, const OperationPtr& op)
 {
     // Marshal parameters in this order '(required..., optional...)'.
 
@@ -1234,7 +1234,7 @@ Slice::Swift::writeMarshalInParams(::IceInternal::Output& out, const OperationPt
 }
 
 void
-Slice::Swift::writeMarshalAsyncOutParams(::IceInternal::Output& out, const OperationPtr& op)
+Slice::Swift::writeMarshalAsyncOutParams(IceInternal::Output& out, const OperationPtr& op)
 {
     // Marshal parameters in this order '(required..., optional...)'.
 
@@ -1256,7 +1256,7 @@ Slice::Swift::writeMarshalAsyncOutParams(::IceInternal::Output& out, const Opera
 }
 
 void
-Slice::Swift::writeUnmarshalOutParams(::IceInternal::Output& out, const OperationPtr& op)
+Slice::Swift::writeUnmarshalOutParams(IceInternal::Output& out, const OperationPtr& op)
 {
     // We need a separate nested function for the nonisolated(unsafe) variable when unmarshaling classes.
 
@@ -1276,7 +1276,7 @@ Slice::Swift::writeUnmarshalOutParams(::IceInternal::Output& out, const Operatio
     for (const auto& param : op->sortedReturnAndOutParameters(getEscapedParamName(op->outParameters(), "returnValue")))
     {
         const TypePtr paramType = param->type();
-        const string typeString = typeToString(paramType, op, param->optional());
+        const string typeString = typeToString(paramType, op, param->isOptional());
         const string paramName = "iceP_" + removeEscaping(param->mappedName());
         string paramString;
         if (paramType->isClassType())
@@ -1321,7 +1321,7 @@ Slice::Swift::writeUnmarshalOutParams(::IceInternal::Output& out, const Operatio
 }
 
 void
-Slice::Swift::writeUnmarshalInParams(::IceInternal::Output& out, const OperationPtr& op)
+Slice::Swift::writeUnmarshalInParams(IceInternal::Output& out, const OperationPtr& op)
 {
     // Unmarshal parameters in this order '(required..., optional...)'.
 
@@ -1329,7 +1329,7 @@ Slice::Swift::writeUnmarshalInParams(::IceInternal::Output& out, const Operation
     {
         const TypePtr paramType = param->type();
         const string paramName = "iceP_" + removeEscaping(param->mappedName());
-        const string typeString = typeToString(paramType, op, param->optional());
+        const string typeString = typeToString(paramType, op, param->isOptional());
         string paramString;
         if (paramType->isClassType())
         {
@@ -1350,7 +1350,7 @@ Slice::Swift::writeUnmarshalInParams(::IceInternal::Output& out, const Operation
 }
 
 void
-Slice::Swift::writeUnmarshalUserException(::IceInternal::Output& out, const OperationPtr& op)
+Slice::Swift::writeUnmarshalUserException(IceInternal::Output& out, const OperationPtr& op)
 {
     const string swiftModule = getSwiftModule(op->getTopLevelModule());
 
@@ -1380,7 +1380,7 @@ Slice::Swift::writeUnmarshalUserException(::IceInternal::Output& out, const Oper
 }
 
 void
-Slice::Swift::writeSwiftAttributes(::IceInternal::Output& out, const MetadataList& metadata)
+Slice::Swift::writeSwiftAttributes(IceInternal::Output& out, const MetadataList& metadata)
 {
     for (const auto& meta : metadata)
     {
