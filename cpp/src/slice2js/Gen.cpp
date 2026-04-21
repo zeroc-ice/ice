@@ -2150,8 +2150,7 @@ Slice::TypeScriptVisitor::importPrefix(const string& scopedName) const
 }
 
 string
-Slice::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable, bool forParameter, bool optional)
-    const
+Slice::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable, bool forParameter, bool optional) const
 {
     if (!type)
     {

@@ -1183,10 +1183,7 @@ Slice::SliceLoaderVisitor::visitExceptionStart(const ExceptionPtr& p)
     return false;
 }
 
-Slice::ProxyVisitor::ProxyVisitor(Output& h, Output& c, string dllExport)
-    : H(h),
-      C(c),
-      _dllExport(std::move(dllExport))
+Slice::ProxyVisitor::ProxyVisitor(Output& h, Output& c, string dllExport) : H(h), C(c), _dllExport(std::move(dllExport))
 {
 }
 
@@ -2481,11 +2478,7 @@ Slice::DataDefVisitor::printFields(const DataMemberList& fields, bool firstField
     }
 }
 
-Slice::InterfaceVisitor::InterfaceVisitor(
-    IceInternal::Output& h,
-    IceInternal::Output& c,
-    string dllExport,
-    bool async)
+Slice::InterfaceVisitor::InterfaceVisitor(IceInternal::Output& h, IceInternal::Output& c, string dllExport, bool async)
     : H(h),
       C(c),
       _dllExport(std::move(dllExport)),
