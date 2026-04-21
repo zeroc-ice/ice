@@ -7,10 +7,12 @@ might need to be aware of.
 
 - [Changes in Ice 3.8.2](#changes-in-ice-382)
   - [Slice Language Changes](#slice-language-changes)
+  - [C++ Changes](#c-changes)
+  - [C# Changes](#c-changes-1)
 - [Changes in Ice 3.8.1](#changes-in-ice-381)
   - [General Changes](#general-changes)
   - [IceSSL Changes](#icessl-changes)
-  - [C++ Changes](#c-changes)
+  - [C++ Changes](#c-changes-2)
   - [JavaScript Changes](#javascript-changes)
   - [Python Changes](#python-changes)
   - [Swift Changes](#swift-changes)
@@ -28,8 +30,8 @@ might need to be aware of.
     - [Removed IceSSL APIs](#removed-icessl-apis)
     - [Updated IceSSL Properties](#updated-icessl-properties)
     - [Removed IceSSL Properties](#removed-icessl-properties)
-  - [C++ Changes](#c-changes-1)
-  - [C# Changes](#c-changes-2)
+  - [C++ Changes](#c-changes-3)
+  - [C# Changes](#c-changes-4)
   - [Java Changes](#java-changes)
   - [JavaScript Changes](#javascript-changes-1)
   - [MATLAB Changes](#matlab-changes)
@@ -56,6 +58,16 @@ These are the changes since the Ice 3.8.1 release.
   that do not return data (no return type, out parameters, or exception specification). `OnewayOnlyException` is
   thrown if a `["oneway"]` operation is invoked using a twoway proxy. In languages where exceptions can be thrown
   synchronously or asynchronously, this exception is always thrown synchronously.
+
+### C++ Changes
+
+- Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice.
+  These now generate `` `[NAME]` `` instead of `@p [NAME]`.
+
+### C# Changes
+
+- Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice.
+  These now generate `<c>[NAME]</c>` instead of `<paramref name="[NAME]" />`.
 
 ## Changes in Ice 3.8.1
 
