@@ -2329,7 +2329,7 @@ Slice::JavaVisitor::writeParamDocComments(IceInternal::Output& out, const DataMe
     }
 }
 
-Slice::Gen::Gen(string base, string dir) : _base(std::move(base)), _dir(std::move(dir)) {}
+Slice::Gen::Gen(string dir) : _dir(std::move(dir)) {}
 
 Slice::Gen::~Gen() = default;
 
@@ -2350,10 +2350,10 @@ Slice::Gen::generate(const UnitPtr& unit)
     unit->visit(&asyncSkeletonVisitor);
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(const string& dir) : JavaVisitor(dir) {}
+Slice::TypesVisitor::TypesVisitor(const string& dir) : JavaVisitor(dir) {}
 
 bool
-Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
+Slice::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
     string prefix = getPackagePrefix(p);
     if (!prefix.empty() && p->isTopLevel()) // generate Marker class for top-level modules
@@ -2373,7 +2373,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 bool
-Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     string name = p->mappedName();
     ClassDefPtr base = p->base();
@@ -2411,7 +2411,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     Output& out = output();
     const string name = p->mappedName();
@@ -2661,7 +2661,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 }
 
 bool
-Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
+Slice::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     string name = p->mappedName();
     ExceptionPtr base = p->base();
@@ -2696,7 +2696,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
+Slice::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
     Output& out = output();
 
@@ -2936,7 +2936,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 }
 
 bool
-Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
+Slice::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     open(getUnqualified(p), p->file());
 
@@ -2957,7 +2957,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
+Slice::TypesVisitor::visitStructEnd(const StructPtr& p)
 {
     string package = getPackage(p);
 
@@ -3278,7 +3278,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
+Slice::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     const ContainedPtr contained = dynamic_pointer_cast<Contained>(p->container());
 
@@ -3557,7 +3557,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
+Slice::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     string name = p->mappedName();
     string package = getPackage(p);
@@ -3739,7 +3739,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
+Slice::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     bool mappedToCustomType = p->hasMetadata("java:type");
     if (mapsToJavaBuiltinType(p->type()) && !mappedToCustomType)
@@ -3930,7 +3930,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
+Slice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     string name = p->mappedName();
     string helper = getUnqualified(p) + "Helper";
@@ -4058,7 +4058,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
+Slice::TypesVisitor::visitConst(const ConstPtr& p)
 {
     string package = getPackage(p);
     TypePtr type = p->type();
@@ -4086,7 +4086,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 }
 
 bool
-Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     InterfaceList bases = p->bases();
     string package = getPackage(p);
@@ -4126,7 +4126,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
+Slice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     Output& out = output();
 
@@ -4318,7 +4318,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
+Slice::TypesVisitor::visitOperation(const OperationPtr& p)
 {
     Output& out = output();
 
@@ -4376,10 +4376,10 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::SkeletonVisitor::SkeletonVisitor(const string& dir, bool async) : JavaVisitor(dir), _async(async) {}
+Slice::SkeletonVisitor::SkeletonVisitor(const string& dir, bool async) : JavaVisitor(dir), _async(async) {}
 
 bool
-Slice::Gen::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     string name = prependSkeletonPrefix(p->mappedName());
     InterfaceList bases = p->bases();
@@ -4413,7 +4413,7 @@ Slice::Gen::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
+Slice::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     Output& out = output();
 
@@ -4690,7 +4690,7 @@ Slice::Gen::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::SkeletonVisitor::visitOperation(const OperationPtr& p)
+Slice::SkeletonVisitor::visitOperation(const OperationPtr& p)
 {
     //
     // Generate the operation signature for a servant.
@@ -4719,19 +4719,19 @@ Slice::Gen::SkeletonVisitor::visitOperation(const OperationPtr& p)
 }
 
 string
-Slice::Gen::SkeletonVisitor::skeletonPrefix() const
+Slice::SkeletonVisitor::skeletonPrefix() const
 {
     return _async ? "Async" : "";
 }
 
 string
-Slice::Gen::SkeletonVisitor::prependSkeletonPrefix(const string& name) const
+Slice::SkeletonVisitor::prependSkeletonPrefix(const string& name) const
 {
     return skeletonPrefix() + name;
 }
 
 string
-Slice::Gen::SkeletonVisitor::getDispatchResultType(const OperationPtr& op, const string& package, bool object) const
+Slice::SkeletonVisitor::getDispatchResultType(const OperationPtr& op, const string& package, bool object) const
 {
     if (op->hasMarshaledResult())
     {

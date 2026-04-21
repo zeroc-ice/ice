@@ -83,7 +83,7 @@ Gen::Gen(const string& base, const string& dir)
     _out << nl << "import Foundation";
 }
 
-Gen::~Gen()
+Slice::Gen::~Gen()
 {
     if (_out.isOpen())
     {
@@ -93,7 +93,7 @@ Gen::~Gen()
 }
 
 void
-Gen::generate(const UnitPtr& unit)
+Slice::Gen::generate(const UnitPtr& unit)
 {
     validateSwiftMetadata(unit);
     validateSwiftModuleMappings(unit);
@@ -113,17 +113,17 @@ Gen::generate(const UnitPtr& unit)
 }
 
 void
-Gen::printHeader()
+Slice::Gen::printHeader()
 {
     _out << "// Copyright (c) ZeroC, Inc.";
     _out << sp;
     _out << nl << "// slice2swift version " << ICE_STRING_VERSION;
 }
 
-Gen::ImportVisitor::ImportVisitor(IceInternal::Output& o) : out(o) {}
+Slice::ImportVisitor::ImportVisitor(IceInternal::Output& o) : out(o) {}
 
 bool
-Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
+Slice::ImportVisitor::visitModuleStart(const ModulePtr& p)
 {
     // Always import Ice module first if not building Ice
     if (p->isTopLevel() && _imports.empty())
@@ -139,7 +139,7 @@ Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 bool
-Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     // Add imports required for base class
     addImport(p->base(), p);
@@ -154,7 +154,7 @@ Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 bool
-Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     // Add imports required for base interfaces
     InterfaceList bases = p->bases();
@@ -178,7 +178,7 @@ Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 bool
-Gen::ImportVisitor::visitStructStart(const StructPtr& p)
+Slice::ImportVisitor::visitStructStart(const StructPtr& p)
 {
     // Add imports required for data members
     for (const auto& dataMember : p->dataMembers())
@@ -190,7 +190,7 @@ Gen::ImportVisitor::visitStructStart(const StructPtr& p)
 }
 
 bool
-Gen::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
+Slice::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     // Add imports required for base exceptions
     addImport(p->base(), p);
@@ -204,14 +204,14 @@ Gen::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
 }
 
 void
-Gen::ImportVisitor::visitSequence(const SequencePtr& seq)
+Slice::ImportVisitor::visitSequence(const SequencePtr& seq)
 {
     // Add import required for the sequence element type
     addImport(seq->type(), seq);
 }
 
 void
-Gen::ImportVisitor::visitDictionary(const DictionaryPtr& dict)
+Slice::ImportVisitor::visitDictionary(const DictionaryPtr& dict)
 {
     // Add imports required for the dictionary key and value types
     addImport(dict->keyType(), dict);
@@ -219,7 +219,7 @@ Gen::ImportVisitor::visitDictionary(const DictionaryPtr& dict)
 }
 
 void
-Gen::ImportVisitor::writeImports()
+Slice::ImportVisitor::writeImports()
 {
     for (const auto& import : _imports)
     {
@@ -228,7 +228,7 @@ Gen::ImportVisitor::writeImports()
 }
 
 void
-Gen::ImportVisitor::addImport(const SyntaxTreeBasePtr& p, const ContainedPtr& usedBy)
+Slice::ImportVisitor::addImport(const SyntaxTreeBasePtr& p, const ContainedPtr& usedBy)
 {
     // Only add imports for user defined constructs...
     auto definition = dynamic_pointer_cast<Contained>(p);
@@ -245,7 +245,7 @@ Gen::ImportVisitor::addImport(const SyntaxTreeBasePtr& p, const ContainedPtr& us
 }
 
 void
-Gen::ImportVisitor::addImport(const string& module)
+Slice::ImportVisitor::addImport(const string& module)
 {
     if (find(_imports.begin(), _imports.end(), module) == _imports.end())
     {
@@ -253,10 +253,10 @@ Gen::ImportVisitor::addImport(const string& module)
     }
 }
 
-Gen::TypesVisitor::TypesVisitor(IceInternal::Output& o) : out(o) {}
+Slice::TypesVisitor::TypesVisitor(IceInternal::Output& o) : out(o) {}
 
 bool
-Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const string prefix = getClassResolverPrefix(p->unit());
     const string swiftModule = getSwiftModule(p->getTopLevelModule());
@@ -396,13 +396,13 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr&)
+Slice::TypesVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     out << eb;
 }
 
 bool
-Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
+Slice::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
@@ -533,7 +533,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 }
 
 bool
-Gen::TypesVisitor::visitStructStart(const StructPtr& p)
+Slice::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
@@ -672,7 +672,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 }
 
 void
-Gen::TypesVisitor::visitSequence(const SequencePtr& p)
+Slice::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
@@ -828,7 +828,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 }
 
 void
-Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
+Slice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
@@ -978,7 +978,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 }
 
 void
-Gen::TypesVisitor::visitEnum(const EnumPtr& p)
+Slice::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
@@ -1074,7 +1074,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 }
 
 void
-Gen::TypesVisitor::visitConst(const ConstPtr& p)
+Slice::TypesVisitor::visitConst(const ConstPtr& p)
 {
     const TypePtr type = p->type();
     const string swiftModule = getSwiftModule(p->getTopLevelModule());
@@ -1087,7 +1087,7 @@ Gen::TypesVisitor::visitConst(const ConstPtr& p)
 }
 
 bool
-Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     InterfaceList bases = p->bases();
 
@@ -1276,13 +1276,13 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
+Slice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 {
     out << eb;
 }
 
 void
-Gen::TypesVisitor::visitOperation(const OperationPtr& op)
+Slice::TypesVisitor::visitOperation(const OperationPtr& op)
 {
     const ParameterList inParams = op->inParameters();
     const bool returnsAnyValues = op->returnsAnyValues();
@@ -1365,10 +1365,10 @@ Gen::TypesVisitor::visitOperation(const OperationPtr& op)
     out << eb;
 }
 
-Gen::ServantVisitor::ServantVisitor(IceInternal::Output& o) : out(o) {}
+Slice::ServantVisitor::ServantVisitor(IceInternal::Output& o) : out(o) {}
 
 bool
-Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string servant = getRelativeTypeString(p, swiftModule);
@@ -1405,13 +1405,13 @@ Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
+Slice::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 {
     out << eb;
 }
 
 void
-Gen::ServantVisitor::visitOperation(const OperationPtr& op)
+Slice::ServantVisitor::visitOperation(const OperationPtr& op)
 {
     const string swiftModule = getSwiftModule(op->getTopLevelModule());
 
@@ -1434,10 +1434,10 @@ Gen::ServantVisitor::visitOperation(const OperationPtr& op)
     }
 }
 
-Gen::ServantExtVisitor::ServantExtVisitor(IceInternal::Output& o) : out(o) {}
+Slice::ServantExtVisitor::ServantExtVisitor(IceInternal::Output& o) : out(o) {}
 
 bool
-Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string servant = getRelativeTypeString(p, swiftModule);
@@ -1520,13 +1520,13 @@ Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Gen::ServantExtVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
+Slice::ServantExtVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 {
     out << eb;
 }
 
 void
-Gen::ServantExtVisitor::visitOperation(const OperationPtr& op)
+Slice::ServantExtVisitor::visitOperation(const OperationPtr& op)
 {
     const string opName = op->mappedName();
     const ParameterList inParams = op->inParameters();
