@@ -65,7 +65,7 @@ namespace
     static string getOutputName(const string& fileBase, string scope)
     {
         scope = scope.substr(0, scope.size() - 2); // Remove the trailing "::"
-        for (size_t pos = scope.find("::"); pos != std::string::npos; pos = scope.find("::"))
+        for (size_t pos = scope.find("::"); pos != string::npos; pos = scope.find("::"))
         {
             assert(pos + 2 <= scope.size());
             scope.replace(pos, 2, "_");
@@ -194,7 +194,7 @@ namespace
             }
         }
 
-        if (param->optional())
+        if (param->isOptional())
         {
             os << "tag(" << param->tag() << ") ";
         }
@@ -203,7 +203,7 @@ namespace
         {
             os << param->name() << ": ";
         }
-        os << typeToString(param->type(), scope, param->optional());
+        os << typeToString(param->type(), scope, param->isOptional());
         return os.str();
     }
 
@@ -294,18 +294,18 @@ namespace
     }
 }
 
-Gen::Gen(std::string fileBase) : _fileBase(std::move(fileBase)) {}
+Gen::Gen(string fileBase) : _fileBase(std::move(fileBase)) {}
 
 void
-Gen::generate(const UnitPtr& p)
+Gen::generate(const UnitPtr& unit)
 {
-    Slice::validateCsMetadata(p);
+    Slice::validateCsMetadata(unit);
 
     OutputModulesVisitor outputModulesVisitor;
-    p->visit(&outputModulesVisitor);
+    unit->visit(&outputModulesVisitor);
 
     TypesVisitor typesVisitor(_fileBase, outputModulesVisitor.modules());
-    p->visit(&typesVisitor);
+    unit->visit(&typesVisitor);
 }
 
 bool
@@ -360,7 +360,7 @@ Gen::OutputModulesVisitor::modules() const
     return _modules;
 }
 
-Gen::TypesVisitor::TypesVisitor(std::string fileBase, const std::set<std::string>& modules)
+Gen::TypesVisitor::TypesVisitor(string fileBase, const set<string>& modules)
     : _fileBase(std::move(fileBase)),
       _modules(modules)
 {
@@ -600,11 +600,11 @@ Gen::TypesVisitor::visitDataMember(const DataMemberPtr& field)
     // TODO: should we issue a warning for this omission? See writeCsIdentifier.
 
     out << nl;
-    if (field->optional())
+    if (field->isOptional())
     {
         out << "tag(" << field->tag() << ") ";
     }
-    out << field->name() << ": " << typeToString(field->type(), scope, field->optional());
+    out << field->name() << ": " << typeToString(field->type(), scope, field->isOptional());
 }
 
 void
@@ -701,7 +701,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
+Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
     string typeString;
     if (auto builtin = dynamic_pointer_cast<Builtin>(p->type()))

@@ -13,9 +13,9 @@ namespace Slice
     class Gen
     {
     public:
-        Gen(std::string);
+        Gen(std::string fileBase);
 
-        void generate(const UnitPtr&);
+        void generate(const UnitPtr& unit);
 
     private:
         std::string _fileBase;
@@ -78,7 +78,7 @@ namespace Slice
             void visitConst(const ConstPtr&) final;
 
         private:
-            IceInternal::Output& getOutput(const ContainedPtr&);
+            IceInternal::Output& getOutput(const ContainedPtr& contained);
 
             std::string _fileBase;
             std::set<std::string> _modules;
