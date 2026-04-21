@@ -154,7 +154,7 @@ tasks.named('rewriteDryRun') {
             print("\n\n" + java.nio.file.Files.readString(reportPath))
 
             if (providers.environmentVariable("CI").isPresent()) {
-                throw RuntimeException("Applying recipes would make changes. See logs for more details.")
+                throw new RuntimeException("Applying recipes would make changes. See logs for more details.")
             }
         }
     }
