@@ -28,9 +28,6 @@ namespace Slice
 
         void generate(const UnitPtr& unit);
 
-        static TypeContext setUseWstring(const ContainedPtr& p, std::list<TypeContext>& hist, TypeContext typeCtx);
-        static TypeContext resetUseWstring(std::list<TypeContext>& hist);
-
     private:
         void writeExtraHeaders(IceInternal::Output& out);
 

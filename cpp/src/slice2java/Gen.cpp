@@ -1331,7 +1331,7 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
     const optional<DocComment>& dc)
 {
     const string name = p->mappedName();
-    const string package = getPackage(p->interface());
+    const string package = getPackage(p->parentInterface());
 
     const string resultType = getResultType(p, package, false);
 
@@ -1417,7 +1417,7 @@ Slice::JavaVisitor::writeAsyncIceInvokeMethods(
     const optional<DocComment>& dc)
 {
     const string name = p->mappedName();
-    const string package = getPackage(p->interface());
+    const string package = getPackage(p->parentInterface());
 
     const string resultType = getResultType(p, package, true);
     const string futureType = "java.util.concurrent.CompletableFuture<" + resultType + ">";
@@ -1461,7 +1461,7 @@ Slice::JavaVisitor::writeIceIHelperMethods(
     bool optionalMapping)
 {
     const string name = p->mappedName();
-    const string package = getPackage(p->interface());
+    const string package = getPackage(p->parentInterface());
 
     const string resultType = getResultType(p, package, true);
     const string futureImplType = "com.zeroc.Ice.OutgoingAsync<" + resultType + ">";
@@ -4322,7 +4322,7 @@ Slice::TypesVisitor::visitOperation(const OperationPtr& p)
 {
     Output& out = output();
 
-    const string package = getPackage(p->interface());
+    const string package = getPackage(p->parentInterface());
     const vector<string> params = getParamsProxy(p, package, false);
     const vector<string> paramsOpt = getParamsProxy(p, package, true);
     const bool sendsOptionals = p->sendsOptionals();
@@ -4672,7 +4672,7 @@ Slice::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         for (const auto& op : allOps)
         {
             out << nl << "case \"" << op->name() << "\" -> "
-                << getUnqualified(op->interface(), package, skeletonPrefix()) << "._iceD_" << op->mappedName()
+                << getUnqualified(op->parentInterface(), package, skeletonPrefix()) << "._iceD_" << op->mappedName()
                 << "(this, request);";
         }
         for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
@@ -4735,7 +4735,7 @@ Slice::SkeletonVisitor::getDispatchResultType(const OperationPtr& op, const stri
 {
     if (op->hasMarshaledResult())
     {
-        const InterfaceDefPtr interface = op->interface();
+        const InterfaceDefPtr interface = op->parentInterface();
         assert(interface);
         string abs = getUnqualified(interface, package, skeletonPrefix());
         string name = op->mappedName();

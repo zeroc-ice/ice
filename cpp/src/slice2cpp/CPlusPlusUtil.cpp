@@ -17,6 +17,8 @@ using namespace IceInternal;
 
 namespace
 {
+    using namespace Slice::Cpp;
+
     bool isTriviallyCopyable(const StructPtr& st)
     {
         assert(st);
@@ -334,10 +336,10 @@ namespace
     }
 }
 
-string Slice::paramPrefix = "iceP_"; // NOLINT(cert-err58-cpp)
+string Slice::Cpp::paramPrefix = "iceP_"; // NOLINT(cert-err58-cpp)
 
 char
-Slice::ToIfdef::operator()(char c)
+Slice::Cpp::ToIfdef::operator()(char c)
 {
     if (!isalnum(static_cast<unsigned char>(c)))
     {
@@ -350,7 +352,7 @@ Slice::ToIfdef::operator()(char c)
 }
 
 void
-Slice::printHeader(Output& out)
+Slice::Cpp::printHeader(Output& out)
 {
     out << "// Copyright (c) ZeroC, Inc.";
     out << sp;
@@ -358,7 +360,7 @@ Slice::printHeader(Output& out)
 }
 
 void
-Slice::printVersionCheck(Output& out)
+Slice::Cpp::printVersionCheck(Output& out)
 {
     out << "\n";
     out << "\n#ifndef ICE_DISABLE_VERSION";
@@ -389,7 +391,7 @@ Slice::printVersionCheck(Output& out)
 }
 
 void
-Slice::printDllExportStuff(Output& out, const string& dllExport)
+Slice::Cpp::printDllExportStuff(Output& out, const string& dllExport)
 {
     if (dllExport.size() && dllExport != "ICE_API")
     {
@@ -404,8 +406,34 @@ Slice::printDllExportStuff(Output& out, const string& dllExport)
     }
 }
 
+TypeContext
+Slice::Cpp::setUseWstring(const ContainedPtr& p, list<TypeContext>& hist, TypeContext typeCtx)
+{
+    hist.push_back(typeCtx);
+    if (auto argument = p->getMetadataArgs("cpp:type"))
+    {
+        if (argument == "wstring")
+        {
+            typeCtx = TypeContext::UseWstring;
+        }
+        else if (argument == "string")
+        {
+            typeCtx = TypeContext::None;
+        }
+    }
+    return typeCtx;
+}
+
+TypeContext
+Slice::Cpp::resetUseWstring(list<TypeContext>& hist)
+{
+    TypeContext use = hist.back();
+    hist.pop_back();
+    return use;
+}
+
 bool
-Slice::isMovable(const TypePtr& type)
+Slice::Cpp::isMovable(const TypePtr& type)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
@@ -434,7 +462,7 @@ Slice::isMovable(const TypePtr& type)
 }
 
 string
-Slice::getUnqualified(const string& type, const string& scope)
+Slice::Cpp::getUnqualified(const string& type, const string& scope)
 {
     if (type.find("::") != string::npos)
     {
@@ -457,7 +485,7 @@ Slice::getUnqualified(const string& type, const string& scope)
 }
 
 string
-Slice::typeToString(
+Slice::Cpp::typeToString(
     const TypePtr& type,
     bool optional,
     const string& scope,
@@ -544,7 +572,7 @@ Slice::typeToString(
 }
 
 string
-Slice::inputTypeToString(
+Slice::Cpp::inputTypeToString(
     const TypePtr& type,
     bool optional,
     const string& scope,
@@ -568,7 +596,7 @@ Slice::inputTypeToString(
 }
 
 string
-Slice::outputTypeToString(
+Slice::Cpp::outputTypeToString(
     const TypePtr& type,
     bool optional,
     const string& scope,
@@ -582,7 +610,7 @@ Slice::outputTypeToString(
 }
 
 string
-Slice::operationModeToString(Operation::Mode mode)
+Slice::Cpp::operationModeToString(Operation::Mode mode)
 {
     switch (mode)
     {
@@ -605,7 +633,7 @@ Slice::operationModeToString(Operation::Mode mode)
 }
 
 string
-Slice::opFormatTypeToString(const OperationPtr& op)
+Slice::Cpp::opFormatTypeToString(const OperationPtr& op)
 {
     optional<FormatType> opFormat = op->format();
     if (opFormat)
@@ -629,19 +657,19 @@ Slice::opFormatTypeToString(const OperationPtr& op)
 }
 
 void
-Slice::writeMarshalCode(Output& out, const ParameterList& params, const OperationPtr& op)
+Slice::Cpp::writeMarshalCode(Output& out, const ParameterList& params, const OperationPtr& op)
 {
     writeMarshalUnmarshalParams(out, params, op, true);
 }
 
 void
-Slice::writeUnmarshalCode(Output& out, const ParameterList& params, const OperationPtr& op)
+Slice::Cpp::writeUnmarshalCode(Output& out, const ParameterList& params, const OperationPtr& op)
 {
     writeMarshalUnmarshalParams(out, params, op, false);
 }
 
 void
-Slice::writeAllocateCode(
+Slice::Cpp::writeAllocateCode(
     Output& out,
     const ParameterList& params,
     const OperationPtr& op,
@@ -710,7 +738,7 @@ writeMarshalUnmarshalAllInHolder(
 }
 
 void
-Slice::writeStreamReader(Output& out, const StructPtr& p, const DataMemberList& dataMembers)
+Slice::Cpp::writeStreamReader(Output& out, const StructPtr& p, const DataMemberList& dataMembers)
 {
     string fullName = p->mappedScoped("::", true);
 
@@ -726,7 +754,7 @@ Slice::writeStreamReader(Output& out, const StructPtr& p, const DataMemberList& 
 }
 
 void
-Slice::readDataMembers(Output& out, const DataMemberList& dataMembers)
+Slice::Cpp::readDataMembers(Output& out, const DataMemberList& dataMembers)
 {
     assert(dataMembers.size() > 0);
 
@@ -738,7 +766,7 @@ Slice::readDataMembers(Output& out, const DataMemberList& dataMembers)
 }
 
 void
-Slice::writeDataMembers(Output& out, const DataMemberList& dataMembers)
+Slice::Cpp::writeDataMembers(Output& out, const DataMemberList& dataMembers)
 {
     assert(dataMembers.size() > 0);
 
@@ -750,7 +778,7 @@ Slice::writeDataMembers(Output& out, const DataMemberList& dataMembers)
 }
 
 void
-Slice::writeIceTuple(IceInternal::Output& out, const DataMemberList& dataMembers, TypeContext typeCtx)
+Slice::Cpp::writeIceTuple(IceInternal::Output& out, const DataMemberList& dataMembers, TypeContext typeCtx)
 {
     // Use an empty scope to get full qualified names from calls to typeToString.
     const string scope = "";
@@ -776,7 +804,7 @@ Slice::writeIceTuple(IceInternal::Output& out, const DataMemberList& dataMembers
 }
 
 string
-Slice::findMetadata(const MetadataList& metadata, TypeContext typeCtx)
+Slice::Cpp::findMetadata(const MetadataList& metadata, TypeContext typeCtx)
 {
     for (const auto& meta : metadata)
     {
@@ -810,7 +838,7 @@ Slice::findMetadata(const MetadataList& metadata, TypeContext typeCtx)
 }
 
 bool
-Slice::inWstringModule(const SequencePtr& seq)
+Slice::Cpp::inWstringModule(const SequencePtr& seq)
 {
     ContainerPtr cont = seq->container();
     while (cont)
@@ -837,7 +865,7 @@ Slice::inWstringModule(const SequencePtr& seq)
 }
 
 string
-Slice::cppLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
+Slice::Cpp::cppLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
 {
     if (target)
     {
@@ -874,7 +902,7 @@ Slice::cppLinkFormatter(const string& rawLink, const ContainedPtr& source, const
             // We opt for the syntax where operation names are qualified by what type they're defined on.
             // See: https://www.doxygen.nl/manual/autolink.html#linkfunc.
 
-            InterfaceDefPtr parent = operationTarget->interface();
+            InterfaceDefPtr parent = operationTarget->parentInterface();
             return getUnqualified(parent->mappedScoped("::", true) + "Prx", source->mappedScope("::", true)) +
                    "::" + operationTarget->mappedName();
         }
@@ -894,7 +922,7 @@ Slice::cppLinkFormatter(const string& rawLink, const ContainedPtr& source, const
 }
 
 void
-Slice::validateCppMetadata(const UnitPtr& unit)
+Slice::Cpp::validateCppMetadata(const UnitPtr& unit)
 {
     map<string, MetadataInfo> knownMetadata;
 

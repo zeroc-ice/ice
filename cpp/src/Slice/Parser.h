@@ -700,7 +700,7 @@ namespace Slice
             std::int32_t returnTag,
             Mode mode);
 
-        [[nodiscard]] InterfaceDefPtr interface() const;
+        [[nodiscard]] InterfaceDefPtr parentInterface() const;
         [[nodiscard]] TypePtr returnType() const;
         [[nodiscard]] bool returnIsOptional() const;
         [[nodiscard]] std::int32_t returnTag() const;

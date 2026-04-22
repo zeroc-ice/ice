@@ -111,6 +111,58 @@ namespace
         }
         return true;
     }
+
+    /// Checks an identifier for illegal syntax and reports any errors that are present.
+    bool reportIllegalSuffixOrUnderscore(const string& identifier)
+    {
+        // check whether the identifier is scoped
+        size_t scopeIndex = identifier.rfind("::");
+        bool isScoped = scopeIndex != string::npos;
+        string name;
+        if (isScoped)
+        {
+            name = identifier.substr(scopeIndex + 2); // Only check the unscoped identifier for syntax
+        }
+        else
+        {
+            name = identifier;
+        }
+
+        assert(!name.empty());
+        bool isValid = true;
+
+        // check the identifier for reserved suffixes
+        static const string suffixBlacklist[] = {"Helper", "Holder", "Prx", "Ptr"};
+        for (const auto& i : suffixBlacklist)
+        {
+            if (name.find(i, name.size() - i.size()) != string::npos)
+            {
+                currentUnit->error("illegal identifier '" + name + "': '" + i + "' suffix is reserved");
+                isValid = false;
+                break;
+            }
+        }
+
+        // check the identifier for illegal underscores
+        size_t index = name.find('_');
+        if (index == 0)
+        {
+            currentUnit->error("illegal leading underscore in identifier '" + name + "'");
+            isValid = false;
+        }
+        else if (name.rfind('_') == (name.size() - 1))
+        {
+            currentUnit->error("illegal trailing underscore in identifier '" + name + "'");
+            isValid = false;
+        }
+        else if (name.find("__") != string::npos)
+        {
+            currentUnit->error("illegal double underscore in identifier '" + name + "'");
+            isValid = false;
+        }
+
+        return isValid;
+    }
 }
 
 namespace Slice
@@ -1595,9 +1647,9 @@ Slice::Container::lookupInterfaceDef(const string& identifier, bool emitErrors)
     TypePtr resolvedType = lookupType(identifier);
     if (resolvedType)
     {
-        if (auto interface = dynamic_pointer_cast<InterfaceDecl>(resolvedType))
+        if (auto interfaceDecl = dynamic_pointer_cast<InterfaceDecl>(resolvedType))
         {
-            if (InterfaceDefPtr def = interface->definition())
+            if (InterfaceDefPtr def = interfaceDecl->definition())
             {
                 return def;
             }
@@ -2923,7 +2975,7 @@ Slice::InterfaceDef::InterfaceDef(const ContainerPtr& container, const string& n
 // ----------------------------------------------------------------------
 
 InterfaceDefPtr
-Slice::Operation::interface() const
+Slice::Operation::parentInterface() const
 {
     return dynamic_pointer_cast<InterfaceDef>(_container);
 }
@@ -2955,7 +3007,7 @@ Slice::Operation::mode() const
 bool
 Slice::Operation::hasMarshaledResult() const
 {
-    InterfaceDefPtr intf = interface();
+    InterfaceDefPtr intf = parentInterface();
     assert(intf);
     if (intf->hasMetadata("marshaled-result") || hasMetadata("marshaled-result"))
     {

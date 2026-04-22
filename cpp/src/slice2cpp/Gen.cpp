@@ -13,6 +13,7 @@
 
 using namespace std;
 using namespace Slice;
+using namespace Slice::Cpp;
 using namespace IceInternal;
 
 namespace
@@ -552,7 +553,7 @@ Slice::Gen::Gen(
     const vector<string>& includePaths,
     string dllExport,
     string dir)
-    : _base(std::move(base)),
+    : _base(Slice::baseName(base)),
       _headerExtension(std::move(headerExtension)),
       _sourceExtension(std::move(sourceExtension)),
       _extraHeaders(extraHeaders),
@@ -564,12 +565,6 @@ Slice::Gen::Gen(
     for (auto& includePath : _includePaths)
     {
         includePath = fullPath(includePath);
-    }
-
-    string::size_type pos = _base.find_last_of("/\\");
-    if (pos != string::npos)
-    {
-        _base.erase(0, pos + 1);
     }
 }
 
@@ -817,32 +812,6 @@ Slice::Gen::writeExtraHeaders(IceInternal::Output& out)
     }
 }
 
-TypeContext
-Slice::Gen::setUseWstring(const ContainedPtr& p, list<TypeContext>& hist, TypeContext typeCtx)
-{
-    hist.push_back(typeCtx);
-    if (auto argument = p->getMetadataArgs("cpp:type"))
-    {
-        if (argument == "wstring")
-        {
-            typeCtx = TypeContext::UseWstring;
-        }
-        else if (argument == "string")
-        {
-            typeCtx = TypeContext::None;
-        }
-    }
-    return typeCtx;
-}
-
-TypeContext
-Slice::Gen::resetUseWstring(list<TypeContext>& hist)
-{
-    TypeContext use = hist.back();
-    hist.pop_back();
-    return use;
-}
-
 string
 Slice::Gen::getHeaderExt(string_view file, const UnitPtr& unit)
 {
@@ -869,7 +838,7 @@ Slice::ForwardDeclVisitor::ForwardDeclVisitor(Output& h, Output& c, string dllEx
 bool
 Slice::ForwardDeclVisitor::visitModuleStart(const ModulePtr& p)
 {
-    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
     H << sp;
     writeDocSummary(H, p);
     H << nl << "namespace " << p->mappedName() << nl << '{';
@@ -882,7 +851,7 @@ Slice::ForwardDeclVisitor::visitModuleEnd(const ModulePtr&)
 {
     H.dec();
     H << nl << '}';
-    _useWstring = Gen::resetUseWstring(_useWstringHist);
+    _useWstring = resetUseWstring(_useWstringHist);
 }
 
 void
@@ -1195,7 +1164,7 @@ Slice::ProxyVisitor::visitModuleStart(const ModulePtr& p)
         return false;
     }
 
-    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     H << sp << nl << "namespace " << p->mappedName() << nl << '{';
     H.inc();
@@ -1208,7 +1177,7 @@ Slice::ProxyVisitor::visitModuleEnd(const ModulePtr&)
     H.dec();
     H << nl << '}';
 
-    _useWstring = Gen::resetUseWstring(_useWstringHist);
+    _useWstring = resetUseWstring(_useWstringHist);
 }
 
 bool
@@ -1223,7 +1192,7 @@ Slice::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         H << sp;
     }
 
-    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     const string scope = p->mappedScope("::", true);
     const string prx = p->mappedName() + "Prx";
@@ -1369,13 +1338,13 @@ Slice::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     H << eb << ';';
 
-    _useWstring = Gen::resetUseWstring(_useWstringHist);
+    _useWstring = resetUseWstring(_useWstringHist);
 }
 
 void
 Slice::ProxyVisitor::visitOperation(const OperationPtr& p)
 {
-    const InterfaceDefPtr container = p->interface();
+    const InterfaceDefPtr container = p->parentInterface();
     const string opName = p->mappedName();
     const string interfaceScope = container->mappedScope("::", true);
     const string interfaceName = container->mappedName();
@@ -1635,7 +1604,7 @@ Slice::ProxyVisitor::emitOperationImpl(
     const string& prefix,
     const vector<string>& outgoingAsyncParams)
 {
-    const InterfaceDefPtr container = p->interface();
+    const InterfaceDefPtr container = p->parentInterface();
     const string opName = p->mappedName();
     const string opImplName = prefix + opName;
     const string interfaceScope = container->mappedScope("::", true);
@@ -1771,7 +1740,7 @@ Slice::DataDefVisitor::visitModuleStart(const ModulePtr& p)
         return false;
     }
 
-    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
     H << sp << nl << "namespace " << p->mappedName() << nl << '{';
     H.inc();
     return true;
@@ -1797,7 +1766,7 @@ Slice::DataDefVisitor::visitModuleEnd(const ModulePtr& p)
 
     H.dec();
     H << nl << '}';
-    _useWstring = Gen::resetUseWstring(_useWstringHist);
+    _useWstring = resetUseWstring(_useWstringHist);
 }
 
 bool
@@ -1812,7 +1781,7 @@ Slice::DataDefVisitor::visitStructStart(const StructPtr& p)
         H << sp;
     }
 
-    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     writeDocSummary(H, p, {.includeHeaderFile = true, .generatedType = "struct"});
     H << nl << "struct " << getDeprecatedAttribute(p) << p->mappedName();
@@ -1866,7 +1835,7 @@ Slice::DataDefVisitor::visitStructEnd(const StructPtr& p)
         C << eb;
     }
 
-    _useWstring = Gen::resetUseWstring(_useWstringHist);
+    _useWstring = resetUseWstring(_useWstringHist);
 }
 
 void
@@ -1892,7 +1861,7 @@ Slice::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << sp;
     }
 
-    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     const string name = p->mappedName();
     const string scope = p->mappedScope("::", true);
@@ -2133,7 +2102,7 @@ Slice::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     H << eb << ';';
 
-    _useWstring = Gen::resetUseWstring(_useWstringHist);
+    _useWstring = resetUseWstring(_useWstringHist);
 }
 
 bool
@@ -2148,7 +2117,7 @@ Slice::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
         H << sp;
     }
 
-    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     const string name = p->mappedName();
     const string scope = p->mappedScope("::", true);
@@ -2310,7 +2279,7 @@ Slice::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     H << eb << ';';
 
-    _useWstring = Gen::resetUseWstring(_useWstringHist);
+    _useWstring = resetUseWstring(_useWstringHist);
 }
 
 bool
@@ -2494,7 +2463,7 @@ Slice::InterfaceVisitor::visitModuleStart(const ModulePtr& p)
         return false;
     }
 
-    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
     H << sp << nl << "namespace " << p->mappedName() << nl << '{';
     H.inc();
     return true;
@@ -2506,7 +2475,7 @@ Slice::InterfaceVisitor::visitModuleEnd(const ModulePtr&)
     H.dec();
     H << nl << '}';
 
-    _useWstring = Gen::resetUseWstring(_useWstringHist);
+    _useWstring = resetUseWstring(_useWstringHist);
 }
 
 bool
@@ -2521,7 +2490,7 @@ Slice::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         H << sp;
     }
 
-    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
     const string name = prependSkeletonPrefix(p->mappedName());
     const string scope = p->mappedScope("::", true);
     const string scoped = p->mappedScope("::") + name;
@@ -2683,14 +2652,14 @@ Slice::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << "/// A shared pointer to " << getArticleFor(name) << ' ' << name << ".";
     H << nl << "using " << name << "Ptr = std::shared_ptr<" << name << ">;";
 
-    _useWstring = Gen::resetUseWstring(_useWstringHist);
+    _useWstring = resetUseWstring(_useWstringHist);
 }
 
 void
 Slice::InterfaceVisitor::visitOperation(const OperationPtr& p)
 {
     const string name = p->mappedName();
-    const InterfaceDefPtr container = p->interface();
+    const InterfaceDefPtr container = p->parentInterface();
     const string interfaceScope = container->mappedScope("::", true);
 
     // The name of the enclosing class + "::".

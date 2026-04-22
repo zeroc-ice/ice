@@ -508,58 +508,6 @@ Slice::pluralKindOf(const ContainedPtr& p)
 }
 
 bool
-Slice::reportIllegalSuffixOrUnderscore(const string& identifier)
-{
-    // check whether the identifier is scoped
-    size_t scopeIndex = identifier.rfind("::");
-    bool isScoped = scopeIndex != string::npos;
-    string name;
-    if (isScoped)
-    {
-        name = identifier.substr(scopeIndex + 2); // Only check the unscoped identifier for syntax
-    }
-    else
-    {
-        name = identifier;
-    }
-
-    assert(!name.empty());
-    bool isValid = true;
-
-    // check the identifier for reserved suffixes
-    static const string suffixBlacklist[] = {"Helper", "Holder", "Prx", "Ptr"};
-    for (const auto& i : suffixBlacklist)
-    {
-        if (name.find(i, name.size() - i.size()) != string::npos)
-        {
-            currentUnit->error("illegal identifier '" + name + "': '" + i + "' suffix is reserved");
-            isValid = false;
-            break;
-        }
-    }
-
-    // check the identifier for illegal underscores
-    size_t index = name.find('_');
-    if (index == 0)
-    {
-        currentUnit->error("illegal leading underscore in identifier '" + name + "'");
-        isValid = false;
-    }
-    else if (name.rfind('_') == (name.size() - 1))
-    {
-        currentUnit->error("illegal trailing underscore in identifier '" + name + "'");
-        isValid = false;
-    }
-    else if (name.find("__") != string::npos)
-    {
-        currentUnit->error("illegal double underscore in identifier '" + name + "'");
-        isValid = false;
-    }
-
-    return isValid;
-}
-
-bool
 Slice::isProxyType(const TypePtr& type)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
