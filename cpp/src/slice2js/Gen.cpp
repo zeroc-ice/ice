@@ -757,44 +757,44 @@ Slice::Gen::generate(const UnitPtr& unit)
     }
 }
 
-Slice::Gen::ImportVisitor::ImportVisitor(IceInternal::Output& out) : JsVisitor(out) {}
+Slice::ImportVisitor::ImportVisitor(IceInternal::Output& out) : JsVisitor(out) {}
 
 bool
-Slice::Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr&)
+Slice::ImportVisitor::visitClassDefStart(const ClassDefPtr&)
 {
     _seenClass = true;
     return true;
 }
 
 bool
-Slice::Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr&)
+Slice::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr&)
 {
     _seenInterface = true;
     return true;
 }
 
 bool
-Slice::Gen::ImportVisitor::visitStructStart(const StructPtr&)
+Slice::ImportVisitor::visitStructStart(const StructPtr&)
 {
     _seenStruct = true;
     return false;
 }
 
 void
-Slice::Gen::ImportVisitor::visitOperation(const OperationPtr&)
+Slice::ImportVisitor::visitOperation(const OperationPtr&)
 {
     _seenOperation = true;
 }
 
 bool
-Slice::Gen::ImportVisitor::visitExceptionStart(const ExceptionPtr&)
+Slice::ImportVisitor::visitExceptionStart(const ExceptionPtr&)
 {
     _seenUserException = true;
     return false;
 }
 
 void
-Slice::Gen::ImportVisitor::visitSequence(const SequencePtr& seq)
+Slice::ImportVisitor::visitSequence(const SequencePtr& seq)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
     if (builtin)
@@ -815,7 +815,7 @@ Slice::Gen::ImportVisitor::visitSequence(const SequencePtr& seq)
 }
 
 void
-Slice::Gen::ImportVisitor::visitDictionary(const DictionaryPtr& dict)
+Slice::ImportVisitor::visitDictionary(const DictionaryPtr& dict)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(dict->valueType());
     if (builtin)
@@ -836,13 +836,13 @@ Slice::Gen::ImportVisitor::visitDictionary(const DictionaryPtr& dict)
 }
 
 void
-Slice::Gen::ImportVisitor::visitEnum(const EnumPtr&)
+Slice::ImportVisitor::visitEnum(const EnumPtr&)
 {
     _seenEnum = true;
 }
 
 set<string>
-Slice::Gen::ImportVisitor::writeImports(
+Slice::ImportVisitor::writeImports(
     const UnitPtr& unit,
     const map<string, map<string, set<string>>>& nestedModulesByTopLevel)
 {
@@ -1128,14 +1128,14 @@ Slice::Gen::ImportVisitor::writeImports(
     return importedModules;
 }
 
-Slice::Gen::ExportsVisitor::ExportsVisitor(IceInternal::Output& out, set<string> importedModules)
+Slice::ExportsVisitor::ExportsVisitor(IceInternal::Output& out, set<string> importedModules)
     : JsVisitor(out),
       _importedModules(std::move(importedModules))
 {
 }
 
 bool
-Slice::Gen::ExportsVisitor::visitModuleStart(const ModulePtr& p)
+Slice::ExportsVisitor::visitModuleStart(const ModulePtr& p)
 {
     //
     // For a top-level module we write the following:
@@ -1190,18 +1190,18 @@ Slice::Gen::ExportsVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 set<string>
-Slice::Gen::ExportsVisitor::exportedModules() const
+Slice::ExportsVisitor::exportedModules() const
 {
     return _exportedModules;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out, string jsModule) : JsVisitor(out)
+Slice::TypesVisitor::TypesVisitor(IceInternal::Output& out, string jsModule) : JsVisitor(out)
 {
     _jsModule = std::move(jsModule);
 }
 
 bool
-Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const string scopedName = p->mappedScoped(".");
     ClassDefPtr base = p->base();
@@ -1295,7 +1295,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 bool
-Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     const string serviceType = p->mappedScoped(".");
     const string proxyType = serviceType + "Prx";
@@ -1597,7 +1597,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
+Slice::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     // Stream helpers for sequences are lazy initialized as the required types might not be available until later.
     const string helperName = p->mappedScoped(".") + "Helper";
@@ -1617,7 +1617,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 }
 
 bool
-Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
+Slice::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     const string scopedName = p->mappedScoped(".");
     const ExceptionPtr base = p->base();
@@ -1727,7 +1727,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 }
 
 bool
-Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
+Slice::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     const string scopedName = p->mappedScoped(".");
     const DataMemberList dataMembers = p->dataMembers();
@@ -1782,7 +1782,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
+Slice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     const TypePtr keyType = p->keyType();
     const TypePtr valueType = p->valueType();
@@ -1816,7 +1816,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
+Slice::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     const string scopedName = p->mappedScoped(".");
     _out << sp;
@@ -1851,7 +1851,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
+Slice::TypesVisitor::visitConst(const ConstPtr& p)
 {
     string scope = p->mappedScope(".");
     scope.pop_back(); // Remove the trailing '.' from the scope.
@@ -1867,7 +1867,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 }
 
 string
-Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
+Slice::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
 {
     assert(type);
 
@@ -1931,7 +1931,7 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     return "???";
 }
 
-Slice::Gen::TypeScriptImportVisitor::TypeScriptImportVisitor(
+Slice::TypeScriptImportVisitor::TypeScriptImportVisitor(
     IceInternal::Output& out,
     map<string, set<string>> importedTypesByInclude)
     : JsVisitor(out),
@@ -1940,7 +1940,7 @@ Slice::Gen::TypeScriptImportVisitor::TypeScriptImportVisitor(
 }
 
 void
-Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
+Slice::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
 {
     const string definitionId = definition->mappedScoped(".");
 
@@ -1982,7 +1982,7 @@ Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
 }
 
 bool
-Slice::Gen::TypeScriptImportVisitor::visitUnitStart(const UnitPtr& unit)
+Slice::TypeScriptImportVisitor::visitUnitStart(const UnitPtr& unit)
 {
     _module = getJavaScriptModule(unit->findDefinitionContext(unit->topLevelFile()));
     _filename = unit->topLevelFile();
@@ -2010,7 +2010,7 @@ Slice::Gen::TypeScriptImportVisitor::visitUnitStart(const UnitPtr& unit)
 }
 
 bool
-Slice::Gen::TypeScriptImportVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::TypeScriptImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     // Add imports required for the base class type.
     ClassDefPtr base = p->base();
@@ -2032,7 +2032,7 @@ Slice::Gen::TypeScriptImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 bool
-Slice::Gen::TypeScriptImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::TypeScriptImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     // Add imports required for base interfaces types.
     for (const auto& base : p->bases())
@@ -2062,7 +2062,7 @@ Slice::Gen::TypeScriptImportVisitor::visitInterfaceDefStart(const InterfaceDefPt
 }
 
 bool
-Slice::Gen::TypeScriptImportVisitor::visitStructStart(const StructPtr& p)
+Slice::TypeScriptImportVisitor::visitStructStart(const StructPtr& p)
 {
     // Add imports required for data member types.
     for (const auto& dataMember : p->dataMembers())
@@ -2077,7 +2077,7 @@ Slice::Gen::TypeScriptImportVisitor::visitStructStart(const StructPtr& p)
 }
 
 bool
-Slice::Gen::TypeScriptImportVisitor::visitExceptionStart(const ExceptionPtr& p)
+Slice::TypeScriptImportVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     // Add imports required for base exception types.
     if (ExceptionPtr base = p->base())
@@ -2097,7 +2097,7 @@ Slice::Gen::TypeScriptImportVisitor::visitExceptionStart(const ExceptionPtr& p)
 }
 
 void
-Slice::Gen::TypeScriptImportVisitor::visitSequence(const SequencePtr& seq)
+Slice::TypeScriptImportVisitor::visitSequence(const SequencePtr& seq)
 {
     // Add import required for the sequence element type.
     auto type = dynamic_pointer_cast<Contained>(seq->type());
@@ -2108,7 +2108,7 @@ Slice::Gen::TypeScriptImportVisitor::visitSequence(const SequencePtr& seq)
 }
 
 void
-Slice::Gen::TypeScriptImportVisitor::visitDictionary(const DictionaryPtr& dict)
+Slice::TypeScriptImportVisitor::visitDictionary(const DictionaryPtr& dict)
 {
     //
     // Add imports required for the dictionary key and value types
@@ -2127,7 +2127,7 @@ Slice::Gen::TypeScriptImportVisitor::visitDictionary(const DictionaryPtr& dict)
 }
 
 map<string, string>
-Slice::Gen::TypeScriptImportVisitor::writeImports()
+Slice::TypeScriptImportVisitor::writeImports()
 {
     _out << sp;
     for (const auto& moduleName : _importedModules)
@@ -2139,7 +2139,7 @@ Slice::Gen::TypeScriptImportVisitor::writeImports()
 }
 
 string
-Slice::Gen::TypeScriptVisitor::importPrefix(const string& scopedName) const
+Slice::TypeScriptVisitor::importPrefix(const string& scopedName) const
 {
     const auto it = _importedTypes.find(scopedName);
     if (it != _importedTypes.end())
@@ -2150,8 +2150,7 @@ Slice::Gen::TypeScriptVisitor::importPrefix(const string& scopedName) const
 }
 
 string
-Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable, bool forParameter, bool optional)
-    const
+Slice::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable, bool forParameter, bool optional) const
 {
     if (!type)
     {
@@ -2284,7 +2283,7 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
     return t;
 }
 
-Slice::Gen::TypeScriptVisitor::TypeScriptVisitor(
+Slice::TypeScriptVisitor::TypeScriptVisitor(
     IceInternal::Output& out,
     map<string, string> importedTypes,
     map<string, set<string>> importedTypesByInclude)
@@ -2295,7 +2294,7 @@ Slice::Gen::TypeScriptVisitor::TypeScriptVisitor(
 }
 
 bool
-Slice::Gen::TypeScriptVisitor::visitUnitStart(const UnitPtr& unit)
+Slice::TypeScriptVisitor::visitUnitStart(const UnitPtr& unit)
 {
     _module = getJavaScriptModule(unit->findDefinitionContext(unit->topLevelFile()));
     _iceImportPrefix = _module == "@zeroc/ice" ? "" : "__module__zeroc_ice.";
@@ -2308,7 +2307,7 @@ Slice::Gen::TypeScriptVisitor::visitUnitStart(const UnitPtr& unit)
 }
 
 void
-Slice::Gen::TypeScriptVisitor::visitUnitEnd(const UnitPtr&)
+Slice::TypeScriptVisitor::visitUnitEnd(const UnitPtr&)
 {
     set<string> globalModules;
     for (const auto& [key, value] : _importedTypes)
@@ -2335,7 +2334,7 @@ Slice::Gen::TypeScriptVisitor::visitUnitEnd(const UnitPtr&)
 }
 
 bool
-Slice::Gen::TypeScriptVisitor::visitModuleStart(const ModulePtr& p)
+Slice::TypeScriptVisitor::visitModuleStart(const ModulePtr& p)
 {
     // Track visited modules for nested module export detection.
     _visitedModules.insert(p->mappedScoped("."));
@@ -2365,7 +2364,7 @@ Slice::Gen::TypeScriptVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::TypeScriptVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::TypeScriptVisitor::visitModuleEnd(const ModulePtr& p)
 {
     // Generate export imports for types in nested modules that don't exist in the current file.
     writeNestedModuleExports(p->mappedScoped("."));
@@ -2374,7 +2373,7 @@ Slice::Gen::TypeScriptVisitor::visitModuleEnd(const ModulePtr& p)
 }
 
 bool
-Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList allDataMembers = p->allDataMembers();
@@ -2449,7 +2448,7 @@ namespace
 }
 
 void
-Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr& op, bool forDispatch)
+Slice::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr& op, bool forDispatch)
 {
     out << nl << "/**";
 
@@ -2542,7 +2541,7 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr
 }
 
 void
-Slice::Gen::TypeScriptVisitor::writeNestedModuleExports(const string& currentModuleScope)
+Slice::TypeScriptVisitor::writeNestedModuleExports(const string& currentModuleScope)
 {
     // Export types from included files that are in nested modules not present in this file.
     // Re-exported types for modules that are visible in this file are handled by TypeScriptVisitor::visitModuleStart.
@@ -2648,7 +2647,7 @@ Slice::Gen::TypeScriptVisitor::writeNestedModuleExports(const string& currentMod
 }
 
 bool
-Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     //
     // Define servant and proxy types.
@@ -2884,7 +2883,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 bool
-Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
+Slice::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList allDataMembers = p->allDataMembers();
@@ -2939,7 +2938,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
 }
 
 bool
-Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
+Slice::TypeScriptVisitor::visitStructStart(const StructPtr& p)
 {
     const string name = p->mappedName();
     const DataMemberList dataMembers = p->dataMembers();
@@ -3014,7 +3013,7 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
 }
 
 void
-Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
+Slice::TypeScriptVisitor::visitSequence(const SequencePtr& p)
 {
     const string name = p->mappedName();
 
@@ -3050,7 +3049,7 @@ Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
 }
 
 void
-Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
+Slice::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
 {
     const string name = p->mappedName();
     _out << sp;
@@ -3092,7 +3091,7 @@ Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
 }
 
 void
-Slice::Gen::TypeScriptVisitor::visitEnum(const EnumPtr& p)
+Slice::TypeScriptVisitor::visitEnum(const EnumPtr& p)
 {
     const string name = p->mappedName();
 
@@ -3118,7 +3117,7 @@ Slice::Gen::TypeScriptVisitor::visitEnum(const EnumPtr& p)
 }
 
 void
-Slice::Gen::TypeScriptVisitor::visitConst(const ConstPtr& p)
+Slice::TypeScriptVisitor::visitConst(const ConstPtr& p)
 {
     _out << sp;
     writeDocSummary(p, {.generatedType = "constant"});

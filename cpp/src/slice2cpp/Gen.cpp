@@ -859,7 +859,7 @@ Slice::Gen::getSourceExt(string_view file, const UnitPtr& unit)
     return dc->getMetadataArgs("cpp:source-ext").value_or("");
 }
 
-Slice::Gen::ForwardDeclVisitor::ForwardDeclVisitor(Output& h, Output& c, string dllExport)
+Slice::ForwardDeclVisitor::ForwardDeclVisitor(Output& h, Output& c, string dllExport)
     : H(h),
       C(c),
       _dllExport(std::move(dllExport))
@@ -867,9 +867,9 @@ Slice::Gen::ForwardDeclVisitor::ForwardDeclVisitor(Output& h, Output& c, string 
 }
 
 bool
-Slice::Gen::ForwardDeclVisitor::visitModuleStart(const ModulePtr& p)
+Slice::ForwardDeclVisitor::visitModuleStart(const ModulePtr& p)
 {
-    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
     H << sp;
     writeDocSummary(H, p);
     H << nl << "namespace " << p->mappedName() << nl << '{';
@@ -878,15 +878,15 @@ Slice::Gen::ForwardDeclVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::ForwardDeclVisitor::visitModuleEnd(const ModulePtr&)
+Slice::ForwardDeclVisitor::visitModuleEnd(const ModulePtr&)
 {
     H.dec();
     H << nl << '}';
-    _useWstring = resetUseWstring(_useWstringHist);
+    _useWstring = Gen::resetUseWstring(_useWstringHist);
 }
 
 void
-Slice::Gen::ForwardDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
+Slice::ForwardDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
     if (_firstElement)
     {
@@ -906,7 +906,7 @@ Slice::Gen::ForwardDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 }
 
 bool
-Slice::Gen::ForwardDeclVisitor::visitStructStart(const StructPtr& p)
+Slice::ForwardDeclVisitor::visitStructStart(const StructPtr& p)
 {
     if (_firstElement)
     {
@@ -922,7 +922,7 @@ Slice::Gen::ForwardDeclVisitor::visitStructStart(const StructPtr& p)
 }
 
 void
-Slice::Gen::ForwardDeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
+Slice::ForwardDeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
     if (_firstElement)
     {
@@ -937,7 +937,7 @@ Slice::Gen::ForwardDeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 }
 
 void
-Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
+Slice::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
 {
     if (_firstElement)
     {
@@ -1027,7 +1027,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
 }
 
 void
-Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
+Slice::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
 {
     if (_firstElement)
     {
@@ -1069,7 +1069,7 @@ Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
 }
 
 void
-Slice::Gen::ForwardDeclVisitor::visitDictionary(const DictionaryPtr& p)
+Slice::ForwardDeclVisitor::visitDictionary(const DictionaryPtr& p)
 {
     if (_firstElement)
     {
@@ -1107,7 +1107,7 @@ Slice::Gen::ForwardDeclVisitor::visitDictionary(const DictionaryPtr& p)
 }
 
 void
-Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
+Slice::ForwardDeclVisitor::visitConst(const ConstPtr& p)
 {
     if (_firstElement)
     {
@@ -1133,10 +1133,10 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
     }
 }
 
-Slice::Gen::SliceLoaderVisitor::SliceLoaderVisitor(Output& c) : C(c) {}
+Slice::SliceLoaderVisitor::SliceLoaderVisitor(Output& c) : C(c) {}
 
 bool
-Slice::Gen::SliceLoaderVisitor::visitUnitStart(const UnitPtr& unit)
+Slice::SliceLoaderVisitor::visitUnitStart(const UnitPtr& unit)
 {
     if (unit->contains<ClassDef>() || unit->contains<Exception>())
     {
@@ -1151,14 +1151,14 @@ Slice::Gen::SliceLoaderVisitor::visitUnitStart(const UnitPtr& unit)
 }
 
 void
-Slice::Gen::SliceLoaderVisitor::visitUnitEnd(const UnitPtr&)
+Slice::SliceLoaderVisitor::visitUnitEnd(const UnitPtr&)
 {
     C.dec();
     C << nl << "}";
 }
 
 bool
-Slice::Gen::SliceLoaderVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::SliceLoaderVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const string scopedName = p->mappedScoped("::", true);
     const string flatScopedName = p->mappedScoped("_", true);
@@ -1174,7 +1174,7 @@ Slice::Gen::SliceLoaderVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 bool
-Slice::Gen::SliceLoaderVisitor::visitExceptionStart(const ExceptionPtr& p)
+Slice::SliceLoaderVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     const string scopedName = p->mappedScoped("::", true);
     const string flatScopedName = p->mappedScoped("_", true);
@@ -1183,22 +1183,19 @@ Slice::Gen::SliceLoaderVisitor::visitExceptionStart(const ExceptionPtr& p)
     return false;
 }
 
-Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, string dllExport)
-    : H(h),
-      C(c),
-      _dllExport(std::move(dllExport))
+Slice::ProxyVisitor::ProxyVisitor(Output& h, Output& c, string dllExport) : H(h), C(c), _dllExport(std::move(dllExport))
 {
 }
 
 bool
-Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
+Slice::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
     if (!p->contains<InterfaceDef>())
     {
         return false;
     }
 
-    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
 
     H << sp << nl << "namespace " << p->mappedName() << nl << '{';
     H.inc();
@@ -1206,16 +1203,16 @@ Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr&)
+Slice::ProxyVisitor::visitModuleEnd(const ModulePtr&)
 {
     H.dec();
     H << nl << '}';
 
-    _useWstring = resetUseWstring(_useWstringHist);
+    _useWstring = Gen::resetUseWstring(_useWstringHist);
 }
 
 bool
-Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     if (_firstElement)
     {
@@ -1226,7 +1223,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         H << sp;
     }
 
-    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
 
     const string scope = p->mappedScope("::", true);
     const string prx = p->mappedName() + "Prx";
@@ -1326,7 +1323,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
+Slice::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     const string prx = p->mappedName() + "Prx";
     const string scopedPrx = p->mappedScoped("::") + "Prx";
@@ -1372,11 +1369,11 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     H << eb << ';';
 
-    _useWstring = resetUseWstring(_useWstringHist);
+    _useWstring = Gen::resetUseWstring(_useWstringHist);
 }
 
 void
-Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
+Slice::ProxyVisitor::visitOperation(const OperationPtr& p)
 {
     const InterfaceDefPtr container = p->interface();
     const string opName = p->mappedName();
@@ -1633,7 +1630,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 }
 
 void
-Slice::Gen::ProxyVisitor::emitOperationImpl(
+Slice::ProxyVisitor::emitOperationImpl(
     const OperationPtr& p,
     const string& prefix,
     const vector<string>& outgoingAsyncParams)
@@ -1759,7 +1756,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     C << ");" << eb;
 }
 
-Slice::Gen::DataDefVisitor::DataDefVisitor(IceInternal::Output& h, IceInternal::Output& c, string dllExport)
+Slice::DataDefVisitor::DataDefVisitor(IceInternal::Output& h, IceInternal::Output& c, string dllExport)
     : H(h),
       C(c),
       _dllExport(std::move(dllExport))
@@ -1767,21 +1764,21 @@ Slice::Gen::DataDefVisitor::DataDefVisitor(IceInternal::Output& h, IceInternal::
 }
 
 bool
-Slice::Gen::DataDefVisitor::visitModuleStart(const ModulePtr& p)
+Slice::DataDefVisitor::visitModuleStart(const ModulePtr& p)
 {
     if (!p->contains<Struct>() && !p->contains<ClassDef>() && !p->contains<Exception>())
     {
         return false;
     }
 
-    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
     H << sp << nl << "namespace " << p->mappedName() << nl << '{';
     H.inc();
     return true;
 }
 
 void
-Slice::Gen::DataDefVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::DataDefVisitor::visitModuleEnd(const ModulePtr& p)
 {
     if (p->contains<Struct>())
     {
@@ -1800,11 +1797,11 @@ Slice::Gen::DataDefVisitor::visitModuleEnd(const ModulePtr& p)
 
     H.dec();
     H << nl << '}';
-    _useWstring = resetUseWstring(_useWstringHist);
+    _useWstring = Gen::resetUseWstring(_useWstringHist);
 }
 
 bool
-Slice::Gen::DataDefVisitor::visitStructStart(const StructPtr& p)
+Slice::DataDefVisitor::visitStructStart(const StructPtr& p)
 {
     if (_firstElement)
     {
@@ -1815,7 +1812,7 @@ Slice::Gen::DataDefVisitor::visitStructStart(const StructPtr& p)
         H << sp;
     }
 
-    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
 
     writeDocSummary(H, p, {.includeHeaderFile = true, .generatedType = "struct"});
     H << nl << "struct " << getDeprecatedAttribute(p) << p->mappedName();
@@ -1825,7 +1822,7 @@ Slice::Gen::DataDefVisitor::visitStructStart(const StructPtr& p)
 }
 
 void
-Slice::Gen::DataDefVisitor::visitStructEnd(const StructPtr& p)
+Slice::DataDefVisitor::visitStructEnd(const StructPtr& p)
 {
     H << sp;
     H << nl << "/// Creates a tuple with all the fields of this struct.";
@@ -1869,11 +1866,11 @@ Slice::Gen::DataDefVisitor::visitStructEnd(const StructPtr& p)
         C << eb;
     }
 
-    _useWstring = resetUseWstring(_useWstringHist);
+    _useWstring = Gen::resetUseWstring(_useWstringHist);
 }
 
 void
-Slice::Gen::DataDefVisitor::visitDataMember(const DataMemberPtr& p)
+Slice::DataDefVisitor::visitDataMember(const DataMemberPtr& p)
 {
     auto container = p->container();
     if (dynamic_pointer_cast<Struct>(container) || dynamic_pointer_cast<Exception>(container))
@@ -1884,7 +1881,7 @@ Slice::Gen::DataDefVisitor::visitDataMember(const DataMemberPtr& p)
 }
 
 bool
-Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
+Slice::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     if (_firstElement)
     {
@@ -1895,7 +1892,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << sp;
     }
 
-    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
 
     const string name = p->mappedName();
     const string scope = p->mappedScope("::", true);
@@ -2087,7 +2084,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
 }
 
 void
-Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
+Slice::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
     const string scope = p->mappedScope("::", true);
     const string scoped = p->mappedScoped("::");
@@ -2136,11 +2133,11 @@ Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     H << eb << ';';
 
-    _useWstring = resetUseWstring(_useWstringHist);
+    _useWstring = Gen::resetUseWstring(_useWstringHist);
 }
 
 bool
-Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     if (_firstElement)
     {
@@ -2151,7 +2148,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
         H << sp;
     }
 
-    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
 
     const string name = p->mappedName();
     const string scope = p->mappedScope("::", true);
@@ -2240,7 +2237,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     const string name = p->mappedName();
     const string scoped = p->mappedScoped("::");
@@ -2313,11 +2310,11 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     H << eb << ';';
 
-    _useWstring = resetUseWstring(_useWstringHist);
+    _useWstring = Gen::resetUseWstring(_useWstringHist);
 }
 
 bool
-Slice::Gen::DataDefVisitor::emitBaseInitializers(const ClassDefPtr& p)
+Slice::DataDefVisitor::emitBaseInitializers(const ClassDefPtr& p)
 {
     ClassDefPtr base = p->base();
     if (!base)
@@ -2349,7 +2346,7 @@ Slice::Gen::DataDefVisitor::emitBaseInitializers(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
+Slice::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 {
     DataMemberList allDataMembers = p->allDataMembers();
 
@@ -2426,7 +2423,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
+Slice::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
 {
     const string name = p->mappedName();
 
@@ -2463,7 +2460,7 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
 }
 
 void
-Slice::Gen::DataDefVisitor::printFields(const DataMemberList& fields, bool firstField)
+Slice::DataDefVisitor::printFields(const DataMemberList& fields, bool firstField)
 {
     for (const auto& field : fields)
     {
@@ -2481,11 +2478,7 @@ Slice::Gen::DataDefVisitor::printFields(const DataMemberList& fields, bool first
     }
 }
 
-Slice::Gen::InterfaceVisitor::InterfaceVisitor(
-    IceInternal::Output& h,
-    IceInternal::Output& c,
-    string dllExport,
-    bool async)
+Slice::InterfaceVisitor::InterfaceVisitor(IceInternal::Output& h, IceInternal::Output& c, string dllExport, bool async)
     : H(h),
       C(c),
       _dllExport(std::move(dllExport)),
@@ -2494,30 +2487,30 @@ Slice::Gen::InterfaceVisitor::InterfaceVisitor(
 }
 
 bool
-Slice::Gen::InterfaceVisitor::visitModuleStart(const ModulePtr& p)
+Slice::InterfaceVisitor::visitModuleStart(const ModulePtr& p)
 {
     if (!p->contains<InterfaceDef>())
     {
         return false;
     }
 
-    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
     H << sp << nl << "namespace " << p->mappedName() << nl << '{';
     H.inc();
     return true;
 }
 
 void
-Slice::Gen::InterfaceVisitor::visitModuleEnd(const ModulePtr&)
+Slice::InterfaceVisitor::visitModuleEnd(const ModulePtr&)
 {
     H.dec();
     H << nl << '}';
 
-    _useWstring = resetUseWstring(_useWstringHist);
+    _useWstring = Gen::resetUseWstring(_useWstringHist);
 }
 
 bool
-Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     if (_firstElement)
     {
@@ -2528,7 +2521,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         H << sp;
     }
 
-    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
+    _useWstring = Gen::setUseWstring(p, _useWstringHist, _useWstring);
     const string name = prependSkeletonPrefix(p->mappedName());
     const string scope = p->mappedScope("::", true);
     const string scoped = p->mappedScope("::") + name;
@@ -2669,7 +2662,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
+Slice::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     const string name = prependSkeletonPrefix(p->mappedName());
     const string scoped = p->mappedScope("::") + name;
@@ -2690,11 +2683,11 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << "/// A shared pointer to " << getArticleFor(name) << ' ' << name << ".";
     H << nl << "using " << name << "Ptr = std::shared_ptr<" << name << ">;";
 
-    _useWstring = resetUseWstring(_useWstringHist);
+    _useWstring = Gen::resetUseWstring(_useWstringHist);
 }
 
 void
-Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
+Slice::InterfaceVisitor::visitOperation(const OperationPtr& p)
 {
     const string name = p->mappedName();
     const InterfaceDefPtr container = p->interface();
@@ -3058,21 +3051,21 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
 }
 
 string
-Slice::Gen::InterfaceVisitor::skeletonPrefix() const
+Slice::InterfaceVisitor::skeletonPrefix() const
 {
     return _async ? "Async" : "";
 }
 
 string
-Slice::Gen::InterfaceVisitor::prependSkeletonPrefix(const string& name) const
+Slice::InterfaceVisitor::prependSkeletonPrefix(const string& name) const
 {
     return skeletonPrefix() + name;
 }
 
-Slice::Gen::StreamVisitor::StreamVisitor(Output& h) : H(h) {}
+Slice::StreamVisitor::StreamVisitor(Output& h) : H(h) {}
 
 bool
-Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
+Slice::StreamVisitor::visitModuleStart(const ModulePtr& m)
 {
     if (!m->contains<Struct>() && !m->contains<Enum>())
     {
@@ -3090,7 +3083,7 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
 }
 
 void
-Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
+Slice::StreamVisitor::visitModuleEnd(const ModulePtr& m)
 {
     if (m->isTopLevel())
     {
@@ -3101,7 +3094,7 @@ Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
 }
 
 bool
-Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
+Slice::StreamVisitor::visitStructStart(const StructPtr& p)
 {
     if (_firstElement)
     {
@@ -3128,7 +3121,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 }
 
 void
-Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
+Slice::StreamVisitor::visitEnum(const EnumPtr& p)
 {
     if (_firstElement)
     {

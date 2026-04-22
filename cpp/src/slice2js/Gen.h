@@ -114,148 +114,148 @@ namespace Slice
         std::string _fileBase;
         bool _useStdout;
         bool _typeScript;
+    };
 
-        class ImportVisitor final : public JsVisitor
-        {
-        public:
-            ImportVisitor(IceInternal::Output& out);
+    class ImportVisitor final : public JsVisitor
+    {
+    public:
+        ImportVisitor(IceInternal::Output& out);
 
-            bool visitClassDefStart(const ClassDefPtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            bool visitStructStart(const StructPtr&) final;
-            void visitOperation(const OperationPtr&) final;
-            bool visitExceptionStart(const ExceptionPtr&) final;
-            void visitSequence(const SequencePtr&) final;
-            void visitDictionary(const DictionaryPtr&) final;
-            void visitEnum(const EnumPtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        bool visitStructStart(const StructPtr&) final;
+        void visitOperation(const OperationPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        void visitSequence(const SequencePtr&) final;
+        void visitDictionary(const DictionaryPtr&) final;
+        void visitEnum(const EnumPtr&) final;
 
-            // Emit the import statements for the given unit and return a list of the imported modules.
-            std::set<std::string> writeImports(
-                const UnitPtr& unit,
-                const std::map<std::string, std::map<std::string, std::set<std::string>>>& nestedModulesByTopLevel);
+        // Emit the import statements for the given unit and return a list of the imported modules.
+        std::set<std::string> writeImports(
+            const UnitPtr& unit,
+            const std::map<std::string, std::map<std::string, std::set<std::string>>>& nestedModulesByTopLevel);
 
-        private:
-            bool _seenClass{false};
-            bool _seenInterface{false};
-            bool _seenOperation{false};
-            bool _seenStruct{false};
-            bool _seenUserException{false};
-            bool _seenEnum{false};
-            bool _seenSeq{false};
-            bool _seenDict{false};
-            bool _seenObjectSeq{false};
-            bool _seenObjectProxySeq{false};
-            bool _seenObjectDict{false};
-            bool _seenObjectProxyDict{false};
-        };
+    private:
+        bool _seenClass{false};
+        bool _seenInterface{false};
+        bool _seenOperation{false};
+        bool _seenStruct{false};
+        bool _seenUserException{false};
+        bool _seenEnum{false};
+        bool _seenSeq{false};
+        bool _seenDict{false};
+        bool _seenObjectSeq{false};
+        bool _seenObjectProxySeq{false};
+        bool _seenObjectDict{false};
+        bool _seenObjectProxyDict{false};
+    };
 
-        class ExportsVisitor final : public JsVisitor
-        {
-        public:
-            ExportsVisitor(IceInternal::Output& out, std::set<std::string> importedModules);
+    class ExportsVisitor final : public JsVisitor
+    {
+    public:
+        ExportsVisitor(IceInternal::Output& out, std::set<std::string> importedModules);
 
-            bool visitModuleStart(const ModulePtr&) final;
+        bool visitModuleStart(const ModulePtr&) final;
 
-            [[nodiscard]] std::set<std::string> exportedModules() const;
+        [[nodiscard]] std::set<std::string> exportedModules() const;
 
-        private:
-            std::set<std::string> _importedModules;
-            std::set<std::string> _exportedModules;
-        };
+    private:
+        std::set<std::string> _importedModules;
+        std::set<std::string> _exportedModules;
+    };
 
-        class TypesVisitor final : public JsVisitor
-        {
-        public:
-            TypesVisitor(IceInternal::Output& out, std::string jsModule);
+    class TypesVisitor final : public JsVisitor
+    {
+    public:
+        TypesVisitor(IceInternal::Output& out, std::string jsModule);
 
-            bool visitClassDefStart(const ClassDefPtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            bool visitExceptionStart(const ExceptionPtr&) final;
-            bool visitStructStart(const StructPtr&) final;
-            void visitSequence(const SequencePtr&) final;
-            void visitDictionary(const DictionaryPtr&) final;
-            void visitEnum(const EnumPtr&) final;
-            void visitConst(const ConstPtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        bool visitStructStart(const StructPtr&) final;
+        void visitSequence(const SequencePtr&) final;
+        void visitDictionary(const DictionaryPtr&) final;
+        void visitEnum(const EnumPtr&) final;
+        void visitConst(const ConstPtr&) final;
 
-        private:
-            std::string encodeTypeForOperation(const TypePtr& type);
-        };
+    private:
+        std::string encodeTypeForOperation(const TypePtr& type);
+    };
 
-        class TypeScriptImportVisitor final : public JsVisitor
-        {
-        public:
-            TypeScriptImportVisitor(
-                IceInternal::Output& out,
-                std::map<std::string, std::set<std::string>> importedTypesByInclude);
+    class TypeScriptImportVisitor final : public JsVisitor
+    {
+    public:
+        TypeScriptImportVisitor(
+            IceInternal::Output& out,
+            std::map<std::string, std::set<std::string>> importedTypesByInclude);
 
-            bool visitUnitStart(const UnitPtr&) final;
-            bool visitClassDefStart(const ClassDefPtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            bool visitStructStart(const StructPtr&) final;
-            bool visitExceptionStart(const ExceptionPtr&) final;
-            void visitSequence(const SequencePtr&) final;
-            void visitDictionary(const DictionaryPtr&) final;
+        bool visitUnitStart(const UnitPtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        bool visitStructStart(const StructPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        void visitSequence(const SequencePtr&) final;
+        void visitDictionary(const DictionaryPtr&) final;
 
-            // Emit the import statements for the given unit and return a map of the imported types per module.
-            std::map<std::string, std::string> writeImports();
+        // Emit the import statements for the given unit and return a map of the imported types per module.
+        std::map<std::string, std::string> writeImports();
 
-        private:
-            void addImport(const ContainedPtr&);
+    private:
+        void addImport(const ContainedPtr&);
 
-            // All modules imported by the current unit.
-            std::set<std::string> _importedModules;
-            // A map of imported types to their module name.
-            std::map<std::string, std::string> _importedTypes;
-            // The module name of the current unit.
-            std::string _module;
-            // The filename of the current unit.
-            std::string _filename;
-            // A map of include files to types for re-export (used to determine which files to import).
-            std::map<std::string, std::set<std::string>> _importedTypesByInclude;
-        };
+        // All modules imported by the current unit.
+        std::set<std::string> _importedModules;
+        // A map of imported types to their module name.
+        std::map<std::string, std::string> _importedTypes;
+        // The module name of the current unit.
+        std::string _module;
+        // The filename of the current unit.
+        std::string _filename;
+        // A map of include files to types for re-export (used to determine which files to import).
+        std::map<std::string, std::set<std::string>> _importedTypesByInclude;
+    };
 
-        class TypeScriptVisitor final : public JsVisitor
-        {
-        public:
-            TypeScriptVisitor(
-                IceInternal::Output& out,
-                std::map<std::string, std::string> importedTypes,
-                std::map<std::string, std::set<std::string>> importedTypesByInclude);
+    class TypeScriptVisitor final : public JsVisitor
+    {
+    public:
+        TypeScriptVisitor(
+            IceInternal::Output& out,
+            std::map<std::string, std::string> importedTypes,
+            std::map<std::string, std::set<std::string>> importedTypesByInclude);
 
-            bool visitUnitStart(const UnitPtr&) final;
-            void visitUnitEnd(const UnitPtr&) final;
-            bool visitModuleStart(const ModulePtr&) final;
-            void visitModuleEnd(const ModulePtr&) final;
-            bool visitClassDefStart(const ClassDefPtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            bool visitExceptionStart(const ExceptionPtr&) final;
-            bool visitStructStart(const StructPtr&) final;
-            void visitSequence(const SequencePtr&) final;
-            void visitDictionary(const DictionaryPtr&) final;
-            void visitEnum(const EnumPtr&) final;
-            void visitConst(const ConstPtr&) final;
+        bool visitUnitStart(const UnitPtr&) final;
+        void visitUnitEnd(const UnitPtr&) final;
+        bool visitModuleStart(const ModulePtr&) final;
+        void visitModuleEnd(const ModulePtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        bool visitStructStart(const StructPtr&) final;
+        void visitSequence(const SequencePtr&) final;
+        void visitDictionary(const DictionaryPtr&) final;
+        void visitEnum(const EnumPtr&) final;
+        void visitConst(const ConstPtr&) final;
 
-        private:
-            [[nodiscard]] std::string importPrefix(const std::string& scopedName) const;
-            [[nodiscard]] std::string
-            typeToTsString(const TypePtr& type, bool nullable = false, bool forParameter = false, bool optional = false)
-                const;
-            void writeOpDocSummary(IceInternal::Output& out, const OperationPtr& op, bool forDispatch);
-            void writeNestedModuleExports(const std::string& currentModuleScope);
+    private:
+        [[nodiscard]] std::string importPrefix(const std::string& scopedName) const;
+        [[nodiscard]] std::string
+        typeToTsString(const TypePtr& type, bool nullable = false, bool forParameter = false, bool optional = false)
+            const;
+        void writeOpDocSummary(IceInternal::Output& out, const OperationPtr& op, bool forDispatch);
+        void writeNestedModuleExports(const std::string& currentModuleScope);
 
-            // The module name of the current unit.
-            std::string _module;
-            // The import prefix for the "ice" module either empty string when building Ice or "__module__zeroc_ice."
-            std::string _iceImportPrefix;
-            // A map of imported types to their module name.
-            std::map<std::string, std::string> _importedTypes;
-            // A map of include files to the types they define (for generating nested module exports).
-            std::map<std::string, std::set<std::string>> _importedTypesByInclude;
-            // The set of modules visited in the current file (used to detect missing nested modules).
-            std::set<std::string> _visitedModules;
-            // Cache of types already exported (to prevent duplicates across nested module exports).
-            std::set<std::string> _exportedTypes;
-        };
+        // The module name of the current unit.
+        std::string _module;
+        // The import prefix for the "ice" module either empty string when building Ice or "__module__zeroc_ice."
+        std::string _iceImportPrefix;
+        // A map of imported types to their module name.
+        std::map<std::string, std::string> _importedTypes;
+        // A map of include files to the types they define (for generating nested module exports).
+        std::map<std::string, std::set<std::string>> _importedTypesByInclude;
+        // The set of modules visited in the current file (used to detect missing nested modules).
+        std::set<std::string> _visitedModules;
+        // Cache of types already exported (to prevent duplicates across nested module exports).
+        std::set<std::string> _exportedTypes;
     };
 }
 

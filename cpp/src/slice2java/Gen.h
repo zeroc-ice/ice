@@ -183,7 +183,7 @@ namespace Slice
     class Gen final
     {
     public:
-        Gen(std::string base, std::string dir);
+        Gen(std::string dir);
         Gen(const Gen&) = delete;
         ~Gen();
 
@@ -192,53 +192,52 @@ namespace Slice
         void generate(const UnitPtr& unit);
 
     private:
-        std::string _base;
         std::string _dir;
+    };
 
-        class TypesVisitor final : public JavaVisitor
-        {
-        public:
-            TypesVisitor(const std::string& dir);
+    class TypesVisitor final : public JavaVisitor
+    {
+    public:
+        TypesVisitor(const std::string& dir);
 
-            bool visitModuleStart(const ModulePtr&) final;
+        bool visitModuleStart(const ModulePtr&) final;
 
-            bool visitClassDefStart(const ClassDefPtr&) final;
-            void visitClassDefEnd(const ClassDefPtr&) final;
-            bool visitExceptionStart(const ExceptionPtr&) final;
-            void visitExceptionEnd(const ExceptionPtr&) final;
-            bool visitStructStart(const StructPtr&) final;
-            void visitStructEnd(const StructPtr&) final;
-            void visitDataMember(const DataMemberPtr&) final;
-            void visitEnum(const EnumPtr&) final;
-            void visitSequence(const SequencePtr&) final;
-            void visitDictionary(const DictionaryPtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        void visitClassDefEnd(const ClassDefPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        void visitExceptionEnd(const ExceptionPtr&) final;
+        bool visitStructStart(const StructPtr&) final;
+        void visitStructEnd(const StructPtr&) final;
+        void visitDataMember(const DataMemberPtr&) final;
+        void visitEnum(const EnumPtr&) final;
+        void visitSequence(const SequencePtr&) final;
+        void visitDictionary(const DictionaryPtr&) final;
 
-            void visitConst(const ConstPtr&) final;
+        void visitConst(const ConstPtr&) final;
 
-            // Generate proxy classes
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
-            void visitOperation(const OperationPtr&) final;
-        };
+        // Generate proxy classes
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+        void visitOperation(const OperationPtr&) final;
+    };
 
-        class SkeletonVisitor final : public JavaVisitor
-        {
-        public:
-            SkeletonVisitor(const std::string& dir, bool async);
+    class SkeletonVisitor final : public JavaVisitor
+    {
+    public:
+        SkeletonVisitor(const std::string& dir, bool async);
 
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
-            void visitOperation(const OperationPtr&) final;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+        void visitOperation(const OperationPtr&) final;
 
-        private:
-            [[nodiscard]] std::string skeletonPrefix() const;
-            [[nodiscard]] std::string prependSkeletonPrefix(const std::string& name) const;
+    private:
+        [[nodiscard]] std::string skeletonPrefix() const;
+        [[nodiscard]] std::string prependSkeletonPrefix(const std::string& name) const;
 
-            [[nodiscard]] std::string
-            getDispatchResultType(const OperationPtr& op, const std::string& package, bool object) const;
+        [[nodiscard]] std::string
+        getDispatchResultType(const OperationPtr& op, const std::string& package, bool object) const;
 
-            const bool _async;
-        };
+        const bool _async;
     };
 }
 

@@ -22,79 +22,79 @@ namespace Slice
     private:
         IceInternal::Output _out;
         std::string _fileBase;
+    };
 
-        class ImportVisitor final : public ParserVisitor
-        {
-        public:
-            ImportVisitor(IceInternal::Output&);
+    class ImportVisitor final : public ParserVisitor
+    {
+    public:
+        ImportVisitor(IceInternal::Output&);
 
-            bool visitModuleStart(const ModulePtr&) final;
-            bool visitClassDefStart(const ClassDefPtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            bool visitStructStart(const StructPtr&) final;
-            bool visitExceptionStart(const ExceptionPtr&) final;
-            void visitSequence(const SequencePtr&) final;
-            void visitDictionary(const DictionaryPtr&) final;
+        bool visitModuleStart(const ModulePtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        bool visitStructStart(const StructPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        void visitSequence(const SequencePtr&) final;
+        void visitDictionary(const DictionaryPtr&) final;
 
-            void writeImports();
+        void writeImports();
 
-        private:
-            void addImport(const SyntaxTreeBasePtr& p, const ContainedPtr& usedBy);
-            void addImport(const std::string& module);
+    private:
+        void addImport(const SyntaxTreeBasePtr& p, const ContainedPtr& usedBy);
+        void addImport(const std::string& module);
 
-            IceInternal::Output& out;
-            std::vector<std::string> _imports;
-        };
+        IceInternal::Output& out;
+        std::vector<std::string> _imports;
+    };
 
-        class TypesVisitor final : public ParserVisitor
-        {
-        public:
-            TypesVisitor(IceInternal::Output&);
+    class TypesVisitor final : public ParserVisitor
+    {
+    public:
+        TypesVisitor(IceInternal::Output&);
 
-            bool visitExceptionStart(const ExceptionPtr&) final;
-            bool visitClassDefStart(const ClassDefPtr&) final;
-            void visitClassDefEnd(const ClassDefPtr&) final;
-            bool visitStructStart(const StructPtr&) final;
-            void visitSequence(const SequencePtr&) final;
-            void visitDictionary(const DictionaryPtr&) final;
-            void visitEnum(const EnumPtr&) final;
-            void visitConst(const ConstPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        void visitClassDefEnd(const ClassDefPtr&) final;
+        bool visitStructStart(const StructPtr&) final;
+        void visitSequence(const SequencePtr&) final;
+        void visitDictionary(const DictionaryPtr&) final;
+        void visitEnum(const EnumPtr&) final;
+        void visitConst(const ConstPtr&) final;
 
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
-            void visitOperation(const OperationPtr&) final;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+        void visitOperation(const OperationPtr&) final;
 
-        private:
-            IceInternal::Output& out;
-        };
+    private:
+        IceInternal::Output& out;
+    };
 
-        // Generates the servant protocols.
-        class ServantVisitor final : public ParserVisitor
-        {
-        public:
-            ServantVisitor(IceInternal::Output&);
+    // Generates the servant protocols.
+    class ServantVisitor final : public ParserVisitor
+    {
+    public:
+        ServantVisitor(IceInternal::Output&);
 
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
-            void visitOperation(const OperationPtr&) final;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+        void visitOperation(const OperationPtr&) final;
 
-        private:
-            IceInternal::Output& out;
-        };
+    private:
+        IceInternal::Output& out;
+    };
 
-        // Generate extensions for the servant protocols.
-        class ServantExtVisitor final : public ParserVisitor
-        {
-        public:
-            ServantExtVisitor(IceInternal::Output&);
+    // Generate extensions for the servant protocols.
+    class ServantExtVisitor final : public ParserVisitor
+    {
+    public:
+        ServantExtVisitor(IceInternal::Output&);
 
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
-            void visitOperation(const OperationPtr&) final;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+        void visitOperation(const OperationPtr&) final;
 
-        private:
-            IceInternal::Output& out;
-        };
+    private:
+        IceInternal::Output& out;
     };
 }
 

@@ -199,7 +199,7 @@ namespace
                     JavaDocCommentFormatter formatter;
                     parseAllDocComments(unit, formatter);
 
-                    Gen gen(preprocessor->getBaseName(), output);
+                    Gen gen(output);
                     gen.generate(unit);
 
                     status |= unit->getStatus();
