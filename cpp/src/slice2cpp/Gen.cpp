@@ -545,7 +545,7 @@ namespace
 }
 
 Slice::Gen::Gen(
-    string base,
+    const string& base,
     string headerExtension,
     string sourceExtension,
     const vector<string>& extraHeaders,

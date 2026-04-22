@@ -13,7 +13,7 @@ namespace Slice
     class Gen final
     {
     public:
-        Gen(std::string base,
+        Gen(const std::string& base,
             std::string headerExtension,
             std::string sourceExtension,
             const std::vector<std::string>& extraHeaders,
