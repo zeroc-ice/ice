@@ -362,7 +362,8 @@ Slice::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << eb;
 
     _out << sp;
-    _out << nl << "open override func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
+    _out << nl << "open override func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule)
+         << ")";
     _out << sb;
     _out << nl << "ostr.startSlice(typeId: " << name << ".ice_staticId(), compactId: " << p->compactId()
          << ", last: " << (!base ? "true" : "false") << ")";
@@ -465,7 +466,8 @@ Slice::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "open override class func ice_staticId() -> Swift.String { \"" << p->scoped() << "\" }";
 
     _out << sp;
-    _out << nl << "open override func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
+    _out << nl << "open override func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule)
+         << ")";
     _out << sb;
     _out << nl << "ostr.startSlice(typeId: " << name
          << ".ice_staticId(), compactId: -1, last: " << (!base ? "true" : "false") << ")";
