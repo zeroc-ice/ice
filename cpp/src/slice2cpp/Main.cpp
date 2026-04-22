@@ -40,12 +40,12 @@ class CppDocCommentFormatter final : public DocCommentFormatter
     string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
     {
         // We rely on Doxygen's autolink for C++.
-        return Slice::cppLinkFormatter(rawLink, source, target);
+        return Slice::Cpp::cppLinkFormatter(rawLink, source, target);
     }
 
     string formatSeeAlso(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
     {
-        return "@see " + Slice::cppLinkFormatter(rawLink, source, target);
+        return "@see " + Slice::Cpp::cppLinkFormatter(rawLink, source, target);
     }
 };
 
