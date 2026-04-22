@@ -283,7 +283,7 @@ Slice::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         // Same for compact ID.
         _out << sp;
         _out << nl << "@objc static func resolveTypeId" << prefix << "_" << to_string(p->compactId())
-            << "() -> AnyObject.Type";
+             << "() -> AnyObject.Type";
         _out << sb;
         _out << nl << name << ".self";
         _out << eb;
@@ -328,7 +328,7 @@ Slice::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out << sp;
     _out << nl << "open override func _iceReadImpl(from istr: " << getUnqualified("Ice.InputStream", swiftModule)
-        << ") throws";
+         << ") throws";
     _out << sb;
     _out << nl << "_ = try istr.startSlice()";
     if (!members.empty())
@@ -365,7 +365,7 @@ Slice::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "open override func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
     _out << sb;
     _out << nl << "ostr.startSlice(typeId: " << name << ".ice_staticId(), compactId: " << p->compactId()
-        << ", last: " << (!base ? "true" : "false") << ")";
+         << ", last: " << (!base ? "true" : "false") << ")";
     for (const auto& member : members)
     {
         TypePtr type = member->type();
@@ -468,7 +468,7 @@ Slice::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "open override func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
     _out << sb;
     _out << nl << "ostr.startSlice(typeId: " << name
-        << ".ice_staticId(), compactId: -1, last: " << (!base ? "true" : "false") << ")";
+         << ".ice_staticId(), compactId: -1, last: " << (!base ? "true" : "false") << ")";
     for (const auto& member : members)
     {
         if (!member->isOptional())
@@ -490,7 +490,7 @@ Slice::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     _out << sp;
     _out << nl << "open override func _iceReadImpl(from istr: " << getUnqualified("Ice.InputStream", swiftModule)
-        << ") throws";
+         << ") throws";
     _out << sb;
     _out << nl << "_ = try istr.startSlice()";
     for (const auto& member : members)
@@ -746,7 +746,7 @@ Slice::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << nl << "///   - tag: The numeric tag associated with the value.";
     _out << nl << "/// - Returns: The sequence read from the stream.";
     _out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> sending " << name
-        << "?";
+         << "?";
     _out << sb;
     _out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     _out << sb;
@@ -809,7 +809,7 @@ Slice::TypesVisitor::visitSequence(const SequencePtr& p)
         else
         {
             _out << nl << "if ostr.writeOptionalVSize(tag: tag, len: val.count, elemSize: " << p->type()->minWireSize()
-                << ")";
+                 << ")";
         }
         _out << sb;
         _out << nl << "write(to: ostr, value: val)";
@@ -858,7 +858,7 @@ Slice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     if (p->valueType()->isClassType())
     {
         _out << nl << "nonisolated(unsafe) let e = " << getUnqualified("Ice.DictEntryArray", swiftModule) << "<"
-            << keyType << ", " << valueType << ">(size: sz)";
+             << keyType << ", " << valueType << ">(size: sz)";
         _out << nl << "for i in 0 ..< sz";
         _out << sb;
         string keyParam = "let key: " + keyType;
@@ -867,8 +867,8 @@ Slice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         _out << nl << "Swift.withUnsafeMutablePointer(to: &v[key, default:nil])";
         _out << sb;
         _out << nl << "e.values[i] = Ice.DictEntry<" << keyType << ", " << valueType << ">("
-            << "key: key, "
-            << "value: $0)";
+             << "key: key, "
+             << "value: $0)";
         _out << eb;
         writeMarshalUnmarshalCode(_out, p->valueType(), p, "e.values[i].value.pointee", false);
         _out << eb;
@@ -903,7 +903,7 @@ Slice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "///   - tag: The numeric tag associated with the value.";
     _out << nl << "/// - Returns: The dictionary read from the stream.";
     _out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> sending " << name
-        << "?";
+         << "?";
     _out << sb;
     _out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     _out << sb;
@@ -1144,7 +1144,7 @@ Slice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << "private ";
     }
     _out << "final class " << prxI << ": " << getUnqualified("Ice.ObjectPrxI", swiftModule) << ", " << prx
-        << ", @unchecked Sendable";
+         << ", @unchecked Sendable";
     _out << sb;
 
     _out << nl << "public override class func ice_staticId() -> Swift.String";
@@ -1167,7 +1167,7 @@ Slice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "/// - Returns: A new proxy with the requested type.";
     _out << nl << "/// - Throws: `Ice.ParseException` if the proxy string is invalid.";
     _out << nl << "public func makeProxy(communicator: Ice.Communicator, proxyString: String, type: " << prx
-        << ".Protocol) throws -> " << prx;
+         << ".Protocol) throws -> " << prx;
     _out << sb;
     _out << nl << "try communicator.makeProxyImpl(proxyString) as " << prxI;
     _out << eb;
@@ -1177,8 +1177,8 @@ Slice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     _out << sp;
     _out << nl
-        << "/// Creates a new proxy from an existing proxy after confirming the target object's type via a remote "
-           "invocation.";
+         << "/// Creates a new proxy from an existing proxy after confirming the target object's type via a remote "
+            "invocation.";
     _out << nl << "///";
     _out << nl << "/// This call throws a local exception if a communication error occurs. You can optionally supply a";
     _out << nl << "/// facet name and a context map.";
@@ -1189,15 +1189,15 @@ Slice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "///   - facet: The optional name of the desired facet.";
     _out << nl << "///   - context: The optional context dictionary for the remote invocation.";
     _out << nl
-        << "/// - Returns: A proxy with the requested type or nil if the target object does not support this type.";
+         << "/// - Returns: A proxy with the requested type or nil if the target object does not support this type.";
     _out << nl << "/// - Throws: `Ice.LocalException` if a communication error occurs.";
     _out << nl << "public func checkedCast" << spar << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
-        << ("type: " + prx + ".Protocol") << ("facet: Swift.String? = nil")
-        << ("context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil") << epar << " async throws -> " << prx
-        << "?";
+         << ("type: " + prx + ".Protocol") << ("facet: Swift.String? = nil")
+         << ("context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil") << epar << " async throws -> " << prx
+         << "?";
     _out << sb;
     _out << nl << "return try await " << prxI << ".checkedCast(prx: prx, facet: facet, context: context) as " << prxI
-        << "?";
+         << "?";
     _out << eb;
 
     //
@@ -1212,7 +1212,7 @@ Slice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "///   - facet: The optional name of the desired facet.";
     _out << nl << "/// - Returns: A new proxy with the requested type.";
     _out << nl << "public func uncheckedCast" << spar << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
-        << ("type: " + prx + ".Protocol") << ("facet: Swift.String? = nil") << epar << " -> " << prx;
+         << ("type: " + prx + ".Protocol") << ("facet: Swift.String? = nil") << epar << " -> " << prx;
     _out << sb;
     _out << nl << "return " << prxI << ".uncheckedCast(prx: prx, facet: facet) as " << prxI;
     _out << eb;
@@ -1312,7 +1312,7 @@ Slice::TypesVisitor::visitOperation(const OperationPtr& op)
         _out << nl << "if _impl.ice_isTwoway()";
         _out << sb;
         _out << nl << "throw " << getUnqualified("Ice.OnewayOnlyException", swiftModule) << "(operation: \""
-            << op->name() << "\")";
+             << op->name() << "\")";
         _out << eb;
     }
 
@@ -1460,28 +1460,28 @@ Slice::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp;
     _out << nl
-        << "/// Dispatches an incoming request to one of the instance methods of the generated protocol, based on the "
-           "operation name carried by the request.";
+         << "/// Dispatches an incoming request to one of the instance methods of the generated protocol, based on the "
+            "operation name carried by the request.";
     _out << nl << "/// - Parameter request: The incoming request.";
     _out << nl << "/// - Returns: The outgoing response.";
     _out << nl << "public func dispatch(_ request: sending Ice.IncomingRequest) async throws -> Ice.OutgoingResponse"
-        << sb;
+         << sb;
     _out << nl << "try await Self.dispatch(self, request: request)";
     _out << eb;
 
     _out << sp;
     _out << nl
-        << "/// Dispatches an incoming request to one of the instance methods of the generated protocol, based on the "
-           "operation name carried by the request.";
+         << "/// Dispatches an incoming request to one of the instance methods of the generated protocol, based on the "
+            "operation name carried by the request.";
     _out << nl
-        << "/// Call this static method from the `dispatch` method of your servant class when you want to reuse a base "
-           "servant class in a derived servant class.";
+         << "/// Call this static method from the `dispatch` method of your servant class when you want to reuse a "
+            "base servant class in a derived servant class.";
     _out << nl << "/// - Parameters:";
     _out << nl << "///   - servant: The servant to dispatch the request to.";
     _out << nl << "///   - request: The incoming request.";
     _out << nl << "/// - Returns: The outgoing response.";
     _out << nl << "public static func dispatch(_ servant: " << servant
-        << ", request: sending Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
+         << ", request: sending Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
     _out << nl << "switch request.current.operation";
     _out << sb;
     _out.dec(); // to align case with switch
@@ -1493,7 +1493,7 @@ Slice::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         if (sliceName == "ice_id" || sliceName == "ice_ids" || sliceName == "ice_isA" || sliceName == "ice_ping")
         {
             _out << nl << "try await (servant as? Ice.Object ?? " << "Self.defaultObject)." << mappedDispatchName
-                << "(request)";
+                 << "(request)";
         }
         else
         {
@@ -1527,7 +1527,7 @@ Slice::ServantExtVisitor::visitOperation(const OperationPtr& op)
 
     _out << sp;
     _out << nl << "public func _iceD_" << removeEscaping(opName)
-        << "(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse";
+         << "(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse";
 
     _out << sb;
 
@@ -1572,7 +1572,7 @@ Slice::ServantExtVisitor::visitOperation(const OperationPtr& op)
     else
     {
         _out << nl << "return request.current.makeOutgoingResponse(result, formatType: " << opFormatTypeToString(op)
-            << ")";
+             << ")";
         _out << sb;
         _out << " ostr, value in ";
         writeMarshalAsyncOutParams(_out, op);
