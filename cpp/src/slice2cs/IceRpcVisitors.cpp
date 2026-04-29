@@ -52,7 +52,7 @@ namespace
 
     void writeReturnTask(IceInternal::Output& out, const OperationPtr& operation, const string& taskType, bool dispatch)
     {
-        string ns = getNamespace(operation->interface());
+        string ns = getNamespace(operation->parentInterface());
 
         out << "global::System.Threading.Tasks." << taskType;
 
@@ -97,7 +97,7 @@ namespace
     // A ValueTask that holds all the decoded in parameters,
     void writeParamsValueTask(IceInternal::Output& out, const OperationPtr& operation)
     {
-        string ns = getNamespace(operation->interface());
+        string ns = getNamespace(operation->parentInterface());
 
         out << "global::System.Threading.Tasks.ValueTask";
 
@@ -735,7 +735,7 @@ Slice::IceRpc::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
         _out << " =>";
         _out.inc();
-        _out << nl << "((" << getUnqualified(operation->interface(), ns, "", "Proxy") << ")this)."
+        _out << nl << "((" << getUnqualified(operation->parentInterface(), ns, "", "Proxy") << ")this)."
              << removeEscapePrefix(operation->mappedName()) << "Async";
         _out << spar;
         for (const auto& param : operation->inParameters())
@@ -850,7 +850,7 @@ Slice::IceRpc::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 void
 Slice::IceRpc::TypesVisitor::visitOperation(const OperationPtr& p)
 {
-    string ns = getNamespace(p->interface());
+    string ns = getNamespace(p->parentInterface());
 
     _out << sp;
     writeIceRpcOpDocComment(_out, p, false);
@@ -1354,7 +1354,7 @@ Slice::IceRpc::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 void
 Slice::IceRpc::SkeletonVisitor::visitOperation(const OperationPtr& p)
 {
-    string ns = getNamespace(p->interface());
+    string ns = getNamespace(p->parentInterface());
 
     _out << sp;
     writeIceRpcOpDocComment(_out, p, true);

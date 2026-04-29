@@ -17,14 +17,9 @@ using namespace IceInternal;
 
 Slice::Gen::Gen(const string& base, const string& dir, GenMode genMode, bool enableAnalysis)
     : _genMode(genMode),
-      _enableAnalysis(enableAnalysis)
+      _enableAnalysis(enableAnalysis),
+      _fileBase(Slice::baseName(base))
 {
-    _fileBase = base;
-    string::size_type pos = base.find_last_of("/\\");
-    if (pos != string::npos)
-    {
-        _fileBase = base.substr(pos + 1);
-    }
     string file = _genMode == GenMode::IceRpc ? _fileBase + ".IceRpc.cs" : _fileBase + ".cs";
 
     if (!dir.empty())

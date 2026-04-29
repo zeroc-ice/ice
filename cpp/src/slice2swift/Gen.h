@@ -27,7 +27,7 @@ namespace Slice
     class ImportVisitor final : public ParserVisitor
     {
     public:
-        ImportVisitor(IceInternal::Output&);
+        ImportVisitor(IceInternal::Output& out);
 
         bool visitModuleStart(const ModulePtr&) final;
         bool visitClassDefStart(const ClassDefPtr&) final;
@@ -43,14 +43,14 @@ namespace Slice
         void addImport(const SyntaxTreeBasePtr& p, const ContainedPtr& usedBy);
         void addImport(const std::string& module);
 
-        IceInternal::Output& out;
+        IceInternal::Output& _out;
         std::vector<std::string> _imports;
     };
 
     class TypesVisitor final : public ParserVisitor
     {
     public:
-        TypesVisitor(IceInternal::Output&);
+        TypesVisitor(IceInternal::Output& out);
 
         bool visitExceptionStart(const ExceptionPtr&) final;
         bool visitClassDefStart(const ClassDefPtr&) final;
@@ -66,35 +66,35 @@ namespace Slice
         void visitOperation(const OperationPtr&) final;
 
     private:
-        IceInternal::Output& out;
+        IceInternal::Output& _out;
     };
 
     // Generates the servant protocols.
     class ServantVisitor final : public ParserVisitor
     {
     public:
-        ServantVisitor(IceInternal::Output&);
+        ServantVisitor(IceInternal::Output& out);
 
         bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
         void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
         void visitOperation(const OperationPtr&) final;
 
     private:
-        IceInternal::Output& out;
+        IceInternal::Output& _out;
     };
 
     // Generate extensions for the servant protocols.
     class ServantExtVisitor final : public ParserVisitor
     {
     public:
-        ServantExtVisitor(IceInternal::Output&);
+        ServantExtVisitor(IceInternal::Output& out);
 
         bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
         void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
         void visitOperation(const OperationPtr&) final;
 
     private:
-        IceInternal::Output& out;
+        IceInternal::Output& _out;
     };
 }
 

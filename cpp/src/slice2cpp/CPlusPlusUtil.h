@@ -7,7 +7,7 @@
 #include "../Slice/Parser.h"
 #include "TypeContext.h"
 
-namespace Slice
+namespace Slice::Cpp
 {
     extern std::string paramPrefix;
 
@@ -19,6 +19,9 @@ namespace Slice
     void printHeader(IceInternal::Output& out);
     void printVersionCheck(IceInternal::Output& out);
     void printDllExportStuff(IceInternal::Output& out, const std::string& dllExport);
+
+    TypeContext setUseWstring(const ContainedPtr& p, std::list<TypeContext>& hist, TypeContext typeCtx);
+    TypeContext resetUseWstring(std::list<TypeContext>& hist);
 
     bool isMovable(const TypePtr& type);
 

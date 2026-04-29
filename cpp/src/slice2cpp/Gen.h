@@ -13,7 +13,7 @@ namespace Slice
     class Gen final
     {
     public:
-        Gen(std::string base,
+        Gen(const std::string& base,
             std::string headerExtension,
             std::string sourceExtension,
             const std::vector<std::string>& extraHeaders,
@@ -27,9 +27,6 @@ namespace Slice
         Gen& operator=(const Gen&) = delete;
 
         void generate(const UnitPtr& unit);
-
-        static TypeContext setUseWstring(const ContainedPtr& p, std::list<TypeContext>& hist, TypeContext typeCtx);
-        static TypeContext resetUseWstring(std::list<TypeContext>& hist);
 
     private:
         void writeExtraHeaders(IceInternal::Output& out);

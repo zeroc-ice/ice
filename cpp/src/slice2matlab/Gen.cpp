@@ -1212,7 +1212,7 @@ void
 CodeVisitor::visitOperation(const OperationPtr& op)
 {
     IceInternal::Output& out = *_out;
-    const string prxAbs = op->interface()->mappedScoped(".") + "Prx";
+    const string prxAbs = op->parentInterface()->mappedScoped(".") + "Prx";
 
     const ParameterList inParams = op->inParameters();
     const ParameterList sortedInParams = op->sortedInParameters();
@@ -3332,7 +3332,7 @@ Slice::matlabLinkFormatter(const string& rawLink, const ContainedPtr&, const Syn
         else if (auto opTarget = dynamic_pointer_cast<Operation>(target))
         {
             // Operation links should be of the form "<ScopedProxy>/<functionName>".
-            auto interfaceDef = opTarget->interface();
+            auto interfaceDef = opTarget->parentInterface();
             displayText = opTarget->mappedName();
             linkText = interfaceDef->mappedScoped(".") + "Prx" + "/" + displayText;
         }

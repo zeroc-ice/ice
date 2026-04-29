@@ -792,7 +792,7 @@ Slice::Csharp::icerpcLinkFormatter(const string& rawLink, const ContainedPtr& so
         if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
         {
             // link to the method on the proxy interface
-            result << getUnqualified(operationTarget->interface(), sourceScope, "", "Proxy") << "."
+            result << getUnqualified(operationTarget->parentInterface(), sourceScope, "", "Proxy") << "."
                    << removeEscapePrefix(operationTarget->mappedName()) << "Async";
         }
         else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))

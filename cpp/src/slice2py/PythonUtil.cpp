@@ -1001,9 +1001,9 @@ Slice::Python::ImportVisitor::addTypingImport(
         addTypingImport(dictionary->keyType(), source, forMarshaling);
         addTypingImport(dictionary->valueType(), source, forMarshaling);
     }
-    else if (auto interface = dynamic_pointer_cast<InterfaceDecl>(definition))
+    else if (auto interfaceDecl = dynamic_pointer_cast<InterfaceDecl>(definition))
     {
-        addTypingImport(interface->mappedScoped("."), interface->mappedName() + "Prx", source);
+        addTypingImport(interfaceDecl->mappedScoped("."), interfaceDecl->mappedName() + "Prx", source);
     }
     else if (auto contained = dynamic_pointer_cast<Contained>(definition))
     {
@@ -2399,7 +2399,7 @@ Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind 
         return;
     }
 
-    auto p = op->interface();
+    auto p = op->parentInterface();
 
     TypePtr returnType = op->returnType();
     ParameterList params = op->parameters();
@@ -2950,7 +2950,7 @@ Slice::Python::pyLinkFormatter(const string& rawLink, const ContainedPtr&, const
         }
         else if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
         {
-            string targetScoped = operationTarget->interface()->mappedScoped(".");
+            string targetScoped = operationTarget->parentInterface()->mappedScoped(".");
 
             // link to the method on the proxy interface
             result << ":meth:`" << targetScoped << "Prx." << operationTarget->mappedName() << "Async`";
