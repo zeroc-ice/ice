@@ -516,7 +516,7 @@ Slice::JavaScript::jsLinkFormatter(const string& rawLink, const ContainedPtr&, c
         {
             if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
             {
-                string targetScoped = operationTarget->interface()->mappedScoped(".");
+                string targetScoped = operationTarget->parentInterface()->mappedScoped(".");
 
                 // link to the method on the proxy interface
                 result << targetScoped << "Prx." << operationTarget->mappedName();

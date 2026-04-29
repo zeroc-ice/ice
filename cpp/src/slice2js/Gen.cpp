@@ -601,17 +601,10 @@ Slice::JsVisitor::writeDocSummary(const ContainedPtr& p, const DocSummaryOptions
 Slice::Gen::Gen(const string& base, const string& dir, bool typeScript)
     : _javaScriptOutput(false, true), // No break before opening block in JS + short empty blocks
       _typeScriptOutput(false, true), // No break before opening block in TS + short empty blocks
+      _fileBase(Slice::baseName(base)),
       _useStdout(false),
       _typeScript(typeScript)
 {
-    _fileBase = base;
-
-    string::size_type pos = base.find_last_of("/\\");
-    if (pos != string::npos)
-    {
-        _fileBase = base.substr(pos + 1);
-    }
-
     string file = _fileBase + ".js";
 
     if (!dir.empty())
@@ -651,15 +644,10 @@ Slice::Gen::Gen(const string& base, const string& dir, bool typeScript)
 Slice::Gen::Gen(const string& base, ostream& out, bool typeScript)
     : _javaScriptOutput(out, false, true),
       _typeScriptOutput(out, false, true),
+      _fileBase(Slice::baseName(base)),
       _useStdout(true),
       _typeScript(typeScript)
 {
-    _fileBase = base;
-    string::size_type pos = base.find_last_of("/\\");
-    if (pos != string::npos)
-    {
-        _fileBase = base.substr(pos + 1);
-    }
 }
 
 Slice::Gen::~Gen()

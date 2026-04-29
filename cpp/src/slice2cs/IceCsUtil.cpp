@@ -135,7 +135,7 @@ Slice::Csharp::resultStructName(const string& className, const string& opName, b
 string
 Slice::Csharp::resultType(const OperationPtr& op, const string& ns, bool dispatch)
 {
-    InterfaceDefPtr interface = op->interface();
+    InterfaceDefPtr interface = op->parentInterface();
     if (dispatch && op->hasMarshaledResult())
     {
         return getUnqualified(interface, ns) + resultStructName("", op->mappedName(), true);
@@ -1814,7 +1814,7 @@ Slice::Csharp::iceLinkFormatter(const string& rawLink, const ContainedPtr& sourc
         if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
         {
             // link to the method on the proxy interface
-            result << getUnqualified(operationTarget->interface(), sourceScope, "", "Prx") << "."
+            result << getUnqualified(operationTarget->parentInterface(), sourceScope, "", "Prx") << "."
                    << operationTarget->mappedName() << "Async";
         }
         else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))

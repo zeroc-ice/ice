@@ -70,9 +70,6 @@ namespace Slice
     /// @see Contained::kindOf
     std::string pluralKindOf(const ContainedPtr& p);
 
-    // Checks an identifier for illegal syntax and reports any errors that are present.
-    bool reportIllegalSuffixOrUnderscore(const std::string& identifier);
-
     bool isProxyType(const TypePtr& type);
 
     // Is this the first element defined in its container?

@@ -1586,7 +1586,7 @@ Slice::Ice::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 void
 Slice::Ice::TypesVisitor::visitOperation(const OperationPtr& p)
 {
-    string ns = getNamespace(p->interface());
+    string ns = getNamespace(p->parentInterface());
     string name = p->mappedName();
     vector<string> inParams = getInParams(p, ns);
     string retS = typeToString(p->returnType(), ns, p->returnIsOptional());
@@ -1803,7 +1803,7 @@ Slice::Ice::ResultVisitor::visitModuleStart(const ModulePtr& p)
 void
 Slice::Ice::ResultVisitor::visitOperation(const OperationPtr& p)
 {
-    InterfaceDefPtr interface = p->interface();
+    InterfaceDefPtr interface = p->parentInterface();
     string ns = getNamespace(interface);
     ParameterList outParams = p->outParameters();
     TypePtr ret = p->returnType();
@@ -1972,7 +1972,7 @@ Slice::Ice::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 void
 Slice::Ice::SkeletonVisitor::visitOperation(const OperationPtr& op)
 {
-    InterfaceDefPtr interface = op->interface();
+    InterfaceDefPtr interface = op->parentInterface();
     string interfaceName = prependSkeletonPrefix(interface->mappedName());
     string ns = getNamespace(interface);
     const bool amd = _async || interface->hasMetadata("amd") || op->hasMetadata("amd");
@@ -2168,7 +2168,7 @@ Slice::Ice::SkeletonVisitor::writeDispatch(const InterfaceDefPtr& p)
         _out << sb;
         for (const auto& op : allOps)
         {
-            _out << nl << '"' << op->name() << "\" => " << getUnqualified(op->interface(), ns, skeletonPrefix())
+            _out << nl << '"' << op->name() << "\" => " << getUnqualified(op->parentInterface(), ns, skeletonPrefix())
                  << ".iceD_" << removeEscapePrefix(op->mappedName()) << "Async(this, request),";
         }
         for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
@@ -2191,7 +2191,7 @@ Slice::Ice::SkeletonVisitor::getDispatchParams(
     const string& ns)
 {
     string name = op->mappedName();
-    InterfaceDefPtr interface = op->interface();
+    InterfaceDefPtr interface = op->parentInterface();
     ParameterList parameterList;
 
     if (_async || interface->hasMetadata("amd") || op->hasMetadata("amd"))
