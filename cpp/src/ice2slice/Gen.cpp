@@ -405,7 +405,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 void
 Gen::TypesVisitor::visitOperation(const OperationPtr& op)
 {
-    InterfaceDefPtr interface = op->interface();
+    InterfaceDefPtr interface = op->parentInterface();
     InterfaceList bases = interface->bases();
     const string scope = interface->scope();
     Output& out = getOutput(interface);
