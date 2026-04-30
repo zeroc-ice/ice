@@ -18,6 +18,8 @@ These are the changes since the [Ice 3.8.1] release.
 ### General Changes
 
 - Removed the 'ice2slice' compiler
+- Fixed IceGrid so servers with activation="always" are no longer disabled after a startup failure when
+  IceGrid.Node.DisableOnFailure is set to 0 (the default).
 
 ### Slice Language Changes
 

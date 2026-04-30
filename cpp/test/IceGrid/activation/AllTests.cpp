@@ -521,6 +521,24 @@ allTests(Test::TestHelper* helper)
         }
         pingers.resize(0);
 
+        // With IceGrid.Node.DisableOnFailure=0 (local node default), startup failures must not disable
+        // activation="always" servers.
+        Ice::ObjectPrx alwaysFailing(communicator, "fail-on-startup-always");
+        for (i = 0; i < 5; ++i)
+        {
+            this_thread::sleep_for(chrono::milliseconds(500));
+            test(admin->isServerEnabled("fail-on-startup-always"));
+            try
+            {
+                alwaysFailing->ice_ping();
+                test(false);
+            }
+            catch (const Ice::NoEndpointException&)
+            {
+            }
+        }
+        admin->enableServer("fail-on-startup-always", false);
+
         try
         {
             admin->startServer("invalid-pwd-no-oa");

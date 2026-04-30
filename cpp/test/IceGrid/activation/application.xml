@@ -44,6 +44,7 @@
       <server-instance template="Server" id="server-activation-timeout" activation-delay="5" activation-timeout="3"/>
       <server-instance template="Server" id="server-deactivation-timeout" deactivation-delay="60" deactivation-timeout="3"/>
       <server-instance template="Server" id="fail-on-startup" fail-on-startup="1"/>
+      <server-instance template="Server" id="fail-on-startup-always" activation="always" fail-on-startup="1"/>
 
       <server id="invalid-exe" exe="server2" activation="on-demand">
         <adapter name="TestAdapter" endpoints="default">

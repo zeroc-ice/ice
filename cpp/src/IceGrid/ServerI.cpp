@@ -1390,11 +1390,9 @@ ServerI::disableOnFailure()
     }
 
     //
-    // If disable on failure is configured or if the activation mode
-    // is always and the server wasn't active at the time of the
-    // failure we disable the server.
+    // Disable the server only when disable-on-failure is configured.
     //
-    if (_disableOnFailure != 0s || (_activation == Always && (_state == Activating || _state == WaitForActivation)))
+    if (_disableOnFailure != 0s)
     {
         _previousActivation = _activation;
         _activation = Disabled;
