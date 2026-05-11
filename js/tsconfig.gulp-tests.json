@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
-        "lib": ["dom", "es2020"],
+        "lib": ["dom", "es2020", "esnext.disposable"],
+        "types": ["node"],
         "target": "es2020",
         "module": "es2020",
         "moduleResolution": "bundler",
