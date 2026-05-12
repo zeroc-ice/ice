@@ -93,7 +93,7 @@ jobs:
           dotnet-coverage shutdown dotnet-coverage
 
       - name: Generate Coverage Reports
-        uses: danielpalme/ReportGenerator-GitHub-Action@5.3.8
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.5.10
         with:
           reports: csharp/coverage.cobertura.xml
           targetdir: coveragereport
