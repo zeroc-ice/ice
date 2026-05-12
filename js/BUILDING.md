@@ -2,15 +2,17 @@
 
 ## Table of Contents
 
-- [Table of contents](#table-of-contents)
-- [Prerequisites](#prerequisites)
-- [Build roadmap](#build-roadmap)
-- [Workspace layout](#workspace-layout)
-- [Building Ice for JavaScript](#building-ice-for-javascript)
-- [Running the tests](#running-the-tests)
-- [Creating the NPM packages](#creating-the-npm-packages)
-  - [Slice Compilers](#slice-compilers)
-- [Generating the API Reference](#generating-the-api-reference)
+- [Building Ice for JavaScript from source](#building-ice-for-javascript-from-source)
+  - [Table of Contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+  - [Build Roadmap](#build-roadmap)
+  - [Workspace Layout](#workspace-layout)
+  - [Building Ice for JavaScript](#building-ice-for-javascript)
+  - [Running the Tests](#running-the-tests)
+  - [Creating the NPM Packages](#creating-the-npm-packages)
+    - [Slice Compilers](#slice-compilers)
+  - [Generating the API Reference](#generating-the-api-reference)
+  - [Checking for Dependency Updates](#checking-for-dependency-updates)
 
 ## Prerequisites
 
@@ -134,3 +136,34 @@ This command generates the API reference into the `docs` directory. Start a loca
 ```shell
 npx http-server docs
 ```
+
+## Checking for Dependency Updates
+
+Routine npm dependency upgrades are handled automatically by [Dependabot](https://docs.github.com/en/code-security/dependabot),
+configured in [../.github/dependabot.yml](../.github/dependabot.yml). Dependabot opens grouped pull requests on a
+monthly cadence (with a cooldown on freshly published versions), and security updates are delivered as separate PRs as
+soon as advisories are published.
+
+For ad-hoc local checks &mdash; for example before a release, or when investigating a specific upgrade &mdash; we use
+[npm-check-updates](https://www.npmjs.com/package/npm-check-updates) (often called `ncu`). Its behavior is configured in
+[.ncurc.json](.ncurc.json) to mirror the Dependabot policy:
+
+- `target: minor` &mdash; only minor and patch upgrades are proposed by default.
+- `cooldown: 7` &mdash; versions published in the last 7 days are skipped, to avoid pulling in freshly released packages.
+- `peer: true` &mdash; peer-dependency constraints are respected.
+
+From the `js/` directory:
+
+```shell
+# List available minor/patch upgrades (respecting the cooldown).
+npx npm-check-updates
+
+# Apply the upgrades by writing them to package.json (run `npm install` afterwards).
+npx npm-check-updates -u
+
+# One-off check that also includes major upgrades.
+npx npm-check-updates --target latest
+```
+
+Major upgrades should be reviewed and applied deliberately rather than as part of routine maintenance, since they may
+require code changes.

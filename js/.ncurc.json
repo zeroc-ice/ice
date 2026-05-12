@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/raineorshine/npm-check-updates/main/src/types/RunOptions.ts",
+
+  "// target": "Only suggest minor/patch by default; run `ncu --target latest` explicitly to see majors.",
+  "target": "minor",
+
+  "// cooldown": "Skip versions published in the last N days (mirrors Dependabot cooldown).",
+  "cooldown": 7,
+
+  "// peer": "Respect peer-dependency constraints when proposing upgrades.",
+  "peer": true,
+
+  "// reject": "Packages we never want auto-suggested. Add as needed.",
+  "reject": []
+}
