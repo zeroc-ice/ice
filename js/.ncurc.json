@@ -1,5 +1,4 @@
 {
-  "$schema": "https://raw.githubusercontent.com/raineorshine/npm-check-updates/main/src/types/RunOptions.ts",
   "target": "minor",
   "cooldown": 7,
   "peer": true,
