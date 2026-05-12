@@ -51,8 +51,8 @@ remove such statements. Different module bundlers provide different options, for
 
 - If using [esbuild], see [drop option][esbuild-drop], which allows removing console statements.
 - If using rollup, see the [@rollup/plugin-strip], which can remove specific function calls such as `console.assert`.
-- If using WebPack the [TerserWebpackPlugin] plugin can be configured to drop `console.assert`; see `drop_console` in
-[terser options].
+- If using WebPack, see [JavaScript Minification][webpack-js-minification]; the underlying Terser minifier can be
+configured to drop `console.assert` via `drop_console` in [terser options].
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/js
 [NPM Packages]: ../NIGHTLY.md#ice-for-javascript
@@ -63,5 +63,5 @@ remove such statements. Different module bundlers provide different options, for
 [esbuild]: https://esbuild.github.io/
 [esbuild-drop]: https://esbuild.github.io/api/#drop
 [@rollup/plugin-strip]: https://github.com/rollup/plugins/tree/master/packages/strip
-[TerserWebpackPlugin]: https://webpack.js.org/plugins/terser-webpack-plugin/
+[webpack-js-minification]: https://docs.webpack.js.org/guides/production#javascript-minification
 [terser options]: https://terser.org/docs/options/
