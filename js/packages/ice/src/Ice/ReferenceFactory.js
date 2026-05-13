@@ -316,24 +316,7 @@ export class ReferenceFactory {
                         end = s.length;
                         break;
                     } else {
-                        let quoted = false;
-                        let quote = beg;
-                        while (true) {
-                            quote = s.indexOf('"', quote);
-                            if (quote == -1 || end < quote) {
-                                break;
-                            } else {
-                                const closingQuote = s.indexOf('"', quote + 1);
-                                if (closingQuote == -1) {
-                                    break;
-                                } else if (end < closingQuote) {
-                                    quoted = true;
-                                    break;
-                                }
-                                quote = closingQuote + 1;
-                            }
-                        }
-                        if (!quoted) {
+                        if (!StringUtil.isInDoubleQuotes(s, beg, end)) {
                             break;
                         }
                         ++end;
