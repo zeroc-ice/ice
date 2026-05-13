@@ -202,19 +202,19 @@ export class StringUtil {
     }
 
     //
-    // Returns true when the character at end lies within a double-quoted
-    // substring that starts at or after start. Returns false if there is no
-    // such quoted substring or if a matching closing quote cannot be found.
+    // Returns true when s[end] lies within a double-quoted substring that
+    // starts at or after s[start]. Returns false when no such quoted
+    // substring exists or when a matching closing quote cannot be found.
     //
     static isInDoubleQuotes(s, start, end) {
         while (true) {
             const openingQuote = s.indexOf('"', start);
-            if (openingQuote == -1 || end < openingQuote) {
+            if (openingQuote === -1 || end < openingQuote) {
                 return false;
             }
 
             const closingQuote = s.indexOf('"', openingQuote + 1);
-            if (closingQuote == -1) {
+            if (closingQuote === -1) {
                 return false;
             } else if (end < closingQuote) {
                 return true;
