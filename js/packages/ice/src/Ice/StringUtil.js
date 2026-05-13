@@ -202,13 +202,11 @@ export class StringUtil {
     }
 
     //
-    // Returns true when s[end] lies within a double-quoted substring that
-    // starts at or after s[start]. Returns false when no such quoted
+    // Returns true when the position end lies within a double-quoted
+    // substring that starts at or after the position start. Returns false when no such quoted
     // substring exists or when a matching closing quote cannot be found.
     //
     static isInDoubleQuotes(s, start, end) {
-        console.assert(start >= 0 && start <= end && end <= s.length);
-
         while (true) {
             const openingQuote = s.indexOf('"', start);
             if (openingQuote === -1 || end < openingQuote) {
@@ -220,7 +218,13 @@ export class StringUtil {
                 closingQuote = s.indexOf('"', closingQuote);
                 if (closingQuote === -1) {
                     return false;
-                } else if (s.charAt(closingQuote - 1) !== "\\") {
+                }
+
+                let backslashCount = 0;
+                for (let i = closingQuote - 1; i > openingQuote && s.charAt(i) === "\\"; --i) {
+                    ++backslashCount;
+                }
+                if (backslashCount % 2 === 0) {
                     break;
                 }
                 ++closingQuote;
