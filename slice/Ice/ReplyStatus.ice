@@ -70,7 +70,7 @@ module Ice
         ["swift:identifier:unauthorized"]
         Unauthorized,
 
-        /// The dispatch failed because the request requires a feature that the server or the target service does not
+        /// The dispatch failed because the request requires a feature that the server or the target servant does not
         /// support.
         ["swift:identifier:notSupported"]
         NotSupported,
