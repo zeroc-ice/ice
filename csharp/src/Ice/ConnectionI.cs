@@ -593,10 +593,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             return false;
         }
 
-        // Run the IO operation on a .NET thread pool thread to ensure the IO operation won't be interrupted if the
-        // Ice thread pool thread is terminated (.NET Socket read/write fail with a SocketError.OperationAborted
-        // error if started from a thread which is later terminated).
-        Task.Run(() =>
+        void doIO()
         {
             lock (_mutex)
             {
@@ -655,7 +652,18 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     completedCallback(this);
                 }
             }
-        });
+        }
+
+        if (_threadHopRequired)
+        {
+            // Run the I/O on a .NET ThreadPool thread so it survives the initiating Ice worker exiting.
+            // See ctor for when this is required.
+            Task.Run(doIO);
+        }
+        else
+        {
+            doIO();
+        }
 
         return true;
     }
@@ -1420,6 +1428,12 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 // object adapter with its own thread pool.
                 _threadPool = instance.clientThreadPool();
             }
+            // On Windows, async socket I/O initiated on a thread that subsequently terminates is cancelled by the OS
+            // with SocketError.OperationAborted. The Ice thread pool can reap workers idle past ThreadIdleTime when
+            // SizeMax > 1, so in that combination we hop the I/O onto the .NET ThreadPool (whose threads are managed
+            // by the runtime and not reaped while owning pending I/O). Other platforms and fixed-size Ice pools don't
+            // need the hop. See startAsync.
+            _threadHopRequired = _isWindows && _threadPool.canShrink;
             _threadPool.initialize(this);
         }
         catch (LocalException)
@@ -2842,6 +2856,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         internal bool receivedReply;
     }
 
+    private static readonly bool _isWindows =
+        System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(
+            System.Runtime.InteropServices.OSPlatform.Windows);
+
     private static readonly ConnectionState[] connectionStateMap = [
         ConnectionState.ConnectionStateValidating,   // StateNotInitialized
         ConnectionState.ConnectionStateValidating,   // StateNotValidated
@@ -2867,6 +2885,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private readonly Logger _logger;
     private readonly TraceLevels _traceLevels;
     private readonly Ice.Internal.ThreadPool _threadPool;
+    private readonly bool _threadHopRequired;
 
     private readonly TimeSpan _connectTimeout;
     private readonly TimeSpan _closeTimeout;
