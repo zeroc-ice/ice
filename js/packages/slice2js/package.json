@@ -47,7 +47,7 @@
     },
     "dependencies": {
         "fast-glob": "^3.3.0",
-        "unplugin": "^2.3.0"
+        "unplugin": "^3.0.0"
     },
     "files": [
         "dist/",
