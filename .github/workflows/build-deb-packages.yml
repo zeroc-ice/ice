@@ -34,11 +34,11 @@ jobs:
 
           - distribution: debian12
             arch: amd64
-            deb_build_profiles: "no-python312"
+            deb_build_profiles: "nopython"
 
           - distribution: debian12
             arch: arm64
-            deb_build_profiles: "no-python312"
+            deb_build_profiles: "nopython"
 
           - distribution: debian13
             arch: amd64

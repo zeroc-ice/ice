@@ -29,15 +29,26 @@ fi
 
 UPSTREAM_VERSION=$(echo $ICE_VERSION | cut -f1 -d'-')
 
-# Generate a tarball of the current repository state for the given UPSTREAM_VERSION
+# Generate a tarball of the current repository state for the given UPSTREAM_VERSION, excluding files
+# listed in Files-Excluded in debian/copyright (pre-built Java binaries and other non-essential files).
 echo "Creating tarball for UPSTREAM_VERSION=$UPSTREAM_VERSION"
 cd /workspace/ice
 git config --global --add safe.directory /workspace/ice
-git archive --format=tar.gz -o /workspace/zeroc-ice_${UPSTREAM_VERSION}.orig.tar.gz HEAD
+git archive --format=tar.gz \
+    --prefix=zeroc-ice-${UPSTREAM_VERSION}/ \
+    -o /workspace/zeroc-ice_${UPSTREAM_VERSION}.orig.tar.gz \
+    HEAD \
+    ':(exclude)cpp/src/IceUtil/ConvertUTF.*' \
+    ':(exclude)cpp/msbuild/*' \
+    ':(exclude)csharp/*' \
+    ':(exclude)java/*' \
+    ':(exclude)js/*' \
+    ':(exclude)packaging/rpm/*' \
+    ':(exclude)packaging/windows-installer/*'
 
 # Unpack the source tarball
 cd /workspace/build
-tar xzf ../zeroc-ice_${UPSTREAM_VERSION}.orig.tar.gz
+tar xzf ../zeroc-ice_${UPSTREAM_VERSION}.orig.tar.gz --strip-components=1
 
 # Build the source package (-S generates .dsc and .tar.gz files)
 dpkg-buildpackage -S
