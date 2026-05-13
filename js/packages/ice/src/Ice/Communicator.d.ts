@@ -1,5 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
+/**
+ * Fallback for TypeScript consumers that don't include `esnext.disposable` in their configured libs.
+ */
 interface SymbolConstructor {
     readonly asyncDispose: symbol;
 }
