@@ -18,6 +18,8 @@ These are the changes since the [Ice 3.8.1] release.
 ### General Changes
 
 - Removed the 'ice2slice' compiler
+- Fixed a TypeScript 6 compatibility regression in the JavaScript package declarations by providing a fallback
+  `Symbol.asyncDispose` symbol type for consumers that don't enable `esnext.disposable`.
 
 ### Slice Language Changes
 
