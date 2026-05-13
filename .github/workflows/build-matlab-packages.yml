@@ -67,7 +67,7 @@ jobs:
           Add-Content -Path "${{ github.workspace }}\catalog.txt" -Value "cpp\bin\x64\Release\slice2matlab.exe"
 
       - name: Sign C++ Binaries
-        uses: azure/trusted-signing-action@v0
+        uses: azure/trusted-signing-action@v1
         if: runner.os == 'Windows' && inputs.authenticode_sign
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
