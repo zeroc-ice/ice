@@ -130,7 +130,7 @@ export class Client extends TestHelper {
         const out = this.getWriter();
         const communicator = this.communicator();
 
-        let obj = new Test.TestIntfPrx(communicator, `asm:${this.getTestEndpoint()}`);
+        let obj: Test.TestIntfPrx;
 
         out.write("testing ice_ids... ");
         try {

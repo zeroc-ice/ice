@@ -198,7 +198,7 @@ export class Client extends TestHelper {
         await hello.ice_ping();
         test(++count == (await locator.getRequestCount()));
 
-        let results: Promise<void>[] = [];
+        const results: Promise<void>[] = [];
         for (let i = 0; i < 1000; i++) {
             results.push(
                 hello.sayHello().catch(() => {
@@ -229,7 +229,6 @@ export class Client extends TestHelper {
             );
         }
         await Promise.all(results);
-        results = [];
         // XXX:
         // Take into account the retries.
         test((await locator.getRequestCount()) > count && (await locator.getRequestCount()) < count + 1999);
@@ -425,14 +424,13 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing locator encoding resolution... ");
-        hello = await Test.HelloPrx.checkedCast(new Ice.ObjectPrx(communicator, "hello"));
         count = await locator.getRequestCount();
         await new Ice.ObjectPrx(communicator, "test@TestAdapter").ice_encodingVersion(Ice.Encoding_1_1).ice_ping();
         test(count == (await locator.getRequestCount()));
         await new Ice.ObjectPrx(communicator, "test@TestAdapter10").ice_encodingVersion(Ice.Encoding_1_0).ice_ping();
         test(++count == (await locator.getRequestCount()));
         await new Ice.ObjectPrx(communicator, "test -e 1.0@TestAdapter10-2").ice_ping();
-        test(++count == (await locator.getRequestCount()));
+        test(count + 1 == (await locator.getRequestCount()));
         out.writeLine("ok");
 
         out.write("shutdown server manager... ");

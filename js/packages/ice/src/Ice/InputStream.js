@@ -338,7 +338,7 @@ class EncapsDecoder10 extends EncapsDecoder {
 
     readInstance() {
         const index = this._stream.readInt();
-        let v = null;
+        let v;
 
         if (index <= 0) {
             throw new MarshalException("invalid object id");

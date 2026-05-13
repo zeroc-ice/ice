@@ -18,7 +18,7 @@ export class Communicator {
         this._isShutdown = false;
         this._shutdownPromise = new Promise();
 
-        let initData = null;
+        let initData;
         if (arguments.length === 0) {
             initData = new InitializationData();
         } else if (arguments.length === 1) {

@@ -304,8 +304,8 @@ export class Client extends TestHelper {
         b1 = communicator.stringToProxy("test -O");
         test(b1 !== null && b1.ice_isBatchOneway());
         // We can still parse -d and -D even if JavaScript doesn't support Datagram invocations.
-        b1 = communicator.stringToProxy("test -d");
-        b1 = communicator.stringToProxy("test -D");
+        communicator.stringToProxy("test -d");
+        communicator.stringToProxy("test -D");
 
         b1 = communicator.stringToProxy("test -s"); // does nothing
 

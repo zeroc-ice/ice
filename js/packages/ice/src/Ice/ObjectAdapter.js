@@ -393,14 +393,14 @@ export class ObjectAdapter {
                             if (quote == -1 || end < quote) {
                                 break;
                             } else {
-                                quote = s.indexOf('"', ++quote);
-                                if (quote == -1) {
+                                const closingQuote = s.indexOf('"', quote + 1);
+                                if (closingQuote == -1) {
                                     break;
-                                } else if (end < quote) {
+                                } else if (end < closingQuote) {
                                     quoted = true;
                                     break;
                                 }
-                                ++quote;
+                                quote = closingQuote + 1;
                             }
                         }
                         if (!quoted) {
