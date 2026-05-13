@@ -316,6 +316,18 @@ function allTests($helper)
 
     try
     {
+        $thrower->throwDispatchException(Ice\ReplyStatus::NotSupported);
+        test(false);
+    }
+    catch(Ice\DispatchException $ex)
+    {
+        test($ex->replyStatus == Ice\ReplyStatus::NotSupported);
+        test($ex->getMessage() == "The dispatch failed with reply status NotSupported." ||
+            $ex->getMessage() == "The dispatch failed with reply status notSupported."); # for Swift
+    }
+
+    try
+    {
         $thrower->throwDispatchException(212);
         test(false);
     }
