@@ -207,16 +207,26 @@ export class StringUtil {
     // substring exists or when a matching closing quote cannot be found.
     //
     static isInDoubleQuotes(s, start, end) {
+        console.assert(start >= 0 && start <= end && end <= s.length);
+
         while (true) {
             const openingQuote = s.indexOf('"', start);
             if (openingQuote === -1 || end < openingQuote) {
                 return false;
             }
 
-            const closingQuote = s.indexOf('"', openingQuote + 1);
-            if (closingQuote === -1) {
-                return false;
-            } else if (end < closingQuote) {
+            let closingQuote = openingQuote + 1;
+            while (true) {
+                closingQuote = s.indexOf('"', closingQuote);
+                if (closingQuote === -1) {
+                    return false;
+                } else if (s.charAt(closingQuote - 1) !== "\\") {
+                    break;
+                }
+                ++closingQuote;
+            }
+
+            if (end < closingQuote) {
                 return true;
             }
 
