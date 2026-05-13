@@ -1,5 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
+interface SymbolConstructor {
+    readonly asyncDispose: symbol;
+}
+
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
