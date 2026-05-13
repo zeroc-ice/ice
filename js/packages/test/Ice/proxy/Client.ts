@@ -129,6 +129,10 @@ export class Client extends TestHelper {
 
         b1 = communicator.stringToProxy('test:tcp --sourceAddress "::1"');
         test(b1 !== null && b1.equals(communicator.stringToProxy(b1.toString())));
+        b1 = communicator.stringToProxy(
+            'test:tcp -h 127.0.0.1 -p 10000 --sourceAddress "::1":tcp -h 127.0.0.1 -p 10001',
+        );
+        test(b1 !== null && b1.ice_getEndpoints().length === 2);
 
         b1 = communicator.stringToProxy("");
         test(b1 === null);
