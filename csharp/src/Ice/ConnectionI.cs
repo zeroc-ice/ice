@@ -593,6 +593,19 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             return false;
         }
 
+        if (_threadHopRequired)
+        {
+            // Run the I/O on a .NET ThreadPool thread so it survives the initiating Ice worker exiting.
+            // See ctor for when this is required.
+            Task.Run(doIO);
+        }
+        else
+        {
+            doIO();
+        }
+
+        return true;
+
         void doIO()
         {
             lock (_mutex)
@@ -653,19 +666,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 }
             }
         }
-
-        if (_threadHopRequired)
-        {
-            // Run the I/O on a .NET ThreadPool thread so it survives the initiating Ice worker exiting.
-            // See ctor for when this is required.
-            Task.Run(doIO);
-        }
-        else
-        {
-            doIO();
-        }
-
-        return true;
     }
 
     public override bool finishAsync(int operation)
@@ -1433,7 +1433,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             // SizeMax > 1, so in that combination we hop the I/O onto the .NET ThreadPool (whose threads are managed
             // by the runtime and not reaped while owning pending I/O). Other platforms and fixed-size Ice pools don't
             // need the hop. See startAsync.
-            _threadHopRequired = _isWindows && _threadPool.canShrink;
+            _threadHopRequired = AssemblyUtil.isWindows && _threadPool.canShrink;
             _threadPool.initialize(this);
         }
         catch (LocalException)
@@ -2855,10 +2855,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         internal bool invokeSent;
         internal bool receivedReply;
     }
-
-    private static readonly bool _isWindows =
-        System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(
-            System.Runtime.InteropServices.OSPlatform.Windows);
 
     private static readonly ConnectionState[] connectionStateMap = [
         ConnectionState.ConnectionStateValidating,   // StateNotInitialized
