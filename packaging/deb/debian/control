@@ -39,6 +39,8 @@ Depends: libzeroc-ice3.8 (= ${binary:Version}),
          zeroc-ice-slice (= ${source:Version}),
          libssl-dev,
          ${misc:Depends}
+Breaks: zeroc-ice-compilers (<< 3.8)
+Replaces: zeroc-ice-compilers (<< 3.8)
 Description: libraries and headers for developing Ice applications in C++
  This package contains the libraries and headers needed for developing
  Ice applications in C++.
@@ -95,6 +97,8 @@ Depends: libzeroc-ice3.8 (= ${binary:Version}),
          ${php:Depends},
          ${shlibs:Depends}
 Provides: ${php:Provides}
+Breaks: zeroc-ice-compilers (<< 3.8)
+Replaces: zeroc-ice-compilers (<< 3.8)
 Description: PHP extension for Ice
  This package contains a PHP extension for communicating with Ice.
  .
@@ -112,6 +116,8 @@ Depends: libzeroc-ice3.8 (= ${binary:Version}),
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}
+Breaks: zeroc-ice-compilers (<< 3.8)
+Replaces: zeroc-ice-compilers (<< 3.8)
 Description: Python 3 extension for Ice
  This package contains a Python 3 extension for communication with Ice.
  .
