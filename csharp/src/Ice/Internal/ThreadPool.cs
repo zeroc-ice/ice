@@ -360,6 +360,12 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
     public bool serialize() => _serialize;
 
+    // A worker thread can exit only when both conditions hold: the thread idle time is finite (so an idle worker
+    // can time out), and the pool can have more than one worker (so a worker is eligible to be reaped without
+    // dropping the pool below its floor of 1). Used by ConnectionI.startAsync to decide whether async I/O initiated
+    // on an Ice worker thread needs to be hopped onto a .NET ThreadPool thread to survive the worker's exit.
+    public bool canShrink => _threadIdleTime != Timeout.InfiniteTimeSpan && _sizeMax > 1;
+
     protected sealed override void QueueTask(
         System.Threading.Tasks.Task task) => execute(
             () => TryExecuteTask(task),
