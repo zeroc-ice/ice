@@ -356,6 +356,18 @@ classdef AllTests
             end
 
             try
+                thrower.throwDispatchException(uint8(Ice.ReplyStatus.NotSupported));
+                assert(false);
+            catch ex
+                if isa(ex, 'Ice.DispatchException')
+                    assert(ex.replyStatus == uint8(Ice.ReplyStatus.NotSupported));
+                    assert(strcmp(ex.message, 'The dispatch failed with reply status NotSupported.'));
+                else
+                    rethrow(ex);
+                end
+            end
+
+            try
                 thrower.throwDispatchException(212);
                 assert(false);
             catch ex
@@ -644,6 +656,18 @@ classdef AllTests
                 if isa(ex, 'Ice.DispatchException')
                     assert(ex.replyStatus == uint8(Ice.ReplyStatus.Unauthorized));
                     assert(strcmp(ex.message, 'The dispatch failed with reply status Unauthorized.'));
+                else
+                    rethrow(ex);
+                end
+            end
+
+            try
+                thrower.throwDispatchExceptionAsync(uint8(Ice.ReplyStatus.NotSupported)).fetchOutputs();
+                assert(false);
+            catch ex
+                if isa(ex, 'Ice.DispatchException')
+                    assert(ex.replyStatus == uint8(Ice.ReplyStatus.NotSupported));
+                    assert(strcmp(ex.message, 'The dispatch failed with reply status NotSupported.'));
                 else
                     rethrow(ex);
                 end

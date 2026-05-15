@@ -692,6 +692,19 @@ allTests(Test::TestHelper* helper)
 
     try
     {
+        thrower->throwDispatchException(static_cast<uint8_t>(Ice::ReplyStatus::NotSupported));
+        test(false);
+    }
+    catch (const Ice::DispatchException& ex)
+    {
+        test(ex.replyStatus() == Ice::ReplyStatus::NotSupported);
+        test(
+            string{ex.what()} == "The dispatch failed with reply status NotSupported." ||
+            string{ex.what()} == "The dispatch failed with reply status notSupported."); // for Swift
+    }
+
+    try
+    {
         thrower.throwDispatchException(212);
         test(false);
     }
@@ -1138,6 +1151,22 @@ allTests(Test::TestHelper* helper)
             test(
                 string{ex.what()} == "The dispatch failed with reply status Unauthorized." ||
                 string{ex.what()} == "The dispatch failed with reply status unauthorized."); // for Swift
+        }
+    }
+
+    {
+        auto f = thrower->throwDispatchExceptionAsync(static_cast<uint8_t>(Ice::ReplyStatus::NotSupported));
+        try
+        {
+            f.get();
+            test(false);
+        }
+        catch (const Ice::DispatchException& ex)
+        {
+            test(ex.replyStatus() == Ice::ReplyStatus::NotSupported);
+            test(
+                string{ex.what()} == "The dispatch failed with reply status NotSupported." ||
+                string{ex.what()} == "The dispatch failed with reply status notSupported."); // for Swift
         }
     }
 

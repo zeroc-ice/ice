@@ -399,6 +399,20 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.Thrower
         test(False)
 
     try:
+        thrower.throwDispatchException(Ice.ReplyStatus.NotSupported.value)
+        test(False)
+    except Ice.DispatchException as ex:
+        test(ex.replyStatus == Ice.ReplyStatus.NotSupported.value)
+        test(
+            str(ex) == "The dispatch failed with reply status NotSupported."
+            or str(ex) == "The dispatch failed with reply status notSupported."
+        )  # for Swift
+        pass
+    except Exception:
+        print(sys.exc_info())
+        test(False)
+
+    try:
         thrower.throwDispatchException(212)
         test(False)
     except Ice.DispatchException as ex:

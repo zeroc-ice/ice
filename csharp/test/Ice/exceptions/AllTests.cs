@@ -566,6 +566,17 @@ public class AllTests : global::Test.AllTests
 
         try
         {
+            thrower.throwDispatchException((byte)ReplyStatus.NotSupported);
+            test(false);
+        }
+        catch (DispatchException ex) when (ex.replyStatus == ReplyStatus.NotSupported)
+        {
+            test(ex.Message == "The dispatch failed with reply status NotSupported." ||
+                ex.Message == "The dispatch failed with reply status notSupported."); // for Swift
+        }
+
+        try
+        {
             thrower.throwDispatchException(212);
             test(false);
         }
@@ -968,6 +979,17 @@ public class AllTests : global::Test.AllTests
         {
             test(ex.Message == "The dispatch failed with reply status Unauthorized." ||
                 ex.Message == "The dispatch failed with reply status unauthorized."); // for Swift
+        }
+
+        try
+        {
+            await thrower.throwDispatchExceptionAsync((byte)ReplyStatus.NotSupported);
+            test(false);
+        }
+        catch (DispatchException ex) when (ex.replyStatus == ReplyStatus.NotSupported)
+        {
+            test(ex.Message == "The dispatch failed with reply status NotSupported." ||
+                ex.Message == "The dispatch failed with reply status notSupported."); // for Swift
         }
 
         try
