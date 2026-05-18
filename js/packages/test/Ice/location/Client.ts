@@ -198,7 +198,7 @@ export class Client extends TestHelper {
         await hello.ice_ping();
         test(++count == (await locator.getRequestCount()));
 
-        const results: Promise<void>[] = [];
+        let results: Promise<void>[] = [];
         for (let i = 0; i < 1000; i++) {
             results.push(
                 hello.sayHello().catch(() => {
