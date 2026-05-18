@@ -4,6 +4,7 @@
         "target": "es2020",
         "module": "es2020",
         "moduleResolution": "bundler",
+        "types": ["node"],
         "strict": true,
         "noImplicitAny": true,
         "noImplicitOverride": true,
