@@ -1,0 +1,4 @@
+{
+    "extends": "./tsconfig.gulp-tests.json",
+    "files": ["./dist/bundle.d.ts"]
+}
