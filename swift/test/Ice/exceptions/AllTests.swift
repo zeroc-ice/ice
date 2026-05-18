@@ -367,6 +367,15 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     }
 
     do {
+        try await thrower.throwDispatchException(ReplyStatus.notSupported.rawValue)
+        try test(false)
+    } catch let ex as Ice.DispatchException where ReplyStatus(rawValue: ex.replyStatus) == .notSupported {
+        try test(
+            ex.message == "The dispatch failed with reply status notSupported."
+                || ex.message == "The dispatch failed with reply status NotSupported.")  // for cross tests
+    }
+
+    do {
         try await thrower.throwDispatchException(212)
         try test(false)
     } catch let ex as Ice.DispatchException where ex.replyStatus == 212 {

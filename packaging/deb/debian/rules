@@ -74,7 +74,7 @@ endif
 	done
 
 override_dh_auto_install-indep:
-	# No installation needed for Arch: all packages
+	$(MAKE) $(MAKEOPTS) install-slice
 
 override_dh_auto_clean-arch:
 	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) LANGUAGES="cpp" CONFIGS="shared static" distclean

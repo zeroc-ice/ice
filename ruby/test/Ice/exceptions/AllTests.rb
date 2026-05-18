@@ -363,6 +363,18 @@ def allTests(helper, communicator)
     end
 
     begin
+        thrower.throwDispatchException(Ice::ReplyStatus::NotSupported.to_i)
+        test(false)
+    rescue Ice::DispatchException => ex
+        test(ex.replyStatus == Ice::ReplyStatus::NotSupported.to_i)
+        test(ex.to_s == "The dispatch failed with reply status NotSupported." ||
+            ex.to_s == "The dispatch failed with reply status notSupported.") # for Swift
+    rescue
+        print $!.backtrace.join("\n")
+        test(false)
+    end
+
+    begin
         thrower.throwDispatchException(212)
         test(false)
     rescue Ice::DispatchException => ex

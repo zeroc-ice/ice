@@ -69,5 +69,10 @@ module Ice
         /// The caller is not authorized to access the requested resource.
         ["swift:identifier:unauthorized"]
         Unauthorized,
+
+        /// The dispatch failed because the request requires a feature that the server or the target servant does not
+        /// support.
+        ["swift:identifier:notSupported"]
+        NotSupported,
     }
 }
