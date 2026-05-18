@@ -13,5 +13,6 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noEmitOnError": true
-    }
+    },
+    "files": ["./dist/bundle.d.ts"]
 }

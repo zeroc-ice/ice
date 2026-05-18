@@ -82,11 +82,8 @@ export class ImplicitContext {
         if (prxContext.size === 0) {
             ContextHelper.write(os, this._context);
         } else {
-            let ctx = null;
-            if (this._context.size === 0) {
-                ctx = prxContext;
-            } else {
-                ctx = new Context(this._context);
+            const ctx = this._context.size === 0 ? prxContext : new Context(this._context);
+            if (this._context.size !== 0) {
                 for (const [key, value] of prxContext) {
                     ctx.set(key, value);
                 }

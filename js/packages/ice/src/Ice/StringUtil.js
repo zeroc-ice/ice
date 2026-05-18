@@ -201,6 +201,43 @@ export class StringUtil {
         return 0; // Not quoted
     }
 
+    //
+    // Returns true when the position end lies within a double-quoted
+    // substring that starts at or after the position start. Returns false when no such quoted
+    // substring exists or when a matching closing quote cannot be found.
+    //
+    static isInDoubleQuotes(s, start, end) {
+        while (true) {
+            const openingQuote = s.indexOf('"', start);
+            if (openingQuote === -1 || end < openingQuote) {
+                return false;
+            }
+
+            let closingQuote = openingQuote + 1;
+            while (true) {
+                closingQuote = s.indexOf('"', closingQuote);
+                if (closingQuote === -1) {
+                    return false;
+                }
+
+                let backslashCount = 0;
+                for (let i = closingQuote - 1; i > openingQuote && s.charAt(i) === "\\"; --i) {
+                    ++backslashCount;
+                }
+                if (backslashCount % 2 === 0) {
+                    break;
+                }
+                ++closingQuote;
+            }
+
+            if (end < closingQuote) {
+                return true;
+            }
+
+            start = closingQuote + 1;
+        }
+    }
+
     static hashCode(s) {
         let hash = 0;
         for (let i = 0; i < s.length; i++) {

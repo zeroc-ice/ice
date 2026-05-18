@@ -26,7 +26,7 @@ export class ObjectAdapterFactory {
     }
 
     createObjectAdapter(name, router, promise) {
-        let adapter = null;
+        let adapter;
         try {
             if (name.length === 0) {
                 adapter = new ObjectAdapter(

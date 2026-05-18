@@ -238,8 +238,8 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing sequences... ");
-        let [retS, outS] = await initial.opBaseSeq([]);
-        [retS, outS] = await initial.opBaseSeq([new Test.Base(new Test.S(), "")]);
+        await initial.opBaseSeq([]);
+        const [retS, outS] = await initial.opBaseSeq([new Test.Base(new Test.S(), "")]);
         test(retS.length === 1 && outS.length === 1);
         out.writeLine("ok");
 
@@ -381,7 +381,6 @@ export class Client extends TestHelper {
 
             // Adding one more level would exceed the max class graph depth
             bottom.v = new Test.Recursive();
-            bottom = bottom.v;
             try {
                 await initial.setRecursive(top);
                 test(false);
