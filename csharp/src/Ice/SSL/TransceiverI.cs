@@ -111,6 +111,10 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         try
         {
             _readResult = _sslStream.ReadAsync(buf.b.rawBytes(), buf.b.position(), buf.b.remaining());
+            if (_readResult.IsCompletedSuccessfully)
+            {
+                return true;
+            }
             _readResult.ContinueWith(
                 task => callback(state),
                 TaskScheduler.Default);
@@ -214,8 +218,12 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         try
         {
             _writeResult = _sslStream.WriteAsync(buf.b.rawBytes(), buf.b.position(), buf.b.remaining());
-            _writeResult.ContinueWith(task => cb(state), TaskScheduler.Default);
             messageWritten = true;
+            if (_writeResult.IsCompletedSuccessfully)
+            {
+                return true;
+            }
+            _writeResult.ContinueWith(task => cb(state), TaskScheduler.Default);
             return false;
         }
         catch (IOException ex)
