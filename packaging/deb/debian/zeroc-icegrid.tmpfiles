@@ -1,0 +1,3 @@
+d /var/lib/ice/icegrid 0770 ice adm
+d /var/lib/ice/icegrid/node1 0770 ice adm
+d /var/lib/ice/icegrid/registry 0770 ice adm
