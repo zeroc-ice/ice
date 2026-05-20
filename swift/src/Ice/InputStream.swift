@@ -16,8 +16,8 @@ public final class InputStream {
 
     private var encaps: Encaps!
 
-    // Kept as 64-bit Int so that 'size * minWireSize' arithmetic cannot overflow (and trap on the
-    // Int32 conversion) and defeat the bounds check in readAndCheckSeqSize.
+    // Uses Int rather than Int32 so the 'size * minWireSize' arithmetic in readAndCheckSeqSize
+    // cannot overflow a 32-bit value and defeat the bounds check.
     private var startSeq: Int = -1
     private var minSeqSize: Int = 0
     private let classGraphDepthMax: Int32
@@ -554,7 +554,12 @@ extension InputStream {
     public func readSize() throws -> Int32 {
         let byteVal: UInt8 = try read()
         if byteVal == 255 {
-            return try read()
+            let v: Int32 = try read()
+            // A size is a non-negative value; reject a negative one encoded in the 5-byte form.
+            if v < 0 {
+                throw MarshalException(endOfBufferMessage)
+            }
+            return v
         } else {
             return Int32(byteVal)
         }

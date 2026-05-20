@@ -29,6 +29,9 @@ These are the changes since the [Ice 3.8.1] release.
   is now performed using 64-bit integers. This affects the C++, C#, Java, and Swift mappings, as well
   as the Python, Ruby, and PHP mappings, which build on the C++ core.
 
+- Fixed `InputStream.readSize` in the Swift mapping to reject a negative size, consistent with the
+  other mappings. A peer could otherwise send a negative size and crash the receiver.
+
 ### Slice Language Changes
 
 - Added the `["oneway"]` metadata directive for Slice operations. This directive can only be applied to operations that

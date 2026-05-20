@@ -570,6 +570,19 @@ public class Client: TestHelperI, @unchecked Sendable {
                 try test(false)
             } catch is Ice.MarshalException {}
         }
+        do {
+            // A negative size encoded in the 5-byte form must be rejected, not returned to a caller
+            // that would trap allocating an array with a negative count.
+            outS = Ice.OutputStream(communicator: communicator)
+            outS.write(UInt8(255))  // size marker for the 5-byte encoding
+            outS.write(Int32(-1))  // a negative 32-bit size
+            let data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            do {
+                _ = try inS.readSize()
+                try test(false)
+            } catch is Ice.MarshalException {}
+        }
         writer.writeLine("ok")
     }
 }
