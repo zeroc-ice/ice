@@ -19,6 +19,13 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Removed the 'ice2slice' compiler
 
+- Fixed the WebSocket transport to enforce RFC 6455 section 5.5 on control frames. A peer could
+  previously send a `ping`, `pong`, or `close` control frame declaring a payload of up to 2 GB,
+  which the receiver buffered before applying any size limit, leading to excessive memory
+  allocation. Control frames whose payload exceeds 125 bytes or that are fragmented are now
+  rejected with a `ProtocolException`. This affects the C++, C#, and Java mappings, as well as the
+  Python, Ruby, PHP, MATLAB, and Swift mappings, which build on the C++ core.
+
 ### Slice Language Changes
 
 - Added the `["oneway"]` metadata directive for Slice operations. This directive can only be applied to operations that
