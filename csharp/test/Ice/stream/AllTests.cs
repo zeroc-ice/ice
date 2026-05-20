@@ -990,6 +990,27 @@ public class AllTests : global::Test.AllTests
         }
 
         output.WriteLine("ok");
+
+        output.Write("testing sequence size validation... ");
+        output.Flush();
+        {
+            // A peer-supplied sequence size must be validated so that 'size * minWireSize' cannot
+            // overflow a 32-bit int and defeat the bounds check in readAndCheckSeqSize.
+            outS = new Ice.OutputStream(communicator);
+            outS.writeSize(0x10000000); // 268435456; * 8 (the min wire size of a long) overflows a 32-bit int.
+            byte[] data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            try
+            {
+                inS.readAndCheckSeqSize(8); // 8 is the min wire size of a sequence<long> element.
+                test(false);
+            }
+            catch (Ice.MarshalException)
+            {
+            }
+        }
+
+        output.WriteLine("ok");
         return 0;
     }
 }

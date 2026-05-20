@@ -23,6 +23,12 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Fixed an unbounded memory allocation when unmarshaling a proxy with a large endpoint count.
 
+- Fixed an integer overflow in the sequence-size validation performed while unmarshaling. A peer
+  could send a message with an oversized sequence size whose `size * minWireSize` product overflowed
+  a 32-bit integer, defeating the bounds check that guards sequence unmarshaling. The size arithmetic
+  is now performed using 64-bit integers. This affects the C++, C#, Java, and Swift mappings, as well
+  as the Python, Ruby, and PHP mappings, which build on the C++ core.
+
 ### Slice Language Changes
 
 - Added the `["oneway"]` metadata directive for Slice operations. This directive can only be applied to operations that

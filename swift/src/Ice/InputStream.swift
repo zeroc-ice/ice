@@ -16,8 +16,10 @@ public final class InputStream {
 
     private var encaps: Encaps!
 
-    private var startSeq: Int32 = -1
-    private var minSeqSize: Int32 = 0
+    // Kept as 64-bit Int so that 'size * minWireSize' arithmetic cannot overflow (and trap on the
+    // Int32 conversion) and defeat the bounds check in readAndCheckSeqSize.
+    private var startSeq: Int = -1
+    private var minSeqSize: Int = 0
     private let classGraphDepthMax: Int32
 
     private let endOfBufferMessage = "attempting to unmarshal past the end of the buffer"
@@ -587,11 +589,14 @@ extension InputStream {
         // the estimated remaining buffer size. This estimation is based on
         // the minimum size of the enclosing sequences, it's minSeqSize.
         //
+        // The size arithmetic below is performed in 64-bit: 'sz' is peer-controlled (up to
+        // Int32.max) and 'sz * minSize' would otherwise overflow when converted to Int32, trapping
+        // the process or bypassing the bounds check.
         if startSeq == -1 || pos > (startSeq + minSeqSize) {
-            startSeq = Int32(pos)
-            minSeqSize = Int32(sz * minSize)
+            startSeq = pos
+            minSeqSize = sz * minSize
         } else {
-            minSeqSize += Int32(sz * minSize)
+            minSeqSize += sz * minSize
         }
 
         //
@@ -599,7 +604,11 @@ extension InputStream {
         // possibly enclosed sequences), something is wrong with the marshaled
         // data: it's claiming having more data that what is possible to read.
         //
-        if startSeq + minSeqSize > data.count {
+        // We also reject any sequence whose minimum size exceeds Int32.max: the Ice
+        // protocol encodes a message size as a 32-bit integer, so no sequence can
+        // legitimately require more.
+        //
+        if startSeq + minSeqSize > data.count || minSeqSize > Int(Int32.max) {
             throw MarshalException(endOfBufferMessage)
         }
 

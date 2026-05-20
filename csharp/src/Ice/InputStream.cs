@@ -118,7 +118,7 @@ public sealed class InputStream
         other._startSeq = _startSeq;
         _startSeq = tmpStartSeq;
 
-        int tmpMinSeqSize = other._minSeqSize;
+        long tmpMinSeqSize = other._minSeqSize;
         other._minSeqSize = _minSeqSize;
         _minSeqSize = tmpMinSeqSize;
 
@@ -491,14 +491,17 @@ public sealed class InputStream
         // the estimated remaining buffer size. This estimation is based on
         // the minimum size of the enclosing sequences, it's _minSeqSize.
         //
+        // The size arithmetic below is performed in 64-bit: 'sz' is peer-controlled (up to
+        // int.MaxValue) and 'sz * minSize' would otherwise overflow a 32-bit int and bypass the
+        // bounds check.
         if (_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize))
         {
             _startSeq = _buf.b.position();
-            _minSeqSize = sz * minSize;
+            _minSeqSize = (long)sz * minSize;
         }
         else
         {
-            _minSeqSize += sz * minSize;
+            _minSeqSize += (long)sz * minSize;
         }
 
         //
@@ -506,7 +509,11 @@ public sealed class InputStream
         // possibly enclosed sequences), something is wrong with the marshaled
         // data: it's claiming having more data that what is possible to read.
         //
-        if (_startSeq + _minSeqSize > _buf.size())
+        // We also reject any sequence whose minimum size exceeds int.MaxValue: the
+        // Ice protocol encodes a message size as a 32-bit integer, so no sequence
+        // can legitimately require more.
+        //
+        if (_startSeq + _minSeqSize > _buf.size() || _minSeqSize > int.MaxValue)
         {
             throw new MarshalException(endOfBufferMessage);
         }
@@ -3003,7 +3010,10 @@ public sealed class InputStream
     private readonly int _classGraphDepthMax;
 
     private int _startSeq = -1;
-    private int _minSeqSize;
+
+    // Kept in 64-bit so that 'size * minWireSize' arithmetic cannot overflow and defeat the bounds
+    // check in readAndCheckSeqSize.
+    private long _minSeqSize;
 
     private const string endOfBufferMessage = "Attempting to unmarshal past the end of the buffer.";
 }
