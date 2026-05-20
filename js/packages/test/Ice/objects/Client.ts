@@ -238,8 +238,9 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing sequences... ");
-        await initial.opBaseSeq([]);
-        const [retS, outS] = await initial.opBaseSeq([new Test.Base(new Test.S(), "")]);
+        let [retS, outS] = await initial.opBaseSeq([]);
+        test(retS.length === 0 && outS.length === 0);
+        [retS, outS] = await initial.opBaseSeq([new Test.Base(new Test.S(), "")]);
         test(retS.length === 1 && outS.length === 1);
         out.writeLine("ok");
 

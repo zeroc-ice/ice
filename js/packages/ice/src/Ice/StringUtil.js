@@ -218,13 +218,7 @@ export class StringUtil {
                 closingQuote = s.indexOf('"', closingQuote);
                 if (closingQuote === -1) {
                     return false;
-                }
-
-                let backslashCount = 0;
-                for (let i = closingQuote - 1; i > openingQuote && s.charAt(i) === "\\"; --i) {
-                    ++backslashCount;
-                }
-                if (backslashCount % 2 === 0) {
+                } else if (s.charAt(closingQuote - 1) !== "\\") {
                     break;
                 }
                 ++closingQuote;
