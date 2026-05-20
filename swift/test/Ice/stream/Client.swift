@@ -562,11 +562,11 @@ public class Client: TestHelperI, @unchecked Sendable {
             // A peer-supplied sequence size must be validated so that 'size * minWireSize' cannot
             // overflow and defeat the bounds check in readAndCheckSeqSize.
             outS = Ice.OutputStream(communicator: communicator)
-            outS.write(size: Int32(0x10000000)) // 268435456; * 8 (the min wire size of a long) overflows Int32.
+            outS.write(size: Int32(0x1000_0000))  // 268435456; * 8 (the min wire size of a long) overflows Int32.
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
             do {
-                _ = try inS.readAndCheckSeqSize(minSize: 8) // 8 is the min wire size of a sequence<long> element.
+                _ = try inS.readAndCheckSeqSize(minSize: 8)  // 8 is the min wire size of a sequence<long> element.
                 try test(false)
             } catch is Ice.MarshalException {}
         }
