@@ -552,7 +552,12 @@ extension InputStream {
     public func readSize() throws -> Int32 {
         let byteVal: UInt8 = try read()
         if byteVal == 255 {
-            return try read()
+            let v: Int32 = try read()
+            // A size is a non-negative value; reject a negative one encoded in the 5-byte form.
+            if v < 0 {
+                throw MarshalException("read invalid size: \(v)")
+            }
+            return v
         } else {
             return Int32(byteVal)
         }
@@ -587,11 +592,14 @@ extension InputStream {
         // the estimated remaining buffer size. This estimation is based on
         // the minimum size of the enclosing sequences, it's minSeqSize.
         //
-        if startSeq == -1 || pos > (startSeq + minSeqSize) {
+        // 'sz' is peer-controlled (up to Int32.max), so we compute the minimum size of this
+        // sequence as an Int64: 'sz * minSize' would overflow a 32-bit value and bypass the
+        // bounds check.
+        var newMinSeqSize = Int64(sz) * Int64(minSize)
+        if startSeq == -1 || pos > Int(startSeq + minSeqSize) {
             startSeq = Int32(pos)
-            minSeqSize = Int32(sz * minSize)
         } else {
-            minSeqSize += Int32(sz * minSize)
+            newMinSeqSize += Int64(minSeqSize)
         }
 
         //
@@ -599,10 +607,12 @@ extension InputStream {
         // possibly enclosed sequences), something is wrong with the marshaled
         // data: it's claiming having more data that what is possible to read.
         //
-        if startSeq + minSeqSize > data.count {
+        if Int64(startSeq) + newMinSeqSize > Int64(data.count) {
             throw MarshalException(endOfBufferMessage)
         }
 
+        // newMinSeqSize is now known to be <= data.count, itself smaller than Int32.max.
+        minSeqSize = Int32(newMinSeqSize)
         return sz
     }
 

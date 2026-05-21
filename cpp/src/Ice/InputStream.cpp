@@ -428,14 +428,19 @@ Ice::InputStream::readAndCheckSeqSize(int minSize)
     // the estimated remaining buffer size. This estimation is based on
     // the minimum size of the enclosing sequences, it's _minSeqSize.
     //
-    if (_startSeq == -1 || i > (b.begin() + _startSeq + _minSeqSize))
+    // 'sz' is peer-controlled (up to INT32_MAX), so we compute the minimum size of this sequence in
+    // 64-bit: 'sz * minSize' would otherwise overflow a 32-bit int and bypass the bounds check below.
+    int64_t minSeqSize = static_cast<int64_t>(sz) * minSize;
+
+    // '_startSeq + _minSeqSize' does not overflow: on the previous call, the bounds check below
+    // established this sum is <= b.size(), itself smaller than INT32_MAX.
+    if (_startSeq == -1 || (i - b.begin()) > _startSeq + _minSeqSize)
     {
         _startSeq = static_cast<int>(i - b.begin());
-        _minSeqSize = sz * minSize;
     }
     else
     {
-        _minSeqSize += sz * minSize;
+        minSeqSize += _minSeqSize;
     }
 
     //
@@ -443,11 +448,13 @@ Ice::InputStream::readAndCheckSeqSize(int minSize)
     // possibly enclosed sequences), something is wrong with the marshaled
     // data: it's claiming having more data that what is possible to read.
     //
-    if (_startSeq + _minSeqSize > static_cast<int>(b.size()))
+    if (_startSeq + minSeqSize > static_cast<int64_t>(b.size()))
     {
         throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
 
+    // minSeqSize is now known to be <= b.size(), itself smaller than INT32_MAX.
+    _minSeqSize = static_cast<int>(minSeqSize);
     return sz;
 }
 
