@@ -19,6 +19,8 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Removed the 'ice2slice' compiler
 
+- Fixed the WebSocket transport to enforce the RFC 6455 limits on control frames.
+
 ### Slice Language Changes
 
 - Added the `["oneway"]` metadata directive for Slice operations. This directive can only be applied to operations that
