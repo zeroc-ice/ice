@@ -30,17 +30,28 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Added the `["oneway"]` metadata directive for Slice operations. This directive can only be applied to operations that
   do not return data (no return type, out parameters, or exception specification). `OnewayOnlyException` is thrown
-  if a `["oneway"]` operation is invoked using a twoway proxy. In languages where exceptions can be thrown synchronously or asynchronously, this exception is always thrown synchronously.
+  if a `["oneway"]` operation is invoked using a twoway proxy. In languages where exceptions can be thrown synchronously
+  or asynchronously, this exception is always thrown synchronously.
 
 ### C++ Changes
 
-- Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice.
-  These now generate `` `[NAME]` `` instead of `@p [NAME]`.
+- Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice. These now generate `` `[NAME]` ``
+  instead of `@p [NAME]`.
 
 ### C# Changes
 
-- Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice.
-  These now generate `<c>[NAME]</c>` instead of `<paramref name="[NAME]" />`.
+- Added the `--icerpc` flag to `slice2cs`. When set, `slice2cs` generates C# code for
+  [IceRPC](https://github.com/icerpc/icerpc-csharp) instead of Ice. The `ZeroC.Ice.Slice.Tools` MSBuild integration
+  exposes this flag via the `IceRpc` boolean item metadata on `SliceCompile` items.
+
+- Added the `["cs:internal"]` metadata directive. When applied to a Slice definition, the generated C# type is emitted
+  with the `internal` access modifier instead of `public`.
+
+- Added the `["cs:readonly"]` metadata directive. When applied to a Slice struct, the generated C# struct is emitted
+  as a `readonly` struct.
+
+- Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice. These now generate `<c>[NAME]</c>`
+  instead of `<paramref name="[NAME]" />`.
 
 ### Swift Changes
 
