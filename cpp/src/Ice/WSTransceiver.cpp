@@ -1121,7 +1121,7 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
             _readOpCode = static_cast<int>(ch & byte{0xf});
 
             //
-            // No extension is negotiated, so the RSV1, RSV2 and RSV3 bits must all be 0.
+            // No extension is negotiated, so the RSV1, RSV2, and RSV3 bits must all be 0.
             //
             if ((ch & byte{0x70}) != byte{0})
             {
@@ -1174,7 +1174,7 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
             _readPayloadLength = static_cast<size_t>((ch & byte{0x7f}));
 
             //
-            // RFC 6455 section 5.5: control frames (close, ping and pong) must not be fragmented
+            // RFC 6455 section 5.5: control frames (close, ping, and pong) must not be fragmented
             // and must have a payload length of 125 bytes or less - they cannot use the 16-bit or
             // 64-bit extended length encoding. Enforce this before allocating any payload buffer.
             //
