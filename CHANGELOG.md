@@ -10,6 +10,7 @@ might need to be aware of.
   - [Slice Language Changes](#slice-language-changes)
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
+  - [Swift Changes](#swift-changes)
 
 ## Changes in Ice 3.9.0
 
@@ -23,6 +24,8 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Fixed an unbounded memory allocation when unmarshaling a proxy with a large endpoint count.
 
+- Fixed an integer overflow in the sequence-size validation performed while unmarshaling.
+
 ### Slice Language Changes
 
 - Added the `["oneway"]` metadata directive for Slice operations. This directive can only be applied to operations that
@@ -32,13 +35,10 @@ These are the changes since the [Ice 3.8.1] release.
 
 ### C++ Changes
 
-- Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice.
-  These now generate `` `[NAME]` `` instead of `@p [NAME]`.
+- Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice. These now generate `` `[NAME]` ``
+  instead of `@p [NAME]`.
 
 ### C# Changes
-
-- Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice.
-  These now generate `<c>[NAME]</c>` instead of `<paramref name="[NAME]" />`.
 
 - Added the `--icerpc` flag to `slice2cs`. When set, `slice2cs` generates C# code for
   [IceRPC](https://github.com/icerpc/icerpc-csharp) instead of Ice. The `ZeroC.Ice.Slice.Tools` MSBuild integration
@@ -49,5 +49,12 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Added the `["cs:readonly"]` metadata directive. When applied to a Slice struct, the generated C# struct is emitted
   as a `readonly` struct.
+
+- Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice. These now generate `<c>[NAME]</c>`
+  instead of `<paramref name="[NAME]" />`.
+
+### Swift Changes
+
+- Fixed `InputStream.readSize` to reject a negative size.
 
 [Ice 3.8.1]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
