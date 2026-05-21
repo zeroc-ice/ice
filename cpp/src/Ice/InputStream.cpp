@@ -428,16 +428,16 @@ Ice::InputStream::readAndCheckSeqSize(int minSize)
     // the estimated remaining buffer size. This estimation is based on
     // the minimum size of the enclosing sequences, it's _minSeqSize.
     //
-    // The size arithmetic below is performed in 64-bit: 'sz' is peer-controlled (up to INT32_MAX)
-    // and 'sz * minSize' would otherwise overflow a 32-bit int and bypass the bounds check.
-    if (_startSeq == -1 || (i - b.begin()) > _startSeq + _minSeqSize)
+    // 'sz' is peer-controlled (up to INT32_MAX), so we compute the minimum size of this sequence in
+    // 64-bit: 'sz * minSize' would otherwise overflow a 32-bit int and bypass the bounds check below.
+    int64_t minSeqSize = static_cast<int64_t>(sz) * minSize;
+    if (_startSeq == -1 || i > (b.begin() + _startSeq + _minSeqSize))
     {
-        _startSeq = static_cast<int64_t>(i - b.begin());
-        _minSeqSize = static_cast<int64_t>(sz) * minSize;
+        _startSeq = static_cast<int>(i - b.begin());
     }
     else
     {
-        _minSeqSize += static_cast<int64_t>(sz) * minSize;
+        minSeqSize += _minSeqSize;
     }
 
     //
@@ -445,16 +445,13 @@ Ice::InputStream::readAndCheckSeqSize(int minSize)
     // possibly enclosed sequences), something is wrong with the marshaled
     // data: it's claiming having more data that what is possible to read.
     //
-    // We also reject any sequence whose minimum size exceeds INT32_MAX. The Ice
-    // protocol encodes a message size as a 32-bit integer, so no sequence can
-    // legitimately require more; this also keeps 'sz * minSize' within a 32-bit
-    // int for the callers that use the returned size to advance the stream.
-    //
-    if (_startSeq + _minSeqSize > static_cast<int64_t>(b.size()) || _minSeqSize > INT32_MAX)
+    if (_startSeq + minSeqSize > static_cast<int64_t>(b.size()))
     {
         throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
 
+    // minSeqSize is now known to be <= b.size(), itself smaller than INT32_MAX.
+    _minSeqSize = static_cast<int>(minSeqSize);
     return sz;
 }
 

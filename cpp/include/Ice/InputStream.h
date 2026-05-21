@@ -929,10 +929,8 @@ namespace Ice
 
         void* _closure{nullptr};
 
-        // The sequence-size bookkeeping is kept in 64-bit so that 'size * minWireSize' arithmetic
-        // cannot overflow and defeat the bounds check in readAndCheckSeqSize.
-        std::int64_t _startSeq{-1};
-        std::int64_t _minSeqSize{0};
+        int _startSeq{-1};
+        int _minSeqSize{0};
 
         const SliceLoaderPtr _sliceLoader; // never null
 

@@ -149,7 +149,7 @@ public final class InputStream {
         other._startSeq = _startSeq;
         _startSeq = tmpStartSeq;
 
-        long tmpMinSeqSize = other._minSeqSize;
+        int tmpMinSeqSize = other._minSeqSize;
         other._minSeqSize = _minSeqSize;
         _minSeqSize = tmpMinSeqSize;
 
@@ -463,24 +463,23 @@ public final class InputStream {
         // check the minimal size of this new sequence against the estimated remaining buffer size.
         // This estimation is based on the minimum size of the enclosing sequences, it's _minSeqSize.
         //
-        // The size arithmetic below is performed in 64-bit: 'sz' is peer-controlled (up to
-        // Integer.MAX_VALUE) and 'sz * minSize' would otherwise overflow a 32-bit int and bypass
-        // the bounds check.
+        // 'sz' is peer-controlled (up to Integer.MAX_VALUE), so we compute the minimum size of this
+        // sequence in 64-bit: 'sz * minSize' would overflow a 32-bit int and bypass the bounds check.
+        long minSeqSize = (long) sz * minSize;
         if (_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize)) {
             _startSeq = _buf.b.position();
-            _minSeqSize = (long) sz * minSize;
         } else {
-            _minSeqSize += (long) sz * minSize;
+            minSeqSize += _minSeqSize;
         }
 
         // If there isn't enough data to read on the stream for the sequence (and possibly enclosed sequences),
         // something is wrong with the marshaled data: it's claiming having more data that what is possible to read.
-        // We also reject any sequence whose minimum size exceeds Integer.MAX_VALUE: the Ice protocol encodes a
-        // message size as a 32-bit integer, so no sequence can legitimately require more.
-        if (_startSeq + _minSeqSize > _buf.size() || _minSeqSize > Integer.MAX_VALUE) {
+        if (_startSeq + minSeqSize > _buf.size()) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE);
         }
 
+        // minSeqSize is now known to be <= _buf.size(), itself smaller than Integer.MAX_VALUE.
+        _minSeqSize = (int) minSeqSize;
         return sz;
     }
 
@@ -2309,10 +2308,7 @@ public final class InputStream {
     private final int _classGraphDepthMax;
 
     private int _startSeq = -1;
-
-    // Kept in 64-bit so that 'size * minWireSize' arithmetic cannot overflow and defeat the bounds
-    // check in readAndCheckSeqSize.
-    private long _minSeqSize;
+    private int _minSeqSize;
 
     private static final String END_OF_BUFFER_MESSAGE = "Attempting to unmarshal past the end of the buffer.";
 }

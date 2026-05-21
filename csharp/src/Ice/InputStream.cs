@@ -118,7 +118,7 @@ public sealed class InputStream
         other._startSeq = _startSeq;
         _startSeq = tmpStartSeq;
 
-        long tmpMinSeqSize = other._minSeqSize;
+        int tmpMinSeqSize = other._minSeqSize;
         other._minSeqSize = _minSeqSize;
         _minSeqSize = tmpMinSeqSize;
 
@@ -491,17 +491,17 @@ public sealed class InputStream
         // the estimated remaining buffer size. This estimation is based on
         // the minimum size of the enclosing sequences, it's _minSeqSize.
         //
-        // The size arithmetic below is performed in 64-bit: 'sz' is peer-controlled (up to
-        // int.MaxValue) and 'sz * minSize' would otherwise overflow a 32-bit int and bypass the
-        // bounds check.
+        // 'sz' is peer-controlled (up to int.MaxValue), so we compute the minimum size of this
+        // sequence in 64-bit: 'sz * minSize' would overflow a 32-bit int and bypass the bounds check.
+        //
+        long minSeqSize = (long)sz * minSize;
         if (_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize))
         {
             _startSeq = _buf.b.position();
-            _minSeqSize = (long)sz * minSize;
         }
         else
         {
-            _minSeqSize += (long)sz * minSize;
+            minSeqSize += _minSeqSize;
         }
 
         //
@@ -509,15 +509,13 @@ public sealed class InputStream
         // possibly enclosed sequences), something is wrong with the marshaled
         // data: it's claiming having more data that what is possible to read.
         //
-        // We also reject any sequence whose minimum size exceeds int.MaxValue: the
-        // Ice protocol encodes a message size as a 32-bit integer, so no sequence
-        // can legitimately require more.
-        //
-        if (_startSeq + _minSeqSize > _buf.size() || _minSeqSize > int.MaxValue)
+        if (_startSeq + minSeqSize > _buf.size())
         {
             throw new MarshalException(endOfBufferMessage);
         }
 
+        // minSeqSize is now known to be <= _buf.size(), itself smaller than int.MaxValue.
+        _minSeqSize = (int)minSeqSize;
         return sz;
     }
 
@@ -3010,10 +3008,7 @@ public sealed class InputStream
     private readonly int _classGraphDepthMax;
 
     private int _startSeq = -1;
-
-    // Kept in 64-bit so that 'size * minWireSize' arithmetic cannot overflow and defeat the bounds
-    // check in readAndCheckSeqSize.
-    private long _minSeqSize;
+    private int _minSeqSize;
 
     private const string endOfBufferMessage = "Attempting to unmarshal past the end of the buffer.";
 }

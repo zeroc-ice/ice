@@ -557,7 +557,7 @@ extension InputStream {
             let v: Int32 = try read()
             // A size is a non-negative value; reject a negative one encoded in the 5-byte form.
             if v < 0 {
-                throw MarshalException(endOfBufferMessage)
+                throw MarshalException("read invalid size: \(v)")
             }
             return v
         } else {
@@ -594,9 +594,6 @@ extension InputStream {
         // the estimated remaining buffer size. This estimation is based on
         // the minimum size of the enclosing sequences, it's minSeqSize.
         //
-        // The size arithmetic below is performed in 64-bit: 'sz' is peer-controlled (up to
-        // Int32.max) and 'sz * minSize' would otherwise overflow when converted to Int32, trapping
-        // the process or bypassing the bounds check.
         if startSeq == -1 || pos > (startSeq + minSeqSize) {
             startSeq = pos
             minSeqSize = sz * minSize
@@ -609,11 +606,7 @@ extension InputStream {
         // possibly enclosed sequences), something is wrong with the marshaled
         // data: it's claiming having more data that what is possible to read.
         //
-        // We also reject any sequence whose minimum size exceeds Int32.max: the Ice
-        // protocol encodes a message size as a 32-bit integer, so no sequence can
-        // legitimately require more.
-        //
-        if startSeq + minSeqSize > data.count || minSeqSize > Int(Int32.max) {
+        if startSeq + minSeqSize > data.count {
             throw MarshalException(endOfBufferMessage)
         }
 
