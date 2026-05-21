@@ -213,15 +213,9 @@ export class StringUtil {
                 return false;
             }
 
-            let closingQuote = openingQuote + 1;
-            while (true) {
-                closingQuote = s.indexOf('"', closingQuote);
-                if (closingQuote === -1) {
-                    return false;
-                } else if (s.charAt(closingQuote - 1) !== "\\") {
-                    break;
-                }
-                ++closingQuote;
+            const closingQuote = s.indexOf('"', openingQuote + 1);
+            if (closingQuote === -1) {
+                return false;
             }
 
             if (end < closingQuote) {
