@@ -26,6 +26,8 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Fixed an integer overflow in the sequence-size validation performed while unmarshaling.
 
+- Fixed the unmarshaling of classes and exceptions to reject a malformed sliced-format slice header.
+
 ### Slice Language Changes
 
 - Added the `["oneway"]` metadata directive for Slice operations. This directive can only be applied to operations that
