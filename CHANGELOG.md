@@ -19,10 +19,7 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Removed the 'ice2slice' compiler
 
-- Fixed the WebSocket transport to enforce the RFC 6455 limits on control frames. A peer could previously send a
-  tiny `ping`, `pong`, or `close` frame declaring a multi-gigabyte payload that the receiver buffered before applying
-  any size limit. Control frames larger than 125 bytes or that are fragmented are now rejected with a
-  `ProtocolException`.
+- Fixed the WebSocket transport to enforce the RFC 6455 limits on control frames.
 
 ### Slice Language Changes
 
