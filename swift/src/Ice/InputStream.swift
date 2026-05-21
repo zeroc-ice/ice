@@ -16,10 +16,8 @@ public final class InputStream {
 
     private var encaps: Encaps!
 
-    // Uses Int rather than Int32 so the 'size * minWireSize' arithmetic in readAndCheckSeqSize
-    // cannot overflow a 32-bit value and defeat the bounds check.
-    private var startSeq: Int = -1
-    private var minSeqSize: Int = 0
+    private var startSeq: Int32 = -1
+    private var minSeqSize: Int32 = 0
     private let classGraphDepthMax: Int32
 
     private let endOfBufferMessage = "attempting to unmarshal past the end of the buffer"
@@ -594,11 +592,14 @@ extension InputStream {
         // the estimated remaining buffer size. This estimation is based on
         // the minimum size of the enclosing sequences, it's minSeqSize.
         //
-        if startSeq == -1 || pos > (startSeq + minSeqSize) {
-            startSeq = pos
-            minSeqSize = sz * minSize
+        // 'sz' is peer-controlled (up to Int32.max), so we compute the minimum size of this
+        // sequence in 64-bit (Int): 'sz * minSize' would overflow a 32-bit value and bypass the
+        // bounds check.
+        var newMinSeqSize = sz * minSize
+        if startSeq == -1 || pos > Int(startSeq) + Int(minSeqSize) {
+            startSeq = Int32(pos)
         } else {
-            minSeqSize += sz * minSize
+            newMinSeqSize += Int(minSeqSize)
         }
 
         //
@@ -606,10 +607,12 @@ extension InputStream {
         // possibly enclosed sequences), something is wrong with the marshaled
         // data: it's claiming having more data that what is possible to read.
         //
-        if startSeq + minSeqSize > data.count {
+        if Int(startSeq) + newMinSeqSize > data.count {
             throw MarshalException(endOfBufferMessage)
         }
 
+        // newMinSeqSize is now known to be <= data.count, itself smaller than Int32.max.
+        minSeqSize = Int32(newMinSeqSize)
         return sz
     }
 
