@@ -10,6 +10,7 @@ might need to be aware of.
   - [Slice Language Changes](#slice-language-changes)
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
+  - [Swift Changes](#swift-changes)
 
 ## Changes in Ice 3.9.0
 
@@ -22,6 +23,8 @@ These are the changes since the [Ice 3.8.1] release.
 - Fixed the WebSocket transport to enforce the RFC 6455 limits on control frames.
 
 - Fixed an unbounded memory allocation when unmarshaling a proxy with a large endpoint count.
+
+- Fixed an integer overflow in the sequence-size validation performed while unmarshaling.
 
 ### Slice Language Changes
 
@@ -38,5 +41,9 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice.
   These now generate `<c>[NAME]</c>` instead of `<paramref name="[NAME]" />`.
+
+### Swift Changes
+
+- Fixed `InputStream.readSize` to reject a negative size.
 
 [Ice 3.8.1]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
