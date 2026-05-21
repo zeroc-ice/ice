@@ -593,13 +593,13 @@ extension InputStream {
         // the minimum size of the enclosing sequences, it's minSeqSize.
         //
         // 'sz' is peer-controlled (up to Int32.max), so we compute the minimum size of this
-        // sequence in 64-bit (Int): 'sz * minSize' would overflow a 32-bit value and bypass the
+        // sequence as an Int64: 'sz * minSize' would overflow a 32-bit value and bypass the
         // bounds check.
-        var newMinSeqSize = sz * minSize
-        if startSeq == -1 || pos > Int(startSeq) + Int(minSeqSize) {
+        var newMinSeqSize = Int64(sz) * Int64(minSize)
+        if startSeq == -1 || pos > Int(startSeq + minSeqSize) {
             startSeq = Int32(pos)
         } else {
-            newMinSeqSize += Int(minSeqSize)
+            newMinSeqSize += Int64(minSeqSize)
         }
 
         //
@@ -607,7 +607,7 @@ extension InputStream {
         // possibly enclosed sequences), something is wrong with the marshaled
         // data: it's claiming having more data that what is possible to read.
         //
-        if Int(startSeq) + newMinSeqSize > data.count {
+        if Int64(startSeq) + newMinSeqSize > Int64(data.count) {
             throw MarshalException(endOfBufferMessage)
         }
 
