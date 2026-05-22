@@ -11,6 +11,7 @@ might need to be aware of.
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
   - [Swift Changes](#swift-changes)
+  - [Ice Service Changes](#ice-service-changes)
 
 ## Changes in Ice 3.9.0
 
@@ -56,5 +57,10 @@ These are the changes since the [Ice 3.8.1] release.
 ### Swift Changes
 
 - Fixed `InputStream.readSize` to reject a negative size.
+
+### Ice Service Changes
+
+- Updated the Glacier2CryptPermissionsVerifier plug-in to issue a warning when the configured password file contains one
+  or more DES passwords.
 
 [Ice 3.8.1]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
