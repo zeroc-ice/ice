@@ -741,6 +741,16 @@ SecureTransport::SSLEngine::newContext(bool incoming) const
             "SSL transport: error while setting SSL option:\n" + sslErrorToString(err));
     }
 
+    // Require TLS 1.2 or later. SecureTransport otherwise negotiates down to TLS 1.0 on macOS.
+    err = SSLSetProtocolVersionMin(ssl, kTLSProtocol12);
+    if (err != noErr)
+    {
+        throw SecurityException(
+            __FILE__,
+            __LINE__,
+            "SSL transport: error while setting the minimum protocol version:\n" + sslErrorToString(err));
+    }
+
     return ssl;
 }
 
