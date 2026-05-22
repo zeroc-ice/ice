@@ -97,8 +97,7 @@ namespace
             assert(!userId.empty());
             assert(!password.empty());
 
-            hasDESStylePassword =
-                hasDESStylePassword || (password.find('$') == string::npos && password.size() == 13);
+            hasDESStylePassword = hasDESStylePassword || (password.find('$') == string::npos && password.size() == 13);
 
             passwords.insert(make_pair(userId, password));
         }
