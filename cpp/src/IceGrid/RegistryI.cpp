@@ -1010,6 +1010,11 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
 
     string userDN;
     Glacier2::SSLInfo info = getSSLInfo(current.con, userDN);
+    if (userDN.empty())
+    {
+        throw PermissionDeniedException("empty user DN");
+    }
+
     try
     {
         string reason;

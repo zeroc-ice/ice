@@ -682,6 +682,12 @@ SessionRouterI::createSessionFromSecureConnectionAsync(
         return;
     }
 
+    if (userDN.empty())
+    {
+        exception(make_exception_ptr(PermissionDeniedException("empty user DN")));
+        return;
+    }
+
     auto session = make_shared<SSLCreateSession>(
         std::move(response),
         std::move(exception),
