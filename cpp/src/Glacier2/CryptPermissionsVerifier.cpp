@@ -478,7 +478,8 @@ namespace
                 string name = prop.first.substr(prefix.size());
                 Identity id = {Ice::generateUUID(), "Glacier2CryptPermissionsVerifier"};
                 auto prx = adapter->add(
-                    make_shared<CryptPermissionsVerifierI>(retrievePasswordMap(prop.second, _communicator->getLogger())),
+                    make_shared<CryptPermissionsVerifierI>(
+                        retrievePasswordMap(prop.second, _communicator->getLogger())),
                     id);
                 _communicator->getProperties()->setProperty(name, _communicator->proxyToString(prx));
             }
