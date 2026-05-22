@@ -35,6 +35,9 @@ These are the changes since the [Ice 3.8.1] release.
 
 ### C++ Changes
 
+- Added the `IceSSL.ProtocolVersionMin` and `IceSSL.ProtocolVersionMax` properties to configure the range of TLS
+  protocol versions accepted by the macOS SSL transport. `IceSSL.ProtocolVersionMin` defaults to `tls1_2`.
+
 - Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice. These now generate `` `[NAME]` ``
   instead of `@p [NAME]`.
 

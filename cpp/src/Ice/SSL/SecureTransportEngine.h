@@ -37,6 +37,11 @@ namespace Ice::SSL::SecureTransport
     private:
         IceInternal::UniqueRef<CFArrayRef> _certificateAuthorities;
         IceInternal::UniqueRef<CFArrayRef> _chain;
+
+        // The TLS protocol version range applied to every SSL context. kSSLProtocolUnknown means the
+        // corresponding bound is left to the SecureTransport default.
+        SSLProtocol _protocolVersionMin;
+        SSLProtocol _protocolVersionMax;
     };
 }
 #endif

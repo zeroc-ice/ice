@@ -9,6 +9,7 @@
 #include "Ice/Logger.h"
 #include "Ice/Properties.h"
 #include "Ice/SSL/SSLException.h"
+#include "Ice/StringUtil.h"
 #include "SSLEngine.h"
 #include "SSLUtil.h"
 #include "SecureTransportUtil.h"
@@ -547,12 +548,41 @@ namespace
             }
         }
     }
+
+    // Maps an IceSSL.ProtocolVersionMin/Max property value to a SecureTransport SSLProtocol constant.
+    // Only the TLS versions SecureTransport can negotiate are recognized; the API supports neither
+    // SSLv3 nor TLS 1.3.
+    SSLProtocol parseProtocol(const string& protocol)
+    {
+        const string p = IceInternal::toUpper(protocol);
+        if (p == "TLS" || p == "TLS1" || p == "TLSV1" || p == "TLS1_0" || p == "TLSV1_0")
+        {
+            return kTLSProtocol1;
+        }
+        else if (p == "TLS1_1" || p == "TLSV1_1")
+        {
+            return kTLSProtocol11;
+        }
+        else if (p == "TLS1_2" || p == "TLSV1_2")
+        {
+            return kTLSProtocol12;
+        }
+        else
+        {
+            throw InitializationException(
+                __FILE__,
+                __LINE__,
+                "SSL transport: unrecognized protocol version '" + protocol + "'");
+        }
+    }
 }
 
 SecureTransport::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
     : Ice::SSL::SSLEngine(instance),
       _certificateAuthorities(nullptr),
-      _chain(nullptr)
+      _chain(nullptr),
+      _protocolVersionMin(kSSLProtocolUnknown),
+      _protocolVersionMax(kSSLProtocolUnknown)
 {
 }
 
@@ -649,6 +679,21 @@ SecureTransport::SSLEngine::initialize()
     {
         _chain.reset(findCertificateChain(keychain, keychainPassword, findCert));
     }
+
+    // Pin the negotiated TLS protocol version range. SecureTransport otherwise negotiates down to
+    // TLS 1.0 on macOS; IceSSL.ProtocolVersionMin defaults to tls1_2. IceSSL.ProtocolVersionMax is
+    // unset by default, leaving the upper bound to SecureTransport.
+    const string protocolVersionMin = properties->getIceProperty("IceSSL.ProtocolVersionMin");
+    if (!protocolVersionMin.empty())
+    {
+        _protocolVersionMin = parseProtocol(protocolVersionMin);
+    }
+
+    const string protocolVersionMax = properties->getIceProperty("IceSSL.ProtocolVersionMax");
+    if (!protocolVersionMax.empty())
+    {
+        _protocolVersionMax = parseProtocol(protocolVersionMax);
+    }
 }
 
 //
@@ -739,6 +784,30 @@ SecureTransport::SSLEngine::newContext(bool incoming) const
             __FILE__,
             __LINE__,
             "SSL transport: error while setting SSL option:\n" + sslErrorToString(err));
+    }
+
+    if (_protocolVersionMin != kSSLProtocolUnknown)
+    {
+        err = SSLSetProtocolVersionMin(ssl, _protocolVersionMin);
+        if (err != noErr)
+        {
+            throw SecurityException(
+                __FILE__,
+                __LINE__,
+                "SSL transport: error while setting minimum protocol version:\n" + sslErrorToString(err));
+        }
+    }
+
+    if (_protocolVersionMax != kSSLProtocolUnknown)
+    {
+        err = SSLSetProtocolVersionMax(ssl, _protocolVersionMax);
+        if (err != noErr)
+        {
+            throw SecurityException(
+                __FILE__,
+                __LINE__,
+                "SSL transport: error while setting maximum protocol version:\n" + sslErrorToString(err));
+        }
     }
 
     return ssl;

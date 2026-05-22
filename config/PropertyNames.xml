@@ -316,6 +316,8 @@
         <property name="KeystorePassword" languages="java" />
         <property name="KeystoreType" languages="java" />
         <property name="Password" languages="cpp,csharp,java" />
+        <property name="ProtocolVersionMax" languages="cpp" />
+        <property name="ProtocolVersionMin" languages="cpp" default="tls1_2" />
         <property name="RevocationCheck" languages="cpp" default="0"/>
         <property name="RevocationCheckCacheOnly" languages="cpp" default="1" />
         <property name="Trace.Security" languages="cpp,csharp,java" default="0" />

@@ -427,6 +427,8 @@ const Property IceSSLPropsData[] =
     Property{"KeychainPassword", "", false, false, nullptr},
     Property{"KeyFile", "", false, false, nullptr},
     Property{"Password", "", false, false, nullptr},
+    Property{"ProtocolVersionMax", "", false, false, nullptr},
+    Property{"ProtocolVersionMin", "tls1_2", false, false, nullptr},
     Property{"RevocationCheck", "0", false, false, nullptr},
     Property{"RevocationCheckCacheOnly", "1", false, false, nullptr},
     Property{"Trace.Security", "0", false, false, nullptr},
@@ -444,7 +446,7 @@ const PropertyArray PropertyNames::IceSSLProps
     .prefixOnly=false,
     .isOptIn=false,
     .properties=IceSSLPropsData,
-    .length=21
+    .length=23
 };
 
 const Property IceStormPropsData[] =
