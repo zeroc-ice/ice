@@ -221,7 +221,7 @@ export class OutgoingConnectionFactory {
         // is necessary to support the interruption of the connection initialization and validation
         // in case the communicator is destroyed.
         //
-        let connection = null;
+        let connection;
         try {
             if (this._destroyed) {
                 throw new CommunicatorDestroyedException();

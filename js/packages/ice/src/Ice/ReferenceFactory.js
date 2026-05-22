@@ -93,7 +93,7 @@ export class ReferenceFactory {
         // Extract the identity, which may be enclosed in single
         // or double quotation marks.
         //
-        let idstr = null;
+        let idstr;
         end = StringUtil.checkQuote(s, beg);
         if (end === -1) {
             throw new ParseException(`mismatched quotes around identity in '${s}'`);
@@ -143,8 +143,6 @@ export class ReferenceFactory {
         let mode = ReferenceMode.ModeTwoway;
         let encoding = this._instance.defaultsAndOverrides().defaultEncoding;
         let protocol = Protocol_1_0;
-        let adapter = "";
-
         while (true) {
             beg = StringUtil.findFirstNotOf(s, delim, end);
             if (beg === -1) {
@@ -318,24 +316,7 @@ export class ReferenceFactory {
                         end = s.length;
                         break;
                     } else {
-                        let quoted = false;
-                        let quote = beg;
-                        while (true) {
-                            quote = s.indexOf('"', quote);
-                            if (quote == -1 || end < quote) {
-                                break;
-                            } else {
-                                quote = s.indexOf('"', ++quote);
-                                if (quote == -1) {
-                                    break;
-                                } else if (end < quote) {
-                                    quoted = true;
-                                    break;
-                                }
-                                ++quote;
-                            }
-                        }
-                        if (!quoted) {
+                        if (!StringUtil.isInDoubleQuotes(s, beg, end)) {
                             break;
                         }
                         ++end;
@@ -374,7 +355,7 @@ export class ReferenceFactory {
                 throw new ParseException(`missing adapter id in '${s}'`);
             }
 
-            let adapterstr = null;
+            let adapterstr;
             end = StringUtil.checkQuote(s, beg);
             if (end === -1) {
                 throw new ParseException(`mismatched quotes around adapter id in '${s}'`);
@@ -394,6 +375,7 @@ export class ReferenceFactory {
                 throw new ParseException(`invalid trailing characters after ${s.substring(0, end + 1)}' in '${s}'`);
             }
 
+            let adapter;
             try {
                 adapter = StringUtil.unescapeString(adapterstr, 0, adapterstr.length);
             } catch (ex) {
@@ -439,8 +421,8 @@ export class ReferenceFactory {
 
         s.readBool(); // ignore secure field (unused)
 
-        let protocol = null;
-        let encoding = null;
+        let protocol;
+        let encoding;
         if (!s.getEncoding().equals(Encoding_1_0)) {
             protocol = new ProtocolVersion();
             protocol._read(s);

@@ -59,6 +59,13 @@ export class Client extends TestHelper {
             test(Ice.ArrayUtil.equals(adapter.getPublishedEndpoints(), prx.ice_getEndpoints()));
             adapter.destroy();
             test(adapter.getPublishedEndpoints().length === 0);
+
+            communicator
+                .getProperties()
+                .setProperty("QAdapter.PublishedEndpoints", 'tcp -h localhost -p 12345 --sourceAddress "::1"');
+            const qadapter = await communicator.createObjectAdapter("QAdapter");
+            test(qadapter.getPublishedEndpoints().length === 1);
+            qadapter.destroy();
         }
         out.writeLine("ok");
 

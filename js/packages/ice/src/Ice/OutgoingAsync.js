@@ -273,7 +273,7 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
 
         const retryIntervals = instance._retryIntervals;
 
-        let interval = 0;
+        let interval;
         if (this._cnt == retryIntervals.length + 1 && ex instanceof CloseConnectionException) {
             // A close connection exception is always retried at least once, even if the retry limit is reached.
             interval = 0;
