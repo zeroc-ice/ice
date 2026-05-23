@@ -66,7 +66,7 @@ namespace
         CommunicatorPtr _communicator;
     };
 
-    map<string, string> retrievePasswordMap(const string& file, LoggerPtr logger)
+    map<string, string> retrievePasswordMap(const string& file, const LoggerPtr& logger)
     {
         ifstream passwordFile(IceInternal::streamFilename(file).c_str());
         if (!passwordFile)
