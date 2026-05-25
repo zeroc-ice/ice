@@ -151,7 +151,9 @@ classdef (Hidden) EncapsDecoder11 < IceInternal.EncapsDecoder
             if bitand(current.sliceFlags, Protocol.FLAG_HAS_SLICE_SIZE)
                 current.sliceSize = is.readInt();
                 % A slice with optional members carries at least the 1-byte end marker in its body,
-                % so its size (which includes the 4-byte size field) must be >= 5.
+                % so its size (which includes the 4-byte size field) must be >= 5. We rely on this in
+                % skipSlice's slice-preservation logic, which excludes the end marker by stepping
+                % back one byte.
                 if bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS)
                     minSliceSize = 5;
                 else

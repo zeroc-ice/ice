@@ -539,7 +539,9 @@ class EncapsDecoder11 extends EncapsDecoder {
         if ((this._current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) !== 0) {
             this._current.sliceSize = this._stream.readInt();
             // A slice with optional members carries at least the 1-byte end marker in its body, so
-            // its size (which includes the 4-byte size field) must be >= 5.
+            // its size (which includes the 4-byte size field) must be >= 5. We rely on this in
+            // skipSlice's slice-preservation logic, which excludes the end marker by stepping back
+            // one byte.
             const minSliceSize = (this._current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) !== 0 ? 5 : 4;
             if (this._current.sliceSize < minSliceSize) {
                 throw new MarshalException(endOfBufferMessage);

@@ -1931,7 +1931,8 @@ Ice::InputStream::EncapsDecoder11::startSlice()
     {
         _stream->read(_current->sliceSize);
         // A slice with optional members carries at least the 1-byte end marker in its body, so its
-        // size (which includes the 4-byte size field) must be >= 5.
+        // size (which includes the 4-byte size field) must be >= 5. We rely on this in skipSlice's
+        // slice-preservation logic, which excludes the end marker by stepping back one byte.
         int32_t minSliceSize = (_current->sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) ? 5 : 4;
         if (_current->sliceSize < minSliceSize)
         {
