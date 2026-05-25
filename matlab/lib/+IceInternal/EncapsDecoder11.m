@@ -186,7 +186,11 @@ classdef (Hidden) EncapsDecoder11 < IceInternal.EncapsDecoder
                 sz = is.readAndCheckSeqSize(1);
                 indirectionTable = cell(1, sz);
                 for i = 1:sz
-                    indirectionTable{i} = obj.readInstance(is.readSize(), []);
+                    index = is.readSize();
+                    if index <= 0
+                        throw(Ice.MarshalException('invalid indirection-table index'));
+                    end
+                    indirectionTable{i} = obj.readInstance(index, []);
                 end
 
                 %
@@ -273,7 +277,11 @@ classdef (Hidden) EncapsDecoder11 < IceInternal.EncapsDecoder
                 sz = is.readAndCheckSeqSize(1);
                 indirectionTable = cell(1, sz);
                 for i = 1:sz
-                    indirectionTable{i} = obj.readInstance(is.readSize(), []);
+                    index = is.readSize();
+                    if index <= 0
+                        throw(Ice.MarshalException('invalid indirection-table index'));
+                    end
+                    indirectionTable{i} = obj.readInstance(index, []);
                 end
                 current.indirectionTables{end + 1} = indirectionTable;
             else

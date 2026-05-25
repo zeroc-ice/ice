@@ -1441,7 +1441,11 @@ private class EncapsDecoder11: EncapsDecoder {
                 repeating: 0, count: Int(stream.readAndCheckSeqSize(minSize: 1)))
 
             for i in 0..<indirectionTable.count {
-                indirectionTable[i] = try readInstance(index: stream.readSize(), cb: nil)
+                let index = try stream.readSize()
+                if index <= 0 {
+                    throw MarshalException("invalid indirection-table index")
+                }
+                indirectionTable[i] = try readInstance(index: index, cb: nil)
             }
 
             //
@@ -1531,7 +1535,11 @@ private class EncapsDecoder11: EncapsDecoder {
                 repeating: 0, count: Int(stream.readAndCheckSeqSize(minSize: 1)))
 
             for i in 0..<indirectionTable.count {
-                indirectionTable[i] = try readInstance(index: stream.readSize(), cb: nil)
+                let index = try stream.readSize()
+                if index <= 0 {
+                    throw MarshalException("invalid indirection-table index")
+                }
+                indirectionTable[i] = try readInstance(index: index, cb: nil)
             }
             current.indirectionTables.append(indirectionTable)
         } else {
