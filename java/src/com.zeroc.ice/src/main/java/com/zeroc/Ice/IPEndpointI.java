@@ -16,6 +16,9 @@ abstract class IPEndpointI extends EndpointI {
             int port,
             InetSocketAddress sourceAddr,
             String connectionId) {
+        if (port < 0 || port > 65535) {
+            throw new MarshalException("port value '" + port + "' out of range in endpoint");
+        }
         _instance = instance;
         _host = host;
         _normalizedHost = normalizeHost(host);
@@ -29,15 +32,7 @@ abstract class IPEndpointI extends EndpointI {
     }
 
     protected IPEndpointI(ProtocolInstance instance, InputStream s) {
-        this(instance, s.readString(), readPort(s), null, "");
-    }
-
-    private static int readPort(InputStream s) {
-        int port = s.readInt();
-        if (port < 0 || port > 65535) {
-            throw new MarshalException("port value '" + port + "' out of range in endpoint");
-        }
-        return port;
+        this(instance, s.readString(), s.readInt(), null, "");
     }
 
     @Override
