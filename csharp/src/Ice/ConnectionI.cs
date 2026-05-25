@@ -2332,6 +2332,20 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         {
                             throw new MarshalException($"Received batch request with {requestCount} batches.");
                         }
+
+                        // A batched request occupies at least 12 bytes on the wire (a 2-byte identity, a 1-byte
+                        // facet path, a 1-byte operation name, a 1-byte operation mode, a 1-byte context, and a
+                        // 6-byte parameters encapsulation). Reject a count larger than the remaining message
+                        // data could possibly hold. The message size is already capped at Ice.MessageSizeMax
+                        // (<= int.MaxValue bytes), so this also keeps requestCount well within range when it is
+                        // accumulated into the dispatch counters below.
+                        const int minBatchRequestSize = 12;
+                        if (requestCount > (info.stream.size() - info.stream.pos()) / minBatchRequestSize)
+                        {
+                            throw new MarshalException(
+                                $"Received batch request with {requestCount} batches, more than the message can contain.");
+                        }
+
                         info.requestCount = requestCount;
                         info.adapter = _adapter;
                         info.upcallCount += info.requestCount;
