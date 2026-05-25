@@ -1762,8 +1762,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                         info.requestCount = info.stream.readInt();
                         if (info.requestCount < 0) {
-                            info.requestCount = 0;
-                            throw new MarshalException("Received batch request with " + info.requestCount + "batches.");
+                            throw new MarshalException(
+                                "Received batch request with " + info.requestCount + " batches.");
                         }
                         info.adapter = _adapter;
                         info.upcallCount += info.requestCount;
