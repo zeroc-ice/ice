@@ -552,6 +552,15 @@ Schannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
         }
         else if (err == SEC_I_RENEGOTIATE)
         {
+            if (_incoming)
+            {
+                // Reject peer-initiated TLS renegotiation on the server side: it is a CPU-asymmetric
+                // denial-of-service primitive on TLS 1.2 and is removed entirely in TLS 1.3.
+                throw ProtocolException(
+                    __FILE__,
+                    __LINE__,
+                    "SSL transport: peer-initiated TLS renegotiation is not supported on the server side.");
+            }
             if (_sslConnectionRenegotiating)
             {
                 throw ProtocolException(
