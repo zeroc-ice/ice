@@ -66,7 +66,7 @@ namespace
         CommunicatorPtr _communicator;
     };
 
-    map<string, string> retrievePasswordMap(const string& file)
+    map<string, string> retrievePasswordMap(const string& file, const LoggerPtr& logger)
     {
         ifstream passwordFile(IceInternal::streamFilename(file).c_str());
         if (!passwordFile)
@@ -75,6 +75,8 @@ namespace
             throw Ice::InitializationException(__FILE__, __LINE__, "cannot open '" + file + "' for reading: " + err);
         }
         map<string, string> passwords;
+
+        bool hasDESStylePassword = false;
 
         while (true)
         {
@@ -94,8 +96,19 @@ namespace
 
             assert(!userId.empty());
             assert(!password.empty());
+
+            hasDESStylePassword = hasDESStylePassword || (password.find('$') == string::npos && password.size() == 13);
+
             passwords.insert(make_pair(userId, password));
         }
+
+        if (hasDESStylePassword)
+        {
+            Warning out(logger);
+            out << "The password file '" << file << "' contains one or more DES-style passwords. DES is a weak "
+                << "algorithm and should not be used in production. ";
+        }
+
         return passwords;
     }
 
@@ -464,7 +477,10 @@ namespace
             {
                 string name = prop.first.substr(prefix.size());
                 Identity id = {Ice::generateUUID(), "Glacier2CryptPermissionsVerifier"};
-                auto prx = adapter->add(make_shared<CryptPermissionsVerifierI>(retrievePasswordMap(prop.second)), id);
+                auto prx = adapter->add(
+                    make_shared<CryptPermissionsVerifierI>(
+                        retrievePasswordMap(prop.second, _communicator->getLogger())),
+                    id);
                 _communicator->getProperties()->setProperty(name, _communicator->proxyToString(prx));
             }
 
