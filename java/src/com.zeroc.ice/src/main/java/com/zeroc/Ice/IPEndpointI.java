@@ -29,7 +29,15 @@ abstract class IPEndpointI extends EndpointI {
     }
 
     protected IPEndpointI(ProtocolInstance instance, InputStream s) {
-        this(instance, s.readString(), s.readInt(), null, "");
+        this(instance, s.readString(), readPort(s), null, "");
+    }
+
+    private static int readPort(InputStream s) {
+        int port = s.readInt();
+        if (port < 0 || port > 65535) {
+            throw new MarshalException("port value '" + port + "' out of range in endpoint");
+        }
+        return port;
     }
 
     @Override

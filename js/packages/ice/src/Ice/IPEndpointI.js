@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 import { Address } from "./Address.js";
-import { ParseException } from "./LocalExceptions.js";
+import { MarshalException, ParseException } from "./LocalExceptions.js";
 import { HashUtil } from "./HashUtil.js";
 import { StringUtil } from "./StringUtil.js";
 import { EndpointI } from "./EndpointI.js";
@@ -191,6 +191,9 @@ export class IPEndpointI extends EndpointI {
     initWithStream(s) {
         this._host = s.readString();
         this._port = s.readInt();
+        if (this._port < 0 || this._port > 65535) {
+            throw new MarshalException(`port value '${this._port}' out of range in endpoint`);
+        }
     }
 
     checkOption(option, argument, str) {

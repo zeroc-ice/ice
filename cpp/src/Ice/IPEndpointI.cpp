@@ -419,6 +419,10 @@ IceInternal::IPEndpointI::IPEndpointI(ProtocolInstancePtr instance, InputStream*
     s->read(const_cast<string&>(_host), false);
     const_cast<string&>(_normalizedHost) = normalizeIPv6Address(_host);
     s->read(const_cast<int32_t&>(_port));
+    if (_port < 0 || _port > 65535)
+    {
+        throw MarshalException{__FILE__, __LINE__, "port value '" + to_string(_port) + "' out of range in endpoint"};
+    }
 }
 
 IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance)

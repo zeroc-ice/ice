@@ -30,6 +30,8 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Fixed the unmarshaling of batch requests to reject a request count larger than the message can hold.
 
+- Fixed the unmarshaling of IP endpoints to reject a port value outside the 0..65535 range.
+
 ### Slice Language Changes
 
 - Added the `["oneway"]` metadata directive for Slice operations. This directive can only be applied to operations that
