@@ -1961,12 +1961,12 @@ Ice::InputStream::EncapsDecoder11::endSlice()
         IndexList indirectionTable(static_cast<size_t>(_stream->readAndCheckSeqSize(1)));
         for (auto& p : indirectionTable)
         {
-            int32_t i = _stream->readSize();
-            if (i <= 0)
+            int32_t index = _stream->readSize();
+            if (index <= 0)
             {
                 throw MarshalException(__FILE__, __LINE__, "invalid indirection-table index");
             }
-            p = readInstance(i, nullptr, nullptr);
+            p = readInstance(index, nullptr, nullptr);
         }
 
         //
@@ -2075,12 +2075,12 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
         table.resize(static_cast<size_t>(_stream->readAndCheckSeqSize(1)));
         for (auto& entry : table)
         {
-            int32_t i = _stream->readSize();
-            if (i <= 0)
+            int32_t index = _stream->readSize();
+            if (index <= 0)
             {
                 throw MarshalException(__FILE__, __LINE__, "invalid indirection-table index");
             }
-            entry = readInstance(i, nullptr, nullptr);
+            entry = readInstance(index, nullptr, nullptr);
         }
     }
 }
