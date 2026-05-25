@@ -669,6 +669,16 @@ SessionRouterI::createSessionFromSecureConnectionAsync(
         {
             sslinfo.certs.push_back(Ice::SSL::encodeCertificate(info->peerCertificate));
             userDN = Ice::SSL::getSubjectName(info->peerCertificate);
+            if (userDN.empty())
+            {
+                exception(make_exception_ptr(PermissionDeniedException("empty user DN")));
+                return;
+            }
+        }
+        else
+        {
+            exception(make_exception_ptr(PermissionDeniedException("the client did not provide a certificate")));
+            return;
         }
     }
     catch (const Ice::SSL::CertificateEncodingException&)
@@ -679,12 +689,6 @@ SessionRouterI::createSessionFromSecureConnectionAsync(
     catch (const Ice::LocalException&)
     {
         exception(make_exception_ptr(PermissionDeniedException("connection exception")));
-        return;
-    }
-
-    if (userDN.empty())
-    {
-        exception(make_exception_ptr(PermissionDeniedException("empty user DN")));
         return;
     }
 

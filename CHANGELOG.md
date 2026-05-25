@@ -66,6 +66,7 @@ These are the changes since the [Ice 3.8.1] release.
 
 ### Ice Service Changes
 
-- Fixed IceGrid and Glacier2 SSL session creation to reject peer certificates with an empty subject DN.
+- Updated the creation of SSL-based sessions in IceGrid and Glacier2: a connection without a client certificate, or with
+  an empty DN, is now rejected before reaching the permissions verifier.
 
 [Ice 3.8.1]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
