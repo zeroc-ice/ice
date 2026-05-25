@@ -2629,7 +2629,12 @@ public sealed class InputStream
                 int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
                 for (int i = 0; i < indirectionTable.Length; ++i)
                 {
-                    indirectionTable[i] = readInstance(_stream.readSize(), null);
+                    int index = _stream.readSize();
+                    if (index <= 0)
+                    {
+                        throw new MarshalException("invalid indirection-table index");
+                    }
+                    indirectionTable[i] = readInstance(index, null);
                 }
 
                 //
@@ -2750,7 +2755,12 @@ public sealed class InputStream
                 int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
                 for (int i = 0; i < indirectionTable.Length; ++i)
                 {
-                    indirectionTable[i] = readInstance(_stream.readSize(), null);
+                    int index = _stream.readSize();
+                    if (index <= 0)
+                    {
+                        throw new MarshalException("invalid indirection-table index");
+                    }
+                    indirectionTable[i] = readInstance(index, null);
                 }
                 _current.indirectionTables.Add(indirectionTable);
             }
