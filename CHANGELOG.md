@@ -27,6 +27,10 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Fixed an integer overflow in the sequence-size validation performed while unmarshaling.
 
+- Fixed the unmarshaling of classes and exceptions to reject a malformed sliced-format slice header.
+
+- Fixed the unmarshaling of batch requests to reject a request count larger than the message can hold.
+
 ### Slice Language Changes
 
 - Added the `["oneway"]` metadata directive for Slice operations. This directive can only be applied to operations that
@@ -35,6 +39,8 @@ These are the changes since the [Ice 3.8.1] release.
   or asynchronously, this exception is always thrown synchronously.
 
 ### C++ Changes
+
+- Changed the macOS SSL transport to require TLS 1.2 or later.
 
 - Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice. These now generate `` `[NAME]` ``
   instead of `@p [NAME]`.

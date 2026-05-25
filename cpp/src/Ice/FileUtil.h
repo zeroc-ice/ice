@@ -86,11 +86,9 @@ namespace IceInternal
     ICE_API int mkdir(const std::string&, int);
     ICE_API FILE* fopen(const std::string&, const std::string&);
     ICE_API FILE* freopen(const std::string&, const std::string&, FILE*);
-    ICE_API int open(const std::string&, int);
     ICE_API int getcwd(std::string&);
 
     ICE_API int unlink(const std::string&);
-    ICE_API int close(int);
 
     //
     // This class is used to implement process file locking. This class

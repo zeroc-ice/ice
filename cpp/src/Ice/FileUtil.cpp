@@ -207,23 +207,6 @@ IceInternal::fopen(const string& path, const string& mode)
 }
 
 int
-IceInternal::open(const string& path, int flags)
-{
-    //
-    // Don't need to use a wide string converter, the wide string is directly passed
-    // to Windows API.
-    //
-    if (flags & _O_CREAT)
-    {
-        return ::_wopen(stringToWstring(path, Ice::getProcessStringConverter()).c_str(), flags, _S_IREAD | _S_IWRITE);
-    }
-    else
-    {
-        return ::_wopen(stringToWstring(path, Ice::getProcessStringConverter()).c_str(), flags);
-    }
-}
-
-int
 IceInternal::getcwd(string& cwd)
 {
     //
@@ -247,16 +230,6 @@ IceInternal::unlink(const string& path)
     // to Windows API.
     //
     return _wunlink(stringToWstring(path, Ice::getProcessStringConverter()).c_str());
-}
-
-int
-IceInternal::close(int fd)
-{
-#    ifdef _WIN32
-    return _close(fd);
-#    else
-    return ::close(fd);
-#    endif
 }
 
 IceInternal::FileLock::FileLock(const std::string& path) : _path(path)
@@ -358,20 +331,6 @@ IceInternal::fopen(const string& path, const string& mode)
 }
 
 int
-IceInternal::open(const string& path, int flags)
-{
-    if (flags & O_CREAT)
-    {
-        // By default, create with rw-rw-rw- modified by the user's umask (same as fopen).
-        return ::open(path.c_str(), flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-    }
-    else
-    {
-        return ::open(path.c_str(), flags);
-    }
-}
-
-int
 IceInternal::getcwd(string& cwd)
 {
     char cwdbuf[PATH_MAX];
@@ -387,12 +346,6 @@ int
 IceInternal::unlink(const string& path)
 {
     return ::unlink(path.c_str());
-}
-
-int
-IceInternal::close(int fd)
-{
-    return ::close(fd);
 }
 
 IceInternal::FileLock::FileLock(const std::string& path) : _path(path)
@@ -417,7 +370,7 @@ IceInternal::FileLock::FileLock(const std::string& path) : _path(path)
     if (::fcntl(_fd, F_SETLK, &lock) == -1)
     {
         int err = errno;
-        close(_fd);
+        ::close(_fd);
         throw FileLockException(__FILE__, __LINE__, err, _path);
     }
 
@@ -436,7 +389,7 @@ IceInternal::FileLock::FileLock(const std::string& path) : _path(path)
     if (write(_fd, os.str().c_str(), os.str().size()) == -1)
     {
         int err = errno;
-        close(_fd);
+        ::close(_fd);
         throw FileLockException(__FILE__, __LINE__, err, _path);
     }
 }
