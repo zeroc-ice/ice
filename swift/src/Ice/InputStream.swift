@@ -1414,7 +1414,12 @@ private class EncapsDecoder11: EncapsDecoder {
         //
         if current.sliceFlags.contains(SliceFlags.FLAG_HAS_SLICE_SIZE) {
             current.sliceSize = try stream.read()
-            if current.sliceSize < 4 {
+            // A slice with optional members carries at least the 1-byte end marker in its body, so
+            // its size (which includes the 4-byte size field) must be >= 5. We rely on this in
+            // skipSlice's slice-preservation logic, which excludes the end marker by stepping back
+            // one byte.
+            let minSliceSize: Int32 = current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS) ? 5 : 4
+            if current.sliceSize < minSliceSize {
                 throw MarshalException("invalid slice size")
             }
         } else {
