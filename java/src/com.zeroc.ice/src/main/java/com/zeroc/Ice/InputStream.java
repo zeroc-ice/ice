@@ -1964,11 +1964,7 @@ public final class InputStream {
                 // The table is written as a sequence<size> to conserve space.
                 int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
                 for (int i = 0; i < indirectionTable.length; i++) {
-                    int index = _stream.readSize();
-                    if (index <= 0) {
-                        throw new MarshalException("invalid indirection-table index");
-                    }
-                    indirectionTable[i] = readInstance(index, null);
+                    indirectionTable[i] = readInstance(_stream.readSize(), null);
                 }
 
                 // Sanity checks. If there are optional members, it's possible that not all instance
@@ -2061,11 +2057,7 @@ public final class InputStream {
             if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0) {
                 int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
                 for (int i = 0; i < indirectionTable.length; i++) {
-                    int index = _stream.readSize();
-                    if (index <= 0) {
-                        throw new MarshalException("invalid indirection-table index");
-                    }
-                    indirectionTable[i] = readInstance(index, null);
+                    indirectionTable[i] = readInstance(_stream.readSize(), null);
                 }
                 _current.indirectionTables.add(indirectionTable);
             } else {
@@ -2084,7 +2076,9 @@ public final class InputStream {
         }
 
         private int readInstance(int index, Consumer<Value> cb) {
-            assert (index > 0);
+            if (index <= 0) {
+                throw new MarshalException("invalid class instance index");
+            }
 
             if (index > 1) {
                 if (cb != null) {

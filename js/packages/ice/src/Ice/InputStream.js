@@ -567,11 +567,7 @@ class EncapsDecoder11 extends EncapsDecoder {
             //
             const length = this._stream.readAndCheckSeqSize(1);
             for (let i = 0; i < length; ++i) {
-                const index = this._stream.readSize();
-                if (index <= 0) {
-                    throw new MarshalException("invalid indirection-table index");
-                }
-                indirectionTable[i] = this.readInstance(index, null);
+                indirectionTable[i] = this.readInstance(this._stream.readSize(), null);
             }
 
             //
@@ -665,11 +661,7 @@ class EncapsDecoder11 extends EncapsDecoder {
             const length = this._stream.readAndCheckSeqSize(1);
             const indirectionTable = [];
             for (let i = 0; i < length; ++i) {
-                const index = this._stream.readSize();
-                if (index <= 0) {
-                    throw new MarshalException("invalid indirection-table index");
-                }
-                indirectionTable[i] = this.readInstance(index, null);
+                indirectionTable[i] = this.readInstance(this._stream.readSize(), null);
             }
             this._current.indirectionTables.push(indirectionTable);
         } else {
@@ -689,7 +681,9 @@ class EncapsDecoder11 extends EncapsDecoder {
     }
 
     readInstance(index, cb) {
-        console.assert(index > 0);
+        if (index <= 0) {
+            throw new MarshalException("invalid class instance index");
+        }
 
         let v = null;
 

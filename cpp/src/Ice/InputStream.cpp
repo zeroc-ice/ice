@@ -1961,12 +1961,7 @@ Ice::InputStream::EncapsDecoder11::endSlice()
         IndexList indirectionTable(static_cast<size_t>(_stream->readAndCheckSeqSize(1)));
         for (auto& p : indirectionTable)
         {
-            int32_t index = _stream->readSize();
-            if (index <= 0)
-            {
-                throw MarshalException(__FILE__, __LINE__, "invalid indirection-table index");
-            }
-            p = readInstance(index, nullptr, nullptr);
+            p = readInstance(_stream->readSize(), nullptr, nullptr);
         }
 
         //
@@ -2075,12 +2070,7 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
         table.resize(static_cast<size_t>(_stream->readAndCheckSeqSize(1)));
         for (auto& entry : table)
         {
-            int32_t index = _stream->readSize();
-            if (index <= 0)
-            {
-                throw MarshalException(__FILE__, __LINE__, "invalid indirection-table index");
-            }
-            entry = readInstance(index, nullptr, nullptr);
+            entry = readInstance(_stream->readSize(), nullptr, nullptr);
         }
     }
 }
@@ -2102,7 +2092,10 @@ Ice::InputStream::EncapsDecoder11::readOptional(int32_t readTag, Ice::OptionalFo
 int32_t
 Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, const PatchFunc& patchFunc, void* patchAddr)
 {
-    assert(index > 0);
+    if (index <= 0)
+    {
+        throw MarshalException(__FILE__, __LINE__, "invalid class instance index");
+    }
 
     if (index > 1)
     {
