@@ -284,7 +284,9 @@ classdef (Hidden) EncapsDecoder11 < IceInternal.EncapsDecoder
     methods (Access = private)
         function r = readInstance(obj, index, cb)
             import IceInternal.Protocol;
-            %assert(index > 0);
+            if index <= 0
+                throw(Ice.MarshalException('invalid class instance index'));
+            end
 
             if index > 1
                 if ~isempty(cb)

@@ -681,7 +681,9 @@ class EncapsDecoder11 extends EncapsDecoder {
     }
 
     readInstance(index, cb) {
-        console.assert(index > 0);
+        if (index <= 0) {
+            throw new MarshalException("invalid class instance index");
+        }
 
         let v = null;
 
