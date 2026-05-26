@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Ice.SSL;
 
-internal class SSLEngine
+internal class SSLEngine : IDisposable
 {
     internal SSLEngine(Ice.Communicator communicator)
     {
@@ -19,6 +19,29 @@ internal class SSLEngine
         _securityTraceLevel = _communicator.getProperties().getIcePropertyAsInt("IceSSL.Trace.Security");
         _securityTraceCategory = "Security";
         _trustManager = new TrustManager(_communicator);
+    }
+
+    public void Dispose()
+    {
+        // Release the unmanaged key handles that back each X509Certificate2. The certificate
+        // collection itself isn't IDisposable, so we have to walk its contents.
+        if (_certs is not null)
+        {
+            foreach (X509Certificate2 cert in _certs)
+            {
+                cert.Dispose();
+            }
+            _certs = null;
+        }
+
+        if (_caCerts is not null)
+        {
+            foreach (X509Certificate2 cert in _caCerts)
+            {
+                cert.Dispose();
+            }
+            _caCerts = null;
+        }
     }
 
     internal void initialize()
@@ -535,7 +558,11 @@ internal class SSLEngine
     }
 
     private readonly Ice.Communicator _communicator;
+
+    // CA2213: _logger is borrowed from the communicator; the communicator owns its lifecycle.
+#pragma warning disable CA2213
     private readonly Ice.Logger _logger;
+#pragma warning restore CA2213
     private readonly int _securityTraceLevel;
     private readonly string _securityTraceCategory;
     private string _defaultDir;
