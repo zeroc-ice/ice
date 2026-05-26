@@ -227,8 +227,6 @@ public:
 };
 #endif
 
-int keychainN = 0;
-
 static PropertiesPtr
 createClientProps(const Ice::PropertiesPtr& defaultProps, bool p12)
 {
@@ -244,13 +242,6 @@ createClientProps(const Ice::PropertiesPtr& defaultProps, bool p12)
     {
         result->setProperty("IceSSL.Password", "password");
     }
-#ifdef ICE_USE_SECURE_TRANSPORT
-    ostringstream keychainName;
-    keychainName << defaultDir << "/keychain/client" << keychainN++ << ".keychain";
-    const string keychainPassword = "password";
-    result->setProperty("IceSSL.Keychain", keychainName.str());
-    result->setProperty("IceSSL.KeychainPassword", keychainPassword);
-#endif
     return result;
 }
 
@@ -271,12 +262,6 @@ createServerProps(const Ice::PropertiesPtr& defaultProps, bool p12)
     {
         result["IceSSL.Password"] = "password";
     }
-#ifdef ICE_USE_SECURE_TRANSPORT
-    ostringstream keychainName;
-    keychainName << defaultDir << "/keychain/server" << keychainN << ".keychain";
-    result["IceSSL.Keychain"] = keychainName.str();
-    result["IceSSL.KeychainPassword"] = "password";
-#endif
     return result;
 }
 
