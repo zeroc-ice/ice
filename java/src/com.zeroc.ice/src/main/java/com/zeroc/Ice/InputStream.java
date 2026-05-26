@@ -2076,7 +2076,9 @@ public final class InputStream {
         }
 
         private int readInstance(int index, Consumer<Value> cb) {
-            assert (index > 0);
+            if (index <= 0) {
+                throw new MarshalException("invalid class instance index");
+            }
 
             if (index > 1) {
                 if (cb != null) {

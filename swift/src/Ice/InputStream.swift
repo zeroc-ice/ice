@@ -1549,7 +1549,9 @@ private class EncapsDecoder11: EncapsDecoder {
     }
 
     func readInstance(index: Int32, cb: Callback?) throws -> Int32 {
-        precondition(index > 0)
+        if index <= 0 {
+            throw MarshalException("invalid class instance index")
+        }
 
         if index > 1 {
             if let cb = cb {
