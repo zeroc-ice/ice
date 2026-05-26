@@ -1738,10 +1738,6 @@ internal sealed class WSTransceiver : Transceiver
     internal static HashSet<string> parseAllowedOrigins(string value)
     {
         var result = new HashSet<string>();
-        if (value is null || value.Length == 0)
-        {
-            return result;
-        }
         foreach (string entry in value.Split(','))
         {
             string trimmed = entry.Trim();
