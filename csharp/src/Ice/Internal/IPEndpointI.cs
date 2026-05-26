@@ -33,6 +33,10 @@ public abstract class IPEndpointI : EndpointI
         host_ = s.readString();
         _normalizedHost = normalizeHost(host_);
         port_ = s.readInt();
+        if (port_ < 0 || port_ > 65535)
+        {
+            throw new MarshalException($"port value '{port_}' is out of range");
+        }
         sourceAddr_ = null;
         connectionId_ = "";
     }
