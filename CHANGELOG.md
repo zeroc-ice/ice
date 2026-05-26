@@ -74,6 +74,9 @@ These are the changes since the [Ice 3.8.1] release.
 
 ### Ice Service Changes
 
+- Updated the creation of SSL-based sessions in IceGrid and Glacier2: a connection without a client certificate, or with
+  an empty DN, is now rejected before reaching the permissions verifier.
+
 - Updated the Glacier2CryptPermissionsVerifier plug-in to issue a warning when the configured password file contains one
   or more DES passwords.
 
