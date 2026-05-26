@@ -759,7 +759,7 @@ SecureTransport::SSLEngine::newContext(bool incoming) const
         TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
         TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
         TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384};
-    err = SSLSetEnabledCiphers(ssl.get(), ciphers, sizeof(ciphers) / sizeof(ciphers[0]));
+    err = SSLSetEnabledCiphers(ssl.get(), ciphers, sizeof(ciphers) / sizeof(SSLCipherSuite));
     if (err != noErr)
     {
         throw SecurityException(
