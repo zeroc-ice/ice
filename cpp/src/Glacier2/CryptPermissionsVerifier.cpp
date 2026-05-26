@@ -6,6 +6,8 @@
 #include "Ice/Ice.h"
 #include "Ice/StringUtil.h"
 
+#include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <mutex>
 
@@ -467,11 +469,11 @@ namespace
         {
             return false;
         }
-        if (checksumBuffer1.size() != checksumBuffer2.size())
+        if (checksumBuffer2Length != checksumLength)
         {
             return false;
         }
-        return constantTimeEquals(checksumBuffer1.data(), checksumBuffer2.data(), checksumBuffer1.size());
+        return constantTimeEquals(checksumBuffer1.data(), checksumBuffer2.data(), checksumLength);
 #    endif
 #else
         // Fallback to plain crypt() - DES-style
