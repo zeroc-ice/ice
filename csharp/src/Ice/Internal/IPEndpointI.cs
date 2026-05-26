@@ -35,7 +35,7 @@ public abstract class IPEndpointI : EndpointI
         port_ = s.readInt();
         if (port_ < 0 || port_ > 65535)
         {
-            throw new MarshalException($"port value '{port_}' out of range in endpoint");
+            throw new MarshalException($"port value '{port_}' is out of range");
         }
         sourceAddr_ = null;
         connectionId_ = "";

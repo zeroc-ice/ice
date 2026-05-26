@@ -421,7 +421,7 @@ IceInternal::IPEndpointI::IPEndpointI(ProtocolInstancePtr instance, InputStream*
     s->read(const_cast<int32_t&>(_port));
     if (_port < 0 || _port > 65535)
     {
-        throw MarshalException{__FILE__, __LINE__, "port value '" + to_string(_port) + "' out of range in endpoint"};
+        throw MarshalException{__FILE__, __LINE__, "port value '" + to_string(_port) + "' is out of range"};
     }
 }
 

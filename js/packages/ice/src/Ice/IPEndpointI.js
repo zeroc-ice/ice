@@ -192,7 +192,7 @@ export class IPEndpointI extends EndpointI {
         this._host = s.readString();
         this._port = s.readInt();
         if (this._port < 0 || this._port > 65535) {
-            throw new MarshalException(`port value '${this._port}' out of range in endpoint`);
+            throw new MarshalException(`port value '${this._port}' is out of range`);
         }
     }
 
