@@ -651,14 +651,6 @@ SecureTransport::SSLEngine::initialize()
     }
 }
 
-//
-// Destroy the engine.
-//
-void
-SecureTransport::SSLEngine::destroy()
-{
-}
-
 ClientAuthenticationOptions
 SecureTransport::SSLEngine::createClientAuthenticationOptions(const string& host) const
 {

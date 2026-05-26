@@ -17,10 +17,9 @@ namespace Ice::SSL::OpenSSL
     {
     public:
         SSLEngine(const IceInternal::InstancePtr&);
-        ~SSLEngine();
+        ~SSLEngine() override;
 
         void initialize() final;
-        void destroy() final;
         [[nodiscard]] std::string sslErrors() const;
         [[nodiscard]] std::string password() const { return _password; }
         [[nodiscard]] Ice::SSL::ClientAuthenticationOptions
