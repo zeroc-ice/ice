@@ -50,6 +50,10 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Changed the macOS SSL transport to enable only forward-secret (ECDHE) cipher suites.
 
+- Fixed a resource leak in the SSL engine. The Schannel and OpenSSL engines now release their
+  certificate stores, chain engines, imported key sets, and `SSL_CTX` when the communicator is
+  destroyed.
+
 - Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice. These now generate `` `[NAME]` ``
   instead of `@p [NAME]`.
 
