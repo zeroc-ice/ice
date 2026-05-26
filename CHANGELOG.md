@@ -44,6 +44,8 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Changed the macOS SSL transport to require TLS 1.2 or later.
 
+- Changed the macOS SSL transport to enable only forward-secret (ECDHE) cipher suites.
+
 - Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice. These now generate `` `[NAME]` ``
   instead of `@p [NAME]`.
 
