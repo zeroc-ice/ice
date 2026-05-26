@@ -1228,7 +1228,10 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
 
             if (_readPayloadLength == 126)
             {
-                _readPayloadLength = static_cast<size_t>(ntohs(*reinterpret_cast<uint16_t*>(_readI)));
+                // memcpy avoids the alignment UB of a direct uint16_t* dereference on _readI.
+                uint16_t length;
+                memcpy(&length, _readI, sizeof(length));
+                _readPayloadLength = static_cast<size_t>(ntohs(length));
                 _readI += 2;
             }
             else if (_readPayloadLength == 127)
@@ -1501,8 +1504,9 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
         {
             prepareWriteHeader(OP_CLOSE, 2);
 
-            // Write closing reason
-            *reinterpret_cast<uint16_t*>(_writeBuffer.i) = htons(static_cast<uint16_t>(_closingReason));
+            // Write closing reason. memcpy avoids the alignment UB of a direct uint16_t* store.
+            const uint16_t reason = htons(static_cast<uint16_t>(_closingReason));
+            memcpy(_writeBuffer.i, &reason, sizeof(reason));
             if (!_incoming)
             {
                 *_writeBuffer.i++ ^= _writeMask[0];
@@ -1722,7 +1726,9 @@ IceInternal::WSTransceiver::prepareWriteHeader(uint8_t opCode, IceInternal::Buff
         // Use an extra 16 bits to encode the payload length.
         //
         *_writeBuffer.i++ = byte{126};
-        *reinterpret_cast<uint16_t*>(_writeBuffer.i) = htons(static_cast<uint16_t>(payloadLength));
+        // memcpy avoids the alignment UB of a direct uint16_t* store.
+        const uint16_t length = htons(static_cast<uint16_t>(payloadLength));
+        memcpy(_writeBuffer.i, &length, sizeof(length));
         _writeBuffer.i += 2;
     }
     else if (payloadLength > USHRT_MAX)
