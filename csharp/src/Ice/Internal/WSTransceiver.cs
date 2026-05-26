@@ -809,13 +809,13 @@ internal sealed class WSTransceiver : Transceiver
         if (_allowedOrigins.Count > 0 && !_allowedOrigins.Contains("*"))
         {
             string origin = _parser.getHeader("Origin", false);
-            if (origin != null)
+            if (origin is not null)
             {
                 string canonical = canonicalizeOrigin(origin.Trim());
                 if (canonical.Length == 0 || !_allowedOrigins.Contains(canonical))
                 {
                     throw new WebSocketException(
-                        "origin '" + origin + "' is not in the adapter's AllowedOrigins list");
+                        $"origin '{origin}' is not in the adapter's AllowedOrigins list");
                 }
             }
         }
@@ -1738,7 +1738,7 @@ internal sealed class WSTransceiver : Transceiver
     internal static HashSet<string> parseAllowedOrigins(string value)
     {
         var result = new HashSet<string>();
-        if (value == null || value.Length == 0)
+        if (value is null || value.Length == 0)
         {
             return result;
         }
@@ -1786,6 +1786,6 @@ internal sealed class WSTransceiver : Transceiver
                 rest = rest.Substring(0, colon);
             }
         }
-        return scheme + "://" + rest;
+        return $"{scheme}://{rest}";
     }
 }
