@@ -7,7 +7,9 @@ import java.nio.channels.SelectableChannel;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 final class WSTransceiver implements Transceiver {
     @Override
@@ -389,11 +391,12 @@ final class WSTransceiver implements Transceiver {
         assert (_readBufferSize > 256);
     }
 
-    WSTransceiver(ProtocolInstance instance, Transceiver del) {
+    WSTransceiver(ProtocolInstance instance, Transceiver del, Set<String> allowedOrigins) {
         init(instance, del);
         _host = "";
         _resource = "";
         _incoming = true;
+        _allowedOrigins = allowedOrigins;
 
         // Write and read buffer size must be large enough to hold the frame header!
         assert (_writeBufferSize > 256);
@@ -490,6 +493,19 @@ final class WSTransceiver implements Transceiver {
             }
         } catch (IllegalArgumentException ex) {
             throw new WebSocketException("invalid base64 value `" + key + "' for WebSocket key");
+        }
+
+        // Optionally validate the Origin header against the adapter's allowed-origins list.
+        // Browsers always send Origin; non-browser clients do not, so an absent header bypasses the check.
+        if (!_allowedOrigins.isEmpty() && !_allowedOrigins.contains("*")) {
+            String origin = _parser.getHeader("Origin", false);
+            if (origin != null) {
+                String canonical = canonicalizeOrigin(origin.trim());
+                if (canonical.isEmpty() || !_allowedOrigins.contains(canonical)) {
+                    throw new WebSocketException(
+                        "origin '" + origin + "' is not in the adapter's AllowedOrigins list");
+                }
+            }
         }
 
         // Retain the target resource.
@@ -1139,6 +1155,7 @@ final class WSTransceiver implements Transceiver {
     private String _host;
     private String _resource;
     private boolean _incoming;
+    private Set<String> _allowedOrigins = new HashSet<>();
     private ReadyCallback _readyCallback;
 
     private static final int StateInitializeDelegate = 0;
@@ -1246,4 +1263,51 @@ final class WSTransceiver implements Transceiver {
     private static final String _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
     static final Charset _ascii = Charset.forName("US-ASCII");
+
+    // Parse the value of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
+    // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
+    // The literal "*" passes through unchanged and signals "allow any origin".
+    static Set<String> parseAllowedOrigins(String value) {
+        Set<String> result = new HashSet<>();
+        if (value == null || value.isEmpty()) {
+            return result;
+        }
+        for (String entry : value.split(",")) {
+            String trimmed = entry.trim();
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+            String canonical = canonicalizeOrigin(trimmed);
+            if (!canonical.isEmpty()) {
+                result.add(canonical);
+            }
+        }
+        return result;
+    }
+
+    private static String canonicalizeOrigin(String origin) {
+        if (origin.equals("*")) {
+            return origin;
+        }
+        int sep = origin.indexOf("://");
+        if (sep == -1) {
+            return ""; // malformed
+        }
+        String scheme = origin.substring(0, sep).toLowerCase(java.util.Locale.ROOT);
+        String rest = origin.substring(sep + 3);
+        int pathStart = rest.indexOf('/');
+        if (pathStart >= 0) {
+            rest = rest.substring(0, pathStart);
+        }
+        rest = rest.toLowerCase(java.util.Locale.ROOT);
+        int colon = rest.lastIndexOf(':');
+        if (colon >= 0) {
+            String port = rest.substring(colon + 1);
+            if ((scheme.equals("http") && port.equals("80"))
+                || (scheme.equals("https") && port.equals("443"))) {
+                rest = rest.substring(0, colon);
+            }
+        }
+        return scheme + "://" + rest;
+    }
 }

@@ -55,6 +55,7 @@ final class PropertyNames {
         false,
         new Property[] {
             new Property("AdapterId", false, "", false, null),
+            new Property("AllowedOrigins", false, "", false, null),
             new Property("Connection", false, "", false, PropertyNames.ConnectionProps),
             new Property("Endpoints", false, "", false, null),
             new Property("Locator", false, "", false, PropertyNames.ProxyProps),

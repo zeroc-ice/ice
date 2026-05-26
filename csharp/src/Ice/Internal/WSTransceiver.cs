@@ -677,12 +677,13 @@ internal sealed class WSTransceiver : Transceiver
         Debug.Assert(_readBufferSize > 256);
     }
 
-    internal WSTransceiver(ProtocolInstance instance, Transceiver del)
+    internal WSTransceiver(ProtocolInstance instance, Transceiver del, HashSet<string> allowedOrigins)
     {
         init(instance, del);
         _host = "";
         _resource = "";
         _incoming = true;
+        _allowedOrigins = allowedOrigins;
 
         //
         // Write and read buffer size must be large enough to hold the frame header!
@@ -799,6 +800,24 @@ internal sealed class WSTransceiver : Transceiver
         if (decodedKey.Length != 16)
         {
             throw new WebSocketException("invalid value `" + key + "' for WebSocket key");
+        }
+
+        //
+        // Optionally validate the Origin header against the adapter's allowed-origins list.
+        // Browsers always send Origin; non-browser clients do not, so an absent header bypasses the check.
+        //
+        if (_allowedOrigins.Count > 0 && !_allowedOrigins.Contains("*"))
+        {
+            string origin = _parser.getHeader("Origin", false);
+            if (origin != null)
+            {
+                string canonical = canonicalizeOrigin(origin.Trim());
+                if (canonical.Length == 0 || !_allowedOrigins.Contains(canonical))
+                {
+                    throw new WebSocketException(
+                        "origin '" + origin + "' is not in the adapter's AllowedOrigins list");
+                }
+            }
         }
 
         //
@@ -1623,6 +1642,7 @@ internal sealed class WSTransceiver : Transceiver
     private readonly string _host;
     private string _resource;
     private readonly bool _incoming;
+    private readonly HashSet<string> _allowedOrigins = new HashSet<string>();
 
     private const int StateInitializeDelegate = 0;
     private const int StateConnected = 1;
@@ -1711,4 +1731,61 @@ internal sealed class WSTransceiver : Transceiver
     private const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
     private static readonly UTF8Encoding _utf8 = new UTF8Encoding(false, true);
+
+    // Parse the value of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
+    // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
+    // The literal "*" passes through unchanged and signals "allow any origin".
+    internal static HashSet<string> parseAllowedOrigins(string value)
+    {
+        var result = new HashSet<string>();
+        if (value == null || value.Length == 0)
+        {
+            return result;
+        }
+        foreach (string entry in value.Split(','))
+        {
+            string trimmed = entry.Trim();
+            if (trimmed.Length == 0)
+            {
+                continue;
+            }
+            string canonical = canonicalizeOrigin(trimmed);
+            if (canonical.Length > 0)
+            {
+                result.Add(canonical);
+            }
+        }
+        return result;
+    }
+
+    private static string canonicalizeOrigin(string origin)
+    {
+        if (origin == "*")
+        {
+            return origin;
+        }
+        int sep = origin.IndexOf("://", StringComparison.Ordinal);
+        if (sep == -1)
+        {
+            return ""; // malformed
+        }
+        string scheme = origin.Substring(0, sep).ToLowerInvariant();
+        string rest = origin.Substring(sep + 3);
+        int pathStart = rest.IndexOf('/');
+        if (pathStart >= 0)
+        {
+            rest = rest.Substring(0, pathStart);
+        }
+        rest = rest.ToLowerInvariant();
+        int colon = rest.LastIndexOf(':');
+        if (colon >= 0)
+        {
+            string port = rest.Substring(colon + 1);
+            if ((scheme == "http" && port == "80") || (scheme == "https" && port == "443"))
+            {
+                rest = rest.Substring(0, colon);
+            }
+        }
+        return scheme + "://" + rest;
+    }
 }

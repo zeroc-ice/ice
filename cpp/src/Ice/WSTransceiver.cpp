@@ -51,6 +51,44 @@ namespace
     const string _iceProtocol = "ice.zeroc.com";                   // NOLINT(cert-err58-cpp)
     const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // NOLINT(cert-err58-cpp)
 
+    // Canonicalize an origin string: lowercase scheme/host, strip any path, and omit the default port (80 for http,
+    // 443 for https). The literal "*" passes through unchanged. Returns an empty string if the input cannot be parsed
+    // as an origin.
+    string canonicalizeOrigin(string_view origin)
+    {
+        if (origin == "*")
+        {
+            return string{origin};
+        }
+        auto sep = origin.find("://");
+        if (sep == string_view::npos)
+        {
+            return string{}; // malformed
+        }
+        string scheme{origin.substr(0, sep)};
+        transform(scheme.begin(), scheme.end(), scheme.begin(), [](unsigned char c) { return std::tolower(c); });
+        string_view rest = origin.substr(sep + 3);
+        if (auto pathStart = rest.find('/'); pathStart != string_view::npos)
+        {
+            rest = rest.substr(0, pathStart);
+        }
+        string hostPort{rest};
+        transform(
+            hostPort.begin(),
+            hostPort.end(),
+            hostPort.begin(),
+            [](unsigned char c) { return std::tolower(c); });
+        if (auto colon = hostPort.rfind(':'); colon != string::npos)
+        {
+            string_view port = string_view{hostPort}.substr(colon + 1);
+            if ((scheme == "http" && port == "80") || (scheme == "https" && port == "443"))
+            {
+                hostPort = hostPort.substr(0, colon);
+            }
+        }
+        return scheme + "://" + hostPort;
+    }
+
     //
     // Rename to avoid conflict with OS 10.10 htonll
     //
@@ -122,6 +160,31 @@ namespace
 
         return v;
     }
+}
+
+set<string>
+IceInternal::parseAllowedOrigins(string_view value)
+{
+    set<string> result;
+    vector<string> entries;
+    if (!IceInternal::splitString(string{value}, ",", entries))
+    {
+        return result;
+    }
+    for (const auto& entry : entries)
+    {
+        string trimmed = IceInternal::trim(entry);
+        if (trimmed.empty())
+        {
+            continue;
+        }
+        string canonical = canonicalizeOrigin(trimmed);
+        if (!canonical.empty())
+        {
+            result.insert(std::move(canonical));
+        }
+    }
+    return result;
 }
 
 NativeInfoPtr
@@ -845,9 +908,13 @@ IceInternal::WSTransceiver::WSTransceiver(
     //
 }
 
-IceInternal::WSTransceiver::WSTransceiver(ProtocolInstancePtr instance, TransceiverPtr del)
+IceInternal::WSTransceiver::WSTransceiver(
+    ProtocolInstancePtr instance,
+    TransceiverPtr del,
+    set<string> allowedOrigins)
     : _instance(std::move(instance)),
       _delegate(std::move(del)),
+      _allowedOrigins(std::move(allowedOrigins)),
       _incoming(true),
       _state(StateInitializeDelegate),
       _parser(make_shared<HttpParser>()),
@@ -959,6 +1026,23 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
     if (decodedKey.size() != 16)
     {
         throw WebSocketException("invalid value '" + key + "' for WebSocket key");
+    }
+
+    //
+    // Optionally validate the Origin header against the adapter's allowed-origins list.
+    // Browsers always send Origin; non-browser clients do not, so an absent header bypasses the check.
+    //
+    if (!_allowedOrigins.empty() && _allowedOrigins.count("*") == 0)
+    {
+        string origin;
+        if (_parser->getHeader("Origin", origin, false))
+        {
+            string canonical = canonicalizeOrigin(IceInternal::trim(origin));
+            if (canonical.empty() || _allowedOrigins.count(canonical) == 0)
+            {
+                throw WebSocketException("origin '" + origin + "' is not in the adapter's AllowedOrigins list");
+            }
+        }
     }
 
     //

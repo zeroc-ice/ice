@@ -10,6 +10,7 @@
 #include "TargetCompare.h"
 #include "WSAcceptor.h"
 #include "WSConnector.h"
+#include "WSTransceiver.h"
 
 #include <algorithm>
 
@@ -247,7 +248,17 @@ IceInternal::WSEndpoint::acceptor(
     const optional<Ice::SSL::ServerAuthenticationOptions>& serverAuthenticationOptions) const
 {
     AcceptorPtr acceptor = _delegate->acceptor(adapterName, serverAuthenticationOptions);
-    return make_shared<WSAcceptor>(const_cast<WSEndpoint*>(this)->shared_from_this(), _instance, acceptor);
+    set<string> allowedOrigins;
+    if (!adapterName.empty())
+    {
+        allowedOrigins =
+            parseAllowedOrigins(_instance->properties()->getProperty(adapterName + ".AllowedOrigins"));
+    }
+    return make_shared<WSAcceptor>(
+        const_cast<WSEndpoint*>(this)->shared_from_this(),
+        _instance,
+        acceptor,
+        std::move(allowedOrigins));
 }
 
 WSEndpointPtr

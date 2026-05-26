@@ -134,8 +134,19 @@ internal sealed class WSEndpoint : EndpointI
         _delegate.connectors_async(new EndpointI_connectorsI(_instance, host, _resource, callback));
     }
 
-    public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions) =>
-        new WSAcceptor(this, _instance, _delegate.acceptor(adapterName, serverAuthenticationOptions));
+    public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions)
+    {
+        HashSet<string> allowedOrigins =
+            adapterName.Length > 0
+                ? WSTransceiver.parseAllowedOrigins(
+                      _instance.properties().getProperty(adapterName + ".AllowedOrigins"))
+                : new HashSet<string>();
+        return new WSAcceptor(
+            this,
+            _instance,
+            _delegate.acceptor(adapterName, serverAuthenticationOptions),
+            allowedOrigins);
+    }
 
     public WSEndpoint endpoint(EndpointI delEndp)
     {

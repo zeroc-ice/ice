@@ -142,7 +142,12 @@ final class WSEndpoint extends EndpointI {
     @Override
     public Acceptor acceptor(String adapterName, SSLEngineFactory factory) {
         Acceptor delAcc = _delegate.acceptor(adapterName, factory);
-        return new WSAcceptor(this, _instance, delAcc);
+        java.util.Set<String> allowedOrigins =
+            adapterName.isEmpty()
+                ? new java.util.HashSet<>()
+                : WSTransceiver.parseAllowedOrigins(
+                    _instance.properties().getProperty(adapterName + ".AllowedOrigins"));
+        return new WSAcceptor(this, _instance, delAcc, allowedOrigins);
     }
 
     public WSEndpoint endpoint(EndpointI delEndp) {

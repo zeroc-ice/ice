@@ -56,7 +56,7 @@ IceInternal::WSAcceptor::accept()
     // WebSocket handshaking is performed in TransceiverI::initialize, since
     // accept must not block.
     //
-    return make_shared<WSTransceiver>(_instance, _delegate->accept());
+    return make_shared<WSTransceiver>(_instance, _delegate->accept(), _allowedOrigins);
 }
 
 string
@@ -77,10 +77,15 @@ IceInternal::WSAcceptor::toDetailedString() const
     return _delegate->toDetailedString();
 }
 
-IceInternal::WSAcceptor::WSAcceptor(WSEndpointPtr endpoint, ProtocolInstancePtr instance, AcceptorPtr del)
+IceInternal::WSAcceptor::WSAcceptor(
+    WSEndpointPtr endpoint,
+    ProtocolInstancePtr instance,
+    AcceptorPtr del,
+    set<string> allowedOrigins)
     : _endpoint(std::move(endpoint)),
       _instance(std::move(instance)),
-      _delegate(std::move(del))
+      _delegate(std::move(del)),
+      _allowedOrigins(std::move(allowedOrigins))
 {
 }
 

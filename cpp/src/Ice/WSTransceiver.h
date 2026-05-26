@@ -10,16 +10,24 @@
 #include "ProtocolInstance.h"
 #include "Transceiver.h"
 
+#include <set>
+#include <string_view>
+
 namespace IceInternal
 {
     class ConnectorI;
     class AcceptorI;
 
+    // Parse the value of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
+    // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
+    // The literal "*" passes through unchanged and signals "allow any origin".
+    std::set<std::string> parseAllowedOrigins(std::string_view value);
+
     class WSTransceiver final : public Transceiver
     {
     public:
         WSTransceiver(ProtocolInstancePtr, TransceiverPtr, std::string, std::string);
-        WSTransceiver(ProtocolInstancePtr, TransceiverPtr);
+        WSTransceiver(ProtocolInstancePtr, TransceiverPtr, std::set<std::string> allowedOrigins);
         ~WSTransceiver();
 
         NativeInfoPtr getNativeInfo() final;
@@ -66,6 +74,7 @@ namespace IceInternal
         const TransceiverPtr _delegate;
         const std::string _host;
         const std::string _resource;
+        const std::set<std::string> _allowedOrigins;
         const bool _incoming;
 
         enum State

@@ -35,6 +35,10 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Fixed the unmarshaling of class indirection tables to reject a zero-valued entry.
 
+- Added the `<AdapterName>.AllowedOrigins` object adapter property. When set on an adapter with a WebSocket endpoint,
+  the server rejects upgrade requests whose `Origin` header is not in the comma-separated list. The property defaults
+  to empty (no enforcement); setting it to `*` is also permissive.
+
 ### Slice Language Changes
 
 - Added the `["oneway"]` metadata directive for Slice operations. This directive can only be applied to operations that
