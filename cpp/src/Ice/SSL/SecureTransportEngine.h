@@ -20,10 +20,9 @@ namespace Ice::SSL::SecureTransport
     {
     public:
         SSLEngine(const IceInternal::InstancePtr&);
-        ~SSLEngine();
+        ~SSLEngine() override;
 
         void initialize() final;
-        void destroy() final;
 
         [[nodiscard]] Ice::SSL::ClientAuthenticationOptions
         createClientAuthenticationOptions(const std::string& host) const final;

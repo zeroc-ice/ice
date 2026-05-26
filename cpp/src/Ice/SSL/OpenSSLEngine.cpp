@@ -72,7 +72,14 @@ namespace
 
 OpenSSL::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance) : Ice::SSL::SSLEngine(instance) {}
 
-OpenSSL::SSLEngine::~SSLEngine() = default;
+OpenSSL::SSLEngine::~SSLEngine()
+{
+    if (_ctx)
+    {
+        SSL_CTX_free(_ctx);
+        _ctx = nullptr;
+    }
+}
 
 void
 OpenSSL::SSLEngine::initialize()
@@ -508,14 +515,4 @@ string
 OpenSSL::SSLEngine::sslErrors() const
 {
     return getErrors();
-}
-
-void
-OpenSSL::SSLEngine::destroy()
-{
-    if (_ctx)
-    {
-        SSL_CTX_free(_ctx);
-        _ctx = nullptr;
-    }
 }

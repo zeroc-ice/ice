@@ -23,7 +23,7 @@ namespace Ice::SSL
     {
     public:
         SSLEngine(const IceInternal::InstancePtr&);
-        ~SSLEngine();
+        virtual ~SSLEngine();
 
         [[nodiscard]] Ice::LoggerPtr getLogger() const;
         [[nodiscard]] Ice::PropertiesPtr getProperties() const;
@@ -33,9 +33,6 @@ namespace Ice::SSL
 
         // Setup the engine.
         virtual void initialize() = 0;
-
-        // Destroy the engine.
-        virtual void destroy() = 0;
 
         // Verify peer certificate.
         virtual void verifyPeer(const ConnectionInfoPtr&) const;
