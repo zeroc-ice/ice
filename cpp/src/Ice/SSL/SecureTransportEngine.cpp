@@ -9,9 +9,16 @@
 #include "Ice/Logger.h"
 #include "Ice/Properties.h"
 #include "Ice/SSL/SSLException.h"
+#include "Ice/UUID.h"
 #include "SSLEngine.h"
 #include "SSLUtil.h"
 #include "SecureTransportUtil.h"
+
+#include <cerrno>
+#include <climits>
+#include <cstring>
+#include <unistd.h>
+#include <vector>
 
 // Disable deprecation warnings from SecureTransport APIs
 #include "../DisableWarnings.h"
@@ -547,6 +554,43 @@ namespace
             }
         }
     }
+
+#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+    // Creates a private temporary directory to hold a short-lived keychain, and returns its path.
+    // Uses confstr(_CS_DARWIN_USER_TEMP_DIR) rather than $TMPDIR so the location can't be
+    // redirected through the process environment.
+    string createTemporaryKeychainDirectory()
+    {
+        char base[PATH_MAX];
+        size_t len = confstr(_CS_DARWIN_USER_TEMP_DIR, base, sizeof(base));
+        if (len == 0 || len > sizeof(base))
+        {
+            int error = errno;
+
+            ostringstream os;
+            os << "SSL transport: confstr(_CS_DARWIN_USER_TEMP_DIR) failed";
+            if (error != 0)
+            {
+                os << ": " << strerror(error);
+            }
+            throw InitializationException(__FILE__, __LINE__, os.str());
+        }
+
+        string tmpl = string{base} + "ice-keychain-XXXXXX";
+        vector<char> buffer(tmpl.begin(), tmpl.end());
+        buffer.push_back('\0');
+
+        char* dir = mkdtemp(buffer.data());
+        if (dir == nullptr)
+        {
+            int error = errno;
+            ostringstream os;
+            os << "SSL transport: mkdtemp failed: " << strerror(error);
+            throw InitializationException(__FILE__, __LINE__, os.str());
+        }
+        return dir;
+    }
+#endif
 }
 
 SecureTransport::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
@@ -556,7 +600,25 @@ SecureTransport::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
 {
 }
 
-SecureTransport::SSLEngine::~SSLEngine() = default;
+SecureTransport::SSLEngine::~SSLEngine()
+{
+#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+    if (!_temporaryKeychainDir.empty())
+    {
+        // Remove the temporary keychain and its enclosing directory created by initialize().
+        // The cleanup lives in the destructor (not destroy()) so it also runs when initialize()
+        // throws after the directory has been created.
+        _chain.reset();
+        const string keychainPath = _temporaryKeychainDir + "/ice.keychain";
+        UniqueRef<SecKeychainRef> keychain;
+        if (SecKeychainOpen(keychainPath.c_str(), &keychain.get()) == noErr && keychain.get())
+        {
+            SecKeychainDelete(keychain.get());
+        }
+        rmdir(_temporaryKeychainDir.c_str());
+    }
+#endif
+}
 
 //
 // Setup the engine.
@@ -635,6 +697,18 @@ SecureTransport::SSLEngine::initialize()
             }
             keyFile = *resolved;
         }
+
+#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+        if (keychain.empty())
+        {
+            // Import the certificate into a temporary keychain rather than the user's login keychain.
+            // A private key in the login keychain cannot complete a forward-secret (ECDHE) handshake
+            // on the server side. The keychain and its enclosing directory are removed by the destructor.
+            _temporaryKeychainDir = createTemporaryKeychainDirectory();
+            keychain = _temporaryKeychainDir + "/ice.keychain";
+            keychainPassword = Ice::generateUUID();
+        }
+#endif
 
         try
         {

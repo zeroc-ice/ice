@@ -54,6 +54,10 @@ These are the changes since the [Ice 3.8.1] release.
   certificate stores, chain engines, imported key sets, and `SSL_CTX` when the communicator is
   destroyed.
 
+- Changed the macOS SSL transport so that, when `IceSSL.Keychain` is not set, the certificate configured with
+  `IceSSL.CertFile` is imported into a temporary keychain (removed when the communicator is destroyed) instead of
+  the user's login keychain.
+
 - Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice. These now generate `` `[NAME]` ``
   instead of `@p [NAME]`.
 
