@@ -721,15 +721,15 @@ SecureTransport::SSLEngine::createServerAuthenticationOptions() const
 SSLContextRef
 SecureTransport::SSLEngine::newContext(bool incoming) const
 {
-    SSLContextRef ssl =
-        SSLCreateContext(kCFAllocatorDefault, incoming ? kSSLServerSide : kSSLClientSide, kSSLStreamType);
-    if (!ssl)
+    UniqueRef<SSLContextRef> ssl(
+        SSLCreateContext(kCFAllocatorDefault, incoming ? kSSLServerSide : kSSLClientSide, kSSLStreamType));
+    if (!ssl.get())
     {
         throw SecurityException(__FILE__, __LINE__, "SSL transport: unable to create SSL context");
     }
 
     OSStatus err = SSLSetSessionOption(
-        ssl,
+        ssl.get(),
         incoming ? kSSLSessionOptionBreakOnClientAuth : kSSLSessionOptionBreakOnServerAuth,
         true);
 
@@ -742,7 +742,7 @@ SecureTransport::SSLEngine::newContext(bool incoming) const
     }
 
     // Require TLS 1.2 or later. SecureTransport otherwise negotiates down to TLS 1.0 on macOS.
-    err = SSLSetProtocolVersionMin(ssl, kTLSProtocol12);
+    err = SSLSetProtocolVersionMin(ssl.get(), kTLSProtocol12);
     if (err != noErr)
     {
         throw SecurityException(
@@ -751,7 +751,24 @@ SecureTransport::SSLEngine::newContext(bool incoming) const
             "SSL transport: error while setting the minimum protocol version:\n" + sslErrorToString(err));
     }
 
-    return ssl;
+    // Enable only forward-secret cipher suites: the Mozilla "Intermediate" recommendation for TLS 1.2
+    // intersected with what SecureTransport can negotiate — ECDHE key exchange with AES-GCM.
+    // SecureTransport's own default set also includes static-RSA suites (no forward secrecy) and 3DES.
+    const SSLCipherSuite ciphers[] = {
+        TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+        TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+        TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+        TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384};
+    err = SSLSetEnabledCiphers(ssl.get(), ciphers, sizeof(ciphers) / sizeof(SSLCipherSuite));
+    if (err != noErr)
+    {
+        throw SecurityException(
+            __FILE__,
+            __LINE__,
+            "SSL transport: error while setting ciphers:\n" + sslErrorToString(err));
+    }
+
+    return ssl.release();
 }
 
 bool
