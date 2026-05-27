@@ -22,7 +22,7 @@ public sealed class BufSizeWarnInfo
 }
 
 // CA1001: Instance holds an IDisposable _sslEngine but follows Ice's destroy()-based
-// lifecycle instead of IDisposable. The engine is disposed from destroy().
+// lifecycle instead of IDisposable.
 #pragma warning disable CA1001
 public sealed class Instance
 #pragma warning restore CA1001
@@ -1139,10 +1139,6 @@ public sealed class Instance
         //
         _pluginManager?.destroy();
 
-        // Release the X509Certificate2 instances held by the SSL engine before the Instance goes
-        // away; the certificate handles would otherwise linger until the GC finalizes them.
-        _sslEngine?.Dispose();
-
         lock (_mutex)
         {
             _objectAdapterFactory = null;
@@ -1160,6 +1156,7 @@ public sealed class Instance
             _endpointFactoryManager = null;
             _pluginManager = null;
 
+            _sslEngine?.Dispose();
             _sslEngine = null;
 
             _adminAdapter = null;
