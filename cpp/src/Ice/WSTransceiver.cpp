@@ -51,9 +51,9 @@ namespace
     const string _iceProtocol = "ice.zeroc.com";                   // NOLINT(cert-err58-cpp)
     const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // NOLINT(cert-err58-cpp)
 
-    // Canonicalize an origin string: lowercase scheme/host, strip any path, and omit the default port (80 for http,
-    // 443 for https). The literal "*" passes through unchanged. Returns an empty string if the input cannot be parsed
-    // as an origin.
+    // Canonicalize an origin string: lowercase scheme and host, strip any path, and omit the default port (80 for
+    // http, 443 for https). The literal "*" passes through unchanged. Throws PropertyException if the input is not a
+    // syntactically valid origin.
     string canonicalizeOrigin(string_view origin)
     {
         if (origin == "*")
@@ -61,18 +61,22 @@ namespace
             return string{origin};
         }
         auto sep = origin.find("://");
-        if (sep == string_view::npos)
+        if (sep == string_view::npos || sep == 0)
         {
-            return string{}; // malformed
+            throw PropertyException(__FILE__, __LINE__, "malformed origin '" + string{origin} + "'");
         }
         string scheme{origin.substr(0, sep)};
         transform(scheme.begin(), scheme.end(), scheme.begin(), [](unsigned char c) { return std::tolower(c); });
-        string_view rest = origin.substr(sep + 3);
-        if (auto pathStart = rest.find('/'); pathStart != string_view::npos)
+        string_view authority = origin.substr(sep + 3);
+        if (auto pathStart = authority.find('/'); pathStart != string_view::npos)
         {
-            rest = rest.substr(0, pathStart);
+            authority = authority.substr(0, pathStart);
         }
-        string hostPort{rest};
+        if (authority.empty())
+        {
+            throw PropertyException(__FILE__, __LINE__, "malformed origin '" + string{origin} + "'");
+        }
+        string hostPort{authority};
         transform(
             hostPort.begin(),
             hostPort.end(),
@@ -163,26 +167,12 @@ namespace
 }
 
 set<string>
-IceInternal::parseAllowedOrigins(string_view value)
+IceInternal::parseAllowedOrigins(const vector<string>& entries)
 {
     set<string> result;
-    vector<string> entries;
-    if (!IceInternal::splitString(string{value}, ",", entries))
-    {
-        return result;
-    }
     for (const auto& entry : entries)
     {
-        string trimmed = IceInternal::trim(entry);
-        if (trimmed.empty())
-        {
-            continue;
-        }
-        string canonical = canonicalizeOrigin(trimmed);
-        if (!canonical.empty())
-        {
-            result.insert(std::move(canonical));
-        }
+        result.insert(canonicalizeOrigin(entry));
     }
     return result;
 }
@@ -1037,8 +1027,16 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
         string origin;
         if (_parser->getHeader("Origin", origin, false))
         {
-            string canonical = canonicalizeOrigin(IceInternal::trim(origin));
-            if (canonical.empty() || _allowedOrigins.count(canonical) == 0)
+            string canonical;
+            try
+            {
+                canonical = canonicalizeOrigin(IceInternal::trim(origin));
+            }
+            catch (const PropertyException&)
+            {
+                throw WebSocketException("origin '" + origin + "' is malformed");
+            }
+            if (_allowedOrigins.count(canonical) == 0)
             {
                 throw WebSocketException("origin '" + origin + "' is not in the adapter's AllowedOrigins list");
             }

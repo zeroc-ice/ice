@@ -11,17 +11,19 @@
 #include "Transceiver.h"
 
 #include <set>
-#include <string_view>
+#include <string>
+#include <vector>
 
 namespace IceInternal
 {
     class ConnectorI;
     class AcceptorI;
 
-    // Parse the value of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
+    // Parse the values of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
     // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
     // The literal "*" passes through unchanged and signals "allow any origin".
-    std::set<std::string> parseAllowedOrigins(std::string_view value);
+    // Throws PropertyException if any entry is not a syntactically valid origin.
+    std::set<std::string> parseAllowedOrigins(const std::vector<std::string>& entries);
 
     class WSTransceiver final : public Transceiver
     {

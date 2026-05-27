@@ -252,7 +252,7 @@ IceInternal::WSEndpoint::acceptor(
     if (!adapterName.empty())
     {
         allowedOrigins =
-            parseAllowedOrigins(_instance->properties()->getProperty(adapterName + ".AllowedOrigins"));
+            parseAllowedOrigins(_instance->properties()->getPropertyAsList(adapterName + ".AllowedOrigins"));
     }
     return make_shared<WSAcceptor>(
         const_cast<WSEndpoint*>(this)->shared_from_this(),
