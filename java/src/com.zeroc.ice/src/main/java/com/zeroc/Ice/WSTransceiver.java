@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteOrder;
 import java.nio.channels.SelectableChannel;
 import java.nio.charset.Charset;
@@ -500,8 +502,13 @@ final class WSTransceiver implements Transceiver {
         if (!_allowedOrigins.isEmpty() && !_allowedOrigins.contains("*")) {
             String origin = _parser.getHeader("Origin", false);
             if (origin != null) {
-                String canonical = canonicalizeOrigin(origin.trim());
-                if (canonical.isEmpty() || !_allowedOrigins.contains(canonical)) {
+                String canonical;
+                try {
+                    canonical = canonicalizeOrigin(origin.trim());
+                } catch (PropertyException ex) {
+                    throw new WebSocketException("origin '" + origin + "' is malformed");
+                }
+                if (!_allowedOrigins.contains(canonical)) {
                     throw new WebSocketException(
                         "origin '" + origin + "' is not in the adapter's AllowedOrigins list");
                 }
@@ -1264,50 +1271,41 @@ final class WSTransceiver implements Transceiver {
 
     static final Charset _ascii = Charset.forName("US-ASCII");
 
-    // Parse the value of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
+    // Parse the values of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
     // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
     // The literal "*" passes through unchanged and signals "allow any origin".
-    static Set<String> parseAllowedOrigins(String value) {
+    // Throws PropertyException if any entry is not a syntactically valid origin.
+    static Set<String> parseAllowedOrigins(String[] entries) {
         Set<String> result = new HashSet<>();
-        if (value == null || value.isEmpty()) {
-            return result;
-        }
-        for (String entry : value.split(",")) {
-            String trimmed = entry.trim();
-            if (trimmed.isEmpty()) {
-                continue;
-            }
-            String canonical = canonicalizeOrigin(trimmed);
-            if (!canonical.isEmpty()) {
-                result.add(canonical);
-            }
+        for (String entry : entries) {
+            result.add(canonicalizeOrigin(entry));
         }
         return result;
     }
 
-    private static String canonicalizeOrigin(String origin) {
+    static String canonicalizeOrigin(String origin) {
         if (origin.equals("*")) {
             return origin;
         }
-        int sep = origin.indexOf("://");
-        if (sep == -1) {
-            return ""; // malformed
+        URI uri;
+        try {
+            uri = new URI(origin);
+        } catch (URISyntaxException ex) {
+            throw new PropertyException("malformed origin '" + origin + "'");
         }
-        String scheme = origin.substring(0, sep).toLowerCase(java.util.Locale.ROOT);
-        String rest = origin.substring(sep + 3);
-        int pathStart = rest.indexOf('/');
-        if (pathStart >= 0) {
-            rest = rest.substring(0, pathStart);
+        String scheme = uri.getScheme();
+        String host = uri.getHost();
+        if (scheme == null || host == null) {
+            throw new PropertyException("malformed origin '" + origin + "'");
         }
-        rest = rest.toLowerCase(java.util.Locale.ROOT);
-        int colon = rest.lastIndexOf(':');
-        if (colon >= 0) {
-            String port = rest.substring(colon + 1);
-            if ((scheme.equals("http") && port.equals("80"))
-                || (scheme.equals("https") && port.equals("443"))) {
-                rest = rest.substring(0, colon);
-            }
+        scheme = scheme.toLowerCase(java.util.Locale.ROOT);
+        host = host.toLowerCase(java.util.Locale.ROOT);
+        int port = uri.getPort();
+        if (port == -1
+            || (scheme.equals("http") && port == 80)
+            || (scheme.equals("https") && port == 443)) {
+            return scheme + "://" + host;
         }
-        return scheme + "://" + rest;
+        return scheme + "://" + host + ":" + port;
     }
 }

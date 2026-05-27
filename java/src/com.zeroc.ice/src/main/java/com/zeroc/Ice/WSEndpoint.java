@@ -146,7 +146,7 @@ final class WSEndpoint extends EndpointI {
             adapterName.isEmpty()
                 ? new java.util.HashSet<>()
                 : WSTransceiver.parseAllowedOrigins(
-                    _instance.properties().getProperty(adapterName + ".AllowedOrigins"));
+                    _instance.properties().getPropertyAsList(adapterName + ".AllowedOrigins"));
         return new WSAcceptor(this, _instance, delAcc, allowedOrigins);
     }
 
