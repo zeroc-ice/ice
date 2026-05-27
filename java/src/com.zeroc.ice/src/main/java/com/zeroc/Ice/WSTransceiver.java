@@ -1290,7 +1290,7 @@ final class WSTransceiver implements Transceiver {
         // RFC 6454: a serialized origin is exactly "scheme://host[:port]". Reject path, query, fragment, and userinfo.
         // java.net.URI returns "" for an absent path and "/" for "scheme://x/" -- both treated as no path.
         String path = uri.getRawPath();
-        if ((path != null && !path.isEmpty() && !path.equals("/"))
+        if ((path != null && !path.isEmpty() && !"/".equals(path))
             || (uri.getRawQuery() != null && !uri.getRawQuery().isEmpty())
             || (uri.getRawFragment() != null && !uri.getRawFragment().isEmpty())
             || (uri.getRawUserInfo() != null && !uri.getRawUserInfo().isEmpty())) {
@@ -1300,8 +1300,8 @@ final class WSTransceiver implements Transceiver {
         host = host.toLowerCase(java.util.Locale.ROOT);
         int port = uri.getPort();
         if (port == -1
-            || (scheme.equals("http") && port == 80)
-            || (scheme.equals("https") && port == 443)) {
+            || ("http".equals(scheme) && port == 80)
+            || ("https".equals(scheme) && port == 443)) {
             return scheme + "://" + host;
         }
         return scheme + "://" + host + ":" + port;

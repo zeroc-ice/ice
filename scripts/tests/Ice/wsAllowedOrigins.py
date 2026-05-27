@@ -14,9 +14,7 @@ def _runCases(current, cases):
         accepted, status = probe(host, port, origin)
         if accepted != expected_accepted:
             action = "accepted" if accepted else "rejected"
-            raise RuntimeError(
-                "{0}: server {1} unexpectedly (status: {2})".format(label, action, status)
-            )
+            raise RuntimeError("{0}: server {1} unexpectedly (status: {2})".format(label, action, status))
 
 
 class WSAllowedOriginsTestCase(ClientServerTestCase):
@@ -92,8 +90,7 @@ class WSAllowedOriginsPortTestCase(ClientServerTestCase):
                 quiet=True,
                 waitForShutdown=False,
                 props={
-                    "TestAdapter.AllowedOrigins":
-                        "https://web.example.com,https://api.example.com:443,http://dev.example.com:8080"
+                    "TestAdapter.AllowedOrigins": "https://web.example.com,https://api.example.com:443,http://dev.example.com:8080"
                 },
             ),
         )

@@ -103,9 +103,7 @@ def run_cases(host, port, allowed_origins):
 
 
 def main():
-    p = argparse.ArgumentParser(
-        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
-    )
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("host")
     p.add_argument("port", type=int)
     p.add_argument("--origin", help="Value for the Origin request header")

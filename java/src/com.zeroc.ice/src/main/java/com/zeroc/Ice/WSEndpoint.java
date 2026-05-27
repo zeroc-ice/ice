@@ -159,7 +159,7 @@ final class WSEndpoint extends EndpointI {
     private static java.util.Set<String> parseAllowedOrigins(String[] entries) {
         java.util.Set<String> result = new java.util.HashSet<>();
         for (String entry : entries) {
-            if (entry.equals("*")) {
+            if ("*".equals(entry)) {
                 return new java.util.HashSet<>();
             }
             try {
