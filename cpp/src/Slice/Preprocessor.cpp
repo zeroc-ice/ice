@@ -19,6 +19,7 @@
 
 #ifdef _WIN32
 #    include <io.h>
+#    include <share.h>
 #else
 #    include <sys/wait.h>
 #    include <unistd.h>
@@ -37,8 +38,13 @@ namespace
     {
 #ifdef _WIN32
         const wstring wpath = Ice::stringToWstring(path);
-        int fd = ::_wopen(wpath.c_str(), _O_RDWR | _O_CREAT | _O_EXCL | _O_BINARY, _S_IREAD | _S_IWRITE);
-        if (fd == -1)
+        int fd = -1;
+        if (::_wsopen_s(
+                &fd,
+                wpath.c_str(),
+                _O_RDWR | _O_CREAT | _O_EXCL | _O_BINARY,
+                _SH_DENYRW,
+                _S_IREAD | _S_IWRITE) != 0)
         {
             return nullptr;
         }
