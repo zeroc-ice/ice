@@ -139,7 +139,7 @@ internal sealed class WSEndpoint : EndpointI
         HashSet<string> allowedOrigins =
             adapterName.Length > 0
                 ? WSTransceiver.parseAllowedOrigins(
-                      _instance.properties().getProperty($"{adapterName}.AllowedOrigins"))
+                      _instance.properties().getPropertyAsList($"{adapterName}.AllowedOrigins"))
                 : new HashSet<string>();
         return new WSAcceptor(
             this,

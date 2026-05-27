@@ -811,8 +811,16 @@ internal sealed class WSTransceiver : Transceiver
             string origin = _parser.getHeader("Origin", false);
             if (origin is not null)
             {
-                string canonical = canonicalizeOrigin(origin.Trim());
-                if (canonical.Length == 0 || !_allowedOrigins.Contains(canonical))
+                string canonical;
+                try
+                {
+                    canonical = canonicalizeOrigin(origin.Trim());
+                }
+                catch (PropertyException)
+                {
+                    throw new WebSocketException($"origin '{origin}' is malformed");
+                }
+                if (!_allowedOrigins.Contains(canonical))
                 {
                     throw new WebSocketException(
                         $"origin '{origin}' is not in the adapter's AllowedOrigins list");
@@ -1732,56 +1740,35 @@ internal sealed class WSTransceiver : Transceiver
 
     private static readonly UTF8Encoding _utf8 = new UTF8Encoding(false, true);
 
-    // Parse the value of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
+    // Parse the values of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
     // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
     // The literal "*" passes through unchanged and signals "allow any origin".
-    internal static HashSet<string> parseAllowedOrigins(string value)
+    // Throws PropertyException if any entry is not a syntactically valid origin.
+    internal static HashSet<string> parseAllowedOrigins(string[] entries)
     {
         var result = new HashSet<string>();
-        foreach (string entry in value.Split(','))
+        foreach (string entry in entries)
         {
-            string trimmed = entry.Trim();
-            if (trimmed.Length == 0)
-            {
-                continue;
-            }
-            string canonical = canonicalizeOrigin(trimmed);
-            if (canonical.Length > 0)
-            {
-                result.Add(canonical);
-            }
+            result.Add(canonicalizeOrigin(entry));
         }
         return result;
     }
 
-    private static string canonicalizeOrigin(string origin)
+    internal static string canonicalizeOrigin(string origin)
     {
         if (origin == "*")
         {
             return origin;
         }
-        int sep = origin.IndexOf("://", StringComparison.Ordinal);
-        if (sep == -1)
+        Uri uri;
+        try
         {
-            return ""; // malformed
+            uri = new Uri(origin, UriKind.Absolute);
         }
-        string scheme = origin.Substring(0, sep).ToLowerInvariant();
-        string rest = origin.Substring(sep + 3);
-        int pathStart = rest.IndexOf('/');
-        if (pathStart >= 0)
+        catch (UriFormatException ex)
         {
-            rest = rest.Substring(0, pathStart);
+            throw new PropertyException($"malformed origin '{origin}'", ex);
         }
-        rest = rest.ToLowerInvariant();
-        int colon = rest.LastIndexOf(':');
-        if (colon >= 0)
-        {
-            string port = rest.Substring(colon + 1);
-            if ((scheme == "http" && port == "80") || (scheme == "https" && port == "443"))
-            {
-                rest = rest.Substring(0, colon);
-            }
-        }
-        return $"{scheme}://{rest}";
+        return uri.IsDefaultPort ? $"{uri.Scheme}://{uri.Host}" : $"{uri.Scheme}://{uri.Host}:{uri.Port}";
     }
 }
