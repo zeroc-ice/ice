@@ -76,6 +76,9 @@ These are the changes since the [Ice 3.8.1] release.
 - Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice. These now generate `<c>[NAME]</c>`
   instead of `<paramref name="[NAME]" />`.
 
+- Fixed a resource leak in the SSL engine. The certificates loaded from `IceSSL.CertFile` and `IceSSL.CAs` are now
+  disposed when the communicator is destroyed, instead of waiting for the GC to finalize them.
+
 ### Swift Changes
 
 - Fixed `InputStream.readSize` to reject a negative size.
