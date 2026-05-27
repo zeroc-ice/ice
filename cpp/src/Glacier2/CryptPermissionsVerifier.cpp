@@ -9,7 +9,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
-#include <mutex>
 
 #if defined(__GLIBC__)
 #    include <crypt.h>
@@ -70,7 +69,6 @@ namespace
 
     private:
         const map<string, string> _passwords;
-        mutex _cryptMutex; // for old thread-unsafe crypt()
     };
 
     class CryptPermissionsVerifierPlugin final : public Ice::Plugin
@@ -191,14 +189,11 @@ namespace
                 return false;
             }
         }
-#    if defined(__GLIBC__)
+
         struct crypt_data data;
         data.initialized = 0;
         const char* hashed = crypt_r(password.c_str(), salt.c_str(), &data);
-#    else
-        lock_guard<mutex> lg(_cryptMutex);
-        const char* hashed = crypt(password.c_str(), salt.c_str());
-#    endif
+
         if (hashed == nullptr || p->second.size() != strlen(hashed))
         {
             return false;
@@ -476,22 +471,7 @@ namespace
         return constantTimeEquals(checksumBuffer1.data(), checksumBuffer2.data(), checksumLength);
 #    endif
 #else
-        // Fallback to plain crypt() - DES-style
-
-        if (p->second.size() != 13)
-        {
-            return false;
-        }
-        string salt = p->second.substr(0, 2);
-
-        lock_guard<mutex> lg(_cryptMutex);
-        const char* hashed = crypt(password.c_str(), salt.c_str());
-        if (hashed == nullptr || p->second.size() != strlen(hashed))
-        {
-            return false;
-        }
-        return constantTimeEquals(p->second.data(), hashed, p->second.size());
-
+#    error "Unsupported platform"
 #endif
     }
 
