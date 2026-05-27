@@ -10,19 +10,59 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
+#include <fcntl.h>
 #include <fstream>
 #include <iterator>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <vector>
 
-#ifndef _WIN32
+#ifdef _WIN32
+#    include <io.h>
+#else
 #    include <sys/wait.h>
+#    include <unistd.h>
 #endif
 
 using namespace std;
 using namespace Slice;
 using namespace IceInternal;
+
+namespace
+{
+    // Atomically create and open a new file for read/write, failing if the file already exists or, on POSIX, if the
+    // path resolves to a symlink. This avoids the TOCTOU race that a name-then-open sequence would otherwise expose
+    // to a local attacker who could plant a symlink at the generated path.
+    FILE* openExclusive(const string& path)
+    {
+#ifdef _WIN32
+        const wstring wpath = Ice::stringToWstring(path);
+        int fd = ::_wopen(wpath.c_str(), _O_RDWR | _O_CREAT | _O_EXCL | _O_BINARY, _S_IREAD | _S_IWRITE);
+        if (fd == -1)
+        {
+            return nullptr;
+        }
+        FILE* fp = ::_fdopen(fd, "w+");
+        if (fp == nullptr)
+        {
+            ::_close(fd);
+        }
+        return fp;
+#else
+        int fd = ::open(path.c_str(), O_RDWR | O_CREAT | O_EXCL | O_NOFOLLOW, S_IRUSR | S_IWUSR);
+        if (fd == -1)
+        {
+            return nullptr;
+        }
+        FILE* fp = ::fdopen(fd, "w+");
+        if (fp == nullptr)
+        {
+            ::close(fd);
+        }
+        return fp;
+#endif
+    }
+}
 
 //
 // mcpp defines
@@ -201,18 +241,17 @@ Slice::Preprocessor::preprocess(const string& languageArg)
         //
 #ifdef _WIN32
         //
-        // We use an unique id as the tmp file name prefix to avoid
-        // problems with this code being called concurrently from
-        // several processes, otherwise there is a change that two
-        // process call _tempnam before any of them call fopen and
-        // they will end up using the same tmp file.
+        // We use an unique id as the tmp file name prefix to avoid problems with this code being called concurrently
+        // from several processes, otherwise there is a chance that two processes call _wtempnam before any of them
+        // opens the file and they will end up using the same tmp file. We then open the file with O_EXCL to atomically
+        // create it -- this closes the TOCTOU window between _wtempnam returning a name and our opening it.
         //
         wchar_t* name = _wtempnam(0, Ice::stringToWstring("slice-" + Ice::generateUUID()).c_str());
         if (name)
         {
             _cppFile = Ice::wstringToString(name);
             free(name);
-            _cppHandle = IceInternal::fopen(_cppFile, "w+");
+            _cppHandle = openExclusive(_cppFile);
         }
 #else
         _cppHandle = tmpfile();
@@ -226,7 +265,7 @@ Slice::Preprocessor::preprocess(const string& languageArg)
 #else
             _cppFile = ".slice-" + Ice::generateUUID();
 #endif
-            _cppHandle = IceInternal::fopen(_cppFile, "w+");
+            _cppHandle = openExclusive(_cppFile);
         }
 
         if (_cppHandle != nullptr)
