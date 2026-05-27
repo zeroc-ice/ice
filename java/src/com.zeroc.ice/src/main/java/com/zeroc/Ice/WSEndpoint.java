@@ -146,10 +146,21 @@ final class WSEndpoint extends EndpointI {
         java.util.Set<String> allowedOrigins =
             adapterName.isEmpty()
                 ? new java.util.HashSet<>()
-                : WSTransceiver.parseAllowedOrigins(
-                    _instance.properties().getPropertyAsList(adapterName + ".AllowedOrigins"));
+                : parseAllowedOrigins(_instance.properties().getPropertyAsList(adapterName + ".AllowedOrigins"));
         Acceptor delAcc = _delegate.acceptor(adapterName, factory);
         return new WSAcceptor(this, _instance, delAcc, allowedOrigins);
+    }
+
+    // Parse the values of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
+    // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
+    // The literal "*" passes through unchanged and signals "allow any origin".
+    // Throws PropertyException if any entry is not a syntactically valid origin.
+    private static java.util.Set<String> parseAllowedOrigins(String[] entries) {
+        java.util.Set<String> result = new java.util.HashSet<>();
+        for (String entry : entries) {
+            result.add(WSTransceiver.canonicalizeOrigin(entry));
+        }
+        return result;
     }
 
     public WSEndpoint endpoint(EndpointI delEndp) {

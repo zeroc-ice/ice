@@ -1742,20 +1742,6 @@ internal sealed class WSTransceiver : Transceiver
 
     private static readonly UTF8Encoding _utf8 = new UTF8Encoding(false, true);
 
-    // Parse the values of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
-    // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
-    // The literal "*" passes through unchanged and signals "allow any origin".
-    // Throws PropertyException if any entry is not a syntactically valid origin.
-    internal static HashSet<string> parseAllowedOrigins(string[] entries)
-    {
-        var result = new HashSet<string>();
-        foreach (string entry in entries)
-        {
-            result.Add(canonicalizeOrigin(entry));
-        }
-        return result;
-    }
-
     internal static string canonicalizeOrigin(string origin)
     {
         if (origin == "*")

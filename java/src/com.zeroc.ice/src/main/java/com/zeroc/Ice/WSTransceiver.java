@@ -1271,18 +1271,6 @@ final class WSTransceiver implements Transceiver {
 
     static final Charset _ascii = Charset.forName("US-ASCII");
 
-    // Parse the values of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
-    // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
-    // The literal "*" passes through unchanged and signals "allow any origin".
-    // Throws PropertyException if any entry is not a syntactically valid origin.
-    static Set<String> parseAllowedOrigins(String[] entries) {
-        Set<String> result = new HashSet<>();
-        for (String entry : entries) {
-            result.add(canonicalizeOrigin(entry));
-        }
-        return result;
-    }
-
     static String canonicalizeOrigin(String origin) {
         if (origin.equals("*")) {
             return origin;

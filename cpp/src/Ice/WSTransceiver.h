@@ -12,18 +12,17 @@
 
 #include <set>
 #include <string>
-#include <vector>
+#include <string_view>
 
 namespace IceInternal
 {
     class ConnectorI;
     class AcceptorI;
 
-    // Parse the values of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
-    // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
-    // The literal "*" passes through unchanged and signals "allow any origin".
-    // Throws PropertyException if any entry is not a syntactically valid origin.
-    std::set<std::string> parseAllowedOrigins(const std::vector<std::string>& entries);
+    // Canonicalize an origin string: lowercase scheme and host, omit the default port (80 for http, 443 for https).
+    // The literal "*" passes through unchanged. Throws PropertyException if the input is not a syntactically valid
+    // origin per RFC 6454 -- "scheme://host[:port]" with no path, query, fragment, or userinfo.
+    std::string canonicalizeOrigin(std::string_view origin);
 
     class WSTransceiver final : public Transceiver
     {

@@ -51,45 +51,6 @@ namespace
     const string _iceProtocol = "ice.zeroc.com";                   // NOLINT(cert-err58-cpp)
     const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // NOLINT(cert-err58-cpp)
 
-    // Canonicalize an origin string: lowercase scheme and host, and omit the default port (80 for http, 443 for
-    // https). The literal "*" passes through unchanged. Throws PropertyException if the input is not a syntactically
-    // valid origin per RFC 6454: it must be exactly "scheme://host[:port]" with no path, query, fragment, or
-    // userinfo.
-    string canonicalizeOrigin(string_view origin)
-    {
-        if (origin == "*")
-        {
-            return string{origin};
-        }
-        auto sep = origin.find("://");
-        if (sep == string_view::npos || sep == 0)
-        {
-            throw PropertyException(__FILE__, __LINE__, "malformed origin '" + string{origin} + "'");
-        }
-        string scheme{origin.substr(0, sep)};
-        transform(scheme.begin(), scheme.end(), scheme.begin(), [](unsigned char c) { return std::tolower(c); });
-        string_view authority = origin.substr(sep + 3);
-        if (authority.empty() || authority.find_first_of("/?#@") != string_view::npos)
-        {
-            throw PropertyException(__FILE__, __LINE__, "malformed origin '" + string{origin} + "'");
-        }
-        string hostPort{authority};
-        transform(
-            hostPort.begin(),
-            hostPort.end(),
-            hostPort.begin(),
-            [](unsigned char c) { return std::tolower(c); });
-        if (auto colon = hostPort.rfind(':'); colon != string::npos)
-        {
-            string_view port = string_view{hostPort}.substr(colon + 1);
-            if ((scheme == "http" && port == "80") || (scheme == "https" && port == "443"))
-            {
-                hostPort = hostPort.substr(0, colon);
-            }
-        }
-        return scheme + "://" + hostPort;
-    }
-
     //
     // Rename to avoid conflict with OS 10.10 htonll
     //
@@ -163,15 +124,40 @@ namespace
     }
 }
 
-set<string>
-IceInternal::parseAllowedOrigins(const vector<string>& entries)
+string
+IceInternal::canonicalizeOrigin(string_view origin)
 {
-    set<string> result;
-    for (const auto& entry : entries)
+    if (origin == "*")
     {
-        result.insert(canonicalizeOrigin(entry));
+        return string{origin};
     }
-    return result;
+    auto sep = origin.find("://");
+    if (sep == string_view::npos || sep == 0)
+    {
+        throw PropertyException(__FILE__, __LINE__, "malformed origin '" + string{origin} + "'");
+    }
+    string scheme{origin.substr(0, sep)};
+    transform(scheme.begin(), scheme.end(), scheme.begin(), [](unsigned char c) { return std::tolower(c); });
+    string_view authority = origin.substr(sep + 3);
+    if (authority.empty() || authority.find_first_of("/?#@") != string_view::npos)
+    {
+        throw PropertyException(__FILE__, __LINE__, "malformed origin '" + string{origin} + "'");
+    }
+    string hostPort{authority};
+    transform(
+        hostPort.begin(),
+        hostPort.end(),
+        hostPort.begin(),
+        [](unsigned char c) { return std::tolower(c); });
+    if (auto colon = hostPort.rfind(':'); colon != string::npos)
+    {
+        string_view port = string_view{hostPort}.substr(colon + 1);
+        if ((scheme == "http" && port == "80") || (scheme == "https" && port == "443"))
+        {
+            hostPort = hostPort.substr(0, colon);
+        }
+    }
+    return scheme + "://" + hostPort;
 }
 
 NativeInfoPtr

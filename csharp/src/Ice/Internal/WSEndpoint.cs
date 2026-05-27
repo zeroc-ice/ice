@@ -136,16 +136,31 @@ internal sealed class WSEndpoint : EndpointI
 
     public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions)
     {
+        // Parse AllowedOrigins before creating the delegate acceptor so a malformed property doesn't leave an open
+        // socket behind.
         HashSet<string> allowedOrigins =
             adapterName.Length > 0
-                ? WSTransceiver.parseAllowedOrigins(
-                      _instance.properties().getPropertyAsList($"{adapterName}.AllowedOrigins"))
+                ? parseAllowedOrigins(_instance.properties().getPropertyAsList($"{adapterName}.AllowedOrigins"))
                 : new HashSet<string>();
         return new WSAcceptor(
             this,
             _instance,
             _delegate.acceptor(adapterName, serverAuthenticationOptions),
             allowedOrigins);
+    }
+
+    // Parse the values of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
+    // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
+    // The literal "*" passes through unchanged and signals "allow any origin".
+    // Throws PropertyException if any entry is not a syntactically valid origin.
+    private static HashSet<string> parseAllowedOrigins(string[] entries)
+    {
+        var result = new HashSet<string>();
+        foreach (string entry in entries)
+        {
+            result.Add(WSTransceiver.canonicalizeOrigin(entry));
+        }
+        return result;
     }
 
     public WSEndpoint endpoint(EndpointI delEndp)

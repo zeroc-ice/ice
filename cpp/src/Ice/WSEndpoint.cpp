@@ -22,6 +22,20 @@ namespace
 {
     const char* const wsPluginName = "IceWS";
 
+    // Parse the values of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
+    // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
+    // The literal "*" passes through unchanged and signals "allow any origin".
+    // Throws PropertyException if any entry is not a syntactically valid origin.
+    set<string> parseAllowedOrigins(const vector<string>& entries)
+    {
+        set<string> result;
+        for (const auto& entry : entries)
+        {
+            result.insert(canonicalizeOrigin(entry));
+        }
+        return result;
+    }
+
     class WSEndpointFactoryPlugin : public Plugin
     {
     public:
