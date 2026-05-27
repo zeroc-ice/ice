@@ -58,6 +58,9 @@ These are the changes since the [Ice 3.8.1] release.
   `IceSSL.CertFile` is imported into a temporary keychain (removed when the communicator is destroyed) instead of
   the user's login keychain.
 
+- Rejected peer-initiated TLS renegotiation in the OpenSSL SSL engine and on the server side of Schannel-based SSL
+  connections. This applies to all SSL-based transports (`ssl`, `wss`, `bts`).
+
 - Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice. These now generate `` `[NAME]` ``
   instead of `@p [NAME]`.
 
