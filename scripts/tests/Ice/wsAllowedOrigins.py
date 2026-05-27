@@ -3,7 +3,6 @@
 from Util import ClientServerTestCase, Server, TestSuite
 from ws_origin_probe import probe
 
-
 # An origin that the test server is configured to accept.
 ALLOWED_ORIGIN = "https://allowed.example.com"
 

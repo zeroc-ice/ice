@@ -144,11 +144,7 @@ IceInternal::canonicalizeOrigin(string_view origin)
         throw PropertyException(__FILE__, __LINE__, "malformed origin '" + string{origin} + "'");
     }
     string hostPort{authority};
-    transform(
-        hostPort.begin(),
-        hostPort.end(),
-        hostPort.begin(),
-        [](unsigned char c) { return std::tolower(c); });
+    transform(hostPort.begin(), hostPort.end(), hostPort.begin(), [](unsigned char c) { return std::tolower(c); });
     if (auto colon = hostPort.rfind(':'); colon != string::npos)
     {
         string_view port = string_view{hostPort}.substr(colon + 1);
@@ -881,10 +877,7 @@ IceInternal::WSTransceiver::WSTransceiver(
     //
 }
 
-IceInternal::WSTransceiver::WSTransceiver(
-    ProtocolInstancePtr instance,
-    TransceiverPtr del,
-    set<string> allowedOrigins)
+IceInternal::WSTransceiver::WSTransceiver(ProtocolInstancePtr instance, TransceiverPtr del, set<string> allowedOrigins)
     : _instance(std::move(instance)),
       _delegate(std::move(del)),
       _allowedOrigins(std::move(allowedOrigins)),
