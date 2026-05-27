@@ -1738,6 +1738,8 @@ internal sealed class WSTransceiver : Transceiver
     private const string _iceProtocol = "ice.zeroc.com";
     private const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
+    private static readonly char[] _invalidOriginChars = ['/', '?', '#', '@'];
+
     private static readonly UTF8Encoding _utf8 = new UTF8Encoding(false, true);
 
     // Parse the values of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
@@ -1759,6 +1761,13 @@ internal sealed class WSTransceiver : Transceiver
         if (origin == "*")
         {
             return origin;
+        }
+        // RFC 6454: a serialized origin is exactly "scheme://host[:port]", with no path, query, fragment, or
+        // userinfo. We reject these before letting System.Uri canonicalize the rest.
+        int sep = origin.IndexOf("://", StringComparison.Ordinal);
+        if (sep <= 0 || origin.IndexOfAny(_invalidOriginChars, sep + 3) >= 0)
+        {
+            throw new PropertyException($"malformed origin '{origin}'");
         }
         Uri uri;
         try

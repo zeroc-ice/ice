@@ -1287,6 +1287,14 @@ final class WSTransceiver implements Transceiver {
         if (origin.equals("*")) {
             return origin;
         }
+        // RFC 6454: a serialized origin is exactly "scheme://host[:port]", with no path, query, fragment, or
+        // userinfo. We reject these before letting java.net.URI canonicalize the rest.
+        int sep = origin.indexOf("://");
+        if (sep <= 0
+            || sep + 3 >= origin.length()
+            || containsAny(origin, sep + 3, "/?#@")) {
+            throw new PropertyException("malformed origin '" + origin + "'");
+        }
         URI uri;
         try {
             uri = new URI(origin);
@@ -1307,5 +1315,14 @@ final class WSTransceiver implements Transceiver {
             return scheme + "://" + host;
         }
         return scheme + "://" + host + ":" + port;
+    }
+
+    private static boolean containsAny(String s, int from, String chars) {
+        for (int i = from; i < s.length(); i++) {
+            if (chars.indexOf(s.charAt(i)) >= 0) {
+                return true;
+            }
+        }
+        return false;
     }
 }

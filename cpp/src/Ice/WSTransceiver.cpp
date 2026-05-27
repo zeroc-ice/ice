@@ -51,9 +51,10 @@ namespace
     const string _iceProtocol = "ice.zeroc.com";                   // NOLINT(cert-err58-cpp)
     const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // NOLINT(cert-err58-cpp)
 
-    // Canonicalize an origin string: lowercase scheme and host, strip any path, and omit the default port (80 for
-    // http, 443 for https). The literal "*" passes through unchanged. Throws PropertyException if the input is not a
-    // syntactically valid origin.
+    // Canonicalize an origin string: lowercase scheme and host, and omit the default port (80 for http, 443 for
+    // https). The literal "*" passes through unchanged. Throws PropertyException if the input is not a syntactically
+    // valid origin per RFC 6454: it must be exactly "scheme://host[:port]" with no path, query, fragment, or
+    // userinfo.
     string canonicalizeOrigin(string_view origin)
     {
         if (origin == "*")
@@ -68,11 +69,7 @@ namespace
         string scheme{origin.substr(0, sep)};
         transform(scheme.begin(), scheme.end(), scheme.begin(), [](unsigned char c) { return std::tolower(c); });
         string_view authority = origin.substr(sep + 3);
-        if (auto pathStart = authority.find('/'); pathStart != string_view::npos)
-        {
-            authority = authority.substr(0, pathStart);
-        }
-        if (authority.empty())
+        if (authority.empty() || authority.find_first_of("/?#@") != string_view::npos)
         {
             throw PropertyException(__FILE__, __LINE__, "malformed origin '" + string{origin} + "'");
         }

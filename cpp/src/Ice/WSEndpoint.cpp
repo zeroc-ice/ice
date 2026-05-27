@@ -247,13 +247,15 @@ IceInternal::WSEndpoint::acceptor(
     const string& adapterName,
     const optional<Ice::SSL::ServerAuthenticationOptions>& serverAuthenticationOptions) const
 {
-    AcceptorPtr acceptor = _delegate->acceptor(adapterName, serverAuthenticationOptions);
+    // Parse AllowedOrigins before creating the delegate acceptor so a malformed property doesn't leave an open socket
+    // hanging on a TcpAcceptor whose destructor asserts INVALID_SOCKET.
     set<string> allowedOrigins;
     if (!adapterName.empty())
     {
         allowedOrigins =
             parseAllowedOrigins(_instance->properties()->getPropertyAsList(adapterName + ".AllowedOrigins"));
     }
+    AcceptorPtr acceptor = _delegate->acceptor(adapterName, serverAuthenticationOptions);
     return make_shared<WSAcceptor>(
         const_cast<WSEndpoint*>(this)->shared_from_this(),
         _instance,

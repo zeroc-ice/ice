@@ -141,12 +141,14 @@ final class WSEndpoint extends EndpointI {
 
     @Override
     public Acceptor acceptor(String adapterName, SSLEngineFactory factory) {
-        Acceptor delAcc = _delegate.acceptor(adapterName, factory);
+        // Parse AllowedOrigins before creating the delegate acceptor so a malformed property doesn't leave an open
+        // server socket behind.
         java.util.Set<String> allowedOrigins =
             adapterName.isEmpty()
                 ? new java.util.HashSet<>()
                 : WSTransceiver.parseAllowedOrigins(
                     _instance.properties().getPropertyAsList(adapterName + ".AllowedOrigins"));
+        Acceptor delAcc = _delegate.acceptor(adapterName, factory);
         return new WSAcceptor(this, _instance, delAcc, allowedOrigins);
     }
 
