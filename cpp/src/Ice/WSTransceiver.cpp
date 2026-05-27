@@ -137,7 +137,11 @@ IceInternal::canonicalizeOrigin(string_view origin)
         throw invalid_argument{"malformed origin '" + string{origin} + "'"};
     }
     string scheme{origin.substr(0, sep)};
-    transform(scheme.begin(), scheme.end(), scheme.begin(), [](unsigned char c) { return std::tolower(c); });
+    transform(
+        scheme.begin(),
+        scheme.end(),
+        scheme.begin(),
+        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     string_view authority = origin.substr(sep + 3);
     // Tolerate a single trailing slash (some peers send "https://example.com/" as an Origin); reject any other
     // path/query/fragment/userinfo.
@@ -154,7 +158,7 @@ IceInternal::canonicalizeOrigin(string_view origin)
         hostAndPort.begin(),
         hostAndPort.end(),
         hostAndPort.begin(),
-        [](unsigned char c) { return std::tolower(c); });
+        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     if (auto colon = hostAndPort.rfind(':'); colon != string::npos)
     {
         string_view port = string_view{hostAndPort}.substr(colon + 1);
