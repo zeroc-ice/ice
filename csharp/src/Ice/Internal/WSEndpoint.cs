@@ -151,14 +151,26 @@ internal sealed class WSEndpoint : EndpointI
 
     // Parse the values of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
     // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
-    // The literal "*" passes through unchanged and signals "allow any origin".
+    // The literal "*" disables enforcement; in that case the returned set is empty, since handleRequest treats an
+    // empty allowlist as "allow any origin" -- the two cases (unset and wildcard) collapse into one.
     // Throws PropertyException if any entry is not a syntactically valid origin.
     private static HashSet<string> parseAllowedOrigins(string[] entries)
     {
         var result = new HashSet<string>();
         foreach (string entry in entries)
         {
-            result.Add(WSTransceiver.canonicalizeOrigin(entry));
+            if (entry == "*")
+            {
+                return new HashSet<string>();
+            }
+            try
+            {
+                result.Add(WSTransceiver.canonicalizeOrigin(entry));
+            }
+            catch (ArgumentException)
+            {
+                throw new PropertyException($"malformed origin '{entry}' in AllowedOrigins");
+            }
         }
         return result;
     }

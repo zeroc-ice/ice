@@ -41,10 +41,11 @@ class WSAllowedOriginsTestCase(ClientServerTestCase):
                 (ALLOWED_ORIGIN, True, "allowed Origin"),
                 ("https://attacker.example.com", False, "foreign Origin"),
                 ("not-a-uri", False, "malformed Origin"),
-                # Per RFC 6454, a serialized origin is exactly scheme://host[:port]. Anything more (path, query,
-                # fragment, userinfo, or trailing slash) must be rejected -- otherwise an attacker page can sneak past
-                # the allowlist by appending a path or userinfo to a matching host.
-                (ALLOWED_ORIGIN + "/", False, "trailing slash"),
+                # Per RFC 6454, a serialized origin is exactly scheme://host[:port]. A trailing slash is tolerated
+                # (URI parsers normalize it to an empty path), but anything more (path, query, fragment, or userinfo)
+                # must be rejected -- otherwise an attacker page can sneak past the allowlist by appending a path or
+                # userinfo to a matching host.
+                (ALLOWED_ORIGIN + "/", True, "trailing slash (same origin)"),
                 (ALLOWED_ORIGIN + "/path", False, "Origin with path"),
                 (ALLOWED_ORIGIN + "?q=1", False, "Origin with query"),
                 (ALLOWED_ORIGIN + "#x", False, "Origin with fragment"),

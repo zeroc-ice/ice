@@ -805,8 +805,9 @@ internal sealed class WSTransceiver : Transceiver
         //
         // Optionally validate the Origin header against the adapter's allowed-origins list.
         // Browsers always send Origin; non-browser clients do not, so an absent header bypasses the check.
+        // A wildcard ("*") allowlist is normalized to an empty set at parse time, so empty here means "no enforcement".
         //
-        if (_allowedOrigins.Count > 0 && !_allowedOrigins.Contains("*"))
+        if (_allowedOrigins.Count > 0)
         {
             string origin = _parser.getHeader("Origin", false);
             if (origin is not null)
@@ -816,9 +817,9 @@ internal sealed class WSTransceiver : Transceiver
                 {
                     canonical = canonicalizeOrigin(origin.Trim());
                 }
-                catch (PropertyException)
+                catch (ArgumentException)
                 {
-                    throw new WebSocketException($"origin '{origin}' is malformed");
+                    throw new WebSocketException($"invalid Origin header '{origin}'");
                 }
                 if (!_allowedOrigins.Contains(canonical))
                 {
@@ -1738,23 +1739,13 @@ internal sealed class WSTransceiver : Transceiver
     private const string _iceProtocol = "ice.zeroc.com";
     private const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-    private static readonly char[] _invalidOriginChars = ['/', '?', '#', '@'];
-
     private static readonly UTF8Encoding _utf8 = new UTF8Encoding(false, true);
 
+    // Throws ArgumentException for any input that is not a serialized origin per RFC 6454. Callers catch and rethrow
+    // as the appropriate exception (PropertyException for property entries, WebSocketException for inbound Origin
+    // headers).
     internal static string canonicalizeOrigin(string origin)
     {
-        if (origin == "*")
-        {
-            return origin;
-        }
-        // RFC 6454: a serialized origin is exactly "scheme://host[:port]", with no path, query, fragment, or
-        // userinfo. We reject these before letting System.Uri canonicalize the rest.
-        int sep = origin.IndexOf("://", StringComparison.Ordinal);
-        if (sep <= 0 || origin.IndexOfAny(_invalidOriginChars, sep + 3) >= 0)
-        {
-            throw new PropertyException($"malformed origin '{origin}'");
-        }
         Uri uri;
         try
         {
@@ -1762,7 +1753,16 @@ internal sealed class WSTransceiver : Transceiver
         }
         catch (UriFormatException ex)
         {
-            throw new PropertyException($"malformed origin '{origin}'", ex);
+            throw new ArgumentException($"malformed origin '{origin}'", nameof(origin), ex);
+        }
+        // RFC 6454: a serialized origin is exactly "scheme://host[:port]". Reject path, query, fragment, and userinfo.
+        // System.Uri normalizes "https://x" to AbsolutePath="/", so we accept either empty or "/".
+        if ((uri.AbsolutePath.Length > 0 && uri.AbsolutePath != "/")
+            || uri.Query.Length > 0
+            || uri.Fragment.Length > 0
+            || uri.UserInfo.Length > 0)
+        {
+            throw new ArgumentException($"malformed origin '{origin}'", nameof(origin));
         }
         return uri.IsDefaultPort ? $"{uri.Scheme}://{uri.Host}" : $"{uri.Scheme}://{uri.Host}:{uri.Port}";
     }

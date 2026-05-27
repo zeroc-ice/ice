@@ -15,6 +15,7 @@
 
 #include <climits>
 #include <cstdint>
+#include <stdexcept>
 
 using namespace std;
 using namespace Ice;
@@ -127,21 +128,26 @@ namespace
 string
 IceInternal::canonicalizeOrigin(string_view origin)
 {
-    if (origin == "*")
-    {
-        return string{origin};
-    }
+    // Throws std::invalid_argument for any input that is not a serialized origin per RFC 6454. Callers catch and
+    // rethrow as the appropriate exception (PropertyException for property entries, WebSocketException for inbound
+    // Origin headers).
     auto sep = origin.find("://");
     if (sep == string_view::npos || sep == 0)
     {
-        throw PropertyException(__FILE__, __LINE__, "malformed origin '" + string{origin} + "'");
+        throw invalid_argument{"malformed origin '" + string{origin} + "'"};
     }
     string scheme{origin.substr(0, sep)};
     transform(scheme.begin(), scheme.end(), scheme.begin(), [](unsigned char c) { return std::tolower(c); });
     string_view authority = origin.substr(sep + 3);
+    // Tolerate a single trailing slash (some peers send "https://example.com/" as an Origin); reject any other
+    // path/query/fragment/userinfo.
+    if (!authority.empty() && authority.back() == '/')
+    {
+        authority.remove_suffix(1);
+    }
     if (authority.empty() || authority.find_first_of("/?#@") != string_view::npos)
     {
-        throw PropertyException(__FILE__, __LINE__, "malformed origin '" + string{origin} + "'");
+        throw invalid_argument{"malformed origin '" + string{origin} + "'"};
     }
     string hostPort{authority};
     transform(hostPort.begin(), hostPort.end(), hostPort.begin(), [](unsigned char c) { return std::tolower(c); });
@@ -997,8 +1003,9 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
     //
     // Optionally validate the Origin header against the adapter's allowed-origins list.
     // Browsers always send Origin; non-browser clients do not, so an absent header bypasses the check.
+    // A wildcard ("*") allowlist is normalized to an empty set at parse time, so empty here means "no enforcement".
     //
-    if (!_allowedOrigins.empty() && _allowedOrigins.count("*") == 0)
+    if (!_allowedOrigins.empty())
     {
         string origin;
         if (_parser->getHeader("Origin", origin, false))
@@ -1008,9 +1015,9 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
             {
                 canonical = canonicalizeOrigin(IceInternal::trim(origin));
             }
-            catch (const PropertyException&)
+            catch (const std::invalid_argument&)
             {
-                throw WebSocketException("origin '" + origin + "' is malformed");
+                throw WebSocketException("invalid Origin header '" + origin + "'");
             }
             if (_allowedOrigins.count(canonical) == 0)
             {

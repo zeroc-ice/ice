@@ -499,14 +499,15 @@ final class WSTransceiver implements Transceiver {
 
         // Optionally validate the Origin header against the adapter's allowed-origins list.
         // Browsers always send Origin; non-browser clients do not, so an absent header bypasses the check.
-        if (!_allowedOrigins.isEmpty() && !_allowedOrigins.contains("*")) {
+        // A wildcard ("*") allowlist is normalized to an empty set at parse time, so empty here means "no enforcement".
+        if (!_allowedOrigins.isEmpty()) {
             String origin = _parser.getHeader("Origin", false);
             if (origin != null) {
                 String canonical;
                 try {
                     canonical = canonicalizeOrigin(origin.trim());
-                } catch (PropertyException ex) {
-                    throw new WebSocketException("origin '" + origin + "' is malformed");
+                } catch (IllegalArgumentException ex) {
+                    throw new WebSocketException("invalid Origin header '" + origin + "'");
                 }
                 if (!_allowedOrigins.contains(canonical)) {
                     throw new WebSocketException(
@@ -1271,28 +1272,29 @@ final class WSTransceiver implements Transceiver {
 
     static final Charset _ascii = Charset.forName("US-ASCII");
 
+    // Throws IllegalArgumentException for any input that is not a serialized origin per RFC 6454. Callers catch and
+    // rethrow as the appropriate exception (PropertyException for property entries, WebSocketException for inbound
+    // Origin headers).
     static String canonicalizeOrigin(String origin) {
-        if (origin.equals("*")) {
-            return origin;
-        }
-        // RFC 6454: a serialized origin is exactly "scheme://host[:port]", with no path, query, fragment, or
-        // userinfo. We reject these before letting java.net.URI canonicalize the rest.
-        int sep = origin.indexOf("://");
-        if (sep <= 0
-            || sep + 3 >= origin.length()
-            || containsAny(origin, sep + 3, "/?#@")) {
-            throw new PropertyException("malformed origin '" + origin + "'");
-        }
         URI uri;
         try {
             uri = new URI(origin);
         } catch (URISyntaxException ex) {
-            throw new PropertyException("malformed origin '" + origin + "'");
+            throw new IllegalArgumentException("malformed origin '" + origin + "'", ex);
         }
         String scheme = uri.getScheme();
         String host = uri.getHost();
         if (scheme == null || host == null) {
-            throw new PropertyException("malformed origin '" + origin + "'");
+            throw new IllegalArgumentException("malformed origin '" + origin + "'");
+        }
+        // RFC 6454: a serialized origin is exactly "scheme://host[:port]". Reject path, query, fragment, and userinfo.
+        // java.net.URI returns "" for an absent path and "/" for "scheme://x/" -- both treated as no path.
+        String path = uri.getRawPath();
+        if ((path != null && !path.isEmpty() && !path.equals("/"))
+            || (uri.getRawQuery() != null && !uri.getRawQuery().isEmpty())
+            || (uri.getRawFragment() != null && !uri.getRawFragment().isEmpty())
+            || (uri.getRawUserInfo() != null && !uri.getRawUserInfo().isEmpty())) {
+            throw new IllegalArgumentException("malformed origin '" + origin + "'");
         }
         scheme = scheme.toLowerCase(java.util.Locale.ROOT);
         host = host.toLowerCase(java.util.Locale.ROOT);
@@ -1303,14 +1305,5 @@ final class WSTransceiver implements Transceiver {
             return scheme + "://" + host;
         }
         return scheme + "://" + host + ":" + port;
-    }
-
-    private static boolean containsAny(String s, int from, String chars) {
-        for (int i = from; i < s.length(); i++) {
-            if (chars.indexOf(s.charAt(i)) >= 0) {
-                return true;
-            }
-        }
-        return false;
     }
 }
