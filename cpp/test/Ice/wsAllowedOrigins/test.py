@@ -72,4 +72,45 @@ class WSAllowedOriginsWildcardTestCase(ClientServerTestCase):
         current.writeln("ok")
 
 
-TestSuite(__name__, [WSAllowedOriginsTestCase(), WSAllowedOriginsWildcardTestCase()])
+class WSAllowedOriginsPortTestCase(ClientServerTestCase):
+    # Exercises canonicalization of ports: the default port (80 for http, 443 for https) is omitted, so an entry with
+    # an explicit default port matches an inbound Origin that omits it, and vice versa. Non-default ports must match
+    # exactly.
+    def __init__(self):
+        ClientServerTestCase.__init__(
+            self,
+            "port canonicalization",
+            server=Server(
+                quiet=True,
+                waitForShutdown=False,
+                props={
+                    "TestAdapter.AllowedOrigins":
+                        "https://web.example.com,https://api.example.com:443,http://dev.example.com:8080"
+                },
+            ),
+        )
+
+    def runClientSide(self, current):
+        current.write("testing AllowedOrigins port canonicalization... ")
+        _runCases(
+            current,
+            [
+                # Default port stripped on both sides: bare and ':443' match the same entry.
+                ("https://web.example.com", True, "implicit default port"),
+                ("https://web.example.com:443", True, "explicit default port matches bare entry"),
+                ("https://api.example.com", True, "bare Origin matches ':443' entry"),
+                ("https://api.example.com:443", True, "explicit default port both sides"),
+                # Non-default port must match exactly.
+                ("http://dev.example.com:8080", True, "exact non-default port"),
+                ("http://dev.example.com", False, "missing non-default port"),
+                ("http://dev.example.com:8081", False, "wrong non-default port"),
+                ("https://web.example.com:8443", False, "extra non-default port"),
+            ],
+        )
+        current.writeln("ok")
+
+
+TestSuite(
+    __name__,
+    [WSAllowedOriginsTestCase(), WSAllowedOriginsWildcardTestCase(), WSAllowedOriginsPortTestCase()],
+)
