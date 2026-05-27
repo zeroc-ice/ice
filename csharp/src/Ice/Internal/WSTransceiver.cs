@@ -823,8 +823,7 @@ internal sealed class WSTransceiver : Transceiver
                 }
                 if (!_allowedOrigins.Contains(canonical))
                 {
-                    throw new WebSocketException(
-                        $"origin '{origin}' is not in the adapter's AllowedOrigins list");
+                    throw new WebSocketException($"origin '{origin}' is not allowed");
                 }
             }
         }
@@ -1741,9 +1740,7 @@ internal sealed class WSTransceiver : Transceiver
 
     private static readonly UTF8Encoding _utf8 = new UTF8Encoding(false, true);
 
-    // Throws ArgumentException for any input that is not a serialized origin per RFC 6454. Callers catch and rethrow
-    // as the appropriate exception (PropertyException for property entries, WebSocketException for inbound Origin
-    // headers).
+    // Throws ArgumentException for any input that is not a serialized origin per RFC 6454.
     internal static string canonicalizeOrigin(string origin)
     {
         Uri uri;

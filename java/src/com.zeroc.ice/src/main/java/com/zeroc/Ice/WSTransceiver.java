@@ -510,8 +510,7 @@ final class WSTransceiver implements Transceiver {
                     throw new WebSocketException("invalid Origin header '" + origin + "'");
                 }
                 if (!_allowedOrigins.contains(canonical)) {
-                    throw new WebSocketException(
-                        "origin '" + origin + "' is not in the adapter's AllowedOrigins list");
+                    throw new WebSocketException("origin '" + origin + "' is not allowed");
                 }
             }
         }
@@ -1272,9 +1271,7 @@ final class WSTransceiver implements Transceiver {
 
     static final Charset _ascii = Charset.forName("US-ASCII");
 
-    // Throws IllegalArgumentException for any input that is not a serialized origin per RFC 6454. Callers catch and
-    // rethrow as the appropriate exception (PropertyException for property entries, WebSocketException for inbound
-    // Origin headers).
+    // Throws IllegalArgumentException for any input that is not a serialized origin per RFC 6454.
     static String canonicalizeOrigin(String origin) {
         URI uri;
         try {

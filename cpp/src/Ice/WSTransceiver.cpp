@@ -128,9 +128,7 @@ namespace
 string
 IceInternal::canonicalizeOrigin(string_view origin)
 {
-    // Throws std::invalid_argument for any input that is not a serialized origin per RFC 6454. Callers catch and
-    // rethrow as the appropriate exception (PropertyException for property entries, WebSocketException for inbound
-    // Origin headers).
+    // Throws std::invalid_argument for any input that is not a serialized origin per RFC 6454.
     auto sep = origin.find("://");
     if (sep == string_view::npos || sep == 0)
     {
@@ -1029,7 +1027,7 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
             }
             if (_allowedOrigins.count(canonical) == 0)
             {
-                throw WebSocketException("origin '" + origin + "' is not in the adapter's AllowedOrigins list");
+                throw WebSocketException("origin '" + origin + "' is not allowed");
             }
         }
     }
