@@ -26,8 +26,9 @@ namespace
     // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
     // The literal "*" disables enforcement; in that case the returned set is empty -- handleRequest treats an empty
     // allowlist as "allow any origin", so the two cases (unset and wildcard) collapse into one.
-    // Throws PropertyException if any entry is not a syntactically valid origin.
-    set<string> parseAllowedOrigins(const vector<string>& entries)
+    // Throws PropertyException if any entry is not a syntactically valid origin; propertyName is included in the
+    // message so the operator can identify which adapter is misconfigured.
+    set<string> parseAllowedOrigins(const vector<string>& entries, const string& propertyName)
     {
         set<string> result;
         for (const auto& entry : entries)
@@ -42,7 +43,10 @@ namespace
             }
             catch (const std::invalid_argument&)
             {
-                throw PropertyException(__FILE__, __LINE__, "malformed origin '" + entry + "' in AllowedOrigins");
+                throw PropertyException(
+                    __FILE__,
+                    __LINE__,
+                    "malformed origin '" + entry + "' in property '" + propertyName + "'");
             }
         }
         return result;
@@ -278,8 +282,8 @@ IceInternal::WSEndpoint::acceptor(
     set<string> allowedOrigins;
     if (!adapterName.empty())
     {
-        allowedOrigins =
-            parseAllowedOrigins(_instance->properties()->getPropertyAsList(adapterName + ".AllowedOrigins"));
+        const string propertyName = adapterName + ".AllowedOrigins";
+        allowedOrigins = parseAllowedOrigins(_instance->properties()->getPropertyAsList(propertyName), propertyName);
     }
     AcceptorPtr acceptor = _delegate->acceptor(adapterName, serverAuthenticationOptions);
     return make_shared<WSAcceptor>(

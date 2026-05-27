@@ -149,17 +149,21 @@ IceInternal::canonicalizeOrigin(string_view origin)
     {
         throw invalid_argument{"malformed origin '" + string{origin} + "'"};
     }
-    string hostPort{authority};
-    transform(hostPort.begin(), hostPort.end(), hostPort.begin(), [](unsigned char c) { return std::tolower(c); });
-    if (auto colon = hostPort.rfind(':'); colon != string::npos)
+    string hostAndPort{authority};
+    transform(
+        hostAndPort.begin(),
+        hostAndPort.end(),
+        hostAndPort.begin(),
+        [](unsigned char c) { return std::tolower(c); });
+    if (auto colon = hostAndPort.rfind(':'); colon != string::npos)
     {
-        string_view port = string_view{hostPort}.substr(colon + 1);
+        string_view port = string_view{hostAndPort}.substr(colon + 1);
         if ((scheme == "http" && port == "80") || (scheme == "https" && port == "443"))
         {
-            hostPort = hostPort.substr(0, colon);
+            hostAndPort = hostAndPort.substr(0, colon);
         }
     }
-    return scheme + "://" + hostPort;
+    return scheme + "://" + hostAndPort;
 }
 
 NativeInfoPtr

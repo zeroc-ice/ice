@@ -143,10 +143,14 @@ final class WSEndpoint extends EndpointI {
     public Acceptor acceptor(String adapterName, SSLEngineFactory factory) {
         // Parse AllowedOrigins before creating the delegate acceptor so a malformed property doesn't leave an open
         // server socket behind.
-        java.util.Set<String> allowedOrigins =
-            adapterName.isEmpty()
-                ? new java.util.HashSet<>()
-                : parseAllowedOrigins(_instance.properties().getPropertyAsList(adapterName + ".AllowedOrigins"));
+        java.util.Set<String> allowedOrigins;
+        if (adapterName.isEmpty()) {
+            allowedOrigins = new java.util.HashSet<>();
+        } else {
+            String propertyName = adapterName + ".AllowedOrigins";
+            allowedOrigins =
+                parseAllowedOrigins(_instance.properties().getPropertyAsList(propertyName), propertyName);
+        }
         Acceptor delAcc = _delegate.acceptor(adapterName, factory);
         return new WSAcceptor(this, _instance, delAcc, allowedOrigins);
     }
@@ -155,8 +159,9 @@ final class WSEndpoint extends EndpointI {
     // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
     // The literal "*" disables enforcement; in that case the returned set is empty, since handleRequest treats an
     // empty allowlist as "allow any origin" -- the two cases (unset and wildcard) collapse into one.
-    // Throws PropertyException if any entry is not a syntactically valid origin.
-    private static java.util.Set<String> parseAllowedOrigins(String[] entries) {
+    // Throws PropertyException if any entry is not a syntactically valid origin; propertyName is included in the
+    // message so the operator can identify which adapter is misconfigured.
+    private static java.util.Set<String> parseAllowedOrigins(String[] entries, String propertyName) {
         java.util.Set<String> result = new java.util.HashSet<>();
         for (String entry : entries) {
             if ("*".equals(entry)) {
@@ -165,7 +170,7 @@ final class WSEndpoint extends EndpointI {
             try {
                 result.add(WSTransceiver.canonicalizeOrigin(entry));
             } catch (IllegalArgumentException ex) {
-                throw new PropertyException("malformed origin '" + entry + "' in AllowedOrigins");
+                throw new PropertyException("malformed origin '" + entry + "' in property '" + propertyName + "'");
             }
         }
         return result;

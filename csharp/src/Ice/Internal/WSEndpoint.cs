@@ -138,10 +138,16 @@ internal sealed class WSEndpoint : EndpointI
     {
         // Parse AllowedOrigins before creating the delegate acceptor so a malformed property doesn't leave an open
         // socket behind.
-        HashSet<string> allowedOrigins =
-            adapterName.Length > 0
-                ? parseAllowedOrigins(_instance.properties().getPropertyAsList($"{adapterName}.AllowedOrigins"))
-                : new HashSet<string>();
+        HashSet<string> allowedOrigins;
+        if (adapterName.Length > 0)
+        {
+            string propertyName = $"{adapterName}.AllowedOrigins";
+            allowedOrigins = parseAllowedOrigins(_instance.properties().getPropertyAsList(propertyName), propertyName);
+        }
+        else
+        {
+            allowedOrigins = new HashSet<string>();
+        }
         return new WSAcceptor(
             this,
             _instance,
@@ -153,8 +159,9 @@ internal sealed class WSEndpoint : EndpointI
     // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
     // The literal "*" disables enforcement; in that case the returned set is empty, since handleRequest treats an
     // empty allowlist as "allow any origin" -- the two cases (unset and wildcard) collapse into one.
-    // Throws PropertyException if any entry is not a syntactically valid origin.
-    private static HashSet<string> parseAllowedOrigins(string[] entries)
+    // Throws PropertyException if any entry is not a syntactically valid origin; propertyName is included in the
+    // message so the operator can identify which adapter is misconfigured.
+    private static HashSet<string> parseAllowedOrigins(string[] entries, string propertyName)
     {
         var result = new HashSet<string>();
         foreach (string entry in entries)
@@ -169,7 +176,7 @@ internal sealed class WSEndpoint : EndpointI
             }
             catch (ArgumentException)
             {
-                throw new PropertyException($"malformed origin '{entry}' in AllowedOrigins");
+                throw new PropertyException($"malformed origin '{entry}' in property '{propertyName}'");
             }
         }
         return result;
