@@ -36,6 +36,7 @@
 
     <class name="ObjectAdapter" prefix-only="true">
         <property name="AdapterId" languages="cpp,csharp,java" />
+        <property name="AllowedOrigins" languages="cpp,csharp,java" />
         <property name="Connection" class="Connection" languages="cpp,csharp,java" />
         <property name="Endpoints" languages="cpp,csharp,java" />
         <property name="Locator" class="Proxy" languages="cpp,csharp,java" />

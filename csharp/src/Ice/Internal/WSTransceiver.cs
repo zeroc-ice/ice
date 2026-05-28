@@ -677,12 +677,13 @@ internal sealed class WSTransceiver : Transceiver
         Debug.Assert(_readBufferSize > 256);
     }
 
-    internal WSTransceiver(ProtocolInstance instance, Transceiver del)
+    internal WSTransceiver(ProtocolInstance instance, Transceiver del, HashSet<string> allowedOrigins)
     {
         init(instance, del);
         _host = "";
         _resource = "";
         _incoming = true;
+        _allowedOrigins = allowedOrigins;
 
         //
         // Write and read buffer size must be large enough to hold the frame header!
@@ -799,6 +800,32 @@ internal sealed class WSTransceiver : Transceiver
         if (decodedKey.Length != 16)
         {
             throw new WebSocketException("invalid value `" + key + "' for WebSocket key");
+        }
+
+        //
+        // Optionally validate the Origin header against the adapter's allowed-origins list.
+        // Browsers always send Origin; non-browser clients do not, so an absent header bypasses the check.
+        // A wildcard ("*") allowlist is normalized to an empty set at parse time, so empty here means "no enforcement".
+        //
+        if (_allowedOrigins.Count > 0)
+        {
+            string origin = _parser.getHeader("Origin", false);
+            if (origin is not null)
+            {
+                string canonical;
+                try
+                {
+                    canonical = canonicalizeOrigin(origin.Trim());
+                }
+                catch (ArgumentException)
+                {
+                    throw new WebSocketException($"invalid Origin header '{origin}'");
+                }
+                if (!_allowedOrigins.Contains(canonical))
+                {
+                    throw new WebSocketException($"origin '{origin}' is not allowed");
+                }
+            }
         }
 
         //
@@ -1623,6 +1650,7 @@ internal sealed class WSTransceiver : Transceiver
     private readonly string _host;
     private string _resource;
     private readonly bool _incoming;
+    private readonly HashSet<string> _allowedOrigins = new HashSet<string>();
 
     private const int StateInitializeDelegate = 0;
     private const int StateConnected = 1;
@@ -1711,4 +1739,28 @@ internal sealed class WSTransceiver : Transceiver
     private const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
     private static readonly UTF8Encoding _utf8 = new UTF8Encoding(false, true);
+
+    // Throws ArgumentException for any input that is not a serialized origin per RFC 6454.
+    internal static string canonicalizeOrigin(string origin)
+    {
+        Uri uri;
+        try
+        {
+            uri = new Uri(origin, UriKind.Absolute);
+        }
+        catch (UriFormatException ex)
+        {
+            throw new ArgumentException($"malformed origin '{origin}'", nameof(origin), ex);
+        }
+        // RFC 6454: a serialized origin is exactly "scheme://host[:port]". Reject path, query, fragment, and userinfo.
+        // System.Uri normalizes "https://x" to AbsolutePath="/", so we accept either empty or "/".
+        if ((uri.AbsolutePath.Length > 0 && uri.AbsolutePath != "/")
+            || uri.Query.Length > 0
+            || uri.Fragment.Length > 0
+            || uri.UserInfo.Length > 0)
+        {
+            throw new ArgumentException($"malformed origin '{origin}'", nameof(origin));
+        }
+        return uri.IsDefaultPort ? $"{uri.Scheme}://{uri.Host}" : $"{uri.Scheme}://{uri.Host}:{uri.Port}";
+    }
 }

@@ -56,6 +56,7 @@ internal sealed class PropertyNames
         false,
         [
             new(pattern: @"AdapterId", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
+            new(pattern: @"AllowedOrigins", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"Connection", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: ConnectionProps),
             new(pattern: @"Endpoints", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"Locator", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: ProxyProps),

@@ -70,6 +70,7 @@ const PropertyArray PropertyNames::ThreadPoolProps
 const Property ObjectAdapterPropsData[] =
 {
     Property{"AdapterId", "", false, false, nullptr},
+    Property{"AllowedOrigins", "", false, false, nullptr},
     Property{"Connection", "", false, false, &PropertyNames::ConnectionProps},
     Property{"Endpoints", "", false, false, nullptr},
     Property{"Locator", "", false, false, &PropertyNames::ProxyProps},
@@ -89,7 +90,7 @@ const PropertyArray PropertyNames::ObjectAdapterProps
     .prefixOnly=true,
     .isOptIn=false,
     .properties=ObjectAdapterPropsData,
-    .length=12
+    .length=13
 };
 
 const Property IcePropsData[] =
