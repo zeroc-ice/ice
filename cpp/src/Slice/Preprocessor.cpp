@@ -35,13 +35,15 @@ namespace
     // path resolves to a symlink. This avoids the TOCTOU race that a name-then-open sequence would otherwise expose
     // to a local attacker who could plant a symlink at the generated path.
 #ifdef _WIN32
-    FILE* openExclusive(const wstring& path)
+    FILE* openExclusive(const wchar_t* path)
     {
         int fd = -1;
+        // _O_TEMPORARY tells the CRT to delete the file when the last file descriptor is closed -- this avoids the
+        // need for a separate, racy unlink-by-name in close().
         if (::_wsopen_s(
                 &fd,
-                path.c_str(),
-                _O_RDWR | _O_CREAT | _O_EXCL | _O_BINARY,
+                path,
+                _O_RDWR | _O_CREAT | _O_EXCL | _O_BINARY | _O_TEMPORARY,
                 _SH_DENYRW,
                 _S_IREAD | _S_IWRITE) != 0)
         {
@@ -55,13 +57,16 @@ namespace
         return fp;
     }
 #else
-    FILE* openExclusive(const string& path)
+    FILE* openExclusive(const char* path)
     {
-        int fd = ::open(path.c_str(), O_RDWR | O_CREAT | O_EXCL | O_NOFOLLOW, S_IRUSR | S_IWUSR);
+        int fd = ::open(path, O_RDWR | O_CREAT | O_EXCL | O_NOFOLLOW, S_IRUSR | S_IWUSR);
         if (fd == -1)
         {
             return nullptr;
         }
+        // Make the file anonymous immediately. The inode survives as long as we hold the descriptor, and the kernel
+        // releases it when we close -- no path-based unlink is needed in close() and no TOCTOU window remains.
+        ::unlink(path);
         FILE* fp = ::fdopen(fd, "w+");
         if (fp == nullptr)
         {
@@ -252,29 +257,28 @@ Slice::Preprocessor::preprocess(const string& languageArg)
         // We use an unique id as the tmp file name prefix to avoid problems with this code being called concurrently
         // from several processes, otherwise there is a chance that two processes call _wtempnam before any of them
         // opens the file and they will end up using the same tmp file. We then open the file with O_EXCL to atomically
-        // create it -- this closes the TOCTOU window between _wtempnam returning a name and our opening it.
+        // create it -- this closes the TOCTOU window between _wtempnam returning a name and our opening it. The
+        // _O_TEMPORARY flag inside openExclusive causes the file to be deleted automatically when the descriptor is
+        // closed, so we don't need to retain the path past this point.
         //
         wchar_t* name = _wtempnam(0, Ice::stringToWstring("slice-" + Ice::generateUUID()).c_str());
         if (name)
         {
-            wstring wname{name};
+            _cppHandle = openExclusive(name);
             free(name);
-            _cppFile = Ice::wstringToString(wname);
-            _cppHandle = openExclusive(wname);
         }
 #else
         _cppHandle = tmpfile();
 #endif
 
-        // If that fails try to open file in current directory.
+        // If that fails try to open file in current directory. openExclusive immediately unlinks the file on POSIX
+        // and sets _O_TEMPORARY on Windows, so the path is only used during the open attempt.
         if (_cppHandle == nullptr)
         {
 #ifdef _WIN32
-            _cppFile = "slice-" + Ice::generateUUID();
-            _cppHandle = openExclusive(Ice::stringToWstring(_cppFile));
+            _cppHandle = openExclusive(Ice::stringToWstring("slice-" + Ice::generateUUID()).c_str());
 #else
-            _cppFile = ".slice-" + Ice::generateUUID();
-            _cppHandle = openExclusive(_cppFile);
+            _cppHandle = openExclusive((".slice-" + Ice::generateUUID()).c_str());
 #endif
         }
 
@@ -290,7 +294,7 @@ Slice::Preprocessor::preprocess(const string& languageArg)
         {
             // Calling this again causes the memory buffers to be freed.
             mcpp_use_mem_buffers(1);
-            throw runtime_error(_path + ": error: could not open temporary file: " + _cppFile);
+            throw runtime_error(_path + ": error: could not open temporary file for preprocessor output");
         }
     }
 
@@ -305,14 +309,11 @@ Slice::Preprocessor::close()
 {
     if (_cppHandle != nullptr)
     {
+        // The temp file deletes itself when the descriptor is closed: tmpfile() returns an already-unlinked file on
+        // POSIX primary; the POSIX CWD fallback unlinks the path immediately after open; and Windows uses
+        // _O_TEMPORARY. So fclose alone is enough -- no path-based unlink is needed.
         int status = fclose(_cppHandle);
         _cppHandle = nullptr;
-
-        if (_cppFile.size() != 0)
-        {
-            IceInternal::unlink(_cppFile);
-        }
-
         if (status != 0)
         {
             throw runtime_error("failed to close preprocessor file: " + IceInternal::lastErrorToString());
