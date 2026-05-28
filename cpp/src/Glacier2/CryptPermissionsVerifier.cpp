@@ -6,9 +6,8 @@
 #include "Ice/Ice.h"
 #include "Ice/StringUtil.h"
 
+#include <cstring>
 #include <fstream>
-#include <mutex>
-#include <sstream>
 
 #if defined(__GLIBC__)
 #    include <crypt.h>
@@ -35,6 +34,23 @@ namespace
 {
     const char* const cryptPluginName = "Glacier2CryptPermissionsVerifier";
 
+    //
+    // Constant-time byte-equality comparison. Returns true iff the two byte ranges of length n are equal.
+    // Always reads all n bytes from both inputs to avoid leaking, via execution time, how many leading
+    // bytes of the inputs matched. Used to compare hashed/derived-key material in checkPermissions.
+    // The `volatile` accumulator prevents the optimizer from turning the loop into an early-exit branch.
+    //
+    template<typename T> bool constantTimeEquals(const T* a, const T* b, size_t n)
+    {
+        static_assert(sizeof(T) == 1, "constantTimeEquals operates on byte-sized elements");
+        volatile uint8_t diff = 0;
+        for (size_t i = 0; i < n; ++i)
+        {
+            diff = static_cast<uint8_t>(diff | (static_cast<uint8_t>(a[i]) ^ static_cast<uint8_t>(b[i])));
+        }
+        return diff == 0;
+    }
+
 #if defined(__APPLE__)
     template<typename T> struct CFTypeRefDeleter
     {
@@ -52,7 +68,6 @@ namespace
 
     private:
         const map<string, string> _passwords;
-        mutex _cryptMutex; // for old thread-unsafe crypt()
     };
 
     class CryptPermissionsVerifierPlugin final : public Ice::Plugin
@@ -180,14 +195,16 @@ namespace
                 return false;
             }
         }
-#    if defined(__GLIBC__)
+
         struct crypt_data data;
         data.initialized = 0;
-        return p->second == crypt_r(password.c_str(), salt.c_str(), &data);
-#    else
-        lock_guard<mutex> lg(_cryptMutex);
-        return p->second == crypt(password.c_str(), salt.c_str());
-#    endif
+        const char* hashed = crypt_r(password.c_str(), salt.c_str(), &data);
+
+        if (hashed == nullptr || p->second.size() != strlen(hashed))
+        {
+            return false;
+        }
+        return constantTimeEquals(p->second.data(), hashed, p->second.size());
 #elif defined(__APPLE__) || defined(_WIN32)
         //
         // Pbkdf2 string format:
@@ -389,7 +406,11 @@ namespace
         vector<uint8_t> checksumBuffer2(
             CFDataGetBytePtr(data.get()),
             CFDataGetBytePtr(data.get()) + CFDataGetLength(data.get()));
-        return checksumBuffer1 == checksumBuffer2;
+        if (checksumBuffer1.size() != checksumBuffer2.size())
+        {
+            return false;
+        }
+        return constantTimeEquals(checksumBuffer1.data(), checksumBuffer2.data(), checksumBuffer1.size());
 #    else
         DWORD saltLength = static_cast<DWORD>(salt.size());
         vector<BYTE> saltBuffer(saltLength);
@@ -449,20 +470,14 @@ namespace
         {
             return false;
         }
-        return checksumBuffer1 == checksumBuffer2;
-#    endif
-#else
-        // Fallback to plain crypt() - DES-style
-
-        if (p->second.size() != 13)
+        if (checksumBuffer2Length != checksumLength)
         {
             return false;
         }
-        string salt = p->second.substr(0, 2);
-
-        lock_guard<mutex> lg(_cryptMutex);
-        return p->second == crypt(password.c_str(), salt.c_str());
-
+        return constantTimeEquals(checksumBuffer1.data(), checksumBuffer2.data(), checksumLength);
+#    endif
+#else
+#    error "Unsupported platform"
 #endif
     }
 

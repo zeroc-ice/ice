@@ -101,6 +101,9 @@ These are the changes since the [Ice 3.8.1] release.
 - Updated the Glacier2CryptPermissionsVerifier plug-in to issue a warning when the configured password file contains one
   or more DES passwords.
 
+- Fixed the Glacier2CryptPermissionsVerifier plug-in to compare hashed passwords in constant time, removing a timing
+  side-channel that could leak bytes of the stored hash.
+
 - Updated the Glacier2CryptPermissionsVerifier plug-in to reject password files with malformed entries. Each line must
   contain exactly two whitespace-separated tokens (user id and password hash); lines with extra fields were previously
   parsed incorrectly without raising an error.
