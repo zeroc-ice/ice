@@ -51,7 +51,7 @@ namespace
             return nullptr;
         }
         FILE* fp = ::_fdopen(fd, "w+");
-        if (fp == nullptr)
+        if (!fp)
         {
             ::_close(fd);
         }
@@ -76,7 +76,7 @@ namespace
             return nullptr;
         }
         FILE* fp = ::fdopen(fd, "w+");
-        if (fp == nullptr)
+        if (!fp)
         {
             ::close(fd);
         }
