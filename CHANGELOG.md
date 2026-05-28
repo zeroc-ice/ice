@@ -40,8 +40,7 @@ These are the changes since the [Ice 3.8.1] release.
   to empty (no enforcement); setting it to `*` is also permissive.
 
 - Fixed the Slice preprocessor to open its temporary output file atomically (`O_CREAT|O_EXCL|O_NOFOLLOW` on POSIX,
-  `_O_CREAT|_O_EXCL` on Windows). This closes a narrow TOCTOU race where a local attacker could plant a symlink or
-  pre-create a file at the generated path.
+  `_O_CREAT|_O_EXCL` on Windows).
 
 ### Slice Language Changes
 
