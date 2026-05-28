@@ -221,6 +221,9 @@
     <Project Path="../test/Ice/udp/msbuild/client/client.csproj" />
     <Project Path="../test/Ice/udp/msbuild/server/server.csproj" />
   </Folder>
+  <Folder Name="/tests/Ice/wsAllowedOrigins/">
+    <Project Path="../test/Ice/wsAllowedOrigins/msbuild/server/server.csproj" />
+  </Folder>
   <Folder Name="/tests/IceBox/" />
   <Folder Name="/tests/IceBox/admin/">
     <Project Path="../test/IceBox/admin/msbuild/client/client.csproj" />

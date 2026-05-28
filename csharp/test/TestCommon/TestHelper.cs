@@ -79,6 +79,7 @@ public abstract class TestHelper
     {
         var properties = new Ice.Properties(ref args);
         args = properties.parseCommandLineOptions("Test", args);
+        args = properties.parseCommandLineOptions("TestAdapter", args);
         return properties;
     }
 

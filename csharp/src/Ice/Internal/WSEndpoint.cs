@@ -134,8 +134,53 @@ internal sealed class WSEndpoint : EndpointI
         _delegate.connectors_async(new EndpointI_connectorsI(_instance, host, _resource, callback));
     }
 
-    public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions) =>
-        new WSAcceptor(this, _instance, _delegate.acceptor(adapterName, serverAuthenticationOptions));
+    public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions)
+    {
+        // Parse AllowedOrigins before creating the delegate acceptor so a malformed property doesn't leave an open
+        // socket behind.
+        HashSet<string> allowedOrigins;
+        if (adapterName.Length > 0)
+        {
+            string propertyName = $"{adapterName}.AllowedOrigins";
+            allowedOrigins = parseAllowedOrigins(_instance.properties().getPropertyAsList(propertyName), propertyName);
+        }
+        else
+        {
+            allowedOrigins = new HashSet<string>();
+        }
+        return new WSAcceptor(
+            this,
+            _instance,
+            _delegate.acceptor(adapterName, serverAuthenticationOptions),
+            allowedOrigins);
+    }
+
+    // Parse the values of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
+    // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
+    // The literal "*" disables enforcement; in that case the returned set is empty, since handleRequest treats an
+    // empty allowlist as "allow any origin" -- the two cases (unset and wildcard) collapse into one.
+    // Throws PropertyException if any entry is not a syntactically valid origin; propertyName is included in the
+    // message so the operator can identify which adapter is misconfigured.
+    private static HashSet<string> parseAllowedOrigins(string[] entries, string propertyName)
+    {
+        var result = new HashSet<string>();
+        foreach (string entry in entries)
+        {
+            if (entry == "*")
+            {
+                return new HashSet<string>();
+            }
+            try
+            {
+                result.Add(WSTransceiver.canonicalizeOrigin(entry));
+            }
+            catch (ArgumentException)
+            {
+                throw new PropertyException($"malformed origin '{entry}' in property '{propertyName}'");
+            }
+        }
+        return result;
+    }
 
     public WSEndpoint endpoint(EndpointI delEndp)
     {

@@ -2,12 +2,16 @@
 
 package com.zeroc.Ice;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteOrder;
 import java.nio.channels.SelectableChannel;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 final class WSTransceiver implements Transceiver {
     @Override
@@ -389,11 +393,12 @@ final class WSTransceiver implements Transceiver {
         assert (_readBufferSize > 256);
     }
 
-    WSTransceiver(ProtocolInstance instance, Transceiver del) {
+    WSTransceiver(ProtocolInstance instance, Transceiver del, Set<String> allowedOrigins) {
         init(instance, del);
         _host = "";
         _resource = "";
         _incoming = true;
+        _allowedOrigins = allowedOrigins;
 
         // Write and read buffer size must be large enough to hold the frame header!
         assert (_writeBufferSize > 256);
@@ -490,6 +495,24 @@ final class WSTransceiver implements Transceiver {
             }
         } catch (IllegalArgumentException ex) {
             throw new WebSocketException("invalid base64 value `" + key + "' for WebSocket key");
+        }
+
+        // Optionally validate the Origin header against the adapter's allowed-origins list.
+        // Browsers always send Origin; non-browser clients do not, so an absent header bypasses the check.
+        // A wildcard ("*") allowlist is normalized to an empty set at parse time, so empty here means "no enforcement".
+        if (!_allowedOrigins.isEmpty()) {
+            String origin = _parser.getHeader("Origin", false);
+            if (origin != null) {
+                String canonical;
+                try {
+                    canonical = canonicalizeOrigin(origin.trim());
+                } catch (IllegalArgumentException ex) {
+                    throw new WebSocketException("invalid Origin header '" + origin + "'");
+                }
+                if (!_allowedOrigins.contains(canonical)) {
+                    throw new WebSocketException("origin '" + origin + "' is not allowed");
+                }
+            }
         }
 
         // Retain the target resource.
@@ -1139,6 +1162,7 @@ final class WSTransceiver implements Transceiver {
     private String _host;
     private String _resource;
     private boolean _incoming;
+    private Set<String> _allowedOrigins = new HashSet<>();
     private ReadyCallback _readyCallback;
 
     private static final int StateInitializeDelegate = 0;
@@ -1246,4 +1270,37 @@ final class WSTransceiver implements Transceiver {
     private static final String _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
     static final Charset _ascii = Charset.forName("US-ASCII");
+
+    // Throws IllegalArgumentException for any input that is not a serialized origin per RFC 6454.
+    static String canonicalizeOrigin(String origin) {
+        URI uri;
+        try {
+            uri = new URI(origin);
+        } catch (URISyntaxException ex) {
+            throw new IllegalArgumentException("malformed origin '" + origin + "'", ex);
+        }
+        String scheme = uri.getScheme();
+        String host = uri.getHost();
+        if (scheme == null || host == null) {
+            throw new IllegalArgumentException("malformed origin '" + origin + "'");
+        }
+        // RFC 6454: a serialized origin is exactly "scheme://host[:port]". Reject path, query, fragment, and userinfo.
+        // java.net.URI returns "" for an absent path and "/" for "scheme://x/" -- both treated as no path.
+        String path = uri.getRawPath();
+        if ((path != null && !path.isEmpty() && !"/".equals(path))
+            || (uri.getRawQuery() != null && !uri.getRawQuery().isEmpty())
+            || (uri.getRawFragment() != null && !uri.getRawFragment().isEmpty())
+            || (uri.getRawUserInfo() != null && !uri.getRawUserInfo().isEmpty())) {
+            throw new IllegalArgumentException("malformed origin '" + origin + "'");
+        }
+        scheme = scheme.toLowerCase(java.util.Locale.ROOT);
+        host = host.toLowerCase(java.util.Locale.ROOT);
+        int port = uri.getPort();
+        if (port == -1
+            || ("http".equals(scheme) && port == 80)
+            || ("https".equals(scheme) && port == 443)) {
+            return scheme + "://" + host;
+        }
+        return scheme + "://" + host + ":" + port;
+    }
 }

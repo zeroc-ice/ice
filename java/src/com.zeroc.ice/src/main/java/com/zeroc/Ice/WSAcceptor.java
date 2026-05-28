@@ -3,6 +3,7 @@
 package com.zeroc.Ice;
 
 import java.nio.channels.ServerSocketChannel;
+import java.util.Set;
 
 final class WSAcceptor implements Acceptor {
     @Override
@@ -29,7 +30,7 @@ final class WSAcceptor implements Acceptor {
     @Override
     public Transceiver accept() {
         // WebSocket handshaking is performed in TransceiverI::initialize, since accept must not block.
-        return new WSTransceiver(_instance, _delegate.accept());
+        return new WSTransceiver(_instance, _delegate.accept(), _allowedOrigins);
     }
 
     @Override
@@ -51,13 +52,15 @@ final class WSAcceptor implements Acceptor {
         return _delegate;
     }
 
-    WSAcceptor(WSEndpoint endpoint, ProtocolInstance instance, Acceptor del) {
+    WSAcceptor(WSEndpoint endpoint, ProtocolInstance instance, Acceptor del, Set<String> allowedOrigins) {
         _endpoint = endpoint;
         _instance = instance;
         _delegate = del;
+        _allowedOrigins = allowedOrigins;
     }
 
     private WSEndpoint _endpoint;
     private final ProtocolInstance _instance;
     private final Acceptor _delegate;
+    private final Set<String> _allowedOrigins;
 }

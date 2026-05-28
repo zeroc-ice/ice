@@ -109,6 +109,7 @@ public abstract class TestHelper {
         rArgs = rArgs == null ? new ArrayList<String>() : rArgs;
         Properties properties = new Properties(args, rArgs);
         args = properties.parseCommandLineOptions("Test", rArgs.toArray(new String[rArgs.size()]));
+        args = properties.parseCommandLineOptions("TestAdapter", args);
         rArgs.clear();
         rArgs.addAll(Arrays.asList(args));
         return properties;

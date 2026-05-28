@@ -10,16 +10,26 @@
 #include "ProtocolInstance.h"
 #include "Transceiver.h"
 
+#include <set>
+#include <string>
+#include <string_view>
+
 namespace IceInternal
 {
     class ConnectorI;
     class AcceptorI;
 
+    // Canonicalize an origin string: lowercase scheme and host, omit the default port (80 for http, 443 for https).
+    // A single trailing slash is tolerated. Throws std::invalid_argument if the input is not a syntactically valid
+    // origin per RFC 6454 -- "scheme://host[:port]" with no path beyond a trailing slash, no query, fragment, or
+    // userinfo.
+    std::string canonicalizeOrigin(std::string_view origin);
+
     class WSTransceiver final : public Transceiver
     {
     public:
         WSTransceiver(ProtocolInstancePtr, TransceiverPtr, std::string, std::string);
-        WSTransceiver(ProtocolInstancePtr, TransceiverPtr);
+        WSTransceiver(ProtocolInstancePtr, TransceiverPtr, std::set<std::string> allowedOrigins);
         ~WSTransceiver();
 
         NativeInfoPtr getNativeInfo() final;
@@ -66,6 +76,7 @@ namespace IceInternal
         const TransceiverPtr _delegate;
         const std::string _host;
         const std::string _resource;
+        const std::set<std::string> _allowedOrigins;
         const bool _incoming;
 
         enum State
