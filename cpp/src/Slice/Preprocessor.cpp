@@ -9,6 +9,7 @@
 #include "Util.h"
 #include <algorithm>
 #include <cassert>
+#include <cerrno>
 #include <cstring>
 #include <fcntl.h>
 #include <fstream>
@@ -66,7 +67,14 @@ namespace
         }
         // Make the file anonymous immediately. The inode survives as long as we hold the descriptor, and the kernel
         // releases it when we close -- no path-based unlink is needed in close() and no TOCTOU window remains.
-        ::unlink(path);
+        // If unlink fails for any reason other than ENOENT (which means another process already removed the entry,
+        // which is the state we wanted anyway) we treat it as an open failure: the caller would otherwise have no way
+        // to clean up the stray file once close() relies solely on the descriptor.
+        if (::unlink(path) != 0 && errno != ENOENT)
+        {
+            ::close(fd);
+            return nullptr;
+        }
         FILE* fp = ::fdopen(fd, "w+");
         if (fp == nullptr)
         {
