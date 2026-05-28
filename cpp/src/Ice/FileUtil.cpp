@@ -195,17 +195,6 @@ IceInternal::mkdir(const string& path, int)
     return ::_wmkdir(stringToWstring(path, Ice::getProcessStringConverter()).c_str());
 }
 
-FILE*
-IceInternal::fopen(const string& path, const string& mode)
-{
-    //
-    // Don't need to use a wide string converter, the wide strings are directly passed
-    // to Windows API.
-    //
-    const Ice::StringConverterPtr converter = Ice::getProcessStringConverter();
-    return ::_wfopen(stringToWstring(path, converter).c_str(), stringToWstring(mode, converter).c_str());
-}
-
 int
 IceInternal::getcwd(string& cwd)
 {
@@ -322,12 +311,6 @@ int
 IceInternal::mkdir(const string& path, int perm)
 {
     return ::mkdir(path.c_str(), static_cast<mode_t>(perm));
-}
-
-FILE*
-IceInternal::fopen(const string& path, const string& mode)
-{
-    return ::fopen(path.c_str(), mode.c_str());
 }
 
 int

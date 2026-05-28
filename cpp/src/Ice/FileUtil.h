@@ -84,7 +84,6 @@ namespace IceInternal
     ICE_API int rmdir(const std::string&);
 
     ICE_API int mkdir(const std::string&, int);
-    ICE_API FILE* fopen(const std::string&, const std::string&);
     ICE_API FILE* freopen(const std::string&, const std::string&, FILE*);
     ICE_API int getcwd(std::string&);
 
