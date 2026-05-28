@@ -39,11 +39,9 @@ class ConfigurationTestCase(ClientServerTestCase):
             self.ocspServer.start()
 
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
-            # Create the keychains directory for IceSSL tests.
-            keychainsPath = os.path.join(certsPath, "keychain")
-            os.makedirs(keychainsPath, exist_ok=True)
-
-            # Create find.keychain for IceSSL.FindCerts tests on macOS
+            # Create Find.keychain for IceSSL.FindCert tests on macOS. The default cert-import path no
+            # longer needs a pre-created keychain — when IceSSL.Keychain is unset, IceSSL creates a
+            # private temporary keychain itself.
             keychainPath = os.path.join(certsPath, "Find.keychain")
             os.system(f"security create-keychain -p password {keychainPath}")
             for cert in ["ca1/server.p12", "ca1/client.p12"]:
@@ -67,9 +65,6 @@ class ConfigurationTestCase(ClientServerTestCase):
             self.ocspServer.shutdown()
 
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
-            keychainsPath = os.path.join(certsPath, "keychain")
-            os.system(f"rm -rf {keychainsPath}")
-
             findKeychain = os.path.join(certsPath, "Find.keychain")
             os.system(f"rm -rf {findKeychain}")
         elif current.config.openssl or platform.hasOpenSSL():

@@ -95,24 +95,31 @@ namespace
 
         bool hasDESStylePassword = false;
 
-        while (true)
+        string line;
+        size_t lineNumber = 0;
+        while (std::getline(passwordFile, line))
         {
+            ++lineNumber;
+            if (!line.empty() && line.back() == '\r')
+            {
+                line.pop_back();
+            }
+            if (line.find_first_not_of(" \t") == string::npos)
+            {
+                continue;
+            }
+
+            istringstream iss(line);
             string userId;
-            passwordFile >> userId;
-            if (!passwordFile)
-            {
-                break;
-            }
-
             string password;
-            passwordFile >> password;
-            if (!passwordFile)
+            string extra;
+            if (!(iss >> userId >> password) || (iss >> extra))
             {
-                break;
+                throw Ice::InitializationException(
+                    __FILE__,
+                    __LINE__,
+                    "malformed entry in password file '" + file + "' at line " + std::to_string(lineNumber));
             }
-
-            assert(!userId.empty());
-            assert(!password.empty());
 
             hasDESStylePassword = hasDESStylePassword || (password.find('$') == string::npos && password.size() == 13);
 

@@ -35,6 +35,10 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Fixed the unmarshaling of class indirection tables to reject a zero-valued entry.
 
+- Added the `<AdapterName>.AllowedOrigins` object adapter property. When set on an adapter with a WebSocket endpoint,
+  the server rejects upgrade requests whose `Origin` header is not in the comma-separated list. The property defaults
+  to empty (no enforcement); setting it to `*` is also permissive.
+
 ### Slice Language Changes
 
 - Added the `["oneway"]` metadata directive for Slice operations. This directive can only be applied to operations that
@@ -54,6 +58,13 @@ These are the changes since the [Ice 3.8.1] release.
   certificate stores, chain engines, imported key sets, and `SSL_CTX` when the communicator is
   destroyed.
 
+- Changed the macOS SSL transport so that, when `IceSSL.Keychain` is not set, the certificate configured with
+  `IceSSL.CertFile` is imported into a temporary keychain (removed when the communicator is destroyed) instead of
+  the user's login keychain.
+
+- Rejected peer-initiated TLS renegotiation in the OpenSSL SSL engine and on the server side of Schannel-based SSL
+  connections. This applies to all SSL-based transports (`ssl`, `wss`, `bts`).
+
 - Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice. These now generate `` `[NAME]` ``
   instead of `@p [NAME]`.
 
@@ -72,6 +83,9 @@ These are the changes since the [Ice 3.8.1] release.
 - Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice. These now generate `<c>[NAME]</c>`
   instead of `<paramref name="[NAME]" />`.
 
+- Fixed a resource leak in the SSL engine. The certificates loaded from `IceSSL.CertFile` and `IceSSL.CAs` are now
+  disposed when the communicator is destroyed, instead of waiting for the GC to finalize them.
+
 ### Swift Changes
 
 - Fixed `InputStream.readSize` to reject a negative size.
@@ -86,5 +100,9 @@ These are the changes since the [Ice 3.8.1] release.
 
 - Fixed the Glacier2CryptPermissionsVerifier plug-in to compare hashed passwords in constant time, removing a timing
   side-channel that could leak bytes of the stored hash.
+
+- Updated the Glacier2CryptPermissionsVerifier plug-in to reject password files with malformed entries. Each line must
+  contain exactly two whitespace-separated tokens (user id and password hash); lines with extra fields were previously
+  parsed incorrectly without raising an error.
 
 [Ice 3.8.1]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
