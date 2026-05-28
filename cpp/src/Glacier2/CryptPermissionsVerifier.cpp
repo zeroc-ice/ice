@@ -6,7 +6,6 @@
 #include "Ice/Ice.h"
 #include "Ice/StringUtil.h"
 
-#include <cstdlib>
 #include <cstring>
 #include <fstream>
 
