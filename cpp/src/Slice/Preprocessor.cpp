@@ -34,14 +34,13 @@ namespace
     // Atomically create and open a new file for read/write, failing if the file already exists or, on POSIX, if the
     // path resolves to a symlink. This avoids the TOCTOU race that a name-then-open sequence would otherwise expose
     // to a local attacker who could plant a symlink at the generated path.
-    FILE* openExclusive(const string& path)
-    {
 #ifdef _WIN32
-        const wstring wpath = Ice::stringToWstring(path);
+    FILE* openExclusive(const wstring& path)
+    {
         int fd = -1;
         if (::_wsopen_s(
                 &fd,
-                wpath.c_str(),
+                path.c_str(),
                 _O_RDWR | _O_CREAT | _O_EXCL | _O_BINARY,
                 _SH_DENYRW,
                 _S_IREAD | _S_IWRITE) != 0)
@@ -54,7 +53,10 @@ namespace
             ::_close(fd);
         }
         return fp;
+    }
 #else
+    FILE* openExclusive(const string& path)
+    {
         int fd = ::open(path.c_str(), O_RDWR | O_CREAT | O_EXCL | O_NOFOLLOW, S_IRUSR | S_IWUSR);
         if (fd == -1)
         {
@@ -66,8 +68,8 @@ namespace
             ::close(fd);
         }
         return fp;
-#endif
     }
+#endif
 }
 
 //
@@ -255,9 +257,10 @@ Slice::Preprocessor::preprocess(const string& languageArg)
         wchar_t* name = _wtempnam(0, Ice::stringToWstring("slice-" + Ice::generateUUID()).c_str());
         if (name)
         {
-            _cppFile = Ice::wstringToString(name);
+            wstring wname{name};
             free(name);
-            _cppHandle = openExclusive(_cppFile);
+            _cppFile = Ice::wstringToString(wname);
+            _cppHandle = openExclusive(wname);
         }
 #else
         _cppHandle = tmpfile();
@@ -268,10 +271,11 @@ Slice::Preprocessor::preprocess(const string& languageArg)
         {
 #ifdef _WIN32
             _cppFile = "slice-" + Ice::generateUUID();
+            _cppHandle = openExclusive(Ice::stringToWstring(_cppFile));
 #else
             _cppFile = ".slice-" + Ice::generateUUID();
-#endif
             _cppHandle = openExclusive(_cppFile);
+#endif
         }
 
         if (_cppHandle != nullptr)
