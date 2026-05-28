@@ -79,6 +79,7 @@ class Ice(Util.Component):
                     "Ice/stringConverter",
                     "Ice/threadPoolPriority",
                     "Ice/services",
+                    "Ice/wsAllowedOrigins",
                 ],
             )
         elif "static" in config.buildConfig:
@@ -105,6 +106,7 @@ class Ice(Util.Component):
                     "Ice/plugin",
                     "Ice/logger",
                     "Ice/properties",
+                    "Ice/wsAllowedOrigins",
                 ],
             )
         elif isinstance(mapping, Util.JavaScriptMapping):
