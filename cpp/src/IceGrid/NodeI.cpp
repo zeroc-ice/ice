@@ -69,7 +69,6 @@ NodeI::NodeI(
 
     const_cast<string&>(_dataDir) = _platform.getDataDir();
     const_cast<string&>(_serversDir) = _dataDir + "/servers";
-    const_cast<string&>(_tmpDir) = _dataDir + "/tmp";
     const_cast<int&>(_waitTime) = props->getIcePropertyAsInt("IceGrid.Node.WaitTime");
     const_cast<string&>(_outputDir) = props->getIceProperty("IceGrid.Node.Output");
     const_cast<bool&>(_redirectErrToOut) = props->getIcePropertyAsInt("IceGrid.Node.RedirectErrToOut") > 0;
