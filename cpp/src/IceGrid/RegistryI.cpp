@@ -1162,11 +1162,21 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
             throw PermissionDeniedException("not an ssl connection");
         }
 
-        auto ipInfo = getIPConnectionInfo(info);
-        sslinfo.remotePort = ipInfo->remotePort;
-        sslinfo.remoteHost = ipInfo->remoteAddress;
-        sslinfo.localPort = ipInfo->localPort;
-        sslinfo.localHost = ipInfo->localAddress;
+        if (auto ipInfo = getIPConnectionInfo(info))
+        {
+            sslinfo.remotePort = ipInfo->remotePort;
+            sslinfo.remoteHost = ipInfo->remoteAddress;
+            sslinfo.localPort = ipInfo->localPort;
+            sslinfo.localHost = ipInfo->localAddress;
+        }
+        else
+        {
+            // Not an IP connection. For example, a Bluetooth connection.
+            sslinfo.remotePort = 0;
+            sslinfo.localPort = 0;
+            // the hosts remain empty
+        }
+
         if (info->peerCertificate)
         {
             sslinfo.certs.push_back(Ice::SSL::encodeCertificate(info->peerCertificate));

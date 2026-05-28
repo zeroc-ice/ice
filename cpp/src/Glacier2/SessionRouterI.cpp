@@ -319,8 +319,7 @@ CreateSession::CreateSession(shared_ptr<SessionRouterI> sessionRouter, string us
     {
         _context["_con.type"] = current.con->type();
         {
-            auto info = getIPConnectionInfo(current.con->getInfo());
-            if (info)
+            if (auto info = getIPConnectionInfo(current.con->getInfo()))
             {
                 ostringstream os;
                 os << info->remotePort;
@@ -659,11 +658,20 @@ SessionRouterI::createSessionFromSecureConnectionAsync(
             return;
         }
 
-        auto ipInfo = getIPConnectionInfo(info);
-        sslinfo.remotePort = ipInfo->remotePort;
-        sslinfo.remoteHost = ipInfo->remoteAddress;
-        sslinfo.localPort = ipInfo->localPort;
-        sslinfo.localHost = ipInfo->localAddress;
+        if (auto ipInfo = getIPConnectionInfo(info))
+        {
+            sslinfo.remotePort = ipInfo->remotePort;
+            sslinfo.remoteHost = ipInfo->remoteAddress;
+            sslinfo.localPort = ipInfo->localPort;
+            sslinfo.localHost = ipInfo->localAddress;
+        }
+        else
+        {
+            // Not an IP connection, for example, a Bluetooth connection.
+            sslinfo.remotePort = 0;
+            sslinfo.localPort = 0;
+            // the hosts remain empty
+        }
 
         if (info->peerCertificate)
         {
