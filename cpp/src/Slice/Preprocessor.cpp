@@ -65,11 +65,9 @@ namespace
         {
             return nullptr;
         }
-        // Make the file anonymous immediately. The inode survives as long as we hold the descriptor, and the kernel
-        // releases it when we close -- no path-based unlink is needed in close() and no TOCTOU window remains.
-        // If unlink fails for any reason other than ENOENT (which means another process already removed the entry,
-        // which is the state we wanted anyway) we treat it as an open failure: the caller would otherwise have no way
-        // to clean up the stray file once close() relies solely on the descriptor.
+        // Unlink immediately so the file is anonymous: the inode survives via our descriptor and the kernel
+        // releases it on close. ENOENT means another process already removed the entry, leaving us in the same
+        // state; any other unlink error is fatal because the caller has no path to retry cleanup.
         if (::unlink(path) != 0 && errno != ENOENT)
         {
             ::close(fd);
@@ -317,9 +315,9 @@ Slice::Preprocessor::close()
 {
     if (_cppHandle != nullptr)
     {
-        // The temp file deletes itself when the descriptor is closed: tmpfile() returns an already-unlinked file on
-        // POSIX primary; the POSIX CWD fallback unlinks the path immediately after open; and Windows uses
-        // _O_TEMPORARY. So fclose alone is enough -- no path-based unlink is needed.
+        // The temp file deletes itself when the descriptor is closed. On POSIX, tmpfile() returns an
+        // already-unlinked file and the CWD fallback unlinks after open; on Windows, openExclusive opens
+        // with _O_TEMPORARY. fclose is the only cleanup needed.
         int status = fclose(_cppHandle);
         _cppHandle = nullptr;
         if (status != 0)
