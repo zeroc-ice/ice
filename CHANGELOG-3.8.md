@@ -57,7 +57,7 @@ These are the changes since the Ice 3.8.1 release.
 
 ### General Changes
 
-- Removed the 'ice2slice' compiler
+- Removed the `ice2slice` compiler.
 
 - Fixed the WebSocket transport to enforce the RFC 6455 limits on control frames.
 
