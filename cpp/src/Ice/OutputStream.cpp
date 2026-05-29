@@ -68,6 +68,10 @@ Ice::OutputStream::OutputStream(
       _format(format),
       _currentEncaps(nullptr)
 {
+    if (!_wstringConverter)
+    {
+        _wstringConverter = getProcessWstringConverter();
+    }
 }
 
 Ice::OutputStream::OutputStream(
@@ -85,6 +89,11 @@ Ice::OutputStream::OutputStream(
       _currentEncaps(nullptr)
 {
     b.reset();
+
+    if (!_wstringConverter)
+    {
+        _wstringConverter = getProcessWstringConverter();
+    }
 }
 
 Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator, EncodingVersion encoding)
@@ -104,6 +113,7 @@ Ice::OutputStream::OutputStream(Instance* instance, EncodingVersion encoding)
           instance->getStringConverter(),
           instance->getWstringConverter())
 {
+    assert(_wstringConverter);
 }
 
 Ice::OutputStream::OutputStream(OutputStream&& other) noexcept
@@ -116,6 +126,7 @@ Ice::OutputStream::OutputStream(OutputStream&& other) noexcept
       _currentEncaps(other._currentEncaps)
 {
     // Reset other to its default state.
+    other._wstringConverter = getProcessWstringConverter();
     other._closure = nullptr;
     other._encoding = Encoding_1_1;
     other._format = FormatType::CompactFormat;
@@ -140,6 +151,7 @@ Ice::OutputStream::operator=(OutputStream&& other) noexcept
         _currentEncaps = other._currentEncaps;
 
         // Reset other to its default state.
+        other._wstringConverter = getProcessWstringConverter();
         other._closure = nullptr;
         other._encoding = Encoding_1_1;
         other._format = FormatType::CompactFormat;
@@ -703,13 +715,7 @@ Ice::OutputStream::write(const char*)
 void
 Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
 {
-    StringConverterPtr stringConverter = _stringConverter;
-    if (!stringConverter)
-    {
-        stringConverter = getProcessStringConverter();
-    }
-
-    if (!stringConverter)
+    if (!_stringConverter)
     {
         // No converter installed; write the string as-is (assumed to be UTF-8 already).
         writeSize(static_cast<int32_t>(vsize));
@@ -735,7 +741,7 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
             auto sizePos = startOneByteSize();
 
             StreamUTF8BufferI buffer(*this);
-            byte* lastByte = stringConverter->toUTF8(vdata, vdata + vsize, buffer);
+            byte* lastByte = _stringConverter->toUTF8(vdata, vdata + vsize, buffer);
             if (lastByte != b.end())
             {
                 resize(static_cast<size_t>(lastByte - b.begin()));
@@ -750,7 +756,7 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
             auto sizePos = startSize();
 
             StreamUTF8BufferI buffer(*this);
-            byte* lastByte = stringConverter->toUTF8(vdata, vdata + vsize, buffer);
+            byte* lastByte = _stringConverter->toUTF8(vdata, vdata + vsize, buffer);
             if (lastByte != b.end())
             {
                 resize(static_cast<size_t>(lastByte - b.begin()));
@@ -803,13 +809,8 @@ Ice::OutputStream::write(wstring_view v)
 
         byte* lastByte = nullptr;
 
-        WstringConverterPtr wstringConverter = _wstringConverter;
-        if (!wstringConverter)
-        {
-            wstringConverter = getProcessWstringConverter();
-        }
-        assert(wstringConverter); // never null
-        lastByte = wstringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
+        assert(_wstringConverter);
+        lastByte = _wstringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
 
         if (lastByte != b.end())
         {
