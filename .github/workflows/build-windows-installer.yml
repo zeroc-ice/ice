@@ -60,7 +60,7 @@ jobs:
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           endpoint: https://eus.codesigning.azure.net/
-          trusted-signing-account-name: zeroc
+          signing-account-name: zeroc
           certificate-profile-name: zeroc-ice
           files-folder: ./packaging/windows-installer/msi/bin/x64/Release/
           files-folder-filter: msi
@@ -95,7 +95,7 @@ jobs:
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           endpoint: https://eus.codesigning.azure.net/
-          trusted-signing-account-name: zeroc
+          signing-account-name: zeroc
           certificate-profile-name: zeroc-ice
           files-folder: ./packaging/windows-installer/bundle/engine/
           files-folder-filter: exe
@@ -118,7 +118,7 @@ jobs:
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           endpoint: https://eus.codesigning.azure.net/
-          trusted-signing-account-name: zeroc
+          signing-account-name: zeroc
           certificate-profile-name: zeroc-ice
           files-folder: ./packaging/windows-installer/bundle/bin/x64/Release/
           files-folder-filter: exe
