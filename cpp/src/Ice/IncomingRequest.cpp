@@ -33,7 +33,7 @@ IncomingRequest::IncomingRequest(
         {
             throw MarshalException{__FILE__, __LINE__, "received facet path with more than one element"};
         }
-        _current.facet = facetPath[0];
+        _current.facet = std::move(facetPath[0]);
     }
 
     inputStream.read(_current.operation, false);
