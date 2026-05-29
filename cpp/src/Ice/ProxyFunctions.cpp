@@ -53,8 +53,8 @@ Ice::proxyIdentityAndFacetLess(const optional<ObjectPrx>& lhs, const optional<Ob
 {
     if (lhs && rhs)
     {
-        Identity lhsIdentity = lhs->ice_getIdentity();
-        Identity rhsIdentity = rhs->ice_getIdentity();
+        const Identity& lhsIdentity = lhs->ice_getIdentity();
+        const Identity& rhsIdentity = rhs->ice_getIdentity();
 
         if (lhsIdentity < rhsIdentity)
         {
@@ -65,8 +65,8 @@ Ice::proxyIdentityAndFacetLess(const optional<ObjectPrx>& lhs, const optional<Ob
             return false;
         }
 
-        string lhsFacet = lhs->ice_getFacet();
-        string rhsFacet = rhs->ice_getFacet();
+        const string& lhsFacet = lhs->ice_getFacet();
+        const string& rhsFacet = rhs->ice_getFacet();
 
         return lhsFacet < rhsFacet;
     }
