@@ -169,7 +169,7 @@ AcceptorPtr
 IceInternal::TcpEndpointI::acceptor(const string&, const optional<Ice::SSL::ServerAuthenticationOptions>&) const
 {
     return make_shared<TcpAcceptor>(
-        dynamic_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()),
+        static_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()),
         _instance,
         _host,
         _port);
@@ -181,7 +181,7 @@ IceInternal::TcpEndpointI::endpoint(const TcpAcceptorPtr& acceptor) const
     int port = acceptor->effectivePort();
     if (_port == port)
     {
-        return dynamic_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this());
+        return static_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this());
     }
     else
     {

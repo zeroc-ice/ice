@@ -799,7 +799,7 @@ DataReaderI::initSamples(
     if (_onSamples)
     {
         _executor->queue(
-            [self = dynamic_pointer_cast<DataReaderI>(shared_from_this()), valid]
+            [self = static_pointer_cast<DataReaderI>(shared_from_this()), valid]
             {
                 for (const auto& s : valid)
                 {
@@ -932,7 +932,7 @@ DataReaderI::queue(
 
     if (_onSamples)
     {
-        _executor->queue([self = dynamic_pointer_cast<DataReaderI>(shared_from_this()), sample]
+        _executor->queue([self = static_pointer_cast<DataReaderI>(shared_from_this()), sample]
                          { self->_onSamples(sample); });
     }
 
