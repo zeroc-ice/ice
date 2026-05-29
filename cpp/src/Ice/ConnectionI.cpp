@@ -3313,7 +3313,7 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
 
                 if (q != _asyncRequests.end())
                 {
-                    auto outAsync = q->second;
+                    auto outAsync = std::move(q->second);
 
                     if (q == _asyncRequestsHint)
                     {
