@@ -481,15 +481,7 @@ Ice::InputStream::read(std::vector<byte>& v)
 {
     std::pair<const byte*, const byte*> p;
     read(p);
-    if (p.first != p.second)
-    {
-        v.resize(static_cast<size_t>(p.second - p.first));
-        copy(p.first, p.second, v.begin());
-    }
-    else
-    {
-        v.clear();
-    }
+    v.assign(p.first, p.second);
 }
 
 void
