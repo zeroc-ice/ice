@@ -107,13 +107,15 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
             //
             outAsync->cancelable(shared_from_this());
 
+            auto outAsyncPtr = outAsync->shared_from_this();
+
             if (_response)
             {
                 requestId = ++_requestId;
-                _asyncRequests.insert(make_pair(requestId, outAsync->shared_from_this()));
+                _asyncRequests.insert(make_pair(requestId, outAsyncPtr));
             }
 
-            _sendAsyncRequests.insert(make_pair(outAsync->shared_from_this(), requestId));
+            _sendAsyncRequests.insert(make_pair(outAsyncPtr, requestId));
         }
 
         OutputStream* os = outAsync->getOs();
@@ -348,7 +350,7 @@ CollocatedRequestHandler::sendResponse(OutgoingResponse response)
                     is.swap(*q->second->getIs());
                     if (q->second->response())
                     {
-                        outAsync = q->second;
+                        outAsync = std::move(q->second);
                     }
                     _asyncRequests.erase(q);
                 }
