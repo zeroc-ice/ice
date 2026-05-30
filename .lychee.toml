@@ -29,6 +29,8 @@ exclude = [
     # GitHub edit/blame links (may require auth)
     "github\\.com/.*/edit/",
     "github\\.com/.*/blame/",
+    # Private audit repo (404s for unauthenticated checks); referenced from AGENTS.md
+    "^https?://github\\.com/zeroc-ice/ice-audit",
     # Gitter (no longer used)
     "^https?://gitter\\.im",
     # npm returns 403 to bots
