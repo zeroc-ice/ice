@@ -549,7 +549,7 @@ IceInternal::FixedReference::changeConnectionId(string) const
 ReferencePtr
 IceInternal::FixedReference::changeConnection(Ice::ConnectionIPtr newConnection) const
 {
-    FixedReferencePtr r = dynamic_pointer_cast<FixedReference>(clone());
+    FixedReferencePtr r = static_pointer_cast<FixedReference>(clone());
     r->_fixedConnection = std::move(newConnection);
     return r;
 }
@@ -787,7 +787,7 @@ IceInternal::RoutableReference::changeEncoding(Ice::EncodingVersion encoding) co
     ReferencePtr r = Reference::changeEncoding(encoding);
     if (r.get() != const_cast<RoutableReference*>(this))
     {
-        LocatorInfoPtr& locInfo = dynamic_pointer_cast<RoutableReference>(r)->_locatorInfo;
+        LocatorInfoPtr& locInfo = static_pointer_cast<RoutableReference>(r)->_locatorInfo;
         if (locInfo && locInfo->getLocator()->ice_getEncodingVersion() != encoding)
         {
             locInfo = getInstance()->locatorManager()->get(locInfo->getLocator()->ice_encodingVersion(encoding));
@@ -809,7 +809,7 @@ IceInternal::RoutableReference::changeCompress(bool newCompress) const
         {
             newEndpoints.push_back(endpoint->compress(newCompress));
         }
-        dynamic_pointer_cast<RoutableReference>(r)->_endpoints = std::move(newEndpoints);
+        static_pointer_cast<RoutableReference>(r)->_endpoints = std::move(newEndpoints);
     }
     return r;
 }
@@ -817,7 +817,7 @@ IceInternal::RoutableReference::changeCompress(bool newCompress) const
 ReferencePtr
 IceInternal::RoutableReference::changeEndpoints(vector<EndpointIPtr> newEndpoints) const
 {
-    RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
+    RoutableReferencePtr r = static_pointer_cast<RoutableReference>(clone());
     r->_endpoints = std::move(newEndpoints);
     r->applyOverrides(r->_endpoints);
     r->_adapterId.clear();
@@ -827,7 +827,7 @@ IceInternal::RoutableReference::changeEndpoints(vector<EndpointIPtr> newEndpoint
 ReferencePtr
 IceInternal::RoutableReference::changeAdapterId(string newAdapterId) const
 {
-    RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
+    RoutableReferencePtr r = static_pointer_cast<RoutableReference>(clone());
     r->_adapterId = std::move(newAdapterId);
     r->_endpoints.clear();
     return r;
@@ -837,7 +837,7 @@ ReferencePtr
 IceInternal::RoutableReference::changeLocator(optional<LocatorPrx> newLocator) const
 {
     LocatorInfoPtr newLocatorInfo = newLocator ? getInstance()->locatorManager()->get(newLocator.value()) : nullptr;
-    RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
+    RoutableReferencePtr r = static_pointer_cast<RoutableReference>(clone());
     r->_locatorInfo = std::move(newLocatorInfo);
     return r;
 }
@@ -846,7 +846,7 @@ ReferencePtr
 IceInternal::RoutableReference::changeRouter(optional<RouterPrx> newRouter) const
 {
     RouterInfoPtr newRouterInfo = newRouter ? getInstance()->routerManager()->get(newRouter.value()) : nullptr;
-    RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
+    RoutableReferencePtr r = static_pointer_cast<RoutableReference>(clone());
     r->_routerInfo = std::move(newRouterInfo);
     return r;
 }
@@ -854,7 +854,7 @@ IceInternal::RoutableReference::changeRouter(optional<RouterPrx> newRouter) cons
 ReferencePtr
 IceInternal::RoutableReference::changeCollocationOptimized(bool newCollocationOptimized) const
 {
-    RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
+    RoutableReferencePtr r = static_pointer_cast<RoutableReference>(clone());
     r->_collocationOptimized = newCollocationOptimized;
     return r;
 }
@@ -862,7 +862,7 @@ IceInternal::RoutableReference::changeCollocationOptimized(bool newCollocationOp
 ReferencePtr
 IceInternal::RoutableReference::changeCacheConnection(bool newCache) const
 {
-    RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
+    RoutableReferencePtr r = static_pointer_cast<RoutableReference>(clone());
     r->_cacheConnection = newCache;
     return r;
 }
@@ -870,7 +870,7 @@ IceInternal::RoutableReference::changeCacheConnection(bool newCache) const
 ReferencePtr
 IceInternal::RoutableReference::changeEndpointSelection(EndpointSelectionType newType) const
 {
-    RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
+    RoutableReferencePtr r = static_pointer_cast<RoutableReference>(clone());
     r->_endpointSelection = newType;
     return r;
 }
@@ -878,7 +878,7 @@ IceInternal::RoutableReference::changeEndpointSelection(EndpointSelectionType ne
 ReferencePtr
 IceInternal::RoutableReference::changeLocatorCacheTimeout(chrono::milliseconds timeout) const
 {
-    RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
+    RoutableReferencePtr r = static_pointer_cast<RoutableReference>(clone());
     r->_locatorCacheTimeout = timeout;
     return r;
 }
@@ -886,7 +886,7 @@ IceInternal::RoutableReference::changeLocatorCacheTimeout(chrono::milliseconds t
 ReferencePtr
 IceInternal::RoutableReference::changeConnectionId(string id) const
 {
-    RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
+    RoutableReferencePtr r = static_pointer_cast<RoutableReference>(clone());
     r->_connectionId = id;
     if (!_endpoints.empty()) // Also override the connection id on the endpoints.
     {
@@ -1259,7 +1259,7 @@ IceInternal::RoutableReference::getConnectionAsync(
     if (_routerInfo)
     {
         // If we route, we send everything to the router's client proxy endpoints.
-        auto self = dynamic_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this());
+        auto self = static_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this());
 
         _routerInfo->getClientEndpointsAsync(
             [self = std::move(self), response = std::move(response), exception](vector<EndpointIPtr> endpoints) mutable
@@ -1364,7 +1364,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfoAsync(
     if (_locatorInfo)
     {
         RoutableReferencePtr self =
-            dynamic_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this());
+            static_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this());
         _locatorInfo->getEndpoints(
             self,
             _locatorCacheTimeout,
