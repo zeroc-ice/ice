@@ -809,7 +809,7 @@ IceInternal::RoutableReference::changeCompress(bool newCompress) const
         {
             newEndpoints.push_back(endpoint->compress(newCompress));
         }
-        static_pointer_cast<RoutableReference>(r)->_endpoints = newEndpoints;
+        static_pointer_cast<RoutableReference>(r)->_endpoints = std::move(newEndpoints);
     }
     return r;
 }
@@ -896,7 +896,7 @@ IceInternal::RoutableReference::changeConnectionId(string id) const
         {
             newEndpoints.push_back(endpoint->connectionId(id));
         }
-        r->_endpoints = newEndpoints;
+        r->_endpoints = std::move(newEndpoints);
     }
     return r;
 }
