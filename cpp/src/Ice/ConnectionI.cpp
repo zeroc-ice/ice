@@ -12,7 +12,7 @@
 #include "Ice/Properties.h"
 #include "IdleTimeoutTransceiverDecorator.h"
 #include "Instance.h"
-#include "ObjectAdapterI.h"   // For getThreadPool()
+#include "ObjectAdapterI.h" // For getThreadPool()
 #include "OutgoingResponseInternal.h"
 #include "ReferenceFactory.h" // For createProxy().
 #include "RequestHandler.h"   // For RetryException

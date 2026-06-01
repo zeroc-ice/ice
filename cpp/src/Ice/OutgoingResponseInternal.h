@@ -14,10 +14,8 @@ namespace Ice
     /// implementation uses @p instance instead.
     /// @param instance The IceInternal::Instance object. Not null.
     /// @return The new response.
-    OutgoingResponse makeOutgoingResponseCore(
-        std::exception_ptr exception,
-        const Current& current,
-        IceInternal::Instance* instance);
-    }
+    OutgoingResponse
+    makeOutgoingResponseCore(std::exception_ptr exception, const Current& current, IceInternal::Instance* instance);
+}
 
 #endif
