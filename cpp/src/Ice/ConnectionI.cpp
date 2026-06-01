@@ -2717,7 +2717,7 @@ Ice::ConnectionI::sendNextMessages(vector<OutgoingMessage>& callbacks)
                 _writeStream.swap(*message->stream);
                 if (message->sent())
                 {
-                        callbacks.push_back(std::move(*message));
+                    callbacks.push_back(std::move(*message));
                 }
             }
             _sendStreams.pop_front();
