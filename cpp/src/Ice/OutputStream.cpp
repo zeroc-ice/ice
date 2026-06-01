@@ -794,63 +794,47 @@ Ice::OutputStream::write(wstring_view v)
         return;
     }
 
-    //
-    // What is the size of the resulting UTF-8 encoded string?
-    // Impossible to tell, so we guess. If we don't guess correctly,
-    // we'll have to fix the mistake afterwards
-    //
+    assert(_wstringConverter);
+
+    // The worst-case expansion for converting a wide string to UTF-8 is 3x or 4x depending on the platform.
+    const size_t factor = sizeof(wchar_t) == 2 ? 3 : 4;
+
     try
     {
-        auto guessedSize = static_cast<int32_t>(v.size());
-        writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
-
-        size_t firstIndex = b.size();
-        StreamUTF8BufferI buffer(*this);
-
-        byte* lastByte = nullptr;
-
-        assert(_wstringConverter);
-        lastByte = _wstringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
-
-        if (lastByte != b.end())
+        // (252 / 3 = 84, 252 / 4 = 63)
+        if (v.size() <= 252 / factor)
         {
-            resize(static_cast<size_t>(lastByte - b.begin()));
+            // The maximum UTF-8 size is v.size() * factor <= 252, which fits in a 1-byte size encoding.
+            // We use this upper bound to decide the size encoding:
+            //  - If vsize <= 252 / factor, the converted string is at most 252 bytes, which always fits in a 1-byte
+            //   size.
+            //  - Otherwise, we use the 5-byte size encoding to avoid guessing and memmove fixups.
+            auto sizePos = startOneByteSize();
+
+            StreamUTF8BufferI buffer(*this);
+            byte* lastByte = _wstringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
+            if (lastByte != b.end())
+            {
+                resize(static_cast<size_t>(lastByte - b.begin()));
+            }
+
+            endOneByteSize(sizePos);
+            return;
         }
-        size_t lastIndex = b.size();
-
-        auto actualSize = static_cast<int32_t>(lastIndex - firstIndex);
-
-        //
-        // Check against the guess
-        //
-        if (guessedSize != actualSize)
+        else
         {
-            if (guessedSize <= 254 && actualSize > 254)
+            // Write the first byte of the 5-byte size encoding, followed by a 4-byte size placeholder.
+            write(uint8_t(255));
+            auto sizePos = startSize();
+
+            StreamUTF8BufferI buffer(*this);
+            byte* lastByte = _wstringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
+            if (lastByte != b.end())
             {
-                //
-                // Move the UTF-8 sequence 4 bytes further
-                // Use memmove instead of memcpy since the source and destination typically overlap.
-                //
-                resize(b.size() + 4);
-                memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, static_cast<size_t>(actualSize));
-            }
-            else if (guessedSize > 254 && actualSize <= 254)
-            {
-                //
-                // Move the UTF-8 sequence 4 bytes back
-                //
-                memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, static_cast<size_t>(actualSize));
-                resize(b.size() - 4);
+                resize(static_cast<size_t>(lastByte - b.begin()));
             }
 
-            if (guessedSize <= 254)
-            {
-                rewriteSize(actualSize, b.begin() + firstIndex - 1);
-            }
-            else
-            {
-                rewriteSize(actualSize, b.begin() + firstIndex - 1 - 4);
-            }
+            endSize(sizePos);
         }
     }
     catch (const Ice::IllegalConversionException& ex)
