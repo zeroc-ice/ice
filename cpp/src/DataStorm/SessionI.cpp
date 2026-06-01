@@ -1365,13 +1365,13 @@ SubscriberSessionI::reconnect(NodePrx node)
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         out << _id << ": trying to reconnect session with '" << node->ice_toString() << "'";
     }
-    _parent->createPublisherSession(node, nullptr, dynamic_pointer_cast<SubscriberSessionI>(shared_from_this()));
+    _parent->createPublisherSession(node, nullptr, static_pointer_cast<SubscriberSessionI>(shared_from_this()));
 }
 
 void
 SubscriberSessionI::remove()
 {
-    _parent->removeSubscriberSession(getNode(), dynamic_pointer_cast<SubscriberSessionI>(shared_from_this()), nullptr);
+    _parent->removeSubscriberSession(getNode(), static_pointer_cast<SubscriberSessionI>(shared_from_this()), nullptr);
 }
 
 PublisherSessionI::PublisherSessionI(
@@ -1397,11 +1397,11 @@ PublisherSessionI::reconnect(NodePrx node)
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         out << _id << ": trying to reconnect session with '" << node->ice_toString() << "'";
     }
-    _parent->createSubscriberSession(node, nullptr, dynamic_pointer_cast<PublisherSessionI>(shared_from_this()));
+    _parent->createSubscriberSession(node, nullptr, static_pointer_cast<PublisherSessionI>(shared_from_this()));
 }
 
 void
 PublisherSessionI::remove()
 {
-    _parent->removePublisherSession(getNode(), dynamic_pointer_cast<PublisherSessionI>(shared_from_this()), nullptr);
+    _parent->removePublisherSession(getNode(), static_pointer_cast<PublisherSessionI>(shared_from_this()), nullptr);
 }

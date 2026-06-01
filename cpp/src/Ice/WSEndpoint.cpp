@@ -298,7 +298,7 @@ IceInternal::WSEndpoint::endpoint(const EndpointIPtr& delEndp) const
 {
     if (delEndp.get() == _delegate.get())
     {
-        return dynamic_pointer_cast<WSEndpoint>(const_cast<WSEndpoint*>(this)->shared_from_this());
+        return static_pointer_cast<WSEndpoint>(const_cast<WSEndpoint*>(this)->shared_from_this());
     }
     else
     {

@@ -263,7 +263,7 @@ SessionI::destroyImpl(bool shutdown)
     {
         try
         {
-            allocation->release(dynamic_pointer_cast<SessionI>(shared_from_this()));
+            allocation->release(static_pointer_cast<SessionI>(shared_from_this()));
         }
         catch (const AllocationException&)
         {
