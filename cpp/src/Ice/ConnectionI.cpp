@@ -2717,7 +2717,7 @@ Ice::ConnectionI::sendNextMessages(vector<OutgoingMessage>& callbacks)
                 _writeStream.swap(*message->stream);
                 if (message->sent())
                 {
-                    callbacks.push_back(*message);
+                    callbacks.push_back(std::move(*message));
                 }
             }
             _sendStreams.pop_front();
@@ -2850,7 +2850,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
     // message was queued.
     if (!_sendStreams.empty())
     {
-        _sendStreams.push_back(message);
+        _sendStreams.push_back(std::move(message));
         _sendStreams.back().adopt(nullptr);
         return AsyncStatusQueued;
     }
@@ -2895,7 +2895,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
             return status;
         }
 
-        _sendStreams.push_back(message);
+        _sendStreams.push_back(std::move(message));
         _sendStreams.back().adopt(&stream);
     }
     else
@@ -2945,7 +2945,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
             return status;
         }
 
-        _sendStreams.push_back(message);
+        _sendStreams.push_back(std::move(message));
         _sendStreams.back().adopt(nullptr); // Adopt the stream.
 #ifdef ICE_HAS_BZIP2
     }
