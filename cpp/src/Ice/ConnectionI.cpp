@@ -13,6 +13,7 @@
 #include "IdleTimeoutTransceiverDecorator.h"
 #include "Instance.h"
 #include "ObjectAdapterI.h"   // For getThreadPool()
+#include "OutgoingResponseInternal.h"
 #include "ReferenceFactory.h" // For createProxy().
 #include "RequestHandler.h"   // For RetryException
 #include "ThreadPool.h"
@@ -3453,9 +3454,10 @@ Ice::ConnectionI::dispatchAll(
             {
                 // Received request on a connection without an object adapter.
                 sendResponse(
-                    makeOutgoingResponse(
+                    makeOutgoingResponseCore(
                         make_exception_ptr(ObjectNotExistException{__FILE__, __LINE__}),
-                        request.current()),
+                        request.current(),
+                        _instance.get()),
                     0);
             }
 
