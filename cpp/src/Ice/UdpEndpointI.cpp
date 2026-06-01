@@ -162,7 +162,7 @@ TransceiverPtr
 IceInternal::UdpEndpointI::transceiver() const
 {
     return make_shared<UdpTransceiver>(
-        dynamic_pointer_cast<UdpEndpointI>(const_cast<UdpEndpointI*>(this)->shared_from_this()),
+        static_pointer_cast<UdpEndpointI>(const_cast<UdpEndpointI*>(this)->shared_from_this()),
         _instance,
         _host,
         _port,
@@ -181,7 +181,7 @@ IceInternal::UdpEndpointI::endpoint(const UdpTransceiverPtr& transceiver) const
     int port = transceiver->effectivePort();
     if (port == _port)
     {
-        return dynamic_pointer_cast<UdpEndpointI>(const_cast<UdpEndpointI*>(this)->shared_from_this());
+        return static_pointer_cast<UdpEndpointI>(const_cast<UdpEndpointI*>(this)->shared_from_this());
     }
     else
     {

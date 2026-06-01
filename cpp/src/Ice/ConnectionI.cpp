@@ -1012,7 +1012,7 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
     {
         // Go through the adapter to set the adapter on this connection
         // to ensure the object adapter is still active.
-        dynamic_pointer_cast<ObjectAdapterI>(adapter)->setAdapterOnConnection(shared_from_this());
+        static_pointer_cast<ObjectAdapterI>(adapter)->setAdapterOnConnection(shared_from_this());
     }
     else
     {
