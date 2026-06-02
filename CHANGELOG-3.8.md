@@ -12,6 +12,7 @@ might need to be aware of.
   - [C# Changes](#c-changes-1)
   - [Swift Changes](#swift-changes)
   - [Ice Service Changes](#ice-service-changes)
+    - [IceGrid and Glacier2](#icegrid-and-glacier2)
     - [DataStorm](#datastorm)
 - [Changes in Ice 3.8.1](#changes-in-ice-381)
   - [General Changes](#general-changes-1)
@@ -58,28 +59,22 @@ These are the changes since the Ice 3.8.1 release.
 
 ### General Changes
 
-- Removed the `ice2slice` compiler.
-
-- Fixed the WebSocket transport to enforce the RFC 6455 limits on control frames.
-
-- Fixed an unbounded memory allocation when unmarshaling a proxy with a large endpoint count.
-
-- Fixed an integer overflow in the sequence-size validation performed while unmarshaling.
-
-- Fixed the unmarshaling of classes and exceptions to reject a malformed sliced-format slice header.
-
-- Fixed the unmarshaling of batch requests to reject a request count larger than the message can hold.
-
-- Fixed the unmarshaling of IP endpoints to reject a port value outside the 0..65535 range.
-
-- Fixed the unmarshaling of class indirection tables to reject a zero-valued entry.
+- Removed the `ice2slice` compiler. The preferred way to use .ice file with IceRPC is to compile these files with
+  `slice2cs --icerpc`.
 
 - Added the `<AdapterName>.AllowedOrigins` object adapter property. When set on an adapter with a WebSocket endpoint,
   the server rejects upgrade requests whose `Origin` header is not in the comma-separated list. The property defaults
   to empty (no enforcement); setting it to `*` is also permissive.
 
-- Fixed the Slice preprocessor to open its temporary output file atomically (`O_CREAT|O_EXCL|O_NOFOLLOW` on POSIX,
-  `_O_CREAT|_O_EXCL` on Windows).
+- Fixed the WebSocket transport to enforce the RFC 6455 limits on control frames.
+
+- Hardened the unmarshaling code to detect and reject invalid data sent by a peer:
+  - Fixed an unbounded memory allocation when unmarshaling a proxy with a large endpoint count.
+  - Fixed an integer overflow in the sequence-size validation performed while unmarshaling.
+  - Fixed the unmarshaling of classes and exceptions to reject a malformed sliced-format slice header.
+  - Fixed the unmarshaling of batch requests to reject a request count larger than the message can hold.
+  - Fixed the unmarshaling of IP endpoints to reject a port value outside the 0..65535 range.
+  - Fixed the unmarshaling of class indirection tables to reject a zero-valued entry.
 
 ### Slice Language Changes
 
@@ -90,30 +85,22 @@ These are the changes since the Ice 3.8.1 release.
 
 ### C++ Changes
 
-- Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice.
-  These now generate `` `[NAME]` `` instead of `@p [NAME]`.
-
 - Fixed alignment-unsafe 16-bit reads and writes in the WebSocket transport.
 
-- Changed the macOS SSL transport to require TLS 1.2 or later.
+- Changed the macOS SSL transport to require TLS 1.2 or later, enable only forward-secret (ECDHE) cipher suites,
+  and, when `IceSSL.Keychain` is not set, import the certificate configured with `IceSSL.CertFile` into a temporary
+  keychain instead of the user's login keychain.
 
-- Changed the macOS SSL transport to enable only forward-secret (ECDHE) cipher suites.
-
-- Fixed a resource leak in the SSL engine. The Schannel and OpenSSL engines now release their
-  certificate stores, chain engines, imported key sets, and `SSL_CTX` when the communicator is
-  destroyed.
-
-- Changed the macOS SSL transport so that, when `IceSSL.Keychain` is not set, the certificate configured with
-  `IceSSL.CertFile` is imported into a temporary keychain (removed when the communicator is destroyed) instead of
-  the user's login keychain.
+- Fixed a resource leak in the SSL engine. The Schannel and OpenSSL engines now release their certificate stores,
+  chain engines, imported key sets, and `SSL_CTX` when the communicator is destroyed.
 
 - Rejected peer-initiated TLS renegotiation in the OpenSSL SSL engine and on the server side of Schannel-based SSL
   connections. This applies to all SSL-based transports (`ssl`, `wss`, `bts`).
 
-### C# Changes
+- Changed the mapping of `@p [NAME]` tags in Slice doc-comments, when `[NAME]` references an out parameter. These now
+  generate `` `[NAME]` `` instead of `@p [NAME]`.
 
-- Changed the mapping of `@p [NAME]` tags which reference out parameters in Slice.
-  These now generate `<c>[NAME]</c>` instead of `<paramref name="[NAME]" />`.
+### C# Changes
 
 - Added the `--icerpc` flag to `slice2cs`. When set, `slice2cs` generates C# code for
   [IceRPC](https://github.com/icerpc/icerpc-csharp) instead of Ice. The `ZeroC.Ice.Slice.Tools` MSBuild integration
@@ -128,24 +115,29 @@ These are the changes since the Ice 3.8.1 release.
 - Fixed a resource leak in the SSL engine. The certificates loaded from `IceSSL.CertFile` and `IceSSL.CAs` are now
   disposed when the communicator is destroyed, instead of waiting for the GC to finalize them.
 
+- Changed the mapping of `@p [NAME]` tags in Slice doc-comments, when `[NAME]` references an out parameter. These now
+  generate `<c>[NAME]</c>` instead of `<paramref name="[NAME]" />`.
+
 ### Swift Changes
 
 - Fixed `InputStream.readSize` to reject a negative size.
 
 ### Ice Service Changes
 
+#### IceGrid and Glacier2
+
 - Updated the creation of SSL-based sessions in IceGrid and Glacier2: a connection without a client certificate, or with
   an empty DN, is now rejected before reaching the permissions verifier.
 
-- Updated the Glacier2CryptPermissionsVerifier plug-in to issue a warning when the configured password file contains one
-  or more DES passwords.
-
-- Fixed the Glacier2CryptPermissionsVerifier plug-in to compare hashed passwords in constant time, removing a timing
-  side-channel that could leak bytes of the stored hash.
-
-- Updated the Glacier2CryptPermissionsVerifier plug-in to reject password files with malformed entries. Each line must
-  contain exactly two whitespace-separated tokens (user id and password hash); lines with extra fields were previously
-  parsed incorrectly without raising an error.
+- Updated the Glacier2CryptPermissionsVerifier plug-in, a permissions verifier supported by both the IceGrid registry
+  and the Glacier2 router:
+  - Glacier2CryptPermissionsVerifier now issues a warning when the configured password file contains one or more DES
+    passwords.
+  - Fixed Glacier2CryptPermissionsVerifier to compare hashed passwords in constant time, removing a timing side-channel
+    that could leak bytes of the stored hash.
+  - Fixed Glacier2CryptPermissionsVerifier to reject password files with malformed entries. Each line must contain
+    exactly two whitespace-separated tokens (user id and password hash); lines with extra fields were previously parsed
+    incorrectly without raising an error.
 
 #### DataStorm
 
