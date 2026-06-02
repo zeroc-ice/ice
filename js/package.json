@@ -35,7 +35,7 @@
     },
     "scripts": {
         "build": "gulp",
-        "build-doc": "node dts-bundle.js && npx typedoc --name '@zeroc/ice' --router structure dist/bundle.d.ts --disableGit --disableSources --customFooterHtml '© ZeroC' --favicon ../assets/favicon-96x96.png --hostedBaseUrl https://code.zeroc.com/ice/main/api/javascript/ --hideGenerator",
+        "build-doc": "node dts-bundle.js && npx typedoc --tsconfig tsconfig.typedoc.json --name '@zeroc/ice' --router structure dist/bundle.d.ts --disableGit --disableSources --customFooterHtml '© ZeroC' --favicon ../assets/favicon-96x96.png --hostedBaseUrl https://code.zeroc.com/ice/main/api/javascript/ --hideGenerator",
         "dist": "gulp dist",
         "clean": "gulp clean",
         "test:unplugin": "node --test packages/test/Slice/unplugin/*/*.test.ts"
