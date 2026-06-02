@@ -1,6 +1,6 @@
 {
     "name": "@zeroc/slice2js",
-    "version": "3.8.1",
+    "version": "3.8.2",
     "description": "Slice-to-JavaScript compiler and build plugin for Ice",
     "author": "Zeroc, Inc.",
     "homepage": "https://zeroc.com",

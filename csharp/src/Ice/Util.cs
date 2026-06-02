@@ -291,15 +291,15 @@ public sealed class Util
     /// patch level.
     /// </summary>
     /// <returns>The Ice version.</returns>
-    public static string stringVersion() => "3.8.1"; // "A.B.C", with A=major, B=minor, C=patch
+    public static string stringVersion() => "3.8.2"; // "A.B.C", with A=major, B=minor, C=patch
 
     /// <summary>
     /// Returns the Ice version as an integer in the form AABBCC, where AA
     /// indicates the major version, BB indicates the minor version, and CC
-    /// indicates the patch level. For example, for Ice 3.8.1, the returned value is 30801.
+    /// indicates the patch level. For example, for Ice 3.8.2, the returned value is 30802.
     /// </summary>
     /// <returns>The Ice version.</returns>
-    public static int intVersion() => 30801; // AABBCC, with AA=major, BB=minor, CC=patch
+    public static int intVersion() => 30802; // AABBCC, with AA=major, BB=minor, CC=patch
 
     public static readonly EncodingVersion Encoding_1_0 = new(1, 0);
     public static readonly EncodingVersion Encoding_1_1 = new(1, 1);
