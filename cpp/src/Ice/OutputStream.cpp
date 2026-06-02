@@ -806,7 +806,7 @@ Ice::OutputStream::write(wstring_view v)
         {
             // The maximum UTF-8 size is v.size() * factor <= 252, which fits in a 1-byte size encoding.
             // We use this upper bound to decide the size encoding:
-            //  - If vsize <= 252 / factor, the converted string is at most 252 bytes, which always fits in a 1-byte
+            //  - If v.size() <= 252 / factor, the converted string is at most 252 bytes, which always fits in a 1-byte
             //   size.
             //  - Otherwise, we use the 5-byte size encoding to avoid guessing and memmove fixups.
             auto sizePos = startOneByteSize();
