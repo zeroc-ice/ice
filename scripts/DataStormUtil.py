@@ -1,11 +1,39 @@
 # Copyright (c) ZeroC, Inc.
 
 import re
+import time
 
 from Util import Client, ClientServerTestCase, Darwin, Mapping, Process, ProcessFromBinDir, Server, platform
 
 # Regex pattern to match placeholders like {port1}, {port2}, ..., {portXX}
 port_pattern = re.compile(r"{port(\d+)}")
+
+
+def waitForLogMessage(path, pattern, timeout=60):
+    """Wait for a regular-expression match in a log file.
+
+    Used by DataStorm tests to synchronize on trace messages written to an Ice.LogFile."""
+    expr = re.compile(pattern)
+    deadline = time.time() + timeout
+    file = None
+    try:
+        while time.time() < deadline:
+            if file is None:
+                try:
+                    file = open(path, "r", encoding="utf-8")
+                except FileNotFoundError:
+                    time.sleep(0.1)
+                    continue
+            line = file.readline()
+            if not line:
+                time.sleep(0.1)
+                continue
+            if expr.search(line):
+                return
+        raise RuntimeError(f"timed out after {timeout}s waiting for '{pattern}' in {path}")
+    finally:
+        if file is not None:
+            file.close()
 
 
 class DataStormProcess(Process):
