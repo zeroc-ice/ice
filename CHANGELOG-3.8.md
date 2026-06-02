@@ -59,7 +59,7 @@ These are the changes since the Ice 3.8.1 release.
 
 ### General Changes
 
-- Removed the `ice2slice` compiler. The preferred way to use .ice file with IceRPC is to compile these files with
+- Removed the `ice2slice` compiler. The preferred way to use `.ice` files with IceRPC is to compile them with
   `slice2cs --icerpc`.
 
 - Added the `<AdapterName>.AllowedOrigins` object adapter property. When set on an adapter with a WebSocket endpoint,
