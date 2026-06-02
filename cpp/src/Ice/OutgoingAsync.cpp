@@ -817,7 +817,7 @@ OutgoingAsync::prepare(string_view operation, OperationMode mode, const Context&
     }
     else
     {
-        string facet = ref->getFacet();
+        const string& facet = ref->getFacet();
         _os.write(&facet, &facet + 1);
     }
 
