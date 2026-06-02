@@ -386,24 +386,7 @@ export class ObjectAdapter {
                         end = s.length;
                         break;
                     } else {
-                        let quoted = false;
-                        let quote = beg;
-                        while (true) {
-                            quote = s.indexOf('"', quote);
-                            if (quote == -1 || end < quote) {
-                                break;
-                            } else {
-                                quote = s.indexOf('"', ++quote);
-                                if (quote == -1) {
-                                    break;
-                                } else if (end < quote) {
-                                    quoted = true;
-                                    break;
-                                }
-                                ++quote;
-                            }
-                        }
-                        if (!quoted) {
+                        if (!StringUtil.isInDoubleQuotes(s, beg, end)) {
                             break;
                         }
                         ++end;
