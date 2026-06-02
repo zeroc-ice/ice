@@ -8,6 +8,7 @@ Build-Depends: debhelper,
                dh-exec,
                dh-php (>= 0.20),
                dh-python,
+               dh-sequence-installsysusers,
                libbluetooth-dev [!hurd-i386],
                libbz2-dev,
                libcrypt-dev,
@@ -52,8 +53,7 @@ Package: libzeroc-ice3.9
 Architecture: any
 Section: libs
 Pre-Depends: ${misc:Pre-Depends}
-Depends: adduser,
-         ${misc:Depends},
+Depends: ${misc:Depends},
          ${shlibs:Depends}
 Description: C++ run-time libraries for the Ice framework
  This package contains C++ run-time libraries for the Ice framework.
