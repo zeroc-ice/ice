@@ -42,7 +42,7 @@
       "ZeroC.IceBox": {
         "type": "Project",
         "dependencies": {
-          "ZeroC.Ice": "[3.8.1, )"
+          "ZeroC.Ice": "[3.8.2, )"
         }
       }
     }

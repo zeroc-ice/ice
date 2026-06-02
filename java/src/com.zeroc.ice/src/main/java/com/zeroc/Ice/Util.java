@@ -328,18 +328,18 @@ public final class Util {
      * @return The Ice version.
      */
     public static String stringVersion() {
-        return "3.8.1"; // "A.B.C", with A=major, B=minor, C=patch
+        return "3.8.2"; // "A.B.C", with A=major, B=minor, C=patch
     }
 
     /**
      * Returns the Ice version as an integer in the form {@code AABBCC}, where {@code AA}
      * indicates the major version, {@code BB} indicates the minor version, and {@code CC}
-     * indicates the patch level. For example, for Ice 3.8.1, the returned value is 30801.
+     * indicates the patch level. For example, for Ice 3.8.2, the returned value is 30802.
      *
      * @return The Ice version.
      */
     public static int intVersion() {
-        return 30801; // AABBCC, with AA=major, BB=minor, CC=patch
+        return 30802; // AABBCC, with AA=major, BB=minor, CC=patch
     }
 
     /**

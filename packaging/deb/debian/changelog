@@ -1,3 +1,9 @@
+zeroc-ice (3.8.2-1) unstable; urgency=medium
+
+  * New upstream version 3.8.2
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Tue, 02 Jun 2026 12:00:00 +0200
+
 zeroc-ice (3.8.1-2) unstable; urgency=medium
 
   * Add Breaks/Replaces on zeroc-ice-compilers (<< 3.8) to libzeroc-ice-dev,

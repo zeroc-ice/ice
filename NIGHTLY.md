@@ -1,6 +1,6 @@
 # Installing the Nightly Builds <!-- omit in toc -->
 
-This document describes the nightly builds for the 3.8 branch, which are expected to become the next 3.8.1 patch release.
+This document describes the nightly builds for the 3.8 branch, which are expected to become the next 3.8.2 patch release.
 
 Ice 3.8 nightly builds are produced daily from the 3.8 GitHub branch. For nightly builds of the next major release (3.9.0),
 see `NIGHTLY.md` on the main branch.
@@ -218,7 +218,7 @@ You can install the latest Ruby gem by running the following command:
 
 ```shell
 gem install zeroc-ice --source https://download.zeroc.com/nexus/repository/rubygems-3.8-nightly --user \
-    --pre --version '>= 3.8.1.pre'
+    --pre --version '>= 3.8.2.pre'
 ```
 
 ### Ice for Swift

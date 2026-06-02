@@ -57,7 +57,7 @@ declare module "@zeroc/ice" {
          * - B: minor version
          * - C: patch version
          *
-         * For example, "3.8.1".
+         * For example, "3.8.2".
          *
          * @returns The Ice version as a string.
          */
@@ -69,7 +69,7 @@ declare module "@zeroc/ice" {
          * - BB: minor version
          * - CC: patch version
          *
-         * For example, 030801.
+         * For example, 030802.
          *
          * @returns The Ice version as an integer.
          */
