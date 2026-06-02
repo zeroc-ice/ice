@@ -11,7 +11,7 @@ on:
 
 # Branch-specific configuration:
 env:
-  STABLE_TAG: "v3.8.0"
+  STABLE_TAG: "v3.8.1"
 
 jobs:
   compat:
