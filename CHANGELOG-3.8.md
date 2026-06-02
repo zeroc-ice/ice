@@ -12,6 +12,7 @@ might need to be aware of.
   - [C# Changes](#c-changes-1)
   - [Swift Changes](#swift-changes)
   - [Ice Service Changes](#ice-service-changes)
+    - [DataStorm](#datastorm)
 - [Changes in Ice 3.8.1](#changes-in-ice-381)
   - [General Changes](#general-changes-1)
   - [IceSSL Changes](#icessl-changes)
@@ -44,7 +45,7 @@ might need to be aware of.
   - [Ruby Changes](#ruby-changes)
   - [Swift Changes](#swift-changes-2)
   - [Ice Service Changes](#ice-service-changes-2)
-    - [DataStorm](#datastorm)
+    - [DataStorm](#datastorm-1)
     - [Glacier2](#glacier2-1)
     - [IceBox](#icebox)
     - [IceGrid](#icegrid)
@@ -145,6 +146,13 @@ These are the changes since the Ice 3.8.1 release.
 - Updated the Glacier2CryptPermissionsVerifier plug-in to reject password files with malformed entries. Each line must
   contain exactly two whitespace-separated tokens (user id and password hash); lines with extra fields were previously
   parsed incorrectly without raising an error.
+
+#### DataStorm
+
+- Fixed an issue where a relay could lose topic announcements when a relay-to-relay session was established after the
+  announcements were received. Relay nodes now replay previously received topic announcements when such a session is
+  established or re-established, preventing discovery deadlocks between applications connected to different relay nodes.
+  (#5359)
 
 ## Changes in Ice 3.8.1
 
