@@ -330,9 +330,9 @@ namespace Ice
             v.clear();
             while (sz--)
             {
-                typename T::value_type p;
-                stream->read(const_cast<typename T::key_type&>(p.first));
-                auto i = v.insert(v.end(), p);
+                typename T::key_type key;
+                stream->read(key);
+                auto i = v.emplace_hint(v.end(), std::move(key), typename T::mapped_type());
                 stream->read(i->second);
             }
         }
