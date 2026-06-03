@@ -54,7 +54,7 @@ jobs:
             /workspace/ice/packaging/rpm/build-package.sh
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: rpm-packages-${{ matrix.distribution }}-${{ matrix.arch }}
           path: |

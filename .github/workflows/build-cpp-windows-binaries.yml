@@ -7,7 +7,7 @@ on:
         required: false
         type: string
       authenticode_sign:
-        description: "Whether to Authenticode sign Windows binaries"
+        description: "Sign Windows binaries with Authenticode"
         required: false
         type: boolean
         default: false
@@ -17,7 +17,7 @@ on:
         description: "The Ice version to build"
         required: false
       authenticode_sign:
-        description: "Whether to Authenticode sign Windows binaries"
+        description: "Sign Windows binaries with Authenticode"
         required: false
         type: boolean
         default: false
@@ -58,7 +58,7 @@ jobs:
           timestamp-digest: SHA256
 
       - name: Upload C++ Build
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: windows-cpp-${{ matrix.platform }}-${{ matrix.configuration }}-build
           path: |
@@ -69,7 +69,7 @@ jobs:
             cpp/src/**/msbuild/**/${{ matrix.platform }}/${{ matrix.configuration }}/*.h
 
       - name: Upload C++ Slice Tools
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         # We only need to upload the Slice Tools once (Release x64 build) which are included in the Nuget packages
         if: ${{ matrix.configuration == 'Release' && matrix.platform == 'x64' }}
         with:

@@ -7,7 +7,7 @@ on:
         required: false
         type: string
       authenticode_sign:
-        description: "Whether to Authenticode sign Windows binaries"
+        description: "Sign Windows binaries with Authenticode"
         required: false
         type: boolean
         default: false
@@ -17,7 +17,7 @@ on:
         description: "The Ice version to build"
         required: false
       authenticode_sign:
-        description: "Whether to Authenticode sign Windows binaries"
+        description: "Sign Windows binaries with Authenticode"
         required: false
         type: boolean
         default: false
@@ -63,7 +63,7 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: Upload Compiler Artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: slice2js-${{ matrix.target }}
           path: ${{ matrix.artifact-path }}
@@ -134,7 +134,7 @@ jobs:
         working-directory: ice/js/packages/slice2js
 
       - name: Upload NPM Packages
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: js-npm-packages
           path: |

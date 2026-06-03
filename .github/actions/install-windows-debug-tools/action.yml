@@ -31,7 +31,7 @@ runs:
 
     - name: Upload SDK install log
       if: failure()
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: sdk-install-log
         path: ${{ runner.temp }}/sdk.log

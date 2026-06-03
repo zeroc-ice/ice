@@ -89,7 +89,7 @@ jobs:
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
 
       - name: Upload IceGrid GUI macOS App
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: icegridgui-macos-app
           path: |

@@ -182,7 +182,7 @@ jobs:
             ${{ matrix.os == 'ubuntu-24.04' && '--languages=cpp,csharp,java' || '--languages=cpp' }}
 
       - name: Upload test results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: compat-test-results-${{ matrix.os }}
           path: |

@@ -7,7 +7,7 @@ on:
         required: false
         type: string
       authenticode_sign:
-        description: "Whether to Authenticode sign Windows binaries"
+        description: "Sign Windows binaries with Authenticode"
         required: false
         type: boolean
         default: false
@@ -17,7 +17,7 @@ on:
         description: "The Ice version to build"
         required: false
       authenticode_sign:
-        description: "Whether to Authenticode sign Windows binaries"
+        description: "Sign Windows binaries with Authenticode"
         required: false
         type: boolean
         default: false
@@ -86,7 +86,7 @@ jobs:
         if: runner.os == 'Windows'
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: matlab-packages-${{ matrix.os }}
           path: matlab/toolbox/*.mltbx

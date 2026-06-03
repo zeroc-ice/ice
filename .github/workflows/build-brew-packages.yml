@@ -68,7 +68,7 @@ jobs:
           ./packaging/brew/update-nightly-tap.sh "${{ inputs.channel }}" "${{ inputs.quality }}" "${{ inputs.ice_version }}" "${{ steps.icegridgui.outputs.icegridgui_dmg_sha256 }}"
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: homebrew-bottle
           path: |

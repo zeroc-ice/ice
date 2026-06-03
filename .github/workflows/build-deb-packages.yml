@@ -94,7 +94,7 @@ jobs:
         shell: bash
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: deb-packages-${{ matrix.distribution }}-${{ matrix.arch }}
           path: |

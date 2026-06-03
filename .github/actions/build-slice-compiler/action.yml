@@ -6,7 +6,7 @@ inputs:
     description: "Name of the compiler to build"
     required: true
   authenticode_sign:
-    description: "Whether to Authenticode sign Windows binaries"
+    description: "Sign Windows binaries with Authenticode"
     required: false
     default: "false"
 

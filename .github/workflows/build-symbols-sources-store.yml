@@ -93,7 +93,7 @@ jobs:
             /compress
 
       - name: Upload Symbols and Sources
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: windows-symbols-sources
           path: |
@@ -103,7 +103,7 @@ jobs:
       # Use symbols-sources as the root directory so that the unzipped artifact as a pdb directory.
       # This means we need to exclude the symbols and sources directories.
       - name: Upload Indexed PDBs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: windows-indexed-pdbs
           path: |
