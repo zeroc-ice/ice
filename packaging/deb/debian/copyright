@@ -2,9 +2,8 @@ Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: ZeroC Ice
 Upstream-Contact: ZeroC Info <info@zeroc.com>
 Source: https://github.com/zeroc-ice/
-Comment: Repackaged to remove pre-built Java binaries (gradle-wrapper.jar) and
- files not needed for the Debian build.
-Files-Excluded: */gradle/GRADLE_LICENSE */gradle/wrapper */gradlew* cpp/src/IceUtil/ConvertUTF.*
+Comment: Repackaged to remove files not needed for the Debian build.
+Files-Excluded: cpp/src/IceUtil/ConvertUTF.* cpp/msbuild/* csharp/* java/* js/* packaging/rpm/* packaging/windows-installer/*
 
 Files: *
 Copyright: 2003-2026 ZeroC, Inc.
@@ -15,11 +14,33 @@ Copyright: 2003-2026 ZeroC, Inc.
            2016 Ondřej Surý
 License: GPL-2.0+exceptions
 
-Files: java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/SimpleInternalFrame.java
-Copyright: 2000-2005 JGoodies Karsten Lentzsch.
-License: BSD-3-clause
+Files: cpp/src/*/Grammar.cpp cpp/src/*/Grammar.h
+Copyright: 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation, Inc.
+License: GPL-3+-with-Bison-2.2-exception
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 3 can be found in "/usr/share/common-licenses/GPL-3".
+ .
+ As a special exception, you may create a larger work that contains
+ part or all of the Bison parser skeleton and distribute that work
+ under terms of your choice, so long as that work isn't itself a
+ parser generator using the skeleton or a modified version thereof
+ as a parser skeleton.  Alternatively, if you modify or redistribute
+ the parser skeleton itself, you may (at your option) remove this
+ special exception, which will cause the skeleton and the resulting
+ Bison output files to be licensed under the GNU General Public
+ License without this special exception.
 
-Files: cpp/test/IceUtil/unicode/*.utf*
+Files: cpp/test/IceUtil/unicode/*
 Copyright: Authors of cœur page on Wikipedia.fr as of May 25, 2016.
 License: CC-BY-SA-3.0
 
@@ -38,17 +59,6 @@ License: GPL-2.0+exceptions
  .
  On Debian systems, the complete text of the GNU General Public
  License version 2 can be found in "/usr/share/common-licenses/GPL-2".
- .
- Linking Ice statically or dynamically with other software (such as a
- library, module or application) is making a combined work based on Ice.
- Thus, the terms and conditions of the GNU General Public License version
- 2 cover this combined work.
- .
- If such software can only be used together with Ice, then not only the
- combined work but the software itself is a work derived from Ice and as
- such shall be licensed under the terms of the GNU General Public License
- version 2. This includes the situation where Ice is only being used
- through an abstraction layer.
  .
  As a special exception to the above, ZeroC grants to the copyright
  holders and contributors of the Mumble project (http://www.mumble.info)
@@ -73,34 +83,6 @@ License: GPL-2.0+exceptions
  If you modify this copy of Ice, you may extend any of the exceptions
  provided above to your version of Ice, but you are not obligated to
  so
-
-License: BSD-3-clause
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions are met:
- .
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
- .
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in
-    the documentation and/or other materials provided with the
-    distribution.
- .
- 3. Neither the name of the copyright holder nor the names of its
-    contributors may be used to endorse or promote products derived
-    from this software without specific prior written permission.
- .
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 License: CC-BY-SA-3.0
  CREATIVE COMMONS CORPORATION IS NOT A LAW FIRM AND DOES NOT PROVIDE LEGAL
