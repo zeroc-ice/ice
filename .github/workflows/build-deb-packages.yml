@@ -32,6 +32,12 @@ jobs:
           - distribution: ubuntu24.04
             arch: arm64
 
+          - distribution: ubuntu26.04
+            arch: amd64
+
+          - distribution: ubuntu26.04
+            arch: arm64
+
           - distribution: debian12
             arch: amd64
             deb_build_profiles: "nopython"
