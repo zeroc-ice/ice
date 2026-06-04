@@ -72,6 +72,14 @@ jobs:
             image: ice-deb-builder-ubuntu24.04
             dockerfile: packaging/deb/docker/Dockerfile
             base_image: ubuntu:24.04
+          - platform: amd64
+            image: ice-deb-builder-ubuntu26.04
+            dockerfile: packaging/deb/docker/Dockerfile
+            base_image: ubuntu:26.04
+          - platform: arm64
+            image: ice-deb-builder-ubuntu26.04
+            dockerfile: packaging/deb/docker/Dockerfile
+            base_image: ubuntu:26.04
 
     env:
       # On Red Hat-based images, we need to provide credentials to access the Red Hat repositories.
@@ -147,6 +155,7 @@ jobs:
           - ice-deb-builder-debian13
           - ice-deb-builder-sid
           - ice-deb-builder-ubuntu24.04
+          - ice-deb-builder-ubuntu26.04
           - ice-rpm-builder-amzn2023
           - ice-rpm-builder-el10
           - ice-rpm-builder-el9
