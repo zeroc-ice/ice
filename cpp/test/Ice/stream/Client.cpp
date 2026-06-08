@@ -1353,6 +1353,26 @@ allTests(Test::TestHelper* helper)
     }
 
     cout << "ok" << endl;
+
+    cout << "testing sequence size validation... " << flush;
+    {
+        // A peer-supplied sequence size must be validated so that 'size * minWireSize' cannot overflow
+        // a 32-bit int and defeat the bounds check in readAndCheckSeqSize.
+        Ice::OutputStream out(communicator);
+        out.writeSize(0x10000000); // 268435456; * 8 (the min wire size of a long) overflows a 32-bit int.
+        out.finished(data);
+
+        Ice::InputStream in(communicator, data);
+        try
+        {
+            in.readAndCheckSeqSize(8); // 8 is the min wire size of a sequence<long> element.
+            test(false);
+        }
+        catch(const Ice::UnmarshalOutOfBoundsException&)
+        {
+        }
+    }
+    cout << "ok" << endl;
 }
 
 class Client : public Test::TestHelper

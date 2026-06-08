@@ -587,5 +587,33 @@ public class Client: TestHelperI {
             try test(dict2["key2"]!!.s.e == MyEnum.enum3)
         }
         writer.writeLine("ok")
+
+        writer.write("testing sequence size validation... ")
+        do {
+            // A peer-supplied sequence size must be validated so that 'size * minWireSize' cannot
+            // overflow and defeat the bounds check in readAndCheckSeqSize.
+            outS = Ice.OutputStream(communicator: communicator)
+            outS.write(size: Int32(0x1000_0000))  // 268435456; * 8 (the min wire size of a long) overflows Int32.
+            let data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            do {
+                _ = try inS.readAndCheckSeqSize(minSize: 8)  // 8 is the min wire size of a sequence<long> element.
+                try test(false)
+            } catch is Ice.UnmarshalOutOfBoundsException {}
+        }
+        do {
+            // A negative size encoded in the 5-byte form must be rejected, not returned to a caller
+            // that would trap allocating an array with a negative count.
+            outS = Ice.OutputStream(communicator: communicator)
+            outS.write(UInt8(255))  // size marker for the 5-byte encoding
+            outS.write(Int32(-1))  // a negative 32-bit size
+            let data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            do {
+                _ = try inS.readSize()
+                try test(false)
+            } catch is Ice.MarshalException {}
+        }
+        writer.writeLine("ok")
     }
 }
