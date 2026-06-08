@@ -872,14 +872,16 @@ public class InputStream
         // the estimated remaining buffer size. This estimation is based on
         // the minimum size of the enclosing sequences, it's _minSeqSize.
         //
+        // 'sz' is peer-controlled (up to Integer.MAX_VALUE), so we compute the minimum size of this
+        // sequence in 64-bit: 'sz * minSize' would overflow a 32-bit int and bypass the bounds check.
+        long minSeqSize = (long)sz * minSize;
         if(_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize))
         {
             _startSeq = _buf.b.position();
-            _minSeqSize = sz * minSize;
         }
         else
         {
-            _minSeqSize += sz * minSize;
+            minSeqSize += _minSeqSize;
         }
 
         //
@@ -887,11 +889,13 @@ public class InputStream
         // possibly enclosed sequences), something is wrong with the marshalled
         // data: it's claiming having more data that what is possible to read.
         //
-        if(_startSeq + _minSeqSize > _buf.size())
+        if(_startSeq + minSeqSize > _buf.size())
         {
             throw new UnmarshalOutOfBoundsException();
         }
 
+        // minSeqSize is now known to be <= _buf.size(), itself smaller than Integer.MAX_VALUE.
+        _minSeqSize = (int)minSeqSize;
         return sz;
     }
 

@@ -800,6 +800,27 @@ public class Client extends test.TestHelper
             }
 
             printWriter.println("ok");
+
+            printWriter.print("testing sequence size validation... ");
+            printWriter.flush();
+            {
+                // A peer-supplied sequence size must be validated so that 'size * minWireSize' cannot
+                // overflow a 32-bit int and defeat the bounds check in readAndCheckSeqSize.
+                out = new OutputStream(communicator);
+                out.writeSize(0x10000000); // 268435456; * 8 (the min wire size of a long) overflows a 32-bit int.
+                byte[] data = out.finished();
+                in = new InputStream(communicator, data);
+                try
+                {
+                    in.readAndCheckSeqSize(8); // 8 is the min wire size of a sequence<long> element.
+                    test(false);
+                }
+                catch(com.zeroc.Ice.UnmarshalOutOfBoundsException ex)
+                {
+                }
+            }
+
+            printWriter.println("ok");
         }
     }
 }

@@ -8,8 +8,11 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
-- [Changes in Ice 3.7.11](#changes-in-ice-3711)
+- [Changes in Ice 3.7.12](#changes-in-ice-3712)
   - [General Changes](#general-changes)
+  - [Swift Changes](#swift-changes)
+- [Changes in Ice 3.7.11](#changes-in-ice-3711)
+  - [General Changes](#general-changes-1)
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
   - [Java Changes](#java-changes)
@@ -17,7 +20,7 @@ particular aspect of Ice.
   - [MATLAB Changes](#matlab-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
-  - [Swift Changes](#swift-changes)
+  - [Swift Changes](#swift-changes-1)
   - [IceSSL Changes](#icessl-changes)
   - [IceStorm Changes](#icestorm-changes)
 - [Changes in Ice 3.7.10](#changes-in-ice-3710)
@@ -32,7 +35,7 @@ particular aspect of Ice.
   - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes-2)
   - [Ruby Changes](#ruby-changes-1)
-  - [Swift Changes](#swift-changes-1)
+  - [Swift Changes](#swift-changes-2)
 - [Changes in Ice 3.7.8](#changes-in-ice-378)
   - [C++ Changes](#c-changes-6)
   - [JavaScript Changes](#javascript-changes-1)
@@ -43,31 +46,31 @@ particular aspect of Ice.
   - [C++ Changes](#c-changes-7)
   - [Java Changes](#java-changes-3)
 - [Changes in Ice 3.7.6](#changes-in-ice-376)
-  - [General Changes](#general-changes-1)
+  - [General Changes](#general-changes-2)
   - [C++ Changes](#c-changes-8)
   - [Java Changes](#java-changes-4)
   - [JavaScript Changes](#javascript-changes-2)
-  - [Swift Changes](#swift-changes-2)
+  - [Swift Changes](#swift-changes-3)
 - [Changes in Ice 3.7.5](#changes-in-ice-375)
-  - [General Changes](#general-changes-2)
+  - [General Changes](#general-changes-3)
   - [C++ Changes](#c-changes-9)
   - [C# Changes](#c-changes-10)
   - [JavaScript Changes](#javascript-changes-3)
   - [PHP Changes](#php-changes-2)
   - [Python Changes](#python-changes-4)
   - [Ruby Changes](#ruby-changes-2)
-  - [Swift Changes](#swift-changes-3)
+  - [Swift Changes](#swift-changes-4)
 - [Changes in Ice 3.7.4](#changes-in-ice-374)
-  - [General Changes](#general-changes-3)
+  - [General Changes](#general-changes-4)
   - [C++ Changes](#c-changes-11)
   - [C# Changes](#c-changes-12)
   - [JavaScript Changes](#javascript-changes-4)
   - [MATLAB Changes](#matlab-changes-2)
   - [Python Changes](#python-changes-5)
   - [Ruby Changes](#ruby-changes-3)
-  - [Swift Changes](#swift-changes-4)
+  - [Swift Changes](#swift-changes-5)
 - [Changes in Ice 3.7.3](#changes-in-ice-373)
-  - [General Changes](#general-changes-4)
+  - [General Changes](#general-changes-5)
   - [C++ Changes](#c-changes-13)
   - [C# Changes](#c-changes-14)
   - [Java Changes](#java-changes-5)
@@ -75,7 +78,7 @@ particular aspect of Ice.
   - [MATLAB Changes](#matlab-changes-3)
   - [Python Changes](#python-changes-6)
 - [Changes in Ice 3.7.2](#changes-in-ice-372)
-  - [General Changes](#general-changes-5)
+  - [General Changes](#general-changes-6)
   - [C++ Changes](#c-changes-15)
   - [C# Changes](#c-changes-16)
   - [Java Changes](#java-changes-6)
@@ -85,7 +88,7 @@ particular aspect of Ice.
   - [PHP Changes](#php-changes-3)
   - [Python Changes](#python-changes-7)
 - [Changes in Ice 3.7.1](#changes-in-ice-371)
-  - [General Changes](#general-changes-6)
+  - [General Changes](#general-changes-7)
   - [C++ Changes](#c-changes-17)
   - [C# Changes](#c-changes-18)
   - [Java Changes](#java-changes-7)
@@ -96,7 +99,7 @@ particular aspect of Ice.
   - [Python Changes](#python-changes-8)
   - [Ruby Changes](#ruby-changes-4)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
-  - [General Changes](#general-changes-7)
+  - [General Changes](#general-changes-8)
   - [C++ Changes](#c-changes-19)
   - [C# Changes](#c-changes-20)
   - [Java Changes](#java-changes-8)
@@ -105,6 +108,19 @@ particular aspect of Ice.
   - [PHP Changes](#php-changes-5)
   - [Python Changes](#python-changes-9)
   - [Ruby Changes](#ruby-changes-5)
+
+# Changes in Ice 3.7.12
+
+These are the changes since Ice 3.7.11.
+
+## General Changes
+
+- Hardened the unmarshaling code to detect and reject invalid data sent by a peer:
+  - Fixed an integer overflow in the sequence-size validation performed while unmarshaling.
+
+## Swift Changes
+
+- Fixed `InputStream.readSize` to reject a negative size.
 
 # Changes in Ice 3.7.11
 
