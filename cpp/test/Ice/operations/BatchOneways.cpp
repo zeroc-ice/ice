@@ -22,7 +22,7 @@ public:
     {
     }
 
-    virtual void
+    void
     enqueue(const Ice::BatchRequest& request, Ice::Int count, Ice::Int size)
     {
         test(request.getOperation() == "opByteSOneway" || request.getOperation() == "ice_ping");

@@ -69,7 +69,7 @@ private:
             }
         }
 
-        virtual void
+        void
         heartbeat(const Ice::ConnectionPtr&)
         {
             Lock sync(*this);
