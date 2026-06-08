@@ -593,7 +593,9 @@ IceInternal::ReferenceFactory::create(const Identity& ident, InputStream* s)
     vector<EndpointIPtr> endpoints;
     string adapterId;
 
-    Ice::Int sz = s->readSize();
+    // Each endpoint occupies at least 8 bytes on the wire (a 2-byte type plus a 6-byte minimum
+    // encapsulation), so readAndCheckSeqSize rejects an oversized count before we allocate.
+    Ice::Int sz = s->readAndCheckSeqSize(8);
 
     if(sz > 0)
     {
