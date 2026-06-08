@@ -142,6 +142,9 @@ These are the changes since Ice 3.7.11.
   the client provides no certificate or a certificate with an empty subject DN. Previously the
   IceGrid admin-session path accepted such connections.
 
+- Fixed a null pointer dereference in the IceGrid registry and Glacier2 router when creating an
+  SSL-based session over a non-IP transport (such as Bluetooth).
+
 ## Swift Changes
 
 - Fixed `InputStream.readSize` to reject a negative size.
