@@ -24,6 +24,7 @@ class SSLEngine : public IceSSL::SSLEngine
 public:
 
     SSLEngine(const Ice::CommunicatorPtr&);
+    virtual ~SSLEngine();
 
     virtual void initialize();
     virtual void destroy();
@@ -40,6 +41,12 @@ private:
 
     IceInternal::UniqueRef<CFArrayRef> _certificateAuthorities;
     IceInternal::UniqueRef<CFArrayRef> _chain;
+
+#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+    // Path of the temporary directory holding the imported certificate's keychain, removed by the
+    // destructor. Empty when IceSSL.Keychain is set or no certificate is configured.
+    std::string _temporaryKeychainDir;
+#endif
 
     SSLProtocol _protocolVersionMax;
     SSLProtocol _protocolVersionMin;

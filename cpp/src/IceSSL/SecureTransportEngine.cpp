@@ -23,7 +23,15 @@
 #include <IceSSL/SSLEngine.h>
 #include <IceSSL/Util.h>
 
+#include <Ice/UUID.h>
+
 #include <regex.h>
+
+#include <cerrno>
+#include <climits>
+#include <cstring>
+#include <unistd.h>
+#include <vector>
 
 // Disable deprecation warnings from SecureTransport APIs
 #include <IceUtil/DisableWarnings.h>
@@ -816,6 +824,50 @@ IceSSL::SecureTransport::upCast(IceSSL::SecureTransport::SSLEngine* p)
     return p;
 }
 
+namespace
+{
+
+#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+//
+// Create a private temporary directory to hold a short-lived keychain, and return its path. Uses
+// confstr(_CS_DARWIN_USER_TEMP_DIR) rather than $TMPDIR so the location can't be redirected through
+// the process environment.
+//
+string
+createTemporaryKeychainDirectory()
+{
+    char base[PATH_MAX];
+    size_t len = confstr(_CS_DARWIN_USER_TEMP_DIR, base, sizeof(base));
+    if(len == 0 || len > sizeof(base))
+    {
+        int error = errno;
+        ostringstream os;
+        os << "IceSSL: confstr(_CS_DARWIN_USER_TEMP_DIR) failed";
+        if(error != 0)
+        {
+            os << ": " << strerror(error);
+        }
+        throw PluginInitializationException(__FILE__, __LINE__, os.str());
+    }
+
+    string tmpl = string(base) + "ice-keychain-XXXXXX";
+    vector<char> buffer(tmpl.begin(), tmpl.end());
+    buffer.push_back('\0');
+
+    const char* dir = mkdtemp(&buffer[0]);
+    if(dir == 0)
+    {
+        int error = errno;
+        ostringstream os;
+        os << "IceSSL: mkdtemp failed: " << strerror(error);
+        throw PluginInitializationException(__FILE__, __LINE__, os.str());
+    }
+    return dir;
+}
+#endif
+
+}
+
 IceSSL::SecureTransport::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& communicator) :
     IceSSL::SSLEngine(communicator),
     _certificateAuthorities(0),
@@ -823,6 +875,28 @@ IceSSL::SecureTransport::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& commun
     _protocolVersionMax(kSSLProtocolUnknown),
     _protocolVersionMin(kSSLProtocolUnknown)
 {
+}
+
+IceSSL::SecureTransport::SSLEngine::~SSLEngine()
+{
+#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+    if(!_temporaryKeychainDir.empty())
+    {
+        //
+        // Remove the temporary keychain and its enclosing directory created by initialize(). The
+        // cleanup lives in the destructor (not destroy()) so it also runs when initialize() throws
+        // after the directory has been created.
+        //
+        _chain.reset(0);
+        const string keychainPath = _temporaryKeychainDir + "/ice.keychain";
+        UniqueRef<SecKeychainRef> keychain;
+        if(SecKeychainOpen(keychainPath.c_str(), &keychain.get()) == noErr && keychain.get())
+        {
+            SecKeychainDelete(keychain.get());
+        }
+        rmdir(_temporaryKeychainDir.c_str());
+    }
+#endif
 }
 
 //
@@ -890,6 +964,19 @@ IceSSL::SecureTransport::SSLEngine::initialize()
 
     if(!certFile.empty())
     {
+#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+        if(keychain.empty())
+        {
+            //
+            // Import the certificate into a temporary keychain rather than the user's login keychain.
+            // A private key in the login keychain cannot complete a forward-secret (ECDHE) handshake on
+            // the server side. The keychain and its enclosing directory are removed by the destructor.
+            //
+            _temporaryKeychainDir = createTemporaryKeychainDirectory();
+            keychain = _temporaryKeychainDir + "/ice.keychain";
+            keychainPassword = Ice::generateUUID();
+        }
+#endif
         vector<string> files;
         if(!IceUtilInternal::splitString(certFile, IceUtilInternal::pathsep, files) || files.size() > 2)
         {
@@ -1021,9 +1108,10 @@ IceSSL::SecureTransport::SSLEngine::initialize()
     }
 
     //
-    // The default min protocol version is set to TLS1.0 to avoid security issues with SSLv3
+    // The default min protocol version is TLS 1.2. SecureTransport otherwise negotiates down to TLS
+    // 1.0 on macOS. An explicit IceSSL.ProtocolVersionMin setting still takes precedence.
     //
-    const string protocolVersionMin = properties->getPropertyWithDefault("IceSSL.ProtocolVersionMin", "tls1_0");
+    const string protocolVersionMin = properties->getPropertyWithDefault("IceSSL.ProtocolVersionMin", "tls1_2");
     if(!protocolVersionMin.empty())
     {
         _protocolVersionMin = parseProtocol(protocolVersionMin);
@@ -1106,6 +1194,23 @@ IceSSL::SecureTransport::SSLEngine::newContext(bool incoming)
     if(!_ciphers.empty())
     {
         if((err = SSLSetEnabledCiphers(ssl, &_ciphers[0], _ciphers.size())))
+        {
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: error while setting ciphers:\n" + sslErrorToString(err));
+        }
+    }
+    else
+    {
+        //
+        // When no ciphers are explicitly configured, enable only forward-secret cipher suites
+        // (ECDHE key exchange with AES-GCM). SecureTransport's own default set otherwise includes
+        // static-RSA suites (no forward secrecy) and 3DES (SWEET32).
+        //
+        const SSLCipherSuite ciphers[] = {
+            TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+            TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+            TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+            TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384};
+        if((err = SSLSetEnabledCiphers(ssl, ciphers, sizeof(ciphers) / sizeof(SSLCipherSuite))))
         {
             throw SecurityException(__FILE__, __LINE__, "IceSSL: error while setting ciphers:\n" + sslErrorToString(err));
         }
