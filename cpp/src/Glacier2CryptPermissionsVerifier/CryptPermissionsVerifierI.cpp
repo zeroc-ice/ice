@@ -13,6 +13,8 @@
 #include <IceUtil/Mutex.h>
 
 #include <fstream>
+#include <sstream>
+#include <cstring>
 
 #if defined(__GLIBC__) || defined(_AIX)
 #   include <crypt.h>
@@ -35,6 +37,23 @@ using namespace Glacier2;
 
 namespace
 {
+
+//
+// Constant-time byte-equality comparison. Returns true iff the two byte ranges of length n are equal.
+// Always reads all n bytes from both inputs to avoid leaking, via execution time, how many leading
+// bytes of the inputs matched. Used to compare hashed/derived-key material in checkPermissions.
+// The `volatile` accumulator prevents the optimizer from turning the loop into an early-exit branch.
+//
+template<typename T> bool constantTimeEquals(const T* a, const T* b, size_t n)
+{
+    static_assert(sizeof(T) == 1, "constantTimeEquals operates on byte-sized elements");
+    volatile unsigned char diff = 0;
+    for(size_t i = 0; i < n; ++i)
+    {
+        diff = static_cast<unsigned char>(diff | (static_cast<unsigned char>(a[i]) ^ static_cast<unsigned char>(b[i])));
+    }
+    return diff == 0;
+}
 
 #if defined(__FreeBSD__) && !defined(__GLIBC__)
 
@@ -163,7 +182,7 @@ private:
 };
 
 map<string, string>
-retrievePasswordMap(const string& file)
+retrievePasswordMap(const string& file, const LoggerPtr& logger)
 {
     ifstream passwordFile(IceUtilInternal::streamFilename(file).c_str());
     if(!passwordFile)
@@ -173,26 +192,48 @@ retrievePasswordMap(const string& file)
     }
     map<string, string> passwords;
 
-    while(true)
+    bool hasDESStylePassword = false;
+
+    string line;
+    size_t lineNumber = 0;
+    while(getline(passwordFile, line))
     {
+        ++lineNumber;
+        if(!line.empty() && line[line.size() - 1] == '\r')
+        {
+            line.erase(line.size() - 1);
+        }
+        if(line.find_first_not_of(" \t") == string::npos)
+        {
+            continue; // Skip blank lines.
+        }
+
+        istringstream iss(line);
         string userId;
-        passwordFile >> userId;
-        if(!passwordFile)
-        {
-            break;
-        }
-
         string password;
-        passwordFile >> password;
-        if(!passwordFile)
+        string extra;
+        if(!(iss >> userId >> password) || (iss >> extra))
         {
-            break;
+            ostringstream os;
+            os << "malformed entry in password file `" << file << "' at line " << lineNumber;
+            throw Ice::InitializationException(__FILE__, __LINE__, os.str());
         }
 
-        assert(!userId.empty());
-        assert(!password.empty());
+        //
+        // A DES crypt() hash is exactly 13 characters and contains no `$'.
+        //
+        hasDESStylePassword = hasDESStylePassword || (password.find('$') == string::npos && password.size() == 13);
+
         passwords.insert(make_pair(userId, password));
     }
+
+    if(hasDESStylePassword)
+    {
+        Warning out(logger);
+        out << "the password file `" << file << "' contains one or more DES-style passwords; DES is a weak "
+            << "algorithm and should not be used in production";
+    }
+
     return passwords;
 }
 
@@ -266,10 +307,20 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
 #   if defined(__GLIBC__)
     struct crypt_data data;
     data.initialized = 0;
-    return p->second == crypt_r(password.c_str(), salt.c_str(), &data);
+    const char* hashed = crypt_r(password.c_str(), salt.c_str(), &data);
+    if(hashed == 0 || p->second.size() != strlen(hashed))
+    {
+        return false;
+    }
+    return constantTimeEquals(p->second.data(), hashed, p->second.size());
 #   else
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_staticMutex);
-    return p->second == crypt(password.c_str(), salt.c_str());
+    const char* hashed = crypt(password.c_str(), salt.c_str());
+    if(hashed == 0 || p->second.size() != strlen(hashed))
+    {
+        return false;
+    }
+    return constantTimeEquals(p->second.data(), hashed, p->second.size());
 #   endif
 #elif defined(__APPLE__) || defined(_WIN32)
     //
@@ -450,7 +501,11 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
     }
 
     vector<uint8_t> checksumBuffer2(CFDataGetBytePtr(data.get()), CFDataGetBytePtr(data.get()) + CFDataGetLength(data.get()));
-    return checksumBuffer1 == checksumBuffer2;
+    if(checksumBuffer1.size() != checksumBuffer2.size())
+    {
+        return false;
+    }
+    return constantTimeEquals(checksumBuffer1.data(), checksumBuffer2.data(), checksumBuffer1.size());
 #   else
     DWORD saltLength = static_cast<DWORD>(salt.size());
     vector<BYTE> saltBuffer(saltLength);
@@ -492,7 +547,11 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
     {
         return false;
     }
-    return checksumBuffer1 == checksumBuffer2;
+    if(checksumBuffer2Length != checksumLength)
+    {
+        return false;
+    }
+    return constantTimeEquals(&checksumBuffer1[0], &checksumBuffer2[0], checksumLength);
 #   endif
 #else
     // Fallback to plain crypt() - DES-style
@@ -504,7 +563,12 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
     string salt = p->second.substr(0, 2);
 
     IceUtil::Mutex::Lock lock(_cryptMutex);
-    return p->second == crypt(password.c_str(), salt.c_str());
+    const char* hashed = crypt(password.c_str(), salt.c_str());
+    if(hashed == 0 || p->second.size() != strlen(hashed))
+    {
+        return false;
+    }
+    return constantTimeEquals(p->second.data(), hashed, p->second.size());
 
 #endif
 }
@@ -532,7 +596,8 @@ CryptPermissionsVerifierPlugin::initialize()
             Identity id;
             id.name = Ice::generateUUID();
             id.category = "Glacier2CryptPermissionsVerifier";
-            ObjectPrx prx = adapter->add(new CryptPermissionsVerifierI(retrievePasswordMap(p->second)), id);
+            ObjectPrx prx = adapter->add(
+                new CryptPermissionsVerifierI(retrievePasswordMap(p->second, _communicator->getLogger())), id);
             _communicator->getProperties()->setProperty(name, _communicator->proxyToString(prx));
         }
 
