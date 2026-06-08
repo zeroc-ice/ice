@@ -79,7 +79,7 @@ jobs:
       S3_BUCKET: ${{ vars.S3_SYMBOLS_BUCKET }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.2
 
       - name: Install Windows Debug Tools
         uses: ./.github/actions/install-windows-debug-tools
