@@ -156,6 +156,11 @@ These are the changes since Ice 3.7.11.
   configured with `IceSSL.CertFile` is imported into a temporary keychain (removed when the
   communicator is destroyed) instead of the user's login keychain.
 
+- The IceSSL OpenSSL transport now rejects peer-initiated TLS renegotiation, which is a
+  CPU-asymmetric denial-of-service primitive on TLS 1.2. This relies on `SSL_OP_NO_RENEGOTIATION`
+  and therefore takes effect only when built against OpenSSL 1.1.0h or later. The macOS
+  SecureTransport and Windows Schannel transports already reject it.
+
 ## Swift Changes
 
 - Fixed `InputStream.readSize` to reject a negative size.
