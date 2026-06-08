@@ -531,6 +531,10 @@ IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, Input
 {
     s->read(const_cast<string&>(_host), false);
     s->read(const_cast<Ice::Int&>(_port));
+    if(_port < 0 || _port > 65535)
+    {
+        throw MarshalException(__FILE__, __LINE__, "port value '" + std::to_string(_port) + "' is out of range");
+    }
 }
 
 IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance) :
