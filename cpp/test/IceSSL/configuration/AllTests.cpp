@@ -278,7 +278,7 @@ public:
     {
     }
 
-    virtual string getPassword()
+    string getPassword()
     {
         ++_count;
         return _password;
@@ -308,7 +308,7 @@ public:
         reset();
     }
 
-    virtual bool
+    bool
     verify(const IceSSL::ConnectionInfoPtr& info)
     {
         if(info->certs.size() > 0)

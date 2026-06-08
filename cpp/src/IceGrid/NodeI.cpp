@@ -120,7 +120,7 @@ public:
     {
         if(_traceLevels->patch > 1 && totalSize > (1024 * 1024))
         {
-            int progress = static_cast<int>(static_cast<double>(totalProgress) / totalSize * 100.0);
+            int progress = static_cast<int>(static_cast<double>(totalProgress) / static_cast<double>(totalSize) * 100.0);
             progress /= 5;
             progress *= 5;
             if(progress != _lastProgress)
