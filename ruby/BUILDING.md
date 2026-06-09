@@ -129,7 +129,7 @@ rake build
 This creates the gem file in the current directory. You can then install the gem:
 
 ```shell
-gem install zeroc-ice-3.7.11.gem
+gem install zeroc-ice-3.7.12.gem
 ```
 
 The Rake build task automatically:

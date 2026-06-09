@@ -62,9 +62,9 @@
 %define makeinstallopts CONFIGS="shared cpp11-shared" OPTIMIZE=yes V=1 %{runpath} DESTDIR=%{buildroot} prefix=%{_prefix} install_bindir=%{_bindir} install_libdir=%{_libdir} install_slicedir=%{_datadir}/ice/slice install_includedir=%{_includedir} install_mandir=%{_mandir} install_configdir=%{_datadir}/ice install_javadir=%{_javadir} install_phplibdir=%{phplibdir} install_phpdir=%{phpdir}
 
 Name: %{?nameprefix}ice
-Version: 3.7.11
+Version: 3.7.12
 Summary: Comprehensive RPC framework with support for C++, Java, JavaScript, Python and more.
-Release: 4%{?dist}
+Release: 1%{?dist}
 %if "%{?ice_license}"
 License: %{ice_license}
 %else
@@ -923,6 +923,9 @@ exit 0
 %endif #%{_host_cpu}
 
 %changelog
+* Tue Jun 09 2026 José Gutiérrez de la Concha <jose@zeroc.com> 3.7.12
+- 3.7.12 release
+
 * Thu Jan 30 2026 José Gutiérrez de la Concha <jose@zeroc.com> 3.7.11
 - 3.7.11 release
 

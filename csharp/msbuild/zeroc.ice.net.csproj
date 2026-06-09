@@ -10,7 +10,7 @@
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <PackageId>zeroc.ice.net</PackageId>
         <Title>ZeroC Ice for .NET</Title>
-        <PackageVersion>3.7.11</PackageVersion>
+        <PackageVersion>3.7.12</PackageVersion>
         <Authors>ZeroC</Authors>
         <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/zeroc-ice/ice</PackageProjectUrl>
@@ -18,7 +18,7 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright (c) ZeroC, Inc.</Copyright>
         <Description>The Ice framework provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.</Description>
-        <PackageReleaseNotes>https://archive.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-11-release-notes</PackageReleaseNotes>
+        <PackageReleaseNotes>https://archive.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-12-release-notes</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageTags>ice</PackageTags>
         <IncludeSymbols>true</IncludeSymbols>
