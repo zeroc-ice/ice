@@ -118,6 +118,8 @@ These are the changes since Ice 3.7.11.
 - Hardened the unmarshaling code to detect and reject invalid data sent by a peer:
   - Fixed an integer overflow in the sequence-size validation performed while unmarshaling.
   - Fixed an unbounded memory allocation when unmarshaling a proxy with a large endpoint count.
+  - Fixed undefined behavior when unmarshaling a class or exception slice whose declared size is too
+    small to hold its optional members.
 
 ## Swift Changes
 
