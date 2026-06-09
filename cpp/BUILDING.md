@@ -134,7 +134,7 @@ If the binary distribution you are using is not installed in a system wide locat
 automatically find the header and library files, you also need to set `ICE_HOME`:
 
 ```shell
-make ICE_HOME=/opt/Ice-3.7.11 ICE_BIN_DIST=all
+make ICE_HOME=/opt/Ice-3.7.12 ICE_BIN_DIST=all
 ```
 
 ### Testing
@@ -677,4 +677,4 @@ compiler you are using.
 [LMDB]: https://www.symas.com/symas-embedded-database-lmdb
 [mcpp]: https://github.com/zeroc-ice/mcpp
 [OpenSSL]: https://www.openssl.org/
-[supported platforms]: https://archive.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-11
+[supported platforms]: https://archive.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-12

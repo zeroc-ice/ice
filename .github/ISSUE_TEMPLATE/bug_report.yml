@@ -8,7 +8,7 @@ body:
       label: Version
       description: Please provide the following version information
       placeholder: |
-        - Ice Version [e.g. 3.7.9]
+        - Ice Version [e.g. 3.7.12]
         - OS: [e.g. Linux, Windows, macOS]
         - Distribution: [e.g. YUM, Apt, Homebrew]
     validations:

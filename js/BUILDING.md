@@ -106,10 +106,10 @@ following command:
 npm pack
 ```
 
-This will generate the file `ice-3.7.110.tgz`, which can be installed by running:
+This will generate the file `ice-3.7.120.tgz`, which can be installed by running:
 
 ```shell
-npm install ice-3.7.110.tgz
+npm install ice-3.7.120.tgz
 ```
 
 To use Ice for JavaScript with a browser, copy the appropriate JavaScript library files located in the `lib` directory

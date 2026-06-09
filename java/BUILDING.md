@@ -87,7 +87,7 @@ On Windows with an MSI installation:
 
 ```shell
 set ICE_BIN_DIST=cpp
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.11
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.12
 ```
 
 ### Installing Ice for Java
@@ -100,17 +100,17 @@ To install Ice for Java in the directory specified by the `prefix` variable in `
 
 The following JAR files will be installed to `<prefix>/lib`:
 
-- glacier2-3.7.11.jar
-- ice-3.7.11.jar
-- icebox-3.7.11.jar
-- icebt-3.7.11.jar
-- icediscovery-3.7.11.jar
-- icegrid-3.7.11.jar
+- glacier2-3.7.12.jar
+- ice-3.7.12.jar
+- icebox-3.7.12.jar
+- icebt-3.7.12.jar
+- icediscovery-3.7.12.jar
+- icegrid-3.7.12.jar
 - icegridgui.jar
-- icelocatordiscovery-3.7.11.jar
-- icepatch2-3.7.11.jar
-- icessl-3.7.11.jar
-- icestorm-3.7.11.jar
+- icelocatordiscovery-3.7.12.jar
+- icepatch2-3.7.12.jar
+- icessl-3.7.12.jar
+- icestorm-3.7.12.jar
 
 POM files are also installed for ease of deployment to a Maven-based distribution system.
 
