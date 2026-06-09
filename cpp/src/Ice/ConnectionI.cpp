@@ -3343,6 +3343,19 @@ Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& request
                         invokeNum = 0;
                         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
                     }
+
+                    //
+                    // A batched request occupies at least 12 bytes on the wire (a 2-byte identity, a
+                    // 1-byte facet path, a 1-byte operation name, a 1-byte operation mode, a 1-byte
+                    // context, and a 6-byte parameters encapsulation). Reject a count larger than the
+                    // remaining message data could possibly hold.
+                    //
+                    const Int minBatchRequestSize = 12;
+                    if(invokeNum > (stream.b.end() - stream.i) / minBatchRequestSize)
+                    {
+                        invokeNum = 0;
+                        throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+                    }
                     servantManager = _servantManager;
                     adapter = _adapter;
                     dispatchCount += invokeNum;
