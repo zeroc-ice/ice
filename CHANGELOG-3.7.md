@@ -124,6 +124,16 @@ These are the changes since Ice 3.7.11.
   - Fixed the unmarshaling of a batch request message to reject a request count larger than the
     remaining message data could hold.
 
+- Changed the Glacier2 `crypt` permissions verifier to compare password hashes in constant time,
+  removing a remote timing side channel on `checkPermissions`.
+
+- Changed the Glacier2 `crypt` permissions verifier to reject malformed entries (lines that do not
+  contain exactly a user id and a password) in its password file, rather than silently mis-parsing
+  them.
+
+- The Glacier2 `crypt` permissions verifier now logs a warning at startup when its password file
+  contains DES-style password hashes, which rely on a weak algorithm.
+
 ## Swift Changes
 
 - Fixed `InputStream.readSize` to reject a negative size.
