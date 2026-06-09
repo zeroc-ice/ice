@@ -889,6 +889,15 @@ OpenSSL::SSLEngine::initialize()
         //
         SSL_CTX_set_ex_data(_ctx, 0, this);
 
+#ifdef SSL_OP_NO_RENEGOTIATION
+        //
+        // Reject peer-initiated TLS renegotiation: it is a CPU-asymmetric denial-of-service primitive
+        // on TLS 1.2 and is removed entirely in TLS 1.3. This is applied to application-supplied
+        // contexts as well. SSL_OP_NO_RENEGOTIATION requires OpenSSL 1.1.0h or later.
+        //
+        SSL_CTX_set_options(_ctx, SSL_OP_NO_RENEGOTIATION);
+#endif
+
         //
         // This is necessary for successful interop with Java. Without it, a Java
         // client would fail to reestablish a connection: the server gets the
