@@ -134,6 +134,10 @@ These are the changes since Ice 3.7.11.
 - The Glacier2 `crypt` permissions verifier now logs a warning at startup when its password file
   contains DES-style password hashes, which rely on a weak algorithm.
 
+- Fixed the WebSocket transport to enforce the RFC 6455 control-frame limits: a close, ping, or
+  pong frame that is fragmented or declares a payload larger than 125 bytes is now rejected before
+  any payload buffer is allocated, as is any frame with a non-zero reserved (RSV) bit.
+
 ## Swift Changes
 
 - Fixed `InputStream.readSize` to reject a negative size.

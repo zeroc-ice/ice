@@ -844,6 +844,16 @@ final class WSTransceiver implements Transceiver
                 _readOpCode = ch & 0xf;
 
                 //
+                // No extension is negotiated, so the RSV1, RSV2, and RSV3 bits must all be 0.
+                //
+                if((ch & 0x70) != 0)
+                {
+                    throw new Ice.ProtocolException("invalid WebSocket frame: RSV bits must be 0");
+                }
+
+                final boolean finalFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+
+                //
                 // Remember if last frame if we're going to read a data or
                 // continuation frame, this is only for protocol
                 // correctness checking purpose.
@@ -854,7 +864,7 @@ final class WSTransceiver implements Transceiver
                     {
                         throw new Ice.ProtocolException("invalid data frame, no FIN on previous frame");
                     }
-                    _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+                    _readLastFrame = finalFrame;
                 }
                 else if(_readOpCode == OP_CONT)
                 {
@@ -862,7 +872,7 @@ final class WSTransceiver implements Transceiver
                     {
                         throw new Ice.ProtocolException("invalid continuation frame, previous frame FIN set");
                     }
-                    _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+                    _readLastFrame = finalFrame;
                 }
 
                 ch = _readBuffer.b.get(_readBufferPos++);
@@ -889,6 +899,27 @@ final class WSTransceiver implements Transceiver
                 // 127:   The subsequent eight bytes contain the payload length
                 //
                 _readPayloadLength = (ch & 0x7f);
+
+                //
+                // RFC 6455 section 5.5: control frames (close, ping, and pong) must not be fragmented
+                // and must have a payload length of 125 bytes or less - they cannot use the 16-bit
+                // or 64-bit extended length encoding. Enforce this before allocating any payload
+                // buffer.
+                //
+                if(_readOpCode == OP_CLOSE || _readOpCode == OP_PING || _readOpCode == OP_PONG)
+                {
+                    if(!finalFrame)
+                    {
+                        throw new Ice.ProtocolException(
+                            "invalid WebSocket control frame: the FIN bit is not set");
+                    }
+                    if(_readPayloadLength > 125)
+                    {
+                        throw new Ice.ProtocolException(
+                            "invalid WebSocket control frame: the payload length exceeds 125 bytes");
+                    }
+                }
+
                 if(_readPayloadLength < 126)
                 {
                     _readHeaderLength = 0;
