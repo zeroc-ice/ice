@@ -398,8 +398,6 @@ private:
 };
 ICE_DEFINE_PTR(CertificateVerifierIPtr, CertificateVerifierI);
 
-int keychainN = 0;
-
 static PropertiesPtr
 createClientProps(const Ice::PropertiesPtr& defaultProps, bool p12)
 {
@@ -422,13 +420,6 @@ createClientProps(const Ice::PropertiesPtr& defaultProps, bool p12)
     }
     //result->setProperty("IceSSL.Trace.Security", "1");
     //result->setProperty("Ice.Trace.Network", "3");
-#ifdef ICE_USE_SECURE_TRANSPORT
-    ostringstream keychainName;
-    keychainName << "../certs/keychain/client" << keychainN++ << ".keychain";
-    const string keychainPassword = "password";
-    result->setProperty("IceSSL.Keychain", keychainName.str());
-    result->setProperty("IceSSL.KeychainPassword", keychainPassword);
-#endif
     return result;
 }
 
@@ -453,12 +444,6 @@ createServerProps(const Ice::PropertiesPtr& defaultProps, bool p12)
     }
     //result["Ice.Trace.Network"] = "3";
     //result["IceSSL.Trace.Security"] = "1";
-#ifdef ICE_USE_SECURE_TRANSPORT
-    ostringstream keychainName;
-    keychainName << "../certs/keychain/server" << keychainN << ".keychain";
-    result["IceSSL.Keychain"] = keychainName.str();
-    result["IceSSL.KeychainPassword"] = "password";
-#endif
     return result;
 }
 
@@ -1964,78 +1949,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             comm->destroy();
         }
 
-        //
-        // Skip the test if OpenSSL was build without SSL3 support
-        //
-#   if !defined(OPENSSL_NO_SSL3_METHOD) && defined(SSL3_VERSION)
-        //
-        // This should fail because the client only accept SSLv3 and the server
-        // use the default protocol set that disables SSLv3
-        //
-        {
-            InitializationData initData;
-            initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-            initData.properties->setProperty("IceSSL.Protocols", "ssl3");
-            CommunicatorPtr comm = initialize(initData);
-
-            Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
-            test(fact);
-            Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
-            d["IceSSL.VerifyPeer"] = "0";
-            Test::ServerPrxPtr server = fact->createServer(d);
-            try
-            {
-                server->ice_ping();
-                test(false);
-            }
-            catch(const ProtocolException&)
-            {
-                // Expected on some platforms.
-            }
-            catch(const ConnectionLostException&)
-            {
-                // Expected on some platforms.
-            }
-            catch(const LocalException& ex)
-            {
-                cerr << ex << endl;
-                test(false);
-            }
-            fact->destroyServer(server);
-            comm->destroy();
-        }
-#   endif
-
-        //
-        // SSLv3 is now disabled by default with some SSL implementations.
-        //
-        // //
-        // // This should success because both have SSLv3 enabled
-        // //
-        // {
-        //     InitializationData initData;
-        //     initData.properties = createClientProps(defaultProps, p12, "", "cacert1");
-        //     initData.properties->setProperty("IceSSL.Protocols", "ssl3");
-        //     CommunicatorPtr comm = initialize(initData);
-
-        //     Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
-        //     test(fact);
-        //     Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "");
-        //     d["IceSSL.VerifyPeer"] = "0";
-        //     d["IceSSL.Protocols"] = "ssl3, tls, tls1_1, tls1_2";
-        //     Test::ServerPrxPtr server = fact->createServer(d);
-        //     try
-        //     {
-        //         server->ice_ping();
-        //     }
-        //     catch(const LocalException& ex)
-        //     {
-        //         test(false);
-        //     }
-        //     fact->destroyServer(server);
-        //     comm->destroy();
-        // }
 #else
         //
         // In macOS we don't support IceSSL.Protocols as secure transport doesn't allow to set the enabled protocols
@@ -2094,7 +2007,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             d["IceSSL.Ciphers"] = "(DH_anon*)";
             d["IceSSL.VerifyPeer"] = "0";
             d["IceSSL.ProtocolVersionMax"] = "tls1";
-            d["IceSSL.ProtocolVersionMin"] = "ssl3";
+            d["IceSSL.ProtocolVersionMin"] = "tls1";
             server = fact->createServer(d);
             try
             {
@@ -2103,74 +2016,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             catch(const LocalException& ex)
             {
                 cerr << ex << endl;
-                test(false);
-            }
-            fact->destroyServer(server);
-            comm->destroy();
-        }
-
-        //
-        // This should fail because the client only accept SSLv3 and the server
-        // use the default protocol set that disables SSLv3
-        //
-        {
-            InitializationData initData;
-            initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-            initData.properties->setProperty("IceSSL.ProtocolVersionMin", "ssl3");
-            initData.properties->setProperty("IceSSL.ProtocolVersionMax", "ssl3");
-            CommunicatorPtr comm = initialize(initData);
-
-            Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
-            test(fact);
-            Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
-            d["IceSSL.VerifyPeer"] = "0";
-            Test::ServerPrxPtr server = fact->createServer(d);
-            try
-            {
-                server->ice_ping();
-                test(false);
-            }
-            catch(const ProtocolException&)
-            {
-                // Expected on some platforms.
-            }
-            catch(const ConnectionLostException&)
-            {
-                // Expected on some platforms.
-            }
-            catch(const LocalException& ex)
-            {
-                cerr << ex << endl;
-                test(false);
-            }
-            fact->destroyServer(server);
-            comm->destroy();
-        }
-
-        //
-        // This should succeed because both have SSLv3 enabled
-        //
-        {
-            InitializationData initData;
-            initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-            initData.properties->setProperty("IceSSL.ProtocolVersionMin", "ssl3");
-            initData.properties->setProperty("IceSSL.ProtocolVersionMax", "ssl3");
-            CommunicatorPtr comm = initialize(initData);
-
-            Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
-            test(fact);
-            Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
-            d["IceSSL.VerifyPeer"] = "0";
-            d["IceSSL.ProtocolVersionMin"] = "ssl3";
-            Test::ServerPrxPtr server = fact->createServer(d);
-            try
-            {
-                server->ice_ping();
-            }
-            catch(const LocalException&)
-            {
                 test(false);
             }
             fact->destroyServer(server);

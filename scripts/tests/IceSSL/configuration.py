@@ -25,8 +25,10 @@ class ConfigurationTestCase(ClientServerTestCase):
             self.ocspServer.start()
 
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
+            # The default cert-import path no longer needs a pre-created keychain: when IceSSL.Keychain
+            # is unset, IceSSL creates a private temporary keychain itself. Find.keychain is still
+            # needed for the IceSSL.FindCert test.
             keychainPath = os.path.join(certsPath, "Find.keychain")
-            os.system("mkdir -p {0}".format(os.path.join(certsPath, "keychain")))
             os.system("security create-keychain -p password %s" % keychainPath)
             for cert in ["s_rsa_ca1.p12", "c_rsa_ca1.p12"]:
                 os.system("security import %s -f pkcs12 -A -P password -k %s" % (os.path.join(certsPath, cert), keychainPath))
@@ -59,7 +61,7 @@ class ConfigurationTestCase(ClientServerTestCase):
 
         certsPath = os.path.abspath(os.path.join(current.testsuite.getPath(), "..", "certs"))
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
-            os.system("rm -rf {0} {1}".format(os.path.join(certsPath, "keychain"), os.path.join(certsPath, "Find.keychain")))
+            os.system("rm -rf {0}".format(os.path.join(certsPath, "Find.keychain")))
         elif current.config.openssl or platform.hasOpenSSL():
             for c in ["cacert1.pem", "cacert2.pem"]:
                 pem = os.path.join(certsPath, c)

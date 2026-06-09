@@ -145,6 +145,17 @@ These are the changes since Ice 3.7.11.
 - Fixed a null pointer dereference in the IceGrid registry and Glacier2 router when creating an
   SSL-based session over a non-IP transport (such as Bluetooth).
 
+- Changed the macOS SSL transport to enable only forward-secret (ECDHE) cipher suites when no
+  ciphers are explicitly configured. An `IceSSL.Ciphers` setting still takes precedence.
+
+- Changed the macOS SSL transport to require TLS 1.2 or later, by changing the default value of
+  `IceSSL.ProtocolVersionMin` to `tls1_2`. An explicit `IceSSL.ProtocolVersionMin` setting still
+  takes precedence.
+
+- Changed the macOS SSL transport so that, when `IceSSL.Keychain` is not set, the certificate
+  configured with `IceSSL.CertFile` is imported into a temporary keychain (removed when the
+  communicator is destroyed) instead of the user's login keychain.
+
 ## Swift Changes
 
 - Fixed `InputStream.readSize` to reject a negative size.
