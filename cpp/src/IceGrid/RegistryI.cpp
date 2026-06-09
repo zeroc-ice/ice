@@ -1056,10 +1056,6 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
 
     string userDN;
     Glacier2::SSLInfo info = getSSLInfo(current.con, userDN);
-    if(userDN.empty())
-    {
-        throw PermissionDeniedException("empty user DN");
-    }
 
     try
     {
@@ -1326,6 +1322,14 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
         if(info->certs.size() > 0)
         {
             userDN = info->certs[0]->getSubjectDN();
+            if(userDN.empty())
+            {
+                throw PermissionDeniedException("empty user DN");
+            }
+        }
+        else
+        {
+            throw PermissionDeniedException("the client did not provide a certificate");
         }
     }
     catch(const IceSSL::CertificateEncodingException&)

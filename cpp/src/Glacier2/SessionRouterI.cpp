@@ -865,6 +865,16 @@ SessionRouterI::createSessionFromSecureConnection_async(
         if(info->certs.size() > 0)
         {
             userDN = info->certs[0]->getSubjectDN();
+            if(userDN.empty())
+            {
+                amdCB->ice_exception(PermissionDeniedException("empty user DN"));
+                return;
+            }
+        }
+        else
+        {
+            amdCB->ice_exception(PermissionDeniedException("the client did not provide a certificate"));
+            return;
         }
     }
     catch(const IceSSL::CertificateEncodingException&)

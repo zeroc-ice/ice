@@ -138,6 +138,10 @@ These are the changes since Ice 3.7.11.
   pong frame that is fragmented or declares a payload larger than 125 bytes is now rejected before
   any payload buffer is allocated, as is any frame with a non-zero reserved (RSV) bit.
 
+- Fixed the IceGrid registry and Glacier2 router to reject the creation of an SSL-based session when
+  the client provides no certificate or a certificate with an empty subject DN. Previously the
+  IceGrid admin-session path accepted such connections.
+
 ## Swift Changes
 
 - Fixed `InputStream.readSize` to reject a negative size.
