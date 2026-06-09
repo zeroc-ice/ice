@@ -32,6 +32,10 @@ public abstract class IPEndpointI extends EndpointI
         _instance = instance;
         _host = s.readString();
         _port = s.readInt();
+        if(_port < 0 || _port > 65535)
+        {
+            throw new Ice.MarshalException("port value '" + _port + "' is out of range");
+        }
         _sourceAddr = null;
         _connectionId = "";
         _hashInitialized = false;

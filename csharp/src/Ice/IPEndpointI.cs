@@ -37,6 +37,10 @@ namespace IceInternal
             instance_ = instance;
             host_ = s.readString();
             port_ = s.readInt();
+            if(port_ < 0 || port_ > 65535)
+            {
+                throw new Ice.MarshalException("port value '" + port_ + "' is out of range");
+            }
             sourceAddr_ = null;
             connectionId_ = "";
             _hashInitialized = false;

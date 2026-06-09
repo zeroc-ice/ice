@@ -270,6 +270,10 @@ class IPEndpointI extends Ice.EndpointI
     {
         this._host = s.readString();
         this._port = s.readInt();
+        if(this._port < 0 || this._port > 65535)
+        {
+            throw new Ice.MarshalException("port value '" + this._port + "' is out of range");
+        }
     }
 
     checkOption(option, argument, str)

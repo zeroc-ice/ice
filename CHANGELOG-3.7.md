@@ -120,6 +120,7 @@ These are the changes since Ice 3.7.11.
   - Fixed an unbounded memory allocation when unmarshaling a proxy with a large endpoint count.
   - Fixed undefined behavior when unmarshaling a class or exception slice whose declared size is too
     small to hold its optional members.
+  - Fixed the unmarshaling of IP endpoints to reject a port value outside the 0..65535 range.
 
 ## Swift Changes
 
