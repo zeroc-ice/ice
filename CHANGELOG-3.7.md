@@ -161,6 +161,10 @@ These are the changes since Ice 3.7.11.
   and therefore takes effect only when built against OpenSSL 1.1.0h or later. The macOS
   SecureTransport and Windows Schannel transports already reject it.
 
+- Hardened the internal file-lock used by IceGrid and IceStorm on non-Windows platforms: the lock
+  file is now created without group read/write permissions and is opened with `O_NOFOLLOW` so a
+  pre-existing symbolic link at the lock path is not followed.
+
 ## Swift Changes
 
 - Fixed `InputStream.readSize` to reject a negative size.
