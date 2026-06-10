@@ -23,30 +23,33 @@ module Demo
 ```csharp
 // Client application
 using(var communicator = Ice.Util.initialize(ref args))
-var hello = HelloPrxHelper.checkedCast(
-    communicator.stringToProxy("hello:default -h localhost -p 10000"));
-hello.sayHello();
+{
+    var hello = Demo.HelloPrxHelper.checkedCast(
+        communicator.stringToProxy("hello:default -h localhost -p 10000"));
+    hello.sayHello();
+}
 ```
 
 ```csharp
 // Server application
 using(var communicator = Ice.Util.initialize(ref args))
-
-// Shut down the communicator on Ctrl+C or Ctrl+Break.
-Console.CancelKeyPress += (sender, eventArgs) =>
 {
-    eventArgs.Cancel = true;
-    communicator.shutdown();
-};
+    // Shut down the communicator on Ctrl+C or Ctrl+Break.
+    Console.CancelKeyPress += (sender, eventArgs) =>
+    {
+        eventArgs.Cancel = true;
+        communicator.shutdown();
+    };
 
-var adapter = communicator.createObjectAdapterWithEndpoints(
-    "Hello",
-    "default -h localhost -p 10000");
-adapter.add(new Printer(), Ice.Util.stringToIdentity("hello"));
-adapter.activate();
-communicator.waitForShutdown();
+    var adapter = communicator.createObjectAdapterWithEndpoints(
+        "Hello",
+        "default -h localhost -p 10000");
+    adapter.add(new Printer(), Ice.Util.stringToIdentity("hello"));
+    adapter.activate();
+    communicator.waitForShutdown();
+}
 
-public class Printer : HelloDisp_
+public class Printer : Demo.HelloDisp_
 {
     /// <summary>Prints a message to the standard output.</summary>
     public override void sayHello(Ice.Current current)
