@@ -116,54 +116,52 @@ These are the changes since Ice 3.7.11.
 ## General Changes
 
 - Hardened the unmarshaling code to detect and reject invalid data sent by a peer:
-  - Fixed an integer overflow in the sequence-size validation performed while unmarshaling.
   - Fixed an unbounded memory allocation when unmarshaling a proxy with a large endpoint count.
-  - Fixed undefined behavior when unmarshaling a class or exception slice whose declared size is too
-    small to hold its optional members.
+  - Fixed an integer overflow in the sequence-size validation performed while unmarshaling.
+  - Fixed undefined behavior when unmarshaling a class or exception slice whose declared size is too small to hold
+    its optional members.
+  - Fixed the unmarshaling of a batch request message to reject a request count larger than the remaining message
+    data could hold.
   - Fixed the unmarshaling of IP endpoints to reject a port value outside the 0..65535 range.
-  - Fixed the unmarshaling of a batch request message to reject a request count larger than the
-    remaining message data could hold.
 
-- Changed the Glacier2 `crypt` permissions verifier to compare password hashes in constant time,
-  removing a remote timing side channel on `checkPermissions`.
+- Changed the Glacier2 `crypt` permissions verifier to compare password hashes in constant time, removing a remote
+  timing side channel on `checkPermissions`.
 
-- Changed the Glacier2 `crypt` permissions verifier to reject malformed entries (lines that do not
-  contain exactly a user id and a password) in its password file, rather than silently mis-parsing
-  them.
+- Changed the Glacier2 `crypt` permissions verifier to reject malformed entries (lines that do not contain exactly a
+  user id and a password) in its password file, rather than silently mis-parsing them.
 
-- The Glacier2 `crypt` permissions verifier now logs a warning at startup when its password file
-  contains DES-style password hashes, which rely on a weak algorithm.
+- The Glacier2 `crypt` permissions verifier now logs a warning at startup when its password file contains DES-style
+  password hashes, which rely on a weak algorithm.
 
-- Fixed the WebSocket transport to enforce the RFC 6455 control-frame limits: a close, ping, or
-  pong frame that is fragmented or declares a payload larger than 125 bytes is now rejected before
-  any payload buffer is allocated, as is any frame with a non-zero reserved (RSV) bit.
+- Fixed the WebSocket transport to enforce the RFC 6455 limits on control frames: a close, ping, or pong frame that
+  is fragmented or declares a payload larger than 125 bytes is now rejected before any payload buffer is allocated,
+  as is any frame with a non-zero reserved (RSV) bit.
 
-- Fixed the IceGrid registry and Glacier2 router to reject the creation of an SSL-based session when
-  the client provides no certificate or a certificate with an empty subject DN. Previously the
-  IceGrid admin-session path accepted such connections.
+- Fixed the IceGrid registry and Glacier2 router to reject the creation of an SSL-based session when the client
+  provides no certificate or a certificate with an empty subject DN. Previously the IceGrid admin-session path
+  accepted such connections.
 
-- Fixed a null pointer dereference in the IceGrid registry and Glacier2 router when creating an
-  SSL-based session over a non-IP transport (such as Bluetooth).
+- Fixed a null pointer dereference in the IceGrid registry and Glacier2 router when creating an SSL-based session
+  over a non-IP transport (such as Bluetooth).
 
-- Changed the macOS SSL transport to enable only forward-secret (ECDHE) cipher suites when no
-  ciphers are explicitly configured. An `IceSSL.Ciphers` setting still takes precedence.
+- Changed the macOS SSL transport to enable only forward-secret (ECDHE) cipher suites when no ciphers are explicitly
+  configured. An `IceSSL.Ciphers` setting still takes precedence.
 
 - Changed the macOS SSL transport to require TLS 1.2 or later, by changing the default value of
-  `IceSSL.ProtocolVersionMin` to `tls1_2`. An explicit `IceSSL.ProtocolVersionMin` setting still
-  takes precedence.
+  `IceSSL.ProtocolVersionMin` to `tls1_2`. An explicit `IceSSL.ProtocolVersionMin` setting still takes precedence.
 
-- Changed the macOS SSL transport so that, when `IceSSL.Keychain` is not set, the certificate
-  configured with `IceSSL.CertFile` is imported into a temporary keychain (removed when the
-  communicator is destroyed) instead of the user's login keychain.
+- Changed the macOS SSL transport so that, when `IceSSL.Keychain` is not set, the certificate configured with
+  `IceSSL.CertFile` is imported into a temporary keychain (removed when the communicator is destroyed) instead of the
+  user's login keychain.
 
-- The IceSSL OpenSSL transport now rejects peer-initiated TLS renegotiation, which is a
-  CPU-asymmetric denial-of-service primitive on TLS 1.2. This relies on `SSL_OP_NO_RENEGOTIATION`
-  and therefore takes effect only when built against OpenSSL 1.1.0h or later. The macOS
-  SecureTransport and Windows Schannel transports already reject it.
+- The IceSSL OpenSSL transport now rejects peer-initiated TLS renegotiation, which is a CPU-asymmetric
+  denial-of-service primitive on TLS 1.2. This relies on `SSL_OP_NO_RENEGOTIATION` and therefore takes effect only
+  when built against OpenSSL 1.1.0h or later. The macOS SecureTransport and Windows Schannel transports already
+  reject it.
 
-- Hardened the internal file-lock used by IceGrid and IceStorm on non-Windows platforms: the lock
-  file is now created without group read/write permissions and is opened with `O_NOFOLLOW` so a
-  pre-existing symbolic link at the lock path is not followed.
+- Hardened the internal file-lock used by IceGrid and IceStorm on non-Windows platforms: the lock file is now created
+  without group read/write permissions and is opened with `O_NOFOLLOW` so a pre-existing symbolic link at the lock
+  path is not followed.
 
 ## Swift Changes
 
