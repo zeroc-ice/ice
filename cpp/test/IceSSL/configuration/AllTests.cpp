@@ -1953,7 +1953,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         //
         // In macOS we don't support IceSSL.Protocols as secure transport doesn't allow to set the enabled protocols
         // instead we use IceSSL.ProtocolVersionMax IceSSL.ProtocolVersionMin to set the maximun and minimum
-        // enabled protocol versions. See the test bellow.
+        // enabled protocol versions. See the test below.
         //
 
         {
