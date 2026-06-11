@@ -10,11 +10,14 @@ particular aspect of Ice.
 
 - [Changes in Ice 3.7.12](#changes-in-ice-3712)
   - [General Changes](#general-changes)
+  - [C++ Changes](#c-changes)
   - [Swift Changes](#swift-changes)
+  - [Ice Service Changes](#ice-service-changes)
+    - [IceGrid and Glacier2](#icegrid-and-glacier2)
 - [Changes in Ice 3.7.11](#changes-in-ice-3711)
   - [General Changes](#general-changes-1)
-  - [C++ Changes](#c-changes)
-  - [C# Changes](#c-changes-1)
+  - [C++ Changes](#c-changes-1)
+  - [C# Changes](#c-changes-2)
   - [Java Changes](#java-changes)
   - [JavaScript Changes](#javascript-changes)
   - [MATLAB Changes](#matlab-changes)
@@ -24,37 +27,37 @@ particular aspect of Ice.
   - [IceSSL Changes](#icessl-changes)
   - [IceStorm Changes](#icestorm-changes)
 - [Changes in Ice 3.7.10](#changes-in-ice-3710)
-  - [C++ Changes](#c-changes-2)
-  - [C# Changes](#c-changes-3)
+  - [C++ Changes](#c-changes-3)
+  - [C# Changes](#c-changes-4)
   - [Java Changes](#java-changes-1)
   - [Python Changes](#python-changes-1)
 - [Changes in Ice 3.7.9](#changes-in-ice-379)
-  - [C++ Changes](#c-changes-4)
-  - [C# Changes](#c-changes-5)
+  - [C++ Changes](#c-changes-5)
+  - [C# Changes](#c-changes-6)
   - [Java Changes](#java-changes-2)
   - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes-2)
   - [Ruby Changes](#ruby-changes-1)
   - [Swift Changes](#swift-changes-2)
 - [Changes in Ice 3.7.8](#changes-in-ice-378)
-  - [C++ Changes](#c-changes-6)
+  - [C++ Changes](#c-changes-7)
   - [JavaScript Changes](#javascript-changes-1)
   - [MATLAB Changes](#matlab-changes-1)
   - [PHP Changes](#php-changes-1)
   - [Python Changes](#python-changes-3)
 - [Changes in Ice 3.7.7](#changes-in-ice-377)
-  - [C++ Changes](#c-changes-7)
+  - [C++ Changes](#c-changes-8)
   - [Java Changes](#java-changes-3)
 - [Changes in Ice 3.7.6](#changes-in-ice-376)
   - [General Changes](#general-changes-2)
-  - [C++ Changes](#c-changes-8)
+  - [C++ Changes](#c-changes-9)
   - [Java Changes](#java-changes-4)
   - [JavaScript Changes](#javascript-changes-2)
   - [Swift Changes](#swift-changes-3)
 - [Changes in Ice 3.7.5](#changes-in-ice-375)
   - [General Changes](#general-changes-3)
-  - [C++ Changes](#c-changes-9)
-  - [C# Changes](#c-changes-10)
+  - [C++ Changes](#c-changes-10)
+  - [C# Changes](#c-changes-11)
   - [JavaScript Changes](#javascript-changes-3)
   - [PHP Changes](#php-changes-2)
   - [Python Changes](#python-changes-4)
@@ -62,8 +65,8 @@ particular aspect of Ice.
   - [Swift Changes](#swift-changes-4)
 - [Changes in Ice 3.7.4](#changes-in-ice-374)
   - [General Changes](#general-changes-4)
-  - [C++ Changes](#c-changes-11)
-  - [C# Changes](#c-changes-12)
+  - [C++ Changes](#c-changes-12)
+  - [C# Changes](#c-changes-13)
   - [JavaScript Changes](#javascript-changes-4)
   - [MATLAB Changes](#matlab-changes-2)
   - [Python Changes](#python-changes-5)
@@ -71,16 +74,16 @@ particular aspect of Ice.
   - [Swift Changes](#swift-changes-5)
 - [Changes in Ice 3.7.3](#changes-in-ice-373)
   - [General Changes](#general-changes-5)
-  - [C++ Changes](#c-changes-13)
-  - [C# Changes](#c-changes-14)
+  - [C++ Changes](#c-changes-14)
+  - [C# Changes](#c-changes-15)
   - [Java Changes](#java-changes-5)
   - [JavaScript Changes](#javascript-changes-5)
   - [MATLAB Changes](#matlab-changes-3)
   - [Python Changes](#python-changes-6)
 - [Changes in Ice 3.7.2](#changes-in-ice-372)
   - [General Changes](#general-changes-6)
-  - [C++ Changes](#c-changes-15)
-  - [C# Changes](#c-changes-16)
+  - [C++ Changes](#c-changes-16)
+  - [C# Changes](#c-changes-17)
   - [Java Changes](#java-changes-6)
   - [JavaScript Changes](#javascript-changes-6)
   - [MATLAB Changes](#matlab-changes-4)
@@ -89,8 +92,8 @@ particular aspect of Ice.
   - [Python Changes](#python-changes-7)
 - [Changes in Ice 3.7.1](#changes-in-ice-371)
   - [General Changes](#general-changes-7)
-  - [C++ Changes](#c-changes-17)
-  - [C# Changes](#c-changes-18)
+  - [C++ Changes](#c-changes-18)
+  - [C# Changes](#c-changes-19)
   - [Java Changes](#java-changes-7)
   - [JavaScript Changes](#javascript-changes-7)
   - [MATLAB Changes](#matlab-changes-5)
@@ -100,8 +103,8 @@ particular aspect of Ice.
   - [Ruby Changes](#ruby-changes-4)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
   - [General Changes](#general-changes-8)
-  - [C++ Changes](#c-changes-19)
-  - [C# Changes](#c-changes-20)
+  - [C++ Changes](#c-changes-20)
+  - [C# Changes](#c-changes-21)
   - [Java Changes](#java-changes-8)
   - [JavaScript Changes](#javascript-changes-8)
   - [Objective-C Changes](#objective-c-changes-2)
@@ -115,6 +118,8 @@ These are the changes since Ice 3.7.11.
 
 ## General Changes
 
+- Fixed the WebSocket transport to enforce the RFC 6455 limits on control frames.
+
 - Hardened the unmarshaling code to detect and reject invalid data sent by a peer:
   - Fixed an unbounded memory allocation when unmarshaling a proxy with a large endpoint count.
   - Fixed an integer overflow in the sequence-size validation performed while unmarshaling.
@@ -124,48 +129,38 @@ These are the changes since Ice 3.7.11.
     data could hold.
   - Fixed the unmarshaling of IP endpoints to reject a port value outside the 0..65535 range.
 
-- Changed the Glacier2 `crypt` permissions verifier to compare password hashes in constant time, removing a remote
-  timing side channel on `checkPermissions`.
-
-- Changed the Glacier2 `crypt` permissions verifier to reject malformed entries (lines that do not contain exactly a
-  user id and a password) in its password file, rather than silently mis-parsing them.
-
-- The Glacier2 `crypt` permissions verifier now logs a warning at startup when its password file contains DES-style
-  password hashes, which rely on a weak algorithm.
-
-- Fixed the WebSocket transport to enforce the RFC 6455 limits on control frames: a close, ping, or pong frame that
-  is fragmented or declares a payload larger than 125 bytes is now rejected before any payload buffer is allocated,
-  as is any frame with a non-zero reserved (RSV) bit.
-
-- Fixed the IceGrid registry and Glacier2 router to reject the creation of an SSL-based session when the client
-  provides no certificate or a certificate with an empty subject DN. Previously the IceGrid admin-session path
-  accepted such connections.
-
-- Fixed a null pointer dereference in the IceGrid registry and Glacier2 router when creating an SSL-based session
-  over a non-IP transport (such as Bluetooth).
-
-- Changed the macOS SSL transport to enable only forward-secret (ECDHE) cipher suites when no ciphers are explicitly
-  configured. An `IceSSL.Ciphers` setting still takes precedence.
+## C++ Changes
 
 - Changed the macOS SSL transport to require TLS 1.2 or later, by changing the default value of
   `IceSSL.ProtocolVersionMin` to `tls1_2`. An explicit `IceSSL.ProtocolVersionMin` setting still takes precedence.
 
-- Changed the macOS SSL transport so that, when `IceSSL.Keychain` is not set, the certificate configured with
-  `IceSSL.CertFile` is imported into a temporary keychain (removed when the communicator is destroyed) instead of the
-  user's login keychain.
+- Updated the macOS SSL transport to enable only forward-secret (ECDHE) cipher suites, and, when `IceSSL.Keychain` is
+  not set, import the certificate configured with `IceSSL.CertFile` into a temporary keychain instead of the user's
+  login keychain.
 
-- The IceSSL OpenSSL transport now rejects peer-initiated TLS renegotiation, which is a CPU-asymmetric
-  denial-of-service primitive on TLS 1.2. This relies on `SSL_OP_NO_RENEGOTIATION` and therefore takes effect only
-  when built against OpenSSL 1.1.0h or later. The macOS SecureTransport and Windows Schannel transports already
-  reject it.
-
-- Hardened the internal file-lock used by IceGrid and IceStorm on non-Windows platforms: the lock file is now created
-  without group read/write permissions and is opened with `O_NOFOLLOW` so a pre-existing symbolic link at the lock
-  path is not followed.
+- Updated the OpenSSL SSL engine to reject peer-initiated TLS renegotiation. This applies to all SSL-based transports
+  (`ssl`, `wss`, `bts`).
 
 ## Swift Changes
 
 - Fixed `InputStream.readSize` to reject a negative size.
+
+## Ice Service Changes
+
+### IceGrid and Glacier2
+
+- Updated the creation of SSL-based sessions in IceGrid and Glacier2: a connection without a client certificate, or with
+  an empty DN, is now rejected before reaching the permissions verifier.
+
+- Updated the Glacier2CryptPermissionsVerifier plug-in, a permissions verifier supported by both the IceGrid registry
+  and the Glacier2 router:
+  - Glacier2CryptPermissionsVerifier now issues a warning when the configured password file contains one or more DES
+    passwords.
+  - Fixed Glacier2CryptPermissionsVerifier to compare hashed passwords in constant time, removing a timing side-channel
+    that could leak bytes of the stored hash.
+  - Fixed Glacier2CryptPermissionsVerifier to reject password files with malformed entries. Each line must contain
+    exactly two whitespace-separated tokens (user id and password hash); lines with extra fields were previously parsed
+    incorrectly without raising an error.
 
 # Changes in Ice 3.7.11
 
