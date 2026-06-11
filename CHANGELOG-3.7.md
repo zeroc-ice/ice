@@ -138,7 +138,7 @@ These are the changes since Ice 3.7.11.
   not set, import the certificate configured with `IceSSL.CertFile` into a temporary keychain instead of the user's
   login keychain.
 
-- Reject peer-initiated TLS renegotiation in the OpenSSL SSL engine. This applies to all SSL-based transports
+- Updated the OpenSSL SSL engine to reject peer-initiated TLS renegotiation. This applies to all SSL-based transports
   (`ssl`, `wss`, `bts`).
 
 ## Swift Changes
