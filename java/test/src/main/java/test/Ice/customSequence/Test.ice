@@ -4,7 +4,7 @@
 
 #include "Ice/BuiltinSequences.ice"
 
-["java:identifier:test.Ice.custom.Test"]
+["java:identifier:test.Ice.customSequence.Test"]
 module Test
 {
     struct A
