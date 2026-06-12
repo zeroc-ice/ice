@@ -295,6 +295,7 @@ public final class InputStream {
     ///
     /// - Parameter count: The number of bytes to skip.
     public func skip(_ count: Int32) throws {
+        precondition(count >= 0, "skip count is negative")
         try changePos(offset: Int(count))
     }
 
