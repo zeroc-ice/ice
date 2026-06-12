@@ -58,4 +58,8 @@ module Test
         /// @throws CommentDummy should give a duplicate-tag warning.
         string stringOp(string name, int value, out byte myOut) throws CommentDummy;
     }
+
+    /// Unterminated link tag: {@link CommentDummy
+    /// But whitespace around the identifier is fine: {@link CommentDummy }
+    exception UnterminatedLink {}
 }

@@ -325,12 +325,24 @@ namespace
         const string linkTag = "{@link ";
 
         auto endpos = line.find('}', pos);
-        if (endpos != string::npos)
+        if (endpos == string::npos)
         {
-            // Extract the linked-to identifier.
+            // No closing brace was found. Emit a warning, then skip to the next line. This one is broken.
+            const string msg = "unterminated link tag: missing closing '}'";
+            p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+
+            pos = line.size();
+        }
+        else
+        {
+            // Extract the linked-to identifier, trimming any whitespace around it.
+            string linkText;
             auto identStart = line.find_first_not_of(" \t", pos + linkTag.size());
-            auto identEnd = line.find_last_not_of(" \t", endpos);
-            string linkText = line.substr(identStart, identEnd - identStart);
+            if (identStart < endpos)
+            {
+                auto identEnd = line.find_last_not_of(" \t", endpos - 1);
+                linkText = line.substr(identStart, identEnd - identStart + 1);
+            }
 
             // Then erase the entire '{@link foo}' tag from the comment.
             line.erase(pos, endpos - pos + 1);
