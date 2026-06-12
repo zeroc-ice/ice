@@ -85,7 +85,12 @@ namespace IcePy
         }
         else if (checkString(p))
         {
-            os->write(getString(p), false); // Bypass string conversion.
+            string str = getString(p);
+            if (PyErr_Occurred())
+            {
+                return false; // The string is not UTF-8 encodable.
+            }
+            os->write(str, false); // Bypass string conversion.
         }
         else
         {

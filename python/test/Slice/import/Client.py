@@ -15,6 +15,8 @@ from generated.test.Slice.import_test.Test.SubA.SubSubA2 import Value1 as Test_S
 from generated.test.Slice.import_test.Test.SubB.SubSubB1 import Value1 as Test_SubB_SubSubB1_Value1
 from generated.test.Slice.import_test.Test.SubB.SubSubB1 import Value2 as Test_SubB_SubSubB1_Value2
 
+import IcePy
+
 
 class Client(TestHelper):
     def run(self, args: list[str]):
@@ -25,5 +27,15 @@ class Client(TestHelper):
         test(Test_SubA_SubSubA2_Value1 == 30)
         test(Test_SubB_SubSubB1_Value1 == 20)
         test(Test_SubB_SubSubB1_Value2 == 21)
+
+        print("ok")
+
+        sys.stdout.write("testing compileSlice with an empty argument list... ")
+        sys.stdout.flush()
+        try:
+            IcePy.compileSlice([])
+            test(False)
+        except ValueError:
+            pass
 
         print("ok")

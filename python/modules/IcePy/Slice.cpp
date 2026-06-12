@@ -196,6 +196,13 @@ IcePy_compileSlice(PyObject* /*self*/, PyObject* args)
         return nullptr;
     }
 
+    // Slice::Python::compile and the catch handlers below expect args[0] to be the program name.
+    if (argSeq.empty())
+    {
+        PyErr_Format(PyExc_ValueError, "arguments cannot be empty");
+        return nullptr;
+    }
+
     int rc;
     try
     {
