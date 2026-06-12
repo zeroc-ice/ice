@@ -570,7 +570,10 @@ namespace
                          0,
                          next)) != 0)
                 {
-                    certs.push_back(next);
+                    // CertFindCertificateInStore frees the context passed as pPrevCertContext on the next iteration
+                    // (and frees the last one when it returns null). Duplicate the context to keep an owned reference
+                    // that remains valid after enumeration; these duplicates are released in the destructor.
+                    certs.push_back(CertDuplicateCertificateContext(next));
                 }
             } while (next);
             stores.push_back(store);
