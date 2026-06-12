@@ -39,7 +39,7 @@ export class ImplicitContext {
         }
 
         let val = this._context.get(key);
-        if (val === null) {
+        if (val === undefined) {
             val = "";
         }
 
@@ -55,7 +55,7 @@ export class ImplicitContext {
         }
 
         let oldVal = this._context.get(key);
-        if (oldVal === null) {
+        if (oldVal === undefined) {
             oldVal = "";
         }
 
@@ -72,7 +72,7 @@ export class ImplicitContext {
         let val = this._context.get(key);
         this._context.delete(key);
 
-        if (val === null) {
+        if (val === undefined) {
             val = "";
         }
         return val;

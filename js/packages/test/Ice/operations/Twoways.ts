@@ -1321,9 +1321,14 @@ export async function twoways(
         test(Ice.MapUtil.equals(await p3.opContext(), ctx));
 
         test(ic.getImplicitContext().containsKey("zero") == false);
+        test(ic.getImplicitContext().get("zero") === "");
         const r = ic.getImplicitContext().put("zero", "ZERO");
-        test(r === undefined);
+        test(r === "");
         test(ic.getImplicitContext().get("zero") == "ZERO");
+        test(ic.getImplicitContext().put("zero", "ZERO-2") === "ZERO");
+        test(ic.getImplicitContext().remove("zero") === "ZERO-2");
+        test(ic.getImplicitContext().remove("zero") === "");
+        test(ic.getImplicitContext().put("zero", "ZERO") === "");
 
         ctx = ic.getImplicitContext().getContext();
         test(Ice.MapUtil.equals(await p3.opContext(), ctx));
