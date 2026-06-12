@@ -301,8 +301,8 @@ public class AllTests {
 
             TestIntf.OpOptByteBoolLinkedDictResult r = prx.opOptByteBoolLinkedDict(inDict);
 
-            test(r.outDict.equals(inDict));
-            test(r.returnValue.equals(inDict));
+            test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().equals(inDict));
         }
 
         {
@@ -313,8 +313,8 @@ public class AllTests {
 
             TestIntf.OpOptShortIntLinkedDictResult r = prx.opOptShortIntLinkedDict(inDict);
 
-            test(r.outDict.equals(inDict));
-            test(r.returnValue.equals(inDict));
+            test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().equals(inDict));
         }
 
         {
@@ -325,8 +325,8 @@ public class AllTests {
 
             TestIntf.OpOptLongFloatLinkedDictResult r = prx.opOptLongFloatLinkedDict(inDict);
 
-            test(r.outDict.equals(inDict));
-            test(r.returnValue.equals(inDict));
+            test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().equals(inDict));
         }
 
         {
@@ -337,8 +337,8 @@ public class AllTests {
 
             TestIntf.OpOptStringDoubleLinkedDictResult r = prx.opOptStringDoubleLinkedDict(inDict);
 
-            test(r.outDict.equals(inDict));
-            test(r.returnValue.equals(inDict));
+            test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().equals(inDict));
         }
 
         {
@@ -349,8 +349,8 @@ public class AllTests {
 
             TestIntf.OpOptAIntDictResult r = prx.opOptAIntDict(inDict);
 
-            test(r.outDict.equals(inDict));
-            test(r.returnValue.equals(inDict));
+            test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().equals(inDict));
         }
 
         {
@@ -361,8 +361,8 @@ public class AllTests {
 
             TestIntf.OpOptAIntLinkedDictResult r = prx.opOptAIntLinkedDict(inDict);
 
-            test(r.outDict.equals(inDict));
-            test(r.returnValue.equals(inDict));
+            test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().equals(inDict));
         }
 
         {
@@ -373,8 +373,8 @@ public class AllTests {
 
             TestIntf.OpOptAIntFormalLinkedDictResult r = prx.opOptAIntFormalLinkedDict(inDict);
 
-            test(r.outDict.equals(inDict));
-            test(r.returnValue.equals(inDict));
+            test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().equals(inDict));
         }
 
         {
@@ -385,8 +385,8 @@ public class AllTests {
 
             TestIntf.OpOptStringEDictResult r = prx.opOptStringEDict(inDict);
 
-            test(r.outDict.equals(inDict));
-            test(r.returnValue.equals(inDict));
+            test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().equals(inDict));
         }
 
         {
@@ -397,8 +397,8 @@ public class AllTests {
 
             TestIntf.OpOptStringELinkedDictResult r = prx.opOptStringELinkedDict(inDict);
 
-            test(r.outDict.equals(inDict));
-            test(r.returnValue.equals(inDict));
+            test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().equals(inDict));
         }
 
         {
@@ -409,8 +409,8 @@ public class AllTests {
 
             TestIntf.OpOptStringEFormalLinkedDictResult r = prx.opOptStringEFormalLinkedDict(inDict);
 
-            test(r.outDict.equals(inDict));
-            test(r.returnValue.equals(inDict));
+            test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().equals(inDict));
         }
 
         {
