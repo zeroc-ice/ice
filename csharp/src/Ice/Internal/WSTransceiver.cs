@@ -721,9 +721,8 @@ internal sealed class WSTransceiver : Transceiver
     private void handleRequest(Buffer responseBuffer)
     {
         //
-        // "The handshake MUST be a valid HTTP request as specified by [RFC2616]." and "The method of the request MUST
-        //  be GET" (RFC 6455 section 4.1). Reject anything that is not a GET request before calling uri()/method(),
-        // which assert _type == Type.Request and would otherwise accept a remotely-supplied response-shaped message.
+        // The opening handshake must be a GET request (RFC 6455 section 4.1). Reject anything else before calling
+        // uri()/method(), which assert the parser holds a request.
         //
         if (_parser.type() != HttpParser.Type.Request)
         {
