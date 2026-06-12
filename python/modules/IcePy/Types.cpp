@@ -1293,7 +1293,7 @@ IcePy::SequenceInfo::marshal(
                     if (!fs.get())
                     {
                         assert(PyErr_Occurred());
-                        return;
+                        throw AbortMarshaling();
                     }
                     sz = PySequence_Fast_GET_SIZE(fs.get());
                 }
@@ -1317,7 +1317,8 @@ IcePy::SequenceInfo::marshal(
         PyObjectHandle fastSeq{PySequence_Fast(p, "expected a sequence value")};
         if (!fastSeq.get())
         {
-            return;
+            assert(PyErr_Occurred());
+            throw AbortMarshaling();
         }
 
         Py_ssize_t sz = PySequence_Fast_GET_SIZE(fastSeq.get());
@@ -1574,7 +1575,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
     if (!fs.get())
     {
         assert(PyErr_Occurred());
-        return;
+        throw AbortMarshaling();
     }
 
     Py_ssize_t sz = 0;
@@ -2546,7 +2547,7 @@ IcePy::ValueInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectM
         return;
     }
 
-    if (!PyObject_IsInstance(p, pythonType))
+    if (PyObject_IsInstance(p, pythonType) != 1)
     {
         PyErr_Format(PyExc_ValueError, "expected value of type %s", id.c_str());
         throw AbortMarshaling();
@@ -3001,7 +3002,7 @@ IcePy::ReadValueCallback::invoke(const std::shared_ptr<Ice::Value>& p)
         // Verify that the value's type is compatible with the formal type.
         //
         PyObject* obj = reader->getObject(); // Borrowed reference.
-        if (!PyObject_IsInstance(obj, _info->pythonType))
+        if (PyObject_IsInstance(obj, _info->pythonType) != 1)
         {
             throw MarshalException{
                 __FILE__,
@@ -3024,7 +3025,7 @@ IcePy::ReadValueCallback::invoke(const std::shared_ptr<Ice::Value>& p)
 void
 IcePy::ExceptionInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectMap)
 {
-    if (!PyObject_IsInstance(p, pythonType))
+    if (PyObject_IsInstance(p, pythonType) != 1)
     {
         PyErr_Format(PyExc_ValueError, "expected exception %s", id.c_str());
         throw AbortMarshaling();

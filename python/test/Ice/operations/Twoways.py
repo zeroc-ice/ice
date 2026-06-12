@@ -239,6 +239,37 @@ def twoways(helper: TestHelper, p: Test.MyClassPrx) -> None:
         pass
 
     #
+    # Test passing non-sequence values for sequence parameters. The invocation must
+    # fail with a clean exception and must not write a corrupt message.
+    #
+    try:
+        p.opByteS(123, 456)  # pyright: ignore
+        test(False)
+    except TypeError:
+        pass
+
+    try:
+        p.opStringS(5, [])  # pyright: ignore
+        test(False)
+    except TypeError:
+        pass
+
+    try:
+        p.opStringSS([42], [])  # pyright: ignore
+        test(False)
+    except TypeError:
+        pass
+
+    try:
+        p.opByteSAsync(123, 456)  # pyright: ignore
+        test(False)
+    except TypeError:
+        pass
+
+    # The connection must still be usable.
+    p.ice_ping()
+
+    #
     # opString
     #
     r, s = p.opString("hello", "world")
