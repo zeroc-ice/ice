@@ -231,7 +231,11 @@ public final class InputStream {
         case .VSize:
             try skip(readSize())
         case .FSize:
-            try skip(read())
+            let sz: Int32 = try read()
+            if sz < 0 {
+                throw MarshalException("invalid negative size for optional field")
+            }
+            try skip(sz)
         case .Class:
             throw MarshalException("cannot skip an optional class")
         }
@@ -681,13 +685,13 @@ extension InputStream {
                 return try read()
             } else if enumMaxValue < 32767 {
                 let v: Int16 = try read()
-                guard v <= UInt8.max else {
+                guard 0 <= v && v <= UInt8.max else {
                     throw MarshalException("unexpected enumerator value")
                 }
                 return UInt8(v)
             } else {
                 let v: Int32 = try read()
-                guard v <= UInt8.max else {
+                guard 0 <= v && v <= UInt8.max else {
                     throw MarshalException("unexpected enumerator value")
                 }
                 return UInt8(v)
