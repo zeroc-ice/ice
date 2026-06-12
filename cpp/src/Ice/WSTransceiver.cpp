@@ -922,6 +922,20 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
     string val;
 
     //
+    // "The handshake MUST be a valid HTTP request as specified by [RFC2616]." and "The method of the request MUST
+    //  be GET" (RFC 6455 section 4.1). Reject anything that is not a GET request before calling uri()/method(),
+    // which assert _type == TypeRequest and would otherwise abort on a remotely-supplied response-shaped message.
+    //
+    if (_parser->type() != HttpParser::TypeRequest)
+    {
+        throw WebSocketException("WebSocket handshake is not an HTTP request");
+    }
+    if (_parser->method() != "GET")
+    {
+        throw WebSocketException("unsupported HTTP method '" + _parser->method() + "' for WebSocket handshake");
+    }
+
+    //
     // HTTP/1.1
     //
     if (_parser->versionMajor() != 1 || _parser->versionMinor() != 1)
