@@ -2419,10 +2419,16 @@ namespace
     bool areRemainingParamsOptional(const ParameterList& params, const string& name)
     {
         auto it = params.begin();
-        do
+        while (it != params.end() && (*it)->name() != name)
         {
-            it++;
-        } while (it != params.end() && (*it)->name() != name);
+            ++it;
+        }
+
+        // Skip the parameter itself: only the parameters that follow it matter.
+        if (it != params.end())
+        {
+            ++it;
+        }
 
         for (; it != params.end(); ++it)
         {
