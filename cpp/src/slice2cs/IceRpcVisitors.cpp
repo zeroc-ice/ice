@@ -1216,7 +1216,7 @@ Slice::IceRpc::TypesVisitor::writeProxyResponseClass(const InterfaceDefPtr& inte
                 _out << nl << "return " << spar;
                 for (const auto& param : returnParams)
                 {
-                     _out << ("sliceP_" + removeEscapePrefix(param->mappedName()));
+                    _out << ("sliceP_" + removeEscapePrefix(param->mappedName()));
                 }
                 _out << epar << ";";
 
