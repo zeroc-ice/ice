@@ -429,6 +429,17 @@ final class WSTransceiver implements Transceiver {
     }
 
     private void handleRequest(Buffer responseBuffer) {
+        // "The handshake MUST be a valid HTTP request as specified by [RFC2616]." and "The method of the request MUST
+        //  be GET" (RFC 6455 section 4.1). Reject anything that is not a GET request before calling uri()/method(),
+        // which assert _type == Type.Request and would otherwise accept a remotely-supplied response-shaped message.
+        if (!_parser.isRequest()) {
+            throw new WebSocketException("WebSocket handshake is not an HTTP request");
+        }
+        if (!"GET".equals(_parser.method())) {
+            throw new WebSocketException(
+                "unsupported HTTP method '" + _parser.method() + "' for WebSocket handshake");
+        }
+
         //
         // HTTP/1.1
         //
