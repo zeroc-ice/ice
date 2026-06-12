@@ -49,6 +49,7 @@ import test.Ice.operations.Test.sw9;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -162,6 +163,17 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
+    public CompletionStage<MyClass.OpByteBoolLinkedDResult> opByteBoolLinkedDAsync(
+            Map<Byte, Boolean> p1, Map<Byte, Boolean> p2, Current current) {
+        MyClass.OpByteBoolLinkedDResult r = new MyClass.OpByteBoolLinkedDResult();
+        r.p3 = p1;
+        r.returnValue = new LinkedHashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
+    }
+
+    @Override
     public CompletionStage<MyClass.OpByteSResult> opByteSAsync(
             byte[] p1, byte[] p2, Current current) {
         MyClass.OpByteSResult r = new MyClass.OpByteSResult();
@@ -241,6 +253,17 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
+    public CompletionStage<MyClass.OpLongFloatLinkedDResult> opLongFloatLinkedDAsync(
+            Map<Long, Float> p1, Map<Long, Float> p2, Current current) {
+        MyClass.OpLongFloatLinkedDResult r = new MyClass.OpLongFloatLinkedDResult();
+        r.p3 = p1;
+        r.returnValue = new LinkedHashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
+    }
+
+    @Override
     public CompletionStage<MyClass.OpMyClassResult> opMyClassAsync(MyClassPrx p1, Current current) {
         MyClass.OpMyClassResult r = new MyClass.OpMyClassResult();
         r.p2 = p1;
@@ -263,6 +286,17 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
         MyClass.OpShortIntDResult r = new MyClass.OpShortIntDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
+    }
+
+    @Override
+    public CompletionStage<MyClass.OpShortIntLinkedDResult> opShortIntLinkedDAsync(
+            Map<Short, Integer> p1, Map<Short, Integer> p2, Current current) {
+        MyClass.OpShortIntLinkedDResult r = new MyClass.OpShortIntLinkedDResult();
+        r.p3 = p1;
+        r.returnValue = new LinkedHashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return CompletableFuture.completedFuture(r);
@@ -327,11 +361,34 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
+    public CompletionStage<MyClass.OpStringMyEnumLinkedDResult> opStringMyEnumLinkedDAsync(
+            LinkedHashMap<String, MyEnum> p1, LinkedHashMap<String, MyEnum> p2, Current current) {
+        MyClass.OpStringMyEnumLinkedDResult r = new MyClass.OpStringMyEnumLinkedDResult();
+        r.p3 = p1;
+        r.returnValue = new LinkedHashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
+    }
+
+
+    @Override
     public CompletionStage<MyClass.OpMyEnumStringDResult> opMyEnumStringDAsync(
             Map<MyEnum, String> p1, Map<MyEnum, String> p2, Current current) {
         MyClass.OpMyEnumStringDResult r = new MyClass.OpMyEnumStringDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
+    }
+
+    @Override
+    public CompletionStage<MyClass.OpMyEnumStringLinkedDResult> opMyEnumStringLinkedDAsync(
+            LinkedHashMap<MyEnum, String> p1, LinkedHashMap<MyEnum, String> p2, Current current) {
+        MyClass.OpMyEnumStringLinkedDResult r = new MyClass.OpMyEnumStringLinkedDResult();
+        r.p3 = p1;
+        r.returnValue = new LinkedHashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return CompletableFuture.completedFuture(r);
@@ -345,6 +402,19 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
         MyClass.OpMyStructMyEnumDResult r = new MyClass.OpMyStructMyEnumDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
+    }
+
+    @Override
+    public CompletionStage<MyClass.OpMyStructMyEnumLinkedDResult> opMyStructMyEnumLinkedDAsync(
+            LinkedHashMap<MyStruct, MyEnum> p1,
+            LinkedHashMap<MyStruct, MyEnum> p2,
+            Current current) {
+        MyClass.OpMyStructMyEnumLinkedDResult r = new MyClass.OpMyStructMyEnumLinkedDResult();
+        r.p3 = p1;
+        r.returnValue = new LinkedHashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return CompletableFuture.completedFuture(r);
@@ -641,6 +711,18 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
+    public CompletionStage<MyClass.OpStringStringLinkedDResult> opStringStringLinkedDAsync(
+            LinkedHashMap<String, String> p1, LinkedHashMap<String, String> p2, Current current) {
+        MyClass.OpStringStringLinkedDResult r = new MyClass.OpStringStringLinkedDResult();
+        r.p3 = p1;
+        r.returnValue = new LinkedHashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
+    }
+
+
+    @Override
     public CompletionStage<MyClass.OpStructResult> opStructAsync(
             Structure p1, Structure p2, Current current) {
         MyClass.OpStructResult r = new MyClass.OpStructResult();
@@ -810,6 +892,18 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     public CompletionStage<OpMDict2MarshaledResult> opMDict2Async(
             Map<String, String> p1, Current current) {
         return CompletableFuture.completedFuture(new OpMDict2MarshaledResult(p1, p1, current));
+    }
+
+    @Override
+    public CompletionStage<OpMLinkedDict1MarshaledResult> opMLinkedDict1Async(Current current) {
+        return CompletableFuture.completedFuture(
+            new OpMLinkedDict1MarshaledResult(new LinkedHashMap<>(), current));
+    }
+
+    @Override
+    public CompletionStage<OpMLinkedDict2MarshaledResult> opMLinkedDict2Async(
+            LinkedHashMap<String, String> p1, Current current) {
+        return CompletableFuture.completedFuture(new OpMLinkedDict2MarshaledResult(p1, p1, current));
     }
 
     private Thread _opVoidThread;

@@ -52,6 +52,7 @@ import test.Ice.operations.Test.sw10;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -760,6 +761,141 @@ class Twoways {
             di2.put(s23, MyEnum.enum2);
 
             MyClass.OpMyStructMyEnumDResult r = p.opMyStructMyEnumD(di1, di2);
+
+            test(r.p3.equals(di1));
+            test(r.returnValue.size() == 4);
+            test(r.returnValue.get(s11) == MyEnum.enum1);
+            test(r.returnValue.get(s12) == MyEnum.enum2);
+            test(r.returnValue.get(s22) == MyEnum.enum3);
+            test(r.returnValue.get(s23) == MyEnum.enum2);
+        }
+
+        {
+            Map<Byte, Boolean> di1 = new LinkedHashMap<>();
+            di1.put((byte) 10, Boolean.TRUE);
+            di1.put((byte) 100, Boolean.FALSE);
+            Map<Byte, Boolean> di2 = new LinkedHashMap<>();
+            di2.put((byte) 10, Boolean.TRUE);
+            di2.put((byte) 11, Boolean.FALSE);
+            di2.put((byte) 101, Boolean.TRUE);
+
+            MyClass.OpByteBoolLinkedDResult r = p.opByteBoolLinkedD(di1, di2);
+
+            test(r.p3.equals(di1));
+            test(r.returnValue.size() == 4);
+            test(r.returnValue.get((byte) 10));
+            test(!r.returnValue.get((byte) 11));
+            test(!r.returnValue.get((byte) 100));
+            test(r.returnValue.get((byte) 101));
+        }
+
+        {
+            Map<Short, Integer> di1 = new LinkedHashMap<>();
+            di1.put((short) 110, -1);
+            di1.put((short) 1100, 123123);
+            Map<Short, Integer> di2 = new LinkedHashMap<>();
+            di2.put((short) 110, -1);
+            di2.put((short) 111, -100);
+            di2.put((short) 1101, 0);
+
+            MyClass.OpShortIntLinkedDResult r = p.opShortIntLinkedD(di1, di2);
+
+            test(r.p3.equals(di1));
+            test(r.returnValue.size() == 4);
+            test(r.returnValue.get((short) 110) == -1);
+            test(r.returnValue.get((short) 111) == -100);
+            test(r.returnValue.get((short) 1100) == 123123);
+            test(r.returnValue.get((short) 1101) == 0);
+        }
+
+        {
+            Map<Long, Float> di1 = new LinkedHashMap<>();
+            di1.put(999999110L, -1.1f);
+            di1.put(999999111L, 123123.2f);
+            Map<Long, Float> di2 = new LinkedHashMap<>();
+            di2.put(999999110L, -1.1f);
+            di2.put(999999120L, -100.4f);
+            di2.put(999999130L, 0.5f);
+
+            MyClass.OpLongFloatLinkedDResult r = p.opLongFloatLinkedD(di1, di2);
+
+            test(r.p3.equals(di1));
+            test(r.returnValue.size() == 4);
+            test(r.returnValue.get(999999110L) == -1.1f);
+            test(r.returnValue.get(999999120L) == -100.4f);
+            test(r.returnValue.get(999999111L) == 123123.2f);
+            test(r.returnValue.get(999999130L) == 0.5f);
+        }
+
+        {
+            LinkedHashMap<String, String> di1 = new LinkedHashMap<>();
+            di1.put("foo", "abc -1.1");
+            di1.put("bar", "abc 123123.2");
+            LinkedHashMap<String, String> di2 = new LinkedHashMap<>();
+            di2.put("foo", "abc -1.1");
+            di2.put("FOO", "abc -100.4");
+            di2.put("BAR", "abc 0.5");
+
+            MyClass.OpStringStringLinkedDResult r = p.opStringStringLinkedD(di1, di2);
+
+            test(r.p3.equals(di1));
+            test(r.returnValue.size() == 4);
+            test("abc -1.1".equals(r.returnValue.get("foo")));
+            test("abc -100.4".equals(r.returnValue.get("FOO")));
+            test("abc 123123.2".equals(r.returnValue.get("bar")));
+            test("abc 0.5".equals(r.returnValue.get("BAR")));
+        }
+
+        {
+            LinkedHashMap<String, MyEnum> di1 = new LinkedHashMap<>();
+            di1.put("abc", MyEnum.enum1);
+            di1.put("", MyEnum.enum2);
+            LinkedHashMap<String, MyEnum> di2 = new LinkedHashMap<>();
+            di2.put("abc", MyEnum.enum1);
+            di2.put("qwerty", MyEnum.enum3);
+            di2.put("Hello!!", MyEnum.enum2);
+
+            MyClass.OpStringMyEnumLinkedDResult r = p.opStringMyEnumLinkedD(di1, di2);
+
+            test(r.p3.equals(di1));
+            test(r.returnValue.size() == 4);
+            test(r.returnValue.get("abc") == MyEnum.enum1);
+            test(r.returnValue.get("qwerty") == MyEnum.enum3);
+            test(r.returnValue.get("") == MyEnum.enum2);
+            test(r.returnValue.get("Hello!!") == MyEnum.enum2);
+        }
+
+        {
+            LinkedHashMap<MyEnum, String> di1 = new LinkedHashMap<>();
+            di1.put(MyEnum.enum1, "abc");
+            LinkedHashMap<MyEnum, String> di2 = new LinkedHashMap<>();
+            di2.put(MyEnum.enum2, "Hello!!");
+            di2.put(MyEnum.enum3, "qwerty");
+
+            MyClass.OpMyEnumStringLinkedDResult r = p.opMyEnumStringLinkedD(di1, di2);
+
+            test(r.p3.equals(di1));
+            test(r.returnValue.size() == 3);
+            test("abc".equals(r.returnValue.get(MyEnum.enum1)));
+            test("Hello!!".equals(r.returnValue.get(MyEnum.enum2)));
+            test("qwerty".equals(r.returnValue.get(MyEnum.enum3)));
+        }
+
+        {
+            MyStruct s11 = new MyStruct(1, 1);
+            MyStruct s12 = new MyStruct(1, 2);
+            LinkedHashMap<MyStruct, MyEnum> di1 = new LinkedHashMap<>();
+            di1.put(s11, MyEnum.enum1);
+            di1.put(s12, MyEnum.enum2);
+
+            MyStruct s22 = new MyStruct(2, 2);
+            MyStruct s23 = new MyStruct(2, 3);
+            LinkedHashMap<MyStruct, MyEnum> di2 = new LinkedHashMap<>();
+            di2.put(s11, MyEnum.enum1);
+            di2.put(s22, MyEnum.enum3);
+            di2.put(s23, MyEnum.enum2);
+
+            MyClass.OpMyStructMyEnumLinkedDResult r = p.opMyStructMyEnumLinkedD(di1, di2);
 
             test(r.p3.equals(di1));
             test(r.returnValue.size() == 4);
@@ -1498,6 +1634,15 @@ class Twoways {
             Map<String, String> p1 = new HashMap<>();
             p1.put("test", "test");
             MyClass.OpMDict2Result r = p.opMDict2(p1);
+            test(r.p2.equals(p1) && r.returnValue.equals(p1));
+        }
+
+        {
+            p.opMLinkedDict1();
+
+            LinkedHashMap<String, String> p1 = new LinkedHashMap<>();
+            p1.put("test", "test");
+            MyClass.OpMLinkedDict2Result r = p.opMLinkedDict2(p1);
             test(r.p2.equals(p1) && r.returnValue.equals(p1));
         }
     }

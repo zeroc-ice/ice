@@ -50,6 +50,7 @@ import test.Ice.operations.Test.sw9;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -119,6 +120,17 @@ public final class MyDerivedClassI implements MyDerivedClass {
         MyClass.OpByteBoolDResult r = new MyClass.OpByteBoolDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return r;
+    }
+
+    @Override
+    public MyClass.OpByteBoolLinkedDResult opByteBoolLinkedD(
+            Map<Byte, Boolean> p1, Map<Byte, Boolean> p2, Current current) {
+        MyClass.OpByteBoolLinkedDResult r = new MyClass.OpByteBoolLinkedDResult();
+        r.p3 = p1;
+        r.returnValue = new LinkedHashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return r;
@@ -200,6 +212,17 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
+    public MyClass.OpLongFloatLinkedDResult opLongFloatLinkedD(
+            Map<Long, Float> p1, Map<Long, Float> p2, Current current) {
+        MyClass.OpLongFloatLinkedDResult r = new MyClass.OpLongFloatLinkedDResult();
+        r.p3 = p1;
+        r.returnValue = new LinkedHashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return r;
+    }
+
+    @Override
     public MyClass.OpMyClassResult opMyClass(MyClassPrx p1, Current current) {
         MyClass.OpMyClassResult r = new MyClass.OpMyClassResult();
         r.p2 = p1;
@@ -222,6 +245,17 @@ public final class MyDerivedClassI implements MyDerivedClass {
         MyClass.OpShortIntDResult r = new MyClass.OpShortIntDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return r;
+    }
+
+    @Override
+    public MyClass.OpShortIntLinkedDResult opShortIntLinkedD(
+            Map<Short, Integer> p1, Map<Short, Integer> p2, Current current) {
+        MyClass.OpShortIntLinkedDResult r = new MyClass.OpShortIntLinkedDResult();
+        r.p3 = p1;
+        r.returnValue = new LinkedHashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return r;
@@ -284,11 +318,33 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
+    public MyClass.OpStringMyEnumLinkedDResult opStringMyEnumLinkedD(
+            LinkedHashMap<String, MyEnum> p1, LinkedHashMap<String, MyEnum> p2, Current current) {
+        MyClass.OpStringMyEnumLinkedDResult r = new MyClass.OpStringMyEnumLinkedDResult();
+        r.p3 = p1;
+        r.returnValue = new LinkedHashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return r;
+    }
+
+    @Override
     public MyClass.OpMyEnumStringDResult opMyEnumStringD(
             Map<MyEnum, String> p1, Map<MyEnum, String> p2, Current current) {
         MyClass.OpMyEnumStringDResult r = new MyClass.OpMyEnumStringDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return r;
+    }
+
+    @Override
+    public MyClass.OpMyEnumStringLinkedDResult opMyEnumStringLinkedD(
+            LinkedHashMap<MyEnum, String> p1, LinkedHashMap<MyEnum, String> p2, Current current) {
+        MyClass.OpMyEnumStringLinkedDResult r = new MyClass.OpMyEnumStringLinkedDResult();
+        r.p3 = p1;
+        r.returnValue = new LinkedHashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return r;
@@ -302,6 +358,19 @@ public final class MyDerivedClassI implements MyDerivedClass {
         MyClass.OpMyStructMyEnumDResult r = new MyClass.OpMyStructMyEnumDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return r;
+    }
+
+    @Override
+    public MyClass.OpMyStructMyEnumLinkedDResult opMyStructMyEnumLinkedD(
+            LinkedHashMap<MyStruct, MyEnum> p1,
+            LinkedHashMap<MyStruct, MyEnum> p2,
+            Current current) {
+        MyClass.OpMyStructMyEnumLinkedDResult r = new MyClass.OpMyStructMyEnumLinkedDResult();
+        r.p3 = p1;
+        r.returnValue = new LinkedHashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return r;
@@ -594,6 +663,17 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
+    public MyClass.OpStringStringLinkedDResult opStringStringLinkedD(
+            LinkedHashMap<String, String> p1, LinkedHashMap<String, String> p2, Current current) {
+        MyClass.OpStringStringLinkedDResult r = new MyClass.OpStringStringLinkedDResult();
+        r.p3 = p1;
+        r.returnValue = new LinkedHashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return r;
+    }
+
+    @Override
     public MyClass.OpStructResult opStruct(Structure p1, Structure p2, Current current) {
         MyClass.OpStructResult r = new MyClass.OpStructResult();
         r.p3 = p1;
@@ -750,6 +830,16 @@ public final class MyDerivedClassI implements MyDerivedClass {
     @Override
     public OpMDict2MarshaledResult opMDict2(Map<String, String> p1, Current current) {
         return new OpMDict2MarshaledResult(p1, p1, current);
+    }
+
+    @Override
+    public OpMLinkedDict1MarshaledResult opMLinkedDict1(Current current) {
+        return new OpMLinkedDict1MarshaledResult(new LinkedHashMap<>(), current);
+    }
+
+    @Override
+    public OpMLinkedDict2MarshaledResult opMLinkedDict2(LinkedHashMap<String, String> p1, Current current) {
+        return new OpMLinkedDict2MarshaledResult(p1, p1, current);
     }
 
     private int _opByteSOnewayCallCount;
