@@ -245,7 +245,7 @@ class Future(Awaitable[_T]):
         # Must be called with _condition acquired
 
         while testFn():
-            if timeout:
+            if timeout is not None:
                 start = time.time()
                 self._condition.wait(timeout)
                 # Subtract the elapsed time so far from the timeout

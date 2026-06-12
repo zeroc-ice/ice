@@ -123,7 +123,9 @@ class InvocationFuture(Future):
             If the invocation was cancelled before it was sent.
         """
         with self._condition:
-            if not self._wait(timeout, lambda: not self._sent):
+            # Stop waiting once the invocation is sent, or once it completes without
+            # ever being sent (cancelled or failed before being sent).
+            if not self._wait(timeout, lambda: not self._sent and self._state == Future.StateRunning):
                 raise TimeoutException()
 
             if self._state == Future.StateCancelled:
