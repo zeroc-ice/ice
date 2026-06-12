@@ -1200,7 +1200,12 @@ IceInternal::RoutableReference::operator<(const Reference& r) const noexcept
     {
         return true;
     }
-    else if (rhs->_endpoints < _endpoints)
+    else if (lexicographical_compare(
+                 rhs->_endpoints.begin(),
+                 rhs->_endpoints.end(),
+                 _endpoints.begin(),
+                 _endpoints.end(),
+                 Ice::TargetCompare<shared_ptr<EndpointI>, std::less>()))
     {
         return false;
     }
