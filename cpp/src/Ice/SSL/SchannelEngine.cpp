@@ -788,7 +788,15 @@ Schannel::SSLEngine::~SSLEngine()
 
         for (vector<HCERTSTORE>::const_iterator i = _stores.begin(); i != _stores.end(); ++i)
         {
+#ifdef NDEBUG
             CertCloseStore(*i, 0);
+#else
+            // In debug builds, close the store with CERT_CLOSE_STORE_CHECK_FLAG to assert that every certificate
+            // context obtained from it was freed. The call returns false (last error CRYPT_E_PENDING_CLOSE) if any
+            // context is still outstanding, which catches certificate-reference leaks early.
+            const BOOL allContextsFreed = CertCloseStore(*i, CERT_CLOSE_STORE_CHECK_FLAG);
+            assert(allContextsFreed && "SSL transport: certificate context leaked (store closed with live contexts)");
+#endif
         }
     }
     catch (...)
@@ -1270,11 +1278,9 @@ Schannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
         .clientCredentialsSelectionCallback =
             [this](const string&)
         {
-            for (const auto& cert : _allCerts)
-            {
-                CertDuplicateCertificateContext(cert);
-            }
-
+            // The caller (TransceiverI) duplicates each paCred context into its own list and frees those in close(),
+            // so the credentials we return must not bump the reference count here — doing so leaks one reference per
+            // certificate per connection and prevents the certificate store from ever closing cleanly.
             return SCH_CREDENTIALS{
                 .dwVersion = SCH_CREDENTIALS_VERSION,
                 .cCreds = static_cast<DWORD>(_allCerts.size()),
@@ -1315,11 +1321,9 @@ Schannel::SSLEngine::createServerAuthenticationOptions() const
             [this](const string&)
         {
             {
-                for (const auto& cert : _allCerts)
-                {
-                    CertDuplicateCertificateContext(cert);
-                }
-
+                // The caller (TransceiverI) duplicates each paCred context into its own list and frees those in
+                // close(), so the credentials we return must not bump the reference count here — doing so leaks one
+                // reference per certificate per connection and prevents the certificate store from closing cleanly.
                 return SCH_CREDENTIALS{
                     .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = static_cast<DWORD>(_allCerts.size()),
