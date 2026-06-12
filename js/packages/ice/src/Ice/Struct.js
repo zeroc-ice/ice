@@ -18,7 +18,7 @@ function equals(other) {
         return false;
     }
 
-    if (this.prototype !== other.prototype) {
+    if (Object.getPrototypeOf(this) !== Object.getPrototypeOf(other)) {
         return false;
     }
 

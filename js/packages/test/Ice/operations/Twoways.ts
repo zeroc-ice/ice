@@ -260,6 +260,16 @@ export async function twoways(
     }
 
     {
+        // Struct equality requires the same Slice type: structs of different types with
+        // identical members must not compare equal.
+        const as1 = new Test.AnotherStruct("abc");
+        test(as1.equals(new Test.AnotherStruct("abc")));
+        test(!as1.equals(new Test.AnotherStruct("def")));
+        test(!as1.equals(new Test.StillAnotherStruct("abc")));
+        test(!new Test.StillAnotherStruct("abc").equals(as1));
+    }
+
+    {
         const bsi1 = new Uint8Array([0x01, 0x11, 0x12, 0x22]);
         const bsi2 = new Uint8Array([0xf1, 0xf2, 0xf3, 0xf4]);
 
