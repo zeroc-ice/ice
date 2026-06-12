@@ -42,7 +42,7 @@ module Test
     ["java:type:java.util.ArrayList<S>"] sequence<S> SSeq;
 
     dictionary<int, string> D;
-    ["java:type:java.util.ArrayList<java.util.Map<Integer,String>>"] sequence<D> DSeq;
+    ["java:type:java.util.ArrayList<java.util.Map<Integer, String>>"] sequence<D> DSeq;
 
     ["java:type:java.util.LinkedList<java.util.List<String>>"] sequence<StringSeq> StringSeqSeq;
 
