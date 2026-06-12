@@ -568,7 +568,7 @@ namespace
                          0,
                          CERT_FIND_ANY,
                          0,
-                         next)) != 0)
+                         next)) != nullptr)
                 {
                     // CertFindCertificateInStore frees the context passed as pPrevCertContext on the next iteration
                     // (and frees the last one when it returns null). Duplicate the context to keep an owned reference
