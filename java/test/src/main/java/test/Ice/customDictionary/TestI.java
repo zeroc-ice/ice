@@ -6,12 +6,11 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Current;
 
 import test.Ice.customDictionary.Test.A;
+import test.Ice.customDictionary.Test.C;
 import test.Ice.customDictionary.Test.E;
-import test.Ice.customDictionary.Test.S;
 import test.Ice.customDictionary.Test.TestIntf;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,177 +21,148 @@ public final class TestI implements TestIntf {
     }
 
     @Override
-    public TestIntf.OpAArrayResult opAArray(List<A> inSeq, Current current) {
-        return new TestIntf.OpAArrayResult(inSeq, inSeq);
+    public TestIntf.OpByteBoolLinkedDictResult opByteBoolLinkedDict(Map<Byte, Boolean> inDict, Current current) {
+        return new TestIntf.OpByteBoolLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpAListResult opAList(List<A> inSeq, Current current) {
-        return new TestIntf.OpAListResult(inSeq, inSeq);
+    public TestIntf.OpShortIntLinkedDictResult opShortIntLinkedDict(Map<Short, Integer> inDict, Current current) {
+        return new TestIntf.OpShortIntLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpASeqResult opASeq(A[] inSeq, Current current) {
-        TestIntf.OpASeqResult r = new TestIntf.OpASeqResult();
-        seq = new ArrayList<>(Arrays.asList(inSeq));
-        r.outSeq = new A[seq.size()];
-        seq.toArray(r.outSeq);
-        r.returnValue = r.outSeq;
-        return r;
+    public TestIntf.OpLongFloatLinkedDictResult opLongFloatLinkedDict(LinkedHashMap<Long, Float> inDict, Current current) {
+        return new TestIntf.OpLongFloatLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpBoolSeqResult opBoolSeq(List<Boolean> inSeq, Current current) {
-        return new TestIntf.OpBoolSeqResult(inSeq, inSeq);
+    public TestIntf.OpStringDoubleLinkedDictResult opStringDoubleLinkedDict(LinkedHashMap<String, Double> inDict, Current current) {
+        return new TestIntf.OpStringDoubleLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpByteSeqResult opByteSeq(List<Byte> inSeq, Current current) {
-        return new TestIntf.OpByteSeqResult(inSeq, inSeq);
+    public TestIntf.OpAIntDictResult opAIntDict(Map<A, Integer> inDict, Current current) {
+        return new TestIntf.OpAIntDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpDSeqResult opDSeq(
-            List<Map<Integer, String>> inSeq, Current current) {
-        return new TestIntf.OpDSeqResult(inSeq, inSeq);
+    public TestIntf.OpAIntLinkedDictResult opAIntLinkedDict(Map<A, Integer> inDict, Current current) {
+        return new TestIntf.OpAIntLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpDoubleSeqResult opDoubleSeq(
-            List<Double> inSeq, Current current) {
-        return new TestIntf.OpDoubleSeqResult(inSeq, inSeq);
+    public TestIntf.OpAIntFormalLinkedDictResult opAIntFormalLinkedDict(LinkedHashMap<A, Integer> inDict, Current current) {
+        return new TestIntf.OpAIntFormalLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpESeqResult opESeq(List<E> inSeq, Current current) {
-        return new TestIntf.OpESeqResult(inSeq, inSeq);
+    public TestIntf.OpShortCDictResult opShortCDict(Map<Short, C> inDict, Current current) {
+        return new TestIntf.OpShortCDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpFloatSeqResult opFloatSeq(List<Float> inSeq, Current current) {
-        return new TestIntf.OpFloatSeqResult(inSeq, inSeq);
+    public TestIntf.OpShortCLinkedDictResult opShortCLinkedDict(Map<Short, C> inDict, Current current) {
+        return new TestIntf.OpShortCLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpIntSeqResult opIntSeq(List<Integer> inSeq, Current current) {
-        return new TestIntf.OpIntSeqResult(inSeq, inSeq);
+    public TestIntf.OpShortCFormalLinkedDictResult opShortCFormalLinkedDict(LinkedHashMap<Short, C> inDict, Current current) {
+        return new TestIntf.OpShortCFormalLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpLongSeqResult opLongSeq(List<Long> inSeq, Current current) {
-        return new TestIntf.OpLongSeqResult(inSeq, inSeq);
+    public TestIntf.OpStringEDictResult opStringEDict(Map<String, E> inDict, Current current) {
+        return new TestIntf.OpStringEDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpSSeqResult opSSeq(List<S> inSeq, Current current) {
-        return new TestIntf.OpSSeqResult(inSeq, inSeq);
+    public TestIntf.OpStringELinkedDictResult opStringELinkedDict(Map<String, E> inDict, Current current) {
+        return new TestIntf.OpStringELinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpShortSeqResult opShortSeq(List<Short> inSeq, Current current) {
-        return new TestIntf.OpShortSeqResult(inSeq, inSeq);
+    public TestIntf.OpStringEFormalLinkedDictResult opStringEFormalLinkedDict(LinkedHashMap<String, E> inDict, Current current) {
+        return new TestIntf.OpStringEFormalLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpStringSeqResult opStringSeq(
-            List<String> inSeq, Current current) {
-        return new TestIntf.OpStringSeqResult(inSeq, inSeq);
+    public TestIntf.OpEStringSeqDictResult opEStringSeqDict(Map<E, String[]> inDict, Current current) {
+        return new TestIntf.OpEStringSeqDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpStringSeqSeqResult opStringSeqSeq(
-            List<List<String>> inSeq, Current current) {
-        return new TestIntf.OpStringSeqSeqResult(inSeq, inSeq);
+    public TestIntf.OpEStringSeqLinkedDictResult opEStringSeqLinkedDict(Map<E, String[]> inDict, Current current) {
+        return new TestIntf.OpEStringSeqLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpOptAArrayResult opOptAArray(
-            Optional<List<A>> inSeq, Current current) {
-        return new TestIntf.OpOptAArrayResult(inSeq, inSeq);
+    public TestIntf.OpEStringSeqFormalLinkedDictResult opEStringSeqFormalLinkedDict(LinkedHashMap<E, String[]> inDict, Current current) {
+        return new TestIntf.OpEStringSeqFormalLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpOptAListResult opOptAList(
-            Optional<List<A>> inSeq, Current current) {
-        return new TestIntf.OpOptAListResult(inSeq, inSeq);
+    public TestIntf.OpOptByteBoolLinkedDictResult opOptByteBoolLinkedDict(Optional<Map<Byte, Boolean>> inDict, Current current) {
+        return new TestIntf.OpOptByteBoolLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpOptASeqResult opOptASeq(
-            Optional<A[]> inSeq, Current current) {
-        return new TestIntf.OpOptASeqResult(inSeq, inSeq);
+    public TestIntf.OpOptShortIntLinkedDictResult opOptShortIntLinkedDict(Optional<Map<Short, Integer>> inDict, Current current) {
+        return new TestIntf.OpOptShortIntLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpOptBoolSeqResult opOptBoolSeq(
-            Optional<List<Boolean>> inSeq, Current current) {
-        return new TestIntf.OpOptBoolSeqResult(inSeq, inSeq);
+    public TestIntf.OpOptLongFloatLinkedDictResult opOptLongFloatLinkedDict(Optional<LinkedHashMap<Long, Float>> inDict, Current current) {
+        return new TestIntf.OpOptLongFloatLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpOptByteSeqResult opOptByteSeq(
-            Optional<List<Byte>> inSeq, Current current) {
-        return new TestIntf.OpOptByteSeqResult(inSeq, inSeq);
+    public TestIntf.OpOptStringDoubleLinkedDictResult opOptStringDoubleLinkedDict(Optional<LinkedHashMap<String, Double>> inDict, Current current) {
+        return new TestIntf.OpOptStringDoubleLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpOptDSeqResult opOptDSeq(
-            Optional<List<Map<Integer, String>>> inSeq, Current current) {
-        return new TestIntf.OpOptDSeqResult(inSeq, inSeq);
+    public TestIntf.OpOptAIntDictResult opOptAIntDict(Optional<Map<A, Integer>> inDict, Current current) {
+        return new TestIntf.OpOptAIntDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpOptDoubleSeqResult opOptDoubleSeq(
-            Optional<List<Double>> inSeq, Current current) {
-        return new TestIntf.OpOptDoubleSeqResult(inSeq, inSeq);
+    public TestIntf.OpOptAIntLinkedDictResult opOptAIntLinkedDict(Optional<Map<A, Integer>> inDict, Current current) {
+        return new TestIntf.OpOptAIntLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpOptESeqResult opOptESeq(
-            Optional<List<E>> inSeq, Current current) {
-        return new TestIntf.OpOptESeqResult(inSeq, inSeq);
+    public TestIntf.OpOptAIntFormalLinkedDictResult opOptAIntFormalLinkedDict(Optional<LinkedHashMap<A, Integer>> inDict, Current current) {
+        return new TestIntf.OpOptAIntFormalLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpOptFloatSeqResult opOptFloatSeq(
-            Optional<List<Float>> inSeq, Current current) {
-        return new TestIntf.OpOptFloatSeqResult(inSeq, inSeq);
+    public TestIntf.OpOptStringEDictResult opOptStringEDict(Optional<Map<String, E>> inDict, Current current) {
+        return new TestIntf.OpOptStringEDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpOptIntSeqResult opOptIntSeq(
-            Optional<List<Integer>> inSeq, Current current) {
-        return new TestIntf.OpOptIntSeqResult(inSeq, inSeq);
+    public TestIntf.OpOptStringELinkedDictResult opOptStringELinkedDict(Optional<Map<String, E>> inDict, Current current) {
+        return new TestIntf.OpOptStringELinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpOptLongSeqResult opOptLongSeq(
-            Optional<List<Long>> inSeq, Current current) {
-        return new TestIntf.OpOptLongSeqResult(inSeq, inSeq);
+    public TestIntf.OpOptStringEFormalLinkedDictResult opOptStringEFormalLinkedDict(Optional<LinkedHashMap<String, E>> inDict, Current current) {
+        return new TestIntf.OpOptStringEFormalLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpOptSSeqResult opOptSSeq(
-            Optional<List<S>> inSeq, Current current) {
-        return new TestIntf.OpOptSSeqResult(inSeq, inSeq);
+    public TestIntf.OpOptEStringSeqDictResult opOptEStringSeqDict(Optional<Map<E, String[]>> inDict, Current current) {
+        return new TestIntf.OpOptEStringSeqDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpOptShortSeqResult opOptShortSeq(
-            Optional<List<Short>> inSeq, Current current) {
-        return new TestIntf.OpOptShortSeqResult(inSeq, inSeq);
+    public TestIntf.OpOptEStringSeqLinkedDictResult opOptEStringSeqLinkedDict(Optional<Map<E, String[]>> inDict, Current current) {
+        return new TestIntf.OpOptEStringSeqLinkedDictResult(inDict, inDict);
     }
 
     @Override
-    public TestIntf.OpOptStringSeqResult opOptStringSeq(
-            Optional<List<String>> inSeq, Current current) {
-        return new TestIntf.OpOptStringSeqResult(inSeq, inSeq);
-    }
-
-    @Override
-    public TestIntf.OpOptStringSeqSeqResult opOptStringSeqSeq(
-            Optional<List<List<String>>> inSeq, Current current) {
-        return new TestIntf.OpOptStringSeqSeqResult(inSeq, inSeq);
+    public TestIntf.OpOptEStringSeqFormalLinkedDictResult opOptEStringSeqFormalLinkedDict(Optional<LinkedHashMap<E, String[]>> inDict, Current current) {
+        return new TestIntf.OpOptEStringSeqFormalLinkedDictResult(inDict, inDict);
     }
 
     @Override
@@ -201,5 +171,4 @@ public final class TestI implements TestIntf {
     }
 
     private final Communicator _communicator;
-    private ArrayList<A> seq;
 }

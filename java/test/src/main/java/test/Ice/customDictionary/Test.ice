@@ -2,76 +2,110 @@
 
 #pragma once
 
-#include "Ice/BuiltinSequences.ice"
-
 ["java:identifier:test.Ice.customDictionary.Test"]
 module Test
 {
+    ["java:type:java.util.LinkedHashMap<Byte, Boolean>"] dictionary<byte, bool> ByteBoolLinkedDict;
+    ["java:type:java.util.LinkedHashMap<Short, Integer>"] dictionary<short, int> ShortIntLinkedDict;
+    ["java:type:java.util.LinkedHashMap<Long, Float>:java.util.LinkedHashMap<Long, Float>"]
+    dictionary<long, float> LongFloatLinkedDict;
+    ["java:type:java.util.LinkedHashMap<String, Double>:java.util.LinkedHashMap<String, Double>"]
+    dictionary<string, double> StringDoubleLinkedDict;
+
     struct A
     {
-        int i; // We need a field here since structs can't be empty.
+        int i;
     }
+    dictionary<A, int> AIntDict;
+    ["java:type:java.util.LinkedHashMap<A, Integer>"] dictionary<A, int> AIntLinkedDict;
+    ["java:type:java.util.LinkedHashMap<A, Integer>:java.util.LinkedHashMap<A, Integer>"]
+    dictionary<A, int> AIntFormalLinkedDict;
 
-    sequence<A> ASeq;
-    ["java:type:java.util.ArrayList<A>"] sequence<A> AArray;
-    ["java:type:java.util.LinkedList<A>"] sequence<A> AList;
-
-    ["java:type:java.util.ArrayList<Boolean>"] sequence<bool> BoolSeq;
-    ["java:type:java.util.ArrayList<Byte>"] sequence<byte> ByteSeq;
-    ["java:type:java.util.ArrayList<Short>"] sequence<short> ShortSeq;
-    ["java:type:java.util.ArrayList<Integer>"] sequence<int> IntSeq;
-    ["java:type:java.util.ArrayList<Long>"] sequence<long> LongSeq;
-    ["java:type:java.util.ArrayList<Float>"] sequence<float> FloatSeq;
-    ["java:type:java.util.ArrayList<Double>"] sequence<double> DoubleSeq;
-    ["java:type:java.util.ArrayList<String>"] sequence<string> StringSeq;
+    class C
+    {
+        string s;
+    }
+    dictionary<short, C> ShortCDict;
+    ["java:type:java.util.LinkedHashMap<Short, C>"] dictionary<short, C> ShortCLinkedDict;
+    ["java:type:java.util.LinkedHashMap<Short, C>:java.util.LinkedHashMap<Short, C>"]
+    dictionary<short, C> ShortCFormalLinkedDict;
 
     enum E { E1, E2, E3 }
-    ["java:type:java.util.ArrayList<E>"] sequence<E> ESeq;
+    dictionary<string, E> StringEDict;
+    ["java:type:java.util.LinkedHashMap<String, E>"] dictionary<string, E> StringELinkedDict;
+    ["java:type:java.util.LinkedHashMap<String, E>:java.util.LinkedHashMap<String, E>"]
+    dictionary<string, E> StringEFormalLinkedDict;
 
-    struct S
-    {
-        E en;
-    }
-    ["java:type:java.util.ArrayList<S>"] sequence<S> SSeq;
-
-    dictionary<int, string> D;
-    ["java:type:java.util.ArrayList<java.util.Map<Integer, String>>"] sequence<D> DSeq;
-
-    ["java:type:java.util.LinkedList<java.util.List<String>>"] sequence<StringSeq> StringSeqSeq;
+    sequence<string> StringSeq;
+    dictionary<E, StringSeq> EStringSeqDict;
+    ["java:type:java.util.LinkedHashMap<E, String[]>"] dictionary<E, StringSeq> EStringSeqLinkedDict;
+    ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"]
+    dictionary<E, StringSeq> EStringSeqFormalLinkedDict;
 
     interface TestIntf
     {
-        ASeq opASeq(ASeq inSeq, out ASeq outSeq);
-        AArray opAArray(AArray inSeq, out AArray outSeq);
-        AList opAList(AList inSeq, out AList outSeq);
-        BoolSeq opBoolSeq(BoolSeq inSeq, out BoolSeq outSeq);
-        ByteSeq opByteSeq(ByteSeq inSeq, out ByteSeq outSeq);
-        ShortSeq opShortSeq(ShortSeq inSeq, out ShortSeq outSeq);
-        IntSeq opIntSeq(IntSeq inSeq, out IntSeq outSeq);
-        LongSeq opLongSeq(LongSeq inSeq, out LongSeq outSeq);
-        FloatSeq opFloatSeq(FloatSeq inSeq, out FloatSeq outSeq);
-        DoubleSeq opDoubleSeq(DoubleSeq inSeq, out DoubleSeq outSeq);
-        StringSeq opStringSeq(StringSeq inSeq, out StringSeq outSeq);
-        ESeq opESeq(ESeq inSeq, out ESeq outSeq);
-        SSeq opSSeq(SSeq inSeq, out SSeq outSeq);
-        DSeq opDSeq(DSeq inSeq, out DSeq outSeq);
-        StringSeqSeq opStringSeqSeq(StringSeqSeq inSeq, out StringSeqSeq outSeq);
+        ByteBoolLinkedDict opByteBoolLinkedDict(ByteBoolLinkedDict inDict, out ByteBoolLinkedDict outDict);
+        ShortIntLinkedDict opShortIntLinkedDict(ShortIntLinkedDict inDict, out ShortIntLinkedDict outDict);
+        LongFloatLinkedDict opLongFloatLinkedDict(LongFloatLinkedDict inDict, out LongFloatLinkedDict outDict);
+        StringDoubleLinkedDict opStringDoubleLinkedDict(
+            StringDoubleLinkedDict inDict, out StringDoubleLinkedDict outDict);
 
-        optional(1) ASeq opOptASeq(optional(2) ASeq inSeq, out optional(3) ASeq outSeq);
-        optional(1) AArray opOptAArray(optional(2) AArray inSeq, out optional(3) AArray outSeq);
-        optional(1) AList opOptAList(optional(2) AList inSeq, out optional(3) AList outSeq);
-        optional(1) BoolSeq opOptBoolSeq(optional(2) BoolSeq inSeq, out optional(3) BoolSeq outSeq);
-        optional(1) ByteSeq opOptByteSeq(optional(2) ByteSeq inSeq, out optional(3) ByteSeq outSeq);
-        optional(1) ShortSeq opOptShortSeq(optional(2) ShortSeq inSeq, out optional(3) ShortSeq outSeq);
-        optional(1) IntSeq opOptIntSeq(optional(2) IntSeq inSeq, out optional(3) IntSeq outSeq);
-        optional(1) LongSeq opOptLongSeq(optional(2) LongSeq inSeq, out optional(3) LongSeq outSeq);
-        optional(1) FloatSeq opOptFloatSeq(optional(2) FloatSeq inSeq, out optional(3) FloatSeq outSeq);
-        optional(1) DoubleSeq opOptDoubleSeq(optional(2) DoubleSeq inSeq, out optional(3) DoubleSeq outSeq);
-        optional(1) StringSeq opOptStringSeq(optional(2) StringSeq inSeq, out optional(3) StringSeq outSeq);
-        optional(1) ESeq opOptESeq(optional(2) ESeq inSeq, out optional(3) ESeq outSeq);
-        optional(1) SSeq opOptSSeq(optional(2) SSeq inSeq, out optional(3) SSeq outSeq);
-        optional(1) DSeq opOptDSeq(optional(2) DSeq inSeq, out optional(3) DSeq outSeq);
-        optional(1) StringSeqSeq opOptStringSeqSeq(optional(2) StringSeqSeq inSeq, out optional(3) StringSeqSeq outSeq);
+        AIntDict opAIntDict(AIntDict inDict, out AIntDict outDict);
+        AIntLinkedDict opAIntLinkedDict(AIntLinkedDict inDict, out AIntLinkedDict outDict);
+        AIntFormalLinkedDict opAIntFormalLinkedDict(
+            AIntFormalLinkedDict inDict, out AIntFormalLinkedDict outDict);
+
+        ShortCDict opShortCDict(ShortCDict inDict, out ShortCDict outDict);
+        ShortCLinkedDict opShortCLinkedDict(ShortCLinkedDict inDict, out ShortCLinkedDict outDict);
+        ShortCFormalLinkedDict opShortCFormalLinkedDict(
+            ShortCFormalLinkedDict inDict, out ShortCFormalLinkedDict outDict);
+
+        StringEDict opStringEDict(StringEDict inDict, out StringEDict outDict);
+        StringELinkedDict opStringELinkedDict(StringELinkedDict inDict, out StringELinkedDict outDict);
+        StringEFormalLinkedDict opStringEFormalLinkedDict(
+            StringEFormalLinkedDict inDict, out StringEFormalLinkedDict outDict);
+
+
+
+
+
+
+
+
+        EStringSeqDict opEStringSeqDict(EStringSeqDict inDict, out EStringSeqDict outDict);
+        EStringSeqLinkedDict opEStringSeqLinkedDict(EStringSeqLinkedDict inDict, out EStringSeqLinkedDict outDict);
+        EStringSeqFormalLinkedDict opEStringSeqFormalLinkedDict(
+            EStringSeqFormalLinkedDict inDict, out EStringSeqFormalLinkedDict outDict);
+
+        optional(1) ByteBoolLinkedDict opOptByteBoolLinkedDict(
+            optional(2) ByteBoolLinkedDict inDict, out optional(3) ByteBoolLinkedDict outDict);
+        optional(1) ShortIntLinkedDict opOptShortIntLinkedDict(
+            optional(2) ShortIntLinkedDict inDict, out optional(3) ShortIntLinkedDict outDict);
+        optional(1) LongFloatLinkedDict opOptLongFloatLinkedDict(
+            optional(2) LongFloatLinkedDict inDict, out optional(3) LongFloatLinkedDict outDict);
+        optional(1) StringDoubleLinkedDict opOptStringDoubleLinkedDict(
+            optional(2) StringDoubleLinkedDict inDict, out optional(3) StringDoubleLinkedDict outDict);
+
+        optional(1) AIntDict opOptAIntDict(
+            optional(2) AIntDict inDict, out optional(3) AIntDict outDict);
+        optional(1) AIntLinkedDict opOptAIntLinkedDict(
+            optional(2) AIntLinkedDict inDict, out optional(3) AIntLinkedDict outDict);
+        optional(1) AIntFormalLinkedDict opOptAIntFormalLinkedDict(
+            optional(2) AIntFormalLinkedDict inDict, out optional(3) AIntFormalLinkedDict outDict);
+
+        optional(1) StringEDict opOptStringEDict(
+            optional(2) StringEDict inDict, out optional(3) StringEDict outDict);
+        optional(1) StringELinkedDict opOptStringELinkedDict(
+            optional(2) StringELinkedDict inDict, out optional(3) StringELinkedDict outDict);
+        optional(1) StringEFormalLinkedDict opOptStringEFormalLinkedDict(
+            optional(2) StringEFormalLinkedDict inDict, out optional(3) StringEFormalLinkedDict outDict);
+
+        optional(1) EStringSeqDict opOptEStringSeqDict(
+            optional(2) EStringSeqDict inDict, out optional(3) EStringSeqDict outDict);
+        optional(1) EStringSeqLinkedDict opOptEStringSeqLinkedDict(
+            optional(2) EStringSeqLinkedDict inDict, out optional(3) EStringSeqLinkedDict outDict);
+        optional(1) EStringSeqFormalLinkedDict opOptEStringSeqFormalLinkedDict(
+            optional(2) EStringSeqFormalLinkedDict inDict, out optional(3) EStringSeqFormalLinkedDict outDict);
 
         void shutdown();
     }

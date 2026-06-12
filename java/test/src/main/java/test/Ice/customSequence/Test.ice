@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include "Ice/BuiltinSequences.ice"
-
 ["java:identifier:test.Ice.customSequence.Test"]
 module Test
 {
