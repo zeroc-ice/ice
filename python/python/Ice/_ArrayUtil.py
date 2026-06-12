@@ -30,7 +30,9 @@ try:
     import numpy
 
     BuiltinNumpyTypes = [
-        numpy.bool,
+        # Use numpy.bool_, not the numpy.bool alias: the alias was removed in NumPy 1.24
+        # and only reintroduced in NumPy 2.0.
+        numpy.bool_,
         numpy.int8,
         numpy.int16,
         numpy.int32,
