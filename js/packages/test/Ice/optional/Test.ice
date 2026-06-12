@@ -184,6 +184,9 @@ module Test
 
         optional(1) byte opByte(optional(2) byte p1, out optional(3) byte p3);
 
+        // An optional parameter followed by a required parameter.
+        optional(1) int opOptionalFirstParam(optional(2) int p1, int p2);
+
         optional(1) bool opBool(optional(2) bool p1, out optional(3) bool p3);
 
         optional(1) short opShort(optional(2) short p1, out optional(3) short p3);

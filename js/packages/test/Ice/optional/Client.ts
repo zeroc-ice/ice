@@ -322,6 +322,15 @@ export class Client extends TestHelper {
         }
 
         {
+            // The first parameter is optional and followed by a required parameter, so the
+            // generated signature cannot use the '?' suffix for it.
+            let r = await initial.opOptionalFirstParam(undefined, 56);
+            test(r === undefined);
+            r = await initial.opOptionalFirstParam(34, 56);
+            test(r === 34);
+        }
+
+        {
             let [p1, p2] = await initial.opBool();
             test(p1 === undefined);
             test(p2 === undefined);
