@@ -236,7 +236,7 @@ function marshalParams(os, params, retvalInfo, paramInfo, optParamInfo, usesClas
 function checkNonIdempotent(current) {
     if (current.mode !== OperationMode.Normal) {
         throw new MarshalException(
-            `Operation mode mismatch for operation '${current.operation}': received ${current.node} for non-idempotent operation`,
+            `Operation mode mismatch for operation '${current.operation}': received ${current.mode} for non-idempotent operation`,
         );
     }
 }

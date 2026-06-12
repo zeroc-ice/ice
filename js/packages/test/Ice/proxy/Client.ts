@@ -359,6 +359,25 @@ export class Client extends TestHelper {
         id2 = Ice.stringToIdentity(idStr);
         test(id.equals(id2));
 
+        // U+0007 (bell) is escaped as \a in the default mode and must round-trip.
+        id = new Ice.Identity("test\u0007bell", "cat\u0007");
+        idStr = Ice.identityToString(id);
+        test(idStr === "cat\\a/test\\abell");
+        id2 = Ice.stringToIdentity(idStr);
+        test(id.equals(id2));
+
+        id = Ice.stringToIdentity("\\a");
+        test(id.name === "\u0007" && id.category.length === 0);
+
+        try {
+            // Extra unescaped slash
+            id = Ice.stringToIdentity("a/b/c");
+            test(false);
+        } catch (ex) {
+            test(ex instanceof Ice.ParseException, ex as Error);
+            test((ex as Error).message.includes("unescaped '/'"), ex as Error);
+        }
+
         // Input string with various pitfalls
         // id = Ice.stringToIdentity("\\342\\x82\\254\\60\\x9\\60\\");
         // test(id.name === "€0\t0\\" && id.category.isEmpty());
