@@ -1822,7 +1822,7 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
     }
 
     Ice::Context context;
-    if (!ctx || ctx != Py_None)
+    if (ctx && ctx != Py_None)
     {
         if (!dictionaryToContext(ctx, context))
         {
