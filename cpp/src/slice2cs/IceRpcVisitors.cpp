@@ -1167,7 +1167,13 @@ Slice::IceRpc::TypesVisitor::writeProxyResponseClass(const InterfaceDefPtr& inte
             _out << nl << "(ref IceDecoder decoder) => ";
 
             string returnParamName = getEscapedParamName(operation->outParameters(), "returnValue");
-            ParameterList returnParams = operation->sortedReturnAndOutParameters(returnParamName);
+
+            // returnParams are in declaration order.
+            ParameterList returnParams = operation->outParameters();
+            if (operation->returnType())
+            {
+                returnParams.insert(returnParams.begin(), operation->returnParameter(returnParamName));
+            }
 
             if (returnParams.size() == 1)
             {
@@ -1190,8 +1196,8 @@ Slice::IceRpc::TypesVisitor::writeProxyResponseClass(const InterfaceDefPtr& inte
             {
                 _out << sb;
 
-                // Decode all return params
-                for (const auto& param : returnParams)
+                // Decode all return params in "marshaling order".
+                for (const auto& param : operation->sortedReturnAndOutParameters(returnParamName))
                 {
                     _out << nl << csType(param->type(), ns, TypeContext::IncomingParam, param->isOptional())
                          << " sliceP_" << removeEscapePrefix(param->mappedName()) << " = ";
@@ -1206,18 +1212,11 @@ Slice::IceRpc::TypesVisitor::writeProxyResponseClass(const InterfaceDefPtr& inte
                     _out << ';';
                 }
 
-                // Return tuple with the return value (if any) first.
+                // Return tuple
                 _out << nl << "return " << spar;
-                if (operation->returnType())
-                {
-                    _out << ("sliceP_" + returnParamName);
-                }
                 for (const auto& param : returnParams)
                 {
-                    if (param->name() != returnParamName)
-                    {
-                        _out << ("sliceP_" + removeEscapePrefix(param->mappedName()));
-                    }
+                     _out << ("sliceP_" + removeEscapePrefix(param->mappedName()));
                 }
                 _out << epar << ";";
 
@@ -1430,9 +1429,9 @@ Slice::IceRpc::SkeletonVisitor::writeRequestClass(const InterfaceDefPtr& interfa
         _out << nl << "IceRpc.IncomingRequest request,";
         _out << nl << "global::System.Threading.CancellationToken cancellationToken) =>";
 
-        ParameterList inParameters = operation->inParameters();
+        ParameterList sortedInParameters = operation->sortedInParameters();
 
-        if (inParameters.empty())
+        if (sortedInParameters.empty())
         {
             _out << nl << "request.DecodeEmptyArgsAsync(cancellationToken);";
         }
@@ -1442,21 +1441,21 @@ Slice::IceRpc::SkeletonVisitor::writeRequestClass(const InterfaceDefPtr& interfa
             _out.inc();
             _out << nl << "(ref IceDecoder decoder) => ";
 
-            if (inParameters.size() == 1)
+            if (sortedInParameters.size() == 1)
             {
                 // Simplified decoding function for a single parameter.
-                if (inParameters.front()->isOptional())
+                if (sortedInParameters.front()->isOptional())
                 {
                     decodeOptionalField(
                         _out,
-                        inParameters.front()->tag(),
-                        inParameters.front()->type(),
+                        sortedInParameters.front()->tag(),
+                        sortedInParameters.front()->type(),
                         ns,
                         TypeContext::IncomingParam);
                 }
                 else
                 {
-                    decodeField(_out, inParameters.front()->type(), ns);
+                    decodeField(_out, sortedInParameters.front()->type(), ns);
                 }
             }
             else
@@ -1464,7 +1463,7 @@ Slice::IceRpc::SkeletonVisitor::writeRequestClass(const InterfaceDefPtr& interfa
                 _out << sb;
 
                 // Decode all params (2 or more).
-                for (const auto& param : inParameters)
+                for (const auto& param : sortedInParameters)
                 {
                     _out << nl << csType(param->type(), ns, TypeContext::IncomingParam, param->isOptional())
                          << " sliceP_" << removeEscapePrefix(param->mappedName()) << " = ";
@@ -1480,7 +1479,7 @@ Slice::IceRpc::SkeletonVisitor::writeRequestClass(const InterfaceDefPtr& interfa
                 }
 
                 _out << nl << "return " << spar;
-                for (const auto& param : inParameters)
+                for (const auto& param : operation->inParameters())
                 {
                     _out << ("sliceP_" + removeEscapePrefix(param->mappedName()));
                 }
