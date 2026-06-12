@@ -114,6 +114,9 @@ export class Client extends TestHelper {
         }
 
         if (conn.type() == "ws" || conn.type() == "wss") {
+            test(info instanceof Ice.WSConnectionInfo);
+            test(typeof (info as Ice.WSConnectionInfo).maxBufferedAmount === "number");
+
             test(getHeader(ctx, "ws.Upgrade")!.toLowerCase() == "websocket");
             test(
                 getHeader(ctx, "ws.Connection")!.includes("Upgrade") ||
