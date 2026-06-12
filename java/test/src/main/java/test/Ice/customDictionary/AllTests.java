@@ -1,0 +1,228 @@
+// Copyright (c) ZeroC, Inc.
+
+package test.Ice.customDictionary;
+
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectPrx;
+
+import test.Ice.customDictionary.Test.A;
+import test.Ice.customDictionary.Test.E;
+import test.Ice.customDictionary.Test.S;
+import test.Ice.customDictionary.Test.TestIntf;
+import test.Ice.customDictionary.Test.TestIntfPrx;
+import test.TestHelper;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+public class AllTests {
+    private static void test(boolean b) {
+        if (!b) {
+            throw new RuntimeException();
+        }
+    }
+
+    public static TestIntfPrx allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
+        out.print("testing stringToProxy... ");
+        out.flush();
+        String ref = "test:" + helper.getTestEndpoint(0);
+        ObjectPrx obj = communicator.stringToProxy(ref);
+        test(obj != null);
+        out.println("ok");
+
+        out.print("testing checked cast... ");
+        out.flush();
+        TestIntfPrx t = TestIntfPrx.checkedCast(obj);
+        test(t != null);
+        test(t.equals(obj));
+        out.println("ok");
+
+        out.print("testing custom dictionaries... ");
+        out.flush();
+
+        {
+            //
+            // Create a sequence of A instances, where elements 1..n simply point to element 0.
+            //
+            A[] seq = new A[5];
+            seq[0] = new A(0);
+            for (int i = 1; i < seq.length; i++) {
+                seq[i] = seq[0];
+            }
+
+            //
+            // Invoke each operation and verify that the returned sequences have the same structure
+            // as the original.
+            //
+            TestIntf.OpASeqResult seqR = t.opASeq(seq);
+            test(seqR.returnValue.length == seq.length);
+            test(seqR.outSeq.length == seq.length);
+
+            for (int i = 1; i < seq.length; i++) {
+                test(seqR.returnValue[i] != null);
+                test(seqR.returnValue[i].equals(seqR.returnValue[0]));
+                test(seqR.returnValue[i].equals(seqR.outSeq[i]));
+            }
+
+            ArrayList<A> arr = new ArrayList<>(Arrays.asList(seq));
+            TestIntf.OpAArrayResult arrR = t.opAArray(arr);
+            test(arrR.returnValue.size() == arr.size());
+            test(arrR.outSeq.size() == arr.size());
+            for (int i = 1; i < arr.size(); i++) {
+                test(arrR.returnValue.get(i) != null);
+                test(arrR.returnValue.get(i).equals(arrR.returnValue.get(0)));
+                test(arrR.returnValue.get(i).equals(arrR.outSeq.get(i)));
+            }
+
+            LinkedList<A> list = new LinkedList<>(Arrays.asList(seq));
+            TestIntf.OpAListResult listR = t.opAList(list);
+            test(listR.returnValue.size() == list.size());
+            test(listR.outSeq.size() == list.size());
+            for (int i = 1; i < list.size(); i++) {
+                test(listR.returnValue.get(i) != null);
+                test(listR.returnValue.get(i).equals(listR.returnValue.get(0)));
+                test(listR.returnValue.get(i).equals(listR.outSeq.get(i)));
+            }
+        }
+
+        {
+            final Boolean[] seq = {
+                Boolean.TRUE, Boolean.FALSE, Boolean.TRUE, Boolean.FALSE, Boolean.TRUE
+            };
+            ArrayList<Boolean> list = new ArrayList<>(Arrays.asList(seq));
+            TestIntf.OpBoolSeqResult listR = t.opBoolSeq(list);
+            test(listR.outSeq.equals(listR.returnValue));
+            test(listR.outSeq.equals(list));
+        }
+
+        {
+            final Byte[] seq = {
+                Byte.valueOf((byte) 0),
+                Byte.valueOf((byte) 1),
+                Byte.valueOf((byte) 2),
+                Byte.valueOf((byte) 3)
+            };
+            ArrayList<Byte> list = new ArrayList<>(Arrays.asList(seq));
+            TestIntf.OpByteSeqResult listR = t.opByteSeq(list);
+            test(listR.outSeq.equals(listR.returnValue));
+            test(listR.outSeq.equals(list));
+        }
+
+        {
+            final Short[] seq = {
+                Short.valueOf((short) 0),
+                Short.valueOf((short) 1),
+                Short.valueOf((short) 2),
+                Short.valueOf((short) 3)
+            };
+            ArrayList<Short> list = new ArrayList<>(Arrays.asList(seq));
+            TestIntf.OpShortSeqResult listR = t.opShortSeq(list);
+            test(listR.outSeq.equals(listR.returnValue));
+            test(listR.outSeq.equals(list));
+        }
+
+        {
+            final Integer[] seq = {
+                Integer.valueOf(0), Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3)
+            };
+            ArrayList<Integer> list = new ArrayList<>(Arrays.asList(seq));
+            TestIntf.OpIntSeqResult listR = t.opIntSeq(list);
+            test(listR.outSeq.equals(listR.returnValue));
+            test(listR.outSeq.equals(list));
+        }
+
+        {
+            final Long[] seq = {Long.valueOf(0), Long.valueOf(1), Long.valueOf(2), Long.valueOf(3)};
+            ArrayList<Long> list = new ArrayList<>(Arrays.asList(seq));
+            TestIntf.OpLongSeqResult listR = t.opLongSeq(list);
+            test(listR.outSeq.equals(listR.returnValue));
+            test(listR.outSeq.equals(list));
+        }
+
+        {
+            final Float[] seq = {
+                Float.valueOf(0), Float.valueOf(1), Float.valueOf(2), Float.valueOf(3)
+            };
+            ArrayList<Float> list = new ArrayList<>(Arrays.asList(seq));
+            TestIntf.OpFloatSeqResult listR = t.opFloatSeq(list);
+            test(listR.outSeq.equals(listR.returnValue));
+            test(listR.outSeq.equals(list));
+        }
+
+        {
+            final Double[] seq = {
+                Double.valueOf(0), Double.valueOf(1), Double.valueOf(2), Double.valueOf(3)
+            };
+            ArrayList<Double> list = new ArrayList<>(Arrays.asList(seq));
+            TestIntf.OpDoubleSeqResult listR = t.opDoubleSeq(list);
+            test(listR.outSeq.equals(listR.returnValue));
+            test(listR.outSeq.equals(list));
+        }
+
+        {
+            final String[] seq = {"0", "1", "2", "3", "4"};
+            ArrayList<String> list = new ArrayList<>(Arrays.asList(seq));
+            TestIntf.OpStringSeqResult listR = t.opStringSeq(list);
+            test(listR.outSeq.equals(listR.returnValue));
+            test(listR.outSeq.equals(list));
+        }
+
+        {
+            final E[] seq = {E.E1, E.E2, E.E3};
+            ArrayList<E> list = new ArrayList<>(Arrays.asList(seq));
+            TestIntf.OpESeqResult listR = t.opESeq(list);
+            test(listR.outSeq.equals(listR.returnValue));
+            test(listR.outSeq.equals(list));
+        }
+
+        {
+            S[] seq = new S[5];
+            for (int i = 0; i < seq.length; i++) {
+                seq[i] = new S();
+                seq[i].en = E.values()[i % 3];
+            }
+            ArrayList<S> list = new ArrayList<>(Arrays.asList(seq));
+            TestIntf.OpSSeqResult listR = t.opSSeq(list);
+            test(listR.outSeq.equals(listR.returnValue));
+            test(listR.outSeq.equals(list));
+        }
+
+        {
+            ArrayList<Map<Integer, String>> list = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                Map<Integer, String> m = new HashMap<>();
+                for (int j = 0; j < 4; j++) {
+                    m.put(j, "" + j);
+                }
+                list.add(m);
+            }
+            TestIntf.OpDSeqResult listR = t.opDSeq(list);
+            test(listR.outSeq.equals(listR.returnValue));
+            test(listR.outSeq.equals(list));
+        }
+
+        {
+            List<List<String>> seq = new LinkedList<>();
+            for (int i = 0; i < 5; i++) {
+                final String[] arr = {"0", "1", "2", "3", "4"};
+                seq.add(new ArrayList<>(Arrays.asList(arr)));
+            }
+            TestIntf.OpStringSeqSeqResult listR = t.opStringSeqSeq(seq);
+            test(listR.outSeq.equals(listR.returnValue));
+            test(listR.outSeq.equals(seq));
+        }
+
+        out.println("ok");
+
+        return t;
+    }
+
+    private AllTests() {}
+}
