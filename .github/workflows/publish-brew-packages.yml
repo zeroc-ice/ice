@@ -36,7 +36,7 @@ jobs:
       QUALITY: ${{ inputs.quality }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Download Homebrew Bottle XCFramework artifacts
         env:
