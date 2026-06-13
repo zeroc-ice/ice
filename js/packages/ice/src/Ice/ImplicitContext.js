@@ -26,7 +26,7 @@ export class ImplicitContext {
     }
 
     containsKey(key) {
-        if (key === null) {
+        if (key === null || key === undefined) {
             key = "";
         }
 

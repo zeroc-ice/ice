@@ -1331,6 +1331,17 @@ export async function twoways(
         test(implicitContext.remove("zero") === "");
         test(implicitContext.put("zero", "ZERO") === "");
 
+        // A null or undefined key is normalized to the empty-string key.
+        test(implicitContext.containsKey(null!) == false);
+        test(implicitContext.containsKey(undefined!) == false);
+        test(implicitContext.put(undefined!, "EMPTY") === "");
+        test(implicitContext.containsKey(null!) == true);
+        test(implicitContext.containsKey(undefined!) == true);
+        test(implicitContext.get(null!) === "EMPTY");
+        test(implicitContext.get(undefined!) === "EMPTY");
+        test(implicitContext.remove(undefined!) === "EMPTY");
+        test(implicitContext.containsKey("") == false);
+
         ctx = implicitContext.getContext();
         test(Ice.MapUtil.equals(await p3.opContext(), ctx));
 
