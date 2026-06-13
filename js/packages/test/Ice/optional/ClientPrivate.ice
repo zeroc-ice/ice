@@ -25,5 +25,11 @@ module Test
     interface OptionalParamOrder
     {
         int opOptionalFirstParam(optional(1) int p1, int p2);
+
+        // A trailing optional *input* parameter must still get the '?' suffix in the proxy
+        // signature even when a required *out* parameter follows it, because 'out' parameters
+        // are not part of the input-parameter list. slice2js must not consider 'out' parameters
+        // when deciding whether the remaining input parameters are all optional.
+        void opOptionalLastInParam(optional(1) int p1, out int p2);
     }
 }
