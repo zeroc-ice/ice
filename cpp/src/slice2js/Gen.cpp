@@ -2418,27 +2418,9 @@ namespace
 {
     bool areRemainingParamsOptional(const ParameterList& params, const string& name)
     {
-        auto it = params.begin();
-        while (it != params.end() && (*it)->name() != name)
-        {
-            ++it;
-        }
-        assert(it != params.end());
-
-        // Skip the parameter itself: only the parameters that follow it matter.
-        if (it != params.end())
-        {
-            ++it;
-        }
-
-        for (; it != params.end(); ++it)
-        {
-            if (!(*it)->isOptional())
-            {
-                return false;
-            }
-        }
-        return true;
+        auto it = std::find_if(params.begin(), params.end(), [&name](const auto& param) { return param->name() == name; });
+        assert(it != params.end()); // The caller always passes a parameter that exists in params.
+        return std::all_of(std::next(it), params.end(), [](const auto& param) { return param->isOptional(); });
     }
 }
 
