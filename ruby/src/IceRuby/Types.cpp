@@ -1352,7 +1352,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
                 const long len = RSTRING_LEN(str);
                 if (s == 0 || len == 0)
                 {
-                    os->write(int32_t(0));
+                    os->writeSize(0);
                 }
                 else
                 {

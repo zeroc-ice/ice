@@ -325,6 +325,16 @@ def twoways(helper, communicator, p)
     test(rso.unpack("C*") == arr)
 
     #
+    # opByteS with an empty sequence supplied as an empty string. Regression test: an empty
+    # Ruby String marshaled as a sequence<byte> must emit writeSize(0) (a single size byte),
+    # not a raw 4-byte int. Passing an empty p1 followed by a non-empty p2 ensures the bug's
+    # 3 stray bytes would desync and corrupt p2, so the round-trip must return p2 intact.
+    #
+    rso, bso = p.opByteS("", bsi2)
+    test(bso.length == 0)
+    test(rso.unpack("C*") == bsi2)
+
+    #
     # opBoolS
     #
     bsi1 = [true, true, false]
