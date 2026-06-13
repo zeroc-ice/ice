@@ -2542,7 +2542,14 @@ IcePy::ValueInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectM
         return;
     }
 
-    if (PyObject_IsInstance(p, pythonType) != 1)
+    int isInstance = PyObject_IsInstance(p, pythonType);
+    if (isInstance < 0)
+    {
+        // A custom __instancecheck__ raised; propagate the pending Python exception.
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+    else if (isInstance == 0)
     {
         PyErr_Format(PyExc_ValueError, "expected value of type %s", id.c_str());
         throw AbortMarshaling();
@@ -2993,7 +3000,14 @@ IcePy::ReadValueCallback::invoke(const std::shared_ptr<Ice::Value>& p)
         // Verify that the value's type is compatible with the formal type.
         //
         PyObject* obj = reader->getObject(); // Borrowed reference.
-        if (PyObject_IsInstance(obj, _info->pythonType) != 1)
+        int isInstance = PyObject_IsInstance(obj, _info->pythonType);
+        if (isInstance < 0)
+        {
+            // A custom __instancecheck__ raised; propagate the pending Python exception.
+            assert(PyErr_Occurred());
+            throw AbortMarshaling();
+        }
+        else if (isInstance == 0)
         {
             throw MarshalException{
                 __FILE__,
@@ -3016,7 +3030,14 @@ IcePy::ReadValueCallback::invoke(const std::shared_ptr<Ice::Value>& p)
 void
 IcePy::ExceptionInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectMap)
 {
-    if (PyObject_IsInstance(p, pythonType) != 1)
+    int isInstance = PyObject_IsInstance(p, pythonType);
+    if (isInstance < 0)
+    {
+        // A custom __instancecheck__ raised; propagate the pending Python exception.
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+    else if (isInstance == 0)
     {
         PyErr_Format(PyExc_ValueError, "expected exception %s", id.c_str());
         throw AbortMarshaling();
