@@ -1,15 +1,15 @@
 // Copyright (c) ZeroC, Inc.
 
-package test.Ice.custom;
+package test.Ice.customSequence;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ObjectPrx;
 
-import test.Ice.custom.Test.A;
-import test.Ice.custom.Test.E;
-import test.Ice.custom.Test.S;
-import test.Ice.custom.Test.TestIntf;
-import test.Ice.custom.Test.TestIntfPrx;
+import test.Ice.customSequence.Test.A;
+import test.Ice.customSequence.Test.E;
+import test.Ice.customSequence.Test.S;
+import test.Ice.customSequence.Test.TestIntf;
+import test.Ice.customSequence.Test.TestIntfPrx;
 import test.TestHelper;
 
 import java.io.PrintWriter;
