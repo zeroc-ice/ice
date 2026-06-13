@@ -18,7 +18,12 @@ function equals(other) {
         return false;
     }
 
-    if (this.prototype !== other.prototype) {
+    if (typeof other !== "object") {
+        // A struct can never equal a primitive (number/string/boolean/symbol/bigint) or a function.
+        return false;
+    }
+
+    if (Object.getPrototypeOf(this) !== Object.getPrototypeOf(other)) {
         return false;
     }
 
