@@ -246,24 +246,30 @@ def twoways(helper: TestHelper, p: Test.MyClassPrx) -> None:
         p.opByteS(123, 456)  # pyright: ignore
         test(False)
     except TypeError:
+        # Expected: a non-sequence argument for a sequence parameter must raise TypeError.
         pass
 
     try:
         p.opStringS(5, [])  # pyright: ignore
         test(False)
     except TypeError:
+        # Expected: a non-sequence argument for a sequence parameter must raise TypeError.
         pass
 
     try:
         p.opStringSS([42], [])  # pyright: ignore
         test(False)
     except TypeError:
+        # Expected: a non-sequence element of a sequence-of-sequence parameter must raise TypeError.
         pass
 
+    # The async path uses the same marshaling code; one case is enough to cover it (no extra
+    # permutations needed).
     try:
         p.opByteSAsync(123, 456)  # pyright: ignore
         test(False)
     except TypeError:
+        # Expected: a non-sequence argument for a sequence parameter must raise TypeError.
         pass
 
     # The connection must still be usable.
