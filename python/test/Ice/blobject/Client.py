@@ -26,7 +26,9 @@ class Client(TestHelper):
         # ice_invoke/ice_invokeAsync with the optional context argument omitted
         ok, _ = hello.ice_invoke("ice_ping", Ice.OperationMode.Normal, b"")
         test(ok)
-        ok, _ = hello.ice_invokeAsync("ice_ping", Ice.OperationMode.Normal, b"").result()
+        f = hello.ice_invokeAsync("ice_ping", Ice.OperationMode.Normal, b"")
+        assert isinstance(f, Ice.Future)
+        ok, _ = f.result()
         test(ok)
         try:
             hello.raiseUE()
