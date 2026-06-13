@@ -2423,6 +2423,7 @@ namespace
         {
             ++it;
         }
+        assert(it != params.end());
 
         // Skip the parameter itself: only the parameters that follow it matter.
         if (it != params.end())

@@ -61,10 +61,6 @@ export class AMDInitialI extends Test.Initial {
         return [p1, p1];
     }
 
-    opOptionalFirstParam(p1: number | undefined, _p2: number, _current: Ice.Current): number | undefined {
-        return p1;
-    }
-
     opBool(p1: boolean | undefined, _: Ice.Current): [boolean | undefined, boolean | undefined] {
         return [p1, p1];
     }
