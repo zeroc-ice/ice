@@ -34,7 +34,7 @@ export class ImplicitContext {
     }
 
     get(key) {
-        if (key === null) {
+        if (key === null || key === undefined) {
             key = "";
         }
 
@@ -47,10 +47,10 @@ export class ImplicitContext {
     }
 
     put(key, value) {
-        if (key === null) {
+        if (key === null || key === undefined) {
             key = "";
         }
-        if (value === null) {
+        if (value === null || value === undefined) {
             value = "";
         }
 
@@ -65,7 +65,7 @@ export class ImplicitContext {
     }
 
     remove(key) {
-        if (key === null) {
+        if (key === null || key === undefined) {
             key = "";
         }
 
