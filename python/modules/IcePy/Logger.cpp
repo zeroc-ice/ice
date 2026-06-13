@@ -77,7 +77,12 @@ IcePy::LoggerWrapper::getPrefix()
     {
         throwPythonException();
     }
-    return getString(tmp.get());
+    string result = getString(tmp.get());
+    if (PyErr_Occurred())
+    {
+        throwPythonException();
+    }
+    return result;
 }
 
 Ice::LoggerPtr
