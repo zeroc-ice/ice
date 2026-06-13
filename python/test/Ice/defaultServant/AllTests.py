@@ -33,6 +33,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     oa.addFacet(servant, identity, "theFacet")
     test(oa.findFacet(identity, "theFacet") == servant)
     test(oa.findFacet(identity, "missingFacet") is None)
+    test(oa.findFacet(missing, "theFacet") is None)
 
     oa.removeFacet(identity, "theFacet")
     oa.remove(identity)
