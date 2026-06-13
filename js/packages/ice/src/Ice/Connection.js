@@ -67,8 +67,8 @@ export class TCPConnectionInfo extends IPConnectionInfo {}
  *  Provides access to the connection details of a WebSocket connection
  */
 export class WSConnectionInfo extends ConnectionInfo {
-    constructor(adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort, maxBufferedAmount) {
-        super(adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort);
+    constructor(underlying, maxBufferedAmount) {
+        super(underlying);
         this._maxBufferedAmount = maxBufferedAmount;
     }
 
