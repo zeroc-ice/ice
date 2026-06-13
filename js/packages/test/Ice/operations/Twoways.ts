@@ -267,6 +267,14 @@ export async function twoways(
         test(!as1.equals(new Test.AnotherStruct("def")));
         test(!as1.equals(new Test.StillAnotherStruct("abc")));
         test(!new Test.StillAnotherStruct("abc").equals(as1));
+
+        // Comparing a struct to a primitive must return false without throwing. The symbol and
+        // bigint cases in particular must not throw from Object.getPrototypeOf.
+        test(!as1.equals(5));
+        test(!as1.equals("abc"));
+        test(!as1.equals(true));
+        test(!as1.equals(Symbol()));
+        test(!as1.equals(10n));
     }
 
     {
