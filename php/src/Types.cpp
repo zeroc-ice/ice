@@ -1480,25 +1480,28 @@ IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* object
         PrimitiveInfoPtr pi = dynamic_pointer_cast<PrimitiveInfo>(elementType);
         if (pi)
         {
+            // Don't return here: an optional variable-length sequence (i.e. seq<string>) still needs to patch the
+            // FSize placeholder written by startSize() with the endSize() call below.
             marshalPrimitiveSequence(pi, zv, os);
-            return;
         }
-
-        os->writeSize(sz);
-
-        zval* val;
-        ZEND_HASH_FOREACH_VAL(arr, val)
+        else
         {
-            if (!elementType->validate(val, false))
+            os->writeSize(sz);
+
+            zval* val;
+            ZEND_HASH_FOREACH_VAL(arr, val)
             {
-                ostringstream os;
-                os << "invalid value for sequence element '" << id << "'";
-                invalidArgument(os.str());
-                throw AbortMarshaling();
+                if (!elementType->validate(val, false))
+                {
+                    ostringstream os;
+                    os << "invalid value for sequence element '" << id << "'";
+                    invalidArgument(os.str());
+                    throw AbortMarshaling();
+                }
+                elementType->marshal(val, os, objectMap, false);
             }
-            elementType->marshal(val, os, objectMap, false);
+            ZEND_HASH_FOREACH_END();
         }
-        ZEND_HASH_FOREACH_END();
     }
 
     if (optional && elementType->variableLength())
