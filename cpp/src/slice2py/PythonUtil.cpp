@@ -265,8 +265,9 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
         else if (auto seq = dynamic_pointer_cast<Sequence>(type))
         {
             ostringstream os;
-            // Map Slice built-in numeric types to NumPy types.
-            static const char* numpyBuiltinTable[] = {"int8", "bool", "int16", "int32", "int64", "float32", "float64"};
+            // Map Slice built-in numeric types to NumPy types. We use "bool_" rather than the "bool" alias because
+            // the latter was removed in NumPy 1.24 (and re-added in NumPy 2.0).
+            static const char* numpyBuiltinTable[] = {"int8", "bool_", "int16", "int32", "int64", "float32", "float64"};
 
             auto elementType = dynamic_pointer_cast<Builtin>(seq->type());
             bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
@@ -1486,7 +1487,9 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
         else if (metadataDirective == "python:numpy.ndarray")
         {
             assert(elementType && elementType->kind() <= Builtin::KindDouble);
-            static const char* builtinTable[] = {"int8", "bool", "int16", "int32", "int64", "float32", "float64"};
+            // We use "bool_" rather than the "bool" alias because the latter was removed in NumPy 1.24 (and re-added in
+            // NumPy 2.0).
+            static const char* builtinTable[] = {"int8", "bool_", "int16", "int32", "int64", "float32", "float64"};
             const string numpyAlias = getImportAlias(parent, "numpy");
             out << "lambda: " << numpyAlias << ".empty(0, " << numpyAlias << "." << builtinTable[elementType->kind()]
                 << ")";

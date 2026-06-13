@@ -162,7 +162,7 @@ try:
 
     class NumPyCustomI(NumPy.Custom):
         @override
-        def opBoolSeq(self, v1: list[bool], v2: numpy.typing.NDArray[numpy.bool], current: Ice.Current):
+        def opBoolSeq(self, v1: list[bool], v2: numpy.typing.NDArray[numpy.bool_], current: Ice.Current):
             test(isinstance(v2, numpy.ndarray))
             return v2, v2
 
