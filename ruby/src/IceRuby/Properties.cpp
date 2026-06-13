@@ -37,9 +37,9 @@ IceRuby_createProperties(int argc, VALUE* argv, VALUE /*self*/)
         }
 
         Ice::PropertiesPtr defaults;
-        if (argc == 2)
+        if (argc == 2 && !NIL_P(argv[1]))
         {
-            if (!NIL_P(argv[1]) && callRuby(rb_obj_is_instance_of, argv[1], _propertiesClass) == Qfalse)
+            if (callRuby(rb_obj_is_instance_of, argv[1], _propertiesClass) == Qfalse)
             {
                 throw RubyException(rb_eTypeError, "invalid properties argument to Ice::createProperties");
             }
