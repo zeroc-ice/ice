@@ -500,7 +500,10 @@ communicatorShutdownCompleted(CommunicatorObject* self, PyObject* /*args*/)
     }
 
     // Call Ice.Future.__init__
-    type->tp_init(future.get(), emptyArgs.get(), nullptr);
+    if (type->tp_init(future.get(), emptyArgs.get(), nullptr) < 0)
+    {
+        return nullptr;
+    }
 
     // Create a new reference to prevent premature release of the future object. The reference will be released by
     // the callback.
