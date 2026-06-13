@@ -920,7 +920,13 @@ IcePy::EnumInfo::destroy()
 int32_t
 IcePy::EnumInfo::valueForEnumerator(PyObject* p) const
 {
-    if (PyObject_IsInstance(p, pythonType) != 1)
+    int isInstance = PyObject_IsInstance(p, pythonType);
+    if (isInstance < 0)
+    {
+        assert(PyErr_Occurred()); // A custom __instancecheck__ raised; preserve the pending exception.
+        return -1;
+    }
+    else if (isInstance == 0)
     {
         PyErr_Format(PyExc_ValueError, "expected value of type %s", id.c_str());
         return -1;
@@ -1106,7 +1112,13 @@ IcePy::StructInfo::marshal(
     bool optional,
     const Ice::StringSeq*)
 {
-    if (PyObject_IsInstance(p, pythonType) != 1)
+    int isInstance = PyObject_IsInstance(p, pythonType);
+    if (isInstance < 0)
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+    else if (isInstance == 0)
     {
         PyErr_Format(PyExc_ValueError, "expected value of type %s", id.c_str());
         throw AbortMarshaling();
