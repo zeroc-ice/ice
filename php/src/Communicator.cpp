@@ -118,19 +118,36 @@ namespace
             ActiveCommunicatorPtr activeCommunicator;
             {
                 lock_guard lock(_registeredCommunicatorsMutex);
+
+                // The timer may have already dequeued this task before a concurrent registration cancelled (and
+                // possibly replaced) it. If this task is no longer the communicator's current reap task, it is
+                // stale and must not destroy the communicator.
+                if (_activeCommunicator->reapTask.get() != this)
+                {
+                    return;
+                }
+
                 auto now = std::chrono::steady_clock::now();
                 if (_activeCommunicator->lastAccess + _activeCommunicator->expires <= now)
                 {
-                    // Cancel the task to avoid schedule it again after the communicator has been destroyed.
+                    // Cancel the task to avoid scheduling it again after the communicator has been destroyed.
                     _timer->cancel(shared_from_this());
+
+                    // Break the ActiveCommunicator <-> ReapCommunicatorTimerTask ownership cycle so the
+                    // ActiveCommunicator is released once the timer drops its reference to this task.
+                    _activeCommunicator->reapTask = nullptr;
 
                     // Remove all the registrations for this communicator.
                     for (const auto& id : _activeCommunicator->ids)
                     {
                         _registeredCommunicators.erase(id);
                     }
+                    _activeCommunicator->ids.clear();
+
+                    // Destroy the communicator (outside the lock) below. This only runs when the communicator has
+                    // actually expired; otherwise the task would destroy it on every tick, i.e. at expires / 2.
+                    activeCommunicator = _activeCommunicator;
                 }
-                activeCommunicator = _activeCommunicator;
             }
 
             // Destroy the communicator outside the lock.
@@ -1006,8 +1023,10 @@ ZEND_FUNCTION(Ice_register)
 
     if (info->ac->reapTask)
     {
-        // Cancel existing reap task, we schedule a new reap task below according to the expiration time.
+        // Cancel the existing reap task; a new one is scheduled below when expires > 0. Clear the member as well so
+        // a re-registration with expires <= 0 doesn't retain the cancelled task (and its ownership cycle).
         _timer->cancel(info->ac->reapTask);
+        info->ac->reapTask = nullptr;
     }
 
     if (expires > 0)
