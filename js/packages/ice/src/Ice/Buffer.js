@@ -244,9 +244,10 @@ export class Buffer {
     }
 
     set position(value) {
-        if (value >= 0 && value <= this._limit) {
-            this._position = value;
+        if (value < 0 || value > this._limit) {
+            throw new RangeError(indexOutOfBoundsExceptionMsg);
         }
+        this._position = value;
     }
 
     get limit() {
