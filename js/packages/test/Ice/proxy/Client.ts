@@ -371,7 +371,7 @@ export class Client extends TestHelper {
 
         try {
             // Extra unescaped slash
-            id = Ice.stringToIdentity("a/b/c");
+            Ice.stringToIdentity("a/b/c");
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.ParseException, ex as Error);
