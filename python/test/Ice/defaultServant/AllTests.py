@@ -15,6 +15,32 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
 
     servant = MyObjectI.MyObjectI()
 
+    # Test find/findFacet before any default servant is registered, since findServant
+    # falls back to default servants for identities not in the active servant map.
+    sys.stdout.write("testing find and findFacet... ")
+    sys.stdout.flush()
+
+    identity = Ice.Identity()
+    identity.name = "registered"
+
+    oa.add(servant, identity)
+    test(oa.find(identity) == servant)
+
+    missing = Ice.Identity()
+    missing.name = "unregistered"
+    test(oa.find(missing) is None)
+
+    oa.addFacet(servant, identity, "theFacet")
+    test(oa.findFacet(identity, "theFacet") == servant)
+    test(oa.findFacet(identity, "missingFacet") is None)
+    test(oa.findFacet(missing, "theFacet") is None)
+
+    oa.removeFacet(identity, "theFacet")
+    oa.remove(identity)
+    test(oa.find(identity) is None)
+
+    print("ok")
+
     # Register default servant with category "foo"
     oa.addDefaultServant(servant, "foo")
 
