@@ -544,6 +544,26 @@ export class Client extends TestHelper {
             test(dict2.get("key2")!.s.e == Test.MyEnum.enum3);
         }
         out.writeLine("ok");
+
+        out.write("testing buffer position bounds... ");
+        {
+            // Setting the stream position out of range must throw, not silently no-op.
+            const inS = new Ice.InputStream(communicator, new Uint8Array(4));
+            for (const badPos of [5, -1]) {
+                try {
+                    inS.pos = badPos;
+                    test(false);
+                } catch (ex) {
+                    test(ex instanceof RangeError);
+                }
+            }
+            // Positions within [0, limit] are accepted (the limit itself is a valid position).
+            inS.pos = 4;
+            test(inS.pos === 4);
+            inS.pos = 0;
+            test(inS.pos === 0);
+        }
+        out.writeLine("ok");
     }
 
     async run(args: string[]) {
