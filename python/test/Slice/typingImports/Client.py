@@ -16,7 +16,9 @@ import IcePy
 
 def importsModule(nodes: list[ast.stmt], module: str) -> bool:
     return any(
-        isinstance(node, ast.Import) and any(alias.name == module for alias in node.names) for node in nodes
+        (isinstance(node, ast.Import) and any(alias.name == module for alias in node.names))
+        or (isinstance(node, ast.ImportFrom) and node.module == module)
+        for node in nodes
     )
 
 
