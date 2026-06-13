@@ -19,7 +19,10 @@ namespace
     {
         for (const auto& param : p->parameters())
         {
-            if (Slice::Ruby::getMappedName(param) == name)
+            // Only in-parameters appear in the generated method signature, where they are emitted with
+            // IdentToLower. Limit the collision check to them and compare against the same lower-cased name, so a
+            // parameter such as 'Context' is detected without escaping the synthesized name for out-parameters.
+            if (!param->isOutParam() && Slice::Ruby::getMappedName(param, Slice::Ruby::IdentToLower) == name)
             {
                 return name + "_";
             }
