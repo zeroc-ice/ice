@@ -520,6 +520,25 @@ def allTests(helper, communicator)
     endpts3 = compObj3.ice_getEndpoints()
     test(endpts1 == endpts3)
 
+    #
+    # ice_endpoints accepts any object implementing Ruby's to_ary array-conversion protocol.
+    #
+    toAry = Object.new
+    toAry.define_singleton_method(:to_ary) { endpts1 }
+    test(compObj3.ice_endpoints(toAry).ice_getEndpoints() == endpts1)
+
+    #
+    # An argument that is not array-convertible must raise TypeError, not crash. (Regression: the array-type
+    # gate used the nonstandard to_arr and the null check tested the wrong value, crashing on conversion failure.)
+    #
+    notArray = Object.new
+    notArray.define_singleton_method(:to_arr) { [] }
+    begin
+        compObj3.ice_endpoints(notArray)
+        test(false)
+    rescue TypeError
+    end
+
     test(compObj1.ice_encodingVersion(Ice::Encoding_1_0) == compObj1.ice_encodingVersion(Ice::Encoding_1_0))
     test(compObj1.ice_encodingVersion(Ice::Encoding_1_0) != compObj1.ice_encodingVersion(Ice::Encoding_1_1))
     #test(compObj.ice_encodingVersion(Ice::Encoding_1_0) < compObj.ice_encodingVersion(Ice::Encoding_1_1))
