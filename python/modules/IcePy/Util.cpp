@@ -126,7 +126,7 @@ IcePy::getStringArg(PyObject* p, const string& arg, string& val)
         val = getString(p);
         if (PyErr_Occurred())
         {
-            return false; // The string is not UTF-8 encodable.
+            return false; // String conversion failed; a Python exception is set.
         }
     }
     else if (p != Py_None)
@@ -377,7 +377,7 @@ IcePy::listToStringSeq(PyObject* l, Ice::StringSeq& seq)
             str = getString(item);
             if (PyErr_Occurred())
             {
-                return false; // The string is not UTF-8 encodable.
+                return false; // String conversion failed; a Python exception is set.
             }
         }
         else if (item != Py_None)
@@ -433,7 +433,7 @@ IcePy::tupleToStringSeq(PyObject* t, Ice::StringSeq& seq)
             str = getString(item);
             if (PyErr_Occurred())
             {
-                return false; // The string is not UTF-8 encodable.
+                return false; // String conversion failed; a Python exception is set.
             }
         }
         else if (item != Py_None)
@@ -463,7 +463,7 @@ IcePy::dictionaryToContext(PyObject* dict, Ice::Context& context)
             keystr = getString(key);
             if (PyErr_Occurred())
             {
-                return false; // The string is not UTF-8 encodable.
+                return false; // String conversion failed; a Python exception is set.
             }
         }
         else if (key != Py_None)
@@ -478,7 +478,7 @@ IcePy::dictionaryToContext(PyObject* dict, Ice::Context& context)
             valuestr = getString(value);
             if (PyErr_Occurred())
             {
-                return false; // The string is not UTF-8 encodable.
+                return false; // String conversion failed; a Python exception is set.
             }
         }
         else if (value != Py_None)
@@ -776,7 +776,7 @@ IcePy::getIdentity(PyObject* p, Ice::Identity& ident)
         ident.name = getString(name.get());
         if (PyErr_Occurred())
         {
-            return false; // The string is not UTF-8 encodable.
+            return false; // String conversion failed; a Python exception is set.
         }
     }
     if (category.get())
@@ -789,7 +789,7 @@ IcePy::getIdentity(PyObject* p, Ice::Identity& ident)
         ident.category = getString(category.get());
         if (PyErr_Occurred())
         {
-            return false; // The string is not UTF-8 encodable.
+            return false; // String conversion failed; a Python exception is set.
         }
     }
     return true;

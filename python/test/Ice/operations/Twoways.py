@@ -253,18 +253,21 @@ def twoways(helper: TestHelper, p: Test.MyClassPrx) -> None:
         p.opString("hel\ud800lo", "world")
         test(False)
     except UnicodeEncodeError:
+        # Expected: a non-UTF-8-encodable string is rejected at the conversion boundary.
         pass
 
     try:
         p.opContext({"\ud800": "value"})
         test(False)
     except UnicodeEncodeError:
+        # Expected: a non-UTF-8-encodable string is rejected at the conversion boundary.
         pass
 
     try:
         p.ice_identity(Ice.Identity("\ud800"))
         test(False)
     except UnicodeEncodeError:
+        # Expected: a non-UTF-8-encodable string is rejected at the conversion boundary.
         pass
 
     # The connection must still be usable.

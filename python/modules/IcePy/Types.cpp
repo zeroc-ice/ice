@@ -88,7 +88,7 @@ namespace IcePy
             string str = getString(p);
             if (PyErr_Occurred())
             {
-                return false; // The string is not UTF-8 encodable.
+                return false; // String conversion failed; a Python exception is set.
             }
             os->write(str, false); // Bypass string conversion.
         }

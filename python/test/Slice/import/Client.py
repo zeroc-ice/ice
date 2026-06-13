@@ -36,6 +36,7 @@ class Client(TestHelper):
             IcePy.compileSlice([])
             test(False)
         except ValueError:
+            # Expected: an empty argument list is rejected.
             pass
 
         print("ok")
