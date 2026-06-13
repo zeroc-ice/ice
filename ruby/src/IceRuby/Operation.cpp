@@ -267,7 +267,9 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
 
     if (!_deprecateMessage.empty())
     {
-        rb_warning("%s", _deprecateMessage.c_str());
+        // Route the warning through the rb_protect discipline: rb_warning dispatches to the overridable
+        // Warning.warn, and a raising override would otherwise longjmp past the live C++ locals above.
+        callRubyVoid([this] { rb_warning("%s", _deprecateMessage.c_str()); });
         _deprecateMessage.clear(); // Only show the warning once.
     }
 
