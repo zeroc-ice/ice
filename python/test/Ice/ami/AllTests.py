@@ -272,16 +272,19 @@ def allTestsFuture(helper: TestHelper, communicator: Ice.Communicator, collocate
         runningFuture.result(0)
         test(False)
     except Ice.TimeoutException:
+        # Expected: the future is still running, so the bounded wait must time out.
         pass
     try:
         runningFuture.exception(0)
         test(False)
     except Ice.TimeoutException:
+        # Expected: the future is still running, so the bounded wait must time out.
         pass
     try:
         runningFuture.result(0.01)
         test(False)
     except Ice.TimeoutException:
+        # Expected: the future is still running, so the bounded wait must time out.
         pass
 
     runningFuture.set_result(15)
@@ -826,14 +829,16 @@ def allTestsFuture(helper: TestHelper, communicator: Ice.Communicator, collocate
 
         # sent() must not block once the invocation is cancelled before being sent.
         try:
-            f1.sent(10)
+            f1.sent(2)
             test(False)
         except Ice.InvocationCanceledException:
+            # Expected: the invocation was cancelled before being sent.
             pass
         try:
-            f2.sent(10)
+            f2.sent(2)
             test(False)
         except Ice.InvocationCanceledException:
+            # Expected: the invocation was cancelled before being sent.
             pass
 
         testController.holdAdapter()
