@@ -46,6 +46,10 @@ might need to be aware of.
 - Fixed `Ice::createProperties` in Ice for Ruby to accept `nil` as the defaults argument (equivalent to omitting it).
   A `nil` defaults previously bypassed the type check and crashed the interpreter.
 
+- Fixed Ice for Ruby to keep a custom `SliceLoader` alive for the communicator's lifetime. The wrapper previously
+  registered the wrong address with the garbage collector, leaving a dangling root and allowing the loader to be
+  collected while still in use.
+
 These are the changes since the [Ice 3.8.2] release.
 
 [Ice 3.8.2]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
