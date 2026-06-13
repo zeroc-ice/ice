@@ -2698,8 +2698,10 @@ Slice::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         for (const auto& param : inParams)
         {
             // TypeScript doesn't allow optional parameters with '?' prefix before required parameters.
+            // Only the input parameters appear in this signature, so 'out' parameters must not be
+            // considered when deciding whether the remaining parameters are all optional.
             const string optionalPrefix =
-                param->isOptional() && areRemainingParamsOptional(paramList, param->name()) ? "?" : "";
+                param->isOptional() && areRemainingParamsOptional(inParams, param->name()) ? "?" : "";
             _out
                 << (param->mappedName() + optionalPrefix + ": " +
                     typeToTsString(param->type(), true, true, param->isOptional()));
