@@ -109,6 +109,8 @@ class InvocationFuture(Future):
         timeout : int | float | None, optional
             Maximum time (in seconds) to wait for the invocation to be sent.
             If ``None`` (the default), this function waits indefinitely.
+            A timeout of ``0`` returns immediately (a non-blocking poll), raising :class:`Ice.TimeoutException`
+            if the invocation has not yet been sent.
 
         Returns
         -------
@@ -123,7 +125,9 @@ class InvocationFuture(Future):
             If the invocation was cancelled before it was sent.
         """
         with self._condition:
-            if not self._wait(timeout, lambda: not self._sent):
+            # Stop waiting once the invocation is sent, or once it completes without
+            # ever being sent (cancelled or failed before being sent).
+            if not self._wait(timeout, lambda: not self._sent and self._state == Future.StateRunning):
                 raise TimeoutException()
 
             if self._state == Future.StateCancelled:
