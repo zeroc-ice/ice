@@ -11,6 +11,19 @@ function allTests($helper)
     $communicator = $helper->communicator();
     $initial = Test\InitialPrxHelper::createProxy($communicator, $ref);
 
+    echo "testing class stringification... ";
+    flush(); {
+        // Stringifying a class must print each required member once and include the optional members. Before #5535
+        // ClassInfo::printMembers iterated the required members twice, so requiredA printed twice and ma never.
+        $a = new Test\A();
+        $a->requiredA = 11;
+        $a->ma = 22;
+        $str = (string)$a;
+        test(substr_count($str, "requiredA = 11") == 1);
+        test(strpos($str, "ma = 22") !== false);
+    }
+    echo "ok\n";
+
     echo "testing optional data members... ";
     flush();
 
