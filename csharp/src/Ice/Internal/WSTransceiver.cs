@@ -721,6 +721,19 @@ internal sealed class WSTransceiver : Transceiver
     private void handleRequest(Buffer responseBuffer)
     {
         //
+        // The opening handshake must be a GET request (RFC 6455 section 4.1). We check the message type first
+        // because method() (used just below) and uri() (used later) assert the parser holds a request.
+        //
+        if (_parser.type() != HttpParser.Type.Request)
+        {
+            throw new WebSocketException("WebSocket handshake is not an HTTP request");
+        }
+        if (_parser.method() != "GET")
+        {
+            throw new WebSocketException($"unsupported HTTP method '{_parser.method()}' for WebSocket handshake");
+        }
+
+        //
         // HTTP/1.1
         //
         if (_parser.versionMajor() != 1 || _parser.versionMinor() != 1)

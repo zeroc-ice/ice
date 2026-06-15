@@ -909,7 +909,7 @@ adapterFind(ObjectAdapterObject* self, PyObject* args)
         return nullptr;
     }
 
-    if (!obj)
+    if (obj)
     {
         auto wrapper = dynamic_pointer_cast<ServantWrapper>(obj);
         assert(wrapper);

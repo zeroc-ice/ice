@@ -6,9 +6,15 @@ comprehensive report of every change we made in a release, it does provide detai
 might need to be aware of.
 
 - [Changes in Ice 3.9.0](#changes-in-ice-390)
+  - [General Changes](#general-changes)
   - [C# Changes](#c-changes)
 
 ## Changes in Ice 3.9.0
+
+### General Changes
+
+- Fixed the server-side WebSocket opening handshake to reject messages that are not `GET` requests, as required by
+  RFC 6455. A peer could previously trip an assertion by sending a response-shaped handshake.
 
 ### C# Changes
 

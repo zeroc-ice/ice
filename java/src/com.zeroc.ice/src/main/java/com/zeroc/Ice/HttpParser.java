@@ -466,6 +466,15 @@ final class HttpParser {
         return _state == State.Complete;
     }
 
+    boolean isRequest() {
+        return _type == Type.Request;
+    }
+
+    String method() {
+        assert (_type == Type.Request);
+        return _method.toString();
+    }
+
     String uri() {
         assert (_type == Type.Request);
         return _uri.toString();
