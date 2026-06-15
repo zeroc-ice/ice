@@ -7,14 +7,25 @@ might need to be aware of.
 
 - [Changes in Ice 3.9.0](#changes-in-ice-390)
   - [General Changes](#general-changes)
+  - [C# Changes](#c-changes)
 
 ## Changes in Ice 3.9.0
-
-These are the changes since the [Ice 3.8.2] release.
 
 ### General Changes
 
 - Fixed the server-side WebSocket opening handshake to reject messages that are not `GET` requests, as required by
   RFC 6455. A peer could previously trip an assertion by sending a response-shaped handshake.
+
+### C# Changes
+
+- Fixed a bug in `slice2cs --icerpc` where the generated request decoder read in-parameters in declaration order
+  instead of the marshal order. As a result, an operation with an optional parameter declared before a required
+  parameter (or optional parameters declared out of tag order) could fail to decode or decode incorrect values.
+
+- Fixed a bug in `slice2cs --icerpc` where the generated proxy built the response tuple in marshal order while
+  declaring it in declaration order. As a result, an operation whose out-parameters were declared in an order
+  different from their marshal order could return values in the wrong tuple slots or fail to compile.
+
+These are the changes since the [Ice 3.8.2] release.
 
 [Ice 3.8.2]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
