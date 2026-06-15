@@ -37,8 +37,6 @@ namespace IceGrid
 
             bool keepAlive(const ReplicaSessionPrx& session) override { return _manager.keepAlive(session); }
 
-            void registerAllWellKnownObjects();
-
         private:
             ReplicaSessionManager& _manager;
         };

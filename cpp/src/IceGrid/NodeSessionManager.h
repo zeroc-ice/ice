@@ -22,8 +22,6 @@ namespace IceGrid
         void destroySession(const NodeSessionPrx&) override;
         bool keepAlive(const NodeSessionPrx&) override;
 
-        [[nodiscard]] std::string getName() const { return "IceGrid session keepalive thread"; }
-
     protected:
         NodeSessionPrx createSessionImpl(const InternalRegistryPrx&, std::chrono::seconds&);
 

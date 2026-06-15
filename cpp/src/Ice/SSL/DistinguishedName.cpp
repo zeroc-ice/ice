@@ -51,12 +51,6 @@ DistinguishedName::match(const DistinguishedName& other) const
     return true;
 }
 
-bool
-DistinguishedName::match(const string& other) const
-{
-    return match(DistinguishedName(other));
-}
-
 //
 // This always produces the same output as the input DN -- the type of
 // escaping is not changed.

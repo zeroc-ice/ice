@@ -84,7 +84,6 @@ namespace IceGrid
 
         [[nodiscard]] const ApplicationDescriptor& getDescriptor() const;
 
-        void setVariableOverrides(const std::map<std::string, std::string>&);
         void setDescription(const std::string&);
         void addReplicaGroup(const XmlAttributesHelper&);
         void finishReplicaGroup();

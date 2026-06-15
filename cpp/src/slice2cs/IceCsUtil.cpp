@@ -33,24 +33,6 @@ Slice::Csharp::getOptionalFormat(const TypePtr& type)
 }
 
 string
-Slice::Csharp::getStaticId(const TypePtr& type)
-{
-    BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-
-    assert((b && b->usesClasses()) || cl);
-
-    if (b)
-    {
-        return "Ice.Value.ice_staticId()";
-    }
-    else
-    {
-        return getUnqualified(cl, "") + ".ice_staticId()";
-    }
-}
-
-string
 Slice::Csharp::typeToString(const TypePtr& type, const string& ns, bool optional)
 {
     if (!type)

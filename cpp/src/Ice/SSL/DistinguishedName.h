@@ -47,12 +47,6 @@ namespace Ice::SSL
         /// DistinguishedName and they have the same values.
         [[nodiscard]] bool match(const DistinguishedName& dn) const;
 
-        /// Performs a partial match with another DistinguishedName.
-        /// @param dn The name to be matched.
-        /// @return `true` if all of the RDNs in the argument are present in this
-        /// DistinguishedName and they have the same values.
-        [[nodiscard]] bool match(const std::string& dn) const;
-
         /// Encodes the DN in RFC2253 format.
         /// @return An encoded string.
         [[nodiscard]] std::string toString() const;

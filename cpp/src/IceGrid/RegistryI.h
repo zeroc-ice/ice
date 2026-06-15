@@ -22,8 +22,6 @@ namespace IceGrid
     class TraceLevels;
     class WellKnownObjectsManager;
 
-    std::string getInstanceName(const Ice::CommunicatorPtr&);
-
     class RegistryI : public Registry, public std::enable_shared_from_this<RegistryI>
     {
     public:

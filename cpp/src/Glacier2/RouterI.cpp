@@ -178,12 +178,6 @@ Glacier2::RouterI::getServerBlobject() const
     return _serverBlobject;
 }
 
-optional<SessionPrx>
-Glacier2::RouterI::getSession() const
-{
-    return _session; // No mutex lock necessary, _session is immutable.
-}
-
 void
 Glacier2::RouterI::updateObserver(const shared_ptr<Glacier2::Instrumentation::RouterObserver>& observer)
 {

@@ -91,17 +91,6 @@ IceBT::addrToString(const SocketAddress& addr)
     return addrToString(formatDeviceAddress(addr.rc_bdaddr), addr.rc_channel);
 }
 
-SocketAddress
-IceBT::createAddr(const string& addr, int32_t channel)
-{
-    SocketAddress ret;
-    memset(&ret, 0, sizeof(ret));
-    ret.rc_family = AF_BLUETOOTH;
-    ret.rc_channel = static_cast<uint8_t>(channel);
-    parseDeviceAddress(addr, ret.rc_bdaddr);
-    return ret;
-}
-
 namespace
 {
     void fdToLocalAddress(SOCKET fd, SocketAddress& addr)
@@ -203,28 +192,4 @@ IceBT::fdToAddressAndChannel(
         remoteAddress.clear();
         remoteChannel = -1;
     }
-}
-
-int
-IceBT::compareAddress(const SocketAddress& addr1, const SocketAddress& addr2)
-{
-    if (addr1.rc_family < addr2.rc_family)
-    {
-        return -1;
-    }
-    else if (addr2.rc_family < addr1.rc_family)
-    {
-        return 1;
-    }
-
-    if (addr1.rc_channel < addr2.rc_channel)
-    {
-        return -1;
-    }
-    else if (addr2.rc_channel < addr1.rc_channel)
-    {
-        return 1;
-    }
-
-    return ::memcmp(&addr1.rc_bdaddr, &addr2.rc_bdaddr, sizeof(DeviceAddress));
 }

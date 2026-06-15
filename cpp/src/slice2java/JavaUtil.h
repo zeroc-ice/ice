@@ -60,9 +60,6 @@ namespace Slice::Java
     [[nodiscard]] std::string
     getUnqualified(const ContainedPtr& cont, const std::string& package = "", const std::string& prefix = "");
 
-    /// Returns the method call necessary to obtain the static type ID for an object type.
-    [[nodiscard]] std::string getStaticId(const TypePtr& type, const std::string& package);
-
     /// Returns the optional type corresponding to the given Slice type.
     [[nodiscard]] std::string getOptionalFormat(const TypePtr& type);
 

@@ -13,13 +13,6 @@ namespace Ice::SSL::SecureTransport
     std::string sslErrorToString(CFErrorRef);
     std::string sslErrorToString(OSStatus);
 
-#    if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
-    //
-    // Retrieve a certificate property
-    //
-    CFDictionaryRef getCertificateProperty(SecCertificateRef, CFTypeRef);
-#    endif
-
     //
     // Read certificate from a file.
     //
@@ -30,7 +23,6 @@ namespace Ice::SSL::SecureTransport
         const std::string&,
         const std::string&);
 
-    SecCertificateRef loadCertificate(const std::string&);
     ICE_API CFArrayRef loadCACertificates(const std::string&);
     ICE_API CFArrayRef findCertificateChain(const std::string&, const std::string&, const std::string&);
 

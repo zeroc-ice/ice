@@ -74,9 +74,6 @@
     <ClInclude Include="..\..\..\Ice\ScannerConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Ice\UndefSysMacros.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
