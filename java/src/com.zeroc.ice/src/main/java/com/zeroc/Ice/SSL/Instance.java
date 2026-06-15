@@ -5,8 +5,6 @@ package com.zeroc.Ice.SSL;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ProtocolInstance;
 
-import java.security.cert.CertificateException;
-
 /**
  * @hidden Public because it's used by Ice.Instance
  */
