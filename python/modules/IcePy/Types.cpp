@@ -85,7 +85,12 @@ namespace IcePy
         }
         else if (checkString(p))
         {
-            os->write(getString(p), false); // Bypass string conversion.
+            string str = getString(p);
+            if (PyErr_Occurred())
+            {
+                return false; // String conversion failed; a Python exception is set.
+            }
+            os->write(str, false); // Bypass string conversion.
         }
         else
         {
@@ -2777,6 +2782,10 @@ IcePy::ValueWriter::_iceWrite(Ice::OutputStream* os) const
             throw AbortMarshaling();
         }
         string id = getString(ret.get());
+        if (PyErr_Occurred())
+        {
+            throw AbortMarshaling(); // String conversion failed; a Python exception is set.
+        }
         os->startSlice(id, -1, true);
         os->endSlice();
     }
