@@ -2,6 +2,7 @@
 
 from Util import ClientServerTestCase, Server, TestSuite
 from ws_origin_probe import probe
+from ws_ping_probe import ping_pong
 
 # An origin that the test server is configured to accept.
 ALLOWED_ORIGIN = "https://allowed.example.com"
@@ -115,7 +116,33 @@ class WSAllowedOriginsPortTestCase(ClientServerTestCase):
         current.writeln("ok")
 
 
+class WSPingTestCase(ClientServerTestCase):
+    # Exercises the WebSocket zero-length PING/PONG control-frame path. A zero-length ping (the common keep-alive
+    # case sent by browsers and load balancers) must elicit an empty pong. Before the fix the server formed
+    # &_pingPayload[0] on an empty vector while building the pong -- undefined behavior that aborts under a hardened
+    # standard library.
+    def __init__(self):
+        ClientServerTestCase.__init__(
+            self,
+            "ping/pong control frames",
+            server=Server(quiet=True, waitForShutdown=False),
+        )
+
+    def runClientSide(self, current):
+        current.write("testing WebSocket zero-length ping/pong... ")
+        host = current.host
+        port = current.driver.getTestPort(0)
+        if ping_pong(host, port, b"") != b"":
+            raise RuntimeError("zero-length ping: server did not return an empty pong")
+        current.writeln("ok")
+
+
 TestSuite(
     __name__,
-    [WSAllowedOriginsTestCase(), WSAllowedOriginsWildcardTestCase(), WSAllowedOriginsPortTestCase()],
+    [
+        WSAllowedOriginsTestCase(),
+        WSAllowedOriginsWildcardTestCase(),
+        WSAllowedOriginsPortTestCase(),
+        WSPingTestCase(),
+    ],
 )
