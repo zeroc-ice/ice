@@ -1429,6 +1429,7 @@ Slice::IceRpc::SkeletonVisitor::writeRequestClass(const InterfaceDefPtr& interfa
         _out << nl << "IceRpc.IncomingRequest request,";
         _out << nl << "global::System.Threading.CancellationToken cancellationToken) =>";
 
+        // in-parameters in marshaling order.
         ParameterList sortedInParameters = operation->sortedInParameters();
 
         if (sortedInParameters.empty())
