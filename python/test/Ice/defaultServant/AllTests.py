@@ -15,8 +15,6 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
 
     servant = MyObjectI.MyObjectI()
 
-    # Test find/findFacet before any default servant is registered, since findServant
-    # falls back to default servants for identities not in the active servant map.
     sys.stdout.write("testing find and findFacet... ")
     sys.stdout.flush()
 
