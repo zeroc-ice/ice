@@ -379,7 +379,13 @@ namespace DataStormI
         /// @param topicId The ID of the topic to process.
         /// @param topic The topic to process.
         /// @param callback The callback function to execute for the subscriber.
-        void runWithTopic(std::int64_t topicId, TopicI* topic, const std::function<void(TopicSubscriber&)>& callback);
+        /// @param ignoreDestroyed If true, run the callback even when the topic is being destroyed. Used by the
+        /// topic-destroy path, which must still detach listeners.
+        void runWithTopic(
+            std::int64_t topicId,
+            TopicI* topic,
+            const std::function<void(TopicSubscriber&)>& callback,
+            bool ignoreDestroyed = false);
 
         /// Returns the topics that match the specified name.
         ///

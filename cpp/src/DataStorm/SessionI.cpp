@@ -941,7 +941,10 @@ SessionI::disconnect(int64_t topicId, TopicI* topic)
         return; // Peer topic detached first.
     }
 
-    runWithTopic(topicId, topic, [&](TopicSubscriber&) { unsubscribe(topicId, topic); });
+    // disconnect() is called from TopicI::destroy() after the topic is marked destroyed, so pass ignoreDestroyed to
+    // detach the listeners anyway. Otherwise unsubscribe (and the element detachKey/detachFilter it drives) is
+    // skipped by the isDestroyed gate and TopicI::_listenerCount is left stale, tripping a debug assert.
+    runWithTopic(topicId, topic, [&](TopicSubscriber&) { unsubscribe(topicId, topic); }, true);
 
     auto& subscriber = _topics.at(topicId);
     subscriber.removeSubscriber(topic);
@@ -1223,7 +1226,11 @@ SessionI::runWithTopics(int64_t topicId, const function<void(TopicI*, TopicSubsc
 }
 
 void
-SessionI::runWithTopic(int64_t topicId, TopicI* topic, const function<void(TopicSubscriber&)>& callback)
+SessionI::runWithTopic(
+    int64_t topicId,
+    TopicI* topic,
+    const function<void(TopicSubscriber&)>& callback,
+    bool ignoreDestroyed)
 {
     auto t = _topics.find(topicId);
     if (t != _topics.end())
@@ -1232,7 +1239,7 @@ SessionI::runWithTopic(int64_t topicId, TopicI* topic, const function<void(Topic
         if (p != t->second.getSubscribers().end())
         {
             unique_lock<mutex> lock(topic->getMutex());
-            if (topic->isDestroyed())
+            if (!ignoreDestroyed && topic->isDestroyed())
             {
                 return;
             }
