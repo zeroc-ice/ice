@@ -810,6 +810,14 @@ SessionI::destroyImpl(const exception_ptr& ex)
         _topics.clear();
     }
 
+    // Deliver any disconnect notifications queued during teardown. The timer and AMI teardown paths can detach
+    // topics (queuing the user's onConnected* disconnect callbacks) and clear _session before destroyImpl, and
+    // unlike the dispatch and connection-close paths they have no later flush, so without this the notifications
+    // could sit in the queue indefinitely. Run it unconditionally (outside the _session check) so it is not skipped
+    // when _session was already cleared. flush() only signals the callback-executor thread; it does not run callbacks
+    // inline, so it is safe to call under _mutex.
+    _instance->getCallbackExecutor()->flush();
+
     try
     {
         _instance->getObjectAdapter()->remove(_proxy->ice_getIdentity());
