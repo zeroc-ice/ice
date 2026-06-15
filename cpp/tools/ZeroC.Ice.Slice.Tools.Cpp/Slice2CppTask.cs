@@ -22,8 +22,6 @@ public class Slice2CppTask : SliceCompilerTask
 
     public string BaseDirectoryForGeneratedInclude { get; set; } = "";
 
-    protected override string GeneratedExtensions => string.Format("{0},{1}", HeaderExt, SourceExt);
-
     protected override ITaskItem[] GeneratedItems(ITaskItem source) =>
         new ITaskItem[]
         {

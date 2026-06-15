@@ -333,8 +333,6 @@ internal class DispatchHelper : MetricsHelper<DispatchMetrics>
         return null;
     }
 
-    public Ice.Connection getConnection() => _current.con;
-
     public Ice.EndpointInfo getEndpointInfo()
     {
         if (_current.con != null && _endpointInfo == null)

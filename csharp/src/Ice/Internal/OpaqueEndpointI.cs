@@ -115,11 +115,6 @@ internal sealed class OpaqueEndpointI : EndpointI
     public override bool secure() => false;
 
     //
-    // Get the encoded endpoint.
-    //
-    public byte[] rawBytes() => _rawBytes;
-
-    //
     // Return a server side transceiver for this endpoint, or null if a
     // transceiver can only be created by an acceptor.
     //

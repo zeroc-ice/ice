@@ -356,10 +356,6 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         }
     }
 
-    public string prefix() => _prefix;
-
-    public bool serialize() => _serialize;
-
     // A worker thread can exit only when both conditions hold: the thread idle time is finite (so an idle worker
     // can time out), and the pool can have more than one worker (so a worker is eligible to be reaped without
     // dropping the pool below its floor of 1). Used by ConnectionI.startAsync to decide whether async I/O initiated
@@ -691,8 +687,6 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
             }
             _state = s;
         }
-
-        public Thread getThread() => _thread;
 
         public void join() => _thread.Join();
 

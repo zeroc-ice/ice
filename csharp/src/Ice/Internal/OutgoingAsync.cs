@@ -355,9 +355,7 @@ public abstract class OutgoingAsyncBase
     private readonly OutgoingAsyncCompletionCallback _completionCallback;
 
     protected const int StateOK = 0x1;
-    protected const int StateDone = 0x2;
     protected const int StateSent = 0x4;
-    protected const int StateEndCalled = 0x8;
     protected const int StateCachedBuffers = 0x10;
 
     public const int AsyncStatusQueued = 0;
