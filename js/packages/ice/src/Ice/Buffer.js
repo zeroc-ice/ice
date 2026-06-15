@@ -244,7 +244,9 @@ export class Buffer {
     }
 
     set position(value) {
-        if (value < 0 || value > this._limit) {
+        // A position must be an integer in [0, limit]. Using Number.isInteger also rejects non-finite values such as
+        // NaN/undefined, which would otherwise slip past the < 0 / > limit comparisons and corrupt the buffer.
+        if (!Number.isInteger(value) || value < 0 || value > this._limit) {
             throw new RangeError(indexOutOfBoundsExceptionMsg);
         }
         this._position = value;

@@ -8,6 +8,7 @@ might need to be aware of.
 - [Changes in Ice 3.9.0](#changes-in-ice-390)
   - [General Changes](#general-changes)
   - [C# Changes](#c-changes)
+  - [JavaScript Changes](#javascript-changes)
 
 ## Changes in Ice 3.9.0
 
@@ -25,6 +26,12 @@ might need to be aware of.
 - Fixed a bug in `slice2cs --icerpc` where the generated proxy built the response tuple in marshal order while
   declaring it in declaration order. As a result, an operation whose out-parameters were declared in an order
   different from their marshal order could return values in the wrong tuple slots or fail to compile.
+
+### JavaScript Changes
+
+- Assigning an out-of-range or non-integer value to an `InputStream` or `OutputStream` position now throws a
+  `RangeError` instead of being silently ignored, matching the buffer-position behavior of the other language
+  mappings.
 
 These are the changes since the [Ice 3.8.2] release.
 

@@ -578,9 +578,9 @@ export class Client extends TestHelper {
 
         out.write("testing buffer position bounds... ");
         {
-            // Setting the stream position out of range must throw, not silently no-op.
+            // Setting the stream position to an out-of-range or non-integer value must throw, not silently no-op.
             const inS = new Ice.InputStream(communicator, new Uint8Array(4));
-            for (const badPos of [5, -1]) {
+            for (const badPos of [5, -1, 1.5, NaN]) {
                 try {
                     inS.pos = badPos;
                     test(false);
