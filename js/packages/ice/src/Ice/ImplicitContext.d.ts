@@ -35,7 +35,7 @@ declare module "@zeroc/ice" {
              * Gets the value associated with the specified key in the request context.
              *
              * @param key - The key.
-             * @returns The value associated with the key, or the empty string if no value is associated with the key.
+             * @returns The value associated with the key, or the empty string if the key is not set.
              */
             get(key: string): string;
 
@@ -44,7 +44,7 @@ declare module "@zeroc/ice" {
              *
              * @param key - The key.
              * @param value - The value.
-             * @returns The previous value associated with the key, if any.
+             * @returns The previous value associated with the key, or the empty string if the key was not set.
              */
             put(key: string, value: string): string;
 
@@ -52,7 +52,7 @@ declare module "@zeroc/ice" {
              * Removes the entry for the specified key in the request context.
              *
              * @param key - The key.
-             * @returns The value associated with the key, if any.
+             * @returns The value the key had, or the empty string if the key was not set.
              */
             remove(key: string): string;
         }
