@@ -24,8 +24,6 @@ internal class WSAcceptor : Acceptor
 
     public string toDetailedString() => _delegate.toDetailedString();
 
-    public Acceptor getDelegate() => _delegate;
-
     internal WSAcceptor(WSEndpoint endpoint, ProtocolInstance instance, Acceptor del, HashSet<string> allowedOrigins)
     {
         _endpoint = endpoint;

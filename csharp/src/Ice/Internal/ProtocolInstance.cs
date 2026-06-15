@@ -55,10 +55,6 @@ public class ProtocolInstance
 
     public EndPoint defaultSourceAddress() => instance_.defaultsAndOverrides().defaultSourceAddress;
 
-    public Ice.EncodingVersion defaultEncoding() => instance_.defaultsAndOverrides().defaultEncoding;
-
-    public NetworkProxy networkProxy() => instance_.networkProxy();
-
     public int messageSizeMax() => instance_.messageSizeMax();
 
     public void resolve(string host, int port, IPEndpointI endpt, EndpointI_connectors callback) =>

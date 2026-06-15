@@ -44,8 +44,6 @@ public abstract class SliceCompilerTask : ToolTask
             outputDir,
             Path.GetFileName(Path.ChangeExtension(item.GetMetadata("Identity"), ext)));
 
-    protected abstract string GeneratedExtensions { get; }
-
     /// <summary>
     /// Gets the compilation options for a source item. The options correspond to the public task properties that
     /// affect the compilation command. They are persisted in the generated dependency file (<c>.d</c>) by
