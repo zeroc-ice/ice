@@ -9,6 +9,7 @@ might need to be aware of.
   - [General Changes](#general-changes)
   - [C# Changes](#c-changes)
   - [JavaScript Changes](#javascript-changes)
+  - [Python Changes](#python-changes)
 
 ## Changes in Ice 3.9.0
 
@@ -32,6 +33,12 @@ might need to be aware of.
 - Assigning an out-of-range or non-integer value to an `InputStream` or `OutputStream` position now throws a
   `RangeError` instead of being silently ignored, matching the buffer-position behavior of the other language
   mappings.
+
+### Python Changes
+
+- Fixed Ice for Python to reliably abort request marshaling when an invalid value is supplied for a sequence
+  parameter (such as a non-sequence argument), instead of continuing with a pending Python exception and sending a
+  corrupt or truncated request.
 
 These are the changes since the [Ice 3.8.2] release.
 

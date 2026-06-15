@@ -921,9 +921,9 @@ int32_t
 IcePy::EnumInfo::valueForEnumerator(PyObject* p) const
 {
     int isInstance = PyObject_IsInstance(p, pythonType);
-    if (isInstance < 0)
+    if (isInstance == -1)
     {
-        assert(PyErr_Occurred()); // A custom __instancecheck__ raised; preserve the pending exception.
+        assert(PyErr_Occurred());
         return -1;
     }
     else if (isInstance == 0)
@@ -1113,7 +1113,7 @@ IcePy::StructInfo::marshal(
     const Ice::StringSeq*)
 {
     int isInstance = PyObject_IsInstance(p, pythonType);
-    if (isInstance < 0)
+    if (isInstance == -1)
     {
         assert(PyErr_Occurred());
         throw AbortMarshaling();
@@ -2560,9 +2560,8 @@ IcePy::ValueInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectM
     }
 
     int isInstance = PyObject_IsInstance(p, pythonType);
-    if (isInstance < 0)
+    if (isInstance == -1)
     {
-        // A custom __instancecheck__ raised; propagate the pending Python exception.
         assert(PyErr_Occurred());
         throw AbortMarshaling();
     }
@@ -3022,9 +3021,8 @@ IcePy::ReadValueCallback::invoke(const std::shared_ptr<Ice::Value>& p)
         //
         PyObject* obj = reader->getObject(); // Borrowed reference.
         int isInstance = PyObject_IsInstance(obj, _info->pythonType);
-        if (isInstance < 0)
+        if (isInstance == -1)
         {
-            // A custom __instancecheck__ raised; propagate the pending Python exception.
             assert(PyErr_Occurred());
             throw AbortMarshaling();
         }
@@ -3052,9 +3050,8 @@ void
 IcePy::ExceptionInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectMap)
 {
     int isInstance = PyObject_IsInstance(p, pythonType);
-    if (isInstance < 0)
+    if (isInstance == -1)
     {
-        // A custom __instancecheck__ raised; propagate the pending Python exception.
         assert(PyErr_Occurred());
         throw AbortMarshaling();
     }
