@@ -64,34 +64,6 @@ public sealed class Timer
         }
     }
 
-    public void scheduleRepeated(TimerTask task, long period)
-    {
-        lock (_mutex)
-        {
-            if (_instance == null)
-            {
-                throw new Ice.CommunicatorDestroyedException();
-            }
-
-            var token = new Token(Time.currentMonotonicTimeMillis() + period, ++_tokenId, period, task);
-
-            try
-            {
-                _tasks.Add(task, token);
-                _tokens.Add(token, null);
-            }
-            catch (System.ArgumentException)
-            {
-                Debug.Assert(false);
-            }
-
-            if (token.scheduledTime < _wakeUpTime)
-            {
-                Monitor.Pulse(_mutex);
-            }
-        }
-    }
-
     public bool cancel(TimerTask task)
     {
         lock (_mutex)

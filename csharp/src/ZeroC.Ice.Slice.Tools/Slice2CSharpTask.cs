@@ -9,8 +9,6 @@ public class Slice2CSharpTask : Common.SliceCompilerTask
 {
     protected override string ToolName => Common.TaskUtil.isWindows ? "slice2cs.exe" : "slice2cs";
 
-    protected override string GeneratedExtensions => "cs";
-
     protected override void TraceGenerated()
     {
         foreach (ITaskItem source in Sources)

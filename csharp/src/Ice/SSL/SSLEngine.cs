@@ -177,10 +177,6 @@ internal class SSLEngine : IDisposable
         }
     }
 
-    internal bool useMachineContext() => _useMachineContext;
-
-    internal X509Certificate2Collection caCerts() => _caCerts;
-
     internal Ice.Communicator communicator() => _communicator;
 
     internal int securityTraceLevel() => _securityTraceLevel;

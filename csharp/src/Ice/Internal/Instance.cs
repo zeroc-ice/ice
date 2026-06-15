@@ -566,16 +566,6 @@ public sealed class Instance
         _ownLogger = true;
     }
 
-    public void
-    setThreadHook(System.Action threadStart, System.Action threadStop)
-    {
-        //
-        // No locking, as it can only be called during plug-in loading
-        //
-        _initData.threadStart = threadStart;
-        _initData.threadStop = threadStop;
-    }
-
     internal void addSliceLoader(SliceLoader loader) => _applicationSliceLoader.add(loader);
 
     //
