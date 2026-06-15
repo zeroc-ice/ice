@@ -24,7 +24,7 @@ export class Object {
     // necessary because the user might extend Slice generated classes. The user
     // class extensions don't have _iceId, _iceIds, etc static members so the implementation
     // of ice_id and ice_ids would fail trying to access those members of the user
-    // defined class. Instead, ice_id, and ice_ids call _iceMostDerivedType
+    // defined class. Instead, ice_isA, ice_id and ice_ids call _iceMostDerivedType
     // to get the most derived Ice class.
     //
     _iceMostDerivedType() {
