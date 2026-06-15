@@ -136,17 +136,6 @@ IceInternal::ProtocolInstance::defaultSourceAddress() const
     return instance->defaultsAndOverrides()->defaultSourceAddress;
 }
 
-const EncodingVersion&
-IceInternal::ProtocolInstance::defaultEncoding() const
-{
-    InstancePtr instance = _instance.lock();
-    if (!instance)
-    {
-        throw CommunicatorDestroyedException{__FILE__, __LINE__};
-    }
-    return instance->defaultsAndOverrides()->defaultEncoding;
-}
-
 NetworkProxyPtr
 IceInternal::ProtocolInstance::networkProxy() const
 {

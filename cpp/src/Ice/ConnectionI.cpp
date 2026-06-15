@@ -572,30 +572,6 @@ Ice::ConnectionI::isActiveOrHolding() const
     return _state > StateNotValidated && _state < StateClosing;
 }
 
-bool
-Ice::ConnectionI::isFinished() const
-{
-    //
-    // We can use trylock here, because as long as there are still
-    // threads operating in this connection object, connection
-    // destruction is considered as not yet finished.
-    //
-    std::unique_lock<std::mutex> lock(_mutex, std::try_to_lock);
-
-    if (!lock.owns_lock())
-    {
-        return false;
-    }
-
-    if (_state != StateFinished || _upcallCount != 0)
-    {
-        return false;
-    }
-
-    assert(_state == StateFinished);
-    return true;
-}
-
 void
 Ice::ConnectionI::throwException() const
 {

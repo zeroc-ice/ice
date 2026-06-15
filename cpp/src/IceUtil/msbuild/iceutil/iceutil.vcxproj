@@ -113,7 +113,6 @@
     <ClInclude Include="..\..\..\Ice\Random.h" />
     <ClInclude Include="..\..\..\Ice\ResourceConfig.h" />
     <ClInclude Include="..\..\..\Ice\ScannerConfig.h" />
-    <ClInclude Include="..\..\..\Ice\UndefSysMacros.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -18,15 +18,7 @@ namespace IceGrid
     {
         return Ice::proxyIdentityLess(lhs->getProxy(), rhs->getProxy());
     }
-
-    bool compareObjectLoadCI(
-        const pair<optional<Ice::ObjectPrx>, float>& lhs,
-        const pair<optional<Ice::ObjectPrx>, float>& rhs)
-    {
-        return lhs.second < rhs.second;
-    }
-
-};
+}
 
 void
 ObjectCache::TypeEntry::add(const shared_ptr<ObjectEntry>& obj)

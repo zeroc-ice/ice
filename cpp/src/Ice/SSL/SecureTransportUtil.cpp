@@ -206,25 +206,6 @@ Ice::SSL::SecureTransport::sslErrorToString(OSStatus status)
 }
 
 #if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
-CFDictionaryRef
-Ice::SSL::SecureTransport::getCertificateProperty(SecCertificateRef cert, CFTypeRef key)
-{
-    UniqueRef<CFDictionaryRef> property;
-    UniqueRef<CFArrayRef> keys(CFArrayCreate(nullptr, &key, 1, &kCFTypeArrayCallBacks));
-    UniqueRef<CFErrorRef> err;
-    UniqueRef<CFDictionaryRef> values(SecCertificateCopyValues(cert, keys.get(), &err.get()));
-    if (err)
-    {
-        ostringstream os;
-        os << "SSL transport: error getting property for certificate:\n" << sslErrorToString(err);
-        throw CertificateReadException(__FILE__, __LINE__, os.str());
-    }
-
-    assert(values);
-    property.retain(static_cast<CFDictionaryRef>(CFDictionaryGetValue(values.get(), key)));
-    return property.release();
-}
-
 namespace
 {
     //
@@ -713,21 +694,6 @@ Ice::SSL::SecureTransport::loadCertificateChain(
     }
 #endif
     return chain.release();
-}
-
-SecCertificateRef
-Ice::SSL::SecureTransport::loadCertificate(const string& file)
-{
-    UniqueRef<SecCertificateRef> cert;
-#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
-    UniqueRef<CFArrayRef> certs(loadCerts(file));
-    assert(CFArrayGetCount(certs.get()) > 0);
-    cert.retain((SecCertificateRef)CFArrayGetValueAtIndex(certs.get(), 0));
-#else
-    UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypeCertificate, nullptr, ""));
-    cert.retain((SecCertificateRef)CFArrayGetValueAtIndex(items.get(), 0));
-#endif
-    return cert.release();
 }
 
 CFArrayRef

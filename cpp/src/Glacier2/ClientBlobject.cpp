@@ -112,21 +112,3 @@ Glacier2::ClientBlobject::ice_invokeAsync(
 
     invoke(proxy.value(), inParams, std::move(response), std::move(error), current);
 }
-
-shared_ptr<StringSet>
-ClientBlobject::categories()
-{
-    return _filters->categories();
-}
-
-shared_ptr<StringSet>
-ClientBlobject::adapterIds()
-{
-    return _filters->adapterIds();
-}
-
-shared_ptr<IdentitySet>
-ClientBlobject::identities()
-{
-    return _filters->identities();
-}

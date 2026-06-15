@@ -19,7 +19,6 @@ namespace IceInternal
         ~StreamSocket() override;
 
         SocketOperation connect(Buffer&, Buffer&);
-        bool isConnected();
 
         void setBufferSize(int rcvSize, int sndSize);
 

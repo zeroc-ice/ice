@@ -89,7 +89,7 @@ namespace IceGrid
             std::function<void(ServerPrx, const AdapterPrxDict&, int, int)>,
             std::function<void(std::exception_ptr)>);
         bool checkUpdate(std::shared_ptr<InternalServerDescriptor>, bool, const Ice::Current&) override;
-        void checkRemove(bool, const Ice::Current&);
+
         std::shared_ptr<ServerCommand>
         destroy(const std::string&, int, const std::string&, bool, std::function<void()>);
 

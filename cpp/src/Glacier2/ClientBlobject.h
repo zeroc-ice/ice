@@ -26,10 +26,6 @@ namespace Glacier2
             std::function<void(std::exception_ptr)> error,
             const Ice::Current& current) final;
 
-        std::shared_ptr<StringSet> categories();
-        std::shared_ptr<StringSet> adapterIds();
-        std::shared_ptr<IdentitySet> identities();
-
     private:
         const std::shared_ptr<RoutingTable> _routingTable;
         const std::shared_ptr<FilterManager> _filters;

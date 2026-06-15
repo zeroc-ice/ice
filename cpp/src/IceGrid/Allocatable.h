@@ -28,7 +28,6 @@ namespace IceGrid
 
         void runTimerTask() override;
 
-        [[nodiscard]] int getTimeout() const { return _timeout; }
         [[nodiscard]] const std::shared_ptr<SessionI>& getSession() const { return _session; }
         [[nodiscard]] bool isCanceled() const;
 

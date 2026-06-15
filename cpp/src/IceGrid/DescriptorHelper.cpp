@@ -185,11 +185,6 @@ namespace
         return true;
     }
 
-    template<typename GetKeyFunc, typename Seq> Seq getSeqUpdatedElts(const Seq& lseq, const Seq& rseq, GetKeyFunc func)
-    {
-        return getSeqUpdatedEltsWithEq(lseq, rseq, func, equal_to<typename Seq::value_type>());
-    }
-
     template<typename GetKeyFunc, typename EqFunc, typename Seq>
     Seq getSeqUpdatedEltsWithEq(const Seq& lseq, const Seq& rseq, GetKeyFunc func, EqFunc eq)
     {
@@ -2303,18 +2298,6 @@ NodeHelper::getServerInfos(const string& app, const string& uuid, int revision, 
         info.descriptor = server.second.getServerInstance();
         servers.insert(make_pair(server.second.getId(), info));
     }
-}
-
-bool
-NodeHelper::hasServers() const
-{
-    return !_serverInstances.empty() || !_servers.empty();
-}
-
-bool
-NodeHelper::hasServer(const string& name) const
-{
-    return _serverInstances.find(name) != _serverInstances.end() || _servers.find(name) != _servers.end();
 }
 
 void
