@@ -553,10 +553,11 @@ export class Client extends TestHelper {
             outS.endEncapsulation();
             const data = outS.finished();
 
-            // A well-formed encapsulation is skipped, advancing to its end and returning the encoding.
+            // A well-formed encapsulation is skipped, advancing to its end and returning the encoding it was
+            // written with (the stream uses the communicator's default encoding, which varies across test runs).
             const inS = new Ice.InputStream(communicator, data);
             const encoding = inS.skipEncapsulation();
-            test(encoding.equals(Ice.Encoding_1_1));
+            test(encoding.equals(outS.getEncoding()));
             test(inS.pos === data.length);
 
             // An encapsulation whose declared size exceeds the remaining buffer must be rejected, not silently
