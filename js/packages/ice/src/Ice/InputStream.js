@@ -1132,13 +1132,12 @@ export class InputStream {
         if (sz < 6) {
             throw new MarshalException(endOfBufferMessage);
         }
-        const encoding = new EncodingVersion();
-        encoding._read(this);
-        try {
-            this._buf.position = this._buf.position + sz - 6;
-        } catch {
+        if (sz - 4 > this._buf.remaining) {
             throw new MarshalException(endOfBufferMessage);
         }
+        const encoding = new EncodingVersion();
+        encoding._read(this);
+        this._buf.position = this._buf.position + sz - 6;
         return encoding;
     }
 

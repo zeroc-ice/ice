@@ -544,6 +544,37 @@ export class Client extends TestHelper {
             test(dict2.get("key2")!.s.e == Test.MyEnum.enum3);
         }
         out.writeLine("ok");
+
+        out.write("testing skipEncapsulation... ");
+        {
+            const outS = new Ice.OutputStream(communicator);
+            outS.startEncapsulation();
+            outS.writeInt(42);
+            outS.endEncapsulation();
+            const data = outS.finished();
+
+            // A well-formed encapsulation is skipped, advancing to its end and returning the encoding it was
+            // written with (the stream uses the communicator's default encoding, which varies across test runs).
+            const inS = new Ice.InputStream(communicator, data);
+            const encoding = inS.skipEncapsulation();
+            test(encoding.equals(outS.getEncoding()));
+            test(inS.pos === data.length);
+
+            // An encapsulation whose declared size exceeds the remaining buffer must be rejected, not silently
+            // accepted with the position left unchanged.
+            const bogus = data.slice();
+            const bogusSize = data.length + 100;
+            new DataView(bogus.buffer, bogus.byteOffset, bogus.byteLength).setInt32(0, bogusSize, true);
+
+            const inS2 = new Ice.InputStream(communicator, bogus);
+            try {
+                inS2.skipEncapsulation();
+                test(false);
+            } catch (ex) {
+                test(ex instanceof Ice.MarshalException);
+            }
+        }
+        out.writeLine("ok");
     }
 
     async run(args: string[]) {
