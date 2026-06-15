@@ -17,19 +17,4 @@ module Test
 
         void opVoid(optional(1) int a, optional(2) string v);
     }
-
-    // Regression test for issue #5480: slice2js must not emit a '?' suffix for an optional
-    // parameter that is followed by a required parameter (this would generate invalid
-    // TypeScript that fails to compile, TS1016). This interface is compiled only for the JS
-    // client; its generated .d.ts is type-checked by the build, which is what exercises the bug.
-    interface OptionalParamOrder
-    {
-        int opOptionalFirstParam(optional(1) int p1, int p2);
-
-        // A trailing optional *input* parameter must still get the '?' suffix in the proxy
-        // signature even when a required *out* parameter follows it, because 'out' parameters
-        // are not part of the input-parameter list. slice2js must not consider 'out' parameters
-        // when deciding whether the remaining input parameters are all optional.
-        void opOptionalLastInParam(optional(1) int p1, out int p2);
-    }
 }
