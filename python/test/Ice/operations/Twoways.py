@@ -246,6 +246,34 @@ def twoways(helper: TestHelper, p: Test.MyClassPrx) -> None:
     test(r == "hello world")
 
     #
+    # Test that non-UTF-8-encodable strings are rejected with a clean exception at the
+    # conversion boundary (string parameters, context keys/values, and identities).
+    #
+    try:
+        p.opString("hel\ud800lo", "world")
+        test(False)
+    except UnicodeEncodeError:
+        # Expected: a non-UTF-8-encodable string is rejected at the conversion boundary.
+        pass
+
+    try:
+        p.opContext({"\ud800": "value"})
+        test(False)
+    except UnicodeEncodeError:
+        # Expected: a non-UTF-8-encodable string is rejected at the conversion boundary.
+        pass
+
+    try:
+        p.ice_identity(Ice.Identity("\ud800"))
+        test(False)
+    except UnicodeEncodeError:
+        # Expected: a non-UTF-8-encodable string is rejected at the conversion boundary.
+        pass
+
+    # The connection must still be usable.
+    p.ice_ping()
+
+    #
     # opMyEnum
     #
     r, e = p.opMyEnum(Test.MyEnum.enum2)
