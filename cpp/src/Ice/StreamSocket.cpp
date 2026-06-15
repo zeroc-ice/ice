@@ -113,12 +113,6 @@ StreamSocket::connect(Buffer& readBuffer, Buffer& writeBuffer)
     return IceInternal::SocketOperationNone;
 }
 
-bool
-StreamSocket::isConnected()
-{
-    return _state == StateConnected && _fd != INVALID_SOCKET;
-}
-
 void
 StreamSocket::setBufferSize(int rcvSize, int sndSize)
 {

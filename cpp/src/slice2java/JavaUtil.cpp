@@ -286,24 +286,6 @@ Slice::Java::getUnqualified(const ContainedPtr& cont, const string& package, con
 }
 
 string
-Slice::Java::getStaticId(const TypePtr& type, const string& package)
-{
-    BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-
-    assert((b && b->usesClasses()) || cl);
-
-    if (b && b->kind() == Builtin::KindValue)
-    {
-        return "com.zeroc.Ice.Value.ice_staticId()";
-    }
-    else
-    {
-        return getUnqualified(cl, package) + ".ice_staticId()";
-    }
-}
-
-string
 Slice::Java::getOptionalFormat(const TypePtr& type)
 {
     return "com.zeroc.Ice.OptionalFormat." + type->getOptionalFormat();

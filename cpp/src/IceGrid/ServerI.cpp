@@ -1259,18 +1259,6 @@ ServerI::checkUpdate(shared_ptr<InternalServerDescriptor> desc, bool noRestart, 
     return StopCommand::isStopped(_state);
 }
 
-void
-ServerI::checkRemove(bool noRestart, const Ice::Current&)
-{
-    lock_guard lock(_mutex);
-    checkDestroyed();
-
-    if (noRestart && !StopCommand::isStopped(_state) && !_stop)
-    {
-        throw DeploymentException("the server is running");
-    }
-}
-
 shared_ptr<ServerCommand>
 ServerI::destroy(const string& uuid, int revision, const string& replicaName, bool noRestart, function<void()> response)
 {

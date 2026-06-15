@@ -55,7 +55,6 @@ namespace IceStorm
 
         [[nodiscard]] std::string instanceName() const;
         [[nodiscard]] Ice::CommunicatorPtr communicator() const;
-        [[nodiscard]] Ice::PropertiesPtr properties() const;
         [[nodiscard]] Ice::ObjectAdapterPtr publishAdapter() const;
         [[nodiscard]] Ice::ObjectAdapterPtr topicAdapter() const;
         [[nodiscard]] Ice::ObjectAdapterPtr nodeAdapter() const;
@@ -70,7 +69,6 @@ namespace IceStorm
         [[nodiscard]] std::shared_ptr<TopicReaper> topicReaper() const;
 
         [[nodiscard]] std::chrono::seconds discardInterval() const;
-        [[nodiscard]] std::chrono::milliseconds flushInterval() const;
         [[nodiscard]] std::chrono::milliseconds sendTimeout() const;
         [[nodiscard]] int sendQueueSizeMax() const;
         [[nodiscard]] SendQueueSizeMaxPolicy sendQueueSizeMaxPolicy() const;

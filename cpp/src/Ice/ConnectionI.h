@@ -146,7 +146,6 @@ namespace Ice
         void close(std::function<void()> response, std::function<void(std::exception_ptr)> exception) noexcept final;
 
         [[nodiscard]] bool isActiveOrHolding() const;
-        [[nodiscard]] bool isFinished() const;
 
         void throwException() const final; // From Connection. Throws the connection exception if destroyed.
 

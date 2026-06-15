@@ -148,12 +148,6 @@ Instance::communicator() const
     return _communicator;
 }
 
-Ice::PropertiesPtr
-Instance::properties() const
-{
-    return _communicator->getProperties();
-}
-
 Ice::ObjectAdapterPtr
 Instance::publishAdapter() const
 {
@@ -230,12 +224,6 @@ chrono::seconds
 Instance::discardInterval() const
 {
     return _discardInterval;
-}
-
-chrono::milliseconds
-Instance::flushInterval() const
-{
-    return _flushInterval;
 }
 
 chrono::milliseconds

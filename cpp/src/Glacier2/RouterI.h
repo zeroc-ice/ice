@@ -52,8 +52,6 @@ namespace Glacier2
 
         [[nodiscard]] std::shared_ptr<ServerBlobject> getServerBlobject() const;
 
-        [[nodiscard]] std::optional<SessionPrx> getSession() const;
-
         void updateObserver(const std::shared_ptr<Glacier2::Instrumentation::RouterObserver>&);
 
         [[nodiscard]] std::string toString() const;

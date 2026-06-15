@@ -56,8 +56,6 @@ namespace IceGrid
         void finishedRegistration(std::exception_ptr);
 
     private:
-        std::shared_ptr<NodeEntry> selfRemovingPtr() const;
-
         std::shared_ptr<ServerDescriptor> getServerDescriptor(const ServerInfo&, const std::shared_ptr<SessionI>&);
         std::shared_ptr<InternalServerDescriptor> getInternalServerDescriptor(const ServerInfo&) const;
 

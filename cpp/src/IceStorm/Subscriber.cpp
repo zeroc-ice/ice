@@ -902,21 +902,3 @@ IceStorm::operator==(const shared_ptr<Subscriber>& subscriber, const Ice::Identi
 {
     return subscriber->id() == id;
 }
-
-bool
-IceStorm::operator==(const Subscriber& s1, const Subscriber& s2)
-{
-    return &s1 == &s2;
-}
-
-bool
-IceStorm::operator!=(const Subscriber& s1, const Subscriber& s2)
-{
-    return &s1 != &s2;
-}
-
-bool
-IceStorm::operator<(const Subscriber& s1, const Subscriber& s2)
-{
-    return &s1 < &s2;
-}

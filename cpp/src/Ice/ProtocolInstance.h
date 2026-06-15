@@ -45,7 +45,6 @@ namespace IceInternal
         [[nodiscard]] ProtocolSupport protocolSupport() const;
         [[nodiscard]] const std::string& defaultHost() const;
         [[nodiscard]] const Address& defaultSourceAddress() const;
-        [[nodiscard]] const Ice::EncodingVersion& defaultEncoding() const;
         [[nodiscard]] NetworkProxyPtr networkProxy() const;
         [[nodiscard]] std::int32_t messageSizeMax() const;
 
