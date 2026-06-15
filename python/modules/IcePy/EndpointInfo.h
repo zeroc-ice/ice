@@ -13,7 +13,6 @@ namespace IcePy
     bool initEndpointInfo(PyObject*);
 
     PyObject* createEndpointInfo(const Ice::EndpointInfoPtr&);
-    Ice::EndpointInfoPtr getEndpointInfo(PyObject*);
 }
 
 #endif

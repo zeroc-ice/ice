@@ -127,9 +127,6 @@ class Communicator:
 
         return self._eventLoopAdapter
 
-    def _getImpl(self) -> IcePy.Communicator:
-        return self._impl
-
     def destroy(self) -> None:
         """
         Destroys this communicator. This function calls :func:`shutdown` implicitly. Calling this function destroys all

@@ -407,14 +407,6 @@ IcePy::initConnectionInfo(PyObject* module)
     return true;
 }
 
-Ice::ConnectionInfoPtr
-IcePy::getConnectionInfo(PyObject* obj)
-{
-    assert(PyObject_IsInstance(obj, reinterpret_cast<PyObject*>(&ConnectionInfoType)));
-    auto* eobj = reinterpret_cast<ConnectionInfoObject*>(obj);
-    return *eobj->connectionInfo;
-}
-
 PyObject*
 IcePy::createConnectionInfo(const Ice::ConnectionInfoPtr& connectionInfo)
 {
