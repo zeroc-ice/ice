@@ -224,6 +224,12 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         }
     }
 
+    if (!_peerCertificate)
+    {
+        _engine->verifyPeer(dynamic_pointer_cast<ConnectionInfo>(getInfo(_incoming, _adapterName, "")));
+    }
+    // else verifyPeer is called from the configured OpenSSL verify callback.
+
     if (_engine->securityTraceLevel() >= 1)
     {
         Trace out(_instance->logger(), _engine->securityTraceCategory());
