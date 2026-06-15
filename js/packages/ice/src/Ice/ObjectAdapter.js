@@ -317,10 +317,6 @@ export class ObjectAdapter {
         this._publishedEndpoints = ArrayUtil.clone(newEndpoints);
     }
 
-    getServantManager() {
-        return this._servantManager;
-    }
-
     newProxy(ident, facet) {
         //
         // Now we also add the endpoints of the router's server proxy, if

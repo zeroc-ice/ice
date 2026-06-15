@@ -334,16 +334,6 @@ ObjectPrx.prototype._newInstance = function (ref) {
     return new this.constructor(ref);
 };
 
-ObjectPrx.prototype.ice_instanceof = function (T) {
-    if (T) {
-        if (this instanceof T) {
-            return true;
-        }
-        return this.constructor._instanceof(T);
-    }
-    return false;
-};
-
 //
 // Generic invocation for a proxy operation.
 //
@@ -463,20 +453,6 @@ ObjectPrx.writeOptional = function (os, tag, v) {
 
 ObjectPrx.readOptional = function (is, tag) {
     return is.readOptionalProxy(tag, this);
-};
-
-ObjectPrx._instanceof = function (T) {
-    if (T === this) {
-        return true;
-    }
-
-    for (const i in this._implements) {
-        if (this._implements[i]._instanceof(T)) {
-            return true;
-        }
-    }
-
-    return false;
 };
 
 ObjectPrx.ice_staticId = function () {
