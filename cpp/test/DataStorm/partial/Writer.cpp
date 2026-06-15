@@ -42,6 +42,24 @@ void ::Writer::run(int argc, char* argv[])
         writer.waitForNoReaders();
     }
     cout << "ok" << endl;
+
+    Topic<string, StockPtr> multiTopic(node, "multiKeyTopic");
+    multiTopic.setWriterDefaultConfig(config);
+    multiTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+
+    cout << "testing multi-key partial update... " << flush;
+    {
+        // Regression test for #5473: with a single per-element _last, a partial update on one key was resolved
+        // against the most recent sample of a *different* key. Write GOOG right before the AAPL partial update so
+        // that the AAPL partial's preceding sample (the single _last) belongs to GOOG.
+        auto writer = makeMultiKeyWriter(multiTopic, {"AAPL", "GOOG"});
+        writer.waitForReaders();
+        writer.add("AAPL", make_shared<Stock>(12.0f, 13.0f, 14.0f));
+        writer.add("GOOG", make_shared<Stock>(100.0f, 101.0f, 102.0f));
+        writer.partialUpdate<float>("price")("AAPL", 15.0f);
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
 }
 
 DEFINE_TEST(::Writer)

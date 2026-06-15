@@ -753,7 +753,9 @@ DataReaderI::initSamples(
     }
 
     vector<shared_ptr<Sample>> valid;
-    shared_ptr<Sample> previous = _last;
+    // Resolve partial updates against the previous sample of the SAME key. A single `previous` would resolve a
+    // partial update for one key against the most recent sample of a different key.
+    map<shared_ptr<Key>, shared_ptr<Sample>> previousByKey = _lastByKey;
     for (const auto& sample : samples)
     {
         if (checkKey && !matchKey(sample->key))
@@ -779,14 +781,15 @@ DataReaderI::initSamples(
         {
             if (sample->event == DataStorm::SampleEvent::PartialUpdate)
             {
-                _parent->getUpdater(sample->tag)(previous, sample, _parent->instance()->getCommunicator());
+                _parent->getUpdater(
+                    sample->tag)(previousByKey[sample->key], sample, _parent->instance()->getCommunicator());
             }
             else
             {
                 sample->decode(_parent->instance()->getCommunicator());
             }
         }
-        previous = sample;
+        previousByKey[sample->key] = sample;
     }
 
     if (_traceLevels->data > 2 && valid.size() < samples.size())
@@ -863,7 +866,7 @@ DataReaderI::initSamples(
         }
     }
     assert(!_samples.empty());
-    _last = _samples.back();
+    _lastByKey = std::move(previousByKey);
     _parent->_cond.notify_all();
 }
 
@@ -921,7 +924,7 @@ DataReaderI::queue(
     {
         if (sample->event == DataStorm::SampleEvent::PartialUpdate)
         {
-            _parent->getUpdater(sample->tag)(_last, sample, _parent->instance()->getCommunicator());
+            _parent->getUpdater(sample->tag)(_lastByKey[sample->key], sample, _parent->instance()->getCommunicator());
         }
         else
         {
@@ -972,7 +975,7 @@ DataReaderI::queue(
         _samples.clear();
     }
     _samples.push_back(sample);
-    _last = sample;
+    _lastByKey[sample->key] = sample;
     _parent->_cond.notify_all();
 }
 
@@ -1027,7 +1030,7 @@ DataWriterI::publish(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
     if (sample->event == DataStorm::SampleEvent::PartialUpdate)
     {
         assert(!sample->hasValue());
-        _parent->getUpdater(sample->tag)(_last, sample, _parent->instance()->getCommunicator());
+        _parent->getUpdater(sample->tag)(_lastByKey[key], sample, _parent->instance()->getCommunicator());
     }
 
     sample->id = ++_parent->_nextSampleId;
@@ -1071,7 +1074,7 @@ DataWriterI::publish(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
     }
     assert(sample->key);
     _samples.push_back(sample);
-    _last = sample;
+    _lastByKey[key] = sample;
 }
 
 KeyDataReaderI::KeyDataReaderI(
