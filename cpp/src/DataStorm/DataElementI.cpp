@@ -228,8 +228,8 @@ DataElementI::attachKey(
 
     if (_onConnectedElements && added)
     {
-        _executor->queue([self = shared_from_this(), name]
-                         { self->_onConnectedElements(DataStorm::CallbackReason::Connect, name); });
+        _executor->queue([callback = _onConnectedElements, name]
+                         { callback(DataStorm::CallbackReason::Connect, name); });
     }
 
     if (addConnectedKey(key, subscriber))
@@ -286,9 +286,8 @@ DataElementI::detachKey(
         {
             if (_onConnectedElements)
             {
-                _executor->queue(
-                    [self = shared_from_this(), subscriber]
-                    { self->_onConnectedElements(DataStorm::CallbackReason::Disconnect, subscriber->name); });
+                _executor->queue([callback = _onConnectedElements, subscriber]
+                                 { callback(DataStorm::CallbackReason::Disconnect, subscriber->name); });
             }
             if (p->second.remove(topicId, elementId))
             {
@@ -347,8 +346,8 @@ DataElementI::attachFilter(
     auto subscriber = p->second.addOrGet(topicId, filterId, subscriberId, filter, sampleFilter, name, priority, added);
     if (_onConnectedElements && added)
     {
-        _executor->queue([self = shared_from_this(), name]
-                         { self->_onConnectedElements(DataStorm::CallbackReason::Connect, name); });
+        _executor->queue([callback = _onConnectedElements, name]
+                         { callback(DataStorm::CallbackReason::Connect, name); });
     }
 
     if (addConnectedKey(key, subscriber))
@@ -406,9 +405,8 @@ DataElementI::detachFilter(
         {
             if (_onConnectedElements)
             {
-                _executor->queue(
-                    [self = shared_from_this(), subscriber]
-                    { self->_onConnectedElements(DataStorm::CallbackReason::Disconnect, subscriber->name); });
+                _executor->queue([callback = _onConnectedElements, subscriber]
+                                 { callback(DataStorm::CallbackReason::Disconnect, subscriber->name); });
             }
             if (p->second.remove(topicId, filterId))
             {
@@ -587,8 +585,7 @@ DataElementI::addConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Subsc
     {
         if (key && subscribers.empty() && _onConnectedKeys)
         {
-            _executor->queue([self = shared_from_this(), key]
-                             { self->_onConnectedKeys(DataStorm::CallbackReason::Connect, key); });
+            _executor->queue([callback = _onConnectedKeys, key] { callback(DataStorm::CallbackReason::Connect, key); });
         }
         subscribers.push_back(subscriber);
         return true;
@@ -608,8 +605,8 @@ DataElementI::removeConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Su
         {
             if (key && _onConnectedKeys)
             {
-                _executor->queue([self = shared_from_this(), key]
-                                 { self->_onConnectedKeys(DataStorm::CallbackReason::Disconnect, key); });
+                _executor->queue([callback = _onConnectedKeys, key]
+                                 { callback(DataStorm::CallbackReason::Disconnect, key); });
             }
             _connectedKeys.erase(key);
         }
@@ -799,11 +796,11 @@ DataReaderI::initSamples(
     if (_onSamples)
     {
         _executor->queue(
-            [self = static_pointer_cast<DataReaderI>(shared_from_this()), valid]
+            [callback = _onSamples, valid]
             {
                 for (const auto& s : valid)
                 {
-                    self->_onSamples(s);
+                    callback(s);
                 }
             });
     }
@@ -932,8 +929,7 @@ DataReaderI::queue(
 
     if (_onSamples)
     {
-        _executor->queue([self = static_pointer_cast<DataReaderI>(shared_from_this()), sample]
-                         { self->_onSamples(sample); });
+        _executor->queue([callback = _onSamples, sample] { callback(sample); });
     }
 
     if (_config->sampleLifetime && *_config->sampleLifetime > 0)
