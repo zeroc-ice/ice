@@ -963,22 +963,9 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
     private static Future<?> _refreshFuture;
     private final Map<String, JTable> _tables = new HashMap<>();
 
-    static class ColumnInfo {
-        public ColumnInfo(String name, String displayName) {
-            this.name = name;
-            this.displayName = displayName;
-        }
-
-        public String name;
-        public String displayName;
-    }
-
     public interface MetricsField {
         /** The metrics view where the field was added. */
         MetricsView getMetricsNode();
-
-        /** Return the prefix of properties used to configure the field. */
-        String getPropertyPrefix();
 
         /** Name of the metrics object. */
         String getMetricsName();
@@ -1060,11 +1047,6 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         public MetricsField createField() {
             return MetricsViewEditor.createField(
                 _node, _prefix, _metricsName, _fieldName, _objectField, _context);
-        }
-
-        @Override
-        public String getPropertyPrefix() {
-            return _prefix;
         }
 
         @Override
