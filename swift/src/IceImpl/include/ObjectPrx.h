@@ -14,7 +14,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 ICEIMPL_API @interface ICEObjectPrx : NSObject
-- (nonnull ICEObjectPrx*)initWithObjectPrx:(ICEObjectPrx*)prx;
 - (nonnull NSString*)ice_toString;
 - (nonnull ICECommunicator*)ice_getCommunicator;
 - (void)ice_getIdentity:(NSString* __strong _Nonnull* _Nonnull)name
@@ -96,12 +95,6 @@ ICEIMPL_API @interface ICEObjectPrx : NSObject
           sent:(void (^_Nullable)(bool))sent;
 
 - (bool)isEqual:(ICEObjectPrx* _Nullable)prx;
-
-- (bool)proxyIdentityLess:(ICEObjectPrx* _Nullable)prx;
-- (bool)proxyIdentityEqual:(ICEObjectPrx* _Nullable)prx;
-
-- (bool)proxyIdentityAndFacetLess:(ICEObjectPrx* _Nullable)prx;
-- (bool)proxyIdentityAndFacetEqual:(ICEObjectPrx* _Nullable)prx;
 @end
 
 #ifdef __cplusplus
