@@ -1111,9 +1111,31 @@ SessionI::getLastIds(int64_t topicId, int64_t keyId, const std::shared_ptr<DataE
     if (p != _topics.end())
     {
         TopicSubscriber& subscriber = p->second.getSubscriber(element->getTopic());
-        for (const auto& [elementId, _] : subscriber.keys[keyId].second)
+        if (keyId < 0)
         {
-            lastIds.emplace(elementId, subscriber.get(elementId)->getSubscriber(element)->lastId);
+            // Filter (negative-id) subscriptions are not recorded in subscriber.keys (only key subscriptions are),
+            // so report the lastId for each of this element's filter subscriptions directly from the element
+            // subscribers, keyed by the remote writer's positive element id (the id the consumer matches against in
+            // DataElementI::attach). Without this the dict stays empty and the peer re-sends its whole retained queue
+            // after a reconnect, delivering duplicate samples. We iterate all filter subscriptions rather than the
+            // single keyId entry because multiple any-key writers share a filter id but have distinct element ids.
+            for (auto& [eid, elementSubscribers] : subscriber.getAll())
+            {
+                if (eid < 0)
+                {
+                    if (auto* s = elementSubscribers.getSubscriber(element))
+                    {
+                        lastIds.emplace(-eid, s->lastId);
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (const auto& [elementId, _] : subscriber.keys[keyId].second)
+            {
+                lastIds.emplace(elementId, subscriber.get(elementId)->getSubscriber(element)->lastId);
+            }
         }
     }
     return lastIds;
