@@ -50,6 +50,10 @@ might need to be aware of.
   registered the wrong address with the garbage collector, leaving a dangling root and allowing the loader to be
   collected while still in use.
 
+- Fixed `Ice::Endpoint` comparison in Ice for Ruby. `<=>` compared an endpoint with itself, making `==`/`<=>`
+  asymmetric, and the class defined `eql?` without a matching `hash`; equal endpoints now compare consistently and
+  can be used as `Hash`/`Set` keys.
+
 These are the changes since the [Ice 3.8.2] release.
 
 [Ice 3.8.2]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
