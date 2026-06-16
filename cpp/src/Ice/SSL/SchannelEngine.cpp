@@ -601,7 +601,13 @@ namespace
             if (startpos != string::npos)
             {
                 endpos = strbuf.find("-----END CERTIFICATE-----", startpos);
-                size = endpos - startpos + sizeof("-----END CERTIFICATE-----");
+                if (endpos == string::npos)
+                {
+                    ostringstream os;
+                    os << "SSL transport: malformed PEM certificate (missing END marker): '" << file << "'";
+                    throw InitializationException(__FILE__, __LINE__, os.str());
+                }
+                size = endpos - startpos + strlen("-----END CERTIFICATE-----");
             }
             else if (first)
             {
