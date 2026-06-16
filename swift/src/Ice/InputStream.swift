@@ -156,21 +156,6 @@ public final class InputStream {
         return encoding
     }
 
-    /// Skips over an encapsulation.
-    ///
-    /// - Returns: The encoding version of the skipped encapsulation.
-    func skipEncapsulation() throws -> EncodingVersion {
-        let sz: Int32 = try read()
-
-        if sz < 6 {
-            throw MarshalException("invalid encapsulation size")
-        }
-
-        let encodingVersion: EncodingVersion = try read()
-        try changePos(offset: Int(sz) - 6)
-        return encodingVersion
-    }
-
     /// Reads the start of a class instance or exception slice.
     public func startSlice() throws {
         precondition(encaps.decoder != nil)
@@ -266,12 +251,6 @@ public final class InputStream {
 
             try skipOptional(format: format)
         }
-    }
-
-    // Reset the InputStream to prepare for retry
-    func startOver() {
-        pos = 0
-        encaps = nil
     }
 
     private func changePos(offset: Int) throws {
