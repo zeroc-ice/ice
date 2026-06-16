@@ -2418,20 +2418,10 @@ namespace
 {
     bool areRemainingParamsOptional(const ParameterList& params, const string& name)
     {
-        auto it = params.begin();
-        do
-        {
-            it++;
-        } while (it != params.end() && (*it)->name() != name);
-
-        for (; it != params.end(); ++it)
-        {
-            if (!(*it)->isOptional())
-            {
-                return false;
-            }
-        }
-        return true;
+        auto it =
+            std::find_if(params.begin(), params.end(), [&name](const auto& param) { return param->name() == name; });
+        assert(it != params.end()); // The caller always passes a parameter that exists in params.
+        return std::all_of(std::next(it), params.end(), [](const auto& param) { return param->isOptional(); });
     }
 }
 
@@ -2691,8 +2681,10 @@ Slice::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         for (const auto& param : inParams)
         {
             // TypeScript doesn't allow optional parameters with '?' prefix before required parameters.
+            // Only the input parameters appear in this signature, so 'out' parameters must not be
+            // considered when deciding whether the remaining parameters are all optional.
             const string optionalPrefix =
-                param->isOptional() && areRemainingParamsOptional(paramList, param->name()) ? "?" : "";
+                param->isOptional() && areRemainingParamsOptional(inParams, param->name()) ? "?" : "";
             _out
                 << (param->mappedName() + optionalPrefix + ": " +
                     typeToTsString(param->type(), true, true, param->isOptional()));
