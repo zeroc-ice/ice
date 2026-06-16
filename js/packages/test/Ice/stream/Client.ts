@@ -575,6 +575,26 @@ export class Client extends TestHelper {
             }
         }
         out.writeLine("ok");
+
+        out.write("testing buffer position bounds... ");
+        {
+            // Setting the stream position to an out-of-range or non-integer value must throw, not silently no-op.
+            const inS = new Ice.InputStream(communicator, new Uint8Array(4));
+            for (const badPos of [5, -1, 1.5, NaN]) {
+                try {
+                    inS.pos = badPos;
+                    test(false);
+                } catch (ex) {
+                    test(ex instanceof RangeError);
+                }
+            }
+            // Positions within [0, limit] are accepted (the limit itself is a valid position).
+            inS.pos = 4;
+            test(inS.pos === 4);
+            inS.pos = 0;
+            test(inS.pos === 0);
+        }
+        out.writeLine("ok");
     }
 
     async run(args: string[]) {
