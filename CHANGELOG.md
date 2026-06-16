@@ -69,6 +69,10 @@ might need to be aware of.
 - Fixed the `ice_getConnectionAsync` proxy method. Retrieving the result of the returned future failed on every
   successful call because the `Ice.Connection` was constructed without its communicator.
 
+- Fixed `Ice.Future.wait('sent')`, which could block indefinitely or report a spurious timeout. The wait now
+  completes once the invocation reaches or passes the requested state, and the transition to the sent state
+  notifies waiters.
+
 ### Python Changes
 
 - Fixed Ice for Python to reliably abort request marshaling when an invalid value is supplied for a sequence
