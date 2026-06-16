@@ -29,6 +29,10 @@ might need to be aware of.
   certificate that has no label attribute could abort the process during communicator initialization. Ice now reports
   a clear error instead.
 
+- Fixed a crash in the macOS (SecureTransport) SSL transport: configuring `IceSSL.CertFile` together with
+  `IceSSL.KeyFile` using a certificate that has no Subject Key Identifier extension aborted the process during
+  communicator initialization. Such certificates are now rejected with a `CertificateReadException`.
+
 ### C# Changes
 
 - Fixed a bug in `slice2cs --icerpc` where the generated request decoder read in-parameters in declaration order

@@ -402,6 +402,19 @@ namespace
             }
         }
 
+        // A certificate must expose a Subject Key Identifier to be imported into the keychain: the SKI is used
+        // both to locate an already-imported certificate (the query below) and as the key label that pairs the
+        // private key with the certificate (further down). Reject a certificate without one with a clear error
+        // instead of passing a null value to CFDictionarySetValue, which aborts the process.
+        if (!hash)
+        {
+            throw CertificateReadException(
+                __FILE__,
+                __LINE__,
+                "SSL transport: the certificate for key file '" + file +
+                    "' has no Subject Key Identifier extension and cannot be imported into the macOS keychain");
+        }
+
         const void* values[] = {keychain};
         UniqueRef<CFArrayRef> searchList(CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks));
 
