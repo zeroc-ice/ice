@@ -129,12 +129,6 @@ IceRuby::isArray(VALUE val)
     return TYPE(val) == T_ARRAY || callRuby(rb_respond_to, val, rb_intern("to_ary")) != 0;
 }
 
-bool
-IceRuby::isHash(VALUE val)
-{
-    return TYPE(val) == T_HASH || callRuby(rb_respond_to, val, rb_intern("to_hash")) != 0;
-}
-
 string
 IceRuby::getString(VALUE val)
 {
