@@ -417,7 +417,7 @@ extern "C"
         try
         {
             auto endpoints = restoreProxy(self)->ice_getEndpoints();
-            if (idx > endpoints.size())
+            if (idx >= endpoints.size())
             {
                 throw std::invalid_argument("index outside range");
             }
@@ -445,7 +445,7 @@ extern "C"
         try
         {
             vector<shared_ptr<Ice::Endpoint>>* v = reinterpret_cast<vector<shared_ptr<Ice::Endpoint>>*>(arr);
-            if (idx > v->size())
+            if (idx >= v->size())
             {
                 throw std::invalid_argument("index outside range");
             }
