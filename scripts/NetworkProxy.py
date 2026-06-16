@@ -4,6 +4,7 @@ import select
 import socket
 import sys
 import threading
+import time
 
 
 class InvalidRequest(Exception):
@@ -20,6 +21,9 @@ class BaseConnection(threading.Thread):
 
     def response(self, code):
         pass
+
+    def sendResponse(self, success):
+        self.socket.sendall(self.response(success))
 
     def request(self, data):
         pass
@@ -45,9 +49,9 @@ class BaseConnection(threading.Thread):
             self.remoteSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
                 self.remoteSocket.connect(remoteAddr)
-                self.socket.send(self.response(True))
+                self.sendResponse(True)
             except Exception:
-                self.socket.send(self.response(False))
+                self.sendResponse(False)
                 return
 
             try:
@@ -217,6 +221,21 @@ class HttpConnection(BaseConnection):
         else:
             s = "HTTP/1.1 404\r\n\r\n"
         return s if sys.version_info[0] == 2 else bytes(s, "ascii")
+
+    def sendResponse(self, success):
+        if not success:
+            self.socket.sendall(self.response(False))
+            return
+
+        # Deliberately fragment the successful CONNECT response so the first read the Ice client performs
+        # returns fewer than the 7 bytes it initially asks for. This exercises the proxy transport's
+        # partial-read handling: a correct endRead keeps reading until the response is complete, whereas a
+        # buggy one treats the short first read as a complete response and fails the connection.
+        self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        data = self.response(True)
+        self.socket.sendall(data[:4])
+        time.sleep(0.1)
+        self.socket.sendall(data[4:])
 
 
 class HttpProxy(BaseProxy):
