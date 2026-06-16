@@ -88,6 +88,10 @@ might need to be aware of.
   emitted as bare numeric literals, which MATLAB interprets as `double`, silently losing precision for values
   with magnitude greater than 2^53.
 
+- Fixed a memory leak that occurred each time a proxy was marshaled, unmarshaled, or had its
+  encoding version set with `ice_encodingVersion`. Each of these operations leaked a small amount
+  of memory that accumulated over the lifetime of a MATLAB session.
+
 ### PHP Changes
 
 - Fixed Ice for PHP mis-marshaling a non-empty optional `sequence<string>`.
