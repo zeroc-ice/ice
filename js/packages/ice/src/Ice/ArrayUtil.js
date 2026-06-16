@@ -5,9 +5,9 @@ const eq = function (e1, e2) {
         return true; // If identity compare equals members are equal.
     } else if (e1 === null || e1 === undefined || e2 === null || e2 === undefined) {
         return false;
-    } else if (e1.prototype !== e2.prototype) {
-        return false;
     } else if (typeof e1.equals == "function") {
+        // The type's own equals decides; for example, struct equality requires the same type
+        // while proxy equality compares the references regardless of the proxy class.
         return e1.equals(e2);
     } else if (e1 instanceof Array || e1 instanceof Uint8Array) {
         return ArrayUtil.equals(e1, e2, eq);

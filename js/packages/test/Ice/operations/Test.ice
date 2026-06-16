@@ -20,6 +20,12 @@ module Test
         string s;
     }
 
+    // Same members as AnotherStruct: instances of the two types must not compare equal.
+    struct StillAnotherStruct
+    {
+        string s;
+    }
+
     struct Structure
     {
         MyClass* p;
