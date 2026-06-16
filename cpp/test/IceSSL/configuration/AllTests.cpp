@@ -405,8 +405,18 @@ testCertificateVerification(
         server->ice_ping();
         test(false);
     }
-    catch (const LocalException&)
+    catch (const ProtocolException&)
     {
+        // Expected, if reported as an SSL alert by the server.
+    }
+    catch (const ConnectionLostException&)
+    {
+        // Expected.
+    }
+    catch (const LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
     }
     fact->destroyServer(server);
 
