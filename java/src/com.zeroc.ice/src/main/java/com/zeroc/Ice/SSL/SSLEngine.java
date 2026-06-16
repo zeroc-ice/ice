@@ -14,8 +14,6 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
@@ -286,10 +284,6 @@ public class SSLEngine {
         return _securityTraceLevel;
     }
 
-    String securityTraceCategory() {
-        return _securityTraceCategory;
-    }
-
     javax.net.ssl.SSLEngine createSSLEngine(boolean incoming, String host, int port) {
         javax.net.ssl.SSLEngine engine;
         try {
@@ -365,25 +359,6 @@ public class SSLEngine {
                 _logger.trace(_securityTraceCategory, msg);
             }
             throw new SecurityException(msg);
-        }
-    }
-
-    void trustManagerFailure(boolean incoming, CertificateException ex)
-        throws CertificateException {
-        if (_verifyPeer == 0) {
-            if (_securityTraceLevel >= 1) {
-                String msg = "ignoring peer verification failure";
-                if (_securityTraceLevel > 1) {
-                    StringWriter sw = new StringWriter();
-                    PrintWriter pw = new PrintWriter(sw);
-                    ex.printStackTrace(pw);
-                    pw.flush();
-                    msg += ":\n" + sw.toString();
-                }
-                _logger.trace(_securityTraceCategory, msg);
-            }
-        } else {
-            throw ex;
         }
     }
 
