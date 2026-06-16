@@ -371,7 +371,6 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
         return CompletableFuture.completedFuture(r);
     }
 
-
     @Override
     public CompletionStage<MyClass.OpMyEnumStringDResult> opMyEnumStringDAsync(
             Map<MyEnum, String> p1, Map<MyEnum, String> p2, Current current) {
@@ -720,7 +719,6 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
         r.returnValue.putAll(p2);
         return CompletableFuture.completedFuture(r);
     }
-
 
     @Override
     public CompletionStage<MyClass.OpStructResult> opStructAsync(
