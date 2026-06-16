@@ -262,6 +262,37 @@ def allTestsFuture(helper: TestHelper, communicator: Ice.Communicator, collocate
 
     print("ok")
 
+    sys.stdout.write("testing future timeout... ")
+    sys.stdout.flush()
+
+    # result/exception with a zero or expired timeout must raise TimeoutException
+    # instead of waiting indefinitely.
+    runningFuture = Ice.Future()
+    try:
+        runningFuture.result(0)
+        test(False)
+    except Ice.TimeoutException:
+        # Expected: the future is still running, so the bounded wait must time out.
+        pass
+    try:
+        runningFuture.exception(0)
+        test(False)
+    except Ice.TimeoutException:
+        # Expected: the future is still running, so the bounded wait must time out.
+        pass
+    try:
+        runningFuture.result(0.01)
+        test(False)
+    except Ice.TimeoutException:
+        # Expected: the future is still running, so the bounded wait must time out.
+        pass
+
+    runningFuture.set_result(15)
+    test(runningFuture.result(0) == 15)
+    test(runningFuture.exception(0) is None)
+
+    print("ok")
+
     sys.stdout.write("testing done callback... ")
     sys.stdout.flush()
 
@@ -795,6 +826,20 @@ def allTestsFuture(helper: TestHelper, communicator: Ice.Communicator, collocate
         p.ice_ping()
         test(not f1.is_sent() and f1.done())
         test(not f2.is_sent() and f2.done())
+
+        # sent() must not block once the invocation is cancelled before being sent.
+        try:
+            f1.sent(2)
+            test(False)
+        except Ice.InvocationCanceledException:
+            # Expected: the invocation was cancelled before being sent.
+            pass
+        try:
+            f2.sent(2)
+            test(False)
+        except Ice.InvocationCanceledException:
+            # Expected: the invocation was cancelled before being sent.
+            pass
 
         testController.holdAdapter()
 
