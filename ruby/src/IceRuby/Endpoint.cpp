@@ -90,7 +90,7 @@ IceRuby_Endpoint_cmp(VALUE self, VALUE other)
         {
             return INT2NUM(-1);
         }
-        else if (Ice::targetEqualTo(p1, p1))
+        else if (Ice::targetEqualTo(p1, p2))
         {
             return INT2NUM(0);
         }
@@ -107,6 +107,22 @@ extern "C" VALUE
 IceRuby_Endpoint_equals(VALUE self, VALUE other)
 {
     return IceRuby_Endpoint_cmp(self, other) == INT2NUM(0) ? Qtrue : Qfalse;
+}
+
+extern "C" VALUE
+IceRuby_Endpoint_hash(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
+        assert(p);
+
+        // Hash the string representation, which encodes exactly the fields used by operator== (and hence eql?),
+        // so equal endpoints produce equal hashes.
+        return INT2FIX(std::hash<string>{}((*p)->toString()));
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
 }
 
 // EndpointInfo
@@ -254,6 +270,7 @@ IceRuby::initEndpoint(VALUE iceModule)
     rb_define_method(_endpointClass, "<=>", CAST_METHOD(IceRuby_Endpoint_cmp), 1);
     rb_define_method(_endpointClass, "==", CAST_METHOD(IceRuby_Endpoint_equals), 1);
     rb_define_method(_endpointClass, "eql?", CAST_METHOD(IceRuby_Endpoint_equals), 1);
+    rb_define_method(_endpointClass, "hash", CAST_METHOD(IceRuby_Endpoint_hash), 0);
 
     //
     // EndpointInfo.

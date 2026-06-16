@@ -520,6 +520,22 @@ def allTests(helper, communicator)
     endpts3 = compObj3.ice_getEndpoints()
     test(endpts1 == endpts3)
 
+    #
+    # Endpoint comparison regression test. The three-way comparator must be antisymmetric and able to
+    # return 1 (not just -1/0), and eql?/hash must be consistent so equal endpoints work as Hash keys.
+    #
+    e1 = endpts1[0]
+    e2 = endpts2[0]
+    e3 = endpts3[0]
+    test(e1 == e1)
+    test((e1 <=> e1) == 0)
+    test(e1 != e2)
+    test((e1 <=> e2) == -(e2 <=> e1))                 # antisymmetry
+    test([(e1 <=> e2), (e2 <=> e1)].sort == [-1, 1])  # the comparator can return 1, not just -1/0
+    test(e1.eql?(e3))
+    test(e1.hash == e3.hash)                          # equal endpoints hash equally
+    test({e1 => "v"}[e3] == "v")                      # usable as a value-based Hash key
+
     test(compObj1.ice_encodingVersion(Ice::Encoding_1_0) == compObj1.ice_encodingVersion(Ice::Encoding_1_0))
     test(compObj1.ice_encodingVersion(Ice::Encoding_1_0) != compObj1.ice_encodingVersion(Ice::Encoding_1_1))
     #test(compObj.ice_encodingVersion(Ice::Encoding_1_0) < compObj.ice_encodingVersion(Ice::Encoding_1_1))
