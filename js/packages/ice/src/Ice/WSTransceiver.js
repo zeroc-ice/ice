@@ -245,21 +245,13 @@ class WSTransceiver {
     getInfo(adapterName, connectionId) {
         console.assert(this._fd !== null);
 
-        let info = new TCPConnectionInfo(
-            adapterName,
-            connectionId,
-            "",
-            -1,
-            this._addr.host,
-            this._addr.port,
-            this._maxBufferedAmount,
-        );
+        let info = new TCPConnectionInfo(adapterName, connectionId, "", -1, this._addr.host, this._addr.port);
 
         if (this._secure) {
             info = new SSLConnectionInfo(info);
         }
 
-        return new WSConnectionInfo(info);
+        return new WSConnectionInfo(info, this._maxBufferedAmount);
     }
 
     toString() {
