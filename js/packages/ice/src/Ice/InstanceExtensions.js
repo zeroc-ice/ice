@@ -164,10 +164,6 @@ Instance.prototype.setDefaultRouter = function (router) {
     this._referenceFactory = this._referenceFactory.setDefaultRouter(router);
 };
 
-Instance.prototype.setLogger = function (logger) {
-    this._initData.logger = logger;
-};
-
 Instance.prototype.finishSetup = function (communicator) {
     try {
         if (this._initData.properties === null) {
