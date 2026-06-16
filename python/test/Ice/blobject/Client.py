@@ -22,6 +22,14 @@ class Client(TestHelper):
         hello.sayHello(False)
         hello.sayHello(False, {"_fwd": "o"})
         test(hello.add(10, 20) == 30)
+
+        # ice_invoke/ice_invokeAsync with the optional context argument omitted
+        ok, _ = hello.ice_invoke("ice_ping", Ice.OperationMode.Normal, b"")
+        test(ok)
+        f = hello.ice_invokeAsync("ice_ping", Ice.OperationMode.Normal, b"")
+        assert isinstance(f, Ice.Future)
+        ok, _ = f.result()
+        test(ok)
         try:
             hello.raiseUE()
             test(False)
