@@ -67,14 +67,6 @@ public class ProtocolInstance {
         return _instance.defaultsAndOverrides().defaultSourceAddress;
     }
 
-    public EncodingVersion defaultEncoding() {
-        return _instance.defaultsAndOverrides().defaultEncoding;
-    }
-
-    public NetworkProxy networkProxy() {
-        return _instance.networkProxy();
-    }
-
     public int messageSizeMax() {
         return _instance.messageSizeMax();
     }

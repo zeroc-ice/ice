@@ -620,10 +620,6 @@ public class SessionKeeper {
             return _uuid;
         }
 
-        public synchronized void setUUID(String uuid) {
-            this._uuid = uuid;
-        }
-
         public synchronized String getInstanceName() {
             return _instanceName;
         }

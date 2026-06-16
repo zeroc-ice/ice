@@ -23,10 +23,6 @@ class Instance extends ProtocolInstance {
         }
     }
 
-    void destroy() {
-        _communicator = null;
-    }
-
     Communicator communicator() {
         return _communicator;
     }
@@ -35,6 +31,6 @@ class Instance extends ProtocolInstance {
         return _bluetoothAdapter;
     }
 
-    private Communicator _communicator;
+    private final Communicator _communicator;
     private final BluetoothAdapter _bluetoothAdapter;
 }

@@ -823,10 +823,6 @@ class Node extends Communicator {
         Utils.Resolver resolver;
     }
 
-    public List<Server> getServers() {
-        return new ArrayList<Server>(_servers);
-    }
-
     // Application name to ApplicationData
     private final SortedMap<String, ApplicationData> _map = new TreeMap<>();
 

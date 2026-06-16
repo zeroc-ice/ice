@@ -476,12 +476,6 @@ public final class Instance {
         _ownLogger = true;
     }
 
-    public void setThreadHooks(Runnable threadStart, Runnable threadStop) {
-        // No locking, as it can only be called during plug-in loading
-        _initData.threadStart = threadStart;
-        _initData.threadStop = threadStop;
-    }
-
     void addSliceLoader(SliceLoader loader) {
         _applicationSliceLoader.add(loader);
     }

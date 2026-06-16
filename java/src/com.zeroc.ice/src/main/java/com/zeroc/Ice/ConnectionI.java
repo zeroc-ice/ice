@@ -168,15 +168,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         return _state > StateNotValidated && _state < StateClosing;
     }
 
-    public synchronized boolean isFinished() {
-        if (_state != StateFinished || _upcallCount != 0) {
-            return false;
-        }
-
-        assert (_state == StateFinished);
-        return true;
-    }
-
     public synchronized void throwException() {
         if (_exception != null) {
             assert (_state >= StateClosing);

@@ -5,8 +5,6 @@ package com.zeroc.Ice.SSL;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ProtocolInstance;
 
-import java.security.cert.CertificateException;
-
 /**
  * @hidden Public because it's used by Ice.Instance
  */
@@ -24,25 +22,12 @@ public class Instance extends ProtocolInstance {
         return _engine.securityTraceLevel();
     }
 
-    String securityTraceCategory() {
-        return _engine.securityTraceCategory();
-    }
-
-    javax.net.ssl.SSLEngine createSSLEngine(boolean incoming, String host, int port) {
-        return _engine.createSSLEngine(incoming, host, port);
-    }
-
     void traceConnection(String desc, javax.net.ssl.SSLEngine engine, boolean incoming) {
         _engine.traceConnection(desc, engine, incoming);
     }
 
     void verifyPeer(String address, ConnectionInfo info, String desc) {
         _engine.verifyPeer(address, info, desc);
-    }
-
-    void trustManagerFailure(boolean incoming, CertificateException ex)
-        throws CertificateException {
-        _engine.trustManagerFailure(incoming, ex);
     }
 
     InitializationData initializationData() {

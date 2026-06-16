@@ -138,33 +138,9 @@ public class SimpleInternalFrame extends JPanel {
 
     // Public API ***********************************************************
 
-    /**
-     * Returns the frame's icon.
-     *
-     * @return the frame's icon
-     */
-    public Icon getFrameIcon() {
-        return titleLabel.getIcon();
-    }
-
-    /**
-     * Sets a new frame icon.
-     *
-     * @param newIcon the icon to be set
-     */
-    public void setFrameIcon(Icon newIcon) {
-        Icon oldIcon = getFrameIcon();
-        titleLabel.setIcon(newIcon);
-        firePropertyChange("frameIcon", oldIcon, newIcon);
-    }
-
     /** Returns the frame's title text. * @return String the current title text */
     public String getTitle() {
         return titleLabel.getText();
-    }
-
-    public JLabel getTitleLabel() {
-        return titleLabel;
     }
 
     /** Sets a new title text. * @param newText the title text tp be set */

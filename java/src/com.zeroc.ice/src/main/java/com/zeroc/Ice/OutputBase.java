@@ -9,15 +9,6 @@ import java.io.PrintWriter;
 import java.util.LinkedList;
 
 final class OutputBase {
-    public OutputBase() {
-        _out = null;
-        _pos = 0;
-        _indent = 0;
-        _indentSize = 4;
-        _useTab = true;
-        _separator = true;
-    }
-
     public OutputBase(PrintWriter out) {
         _out = out;
         _pos = 0;

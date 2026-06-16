@@ -388,10 +388,6 @@ class PlainServer extends Communicator implements Server {
         }
     }
 
-    void setServerDescriptor(ServerDescriptor descriptor) {
-        _descriptor = descriptor;
-    }
-
     // Update the server and all its subtree
     void rebuild(Utils.Resolver resolver, ServerDescriptor serverDescriptor)
         throws UpdateFailedException {

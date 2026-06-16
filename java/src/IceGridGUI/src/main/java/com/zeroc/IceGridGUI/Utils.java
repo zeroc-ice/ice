@@ -7,16 +7,13 @@ import com.zeroc.IceGrid.PropertyDescriptor;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -25,7 +22,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -33,7 +29,6 @@ import java.util.TreeMap;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -47,28 +42,6 @@ public class Utils {
             return null;
         } else {
             return new ImageIcon(imgURL);
-        }
-    }
-
-    public static Image iconToImage(Icon icon) {
-        if (icon instanceof ImageIcon) {
-            return ((ImageIcon) icon).getImage();
-        } else {
-            Graphics2D g = null;
-            try {
-                BufferedImage image =
-                    GraphicsEnvironment.getLocalGraphicsEnvironment()
-                        .getDefaultScreenDevice()
-                        .getDefaultConfiguration()
-                        .createCompatibleImage(icon.getIconWidth(), icon.getIconHeight());
-                g = image.createGraphics();
-                icon.paintIcon(null, g, 0, 0);
-                return image;
-            } finally {
-                if (g != null) {
-                    g.dispose();
-                }
-            }
         }
     }
 
@@ -374,11 +347,6 @@ public class Utils {
             }
         }
 
-        // The sorted substituted parameters
-        public Map<String, String> getParameters() {
-            return _parameters;
-        }
-
         public String substitute(String input) {
             if (input == null) {
                 return input;
@@ -466,12 +434,6 @@ public class Utils {
             addSet(p, resolver, toMap);
         }
         return toMap;
-    }
-
-    public static SortedMap<String, String> propertySetToMap(ExpandedPropertySet propertySet, Resolver resolver) {
-        List<ExpandedPropertySet> list = new LinkedList<>();
-        list.add(propertySet);
-        return propertySetsToMap(list, resolver);
     }
 
     private static void addSet(ExpandedPropertySet set, Resolver resolver, SortedMap<String, String> toMap) {
