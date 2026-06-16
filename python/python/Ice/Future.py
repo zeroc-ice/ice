@@ -124,6 +124,8 @@ class Future(Awaitable[_T]):
         timeout : int | float | None, optional
             Maximum time (in seconds) to wait for the result.
             If ``None`` (the default), this function waits indefinitely until the operation completes.
+            A timeout of ``0`` returns immediately (a non-blocking poll), raising :class:`Ice.TimeoutException`
+            if the result is not yet available.
 
         Returns
         -------
@@ -163,6 +165,8 @@ class Future(Awaitable[_T]):
         timeout : int | float | None, optional
             Maximum time (in seconds) to wait for the exception.
             If ``None`` (the default), this function waits indefinitely until the operation completes.
+            A timeout of ``0`` returns immediately (a non-blocking poll), raising :class:`Ice.TimeoutException`
+            if the operation has not yet completed.
 
         Returns
         -------
@@ -245,7 +249,7 @@ class Future(Awaitable[_T]):
         # Must be called with _condition acquired
 
         while testFn():
-            if timeout:
+            if timeout is not None:
                 start = time.time()
                 self._condition.wait(timeout)
                 # Subtract the elapsed time so far from the timeout
