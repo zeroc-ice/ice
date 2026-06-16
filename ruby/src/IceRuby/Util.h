@@ -52,11 +52,6 @@ namespace IceRuby
     bool isArray(VALUE);
 
     //
-    // Returns true if the value is a hash or can be converted into a hash.
-    //
-    bool isHash(VALUE);
-
-    //
     // Convert a Ruby value into a string. May raise RubyException.
     //
     std::string getString(VALUE);

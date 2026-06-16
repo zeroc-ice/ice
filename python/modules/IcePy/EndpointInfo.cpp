@@ -405,14 +405,6 @@ IcePy::initEndpointInfo(PyObject* module)
     return true;
 }
 
-Ice::EndpointInfoPtr
-IcePy::getEndpointInfo(PyObject* obj)
-{
-    assert(PyObject_IsInstance(obj, reinterpret_cast<PyObject*>(&EndpointInfoType)));
-    auto* eobj = reinterpret_cast<EndpointInfoObject*>(obj);
-    return *eobj->endpointInfo;
-}
-
 PyObject*
 IcePy::createEndpointInfo(const Ice::EndpointInfoPtr& endpointInfo)
 {

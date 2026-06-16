@@ -14,7 +14,6 @@ extern "C"
 
 namespace IcePHP
 {
-    void* createWrapper(zend_class_entry*, size_t);
     void* extractWrapper(zval*);
 
     // Wraps a C++ pointer inside a PHP object.
@@ -123,13 +122,6 @@ namespace IcePHP
         {
             if (_zv)
                 zval_ptr_dtor(_zv);
-        }
-
-        zval* release()
-        {
-            zval* z = _zv;
-            _zv = 0;
-            return z;
         }
 
     private:

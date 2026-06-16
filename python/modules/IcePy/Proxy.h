@@ -31,9 +31,6 @@ namespace IcePy
         const std::string&,
         std::optional<Ice::ObjectPrx>&,
         const std::string& = std::string());
-
-    /// Gets the communicator associated with the proxy object.
-    Ice::CommunicatorPtr getProxyCommunicator(PyObject*);
 }
 
 #endif

@@ -13,7 +13,6 @@ namespace IcePy
     bool initConnectionInfo(PyObject*);
 
     PyObject* createConnectionInfo(const Ice::ConnectionInfoPtr&);
-    Ice::ConnectionInfoPtr getConnectionInfo(PyObject*);
 }
 
 #endif

@@ -1546,11 +1546,3 @@ IcePy::getProxyArg(
 
     return result;
 }
-
-Ice::CommunicatorPtr
-IcePy::getProxyCommunicator(PyObject* p)
-{
-    assert(checkProxy(p));
-    auto* obj = reinterpret_cast<ProxyObject*>(p);
-    return *obj->communicator;
-}
