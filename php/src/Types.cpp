@@ -2482,6 +2482,15 @@ IcePHP::ClassInfo::destroy()
             p->type->destroy();
         }
     }
+    if (!optionalMembers.empty())
+    {
+        DataMemberList ml = optionalMembers;
+        const_cast<DataMemberList&>(optionalMembers).clear();
+        for (const auto& p : ml)
+        {
+            p->type->destroy();
+        }
+    }
 }
 
 void
@@ -2508,7 +2517,7 @@ IcePHP::ClassInfo::printMembers(zval* zv, IceInternal::Output& out, PrintObjectH
         }
     }
 
-    for (const auto& member : members)
+    for (const auto& member : optionalMembers)
     {
         out << nl << member->name << " = ";
         zval* val = zend_hash_str_find(Z_OBJPROP_P(zv), member->name.c_str(), member->name.size());
