@@ -38,20 +38,6 @@ extern "C"
         }
     }
 
-    mxArray* Ice_Communicator_proxyToString(void* self, void* proxy)
-    {
-        assert(proxy);
-        try
-        {
-            auto p = restoreProxy(proxy);
-            return createResultValue(createStringFromUTF8(deref<Ice::Communicator>(self)->proxyToString(p)));
-        }
-        catch (...)
-        {
-            return createResultException(convertException(std::current_exception()));
-        }
-    }
-
     mxArray* Ice_Communicator_propertyToProxy(void* self, const char* prop, void** proxy)
     {
         try

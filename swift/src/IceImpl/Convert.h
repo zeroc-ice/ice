@@ -73,19 +73,6 @@ fromNSArray(NSArray* array, std::vector<T>& seq)
     return seq;
 }
 
-template<typename T>
-NSMutableData*
-toNSData(const std::vector<T>& seq)
-{
-    NSMutableData* array = [[NSMutableData alloc] initWithLength:seq.size() * sizeof(T)];
-    T* target = (T*)[array bytes];
-    for (typename std::vector<T>::const_iterator p = seq.begin(); p != seq.end(); ++p)
-    {
-        *target++ = *p;
-    }
-    return array;
-}
-
 template<typename K, typename V, class Compare = std::less<K>>
 NSMutableDictionary*
 toNSDictionary(const std::map<K, V, Compare>& dict)
