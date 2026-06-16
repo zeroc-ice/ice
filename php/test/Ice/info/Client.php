@@ -104,6 +104,20 @@ function allTests($helper)
         $connection = $testIntf->ice_getConnection();
         $connection->setBufferSize(1024, 2048);
 
+        // setBufferSize must reject non-integer arguments instead of applying a garbage size (see #5534).
+        try {
+            $connection->setBufferSize("not an int", 2048);
+            test(false);
+        } catch (TypeError $ex) {
+        }
+
+        // It must also reject values outside the C++ int range instead of silently truncating them (see #5534).
+        try {
+            $connection->setBufferSize(2 ** 40, 2048);
+            test(false);
+        } catch (InvalidArgumentException $ex) {
+        }
+
         $info = $connection->getInfo();
         $tcpinfo = getTCPConnectionInfo($info);
         test($tcpinfo instanceof Ice\TCPConnectionInfo);
@@ -139,6 +153,16 @@ function allTests($helper)
             test($ctx["ws.Sec-WebSocket-Version"] == "13");
             test(isset($ctx["ws.Sec-WebSocket-Key"]));
         }
+
+        // rcvSize and sndSize must be declared properties on Ice\UDPConnectionInfo, not deprecated dynamic
+        // properties created only at runtime (see #5536).
+        $udpInfo = $testIntf->ice_datagram()->ice_getConnection()->getInfo();
+        test($udpInfo instanceof Ice\UDPConnectionInfo);
+        $udpInfoClass = new ReflectionClass(Ice\UDPConnectionInfo::class);
+        test($udpInfoClass->hasProperty("rcvSize"));
+        test($udpInfoClass->hasProperty("sndSize"));
+        test($udpInfo->rcvSize >= 0);
+        test($udpInfo->sndSize >= 0);
     }
     echo "ok\n";
 
