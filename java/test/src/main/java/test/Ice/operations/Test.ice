@@ -66,25 +66,13 @@ module Test
     dictionary<MyEnum, string> MyEnumStringD;
     dictionary<MyStruct, MyEnum> MyStructMyEnumD;
 
-    ["java:type:java.util.LinkedHashMap<Byte, Boolean>"] dictionary<byte, bool> ByteBoolLinkedD;
-    ["java:type:java.util.LinkedHashMap<Short, Integer>"] dictionary<short, int> ShortIntLinkedD;
-    ["java:type:java.util.LinkedHashMap<Long, Float>"] dictionary<long, float> LongFloatLinkedD;
-    ["java:type:java.util.LinkedHashMap<String, String>:java.util.LinkedHashMap<String, String>"]
-    dictionary<string, string> StringStringLinkedD;
-    ["java:type:java.util.LinkedHashMap<String, MyEnum>:java.util.LinkedHashMap<String, MyEnum>"]
-    dictionary<string, MyEnum> StringMyEnumLinkedD;
-    ["java:type:java.util.LinkedHashMap<MyEnum, String>:java.util.LinkedHashMap<MyEnum, String>"]
-    dictionary<MyEnum, string> MyEnumStringLinkedD;
-    ["java:type:java.util.LinkedHashMap<MyStruct, MyEnum>:java.util.LinkedHashMap<MyStruct, MyEnum>"]
-    dictionary<MyStruct, MyEnum> MyStructMyEnumLinkedD;
-
-    ["java:type:java.util.ArrayList<java.util.Map<Byte, Boolean>>"] sequence<ByteBoolD> ByteBoolDS;
-    ["java:type:java.util.ArrayList<java.util.Map<Short, Integer>>"] sequence<ShortIntD> ShortIntDS;
-    ["java:type:java.util.ArrayList<java.util.Map<Long, Float>>"] sequence<LongFloatD> LongFloatDS;
-    ["java:type:java.util.ArrayList<java.util.Map<String, String>>"] sequence<StringStringD> StringStringDS;
-    ["java:type:java.util.ArrayList<java.util.Map<String, MyEnum>>"] sequence<StringMyEnumD> StringMyEnumDS;
-    ["java:type:java.util.ArrayList<java.util.Map<MyEnum, String>>"] sequence<MyEnumStringD> MyEnumStringDS;
-    ["java:type:java.util.ArrayList<java.util.Map<MyStruct, MyEnum>>"] sequence<MyStructMyEnumD> MyStructMyEnumDS;
+    ["java:type:java.util.ArrayList<java.util.Map<Byte,Boolean>>"] sequence<ByteBoolD> ByteBoolDS;
+    ["java:type:java.util.ArrayList<java.util.Map<Short,Integer>>"] sequence<ShortIntD> ShortIntDS;
+    ["java:type:java.util.ArrayList<java.util.Map<Long,Float>>"]sequence<LongFloatD> LongFloatDS;
+    ["java:type:java.util.ArrayList<java.util.Map<String,String>>"]sequence<StringStringD> StringStringDS;
+    ["java:type:java.util.ArrayList<java.util.Map<String,MyEnum>>"]sequence<StringMyEnumD> StringMyEnumDS;
+    ["java:type:java.util.ArrayList<java.util.Map<MyEnum,String>>"]sequence<MyEnumStringD> MyEnumStringDS;
+    ["java:type:java.util.ArrayList<java.util.Map<MyStruct,MyEnum>>"]sequence<MyStructMyEnumD> MyStructMyEnumDS;
 
     dictionary<byte, ByteS> ByteByteSD;
     dictionary<bool, BoolS> BoolBoolSD;
@@ -180,27 +168,6 @@ module Test
         MyStructMyEnumD opMyStructMyEnumD(MyStructMyEnumD p1, MyStructMyEnumD p2,
             out MyStructMyEnumD p3);
 
-        ByteBoolLinkedD opByteBoolLinkedD(ByteBoolLinkedD p1, ByteBoolLinkedD p2,
-            out ByteBoolLinkedD p3);
-
-        ShortIntLinkedD opShortIntLinkedD(ShortIntLinkedD p1, ShortIntLinkedD p2,
-            out ShortIntLinkedD p3);
-
-        LongFloatLinkedD opLongFloatLinkedD(LongFloatLinkedD p1, LongFloatLinkedD p2,
-            out LongFloatLinkedD p3);
-
-        StringStringLinkedD opStringStringLinkedD(StringStringLinkedD p1, StringStringLinkedD p2,
-            out StringStringLinkedD p3);
-
-        StringMyEnumLinkedD opStringMyEnumLinkedD(StringMyEnumLinkedD p1, StringMyEnumLinkedD p2,
-            out StringMyEnumLinkedD p3);
-
-        MyEnumStringLinkedD opMyEnumStringLinkedD(MyEnumStringLinkedD p1, MyEnumStringLinkedD p2,
-            out MyEnumStringLinkedD p3);
-
-        MyStructMyEnumLinkedD opMyStructMyEnumLinkedD(MyStructMyEnumLinkedD p1, MyStructMyEnumLinkedD p2,
-            out MyStructMyEnumLinkedD p3);
-
         ByteBoolDS opByteBoolDS(ByteBoolDS p1, ByteBoolDS p2,
             out ByteBoolDS p3);
 
@@ -286,9 +253,6 @@ module Test
 
         ["marshaled-result"] StringStringD opMDict1();
         ["marshaled-result"] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
-
-        ["marshaled-result"] StringStringLinkedD opMLinkedDict1();
-        ["marshaled-result"] StringStringLinkedD opMLinkedDict2(StringStringLinkedD p1, out StringStringLinkedD p2);
     }
 
     struct MyStruct1
