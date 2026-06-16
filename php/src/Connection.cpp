@@ -235,7 +235,7 @@ ZEND_METHOD(Ice_Connection, setBufferSize)
     // truncating them.
     if (r < INT_MIN || r > INT_MAX || s < INT_MIN || s > INT_MAX)
     {
-        invalidArgument("buffer size must be in the range of a 32-bit signed integer");
+        invalidArgument("buffer size must be in the range of a C++ int");
         RETURN_NULL();
     }
 
