@@ -529,6 +529,9 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval* args, zval* ret, pair<
     {
         assert(Z_ISREF(args[i]));
         zval* arg = Z_REFVAL_P(&args[i]);
+        // Release any value the caller's by-reference out-argument already holds before overwriting it; otherwise a
+        // reused out-variable leaks its previous (refcounted) value.
+        zval_ptr_dtor(arg);
         ZVAL_COPY(arg, &(*q)->zv);
     }
 
