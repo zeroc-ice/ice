@@ -786,7 +786,7 @@ IceRuby::EnumInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool)
     const int32_t ival = static_cast<int32_t>(getInteger(val));
     if (enumerators.find(ival) == enumerators.end())
     {
-        throw RubyException(rb_eRangeError, "invalid enumerator %ld for enum %s", ival, id.c_str());
+        throw RubyException(rb_eRangeError, "invalid enumerator %d for enum %s", ival, id.c_str());
     }
 
     os->writeEnum(ival, maxValue);

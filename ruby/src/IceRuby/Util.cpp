@@ -126,7 +126,7 @@ IceRuby::isString(VALUE val)
 bool
 IceRuby::isArray(VALUE val)
 {
-    return TYPE(val) == T_ARRAY || callRuby(rb_respond_to, val, rb_intern("to_arr")) != 0;
+    return TYPE(val) == T_ARRAY || callRuby(rb_respond_to, val, rb_intern("to_ary")) != 0;
 }
 
 bool
@@ -216,7 +216,7 @@ IceRuby::arrayToStringSeq(VALUE val, vector<string>& seq)
     for (long i = 0; i < RARRAY_LEN(arr); ++i)
     {
         string s = getString(RARRAY_AREF(arr, i));
-        seq.push_back(getString(RARRAY_AREF(arr, i)));
+        seq.push_back(std::move(s));
     }
     return true;
 }

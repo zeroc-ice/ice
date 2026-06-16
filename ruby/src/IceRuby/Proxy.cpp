@@ -248,7 +248,7 @@ IceRuby_ObjectPrx_ice_endpoints(VALUE self, VALUE seq)
         if (!NIL_P(seq))
         {
             volatile VALUE arr = callRuby(rb_check_array_type, seq);
-            if (NIL_P(seq))
+            if (NIL_P(arr))
             {
                 throw RubyException(rb_eTypeError, "unable to convert value to an array of endpoints");
             }
