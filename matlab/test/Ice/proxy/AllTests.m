@@ -21,6 +21,12 @@ classdef AllTests
             base = communicator.stringToProxy(ref);
             assert(~isempty(base));
 
+            % Issue #5554: a proxy with no cached connection returns a typed empty
+            % (Ice.Connection.empty), not a 0x0 double.
+            cachedConnection = base.ice_getCachedConnection();
+            assert(isa(cachedConnection, 'Ice.Connection'));
+            assert(isempty(cachedConnection));
+
             b1 = communicator.stringToProxy('test');
             assert(strcmp(b1.ice_getIdentity().name, 'test') && isempty(b1.ice_getIdentity().category) && ...
                    isempty(b1.ice_getAdapterId()) && isempty(b1.ice_getFacet()));
