@@ -45,7 +45,9 @@ public class AllTests {
 
             TestIntf.OpByteBoolLinkedDictResult r = prx.opByteBoolLinkedDict(inDict);
 
+            test(r.outDict.getClass() == LinkedHashMap.class);
             test(r.outDict.equals(inDict));
+            test(r.returnValue.getClass() == LinkedHashMap.class);
             test(r.returnValue.equals(inDict));
         }
 
@@ -57,7 +59,9 @@ public class AllTests {
 
             TestIntf.OpShortIntLinkedDictResult r = prx.opShortIntLinkedDict(inDict);
 
+            test(r.outDict.getClass() == LinkedHashMap.class);
             test(r.outDict.equals(inDict));
+            test(r.returnValue.getClass() == LinkedHashMap.class);
             test(r.returnValue.equals(inDict));
         }
 
@@ -69,7 +73,9 @@ public class AllTests {
 
             TestIntf.OpLongFloatLinkedDictResult r = prx.opLongFloatLinkedDict(inDict);
 
+            test(r.outDict.getClass() == LinkedHashMap.class);
             test(r.outDict.equals(inDict));
+            test(r.returnValue.getClass() == LinkedHashMap.class);
             test(r.returnValue.equals(inDict));
         }
 
@@ -81,7 +87,9 @@ public class AllTests {
 
             TestIntf.OpStringDoubleLinkedDictResult r = prx.opStringDoubleLinkedDict(inDict);
 
+            test(r.outDict.getClass() == LinkedHashMap.class);
             test(r.outDict.equals(inDict));
+            test(r.returnValue.getClass() == LinkedHashMap.class);
             test(r.returnValue.equals(inDict));
         }
 
@@ -93,7 +101,9 @@ public class AllTests {
 
             TestIntf.OpAIntDictResult r = prx.opAIntDict(inDict);
 
+            test(r.outDict.getClass() == HashMap.class);
             test(r.outDict.equals(inDict));
+            test(r.returnValue.getClass() == HashMap.class);
             test(r.returnValue.equals(inDict));
         }
 
@@ -105,7 +115,9 @@ public class AllTests {
 
             TestIntf.OpAIntLinkedDictResult r = prx.opAIntLinkedDict(inDict);
 
+            test(r.outDict.getClass() == LinkedHashMap.class);
             test(r.outDict.equals(inDict));
+            test(r.returnValue.getClass() == LinkedHashMap.class);
             test(r.returnValue.equals(inDict));
         }
 
@@ -117,7 +129,9 @@ public class AllTests {
 
             TestIntf.OpAIntFormalLinkedDictResult r = prx.opAIntFormalLinkedDict(inDict);
 
+            test(r.outDict.getClass() == LinkedHashMap.class);
             test(r.outDict.equals(inDict));
+            test(r.returnValue.getClass() == LinkedHashMap.class);
             test(r.returnValue.equals(inDict));
         }
 
@@ -129,16 +143,16 @@ public class AllTests {
 
             TestIntf.OpShortCDictResult r = prx.opShortCDict(inDict);
 
-            test(r.outDict instanceof HashMap);
+            test(r.outDict.getClass() == HashMap.class);
             test(r.outDict.size() == 3);
-            test(r.outDict.get((short) 0).s.equals("abc"));
-            test(r.outDict.get((short) 1).s.equals("Hello!!"));
-            test(r.outDict.get((short) 2).s.equals("qwerty"));
-            test(r.returnValue instanceof HashMap);
+            test("abc".equals(r.outDict.get((short) 0).s));
+            test("Hello!!".equals(r.outDict.get((short) 1).s));
+            test("qwerty".equals(r.outDict.get((short) 2).s));
+            test(r.returnValue.getClass() == HashMap.class);
             test(r.returnValue.size() == 3);
-            test(r.returnValue.get((short) 0).s.equals("abc"));
-            test(r.returnValue.get((short) 1).s.equals("Hello!!"));
-            test(r.returnValue.get((short) 2).s.equals("qwerty"));
+            test("abc".equals(r.returnValue.get((short) 0).s));
+            test("Hello!!".equals(r.returnValue.get((short) 1).s));
+            test("qwerty".equals(r.returnValue.get((short) 2).s));
         }
 
         {
@@ -149,16 +163,16 @@ public class AllTests {
 
             TestIntf.OpShortCLinkedDictResult r = prx.opShortCLinkedDict(inDict);
 
-            test(r.outDict instanceof LinkedHashMap);
+            test(r.outDict.getClass() == LinkedHashMap.class);
             test(r.outDict.size() == 3);
-            test(r.outDict.get((short) 10).s.equals("abc!"));
-            test(r.outDict.get((short) 11).s.equals("Hello!!!"));
-            test(r.outDict.get((short) 12).s.equals("qwerty!"));
-            test(r.returnValue instanceof LinkedHashMap);
+            test("abc!".equals(r.outDict.get((short) 10).s));
+            test("Hello!!!".equals(r.outDict.get((short) 11).s));
+            test("qwerty!".equals(r.outDict.get((short) 12).s));
+            test(r.returnValue.getClass() == LinkedHashMap.class);
             test(r.returnValue.size() == 3);
-            test(r.returnValue.get((short) 10).s.equals("abc!"));
-            test(r.returnValue.get((short) 11).s.equals("Hello!!!"));
-            test(r.returnValue.get((short) 12).s.equals("qwerty!"));
+            test("abc!".equals(r.returnValue.get((short) 10).s));
+            test("Hello!!!".equals(r.returnValue.get((short) 11).s));
+            test("qwerty!".equals(r.returnValue.get((short) 12).s));
         }
 
         {
@@ -169,16 +183,16 @@ public class AllTests {
 
             TestIntf.OpShortCFormalLinkedDictResult r = prx.opShortCFormalLinkedDict(inDict);
 
-            test(r.outDict instanceof LinkedHashMap);
+            test(r.outDict.getClass() == LinkedHashMap.class);
             test(r.outDict.size() == 3);
-            test(r.outDict.get((short) 210).s.equals("abc!!"));
-            test(r.outDict.get((short) 211).s.equals("Hello!!!!"));
-            test(r.outDict.get((short) 212).s.equals("qwerty!!"));
-            test(r.returnValue instanceof LinkedHashMap);
+            test("abc!!".equals(r.outDict.get((short) 210).s));
+            test("Hello!!!!".equals(r.outDict.get((short) 211).s));
+            test("qwerty!!".equals(r.outDict.get((short) 212).s));
+            test(r.returnValue.getClass() == LinkedHashMap.class);
             test(r.returnValue.size() == 3);
-            test(r.returnValue.get((short) 210).s.equals("abc!!"));
-            test(r.returnValue.get((short) 211).s.equals("Hello!!!!"));
-            test(r.returnValue.get((short) 212).s.equals("qwerty!!"));
+            test("abc!!".equals(r.returnValue.get((short) 210).s));
+            test("Hello!!!!".equals(r.returnValue.get((short) 211).s));
+            test("qwerty!!".equals(r.returnValue.get((short) 212).s));
         }
 
         {
@@ -189,7 +203,9 @@ public class AllTests {
 
             TestIntf.OpStringEDictResult r = prx.opStringEDict(inDict);
 
+            test(r.outDict.getClass() == HashMap.class);
             test(r.outDict.equals(inDict));
+            test(r.returnValue.getClass() == HashMap.class);
             test(r.returnValue.equals(inDict));
         }
 
@@ -201,7 +217,9 @@ public class AllTests {
 
             TestIntf.OpStringELinkedDictResult r = prx.opStringELinkedDict(inDict);
 
+            test(r.outDict.getClass() == LinkedHashMap.class);
             test(r.outDict.equals(inDict));
+            test(r.returnValue.getClass() == LinkedHashMap.class);
             test(r.returnValue.equals(inDict));
         }
 
@@ -213,7 +231,9 @@ public class AllTests {
 
             TestIntf.OpStringEFormalLinkedDictResult r = prx.opStringEFormalLinkedDict(inDict);
 
+            test(r.outDict.getClass() == LinkedHashMap.class);
             test(r.outDict.equals(inDict));
+            test(r.returnValue.getClass() == LinkedHashMap.class);
             test(r.returnValue.equals(inDict));
         }
 
@@ -229,12 +249,12 @@ public class AllTests {
 
             TestIntf.OpEStringSeqDictResult r = prx.opEStringSeqDict(inDict);
 
-            test(r.outDict instanceof HashMap);
+            test(r.outDict.getClass() == HashMap.class);
             test(r.outDict.size() == 3);
             test(Arrays.equals(r.outDict.get(E.E1), array1));
             test(Arrays.equals(r.outDict.get(E.E2), array2));
             test(Arrays.equals(r.outDict.get(E.E3), array3));
-            test(r.returnValue instanceof HashMap);
+            test(r.returnValue.getClass() == HashMap.class);
             test(r.returnValue.size() == 3);
             test(Arrays.equals(r.returnValue.get(E.E1), array1));
             test(Arrays.equals(r.returnValue.get(E.E2), array2));
@@ -253,12 +273,12 @@ public class AllTests {
 
             TestIntf.OpEStringSeqLinkedDictResult r = prx.opEStringSeqLinkedDict(inDict);
 
-            test(r.outDict instanceof LinkedHashMap);
+            test(r.outDict.getClass() == LinkedHashMap.class);
             test(r.outDict.size() == 3);
             test(Arrays.equals(r.outDict.get(E.E1), array1));
             test(Arrays.equals(r.outDict.get(E.E2), array2));
             test(Arrays.equals(r.outDict.get(E.E3), array3));
-            test(r.returnValue instanceof LinkedHashMap);
+            test(r.returnValue.getClass() == LinkedHashMap.class);
             test(r.returnValue.size() == 3);
             test(Arrays.equals(r.returnValue.get(E.E1), array1));
             test(Arrays.equals(r.returnValue.get(E.E2), array2));
@@ -277,12 +297,12 @@ public class AllTests {
 
             TestIntf.OpEStringSeqFormalLinkedDictResult r = prx.opEStringSeqFormalLinkedDict(inDict);
 
-            test(r.outDict instanceof LinkedHashMap);
+            test(r.outDict.getClass() == LinkedHashMap.class);
             test(r.outDict.size() == 3);
             test(Arrays.equals(r.outDict.get(E.E1), array1));
             test(Arrays.equals(r.outDict.get(E.E2), array2));
             test(Arrays.equals(r.outDict.get(E.E3), array3));
-            test(r.returnValue instanceof LinkedHashMap);
+            test(r.returnValue.getClass() == LinkedHashMap.class);
             test(r.returnValue.size() == 3);
             test(Arrays.equals(r.returnValue.get(E.E1), array1));
             test(Arrays.equals(r.returnValue.get(E.E2), array2));
@@ -301,7 +321,9 @@ public class AllTests {
 
             TestIntf.OpOptByteBoolLinkedDictResult r = prx.opOptByteBoolLinkedDict(inDict);
 
+            test(r.outDict.get().getClass() == LinkedHashMap.class);
             test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().getClass() == LinkedHashMap.class);
             test(r.returnValue.get().equals(inDict));
         }
 
@@ -313,7 +335,9 @@ public class AllTests {
 
             TestIntf.OpOptShortIntLinkedDictResult r = prx.opOptShortIntLinkedDict(inDict);
 
+            test(r.outDict.get().getClass() == LinkedHashMap.class);
             test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().getClass() == LinkedHashMap.class);
             test(r.returnValue.get().equals(inDict));
         }
 
@@ -325,7 +349,9 @@ public class AllTests {
 
             TestIntf.OpOptLongFloatLinkedDictResult r = prx.opOptLongFloatLinkedDict(inDict);
 
+            test(r.outDict.get().getClass() == LinkedHashMap.class);
             test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().getClass() == LinkedHashMap.class);
             test(r.returnValue.get().equals(inDict));
         }
 
@@ -337,7 +363,9 @@ public class AllTests {
 
             TestIntf.OpOptStringDoubleLinkedDictResult r = prx.opOptStringDoubleLinkedDict(inDict);
 
+            test(r.outDict.get().getClass() == LinkedHashMap.class);
             test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().getClass() == LinkedHashMap.class);
             test(r.returnValue.get().equals(inDict));
         }
 
@@ -349,7 +377,9 @@ public class AllTests {
 
             TestIntf.OpOptAIntDictResult r = prx.opOptAIntDict(inDict);
 
+            test(r.outDict.get().getClass() == HashMap.class);
             test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().getClass() == HashMap.class);
             test(r.returnValue.get().equals(inDict));
         }
 
@@ -361,7 +391,9 @@ public class AllTests {
 
             TestIntf.OpOptAIntLinkedDictResult r = prx.opOptAIntLinkedDict(inDict);
 
+            test(r.outDict.get().getClass() == LinkedHashMap.class);
             test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().getClass() == LinkedHashMap.class);
             test(r.returnValue.get().equals(inDict));
         }
 
@@ -373,7 +405,9 @@ public class AllTests {
 
             TestIntf.OpOptAIntFormalLinkedDictResult r = prx.opOptAIntFormalLinkedDict(inDict);
 
+            test(r.outDict.get().getClass() == LinkedHashMap.class);
             test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().getClass() == LinkedHashMap.class);
             test(r.returnValue.get().equals(inDict));
         }
 
@@ -385,7 +419,9 @@ public class AllTests {
 
             TestIntf.OpOptStringEDictResult r = prx.opOptStringEDict(inDict);
 
+            test(r.outDict.get().getClass() == HashMap.class);
             test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().getClass() == HashMap.class);
             test(r.returnValue.get().equals(inDict));
         }
 
@@ -397,7 +433,9 @@ public class AllTests {
 
             TestIntf.OpOptStringELinkedDictResult r = prx.opOptStringELinkedDict(inDict);
 
+            test(r.outDict.get().getClass() == LinkedHashMap.class);
             test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().getClass() == LinkedHashMap.class);
             test(r.returnValue.get().equals(inDict));
         }
 
@@ -409,7 +447,9 @@ public class AllTests {
 
             TestIntf.OpOptStringEFormalLinkedDictResult r = prx.opOptStringEFormalLinkedDict(inDict);
 
+            test(r.outDict.get().getClass() == LinkedHashMap.class);
             test(r.outDict.get().equals(inDict));
+            test(r.returnValue.get().getClass() == LinkedHashMap.class);
             test(r.returnValue.get().equals(inDict));
         }
 
@@ -425,12 +465,12 @@ public class AllTests {
 
             TestIntf.OpOptEStringSeqDictResult r = prx.opOptEStringSeqDict(inDict);
 
-            test(r.outDict.get() instanceof HashMap);
+            test(r.outDict.get().getClass() == HashMap.class);
             test(r.outDict.get().size() == 3);
             test(Arrays.equals(r.outDict.get().get(E.E1), array1));
             test(Arrays.equals(r.outDict.get().get(E.E2), array2));
             test(Arrays.equals(r.outDict.get().get(E.E3), array3));
-            test(r.returnValue.get() instanceof HashMap);
+            test(r.returnValue.get().getClass() == HashMap.class);
             test(r.returnValue.get().size() == 3);
             test(Arrays.equals(r.returnValue.get().get(E.E1), array1));
             test(Arrays.equals(r.returnValue.get().get(E.E2), array2));
@@ -449,12 +489,12 @@ public class AllTests {
 
             TestIntf.OpOptEStringSeqLinkedDictResult r = prx.opOptEStringSeqLinkedDict(inDict);
 
-            test(r.outDict.get() instanceof LinkedHashMap);
+            test(r.outDict.get().getClass() == LinkedHashMap.class);
             test(r.outDict.get().size() == 3);
             test(Arrays.equals(r.outDict.get().get(E.E1), array1));
             test(Arrays.equals(r.outDict.get().get(E.E2), array2));
             test(Arrays.equals(r.outDict.get().get(E.E3), array3));
-            test(r.returnValue.get() instanceof LinkedHashMap);
+            test(r.returnValue.get().getClass() == LinkedHashMap.class);
             test(r.returnValue.get().size() == 3);
             test(Arrays.equals(r.returnValue.get().get(E.E1), array1));
             test(Arrays.equals(r.returnValue.get().get(E.E2), array2));
@@ -473,12 +513,12 @@ public class AllTests {
 
             TestIntf.OpOptEStringSeqFormalLinkedDictResult r = prx.opOptEStringSeqFormalLinkedDict(inDict);
 
-            test(r.outDict.get() instanceof LinkedHashMap);
+            test(r.outDict.get().getClass() == LinkedHashMap.class);
             test(r.outDict.get().size() == 3);
             test(Arrays.equals(r.outDict.get().get(E.E1), array1));
             test(Arrays.equals(r.outDict.get().get(E.E2), array2));
             test(Arrays.equals(r.outDict.get().get(E.E3), array3));
-            test(r.returnValue.get() instanceof LinkedHashMap);
+            test(r.returnValue.get().getClass() == LinkedHashMap.class);
             test(r.returnValue.get().size() == 3);
             test(Arrays.equals(r.returnValue.get().get(E.E1), array1));
             test(Arrays.equals(r.returnValue.get().get(E.E2), array2));
