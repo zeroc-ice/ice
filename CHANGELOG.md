@@ -10,6 +10,7 @@ might need to be aware of.
   - [C# Changes](#c-changes)
   - [JavaScript Changes](#javascript-changes)
   - [Python Changes](#python-changes)
+  - [Ruby Changes](#ruby-changes)
 
 ## Changes in Ice 3.9.0
 
@@ -39,6 +40,11 @@ might need to be aware of.
 - Fixed Ice for Python to reliably abort request marshaling when an invalid value is supplied for a sequence
   parameter (such as a non-sequence argument), instead of continuing with a pending Python exception and sending a
   corrupt or truncated request.
+
+### Ruby Changes
+
+- Fixed `Ice::createProperties` in Ice for Ruby to accept `nil` as the defaults argument (equivalent to omitting it).
+  A `nil` defaults previously bypassed the type check and crashed the interpreter.
 
 These are the changes since the [Ice 3.8.2] release.
 
