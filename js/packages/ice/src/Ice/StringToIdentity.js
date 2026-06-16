@@ -30,7 +30,7 @@ export function stringToIdentity(s) {
                 //
                 // Extra unescaped slash found.
                 //
-                throw new ParseException(`unescaped backslash in identity '${s}'`);
+                throw new ParseException(`unescaped '/' in identity '${s}'`);
             }
         }
         pos++;
