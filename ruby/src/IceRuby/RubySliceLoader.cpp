@@ -10,7 +10,7 @@ using namespace std;
 IceRuby::RubySliceLoader::RubySliceLoader(VALUE sliceLoader) : _sliceLoader{sliceLoader}
 {
     // Mark the object as in use for the lifetime of this wrapper.
-    rb_gc_register_address(&sliceLoader);
+    rb_gc_register_address(&_sliceLoader);
 }
 
 IceRuby::RubySliceLoader::~RubySliceLoader() { rb_gc_unregister_address(&_sliceLoader); }
