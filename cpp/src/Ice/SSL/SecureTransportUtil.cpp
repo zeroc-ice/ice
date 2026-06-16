@@ -903,11 +903,23 @@ Ice::SSL::SecureTransport::findCertificateChain(
         throw InitializationException(__FILE__, __LINE__, os.str());
     }
 
-    // Now lookup the identity with the label
+    // Now lookup the identity with the label. We match the identity by the certificate's label, so the
+    // certificate must have one; reject it with a clear error rather than passing a null value to
+    // CFDictionarySetValue (which aborts the process).
+    const void* label = CFDictionaryGetValue(attributes.get(), kSecAttrLabel);
+    if (label == nullptr)
+    {
+        throw InitializationException(
+            __FILE__,
+            __LINE__,
+            "SSL transport: couldn't create identity for certificate found in the keychain: the certificate has no "
+            "label attribute");
+    }
+
     query.reset(CFDictionaryCreateMutable(0, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
     CFDictionarySetValue(query.get(), kSecMatchLimit, kSecMatchLimitOne);
     CFDictionarySetValue(query.get(), kSecClass, kSecClassIdentity);
-    CFDictionarySetValue(query.get(), kSecAttrLabel, (CFDataRef)CFDictionaryGetValue(attributes.get(), kSecAttrLabel));
+    CFDictionarySetValue(query.get(), kSecAttrLabel, label);
     CFDictionarySetValue(query.get(), kSecReturnRef, kCFBooleanTrue);
     err = SecItemCopyMatching(query.get(), (CFTypeRef*)&identity.get());
     if (err == noErr)
