@@ -91,37 +91,6 @@ export class OpaqueEndpointI extends EndpointI {
         return false;
     }
 
-    //
-    // Get the encoded endpoint.
-    //
-    rawBytes() {
-        return this._rawBytes; // Returns a Uint8Array
-    }
-
-    //
-    // Return a server side transceiver for this endpoint, or null if a
-    // transceiver can only be created by an acceptor. In case a
-    // transceiver is created, this operation also returns a new
-    // "effective" endpoint, which might differ from this endpoint,
-    // for example, if a dynamic port number is assigned.
-    //
-    transceiver(endpoint) {
-        endpoint.value = null;
-        return null;
-    }
-
-    //
-    // Return an acceptor for this endpoint, or null if no acceptors
-    // is available. In case an acceptor is created, this operation
-    // also returns a new "effective" endpoint, which might differ
-    // from this endpoint, for example, if a dynamic port number is
-    // assigned.
-    //
-    acceptor(endpoint) {
-        endpoint.value = this;
-        return null;
-    }
-
     connect() {
         return null;
     }

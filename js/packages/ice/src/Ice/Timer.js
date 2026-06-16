@@ -26,7 +26,6 @@ export class Timer {
         this._tokens.set(token, {
             callback: callback,
             id: id,
-            isInterval: false,
         });
         return token;
     }
@@ -42,11 +41,7 @@ export class Timer {
         }
 
         this._tokens.delete(id);
-        if (token.isInterval) {
-            Timer.clearInterval(token.id);
-        } else {
-            Timer.clearTimeout(token.id);
-        }
+        Timer.clearTimeout(token.id);
 
         return true;
     }
