@@ -57,6 +57,9 @@ might need to be aware of.
 - Fixed the unmarshaling of unknown optional values with tags greater than or equal to 30. These no
   longer desynchronize the input stream causing spurious `MarshalException`.
 
+- Fixed the `ice_getConnectionAsync` proxy method. Retrieving the result of the returned future failed on every
+  successful call because the `Ice.Connection` was constructed without its communicator.
+
 ### Python Changes
 
 - Fixed Ice for Python to reliably abort request marshaling when an invalid value is supplied for a sequence
