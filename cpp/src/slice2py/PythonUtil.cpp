@@ -2693,14 +2693,14 @@ namespace
             {
                 if (moduleImports.imported)
                 {
-                    out << nl << "import " << moduleName;
+                    outT << nl << "import " << moduleName;
                     if (moduleImports.moduleAlias.empty())
                     {
                         allImports.insert(moduleName);
                     }
                     else
                     {
-                        out << " as " << moduleImports.moduleAlias;
+                        outT << " as " << moduleImports.moduleAlias;
                         allImports.insert(moduleImports.moduleAlias);
                     }
                     hasTypingImports = true;
