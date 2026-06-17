@@ -1385,7 +1385,10 @@ ServiceStatusManager::stopUpdate()
         }
     }
 
-    thread.join();
+    if (thread.joinable())
+    {
+        thread.join();
+    }
 }
 
 void

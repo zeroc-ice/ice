@@ -13,6 +13,7 @@ might need to be aware of.
   - [MATLAB Changes](#matlab-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
+  - [Ice Service Changes](#ice-service-changes)
 
 ## Changes in Ice 3.9.0
 
@@ -72,6 +73,15 @@ might need to be aware of.
 - Fixed `Ice::Endpoint` comparison in Ice for Ruby. `<=>` compared an endpoint with itself, making `==`/`<=>`
   asymmetric, and the class defined `eql?` without a matching `hash`; equal endpoints now compare consistently and
   can be used as `Hash`/`Set` keys.
+
+### Ice Service Changes
+
+#### Ice Service installed as a Windows Service
+
+- Fixed a crash on shutdown. When an Ice service running as a Windows service was stopped using an Ice admin tool —
+  for example, an IceGrid node shut down with `icegridadmin` or the IceGrid GUI — instead of through the Windows
+  Service Control Manager, the process terminated abnormally rather than stopping cleanly (and never reported
+  `SERVICE_STOPPED`). This affected the IceGrid registry and node, the Glacier2 router, and IceBox.
 
 These are the changes since the [Ice 3.8.2] release.
 
