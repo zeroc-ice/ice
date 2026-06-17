@@ -8,6 +8,7 @@ might need to be aware of.
 - [Changes in Ice 3.9.0](#changes-in-ice-390)
   - [General Changes](#general-changes)
   - [C# Changes](#c-changes)
+  - [Java Changes](#java-changes)
   - [JavaScript Changes](#javascript-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
@@ -28,6 +29,11 @@ might need to be aware of.
 - Fixed a bug in `slice2cs --icerpc` where the generated proxy built the response tuple in marshal order while
   declaring it in declaration order. As a result, an operation whose out-parameters were declared in an order
   different from their marshal order could return values in the wrong tuple slots or fail to compile.
+
+### Java Changes
+
+- Fixed a connection leak in Ice for Java. Closed outgoing connections were never removed from the connection
+  factory's internal maps, so they accumulated for the lifetime of the communicator.
 
 ### JavaScript Changes
 
