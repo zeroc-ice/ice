@@ -900,7 +900,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
             foreach (MetricsViewI v in _views.Values)
             {
                 MetricsMap<T> map = v.getMap<T>(mapName);
-                if (map != null)
+                if (map is not null)
                 {
                     maps.Add(map);
                 }
