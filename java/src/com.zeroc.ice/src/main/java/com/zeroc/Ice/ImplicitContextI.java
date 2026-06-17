@@ -205,7 +205,7 @@ abstract class ImplicitContextI implements ImplicitContext {
             Map<String, String> threadContext = _map.get(Thread.currentThread());
 
             if (threadContext == null) {
-                return null;
+                return "";
             }
 
             String val = threadContext.remove(key);
