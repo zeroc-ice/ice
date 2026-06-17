@@ -43,6 +43,10 @@ might need to be aware of.
 - Fixed `iceboxnet` rejecting valid per-service command-line options (`--<service>.*`) with "unknown option" and
   failing to start: the option validation iterated the original arguments instead of the filtered list.
 
+- Fixed several C# `ImplicitContext` contract violations: `get` and `remove` of an unknown key threw
+  `KeyNotFoundException` instead of returning the empty string; the per-thread `setContext` threw when replacing
+  an existing context; and the per-thread `getContext` returned the live dictionary instead of a snapshot.
+
 ### JavaScript Changes
 
 - Assigning an out-of-range or non-integer value to an `InputStream` or `OutputStream` position now throws a
