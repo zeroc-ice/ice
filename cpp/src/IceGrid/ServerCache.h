@@ -110,8 +110,7 @@ namespace IceGrid
 
         std::shared_ptr<SessionI> _allocationSession;
 
-        mutable std::mutex _mutex;
-        std::condition_variable _condVar;
+        // ServerEntry deliberately does NOT declare its own _mutex/_condVar; it uses the Allocatable base members.
     };
     using ServerEntrySeq = std::vector<std::shared_ptr<ServerEntry>>;
 
