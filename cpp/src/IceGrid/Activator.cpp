@@ -11,6 +11,7 @@
 #include "Util.h"
 
 #include <chrono>
+#include <set>
 #include <stdexcept>
 #include <thread>
 
@@ -21,6 +22,7 @@
 
 #ifndef _WIN32
 #    include <csignal>
+#    include <poll.h>
 #    include <pwd.h> // for getpwuid
 #    include <sys/wait.h>
 #    include <unistd.h>
@@ -1259,44 +1261,56 @@ Activator::terminationListener()
 #else
     while (true)
     {
-        fd_set fdSet;
-        int maxFd = _fdIntrRead;
-        FD_ZERO(&fdSet);
-        FD_SET(_fdIntrRead, &fdSet);
-
+        //
+        // Build the poll set: the interrupt pipe plus every active server's status pipe. We use poll() rather than
+        // select() because these fds are unbounded (a node can run more servers than FD_SETSIZE), and calling FD_SET
+        // on an fd >= FD_SETSIZE is undefined behavior (out-of-bounds write).
+        //
+        vector<pollfd> pollFds;
         {
             lock_guard lock(_mutex);
 
+            pollFds.reserve(_processes.size() + 1);
+            pollFds.push_back({_fdIntrRead, POLLIN, 0});
             for (const auto& p : _processes)
             {
-                int fd = p.second.pipeFd;
-                FD_SET(fd, &fdSet);
-                if (maxFd < fd)
-                {
-                    maxFd = fd;
-                }
+                pollFds.push_back({p.second.pipeFd, POLLIN, 0});
             }
         }
 
-    repeatSelect:
-        int ret = ::select(maxFd + 1, &fdSet, nullptr, nullptr, nullptr);
-        assert(ret != 0);
+    repeatPoll:
+        int ret = ::poll(pollFds.data(), static_cast<nfds_t>(pollFds.size()), -1);
+        assert(ret != 0); // no timeout, so poll cannot return 0
 
         if (ret == -1)
         {
-#    ifdef EPROTO
-            if (errno == EINTR || errno == EPROTO)
-            {
-                goto repeatSelect;
-            }
-#    else
             if (errno == EINTR)
             {
-                goto repeatSelect;
+                goto repeatPoll;
             }
-#    endif
 
-            throw SyscallException{__FILE__, __LINE__, "select failed", errno};
+            throw SyscallException{__FILE__, __LINE__, "poll failed", errno};
+        }
+
+        //
+        // Collect the fds with activity. An fd is "ready" when there is data to read (POLLIN), the writer closed its
+        // end (POLLHUP, i.e. the server terminated), or an error was reported (POLLERR/POLLNVAL).
+        //
+        bool intr = false;
+        set<int> readyFds;
+        for (const auto& pollFd : pollFds)
+        {
+            if (pollFd.revents != 0)
+            {
+                if (pollFd.fd == _fdIntrRead)
+                {
+                    intr = true;
+                }
+                else
+                {
+                    readyFds.insert(pollFd.fd);
+                }
+            }
         }
 
         vector<Process> terminated;
@@ -1304,7 +1318,7 @@ Activator::terminationListener()
         {
             lock_guard lock(_mutex);
 
-            if (FD_ISSET(_fdIntrRead, &fdSet))
+            if (intr)
             {
                 clearInterrupt();
 
@@ -1318,7 +1332,7 @@ Activator::terminationListener()
             while (p != _processes.end())
             {
                 int fd = p->second.pipeFd;
-                if (!FD_ISSET(fd, &fdSet))
+                if (readyFds.find(fd) == readyFds.end())
                 {
                     ++p;
                     continue;

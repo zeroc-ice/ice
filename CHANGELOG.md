@@ -13,6 +13,7 @@ might need to be aware of.
   - [MATLAB Changes](#matlab-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
+  - [Ice Service Changes](#ice-service-changes)
 
 ## Changes in Ice 3.9.0
 
@@ -72,6 +73,14 @@ might need to be aware of.
 - Fixed `Ice::Endpoint` comparison in Ice for Ruby. `<=>` compared an endpoint with itself, making `==`/`<=>`
   asymmetric, and the class defined `eql?` without a matching `hash`; equal endpoints now compare consistently and
   can be used as `Hash`/`Set` keys.
+
+### Ice Service Changes
+
+#### IceGrid
+
+- Fixed a memory-corruption bug in the IceGrid node on POSIX systems. A node managing enough servers for a server's
+  status pipe to reach file descriptor 1024 wrote out of bounds while monitoring server termination, which could
+  corrupt memory and leave that server's termination undetected.
 
 These are the changes since the [Ice 3.8.2] release.
 
