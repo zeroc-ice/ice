@@ -33,6 +33,9 @@ ServerAdapterI::activateAsync(
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
+    ServerState serverState = _server->getState();
+    bool activatable = _server->isAdapterActivatable(_id);
+
     {
         lock_guard lock(_mutex);
         if (_enabled && _proxy)
@@ -49,7 +52,7 @@ ServerAdapterI::activateAsync(
             // Nothing else waits for this adapter so we must make sure that this
             // adapter if still activatable.
             //
-            if (!_enabled || !_server->isAdapterActivatable(_id))
+            if (!_enabled || !activatable)
             {
                 response(nullopt);
                 return;
@@ -68,7 +71,7 @@ ServerAdapterI::activateAsync(
             return;
         }
         _activateAfterDeactivating =
-            _server->getState() >= ServerState::Deactivating && _server->getState() < ServerState::Destroying;
+            serverState >= ServerState::Deactivating && serverState < ServerState::Destroying;
     }
 
     //
@@ -104,6 +107,8 @@ ServerAdapterI::activateAsync(
 optional<Ice::ObjectPrx>
 ServerAdapterI::getDirectProxy(const Ice::Current&) const
 {
+    bool activatable = _server->isAdapterActivatable(_id);
+
     lock_guard lock(_mutex);
 
     //
@@ -116,71 +121,72 @@ ServerAdapterI::getDirectProxy(const Ice::Current&) const
     }
     else
     {
-        throw AdapterNotActiveException(_enabled && _server->isAdapterActivatable(_id));
+        throw AdapterNotActiveException(_enabled && activatable);
     }
 }
 
 void
 ServerAdapterI::setDirectProxy(optional<Ice::ObjectPrx> proxy)
 {
-    lock_guard lock(_mutex);
+    ServerState serverState = _server->getState();
 
-    //
-    // We don't allow to override an existing proxy by another non
-    // null proxy if the server is not inactive.
-    //
-    if (!_node->allowEndpointsOverride())
+    // The proxy is not null when the object adapter is activated; it's null when it's deactivated.
+    bool activated = (proxy != nullopt);
+
     {
-        if (proxy && _proxy)
+        lock_guard lock(_mutex);
+
+        //
+        // We don't allow to override an existing proxy by another non
+        // null proxy if the server is not inactive.
+        //
+        if (!_node->allowEndpointsOverride() && proxy && _proxy && serverState == ServerState::Active)
         {
-            if (_server->getState() == ServerState::Active)
+            throw AdapterActiveException();
+        }
+
+        bool updated = _proxy != proxy;
+        _proxy = std::move(proxy);
+
+        //
+        // If the server is being deactivated and the activation callback
+        // was added during the deactivation, we don't send the response
+        // now. The server is going to be activated again and the adapter
+        // activated.
+        //
+        if (serverState < ServerState::Deactivating || serverState >= ServerState::Destroying ||
+            !_activateAfterDeactivating)
+        {
+            for (const auto& response : _activateCB)
             {
-                throw AdapterActiveException();
+                response(_proxy);
+            }
+            _activateCB.clear();
+        }
+
+        if (updated)
+        {
+            _node->observerUpdateAdapter({_id, _proxy});
+        }
+
+        if (_node->getTraceLevels()->adapter > 1)
+        {
+            Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
+            out << "server '" + _serverId + "' adapter '" << _id << "' " << (_proxy ? "activated" : "deactivated");
+            if (_proxy)
+            {
+                out << ": " << _proxy;
             }
         }
     }
 
-    bool updated = _proxy != proxy;
-    _proxy = std::move(proxy);
-
-    //
-    // If the server is being deactivated and the activation callback
-    // was added during the deactivation, we don't send the response
-    // now. The server is going to be activated again and the adapter
-    // activated.
-    //
-    if (_server->getState() < ServerState::Deactivating || _server->getState() >= ServerState::Destroying ||
-        !_activateAfterDeactivating)
-    {
-        for (const auto& response : _activateCB)
-        {
-            response(_proxy);
-        }
-        _activateCB.clear();
-    }
-
-    if (updated)
-    {
-        _node->observerUpdateAdapter({_id, _proxy});
-    }
-
-    if (_proxy)
+    if (activated)
     {
         _server->adapterActivated(_id);
     }
     else
     {
         _server->adapterDeactivated(_id);
-    }
-
-    if (_node->getTraceLevels()->adapter > 1)
-    {
-        Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
-        out << "server '" + _serverId + "' adapter '" << _id << "' " << (_proxy ? "activated" : "deactivated");
-        if (_proxy)
-        {
-            out << ": " << _proxy;
-        }
     }
 }
 
@@ -207,8 +213,10 @@ ServerAdapterI::destroy()
 void
 ServerAdapterI::updateEnabled()
 {
+    // Query the server outside _mutex to preserve the lock order (see _mutex in the header).
+    bool enabled = _server->isEnabled();
     lock_guard lock(_mutex);
-    _enabled = _server->isEnabled();
+    _enabled = enabled;
 }
 
 void

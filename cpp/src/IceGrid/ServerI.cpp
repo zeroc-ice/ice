@@ -2611,6 +2611,16 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
     _state = st;
 
     //
+    // Wake any thread waiting for the server to leave the Activating state (adapterDeactivated() and terminated()).
+    // The successful activation path notifies explicitly in activate(), but the activation-failure path
+    // (Activating -> Deactivating -> Inactive) would otherwise never notify, leaving those waiters parked forever.
+    //
+    if (previous == InternalServerState::Activating && _state != InternalServerState::Activating)
+    {
+        _condVar.notify_all();
+    }
+
+    //
     // Check if some commands are done.
     //
     bool loadFailure = false;

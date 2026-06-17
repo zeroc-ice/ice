@@ -13,6 +13,7 @@ might need to be aware of.
   - [MATLAB Changes](#matlab-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
+  - [Ice Service Changes](#ice-service-changes)
 
 ## Changes in Ice 3.9.0
 
@@ -72,6 +73,14 @@ might need to be aware of.
 - Fixed `Ice::Endpoint` comparison in Ice for Ruby. `<=>` compared an endpoint with itself, making `==`/`<=>`
   asymmetric, and the class defined `eql?` without a matching `hash`; equal endpoints now compare consistently and
   can be used as `Hash`/`Set` keys.
+
+### Ice Service Changes
+
+#### IceGrid
+
+- Fixed a deadlock in the IceGrid node that could occur when a server was restarted while one of its object adapters
+  was concurrently activated, deactivated, or queried. The node could hang, blocking all subsequent operations on
+  that node.
 
 These are the changes since the [Ice 3.8.2] release.
 
