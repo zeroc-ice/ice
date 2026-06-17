@@ -10,6 +10,7 @@ might need to be aware of.
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
   - [JavaScript Changes](#javascript-changes)
+  - [MATLAB Changes](#matlab-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
 
@@ -47,6 +48,11 @@ might need to be aware of.
 - Assigning an out-of-range or non-integer value to an `InputStream` or `OutputStream` position now throws a
   `RangeError` instead of being silently ignored, matching the buffer-position behavior of the other language
   mappings.
+
+### MATLAB Changes
+
+- Fixed `ice_getCachedConnection` to return an empty `Ice.Connection` array, rather than an empty
+  `double` array, when the proxy has no cached connection.
 
 ### Python Changes
 
