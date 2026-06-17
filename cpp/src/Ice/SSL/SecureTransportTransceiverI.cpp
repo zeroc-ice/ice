@@ -245,6 +245,12 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
 
     assert(_ssl);
 
+    if (!_peerCertificate)
+    {
+        _engine->verifyPeer(dynamic_pointer_cast<ConnectionInfo>(getInfo(_incoming, _adapterName, "")));
+    }
+    // else verifyPeer is called from the certificate validation callback.
+
     if (_instance->engine()->securityTraceLevel() >= 1)
     {
         Trace out(_instance->logger(), _engine->securityTraceCategory());
