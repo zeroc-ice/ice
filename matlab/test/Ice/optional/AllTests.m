@@ -773,13 +773,9 @@ classdef AllTests
         end
 
         function skipUnreadOptionals(communicator)
-            % Regression test for issue #5549: InputStream.skipOptionals must recognize the
-            % tag-30 sentinel with a right shift. We marshal an encapsulation that holds one
-            % low-tag optional plus several optionals with tag >= 30 (each encoded as the
-            % tag-30 sentinel followed by a size), read back only the low-tag optional, and
-            % rely on endEncapsulation() -> skipOptionals() to skip the rest. With the former
-            % left-shift bug the sentinel was never detected, the size byte(s) were left in the
-            % stream, and endEncapsulation() failed with a buffer-size MarshalException.
+            % Marshal an encapsulation with one optional whose tag fits on a single byte,
+            % followed by several optionals with tags >= 30. Read back only the first optional, and let 
+            % `endEncapsulation() -> skipOptionals()` skip the rest to exercise detection of the tag-30 sentinel.
             encoding = Ice.EncodingVersion(1, 1);
 
             os = Ice.OutputStream(encoding);
