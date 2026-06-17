@@ -14,7 +14,7 @@ public sealed class Util
         }
         if (s.StartsWith("ThreadPriority.", StringComparison.Ordinal))
         {
-            s = s.Substring("ThreadPriority.".Length, s.Length);
+            s = s.Substring("ThreadPriority.".Length);
         }
         if (s == "Lowest")
         {
