@@ -36,6 +36,9 @@ might need to be aware of.
   declaring it in declaration order. As a result, an operation whose out-parameters were declared in an order
   different from their marshal order could return values in the wrong tuple slots or fail to compile.
 
+- Fixed thread-safety bugs in the C# metrics (IceMX) implementation that could produce incorrect metrics or
+  throw under concurrent updates.
+
 ### JavaScript Changes
 
 - Assigning an out-of-range or non-integer value to an `InputStream` or `OutputStream` position now throws a
