@@ -211,8 +211,7 @@ internal sealed class ServantManager : Object
     {
         lock (_mutex)
         {
-            Dictionary<string, Object>? m = _servantMapMap[ident];
-            if (m is not null)
+            if (_servantMapMap.TryGetValue(ident, out Dictionary<string, Object>? m))
             {
                 return new Dictionary<string, Object>(m);
             }
