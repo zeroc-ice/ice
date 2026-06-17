@@ -1205,8 +1205,24 @@ ServerI::load(
         {
             _load->addCallback(response, exception); // Must be called before startRuntimePropertiesUpdate!
             updateRevision(desc->uuid, desc->revision);
-            assert(_process);
-            _load->startRuntimePropertiesUpdate(*_process);
+            if (_process)
+            {
+                _load->startRuntimePropertiesUpdate(*_process);
+            }
+            else
+            {
+                //
+                // The server has no process to update its runtime properties on (e.g. its Ice.Admin object
+                // adapter is disabled), so there's nothing to update; complete the load now.
+                //
+                AdapterPrxDict adapters;
+                for (const auto& adapter : _adapters)
+                {
+                    adapters.insert({adapter.first, adapter.second->getProxy()});
+                }
+                assert(_this);
+                _load->finished(*_this, adapters, _activationTimeout, _deactivationTimeout);
+            }
         }
         else
         {
@@ -2760,8 +2776,24 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
     {
         // If there's a pending load command, it's time to update the runtime properties of the server now that it's
         // active.
-        assert(_process);
-        _load->startRuntimePropertiesUpdate(*_process);
+        if (_process)
+        {
+            _load->startRuntimePropertiesUpdate(*_process);
+        }
+        else
+        {
+            //
+            // The server has no process to update its runtime properties on (e.g. its Ice.Admin object
+            // adapter is disabled), so there's nothing to update; complete the load now.
+            //
+            AdapterPrxDict adapters;
+            for (const auto& adapter : _adapters)
+            {
+                adapters.insert({adapter.first, adapter.second->getProxy()});
+            }
+            assert(_this);
+            _load->finished(*_this, adapters, _activationTimeout, _deactivationTimeout);
+        }
     }
 
     //
