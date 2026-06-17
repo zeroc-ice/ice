@@ -26,7 +26,7 @@ internal static class Server
             argSeq.RemoveAll(v => v.StartsWith($"--{name}", StringComparison.Ordinal));
         }
 
-        foreach (string arg in args)
+        foreach (string arg in argSeq)
         {
             if (arg == "-h" || arg == "--help")
             {
