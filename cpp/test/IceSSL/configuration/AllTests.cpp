@@ -393,6 +393,33 @@ testCertificateVerification(
     }
     fact->destroyServer(server);
 
+    // Test IceSSL.VerifyPeer=1 with an IceSSL.TrustOnly rule. The connection is rejected because a client without
+    // a certificate cannot match the trust rule.
+    d = createServerProps(defaultProps, p12, "ca1/server", "");
+    d["IceSSL.VerifyPeer"] = "1";
+    d["IceSSL.TrustOnly"] = "C=US, ST=Florida, O=ZeroC,"
+                            "OU=Ice test infrastructure, emailAddress=info@zeroc.com, CN=ca1.client";
+    server = fact->createServer(d);
+    try
+    {
+        server->ice_ping();
+        test(false);
+    }
+    catch (const ProtocolException&)
+    {
+        // Expected, if reported as an SSL alert by the server.
+    }
+    catch (const ConnectionLostException&)
+    {
+        // Expected.
+    }
+    catch (const LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
+    fact->destroyServer(server);
+
     // Test IceSSL.VerifyPeer=2. This should fail because the client does not supply a certificate.
     d = createServerProps(defaultProps, p12, "ca1/server", "");
     d["IceSSL.VerifyPeer"] = "2";
