@@ -173,15 +173,22 @@ ReapThread::add(const shared_ptr<Reapable>& reapable, chrono::seconds timeout, c
 void
 ReapThread::connectionClosed(const Ice::ConnectionPtr& con)
 {
-    lock_guard lock(_mutex);
-    auto p = _connections.find(con);
-    if (p != _connections.end())
+    set<shared_ptr<Reapable>> reap;
     {
-        for (const auto& reapable : p->second)
+        lock_guard lock(_mutex);
+        auto p = _connections.find(con);
+        if (p == _connections.end())
         {
-            reapable->destroy(false);
+            return;
         }
+        reap.swap(p->second);
         _connections.erase(p);
+    }
+
+    // Destroy the reapables outside the lock, like run() and terminate().
+    for (const auto& reapable : reap)
+    {
+        reapable->destroy(false);
     }
 }
 

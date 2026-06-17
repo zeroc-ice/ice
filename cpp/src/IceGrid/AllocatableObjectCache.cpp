@@ -307,8 +307,7 @@ AllocatableObjectEntry::allocated(const shared_ptr<SessionI>& session)
     {
         try
         {
-            Ice::IdentitySeq seq(1);
-            seq.push_back(_info.proxy->ice_getIdentity());
+            Ice::IdentitySeq seq{_info.proxy->ice_getIdentity()};
             identities->add(seq);
         }
         catch (const Ice::LocalException& ex)
@@ -338,8 +337,7 @@ AllocatableObjectEntry::released(const shared_ptr<SessionI>& session)
     {
         try
         {
-            Ice::IdentitySeq seq(1);
-            seq.push_back(_info.proxy->ice_getIdentity());
+            Ice::IdentitySeq seq{_info.proxy->ice_getIdentity()};
             identities->remove(seq);
         }
         catch (const Ice::LocalException& ex)

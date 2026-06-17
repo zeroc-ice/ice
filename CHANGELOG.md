@@ -13,6 +13,7 @@ might need to be aware of.
   - [MATLAB Changes](#matlab-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
+  - [Ice Service Changes](#ice-service-changes)
 
 ## Changes in Ice 3.9.0
 
@@ -72,6 +73,16 @@ might need to be aware of.
 - Fixed `Ice::Endpoint` comparison in Ice for Ruby. `<=>` compared an endpoint with itself, making `==`/`<=>`
   asymmetric, and the class defined `eql?` without a matching `hash`; equal endpoints now compare consistently and
   can be used as `Hash`/`Set` keys.
+
+### Ice Service Changes
+
+#### IceGrid
+
+- Fixed a potential crash at startup in an IceGrid slave registry. A master registry registering with a slave while
+  the slave was still initializing could crash the slave.
+
+- Fixed a registry-wide stall in IceGrid. Previously, when a client that allocated a server with the `session`
+  allocation mode suddenly disconnected, the registry could temporarily stop accepting all new sessions.
 
 These are the changes since the [Ice 3.8.2] release.
 
