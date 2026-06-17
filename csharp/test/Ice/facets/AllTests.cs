@@ -96,7 +96,7 @@ public class AllTests : global::Test.AllTests
             // findAllFacets returns all registered facets for a known identity.
             Dictionary<string, Ice.Object> all = adapter.findAllFacets(Ice.Util.stringToIdentity("d"));
             test(all.ContainsKey(""));
-            // For an unknown identity it must return an empty dictionary, not throw (see #5501).
+            // For an unknown identity it must return an empty dictionary, not throw.
             test(adapter.findAllFacets(Ice.Util.stringToIdentity("nonexistent")).Count == 0);
         }
         output.WriteLine("ok");
