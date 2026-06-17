@@ -39,6 +39,9 @@ might need to be aware of.
 - Fixed thread-safety bugs in the C# metrics (IceMX) implementation that could produce incorrect metrics or
   throw under concurrent updates.
 
+- Fixed `iceboxnet` rejecting valid per-service command-line options (`--<service>.*`) with "unknown option" and
+  failing to start: the option validation iterated the original arguments instead of the filtered list.
+
 ### JavaScript Changes
 
 - Assigning an out-of-range or non-integer value to an `InputStream` or `OutputStream` position now throws a
