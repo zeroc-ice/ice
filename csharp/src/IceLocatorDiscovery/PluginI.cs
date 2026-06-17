@@ -48,8 +48,8 @@ internal class Request : TaskCompletionSource<Ice.Object_Ice_invokeResult>
         }
         else
         {
-            Debug.Assert(_exception != null);
-            throw _exception;
+            Debug.Assert(_exception != null); // Don't retry if the proxy didn't change
+            SetException(_exception); // Complete the request directly, matching the C++ mapping
         }
 
         async Task performInvokeAsync(Ice.LocatorPrx locator)
@@ -60,35 +60,31 @@ internal class Request : TaskCompletionSource<Ice.Object_Ice_invokeResult>
                     await locator.ice_invokeAsync(_operation, _mode, _inParams, _context).ConfigureAwait(false);
                 SetResult(result);
             }
-            catch (Ice.RequestFailedException exc)
-            {
-                SetException(exc);
-            }
-            catch (Ice.UnknownException exc)
-            {
-                SetException(exc);
-            }
-            catch (Ice.NoEndpointException)
-            {
-                SetException(new Ice.ObjectNotExistException());
-            }
-            catch (Ice.ObjectAdapterDeactivatedException)
-            {
-                SetException(new Ice.ObjectNotExistException());
-            }
-            catch (Ice.ObjectAdapterDestroyedException)
-            {
-                SetException(new Ice.ObjectNotExistException());
-            }
-            catch (Ice.CommunicatorDestroyedException)
-            {
-                SetException(new Ice.ObjectNotExistException());
-            }
             catch (Exception exc)
             {
+                exception(exc);
+            }
+        }
+    }
+
+    private void exception(Exception exc)
+    {
+        switch (exc)
+        {
+            case Ice.RequestFailedException:
+            case Ice.UnknownException:
+                SetException(exc);
+                break;
+            case Ice.NoEndpointException:
+            case Ice.ObjectAdapterDeactivatedException:
+            case Ice.ObjectAdapterDestroyedException:
+            case Ice.CommunicatorDestroyedException:
+                SetException(new Ice.ObjectNotExistException());
+                break;
+            default:
                 _exception = exc;
                 _locator.invoke(_locatorPrx, this); // Retry with new locator proxy
-            }
+                break;
         }
     }
 
