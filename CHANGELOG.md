@@ -29,6 +29,9 @@ might need to be aware of.
   declaring it in declaration order. As a result, an operation whose out-parameters were declared in an order
   different from their marshal order could return values in the wrong tuple slots or fail to compile.
 
+- Fixed the C# parsing of a `ThreadPriority` property (such as `Ice.ThreadPriority`) throwing
+  `ArgumentOutOfRangeException` for any value written with the `ThreadPriority.` prefix.
+
 ### JavaScript Changes
 
 - Assigning an out-of-range or non-integer value to an `InputStream` or `OutputStream` position now throws a

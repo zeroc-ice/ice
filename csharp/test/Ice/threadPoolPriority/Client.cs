@@ -8,6 +8,16 @@ public class Client : global::Test.TestHelper
     {
         using Communicator communicator = initialize(ref args);
         TextWriter output = getWriter();
+
+        output.Write("testing stringToThreadPriority parsing... ");
+        // The "ThreadPriority." prefix form must parse (regression test for #5500).
+        test(Ice.Internal.Util.stringToThreadPriority("ThreadPriority.AboveNormal") ==
+            System.Threading.ThreadPriority.AboveNormal);
+        test(Ice.Internal.Util.stringToThreadPriority("AboveNormal") ==
+            System.Threading.ThreadPriority.AboveNormal);
+        test(Ice.Internal.Util.stringToThreadPriority("") == System.Threading.ThreadPriority.Normal);
+        output.WriteLine("ok");
+
         output.Write("testing server priority... ");
         output.Flush();
         ObjectPrx obj = communicator.stringToProxy("test:" + getTestEndpoint(0) + " -t 10000");
