@@ -47,8 +47,8 @@ might need to be aware of.
   internal dictionary (matching the `Shared` implementation). Code that mutated the returned dictionary to
   update the implicit context must now use `put` or `setContext`.
 
-- Fixed `slice2cs` emitting a doubled `cs:namespace` prefix for modules nested inside a module carrying
-  `cs:namespace` metadata, which produced C# that did not compile.
+- Fixed a bug in `slice2cs` handling of `cs:namespace`: a nested module received the namespace prefix twice
+  (e.g. `Foo.A.Foo.B` instead of `Foo.A.B`), producing C# that did not compile.
 
 ### JavaScript Changes
 
