@@ -73,6 +73,9 @@ might need to be aware of.
   asymmetric, and the class defined `eql?` without a matching `hash`; equal endpoints now compare consistently and
   can be used as `Hash`/`Set` keys.
 
+- Fixed Ice for Ruby to correctly marshal an empty `sequence<byte>` supplied as a string: it now writes a single size
+  byte instead of a raw 4-byte integer, which previously desynchronized the rest of the message.
+
 These are the changes since the [Ice 3.8.2] release.
 
 [Ice 3.8.2]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
