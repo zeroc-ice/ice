@@ -10,7 +10,6 @@ public class Client : global::Test.TestHelper
         TextWriter output = getWriter();
 
         output.Write("testing stringToThreadPriority parsing... ");
-        // The "ThreadPriority." prefix form must parse (regression test for #5500).
         test(Ice.Internal.Util.stringToThreadPriority("ThreadPriority.AboveNormal") ==
             System.Threading.ThreadPriority.AboveNormal);
         test(Ice.Internal.Util.stringToThreadPriority("AboveNormal") ==
