@@ -1081,7 +1081,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             v = libpointer('voidPtr');
             obj.iceCall('ice_getCachedConnection', v);
             if isNull(v)
-                r = [];
+                r = Ice.Connection.empty;
             else
                 r = Ice.Connection(v, obj.communicator);
             end
