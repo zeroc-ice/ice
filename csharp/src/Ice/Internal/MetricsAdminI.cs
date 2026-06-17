@@ -154,7 +154,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
 
         public void execute(IceMX.Observer<T>.MetricsUpdate func)
         {
-            lock (_map)
+            lock (_map._mutex)
             {
                 func(_object);
             }
@@ -895,12 +895,15 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
     public List<MetricsMap<T>> getMaps<T>(string mapName) where T : IceMX.Metrics, new()
     {
         var maps = new List<MetricsMap<T>>();
-        foreach (MetricsViewI v in _views.Values)
+        lock (_mutex)
         {
-            MetricsMap<T> map = v.getMap<T>(mapName);
-            if (map != null)
+            foreach (MetricsViewI v in _views.Values)
             {
-                maps.Add(map);
+                MetricsMap<T> map = v.getMap<T>(mapName);
+                if (map != null)
+                {
+                    maps.Add(map);
+                }
             }
         }
         return maps;

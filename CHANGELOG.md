@@ -29,6 +29,13 @@ might need to be aware of.
   declaring it in declaration order. As a result, an operation whose out-parameters were declared in an order
   different from their marshal order could return values in the wrong tuple slots or fail to compile.
 
+- Fixed a data race in the C# metrics admin where `MetricsAdminI.getMaps` read a reused metrics view's map
+  dictionary without holding the metrics admin mutex, racing the dictionary writes performed by `updateViews`.
+
+- Fixed a thread-safety bug in the C# metrics implementation where `MetricsMap.Entry.execute` locked the
+  `MetricsMap` instance instead of its `_mutex`, so hot-path counter updates did not exclude `attach`, `detach`,
+  `failed`, or the admin metrics snapshot.
+
 ### JavaScript Changes
 
 - Assigning an out-of-range or non-integer value to an `InputStream` or `OutputStream` position now throws a
