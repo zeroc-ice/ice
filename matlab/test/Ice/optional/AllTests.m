@@ -7,7 +7,7 @@ classdef AllTests
 
             communicator = helper.communicator();
 
-            fprintf('testing skipping of unread optionals with tag >= 30... ');
+            fprintf('testing skipping of unknown optionals with tag >= 30... ');
             AllTests.skipUnreadOptionals(communicator);
             fprintf('ok\n');
 
