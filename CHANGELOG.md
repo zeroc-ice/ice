@@ -29,9 +29,6 @@ might need to be aware of.
   declaring it in declaration order. As a result, an operation whose out-parameters were declared in an order
   different from their marshal order could return values in the wrong tuple slots or fail to compile.
 
-- Fixed `ObjectAdapter.findAllFacets` in C# throwing `KeyNotFoundException` for an unknown identity instead of
-  returning an empty dictionary as documented.
-
 ### JavaScript Changes
 
 - Assigning an out-of-range or non-integer value to an `InputStream` or `OutputStream` position now throws a
