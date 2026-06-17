@@ -25,6 +25,10 @@ void ::Writer::run(int argc, char* argv[])
     Topic<string, string> controlTopic(node, "control");
     auto control = makeSingleKeyWriter(controlTopic, "control");
 
+    // Reverse-direction topic the reader uses to confirm it has fully attached to our topic.
+    Topic<string, string> syncTopic(node, "sync");
+    auto sync = makeSingleKeyReader(syncTopic, "sync");
+
     cout << "testing topic destroyed while a writer is still attached to a peer... " << flush;
     {
         // Invert the usual destruction order: the writer element outlives its Topic handle. The
@@ -38,6 +42,12 @@ void ::Writer::run(int argc, char* argv[])
             Topic<string, string> topic(node, "topic");
             writer.emplace(makeSingleKeyWriter(topic, "key"));
             writer->waitForReaders(); // the reader has attached: the topic's _listenerCount is > 0
+
+            // Wait until the reader confirms its own attach completed, so the destroy below truly happens while
+            // the reader is still attached (i.e. the reader's waitForWriters() has already returned, and won't be
+            // left waiting for a writer we detached).
+            test(sync.getNextUnread().getValue() == "ready");
+
             control.waitForReaders(); // the control session is established
         } // 'topic' is destroyed here while 'writer' is still alive and attached to the reader
     } // 'writer' is destroyed here, detaching from its already-destroyed topic
