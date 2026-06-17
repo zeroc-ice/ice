@@ -344,16 +344,36 @@ CreateSession::CreateSession(shared_ptr<SessionRouterI> sessionRouter, string us
 void
 CreateSession::create()
 {
+    bool createSession = false;
     try
     {
-        if (_sessionRouter->startCreateSession(shared_from_this(), _current.con))
-        {
-            authorize();
-        }
+        createSession = _sessionRouter->startCreateSession(shared_from_this(), _current.con);
     }
     catch (const Ice::Exception&)
     {
+        //
+        // startCreateSession failed before this request was added to _pending, so there is nothing to clean up:
+        // just report the failure to the caller.
+        //
         finished(current_exception());
+        return;
+    }
+
+    if (createSession)
+    {
+        try
+        {
+            authorize();
+        }
+        catch (const Ice::Exception&)
+        {
+            //
+            // This request was added to _pending by startCreateSession. A synchronous failure of authorize() must
+            // go through exception() (like the asynchronous failure path) so the _pending entry is erased and any
+            // queued session-creation requests for this connection are re-driven; finished() alone would strand them.
+            //
+            exception(current_exception());
+        }
     }
 }
 

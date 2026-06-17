@@ -13,6 +13,7 @@ might need to be aware of.
   - [MATLAB Changes](#matlab-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
+  - [Ice Service Changes](#ice-service-changes)
 
 ## Changes in Ice 3.9.0
 
@@ -72,6 +73,14 @@ might need to be aware of.
 - Fixed `Ice::Endpoint` comparison in Ice for Ruby. `<=>` compared an endpoint with itself, making `==`/`<=>`
   asymmetric, and the class defined `eql?` without a matching `hash`; equal endpoints now compare consistently and
   can be used as `Hash`/`Set` keys.
+
+### Ice Service Changes
+
+#### Glacier2
+
+- Fixed a Glacier2 router bug where a synchronous failure of the permissions verifier during session creation could
+  permanently strand the client connection: the client could no longer create a session, and any other
+  session-creation requests queued on the same connection hung forever.
 
 These are the changes since the [Ice 3.8.2] release.
 
