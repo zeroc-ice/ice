@@ -7,7 +7,8 @@ might need to be aware of.
 
 - [Changes in Ice 3.9.0](#changes-in-ice-390)
   - [General Changes](#general-changes)
-  - [C# Changes](#c-changes)
+  - [C++ Changes](#c-changes)
+  - [C# Changes](#c-changes-1)
   - [JavaScript Changes](#javascript-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
@@ -18,6 +19,12 @@ might need to be aware of.
 
 - Fixed the server-side WebSocket opening handshake to reject messages that are not `GET` requests, as required by
   RFC 6455. A peer could previously trip an assertion by sending a response-shaped handshake.
+
+### C++ Changes
+
+- Fixed a crash in the iOS (SecureTransport) SSL transport: using `IceSSL.FindCert` to select a keychain
+  certificate that has no label attribute could abort the process during communicator initialization. Ice now reports
+  a clear error instead.
 
 ### C# Changes
 
