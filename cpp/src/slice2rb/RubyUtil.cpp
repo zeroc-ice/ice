@@ -15,16 +15,19 @@ using namespace IceInternal;
 
 namespace
 {
-    string getEscapedRubyParamName(const OperationPtr& p, const string& name)
+    // Returns the name of the synthesized trailing 'context' parameter for a generated proxy method. It is escaped
+    // to 'context_' when an in-parameter's lower-cased mapped name is already 'context' (e.g. a parameter named
+    // 'Context'), to avoid emitting a duplicate parameter name in the method signature.
+    string getEscapedContextParam(const OperationPtr& p)
     {
-        for (const auto& param : p->parameters())
+        for (const auto& param : p->inParameters())
         {
-            if (Slice::Ruby::getMappedName(param) == name)
+            if (Slice::Ruby::getMappedName(param, Slice::Ruby::IdentToLower) == "context")
             {
-                return name + "_";
+                return "context_";
             }
         }
-        return name;
+        return "context";
     }
 }
 
@@ -319,7 +322,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             _out << inParams << ", ";
         }
-        const string contextParamName = getEscapedRubyParamName(op, "context");
+        const string contextParamName = getEscapedContextParam(op);
         _out << contextParamName << "=nil)";
         _out.inc();
         _out << nl << proxyName << "_mixin::OP_" << op->name() << ".invoke(self, [" << inParams;

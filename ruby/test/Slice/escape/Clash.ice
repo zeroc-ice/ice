@@ -20,6 +20,10 @@ module Clash
         void opOut(out string context, out string current, out string response, out string ex,
             out string sent, out string cookie, out string sync, out string result, out string istr,
             out string ostr, out optional(1) string proxy);
+
+        // A parameter whose mapped name lower-cases to "context" must not clash with the synthesized
+        // trailing "context" parameter of the generated proxy method.
+        void opClashContext(string Context);
     }
 
     class Cls
