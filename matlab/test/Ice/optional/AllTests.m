@@ -774,7 +774,7 @@ classdef AllTests
 
         function skipUnknownOptionals(communicator)
             % Marshal an encapsulation with one optional whose tag fits on a single byte,
-            % followed by several optionals with tags >= 30. Read back only the first optional, and let 
+            % followed by several optionals with tags >= 30. Read back only the first optional, and let
             % `endEncapsulation() -> skipOptionals()` skip the rest to exercise detection of the tag-30 sentinel.
             encoding = Ice.EncodingVersion(1, 1);
 
