@@ -54,6 +54,9 @@ might need to be aware of.
 - Fixed `ice_getCachedConnection` to return an empty `Ice.Connection` array, rather than an empty
   `double` array, when the proxy has no cached connection.
 
+- Fixed the unmarshaling of unknown optional values with tags greater than or equal to 30. These no
+  longer desynchronize the input stream causing spurious `MarshalException`.
+
 ### Python Changes
 
 - Fixed Ice for Python to reliably abort request marshaling when an invalid value is supplied for a sequence
