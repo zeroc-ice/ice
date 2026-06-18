@@ -613,7 +613,7 @@ classdef InputStream < handle
                 end
 
                 format = bitand(v, uint8(7)); % Read first 3 bits.
-                if bitshift(v, 3) == uint8(30)
+                if bitshift(v, -3) == uint8(30) % The remaining bits encode the tag; 30 is the sentinel.
                     obj.skipSize();
                 end
                 obj.skipOptional(format);
