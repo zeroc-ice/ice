@@ -13,6 +13,8 @@ might need to be aware of.
   - [MATLAB Changes](#matlab-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
+  - [Ice Service Changes](#ice-service-changes)
+    - [Ice Service installed as a Windows Service](#ice-service-installed-as-a-windows-service)
 
 ## Changes in Ice 3.9.0
 
@@ -87,7 +89,16 @@ might need to be aware of.
   can be used as `Hash`/`Set` keys.
 
 - Fixed Ice for Ruby to correctly marshal an empty `sequence<byte>` supplied as a string: it now writes a single size
-  byte instead of a raw 4-byte integer, which previously desynchronized the rest of the message.
+  byte instead of a raw 4-byte integer, which previously de-synchronized the rest of the message.
+
+### Ice Service Changes
+
+#### Ice Service installed as a Windows Service
+
+- Fixed a crash on shutdown. When an Ice service running as a Windows service was stopped using an Ice admin tool —
+  for example, an IceGrid node shut down with `icegridadmin` or the IceGrid GUI — instead of through the Windows
+  Service Control Manager, the process terminated abnormally rather than stopping cleanly (and never reported
+  `SERVICE_STOPPED`). This affected the IceGrid registry and node, the Glacier2 router, and IceBox.
 
 These are the changes since the [Ice 3.8.2] release.
 
