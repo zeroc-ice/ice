@@ -2061,9 +2061,10 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     }
 
     //
-    // Simplify the log paths and transform relative paths into
-    // absolute paths, also make sure the logs are sorted.
+    // Rebuild the log paths from the descriptor: simplify them, transform relative paths into
+    // absolute paths, and sort the result.
     //
+    _logs.clear();
     for (const auto& log : _desc->logs)
     {
         string path = simplify(log);
