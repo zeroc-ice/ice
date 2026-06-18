@@ -9,11 +9,14 @@ might need to be aware of.
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
+  - [Java Changes](#java-changes)
   - [JavaScript Changes](#javascript-changes)
   - [MATLAB Changes](#matlab-changes)
+  - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
   - [Ice Service Changes](#ice-service-changes)
+    - [Ice Service installed as a Windows Service](#ice-service-installed-as-a-windows-service)
     - [IceGrid](#icegrid)
 
 ## Changes in Ice 3.9.0
@@ -28,6 +31,10 @@ might need to be aware of.
 - Fixed a crash in the iOS (SecureTransport) SSL transport: using `IceSSL.FindCert` to select a keychain
   certificate that has no label attribute could abort the process during communicator initialization. Ice now reports
   a clear error instead.
+
+- Fixed a crash in the macOS (SecureTransport) SSL transport: configuring `IceSSL.CertFile` together with
+  `IceSSL.KeyFile` using a certificate that has no Subject Key Identifier extension aborted the process during
+  communicator initialization. Such certificates are now rejected with a `CertificateReadException`.
 
 ### C# Changes
 
@@ -52,6 +59,12 @@ might need to be aware of.
 - Fixed a bug in `slice2cs` handling of `cs:namespace`: a nested module received the namespace prefix twice
   (e.g. `Foo.A.Foo.B` instead of `Foo.A.B`), producing C# that did not compile.
 
+### Java Changes
+
+- Fixed a data race in the Ice for Java metrics (IceMX) implementation. Reconfiguring the metrics views at
+  runtime while metrics were being collected could corrupt the internal metrics maps or throw a
+  `ConcurrentModificationException`.
+
 ### JavaScript Changes
 
 - Assigning an out-of-range or non-integer value to an `InputStream` or `OutputStream` position now throws a
@@ -68,6 +81,21 @@ might need to be aware of.
 
 - Fixed the `ice_getConnectionAsync` proxy method. Retrieving the result of the returned future failed on every
   successful call because the `Ice.Connection` was constructed without its communicator.
+
+- Fixed `Ice.Future.wait('sent')`, which could block indefinitely or time out even after the request had been
+  sent. The wait now completes as soon as the invocation reaches or passes the requested state.
+
+- Fixed `slice2matlab` to map all `long` constants and default values to MATLAB `int64`. They were previously
+  emitted as bare numeric literals, which MATLAB interprets as `double`, silently losing precision for values
+  with magnitude greater than 2^53.
+
+- Fixed a memory leak that occurred each time a proxy was marshaled, unmarshaled, or had its
+  encoding version set with `ice_encodingVersion`. Each of these operations leaked a small amount
+  of memory that accumulated over the lifetime of a MATLAB session.
+
+### PHP Changes
+
+- Fixed Ice for PHP mis-marshaling a non-empty optional `sequence<string>`.
 
 ### Python Changes
 
@@ -92,6 +120,13 @@ might need to be aware of.
   byte instead of a raw 4-byte integer, which previously de-synchronized the rest of the message.
 
 ### Ice Service Changes
+
+#### Ice Service installed as a Windows Service
+
+- Fixed a crash on shutdown. When an Ice service running as a Windows service was stopped using an Ice admin tool —
+  for example, an IceGrid node shut down with `icegridadmin` or the IceGrid GUI — instead of through the Windows
+  Service Control Manager, the process terminated abnormally rather than stopping cleanly (and never reported
+  `SERVICE_STOPPED`). This affected the IceGrid registry and node, the Glacier2 router, and IceBox.
 
 #### IceGrid
 

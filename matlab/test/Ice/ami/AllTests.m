@@ -67,6 +67,15 @@ classdef AllTests
 
             fprintf('ok\n');
 
+            fprintf('testing wait(''sent'')... ');
+            % wait('sent') must return once the request has reached or passed the 'sent' state.
+            f = p.opAsync();
+            assert(f.wait('sent', 10));
+            assert(f.wait('finished', 10)); % advance to 'finished' without consuming the result
+            assert(f.wait('sent', 10));     % still returns even though the future is already 'finished'
+            f.fetchOutputs();
+            fprintf('ok\n');
+
             fprintf('testing local exceptions... ');
 
             indirect = p.ice_adapterId('dummy');
