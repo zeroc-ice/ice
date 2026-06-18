@@ -9,8 +9,10 @@ might need to be aware of.
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
+  - [Java Changes](#java-changes)
   - [JavaScript Changes](#javascript-changes)
   - [MATLAB Changes](#matlab-changes)
+  - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
   - [Ice Service Changes](#ice-service-changes)
@@ -28,6 +30,10 @@ might need to be aware of.
 - Fixed a crash in the iOS (SecureTransport) SSL transport: using `IceSSL.FindCert` to select a keychain
   certificate that has no label attribute could abort the process during communicator initialization. Ice now reports
   a clear error instead.
+
+- Fixed a crash in the macOS (SecureTransport) SSL transport: configuring `IceSSL.CertFile` together with
+  `IceSSL.KeyFile` using a certificate that has no Subject Key Identifier extension aborted the process during
+  communicator initialization. Such certificates are now rejected with a `CertificateReadException`.
 
 ### C# Changes
 
@@ -52,6 +58,12 @@ might need to be aware of.
 - Fixed a bug in `slice2cs` handling of `cs:namespace`: a nested module received the namespace prefix twice
   (e.g. `Foo.A.Foo.B` instead of `Foo.A.B`), producing C# that did not compile.
 
+### Java Changes
+
+- Fixed a data race in the Ice for Java metrics (IceMX) implementation. Reconfiguring the metrics views at
+  runtime while metrics were being collected could corrupt the internal metrics maps or throw a
+  `ConcurrentModificationException`.
+
 ### JavaScript Changes
 
 - Assigning an out-of-range or non-integer value to an `InputStream` or `OutputStream` position now throws a
@@ -71,6 +83,18 @@ might need to be aware of.
 
 - Fixed `Ice.Future.wait('sent')`, which could block indefinitely or time out even after the request had been
   sent. The wait now completes as soon as the invocation reaches or passes the requested state.
+
+- Fixed `slice2matlab` to map all `long` constants and default values to MATLAB `int64`. They were previously
+  emitted as bare numeric literals, which MATLAB interprets as `double`, silently losing precision for values
+  with magnitude greater than 2^53.
+
+- Fixed a memory leak that occurred each time a proxy was marshaled, unmarshaled, or had its
+  encoding version set with `ice_encodingVersion`. Each of these operations leaked a small amount
+  of memory that accumulated over the lifetime of a MATLAB session.
+
+### PHP Changes
+
+- Fixed Ice for PHP mis-marshaling a non-empty optional `sequence<string>`.
 
 ### Python Changes
 
