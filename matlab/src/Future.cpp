@@ -23,14 +23,14 @@ IceMatlab::Future::waitForState(State state, double timeout)
     unique_lock<mutex> lock(_mutex);
     if (timeout < 0)
     {
-        _cond.wait(lock, [this, state] { return state == this->stateImpl(); });
+        _cond.wait(lock, [this, state] { return this->stateImpl() >= state; });
         return !_exception;
     }
     else
     {
         auto now = chrono::system_clock::now();
         auto stop = now + chrono::milliseconds(static_cast<long long>(timeout * 1000));
-        bool b = _cond.wait_until(lock, stop, [this, state] { return state == this->stateImpl(); });
+        bool b = _cond.wait_until(lock, stop, [this, state] { return this->stateImpl() >= state; });
         return b && !_exception;
     }
 }

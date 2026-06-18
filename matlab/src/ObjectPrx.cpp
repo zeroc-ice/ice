@@ -48,6 +48,7 @@ namespace
         if (_state == State::Running)
         {
             _state = _twoway ? State::Sent : State::Finished;
+            _cond.notify_all();
         }
     }
 
