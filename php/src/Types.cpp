@@ -1458,32 +1458,31 @@ IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* object
         sz = static_cast<int32_t>(zend_hash_num_elements(arr));
     }
 
+    // An optional sequence whose elements are variable-length is written as an FSize-framed field:
+    // startSize() reserves the 4-byte size and endSize() patches it. The two calls are driven by a
+    // single flag so they can never get out of sync, regardless of how the body below is structured.
+    const bool fSize = optional && elementType->variableLength();
+
     Ice::OutputStream::size_type sizePos = 0;
-    if (optional)
+    if (fSize)
     {
-        if (elementType->variableLength())
-        {
-            sizePos = os->startSize();
-        }
-        else if (elementType->wireSize() > 1)
-        {
-            os->writeSize(sz == 0 ? 1 : sz * elementType->wireSize() + (sz > 254 ? 5 : 1));
-        }
+        sizePos = os->startSize();
+    }
+    else if (optional && elementType->wireSize() > 1)
+    {
+        os->writeSize(sz == 0 ? 1 : sz * elementType->wireSize() + (sz > 254 ? 5 : 1));
     }
 
     if (sz == 0)
     {
         os->writeSize(0);
     }
+    else if (PrimitiveInfoPtr pi = dynamic_pointer_cast<PrimitiveInfo>(elementType))
+    {
+        marshalPrimitiveSequence(pi, zv, os);
+    }
     else
     {
-        PrimitiveInfoPtr pi = dynamic_pointer_cast<PrimitiveInfo>(elementType);
-        if (pi)
-        {
-            marshalPrimitiveSequence(pi, zv, os);
-            return;
-        }
-
         os->writeSize(sz);
 
         zval* val;
@@ -1491,9 +1490,9 @@ IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* object
         {
             if (!elementType->validate(val, false))
             {
-                ostringstream os;
-                os << "invalid value for sequence element '" << id << "'";
-                invalidArgument(os.str());
+                ostringstream ostr;
+                ostr << "invalid value for sequence element '" << id << "'";
+                invalidArgument(ostr.str());
                 throw AbortMarshaling();
             }
             elementType->marshal(val, os, objectMap, false);
@@ -1501,7 +1500,7 @@ IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* object
         ZEND_HASH_FOREACH_END();
     }
 
-    if (optional && elementType->variableLength())
+    if (fSize)
     {
         os->endSize(sizePos);
     }
