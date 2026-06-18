@@ -128,11 +128,17 @@ namespace
                     {
                         return "sprintf('" + toStringLiteral(value, "\a\b\f\n\r\t\v", "", Matlab, 255) + "')";
                     }
+                    case Builtin::KindLong:
+                    {
+                        // A Slice long maps to MATLAB int64. A bare numeric literal is parsed by MATLAB as a
+                        // double, which loses precision above 2^53, so wrap the value in int64(...), which
+                        // MATLAB parses directly as an integer.
+                        return "int64(" + value + ")";
+                    }
                     case Builtin::KindBool:
                     case Builtin::KindByte:
                     case Builtin::KindShort:
                     case Builtin::KindInt:
-                    case Builtin::KindLong:
                     case Builtin::KindFloat:
                     case Builtin::KindDouble:
                     case Builtin::KindObjectProxy:
