@@ -717,6 +717,11 @@ Subscriber::error(bool dec, exception_ptr e)
     auto now = std::chrono::steady_clock::now();
     if (!hardError && _state == SubscriberStateOffline && now < _next)
     {
+        // _outstanding was decremented above, so wake a waiting shutdown() like the other exit paths do.
+        if (_shutdown)
+        {
+            _condVar.notify_one();
+        }
         return;
     }
 
