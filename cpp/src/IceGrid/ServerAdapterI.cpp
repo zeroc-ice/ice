@@ -68,8 +68,7 @@ ServerAdapterI::activateAsync(
         {
             return;
         }
-        _activateAfterDeactivating =
-            serverState >= ServerState::Deactivating && serverState < ServerState::Destroying;
+        _activateAfterDeactivating = serverState >= ServerState::Deactivating && serverState < ServerState::Destroying;
     }
 
     //
