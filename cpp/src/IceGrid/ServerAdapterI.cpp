@@ -33,6 +33,7 @@ ServerAdapterI::activateAsync(
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
+    // Call the server before acquiring the lock to preserve the lock order (see comment on _mutex).
     ServerState serverState = _server->getState();
     bool activatable = _server->isAdapterActivatable(_id);
 
@@ -48,10 +49,7 @@ ServerAdapterI::activateAsync(
         }
         else if (_activateCB.empty())
         {
-            //
-            // Nothing else waits for this adapter so we must make sure that this
-            // adapter if still activatable.
-            //
+            // Nothing else waits for this adapter so we must make sure that this adapter is still activatable.
             if (!_enabled || !activatable)
             {
                 response(nullopt);
@@ -107,6 +105,7 @@ ServerAdapterI::activateAsync(
 optional<Ice::ObjectPrx>
 ServerAdapterI::getDirectProxy(const Ice::Current&) const
 {
+    // Call the server before acquiring the lock to preserve the lock order (see comment on _mutex).
     bool activatable = _server->isAdapterActivatable(_id);
 
     lock_guard lock(_mutex);
@@ -128,6 +127,7 @@ ServerAdapterI::getDirectProxy(const Ice::Current&) const
 void
 ServerAdapterI::setDirectProxy(optional<Ice::ObjectPrx> proxy)
 {
+    // Call the server before acquiring the lock to preserve the lock order (see comment on _mutex).
     ServerState serverState = _server->getState();
 
     // The proxy is not null when the object adapter is activated; it's null when it's deactivated.
@@ -137,10 +137,9 @@ ServerAdapterI::setDirectProxy(optional<Ice::ObjectPrx> proxy)
         lock_guard lock(_mutex);
 
         //
-        // We don't allow to override an existing proxy by another non
-        // null proxy if the server is not inactive.
+        // We don't allow to override an existing non-null proxy by another non-null proxy if the server is active.
         //
-        if (!_node->allowEndpointsOverride() && proxy && _proxy && serverState == ServerState::Active)
+        if (!_node->allowEndpointsOverride() && activated && _proxy && serverState == ServerState::Active)
         {
             throw AdapterActiveException();
         }
@@ -172,10 +171,14 @@ ServerAdapterI::setDirectProxy(optional<Ice::ObjectPrx> proxy)
         if (_node->getTraceLevels()->adapter > 1)
         {
             Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
-            out << "server '" + _serverId + "' adapter '" << _id << "' " << (_proxy ? "activated" : "deactivated");
-            if (_proxy)
+            out << "server '" + _serverId + "' adapter '" << _id << "' ";
+            if (activated)
             {
-                out << ": " << _proxy;
+                out << "activated: " << _proxy;
+            }
+            else
+            {
+                out << "deactivated";
             }
         }
     }

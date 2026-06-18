@@ -325,6 +325,13 @@ def twoways(helper, communicator, p)
     test(rso.unpack("C*") == arr)
 
     #
+    # opByteS with an empty sequence supplied as an empty string.
+    #
+    rso, bso = p.opByteS("", bsi2)
+    test(bso.length == 0)
+    test(rso.unpack("C*") == bsi2)
+
+    #
     # opBoolS
     #
     bsi1 = [true, true, false]

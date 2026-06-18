@@ -7,6 +7,10 @@ classdef AllTests
 
             communicator = helper.communicator();
 
+            fprintf('testing skipping of unknown optionals with tag >= 30... ');
+            AllTests.skipUnknownOptionals(communicator);
+            fprintf('ok\n');
+
             ref = ['initial:', helper.getTestEndpoint()];
             initial = InitialPrx(communicator, ref);
 
@@ -766,6 +770,33 @@ classdef AllTests
             fprintf('ok\n');
 
             r = initial;
+        end
+
+        function skipUnknownOptionals(communicator)
+            % Marshal an encapsulation with one optional whose tag fits on a single byte,
+            % followed by several optionals with tags >= 30. Read back only the first optional, and let
+            % `endEncapsulation() -> skipOptionals()` skip the rest to exercise detection of the tag-30 sentinel.
+            encoding = Ice.EncodingVersion(1, 1);
+
+            os = Ice.OutputStream(encoding);
+            os.startEncapsulation(Ice.FormatType.SlicedFormat);
+            os.writeOptional(1, Ice.OptionalFormat.F4);     % low tag, read back below
+            os.writeInt(11111);
+            os.writeOptional(30, Ice.OptionalFormat.F8);    % first sentinel tag
+            os.writeLong(int64(123456789));
+            os.writeOptional(50, Ice.OptionalFormat.VSize); % size-prefixed value
+            os.writeString('a high-tag optional string');
+            os.writeOptional(300, Ice.OptionalFormat.F4);   % tag needs a multi-byte size
+            os.writeInt(22222);
+            os.endEncapsulation();
+            data = os.finished();
+
+            is = Ice.InputStream(communicator, encoding, data);
+            is.startEncapsulation();
+            assert(is.readOptional(1, Ice.OptionalFormat.F4), 'tag 1 should be present');
+            assert(is.readInt() == 11111, 'tag 1 value mismatch');
+            % Tags 30, 50 and 300 are left unread; endEncapsulation must skip them cleanly.
+            is.endEncapsulation();
         end
     end
 end
