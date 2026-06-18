@@ -14,6 +14,8 @@ might need to be aware of.
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
   - [Ice Service Changes](#ice-service-changes)
+    - [Ice Service installed as a Windows Service](#ice-service-installed-as-a-windows-service)
+    - [IceGrid](#icegrid)
 
 ## Changes in Ice 3.9.0
 
@@ -44,6 +46,13 @@ might need to be aware of.
 - Fixed `iceboxnet` rejecting valid per-service command-line options (`--<service>.*`) with "unknown option" and
   failing to start: the option validation iterated the original arguments instead of the filtered list.
 
+- The per-thread `ImplicitContext.getContext` in C# now returns a snapshot of the context instead of the live
+  internal dictionary (matching the `Shared` implementation). Code that mutated the returned dictionary to
+  update the implicit context must now use `put` or `setContext`.
+
+- Fixed a bug in `slice2cs` handling of `cs:namespace`: a nested module received the namespace prefix twice
+  (e.g. `Foo.A.Foo.B` instead of `Foo.A.B`), producing C# that did not compile.
+
 ### JavaScript Changes
 
 - Assigning an out-of-range or non-integer value to an `InputStream` or `OutputStream` position now throws a
@@ -54,6 +63,12 @@ might need to be aware of.
 
 - Fixed `ice_getCachedConnection` to return an empty `Ice.Connection` array, rather than an empty
   `double` array, when the proxy has no cached connection.
+
+- Fixed the unmarshaling of unknown optional values with tags greater than or equal to 30. These no
+  longer desynchronize the input stream causing spurious `MarshalException`.
+
+- Fixed the `ice_getConnectionAsync` proxy method. Retrieving the result of the returned future failed on every
+  successful call because the `Ice.Connection` was constructed without its communicator.
 
 ### Python Changes
 
@@ -74,7 +89,17 @@ might need to be aware of.
   asymmetric, and the class defined `eql?` without a matching `hash`; equal endpoints now compare consistently and
   can be used as `Hash`/`Set` keys.
 
+- Fixed Ice for Ruby to correctly marshal an empty `sequence<byte>` supplied as a string: it now writes a single size
+  byte instead of a raw 4-byte integer, which previously de-synchronized the rest of the message.
+
 ### Ice Service Changes
+
+#### Ice Service installed as a Windows Service
+
+- Fixed a crash on shutdown. When an Ice service running as a Windows service was stopped using an Ice admin tool —
+  for example, an IceGrid node shut down with `icegridadmin` or the IceGrid GUI — instead of through the Windows
+  Service Control Manager, the process terminated abnormally rather than stopping cleanly (and never reported
+  `SERVICE_STOPPED`). This affected the IceGrid registry and node, the Glacier2 router, and IceBox.
 
 #### IceGrid
 
