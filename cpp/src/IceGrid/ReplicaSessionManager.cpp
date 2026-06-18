@@ -295,12 +295,11 @@ void
 ReplicaSessionManager::create(const InternalRegistryPrx& replica)
 {
     shared_ptr<Thread> thread;
-    shared_ptr<Database> database;
     {
         unique_lock lock(_mutex);
 
-        // Wait until the session manager is fully initialized (or destroyed). _thread and _database are set by the
-        // other create() overload once the slave registry is ready.
+        // Wait until the session manager is fully initialized (or destroyed). _thread is set by the other create()
+        // overload once the slave registry is ready.
         _condVar.wait(lock, [this] { return _thread || !_communicator; });
 
         if (!_thread)
@@ -309,21 +308,15 @@ ReplicaSessionManager::create(const InternalRegistryPrx& replica)
             return;
         }
 
-        // Capture under the lock: destroy() clears _thread/_database, so we keep them alive for the calls below.
+        // Capture under the lock: destroy() clears _thread, so we keep it alive for the calls below.
         thread = _thread;
-        database = _database;
     }
 
-    if (!_master)
-    {
-        // No master registry configured (the communicator has no default locator), so there is nothing to do.
-        database->getTraceLevels()->logger->error("cannot create a replica session: no master registry configured");
-        return;
-    }
+    assert(_master); // a slave always has a default locator (enforced by RegistryI::startImpl)
 
     if (replica->ice_getIdentity() != _master->ice_getIdentity())
     {
-        database->getTraceLevels()->logger->error("can only create sessions with the master replica");
+        _traceLevels->logger->error("can only create sessions with the master replica");
         return;
     }
 
