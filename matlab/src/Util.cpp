@@ -27,20 +27,25 @@ namespace
 
     void getMajorMinor(mxArray* p, uint8_t& major, uint8_t& minor)
     {
+        // mxGetProperty returns a copy that the caller owns and must destroy.
         auto maj = mxGetProperty(p, 0, "major");
         assert(maj);
         if (!mxIsScalar(maj))
         {
+            mxDestroyArray(maj);
             throw std::invalid_argument("major is not a scalar");
         }
         major = static_cast<uint8_t>(mxGetScalar(maj));
+        mxDestroyArray(maj);
         auto min = mxGetProperty(p, 0, "minor");
         assert(min);
         if (!mxIsScalar(min))
         {
+            mxDestroyArray(min);
             throw std::invalid_argument("minor is not a scalar");
         }
         minor = static_cast<uint8_t>(mxGetScalar(min));
+        mxDestroyArray(min);
     }
 
     // This function converts the cell array input argument and returns a MATLAB string array.
