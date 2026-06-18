@@ -1061,7 +1061,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 con = libpointer('voidPtr', 0); % Output param
                 f.iceCall('fetch', con);
                 assert(~isNull(con));
-                varargout{1} = Ice.Connection(con);
+                varargout{1} = Ice.Connection(con, obj.communicator);
             end
             r = Ice.Future(future, 'ice_getConnection', 1, 'Ice_GetConnectionFuture', @fetch);
         end
