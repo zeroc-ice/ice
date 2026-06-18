@@ -11,6 +11,7 @@ might need to be aware of.
   - [C# Changes](#c-changes-1)
   - [JavaScript Changes](#javascript-changes)
   - [MATLAB Changes](#matlab-changes)
+  - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
   - [Ice Service Changes](#ice-service-changes)
@@ -75,6 +76,10 @@ might need to be aware of.
 
 - Fixed `Ice.Future.wait('sent')`, which could block indefinitely or time out even after the request had been
   sent. The wait now completes as soon as the invocation reaches or passes the requested state.
+
+### PHP Changes
+
+- Fixed Ice for PHP mis-marshaling a non-empty optional `sequence<string>`.
 
 ### Python Changes
 
