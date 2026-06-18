@@ -208,7 +208,7 @@ public class MetricsAdminI
         }
     }
 
-    public synchronized <S extends Metrics> void registerSubMap(
+    public <S extends Metrics> void registerSubMap(
             String map, String subMap, Class<S> cl, java.lang.reflect.Field field) {
         boolean updated;
         MetricsMapFactory<?> factory;
@@ -243,10 +243,15 @@ public class MetricsAdminI
 
     public <T extends Metrics> List<MetricsMap<T>> getMaps(String mapName, Class<T> cl) {
         List<MetricsMap<T>> maps = new ArrayList<>();
-        for (MetricsViewI v : _views.values()) {
-            MetricsMap<T> map = v.getMap(mapName, cl);
-            if (map != null) {
-                maps.add(map);
+        // Snapshot the maps under the admin monitor: updateViews() reuses MetricsViewI
+        // instances and mutates their _maps under synchronized(this), while this method is
+        // called from ObserverFactory.update() after the admin lock is released.
+        synchronized (this) {
+            for (MetricsViewI v : _views.values()) {
+                MetricsMap<T> map = v.getMap(mapName, cl);
+                if (map != null) {
+                    maps.add(map);
+                }
             }
         }
         return maps;
