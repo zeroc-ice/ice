@@ -8,7 +8,7 @@ classdef AllTests
             communicator = helper.communicator();
 
             fprintf('testing skipping of unknown optionals with tag >= 30... ');
-            AllTests.skipUnreadOptionals(communicator);
+            AllTests.skipUnknownOptionals(communicator);
             fprintf('ok\n');
 
             ref = ['initial:', helper.getTestEndpoint()];
@@ -772,7 +772,7 @@ classdef AllTests
             r = initial;
         end
 
-        function skipUnreadOptionals(communicator)
+        function skipUnknownOptionals(communicator)
             % Marshal an encapsulation with one optional whose tag fits on a single byte,
             % followed by several optionals with tags >= 30. Read back only the first optional, and let 
             % `endEncapsulation() -> skipOptionals()` skip the rest to exercise detection of the tag-30 sentinel.
