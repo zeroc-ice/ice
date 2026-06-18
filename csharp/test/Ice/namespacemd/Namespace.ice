@@ -38,7 +38,7 @@ module WithNamespace
     }
 }
 
-["cs:namespace:ZeroC.Foo"]
+["cs:namespace:ZeroC"]
 module Foo
 {
     module Bar
@@ -50,7 +50,7 @@ module Foo
     }
 }
 
-["cs:namespace:ZeroC.Other"]
+["cs:namespace:ZeroC"]
 module Other
 {
     module Bar
