@@ -64,6 +64,25 @@ namespace
                 return IceStorm::Instrumentation::SubscriberState::SubscriberStateError;
         }
     }
+
+    // Parses str (ignoring surrounding whitespace) as a base-10 int consumed in full; nullopt otherwise.
+    optional<int> toInt(const string& str)
+    {
+        const string s = IceInternal::trim(str);
+        try
+        {
+            size_t pos = 0;
+            int value = stoi(s, &pos);
+            if (pos == s.size())
+            {
+                return value;
+            }
+        }
+        catch (const std::exception&)
+        {
+        }
+        return nullopt;
+    }
 }
 
 // Each of the various Subscriber types.
@@ -320,14 +339,7 @@ namespace
                 auto q = p->context.find("cost");
                 if (q != p->context.end())
                 {
-                    try
-                    {
-                        cost = stoi(q->second);
-                    }
-                    catch (const std::invalid_argument&)
-                    {
-                        cost = 0;
-                    }
+                    cost = toInt(q->second).value_or(0);
                 }
                 if (cost > _rec.cost)
                 {
@@ -383,103 +395,104 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
         perId.category = instance->instanceName();
         perId.name = "topic." + rec.topicName + ".publish." +
                      instance->communicator()->identityToString(rec.obj->ice_getIdentity());
-        auto proxy = instance->publishAdapter()->add(per, perId);
-        auto traceLevels = instance->traceLevels();
-        shared_ptr<Subscriber> subscriber;
 
+        // Build the proxy for the per-subscriber publisher servant, but don't add the servant to the publish
+        // adapter yet: it must not be reachable until its subscriber is successfully set below.
+        auto proxy = instance->publishAdapter()->createProxy(perId);
+
+        int retryCount = 0;
+        auto p = rec.theQoS.find("retryCount");
+        if (p != rec.theQoS.end())
+        {
+            if (auto value = toInt(p->second))
+            {
+                retryCount = *value;
+            }
+            else
+            {
+                throw BadQoS("invalid retry count (numeric value required): " + p->second);
+            }
+        }
+
+        string reliability;
+        p = rec.theQoS.find("reliability");
+        if (p != rec.theQoS.end())
+        {
+            reliability = p->second;
+        }
+        if (!reliability.empty() && reliability != "ordered")
+        {
+            throw BadQoS("invalid reliability: " + reliability);
+        }
+
+        // Override the invocation timeout.
+        optional<Ice::ObjectPrx> newObj;
         try
         {
-            int retryCount = 0;
-            auto p = rec.theQoS.find("retryCount");
-            if (p != rec.theQoS.end())
-            {
-                retryCount = stoi(p->second);
-            }
-
-            string reliability;
-            p = rec.theQoS.find("reliability");
-            if (p != rec.theQoS.end())
-            {
-                reliability = p->second;
-            }
-            if (!reliability.empty() && reliability != "ordered")
-            {
-                throw BadQoS("invalid reliability: " + reliability);
-            }
-
-            // Override the invocation timeout.
-            optional<Ice::ObjectPrx> newObj;
-            try
-            {
-                newObj = rec.obj->ice_invocationTimeout(instance->sendTimeout());
-            }
-            catch (const Ice::FixedProxyException&)
-            {
-                // In the event IceStorm is collocated this could be a fixed proxy in which case its not possible to
-                // set the timeout.
-                newObj = rec.obj;
-            }
-
-            p = rec.theQoS.find("locatorCacheTimeout");
-            if (p != rec.theQoS.end())
-            {
-                istringstream is(IceInternal::trim(p->second));
-                int locatorCacheTimeout;
-                if (!(is >> locatorCacheTimeout) || !is.eof())
-                {
-                    throw BadQoS("invalid locator cache timeout (numeric value required): " + p->second);
-                }
-                newObj = newObj->ice_locatorCacheTimeout(locatorCacheTimeout);
-            }
-
-            p = rec.theQoS.find("connectionCached");
-            if (p != rec.theQoS.end())
-            {
-                istringstream is(IceInternal::trim(p->second));
-                int connectionCached;
-                if (!(is >> connectionCached) || !is.eof())
-                {
-                    throw BadQoS("invalid connection cached setting (numeric value required): " + p->second);
-                }
-                newObj = newObj->ice_connectionCached(connectionCached > 0);
-            }
-
-            if (newObj->ice_isBatchOneway())
-            {
-                // Use Oneway in case of Batch Oneway
-                newObj = newObj->ice_oneway();
-            }
-            else if (newObj->ice_isBatchDatagram())
-            {
-                // Use Datagram in case of Batch Datagram
-                newObj = newObj->ice_datagram();
-            }
-            assert(newObj);
-
-            if (reliability == "ordered")
-            {
-                if (!newObj->ice_isTwoway())
-                {
-                    throw BadQoS("ordered reliability requires a twoway proxy");
-                }
-                subscriber = make_shared<SubscriberTwoway>(instance, rec, proxy, retryCount, 1, *newObj);
-            }
-            else if (newObj->ice_isOneway() || newObj->ice_isDatagram())
-            {
-                subscriber = make_shared<SubscriberOneway>(instance, rec, proxy, retryCount, *newObj);
-            }
-            else // if(newObj->ice_isTwoway())
-            {
-                assert(newObj->ice_isTwoway());
-                subscriber = make_shared<SubscriberTwoway>(instance, rec, proxy, retryCount, 5, *newObj);
-            }
-            per->setSubscriber(subscriber);
+            newObj = rec.obj->ice_invocationTimeout(instance->sendTimeout());
         }
-        catch (const Ice::Exception&)
+        catch (const Ice::FixedProxyException&)
         {
-            instance->publishAdapter()->remove(proxy->ice_getIdentity());
-            throw;
+            // In the event IceStorm is collocated this could be a fixed proxy in which case its not possible to
+            // set the timeout.
+            newObj = rec.obj;
         }
+
+        p = rec.theQoS.find("locatorCacheTimeout");
+        if (p != rec.theQoS.end())
+        {
+            auto value = toInt(p->second);
+            if (!value)
+            {
+                throw BadQoS("invalid locator cache timeout (numeric value required): " + p->second);
+            }
+            newObj = newObj->ice_locatorCacheTimeout(*value);
+        }
+
+        p = rec.theQoS.find("connectionCached");
+        if (p != rec.theQoS.end())
+        {
+            auto value = toInt(p->second);
+            if (!value)
+            {
+                throw BadQoS("invalid connection cached setting (numeric value required): " + p->second);
+            }
+            newObj = newObj->ice_connectionCached(*value > 0);
+        }
+
+        if (newObj->ice_isBatchOneway())
+        {
+            // Use Oneway in case of Batch Oneway
+            newObj = newObj->ice_oneway();
+        }
+        else if (newObj->ice_isBatchDatagram())
+        {
+            // Use Datagram in case of Batch Datagram
+            newObj = newObj->ice_datagram();
+        }
+
+        shared_ptr<Subscriber> subscriber;
+        if (reliability == "ordered")
+        {
+            if (!newObj->ice_isTwoway())
+            {
+                throw BadQoS("ordered reliability requires a twoway proxy");
+            }
+            subscriber = make_shared<SubscriberTwoway>(instance, rec, proxy, retryCount, 1, *newObj);
+        }
+        else if (newObj->ice_isOneway() || newObj->ice_isDatagram())
+        {
+            subscriber = make_shared<SubscriberOneway>(instance, rec, proxy, retryCount, *newObj);
+        }
+        else // if(newObj->ice_isTwoway())
+        {
+            assert(newObj->ice_isTwoway());
+            subscriber = make_shared<SubscriberTwoway>(instance, rec, proxy, retryCount, 5, *newObj);
+        }
+        per->setSubscriber(subscriber);
+
+        // The subscriber is set, so it's now safe to make the servant dispatchable.
+        instance->publishAdapter()->add(per, perId);
 
         return subscriber;
     }
