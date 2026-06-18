@@ -147,13 +147,20 @@ namespace Glacier2
             auto ctx = _current.ctx;
             ctx.insert(_context.begin(), _context.end());
             auto self = static_pointer_cast<UserPasswordCreateSession>(shared_from_this());
-            _sessionRouter->_verifier->checkPermissionsAsync(
-                _user,
-                _password,
-                [self](bool ok, const string& reason) { self->checkPermissionsResponse(ok, reason); },
-                [self](exception_ptr e) { self->checkPermissionsException(e); },
-                nullptr,
-                ctx);
+            try
+            {
+                _sessionRouter->_verifier->checkPermissionsAsync(
+                    _user,
+                    _password,
+                    [self](bool ok, const string& reason) { self->checkPermissionsResponse(ok, reason); },
+                    [self](exception_ptr e) { self->checkPermissionsException(e); },
+                    nullptr,
+                    ctx);
+            }
+            catch (const Ice::CommunicatorDestroyedException&)
+            {
+                checkPermissionsException(std::current_exception());
+            }
         }
 
         shared_ptr<FilterManager> createFilterManager() final { return FilterManager::create(_instance, _user, true); }
@@ -252,12 +259,19 @@ namespace Glacier2
             ctx.insert(_context.begin(), _context.end());
 
             auto self = static_pointer_cast<SSLCreateSession>(shared_from_this());
-            _sessionRouter->_sslVerifier->authorizeAsync(
-                _sslInfo,
-                [self](bool ok, const string& reason) { self->authorizeResponse(ok, reason); },
-                [self](exception_ptr e) { self->authorizeException(e); },
-                nullptr,
-                ctx);
+            try
+            {
+                _sessionRouter->_sslVerifier->authorizeAsync(
+                    _sslInfo,
+                    [self](bool ok, const string& reason) { self->authorizeResponse(ok, reason); },
+                    [self](exception_ptr e) { self->authorizeException(e); },
+                    nullptr,
+                    ctx);
+            }
+            catch (const Ice::CommunicatorDestroyedException&)
+            {
+                authorizeException(std::current_exception());
+            }
         }
 
         shared_ptr<FilterManager> createFilterManager() final { return FilterManager::create(_instance, _user, false); }
