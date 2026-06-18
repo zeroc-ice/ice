@@ -405,7 +405,8 @@ namespace
         // A certificate must expose a Subject Key Identifier to be imported into the keychain: the SKI is used
         // both to locate an already-imported certificate (the query below) and as the key label that pairs the
         // private key with the certificate (further down). Reject a certificate without one with a clear error
-        // instead of passing a null value to CFDictionarySetValue, which aborts the process.
+        // instead of passing a null value to CFDictionarySetValue, which aborts the process. Certificates without
+        // a Subject Key Identifier are uncommon in practice, so rejecting them is acceptable.
         if (!hash)
         {
             throw CertificateReadException(
@@ -504,8 +505,8 @@ namespace
         // kSecKeyLabel attribute should match the subject key identifier.
         //
         vector<SecKeychainAttribute> attributes;
-        if (hash)
         {
+            // hash is guaranteed non-null here: loadPrivateKey rejects certificates without a Subject Key Identifier.
             SecKeychainAttribute attr;
             attr.tag = kSecKeyLabel;
             attr.data = const_cast<UInt8*>(CFDataGetBytePtr(hash.get()));
