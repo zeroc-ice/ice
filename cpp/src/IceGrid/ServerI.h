@@ -171,6 +171,7 @@ namespace IceGrid
 
         int _pid{0};
 
+        // Lock order: ServerI::_mutex is always acquired before ServerAdapterI::_mutex, never after.
         mutable std::mutex _mutex;
         std::condition_variable _condVar;
     };

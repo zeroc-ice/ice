@@ -17,6 +17,7 @@ might need to be aware of.
   - [Ruby Changes](#ruby-changes)
   - [Ice Service Changes](#ice-service-changes)
     - [Ice Service installed as a Windows Service](#ice-service-installed-as-a-windows-service)
+    - [IceGrid](#icegrid)
 
 ## Changes in Ice 3.9.0
 
@@ -126,6 +127,12 @@ might need to be aware of.
   for example, an IceGrid node shut down with `icegridadmin` or the IceGrid GUI — instead of through the Windows
   Service Control Manager, the process terminated abnormally rather than stopping cleanly (and never reported
   `SERVICE_STOPPED`). This affected the IceGrid registry and node, the Glacier2 router, and IceBox.
+
+#### IceGrid
+
+- Fixed a deadlock in the IceGrid node that could occur when a server was restarted while one of its object adapters
+  was concurrently activated, deactivated, or queried. The node could hang, blocking all subsequent operations on
+  that node.
 
 These are the changes since the [Ice 3.8.2] release.
 
