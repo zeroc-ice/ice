@@ -154,6 +154,13 @@ classdef AllTests
             fprintf('ok\n');
 
             if ~isempty(p.ice_getConnection())
+                fprintf('testing ice_getConnectionAsync... ');
+                con = p.ice_getConnectionAsync().fetchOutputs();
+                assert(isa(con, 'Ice.Connection'));
+                proxy = con.createProxy(p.ice_getIdentity());
+                assert(strcmp(proxy.ice_getIdentity().name, p.ice_getIdentity().name));
+                fprintf('ok\n');
+
                 fprintf('testing connection close... ');
 
                 %
