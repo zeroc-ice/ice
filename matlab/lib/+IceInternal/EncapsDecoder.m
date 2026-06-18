@@ -68,6 +68,13 @@ classdef (Hidden, Abstract) EncapsDecoder < handle
             r = obj.is.getCommunicator().getSliceLoader().newInstance(typeId);
         end
 
+        function r = hasPatchList(obj, index)
+            % True if patchMap holds an actual patch list at index. Cell arrays auto-extend with
+            % empty filler slots when a higher index is assigned, so an in-range index is not
+            % enough -- the slot must be non-empty.
+            r = index <= length(obj.patchMap) && ~isempty(obj.patchMap{index});
+        end
+
         function addPatchEntry(obj, index, cb)
             %assert(index > 0);
             %
@@ -87,12 +94,12 @@ classdef (Hidden, Abstract) EncapsDecoder < handle
             % the callback will be called when the instance is
             % unmarshaled.
             %
-            if index <= length(obj.patchMap)
+            if obj.hasPatchList(index)
                 pl = obj.patchMap{index};
             else
                 %
-                % We have no outstanding instances to be patched for this
-                % index, so make a new entry in the patch map.
+                % We have no outstanding instances to be patched for this index, so make a new
+                % entry in the patch map.
                 %
                 pl = {};
                 obj.patchMapLength = obj.patchMapLength + 1;
@@ -120,7 +127,7 @@ classdef (Hidden, Abstract) EncapsDecoder < handle
             %
             v.iceRead(obj.is);
 
-            if index <= length(obj.patchMap)
+            if obj.hasPatchList(index)
                 %
                 % Patch all instances now that the instance is unmarshaled.
                 %
