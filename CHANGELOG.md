@@ -43,6 +43,10 @@ might need to be aware of.
 - Fixed `iceboxnet` rejecting valid per-service command-line options (`--<service>.*`) with "unknown option" and
   failing to start: the option validation iterated the original arguments instead of the filtered list.
 
+- The per-thread `ImplicitContext.getContext` in C# now returns a snapshot of the context instead of the live
+  internal dictionary (matching the `Shared` implementation). Code that mutated the returned dictionary to
+  update the implicit context must now use `put` or `setContext`.
+
 ### JavaScript Changes
 
 - Assigning an out-of-range or non-integer value to an `InputStream` or `OutputStream` position now throws a
