@@ -83,8 +83,7 @@ internal class SharedImplicitContext : ImplicitContextI
         {
             key ??= "";
 
-            string val = _context[key] ?? "";
-            return val;
+            return _context.TryGetValue(key, out string val) ? val ?? "" : "";
         }
     }
 
@@ -109,18 +108,13 @@ internal class SharedImplicitContext : ImplicitContextI
         {
             key ??= "";
 
-            string val = _context[key];
-
-            if (val == null)
-            {
-                val = "";
-            }
-            else
+            if (_context.TryGetValue(key, out string val))
             {
                 _context.Remove(key);
+                return val ?? "";
             }
 
-            return val;
+            return "";
         }
     }
 
@@ -172,18 +166,16 @@ internal class PerThreadImplicitContext : ImplicitContextI
 {
     public override Dictionary<string, string> getContext()
     {
-        Dictionary<string, string> threadContext = null;
         Thread currentThread = Thread.CurrentThread;
         lock (_mutex)
         {
             if (_map.TryGetValue(currentThread, out Dictionary<string, string> value))
             {
-                threadContext = value;
+                return new Dictionary<string, string>(value);
             }
         }
 
-        threadContext ??= new Dictionary<string, string>();
-        return threadContext;
+        return new Dictionary<string, string>();
     }
 
     public override void setContext(Dictionary<string, string> context)
@@ -201,7 +193,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
 
             lock (_mutex)
             {
-                _map.Add(Thread.CurrentThread, threadContext);
+                _map[Thread.CurrentThread] = threadContext;
             }
         }
     }
@@ -235,8 +227,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
             }
         }
 
-        string val = threadContext[key] ?? "";
-        return val;
+        return threadContext.TryGetValue(key, out string val) ? val ?? "" : "";
     }
 
     public override string put(string key, string value)
