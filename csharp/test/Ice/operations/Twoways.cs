@@ -1455,8 +1455,8 @@ internal class Twoways
                 test(Internal.DictionaryExtensions.DictionaryEqual(ic.getImplicitContext().getContext(), ctx));
                 test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContext(), ctx));
 
-                test(ic.getImplicitContext().get("missing") == "");
-                test(ic.getImplicitContext().remove("missing") == "");
+                test(ic.getImplicitContext().get("missing").Length == 0);
+                test(ic.getImplicitContext().remove("missing").Length == 0);
 
                 ic.getImplicitContext().setContext(new Dictionary<string, string> { ["only"] = "ONLY" });
                 test(ic.getImplicitContext().containsKey("only"));
