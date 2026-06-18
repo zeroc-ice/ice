@@ -9,6 +9,7 @@ might need to be aware of.
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
+  - [Java Changes](#java-changes)
   - [JavaScript Changes](#javascript-changes)
   - [MATLAB Changes](#matlab-changes)
   - [PHP Changes](#php-changes)
@@ -56,6 +57,12 @@ might need to be aware of.
 
 - Fixed a bug in `slice2cs` handling of `cs:namespace`: a nested module received the namespace prefix twice
   (e.g. `Foo.A.Foo.B` instead of `Foo.A.B`), producing C# that did not compile.
+
+### Java Changes
+
+- Fixed a data race in the Ice for Java metrics (IceMX) implementation. Reconfiguring the metrics views at
+  runtime while metrics were being collected could corrupt the internal metrics maps or throw a
+  `ConcurrentModificationException`.
 
 ### JavaScript Changes
 
