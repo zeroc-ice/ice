@@ -530,12 +530,12 @@ public class AllTests {
         out.flush();
 
         {
-            Map<Byte, Boolean> inDict = new LinkedHashMap<>();
-            inDict.put((byte) -1, Boolean.TRUE);
-            inDict.put((byte) -101, Boolean.FALSE);
-            inDict.put((byte) -201, Boolean.TRUE);
+            LinkedHashMap<A, Integer> inDict = new LinkedHashMap<>();
+            inDict.put(new A(1), 2);
+            inDict.put(new A(2), 2);
+            inDict.put(new A(2), 3);
 
-            TestIntf.OpMByteBoolLinkedDictResult r = prx.opMByteBoolLinkedDict(inDict);
+            TestIntf.OpMAIntFormalLinkedDictResult r = prx.opMAIntFormalLinkedDict(inDict);
 
             test(r.outDict.getClass() == LinkedHashMap.class);
             test(r.outDict.equals(inDict));

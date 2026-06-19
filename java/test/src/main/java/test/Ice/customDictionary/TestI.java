@@ -194,8 +194,9 @@ public final class TestI implements TestIntf {
     }
 
     @Override
-    public OpMByteBoolLinkedDictMarshaledResult opMByteBoolLinkedDict(Map<Byte, Boolean> inDict, Current current) {
-        return new OpMByteBoolLinkedDictMarshaledResult(inDict, inDict, current);
+    public OpMAIntFormalLinkedDictMarshaledResult opMAIntFormalLinkedDict(
+            LinkedHashMap<A, Integer> inDict, Current current) {
+        return new OpMAIntFormalLinkedDictMarshaledResult(inDict, inDict, current);
     }
 
     @Override

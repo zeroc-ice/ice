@@ -100,10 +100,15 @@ module Test
         optional(1) EStringSeqFormalLinkedDict opOptEStringSeqFormalLinkedDict(
             optional(2) EStringSeqFormalLinkedDict inDict, out optional(3) EStringSeqFormalLinkedDict outDict);
 
-        ["marshaled-result"] ByteBoolLinkedDict opMByteBoolLinkedDict(
-            ByteBoolLinkedDict inDict, out ByteBoolLinkedDict outDict);
-        ["marshaled-result"] optional(1) EStringSeqFormalLinkedDict opMOptEStringSeqFormalLinkedDict(
-            optional(2) EStringSeqFormalLinkedDict inDict, out optional(3) EStringSeqFormalLinkedDict outDict);
+        ["marshaled-result"] ["java:type:java.util.LinkedHashMap<A, Integer>:java.util.LinkedHashMap<A, Integer>"]
+        AIntDict opMAIntFormalLinkedDict(
+            ["java:type:java.util.LinkedHashMap<A, Integer>:java.util.LinkedHashMap<A, Integer>"] AIntDict inDict,
+            ["java:type:java.util.LinkedHashMap<A, Integer>:java.util.LinkedHashMap<A, Integer>"] out AIntDict outDict);
+
+        ["marshaled-result"] ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"]
+        optional(1) EStringSeqDict opMOptEStringSeqFormalLinkedDict(
+            ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"] optional(2) EStringSeqDict inDict,
+            ["java:type:java.util.LinkedHashMap<E, String[]>:java.util.LinkedHashMap<E, String[]>"] out optional(3) EStringSeqDict outDict);
 
         void shutdown();
     }
