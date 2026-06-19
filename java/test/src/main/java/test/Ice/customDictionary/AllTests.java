@@ -526,6 +526,48 @@ public class AllTests {
         }
 
         out.println("ok");
+        out.print("testing custom dictionaries with marshal result... ");
+        out.flush();
+
+        {
+            Map<Byte, Boolean> inDict = new LinkedHashMap<>();
+            inDict.put((byte) -1, Boolean.TRUE);
+            inDict.put((byte) -101, Boolean.FALSE);
+            inDict.put((byte) -201, Boolean.TRUE);
+
+            TestIntf.OpMByteBoolLinkedDictResult r = prx.opMByteBoolLinkedDict(inDict);
+
+            test(r.outDict.getClass() == LinkedHashMap.class);
+            test(r.outDict.equals(inDict));
+            test(r.returnValue.getClass() == LinkedHashMap.class);
+            test(r.returnValue.equals(inDict));
+        }
+
+        {
+            String[] array1 = {"hello", "world", "!"};
+            String[] array2 = {"!", "hello", "world"};
+            String[] array3 = {"world", "!", "hello"};
+
+            LinkedHashMap<E, String[]> inDict = new LinkedHashMap<>();
+            inDict.put(E.E1, array1);
+            inDict.put(E.E2, array2);
+            inDict.put(E.E3, array3);
+
+            TestIntf.OpMOptEStringSeqFormalLinkedDictResult r = prx.opMOptEStringSeqFormalLinkedDict(inDict);
+
+            test(r.outDict.get().getClass() == LinkedHashMap.class);
+            test(r.outDict.get().size() == 3);
+            test(Arrays.equals(r.outDict.get().get(E.E1), array1));
+            test(Arrays.equals(r.outDict.get().get(E.E2), array2));
+            test(Arrays.equals(r.outDict.get().get(E.E3), array3));
+            test(r.returnValue.get().getClass() == LinkedHashMap.class);
+            test(r.returnValue.get().size() == 3);
+            test(Arrays.equals(r.returnValue.get().get(E.E1), array1));
+            test(Arrays.equals(r.returnValue.get().get(E.E2), array2));
+            test(Arrays.equals(r.returnValue.get().get(E.E3), array3));
+        }
+
+        out.println("ok");
 
         return prx;
     }

@@ -194,6 +194,17 @@ public final class TestI implements TestIntf {
     }
 
     @Override
+    public OpMByteBoolLinkedDictMarshaledResult opMByteBoolLinkedDict(Map<Byte, Boolean> inDict, Current current) {
+        return new OpMByteBoolLinkedDictMarshaledResult(inDict, inDict, current);
+    }
+
+    @Override
+    public OpMOptEStringSeqFormalLinkedDictMarshaledResult opMOptEStringSeqFormalLinkedDict(
+            Optional<LinkedHashMap<E, String[]>> inDict, Current current) {
+        return new OpMOptEStringSeqFormalLinkedDictMarshaledResult(inDict, inDict, current);
+    }
+
+    @Override
     public void shutdown(Current current) {
         _communicator.shutdown();
     }

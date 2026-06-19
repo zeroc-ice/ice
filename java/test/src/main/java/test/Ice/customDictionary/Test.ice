@@ -100,6 +100,11 @@ module Test
         optional(1) EStringSeqFormalLinkedDict opOptEStringSeqFormalLinkedDict(
             optional(2) EStringSeqFormalLinkedDict inDict, out optional(3) EStringSeqFormalLinkedDict outDict);
 
+        ["marshaled-result"] ByteBoolLinkedDict opMByteBoolLinkedDict(
+            ByteBoolLinkedDict inDict, out ByteBoolLinkedDict outDict);
+        ["marshaled-result"] optional(1) EStringSeqFormalLinkedDict opMOptEStringSeqFormalLinkedDict(
+            optional(2) EStringSeqFormalLinkedDict inDict, out optional(3) EStringSeqFormalLinkedDict outDict);
+
         void shutdown();
     }
 }
