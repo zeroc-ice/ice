@@ -61,6 +61,10 @@ might need to be aware of.
 
 ### Java Changes
 
+- Fixed a bug in `slice2java` that emitted broken code for dictionaries using `java:type:instance-type:formal-type`
+  metadata to specify a formal type. This code affected such dictionaries when used in a class or exception, or as the
+  return type of a `["marshaled-result"]` operation.
+
 - Fixed a data race in the Ice for Java metrics (IceMX) implementation. Reconfiguring the metrics views at
   runtime while metrics were being collected could corrupt the internal metrics maps or throw a
   `ConcurrentModificationException`.
