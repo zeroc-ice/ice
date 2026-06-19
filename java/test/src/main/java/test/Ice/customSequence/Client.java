@@ -1,10 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
-package test.Ice.custom;
+package test.Ice.customSequence;
 
 import com.zeroc.Ice.Communicator;
 
-import test.Ice.custom.Test.TestIntfPrx;
+import test.Ice.customSequence.Test.TestIntfPrx;
 import test.TestHelper;
 
 public class Client extends TestHelper {

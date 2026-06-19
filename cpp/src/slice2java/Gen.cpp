@@ -503,10 +503,10 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
 
             out << nl << "if (" << param << " == null)";
             out << sb;
-            out << nl << "ostr.writeSize(0);";
+            out << nl << stream << ".writeSize(0);";
             out << eb << " else";
             out << sb;
-            out << nl << "ostr.writeSize(" << param << ".size());";
+            out << nl << stream << ".writeSize(" << param << ".size());";
             out << nl;
             out << "for (java.util.Map.Entry<" << keyS << ", " << valueS << "> e : " << param << ".entrySet())";
             out << sb;
@@ -894,7 +894,7 @@ Slice::JavaVisitor::writeResultTypeMarshalUnmarshalCode(
     {
         const bool isOptional = param->isOptional();
         const string name = paramPrefix + param->mappedName();
-        const string patchParams = isMarshaling ? getPatcher(param->type(), package, name) : "";
+        const string patchParams = isMarshaling ? "" : getPatcher(param->type(), package, name);
 
         writeMarshalUnmarshalCode(
             out,
@@ -904,7 +904,7 @@ Slice::JavaVisitor::writeResultTypeMarshalUnmarshalCode(
             isOptional,
             param->tag(),
             name,
-            !isMarshaling,
+            isMarshaling,
             iter,
             streamName,
             param->getMetadata(),
@@ -1100,7 +1100,7 @@ Slice::JavaVisitor::writeResultType(
     out << nl << " */";
     out << nl << "public void write(com.zeroc.Ice.OutputStream ostr)";
     out << sb;
-    writeResultTypeMarshalUnmarshalCode(out, op, package, "", "this.", false);
+    writeResultTypeMarshalUnmarshalCode(out, op, package, "", "this.", true);
     out << eb;
 
     out << sp;
@@ -1110,7 +1110,7 @@ Slice::JavaVisitor::writeResultType(
     out << nl << " */";
     out << nl << "public void read(com.zeroc.Ice.InputStream istr)";
     out << sb;
-    writeResultTypeMarshalUnmarshalCode(out, op, package, "", "this.", true);
+    writeResultTypeMarshalUnmarshalCode(out, op, package, "", "this.", false);
     out << eb;
 
     out << eb;
@@ -1193,7 +1193,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
     out << nl << "_ostr = " << currentParamName << ".startReplyStream();";
     out << nl << "_ostr.startEncapsulation(" << currentParamName << ".encoding, " << opFormatTypeToString(op) << ");";
 
-    writeResultTypeMarshalUnmarshalCode(out, op, package, "_ostr", "", false);
+    writeResultTypeMarshalUnmarshalCode(out, op, package, "_ostr", "", true);
 
     if (op->returnsClasses())
     {
@@ -1746,7 +1746,7 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
     const TypePtr& type = member->type();
     const bool isOptional = member->isOptional();
     const bool forStruct = (bool)dynamic_pointer_cast<Struct>(member->container());
-    const string stream = forStruct ? "istr" : "istr_";
+    const string stream = forStruct ? "" : "istr_";
     assert(!isOptional || !forStruct);           // optional members aren't allowed in structs.
     assert(!isOptional || !type->isClassType()); // optional class types aren't allowed.
 

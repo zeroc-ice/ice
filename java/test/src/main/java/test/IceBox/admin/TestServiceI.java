@@ -14,8 +14,7 @@ public class TestServiceI implements Service {
         // Install a custom admin facet.
         serviceManagerCommunicator.addAdminFacet(facet, "TestFacet");
 
-        // The TestFacetI servant also implements java.util.function.Consumer<java.util.Map<String,
-        // String>>.
+        // The TestFacetI servant also implements java.util.function.Consumer<java.util.Map<String, String>>.
         // Set the callback on the admin facet.
         Object propFacet =
             serviceManagerCommunicator.findAdminFacet("IceBox.Service.TestService.Properties");

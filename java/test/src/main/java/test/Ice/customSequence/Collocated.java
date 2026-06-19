@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-package test.Ice.custom;
+package test.Ice.customSequence;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Identity;
@@ -9,7 +9,7 @@ import com.zeroc.Ice.ObjectAdapter;
 
 import test.TestHelper;
 
-public class Server extends TestHelper {
+public class Collocated extends TestHelper {
     public void run(String[] args) {
         var properties = createTestProperties(args);
         properties.setProperty("Ice.CacheMessageBuffers", "0");
@@ -19,10 +19,7 @@ public class Server extends TestHelper {
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             Object test = new TestI(communicator);
             adapter.add(test, new Identity("test", ""));
-
-            adapter.activate();
-            serverReady();
-            communicator.waitForShutdown();
+            AllTests.allTests(this);
         }
     }
 }
