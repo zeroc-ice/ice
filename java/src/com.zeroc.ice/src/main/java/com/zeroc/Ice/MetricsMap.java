@@ -391,6 +391,7 @@ public class MetricsMap<T extends Metrics> {
                     _objects.put(key, e);
                 } catch (Exception ex) {
                     assert false;
+                    return null;
                 }
             }
             e.attach(helper);
