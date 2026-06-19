@@ -122,7 +122,7 @@ export class ConnectRequestHandler {
                 } else {
                     console.assert(ex instanceof LocalException, ex);
                     exception = ex;
-                    request.out.completedEx(ex);
+                    request.completedEx(ex);
                 }
             }
         }

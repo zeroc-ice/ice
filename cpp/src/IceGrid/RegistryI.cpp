@@ -962,10 +962,6 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
 
     string userDN;
     Glacier2::SSLInfo info = getSSLInfo(current.con, userDN);
-    if (userDN.empty())
-    {
-        throw PermissionDeniedException("empty user DN");
-    }
 
     try
     {
@@ -1010,6 +1006,7 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
 
     string userDN;
     Glacier2::SSLInfo info = getSSLInfo(current.con, userDN);
+
     try
     {
         string reason;
@@ -1162,18 +1159,37 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
         auto info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(connection->getInfo());
         if (!info)
         {
-            throw PermissionDeniedException("not ssl connection");
+            throw PermissionDeniedException("not an ssl connection");
         }
 
-        auto ipInfo = getIPConnectionInfo(info);
-        sslinfo.remotePort = ipInfo->remotePort;
-        sslinfo.remoteHost = ipInfo->remoteAddress;
-        sslinfo.localPort = ipInfo->localPort;
-        sslinfo.localHost = ipInfo->localAddress;
+        if (auto ipInfo = getIPConnectionInfo(info))
+        {
+            sslinfo.remotePort = ipInfo->remotePort;
+            sslinfo.remoteHost = ipInfo->remoteAddress;
+            sslinfo.localPort = ipInfo->localPort;
+            sslinfo.localHost = ipInfo->localAddress;
+        }
+        else
+        {
+            // Not an IP connection. For example, a Bluetooth connection.
+            sslinfo.remotePort = 0;
+            sslinfo.localPort = 0;
+            // the hosts remain empty
+        }
+
         if (info->peerCertificate)
         {
             sslinfo.certs.push_back(Ice::SSL::encodeCertificate(info->peerCertificate));
             userDN = Ice::SSL::getSubjectName(info->peerCertificate);
+
+            if (userDN.empty())
+            {
+                throw PermissionDeniedException("empty user DN");
+            }
+        }
+        else
+        {
+            throw PermissionDeniedException("the client did not provide a certificate");
         }
     }
     catch (const Ice::SSL::CertificateEncodingException&)

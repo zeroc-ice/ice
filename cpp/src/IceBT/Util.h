@@ -15,11 +15,9 @@ namespace IceBT
 
     std::string addrToString(const std::string&, std::int32_t);
     std::string addrToString(const SocketAddress&);
-    SocketAddress createAddr(const std::string&, std::int32_t);
 
     std::string fdToString(SOCKET);
     void fdToAddressAndChannel(SOCKET, std::string&, int&, std::string&, int&);
-    int compareAddress(const SocketAddress&, const SocketAddress&);
 }
 
 #endif

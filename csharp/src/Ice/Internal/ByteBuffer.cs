@@ -6,8 +6,6 @@ namespace Ice.Internal;
 
 public class ByteBuffer
 {
-    public static ByteOrder nativeOrder() => NativeOrder._o;
-
     public static ByteBuffer allocate(int capacity)
     {
         if (capacity < 0)
@@ -124,37 +122,6 @@ public class ByteBuffer
     public bool hasRemaining() => _position < _limit;
 
     public int capacity() => _capacity;
-
-    public byte[] toArray()
-    {
-        int len = remaining();
-        byte[] rc = new byte[len];
-        System.Buffer.BlockCopy(_bytes, 0, rc, 0, len);
-        return rc;
-    }
-
-    public byte[] toArray(int startIndex, int length)
-    {
-        if (startIndex < 0)
-        {
-            throwOutOfRange("startIndex", startIndex, "startIndex must be non-negative");
-        }
-        if (startIndex >= _position)
-        {
-            throwOutOfRange("startIndex", startIndex, "startIndex must be less than position");
-        }
-        if (length < 0)
-        {
-            throwOutOfRange("length", length, "length must be non-negative");
-        }
-        if (startIndex + length > _position)
-        {
-            throw new ArgumentException("startIndex + length must not exceed end mark of buffer");
-        }
-        byte[] rc = new byte[length];
-        System.Buffer.BlockCopy(_bytes, startIndex, rc, 0, length);
-        return rc;
-    }
 
     public ByteBuffer put(ByteBuffer buf)
     {
@@ -794,17 +761,6 @@ public class ByteBuffer
     }
 
     public byte[] rawBytes() => _bytes;
-
-    public byte[] rawBytes(int offset, int len)
-    {
-        if (offset + len > _limit)
-        {
-            throw new InvalidOperationException("buffer underflow");
-        }
-        byte[] rc = new byte[len];
-        Array.Copy(_bytes, offset, rc, 0, len);
-        return rc;
-    }
 
     private void checkUnderflow(int size)
     {

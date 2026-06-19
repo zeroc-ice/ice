@@ -147,13 +147,20 @@ namespace Glacier2
             auto ctx = _current.ctx;
             ctx.insert(_context.begin(), _context.end());
             auto self = static_pointer_cast<UserPasswordCreateSession>(shared_from_this());
-            _sessionRouter->_verifier->checkPermissionsAsync(
-                _user,
-                _password,
-                [self](bool ok, const string& reason) { self->checkPermissionsResponse(ok, reason); },
-                [self](exception_ptr e) { self->checkPermissionsException(e); },
-                nullptr,
-                ctx);
+            try
+            {
+                _sessionRouter->_verifier->checkPermissionsAsync(
+                    _user,
+                    _password,
+                    [self](bool ok, const string& reason) { self->checkPermissionsResponse(ok, reason); },
+                    [self](exception_ptr e) { self->checkPermissionsException(e); },
+                    nullptr,
+                    ctx);
+            }
+            catch (const Ice::CommunicatorDestroyedException&)
+            {
+                checkPermissionsException(std::current_exception());
+            }
         }
 
         shared_ptr<FilterManager> createFilterManager() final { return FilterManager::create(_instance, _user, true); }
@@ -252,12 +259,19 @@ namespace Glacier2
             ctx.insert(_context.begin(), _context.end());
 
             auto self = static_pointer_cast<SSLCreateSession>(shared_from_this());
-            _sessionRouter->_sslVerifier->authorizeAsync(
-                _sslInfo,
-                [self](bool ok, const string& reason) { self->authorizeResponse(ok, reason); },
-                [self](exception_ptr e) { self->authorizeException(e); },
-                nullptr,
-                ctx);
+            try
+            {
+                _sessionRouter->_sslVerifier->authorizeAsync(
+                    _sslInfo,
+                    [self](bool ok, const string& reason) { self->authorizeResponse(ok, reason); },
+                    [self](exception_ptr e) { self->authorizeException(e); },
+                    nullptr,
+                    ctx);
+            }
+            catch (const Ice::CommunicatorDestroyedException&)
+            {
+                authorizeException(std::current_exception());
+            }
         }
 
         shared_ptr<FilterManager> createFilterManager() final { return FilterManager::create(_instance, _user, false); }
@@ -319,8 +333,7 @@ CreateSession::CreateSession(shared_ptr<SessionRouterI> sessionRouter, string us
     {
         _context["_con.type"] = current.con->type();
         {
-            auto info = getIPConnectionInfo(current.con->getInfo());
-            if (info)
+            if (auto info = getIPConnectionInfo(current.con->getInfo()))
             {
                 ostringstream os;
                 os << info->remotePort;
@@ -659,16 +672,35 @@ SessionRouterI::createSessionFromSecureConnectionAsync(
             return;
         }
 
-        auto ipInfo = getIPConnectionInfo(info);
-        sslinfo.remotePort = ipInfo->remotePort;
-        sslinfo.remoteHost = ipInfo->remoteAddress;
-        sslinfo.localPort = ipInfo->localPort;
-        sslinfo.localHost = ipInfo->localAddress;
+        if (auto ipInfo = getIPConnectionInfo(info))
+        {
+            sslinfo.remotePort = ipInfo->remotePort;
+            sslinfo.remoteHost = ipInfo->remoteAddress;
+            sslinfo.localPort = ipInfo->localPort;
+            sslinfo.localHost = ipInfo->localAddress;
+        }
+        else
+        {
+            // Not an IP connection, for example, a Bluetooth connection.
+            sslinfo.remotePort = 0;
+            sslinfo.localPort = 0;
+            // the hosts remain empty
+        }
 
         if (info->peerCertificate)
         {
             sslinfo.certs.push_back(Ice::SSL::encodeCertificate(info->peerCertificate));
             userDN = Ice::SSL::getSubjectName(info->peerCertificate);
+            if (userDN.empty())
+            {
+                exception(make_exception_ptr(PermissionDeniedException("empty user DN")));
+                return;
+            }
+        }
+        else
+        {
+            exception(make_exception_ptr(PermissionDeniedException("the client did not provide a certificate")));
+            return;
         }
     }
     catch (const Ice::SSL::CertificateEncodingException&)

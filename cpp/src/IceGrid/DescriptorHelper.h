@@ -260,8 +260,6 @@ namespace IceGrid
         [[nodiscard]] const NodeDescriptor& getDefinition() const;
         [[nodiscard]] const NodeDescriptor& getInstance() const;
         void getServerInfos(const std::string&, const std::string&, int, std::map<std::string, ServerInfo>&) const;
-        [[nodiscard]] bool hasServers() const;
-        [[nodiscard]] bool hasServer(const std::string&) const;
         void print(IceInternal::Output&) const;
         void printDiff(IceInternal::Output&, const NodeHelper&) const;
 

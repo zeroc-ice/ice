@@ -44,6 +44,14 @@
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
     </Project>
   </Folder>
+  <Folder Name="/DataStorm/relayReconnect/">
+    <Project Path="../test/DataStorm/relayReconnect/msbuild/reader/reader.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/DataStorm/relayReconnect/msbuild/writer/writer.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
   <Folder Name="/DataStorm/reliability/">
     <Project Path="../test/DataStorm/reliability/msbuild/reader/reader.vcxproj">
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
@@ -542,6 +550,11 @@
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
     </Project>
     <Project Path="../test/Ice/udp/msbuild/server/server.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/Ice/wsAllowedOrigins/">
+    <Project Path="../test/Ice/wsAllowedOrigins/msbuild/server.vcxproj">
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
     </Project>
   </Folder>

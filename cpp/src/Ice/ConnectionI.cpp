@@ -12,7 +12,8 @@
 #include "Ice/Properties.h"
 #include "IdleTimeoutTransceiverDecorator.h"
 #include "Instance.h"
-#include "ObjectAdapterI.h"   // For getThreadPool()
+#include "ObjectAdapterI.h" // For getThreadPool()
+#include "OutgoingResponseInternal.h"
 #include "ReferenceFactory.h" // For createProxy().
 #include "RequestHandler.h"   // For RetryException
 #include "ThreadPool.h"
@@ -571,30 +572,6 @@ Ice::ConnectionI::isActiveOrHolding() const
     return _state > StateNotValidated && _state < StateClosing;
 }
 
-bool
-Ice::ConnectionI::isFinished() const
-{
-    //
-    // We can use trylock here, because as long as there are still
-    // threads operating in this connection object, connection
-    // destruction is considered as not yet finished.
-    //
-    std::unique_lock<std::mutex> lock(_mutex, std::try_to_lock);
-
-    if (!lock.owns_lock())
-    {
-        return false;
-    }
-
-    if (_state != StateFinished || _upcallCount != 0)
-    {
-        return false;
-    }
-
-    assert(_state == StateFinished);
-    return true;
-}
-
 void
 Ice::ConnectionI::throwException() const
 {
@@ -1012,7 +989,7 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
     {
         // Go through the adapter to set the adapter on this connection
         // to ensure the object adapter is still active.
-        dynamic_pointer_cast<ObjectAdapterI>(adapter)->setAdapterOnConnection(shared_from_this());
+        static_pointer_cast<ObjectAdapterI>(adapter)->setAdapterOnConnection(shared_from_this());
     }
     else
     {
@@ -2717,7 +2694,7 @@ Ice::ConnectionI::sendNextMessages(vector<OutgoingMessage>& callbacks)
                 _writeStream.swap(*message->stream);
                 if (message->sent())
                 {
-                    callbacks.push_back(*message);
+                    callbacks.push_back(std::move(*message));
                 }
             }
             _sendStreams.pop_front();
@@ -2850,7 +2827,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
     // message was queued.
     if (!_sendStreams.empty())
     {
-        _sendStreams.push_back(message);
+        _sendStreams.push_back(std::move(message));
         _sendStreams.back().adopt(nullptr);
         return AsyncStatusQueued;
     }
@@ -2895,7 +2872,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
             return status;
         }
 
-        _sendStreams.push_back(message);
+        _sendStreams.push_back(std::move(message));
         _sendStreams.back().adopt(&stream);
     }
     else
@@ -2945,7 +2922,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
             return status;
         }
 
-        _sendStreams.push_back(message);
+        _sendStreams.push_back(std::move(message));
         _sendStreams.back().adopt(nullptr); // Adopt the stream.
 #ifdef ICE_HAS_BZIP2
     }
@@ -3260,6 +3237,22 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                             "received batch request with " + to_string(requestCount) + " batches"};
                     }
 
+                    // A batched request occupies at least 12 bytes on the wire (a 2-byte identity, a
+                    // 1-byte facet path, a 1-byte operation name, a 1-byte operation mode, a 1-byte
+                    // context, and a 6-byte parameters encapsulation). Reject a count larger than the
+                    // remaining message data could possibly hold. The message size is already capped
+                    // at Ice.MessageSizeMax (<= INT32_MAX bytes), so this also keeps requestCount well
+                    // within range when it is accumulated into the dispatch counters below.
+                    constexpr int32_t minBatchRequestSize = 12;
+                    if (requestCount > (stream.b.end() - stream.i) / minBatchRequestSize)
+                    {
+                        throw MarshalException{
+                            __FILE__,
+                            __LINE__,
+                            "received batch request with " + to_string(requestCount) +
+                                " batches, more than the message can contain"};
+                    }
+
                     upcall = [self = shared_from_this(), requestCount, adapter, compress](InputStream& messageStream)
                     {
                         self->dispatchAll(messageStream, requestCount, requestId, compress, adapter);
@@ -3297,7 +3290,7 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
 
                 if (q != _asyncRequests.end())
                 {
-                    auto outAsync = q->second;
+                    auto outAsync = std::move(q->second);
 
                     if (q == _asyncRequestsHint)
                     {
@@ -3437,9 +3430,10 @@ Ice::ConnectionI::dispatchAll(
             {
                 // Received request on a connection without an object adapter.
                 sendResponse(
-                    makeOutgoingResponse(
+                    makeOutgoingResponseCore(
                         make_exception_ptr(ObjectNotExistException{__FILE__, __LINE__}),
-                        request.current()),
+                        request.current(),
+                        _instance.get()),
                     0);
             }
 

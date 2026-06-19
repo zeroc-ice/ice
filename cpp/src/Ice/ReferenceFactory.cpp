@@ -93,13 +93,14 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
         return nullptr;
     }
 
-    const string delim = " \t\r\n";
+    static constexpr const char* whitespace = " \t\r\n";
+    static constexpr const char* whitespaceOrSeparator = " \t\r\n:@";
 
-    string s(str);
+    string s{str};
     string::size_type beg;
     string::size_type end = 0;
 
-    beg = s.find_first_not_of(delim, end);
+    beg = s.find_first_not_of(whitespace, end);
     if (beg == string::npos)
     {
         throw ParseException(__FILE__, __LINE__, "no non-whitespace characters found in proxy string '" + s + "'");
@@ -117,7 +118,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
     }
     else if (end == 0)
     {
-        end = s.find_first_of(delim + ":@", beg);
+        end = s.find_first_of(whitespaceOrSeparator, beg);
         if (end == string::npos)
         {
             end = s.size();
@@ -144,7 +145,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
         // a null proxy, but only if nothing follows the
         // quotes.
         //
-        if (s.find_first_not_of(delim, end) != string::npos)
+        if (s.find_first_not_of(whitespace, end) != string::npos)
         {
             throw ParseException(__FILE__, __LINE__, "invalid characters after identity in proxy string '" + s + "'");
         }
@@ -167,7 +168,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
 
     while (true)
     {
-        beg = s.find_first_not_of(delim, end);
+        beg = s.find_first_not_of(whitespace, end);
         if (beg == string::npos)
         {
             break;
@@ -178,7 +179,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
             break;
         }
 
-        end = s.find_first_of(delim + ":@", beg);
+        end = s.find_first_of(whitespaceOrSeparator, beg);
         if (end == string::npos)
         {
             end = s.length();
@@ -204,7 +205,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
         // quotation marks.
         //
         string argument;
-        string::size_type argumentBeg = s.find_first_not_of(delim, end);
+        string::size_type argumentBeg = s.find_first_not_of(whitespace, end);
         if (argumentBeg != string::npos)
         {
             if (s[argumentBeg] != '@' && s[argumentBeg] != ':' && s[argumentBeg] != '-')
@@ -220,7 +221,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
                 }
                 else if (end == 0)
                 {
-                    end = s.find_first_of(delim + ":@", beg);
+                    end = s.find_first_of(whitespaceOrSeparator, beg);
                     if (end == string::npos)
                     {
                         end = s.size();
@@ -493,7 +494,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
         }
         case '@':
         {
-            beg = s.find_first_not_of(delim, beg + 1);
+            beg = s.find_first_not_of(whitespace, beg + 1);
             if (beg == string::npos)
             {
                 throw ParseException(__FILE__, __LINE__, "missing adapter id in proxy string '" + s + "'");
@@ -510,7 +511,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
             }
             else if (end == 0)
             {
-                end = s.find_first_of(delim, beg);
+                end = s.find_first_of(whitespace, beg);
                 if (end == string::npos)
                 {
                     end = s.size();
@@ -525,7 +526,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
             }
 
             // Check for trailing whitespace.
-            if (end != string::npos && s.find_first_not_of(delim, end) != string::npos)
+            if (end != string::npos && s.find_first_not_of(whitespace, end) != string::npos)
             {
                 throw ParseException(
                     __FILE__,
@@ -610,7 +611,9 @@ IceInternal::ReferenceFactory::create(Identity ident, InputStream* s)
     vector<EndpointIPtr> endpoints;
     string adapterId;
 
-    int32_t sz = s->readSize();
+    // Each endpoint occupies at least 8 bytes on the wire (a 2-byte type plus a 6-byte minimum
+    // encapsulation), so readAndCheckSeqSize rejects an oversized count before we allocate.
+    int32_t sz = s->readAndCheckSeqSize(8);
 
     if (sz > 0)
     {

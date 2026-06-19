@@ -10,6 +10,7 @@
 #include "TargetCompare.h"
 #include "WSAcceptor.h"
 #include "WSConnector.h"
+#include "WSTransceiver.h"
 
 #include <algorithm>
 
@@ -20,6 +21,36 @@ using namespace IceInternal;
 namespace
 {
     const char* const wsPluginName = "IceWS";
+
+    // Parse the values of the ObjectAdapter property "AllowedOrigins" into a canonicalized set of origins.
+    // Each entry is "scheme://host[:port]", lowercased, with the default port for the scheme (80/443) omitted.
+    // The literal "*" disables enforcement; in that case the returned set is empty -- handleRequest treats an empty
+    // allowlist as "allow any origin", so the two cases (unset and wildcard) collapse into one.
+    // Throws PropertyException if any entry is not a syntactically valid origin; propertyName is included in the
+    // message so the operator can identify which adapter is misconfigured.
+    set<string> parseAllowedOrigins(const vector<string>& entries, const string& propertyName)
+    {
+        set<string> result;
+        for (const auto& entry : entries)
+        {
+            if (entry == "*")
+            {
+                return {};
+            }
+            try
+            {
+                result.insert(canonicalizeOrigin(entry));
+            }
+            catch (const std::invalid_argument&)
+            {
+                throw PropertyException(
+                    __FILE__,
+                    __LINE__,
+                    "malformed origin '" + entry + "' in property '" + propertyName + "'");
+            }
+        }
+        return result;
+    }
 
     class WSEndpointFactoryPlugin : public Plugin
     {
@@ -246,8 +277,20 @@ IceInternal::WSEndpoint::acceptor(
     const string& adapterName,
     const optional<Ice::SSL::ServerAuthenticationOptions>& serverAuthenticationOptions) const
 {
+    // Parse AllowedOrigins before creating the delegate acceptor so a malformed property doesn't leave an open socket
+    // hanging on a TcpAcceptor whose destructor asserts INVALID_SOCKET.
+    set<string> allowedOrigins;
+    if (!adapterName.empty())
+    {
+        const string propertyName = adapterName + ".AllowedOrigins";
+        allowedOrigins = parseAllowedOrigins(_instance->properties()->getPropertyAsList(propertyName), propertyName);
+    }
     AcceptorPtr acceptor = _delegate->acceptor(adapterName, serverAuthenticationOptions);
-    return make_shared<WSAcceptor>(const_cast<WSEndpoint*>(this)->shared_from_this(), _instance, acceptor);
+    return make_shared<WSAcceptor>(
+        const_cast<WSEndpoint*>(this)->shared_from_this(),
+        _instance,
+        acceptor,
+        std::move(allowedOrigins));
 }
 
 WSEndpointPtr
@@ -255,7 +298,7 @@ IceInternal::WSEndpoint::endpoint(const EndpointIPtr& delEndp) const
 {
     if (delEndp.get() == _delegate.get())
     {
-        return dynamic_pointer_cast<WSEndpoint>(const_cast<WSEndpoint*>(this)->shared_from_this());
+        return static_pointer_cast<WSEndpoint>(const_cast<WSEndpoint*>(this)->shared_from_this());
     }
     else
     {

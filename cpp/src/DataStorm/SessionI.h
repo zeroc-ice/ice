@@ -300,8 +300,6 @@ namespace DataStormI
         [[nodiscard]] DataStormContract::NodePrx getNode() const;
         void setNode(DataStormContract::NodePrx);
 
-        [[nodiscard]] std::unique_lock<std::mutex>& getTopicLock() { return *_topicLock; }
-
         void subscribe(std::int64_t, TopicI*);
         void unsubscribe(std::int64_t, TopicI*);
         void disconnect(std::int64_t, TopicI*);

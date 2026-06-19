@@ -15,6 +15,7 @@
 
 #include <climits>
 #include <cstdint>
+#include <stdexcept>
 
 using namespace std;
 using namespace Ice;
@@ -122,6 +123,49 @@ namespace
 
         return v;
     }
+}
+
+string
+IceInternal::canonicalizeOrigin(string_view origin)
+{
+    // Throws std::invalid_argument for any input that is not a serialized origin per RFC 6454.
+    auto sep = origin.find("://");
+    if (sep == string_view::npos || sep == 0)
+    {
+        throw invalid_argument{"malformed origin '" + string{origin} + "'"};
+    }
+    string scheme{origin.substr(0, sep)};
+    transform(
+        scheme.begin(),
+        scheme.end(),
+        scheme.begin(),
+        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    string_view authority = origin.substr(sep + 3);
+    // Tolerate a single trailing slash (some peers send "https://example.com/" as an Origin); reject any other
+    // path/query/fragment/userinfo.
+    if (!authority.empty() && authority.back() == '/')
+    {
+        authority.remove_suffix(1);
+    }
+    if (authority.empty() || authority.find_first_of("/?#@") != string_view::npos)
+    {
+        throw invalid_argument{"malformed origin '" + string{origin} + "'"};
+    }
+    string hostAndPort{authority};
+    transform(
+        hostAndPort.begin(),
+        hostAndPort.end(),
+        hostAndPort.begin(),
+        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    if (auto colon = hostAndPort.rfind(':'); colon != string::npos)
+    {
+        string_view port = string_view{hostAndPort}.substr(colon + 1);
+        if ((scheme == "http" && port == "80") || (scheme == "https" && port == "443"))
+        {
+            hostAndPort = hostAndPort.substr(0, colon);
+        }
+    }
+    return scheme + "://" + hostAndPort;
 }
 
 NativeInfoPtr
@@ -845,9 +889,10 @@ IceInternal::WSTransceiver::WSTransceiver(
     //
 }
 
-IceInternal::WSTransceiver::WSTransceiver(ProtocolInstancePtr instance, TransceiverPtr del)
+IceInternal::WSTransceiver::WSTransceiver(ProtocolInstancePtr instance, TransceiverPtr del, set<string> allowedOrigins)
     : _instance(std::move(instance)),
       _delegate(std::move(del)),
+      _allowedOrigins(std::move(allowedOrigins)),
       _incoming(true),
       _state(StateInitializeDelegate),
       _parser(make_shared<HttpParser>()),
@@ -875,6 +920,19 @@ void
 IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
 {
     string val;
+
+    //
+    // The opening handshake must be a GET request (RFC 6455 section 4.1). We check the message type first
+    // because method() (used just below) and uri() (used later) assert the parser holds a request.
+    //
+    if (_parser->type() != HttpParser::TypeRequest)
+    {
+        throw WebSocketException("WebSocket handshake is not an HTTP request");
+    }
+    if (_parser->method() != "GET")
+    {
+        throw WebSocketException("unsupported HTTP method '" + _parser->method() + "' for WebSocket handshake");
+    }
 
     //
     // HTTP/1.1
@@ -959,6 +1017,32 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
     if (decodedKey.size() != 16)
     {
         throw WebSocketException("invalid value '" + key + "' for WebSocket key");
+    }
+
+    //
+    // Optionally validate the Origin header against the adapter's allowed-origins list.
+    // Browsers always send Origin; non-browser clients do not, so an absent header bypasses the check.
+    // A wildcard ("*") allowlist is normalized to an empty set at parse time, so empty here means "no enforcement".
+    //
+    if (!_allowedOrigins.empty())
+    {
+        string origin;
+        if (_parser->getHeader("Origin", origin, false))
+        {
+            string canonical;
+            try
+            {
+                canonical = canonicalizeOrigin(IceInternal::trim(origin));
+            }
+            catch (const std::invalid_argument&)
+            {
+                throw WebSocketException("invalid Origin header '" + origin + "'");
+            }
+            if (_allowedOrigins.count(canonical) == 0)
+            {
+                throw WebSocketException("origin '" + origin + "' is not allowed");
+            }
+        }
     }
 
     //
@@ -1121,6 +1205,16 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
             _readOpCode = static_cast<int>(ch & byte{0xf});
 
             //
+            // No extension is negotiated, so the RSV1, RSV2, and RSV3 bits must all be 0.
+            //
+            if ((ch & byte{0x70}) != byte{0})
+            {
+                throw ProtocolException(__FILE__, __LINE__, "invalid WebSocket frame: RSV bits must be 0");
+            }
+
+            const bool finalFrame = (ch & byte{FLAG_FINAL}) == byte{FLAG_FINAL};
+
+            //
             // Remember if last frame if we're going to read a data or
             // continuation frame, this is only for protocol
             // correctness checking purpose.
@@ -1131,7 +1225,7 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
                 {
                     throw ProtocolException(__FILE__, __LINE__, "invalid data frame, no FIN on previous frame");
                 }
-                _readLastFrame = (ch & byte{FLAG_FINAL}) == byte{FLAG_FINAL};
+                _readLastFrame = finalFrame;
             }
             else if (_readOpCode == OP_CONT)
             {
@@ -1139,7 +1233,7 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
                 {
                     throw ProtocolException(__FILE__, __LINE__, "invalid continuation frame, previous frame FIN set");
                 }
-                _readLastFrame = (ch & byte{FLAG_FINAL}) == byte{FLAG_FINAL};
+                _readLastFrame = finalFrame;
             }
 
             ch = *_readI++;
@@ -1162,6 +1256,30 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
             // 127:   The subsequent eight bytes contain the payload length
             //
             _readPayloadLength = static_cast<size_t>((ch & byte{0x7f}));
+
+            //
+            // RFC 6455 section 5.5: control frames (close, ping, and pong) must not be fragmented
+            // and must have a payload length of 125 bytes or less - they cannot use the 16-bit or
+            // 64-bit extended length encoding. Enforce this before allocating any payload buffer.
+            //
+            if (_readOpCode == OP_CLOSE || _readOpCode == OP_PING || _readOpCode == OP_PONG)
+            {
+                if (!finalFrame)
+                {
+                    throw ProtocolException(
+                        __FILE__,
+                        __LINE__,
+                        "invalid WebSocket control frame: the FIN bit is not set");
+                }
+                if (_readPayloadLength > 125)
+                {
+                    throw ProtocolException(
+                        __FILE__,
+                        __LINE__,
+                        "invalid WebSocket control frame: the payload length exceeds 125 bytes");
+                }
+            }
+
             if (_readPayloadLength < 126)
             {
                 _readHeaderLength = 0;
@@ -1194,7 +1312,10 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
 
             if (_readPayloadLength == 126)
             {
-                _readPayloadLength = static_cast<size_t>(ntohs(*reinterpret_cast<uint16_t*>(_readI)));
+                // memcpy avoids the alignment UB of a direct uint16_t* dereference on _readI.
+                uint16_t length;
+                memcpy(&length, _readI, sizeof(length));
+                _readPayloadLength = static_cast<size_t>(ntohs(length));
                 _readI += 2;
             }
             else if (_readPayloadLength == 127)
@@ -1447,15 +1568,22 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
         else if (_state == StatePongPending)
         {
             prepareWriteHeader(OP_PONG, _pingPayload.size());
-            if (_pingPayload.size() > static_cast<size_t>(_writeBuffer.b.end() - _writeBuffer.i))
+
+            // A zero-length ping (the common keep-alive case) leaves _pingPayload empty. Guard the copy so we
+            // never form &_pingPayload[0] on an empty vector, which is undefined behavior and aborts under
+            // hardened standard libraries (_GLIBCXX_ASSERTIONS, MSVC debug iterators, libc++ hardening).
+            if (!_pingPayload.empty())
             {
-                auto pos = static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin());
-                _writeBuffer.b.resize(pos + _pingPayload.size());
-                _writeBuffer.i = _writeBuffer.b.begin() + pos;
+                if (_pingPayload.size() > static_cast<size_t>(_writeBuffer.b.end() - _writeBuffer.i))
+                {
+                    auto pos = static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin());
+                    _writeBuffer.b.resize(pos + _pingPayload.size());
+                    _writeBuffer.i = _writeBuffer.b.begin() + pos;
+                }
+                memcpy(_writeBuffer.i, _pingPayload.data(), _pingPayload.size());
+                _writeBuffer.i += _pingPayload.size();
+                _pingPayload.clear();
             }
-            memcpy(_writeBuffer.i, &_pingPayload[0], _pingPayload.size());
-            _writeBuffer.i += _pingPayload.size();
-            _pingPayload.clear();
 
             _writeBuffer.b.resize(static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin()));
             _writeState = WriteStateControlFrame;
@@ -1467,8 +1595,9 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
         {
             prepareWriteHeader(OP_CLOSE, 2);
 
-            // Write closing reason
-            *reinterpret_cast<uint16_t*>(_writeBuffer.i) = htons(static_cast<uint16_t>(_closingReason));
+            // Write closing reason. memcpy avoids the alignment UB of a direct uint16_t* store.
+            const uint16_t reason = htons(static_cast<uint16_t>(_closingReason));
+            memcpy(_writeBuffer.i, &reason, sizeof(reason));
             if (!_incoming)
             {
                 *_writeBuffer.i++ ^= _writeMask[0];
@@ -1688,7 +1817,9 @@ IceInternal::WSTransceiver::prepareWriteHeader(uint8_t opCode, IceInternal::Buff
         // Use an extra 16 bits to encode the payload length.
         //
         *_writeBuffer.i++ = byte{126};
-        *reinterpret_cast<uint16_t*>(_writeBuffer.i) = htons(static_cast<uint16_t>(payloadLength));
+        // memcpy avoids the alignment UB of a direct uint16_t* store.
+        const uint16_t length = htons(static_cast<uint16_t>(payloadLength));
+        memcpy(_writeBuffer.i, &length, sizeof(length));
         _writeBuffer.i += 2;
     }
     else if (payloadLength > USHRT_MAX)

@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.3
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -70,7 +70,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.3
 
       - name: Setup .NET
         uses: ./.github/actions/setup-dotnet
@@ -119,13 +119,13 @@ jobs:
 
       - name: Sign .NET Assemblies with Trusted Signing
         if: ${{ inputs.authenticode_sign }}
-        uses: azure/trusted-signing-action@v0
+        uses: azure/trusted-signing-action@v2
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           endpoint: https://eus.codesigning.azure.net/
-          trusted-signing-account-name: zeroc
+          signing-account-name: zeroc
           certificate-profile-name: zeroc-ice
           files-catalog: ${{ github.workspace }}\catalog.txt
           file-digest: SHA256

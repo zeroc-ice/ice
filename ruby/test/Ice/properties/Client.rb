@@ -109,6 +109,40 @@ class Client < ::TestHelper
         end
         puts "ok"
 
+        print "testing createProperties with a defaults argument... "
+        # Passing nil for the optional defaults argument must behave like omitting it (no defaults),
+        # not crash. Regression test: a nil defaults argument previously bypassed the type check and
+        # dereferenced DATA_PTR(Qnil).
+        properties = Ice.createProperties([], nil)
+        properties.setProperty("Foo.Bar", "1")
+        test(properties.getProperty("Foo.Bar") == "1")
+
+        # A real Properties object passed as defaults is honored.
+        defaults = Ice.createProperties()
+        defaults.setProperty("Baz.Qux", "42")
+        properties = Ice.createProperties([], defaults)
+        test(properties.getProperty("Baz.Qux") == "42")
+
+        # A non-nil, non-Properties defaults argument still raises TypeError.
+        begin
+            Ice.createProperties([], "not a properties")
+            test(false)
+        rescue TypeError
+        end
+        puts "ok"
+
+        print "testing that string-sequence elements are coerced once... "
+        # Regression test: each element of a string-sequence argument must be coerced to a string exactly once.
+        coercions = 0
+        probe = Object.new
+        probe.define_singleton_method(:to_str) do
+            coercions += 1
+            "--Probe.Value=1"
+        end
+        Ice.createProperties([probe])
+        test(coercions == 1)
+        puts "ok"
+
         print "testing Ice.initialize with args... "
         args = ["--Foo.Bar=1", "--Foo.Bar=2", "--Ice.Trace.Network=3"]
         Ice.initialize(args) do |communicator|

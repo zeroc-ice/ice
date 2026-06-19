@@ -16,7 +16,7 @@ internal class WSAcceptor : Acceptor
 
     public void finishAccept() => _delegate.finishAccept();
 
-    public Transceiver accept() => new WSTransceiver(_instance, _delegate.accept());
+    public Transceiver accept() => new WSTransceiver(_instance, _delegate.accept(), _allowedOrigins);
 
     public string protocol() => _delegate.protocol();
 
@@ -24,16 +24,16 @@ internal class WSAcceptor : Acceptor
 
     public string toDetailedString() => _delegate.toDetailedString();
 
-    public Acceptor getDelegate() => _delegate;
-
-    internal WSAcceptor(WSEndpoint endpoint, ProtocolInstance instance, Acceptor del)
+    internal WSAcceptor(WSEndpoint endpoint, ProtocolInstance instance, Acceptor del, HashSet<string> allowedOrigins)
     {
         _endpoint = endpoint;
         _instance = instance;
         _delegate = del;
+        _allowedOrigins = allowedOrigins;
     }
 
     private WSEndpoint _endpoint;
     private readonly ProtocolInstance _instance;
     private readonly Acceptor _delegate;
+    private readonly HashSet<string> _allowedOrigins;
 }

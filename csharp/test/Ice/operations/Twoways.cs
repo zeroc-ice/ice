@@ -1455,6 +1455,19 @@ internal class Twoways
                 test(Internal.DictionaryExtensions.DictionaryEqual(ic.getImplicitContext().getContext(), ctx));
                 test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContext(), ctx));
 
+                test(ic.getImplicitContext().get("missing").Length == 0);
+                test(ic.getImplicitContext().remove("missing").Length == 0);
+
+                ic.getImplicitContext().setContext(new Dictionary<string, string> { ["only"] = "ONLY" });
+                test(ic.getImplicitContext().containsKey("only"));
+                test(ic.getImplicitContext().containsKey("one") == false); // replaced, old keys gone
+
+                Dictionary<string, string> snapshot = ic.getImplicitContext().getContext();
+                snapshot["only"] = "MUTATED";
+                test(ic.getImplicitContext().get("only") == "ONLY"); // getContext returned a snapshot
+
+                ic.getImplicitContext().setContext(ctx); // restore for the assertions below
+
                 test(ic.getImplicitContext().containsKey("zero") == false);
                 string r = ic.getImplicitContext().put("zero", "ZERO");
                 test(r.Length == 0);

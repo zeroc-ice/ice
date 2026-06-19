@@ -41,7 +41,7 @@ export class ServantManager {
         }
 
         if (locator !== null) {
-            let cookie = null;
+            let cookie;
             try {
                 [servant, cookie] = locator.locate(current);
             } catch (ex) {
@@ -159,7 +159,7 @@ export class ServantManager {
         }
 
         const m = this._servantMapMap.get(ident);
-        let obj = null;
+        let obj;
         if (m === undefined) {
             obj = this._defaultServantMap.get(ident.category);
             if (obj === undefined) {

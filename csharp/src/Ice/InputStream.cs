@@ -491,14 +491,17 @@ public sealed class InputStream
         // the estimated remaining buffer size. This estimation is based on
         // the minimum size of the enclosing sequences, it's _minSeqSize.
         //
+        // 'sz' is peer-controlled (up to int.MaxValue), so we compute the minimum size of this
+        // sequence in 64-bit: 'sz * minSize' would overflow a 32-bit int and bypass the bounds check.
+        //
+        long minSeqSize = (long)sz * minSize;
         if (_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize))
         {
             _startSeq = _buf.b.position();
-            _minSeqSize = sz * minSize;
         }
         else
         {
-            _minSeqSize += sz * minSize;
+            minSeqSize += _minSeqSize;
         }
 
         //
@@ -506,11 +509,13 @@ public sealed class InputStream
         // possibly enclosed sequences), something is wrong with the marshaled
         // data: it's claiming having more data that what is possible to read.
         //
-        if (_startSeq + _minSeqSize > _buf.size())
+        if (_startSeq + minSeqSize > _buf.size())
         {
             throw new MarshalException(endOfBufferMessage);
         }
 
+        // minSeqSize is now known to be <= _buf.size(), itself smaller than int.MaxValue.
+        _minSeqSize = (int)minSeqSize;
         return sz;
     }
 
@@ -2589,7 +2594,12 @@ public sealed class InputStream
             if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
             {
                 _current.sliceSize = _stream.readInt();
-                if (_current.sliceSize < 4)
+                // A slice with optional members carries at least the 1-byte end marker in its body,
+                // so its size (which includes the 4-byte size field) must be >= 5. We rely on this in
+                // skipSlice's slice-preservation logic, which excludes the end marker by stepping back
+                // one byte.
+                int minSliceSize = (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0 ? 5 : 4;
+                if (_current.sliceSize < minSliceSize)
                 {
                     throw new MarshalException(endOfBufferMessage);
                 }
@@ -2765,7 +2775,10 @@ public sealed class InputStream
 
         private int readInstance(int index, System.Action<Value>? cb)
         {
-            Debug.Assert(index > 0);
+            if (index <= 0)
+            {
+                throw new MarshalException("invalid class instance index");
+            }
 
             if (index > 1)
             {

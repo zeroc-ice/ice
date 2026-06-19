@@ -21,7 +21,11 @@ public sealed class BufSizeWarnInfo
     public int rcvSize;
 }
 
+// CA1001: Instance holds an IDisposable _sslEngine but follows Ice's destroy()-based
+// lifecycle instead of IDisposable.
+#pragma warning disable CA1001
 public sealed class Instance
+#pragma warning restore CA1001
 {
     private class ObserverUpdaterI : Ice.Instrumentation.ObserverUpdater
     {
@@ -560,16 +564,6 @@ public sealed class Instance
         }
         _initData.logger = logger;
         _ownLogger = true;
-    }
-
-    public void
-    setThreadHook(System.Action threadStart, System.Action threadStop)
-    {
-        //
-        // No locking, as it can only be called during plug-in loading
-        //
-        _initData.threadStart = threadStart;
-        _initData.threadStop = threadStop;
     }
 
     internal void addSliceLoader(SliceLoader loader) => _applicationSliceLoader.add(loader);
@@ -1151,6 +1145,9 @@ public sealed class Instance
             _locatorManager = null;
             _endpointFactoryManager = null;
             _pluginManager = null;
+
+            _sslEngine?.Dispose();
+            _sslEngine = null;
 
             _adminAdapter = null;
             _adminFacets.Clear();

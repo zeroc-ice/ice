@@ -26,7 +26,7 @@ export class ImplicitContext {
     }
 
     containsKey(key) {
-        if (key === null) {
+        if (key === null || key === undefined) {
             key = "";
         }
 
@@ -34,12 +34,12 @@ export class ImplicitContext {
     }
 
     get(key) {
-        if (key === null) {
+        if (key === null || key === undefined) {
             key = "";
         }
 
         let val = this._context.get(key);
-        if (val === null) {
+        if (val === undefined) {
             val = "";
         }
 
@@ -47,15 +47,15 @@ export class ImplicitContext {
     }
 
     put(key, value) {
-        if (key === null) {
+        if (key === null || key === undefined) {
             key = "";
         }
-        if (value === null) {
+        if (value === null || value === undefined) {
             value = "";
         }
 
         let oldVal = this._context.get(key);
-        if (oldVal === null) {
+        if (oldVal === undefined) {
             oldVal = "";
         }
 
@@ -65,14 +65,14 @@ export class ImplicitContext {
     }
 
     remove(key) {
-        if (key === null) {
+        if (key === null || key === undefined) {
             key = "";
         }
 
         let val = this._context.get(key);
         this._context.delete(key);
 
-        if (val === null) {
+        if (val === undefined) {
             val = "";
         }
         return val;
@@ -82,15 +82,7 @@ export class ImplicitContext {
         if (prxContext.size === 0) {
             ContextHelper.write(os, this._context);
         } else {
-            let ctx = null;
-            if (this._context.size === 0) {
-                ctx = prxContext;
-            } else {
-                ctx = new Context(this._context);
-                for (const [key, value] of prxContext) {
-                    ctx.set(key, value);
-                }
-            }
+            const ctx = this._context.size === 0 ? prxContext : new Context([...this._context, ...prxContext]);
             ContextHelper.write(os, ctx);
         }
     }

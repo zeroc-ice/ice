@@ -224,15 +224,23 @@ ZEND_METHOD(Ice_Connection, setBufferSize)
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
     assert(_this);
 
-    zval* r;
-    zval* s;
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("zz"), &r, &s) != SUCCESS)
+    zend_long r;
+    zend_long s;
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("ll"), &r, &s) != SUCCESS)
     {
         RETURN_NULL();
     }
 
-    int rcvSize = static_cast<int>(Z_LVAL_P(r));
-    int sndSize = static_cast<int>(Z_LVAL_P(s));
+    // Connection::setBufferSize takes int arguments in C++; reject values outside that range instead of silently
+    // truncating them.
+    if (r < INT_MIN || r > INT_MAX || s < INT_MIN || s > INT_MAX)
+    {
+        invalidArgument("buffer size must be in the range of a C++ int");
+        RETURN_NULL();
+    }
+
+    int rcvSize = static_cast<int>(r);
+    int sndSize = static_cast<int>(s);
 
     try
     {
@@ -432,6 +440,8 @@ IcePHP::connectionInit(void)
         "",
         ZEND_ACC_PUBLIC);
     zend_declare_property_long(udpConnectionInfoClassEntry, "mcastPort", sizeof("mcastPort") - 1, 0, ZEND_ACC_PUBLIC);
+    zend_declare_property_long(udpConnectionInfoClassEntry, "rcvSize", sizeof("rcvSize") - 1, 0, ZEND_ACC_PUBLIC);
+    zend_declare_property_long(udpConnectionInfoClassEntry, "sndSize", sizeof("sndSize") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Register the WSConnectionInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "WSConnectionInfo", nullptr);

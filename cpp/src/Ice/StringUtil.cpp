@@ -801,7 +801,7 @@ IceInternal::match(const string& s, const string& pat, bool emptyMatch)
     //
     // Make sure end of the strings match
     //
-    if (s.substr(endIndex, s.length()) != pat.substr(beginIndex + 1, pat.length()))
+    if (s.substr(endIndex) != pat.substr(beginIndex + 1))
     {
         return false;
     }

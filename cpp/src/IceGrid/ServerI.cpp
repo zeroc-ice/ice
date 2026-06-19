@@ -1259,18 +1259,6 @@ ServerI::checkUpdate(shared_ptr<InternalServerDescriptor> desc, bool noRestart, 
     return StopCommand::isStopped(_state);
 }
 
-void
-ServerI::checkRemove(bool noRestart, const Ice::Current&)
-{
-    lock_guard lock(_mutex);
-    checkDestroyed();
-
-    if (noRestart && !StopCommand::isStopped(_state) && !_stop)
-    {
-        throw DeploymentException("the server is running");
-    }
-}
-
 shared_ptr<ServerCommand>
 ServerI::destroy(const string& uuid, int revision, const string& replicaName, bool noRestart, function<void()> response)
 {
@@ -2073,9 +2061,10 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     }
 
     //
-    // Simplify the log paths and transform relative paths into
-    // absolute paths, also make sure the logs are sorted.
+    // Rebuild the log paths from the descriptor: simplify them, transform relative paths into
+    // absolute paths, and sort the result.
     //
+    _logs.clear();
     for (const auto& log : _desc->logs)
     {
         string path = simplify(log);
@@ -2621,6 +2610,16 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
     //
     InternalServerState previous = _state;
     _state = st;
+
+    //
+    // Wake any thread waiting for the server to leave the Activating state (adapterDeactivated() and terminated()).
+    // The successful activation path notifies explicitly in activate(), but the activation-failure path
+    // (Activating -> Deactivating -> Inactive) would otherwise never notify, leaving those waiters parked forever.
+    //
+    if (previous == InternalServerState::Activating && _state != InternalServerState::Activating)
+    {
+        _condVar.notify_all();
+    }
 
     //
     // Check if some commands are done.

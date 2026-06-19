@@ -568,7 +568,9 @@ internal class ReferenceFactory
         EndpointI[] endpoints = null;
         string adapterId = "";
 
-        int sz = s.readSize();
+        // Each endpoint occupies at least 8 bytes on the wire (a 2-byte type plus a 6-byte minimum
+        // encapsulation), so readAndCheckSeqSize rejects an oversized count before we allocate.
+        int sz = s.readAndCheckSeqSize(8);
         if (sz > 0)
         {
             endpoints = new EndpointI[sz];

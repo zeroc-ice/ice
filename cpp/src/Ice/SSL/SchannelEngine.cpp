@@ -568,9 +568,12 @@ namespace
                          0,
                          CERT_FIND_ANY,
                          0,
-                         next)) != 0)
+                         next)) != nullptr)
                 {
-                    certs.push_back(next);
+                    // CertFindCertificateInStore frees the context passed as pPrevCertContext on the next iteration
+                    // (and frees the last one when it returns null). Duplicate the context to keep an owned reference
+                    // that remains valid after enumeration; these duplicates are released in the destructor.
+                    certs.push_back(CertDuplicateCertificateContext(next));
                 }
             } while (next);
             stores.push_back(store);
@@ -598,7 +601,13 @@ namespace
             if (startpos != string::npos)
             {
                 endpos = strbuf.find("-----END CERTIFICATE-----", startpos);
-                size = endpos - startpos + sizeof("-----END CERTIFICATE-----");
+                if (endpos == string::npos)
+                {
+                    ostringstream os;
+                    os << "SSL transport: malformed PEM certificate (missing END marker): '" << file << "'";
+                    throw InitializationException(__FILE__, __LINE__, os.str());
+                }
+                size = endpos - startpos + strlen("-----END CERTIFICATE-----");
             }
             else if (first)
             {
@@ -741,6 +750,64 @@ Schannel::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
       _rootStore(nullptr),
       _chainEngine(nullptr)
 {
+}
+
+Schannel::SSLEngine::~SSLEngine()
+{
+    // Best-effort cleanup. We catch every exception (e.g. std::bad_alloc from the per-cert vector
+    // allocation below) so nothing escapes the destructor and triggers std::terminate.
+    try
+    {
+        if (_chainEngine && _chainEngine != HCCE_CURRENT_USER && _chainEngine != HCCE_LOCAL_MACHINE)
+        {
+            CertFreeCertificateChainEngine(_chainEngine);
+        }
+
+        if (_rootStore)
+        {
+            CertCloseStore(_rootStore, 0);
+        }
+
+        for (vector<PCCERT_CONTEXT>::const_iterator i = _importedCerts.begin(); i != _importedCerts.end(); ++i)
+        {
+            // Retrieve the certificate CERT_KEY_PROV_INFO_PROP_ID property, we use the CRYPT_KEY_PROV_INFO data to
+            // remove the key set associated with the certificate.
+            DWORD length = 0;
+            if (!CertGetCertificateContextProperty(*i, CERT_KEY_PROV_INFO_PROP_ID, 0, &length))
+            {
+                continue;
+            }
+            vector<char> buf(length);
+            if (!CertGetCertificateContextProperty(*i, CERT_KEY_PROV_INFO_PROP_ID, &buf[0], &length))
+            {
+                continue;
+            }
+            CRYPT_KEY_PROV_INFO* key = reinterpret_cast<CRYPT_KEY_PROV_INFO*>(&buf[0]);
+            HCRYPTPROV prov = 0;
+            CryptAcquireContextW(&prov, key->pwszContainerName, key->pwszProvName, key->dwProvType, CRYPT_DELETEKEYSET);
+        }
+
+        for (vector<PCCERT_CONTEXT>::const_iterator i = _allCerts.begin(); i != _allCerts.end(); ++i)
+        {
+            CertFreeCertificateContext(*i);
+        }
+
+        for (vector<HCERTSTORE>::const_iterator i = _stores.begin(); i != _stores.end(); ++i)
+        {
+#ifdef NDEBUG
+            CertCloseStore(*i, 0);
+#else
+            // In debug builds, close the store with CERT_CLOSE_STORE_CHECK_FLAG to assert that every certificate
+            // context obtained from it was freed. The call returns false (last error CRYPT_E_PENDING_CLOSE) if any
+            // context is still outstanding, which catches certificate-reference leaks early.
+            const BOOL allContextsFreed = CertCloseStore(*i, CERT_CLOSE_STORE_CHECK_FLAG);
+            assert(allContextsFreed && "SSL transport: certificate context leaked (store closed with live contexts)");
+#endif
+        }
+    }
+    catch (...)
+    {
+    }
 }
 
 void
@@ -1210,49 +1277,6 @@ Schannel::SSLEngine::getCipherName(ALG_ID cipher) const
     }
 }
 
-void
-Schannel::SSLEngine::destroy()
-{
-    if (_chainEngine && _chainEngine != HCCE_CURRENT_USER && _chainEngine != HCCE_LOCAL_MACHINE)
-    {
-        CertFreeCertificateChainEngine(_chainEngine);
-    }
-
-    if (_rootStore)
-    {
-        CertCloseStore(_rootStore, 0);
-    }
-
-    for (vector<PCCERT_CONTEXT>::const_iterator i = _importedCerts.begin(); i != _importedCerts.end(); ++i)
-    {
-        // Retrieve the certificate CERT_KEY_PROV_INFO_PROP_ID property, we use the CRYPT_KEY_PROV_INFO data to remove
-        // the key set associated with the certificate.
-        DWORD length = 0;
-        if (!CertGetCertificateContextProperty(*i, CERT_KEY_PROV_INFO_PROP_ID, 0, &length))
-        {
-            continue;
-        }
-        vector<char> buf(length);
-        if (!CertGetCertificateContextProperty(*i, CERT_KEY_PROV_INFO_PROP_ID, &buf[0], &length))
-        {
-            continue;
-        }
-        CRYPT_KEY_PROV_INFO* key = reinterpret_cast<CRYPT_KEY_PROV_INFO*>(&buf[0]);
-        HCRYPTPROV prov = 0;
-        CryptAcquireContextW(&prov, key->pwszContainerName, key->pwszProvName, key->dwProvType, CRYPT_DELETEKEYSET);
-    }
-
-    for (vector<PCCERT_CONTEXT>::const_iterator i = _allCerts.begin(); i != _allCerts.end(); ++i)
-    {
-        CertFreeCertificateContext(*i);
-    }
-
-    for (vector<HCERTSTORE>::const_iterator i = _stores.begin(); i != _stores.end(); ++i)
-    {
-        CertCloseStore(*i, 0);
-    }
-}
-
 Ice::SSL::ClientAuthenticationOptions
 Schannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
 {
@@ -1260,11 +1284,9 @@ Schannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
         .clientCredentialsSelectionCallback =
             [this](const string&)
         {
-            for (const auto& cert : _allCerts)
-            {
-                CertDuplicateCertificateContext(cert);
-            }
-
+            // The caller (TransceiverI) duplicates each paCred context into its own list and frees those in close(),
+            // so the credentials we return must not bump the reference count here — doing so leaks one reference per
+            // certificate per connection and prevents the certificate store from ever closing cleanly.
             return SCH_CREDENTIALS{
                 .dwVersion = SCH_CREDENTIALS_VERSION,
                 .cCreds = static_cast<DWORD>(_allCerts.size()),
@@ -1305,11 +1327,9 @@ Schannel::SSLEngine::createServerAuthenticationOptions() const
             [this](const string&)
         {
             {
-                for (const auto& cert : _allCerts)
-                {
-                    CertDuplicateCertificateContext(cert);
-                }
-
+                // The caller (TransceiverI) duplicates each paCred context into its own list and frees those in
+                // close(), so the credentials we return must not bump the reference count here — doing so leaks one
+                // reference per certificate per connection and prevents the certificate store from closing cleanly.
                 return SCH_CREDENTIALS{
                     .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = static_cast<DWORD>(_allCerts.size()),

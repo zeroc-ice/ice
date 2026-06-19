@@ -144,18 +144,16 @@ export class Base64 {
         let by3;
         let by4;
 
-        let c1;
         let c2;
         let c3;
         let c4;
 
         for (let i = 0; i < newStr.length; i += 4) {
-            c1 = "A";
             c2 = "A";
             c3 = "A";
             c4 = "A";
 
-            c1 = newStr[i];
+            const c1 = newStr[i];
 
             if (i + 1 < newStr.length) {
                 c2 = newStr[i + 1];

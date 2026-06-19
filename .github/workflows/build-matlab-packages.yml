@@ -34,7 +34,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.3
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -67,14 +67,14 @@ jobs:
           Add-Content -Path "${{ github.workspace }}\catalog.txt" -Value "cpp\bin\x64\Release\slice2matlab.exe"
 
       - name: Sign C++ Binaries
-        uses: azure/trusted-signing-action@v0
+        uses: azure/trusted-signing-action@v2
         if: runner.os == 'Windows' && inputs.authenticode_sign
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           endpoint: https://eus.codesigning.azure.net/
-          trusted-signing-account-name: zeroc
+          signing-account-name: zeroc
           certificate-profile-name: zeroc-ice
           files-catalog: ${{ github.workspace }}\catalog.txt
           file-digest: SHA256

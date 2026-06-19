@@ -95,6 +95,8 @@ NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& newConnection
         // connection
         if (p->second->getConnection() != newConnection)
         {
+            // The node reconnected over a new connection; drop the announcements received over the old one.
+            removeAnnouncements(p->second->getConnection());
             p->second->destroy();
             _sessions.erase(p);
         }
@@ -119,6 +121,14 @@ NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& newConnection
         make_shared<NodePrx>(node),
         [self = shared_from_this(), node = std::move(node)](const ConnectionPtr& connection, exception_ptr) mutable
         { self->destroySession(connection, node); });
+
+    // When this session forwards announcements, replay to the new peer the announcements we received earlier from
+    // other peers. Otherwise an announcement received before this session existed would never reach the new peer, and
+    // applications on opposite sides of a relay chain could wait forever for discovery.
+    if (auto lookup = session->getLookup())
+    {
+        announceKnownTopics(*lookup, newConnection);
+    }
 
     return session;
 }
@@ -146,7 +156,13 @@ NodeSessionManager::announceTopicReader(const string& topic, NodePrx node, const
     }
 
     auto p = _sessions.find(node->ice_getIdentity());
-    node = p != _sessions.end() ? p->second->getPublicNode() : node;
+    if (p != _sessions.end())
+    {
+        node = p->second->getPublicNode();
+    }
+
+    // Remember the announcement so it can be replayed when a node session is (re)established later.
+    recordAnnouncement(node, {topic}, {}, connection);
 
     // Set the exclude connection to prevent forwarding the announcement back to the sender.
     _exclude = connection;
@@ -193,7 +209,13 @@ NodeSessionManager::announceTopicWriter(const string& topic, NodePrx node, const
     }
 
     auto p = _sessions.find(node->ice_getIdentity());
-    node = p != _sessions.end() ? p->second->getPublicNode() : node;
+    if (p != _sessions.end())
+    {
+        node = p->second->getPublicNode();
+    }
+
+    // Remember the announcement so it can be replayed when a node session is (re)established later.
+    recordAnnouncement(node, {}, {topic}, connection);
 
     // Set the exclude connection to prevent forwarding the announcement back to the sender.
     _exclude = connection;
@@ -258,7 +280,13 @@ NodeSessionManager::announceTopics(
     }
 
     auto p = _sessions.find(node->ice_getIdentity());
-    node = p != _sessions.end() ? p->second->getPublicNode() : node;
+    if (p != _sessions.end())
+    {
+        node = p->second->getPublicNode();
+    }
+
+    // Remember the announcement so it can be replayed when a node session is (re)established later.
+    recordAnnouncement(node, readers, writers, connection);
 
     // Set the exclude connection to prevent forwarding the announcement back to the sender.
     _exclude = connection;
@@ -377,8 +405,8 @@ NodeSessionManager::connected(const NodePrx& node, const LookupPrx& lookup)
     instance->getConnectionManager()->add(
         connection,
         make_shared<LookupPrx>(lookup),
-        [self = shared_from_this(), node, lookup](const ConnectionPtr&, exception_ptr)
-        { self->disconnected(node, lookup); });
+        [self = shared_from_this(), node, lookup](const ConnectionPtr& closed, exception_ptr)
+        { self->disconnected(closed, node, lookup); });
 
     _connectedTo = p == _sessions.end() ? lookup : lookup->ice_fixed(connection);
 
@@ -395,10 +423,93 @@ NodeSessionManager::connected(const NodePrx& node, const LookupPrx& lookup)
             // Ignore node is being shutdown.
         }
     }
+
+    // Replay to this newly connected peer the announcements we received earlier from other peers. Otherwise an
+    // announcement received before this session existed would never reach it, and applications on opposite sides of a
+    // relay chain could wait forever for discovery.
+    announceKnownTopics(*_connectedTo, connection);
 }
 
 void
-NodeSessionManager::disconnected(const NodePrx& node, const LookupPrx& lookup)
+NodeSessionManager::recordAnnouncement(
+    const NodePrx& node,
+    const StringSeq& readers,
+    const StringSeq& writers,
+    const ConnectionPtr& connection) const
+{
+    // Called with _mutex held. Only retain announcements received over a node session we track (a session in
+    // `_sessions` or our `_connectedTo` link); multicast and other untracked connections are ignored.
+    if (!connection || !hasNodeSession(connection))
+    {
+        return;
+    }
+
+    auto q = _announcements.find(node->ice_getIdentity());
+    if (q == _announcements.end())
+    {
+        q = _announcements.emplace(node->ice_getIdentity(), Announcement{node, connection, {}, {}}).first;
+    }
+    else
+    {
+        // Keep the latest node proxy and source connection; topic names are accumulated below.
+        q->second.node = node;
+        q->second.connection = connection;
+    }
+    q->second.readers.insert(readers.begin(), readers.end());
+    q->second.writers.insert(writers.begin(), writers.end());
+}
+
+void
+NodeSessionManager::announceKnownTopics(const LookupPrx& lookup, const ConnectionPtr& exclude) const
+{
+    // Called with _mutex held.
+    for (const auto& [_, announcement] : _announcements)
+    {
+        // Don't echo an announcement back over the session it was received on.
+        if (announcement.connection == exclude)
+        {
+            continue;
+        }
+
+        StringSeq readers{announcement.readers.begin(), announcement.readers.end()};
+        StringSeq writers{announcement.writers.begin(), announcement.writers.end()};
+        try
+        {
+            lookup->announceTopicsAsync(readers, writers, announcement.node, nullptr);
+        }
+        catch (const CommunicatorDestroyedException&)
+        {
+            // Ignore node is being shutdown.
+        }
+    }
+}
+
+void
+NodeSessionManager::removeAnnouncements(const ConnectionPtr& connection) const
+{
+    // Called with _mutex held.
+    for (auto q = _announcements.begin(); q != _announcements.end();)
+    {
+        q = q->second.connection == connection ? _announcements.erase(q) : std::next(q);
+    }
+}
+
+bool
+NodeSessionManager::hasNodeSession(const ConnectionPtr& connection) const
+{
+    // Called with _mutex held.
+    for (const auto& [_, session] : _sessions)
+    {
+        if (session->getConnection() == connection)
+        {
+            return true;
+        }
+    }
+    return _connectedTo && (*_connectedTo)->ice_getCachedConnection() == connection;
+}
+
+void
+NodeSessionManager::disconnected(const ConnectionPtr& connection, const NodePrx& node, const LookupPrx& lookup)
 {
     unique_lock<mutex> lock(_mutex);
     auto instance = _instance.lock();
@@ -410,6 +521,10 @@ NodeSessionManager::disconnected(const NodePrx& node, const LookupPrx& lookup)
             Trace out(_traceLevels->logger, _traceLevels->sessionCat);
             out << "disconnected node session (peer = '" << node << "')";
         }
+
+        // Drop any announcements received over this connection; they can no longer be reached or refreshed.
+        removeAnnouncements(connection);
+
         _connectedTo = nullopt;
         lock.unlock();
         connect(lookup, _nodePrx);
@@ -433,6 +548,10 @@ void
 NodeSessionManager::destroySession(const ConnectionPtr& connection, const NodePrx& node)
 {
     unique_lock<mutex> lock(_mutex);
+
+    // Drop any announcements received over this connection; they can no longer be reached or refreshed.
+    removeAnnouncements(connection);
+
     // Destroy the connection if the session is still using it, otherwise the node has already
     // replaced its NodeSession and it is using a new connection.
     auto p = _sessions.find(node->ice_getIdentity());

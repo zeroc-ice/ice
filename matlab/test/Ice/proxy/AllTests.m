@@ -21,6 +21,11 @@ classdef AllTests
             base = communicator.stringToProxy(ref);
             assert(~isempty(base));
 
+            % Ensure a proxy with no cached connection returns an empty array of 'Ice.Connection', not doubles.
+            cachedConnection = base.ice_getCachedConnection();
+            assert(isa(cachedConnection, 'Ice.Connection'));
+            assert(isempty(cachedConnection));
+
             b1 = communicator.stringToProxy('test');
             assert(strcmp(b1.ice_getIdentity().name, 'test') && isempty(b1.ice_getIdentity().category) && ...
                    isempty(b1.ice_getAdapterId()) && isempty(b1.ice_getFacet()));

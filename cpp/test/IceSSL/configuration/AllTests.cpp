@@ -227,8 +227,6 @@ public:
 };
 #endif
 
-int keychainN = 0;
-
 static PropertiesPtr
 createClientProps(const Ice::PropertiesPtr& defaultProps, bool p12)
 {
@@ -244,13 +242,6 @@ createClientProps(const Ice::PropertiesPtr& defaultProps, bool p12)
     {
         result->setProperty("IceSSL.Password", "password");
     }
-#ifdef ICE_USE_SECURE_TRANSPORT
-    ostringstream keychainName;
-    keychainName << defaultDir << "/keychain/client" << keychainN++ << ".keychain";
-    const string keychainPassword = "password";
-    result->setProperty("IceSSL.Keychain", keychainName.str());
-    result->setProperty("IceSSL.KeychainPassword", keychainPassword);
-#endif
     return result;
 }
 
@@ -271,12 +262,6 @@ createServerProps(const Ice::PropertiesPtr& defaultProps, bool p12)
     {
         result["IceSSL.Password"] = "password";
     }
-#ifdef ICE_USE_SECURE_TRANSPORT
-    ostringstream keychainName;
-    keychainName << defaultDir << "/keychain/server" << keychainN << ".keychain";
-    result["IceSSL.Keychain"] = keychainName.str();
-    result["IceSSL.KeychainPassword"] = "password";
-#endif
     return result;
 }
 
@@ -400,6 +385,33 @@ testCertificateVerification(
     try
     {
         server->noCert();
+    }
+    catch (const LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
+    fact->destroyServer(server);
+
+    // Test IceSSL.VerifyPeer=1 with an IceSSL.TrustOnly rule. The connection is rejected because a client without
+    // a certificate cannot match the trust rule.
+    d = createServerProps(defaultProps, p12, "ca1/server", "");
+    d["IceSSL.VerifyPeer"] = "1";
+    d["IceSSL.TrustOnly"] = "C=US, ST=Florida, O=ZeroC,"
+                            "OU=Ice test infrastructure, emailAddress=info@zeroc.com, CN=ca1.client";
+    server = fact->createServer(d);
+    try
+    {
+        server->ice_ping();
+        test(false);
+    }
+    catch (const ProtocolException&)
+    {
+        // Expected, if reported as an SSL alert by the server.
+    }
+    catch (const ConnectionLostException&)
+    {
+        // Expected.
     }
     catch (const LocalException& ex)
     {

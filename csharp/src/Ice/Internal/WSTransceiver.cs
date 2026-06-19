@@ -677,12 +677,13 @@ internal sealed class WSTransceiver : Transceiver
         Debug.Assert(_readBufferSize > 256);
     }
 
-    internal WSTransceiver(ProtocolInstance instance, Transceiver del)
+    internal WSTransceiver(ProtocolInstance instance, Transceiver del, HashSet<string> allowedOrigins)
     {
         init(instance, del);
         _host = "";
         _resource = "";
         _incoming = true;
+        _allowedOrigins = allowedOrigins;
 
         //
         // Write and read buffer size must be large enough to hold the frame header!
@@ -719,6 +720,19 @@ internal sealed class WSTransceiver : Transceiver
 
     private void handleRequest(Buffer responseBuffer)
     {
+        //
+        // The opening handshake must be a GET request (RFC 6455 section 4.1). We check the message type first
+        // because method() (used just below) and uri() (used later) assert the parser holds a request.
+        //
+        if (_parser.type() != HttpParser.Type.Request)
+        {
+            throw new WebSocketException("WebSocket handshake is not an HTTP request");
+        }
+        if (_parser.method() != "GET")
+        {
+            throw new WebSocketException($"unsupported HTTP method '{_parser.method()}' for WebSocket handshake");
+        }
+
         //
         // HTTP/1.1
         //
@@ -799,6 +813,32 @@ internal sealed class WSTransceiver : Transceiver
         if (decodedKey.Length != 16)
         {
             throw new WebSocketException("invalid value `" + key + "' for WebSocket key");
+        }
+
+        //
+        // Optionally validate the Origin header against the adapter's allowed-origins list.
+        // Browsers always send Origin; non-browser clients do not, so an absent header bypasses the check.
+        // A wildcard ("*") allowlist is normalized to an empty set at parse time, so empty here means "no enforcement".
+        //
+        if (_allowedOrigins.Count > 0)
+        {
+            string origin = _parser.getHeader("Origin", false);
+            if (origin is not null)
+            {
+                string canonical;
+                try
+                {
+                    canonical = canonicalizeOrigin(origin.Trim());
+                }
+                catch (ArgumentException)
+                {
+                    throw new WebSocketException($"invalid Origin header '{origin}'");
+                }
+                if (!_allowedOrigins.Contains(canonical))
+                {
+                    throw new WebSocketException($"origin '{origin}' is not allowed");
+                }
+            }
         }
 
         //
@@ -964,6 +1004,16 @@ internal sealed class WSTransceiver : Transceiver
                 _readOpCode = ch & 0xf;
 
                 //
+                // No extension is negotiated, so the RSV1, RSV2, and RSV3 bits must all be 0.
+                //
+                if ((ch & 0x70) != 0)
+                {
+                    throw new Ice.ProtocolException("invalid WebSocket frame: RSV bits must be 0");
+                }
+
+                bool finalFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+
+                //
                 // Remember if last frame if we're going to read a data or
                 // continuation frame, this is only for protocol
                 // correctness checking purpose.
@@ -974,7 +1024,7 @@ internal sealed class WSTransceiver : Transceiver
                     {
                         throw new Ice.ProtocolException("invalid data frame, no FIN on previous frame");
                     }
-                    _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+                    _readLastFrame = finalFrame;
                 }
                 else if (_readOpCode == OP_CONT)
                 {
@@ -982,7 +1032,7 @@ internal sealed class WSTransceiver : Transceiver
                     {
                         throw new Ice.ProtocolException("invalid continuation frame, previous frame FIN set");
                     }
-                    _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+                    _readLastFrame = finalFrame;
                 }
 
                 ch = _readBuffer.b.get(_readBufferPos++);
@@ -1005,6 +1055,26 @@ internal sealed class WSTransceiver : Transceiver
                 // 127:   The subsequent eight bytes contain the payload length
                 //
                 _readPayloadLength = ch & 0x7f;
+
+                //
+                // RFC 6455 section 5.5: control frames (close, ping, and pong) must not be fragmented
+                // and must have a payload length of 125 bytes or less - they cannot use the 16-bit
+                // or 64-bit extended length encoding. Enforce this before allocating any payload
+                // buffer.
+                //
+                if (_readOpCode == OP_CLOSE || _readOpCode == OP_PING || _readOpCode == OP_PONG)
+                {
+                    if (!finalFrame)
+                    {
+                        throw new Ice.ProtocolException("invalid WebSocket control frame: the FIN bit is not set");
+                    }
+                    if (_readPayloadLength > 125)
+                    {
+                        throw new Ice.ProtocolException(
+                            "invalid WebSocket control frame: the payload length exceeds 125 bytes");
+                    }
+                }
+
                 if (_readPayloadLength < 126)
                 {
                     _readHeaderLength = 0;
@@ -1593,6 +1663,7 @@ internal sealed class WSTransceiver : Transceiver
     private readonly string _host;
     private string _resource;
     private readonly bool _incoming;
+    private readonly HashSet<string> _allowedOrigins = new HashSet<string>();
 
     private const int StateInitializeDelegate = 0;
     private const int StateConnected = 1;
@@ -1681,4 +1752,28 @@ internal sealed class WSTransceiver : Transceiver
     private const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
     private static readonly UTF8Encoding _utf8 = new UTF8Encoding(false, true);
+
+    // Throws ArgumentException for any input that is not a serialized origin per RFC 6454.
+    internal static string canonicalizeOrigin(string origin)
+    {
+        Uri uri;
+        try
+        {
+            uri = new Uri(origin, UriKind.Absolute);
+        }
+        catch (UriFormatException ex)
+        {
+            throw new ArgumentException($"malformed origin '{origin}'", nameof(origin), ex);
+        }
+        // RFC 6454: a serialized origin is exactly "scheme://host[:port]". Reject path, query, fragment, and userinfo.
+        // System.Uri normalizes "https://x" to AbsolutePath="/", so we accept either empty or "/".
+        if ((uri.AbsolutePath.Length > 0 && uri.AbsolutePath != "/")
+            || uri.Query.Length > 0
+            || uri.Fragment.Length > 0
+            || uri.UserInfo.Length > 0)
+        {
+            throw new ArgumentException($"malformed origin '{origin}'", nameof(origin));
+        }
+        return uri.IsDefaultPort ? $"{uri.Scheme}://{uri.Host}" : $"{uri.Scheme}://{uri.Host}:{uri.Port}";
+    }
 }

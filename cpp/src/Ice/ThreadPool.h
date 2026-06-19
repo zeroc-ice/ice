@@ -73,8 +73,6 @@ namespace IceInternal
 
         void joinWithAllThreads();
 
-        [[nodiscard]] std::string prefix() const;
-
     private:
         ThreadPool(const InstancePtr&, std::string, int);
         void initialize();

@@ -389,6 +389,21 @@ export class Client extends TestHelper {
         }
 
         try {
+            await thrower.throwDispatchException(Ice.ReplyStatus.NotSupported.value);
+            test(false);
+        } catch (ex) {
+            if (ex instanceof Ice.DispatchException) {
+                test(ex.replyStatus == Ice.ReplyStatus.NotSupported);
+                test(
+                    ex.message === "The dispatch failed with reply status NotSupported." ||
+                        ex.message === "The dispatch failed with reply status notSupported.",
+                );
+            } else {
+                test(false, ex as Error);
+            }
+        }
+
+        try {
             await thrower.throwDispatchException(212);
             test(false);
         } catch (ex) {

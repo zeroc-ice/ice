@@ -317,10 +317,6 @@ export class ObjectAdapter {
         this._publishedEndpoints = ArrayUtil.clone(newEndpoints);
     }
 
-    getServantManager() {
-        return this._servantManager;
-    }
-
     newProxy(ident, facet) {
         //
         // Now we also add the endpoints of the router's server proxy, if
@@ -386,24 +382,7 @@ export class ObjectAdapter {
                         end = s.length;
                         break;
                     } else {
-                        let quoted = false;
-                        let quote = beg;
-                        while (true) {
-                            quote = s.indexOf('"', quote);
-                            if (quote == -1 || end < quote) {
-                                break;
-                            } else {
-                                quote = s.indexOf('"', ++quote);
-                                if (quote == -1) {
-                                    break;
-                                } else if (end < quote) {
-                                    quoted = true;
-                                    break;
-                                }
-                                ++quote;
-                            }
-                        }
-                        if (!quoted) {
+                        if (!StringUtil.isInDoubleQuotes(s, beg, end)) {
                             break;
                         }
                         ++end;

@@ -428,14 +428,19 @@ Ice::InputStream::readAndCheckSeqSize(int minSize)
     // the estimated remaining buffer size. This estimation is based on
     // the minimum size of the enclosing sequences, it's _minSeqSize.
     //
-    if (_startSeq == -1 || i > (b.begin() + _startSeq + _minSeqSize))
+    // 'sz' is peer-controlled (up to INT32_MAX), so we compute the minimum size of this sequence in
+    // 64-bit: 'sz * minSize' would otherwise overflow a 32-bit int and bypass the bounds check below.
+    int64_t minSeqSize = static_cast<int64_t>(sz) * minSize;
+
+    // '_startSeq + _minSeqSize' does not overflow: on the previous call, the bounds check below
+    // established this sum is <= b.size(), itself smaller than INT32_MAX.
+    if (_startSeq == -1 || (i - b.begin()) > _startSeq + _minSeqSize)
     {
         _startSeq = static_cast<int>(i - b.begin());
-        _minSeqSize = sz * minSize;
     }
     else
     {
-        _minSeqSize += sz * minSize;
+        minSeqSize += _minSeqSize;
     }
 
     //
@@ -443,11 +448,13 @@ Ice::InputStream::readAndCheckSeqSize(int minSize)
     // possibly enclosed sequences), something is wrong with the marshaled
     // data: it's claiming having more data that what is possible to read.
     //
-    if (_startSeq + _minSeqSize > static_cast<int>(b.size()))
+    if (_startSeq + minSeqSize > static_cast<int64_t>(b.size()))
     {
         throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
 
+    // minSeqSize is now known to be <= b.size(), itself smaller than INT32_MAX.
+    _minSeqSize = static_cast<int>(minSeqSize);
     return sz;
 }
 
@@ -474,15 +481,7 @@ Ice::InputStream::read(std::vector<byte>& v)
 {
     std::pair<const byte*, const byte*> p;
     read(p);
-    if (p.first != p.second)
-    {
-        v.resize(static_cast<size_t>(p.second - p.first));
-        copy(p.first, p.second, v.begin());
-    }
-    else
-    {
-        v.clear();
-    }
+    v.assign(p.first, p.second);
 }
 
 void
@@ -1923,7 +1922,11 @@ Ice::InputStream::EncapsDecoder11::startSlice()
     if (_current->sliceFlags & FLAG_HAS_SLICE_SIZE)
     {
         _stream->read(_current->sliceSize);
-        if (_current->sliceSize < 4)
+        // A slice with optional members carries at least the 1-byte end marker in its body, so its
+        // size (which includes the 4-byte size field) must be >= 5. We rely on this in skipSlice's
+        // slice-preservation logic, which excludes the end marker by stepping back one byte.
+        int32_t minSliceSize = (_current->sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) ? 5 : 4;
+        if (_current->sliceSize < minSliceSize)
         {
             throw MarshalException{__FILE__, __LINE__, endOfBufferMessage};
         }
@@ -2081,7 +2084,10 @@ Ice::InputStream::EncapsDecoder11::readOptional(int32_t readTag, Ice::OptionalFo
 int32_t
 Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, const PatchFunc& patchFunc, void* patchAddr)
 {
-    assert(index > 0);
+    if (index <= 0)
+    {
+        throw MarshalException(__FILE__, __LINE__, "invalid class instance index");
+    }
 
     if (index > 1)
     {

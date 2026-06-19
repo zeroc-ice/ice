@@ -338,7 +338,7 @@ class EncapsDecoder10 extends EncapsDecoder {
 
     readInstance() {
         const index = this._stream.readInt();
-        let v = null;
+        let v;
 
         if (index <= 0) {
             throw new MarshalException("invalid object id");
@@ -538,7 +538,12 @@ class EncapsDecoder11 extends EncapsDecoder {
         //
         if ((this._current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) !== 0) {
             this._current.sliceSize = this._stream.readInt();
-            if (this._current.sliceSize < 4) {
+            // A slice with optional members carries at least the 1-byte end marker in its body, so
+            // its size (which includes the 4-byte size field) must be >= 5. We rely on this in
+            // skipSlice's slice-preservation logic, which excludes the end marker by stepping back
+            // one byte.
+            const minSliceSize = (this._current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) !== 0 ? 5 : 4;
+            if (this._current.sliceSize < minSliceSize) {
                 throw new MarshalException(endOfBufferMessage);
             }
         } else {
@@ -676,7 +681,9 @@ class EncapsDecoder11 extends EncapsDecoder {
     }
 
     readInstance(index, cb) {
-        console.assert(index > 0);
+        if (index <= 0) {
+            throw new MarshalException("invalid class instance index");
+        }
 
         let v = null;
 
@@ -1125,13 +1132,12 @@ export class InputStream {
         if (sz < 6) {
             throw new MarshalException(endOfBufferMessage);
         }
-        const encoding = new EncodingVersion();
-        encoding._read(this);
-        try {
-            this._buf.position = this._buf.position + sz - 6;
-        } catch {
+        if (sz - 4 > this._buf.remaining) {
             throw new MarshalException(endOfBufferMessage);
         }
+        const encoding = new EncodingVersion();
+        encoding._read(this);
+        this._buf.position = this._buf.position + sz - 6;
         return encoding;
     }
 
@@ -1498,7 +1504,7 @@ export class InputStream {
     }
 
     skip(size) {
-        if (size > this._buf.remaining) {
+        if (size < 0 || size > this._buf.remaining) {
             throw new MarshalException(endOfBufferMessage);
         }
         this._buf.position += size;

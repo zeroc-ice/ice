@@ -168,15 +168,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         return _state > StateNotValidated && _state < StateClosing;
     }
 
-    public synchronized boolean isFinished() {
-        if (_state != StateFinished || _upcallCount != 0) {
-            return false;
-        }
-
-        assert (_state == StateFinished);
-        return true;
-    }
-
     public synchronized void throwException() {
         if (_exception != null) {
             assert (_state >= StateClosing);
@@ -1762,9 +1753,24 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                         info.requestCount = info.stream.readInt();
                         if (info.requestCount < 0) {
-                            info.requestCount = 0;
-                            throw new MarshalException("Received batch request with " + info.requestCount + "batches.");
+                            throw new MarshalException(
+                                "Received batch request with " + info.requestCount + " batches.");
                         }
+
+                        // A batched request occupies at least 12 bytes on the wire (a 2-byte identity, a 1-byte
+                        // facet path, a 1-byte operation name, a 1-byte operation mode, a 1-byte context, and a
+                        // 6-byte parameters encapsulation). Reject a count larger than the remaining message
+                        // data could possibly hold. The message size is already capped at Ice.MessageSizeMax
+                        // (<= Integer.MAX_VALUE bytes), so this also keeps requestCount well within range when
+                        // it is accumulated into the dispatch counters below.
+                        final int minBatchRequestSize = 12;
+                        if (info.requestCount > (info.stream.size() - info.stream.pos()) / minBatchRequestSize) {
+                            throw new MarshalException(
+                                "Received batch request with "
+                                    + info.requestCount
+                                    + " batches, more than the message can contain.");
+                        }
+
                         info.adapter = _adapter;
                         info.upcallCount += info.requestCount;
 

@@ -786,7 +786,7 @@ IceRuby::EnumInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool)
     const int32_t ival = static_cast<int32_t>(getInteger(val));
     if (enumerators.find(ival) == enumerators.end())
     {
-        throw RubyException(rb_eRangeError, "invalid enumerator %ld for enum %s", ival, id.c_str());
+        throw RubyException(rb_eRangeError, "invalid enumerator %d for enum %s", ival, id.c_str());
     }
 
     os->writeEnum(ival, maxValue);
@@ -1352,7 +1352,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
                 const long len = RSTRING_LEN(str);
                 if (s == 0 || len == 0)
                 {
-                    os->write(int32_t(0));
+                    os->writeSize(0);
                 }
                 else
                 {

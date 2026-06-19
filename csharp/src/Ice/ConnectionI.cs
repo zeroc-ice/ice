@@ -593,10 +593,20 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             return false;
         }
 
-        // Run the IO operation on a .NET thread pool thread to ensure the IO operation won't be interrupted if the
-        // Ice thread pool thread is terminated (.NET Socket read/write fail with a SocketError.OperationAborted
-        // error if started from a thread which is later terminated).
-        Task.Run(() =>
+        if (_threadHopRequired)
+        {
+            // Run the I/O on a .NET ThreadPool thread so it survives the initiating Ice worker exiting.
+            // See ctor for when this is required.
+            Task.Run(doIO);
+        }
+        else
+        {
+            doIO();
+        }
+
+        return true;
+
+        void doIO()
         {
             lock (_mutex)
             {
@@ -655,9 +665,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     completedCallback(this);
                 }
             }
-        });
-
-        return true;
+        }
     }
 
     public override bool finishAsync(int operation)
@@ -1420,6 +1428,12 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 // object adapter with its own thread pool.
                 _threadPool = instance.clientThreadPool();
             }
+            // On Windows, async socket I/O initiated on a thread that subsequently terminates is cancelled by the OS
+            // with SocketError.OperationAborted. The Ice thread pool can reap workers idle past ThreadIdleTime when
+            // SizeMax > 1, so in that combination we hop the I/O onto the .NET ThreadPool (whose threads are managed
+            // by the runtime and not reaped while owning pending I/O). Other platforms and fixed-size Ice pools don't
+            // need the hop. See startAsync.
+            _threadHopRequired = AssemblyUtil.isWindows && _threadPool.canShrink;
             _threadPool.initialize(this);
         }
         catch (LocalException)
@@ -2318,6 +2332,20 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         {
                             throw new MarshalException($"Received batch request with {requestCount} batches.");
                         }
+
+                        // A batched request occupies at least 12 bytes on the wire (a 2-byte identity, a 1-byte
+                        // facet path, a 1-byte operation name, a 1-byte operation mode, a 1-byte context, and a
+                        // 6-byte parameters encapsulation). Reject a count larger than the remaining message
+                        // data could possibly hold. The message size is already capped at Ice.MessageSizeMax
+                        // (<= int.MaxValue bytes), so this also keeps requestCount well within range when it is
+                        // accumulated into the dispatch counters below.
+                        const int minBatchRequestSize = 12;
+                        if (requestCount > (info.stream.size() - info.stream.pos()) / minBatchRequestSize)
+                        {
+                            throw new MarshalException(
+                                $"Received batch request with {requestCount} batches, more than the message can contain.");
+                        }
+
                         info.requestCount = requestCount;
                         info.adapter = _adapter;
                         info.upcallCount += info.requestCount;
@@ -2867,6 +2895,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private readonly Logger _logger;
     private readonly TraceLevels _traceLevels;
     private readonly Ice.Internal.ThreadPool _threadPool;
+    private readonly bool _threadHopRequired;
 
     private readonly TimeSpan _connectTimeout;
     private readonly TimeSpan _closeTimeout;

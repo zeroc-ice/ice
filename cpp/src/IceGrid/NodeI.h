@@ -175,7 +175,6 @@ namespace IceGrid
         PlatformInfo _platform;
         const std::string _dataDir;
         const std::string _serversDir;
-        const std::string _tmpDir;
         const std::shared_ptr<FileCache> _fileCache;
         PropertyDescriptorSeq _propertiesOverride;
 

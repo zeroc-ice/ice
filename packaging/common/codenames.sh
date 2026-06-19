@@ -10,4 +10,5 @@ declare -A CODENAMES=(
     ["debian13"]="trixie"
     ["sid"]="sid"
     ["ubuntu24.04"]="noble"
+    ["ubuntu26.04"]="resolute"
 )

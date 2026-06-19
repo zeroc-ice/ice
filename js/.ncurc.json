@@ -1,0 +1,6 @@
+{
+    "target": "minor",
+    "cooldown": 7,
+    "peer": true,
+    "reject": []
+}

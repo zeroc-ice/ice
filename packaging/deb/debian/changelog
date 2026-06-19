@@ -4,6 +4,23 @@ zeroc-ice (3.9.0~alpha0-1) UNRELEASED; urgency=medium
 
  -- José Gutiérrez de la Concha <jose@zeroc.com>  Fri, 19 Dec 2025 17:02:28 +0100
 
+zeroc-ice (3.8.1-2) unstable; urgency=medium
+
+  * Add Breaks/Replaces on zeroc-ice-compilers (<< 3.8) to libzeroc-ice-dev,
+    php-zeroc-ice, and python3-zeroc-ice to fix undeclared file conflict
+    (Closes: #1136630)
+  * Fix FTBFS for binary-indep builds: install Slice files in
+    override_dh_auto_install-indep so zeroc-ice-slice can be built
+    independently of arch-dependent packages
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Thu, 14 May 2026 12:00:00 +0200
+
+zeroc-ice (3.8.1-1) unstable; urgency=medium
+
+  * New upstream version 3.8.1
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Thu, 26 Feb 2026 12:00:00 +0100
+
 zeroc-ice (3.8.0-1) unstable; urgency=medium
 
   * New upstream version 3.8.0

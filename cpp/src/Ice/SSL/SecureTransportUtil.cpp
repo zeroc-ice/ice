@@ -206,25 +206,6 @@ Ice::SSL::SecureTransport::sslErrorToString(OSStatus status)
 }
 
 #if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
-CFDictionaryRef
-Ice::SSL::SecureTransport::getCertificateProperty(SecCertificateRef cert, CFTypeRef key)
-{
-    UniqueRef<CFDictionaryRef> property;
-    UniqueRef<CFArrayRef> keys(CFArrayCreate(nullptr, &key, 1, &kCFTypeArrayCallBacks));
-    UniqueRef<CFErrorRef> err;
-    UniqueRef<CFDictionaryRef> values(SecCertificateCopyValues(cert, keys.get(), &err.get()));
-    if (err)
-    {
-        ostringstream os;
-        os << "SSL transport: error getting property for certificate:\n" << sslErrorToString(err);
-        throw CertificateReadException(__FILE__, __LINE__, os.str());
-    }
-
-    assert(values);
-    property.retain(static_cast<CFDictionaryRef>(CFDictionaryGetValue(values.get(), key)));
-    return property.release();
-}
-
 namespace
 {
     //
@@ -421,6 +402,20 @@ namespace
             }
         }
 
+        // A certificate must expose a Subject Key Identifier to be imported into the keychain: the SKI is used
+        // both to locate an already-imported certificate (the query below) and as the key label that pairs the
+        // private key with the certificate (further down). Reject a certificate without one with a clear error
+        // instead of passing a null value to CFDictionarySetValue, which aborts the process. Certificates without
+        // a Subject Key Identifier are uncommon in practice, so rejecting them is acceptable.
+        if (!hash)
+        {
+            throw CertificateReadException(
+                __FILE__,
+                __LINE__,
+                "SSL transport: the certificate for key file '" + file +
+                    "' has no Subject Key Identifier extension and cannot be imported into the macOS keychain");
+        }
+
         const void* values[] = {keychain};
         UniqueRef<CFArrayRef> searchList(CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks));
 
@@ -510,8 +505,8 @@ namespace
         // kSecKeyLabel attribute should match the subject key identifier.
         //
         vector<SecKeychainAttribute> attributes;
-        if (hash)
         {
+            // hash is guaranteed non-null here: loadPrivateKey rejects certificates without a Subject Key Identifier.
             SecKeychainAttribute attr;
             attr.tag = kSecKeyLabel;
             attr.data = const_cast<UInt8*>(CFDataGetBytePtr(hash.get()));
@@ -713,21 +708,6 @@ Ice::SSL::SecureTransport::loadCertificateChain(
     }
 #endif
     return chain.release();
-}
-
-SecCertificateRef
-Ice::SSL::SecureTransport::loadCertificate(const string& file)
-{
-    UniqueRef<SecCertificateRef> cert;
-#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
-    UniqueRef<CFArrayRef> certs(loadCerts(file));
-    assert(CFArrayGetCount(certs.get()) > 0);
-    cert.retain((SecCertificateRef)CFArrayGetValueAtIndex(certs.get(), 0));
-#else
-    UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypeCertificate, nullptr, ""));
-    cert.retain((SecCertificateRef)CFArrayGetValueAtIndex(items.get(), 0));
-#endif
-    return cert.release();
 }
 
 CFArrayRef
@@ -937,11 +917,23 @@ Ice::SSL::SecureTransport::findCertificateChain(
         throw InitializationException(__FILE__, __LINE__, os.str());
     }
 
-    // Now lookup the identity with the label
+    // Now lookup the identity with the label. We match the identity by the certificate's label, so the
+    // certificate must have one; reject it with a clear error rather than passing a null value to
+    // CFDictionarySetValue (which aborts the process).
+    const void* label = CFDictionaryGetValue(attributes.get(), kSecAttrLabel);
+    if (label == nullptr)
+    {
+        throw InitializationException(
+            __FILE__,
+            __LINE__,
+            "SSL transport: couldn't create identity for certificate found in the keychain: the certificate has no "
+            "label attribute");
+    }
+
     query.reset(CFDictionaryCreateMutable(0, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
     CFDictionarySetValue(query.get(), kSecMatchLimit, kSecMatchLimitOne);
     CFDictionarySetValue(query.get(), kSecClass, kSecClassIdentity);
-    CFDictionarySetValue(query.get(), kSecAttrLabel, (CFDataRef)CFDictionaryGetValue(attributes.get(), kSecAttrLabel));
+    CFDictionarySetValue(query.get(), kSecAttrLabel, label);
     CFDictionarySetValue(query.get(), kSecReturnRef, kCFBooleanTrue);
     err = SecItemCopyMatching(query.get(), (CFTypeRef*)&identity.get());
     if (err == noErr)

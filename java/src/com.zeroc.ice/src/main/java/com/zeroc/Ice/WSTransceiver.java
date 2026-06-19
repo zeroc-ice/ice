@@ -2,12 +2,16 @@
 
 package com.zeroc.Ice;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteOrder;
 import java.nio.channels.SelectableChannel;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 final class WSTransceiver implements Transceiver {
     @Override
@@ -389,11 +393,12 @@ final class WSTransceiver implements Transceiver {
         assert (_readBufferSize > 256);
     }
 
-    WSTransceiver(ProtocolInstance instance, Transceiver del) {
+    WSTransceiver(ProtocolInstance instance, Transceiver del, Set<String> allowedOrigins) {
         init(instance, del);
         _host = "";
         _resource = "";
         _incoming = true;
+        _allowedOrigins = allowedOrigins;
 
         // Write and read buffer size must be large enough to hold the frame header!
         assert (_writeBufferSize > 256);
@@ -424,6 +429,16 @@ final class WSTransceiver implements Transceiver {
     }
 
     private void handleRequest(Buffer responseBuffer) {
+        // The opening handshake must be a GET request (RFC 6455 section 4.1). We check the message type first
+        // because method() (used just below) and uri() (used later) assert the parser holds a request.
+        if (!_parser.isRequest()) {
+            throw new WebSocketException("WebSocket handshake is not an HTTP request");
+        }
+        if (!"GET".equals(_parser.method())) {
+            throw new WebSocketException(
+                "unsupported HTTP method '" + _parser.method() + "' for WebSocket handshake");
+        }
+
         //
         // HTTP/1.1
         //
@@ -490,6 +505,24 @@ final class WSTransceiver implements Transceiver {
             }
         } catch (IllegalArgumentException ex) {
             throw new WebSocketException("invalid base64 value `" + key + "' for WebSocket key");
+        }
+
+        // Optionally validate the Origin header against the adapter's allowed-origins list.
+        // Browsers always send Origin; non-browser clients do not, so an absent header bypasses the check.
+        // A wildcard ("*") allowlist is normalized to an empty set at parse time, so empty here means "no enforcement".
+        if (!_allowedOrigins.isEmpty()) {
+            String origin = _parser.getHeader("Origin", false);
+            if (origin != null) {
+                String canonical;
+                try {
+                    canonical = canonicalizeOrigin(origin.trim());
+                } catch (IllegalArgumentException ex) {
+                    throw new WebSocketException("invalid Origin header '" + origin + "'");
+                }
+                if (!_allowedOrigins.contains(canonical)) {
+                    throw new WebSocketException("origin '" + origin + "' is not allowed");
+                }
+            }
         }
 
         // Retain the target resource.
@@ -627,18 +660,25 @@ final class WSTransceiver implements Transceiver {
                 }
                 _readOpCode = ch & 0xf;
 
+                // No extension is negotiated, so the RSV1, RSV2, and RSV3 bits must all be 0.
+                if ((ch & 0x70) != 0) {
+                    throw new ProtocolException("invalid WebSocket frame: RSV bits must be 0");
+                }
+
+                final boolean finalFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+
                 // Remember if last frame if we're going to read a data or continuation frame,
                 // this is only for protocol correctness checking purpose.
                 if (_readOpCode == OP_DATA) {
                     if (!_readLastFrame) {
                         throw new ProtocolException("invalid data frame, no FIN on previous frame");
                     }
-                    _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+                    _readLastFrame = finalFrame;
                 } else if (_readOpCode == OP_CONT) {
                     if (_readLastFrame) {
                         throw new ProtocolException("invalid continuation frame, previous frame FIN set");
                     }
-                    _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+                    _readLastFrame = finalFrame;
                 }
 
                 ch = _readBuffer.b.get(_readBufferPos++);
@@ -659,6 +699,22 @@ final class WSTransceiver implements Transceiver {
                 // 126:   The subsequent two bytes contain the payload length
                 // 127:   The subsequent eight bytes contain the payload length
                 _readPayloadLength = ch & 0x7f;
+
+                // RFC 6455 section 5.5: control frames (close, ping, and pong) must not be fragmented
+                // and must have a payload length of 125 bytes or less - they cannot use the 16-bit
+                // or 64-bit extended length encoding. Enforce this before allocating any payload
+                // buffer.
+                if (_readOpCode == OP_CLOSE || _readOpCode == OP_PING || _readOpCode == OP_PONG) {
+                    if (!finalFrame) {
+                        throw new ProtocolException(
+                            "invalid WebSocket control frame: the FIN bit is not set");
+                    }
+                    if (_readPayloadLength > 125) {
+                        throw new ProtocolException(
+                            "invalid WebSocket control frame: the payload length exceeds 125 bytes");
+                    }
+                }
+
                 if (_readPayloadLength < 126) {
                     _readHeaderLength = 0;
                 } else if (_readPayloadLength == 126) {
@@ -1116,6 +1172,7 @@ final class WSTransceiver implements Transceiver {
     private String _host;
     private String _resource;
     private boolean _incoming;
+    private Set<String> _allowedOrigins = new HashSet<>();
     private ReadyCallback _readyCallback;
 
     private static final int StateInitializeDelegate = 0;
@@ -1223,4 +1280,37 @@ final class WSTransceiver implements Transceiver {
     private static final String _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
     static final Charset _ascii = Charset.forName("US-ASCII");
+
+    // Throws IllegalArgumentException for any input that is not a serialized origin per RFC 6454.
+    static String canonicalizeOrigin(String origin) {
+        URI uri;
+        try {
+            uri = new URI(origin);
+        } catch (URISyntaxException ex) {
+            throw new IllegalArgumentException("malformed origin '" + origin + "'", ex);
+        }
+        String scheme = uri.getScheme();
+        String host = uri.getHost();
+        if (scheme == null || host == null) {
+            throw new IllegalArgumentException("malformed origin '" + origin + "'");
+        }
+        // RFC 6454: a serialized origin is exactly "scheme://host[:port]". Reject path, query, fragment, and userinfo.
+        // java.net.URI returns "" for an absent path and "/" for "scheme://x/" -- both treated as no path.
+        String path = uri.getRawPath();
+        if ((path != null && !path.isEmpty() && !"/".equals(path))
+            || (uri.getRawQuery() != null && !uri.getRawQuery().isEmpty())
+            || (uri.getRawFragment() != null && !uri.getRawFragment().isEmpty())
+            || (uri.getRawUserInfo() != null && !uri.getRawUserInfo().isEmpty())) {
+            throw new IllegalArgumentException("malformed origin '" + origin + "'");
+        }
+        scheme = scheme.toLowerCase(java.util.Locale.ROOT);
+        host = host.toLowerCase(java.util.Locale.ROOT);
+        int port = uri.getPort();
+        if (port == -1
+            || ("http".equals(scheme) && port == 80)
+            || ("https".equals(scheme) && port == 443)) {
+            return scheme + "://" + host;
+        }
+        return scheme + "://" + host + ":" + port;
+    }
 }

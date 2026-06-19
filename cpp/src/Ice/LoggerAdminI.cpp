@@ -77,11 +77,6 @@ namespace
 
         using RemoteLoggerMap = map<RemoteLoggerPrx, Filters, ObjectIdentityCompare>;
 
-        struct GetRemoteLoggerMapKey
-        {
-            RemoteLoggerMap::key_type operator()(const RemoteLoggerMap::value_type& val) { return val.first; }
-        };
-
         RemoteLoggerMap _remoteLoggerMap;
         CommunicatorPtr _sendLogCommunicator;
         bool _destroyed{false};

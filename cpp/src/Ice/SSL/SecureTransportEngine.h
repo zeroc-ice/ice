@@ -20,10 +20,9 @@ namespace Ice::SSL::SecureTransport
     {
     public:
         SSLEngine(const IceInternal::InstancePtr&);
-        ~SSLEngine();
+        ~SSLEngine() override;
 
         void initialize() final;
-        void destroy() final;
 
         [[nodiscard]] Ice::SSL::ClientAuthenticationOptions
         createClientAuthenticationOptions(const std::string& host) const final;
@@ -37,6 +36,12 @@ namespace Ice::SSL::SecureTransport
     private:
         IceInternal::UniqueRef<CFArrayRef> _certificateAuthorities;
         IceInternal::UniqueRef<CFArrayRef> _chain;
+
+#    if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+        // Path of the temporary directory holding the imported certificate's keychain, removed by the destructor.
+        // Empty when IceSSL.Keychain is set or no certificate is configured.
+        std::string _temporaryKeychainDir;
+#    endif
     };
 }
 #endif

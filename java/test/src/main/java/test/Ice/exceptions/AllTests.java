@@ -473,6 +473,21 @@ public class AllTests {
         }
 
         try {
+            thrower.throwDispatchException((byte) ReplyStatus.NotSupported.value());
+            test(false);
+        } catch (DispatchException ex) {
+            if (ex.replyStatus == ReplyStatus.NotSupported.value()) {
+                test(
+                    "The dispatch failed with reply status NotSupported."
+                        .equals(ex.getMessage())
+                        || "The dispatch failed with reply status notSupported."
+                        .equals(ex.getMessage())); // for Swift
+            } else {
+                test(false);
+            }
+        }
+
+        try {
             thrower.throwDispatchException((byte) 212);
             test(false);
         } catch (DispatchException ex) {

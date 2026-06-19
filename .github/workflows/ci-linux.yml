@@ -53,6 +53,13 @@ jobs:
             arch: arm64
             image_type: deb
 
+          - distribution: ubuntu26.04
+            arch: amd64
+            image_type: deb
+          - distribution: ubuntu26.04
+            arch: arm64
+            image_type: deb
+
           - distribution: debian12
             arch: amd64
             image_type: deb
@@ -76,7 +83,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.3
 
       - name: Load version info
         run: |

@@ -750,10 +750,6 @@ export class OutputStream {
         this._buf.put(v ? 1 : 0);
     }
 
-    rewriteBool(v, dest) {
-        this._buf.putAt(dest, v ? 1 : 0);
-    }
-
     writeShort(v) {
         this.expand(2);
         this._buf.putShort(v);

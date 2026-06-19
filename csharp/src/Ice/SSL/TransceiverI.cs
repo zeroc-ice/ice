@@ -428,6 +428,10 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
             {
                 throw ex.InnerException;
             }
+            finally
+            {
+                _writeResult = null;
+            }
         }
         catch (IOException ex)
         {

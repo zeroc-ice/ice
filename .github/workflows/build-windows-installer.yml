@@ -28,7 +28,7 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.3
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -54,13 +54,13 @@ jobs:
 
       - name: Sign MSI with Trusted Signing
         if: ${{ inputs.authenticode_sign }}
-        uses: azure/trusted-signing-action@v0
+        uses: azure/trusted-signing-action@v2
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           endpoint: https://eus.codesigning.azure.net/
-          trusted-signing-account-name: zeroc
+          signing-account-name: zeroc
           certificate-profile-name: zeroc-ice
           files-folder: ./packaging/windows-installer/msi/bin/x64/Release/
           files-folder-filter: msi
@@ -89,13 +89,13 @@ jobs:
 
       - name: Sign Burn engine with Trusted Signing
         if: ${{ inputs.authenticode_sign }}
-        uses: azure/trusted-signing-action@v0
+        uses: azure/trusted-signing-action@v2
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           endpoint: https://eus.codesigning.azure.net/
-          trusted-signing-account-name: zeroc
+          signing-account-name: zeroc
           certificate-profile-name: zeroc-ice
           files-folder: ./packaging/windows-installer/bundle/engine/
           files-folder-filter: exe
@@ -112,13 +112,13 @@ jobs:
 
       - name: Sign Bundle installer with Trusted Signing
         if: ${{ inputs.authenticode_sign }}
-        uses: azure/trusted-signing-action@v0
+        uses: azure/trusted-signing-action@v2
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           endpoint: https://eus.codesigning.azure.net/
-          trusted-signing-account-name: zeroc
+          signing-account-name: zeroc
           certificate-profile-name: zeroc-ice
           files-folder: ./packaging/windows-installer/bundle/bin/x64/Release/
           files-folder-filter: exe

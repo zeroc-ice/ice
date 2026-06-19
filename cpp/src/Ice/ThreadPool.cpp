@@ -468,12 +468,6 @@ IceInternal::ThreadPool::joinWithAllThreads()
     _selector.destroy();
 }
 
-string
-IceInternal::ThreadPool::prefix() const
-{
-    return _prefix;
-}
-
 void
 IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 {

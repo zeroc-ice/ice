@@ -1822,7 +1822,7 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
     }
 
     Ice::Context context;
-    if (!ctx || ctx != Py_None)
+    if (ctx && ctx != Py_None)
     {
         if (!dictionaryToContext(ctx, context))
         {
@@ -2602,7 +2602,10 @@ IcePy::createFuture(PyObject* asyncInvocationContext)
     PyTuple_SET_ITEM(initArgs.get(), 0, Py_NewRef(asyncInvocationContext));
 
     // Call the Ice.InvocationFuture.__init__ method.
-    type->tp_init(future.get(), initArgs.get(), nullptr);
+    if (type->tp_init(future.get(), initArgs.get(), nullptr) < 0)
+    {
+        return nullptr;
+    }
 
     // Release the reference to the future object and let the caller take ownership.
     return future.release();

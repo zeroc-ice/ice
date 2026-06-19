@@ -2,15 +2,16 @@
 
 ## Table of Contents
 
-- [Table of contents](#table-of-contents)
-- [Prerequisites](#prerequisites)
-- [Build roadmap](#build-roadmap)
-- [Workspace layout](#workspace-layout)
-- [Building Ice for JavaScript](#building-ice-for-javascript)
-- [Running the tests](#running-the-tests)
-- [Creating the NPM packages](#creating-the-npm-packages)
-  - [Slice Compilers](#slice-compilers)
-- [Generating the API Reference](#generating-the-api-reference)
+- [Building Ice for JavaScript from source](#building-ice-for-javascript-from-source)
+  - [Table of Contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+  - [Build Roadmap](#build-roadmap)
+  - [Workspace Layout](#workspace-layout)
+  - [Building Ice for JavaScript](#building-ice-for-javascript)
+  - [Running the Tests](#running-the-tests)
+  - [Creating the NPM Packages](#creating-the-npm-packages)
+    - [Slice Compilers](#slice-compilers)
+  - [Generating the API Reference](#generating-the-api-reference)
 
 ## Prerequisites
 

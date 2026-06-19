@@ -9,6 +9,9 @@
 #include "ProtocolInstance.h"
 #include "TransceiverF.h"
 
+#include <set>
+#include <string>
+
 namespace IceInternal
 {
     class WSEndpoint;
@@ -16,7 +19,7 @@ namespace IceInternal
     class WSAcceptor final : public Acceptor, public NativeInfo
     {
     public:
-        WSAcceptor(WSEndpointPtr, ProtocolInstancePtr, AcceptorPtr);
+        WSAcceptor(WSEndpointPtr, ProtocolInstancePtr, AcceptorPtr, std::set<std::string> allowedOrigins);
         ~WSAcceptor() override;
         NativeInfoPtr getNativeInfo() final;
 #if defined(ICE_USE_IOCP)
@@ -40,6 +43,7 @@ namespace IceInternal
         WSEndpointPtr _endpoint;
         const ProtocolInstancePtr _instance;
         const AcceptorPtr _delegate;
+        const std::set<std::string> _allowedOrigins;
     };
 }
 

@@ -21,7 +21,6 @@ namespace Slice::Csharp
     [[nodiscard]] std::string resultType(const OperationPtr& op, const std::string& ns, bool dispatch = false);
     [[nodiscard]] std::string taskResultType(const OperationPtr& op, const std::string& ns, bool dispatch = false);
     [[nodiscard]] std::string getOptionalFormat(const TypePtr& type);
-    [[nodiscard]] std::string getStaticId(const TypePtr& type);
 
     /// Is this Slice type mapped to a C# value type?
     [[nodiscard]] bool isValueType(const TypePtr& type);

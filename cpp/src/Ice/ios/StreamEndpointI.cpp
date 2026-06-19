@@ -284,7 +284,7 @@ IceObjC::StreamEndpointI::endpoint(const StreamAcceptorPtr& a) const
     int port = a->effectivePort();
     if (port == _port)
     {
-        return dynamic_pointer_cast<StreamEndpointI>(const_cast<StreamEndpointI*>(this)->shared_from_this());
+        return static_pointer_cast<StreamEndpointI>(const_cast<StreamEndpointI*>(this)->shared_from_this());
     }
     else
     {

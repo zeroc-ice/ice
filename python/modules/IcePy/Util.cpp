@@ -56,7 +56,7 @@ namespace IcePy
 
         if (minor.get())
         {
-            major = PyNumber_Long(minor.get());
+            minor = PyNumber_Long(minor.get());
             if (!minor.get())
             {
                 PyErr_Format(PyExc_ValueError, "version minor must be a numeric value");
@@ -124,6 +124,10 @@ IcePy::getStringArg(PyObject* p, const string& arg, string& val)
     if (checkString(p))
     {
         val = getString(p);
+        if (PyErr_Occurred())
+        {
+            return false; // String conversion failed; a Python exception is set.
+        }
     }
     else if (p != Py_None)
     {
@@ -371,6 +375,10 @@ IcePy::listToStringSeq(PyObject* l, Ice::StringSeq& seq)
         if (checkString(item))
         {
             str = getString(item);
+            if (PyErr_Occurred())
+            {
+                return false; // String conversion failed; a Python exception is set.
+            }
         }
         else if (item != Py_None)
         {
@@ -423,6 +431,10 @@ IcePy::tupleToStringSeq(PyObject* t, Ice::StringSeq& seq)
         if (checkString(item))
         {
             str = getString(item);
+            if (PyErr_Occurred())
+            {
+                return false; // String conversion failed; a Python exception is set.
+            }
         }
         else if (item != Py_None)
         {
@@ -449,6 +461,10 @@ IcePy::dictionaryToContext(PyObject* dict, Ice::Context& context)
         if (checkString(key))
         {
             keystr = getString(key);
+            if (PyErr_Occurred())
+            {
+                return false; // String conversion failed; a Python exception is set.
+            }
         }
         else if (key != Py_None)
         {
@@ -460,6 +476,10 @@ IcePy::dictionaryToContext(PyObject* dict, Ice::Context& context)
         if (checkString(value))
         {
             valuestr = getString(value);
+            if (PyErr_Occurred())
+            {
+                return false; // String conversion failed; a Python exception is set.
+            }
         }
         else if (value != Py_None)
         {
@@ -754,6 +774,10 @@ IcePy::getIdentity(PyObject* p, Ice::Identity& ident)
             return false;
         }
         ident.name = getString(name.get());
+        if (PyErr_Occurred())
+        {
+            return false; // String conversion failed; a Python exception is set.
+        }
     }
     if (category.get())
     {
@@ -763,6 +787,10 @@ IcePy::getIdentity(PyObject* p, Ice::Identity& ident)
             return false;
         }
         ident.category = getString(category.get());
+        if (PyErr_Occurred())
+        {
+            return false; // String conversion failed; a Python exception is set.
+        }
     }
     return true;
 }

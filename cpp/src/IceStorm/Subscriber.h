@@ -98,9 +98,6 @@ namespace IceStorm
     };
 
     bool operator==(const std::shared_ptr<IceStorm::Subscriber>&, const Ice::Identity&);
-    bool operator==(const IceStorm::Subscriber&, const IceStorm::Subscriber&);
-    bool operator!=(const IceStorm::Subscriber&, const IceStorm::Subscriber&);
-    bool operator<(const IceStorm::Subscriber&, const IceStorm::Subscriber&);
 }
 
 #if defined(__clang__)

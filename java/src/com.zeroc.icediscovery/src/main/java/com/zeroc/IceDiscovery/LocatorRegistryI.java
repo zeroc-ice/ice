@@ -55,7 +55,7 @@ class LocatorRegistryI implements LocatorRegistry {
             if (s != null) {
                 s.remove(adapterId);
                 if (s.isEmpty()) {
-                    _replicaGroups.remove(adapterId);
+                    _replicaGroups.remove(replicaGroupId);
                 }
             }
         }

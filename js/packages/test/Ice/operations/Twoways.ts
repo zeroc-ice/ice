@@ -260,6 +260,24 @@ export async function twoways(
     }
 
     {
+        // Struct equality requires the same Slice type: structs of different types with
+        // identical members must not compare equal.
+        const as1 = new Test.AnotherStruct("abc");
+        test(as1.equals(new Test.AnotherStruct("abc")));
+        test(!as1.equals(new Test.AnotherStruct("def")));
+        test(!as1.equals(new Test.StillAnotherStruct("abc")));
+        test(!new Test.StillAnotherStruct("abc").equals(as1));
+
+        // Comparing a struct to a primitive must return false without throwing. The symbol and
+        // bigint cases in particular must not throw from Object.getPrototypeOf.
+        test(!as1.equals(5));
+        test(!as1.equals("abc"));
+        test(!as1.equals(true));
+        test(!as1.equals(Symbol()));
+        test(!as1.equals(10n));
+    }
+
+    {
         const bsi1 = new Uint8Array([0x01, 0x11, 0x12, 0x22]);
         const bsi2 = new Uint8Array([0xf1, 0xf2, 0xf3, 0xf4]);
 
@@ -1316,16 +1334,33 @@ export async function twoways(
 
         let p3 = new Test.MyClassPrx(ic, "test:" + helper.getTestEndpoint());
 
-        ic.getImplicitContext().setContext(ctx);
-        test(Ice.MapUtil.equals(ic.getImplicitContext().getContext(), ctx));
+        const implicitContext = ic.getImplicitContext();
+        implicitContext.setContext(ctx);
+        test(Ice.MapUtil.equals(implicitContext.getContext(), ctx));
         test(Ice.MapUtil.equals(await p3.opContext(), ctx));
 
-        test(ic.getImplicitContext().containsKey("zero") == false);
-        const r = ic.getImplicitContext().put("zero", "ZERO");
-        test(r === undefined);
-        test(ic.getImplicitContext().get("zero") == "ZERO");
+        test(implicitContext.containsKey("zero") == false);
+        test(implicitContext.get("zero") === "");
+        const r = implicitContext.put("zero", "ZERO");
+        test(r === "");
+        test(implicitContext.get("zero") == "ZERO");
+        test(implicitContext.put("zero", "ZERO-2") === "ZERO");
+        test(implicitContext.remove("zero") === "ZERO-2");
+        test(implicitContext.remove("zero") === "");
+        test(implicitContext.put("zero", "ZERO") === "");
 
-        ctx = ic.getImplicitContext().getContext();
+        // A null or undefined key is normalized to the empty-string key.
+        test(implicitContext.containsKey(null!) == false);
+        test(implicitContext.containsKey(undefined!) == false);
+        test(implicitContext.put(undefined!, "EMPTY") === "");
+        test(implicitContext.containsKey(null!) == true);
+        test(implicitContext.containsKey(undefined!) == true);
+        test(implicitContext.get(null!) === "EMPTY");
+        test(implicitContext.get(undefined!) === "EMPTY");
+        test(implicitContext.remove(undefined!) === "EMPTY");
+        test(implicitContext.containsKey("") == false);
+
+        ctx = implicitContext.getContext();
         test(Ice.MapUtil.equals(await p3.opContext(), ctx));
 
         const prxContext = new Ice.Context();
@@ -1343,13 +1378,13 @@ export async function twoways(
 
         p3 = Test.MyClassPrx.uncheckedCast(p3.ice_context(prxContext));
 
-        ic.getImplicitContext().setContext(null!);
+        implicitContext.setContext(null!);
         test(Ice.MapUtil.equals(await p3.opContext(), prxContext));
 
-        ic.getImplicitContext().setContext(ctx);
+        implicitContext.setContext(ctx);
         test(Ice.MapUtil.equals(await p3.opContext(), combined));
 
-        test(ic.getImplicitContext().remove("one") == "ONE");
+        test(implicitContext.remove("one") == "ONE");
 
         await ic.destroy();
     }

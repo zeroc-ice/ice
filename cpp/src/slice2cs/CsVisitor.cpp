@@ -73,7 +73,7 @@ void
 Slice::CsVisitor::namespacePrefixStart(const ModulePtr& p)
 {
     string ns = getNamespacePrefix(p);
-    if (!ns.empty())
+    if (p->isTopLevel() && !ns.empty())
     {
         _out << sp;
         _out << nl << "namespace " << ns;
@@ -84,7 +84,7 @@ Slice::CsVisitor::namespacePrefixStart(const ModulePtr& p)
 void
 Slice::CsVisitor::namespacePrefixEnd(const ModulePtr& p)
 {
-    if (!getNamespacePrefix(p).empty())
+    if (p->isTopLevel() && !getNamespacePrefix(p).empty())
     {
         _out << eb;
     }

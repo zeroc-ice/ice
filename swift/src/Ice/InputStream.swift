@@ -156,21 +156,6 @@ public final class InputStream {
         return encoding
     }
 
-    /// Skips over an encapsulation.
-    ///
-    /// - Returns: The encoding version of the skipped encapsulation.
-    func skipEncapsulation() throws -> EncodingVersion {
-        let sz: Int32 = try read()
-
-        if sz < 6 {
-            throw MarshalException("invalid encapsulation size")
-        }
-
-        let encodingVersion: EncodingVersion = try read()
-        try changePos(offset: Int(sz) - 6)
-        return encodingVersion
-    }
-
     /// Reads the start of a class instance or exception slice.
     public func startSlice() throws {
         precondition(encaps.decoder != nil)
@@ -231,7 +216,11 @@ public final class InputStream {
         case .VSize:
             try skip(readSize())
         case .FSize:
-            try skip(read())
+            let sz: Int32 = try read()
+            if sz < 0 {
+                throw MarshalException("invalid negative size for optional field")
+            }
+            try skip(sz)
         case .Class:
             throw MarshalException("cannot skip an optional class")
         }
@@ -264,12 +253,6 @@ public final class InputStream {
         }
     }
 
-    // Reset the InputStream to prepare for retry
-    func startOver() {
-        pos = 0
-        encaps = nil
-    }
-
     private func changePos(offset: Int) throws {
         precondition(pos + offset >= 0, "Negative position")
 
@@ -291,6 +274,7 @@ public final class InputStream {
     ///
     /// - Parameter count: The number of bytes to skip.
     public func skip(_ count: Int32) throws {
+        precondition(count >= 0, "skip count is negative")
         try changePos(offset: Int(count))
     }
 
@@ -552,7 +536,12 @@ extension InputStream {
     public func readSize() throws -> Int32 {
         let byteVal: UInt8 = try read()
         if byteVal == 255 {
-            return try read()
+            let v: Int32 = try read()
+            // A size is a non-negative value; reject a negative one encoded in the 5-byte form.
+            if v < 0 {
+                throw MarshalException("read invalid size: \(v)")
+            }
+            return v
         } else {
             return Int32(byteVal)
         }
@@ -587,11 +576,14 @@ extension InputStream {
         // the estimated remaining buffer size. This estimation is based on
         // the minimum size of the enclosing sequences, it's minSeqSize.
         //
-        if startSeq == -1 || pos > (startSeq + minSeqSize) {
+        // 'sz' is peer-controlled (up to Int32.max), so we compute the minimum size of this
+        // sequence as an Int64: 'sz * minSize' would overflow a 32-bit value and bypass the
+        // bounds check.
+        var newMinSeqSize = Int64(sz) * Int64(minSize)
+        if startSeq == -1 || pos > Int(startSeq + minSeqSize) {
             startSeq = Int32(pos)
-            minSeqSize = Int32(sz * minSize)
         } else {
-            minSeqSize += Int32(sz * minSize)
+            newMinSeqSize += Int64(minSeqSize)
         }
 
         //
@@ -599,10 +591,12 @@ extension InputStream {
         // possibly enclosed sequences), something is wrong with the marshaled
         // data: it's claiming having more data that what is possible to read.
         //
-        if startSeq + minSeqSize > data.count {
+        if Int64(startSeq) + newMinSeqSize > Int64(data.count) {
             throw MarshalException(endOfBufferMessage)
         }
 
+        // newMinSeqSize is now known to be <= data.count, itself smaller than Int32.max.
+        minSeqSize = Int32(newMinSeqSize)
         return sz
     }
 
@@ -671,13 +665,13 @@ extension InputStream {
                 return try read()
             } else if enumMaxValue < 32767 {
                 let v: Int16 = try read()
-                guard v <= UInt8.max else {
+                guard 0 <= v && v <= UInt8.max else {
                     throw MarshalException("unexpected enumerator value")
                 }
                 return UInt8(v)
             } else {
                 let v: Int32 = try read()
-                guard v <= UInt8.max else {
+                guard 0 <= v && v <= UInt8.max else {
                     throw MarshalException("unexpected enumerator value")
                 }
                 return UInt8(v)
@@ -1404,7 +1398,12 @@ private class EncapsDecoder11: EncapsDecoder {
         //
         if current.sliceFlags.contains(SliceFlags.FLAG_HAS_SLICE_SIZE) {
             current.sliceSize = try stream.read()
-            if current.sliceSize < 4 {
+            // A slice with optional members carries at least the 1-byte end marker in its body, so
+            // its size (which includes the 4-byte size field) must be >= 5. We rely on this in
+            // skipSlice's slice-preservation logic, which excludes the end marker by stepping back
+            // one byte.
+            let minSliceSize: Int32 = current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS) ? 5 : 4
+            if current.sliceSize < minSliceSize {
                 throw MarshalException("invalid slice size")
             }
         } else {
@@ -1534,7 +1533,9 @@ private class EncapsDecoder11: EncapsDecoder {
     }
 
     func readInstance(index: Int32, cb: Callback?) throws -> Int32 {
-        precondition(index > 0)
+        if index <= 0 {
+            throw MarshalException("invalid class instance index")
+        }
 
         if index > 1 {
             if let cb = cb {

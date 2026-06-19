@@ -72,7 +72,7 @@ namespace Ice
     public:
         std::shared_ptr<ConnectionI> shared_from_this()
         {
-            return std::dynamic_pointer_cast<ConnectionI>(IceInternal::EventHandler::shared_from_this());
+            return std::static_pointer_cast<ConnectionI>(IceInternal::EventHandler::shared_from_this());
         }
 
         struct OutgoingMessage
@@ -146,7 +146,6 @@ namespace Ice
         void close(std::function<void()> response, std::function<void(std::exception_ptr)> exception) noexcept final;
 
         [[nodiscard]] bool isActiveOrHolding() const;
-        [[nodiscard]] bool isFinished() const;
 
         void throwException() const final; // From Connection. Throws the connection exception if destroyed.
 

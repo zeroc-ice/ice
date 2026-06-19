@@ -129,6 +129,10 @@ export class Client extends TestHelper {
 
         b1 = communicator.stringToProxy('test:tcp --sourceAddress "::1"');
         test(b1 !== null && b1.equals(communicator.stringToProxy(b1.toString())));
+        b1 = communicator.stringToProxy(
+            'test:tcp -h 127.0.0.1 -p 10000 --sourceAddress "::1":tcp -h 127.0.0.1 -p 10001',
+        );
+        test(b1 !== null && b1.ice_getEndpoints().length === 2);
 
         b1 = communicator.stringToProxy("");
         test(b1 === null);
@@ -304,8 +308,8 @@ export class Client extends TestHelper {
         b1 = communicator.stringToProxy("test -O");
         test(b1 !== null && b1.ice_isBatchOneway());
         // We can still parse -d and -D even if JavaScript doesn't support Datagram invocations.
-        b1 = communicator.stringToProxy("test -d");
-        b1 = communicator.stringToProxy("test -D");
+        communicator.stringToProxy("test -d");
+        communicator.stringToProxy("test -D");
 
         b1 = communicator.stringToProxy("test -s"); // does nothing
 
@@ -354,6 +358,25 @@ export class Client extends TestHelper {
         test(idStr === "cat\\//\\/test");
         id2 = Ice.stringToIdentity(idStr);
         test(id.equals(id2));
+
+        // U+0007 (bell) is escaped as \a in the default mode and must round-trip.
+        id = new Ice.Identity("test\u0007bell", "cat\u0007");
+        idStr = Ice.identityToString(id);
+        test(idStr === "cat\\a/test\\abell");
+        id2 = Ice.stringToIdentity(idStr);
+        test(id.equals(id2));
+
+        id = Ice.stringToIdentity("\\a");
+        test(id.name === "\u0007" && id.category.length === 0);
+
+        try {
+            // Extra unescaped slash
+            Ice.stringToIdentity("a/b/c");
+            test(false);
+        } catch (ex) {
+            test(ex instanceof Ice.ParseException, ex as Error);
+            test((ex as Error).message.includes("unescaped '/'"), ex as Error);
+        }
 
         // Input string with various pitfalls
         // id = Ice.stringToIdentity("\\342\\x82\\254\\60\\x9\\60\\");

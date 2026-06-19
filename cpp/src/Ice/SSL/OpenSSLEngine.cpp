@@ -72,7 +72,14 @@ namespace
 
 OpenSSL::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance) : Ice::SSL::SSLEngine(instance) {}
 
-OpenSSL::SSLEngine::~SSLEngine() = default;
+OpenSSL::SSLEngine::~SSLEngine()
+{
+    if (_ctx)
+    {
+        SSL_CTX_free(_ctx);
+        _ctx = nullptr;
+    }
+}
 
 void
 OpenSSL::SSLEngine::initialize()
@@ -90,6 +97,10 @@ OpenSSL::SSLEngine::initialize()
         {
             throw InitializationException(__FILE__, __LINE__, "IceSSL: unable to create SSL context:\n" + sslErrors());
         }
+
+        // Reject peer-initiated TLS renegotiation: it is a CPU-asymmetric denial-of-service primitive
+        // on TLS 1.2 and is removed entirely in TLS 1.3.
+        SSL_CTX_set_options(_ctx, SSL_OP_NO_RENEGOTIATION);
 
         // Check for a default directory. We look in this directory for files mentioned in the configuration.
         const string defaultDir = properties->getIceProperty("IceSSL.DefaultDir");
@@ -508,14 +519,4 @@ string
 OpenSSL::SSLEngine::sslErrors() const
 {
     return getErrors();
-}
-
-void
-OpenSSL::SSLEngine::destroy()
-{
-    if (_ctx)
-    {
-        SSL_CTX_free(_ctx);
-        _ctx = nullptr;
-    }
 }

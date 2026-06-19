@@ -42,8 +42,9 @@ namespace Ice
         /// Constructs an OutputStream.
         /// @param encoding The encoding version to use.
         /// @param format The class format to use.
-        /// @param stringConverter The narrow string converter to use.
-        /// @param wstringConverter The wide string converter to use.
+        /// @param stringConverter The narrow string converter to use. @c nullptr means do not perform any conversion.
+        /// @param wstringConverter The wide string converter to use. @c nullptr is equivalent to the process wstring
+        /// converter.
         OutputStream(
             EncodingVersion encoding = Encoding_1_1,
             FormatType format = FormatType::CompactFormat,
@@ -66,8 +67,9 @@ namespace Ice
         /// stream will reallocate if the size of the marshaled data exceeds the application's buffer.
         /// @param encoding The encoding version to use.
         /// @param format The class format to use.
-        /// @param stringConverter The narrow string converter to use.
-        /// @param wstringConverter The wide string converter to use.
+        /// @param stringConverter The narrow string converter to use. @c nullptr means do not perform any conversion.
+        /// @param wstringConverter The wide string converter to use. @c nullptr is equivalent to the process wstring
+        /// converter.
         OutputStream(
             std::pair<const std::byte*, const std::byte*> bytes,
             EncodingVersion encoding = Encoding_1_1,
@@ -697,7 +699,7 @@ namespace Ice
         }
 
         StringConverterPtr _stringConverter;
-        WstringConverterPtr _wstringConverter;
+        WstringConverterPtr _wstringConverter; // never null
 
         //
         // The public stream API needs to attach data to a stream.

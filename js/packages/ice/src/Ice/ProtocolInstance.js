@@ -3,21 +3,11 @@
 export class ProtocolInstance {
     constructor(instance, type, protocol, secure) {
         this._instance = instance;
-        this._traceLevel = instance.traceLevels().network;
-        this._traceCategory = instance.traceLevels().networkCat;
         this._logger = instance.initializationData().logger;
         this._properties = instance.initializationData().properties;
         this._type = type;
         this._protocol = protocol;
         this._secure = secure;
-    }
-
-    traceLevel() {
-        return this._traceLevel;
-    }
-
-    traceCategory() {
-        return this._traceCategory;
     }
 
     logger() {
@@ -46,10 +36,6 @@ export class ProtocolInstance {
 
     defaultSourceAddress() {
         return this._instance.defaultsAndOverrides().defaultSourceAddress;
-    }
-
-    defaultEncoding() {
-        return this._instance.defaultsAndOverrides().defaultEncoding;
     }
 
     messageSizeMax() {

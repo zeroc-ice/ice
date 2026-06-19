@@ -170,6 +170,6 @@ final class IdleTimeoutTransceiverDecorator implements Transceiver {
     private void rescheduleWriteTimer() {
         cancelWriteTimer();
         _writeTimerFuture =
-            _scheduledExecutorService.schedule(_sendHeartbeat, _idleTimeout * 1000 / 2, TimeUnit.MILLISECONDS);
+            _scheduledExecutorService.schedule(_sendHeartbeat, (long) _idleTimeout * 1000 / 2, TimeUnit.MILLISECONDS);
     }
 }
