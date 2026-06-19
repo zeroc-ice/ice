@@ -32,6 +32,7 @@
         "ostr",
         "PKCS",
         "Postamble",
+        "reapables",
         "reloadable",
         "RFCOMM",
         "slnx",

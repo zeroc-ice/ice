@@ -130,9 +130,11 @@ might need to be aware of.
 
 #### IceGrid
 
-- Fixed a deadlock in the IceGrid node that could occur when a server was restarted while one of its object adapters
-  was concurrently activated, deactivated, or queried. The node could hang, blocking all subsequent operations on
-  that node.
+- Fixed a potential crash at startup in an IceGrid slave registry. A master registry registering with a slave while
+  the slave was still initializing could crash the slave.
+
+- Fixed a registry-wide stall in IceGrid. Previously, when a client that allocated a server with the `session`
+  allocation mode suddenly disconnected, the registry could temporarily stop accepting all new sessions.
 
 These are the changes since the [Ice 3.8.2] release.
 
