@@ -518,9 +518,6 @@ public final class StringUtil {
         // Make sure there is something present in the middle to match the wildcard.
         // If emptyMatch is true, allow a match of "".
         int endLength = pat.length() - beginIndex - 1;
-        if (endLength == 0) {
-            return true;
-        }
         if (endLength > s.length()) {
             return false;
         }
@@ -530,8 +527,7 @@ public final class StringUtil {
         }
 
         // Make sure end of the strings match
-        if (!s.substring(endIndex, s.length() - endIndex)
-            .equals(pat.substring(beginIndex + 1, pat.length() - beginIndex - 1))) {
+        if (!s.substring(endIndex).equals(pat.substring(beginIndex + 1))) {
             return false;
         }
 

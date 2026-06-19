@@ -181,5 +181,44 @@ public class Client extends TestHelper {
             test(StringUtil.splitString("a\"b", ":") == null);
         }
         System.out.println("ok");
+
+        System.out.print("checking string matching... ");
+        System.out.flush();
+        {
+            // No wildcard: exact match.
+            test(StringUtil.match("foo", "foo", false));
+            test(!StringUtil.match("foo", "bar", false));
+
+            // Trailing wildcard.
+            test(StringUtil.match("foobar", "foo*", false));
+            test(!StringUtil.match("foobar", "baz*", false));
+
+            // A trailing wildcard must match at least one character unless emptyMatch is true.
+            test(!StringUtil.match("foo", "foo*", false));
+            test(StringUtil.match("foo", "foo*", true));
+
+            // Leading wildcard.
+            test(StringUtil.match("foobar", "*bar", false));
+            test(!StringUtil.match("foobar", "*baz", false));
+
+            // A leading wildcard must also match at least one character unless emptyMatch is true.
+            test(!StringUtil.match("bar", "*bar", false));
+            test(StringUtil.match("bar", "*bar", true));
+
+            // Wildcard with a non-empty tail (regression test for #5505).
+            test(StringUtil.match("fooXXXbar", "foo*bar", false));
+            test(!StringUtil.match("fooXXXbaz", "foo*bar", false));
+
+            // The wildcard must match at least one character unless emptyMatch is true.
+            test(!StringUtil.match("foobar", "foo*bar", false));
+            test(StringUtil.match("foobar", "foo*bar", true));
+
+            // A wildcard-only pattern matches any (non-empty) string: the wildcard consumes the whole
+            // string, so the emptyMatch flag makes no difference here (an empty input is disallowed by match).
+            test(StringUtil.match("a", "*", false));
+            test(StringUtil.match("a", "*", true));
+            test(StringUtil.match("foobar", "*", false));
+        }
+        System.out.println("ok");
     }
 }
