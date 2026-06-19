@@ -199,6 +199,7 @@ namespace
 
         void link(optional<TopicPrx> topic, int cost, const Ice::Current& current) override
         {
+            checkNotNull(topic, __FILE__, __LINE__, current);
             while (true)
             {
                 int64_t generation = -1;
@@ -231,6 +232,7 @@ namespace
 
         void unlink(optional<TopicPrx> topic, const Ice::Current& current) override
         {
+            checkNotNull(topic, __FILE__, __LINE__, current);
             while (true)
             {
                 int64_t generation = -1;
@@ -496,6 +498,12 @@ TopicImpl::subscribeAndGetPublisher(QoS qos, Ice::ObjectPrx obj)
     auto id = obj->ice_getIdentity();
     auto traceLevels = _instance->traceLevels();
     lock_guard lock(_subscribersMutex);
+
+    if (_destroyed)
+    {
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+    }
+
     if (traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
@@ -612,6 +620,11 @@ TopicImpl::link(const TopicPrx& topic, int cost)
     }
 
     lock_guard lock(_subscribersMutex);
+
+    if (_destroyed)
+    {
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+    }
 
     Ice::Identity id = topic->ice_getIdentity();
 
