@@ -251,8 +251,10 @@ TransientTopicImpl::link(optional<TopicPrx> topic, int cost, const Ice::Current&
 }
 
 void
-TransientTopicImpl::unlink(optional<TopicPrx> topic, const Ice::Current&)
+TransientTopicImpl::unlink(optional<TopicPrx> topic, const Ice::Current& current)
 {
+    checkNotNull(topic, __FILE__, __LINE__, current);
+
     lock_guard lock(_mutex);
 
     if (_destroyed)
