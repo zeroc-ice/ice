@@ -61,7 +61,7 @@ might need to be aware of.
 
 ### Java Changes
 
-- Fixed a bug in `slice2java` that emitted broken code for dictionaries using `java:type:instance-type:formal-type`
+- Fixed a bug in `slice2java` that emitted broken code for dictionaries using `java:type:<instance-type>:<formal-type>`
   metadata to specify a formal type. This code affected such dictionaries when used in a class or exception, or as the
   return type of a `["marshaled-result"]` operation.
 
