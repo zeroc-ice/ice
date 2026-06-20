@@ -63,10 +63,10 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     public void detach() {
         Thread thread = null;
         synchronized (this) {
+            _detached = true;
             if (_sendLogThread != null) {
                 thread = _sendLogThread;
                 _sendLogThread = null;
-                _detached = true;
                 notifyAll();
             }
         }
