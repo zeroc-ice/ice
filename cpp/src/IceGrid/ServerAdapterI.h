@@ -44,7 +44,7 @@ namespace IceGrid
         std::optional<Ice::ObjectPrx> _proxy;
         bool _enabled;
         std::vector<std::function<void(const std::optional<Ice::ObjectPrx>&)>> _activateCB;
-        bool _activateAfterDeactivating;
+        bool _activateAfterDeactivating{false};
 
         // Lock order: ServerI::_mutex is always acquired before ServerAdapterI::_mutex, never after.
         mutable std::mutex _mutex;

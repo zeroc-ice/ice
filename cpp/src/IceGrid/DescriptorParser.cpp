@@ -49,6 +49,7 @@ namespace
         bool _isCurrentTargetDeployable{true};
         int _line{0};
         int _column{0};
+        int _includeLevel{0};
 
         unique_ptr<ApplicationDescriptorBuilder> _currentApplication;
         unique_ptr<NodeDescriptorBuilder> _currentNode;
@@ -124,6 +125,15 @@ namespace
             }
             else if (name == "include")
             {
+                //
+                // Guard against an <include> that (directly or indirectly) includes itself, which would
+                // otherwise recurse until the process runs out of stack.
+                //
+                if (++_includeLevel > 100)
+                {
+                    error("too many nested <include> elements");
+                }
+
                 string targets = attributes("targets", "");
                 string file = attributes("file");
                 if (file[0] != '/')
@@ -145,6 +155,7 @@ namespace
 
                 _filename = oldFileName;
                 _targets = oldTargets;
+                --_includeLevel;
             }
             else if (name == "application")
             {

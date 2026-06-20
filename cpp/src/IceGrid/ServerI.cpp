@@ -347,7 +347,7 @@ namespace IceGrid
             string variable;
             if (v[beg + 1] == '{')
             {
-                end = v.find('}');
+                end = v.find('}', beg);
                 if (end == string::npos)
                 {
                     break;

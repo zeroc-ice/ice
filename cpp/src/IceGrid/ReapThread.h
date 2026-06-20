@@ -96,7 +96,7 @@ namespace IceGrid
         bool calcWakeInterval();
 
         Ice::CloseCallback _closeCallback;
-        std::chrono::milliseconds _wakeInterval;
+        std::chrono::milliseconds _wakeInterval{0};
         bool _terminated{false};
         struct ReapableItem
         {
