@@ -429,7 +429,7 @@ IceGrid::readDirectory(const string& pa)
 #else
 
     struct dirent** namelist;
-    int n = scandir(path.c_str(), &namelist, nullptr, alphasort);
+    int n = scandir(path.c_str(), &namelist, nullptr, nullptr);
 
     if (n < 0)
     {
@@ -454,6 +454,13 @@ IceGrid::readDirectory(const string& pa)
     }
 
     free(namelist);
+
+    //
+    // Sort byte-wise so the result has the same ordering as the Windows branch above. Callers combine
+    // this list with byte-wise sorted ranges (e.g. std::set_difference), which requires a consistent
+    // ordering; scandir's alphasort uses the locale-dependent strcoll, which can disagree.
+    //
+    sort(result.begin(), result.end());
     return result;
 
 #endif
