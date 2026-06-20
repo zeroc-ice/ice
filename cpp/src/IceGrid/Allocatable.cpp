@@ -305,10 +305,10 @@ Allocatable::release(const shared_ptr<SessionI>& session, bool fromRelease)
                 }
                 catch (const Ice::UserException&)
                 {
-                    if (request)
-                    {
-                        request->cancel(current_exception());
-                    }
+                    // Reachable only via the allocate(request, true) branch above; canTryAllocate()
+                    // never throws a UserException, so request is non-null here.
+                    assert(request);
+                    request->cancel(current_exception());
                 }
             }
         }
