@@ -483,8 +483,9 @@ allTests(Test::TestHelper* helper)
         cout << "testing server update without a registered process... " << flush;
         {
             //
-            // A server with Ice.Admin.Enabled=0 reaches the Active state without a registered process. A
-            // property-only update of such a running server must complete without crashing the node.
+            // Misconfiguration guard: a server with Ice.Admin.Enabled=0 reaches the Active state without a
+            // registered process (a process is normally registered through the Ice.Admin Process facet). A
+            // property-only update of such a server must not crash the node.
             //
             auto noProcess = make_shared<ServerDescriptor>();
             noProcess->id = "NoProcessServer";

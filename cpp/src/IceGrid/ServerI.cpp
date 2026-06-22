@@ -1138,13 +1138,8 @@ ServerI::load(
         }
         else if (response)
         {
-            AdapterPrxDict adapters;
-            for (const auto& [id, servant] : _adapters)
-            {
-                adapters.insert({id, servant->getProxy()});
-            }
             assert(_this);
-            response(*_this, adapters, secondsToInt(_activationTimeout), secondsToInt(_deactivationTimeout));
+            response(*_this, getAdapterProxies(), secondsToInt(_activationTimeout), secondsToInt(_deactivationTimeout));
         }
         return nullptr;
     }
@@ -1193,29 +1188,29 @@ ServerI::load(
             // the server proxy to register the server process proxy
             // with the node.
             //
-            AdapterPrxDict adapters;
-            for (const auto& adapter : _adapters)
-            {
-                adapters.insert({adapter.first, adapter.second->getProxy()});
-            }
             assert(_this);
-            response(*_this, adapters, secondsToInt(_activationTimeout), secondsToInt(_deactivationTimeout));
+            response(*_this, getAdapterProxies(), secondsToInt(_activationTimeout), secondsToInt(_deactivationTimeout));
         }
         else if (_state == InternalServerState::Active)
         {
-            _load->addCallback(response, exception); // Must be called before startRuntimePropertiesUpdate!
             updateRevision(desc->uuid, desc->revision);
             if (_process)
             {
+                _load->addCallback(response, exception); // Must be called before startRuntimePropertiesUpdate!
                 _load->startRuntimePropertiesUpdate(*_process);
             }
             else
             {
                 //
-                // The server has no process to update its runtime properties on (e.g. its Ice.Admin object
-                // adapter is disabled), so there's nothing to update; complete the load now.
+                // The server has no process to push runtime properties to (e.g. its Ice.Admin object adapter
+                // is disabled), so there's nothing to update; respond directly.
                 //
-                finishLoad();
+                assert(_this);
+                response(
+                    *_this,
+                    getAdapterProxies(),
+                    secondsToInt(_activationTimeout),
+                    secondsToInt(_deactivationTimeout));
             }
         }
         else
@@ -2499,18 +2494,24 @@ ServerI::updateRuntimePropertiesCallback(exception_ptr ex, const shared_ptr<Inte
     }
 }
 
+AdapterPrxDict
+ServerI::getAdapterProxies() const
+{
+    AdapterPrxDict adapters;
+    for (const auto& [id, servant] : _adapters)
+    {
+        adapters.insert({id, servant->getProxy()});
+    }
+    return adapters;
+}
+
 void
 ServerI::finishLoad()
 {
     // Completes the pending load command, handing the current server and adapter proxies back to the caller.
     assert(_load);
     assert(_this);
-    AdapterPrxDict adapters;
-    for (const auto& [id, servant] : _adapters)
-    {
-        adapters.insert({id, servant->getProxy()});
-    }
-    _load->finished(*_this, adapters, _activationTimeout, _deactivationTimeout);
+    _load->finished(*_this, getAdapterProxies(), _activationTimeout, _deactivationTimeout);
 }
 
 bool
