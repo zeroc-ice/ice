@@ -781,8 +781,11 @@ DataReaderI::initSamples(
         {
             if (sample->event == DataStorm::SampleEvent::PartialUpdate)
             {
-                _parent->getUpdater(
-                    sample->tag)(previousByKey[sample->key], sample, _parent->instance()->getCommunicator());
+                auto p = previousByKey.find(sample->key);
+                _parent->getUpdater(sample->tag)(
+                    p == previousByKey.end() ? nullptr : p->second,
+                    sample,
+                    _parent->instance()->getCommunicator());
             }
             else
             {
@@ -924,7 +927,11 @@ DataReaderI::queue(
     {
         if (sample->event == DataStorm::SampleEvent::PartialUpdate)
         {
-            _parent->getUpdater(sample->tag)(_lastByKey[sample->key], sample, _parent->instance()->getCommunicator());
+            auto p = _lastByKey.find(sample->key);
+            _parent->getUpdater(sample->tag)(
+                p == _lastByKey.end() ? nullptr : p->second,
+                sample,
+                _parent->instance()->getCommunicator());
         }
         else
         {
@@ -1030,7 +1037,9 @@ DataWriterI::publish(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
     if (sample->event == DataStorm::SampleEvent::PartialUpdate)
     {
         assert(!sample->hasValue());
-        _parent->getUpdater(sample->tag)(_lastByKey[key], sample, _parent->instance()->getCommunicator());
+        auto p = _lastByKey.find(key);
+        _parent->getUpdater(
+            sample->tag)(p == _lastByKey.end() ? nullptr : p->second, sample, _parent->instance()->getCommunicator());
     }
 
     sample->id = ++_parent->_nextSampleId;
