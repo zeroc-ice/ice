@@ -2497,7 +2497,7 @@ ServerI::updateRuntimePropertiesCallback(exception_ptr ex, const shared_ptr<Inte
 AdapterPrxDict
 ServerI::getAdapterProxies() const
 {
-    // assert(locked());
+    // Must be called with _mutex held.
     AdapterPrxDict adapters;
     for (const auto& [id, servant] : _adapters)
     {
@@ -2509,7 +2509,7 @@ ServerI::getAdapterProxies() const
 void
 ServerI::finishLoad()
 {
-    // assert(locked());
+    // Must be called with _mutex held.
     // Completes the pending load command, handing the current server and adapter proxies back to the caller.
     assert(_load);
     assert(_this);
@@ -2519,7 +2519,7 @@ ServerI::finishLoad()
 bool
 ServerI::checkActivation()
 {
-    // assert(locked());
+    // Must be called with _mutex held.
     if (_state == InternalServerState::WaitForActivation || _state == InternalServerState::ActivationTimeout)
     {
         //
