@@ -127,8 +127,8 @@ void ::Reader::run(int argc, char* argv[])
     {
         Topic<string, int> topic(node, "anyKeyReconnect");
         Topic<string, int> barrier(node, "anyKeyReconnectBarrier");
-        // A plain single-key reader: the bug is triggered by the *writer* being any-key (filtered), so any
-        // reader connected to it is affected, regardless of its own kind.
+        // A plain single-key reader against the any-key (filtered) writer: reconnect resumption is driven by the
+        // writer being filtered, so a reader of any kind connected to it must resume rather than re-read history.
         auto reader = makeSingleKeyReader(topic, "k", "", config);
         auto writerB = makeSingleKeyWriter(barrier, "reader_barrier");
 
@@ -153,9 +153,8 @@ void ::Reader::run(int argc, char* argv[])
         writerB.waitForReaders();
         writerB.update(0);
 
-        // After the reconnect the reader must continue from 100. Without the fix it re-receives the retained
-        // 0..99 first, because the subscription to the any-key writer reported no lastIds and the writer re-sent
-        // its whole retained queue.
+        // After the reconnect the reader must continue from 100: the writer resumes from the reader's last received
+        // sample rather than re-sending its whole retained queue (which would re-deliver 0..99).
         for (int i = 0; i < 100; ++i)
         {
             auto sample = reader.getNextUnread();
