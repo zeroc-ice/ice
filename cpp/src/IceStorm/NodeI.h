@@ -10,6 +10,7 @@
 #include "Replica.h"
 
 #include <condition_variable>
+#include <mutex>
 #include <set>
 
 namespace IceStormElection
@@ -58,6 +59,10 @@ namespace IceStormElection
     private:
         void setState(NodeState);
 
+        // Runs the recovery logic with _mutex already held by the caller, so the condition-variable wait can release
+        // it. Callers that don't already hold _mutex use the public recovery(), which acquires it and delegates here.
+        void recovery(std::unique_lock<std::mutex>& lock, std::int64_t generation = -1);
+
         const IceInternal::TimerPtr _timer;
         const std::shared_ptr<IceStorm::TraceLevels> _traceLevels;
         const std::shared_ptr<IceStormElection::Observers> _observers;
@@ -93,8 +98,8 @@ namespace IceStormElection
         IceInternal::TimerTaskPtr _checkTask;
         IceInternal::TimerTaskPtr _mergeContinueTask;
 
-        mutable std::recursive_mutex _mutex;
-        std::condition_variable_any _condVar;
+        mutable std::mutex _mutex;
+        std::condition_variable _condVar;
     };
 
     class FinishUpdateHelper
