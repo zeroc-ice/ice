@@ -90,7 +90,7 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
-    cout << "testing any-key reader reconnect without duplicate samples... " << flush;
+    cout << "testing reconnect with an any-key writer without duplicate samples... " << flush;
     {
         Topic<string, int> topic(node, "anyKeyReconnect");
         Topic<string, int> barrier(node, "anyKeyReconnectBarrier");
