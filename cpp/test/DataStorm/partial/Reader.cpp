@@ -69,6 +69,28 @@ void ::Reader::run(int argc, char* argv[])
         test(sample.getEvent() == SampleEvent::PartialUpdate);
         test(sample.getValue()->price == 18.0f);
     }
+
+    Topic<string, StockPtr> multiTopic(node, "multiKeyTopic");
+    multiTopic.setReaderDefaultConfig(config);
+    multiTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    {
+        // The AAPL partial update only sets price; the fields it does not set (lastBid/lastAsk) must be carried
+        // over from AAPL's own previous value, not from GOOG's.
+        auto reader = makeMultiKeyReader(multiTopic, {"AAPL", "GOOG"});
+        shared_ptr<Stock> aapl;
+        for (int i = 0; i < 3; ++i)
+        {
+            auto sample = reader.getNextUnread();
+            if (sample.getKey() == "AAPL" && sample.getEvent() == SampleEvent::PartialUpdate)
+            {
+                aapl = sample.getValue();
+            }
+        }
+        test(aapl);
+        test(aapl->price == 15.0f);
+        test(aapl->lastBid == 13.0f); // AAPL's own bid, not GOOG's 101
+        test(aapl->lastAsk == 14.0f); // AAPL's own ask, not GOOG's 102
+    }
 }
 
 DEFINE_TEST(::Reader)
