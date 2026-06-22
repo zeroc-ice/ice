@@ -666,10 +666,10 @@ namespace
         {
             lock_guard lock(_mutex);
 
+            _detached.store(true);
             if (_sendLogThread.joinable())
             {
                 sendLogThread = std::move(_sendLogThread);
-                _detached.store(true);
                 _conditionVariable.notify_all();
             }
         }

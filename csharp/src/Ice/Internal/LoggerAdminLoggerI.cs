@@ -75,11 +75,11 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
         Thread thread = null;
         lock (_mutex)
         {
+            _detached = true;
             if (_sendLogThread != null)
             {
                 thread = _sendLogThread;
                 _sendLogThread = null;
-                _detached = true;
                 Monitor.PulseAll(_mutex);
             }
         }
