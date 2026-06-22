@@ -480,6 +480,54 @@ allTests(Test::TestHelper* helper)
         test(serverPid == admin->getServerPid("Server"));
         cout << "ok" << endl;
 
+        cout << "testing server update without a registered process... " << flush;
+        {
+            //
+            // Misconfiguration guard: a server with Ice.Admin.Enabled=0 reaches the Active state without a
+            // registered process (a process is normally registered through the Ice.Admin Process facet). A
+            // property-only update of such a server must not crash the node.
+            //
+            auto noProcess = make_shared<ServerDescriptor>();
+            noProcess->id = "NoProcessServer";
+            noProcess->exe = properties->getProperty("ServerDir") + "/server";
+            noProcess->pwd = ".";
+            noProcess->allocatable = false;
+            noProcess->activation = "on-demand";
+            addProperty(noProcess, "Ice.Admin.Enabled", "0");
+            addProperty(noProcess, "Server.Endpoints", "default");
+            AdapterDescriptor noProcessAdapter;
+            noProcessAdapter.name = "Server";
+            noProcessAdapter.id = "NoProcessServerAdapter";
+            noProcessAdapter.serverLifetime = true;
+            ObjectDescriptor noProcessObject;
+            noProcessObject.id = Ice::stringToIdentity("${server}");
+            noProcessObject.type = "::Test::TestIntf";
+            noProcessAdapter.objects.push_back(noProcessObject);
+            noProcess->adapters.push_back(noProcessAdapter);
+
+            update = empty;
+            update.nodes[0].servers.push_back(noProcess);
+            admin->updateApplicationWithoutRestart(update);
+
+            admin->startServer("NoProcessServer");
+            test(admin->getServerState("NoProcessServer") == ServerState::Active);
+
+            ServerInfo noProcessInfo = admin->getServerInfo("NoProcessServer");
+            addProperty(noProcessInfo.descriptor, "test", "test");
+            updateServerRuntimeProperties(admin, "NoProcessServer", noProcessInfo.descriptor);
+
+            // The node survived the property update and the server is still active.
+            test(admin->getServerState("NoProcessServer") == ServerState::Active);
+            test(hasProperty(admin->getServerInfo("NoProcessServer").descriptor, "test", "test"));
+
+            admin->stopServer("NoProcessServer");
+
+            update = empty;
+            update.nodes[0].removeServers.emplace_back("NoProcessServer");
+            admin->updateApplicationWithoutRestart(update);
+        }
+        cout << "ok" << endl;
+
         cout << "testing icebox server add... " << flush;
 
         auto service = make_shared<ServiceDescriptor>();
