@@ -2497,6 +2497,7 @@ ServerI::updateRuntimePropertiesCallback(exception_ptr ex, const shared_ptr<Inte
 AdapterPrxDict
 ServerI::getAdapterProxies() const
 {
+    // assert(locked());
     AdapterPrxDict adapters;
     for (const auto& [id, servant] : _adapters)
     {
@@ -2508,6 +2509,7 @@ ServerI::getAdapterProxies() const
 void
 ServerI::finishLoad()
 {
+    // assert(locked());
     // Completes the pending load command, handing the current server and adapter proxies back to the caller.
     assert(_load);
     assert(_this);
