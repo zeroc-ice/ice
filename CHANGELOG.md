@@ -29,9 +29,6 @@ might need to be aware of.
   declaring it in declaration order. As a result, an operation whose out-parameters were declared in an order
   different from their marshal order could return values in the wrong tuple slots or fail to compile.
 
-- Fixed C# IceLocatorDiscovery hanging a request when locator rediscovery resolved to the same proxy that had
-  just failed: the retry threw into a discarded task, leaving the request's `TaskCompletionSource` uncompleted.
-
 ### JavaScript Changes
 
 - Assigning an out-of-range or non-integer value to an `InputStream` or `OutputStream` position now throws a
