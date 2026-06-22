@@ -607,6 +607,40 @@ allTests(Test::TestHelper* helper)
     }
 
     {
+        cout << "testing variable cycle detection... " << flush;
+
+        //
+        // A self-referential variable must be rejected with a DeploymentException, rather than recursing
+        // until the registry runs out of stack.
+        //
+        ApplicationDescriptor app;
+        app.name = "CycleApp";
+        app.variables["cycle"] = "${cycle}";
+
+        auto server = make_shared<ServerDescriptor>();
+        server->id = "CycleServer";
+        server->exe = "${cycle}";
+        server->pwd = ".";
+        server->activation = "on-demand";
+
+        NodeDescriptor node;
+        node.servers.push_back(server);
+        app.nodes["localnode"] = node;
+
+        try
+        {
+            admin->addApplication(app);
+            test(false);
+        }
+        catch (const DeploymentException& ex)
+        {
+            test(ex.reason.find("circular dependency") != string::npos);
+        }
+
+        cout << "ok" << endl;
+    }
+
+    {
         cout << "testing node add... " << flush;
 
         ApplicationDescriptor testApp;
