@@ -27,6 +27,16 @@ final class OutgoingConnectionFactory {
             list.add(value);
         }
 
+        public void removeOne(K key, V value) {
+            List<V> list = this.get(key);
+            if (list != null) {
+                list.remove(value);
+                if (list.isEmpty()) {
+                    this.remove(key);
+                }
+            }
+        }
+
         private static final long serialVersionUID = -8109942200313578944L;
     }
 
@@ -526,9 +536,9 @@ final class OutgoingConnectionFactory {
             return;
         }
 
-        _connections.remove(connection.connector(), connection);
-        _connectionsByEndpoint.remove(connection.endpoint(), connection);
-        _connectionsByEndpoint.remove(connection.endpoint().compress(true), connection);
+        _connections.removeOne(connection.connector(), connection);
+        _connectionsByEndpoint.removeOne(connection.endpoint(), connection);
+        _connectionsByEndpoint.removeOne(connection.endpoint().compress(true), connection);
     }
 
     private static class ConnectorInfo {
