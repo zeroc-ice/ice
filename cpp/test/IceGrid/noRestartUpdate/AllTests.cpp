@@ -522,7 +522,7 @@ allTests(Test::TestHelper* helper)
             admin->stopServer("NoProcessServer");
 
             update = empty;
-            update.nodes[0].removeServers.push_back("NoProcessServer");
+            update.nodes[0].removeServers.emplace_back("NoProcessServer");
             admin->updateApplicationWithoutRestart(update);
         }
         cout << "ok" << endl;
