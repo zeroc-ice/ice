@@ -298,7 +298,7 @@ IceInternal::OpaqueEndpointI::checkOption(const string& option, const string& ar
                     __LINE__,
                     "invalid type value '" + argument + "' in endpoint '" + endpoint + "'");
             }
-            else if (t < 0 || t > 65535)
+            else if (t < 0 || t > 32767)
             {
                 throw ParseException(
                     __FILE__,

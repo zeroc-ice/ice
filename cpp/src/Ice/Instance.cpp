@@ -1185,6 +1185,10 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         const_cast<bool&>(_acceptClassCycles) = _initData.properties->getIcePropertyAsInt("Ice.AcceptClassCycles") > 0;
 
+        // Read here (not in the noexcept destroy) so an invalid value is reported when the communicator is created.
+        const_cast<bool&>(_warnUnusedProperties) =
+            _initData.properties->getIcePropertyAsInt("Ice.Warn.UnusedProperties") > 0;
+
         string implicitContextKind = _initData.properties->getIceProperty("Ice.ImplicitContext");
         if (implicitContextKind == "Shared")
         {
@@ -1733,7 +1737,7 @@ IceInternal::Instance::destroy() noexcept
         _locatorManager->destroy();
     }
 
-    if (_initData.properties->getIcePropertyAsInt("Ice.Warn.UnusedProperties") > 0)
+    if (_warnUnusedProperties)
     {
         set<string> unusedProperties = _initData.properties.get()->getUnusedProperties();
         if (unusedProperties.size() != 0)
