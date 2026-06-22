@@ -152,18 +152,18 @@ NodeI::start()
     // We use this lock to ensure that recovery is called before CheckTask
     // is scheduled, even if timeout is 0
     //
-    lock_guard lock(_mutex);
+    unique_lock<mutex> lock(_mutex);
 
     _checkTask = make_shared<CheckTask>(shared_from_this());
     _timer->schedule(_checkTask, chrono::seconds(static_cast<int64_t>(_nodes.size() - static_cast<size_t>(_id)) * 2));
-    recovery();
+    recovery(lock);
 }
 
 void
 NodeI::check()
 {
     {
-        lock_guard lock(_mutex);
+        unique_lock<mutex> lock(_mutex);
         if (_destroy)
         {
             return;
@@ -210,7 +210,7 @@ NodeI::check()
                 // timer.
                 assert(_checkTask);
                 _checkTask = nullptr;
-                recovery();
+                recovery(lock);
                 return;
             }
         }
@@ -349,7 +349,7 @@ NodeI::merge(const set<int>& coordinatorSet)
     set<int> invited;
     string gp;
     {
-        unique_lock<recursive_mutex> lock(_mutex);
+        unique_lock<mutex> lock(_mutex);
 
         _mergeTask = nullptr;
 
@@ -367,7 +367,6 @@ NodeI::merge(const set<int>& coordinatorSet)
         // No more replica changes are permitted.
         while (!_destroy && _updateCounter > 0)
         {
-            // The recursive mutex (_mutex) must only be locked once by this tread
             _condVar.wait(lock);
         }
         if (_destroy)
@@ -461,7 +460,7 @@ NodeI::mergeContinue()
     string gp;
     set<GroupNodeInfo> tmpSet;
     {
-        lock_guard lock(_mutex);
+        unique_lock<mutex> lock(_mutex);
         if (_destroy)
         {
             return;
@@ -502,7 +501,7 @@ NodeI::mergeContinue()
                     out << " (require full participation for startup)";
                 }
             }
-            recovery();
+            recovery(lock);
             return;
         }
     }
@@ -676,7 +675,7 @@ NodeI::invitation(int j, string gn, const Ice::Current&)
     int max = -1;
     set<GroupNodeInfo> tmpSet;
     {
-        unique_lock<recursive_mutex> lock(_mutex);
+        unique_lock<mutex> lock(_mutex);
         if (_destroy)
         {
             return;
@@ -717,7 +716,6 @@ NodeI::invitation(int j, string gn, const Ice::Current&)
         setState(NodeState::NodeStateElection);
         while (!_destroy && _updateCounter > 0)
         {
-            // The recursive mutex (_mutex) must only be locked once by this tread
             _condVar.wait(lock);
         }
         if (_destroy)
@@ -958,7 +956,14 @@ NodeI::query(const Ice::Current&) const
 void
 NodeI::recovery(int64_t generation)
 {
-    unique_lock<recursive_mutex> lock(_mutex);
+    unique_lock<mutex> lock(_mutex);
+    recovery(lock, generation);
+}
+
+void
+NodeI::recovery(unique_lock<mutex>& lock, int64_t generation)
+{
+    assert(lock.owns_lock());
 
     // Ignore the recovery if the node has already advanced a
     // generation.
@@ -1012,7 +1017,7 @@ NodeI::recovery(int64_t generation)
 void
 NodeI::destroy()
 {
-    unique_lock<recursive_mutex> lock(_mutex);
+    unique_lock<mutex> lock(_mutex);
     assert(!_destroy);
 
     while (_updateCounter > 0)
@@ -1064,12 +1069,12 @@ NodeI::startUpdate(int64_t& generation, const char* file, int line)
 {
     bool majority = _observers->check();
 
-    unique_lock<recursive_mutex> lock(_mutex);
+    unique_lock<mutex> lock(_mutex);
 
     // If we've actively replicating & lost the majority of our replicas then recover.
     if (!_coordinatorProxy && !_destroy && _state == NodeState::NodeStateNormal && !majority)
     {
-        recovery();
+        recovery(lock);
     }
 
     _condVar.wait(lock, [this] { return _destroy || _state == NodeState::NodeStateNormal; });
@@ -1091,7 +1096,7 @@ NodeI::updateMaster(const char*, int)
 {
     bool majority = _observers->check();
 
-    lock_guard lock(_mutex);
+    unique_lock<mutex> lock(_mutex);
 
     // If the node is destroyed, or is not a coordinator then we're
     // done.
@@ -1103,7 +1108,7 @@ NodeI::updateMaster(const char*, int)
     // If we've lost the majority of our replicas then recover.
     if (_state == NodeState::NodeStateNormal && !majority)
     {
-        recovery();
+        recovery(lock);
     }
 
     // If we're not replicating then we're done.
@@ -1120,7 +1125,7 @@ NodeI::updateMaster(const char*, int)
 optional<Ice::ObjectPrx>
 NodeI::startCachedRead(int64_t& generation, const char* file, int line)
 {
-    unique_lock<recursive_mutex> lock(_mutex);
+    unique_lock<mutex> lock(_mutex);
 
     _condVar.wait(lock, [this] { return _destroy || _state == NodeState::NodeStateNormal; });
 
