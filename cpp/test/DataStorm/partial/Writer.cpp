@@ -49,9 +49,8 @@ void ::Writer::run(int argc, char* argv[])
 
     cout << "testing multi-key partial update... " << flush;
     {
-        // Regression test for #5473: with a single per-element _last, a partial update on one key was resolved
-        // against the most recent sample of a *different* key. Write GOOG right before the AAPL partial update so
-        // that the AAPL partial's preceding sample (the single _last) belongs to GOOG.
+        // Publish AAPL's full value, then GOOG, then a partial update on AAPL. The partial update must be merged
+        // onto AAPL's own previous value, not onto GOOG's (the most recently published sample).
         auto writer = makeMultiKeyWriter(multiTopic, {"AAPL", "GOOG"});
         writer.waitForReaders();
         writer.add("AAPL", make_shared<Stock>(12.0f, 13.0f, 14.0f));

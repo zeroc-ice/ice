@@ -74,9 +74,8 @@ void ::Reader::run(int argc, char* argv[])
     multiTopic.setReaderDefaultConfig(config);
     multiTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
     {
-        // Regression test for #5473: verify the AAPL partial update was resolved against AAPL's own previous value,
-        // not GOOG's (the preceding sample under the single per-element _last). The corruption shows in the fields
-        // the partial update does not set (lastBid/lastAsk), which are cloned from the resolution base.
+        // The AAPL partial update only sets price; the fields it does not set (lastBid/lastAsk) must be carried
+        // over from AAPL's own previous value, not from GOOG's.
         auto reader = makeMultiKeyReader(multiTopic, {"AAPL", "GOOG"});
         shared_ptr<Stock> aapl;
         for (int i = 0; i < 3; ++i)
