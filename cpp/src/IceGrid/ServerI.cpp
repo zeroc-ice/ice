@@ -1215,13 +1215,7 @@ ServerI::load(
                 // The server has no process to update its runtime properties on (e.g. its Ice.Admin object
                 // adapter is disabled), so there's nothing to update; complete the load now.
                 //
-                AdapterPrxDict adapters;
-                for (const auto& adapter : _adapters)
-                {
-                    adapters.insert({adapter.first, adapter.second->getProxy()});
-                }
-                assert(_this);
-                _load->finished(*_this, adapters, _activationTimeout, _deactivationTimeout);
+                finishLoad();
             }
         }
         else
@@ -1900,13 +1894,7 @@ ServerI::update()
                 _node->addServer(shared_from_this(), _desc->application);
             }
 
-            AdapterPrxDict adapters;
-            for (const auto& adpt : _adapters)
-            {
-                adapters.insert({adpt.first, adpt.second->getProxy()});
-            }
-            assert(_this);
-            _load->finished(*_this, adapters, _activationTimeout, _deactivationTimeout);
+            finishLoad();
         }
         catch (const DeploymentException& ex)
         {
@@ -2491,13 +2479,7 @@ ServerI::updateRuntimePropertiesCallback(const shared_ptr<InternalServerDescript
     assert(_process);
     if (_load->finishRuntimePropertiesUpdate(desc, *_process))
     {
-        AdapterPrxDict adapters;
-        for (const auto& [id, servant] : _adapters)
-        {
-            adapters.insert({id, servant->getProxy()});
-        }
-        assert(_this);
-        _load->finished(*_this, adapters, _activationTimeout, _deactivationTimeout);
+        finishLoad();
     }
 }
 
@@ -2515,6 +2497,20 @@ ServerI::updateRuntimePropertiesCallback(exception_ptr ex, const shared_ptr<Inte
     {
         _load->failed(ex);
     }
+}
+
+void
+ServerI::finishLoad()
+{
+    // Completes the pending load command, handing the current server and adapter proxies back to the caller.
+    assert(_load);
+    assert(_this);
+    AdapterPrxDict adapters;
+    for (const auto& [id, servant] : _adapters)
+    {
+        adapters.insert({id, servant->getProxy()});
+    }
+    _load->finished(*_this, adapters, _activationTimeout, _deactivationTimeout);
 }
 
 bool
@@ -2786,13 +2782,7 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
             // The server has no process to update its runtime properties on (e.g. its Ice.Admin object
             // adapter is disabled), so there's nothing to update; complete the load now.
             //
-            AdapterPrxDict adapters;
-            for (const auto& adapter : _adapters)
-            {
-                adapters.insert({adapter.first, adapter.second->getProxy()});
-            }
-            assert(_this);
-            _load->finished(*_this, adapters, _activationTimeout, _deactivationTimeout);
+            finishLoad();
         }
     }
 

@@ -129,6 +129,9 @@ namespace IceGrid
         std::shared_ptr<ServerCommand> nextCommand();
         void setStateNoSync(InternalServerState, const std::string& = std::string());
 
+        // Completes the pending load command (_load), handing back the current server and adapter proxies.
+        void finishLoad();
+
         [[nodiscard]] ServerState toServerState(InternalServerState) const;
         [[nodiscard]] ServerActivation toServerActivation(const std::string&) const;
         [[nodiscard]] ServerDynamicInfo getDynamicInfo() const;
