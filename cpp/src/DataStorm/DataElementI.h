@@ -377,8 +377,7 @@ namespace DataStormI
         TopicReaderI* _parent;
 
         std::deque<std::shared_ptr<Sample>> _samples;
-        // The last sample received for each key, used to resolve partial updates per key. A single shared slot would
-        // resolve a partial update for one key against the most recent sample of a different key.
+        // The last sample received for each key, used to resolve partial updates per key.
         std::map<std::shared_ptr<Key>, std::shared_ptr<Sample>> _lastByKey;
         int _instanceCount{0};
         DataStorm::DiscardPolicy _discardPolicy;

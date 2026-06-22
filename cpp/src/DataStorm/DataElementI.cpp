@@ -753,8 +753,7 @@ DataReaderI::initSamples(
     }
 
     vector<shared_ptr<Sample>> valid;
-    // Resolve partial updates against the previous sample of the SAME key. A single `previous` would resolve a
-    // partial update for one key against the most recent sample of a different key.
+    // Resolve partial updates against the previous sample of the SAME key.
     map<shared_ptr<Key>, shared_ptr<Sample>> previousByKey = _lastByKey;
     for (const auto& sample : samples)
     {
