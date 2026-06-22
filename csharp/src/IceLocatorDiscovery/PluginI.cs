@@ -60,14 +60,14 @@ internal class Request : TaskCompletionSource<Ice.Object_Ice_invokeResult>
                     await locator.ice_invokeAsync(_operation, _mode, _inParams, _context).ConfigureAwait(false);
                 SetResult(result);
             }
-            catch (Exception exc)
+            catch (System.Exception exc)
             {
-                exception(exc);
+                handleException(exc);
             }
         }
     }
 
-    private void exception(Exception exc)
+    private void handleException(System.Exception exc)
     {
         switch (exc)
         {
