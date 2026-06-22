@@ -580,7 +580,13 @@ export class ConnectionFlushBatch extends OutgoingAsyncBase {
                 this._sentSynchronously = true;
             }
         } catch (ex) {
-            this.markFinishedEx(ex);
+            if (ex instanceof RetryException) {
+                // If the connection is closed and sendAsyncRequest throws a RetryException, we complete this
+                // invocation with the underlying exception.
+                this.markFinishedEx(ex.inner);
+            } else {
+                this.markFinishedEx(ex);
+            }
         }
     }
 }

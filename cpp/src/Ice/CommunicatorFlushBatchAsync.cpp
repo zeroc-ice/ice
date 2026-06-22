@@ -6,6 +6,7 @@
 #include "ConnectionI.h"
 #include "Instance.h"
 #include "ObjectAdapterFactory.h"
+#include "RequestHandler.h" // For RetryException
 
 using namespace std;
 using namespace Ice;
@@ -96,6 +97,13 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
             }
             con->sendAsyncRequest(flushBatch, compress, false, batchRequestNum);
         }
+    }
+    catch (const RetryException& ex)
+    {
+        // If the connection is closed and sendAsyncRequest throws a RetryException, we rethrow the underlying exception
+        // to the caller.
+        check(false);
+        rethrow_exception(ex.get());
     }
     catch (const LocalException&)
     {

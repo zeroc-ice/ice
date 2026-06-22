@@ -1404,6 +1404,13 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
                 con.sendAsyncRequest(flushBatch, comp, false, batchRequestNum);
             }
         }
+        catch (RetryException ex)
+        {
+            // If the connection is closed and sendAsyncRequest throws a RetryException, we rethrow the underlying
+            // exception to the caller.
+            check(false);
+            throw ex.get();
+        }
         catch (Ice.LocalException)
         {
             check(false);
