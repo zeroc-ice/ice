@@ -2867,10 +2867,8 @@ IcePHP::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& m
 {
     for (const auto& member : members)
     {
-        zval* val = zend_hash_str_find(
-            Z_OBJPROP_P(const_cast<zval*>(&_object)),
-            member->name.c_str(),
-            member->name.size());
+        zval* val =
+            zend_hash_str_find(Z_OBJPROP_P(const_cast<zval*>(&_object)), member->name.c_str(), member->name.size());
 
         if (!val)
         {
