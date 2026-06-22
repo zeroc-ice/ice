@@ -190,9 +190,22 @@ HTTPNetworkProxy::beginWrite(const Address& addr, Buffer& buf)
     //
     // HTTP connect request
     //
+
+    // An IPv6 address must be enclosed in square brackets in the authority (host:port) form.
+    ostringstream authority;
+    if (addr.saStorage.ss_family == AF_INET6)
+    {
+        authority << '[' << inetAddrToString(addr) << "]:" << getPort(addr);
+    }
+    else
+    {
+        authority << inetAddrToString(addr) << ':' << getPort(addr);
+    }
+    const string authorityStr = authority.str();
+
     ostringstream out;
-    out << "CONNECT " << addrToString(addr) << " HTTP/1.1\r\n"
-        << "Host: " << addrToString(addr) << "\r\n\r\n";
+    out << "CONNECT " << authorityStr << " HTTP/1.1\r\n"
+        << "Host: " << authorityStr << "\r\n\r\n";
     string str = out.str();
     buf.b.resize(str.size());
     memcpy(&buf.b[0], str.c_str(), str.size());

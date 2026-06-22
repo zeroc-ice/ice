@@ -169,7 +169,11 @@ public sealed class HTTPNetworkProxy : NetworkProxy
 
     public void beginWrite(EndPoint endpoint, Buffer buf)
     {
-        string addr = Network.addrToString(endpoint);
+        // An IPv6 address must be enclosed in square brackets in the authority (host:port) form.
+        var ipEndpoint = (IPEndPoint)endpoint;
+        string addr = ipEndpoint.AddressFamily == AddressFamily.InterNetworkV6 ?
+            $"[{ipEndpoint.Address}]:{ipEndpoint.Port}" :
+            $"{ipEndpoint.Address}:{ipEndpoint.Port}";
         var str = new StringBuilder();
         str.Append("CONNECT ");
         str.Append(addr);

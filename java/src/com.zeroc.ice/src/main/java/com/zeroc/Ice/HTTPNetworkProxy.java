@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
@@ -19,7 +21,12 @@ final class HTTPNetworkProxy implements NetworkProxy {
 
     @Override
     public void beginWrite(InetSocketAddress endpoint, Buffer buf) {
-        String addr = Network.addrToString(endpoint);
+        // An IPv6 address must be enclosed in square brackets in the authority (host:port) form.
+        InetAddress address = endpoint.getAddress();
+        String addr =
+            address instanceof Inet6Address
+                ? "[" + address.getHostAddress() + "]:" + endpoint.getPort()
+                : address.getHostAddress() + ":" + endpoint.getPort();
         StringBuilder str = new StringBuilder();
         str.append("CONNECT ");
         str.append(addr);
