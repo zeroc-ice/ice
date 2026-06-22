@@ -822,6 +822,13 @@ Resolver::hasReplicaGroup(const string& id) const
 string
 Resolver::substitute(const string& v, bool useParams, bool useIgnored) const
 {
+    set<string> inProgress;
+    return substitute(v, useParams, useIgnored, inProgress);
+}
+
+string
+Resolver::substitute(const string& v, bool useParams, bool useIgnored, set<string>& inProgress) const
+{
     string value(v);
     string::size_type beg = 0;
     string::size_type end = 0;
@@ -885,7 +892,12 @@ Resolver::substitute(const string& v, bool useParams, bool useIgnored) const
         string val = getVariable(name, useParams, param);
         if (!param)
         {
-            val = substitute(val, false, useIgnored); // Recursive resolution
+            if (!inProgress.insert(name).second)
+            {
+                throw invalid_argument("detected circular dependency in variable '" + name + "'");
+            }
+            val = substitute(val, false, useIgnored, inProgress); // Recursive resolution
+            inProgress.erase(name);
         }
         value.replace(beg, end - beg + 1, val);
         beg += val.length();
