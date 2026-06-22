@@ -1179,7 +1179,7 @@ Slice::Swift::operationReturnDeclaration(const OperationPtr& op)
 
     if (returnType)
     {
-        os << ("iceP_" + getEscapedParamName(outParams, "returnValue"));
+        os << "iceP_" << getEscapedParamName(outParams, "returnValue");
     }
 
     for (auto q = outParams.begin(); q != outParams.end(); ++q)
@@ -1189,7 +1189,7 @@ Slice::Swift::operationReturnDeclaration(const OperationPtr& op)
             os << ", ";
         }
 
-        os << ("iceP_" + removeEscaping((*q)->mappedName()));
+        os << "iceP_" << removeEscaping((*q)->mappedName());
     }
 
     if (returnIsTuple)
