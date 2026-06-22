@@ -1120,13 +1120,13 @@ SessionI::getLastIds(int64_t topicId, int64_t keyOrFilterId, const std::shared_p
             // after a reconnect, delivering duplicate samples. We iterate all filter subscriptions rather than the
             // single keyOrFilterId entry because multiple any-key writers share a filter id but have distinct
             // element ids.
-            for (auto& [eid, elementSubscribers] : subscriber.getAll())
+            for (auto& [elementId, elementSubscribers] : subscriber.getAll())
             {
-                if (eid < 0)
+                if (elementId < 0)
                 {
                     if (auto* s = elementSubscribers.getSubscriber(element))
                     {
-                        lastIds.emplace(-eid, s->lastId);
+                        lastIds.emplace(-elementId, s->lastId);
                     }
                 }
             }
