@@ -614,6 +614,13 @@ Activator::activate(
         Ice::Warning out(_traceLevels->logger);
         out << "server activation failed for '" << name << "':\ncouldn't register wait callback\n" << message;
 
+        //
+        // The wait callback was not registered, so this entry will never be reaped. Close the process
+        // handle and remove the entry so the table stays consistent and a later activate() re-inserts cleanly.
+        //
+        CloseHandle(pp->hnd);
+        _processes.erase(it);
+
         throw runtime_error(message);
     }
 
@@ -686,7 +693,10 @@ Activator::activate(
     int errorFds[2];
     if (pipe(errorFds) != 0)
     {
-        throw SyscallException{__FILE__, __LINE__, "pipe failed", errno};
+        int error = errno;
+        close(fds[0]);
+        close(fds[1]);
+        throw SyscallException{__FILE__, __LINE__, "pipe failed", error};
     }
 
     //
@@ -703,7 +713,12 @@ Activator::activate(
     pid_t pid = fork();
     if (pid == -1)
     {
-        throw SyscallException{__FILE__, __LINE__, "fork failed", errno};
+        int error = errno;
+        close(fds[0]);
+        close(fds[1]);
+        close(errorFds[0]);
+        close(errorFds[1]);
+        throw SyscallException{__FILE__, __LINE__, "fork failed", error};
     }
 
     if (pid == 0) // Child process.
