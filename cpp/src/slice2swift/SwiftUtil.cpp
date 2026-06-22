@@ -1121,19 +1121,6 @@ Slice::Swift::writeMarshalUnmarshalCode(
 }
 
 string
-Slice::Swift::paramLabel(const string& param, const ParameterList& params)
-{
-    for (const auto& q : params)
-    {
-        if (q->mappedName() == param)
-        {
-            return "_" + removeEscaping(param);
-        }
-    }
-    return param;
-}
-
-string
 Slice::Swift::operationReturnType(const OperationPtr& op)
 {
     ostringstream os;
@@ -1149,7 +1136,7 @@ Slice::Swift::operationReturnType(const OperationPtr& op)
     {
         if (returnIsTuple)
         {
-            os << paramLabel("returnValue", outParams) << ": ";
+            os << getEscapedParamName(outParams, "returnValue") << ": ";
         }
         os << typeToString(returnType, op, op->returnIsOptional());
     }
@@ -1192,7 +1179,7 @@ Slice::Swift::operationReturnDeclaration(const OperationPtr& op)
 
     if (returnType)
     {
-        os << ("iceP_" + paramLabel("returnValue", outParams));
+        os << ("iceP_" + getEscapedParamName(outParams, "returnValue"));
     }
 
     for (auto q = outParams.begin(); q != outParams.end(); ++q)
