@@ -1104,21 +1104,22 @@ SessionI::disconnectFromFilter(int64_t topicId, int64_t filterId, const std::sha
 }
 
 LongLongDict
-SessionI::getLastIds(int64_t topicId, int64_t keyId, const std::shared_ptr<DataElementI>& element)
+SessionI::getLastIds(int64_t topicId, int64_t keyOrFilterId, const std::shared_ptr<DataElementI>& element)
 {
     LongLongDict lastIds;
     auto p = _topics.find(topicId);
     if (p != _topics.end())
     {
         TopicSubscriber& subscriber = p->second.getSubscriber(element->getTopic());
-        if (keyId < 0)
+        if (keyOrFilterId < 0)
         {
             // Filter (negative-id) subscriptions are not recorded in subscriber.keys (only key subscriptions are),
             // so report the lastId for each of this element's filter subscriptions directly from the element
             // subscribers, keyed by the remote writer's positive element id (the id the consumer matches against in
             // DataElementI::attach). Without this the dict stays empty and the peer re-sends its whole retained queue
             // after a reconnect, delivering duplicate samples. We iterate all filter subscriptions rather than the
-            // single keyId entry because multiple any-key writers share a filter id but have distinct element ids.
+            // single keyOrFilterId entry because multiple any-key writers share a filter id but have distinct
+            // element ids.
             for (auto& [eid, elementSubscribers] : subscriber.getAll())
             {
                 if (eid < 0)
@@ -1132,7 +1133,7 @@ SessionI::getLastIds(int64_t topicId, int64_t keyId, const std::shared_ptr<DataE
         }
         else
         {
-            for (const auto& [elementId, _] : subscriber.keys[keyId].second)
+            for (const auto& [elementId, _] : subscriber.keys[keyOrFilterId].second)
             {
                 lastIds.emplace(elementId, subscriber.get(elementId)->getSubscriber(element)->lastId);
             }
