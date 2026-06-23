@@ -720,6 +720,16 @@ IceInternal::compareAddress(const Address& addr1, const Address& addr2)
         {
             return 1;
         }
+
+        // Distinguish scoped link-local addresses such as fe80::1%eth0 and fe80::1%eth1.
+        if (addr1.saIn6.sin6_scope_id < addr2.saIn6.sin6_scope_id)
+        {
+            return -1;
+        }
+        else if (addr2.saIn6.sin6_scope_id < addr1.saIn6.sin6_scope_id)
+        {
+            return 1;
+        }
     }
 
     return 0;
@@ -1903,8 +1913,8 @@ IceInternal::isLoopbackOrMulticastAddress(const string& name)
         in6_addr addr6;
         if (inet_pton(AF_INET, name.c_str(), &addr) > 0)
         {
-            // It's an IPv4 address
-            return addr.s_addr == htonl(INADDR_LOOPBACK) || IN_MULTICAST(ntohl(addr.s_addr));
+            // It's an IPv4 address. The whole 127.0.0.0/8 range is loopback, not just 127.0.0.1.
+            return (ntohl(addr.s_addr) & 0xFF000000u) == 0x7F000000u || IN_MULTICAST(ntohl(addr.s_addr));
         }
         else if (inet_pton(AF_INET6, name.c_str(), &addr6) > 0)
         {
