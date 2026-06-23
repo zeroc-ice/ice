@@ -83,6 +83,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         _sslCtx = _localSSLContextSelectionCallback(_incoming ? _adapterName : _host);
         if (!_sslCtx)
         {
+            BIO_free(bio);
             throw SecurityException(__FILE__, __LINE__, "SSL error: the SSL context selection callback returned null");
         }
         _ssl = SSL_new(_sslCtx);
@@ -190,6 +191,17 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
 #if defined(SSL_R_UNEXPECTED_EOF_WHILE_READING)
                     }
 #endif
+                }
+                default:
+                {
+                    // Any other result (e.g. SSL_ERROR_WANT_X509_LOOKUP, SSL_ERROR_WANT_ASYNC or
+                    // SSL_ERROR_WANT_RETRY_VERIFY, reachable with a user-supplied SSL_CTX) is not driven by
+                    // this event loop. Throw instead of falling through and busy-spinning on the while loop.
+                    ostringstream os;
+                    os << "SSL error occurred for new " << (_incoming ? "incoming" : "outgoing") << " connection:\n"
+                       << _delegate->toString() << "\n"
+                       << _engine->sslErrors();
+                    throw ProtocolException(__FILE__, __LINE__, os.str());
                 }
             }
         }
@@ -564,7 +576,10 @@ OpenSSL::TransceiverI::verifyCallback(int ok, X509_STORE_CTX* ctx)
             dynamic_pointer_cast<ConnectionInfo>(getInfo(_incoming, _adapterName, "")));
         if (!verified)
         {
-            long result = SSL_get_verify_result(_ssl);
+            // Read the failure reason from the current verification context rather than from
+            // SSL_get_verify_result(_ssl), which is only finalized at the end of chain verification and is
+            // stale/generic inside this per-certificate callback.
+            int result = X509_STORE_CTX_get_error(ctx);
             if (result == X509_V_OK)
             {
                 throw SecurityException(

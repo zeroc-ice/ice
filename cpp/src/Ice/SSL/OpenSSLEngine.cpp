@@ -188,6 +188,12 @@ OpenSSL::SSLEngine::initialize()
             // First we try to load the certificate using PKCS12 format if that fails we fallback to PEM format.
             vector<char> buffer;
             readFile(*resolved, buffer);
+            if (buffer.empty())
+            {
+                ostringstream os;
+                os << "IceSSL: certificate file is empty '" << certFile << "'";
+                throw InitializationException(__FILE__, __LINE__, os.str());
+            }
             int success = 0;
 
             const unsigned char* b = reinterpret_cast<unsigned char*>(&buffer[0]);
@@ -252,6 +258,9 @@ OpenSSL::SSLEngine::initialize()
                         {
                             if (!SSL_CTX_add_extra_chain_cert(_ctx, c))
                             {
+                                // On failure ownership of c is not transferred to _ctx, so free it here;
+                                // the catch below only frees the certs still on the stack.
+                                X509_free(c);
                                 ostringstream os;
                                 os << "IceSSL: unable to add extra SSL certificate:\n" << sslErrors();
                                 throw InitializationException(__FILE__, __LINE__, os.str());
