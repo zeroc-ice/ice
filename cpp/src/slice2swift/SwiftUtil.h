@@ -33,7 +33,6 @@ namespace Slice::Swift
 
     void writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool dispatch);
 
-    std::string paramLabel(const std::string& param, const ParameterList& params);
     std::string operationReturnType(const OperationPtr& op);
     std::string operationReturnDeclaration(const OperationPtr& op);
 
