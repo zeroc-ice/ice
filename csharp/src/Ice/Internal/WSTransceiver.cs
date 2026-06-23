@@ -1249,6 +1249,15 @@ internal sealed class WSTransceiver : Transceiver
                         _pingPayload,
                         0,
                         _readPayloadLength);
+                    if (_incoming)
+                    {
+                        // A client masks its frames (RFC 6455 section 5.3); unmask the ping payload so the echoed
+                        // pong matches the ping (RFC 6455 section 5.5.3), like the data path does in postRead.
+                        for (int i = 0; i < _pingPayload.Length; ++i)
+                        {
+                            _pingPayload[i] = (byte)(_pingPayload[i] ^ _readMask[i % 4]);
+                        }
+                    }
                 }
 
                 _readBufferPos += _readPayloadLength;
@@ -1382,7 +1391,20 @@ internal sealed class WSTransceiver : Transceiver
                     _writeBuffer.resize(pos + _pingPayload.Length, false);
                     _writeBuffer.b.position(pos);
                 }
-                _writeBuffer.b.put(_pingPayload);
+                if (_incoming)
+                {
+                    // Server-to-client frames are not masked (RFC 6455 section 5.1).
+                    _writeBuffer.b.put(_pingPayload);
+                }
+                else
+                {
+                    // Client-to-server frames are masked with _writeMask, like the data and close paths;
+                    // prepareWriteHeader set FLAG_MASKED, so the payload must be masked to match (RFC 6455 5.5.3).
+                    for (int i = 0; i < _pingPayload.Length; ++i)
+                    {
+                        _writeBuffer.b.put((byte)(_pingPayload[i] ^ _writeMask[i % 4]));
+                    }
+                }
                 _pingPayload = [];
 
                 _writeState = WriteStateControlFrame;

@@ -1444,6 +1444,16 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
                 _pingPayload.clear();
                 _pingPayload.resize(_readPayloadLength);
                 memcpy(&_pingPayload[0], _readI, _pingPayload.size());
+                if (_incoming)
+                {
+                    // A client masks its frames (RFC 6455 §5.3), so unmask the ping payload here, just like the
+                    // data path does in postRead. Otherwise the pong we echo back carries the still-masked bytes
+                    // instead of the original ping payload (RFC 6455 §5.5.3).
+                    for (size_t i = 0; i < _pingPayload.size(); ++i)
+                    {
+                        _pingPayload[i] ^= static_cast<uint8_t>(_readMask[i % 4]);
+                    }
+                }
             }
 
             _readI += _readPayloadLength;
@@ -1580,8 +1590,21 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
                     _writeBuffer.b.resize(pos + _pingPayload.size());
                     _writeBuffer.i = _writeBuffer.b.begin() + pos;
                 }
-                memcpy(_writeBuffer.i, _pingPayload.data(), _pingPayload.size());
-                _writeBuffer.i += _pingPayload.size();
+                if (_incoming)
+                {
+                    // Server-to-client frames are not masked (RFC 6455 §5.1).
+                    memcpy(_writeBuffer.i, _pingPayload.data(), _pingPayload.size());
+                    _writeBuffer.i += _pingPayload.size();
+                }
+                else
+                {
+                    // Client-to-server frames are masked with _writeMask, like the OP_DATA and OP_CLOSE paths;
+                    // prepareWriteHeader set FLAG_MASKED, so the payload must be masked to match (RFC 6455 §5.5.3).
+                    for (size_t i = 0; i < _pingPayload.size(); ++i)
+                    {
+                        *_writeBuffer.i++ = static_cast<std::byte>(_pingPayload[i]) ^ _writeMask[i % 4];
+                    }
+                }
                 _pingPayload.clear();
             }
 
