@@ -69,6 +69,7 @@ namespace IceInternal
         void setBufferSize(int rcvSize, int sndSize) final { _decoratee->setBufferSize(rcvSize, sndSize); }
 
         [[nodiscard]] bool idleCheckEnabled() const noexcept { return _idleCheckEnabled; }
+        [[nodiscard]] bool idleCheckScheduled() const noexcept { return _timer->isScheduled(_idleCheckTimerTask); }
         void enableIdleCheck();
         void disableIdleCheck();
         void scheduleHeartbeat();

@@ -2290,7 +2290,11 @@ void
 Ice::ConnectionI::idleCheck(const chrono::seconds& idleTimeout) noexcept
 {
     std::lock_guard lock(_mutex);
-    if (_state == StateActive && _idleTimeoutTransceiver->idleCheckEnabled())
+    // Skip the abort if the idle check timer task was rescheduled (because we received bytes) while this
+    // fired task was waiting for _mutex. This mirrors the guard in inactivityCheck and closes the race where
+    // Timer::run dequeues the one-shot task before invoking it.
+    if (_state == StateActive && _idleTimeoutTransceiver->idleCheckEnabled() &&
+        !_idleTimeoutTransceiver->idleCheckScheduled())
     {
         setState(
             StateClosed,
