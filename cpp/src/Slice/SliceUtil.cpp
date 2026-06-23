@@ -333,9 +333,8 @@ Slice::filterMcppWarnings(const string& message)
     for (auto i = in.begin(); i != in.end();)
     {
         bool hasWarningPrefix = i->find(warningPrefix) != string::npos;
-        bool hasFilterableWarning =
-            i->find("Converted [CR+LF] to [LF]") != string::npos ||
-            i->find("no newline, supplemented newline") != string::npos;
+        bool hasFilterableWarning = i->find("Converted [CR+LF] to [LF]") != string::npos ||
+                                    i->find("no newline, supplemented newline") != string::npos;
 
         if (hasWarningPrefix && hasFilterableWarning)
         {
