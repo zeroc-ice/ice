@@ -385,6 +385,8 @@ namespace DataStorm
 
         /// Sets a key filter factory. The given factory function must return a filter function that returns `true` if
         /// the key matches the filter criteria, `false` otherwise.
+        /// Register all key filters before creating any reader or writer for this topic: the set of filters is not
+        /// synchronized, so modifying it once the topic is in use races with the Ice threads that use the topic.
         /// @param name The name of the key filter.
         /// @param factory The filter factory function.
         template<typename Criteria>
@@ -394,6 +396,8 @@ namespace DataStorm
 
         /// Sets a sample filter factory. The given factory function must return a filter function that returns `true`
         /// if the sample matches the filter criteria, `false` otherwise.
+        /// Register all sample filters before creating any reader or writer for this topic: the set of filters is not
+        /// synchronized, so modifying it once the topic is in use races with the Ice threads that use the topic.
         /// @param name The name of the sample filter.
         /// @param factory The filter factory function.
         template<typename Criteria>
