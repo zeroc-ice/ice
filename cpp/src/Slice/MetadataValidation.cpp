@@ -286,7 +286,7 @@ MetadataVisitor::validate(MetadataList metadata, const SyntaxTreeBasePtr& p, boo
         const auto colonIndex = directive.find(':');
 
         // Only check the metadata if it starts with the provided '_language' prefix, or is language agnostic.
-        if ((directive.find(_language) == 0 && colonIndex == _language.size()) || colonIndex != string::npos)
+        if ((directive.find(_language) == 0 && colonIndex == _language.size()) || colonIndex == string::npos)
         {
             // Check if the metadata is valid. If it's not, remove it to shield downstream logic from invalid inputs.
             bool isValid = isMetadataValid(*i, p, isTypeContext);
