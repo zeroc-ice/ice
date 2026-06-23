@@ -70,10 +70,10 @@ allTests(Test::TestHelper* helper)
 
         // compareAddress must distinguish IPv6 addresses that differ only by their scope id, e.g.
         // fe80::1%eth0 vs fe80::1%eth1 (issue #5486 item 7).
-        IceInternal::Address a1;
-        a1.saIn6.sin6_family = AF_INET6;
-        a1.saIn6.sin6_port = htons(4061);
-        test(inet_pton(AF_INET6, "fe80::1", &a1.saIn6.sin6_addr) == 1);
+        // Build the address through Ice rather than calling Winsock (htons/inet_pton) directly, which the info
+        // test client doesn't link on Windows.
+        IceInternal::Address a1 =
+            IceInternal::getAddressForServer("fe80::1", 4061, IceInternal::EnableBoth, true, false);
         a1.saIn6.sin6_scope_id = 1;
 
         IceInternal::Address a2 = a1;
