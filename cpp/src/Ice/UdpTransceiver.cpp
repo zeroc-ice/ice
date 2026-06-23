@@ -175,9 +175,10 @@ repeat:
 
 #ifndef _WIN32
         // ENOBUFS means the socket send buffer is momentarily full; this is routine on macOS/BSD during
-        // bursts. UDP is best-effort, so drop this datagram instead of throwing, which would close the
-        // connection (fatal for the never-recreated shared incoming-datagram connection). Limited to
-        // non-Windows: on Windows noBuffers() also matches WSAEFAULT, which must not be silently dropped.
+        // bursts. UDP is best-effort, so drop this datagram instead of throwing. Throwing would close the
+        // connection, and a server's UDP adapter uses a single datagram socket that Ice never re-creates, so
+        // closing it would permanently stop the adapter from receiving datagrams. Limited to non-Windows: on
+        // Windows noBuffers() also matches WSAEFAULT, which must not be silently dropped.
         if (noBuffers())
         {
             buf.i = buf.b.end();
