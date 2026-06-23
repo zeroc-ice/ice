@@ -451,6 +451,12 @@ namespace IceRuby
         ValueWriter(VALUE, ValueMap*, const ClassInfoPtr&);
         ~ValueWriter();
 
+        // Registers a GC root tied to the address of _object, so it's neither copyable nor movable.
+        ValueWriter(const ValueWriter&) = delete;
+        ValueWriter(ValueWriter&&) = delete;
+        ValueWriter& operator=(const ValueWriter&) = delete;
+        ValueWriter& operator=(ValueWriter&&) = delete;
+
         void ice_preMarshal() final;
 
         void _iceWrite(Ice::OutputStream*) const final;
@@ -473,6 +479,12 @@ namespace IceRuby
     public:
         ValueReader(VALUE, const ClassInfoPtr&);
         ~ValueReader();
+
+        // Registers a GC root tied to the address of _object, so it's neither copyable nor movable.
+        ValueReader(const ValueReader&) = delete;
+        ValueReader(ValueReader&&) = delete;
+        ValueReader& operator=(const ValueReader&) = delete;
+        ValueReader& operator=(ValueReader&&) = delete;
 
         void ice_postUnmarshal() final;
 
