@@ -272,13 +272,19 @@ function translateError(state, err, address) {
     return new SocketException(`Socket error on ${address}.`, { cause: err });
 }
 
+// Combines an address and port into a host:port string, enclosing an IPv6 address in square brackets,
+// e.g. [::1]:4061.
+function addrToString(host, port) {
+    return (host !== null && host.includes(":") ? `[${host}]` : host) + ":" + port;
+}
+
 function addressesToString(localHost, localPort, remoteHost, remotePort, targetAddr) {
     remoteHost = remoteHost === undefined ? null : remoteHost;
     targetAddr = targetAddr === undefined ? null : targetAddr;
 
     const s = [];
     s.push("local address = ");
-    s.push(localHost + ":" + localPort);
+    s.push(addrToString(localHost, localPort));
 
     if (remoteHost === null && targetAddr !== null) {
         remoteHost = targetAddr.host;
@@ -289,7 +295,7 @@ function addressesToString(localHost, localPort, remoteHost, remotePort, targetA
         s.push("\nremote address = <not connected>");
     } else {
         s.push("\nremote address = ");
-        s.push(remoteHost + ":" + remotePort);
+        s.push(addrToString(remoteHost, remotePort));
     }
 
     return s.join("");

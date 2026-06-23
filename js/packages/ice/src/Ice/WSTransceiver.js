@@ -30,7 +30,9 @@ class WSTransceiver {
 
         let url = secure ? "wss" : "ws";
         const isIPv6 = addr.host.includes(":");
-        url += "://" + (isIPv6 ? `[${addr.host}]` : addr.host);
+        // An IPv6 address is enclosed in square brackets in the host:port and URI authority forms.
+        const hostForUri = isIPv6 ? `[${addr.host}]` : addr.host;
+        url += "://" + hostForUri;
         if (addr.port !== (secure ? 443 : 80)) {
             url += ":" + addr.port;
         }
@@ -39,7 +41,7 @@ class WSTransceiver {
         this._url = url;
         this._fd = null;
         this._addr = addr;
-        this._desc = "local address = <not available>\nremote address = " + addr.host + ":" + addr.port;
+        this._desc = `local address = <not available>\nremote address = ${hostForUri}:${addr.port}`;
         this._state = StateNeedConnect;
         this._secure = secure;
         this._exception = null;
@@ -310,7 +312,9 @@ class WSTransceiver {
 }
 
 function fdToString(address) {
-    return `local address = <not available>\nremote address = ${address.host}:${address.port}`;
+    // An IPv6 address is enclosed in square brackets in the host:port form, e.g. [::1]:4061.
+    const host = address.host.includes(":") ? `[${address.host}]` : address.host;
+    return `local address = <not available>\nremote address = ${host}:${address.port}`;
 }
 
 export { WSTransceiver };

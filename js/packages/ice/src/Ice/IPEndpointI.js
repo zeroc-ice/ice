@@ -154,7 +154,9 @@ export class IPEndpointI extends EndpointI {
     // Convert the endpoint to its Connector string form
     //
     toConnectorString() {
-        return this._host + ":" + this._port;
+        // An IPv6 address is enclosed in square brackets in the host:port form, e.g. [::1]:4061.
+        const host = this._host.includes(":") ? `[${this._host}]` : this._host;
+        return host + ":" + this._port;
     }
 
     streamWriteImpl(s) {
