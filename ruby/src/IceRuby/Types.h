@@ -451,6 +451,12 @@ namespace IceRuby
         ValueWriter(VALUE, ValueMap*, const ClassInfoPtr&);
         ~ValueWriter();
 
+        // Registers a GC root tied to the address of _object, so it's neither copyable nor movable.
+        ValueWriter(const ValueWriter&) = delete;
+        ValueWriter(ValueWriter&&) = delete;
+        ValueWriter& operator=(const ValueWriter&) = delete;
+        ValueWriter& operator=(ValueWriter&&) = delete;
+
         void ice_preMarshal() final;
 
         void _iceWrite(Ice::OutputStream*) const final;
@@ -474,6 +480,12 @@ namespace IceRuby
         ValueReader(VALUE, const ClassInfoPtr&);
         ~ValueReader();
 
+        // Registers a GC root tied to the address of _object, so it's neither copyable nor movable.
+        ValueReader(const ValueReader&) = delete;
+        ValueReader(ValueReader&&) = delete;
+        ValueReader& operator=(const ValueReader&) = delete;
+        ValueReader& operator=(ValueReader&&) = delete;
+
         void ice_postUnmarshal() final;
 
         void _iceWrite(Ice::OutputStream*) const final;
@@ -496,7 +508,12 @@ namespace IceRuby
     {
     public:
         ExceptionReader(const ExceptionInfoPtr&);
+        // Copyable (ice_throw throws *this, and make_exception_ptr copies); the copy constructor re-registers a fresh
+        // GC root for _ex. Registering a root tied to the address of _ex makes it non-movable and non-assignable.
         ExceptionReader(const ExceptionReader&);
+        ExceptionReader(ExceptionReader&&) = delete;
+        ExceptionReader& operator=(const ExceptionReader&) = delete;
+        ExceptionReader& operator=(ExceptionReader&&) = delete;
         ~ExceptionReader();
 
         const char* ice_id() const noexcept final;
