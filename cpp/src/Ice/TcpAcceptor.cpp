@@ -123,8 +123,7 @@ IceInternal::TcpAcceptor::accept()
     {
         throw SocketException(__FILE__, __LINE__, _acceptError);
     }
-    if (setsockopt(_acceptFd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char*)&_acceptFd, sizeof(_acceptFd)) ==
-        SOCKET_ERROR)
+    if (setsockopt(_acceptFd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char*)&_fd, sizeof(_fd)) == SOCKET_ERROR)
     {
         closeSocketNoThrow(_acceptFd);
         _acceptFd = INVALID_SOCKET;

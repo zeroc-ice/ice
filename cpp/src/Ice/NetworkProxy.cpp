@@ -142,7 +142,7 @@ SOCKSNetworkProxy::finish(Buffer& readBuffer, Buffer&)
         throw Ice::ConnectFailedException{
             __FILE__,
             __LINE__,
-            "connection establishment failed due to an HTTP proxy error"};
+            "connection establishment failed due to a SOCKS4 proxy error"};
     }
 }
 
