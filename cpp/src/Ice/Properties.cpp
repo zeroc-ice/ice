@@ -359,27 +359,28 @@ Ice::Properties::setProperty(string_view key, string_view value)
     }
 
     // Check if the property is in an Ice property prefix. If so, check that it's a valid property.
-    if (auto propertyArray = findIcePropertyArray(key))
+    if (auto propertyArray = findIcePropertyArray(currentKey))
     {
         if (propertyArray->isOptIn &&
             find(_optInPrefixes.begin(), _optInPrefixes.end(), propertyArray->name) == _optInPrefixes.end())
         {
             ostringstream os;
-            os << "unable to set '" << key << "': property prefix '" << propertyArray->name
+            os << "unable to set '" << currentKey << "': property prefix '" << propertyArray->name
                << "' is opt-in and must be explicitly enabled.";
             throw PropertyException{__FILE__, __LINE__, os.str()};
         }
         string propertyPrefix{propertyArray->name};
-        auto prop = IceInternal::findProperty(key.substr(propertyPrefix.length() + 1), propertyArray);
+        auto prop =
+            IceInternal::findProperty(string_view{currentKey}.substr(propertyPrefix.length() + 1), propertyArray);
         if (!prop)
         {
-            throw PropertyException{__FILE__, __LINE__, "unknown Ice property: " + string{key}};
+            throw PropertyException{__FILE__, __LINE__, "unknown Ice property: " + currentKey};
         }
 
         // If the property is deprecated, log a warning.
         if (prop->deprecated)
         {
-            getProcessLogger()->warning("setting deprecated property: " + string{key});
+            getProcessLogger()->warning("setting deprecated property: " + currentKey);
         }
     }
 

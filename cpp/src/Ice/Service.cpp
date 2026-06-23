@@ -425,6 +425,7 @@ Ice::Service::~Service()
 {
     _instance = nullptr;
     delete ctrlCHandler;
+    ctrlCHandler = nullptr;
 }
 
 bool

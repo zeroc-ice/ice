@@ -161,6 +161,15 @@ Client::run(int, char**)
         catch (const Ice::PropertyException&)
         {
         }
+        // The key is trimmed before being validated, so a leading/trailing space does not bypass validation.
+        try
+        {
+            properties->setProperty(" Ice.UnknownProperty ", "value");
+            test(false);
+        }
+        catch (const Ice::PropertyException&)
+        {
+        }
         cout << "ok" << endl;
     }
 

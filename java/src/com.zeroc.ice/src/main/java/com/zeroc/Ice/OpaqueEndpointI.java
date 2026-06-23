@@ -238,7 +238,7 @@ final class OpaqueEndpointI extends EndpointI {
                     throw new ParseException(msg, ex);
                 }
 
-                if (t < 0 || t > 65535) {
+                if (t < 0 || t > 32767) {
                     String msg = "type value '" + argument + "' out of range in endpoint '" + endpoint + "'";
                     throw new ParseException(msg);
                 }
