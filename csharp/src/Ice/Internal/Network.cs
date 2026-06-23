@@ -732,11 +732,6 @@ internal sealed class Network
         return addressAndPortToString(endpointAddressToString(endpoint), endpointPort(endpoint));
     }
 
-    // Combines an address and port into a host:port string, enclosing an IPv6 address in square brackets,
-    // e.g. [::1]:4061.
-    private static string addressAndPortToString(string address, int port) =>
-        (address.Contains(':') ? $"[{address}]" : address) + ":" + port;
-
     internal static EndPoint getLocalAddress(Socket socket)
     {
         try
@@ -760,6 +755,11 @@ internal sealed class Network
         }
         return null;
     }
+
+    // Combines an address and port into a host:port string, enclosing an IPv6 address in square brackets,
+    // e.g. [::1]:4061.
+    private static string addressAndPortToString(string address, int port) =>
+        address.Contains(':', StringComparison.Ordinal) ? $"[{address}]:{port}" : $"{address}:{port}";
 
     private static IPAddress getInterfaceAddress(string iface, AddressFamily family)
     {
