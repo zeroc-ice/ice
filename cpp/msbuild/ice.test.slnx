@@ -60,6 +60,14 @@
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
     </Project>
   </Folder>
+  <Folder Name="/DataStorm/topicDestroy/">
+    <Project Path="../test/DataStorm/topicDestroy/msbuild/reader/reader.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/DataStorm/topicDestroy/msbuild/writer/writer.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
   <Folder Name="/DataStorm/types/">
     <Project Path="../test/DataStorm/types/msbuild/reader/reader.vcxproj">
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />

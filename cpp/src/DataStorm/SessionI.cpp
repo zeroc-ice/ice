@@ -936,17 +936,24 @@ SessionI::disconnect(int64_t topicId, TopicI* topic)
         return;
     }
 
-    if (_topics.find(topicId) == _topics.end())
+    auto t = _topics.find(topicId);
+    if (t == _topics.end())
     {
         return; // Peer topic detached first.
     }
+    auto& subscriber = t->second;
 
-    // disconnect() is called from TopicI::destroy() after the topic is marked destroyed, so pass ignoreDestroyed to
-    // detach the listeners anyway. Otherwise unsubscribe (and the element detachKey/detachFilter it drives) is
-    // skipped by the isDestroyed gate and TopicI::_listenerCount is left stale, tripping a debug assert.
-    runWithTopic(topicId, topic, [&](TopicSubscriber&) { unsubscribe(topicId, topic); }, /*ignoreDestroyed=*/true);
+    // disconnect() is called from TopicI::destroy() after the topic is marked destroyed, so detach the listeners
+    // directly here instead of through runWithTopic, which skips destroyed topics. Skipping the unsubscribe (and the
+    // element detachKey/detachFilter it drives) would leave TopicI::_listenerCount stale and trip a debug assert.
+    if (subscriber.getSubscribers().find(topic) != subscriber.getSubscribers().end())
+    {
+        unique_lock<mutex> topicLock(topic->getMutex());
+        _topicLock = &topicLock;
+        unsubscribe(topicId, topic);
+        _topicLock = nullptr;
+    }
 
-    auto& subscriber = _topics.at(topicId);
     subscriber.removeSubscriber(topic);
     if (subscriber.getSubscribers().empty())
     {
@@ -1226,11 +1233,7 @@ SessionI::runWithTopics(int64_t topicId, const function<void(TopicI*, TopicSubsc
 }
 
 void
-SessionI::runWithTopic(
-    int64_t topicId,
-    TopicI* topic,
-    const function<void(TopicSubscriber&)>& callback,
-    bool ignoreDestroyed)
+SessionI::runWithTopic(int64_t topicId, TopicI* topic, const function<void(TopicSubscriber&)>& callback)
 {
     auto t = _topics.find(topicId);
     if (t != _topics.end())
@@ -1239,7 +1242,7 @@ SessionI::runWithTopic(
         if (p != t->second.getSubscribers().end())
         {
             unique_lock<mutex> lock(topic->getMutex());
-            if (!ignoreDestroyed && topic->isDestroyed())
+            if (topic->isDestroyed())
             {
                 return;
             }
