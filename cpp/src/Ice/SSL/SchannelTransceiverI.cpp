@@ -197,6 +197,12 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
                 0);
             if (err != SEC_E_OK && err != SEC_I_CONTINUE_NEEDED)
             {
+                // Free the token Schannel allocated via ISC_REQ_ALLOCATE_MEMORY before throwing; the
+                // FreeContextBuffer below this block runs only on the success path.
+                if (outBuffer.pvBuffer)
+                {
+                    FreeContextBuffer(outBuffer.pvBuffer);
+                }
                 ostringstream os;
                 os << "SSL transport: handshake failure:\n" << IceInternal::errorToString(err);
                 throw SecurityException(__FILE__, __LINE__, os.str());
@@ -295,6 +301,20 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
             }
             else if (err != SEC_I_CONTINUE_NEEDED && err != SEC_E_OK)
             {
+                // Free the output buffers Schannel allocated via ASC_REQ/ISC_REQ_ALLOCATE_MEMORY before
+                // throwing; otherwise the security token and the TLS alert buffer leak on every failed
+                // handshake (the token free below this branch is never reached on failure).
+                SecBuffer* outToken = getSecBufferWithType(outBufferDesc, SECBUFFER_TOKEN);
+                if (outToken && outToken->pvBuffer)
+                {
+                    FreeContextBuffer(outToken->pvBuffer);
+                }
+                SecBuffer* outAlert = getSecBufferWithType(outBufferDesc, SECBUFFER_ALERT);
+                if (outAlert && outAlert->pvBuffer)
+                {
+                    FreeContextBuffer(outAlert->pvBuffer);
+                }
+
                 ostringstream os;
                 os << "SSL handshake failure:\n" << IceInternal::errorToString(err);
                 throw SecurityException(__FILE__, __LINE__, os.str());
