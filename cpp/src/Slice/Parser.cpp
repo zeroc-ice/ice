@@ -3993,10 +3993,14 @@ Slice::Enum::createEnumerator(const string& name, optional<int32_t> explicitValu
             ostringstream os;
             os << "value for enumerator '" << name << "' is out of range";
             unit()->error(os.str());
+            nextValue = numeric_limits<int32_t>::min(); // Wrap around to the minimum value.
         }
-        // If the enumerator was not assigned an explicit value,
-        // we automatically assign it one more than the previous enumerator.
-        nextValue = _lastValue + 1;
+        else
+        {
+            // If the enumerator was not assigned an explicit value,
+            // we automatically assign it one more than the previous enumerator.
+            nextValue = _lastValue + 1;
+        }
     }
 
     // Check if the enumerator's value is already in use.
