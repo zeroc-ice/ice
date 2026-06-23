@@ -210,25 +210,19 @@ namespace
         {
             // Then we perform additional parsing to extract the name...
 
-            auto nameStart = line.find_first_not_of(ws, tag.size());
+            auto nameStart = doc.find_first_not_of(ws);
             if (nameStart == string::npos)
             {
-                return false; // Malformed line, ignore it.
+                return false; // Malformed line, missing the name part after the tag. Ignore this line.
             }
 
-            auto nameEnd = line.find_first_of(ws, nameStart);
-            if (nameEnd == string::npos)
-            {
-                return false; // Malformed line, ignore it.
-            }
-            name = line.substr(nameStart, nameEnd - nameStart);
+            // If there's no whitespace after the name, that means the name runs to the end of the line.
+            auto nameEnd = doc.find_first_of(ws, nameStart);
+            name = (nameEnd == string::npos) ? doc.substr(nameStart) : doc.substr(nameStart, nameEnd - nameStart);
 
-            // Store whatever remains of the doc comment in the `doc` string.
-            auto docSplitPos = line.find_first_not_of(ws, nameEnd);
-            if (docSplitPos != string::npos)
-            {
-                doc = line.substr(docSplitPos);
-            }
+            // If there's any non-whitespace characters after the name, store them in the `doc` string.
+            auto docStart = doc.find_first_not_of(ws, nameEnd);
+            doc = (docStart == string::npos) ? "" : doc.substr(docStart);
 
             return true;
         }

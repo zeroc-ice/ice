@@ -57,6 +57,20 @@ module Test
         /// @throws SomeOtherException should give a not-thrown-by-this-operation warning.
         /// @throws CommentDummy should give a duplicate-tag warning.
         string stringOp(string name, int value, out byte myOut) throws CommentDummy;
+
+        /// This tests that doc-comment tags with named parameters can start on the line following the tag.
+        /// @param param
+        ///     It should be okay for the description of a parameter to start on the next line.
+        /// @throws CommentDummy
+        ///     It should be okay for the description of an exception to start on the next line.
+        bool fullMultilineCommentTest(int param) throws CommentDummy;
+
+        /// This tests that doc-comment tags with named parameters can span multiple lines.
+        /// @param param It should be okay for the description of a parameter to start on one line,
+        ///     and then continue onto the next line. Whitespace should be stripped correctly too.
+        /// @throws CommentDummy It should be okay for the description of an exception to start on one line,
+        ///     and then continue onto the next line. Whitespace should be stripped correctly too.
+        bool splitMultilineCommentTest(int param) throws CommentDummy;
     }
 
     /// Unterminated link tag: {@link CommentDummy
