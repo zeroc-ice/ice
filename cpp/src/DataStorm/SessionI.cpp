@@ -810,6 +810,11 @@ SessionI::destroyImpl(const exception_ptr& ex)
         _topics.clear();
     }
 
+    // Deliver disconnect notifications queued while detaching topics above. The timer and AMI teardown paths have
+    // no later flush() like the dispatch and connection-close paths, so without this they could sit in the queue
+    // indefinitely. flush() only signals the executor thread (no inline callbacks), so it's safe under _mutex.
+    _instance->getCallbackExecutor()->flush();
+
     try
     {
         _instance->getObjectAdapter()->remove(_proxy->ice_getIdentity());
