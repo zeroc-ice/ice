@@ -18,6 +18,7 @@ WarningInvalidMetadata.ice:21: warning: missing required argument for 'cpp:inclu
 WarningInvalidMetadata.ice:24: warning: ignoring unknown metadata: 'unknown'
 WarningInvalidMetadata.ice:25: warning: ignoring unknown metadata: 'cpp:unknown'
 WarningInvalidMetadata.ice:26: warning: ignoring unknown metadata: 'bad:unknown'
+WarningInvalidMetadata.ice:30: warning: ignoring unknown metadata: 'cpp_fake:header-ext:hh'"
 WarningInvalidMetadata.ice:33: warning: the 'cpp:no-default-include' metadata does not take any arguments
 WarningInvalidMetadata.ice:36: warning: 'amd' metadata cannot be specified as file metadata
 WarningInvalidMetadata.ice:41: warning: the 'cpp:header-ext' metadata only accepts one argument but a list was provided

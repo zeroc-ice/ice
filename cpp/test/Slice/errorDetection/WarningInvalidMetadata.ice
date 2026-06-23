@@ -26,8 +26,10 @@
 [["bad:unknown"]]
 // Ignore metadata that has a valid language prefix, but that doesn't match the current compiler.
 [["php:unknown"]]
-// Ignore metadata that just happens to start with a valid language prefix, but that isn't an exact match.
-[["cpp_fake:unknown"]]
+
+// Ensure metadata that happens to start with a valid language prefix is rejected as unknown.
+// Otherwise, this would be reported as "duplicate metadata" due to the previous 'cpp:header-ext' metadata.
+[["cpp_fake:header-ext:hh"]]
 
 // Passing an argument to metadata that doesn't take arguments is disallowed.
 [["cpp:no-default-include:foo"]]
