@@ -944,7 +944,7 @@ SessionI::disconnect(int64_t topicId, TopicI* topic)
     // disconnect() is called from TopicI::destroy() after the topic is marked destroyed, so pass ignoreDestroyed to
     // detach the listeners anyway. Otherwise unsubscribe (and the element detachKey/detachFilter it drives) is
     // skipped by the isDestroyed gate and TopicI::_listenerCount is left stale, tripping a debug assert.
-    runWithTopic(topicId, topic, [&](TopicSubscriber&) { unsubscribe(topicId, topic); }, true);
+    runWithTopic(topicId, topic, [&](TopicSubscriber&) { unsubscribe(topicId, topic); }, /*ignoreDestroyed=*/true);
 
     auto& subscriber = _topics.at(topicId);
     subscriber.removeSubscriber(topic);
