@@ -208,7 +208,7 @@ export class OpaqueEndpointI extends EndpointI {
                     throw new ParseException(`invalid type value '${argument}' in endpoint ${endpoint}`);
                 }
 
-                if (type < 0 || type > 65535) {
+                if (type < 0 || type > 32767) {
                     throw new ParseException(`type value '${argument}' out of range in endpoint ${endpoint}`);
                 }
 

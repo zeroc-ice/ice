@@ -158,6 +158,7 @@ namespace IceInternal
         const std::int32_t _classGraphDepthMax{0};                         // Immutable, not reset by destroy().
         const Ice::ToStringMode _toStringMode{Ice::ToStringMode::Unicode}; // Immutable, not reset by destroy().
         const bool _acceptClassCycles{false};                              // Immutable, not reset by destroy().
+        const bool _warnUnusedProperties{false};                           // Immutable, not reset by destroy().
         Ice::ConnectionOptions _clientConnectionOptions;
         Ice::ConnectionOptions _serverConnectionOptions;
         RouterManagerPtr _routerManager;
