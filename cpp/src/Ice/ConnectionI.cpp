@@ -401,7 +401,11 @@ Ice::ConnectionI::startAsync(
     }
     catch (const Ice::LocalException&)
     {
-        exception(current_exception());
+        {
+            std::lock_guard lock(_mutex);
+            setState(StateClosed, current_exception());
+        }
+
         if (connectionStartFailed)
         {
             connectionStartFailed(shared_from_this(), current_exception());
@@ -1850,13 +1854,6 @@ Ice::ConnectionI::setBufferSize(int32_t rcvSize, int32_t sndSize)
     _info = nullptr; // Invalidate the cached connection info
 }
 
-void
-Ice::ConnectionI::exception(std::exception_ptr ex)
-{
-    std::lock_guard lock(_mutex);
-    setState(StateClosed, ex);
-}
-
 Ice::ConnectionI::ConnectionI(
     CommunicatorPtr communicator,
     const InstancePtr& instance,
@@ -2418,74 +2415,71 @@ Ice::ConnectionI::sendResponse(OutgoingResponse response, uint8_t compress)
 {
     bool isTwoWay = !_endpoint->datagram() && response.current().requestId != 0;
 
-    bool finished = false;
+    // We hold _mutex for the duration of this function, including the catch handler below; hence the lock is not
+    // declared inside the try block.
+    std::unique_lock lock(_mutex);
+    assert(_state > StateNotValidated);
+
     try
     {
-        std::unique_lock lock(_mutex);
-        assert(_state > StateNotValidated);
+        bool finished = false;
 
-        try
+        if (--_upcallCount == 0)
         {
-            if (--_upcallCount == 0)
+            if (_state == StateFinished)
             {
-                if (_state == StateFinished)
+                finished = true;
+                if (_observer)
                 {
-                    finished = true;
-                    if (_observer)
-                    {
-                        _observer.detach();
-                    }
-                }
-                _conditionVariable.notify_all();
-            }
-
-            if (_state >= StateClosed)
-            {
-                exception_ptr exception = _exception;
-                assert(exception);
-
-                if (finished && _removeFromFactory)
-                {
-                    lock.unlock();
-                    _removeFromFactory(shared_from_this());
-                }
-
-                rethrow_exception(exception);
-            }
-            assert(!finished);
-
-            if (isTwoWay)
-            {
-                OutgoingMessage message(&response.outputStream(), compress > 0);
-                sendMessage(message);
-            }
-
-            if (_state == StateActive && _maxDispatches > 0 && _dispatchCount == _maxDispatches)
-            {
-                // Resume reading if the connection is active and the dispatch count is about to be less than
-                // _maxDispatches.
-                _threadPool->update(shared_from_this(), SocketOperationNone, SocketOperationRead);
-                if (_idleTimeoutTransceiver)
-                {
-                    _idleTimeoutTransceiver->enableIdleCheck();
+                    _observer.detach();
                 }
             }
+            _conditionVariable.notify_all();
+        }
 
-            --_dispatchCount;
+        if (_state >= StateClosed)
+        {
+            // The connection is already closed (or finished): we can't send the response. There is nothing else to
+            // do here since the connection's exception is already set.
+            assert(_exception);
 
-            if (_state == StateClosing && _upcallCount == 0)
+            if (finished && _removeFromFactory)
             {
-                initiateShutdown();
+                lock.unlock();
+                _removeFromFactory(shared_from_this());
+            }
+
+            return;
+        }
+        assert(!finished);
+
+        if (isTwoWay)
+        {
+            OutgoingMessage message(&response.outputStream(), compress > 0);
+            sendMessage(message);
+        }
+
+        if (_state == StateActive && _maxDispatches > 0 && _dispatchCount == _maxDispatches)
+        {
+            // Resume reading if the connection is active and the dispatch count is about to be less than
+            // _maxDispatches.
+            _threadPool->update(shared_from_this(), SocketOperationNone, SocketOperationRead);
+            if (_idleTimeoutTransceiver)
+            {
+                _idleTimeoutTransceiver->enableIdleCheck();
             }
         }
-        catch (const LocalException&)
+
+        --_dispatchCount;
+
+        if (_state == StateClosing && _upcallCount == 0)
         {
-            setState(StateClosed, current_exception());
+            initiateShutdown();
         }
     }
     catch (...)
     {
-        dispatchException(current_exception(), 1);
+        setState(StateClosed, current_exception());
     }
 }
 
