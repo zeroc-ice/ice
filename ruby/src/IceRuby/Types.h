@@ -508,12 +508,7 @@ namespace IceRuby
     {
     public:
         ExceptionReader(const ExceptionInfoPtr&);
-        // Copyable (ice_throw throws *this, and make_exception_ptr copies); the copy constructor re-registers a fresh
-        // GC root for _ex. Registering a root tied to the address of _ex makes it non-movable and non-assignable.
         ExceptionReader(const ExceptionReader&);
-        ExceptionReader(ExceptionReader&&) = delete;
-        ExceptionReader& operator=(const ExceptionReader&) = delete;
-        ExceptionReader& operator=(ExceptionReader&&) = delete;
         ~ExceptionReader();
 
         const char* ice_id() const noexcept final;
