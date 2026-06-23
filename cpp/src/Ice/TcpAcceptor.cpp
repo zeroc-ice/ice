@@ -123,8 +123,9 @@ IceInternal::TcpAcceptor::accept()
     {
         throw SocketException(__FILE__, __LINE__, _acceptError);
     }
-    if (setsockopt(_acceptFd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char*)&_acceptFd, sizeof(_acceptFd)) ==
-        SOCKET_ERROR)
+    // SO_UPDATE_ACCEPT_CONTEXT takes the listening socket (_fd) as its option value, not the accepted
+    // socket (_acceptFd); see the WinSock AcceptEx/SO_UPDATE_ACCEPT_CONTEXT contract.
+    if (setsockopt(_acceptFd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char*)&_fd, sizeof(_fd)) == SOCKET_ERROR)
     {
         closeSocketNoThrow(_acceptFd);
         _acceptFd = INVALID_SOCKET;
