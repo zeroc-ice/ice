@@ -18,32 +18,32 @@ WarningInvalidMetadata.ice:21: warning: missing required argument for 'cpp:inclu
 WarningInvalidMetadata.ice:24: warning: ignoring unknown metadata: 'unknown'
 WarningInvalidMetadata.ice:25: warning: ignoring unknown metadata: 'cpp:unknown'
 WarningInvalidMetadata.ice:26: warning: ignoring unknown metadata: 'bad:unknown'
-WarningInvalidMetadata.ice:30: warning: ignoring unknown metadata: 'cpp_fake:header-ext:hh'"
-WarningInvalidMetadata.ice:33: warning: the 'cpp:no-default-include' metadata does not take any arguments
-WarningInvalidMetadata.ice:36: warning: 'amd' metadata cannot be specified as file metadata
-WarningInvalidMetadata.ice:41: warning: the 'cpp:header-ext' metadata only accepts one argument but a list was provided
-WarningInvalidMetadata.ice:41: warning: 'cpp:header-ext' metadata cannot be applied to sequences
-WarningInvalidMetadata.ice:45: warning: ignoring duplicate metadata: 'deprecated:do not use this' does not match previously applied metadata of 'deprecated'
-WarningInvalidMetadata.ice:49: warning: ignoring unknown metadata: 'unknown'
-WarningInvalidMetadata.ice:49: warning: ignoring unknown metadata: 'cpp:unknown'
-WarningInvalidMetadata.ice:49: warning: ignoring unknown metadata: 'bad:unknown'
-WarningInvalidMetadata.ice:57: warning: the 'cpp:array' metadata does not take any arguments
-WarningInvalidMetadata.ice:57: warning: 'cpp:array' metadata can only be applied to operation parameters and return types
-WarningInvalidMetadata.ice:63: warning: 'cpp:type' metadata cannot be applied to operations with void return type
-WarningInvalidMetadata.ice:66: warning: 'cpp:array' metadata cannot be applied to operations with void return type
-WarningInvalidMetadata.ice:69: warning: invalid argument 'my_string' supplied to 'cpp:type' metadata in this context
-WarningInvalidMetadata.ice:71: warning: 'cpp:view-type' metadata cannot be applied to builtin types
-WarningInvalidMetadata.ice:76: warning: invalid argument 'something' supplied to 'format' metadata
-WarningInvalidMetadata.ice:76: warning: the 'format' metadata only accepts one argument but a list was provided
-WarningInvalidMetadata.ice:76: warning: ignoring duplicate metadata: 'format' has already been applied in this context
-WarningInvalidMetadata.ice:80: warning: 'cpp:const' metadata cannot be applied to structs
-WarningInvalidMetadata.ice:80: warning: 'cpp:ice_print' metadata cannot be applied to structs
-WarningInvalidMetadata.ice:80: warning: 'cpp:ice_print' is deprecated; use 'cpp:custom-print' instead
-WarningInvalidMetadata.ice:81: warning: you cannot apply both 'deprecated' and 'deprecate' metadata to the same element
-WarningInvalidMetadata.ice:87: warning: ignoring unknown metadata: 'cpp:virtual'
-WarningInvalidMetadata.ice:92: warning: ignoring unknown metadata: 'bad'
-WarningInvalidMetadata.ice:92: warning: ignoring unknown metadata: 'cpp:nope'
-WarningInvalidMetadata.ice:97: warning: ignoring unknown metadata: 'cpp98:foo'
-WarningInvalidMetadata.ice:97: warning: ignoring unknown metadata: 'cpp11:bar'
-WarningInvalidMetadata.ice:108: warning: ignoring duplicate metadata: 'deprecated:goodbye' does not match previously applied metadata of 'deprecated:hello'
-WarningInvalidMetadata.ice:113: warning: ignoring duplicate metadata: 'deprecated' does not match previously applied metadata of 'deprecated:hello'
+WarningInvalidMetadata.ice:32: warning: ignoring unknown metadata: 'cpp_fake:header-ext:hh'
+WarningInvalidMetadata.ice:35: warning: the 'cpp:no-default-include' metadata does not take any arguments
+WarningInvalidMetadata.ice:38: warning: 'amd' metadata cannot be specified as file metadata
+WarningInvalidMetadata.ice:43: warning: the 'cpp:header-ext' metadata only accepts one argument but a list was provided
+WarningInvalidMetadata.ice:43: warning: 'cpp:header-ext' metadata cannot be applied to sequences
+WarningInvalidMetadata.ice:47: warning: ignoring duplicate metadata: 'deprecated:do not use this' does not match previously applied metadata of 'deprecated'
+WarningInvalidMetadata.ice:51: warning: ignoring unknown metadata: 'unknown'
+WarningInvalidMetadata.ice:51: warning: ignoring unknown metadata: 'cpp:unknown'
+WarningInvalidMetadata.ice:51: warning: ignoring unknown metadata: 'bad:unknown'
+WarningInvalidMetadata.ice:59: warning: the 'cpp:array' metadata does not take any arguments
+WarningInvalidMetadata.ice:59: warning: 'cpp:array' metadata can only be applied to operation parameters and return types
+WarningInvalidMetadata.ice:65: warning: 'cpp:type' metadata cannot be applied to operations with void return type
+WarningInvalidMetadata.ice:68: warning: 'cpp:array' metadata cannot be applied to operations with void return type
+WarningInvalidMetadata.ice:71: warning: invalid argument 'my_string' supplied to 'cpp:type' metadata in this context
+WarningInvalidMetadata.ice:73: warning: 'cpp:view-type' metadata cannot be applied to builtin types
+WarningInvalidMetadata.ice:78: warning: invalid argument 'something' supplied to 'format' metadata
+WarningInvalidMetadata.ice:78: warning: the 'format' metadata only accepts one argument but a list was provided
+WarningInvalidMetadata.ice:78: warning: ignoring duplicate metadata: 'format' has already been applied in this context
+WarningInvalidMetadata.ice:82: warning: 'cpp:const' metadata cannot be applied to structs
+WarningInvalidMetadata.ice:82: warning: 'cpp:ice_print' metadata cannot be applied to structs
+WarningInvalidMetadata.ice:82: warning: 'cpp:ice_print' is deprecated; use 'cpp:custom-print' instead
+WarningInvalidMetadata.ice:83: warning: you cannot apply both 'deprecated' and 'deprecate' metadata to the same element
+WarningInvalidMetadata.ice:89: warning: ignoring unknown metadata: 'cpp:virtual'
+WarningInvalidMetadata.ice:94: warning: ignoring unknown metadata: 'bad'
+WarningInvalidMetadata.ice:94: warning: ignoring unknown metadata: 'cpp:nope'
+WarningInvalidMetadata.ice:99: warning: ignoring unknown metadata: 'cpp98:foo'
+WarningInvalidMetadata.ice:99: warning: ignoring unknown metadata: 'cpp11:bar'
+WarningInvalidMetadata.ice:110: warning: ignoring duplicate metadata: 'deprecated:goodbye' does not match previously applied metadata of 'deprecated:hello'
+WarningInvalidMetadata.ice:115: warning: ignoring duplicate metadata: 'deprecated' does not match previously applied metadata of 'deprecated:hello'
