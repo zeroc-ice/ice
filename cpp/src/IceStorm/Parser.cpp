@@ -247,6 +247,7 @@ Parser::replica(const list<string>& args)
         if (!node)
         {
             error("This topic is not replicated");
+            return;
         }
         auto nodes = node->nodes();
         consoleOut << "replica count: " << nodes.size() << endl;
