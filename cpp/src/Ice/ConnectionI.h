@@ -208,8 +208,6 @@ namespace Ice
 
         void setBufferSize(std::int32_t rcvSize, std::int32_t sndSize) final; // From Connection
 
-        void exception(std::exception_ptr);
-
         // This method is called to execute user code (connection start completion callback, invocation sent callbacks,
         // or an upcall issued from an incoming message). The invocation sent callbacks and the message upcall might
         // both be set.
