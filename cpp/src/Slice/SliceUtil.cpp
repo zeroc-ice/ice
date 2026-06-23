@@ -316,8 +316,6 @@ Slice::emitRaw(const char* message)
 vector<string>
 Slice::filterMcppWarnings(const string& message)
 {
-    static const char* messages[] = {"Converted [CR+LF] to [LF]", "no newline, supplemented newline", nullptr};
-
     constexpr string_view warningPrefix = "warning:";
     constexpr string_view fromPrefix = "from";
     constexpr string_view separators = "\n\t ";
@@ -330,60 +328,36 @@ Slice::filterMcppWarnings(const string& message)
         in.push_back(message.substr(start, end - start));
         start = end + 1;
     }
-    vector<string> out;
-    bool skipped;
-    for (auto i = in.begin(); i != in.end(); i++)
-    {
-        skipped = false;
 
-        if (i->find(warningPrefix) != string::npos)
+    vector<string> out;
+    for (auto i = in.begin(); i != in.end();)
+    {
+        bool hasWarningPrefix = i->find(warningPrefix) != string::npos;
+        bool hasFilterableWarning =
+            i->find("Converted [CR+LF] to [LF]") != string::npos ||
+            i->find("no newline, supplemented newline") != string::npos;
+
+        if (hasWarningPrefix && hasFilterableWarning)
         {
-            for (int j = 0; messages[j] != nullptr; ++j)
+            // MCPP warnings are multi-line. The first line contains the warning message, followed by a single-line text
+            // snippet of the code that produced the warning. After this can follow any number of "from" lines.
+            assert(std::distance(i, in.end()) >= 2); // Assert there's at least 2 lines to skip (message & snippet).
+
+            // Immediately skip 2 lines (the message and the snippet). Then skip any "from" lines that followed them.
+            for (i += 2; i != in.end(); i++)
             {
-                if (i->find(messages[j]) != string::npos)
+                string::size_type index = i->find_first_not_of(separators);
+                index = (index == string::npos) ? 0 : index;
+                if (i->find(fromPrefix, index) != 0)
                 {
-                    // This line should be skipped it contains the unwanted mcpp warning
-                    // next line should also be skipped it contains the slice line that
-                    // produces the skipped warning
-                    i++;
-                    skipped = true;
-                    //
-                    // Check if next lines are still the same warning
-                    //
-                    i++;
-                    while (i != in.end())
-                    {
-                        string token = *i;
-                        string::size_type index = token.find_first_not_of(separators);
-                        if (index != string::npos)
-                        {
-                            token = token.substr(index);
-                        }
-                        if (token.find(fromPrefix) != 0)
-                        {
-                            //
-                            // First line not of this warning
-                            //
-                            i--;
-                            break;
-                        }
-                        else
-                        {
-                            i++;
-                        }
-                    }
-                    break;
+                    break; // This line isn't part of the warning we're skipping. Break, and go back to the outer loop.
                 }
             }
-            if (i == in.end())
-            {
-                break;
-            }
+            continue; // Continue to the next loop iteration, to check if it's a warning that should be filtered out.
         }
-        if (!skipped)
-        {
-            out.push_back(*i + "\n");
-        }
+
+        // Add this line to the output, and move to the next line. We only reach here if the line wasn't filtered out.
+        out.push_back(*i++ + "\n");
     }
     return out;
 }
