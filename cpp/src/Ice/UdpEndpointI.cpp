@@ -227,7 +227,9 @@ IceInternal::UdpEndpointI::options() const
     if (_mcastInterface.length() > 0)
     {
         s << " --interface ";
-        bool addQuote = _mcastInterface.find(':') != string::npos;
+        // Quote the interface if it contains a separator the endpoint parser would split on, such as a
+        // space (Windows adapter friendly names like "Ethernet 2") or a ':' (IPv6 address).
+        bool addQuote = _mcastInterface.find_first_of(" :\t\n\r") != string::npos;
         if (addQuote)
         {
             s << "\"";
