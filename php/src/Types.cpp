@@ -2867,10 +2867,8 @@ IcePHP::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& m
 {
     for (const auto& member : members)
     {
-        zval* val = zend_hash_str_find(
-            Z_OBJPROP_P(const_cast<zval*>(&_object)),
-            member->name.c_str(),
-            static_cast<int>(member->name.size()));
+        zval* val =
+            zend_hash_str_find(Z_OBJPROP_P(const_cast<zval*>(&_object)), member->name.c_str(), member->name.size());
 
         if (!val)
         {
@@ -3146,7 +3144,7 @@ IcePHP::ExceptionInfo::printMembers(zval* zv, IceInternal::Output& out, PrintObj
     for (const auto& member : members)
     {
         out << nl << member->name << " = ";
-        zval* val = zend_hash_str_find(Z_OBJPROP_P(zv), member->name.c_str(), static_cast<int>(member->name.size()));
+        zval* val = zend_hash_str_find(Z_OBJPROP_P(zv), member->name.c_str(), member->name.size());
         assert(Z_TYPE_P(val) == IS_INDIRECT);
         val = Z_INDIRECT_P(val);
 
@@ -3163,7 +3161,7 @@ IcePHP::ExceptionInfo::printMembers(zval* zv, IceInternal::Output& out, PrintObj
     for (const auto& member : optionalMembers)
     {
         out << nl << member->name << " = ";
-        zval* val = zend_hash_str_find(Z_OBJPROP_P(zv), member->name.c_str(), static_cast<int>(member->name.size()));
+        zval* val = zend_hash_str_find(Z_OBJPROP_P(zv), member->name.c_str(), member->name.size());
 
         assert(Z_TYPE_P(val) == IS_INDIRECT);
         val = Z_INDIRECT_P(val);
