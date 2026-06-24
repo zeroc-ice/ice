@@ -1187,7 +1187,10 @@ SessionI::subscriberInitialized(
         auto keyFactory = element->getTopic()->getKeyFactory();
         for (const auto& sample : samples)
         {
-            assert((!key && !sample.keyValue.empty()) || key == subscriber.keys[sample.keyId].first);
+            // An any-key writer marshals the key inline (keyId 0, keyValue set), as the live data path in s()
+            // handles; accept an inline-key sample for a key subscription too, rather than requiring keyId to map
+            // to the subscription key.
+            assert(!sample.keyValue.empty() || key == subscriber.keys[sample.keyId].first);
 
             samplesI.push_back(sampleFactory->create(
                 _id,
