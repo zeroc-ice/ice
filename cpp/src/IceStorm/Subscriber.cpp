@@ -425,7 +425,7 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
             throw BadQoS("invalid reliability: " + reliability);
         }
 
-        // Override the invocation timeout with the send timeout. 
+        // Override the invocation timeout with the send timeout.
         Ice::ObjectPrx newObj = rec.obj->ice_invocationTimeout(instance->sendTimeout());
 
         p = rec.theQoS.find("locatorCacheTimeout");
