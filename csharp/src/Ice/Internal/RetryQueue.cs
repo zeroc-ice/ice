@@ -131,8 +131,7 @@ public class RetryQueue
             // removed by remove(), which wakes destroy().
             if (_instance != null && _instance.timer().cancel(task))
             {
-                _requests.Remove(task);
-                return true;
+                return _requests.Remove(task);
             }
             return false;
         }
