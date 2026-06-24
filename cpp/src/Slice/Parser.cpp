@@ -4003,18 +4003,23 @@ Slice::Enum::createEnumerator(const string& name, optional<int32_t> explicitValu
         }
     }
 
-    // Check if the enumerator's value is already in use.
     bool checkForDuplicates = true;
-    if (nextValue > _maxValue)
+    // Negative values indicate this is a bogus enumerator that is only created for error-recovery purposes.
+    if (nextValue >= 0)
     {
-        _maxValue = nextValue;
-        checkForDuplicates = false;
+        if (nextValue > _maxValue)
+        {
+            _maxValue = nextValue;
+            checkForDuplicates = false;
+        }
+        if (nextValue < _minValue)
+        {
+            _minValue = nextValue;
+            checkForDuplicates = false;
+        }
     }
-    if (nextValue < _minValue)
-    {
-        _minValue = nextValue;
-        checkForDuplicates = false;
-    }
+
+    // Check if the enumerator's value is already in use.
     if (checkForDuplicates)
     {
         for (const auto& r : enumerators())
