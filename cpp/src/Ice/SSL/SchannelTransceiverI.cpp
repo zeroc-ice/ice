@@ -197,8 +197,6 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
                 0);
             if (err != SEC_E_OK && err != SEC_I_CONTINUE_NEEDED)
             {
-                // Free the token Schannel allocated via ISC_REQ_ALLOCATE_MEMORY before throwing; the
-                // FreeContextBuffer below this block runs only on the success path.
                 if (outBuffer.pvBuffer)
                 {
                     FreeContextBuffer(outBuffer.pvBuffer);
