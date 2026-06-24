@@ -1120,6 +1120,9 @@ Selector::finish(EventHandler* handler, bool closeNow)
 void
 Selector::ready(EventHandler* handler, SocketOperation status, bool value)
 {
+    // Hold _mutex across the read-modify-write of handler->_ready. The run-loop thread reads _ready under _mutex
+    // (in startSelect/finishSelect, via EventHandlerWrapper), so updating it unlocked here would be a data race.
+    lock_guard lock(_mutex);
     if (((handler->_ready & status) != 0) == value)
     {
         return; // Nothing to do if ready state already correctly set.
@@ -1134,7 +1137,6 @@ Selector::ready(EventHandler* handler, SocketOperation status, bool value)
         handler->_ready = static_cast<SocketOperation>(handler->_ready & ~status);
     }
 
-    lock_guard lock(_mutex);
     std::map<EventHandler*, EventHandlerWrapperPtr>::iterator p = _wrappers.find(handler);
     assert(p != _wrappers.end());
     p->second->checkReady();
