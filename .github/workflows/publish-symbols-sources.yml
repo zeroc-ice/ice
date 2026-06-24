@@ -123,6 +123,14 @@ jobs:
 
       - name: Publish Symbols and Sources to S3
         run: |
+          # Create a zip which includes the version
+          $version = "${{ steps.version.outputs.ice_version }}"
+          $zipName = "windows-indexed-pdbs-$version.zip"
+          Compress-Archive -Path "staging/windows-indexed-pdbs" -DestinationPath "staging/$zipName"
+
+          # Upload zip to S3
+          aws s3 cp "staging/$zipName" "s3://zeroc-downloads/ice/${{ inputs.channel }}/$zipName"
+
           # Upload sources to S3
           aws s3 sync "staging/windows-symbols-sources/sources/" "s3://${{ env.S3_BUCKET }}/sources/ice/"
 
