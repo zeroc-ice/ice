@@ -279,6 +279,7 @@ function addrToString(host, port) {
 }
 
 function addressesToString(localHost, localPort, remoteHost, remotePort, targetAddr) {
+    localHost = localHost === undefined ? null : localHost;
     remoteHost = remoteHost === undefined ? null : remoteHost;
     targetAddr = targetAddr === undefined ? null : targetAddr;
 
