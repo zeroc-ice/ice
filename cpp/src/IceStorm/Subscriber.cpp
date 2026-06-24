@@ -425,18 +425,10 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
             throw BadQoS("invalid reliability: " + reliability);
         }
 
-        // Override the invocation timeout.
-        optional<Ice::ObjectPrx> newObj;
-        try
-        {
-            newObj = rec.obj->ice_invocationTimeout(instance->sendTimeout());
-        }
-        catch (const Ice::FixedProxyException&)
-        {
-            // In the event IceStorm is collocated this could be a fixed proxy in which case its not possible to
-            // set the timeout.
-            newObj = rec.obj;
-        }
+        // Override the invocation timeout, unless rec.obj is a fixed proxy. When IceStorm is collocated, rec.obj
+        // may be a fixed proxy, whose invocation timeout cannot be changed.
+        Ice::ObjectPrx newObj =
+            rec.obj->ice_isFixed() ? *rec.obj : rec.obj->ice_invocationTimeout(instance->sendTimeout());
 
         p = rec.theQoS.find("locatorCacheTimeout");
         if (p != rec.theQoS.end())
@@ -478,16 +470,16 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
             {
                 throw BadQoS("ordered reliability requires a twoway proxy");
             }
-            subscriber = make_shared<SubscriberTwoway>(instance, rec, proxy, retryCount, 1, *newObj);
+            subscriber = make_shared<SubscriberTwoway>(instance, rec, proxy, retryCount, 1, newObj);
         }
         else if (newObj->ice_isOneway() || newObj->ice_isDatagram())
         {
-            subscriber = make_shared<SubscriberOneway>(instance, rec, proxy, retryCount, *newObj);
+            subscriber = make_shared<SubscriberOneway>(instance, rec, proxy, retryCount, newObj);
         }
         else // if(newObj->ice_isTwoway())
         {
             assert(newObj->ice_isTwoway());
-            subscriber = make_shared<SubscriberTwoway>(instance, rec, proxy, retryCount, 5, *newObj);
+            subscriber = make_shared<SubscriberTwoway>(instance, rec, proxy, retryCount, 5, newObj);
         }
         per->setSubscriber(subscriber);
 
