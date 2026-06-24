@@ -941,14 +941,24 @@ SessionI::disconnect(int64_t topicId, TopicI* topic)
         return;
     }
 
-    if (_topics.find(topicId) == _topics.end())
+    auto t = _topics.find(topicId);
+    if (t == _topics.end())
     {
         return; // Peer topic detached first.
     }
+    auto& subscriber = t->second;
 
-    runWithTopic(topicId, topic, [&](TopicSubscriber&) { unsubscribe(topicId, topic); });
+    // disconnect() is called from TopicI::destroy() after the topic is marked destroyed, so detach the listeners
+    // directly here instead of through runWithTopic, which skips destroyed topics. Skipping the unsubscribe (and the
+    // element detachKey/detachFilter it drives) would leave TopicI::_listenerCount stale and trip a debug assert.
+    if (subscriber.getSubscribers().find(topic) != subscriber.getSubscribers().end())
+    {
+        unique_lock<mutex> topicLock(topic->getMutex());
+        _topicLock = &topicLock;
+        unsubscribe(topicId, topic);
+        _topicLock = nullptr;
+    }
 
-    auto& subscriber = _topics.at(topicId);
     subscriber.removeSubscriber(topic);
     if (subscriber.getSubscribers().empty())
     {
