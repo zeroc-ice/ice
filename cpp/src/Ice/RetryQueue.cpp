@@ -135,17 +135,14 @@ bool
 IceInternal::RetryQueue::cancel(const RetryTaskPtr& task)
 {
     lock_guard<mutex> lock(_mutex);
-    if (_requests.erase(task) > 0)
+    // Only remove the task if we cancel it in the timer before it runs. If timer()->cancel returns false, the
+    // task is already executing and runTimerTask will call remove() to erase it from _requests; erasing it
+    // here would make that remove() fail its assertion. When the queue is being destroyed (_instance is null)
+    // the timer is gone and every remaining task is running, so it is likewise removed by remove().
+    if (_instance && _instance->timer()->cancel(task))
     {
-        if (_instance)
-        {
-            return _instance->timer()->cancel(task);
-        }
-        else if (_requests.empty())
-        {
-            // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
-            _conditionVariable.notify_one();
-        }
+        _requests.erase(task);
+        return true;
     }
     return false;
 }
