@@ -77,8 +77,9 @@ class PluginI implements Plugin {
                     exception(ex);
                 }
             } else {
-                assert (_exception != null); // Don't retry if the proxy didn't change
-                exception(_exception);
+                // The proxy didn't change, so retrying wont help.
+                assert (_exception != null);
+                _future.completeExceptionally(_exception);
             }
         }
 
