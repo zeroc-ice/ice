@@ -141,8 +141,7 @@ IceInternal::RetryQueue::cancel(const RetryTaskPtr& task)
     // the timer is gone and every remaining task is running, so it is likewise removed by remove().
     if (_instance && _instance->timer()->cancel(task))
     {
-        _requests.erase(task);
-        return true;
+        return _requests.erase(task) != 0;
     }
     return false;
 }
