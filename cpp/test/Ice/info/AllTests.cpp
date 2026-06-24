@@ -59,7 +59,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing internal network address classification... " << flush;
     {
-        // The whole 127.0.0.0/8 range is IPv4 loopback, not just 127.0.0.1 (issue #5486 item 8).
+        // The whole 127.0.0.0/8 range is IPv4 loopback, not just 127.0.0.1.
         test(IceInternal::isLoopbackOrMulticastAddress("127.0.0.1"));
         test(IceInternal::isLoopbackOrMulticastAddress("127.0.0.2"));
         test(IceInternal::isLoopbackOrMulticastAddress("127.255.255.254"));
@@ -69,7 +69,7 @@ allTests(Test::TestHelper* helper)
         test(!IceInternal::isLoopbackOrMulticastAddress("128.0.0.1"));
 
         // compareAddress must distinguish IPv6 addresses that differ only by their scope id, e.g.
-        // fe80::1%eth0 vs fe80::1%eth1 (issue #5486 item 7).
+        // fe80::1%eth0 vs fe80::1%eth1.
         // Build the address through Ice rather than calling Winsock (htons/inet_pton) directly, which the info
         // test client doesn't link on Windows.
         IceInternal::Address a1 =
