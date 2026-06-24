@@ -79,17 +79,18 @@ BatchRequestQueue::prepareBatchRequest(OutputStream* os)
 void
 BatchRequestQueue::finishBatchRequest(OutputStream* os, const Ice::ObjectPrx& proxy, string_view operation)
 {
-    //
-    // No need for synchronization, no other threads are supposed
-    // to modify the queue since we set _batchStreamInUse to true.
-    //
-    assert(_batchStreamInUse);
-    _batchStream.swap(*os);
+    {
+        // Bring the request stream back and become the owner so this thread's own auto-flush below can
+        // re-enter swap(). swap() lets only _batchStreamOwner through while the stream is in use, so no
+        // other thread can touch the queue: the mutations below need no further synchronization.
+        lock_guard lock(_mutex);
+        assert(_batchStreamInUse);
+        _batchStream.swap(*os);
+        _batchStreamOwner = this_thread::get_id();
+    }
 
     try
     {
-        _batchStreamCanFlush = true; // Allow flush to proceed even if the stream is marked in use.
-
         if (_maxSize > 0 && _batchStream.b.size() >= static_cast<size_t>(_maxSize))
         {
             proxy->ice_flushBatchRequestsAsync(nullptr); // auto-flush, don't wait for response
@@ -115,7 +116,7 @@ BatchRequestQueue::finishBatchRequest(OutputStream* os, const Ice::ObjectPrx& pr
         lock_guard lock(_mutex);
         _batchStream.resize(_batchMarker);
         _batchStreamInUse = false;
-        _batchStreamCanFlush = false;
+        _batchStreamOwner = thread::id{};
         _conditionVariable.notify_all();
     }
     catch (const std::exception&)
@@ -123,7 +124,7 @@ BatchRequestQueue::finishBatchRequest(OutputStream* os, const Ice::ObjectPrx& pr
         lock_guard lock(_mutex);
         _batchStream.resize(_batchMarker);
         _batchStreamInUse = false;
-        _batchStreamCanFlush = false;
+        _batchStreamOwner = thread::id{};
         _conditionVariable.notify_all();
         throw;
     }
@@ -151,7 +152,15 @@ BatchRequestQueue::swap(OutputStream* os, bool& compress) noexcept
         return 0;
     }
 
-    _conditionVariable.wait(lock, [this] { return !_batchStreamInUse || _batchStreamCanFlush; });
+    _conditionVariable.wait(
+        lock,
+        [this]
+        {
+            // Only the owner thread may proceed while the stream is in use (for its own auto-flush);
+            // other threads wait until the in-progress batch request is finished. A default-constructed
+            // _batchStreamOwner matches no thread, so nobody bypasses _batchStreamInUse outside that window.
+            return !_batchStreamInUse || _batchStreamOwner == this_thread::get_id();
+        });
 
     vector<byte> lastRequest;
     if (_batchMarker < _batchStream.b.size())

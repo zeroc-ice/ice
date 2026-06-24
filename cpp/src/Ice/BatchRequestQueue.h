@@ -11,6 +11,7 @@
 #include <condition_variable>
 #include <functional>
 #include <mutex>
+#include <thread>
 
 namespace IceInternal
 {
@@ -33,7 +34,10 @@ namespace IceInternal
         std::function<void(const Ice::BatchRequest&, int, int)> _interceptor;
         Ice::OutputStream _batchStream;
         bool _batchStreamInUse{false};
-        bool _batchStreamCanFlush{false};
+        // While finishBatchRequest holds the in-use stream, this is its thread: the only thread allowed to
+        // re-enter swap() (for its own auto-flush). A default-constructed id means no thread may flush the
+        // in-use stream, so other threads wait for _batchStreamInUse to clear.
+        std::thread::id _batchStreamOwner{};
         bool _batchCompress{false};
         int _batchRequestNum{0};
         size_t _batchMarker;
