@@ -666,6 +666,7 @@ Ice::SSL::decodeCertificate(const string& data)
     // Calling it with -1 for the side effects, this ensure that the extensions info is loaded
     if (X509_check_purpose(x, -1, -1) == -1)
     {
+        X509_free(x);
         throw CertificateReadException(__FILE__, __LINE__, "error loading certificate:\n" + getErrors());
     }
     return x;

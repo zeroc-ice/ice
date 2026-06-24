@@ -89,6 +89,31 @@ void ::Writer::run(int argc, char* argv[])
         sample = readerB.getNextUnread();
     }
     cout << "ok" << endl;
+
+    cout << "testing reconnect with an any-key writer without duplicate samples... " << flush;
+    {
+        Topic<string, int> topic(node, "anyKeyReconnect");
+        Topic<string, int> barrier(node, "anyKeyReconnectBarrier");
+        auto writer = makeAnyKeyWriter(topic, "", config);
+        writer.waitForReaders();
+        for (int i = 0; i < 100; ++i)
+        {
+            writer.update("k", i);
+        }
+
+        // Wait for the reader to signal it read the batch and closed the connection.
+        auto readerB = makeSingleKeyReader(barrier, "reader_barrier");
+        auto sample = readerB.getNextUnread();
+
+        // The session has been reestablished; send a second batch. The reader must continue from 100, not
+        // re-receive the retained 0..99.
+        for (int i = 0; i < 100; ++i)
+        {
+            writer.update("k", i + 100);
+        }
+        sample = readerB.getNextUnread();
+    }
+    cout << "ok" << endl;
 }
 
 DEFINE_TEST(::Writer)

@@ -493,30 +493,34 @@ namespace IceMX
                 return getObserver(helper);
             }
 
-            std::lock_guard lock(_mutex);
-            if (!_metrics)
             {
-                return nullptr;
-            }
-
-            typename ObserverImplType::EntrySeqType metricsObjects;
-            for (const auto& map : _maps)
-            {
-                typename ObserverImplType::EntryPtrType entry = map->getMatching(helper, old->getEntry(map.get()));
-                if (entry)
+                std::lock_guard lock(_mutex);
+                if (!_metrics)
                 {
-                    metricsObjects.push_back(entry);
+                    return nullptr;
+                }
+
+                typename ObserverImplType::EntrySeqType metricsObjects;
+                for (const auto& map : _maps)
+                {
+                    typename ObserverImplType::EntryPtrType entry = map->getMatching(helper, old->getEntry(map.get()));
+                    if (entry)
+                    {
+                        metricsObjects.push_back(entry);
+                    }
+                }
+                if (!metricsObjects.empty())
+                {
+                    ObserverImplPtrType obsv = std::make_shared<ObserverImplType>();
+                    obsv->init(helper, metricsObjects, old.get());
+                    return obsv;
                 }
             }
-            if (metricsObjects.empty())
-            {
-                old->detach();
-                return nullptr;
-            }
 
-            ObserverImplPtrType obsv = std::make_shared<ObserverImplType>();
-            obsv->init(helper, metricsObjects, old.get());
-            return obsv;
+            // No map matched the updated observer: detach the old observer outside the factory mutex, since
+            // detach() can call into a user-supplied instrumentation delegate.
+            old->detach();
+            return nullptr;
         }
 
         template<typename SubMapMetricsType>
