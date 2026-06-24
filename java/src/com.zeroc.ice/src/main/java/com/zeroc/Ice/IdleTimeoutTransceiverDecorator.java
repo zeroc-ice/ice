@@ -125,6 +125,12 @@ final class IdleTimeoutTransceiverDecorator implements Transceiver {
         return _idleCheckEnabled;
     }
 
+    // Protected by ConnectionI's mutex. Returns true when the read timer is still due to fire later: a read
+    // reschedules the timer with a fresh future, so an idle check that already fired must not abort the connection.
+    boolean isIdleCheckScheduled() {
+        return _readTimerFuture != null && _readTimerFuture.getDelay(TimeUnit.NANOSECONDS) > 0;
+    }
+
     void enableIdleCheck() {
         if (!_idleCheckEnabled && _idleCheck != null) {
             rescheduleReadTimer();

@@ -974,7 +974,11 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
     }
 
     public synchronized void idleCheck(int idleTimeout) {
-        if (_state == StateActive && _idleTimeoutTransceiver.isIdleCheckEnabled()) {
+        // Skip the abort if the read timer was rescheduled (because we received bytes) after this idle check was
+        // already triggered. This mirrors the guard in inactivityCheck.
+        if (_state == StateActive
+                && _idleTimeoutTransceiver.isIdleCheckEnabled()
+                && !_idleTimeoutTransceiver.isIdleCheckScheduled()) {
             String msg = "Connection aborted by the idle check because it did not receive any bytes for "
                 + idleTimeout + "s.";
             setState(StateClosed, new ConnectionAbortedException(msg, false));

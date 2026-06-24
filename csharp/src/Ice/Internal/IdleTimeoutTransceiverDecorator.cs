@@ -16,8 +16,17 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
     private readonly System.Threading.Timer? _readTimer;
     private readonly System.Threading.Timer _writeTimer;
 
+    // The TickCount64 value at which the read (idle-check) timer is next due to fire. Protected by ConnectionI's
+    // mutex.
+    private long _readTimerDeadline;
+
     // Called by ConnectionI with its mutex locked.
     internal bool idleCheckEnabled { get; private set; }
+
+    // Called by ConnectionI with its mutex locked. Returns true when the read (idle-check) timer is still due to fire
+    // later: System.Threading.Timer cannot recall a callback it already dispatched, so a read that rescheduled the
+    // timer moves this deadline forward and the already-fired idle check must not abort the connection.
+    internal bool idleCheckScheduled => Environment.TickCount64 < _readTimerDeadline;
 
     public override string ToString() => _decoratee.ToString()!;
 
@@ -146,7 +155,14 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
 
     private void cancelWriteTimer() => _writeTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 
-    private void rescheduleReadTimer() => _readTimer?.Change(_idleTimeout, Timeout.InfiniteTimeSpan);
+    private void rescheduleReadTimer()
+    {
+        // Set the deadline before arming the timer: any delay between the two makes the deadline slightly earlier
+        // than the timer's actual fire time, so the only failure mode is a benign spurious abort under an extreme
+        // pause - never a missed idle timeout (which is what computing the deadline after Change would risk).
+        _readTimerDeadline = Environment.TickCount64 + (long)_idleTimeout.TotalMilliseconds;
+        _readTimer?.Change(_idleTimeout, Timeout.InfiniteTimeSpan);
+    }
 
     private void rescheduleWriteTimer() => _writeTimer.Change(_idleTimeout / 2, Timeout.InfiniteTimeSpan);
 }
