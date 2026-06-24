@@ -124,17 +124,14 @@ public class RetryQueue
     {
         lock (_mutex)
         {
-            if (_requests.Remove(task))
+            // Only remove the task if we cancel it in the timer before it runs. If timer().cancel returns
+            // false, the task is already executing and runTimerTask will call remove() to erase it; removing
+            // it here would let destroy() observe an empty queue while the task is still running. When the
+            // queue is being destroyed (_instance is null) every remaining task is running and is likewise
+            // removed by remove(), which wakes destroy().
+            if (_instance != null && _instance.timer().cancel(task))
             {
-                if (_instance != null)
-                {
-                    return _instance.timer().cancel(task);
-                }
-                else if (_requests.Count == 0)
-                {
-                    // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
-                    System.Threading.Monitor.Pulse(_mutex);
-                }
+                return _requests.Remove(task);
             }
             return false;
         }
