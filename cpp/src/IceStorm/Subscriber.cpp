@@ -425,8 +425,7 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
             throw BadQoS("invalid reliability: " + reliability);
         }
 
-        // Override the invocation timeout with the send timeout. ice_invocationTimeout is a local operation that
-        // works on any proxy, including a fixed proxy (which rec.obj can be when IceStorm is collocated).
+        // Override the invocation timeout with the send timeout. 
         Ice::ObjectPrx newObj = rec.obj->ice_invocationTimeout(instance->sendTimeout());
 
         p = rec.theQoS.find("locatorCacheTimeout");
