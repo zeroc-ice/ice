@@ -146,6 +146,11 @@ public class AllTests {
                 "test:udp --sourceAddress \"::1\" --interface \"0:0:0:0:0:0:0:1%lo\"");
         test(b1.equals(communicator.stringToProxy(b1.toString())));
 
+        // A multicast interface containing a space (e.g. a Windows adapter friendly name) must round-trip
+        // through toString(), i.e. it must be quoted.
+        b1 = communicator.stringToProxy("test:udp --interface \"Ethernet 2\"");
+        test(b1.equals(communicator.stringToProxy(b1.toString())));
+
         b1 = communicator.stringToProxy("");
         test(b1 == null);
         b1 = communicator.stringToProxy("\"\"");

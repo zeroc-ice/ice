@@ -176,8 +176,11 @@ internal sealed class UdpEndpointI : IPEndpointI
 
         if (_mcastInterface.Length != 0)
         {
-            bool addQuote = _mcastInterface.Contains(':', StringComparison.Ordinal);
             s += " --interface ";
+            // Quote the interface if it contains a character that would be re-parsed as a separator: whitespace, on
+            // which the endpoint parser splits options (e.g. a Windows adapter name like "Ethernet 2"), or ':', on
+            // which the proxy-string parser splits endpoints (e.g. an IPv6 interface address).
+            bool addQuote = _mcastInterface.IndexOfAny([' ', ':', '\t', '\n', '\r']) != -1;
             if (addQuote)
             {
                 s += "\"";

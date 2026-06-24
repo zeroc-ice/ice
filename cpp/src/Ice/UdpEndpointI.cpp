@@ -227,7 +227,10 @@ IceInternal::UdpEndpointI::options() const
     if (_mcastInterface.length() > 0)
     {
         s << " --interface ";
-        bool addQuote = _mcastInterface.find(':') != string::npos;
+        // Quote the interface if it contains a character that would be re-parsed as a separator: whitespace, on
+        // which the endpoint parser splits options (e.g. a Windows adapter name like "Ethernet 2"), or ':', on
+        // which the proxy-string parser splits endpoints (e.g. an IPv6 interface address).
+        bool addQuote = _mcastInterface.find_first_of(" :\t\n\r") != string::npos;
         if (addQuote)
         {
             s << "\"";
