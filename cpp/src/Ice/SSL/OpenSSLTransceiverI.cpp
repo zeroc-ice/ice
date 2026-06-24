@@ -124,7 +124,8 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
 
         if (ret <= 0)
         {
-            switch (SSL_get_error(_ssl, ret))
+            int sslError = SSL_get_error(_ssl, ret);
+            switch (sslError)
             {
                 case SSL_ERROR_NONE:
                 {
@@ -200,6 +201,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
                     ostringstream os;
                     os << "SSL error occurred for new " << (_incoming ? "incoming" : "outgoing") << " connection:\n"
                        << _delegate->toString() << "\n"
+                       << "SSL_get_error returned " << sslError << " (ret=" << ret << ")\n"
                        << _engine->sslErrors();
                     throw ProtocolException(__FILE__, __LINE__, os.str());
                 }

@@ -191,7 +191,7 @@ OpenSSL::SSLEngine::initialize()
             if (buffer.empty())
             {
                 ostringstream os;
-                os << "IceSSL: certificate file is empty '" << certFile << "'";
+                os << "IceSSL: certificate file is empty '" << *resolved << "'";
                 throw InitializationException(__FILE__, __LINE__, os.str());
             }
             int success = 0;
