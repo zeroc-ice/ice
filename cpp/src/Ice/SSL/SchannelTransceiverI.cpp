@@ -197,6 +197,10 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
                 0);
             if (err != SEC_E_OK && err != SEC_I_CONTINUE_NEEDED)
             {
+                if (outBuffer.pvBuffer)
+                {
+                    FreeContextBuffer(outBuffer.pvBuffer);
+                }
                 ostringstream os;
                 os << "SSL transport: handshake failure:\n" << IceInternal::errorToString(err);
                 throw SecurityException(__FILE__, __LINE__, os.str());
@@ -295,6 +299,15 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
             }
             else if (err != SEC_I_CONTINUE_NEEDED && err != SEC_E_OK)
             {
+                if (outBuffers[0].pvBuffer) // token
+                {
+                    FreeContextBuffer(outBuffers[0].pvBuffer);
+                }
+                if (outBuffers[1].pvBuffer) // alert
+                {
+                    FreeContextBuffer(outBuffers[1].pvBuffer);
+                }
+
                 ostringstream os;
                 os << "SSL handshake failure:\n" << IceInternal::errorToString(err);
                 throw SecurityException(__FILE__, __LINE__, os.str());
