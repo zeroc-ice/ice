@@ -359,17 +359,18 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
 
     public O getObserver(MetricsHelper<T> helper, object observer)
     {
+        O old = null;
+        try
+        {
+            old = (O)observer;
+        }
+        catch (InvalidCastException)
+        {
+        }
+
         lock (_mutex)
         {
             List<MetricsMap<T>.Entry> metricsObjects = null;
-            O old = null;
-            try
-            {
-                old = (O)observer;
-            }
-            catch (InvalidCastException)
-            {
-            }
             foreach (MetricsMap<T> m in _maps)
             {
                 MetricsMap<T>.Entry e = m.getMatching(helper, old?.getEntry(m));
@@ -380,25 +381,27 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
                 }
             }
 
-            if (metricsObjects == null)
+            if (metricsObjects != null)
             {
-                old?.detach();
-                return null;
+                O obsv;
+                try
+                {
+                    obsv = new O();
+                }
+                catch (Exception)
+                {
+                    Debug.Assert(false);
+                    return null;
+                }
+                obsv.init(helper, metricsObjects, old);
+                return obsv;
             }
-
-            O obsv;
-            try
-            {
-                obsv = new O();
-            }
-            catch (Exception)
-            {
-                Debug.Assert(false);
-                return null;
-            }
-            obsv.init(helper, metricsObjects, old);
-            return obsv;
         }
+
+        // No map matched the updated observer: detach the old observer outside the factory lock, since
+        // detach() can call into a user-supplied instrumentation delegate.
+        old?.detach();
+        return null;
     }
 
     public void registerSubMap<S>(string subMap, System.Reflection.FieldInfo field)
