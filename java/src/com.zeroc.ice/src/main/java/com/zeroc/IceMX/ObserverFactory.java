@@ -58,38 +58,43 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>> {
      * @return the observer instance, or null if no metrics maps are enabled
      */
     @SuppressWarnings("unchecked")
-    public synchronized O getObserver(MetricsHelper<T> helper, Object observer, Class<O> cl) {
+    public O getObserver(MetricsHelper<T> helper, Object observer, Class<O> cl) {
         O old = null;
         try {
             old = (O) observer;
         } catch (ClassCastException ex) {}
-        List<MetricsMap<T>.Entry> metricsObjects = null;
-        for (MetricsMap<T> m : _maps) {
-            MetricsMap<T>.Entry e = m.getMatching(helper, old != null ? old.getEntry(m) : null);
-            if (e != null) {
-                if (metricsObjects == null) {
-                    metricsObjects = new ArrayList<>(_maps.size());
+
+        synchronized (this) {
+            List<MetricsMap<T>.Entry> metricsObjects = null;
+            for (MetricsMap<T> m : _maps) {
+                MetricsMap<T>.Entry e = m.getMatching(helper, old != null ? old.getEntry(m) : null);
+                if (e != null) {
+                    if (metricsObjects == null) {
+                        metricsObjects = new ArrayList<>(_maps.size());
+                    }
+                    metricsObjects.add(e);
                 }
-                metricsObjects.add(e);
+            }
+
+            if (metricsObjects != null) {
+                O obsv;
+                try {
+                    obsv = cl.getDeclaredConstructor().newInstance();
+                } catch (Exception ex) {
+                    assert false;
+                    return null;
+                }
+                obsv.init(helper, metricsObjects, old);
+                return obsv;
             }
         }
 
-        if (metricsObjects == null) {
-            if (old != null) {
-                old.detach();
-            }
-            return null;
+        // No map matched the updated observer: detach the old observer outside the factory monitor, since
+        // detach() can call into a user-supplied instrumentation delegate.
+        if (old != null) {
+            old.detach();
         }
-
-        O obsv;
-        try {
-            obsv = cl.getDeclaredConstructor().newInstance();
-        } catch (Exception ex) {
-            assert false;
-            return null;
-        }
-        obsv.init(helper, metricsObjects, old);
-        return obsv;
+        return null;
     }
 
     /**
