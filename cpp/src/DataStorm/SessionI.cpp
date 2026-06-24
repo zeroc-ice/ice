@@ -1119,16 +1119,39 @@ SessionI::disconnectFromFilter(int64_t topicId, int64_t filterId, const std::sha
 }
 
 LongLongDict
-SessionI::getLastIds(int64_t topicId, int64_t keyId, const std::shared_ptr<DataElementI>& element)
+SessionI::getLastIds(int64_t topicId, int64_t keyOrFilterId, const std::shared_ptr<DataElementI>& element)
 {
     LongLongDict lastIds;
     auto p = _topics.find(topicId);
     if (p != _topics.end())
     {
         TopicSubscriber& subscriber = p->second.getSubscriber(element->getTopic());
-        for (const auto& [elementId, _] : subscriber.keys[keyId].second)
+        if (keyOrFilterId < 0)
         {
-            lastIds.emplace(elementId, subscriber.get(elementId)->getSubscriber(element)->lastId);
+            // Filter subscription: report this element's lastId for each remote filter element it's subscribed to,
+            // keyed by the element's positive id (`-elementId`, the id the writer matches in DataElementI::attach).
+            // Unlike keys, filter subscriptions aren't indexed by id, so scan all subscriptions and pick the filter
+            // ones (negative element id). The value of `keyOrFilterId` isn't used to select them: a single filter
+            // can match multiple remote writer elements with distinct element ids, so report them all.
+            for (auto& [elementId, elementSubscribers] : subscriber.getAll())
+            {
+                if (elementId < 0)
+                {
+                    if (auto* s = elementSubscribers.getSubscriber(element))
+                    {
+                        lastIds.emplace(-elementId, s->lastId);
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Key subscription: report this element's lastId for each remote element it's subscribed to under this
+            // key. Key subscriptions are indexed by remote key id, so look the key up directly.
+            for (const auto& [elementId, _] : subscriber.keys[keyOrFilterId].second)
+            {
+                lastIds.emplace(elementId, subscriber.get(elementId)->getSubscriber(element)->lastId);
+            }
         }
     }
     return lastIds;
@@ -1179,7 +1202,10 @@ SessionI::subscriberInitialized(
         auto keyFactory = element->getTopic()->getKeyFactory();
         for (const auto& sample : samples)
         {
-            assert((!key && !sample.keyValue.empty()) || key == subscriber.keys[sample.keyId].first);
+            // An any-key writer marshals the key inline (keyId 0, keyValue set), as the live data path in s()
+            // handles; accept an inline-key sample for a key subscription too, rather than requiring keyId to map
+            // to the subscription key.
+            assert(!sample.keyValue.empty() || key == subscriber.keys[sample.keyId].first);
 
             samplesI.push_back(sampleFactory->create(
                 _id,

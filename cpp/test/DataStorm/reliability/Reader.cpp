@@ -123,6 +123,51 @@ void ::Reader::run(int argc, char* argv[])
         writerB.update(0);
         writerB.waitForNoReaders();
     }
+
+    {
+        Topic<string, int> topic(node, "anyKeyReconnect");
+        Topic<string, int> barrier(node, "anyKeyReconnectBarrier");
+        // A plain single-key reader against the any-key (filtered) writer: reconnect resumption is driven by the
+        // writer being filtered, so a reader of any kind connected to it must resume rather than re-read history.
+        auto reader = makeSingleKeyReader(topic, "k", "", config);
+        auto writerB = makeSingleKeyWriter(barrier, "reader_barrier");
+
+        string session;
+        for (int i = 0; i < 100; ++i)
+        {
+            auto sample = reader.getNextUnread();
+            if (sample.getValue() != i)
+            {
+                cerr << "unexpected sample: " << sample.getValue() << " expected:" << i << endl;
+                test(false);
+            }
+            session = sample.getSession();
+        }
+
+        // Force a session reconnect while the writer retains its history.
+        auto connection = node.getSessionConnection(session);
+        test(connection);
+        connection->close().get();
+
+        // Tell the writer the connection closed (processed after reconnect); it then sends the second batch.
+        writerB.waitForReaders();
+        writerB.update(0);
+
+        // After the reconnect the reader must continue from 100: the writer resumes from the reader's last received
+        // sample rather than re-sending its whole retained queue (which would re-deliver 0..99).
+        for (int i = 0; i < 100; ++i)
+        {
+            auto sample = reader.getNextUnread();
+            if (sample.getValue() != i + 100)
+            {
+                cerr << "duplicate or rewound sample: " << sample.getValue() << " expected:" << (i + 100) << endl;
+                test(false);
+            }
+        }
+
+        writerB.waitForReaders();
+        writerB.update(0);
+    }
 }
 
 DEFINE_TEST(::Reader)
