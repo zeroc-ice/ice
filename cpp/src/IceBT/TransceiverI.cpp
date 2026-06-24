@@ -58,11 +58,26 @@ IceBT::TransceiverI::closing(bool initiator, exception_ptr)
 void
 IceBT::TransceiverI::close()
 {
-    if (_connection)
+    ConnectionPtr connection;
     {
-        _connection->close();
+        lock_guard lock(_mutex);
+        //
+        // Flag the transceiver as closed so a connection completion that races this call
+        // disposes of the late-delivered fd and connection instead of installing them.
+        //
+        _closed = true;
+        connection = std::move(_connection);
+        _stream->close();
     }
-    _stream->close();
+
+    //
+    // Close the connection without holding _mutex: ConnectionI::close() blocks (it makes a
+    // DisconnectProfile D-Bus call and joins the connection's I/O thread).
+    //
+    if (connection)
+    {
+        connection->close();
+    }
 }
 
 IceInternal::SocketOperation
@@ -174,13 +189,26 @@ IceBT::TransceiverI::~TransceiverI() = default;
 void
 IceBT::TransceiverI::connectCompleted(int fd, const ConnectionPtr& conn)
 {
-    lock_guard lock(_mutex);
-    _connection = conn;
-    _stream->setFd(fd);
-    //
-    // Triggers a call to write() from a different thread.
-    //
-    _stream->ready(IceInternal::SocketOperationConnect, true);
+    {
+        lock_guard lock(_mutex);
+        if (!_closed)
+        {
+            _connection = conn;
+            _stream->setFd(fd);
+            //
+            // Triggers a call to write() from a different thread.
+            //
+            _stream->ready(IceInternal::SocketOperationConnect, true);
+            return;
+        }
+    }
+
+    // The transceiver was already closed before the connection completed. We must not install the fd into the abandoned
+    // stream (nothing would ever close it), so close the socket here instead. We deliberately don't close 'conn': we
+    // run on the connection's own I/O thread, where a blocking close would deadlock. This leaks the connection's I/O
+    // thread and system-bus connection, but only on the rare race between an aborted outgoing connection and its
+    // completion.
+    IceInternal::closeSocketNoThrow(fd);
 }
 
 void
