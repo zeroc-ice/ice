@@ -1293,7 +1293,12 @@ IceInternal::setMcastInterface(SOCKET fd, const string& intf, const Address& add
         else
         {
             int interfaceNum = getInterfaceIndex(intf);
-            rc = setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF, reinterpret_cast<char*>(&interfaceNum), int(sizeof(int)));
+            rc = setsockopt(
+                fd,
+                IPPROTO_IPV6,
+                IPV6_MULTICAST_IF,
+                reinterpret_cast<char*>(&interfaceNum),
+                int(sizeof(int)));
         }
     }
     catch (const Ice::SocketException&)
