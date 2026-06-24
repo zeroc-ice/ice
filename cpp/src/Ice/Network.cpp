@@ -1914,7 +1914,8 @@ IceInternal::isLoopbackOrMulticastAddress(const string& name)
         if (inet_pton(AF_INET, name.c_str(), &addr) > 0)
         {
             // It's an IPv4 address. The whole 127.0.0.0/8 range is loopback, not just 127.0.0.1.
-            return (ntohl(addr.s_addr) & 0xFF000000u) == 0x7F000000u || IN_MULTICAST(ntohl(addr.s_addr));
+            const uint32_t host = ntohl(addr.s_addr);
+            return (host & 0xFF000000u) == 0x7F000000u || IN_MULTICAST(host);
         }
         else if (inet_pton(AF_INET6, name.c_str(), &addr6) > 0)
         {
