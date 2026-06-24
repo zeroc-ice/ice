@@ -347,7 +347,7 @@ Slice::filterMcppWarnings(const string& message)
             {
                 string::size_type index = i->find_first_not_of(separators);
                 index = (index == string::npos) ? 0 : index;
-                if (i->find(fromPrefix, index) != 0)
+                if (i->find(fromPrefix, index) != index)
                 {
                     break; // This line isn't part of the warning we're skipping. Break, and go back to the outer loop.
                 }
