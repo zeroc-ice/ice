@@ -724,6 +724,7 @@ IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
             {
                 // getPropertyAsIntWithDefault throws if the property is set to a non-integer value.
                 closeSocketNoThrow(_fd);
+                _fd = INVALID_SOCKET;
                 throw;
             }
         }
