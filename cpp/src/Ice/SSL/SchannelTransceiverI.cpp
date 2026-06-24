@@ -299,15 +299,13 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
             }
             else if (err != SEC_I_CONTINUE_NEEDED && err != SEC_E_OK)
             {
-                SecBuffer* outToken = getSecBufferWithType(outBufferDesc, SECBUFFER_TOKEN);
-                if (outToken && outToken->pvBuffer)
+                if (outBuffers[0].pvBuffer) // token
                 {
-                    FreeContextBuffer(outToken->pvBuffer);
+                    FreeContextBuffer(outBuffers[0].pvBuffer);
                 }
-                SecBuffer* outAlert = getSecBufferWithType(outBufferDesc, SECBUFFER_ALERT);
-                if (outAlert && outAlert->pvBuffer)
+                if (outBuffers[1].pvBuffer) // alert
                 {
-                    FreeContextBuffer(outAlert->pvBuffer);
+                    FreeContextBuffer(outBuffers[1].pvBuffer);
                 }
 
                 ostringstream os;
