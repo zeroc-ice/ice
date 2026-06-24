@@ -146,7 +146,10 @@ final class UdpEndpointI extends IPEndpointI {
 
         if (!_mcastInterface.isEmpty()) {
             s += " --interface ";
-            boolean addQuote = _mcastInterface.indexOf(':') != -1;
+            // Quote the interface if it contains a character that would be re-parsed as a separator: whitespace, on
+            // which the endpoint parser splits options (e.g. a Windows adapter name like "Ethernet 2"), or ':', on
+            // which the proxy-string parser splits endpoints (e.g. an IPv6 interface address).
+            boolean addQuote = _mcastInterface.chars().anyMatch(ch -> " :\t\n\r".indexOf(ch) != -1);
             if (addQuote) {
                 s += "\"";
             }

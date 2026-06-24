@@ -173,6 +173,18 @@ repeat:
             return SocketOperationWrite;
         }
 
+#ifndef _WIN32
+        // ENOBUFS means the local send buffer is momentarily full. This is routine on macOS/BSD during bursts
+        // and is a transient local condition rather than a connection failure. UDP is best-effort, so drop this
+        // datagram instead of throwing (throwing would needlessly close the connection). Limited to non-Windows:
+        // there noBuffers() also matches WSAEFAULT, which must not be silently dropped.
+        if (noBuffers())
+        {
+            buf.i = buf.b.end();
+            return SocketOperationNone;
+        }
+#endif
+
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 

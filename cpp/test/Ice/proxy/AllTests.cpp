@@ -262,6 +262,11 @@ allTests(TestHelper* helper)
     b1 = communicator->stringToProxy(R"(test:udp --sourceAddress "::1" --interface "0:0:0:0:0:0:0:1%lo")");
     test(b1 == communicator->stringToProxy(b1->ice_toString()));
 
+    // A multicast interface containing a space (e.g. a Windows adapter friendly name) must round-trip
+    // through ice_toString(), i.e. it must be quoted.
+    b1 = communicator->stringToProxy(R"(test:udp --interface "Ethernet 2")");
+    test(b1 == communicator->stringToProxy(b1->ice_toString()));
+
     try
     {
         communicator->stringToProxy("test:tcp@adapterId");
