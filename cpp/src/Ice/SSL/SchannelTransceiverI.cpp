@@ -299,9 +299,6 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
             }
             else if (err != SEC_I_CONTINUE_NEEDED && err != SEC_E_OK)
             {
-                // Free the output buffers Schannel allocated via ASC_REQ/ISC_REQ_ALLOCATE_MEMORY before
-                // throwing; otherwise the security token and the TLS alert buffer leak on every failed
-                // handshake (the token free below this branch is never reached on failure).
                 SecBuffer* outToken = getSecBufferWithType(outBufferDesc, SECBUFFER_TOKEN);
                 if (outToken && outToken->pvBuffer)
                 {
