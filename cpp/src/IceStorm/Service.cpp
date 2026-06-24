@@ -109,8 +109,8 @@ ServiceI::start([[maybe_unused]] const string& serviceName, const CommunicatorPt
         _instance = make_shared<Instance>(instanceName, communicator, publishAdapter, topicAdapter, nullptr);
         try
         {
-            auto manager = make_shared<TransientTopicManagerImpl>(_instance);
-            _managerProxy = topicAdapter->add<TopicManagerPrx>(manager, topicManagerId);
+            _transientManager = make_shared<TransientTopicManagerImpl>(_instance);
+            _managerProxy = topicAdapter->add<TopicManagerPrx>(_transientManager, topicManagerId);
         }
         catch (const Ice::LocalException& ex)
         {
@@ -362,8 +362,8 @@ ServiceI::start(
 
     try
     {
-        auto manager = make_shared<TransientTopicManagerImpl>(_instance);
-        _managerProxy = topicAdapter->add<TopicManagerPrx>(manager, id);
+        _transientManager = make_shared<TransientTopicManagerImpl>(_instance);
+        _managerProxy = topicAdapter->add<TopicManagerPrx>(_transientManager, id);
     }
     catch (const Ice::LocalException& ex)
     {
