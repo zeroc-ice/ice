@@ -77,8 +77,7 @@ class PluginI implements Plugin {
                     exception(ex);
                 }
             } else {
-                // The proxy didn't change, so retrying would loop. Complete the request with the last failure,
-                // like C++ and the C# plug-in.
+                // The proxy didn't change, so retrying wont help.
                 assert (_exception != null);
                 _future.completeExceptionally(_exception);
             }
