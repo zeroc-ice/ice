@@ -343,12 +343,6 @@ OpenSSL::TransceiverI::write(IceInternal::Buffer& buf)
                         continue;
                     }
 
-                    if (IceInternal::noBuffers() && packetSize > 1024)
-                    {
-                        packetSize /= 2;
-                        continue;
-                    }
-
                     if (IceInternal::wouldBlock())
                     {
                         assert(SSL_want_write(_ssl));
@@ -433,12 +427,6 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
                 {
                     if (IceInternal::interrupted())
                     {
-                        continue;
-                    }
-
-                    if (IceInternal::noBuffers() && packetSize > 1024)
-                    {
-                        packetSize /= 2;
                         continue;
                     }
 
