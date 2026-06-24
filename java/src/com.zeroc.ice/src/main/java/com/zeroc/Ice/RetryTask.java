@@ -26,7 +26,10 @@ class RetryTask implements Runnable, CancellationHandler {
 
     @Override
     public void asyncRequestCanceled(OutgoingAsyncBase outAsync, LocalException ex) {
-        if (_queue.remove(this) && cancel()) {
+        // Claim the task before removing it from the queue. If run() already claimed it, cancel() returns
+        // false and we leave it in the queue so run() removes it after retry() -- removing it here would let
+        // destroy() observe an empty queue while the task is still running.
+        if (cancel() && _queue.remove(this)) {
             if (_instance.traceLevels().retry >= 1) {
                 StringBuilder s = new StringBuilder(128);
                 s.append("operation retry canceled\n");
