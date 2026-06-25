@@ -77,7 +77,6 @@ namespace Ice::SSL::Schannel
         const IceInternal::TransceiverPtr _delegate;
         State _state;
         DWORD _ctxFlags;
-        bool _sslConnectionRenegotiating;
 
         // Buffered encrypted data that has not been written.
         IceInternal::Buffer _writeBuffer;
@@ -85,9 +84,6 @@ namespace Ice::SSL::Schannel
 
         // Buffered data that has not been decrypted.
         IceInternal::Buffer _readBuffer;
-
-        // Extra buffer used for SSL renegotiation.
-        IceInternal::Buffer _extraBuffer;
 
         // Buffered data that was decrypted but not yet processed.
         IceInternal::Buffer _readUnprocessed;

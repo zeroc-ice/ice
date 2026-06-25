@@ -458,12 +458,9 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
         throw SecurityException(__FILE__, __LINE__, os.str());
     }
 
-    assert(!_peerCertificate || _sslConnectionRenegotiating);
-    if (_peerCertificate)
-    {
-        CertFreeCertificateContext(_peerCertificate);
-        _peerCertificate = nullptr;
-    }
+    // sslHandshake only runs for the initial handshake (mid-stream renegotiation is rejected), so the peer
+    // certificate has not been queried yet.
+    assert(!_peerCertificate);
 
     err = QueryContextAttributes(&_ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &_peerCertificate);
     if (err != SEC_E_OK && err != SEC_E_NO_CREDENTIALS)
@@ -565,34 +562,16 @@ Schannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
         }
         else if (err == SEC_I_RENEGOTIATE)
         {
-            if (_incoming)
-            {
-                // Reject peer-initiated TLS renegotiation on the server side: it is a CPU-asymmetric
-                // denial-of-service primitive on TLS 1.2 and is removed entirely in TLS 1.3.
-                throw ProtocolException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL transport: peer-initiated TLS renegotiation is not supported on the server side.");
-            }
-            if (_sslConnectionRenegotiating)
-            {
-                throw ProtocolException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL transport: peer requested renegotiation while we are already renegotiating.");
-            }
-            // The peer has requested a renegotiation.
-            SecBuffer* extraBuffer = getSecBufferWithType(inBufferDesc, SECBUFFER_EXTRA);
-            _sslConnectionRenegotiating = true;
-            _state = StateHandshakeReadContinue;
-            if (extraBuffer)
-            {
-                _extraBuffer.b.resize(extraBuffer->cbBuffer);
-                _extraBuffer.i = _extraBuffer.b.begin();
-                memcpy(_extraBuffer.i, extraBuffer->pvBuffer, extraBuffer->cbBuffer);
-                _extraBuffer.i += extraBuffer->cbBuffer;
-            }
-            return 0;
+            // Ice does not support mid-stream TLS renegotiation. On the server side it is a CPU-asymmetric
+            // denial-of-service primitive on TLS 1.2 (and is removed entirely in TLS 1.3). On the client side,
+            // completing the renegotiation would require driving the SSL handshake from the established read/write
+            // data path, which the transport does not support. Reject it with a clear error instead of attempting
+            // the renegotiation and later dropping the connection with a mislabeled ConnectionLostException.
+            throw ProtocolException(
+                __FILE__,
+                __LINE__,
+                _incoming ? "SSL transport: peer-initiated TLS renegotiation is not supported on the server side."
+                          : "SSL transport: peer-initiated TLS renegotiation is not supported on the client side.");
         }
         else if (err == SEC_I_CONTEXT_EXPIRED)
         {
@@ -816,23 +795,6 @@ Schannel::TransceiverI::read(IceInternal::Buffer& buf)
         }
 
         size_t decrypted = decryptMessage(buf);
-        if (_sslConnectionRenegotiating)
-        {
-            // The peer has requested a renegotiation.
-            SecBuffer extraBuffer{
-                static_cast<DWORD>(_extraBuffer.i - _extraBuffer.b.begin()),
-                SECBUFFER_EXTRA,
-                _extraBuffer.b.begin()};
-            IceInternal::SocketOperation op = sslHandshake(&extraBuffer);
-            _extraBuffer.b.clear();
-            if (op == IceInternal::SocketOperationNone)
-            {
-                _sslConnectionRenegotiating = false;
-                continue;
-            }
-            throw ConnectionLostException(__FILE__, __LINE__);
-        }
-
         if (decrypted == 0)
         {
             if (!readRaw(_readBuffer))
@@ -912,33 +874,7 @@ Schannel::TransceiverI::finishRead(IceInternal::Buffer& buf)
     _delegate->finishRead(_readBuffer);
     if (_state == StateHandshakeComplete)
     {
-        size_t decrypted;
-        while (true)
-        {
-            decrypted = decryptMessage(buf);
-            if (_sslConnectionRenegotiating)
-            {
-                // The peer has requested a renegotiation.
-                SecBuffer extraBuffer{
-                    static_cast<DWORD>(_extraBuffer.i - _extraBuffer.b.begin()),
-                    SECBUFFER_EXTRA,
-                    _extraBuffer.b.begin()};
-                IceInternal::SocketOperation op = sslHandshake(&extraBuffer);
-                _extraBuffer.b.clear();
-                if (op == IceInternal::SocketOperationNone)
-                {
-                    _sslConnectionRenegotiating = false;
-                    if (buf.i != buf.b.begin())
-                    {
-                        continue;
-                    }
-                    break;
-                }
-                throw ConnectionLostException(__FILE__, __LINE__);
-            }
-            break;
-        }
-
+        size_t decrypted = decryptMessage(buf);
         if (decrypted > 0)
         {
             buf.i += decrypted;
@@ -1019,8 +955,7 @@ Schannel::TransceiverI::TransceiverI(
       _remoteCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback),
       _rootStore(serverAuthenticationOptions.trustedRootCertificates),
       _ssl({}),
-      _chainEngine(nullptr),
-      _sslConnectionRenegotiating(false)
+      _chainEngine(nullptr)
 {
     if (!_remoteCertificateValidationCallback)
     {
@@ -1067,8 +1002,7 @@ Schannel::TransceiverI::TransceiverI(
       _remoteCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback),
       _rootStore(clientAuthenticationOptions.trustedRootCertificates),
       _ssl({}),
-      _chainEngine(nullptr),
-      _sslConnectionRenegotiating(false)
+      _chainEngine(nullptr)
 {
     if (_rootStore && !_remoteCertificateValidationCallback)
     {
