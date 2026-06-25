@@ -33,7 +33,9 @@
         });
 }
 
-- (nullable ICEObjectPrx*)createProxy:(NSString*)name category:(NSString*)category error:(NSError* _Nullable* _Nonnull)error
+- (nullable ICEObjectPrx*)createProxy:(NSString*)name
+                             category:(NSString*)category
+                                error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {

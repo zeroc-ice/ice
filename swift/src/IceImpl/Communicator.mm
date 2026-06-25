@@ -300,7 +300,9 @@
     }
 }
 
-- (BOOL)addAdminFacet:(id<ICEDispatchAdapter>)dispatchAdapter facet:(NSString*)facet error:(NSError* _Nullable* _Nonnull)error
+- (BOOL)addAdminFacet:(id<ICEDispatchAdapter>)dispatchAdapter
+                facet:(NSString*)facet
+                error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {

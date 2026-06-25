@@ -36,7 +36,8 @@
     }
 }
 
-- (nullable NSDictionary<NSString*, NSString*>*)getPropertiesForPrefix:(NSString*)prefix error:(NSError* _Nullable* _Nonnull)error
+- (nullable NSDictionary<NSString*, NSString*>*)getPropertiesForPrefix:(NSString*)prefix
+                                                                 error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {

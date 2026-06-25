@@ -16,9 +16,11 @@ ICEIMPL_API @interface ICECommunicator : ICELocalObject
 - (void)waitForShutdown;
 - (void)waitForShutdownAsync:(void (^)(void))completed NS_SWIFT_NAME(waitForShutdownAsync(_:));
 - (bool)isShutdown;
-- (nullable id)stringToProxy:(NSString*)str error:(NSError* _Nullable* _Nonnull)error NS_SWIFT_NAME(stringToProxy(str:));
+- (nullable id)stringToProxy:(NSString*)str
+                       error:(NSError* _Nullable* _Nonnull)error NS_SWIFT_NAME(stringToProxy(str:));
 ;
-- (nullable id)propertyToProxy:(NSString*)property error:(NSError* _Nullable* _Nonnull)error NS_SWIFT_NAME(propertyToProxy(property:));
+- (nullable id)propertyToProxy:(NSString*)property
+                         error:(NSError* _Nullable* _Nonnull)error NS_SWIFT_NAME(propertyToProxy(property:));
 - (nullable NSDictionary<NSString*, NSString*>*)proxyToProperty:(ICEObjectPrx*)prx
                                                        property:(NSString*)property
                                                           error:(NSError* _Nullable* _Nonnull)error

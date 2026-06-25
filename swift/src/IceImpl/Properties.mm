@@ -132,7 +132,8 @@
     }
 }
 
-- (NSArray<NSString*>*)parseIceCommandLineOptions:(NSArray<NSString*>*)options error:(NSError* _Nullable* _Nonnull)error;
+- (NSArray<NSString*>*)parseIceCommandLineOptions:(NSArray<NSString*>*)options
+                                            error:(NSError* _Nullable* _Nonnull)error;
 {
     try
     {
