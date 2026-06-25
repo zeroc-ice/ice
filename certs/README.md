@@ -5,8 +5,30 @@ certificates are intended for **testing purposes only** and **must not** be used
 
 ## Regenerating the Certificates
 
-Use the `makecerts.sh` script to generate new test certificates. This script uses the `openssl`, `keytool`,
-and `faketime` command-line tools to recreate all keys and certificates.
+The certificates are valid for 398 days (the maximum accepted by macOS), so they must be regenerated roughly
+once a year.
+
+### Using Docker (recommended)
+
+Run `makecerts-docker.sh` to regenerate everything inside a container that bundles the required tools, so the
+host only needs Docker:
+
+```shell
+./makecerts-docker.sh
+```
+
+This builds the `Dockerfile` in this directory (with `openssl`, `keytool`, and `faketime`) and runs
+`makecerts.sh` inside it, writing the regenerated certificates back to this directory. The generated files are
+owned by the invoking user.
+
+### Without Docker
+
+Run the `makecerts.sh` script directly. This requires the `openssl`, `keytool`, and `faketime` command-line
+tools to be installed on the host:
+
+```shell
+./makecerts.sh
+```
 
 ## Contents
 
