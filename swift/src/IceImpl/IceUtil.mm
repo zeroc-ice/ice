@@ -48,7 +48,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     return true;
 }
 
-+ (ICECommunicator*)initialize:(ICEProperties*)properties logger:(id<ICELoggerProtocol>)logger error:(NSError* _Nullable * _Nonnull)error
++ (ICECommunicator*)initialize:(ICEProperties*)properties logger:(id<ICELoggerProtocol>)logger error:(NSError* _Nullable* _Nonnull)error
 {
     assert(properties);
 
@@ -101,7 +101,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
 + (ICEProperties*)createProperties:(NSArray*)swiftArgs
                           defaults:(ICEProperties*)defaults
                            remArgs:(NSArray**)remArgs
-                             error:(NSError* _Nullable * _Nonnull)error
+                             error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -132,7 +132,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
 + (BOOL)stringToIdentity:(NSString*)str
                     name:(NSString* __strong _Nonnull* _Nonnull)name
                 category:(NSString* __strong _Nonnull* _Nonnull)category
-                   error:(NSError* _Nullable * _Nonnull)error
+                   error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {

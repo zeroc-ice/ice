@@ -37,7 +37,7 @@
     *category = toNSString(identity.category);
 }
 
-- (instancetype)ice_identity:(NSString*)name category:(NSString*)category error:(NSError* _Nullable * _Nonnull)error
+- (instancetype)ice_identity:(NSString*)name category:(NSString*)category error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -81,7 +81,7 @@
     return toNSString(_prx->ice_getAdapterId());
 }
 
-- (instancetype)ice_adapterId:(NSString*)id error:(NSError* _Nullable * _Nonnull)error
+- (instancetype)ice_adapterId:(NSString*)id error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -100,7 +100,7 @@
     return toNSArray(_prx->ice_getEndpoints());
 }
 
-- (instancetype)ice_endpoints:(NSArray<ICEEndpoint*>*)endpoints error:(NSError* _Nullable * _Nonnull)error
+- (instancetype)ice_endpoints:(NSArray<ICEEndpoint*>*)endpoints error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -123,7 +123,7 @@
     return static_cast<int32_t>(timeout.count());
 }
 
-- (instancetype)ice_locatorCacheTimeout:(int32_t)timeout error:(NSError* _Nullable * _Nonnull)error
+- (instancetype)ice_locatorCacheTimeout:(int32_t)timeout error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -142,7 +142,7 @@
     return static_cast<int32_t>(_prx->ice_getInvocationTimeout().count());
 }
 
-- (instancetype)ice_invocationTimeout:(int32_t)timeout error:(NSError* _Nullable * _Nonnull)error
+- (instancetype)ice_invocationTimeout:(int32_t)timeout error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -161,7 +161,7 @@
     return toNSString(_prx->ice_getConnectionId());
 }
 
-- (instancetype)ice_connectionId:(NSString*)connectionId error:(NSError* _Nullable * _Nonnull)error
+- (instancetype)ice_connectionId:(NSString*)connectionId error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -180,7 +180,7 @@
     return _prx->ice_isConnectionCached();
 }
 
-- (instancetype)ice_connectionCached:(bool)cached error:(NSError* _Nullable * _Nonnull)error
+- (instancetype)ice_connectionCached:(bool)cached error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -199,7 +199,7 @@
     return static_cast<std::uint8_t>(_prx->ice_getEndpointSelection());
 }
 
-- (instancetype)ice_endpointSelection:(std::uint8_t)type error:(NSError* _Nullable * _Nonnull)error
+- (instancetype)ice_endpointSelection:(std::uint8_t)type error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -241,7 +241,7 @@
     }
 }
 
-- (instancetype)ice_router:(ICEObjectPrx*)router error:(NSError* _Nullable * _Nonnull)error
+- (instancetype)ice_router:(ICEObjectPrx*)router error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -274,7 +274,7 @@
     }
 }
 
-- (instancetype)ice_locator:(ICEObjectPrx*)locator error:(NSError* _Nullable * _Nonnull)error
+- (instancetype)ice_locator:(ICEObjectPrx*)locator error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -364,7 +364,7 @@
     return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
 }
 
-- (instancetype)ice_fixed:(ICEConnection*)connection error:(NSError* _Nullable * _Nonnull)error
+- (instancetype)ice_fixed:(ICEConnection*)connection error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -442,7 +442,7 @@
     return _prx->ice_isCollocationOptimized();
 }
 
-- (instancetype)ice_collocationOptimized:(bool)collocated error:(NSError* _Nullable * _Nonnull)error
+- (instancetype)ice_collocationOptimized:(bool)collocated error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -461,7 +461,7 @@
     encodingMajor:(std::uint8_t)major
     encodingMinor:(std::uint8_t)minor
         bytesRead:(NSInteger*)bytesRead
-            error:(NSError* _Nullable * _Nonnull)error
+            error:(NSError* _Nullable* _Nonnull)error
 {
     std::pair<const std::byte*, const std::byte*> p;
     p.first = static_cast<const std::byte*>(data.bytes);
@@ -512,7 +512,7 @@
                 mode:(std::uint8_t)mode
             inParams:(NSData*)inParams
              context:(NSDictionary*)context
-               error:(NSError* _Nullable * _Nonnull)error
+               error:(NSError* _Nullable* _Nonnull)error
 {
     assert(_prx->ice_isBatchOneway() || _prx->ice_isBatchDatagram());
 
