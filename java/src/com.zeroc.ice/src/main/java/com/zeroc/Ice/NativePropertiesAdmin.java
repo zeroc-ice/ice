@@ -30,110 +30,122 @@ public class NativePropertiesAdmin implements PropertiesAdmin {
     }
 
     @Override
-    public synchronized void setProperties(Map<String, String> props, Current current) {
-        Map<String, String> old = _properties.getPropertiesForPrefix("");
-        final int traceLevel = _properties.getIcePropertyAsInt("Ice.Trace.Admin.Properties");
+    public void setProperties(Map<String, String> props, Current current) {
+        // The callbacks and the change set to pass to them, captured under the lock and invoked after releasing it.
+        // This avoids a lock-order inversion: a callback may acquire an application lock, while another thread may
+        // call into the admin (e.g. add/removeUpdateCallback) while holding that same lock.
+        List<Consumer<Map<String, String>>> callbacks = null;
+        Map<String, String> changes = null;
 
-        // Compute the difference between the new property set and the existing property set:
-        //
-        // 1) Any properties in the new set that were not defined in the existing set.
-        //
-        // 2) Any properties that appear in both sets but with different values.
-        //
-        // 3) Any properties not present in the new set but present in the existing set.
-        //    In other words, the property has been removed.
+        synchronized (this) {
+            Map<String, String> old = _properties.getPropertiesForPrefix("");
+            final int traceLevel = _properties.getIcePropertyAsInt("Ice.Trace.Admin.Properties");
 
-        Map<String, String> added = new HashMap<>();
-        Map<String, String> changed = new HashMap<>();
-        Map<String, String> removed = new HashMap<>();
-        for (Map.Entry<String, String> e : props.entrySet()) {
-            final String key = e.getKey();
-            final String value = e.getValue();
-            if (!old.containsKey(key)) {
-                if (!value.isEmpty()) {
-                    // This property is new.
-                    added.put(key, value);
+            // Compute the difference between the new property set and the existing property set:
+            //
+            // 1) Any properties in the new set that were not defined in the existing set.
+            //
+            // 2) Any properties that appear in both sets but with different values.
+            //
+            // 3) Any properties not present in the new set but present in the existing set.
+            //    In other words, the property has been removed.
+
+            Map<String, String> added = new HashMap<>();
+            Map<String, String> changed = new HashMap<>();
+            Map<String, String> removed = new HashMap<>();
+            for (Map.Entry<String, String> e : props.entrySet()) {
+                final String key = e.getKey();
+                final String value = e.getValue();
+                if (!old.containsKey(key)) {
+                    if (!value.isEmpty()) {
+                        // This property is new.
+                        added.put(key, value);
+                    }
+                } else {
+                    if (!value.equals(old.get(key))) {
+                        if (value.isEmpty()) {
+                            // This property was removed.
+                            removed.put(key, value);
+                        } else {
+                            // This property has changed.
+                            changed.put(key, value);
+                        }
+                    }
+
+                    old.remove(key);
                 }
-            } else {
-                if (!value.equals(old.get(key))) {
-                    if (value.isEmpty()) {
-                        // This property was removed.
-                        removed.put(key, value);
-                    } else {
-                        // This property has changed.
-                        changed.put(key, value);
+            }
+
+            if (traceLevel > 0 && (!added.isEmpty() || !changed.isEmpty() || !removed.isEmpty())) {
+                StringBuilder out = new StringBuilder(128);
+                out.append("Summary of property changes");
+
+                if (!added.isEmpty()) {
+                    out.append("\nNew properties:");
+                    for (Map.Entry<String, String> e : added.entrySet()) {
+                        out.append("\n  ");
+                        out.append(e.getKey());
+                        if (traceLevel > 1) {
+                            out.append(" = ");
+                            out.append(e.getValue());
+                        }
                     }
                 }
 
-                old.remove(key);
-            }
-        }
-
-        if (traceLevel > 0 && (!added.isEmpty() || !changed.isEmpty() || !removed.isEmpty())) {
-            StringBuilder out = new StringBuilder(128);
-            out.append("Summary of property changes");
-
-            if (!added.isEmpty()) {
-                out.append("\nNew properties:");
-                for (Map.Entry<String, String> e : added.entrySet()) {
-                    out.append("\n  ");
-                    out.append(e.getKey());
-                    if (traceLevel > 1) {
-                        out.append(" = ");
-                        out.append(e.getValue());
+                if (!changed.isEmpty()) {
+                    out.append("\nChanged properties:");
+                    for (Map.Entry<String, String> e : changed.entrySet()) {
+                        out.append("\n  ");
+                        out.append(e.getKey());
+                        if (traceLevel > 1) {
+                            out.append(" = ");
+                            out.append(e.getValue());
+                            out.append(" (old value = ");
+                            out.append(_properties.getProperty(e.getKey()));
+                            out.append(')');
+                        }
                     }
                 }
-            }
 
-            if (!changed.isEmpty()) {
-                out.append("\nChanged properties:");
-                for (Map.Entry<String, String> e : changed.entrySet()) {
-                    out.append("\n  ");
-                    out.append(e.getKey());
-                    if (traceLevel > 1) {
-                        out.append(" = ");
-                        out.append(e.getValue());
-                        out.append(" (old value = ");
-                        out.append(_properties.getProperty(e.getKey()));
-                        out.append(')');
+                if (!removed.isEmpty()) {
+                    out.append("\nRemoved properties:");
+                    for (Map.Entry<String, String> e : removed.entrySet()) {
+                        out.append("\n  ");
+                        out.append(e.getKey());
                     }
                 }
+
+                _logger.trace(_traceCategory, out.toString());
             }
 
-            if (!removed.isEmpty()) {
-                out.append("\nRemoved properties:");
-                for (Map.Entry<String, String> e : removed.entrySet()) {
-                    out.append("\n  ");
-                    out.append(e.getKey());
-                }
+            //
+            // Update the property set.
+            //
+
+            for (Map.Entry<String, String> e : added.entrySet()) {
+                _properties.setProperty(e.getKey(), e.getValue());
             }
 
-            _logger.trace(_traceCategory, out.toString());
+            for (Map.Entry<String, String> e : changed.entrySet()) {
+                _properties.setProperty(e.getKey(), e.getValue());
+            }
+
+            for (Map.Entry<String, String> e : removed.entrySet()) {
+                _properties.setProperty(e.getKey(), "");
+            }
+
+            if (!_updateCallbacks.isEmpty()) {
+                changes = new HashMap<>(added);
+                changes.putAll(changed);
+                changes.putAll(removed);
+
+                // Copy the callbacks to allow callbacks to update the callbacks.
+                callbacks = new ArrayList<>(_updateCallbacks);
+            }
         }
 
-        //
-        // Update the property set.
-        //
-
-        for (Map.Entry<String, String> e : added.entrySet()) {
-            _properties.setProperty(e.getKey(), e.getValue());
-        }
-
-        for (Map.Entry<String, String> e : changed.entrySet()) {
-            _properties.setProperty(e.getKey(), e.getValue());
-        }
-
-        for (Map.Entry<String, String> e : removed.entrySet()) {
-            _properties.setProperty(e.getKey(), "");
-        }
-
-        if (!_updateCallbacks.isEmpty()) {
-            Map<String, String> changes = new HashMap<>(added);
-            changes.putAll(changed);
-            changes.putAll(removed);
-
-            // Copy the callbacks to allow callbacks to update the callbacks.
-            for (Consumer<Map<String, String>> callback : new ArrayList<>(_updateCallbacks)) {
+        if (callbacks != null) {
+            for (Consumer<Map<String, String>> callback : callbacks) {
                 callback.accept(changes);
             }
         }

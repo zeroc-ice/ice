@@ -22,6 +22,12 @@ public sealed class NativePropertiesAdmin : PropertiesAdminDisp_
 
     public override void setProperties(Dictionary<string, string> newProperties, Current current)
     {
+        // The callbacks and the change set to pass to them, captured under the lock and invoked after releasing it.
+        // This avoids a lock-order inversion: a callback may acquire an application lock, while another thread may
+        // call into the admin (e.g. add/removeUpdateCallback) while holding that same lock.
+        List<Action<Dictionary<string, string>>>? callbacks = null;
+        Dictionary<string, string>? changes = null;
+
         lock (_mutex)
         {
             Dictionary<string, string> old = _properties.getPropertiesForPrefix("");
@@ -148,7 +154,7 @@ public sealed class NativePropertiesAdmin : PropertiesAdminDisp_
 
             if (_updateCallbacks.Count > 0)
             {
-                var changes = new Dictionary<string, string>(added);
+                changes = new Dictionary<string, string>(added);
                 foreach (KeyValuePair<string, string> e in changed)
                 {
                     changes.Add(e.Key, e.Value);
@@ -158,14 +164,17 @@ public sealed class NativePropertiesAdmin : PropertiesAdminDisp_
                     changes.Add(e.Key, e.Value);
                 }
 
-                // Copy callbacks to allow callbacks to update callbacks
-                foreach (
-                    Action<Dictionary<string, string>> callback in
-                    new List<System.Action<Dictionary<string, string>>>(_updateCallbacks))
-                {
-                    // The callback should not throw any exception.
-                    callback(changes);
-                }
+                // Copy the callbacks to allow callbacks to update the callbacks.
+                callbacks = new List<Action<Dictionary<string, string>>>(_updateCallbacks);
+            }
+        }
+
+        if (callbacks is not null)
+        {
+            foreach (Action<Dictionary<string, string>> callback in callbacks)
+            {
+                // The callback should not throw any exception.
+                callback(changes!);
             }
         }
     }
