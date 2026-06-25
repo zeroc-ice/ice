@@ -523,16 +523,35 @@ class ShowLogFileDialog extends JDialog {
 
     void stopReading() {
         if (_thread != null) {
-            _thread.terminate();
+            final ReaderThread thread = _thread;
 
-            try {
-                _thread.join();
-            } catch (InterruptedException e) {}
-
+            // Update the toolbar synchronously on the UI thread: clear _thread, and disable Pause and Play.
+            // Clearing _thread stops a concurrent stopReading or the reader's own stop callback from acting on
+            // the terminating reader; disabling Play prevents a new reader from starting before this one has
+            // fully terminated, which would let the two readers interfere.
             _thread = null;
+            thread.terminate();
             _stopItem.setSelected(true);
             _stopButton.setSelected(true);
             _pause.setEnabled(false);
+            _play.setEnabled(false);
+
+            // The reader may be blocked in a synchronous remote read, so join it off the UI thread instead
+            // of freezing the UI until the read returns. The reader destroys its own file iterator. Re-enable
+            // Play once the reader is gone so the log can be read again. This joiner is a daemon thread so a
+            // reader stuck on a hung read cannot keep the JVM alive.
+            Thread joiner =
+                new Thread(
+                    () -> {
+                        try {
+                            thread.join();
+                        } catch (InterruptedException e) {
+                        }
+                        SwingUtilities.invokeLater(() -> _play.setEnabled(true));
+                    },
+                    "IceGridGUI.ShowLogFileDialog.stopReading");
+            joiner.setDaemon(true);
+            joiner.start();
         }
     }
 

@@ -250,11 +250,16 @@ class MetricsView extends TreeNode {
                         });
             } catch (CommunicatorDestroyedException e) {} catch (LocalException e) {
                 MetricsViewEditor.stopRefresh();
-                JOptionPane.showMessageDialog(
-                    getCoordinator().getMainFrame(),
-                    "Error: " + e.toString(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+                // fetchMetricsView runs on the coordinator's scheduled-executor thread, not the UI thread,
+                // so marshal the Swing dialog to the UI thread, like the asynchronous failure path above.
+                SwingUtilities.invokeLater(
+                    () -> {
+                        JOptionPane.showMessageDialog(
+                            getCoordinator().getMainFrame(),
+                            "Error: " + e.toString(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    });
             }
         }
     }
