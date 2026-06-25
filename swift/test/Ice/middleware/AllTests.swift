@@ -48,7 +48,7 @@ func allTests(_ helper: TestHelper) async throws {
     }
 
     // Verifies that a dispatch error from a servant returned by a ServantLocator propagates through the
-    // middleware pipeline, instead of being converted to a response inside ServantManager (issue #5555).
+    // middleware pipeline, instead of being converted to a response inside ServantManager.
     func testMiddlewareObservesLocatorDispatchError(_ communicator: Communicator, _ output: TextWriter)
         async throws
     {
