@@ -203,7 +203,7 @@ final class ServantManager: Dispatcher {
                 } catch {
                     // The locator returned a servant, so finished must run once no matter what. Then let the
                     // dispatch error propagate (instead of converting it here) so error-inspecting middleware
-                    // observes it, like the plain-servant path above and the C# and JS implementations.
+                    // observes it.
                     try locator.finished(curr: current, servant: servant, cookie: cookie)
                     throw error
                 }
