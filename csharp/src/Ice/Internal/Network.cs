@@ -712,7 +712,7 @@ internal sealed class Network
     }
 
     internal static string
-    addrToString(EndPoint addr) => endpointAddressToString(addr) + ":" + endpointPort(addr);
+    addrToString(EndPoint addr) => addressAndPortToString(endpointAddressToString(addr), endpointPort(addr));
 
     internal static string localAddrToString(EndPoint endpoint)
     {
@@ -720,7 +720,7 @@ internal sealed class Network
         {
             return "<not bound>";
         }
-        return endpointAddressToString(endpoint) + ":" + endpointPort(endpoint);
+        return addressAndPortToString(endpointAddressToString(endpoint), endpointPort(endpoint));
     }
 
     internal static string remoteAddrToString(EndPoint endpoint)
@@ -729,7 +729,7 @@ internal sealed class Network
         {
             return "<not connected>";
         }
-        return endpointAddressToString(endpoint) + ":" + endpointPort(endpoint);
+        return addressAndPortToString(endpointAddressToString(endpoint), endpointPort(endpoint));
     }
 
     internal static EndPoint getLocalAddress(Socket socket)
@@ -755,6 +755,11 @@ internal sealed class Network
         }
         return null;
     }
+
+    // Combines an address and port into a host:port string, enclosing an IPv6 address in square brackets,
+    // e.g. [::1]:4061.
+    private static string addressAndPortToString(string address, int port) =>
+        address.Contains(':', StringComparison.Ordinal) ? $"[{address}]:{port}" : $"{address}:{port}";
 
     private static IPAddress getInterfaceAddress(string iface, AddressFamily family)
     {
