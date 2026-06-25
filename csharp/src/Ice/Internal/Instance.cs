@@ -1210,12 +1210,27 @@ public sealed class Instance
     {
         try
         {
-            Debug.Assert(_outgoingConnectionFactory != null);
-            _outgoingConnectionFactory.updateConnectionObservers();
-            Debug.Assert(_objectAdapterFactory != null);
-            _objectAdapterFactory.updateConnectionObservers();
+            // This updater can run concurrently with destroy(). Copy the subsystem references under the lock, and bail
+            // out once destruction has started: destroy() tears down these subsystems (while _state is
+            // StateDestroyInProgress) before nulling them (when it sets _state to StateDestroyed).
+            OutgoingConnectionFactory outgoingConnectionFactory;
+            ObjectAdapterFactory objectAdapterFactory;
+            lock (_mutex)
+            {
+                if (_state >= StateDestroyInProgress)
+                {
+                    return;
+                }
+                outgoingConnectionFactory = _outgoingConnectionFactory;
+                objectAdapterFactory = _objectAdapterFactory;
+            }
+
+            Debug.Assert(outgoingConnectionFactory != null);
+            outgoingConnectionFactory.updateConnectionObservers();
+            Debug.Assert(objectAdapterFactory != null);
+            objectAdapterFactory.updateConnectionObservers();
         }
-        catch (Ice.CommunicatorDestroyedException)
+        catch (CommunicatorDestroyedException)
         {
         }
     }
@@ -1224,14 +1239,35 @@ public sealed class Instance
     {
         try
         {
-            _clientThreadPool?.updateObservers();
-            _serverThreadPool?.updateObservers();
-            Debug.Assert(_objectAdapterFactory != null);
-            _objectAdapterFactory.updateThreadObservers();
-            _endpointHostResolver?.updateObserver();
-            _timer?.updateObserver(_initData.observer);
+            // This updater can run concurrently with destroy(). Copy the subsystem references under the lock, and bail
+            // out once destruction has started: destroy() tears down these subsystems (while _state is
+            // StateDestroyInProgress) before nulling them (when it sets _state to StateDestroyed).
+            ThreadPool clientThreadPool;
+            ThreadPool serverThreadPool;
+            ObjectAdapterFactory objectAdapterFactory;
+            EndpointHostResolver endpointHostResolver;
+            Timer timer;
+            lock (_mutex)
+            {
+                if (_state >= StateDestroyInProgress)
+                {
+                    return;
+                }
+                clientThreadPool = _clientThreadPool;
+                serverThreadPool = _serverThreadPool;
+                objectAdapterFactory = _objectAdapterFactory;
+                endpointHostResolver = _endpointHostResolver;
+                timer = _timer;
+            }
+
+            clientThreadPool?.updateObservers();
+            serverThreadPool?.updateObservers();
+            Debug.Assert(objectAdapterFactory != null);
+            objectAdapterFactory.updateThreadObservers();
+            endpointHostResolver?.updateObserver();
+            timer?.updateObserver(_initData.observer);
         }
-        catch (Ice.CommunicatorDestroyedException)
+        catch (CommunicatorDestroyedException)
         {
         }
     }

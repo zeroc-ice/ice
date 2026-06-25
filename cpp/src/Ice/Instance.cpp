@@ -1823,10 +1823,25 @@ IceInternal::Instance::updateConnectionObservers()
 {
     try
     {
-        assert(_outgoingConnectionFactory);
-        _outgoingConnectionFactory->updateConnectionObservers();
-        assert(_objectAdapterFactory);
-        _objectAdapterFactory->updateObservers(&ObjectAdapterI::updateConnectionObservers);
+        // This updater can run concurrently with destroy(). Copy the subsystem pointers under the mutex, and bail out
+        // once destruction has started: destroy() tears down these subsystems (while _state is StateDestroyInProgress)
+        // before nulling them (when it sets _state to StateDestroyed).
+        OutgoingConnectionFactoryPtr outgoingConnectionFactory;
+        ObjectAdapterFactoryPtr objectAdapterFactory;
+        {
+            lock_guard lock(_mutex);
+            if (_state >= StateDestroyInProgress)
+            {
+                return;
+            }
+            outgoingConnectionFactory = _outgoingConnectionFactory;
+            objectAdapterFactory = _objectAdapterFactory;
+        }
+
+        assert(outgoingConnectionFactory);
+        outgoingConnectionFactory->updateConnectionObservers();
+        assert(objectAdapterFactory);
+        objectAdapterFactory->updateObservers(&ObjectAdapterI::updateConnectionObservers);
     }
     catch (const Ice::CommunicatorDestroyedException&)
     {
@@ -1838,23 +1853,44 @@ IceInternal::Instance::updateThreadObservers()
 {
     try
     {
-        if (_clientThreadPool)
+        // This updater can run concurrently with destroy(). Copy the subsystem pointers under the mutex, and bail out
+        // once destruction has started: destroy() tears down these subsystems (while _state is StateDestroyInProgress)
+        // before nulling them (when it sets _state to StateDestroyed).
+        ThreadPoolPtr clientThreadPool;
+        ThreadPoolPtr serverThreadPool;
+        ObjectAdapterFactoryPtr objectAdapterFactory;
+        EndpointHostResolverPtr endpointHostResolver;
+        ThreadObserverTimerPtr timer;
         {
-            _clientThreadPool->updateObservers();
+            lock_guard lock(_mutex);
+            if (_state >= StateDestroyInProgress)
+            {
+                return;
+            }
+            clientThreadPool = _clientThreadPool;
+            serverThreadPool = _serverThreadPool;
+            objectAdapterFactory = _objectAdapterFactory;
+            endpointHostResolver = _endpointHostResolver;
+            timer = _timer;
         }
-        if (_serverThreadPool)
+
+        if (clientThreadPool)
         {
-            _serverThreadPool->updateObservers();
+            clientThreadPool->updateObservers();
         }
-        assert(_objectAdapterFactory);
-        _objectAdapterFactory->updateObservers(&ObjectAdapterI::updateThreadObservers);
-        if (_endpointHostResolver)
+        if (serverThreadPool)
         {
-            _endpointHostResolver->updateObserver();
+            serverThreadPool->updateObservers();
         }
-        if (_timer)
+        assert(objectAdapterFactory);
+        objectAdapterFactory->updateObservers(&ObjectAdapterI::updateThreadObservers);
+        if (endpointHostResolver)
         {
-            _timer->updateObserver(_initData.observer);
+            endpointHostResolver->updateObserver();
+        }
+        if (timer)
+        {
+            timer->updateObserver(_initData.observer);
         }
     }
     catch (const Ice::CommunicatorDestroyedException&)
