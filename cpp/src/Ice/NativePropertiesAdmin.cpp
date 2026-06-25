@@ -38,7 +38,7 @@ Ice::NativePropertiesAdmin::getPropertiesForPrefix(string prefix, const Current&
 void
 Ice::NativePropertiesAdmin::setProperties(PropertyDict props, const Current&)
 {
-    lock_guard lock{_mutex};
+    unique_lock lock{_mutex};
 
     PropertyDict old = _properties->getPropertiesForPrefix("");
     PropertyDict::const_iterator p;
@@ -157,8 +157,11 @@ Ice::NativePropertiesAdmin::setProperties(PropertyDict props, const Current&)
         changes.insert(changed.begin(), changed.end());
         changes.insert(removed.begin(), removed.end());
 
-        // Copy callbacks to allow callbacks to update callbacks
+        // Copy the callbacks and release the lock before invoking them. This allows the callbacks to update the
+        // callbacks, and avoids a lock-order inversion: a callback may acquire an application lock, while another
+        // thread may call into the admin (e.g. add/removeUpdateCallback) while holding that same lock.
         auto callbacks = _updateCallbacks;
+        lock.unlock();
         for (const auto& cb : callbacks)
         {
             cb(changes);
