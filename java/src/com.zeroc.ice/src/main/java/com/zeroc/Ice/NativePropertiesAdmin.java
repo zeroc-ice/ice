@@ -144,7 +144,8 @@ public class NativePropertiesAdmin implements PropertiesAdmin {
             }
         }
 
-        if (callbacks != null && changes != null) {
+        if (callbacks != null) {
+            assert changes != null;
             for (Consumer<Map<String, String>> callback : callbacks) {
                 callback.accept(changes);
             }
