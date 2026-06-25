@@ -40,6 +40,7 @@ namespace IceBT
         std::string _addr;
         std::string _uuid;
         bool _needConnect;
+        bool _closed{false};
         std::exception_ptr _exception;
         std::mutex _mutex;
         void connectCompleted(int, const ConnectionPtr&);
