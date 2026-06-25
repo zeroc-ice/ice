@@ -377,6 +377,9 @@ Request::exception(std::exception_ptr ex)
     catch (...)
     {
         _exception = ex;
+        // Reached only from the asynchronous invocation completion, not synchronously from Request::invoke: the local
+        // exceptions invoke() can throw synchronously are all handled by the catch clauses above. That matters because
+        // the retry below re-enters LocatorI::invoke and re-locks the non-recursive LocatorI::_mutex.
         _locator->invoke(_locatorPrx, shared_from_this()); // Retry with new locator proxy
     }
 }
