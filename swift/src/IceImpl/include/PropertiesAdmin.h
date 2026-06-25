@@ -4,9 +4,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 ICEIMPL_API @interface ICEPropertiesAdmin : NSObject
-- (nullable NSString*)getProperty:(NSString*)key error:(NSError**)error;
-- (nullable NSDictionary<NSString*, NSString*>*)getPropertiesForPrefix:(NSString*)prefix error:(NSError**)error;
-- (BOOL)setProperties:(NSDictionary<NSString*, NSString*>*)newProperties error:(NSError**)error;
+- (nullable NSString*)getProperty:(NSString*)key error:(NSError* _Nullable * _Nonnull)error;
+- (nullable NSDictionary<NSString*, NSString*>*)getPropertiesForPrefix:(NSString*)prefix error:(NSError* _Nullable * _Nonnull)error;
+- (BOOL)setProperties:(NSDictionary<NSString*, NSString*>*)newProperties error:(NSError* _Nullable * _Nonnull)error;
 - (void (^)(void))addUpdateCallback:(void (^)(NSDictionary<NSString*, NSString*>*))cb;
 @end
 

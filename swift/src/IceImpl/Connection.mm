@@ -33,7 +33,7 @@
         });
 }
 
-- (nullable ICEObjectPrx*)createProxy:(NSString*)name category:(NSString*)category error:(NSError**)error
+- (nullable ICEObjectPrx*)createProxy:(NSString*)name category:(NSString*)category error:(NSError* _Nullable * _Nonnull)error
 {
     try
     {
@@ -47,7 +47,7 @@
     }
 }
 
-- (BOOL)setAdapter:(ICEObjectAdapter* _Nullable)oa error:(NSError* _Nullable* _Nullable)error;
+- (BOOL)setAdapter:(ICEObjectAdapter* _Nullable)oa error:(NSError* _Nullable * _Nonnull)error;
 {
     try
     {
@@ -96,7 +96,7 @@
     }
 }
 
-- (BOOL)setCloseCallback:(void (^)(ICEConnection*))callback error:(NSError**)error
+- (BOOL)setCloseCallback:(void (^)(ICEConnection*))callback error:(NSError* _Nullable * _Nonnull)error
 {
     try
     {
@@ -141,7 +141,7 @@
     return toNSString(self.connection->toString());
 }
 
-- (id)getInfo:(NSError**)error
+- (id)getInfo:(NSError* _Nullable * _Nonnull)error
 {
     try
     {
@@ -155,7 +155,7 @@
     }
 }
 
-- (BOOL)setBufferSize:(int32_t)rcvSize sndSize:(int32_t)sndSize error:(NSError**)error
+- (BOOL)setBufferSize:(int32_t)rcvSize sndSize:(int32_t)sndSize error:(NSError* _Nullable * _Nonnull)error
 {
     try
     {
@@ -169,7 +169,7 @@
     }
 }
 
-- (BOOL)throwException:(NSError**)error
+- (BOOL)throwException:(NSError* _Nullable * _Nonnull)error
 {
     try
     {

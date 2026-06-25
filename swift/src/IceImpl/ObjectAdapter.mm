@@ -26,7 +26,7 @@
     return [ICECommunicator getHandle:comm];
 }
 
-- (BOOL)activate:(NSError* _Nullable* _Nullable)error
+- (BOOL)activate:(NSError* _Nullable * _Nonnull)error
 {
     try
     {
@@ -94,7 +94,7 @@
 
 - (nullable ICEObjectPrx*)createProxy:(NSString*)name
                              category:(NSString*)category
-                                error:(NSError* _Nullable* _Nullable)error
+                                error:(NSError* _Nullable * _Nonnull)error
 {
     try
     {
@@ -110,7 +110,7 @@
 
 - (nullable ICEObjectPrx*)createDirectProxy:(NSString*)name
                                    category:(NSString*)category
-                                      error:(NSError* _Nullable* _Nullable)error
+                                      error:(NSError* _Nullable * _Nonnull)error
 {
     try
     {
@@ -126,7 +126,7 @@
 
 - (nullable ICEObjectPrx*)createIndirectProxy:(NSString*)name
                                      category:(NSString*)category
-                                        error:(NSError* _Nullable* _Nullable)error
+                                        error:(NSError* _Nullable * _Nonnull)error
 {
     try
     {
@@ -188,7 +188,7 @@
     return toNSArray(self.objectAdapter->getPublishedEndpoints());
 }
 
-- (BOOL)setPublishedEndpoints:(NSArray<ICEEndpoint*>*)newEndpoints error:(NSError* _Nullable* _Nullable)error
+- (BOOL)setPublishedEndpoints:(NSArray<ICEEndpoint*>*)newEndpoints error:(NSError* _Nullable * _Nonnull)error
 {
     try
     {
