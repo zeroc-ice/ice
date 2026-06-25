@@ -136,6 +136,13 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
 
         if (_credentials.cCreds > 0)
         {
+            if (!_credentials.paCred)
+            {
+                throw SecurityException(
+                    __FILE__,
+                    __LINE__,
+                    "SSL transport: the provided SCH_CREDENTIALS sets cCreds but paCred is null.");
+            }
             for (DWORD i = 0; i < _credentials.cCreds; ++i)
             {
                 if (!_credentials.paCred[i])
@@ -145,7 +152,10 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
                         __LINE__,
                         "SSL transport: invalid null certificate in the provided SCH_CREDENTIALS.");
                 }
-                _allCerts.push_back(CertDuplicateCertificateContext(_credentials.paCred[i]));
+                // The credentials callback transfers ownership of the paCred contexts to the transport (see
+                // ClientAuthenticationOptions / ServerAuthenticationOptions); retain them here and release them in
+                // close().
+                _allCerts.push_back(_credentials.paCred[i]);
             }
             _credentials.paCred = &_allCerts[0];
         }

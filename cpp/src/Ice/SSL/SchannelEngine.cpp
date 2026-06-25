@@ -1284,9 +1284,18 @@ Schannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
         .clientCredentialsSelectionCallback =
             [this](const string&)
         {
-            // The caller (TransceiverI) duplicates each paCred context into its own list and frees those in close(),
-            // so the credentials we return must not bump the reference count here — doing so leaks one reference per
-            // certificate per connection and prevents the certificate store from ever closing cleanly.
+            // The transport takes ownership of the returned paCred contexts and releases them when the connection
+            // is closed (see ClientAuthenticationOptions). Bump the reference count of each certificate so the
+            // reference handed to the transport is independent of the engine's _allCerts, which outlives the
+            // individual connections.
+            for (const auto& cert : _allCerts)
+            {
+                // CertDuplicateCertificateContext returns the same pointer with an incremented reference count and
+                // cannot fail for a non-null context; the assert guards that invariant.
+                [[maybe_unused]] PCCERT_CONTEXT duplicate = CertDuplicateCertificateContext(cert);
+                assert(duplicate == cert);
+            }
+
             return SCH_CREDENTIALS{
                 .dwVersion = SCH_CREDENTIALS_VERSION,
                 .cCreds = static_cast<DWORD>(_allCerts.size()),
@@ -1327,9 +1336,18 @@ Schannel::SSLEngine::createServerAuthenticationOptions() const
             [this](const string&)
         {
             {
-                // The caller (TransceiverI) duplicates each paCred context into its own list and frees those in
-                // close(), so the credentials we return must not bump the reference count here — doing so leaks one
-                // reference per certificate per connection and prevents the certificate store from closing cleanly.
+                // The transport takes ownership of the returned paCred contexts and releases them when the
+                // connection is closed (see ServerAuthenticationOptions). Bump the reference count of each
+                // certificate so the reference handed to the transport is independent of the engine's _allCerts,
+                // which outlives the individual connections.
+                for (const auto& cert : _allCerts)
+                {
+                    // CertDuplicateCertificateContext returns the same pointer with an incremented reference count
+                    // and cannot fail for a non-null context; the assert guards that invariant.
+                    [[maybe_unused]] PCCERT_CONTEXT duplicate = CertDuplicateCertificateContext(cert);
+                    assert(duplicate == cert);
+                }
+
                 return SCH_CREDENTIALS{
                     .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = static_cast<DWORD>(_allCerts.size()),
