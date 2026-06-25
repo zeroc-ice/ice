@@ -66,21 +66,23 @@ class BatchRequestQueue {
             throw (LocalException) _exception.fillInStackTrace();
         }
 
-        waitStreamInUse(false);
+        waitStreamInUse();
         _batchStreamInUse = true;
         _batchStream.swap(os);
     }
 
     public void finishBatchRequest(OutputStream os, ObjectPrx proxy, String operation) {
-        // No need for synchronization, no other threads are supposed to modify the queue since we
-        // set _batchStreamInUse to true.
-        assert _batchStreamInUse;
-        _batchStream.swap(os);
+        synchronized (this) {
+            // Bring the request stream back and become the owner so this thread's own auto-flush below can
+            // re-enter swap(). swap() lets only _batchStreamOwner through while the stream is in use, and only
+            // after passing that gate does it read the queue's bookkeeping; no other thread can touch the
+            // queue, so the mutations below need no further synchronization.
+            assert _batchStreamInUse;
+            _batchStream.swap(os);
+            _batchStreamOwner = Thread.currentThread();
+        }
 
         try {
-            // Allow flush to proceed even if the stream is marked in use.
-            _batchStreamCanFlush = true;
-
             if (_maxSize > 0 && _batchStream.size() >= _maxSize) {
                 proxy.ice_flushBatchRequestsAsync(); // Auto flush
             }
@@ -101,7 +103,7 @@ class BatchRequestQueue {
             synchronized (this) {
                 _batchStream.resize(_batchMarker);
                 _batchStreamInUse = false;
-                _batchStreamCanFlush = false;
+                _batchStreamOwner = null;
                 notifyAll();
             }
         }
@@ -122,11 +124,18 @@ class BatchRequestQueue {
     }
 
     public synchronized SwapResult swap(OutputStream os) {
+        // Only the thread that currently owns the in-use stream may bypass the wait, to run its own
+        // auto-flush; every other caller waits for the in-progress batch request to finish.
+        if (_batchStreamOwner != Thread.currentThread()) {
+            waitStreamInUse();
+        }
+
+        // Read the bookkeeping only after passing the gate above: finishBatchRequest mutates these scalars
+        // without the lock while it owns the in-use stream, so reading _batchRequestNum before the wait would
+        // race those writes.
         if (_batchRequestNum == 0) {
             return null;
         }
-
-        waitStreamInUse(true);
 
         byte[] lastRequest = null;
         if (_batchMarker < _batchStream.size()) {
@@ -157,12 +166,12 @@ class BatchRequestQueue {
         _exception = ex;
     }
 
-    private void waitStreamInUse(boolean flush) {
+    private void waitStreamInUse() {
         // This is similar to a mutex lock in that the stream is only "locked" while marshaling.
         // As such we don't permit the wait to be interrupted.
         // Instead the interrupted status is saved and restored.
         boolean interrupted = false;
-        while (_batchStreamInUse && !(flush && _batchStreamCanFlush)) {
+        while (_batchStreamInUse) {
             try {
                 wait();
             } catch (InterruptedException ex) {
@@ -189,7 +198,12 @@ class BatchRequestQueue {
     private final BatchRequestInterceptor _interceptor;
     private final OutputStream _batchStream;
     private boolean _batchStreamInUse;
-    private boolean _batchStreamCanFlush;
+
+    // While finishBatchRequest holds the in-use stream, this is its thread: the only thread allowed to
+    // re-enter swap() (for its own auto-flush). A null owner means no thread may flush the in-use stream, so
+    // other threads wait for _batchStreamInUse to clear.
+    private Thread _batchStreamOwner;
+
     private int _batchRequestNum;
     private int _batchMarker;
     private boolean _batchCompress;
