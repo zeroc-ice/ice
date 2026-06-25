@@ -47,6 +47,7 @@ class LookupI implements Lookup {
         }
 
         void invoke(String domainId, Map<LookupPrx, LookupReplyPrx> lookups) {
+            ++_invokeId;
             _lookupCount = lookups.size();
             _failureCount = 0;
             final Identity id = new Identity(_requestId, "");
@@ -58,7 +59,13 @@ class LookupI implements Lookup {
             }
         }
 
-        boolean exception() {
+        boolean exception(int invokeId) {
+            // Ignore a delayed failure from an earlier invocation round: it must not count against the current round,
+            // which reset _failureCount and may still have outstanding lookups.
+            if (invokeId != _invokeId) {
+                return false;
+            }
+
             if (++_failureCount == _lookupCount) {
                 finished(null);
                 return true;
@@ -89,6 +96,11 @@ class LookupI implements Lookup {
         protected int _retryCount;
         protected int _lookupCount;
         protected int _failureCount;
+
+        // Incremented on each invoke() (i.e. each retry round). The exception callbacks capture the value current when
+        // they were sent, so a delayed failure from an earlier round is ignored instead of counting against the current
+        // round.
+        protected int _invokeId;
         protected List<CompletableFuture<Ret>> _futures = new ArrayList<>();
         protected T _id;
         protected Future<?> _future;
@@ -103,7 +115,17 @@ class LookupI implements Lookup {
 
         @Override
         boolean retry() {
-            return _proxies.isEmpty() && --_retryCount >= 0;
+            if (_proxies.isEmpty() && --_retryCount >= 0) {
+                // We only reach here with _proxies empty, i.e. no replica-group response arrived. _latency is set only
+                // together with adding to _proxies, so the latency timer is not running.
+                assert _latency == 0;
+
+                // Restart the replica-group latency window so it's measured from this round rather than from request
+                // creation.
+                _start = System.nanoTime();
+                return true;
+            }
+            return false;
         }
 
         boolean response(ObjectPrx proxy, boolean isReplicaGroup) {
@@ -149,11 +171,12 @@ class LookupI implements Lookup {
 
         @Override
         protected void invokeWithLookup(String domainId, LookupPrx lookup, LookupReplyPrx lookupReply) {
+            final int invokeId = _invokeId;
             lookup.findAdapterByIdAsync(domainId, _id, lookupReply)
                 .whenCompleteAsync(
                     (v, ex) -> {
                         if (ex != null) {
-                            adapterRequestException(AdapterRequest.this, ex);
+                            adapterRequestException(AdapterRequest.this, ex, invokeId);
                         }
                     },
                     lookup.ice_executor());
@@ -198,11 +221,12 @@ class LookupI implements Lookup {
 
         @Override
         protected void invokeWithLookup(String domainId, LookupPrx lookup, LookupReplyPrx lookupReply) {
+            final int invokeId = _invokeId;
             lookup.findObjectByIdAsync(domainId, _id, lookupReply)
                 .whenCompleteAsync(
                     (v, ex) -> {
                         if (ex != null) {
-                            objectRequestException(ObjectRequest.this, ex);
+                            objectRequestException(ObjectRequest.this, ex, invokeId);
                         }
                     },
                     lookup.ice_executor());
@@ -360,13 +384,13 @@ class LookupI implements Lookup {
         _objectRequests.remove(request.getId());
     }
 
-    synchronized void objectRequestException(ObjectRequest request, Throwable ex) {
+    synchronized void objectRequestException(ObjectRequest request, Throwable ex, int invokeId) {
         ObjectRequest r = _objectRequests.get(request.getId());
         if (r == null || r != request) {
             return;
         }
 
-        if (request.exception()) {
+        if (request.exception(invokeId)) {
             if (_warnOnce) {
                 StringBuilder s = new StringBuilder();
                 s.append("failed to lookup object `");
@@ -401,13 +425,13 @@ class LookupI implements Lookup {
         _adapterRequests.remove(request.getId());
     }
 
-    synchronized void adapterRequestException(AdapterRequest request, Throwable ex) {
+    synchronized void adapterRequestException(AdapterRequest request, Throwable ex, int invokeId) {
         AdapterRequest r = _adapterRequests.get(request.getId());
         if (r == null || r != request) {
             return;
         }
 
-        if (request.exception()) {
+        if (request.exception(invokeId)) {
             if (_warnOnce) {
                 StringBuilder s = new StringBuilder();
                 s.append("failed to lookup adapter `");
