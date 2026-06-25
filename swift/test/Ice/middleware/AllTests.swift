@@ -12,6 +12,7 @@ func allTests(_ helper: TestHelper) async throws {
     let output = helper.getWriter()
 
     try await testMiddlewareExecutionOrder(communicator, output)
+    try await testMiddlewareObservesLocatorDispatchError(communicator, output)
 
     // Verifies the middleware execute in installation order.
     func testMiddlewareExecutionOrder(_ communicator: Communicator, _ output: TextWriter) async throws {
@@ -44,6 +45,77 @@ func allTests(_ helper: TestHelper) async throws {
 
         output.writeLine("ok")
         oa.destroy()
+    }
+
+    // Verifies that a dispatch error from a servant returned by a ServantLocator propagates through the
+    // middleware pipeline, instead of being converted to a response inside ServantManager.
+    func testMiddlewareObservesLocatorDispatchError(_ communicator: Communicator, _ output: TextWriter)
+        async throws
+    {
+        output.write("testing middleware observes a servant-locator dispatch error... ")
+
+        let oa = try communicator.createObjectAdapterWithEndpoints(
+            name: "MyOA2", endpoints: "tcp -h 127.0.0.1 -p 0")
+        try oa.addServantLocator(locator: ThrowingServantLocator(), category: "")
+
+        let log = ThrowObservedLog()
+        oa.use { next in ErrorObservingMiddleware(next, log) }
+
+        // We're actually using colloc so no need to activate oa.
+        let p = try uncheckedCast(prx: oa.createProxy(Ice.Identity(name: "test")), type: MyObjectPrx.self)
+
+        var threw = false
+        do {
+            _ = try await p.getName()
+        } catch {
+            threw = true
+        }
+
+        // The located servant always throws, so the client must see a dispatch error, and the middleware
+        // must have observed it as a throw.
+        try test(threw)
+        try await test(log.observed)
+
+        output.writeLine("ok")
+        oa.destroy()
+    }
+
+    final class ThrowingObjectI: MyObject {
+        func getName(current: Ice.Current) throws -> String {
+            throw Ice.ObjectNotExistException()
+        }
+    }
+
+    final class ThrowingServantLocator: Ice.ServantLocator {
+        func locate(_ curr: Ice.Current) throws -> (returnValue: Ice.Dispatcher?, cookie: AnyObject?) {
+            (ThrowingObjectI(), nil)
+        }
+        func finished(curr: Ice.Current, servant: Ice.Dispatcher, cookie: AnyObject?) throws {}
+        func deactivate(_ category: String) {}
+    }
+
+    final class ErrorObservingMiddleware: Dispatcher {
+        private let next: Dispatcher
+        private let log: ThrowObservedLog
+
+        init(_ next: Dispatcher, _ log: ThrowObservedLog) {
+            self.next = next
+            self.log = log
+        }
+
+        func dispatch(_ request: sending IncomingRequest) async throws -> OutgoingResponse {
+            do {
+                return try await next.dispatch(request)
+            } catch {
+                await log.observe()
+                throw error
+            }
+        }
+    }
+
+    actor ThrowObservedLog {
+        var observed = false
+        func observe() { observed = true }
     }
 
     final class Middleware: Dispatcher {
