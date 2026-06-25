@@ -750,8 +750,8 @@ testFindCert(const string& factoryRef, const string& defaultDir, const Ice::Prop
         "ISSUER:ca1 SUBJECT:ca1.client SERIAL:'10 01'",
         "ISSUERDN:'C=US, S=Florida, L=Jupiter, O=ZeroC, OU=Ice test infrastructure, CN=ca1, E=info@zeroc.com' "
         "SUBJECT:ca1.client",
-        "THUMBPRINT:'7E 28 35 0E 67 B7 39 C4 28 AF CC B8 8E EF AA B5 55 33 43 25'",
-        "SUBJECTKEYID:'35 F5 EB 10 49 80 8D 0B 3D 25 67 AB 43 1A EC EB 3D CE 95 28'",
+        "THUMBPRINT:'4E 01 5B C4 4E 60 85 3B 31 06 D4 02 55 01 25 2F F1 9F E8 DE'",
+        "SUBJECTKEYID:'57 98 25 EA 35 CC 66 4D A1 2B 72 6B E6 C7 D4 05 C9 B8 A4 04'",
         0};
 
     const char* serverFindCertProperties[] = {
@@ -759,8 +759,8 @@ testFindCert(const string& factoryRef, const string& defaultDir, const Ice::Prop
         "ISSUER:ca1 SUBJECT:ca1.server SERIAL:'10 0A'",
         "ISSUERDN:'C=US, S=Florida, L=Jupiter, O=ZeroC, OU=Ice test infrastructure, CN=ca1, E=info@zeroc.com' "
         "SUBJECT:ca1.server",
-        "THUMBPRINT:'B0 5B 31 83 9D AC A6 D1 3D B3 BF EC 6F E5 CB B8 27 F4 C5 E5'",
-        "SUBJECTKEYID:'21 27 14 AD E7 AC 9A 3D A7 27 24 EA 33 E7 07 2F 97 17 B1 AF'",
+        "THUMBPRINT:'94 01 54 AC 3D 96 20 49 82 01 4B 5D A4 AF 55 DD D0 E7 92 F7'",
+        "SUBJECTKEYID:'BE 13 EC 2C 3D DF EA F2 CA 02 9A C7 71 3D BA 6C BA 15 9C 10'",
         0};
 
     const char* failFindCertProperties[] = {
@@ -877,14 +877,14 @@ testFindCert(const string& factoryRef, const string& defaultDir, const Ice::Prop
     cout << "testing IceSSL.FindCert... " << flush;
     const char* clientFindCertProperties[] = {
         "LABEL:ca1.client",
-        "SUBJECTKEYID:'35 F5 EB 10 49 80 8D 0B 3D 25 67 AB 43 1A EC EB 3D CE 95 28'",
+        "SUBJECTKEYID:'57 98 25 EA 35 CC 66 4D A1 2B 72 6B E6 C7 D4 05 C9 B8 A4 04'",
         "SERIAL:'10 01'",
         "SERIAL:'10 01' LABEL:ca1.client",
         nullptr};
 
     const char* serverFindCertProperties[] = {
         "LABEL:ca1.server",
-        "SUBJECTKEYID:'21 27 14 AD E7 AC 9A 3D A7 27 24 EA 33 E7 07 2F 97 17 B1 AF'",
+        "SUBJECTKEYID:'BE 13 EC 2C 3D DF EA F2 CA 02 9A C7 71 3D BA 6C BA 15 9C 10'",
         "SERIAL:'10 0A'",
         "SERIAL:'10 0A' LABEL:ca1.server",
         nullptr};
