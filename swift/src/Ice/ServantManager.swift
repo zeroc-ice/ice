@@ -201,10 +201,14 @@ final class ServantManager: Dispatcher {
                 do {
                     response = try await servant.dispatch(request)
                 } catch {
-                    response = current.makeOutgoingResponse(error: error)
+                    // The locator returned a servant, so finished must run once no matter what. Then let the
+                    // dispatch error propagate (instead of converting it here) so error-inspecting middleware
+                    // observes it.
+                    try locator.finished(curr: current, servant: servant, cookie: cookie)
+                    throw error
                 }
 
-                // If the locator returned a servant, we must execute finished once no matter what.
+                // Success path: the locator returned a servant, so finished must run once.
                 try locator.finished(curr: current, servant: servant, cookie: cookie)
 
                 return response
