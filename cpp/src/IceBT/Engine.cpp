@@ -485,10 +485,11 @@ namespace IceBT
             ProfilePtr profile = make_shared<ServerProfile>(cb);
 
             string path = generatePath();
+            _dbusConnection->addService(path, profile);
 
             try
             {
-                DBus::AsyncResultPtr ar = registerProfileImpl(_dbusConnection, path, uuid, name, channel, profile);
+                DBus::AsyncResultPtr ar = registerProfileImpl(_dbusConnection, path, uuid, name, channel);
                 DBus::MessagePtr reply = ar->waitUntilFinished(); // Block until finished.
                 if (reply->isError())
                 {
@@ -497,6 +498,9 @@ namespace IceBT
             }
             catch (const DBus::Exception& ex)
             {
+                // Undo the addService above so we don't leak the profile and its callback chain on the long-lived
+                // DBus connection.
+                _dbusConnection->removeService(path);
                 throw BluetoothException{__FILE__, __LINE__, ex.reason};
             }
 
@@ -767,10 +771,10 @@ namespace IceBT
             const string& path,
             const string& uuid,
             const string& name,
-            int channel,
-            const ProfilePtr& profile)
+            int channel)
         {
-            conn->addService(path, profile);
+            // The caller is responsible for adding the service for 'path' before calling this method, and for removing
+            // it if the registration fails.
 
             //
             // Invoke RegisterProfile on the profile manager object.
@@ -1134,7 +1138,10 @@ namespace IceBT
                 //
                 // Register a client profile. Client profiles are not advertised in SDP.
                 //
-                DBus::AsyncResultPtr r = registerProfileImpl(dbusConn, path, uuid, string(), -1, profile);
+                // On failure, the service added here is removed when we call conn->close() in the cleanup below.
+                //
+                dbusConn->addService(path, profile);
+                DBus::AsyncResultPtr r = registerProfileImpl(dbusConn, path, uuid, string(), -1);
                 DBus::MessagePtr reply = r->waitUntilFinished();
                 if (reply->isError())
                 {
