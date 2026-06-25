@@ -1,0 +1,1 @@
+- Fixed Ice for PHP mis-marshaling a non-empty optional `sequence<string>`.
