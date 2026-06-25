@@ -686,9 +686,13 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesP
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
-            .serverCredentialsSelectionCallback = [&serverState](const string&)
+            .serverCredentialsSelectionCallback =
+                [&serverState, certificateContext = PCCERT_CONTEXT{}](const string&) mutable
             {
-                PCCERT_CONTEXT certificateContext = serverState.serverCertificateContext();
+                // certificateContext is a stable closure member so paCred remains valid after this callback
+                // returns and the transport reads it. It is refreshed on each call to pick up a reloaded
+                // certificate.
+                certificateContext = serverState.serverCertificateContext();
                 CertDuplicateCertificateContext(certificateContext);
                 return SCH_CREDENTIALS{
                     .dwVersion = SCH_CREDENTIALS_VERSION,
