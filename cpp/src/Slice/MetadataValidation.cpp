@@ -283,18 +283,18 @@ MetadataVisitor::validate(MetadataList metadata, const SyntaxTreeBasePtr& p, boo
     for (auto i = metadata.begin(); i != metadata.end();)
     {
         const string& directive = (*i)->directive();
+        const auto colonIndex = directive.find(':');
 
-        // If the directive contains a ':' character, but is for a different language than what we're checking,
-        // we mark it for removal, but perform no additional validation of it.
-        if (directive.find(':') != string::npos && directive.find(_language) != 0)
+        // Only check the metadata if it starts with the provided '_language' prefix, or is language agnostic.
+        if ((directive.find(_language) == 0 && colonIndex == _language.size()) || colonIndex == string::npos)
         {
-            i = metadata.erase(i);
+            // Check if the metadata is valid. If it's not, remove it to shield downstream logic from invalid inputs.
+            bool isValid = isMetadataValid(*i, p, isTypeContext);
+            i = isValid ? std::next(i, 1) : metadata.erase(i);
         }
         else
         {
-            // If the metadata is invalid, remove it. Otherwise we advance to the next metadata like normal.
-            bool isValid = isMetadataValid(*i, p, isTypeContext);
-            i = isValid ? std::next(i, 1) : metadata.erase(i);
+            i = metadata.erase(i); // This metadata isn't relevant to the target language; remove it.
         }
     }
 
