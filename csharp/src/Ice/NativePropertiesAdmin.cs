@@ -169,12 +169,12 @@ public sealed class NativePropertiesAdmin : PropertiesAdminDisp_
             }
         }
 
-        if (callbacks is not null)
+        if (callbacks is not null && changes is not null)
         {
             foreach (Action<Dictionary<string, string>> callback in callbacks)
             {
                 // The callback should not throw any exception.
-                callback(changes!);
+                callback(changes);
             }
         }
     }
