@@ -300,7 +300,10 @@ final class UdpTransceiver implements Transceiver {
             Network.doConnect(_fd, _addr, sourceAddr);
             _state = StateConnected; // We're connected now
         } catch (LocalException ex) {
-            _fd = null;
+            if (_fd != null) {
+                Network.closeSocketNoThrow(_fd);
+                _fd = null;
+            }
             throw ex;
         }
     }
@@ -326,7 +329,10 @@ final class UdpTransceiver implements Transceiver {
             setBufSize(-1, -1);
             Network.setBlock(_fd, false);
         } catch (LocalException ex) {
-            _fd = null;
+            if (_fd != null) {
+                Network.closeSocketNoThrow(_fd);
+                _fd = null;
+            }
             throw ex;
         }
     }

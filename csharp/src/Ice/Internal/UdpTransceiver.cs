@@ -645,6 +645,9 @@ internal sealed class UdpTransceiver : Transceiver
         }
         catch (Ice.LocalException)
         {
+            _readEventArgs?.Dispose();
+            _writeEventArgs?.Dispose();
+            Network.closeSocketNoThrow(_fd);
             _fd = null;
             throw;
         }
@@ -687,6 +690,7 @@ internal sealed class UdpTransceiver : Transceiver
         {
             _readEventArgs?.Dispose();
             _writeEventArgs?.Dispose();
+            Network.closeSocketNoThrow(_fd);
             _fd = null;
             throw;
         }
