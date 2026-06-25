@@ -1473,7 +1473,8 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
         char c = 0;
         while (true)
         {
-            if (read(fds[0], &c, 1) == -1)
+            ssize_t rc = read(fds[0], &c, 1);
+            if (rc == -1)
             {
                 if (IceInternal::interrupted())
                 {
@@ -1485,6 +1486,20 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
                     consoleErr << argv[0] << ": ";
                 }
                 consoleErr << IceInternal::errorToString(errno) << endl;
+                _exit(EXIT_FAILURE);
+            }
+            else if (rc == 0)
+            {
+                //
+                // EOF before the readiness byte: the daemon exited during startup without signaling readiness
+                // (e.g. it was killed by a signal or aborted in a plug-in). Report a failure so supervisors don't
+                // conclude the service started successfully.
+                //
+                if (argv[0])
+                {
+                    consoleErr << argv[0] << ": ";
+                }
+                consoleErr << "daemon exited during startup before signaling readiness" << endl;
                 _exit(EXIT_FAILURE);
             }
             break;
