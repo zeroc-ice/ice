@@ -1291,15 +1291,29 @@ void
 IceInternal::setMcastInterface(SOCKET fd, const string& intf, const Address& addr)
 {
     int rc;
-    if (addr.saStorage.ss_family == AF_INET)
+    try
     {
-        struct in_addr iface = getInterfaceAddress(intf);
-        rc = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, reinterpret_cast<char*>(&iface), int(sizeof(iface)));
+        if (addr.saStorage.ss_family == AF_INET)
+        {
+            struct in_addr iface = getInterfaceAddress(intf);
+            rc = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, reinterpret_cast<char*>(&iface), int(sizeof(iface)));
+        }
+        else
+        {
+            int interfaceNum = getInterfaceIndex(intf);
+            rc = setsockopt(
+                fd,
+                IPPROTO_IPV6,
+                IPV6_MULTICAST_IF,
+                reinterpret_cast<char*>(&interfaceNum),
+                int(sizeof(int)));
+        }
     }
-    else
+    catch (const Ice::SocketException&)
     {
-        int interfaceNum = getInterfaceIndex(intf);
-        rc = setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF, reinterpret_cast<char*>(&interfaceNum), int(sizeof(int)));
+        // getInterfaceAddress and getInterfaceIndex throw if the interface cannot be resolved.
+        closeSocketNoThrow(fd);
+        throw;
     }
     if (rc == SOCKET_ERROR)
     {

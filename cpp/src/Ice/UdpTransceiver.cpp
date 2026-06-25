@@ -728,7 +728,17 @@ IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
         //
         if (sizeRequested == -1)
         {
-            sizeRequested = _instance->properties()->getPropertyAsIntWithDefault(prop, dfltSize);
+            try
+            {
+                sizeRequested = _instance->properties()->getPropertyAsIntWithDefault(prop, dfltSize);
+            }
+            catch (const Ice::PropertyException&)
+            {
+                // getPropertyAsIntWithDefault throws if the property is set to a non-integer value.
+                closeSocketNoThrow(_fd);
+                _fd = INVALID_SOCKET;
+                throw;
+            }
         }
         //
         // Check for sanity.
