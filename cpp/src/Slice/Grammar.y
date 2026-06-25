@@ -950,7 +950,8 @@ throws
     {
         currentUnit->popContainer();
     }
-    yyerrok;
+    $$ = $1;
+    yyerrok; // Signal that the error has been recovered from.
 }
 throws
 {

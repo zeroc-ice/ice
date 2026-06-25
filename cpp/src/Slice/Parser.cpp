@@ -3993,24 +3993,33 @@ Slice::Enum::createEnumerator(const string& name, optional<int32_t> explicitValu
             ostringstream os;
             os << "value for enumerator '" << name << "' is out of range";
             unit()->error(os.str());
+            nextValue = numeric_limits<int32_t>::min(); // Wrap around to the minimum value.
         }
-        // If the enumerator was not assigned an explicit value,
-        // we automatically assign it one more than the previous enumerator.
-        nextValue = _lastValue + 1;
+        else
+        {
+            // If the enumerator was not assigned an explicit value,
+            // we automatically assign it one more than the previous enumerator.
+            nextValue = _lastValue + 1;
+        }
+    }
+
+    bool checkForDuplicates = true;
+    // Negative values indicate this is a bogus enumerator that is only created for error-recovery purposes.
+    if (nextValue >= 0)
+    {
+        if (nextValue > _maxValue)
+        {
+            _maxValue = nextValue;
+            checkForDuplicates = false;
+        }
+        if (nextValue < _minValue)
+        {
+            _minValue = nextValue;
+            checkForDuplicates = false;
+        }
     }
 
     // Check if the enumerator's value is already in use.
-    bool checkForDuplicates = true;
-    if (nextValue > _maxValue)
-    {
-        _maxValue = nextValue;
-        checkForDuplicates = false;
-    }
-    if (nextValue < _minValue)
-    {
-        _minValue = nextValue;
-        checkForDuplicates = false;
-    }
     if (checkForDuplicates)
     {
         for (const auto& r : enumerators())
