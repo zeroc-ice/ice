@@ -133,7 +133,7 @@ IceBox::ServiceManagerI::startService(string name, const Current&)
         {
             throw NoSuchServiceException();
         }
-        _pendingStatusChanges = true;
+        ++_pendingStatusChanges;
     }
 
     bool started = false;
@@ -175,7 +175,7 @@ IceBox::ServiceManagerI::startService(string name, const Current&)
                 break;
             }
         }
-        _pendingStatusChanges = false;
+        --_pendingStatusChanges;
         _conditionVariable.notify_all();
     }
 }
@@ -209,7 +209,7 @@ IceBox::ServiceManagerI::stopService(string name, const Current&)
         {
             throw NoSuchServiceException();
         }
-        _pendingStatusChanges = true;
+        ++_pendingStatusChanges;
     }
 
     bool stopped = false;
@@ -251,7 +251,7 @@ IceBox::ServiceManagerI::stopService(string name, const Current&)
                 break;
             }
         }
-        _pendingStatusChanges = false;
+        --_pendingStatusChanges;
         _conditionVariable.notify_all();
     }
 }
@@ -718,7 +718,7 @@ IceBox::ServiceManagerI::stopAll()
     //
     // First wait for any active startService/stopService calls to complete.
     //
-    _conditionVariable.wait(lock, [this] { return !_pendingStatusChanges; });
+    _conditionVariable.wait(lock, [this] { return _pendingStatusChanges == 0; });
 
     //
     // Services are stopped in the reverse order from which they are started.
