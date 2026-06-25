@@ -37,7 +37,7 @@ namespace IceInternal
         // While finishBatchRequest holds the in-use stream, this is its thread: the only thread allowed to
         // re-enter swap() (for its own auto-flush). A default-constructed id means no thread may flush the
         // in-use stream, so other threads wait for _batchStreamInUse to clear.
-        std::thread::id _batchStreamOwner{};
+        std::thread::id _batchStreamOwnerId{};
         bool _batchCompress{false};
         int _batchRequestNum{0};
         size_t _batchMarker;

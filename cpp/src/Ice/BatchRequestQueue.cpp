@@ -81,12 +81,13 @@ BatchRequestQueue::finishBatchRequest(OutputStream* os, const Ice::ObjectPrx& pr
 {
     {
         // Bring the request stream back and become the owner so this thread's own auto-flush below can
-        // re-enter swap(). swap() lets only _batchStreamOwner through while the stream is in use, so no
-        // other thread can touch the queue: the mutations below need no further synchronization.
+        // re-enter swap(). swap() lets only _batchStreamOwnerId through while the stream is in use, and only
+        // after passing that gate does it read the queue's bookkeeping; no other thread can touch the queue,
+        // so the mutations below need no further synchronization.
         lock_guard lock(_mutex);
         assert(_batchStreamInUse);
         _batchStream.swap(*os);
-        _batchStreamOwner = this_thread::get_id();
+        _batchStreamOwnerId = std::this_thread::get_id();
     }
 
     try
@@ -116,15 +117,18 @@ BatchRequestQueue::finishBatchRequest(OutputStream* os, const Ice::ObjectPrx& pr
         lock_guard lock(_mutex);
         _batchStream.resize(_batchMarker);
         _batchStreamInUse = false;
-        _batchStreamOwner = thread::id{};
+        _batchStreamOwnerId = std::thread::id{};
         _conditionVariable.notify_all();
     }
-    catch (const std::exception&)
+    catch (...)
     {
+        // Restore the queue to a usable state on any exception, including a non-std::exception escaping the
+        // interceptor. Otherwise _batchStreamInUse would stay set and wedge the queue (all future
+        // prepareBatchRequest/swap calls would block forever).
         lock_guard lock(_mutex);
         _batchStream.resize(_batchMarker);
         _batchStreamInUse = false;
-        _batchStreamOwner = thread::id{};
+        _batchStreamOwnerId = std::thread::id{};
         _conditionVariable.notify_all();
         throw;
     }
@@ -147,10 +151,6 @@ int
 BatchRequestQueue::swap(OutputStream* os, bool& compress) noexcept
 {
     unique_lock lock(_mutex);
-    if (_batchRequestNum == 0)
-    {
-        return 0;
-    }
 
     _conditionVariable.wait(
         lock,
@@ -158,9 +158,17 @@ BatchRequestQueue::swap(OutputStream* os, bool& compress) noexcept
         {
             // Only the owner thread may proceed while the stream is in use (for its own auto-flush);
             // other threads wait until the in-progress batch request is finished. A default-constructed
-            // _batchStreamOwner matches no thread, so nobody bypasses _batchStreamInUse outside that window.
-            return !_batchStreamInUse || _batchStreamOwner == this_thread::get_id();
+            // _batchStreamOwnerId matches no thread, so nobody bypasses _batchStreamInUse outside that window.
+            return !_batchStreamInUse || _batchStreamOwnerId == std::this_thread::get_id();
         });
+
+    // Read the bookkeeping only after passing the gate above: finishBatchRequest mutates these scalars
+    // without the lock while it owns the in-use stream, so reading _batchRequestNum before the wait would
+    // race those writes.
+    if (_batchRequestNum == 0)
+    {
+        return 0;
+    }
 
     vector<byte> lastRequest;
     if (_batchMarker < _batchStream.b.size())
