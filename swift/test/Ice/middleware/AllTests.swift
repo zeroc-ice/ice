@@ -72,8 +72,7 @@ func allTests(_ helper: TestHelper) async throws {
         }
 
         // The located servant always throws, so the client must see a dispatch error, and the middleware
-        // must have observed it as a throw. Before the fix, ServantManager converts the located servant's
-        // error to a response, so the middleware never sees the throw.
+        // must have observed it as a throw.
         try test(threw)
         try await test(log.observed)
 
