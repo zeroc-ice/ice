@@ -824,7 +824,15 @@ IceInternal::addrToString(const Address& addr)
     if (isAddressValid(addr))
     {
         ostringstream s;
-        s << inetAddrToString(addr) << ':' << getPort(addr);
+        // An IPv6 address is enclosed in square brackets in the host:port form, e.g. [::1]:4061.
+        if (addr.saStorage.ss_family == AF_INET6)
+        {
+            s << '[' << inetAddrToString(addr) << "]:" << getPort(addr);
+        }
+        else
+        {
+            s << inetAddrToString(addr) << ':' << getPort(addr);
+        }
         return s.str();
     }
     else

@@ -761,7 +761,12 @@ public final class Network {
 
     public static String addrToString(InetSocketAddress addr) {
         StringBuilder s = new StringBuilder(128);
-        s.append(addr.getAddress().getHostAddress());
+        // An IPv6 address is enclosed in square brackets in the host:port form, e.g. [::1]:4061.
+        if (addr.getAddress() instanceof Inet6Address) {
+            s.append('[').append(addr.getAddress().getHostAddress()).append(']');
+        } else {
+            s.append(addr.getAddress().getHostAddress());
+        }
         s.append(':');
         s.append(addr.getPort());
         return s.toString();
@@ -784,6 +789,9 @@ public final class Network {
 
         if (addr == null || addr.isAnyLocalAddress()) {
             s.append("<not available>");
+        } else if (addr instanceof Inet6Address) {
+            // An IPv6 address is enclosed in square brackets in the host:port form, e.g. [::1]:4061.
+            s.append('[').append(addr.getHostAddress()).append(']');
         } else {
             s.append(addr.getHostAddress());
         }
