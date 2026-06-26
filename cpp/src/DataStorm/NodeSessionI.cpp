@@ -78,8 +78,13 @@ namespace
                     updateNodeAndSessionProxy(*subscriber, subscriberSessionForwarder, current);
 
                     // Keep track of the subscriber session with the NodeSession, the NodeSession will use this proxy
-                    // to inform the subscriber of the disconnection if the target publisher is disconnected.
+                    // to inform the subscriber of the disconnection if the target publisher is disconnected. Key the
+                    // entry by (subscriber node identity, session identity): the session identity alone is only
+                    // unique within a node, so two different subscriber nodes can produce the same one and overwrite
+                    // each other in the map.
                     nodeSession->addSession(
+                        subscriber->ice_getIdentity(),
+                        subscriberSession->ice_getIdentity(),
                         subscriberIsHostedOnRelay ? subscriberSession->ice_fixed(current.con) : *subscriberSession);
 
                     // Forward the call to the target Node.
@@ -112,8 +117,13 @@ namespace
                     updateNodeAndSessionProxy(*publisher, publisherSessionForwarder, current);
 
                     // Keep track of the publisher session with the NodeSession, the NodeSession will use this proxy
-                    // to inform the publisher of the disconnection if the target subscriber is disconnected.
+                    // to inform the publisher of the disconnection if the target subscriber is disconnected. Key the
+                    // entry by (publisher node identity, session identity): the session identity alone is only unique
+                    // within a node, so two different publisher nodes can produce the same one and overwrite each
+                    // other in the map.
                     nodeSession->addSession(
+                        publisher->ice_getIdentity(),
+                        publisherSession->ice_getIdentity(),
                         publisherIsHostedOnRelay ? publisherSession->ice_fixed(current.con) : *publisherSession);
                     // Forward the request to the target subscriber.
                     _node->confirmCreateSessionAsync(publisher, publisherSessionForwarder, response, exception);
@@ -211,8 +221,15 @@ NodeSessionI::destroy()
 
         for (const auto& [_, session] : _sessions)
         {
-            // Notify sessions of the disconnection, don't need to wait for the result.
-            session->disconnectedAsync(nullptr);
+            // Notify each session of the disconnection (we don't wait for the result). Catch per session so that a
+            // dead or stale session proxy can't prevent the remaining sessions from being notified.
+            try
+            {
+                session->disconnectedAsync(nullptr);
+            }
+            catch (const Ice::LocalException&)
+            {
+            }
         }
     }
     catch (const ObjectAdapterDestroyedException&)
@@ -230,9 +247,8 @@ NodeSessionI::destroy()
 }
 
 void
-NodeSessionI::addSession(SessionPrx session)
+NodeSessionI::addSession(Identity nodeId, Identity sessionId, SessionPrx session)
 {
     lock_guard<mutex> lock(_mutex);
-    Identity id = session->ice_getIdentity();
-    _sessions.insert_or_assign(std::move(id), std::move(session));
+    _sessions.insert_or_assign(std::pair{std::move(nodeId), std::move(sessionId)}, std::move(session));
 }
