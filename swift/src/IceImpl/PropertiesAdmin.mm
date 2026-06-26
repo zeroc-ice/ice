@@ -22,7 +22,7 @@
     return self;
 }
 
-- (nullable NSString*)getProperty:(NSString*)key error:(NSError**)error
+- (nullable NSString*)getProperty:(NSString*)key error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -36,7 +36,8 @@
     }
 }
 
-- (nullable NSDictionary<NSString*, NSString*>*)getPropertiesForPrefix:(NSString*)prefix error:(NSError**)error
+- (nullable NSDictionary<NSString*, NSString*>*)getPropertiesForPrefix:(NSString*)prefix
+                                                                 error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -50,7 +51,7 @@
     }
 }
 
-- (BOOL)setProperties:(NSDictionary<NSString*, NSString*>*)newProperties error:(NSError**)error
+- (BOOL)setProperties:(NSDictionary<NSString*, NSString*>*)newProperties error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {

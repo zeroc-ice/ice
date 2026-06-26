@@ -20,31 +20,31 @@ ICEIMPL_API @interface ICEObjectPrx : NSObject
                category:(NSString* __strong _Nonnull* _Nonnull)category;
 - (nullable instancetype)ice_identity:(NSString*)name
                              category:(NSString*)category
-                                error:(NSError* _Nullable* _Nullable)error;
+                                error:(NSError* _Nullable* _Nonnull)error;
 - (nonnull NSDictionary<NSString*, NSString*>*)ice_getContext;
 - (nonnull instancetype)ice_context:(NSDictionary<NSString*, NSString*>*)context;
 - (nonnull NSString*)ice_getFacet;
 - (nonnull instancetype)ice_facet:(NSString*)facet;
 - (nonnull NSString*)ice_getAdapterId;
-- (nullable instancetype)ice_adapterId:(NSString*)id error:(NSError* _Nullable* _Nullable)error;
+- (nullable instancetype)ice_adapterId:(NSString*)id error:(NSError* _Nullable* _Nonnull)error;
 - (nonnull NSArray<ICEEndpoint*>*)ice_getEndpoints;
-- (nullable instancetype)ice_endpoints:(NSArray<ICEEndpoint*>*)endpoints error:(NSError* _Nullable* _Nullable)error;
+- (nullable instancetype)ice_endpoints:(NSArray<ICEEndpoint*>*)endpoints error:(NSError* _Nullable* _Nonnull)error;
 - (int32_t)ice_getLocatorCacheTimeout;
-- (nullable instancetype)ice_locatorCacheTimeout:(int32_t)timeout error:(NSError* _Nullable* _Nullable)error;
+- (nullable instancetype)ice_locatorCacheTimeout:(int32_t)timeout error:(NSError* _Nullable* _Nonnull)error;
 - (int32_t)ice_getInvocationTimeout;
-- (nullable instancetype)ice_invocationTimeout:(int32_t)timeout error:(NSError* _Nullable* _Nullable)error;
+- (nullable instancetype)ice_invocationTimeout:(int32_t)timeout error:(NSError* _Nullable* _Nonnull)error;
 - (nonnull NSString*)ice_getConnectionId;
-- (nullable instancetype)ice_connectionId:(NSString*)connectionId error:(NSError* _Nullable* _Nullable)error;
+- (nullable instancetype)ice_connectionId:(NSString*)connectionId error:(NSError* _Nullable* _Nonnull)error;
 - (bool)ice_isConnectionCached;
-- (nullable instancetype)ice_connectionCached:(bool)cached error:(NSError* _Nullable* _Nullable)error;
+- (nullable instancetype)ice_connectionCached:(bool)cached error:(NSError* _Nullable* _Nonnull)error;
 - (uint8_t)ice_getEndpointSelection;
-- (nullable instancetype)ice_endpointSelection:(uint8_t)type error:(NSError* _Nullable* _Nullable)error;
+- (nullable instancetype)ice_endpointSelection:(uint8_t)type error:(NSError* _Nullable* _Nonnull)error;
 - (nonnull instancetype)ice_encodingVersion:(uint8_t)major minor:(uint8_t)minor;
 - (void)ice_getEncodingVersion:(uint8_t*)major minor:(uint8_t*)minor;
 - (nullable ICEObjectPrx*)ice_getRouter;
-- (nullable instancetype)ice_router:(ICEObjectPrx* _Nullable)router error:(NSError* _Nullable* _Nullable)error;
+- (nullable instancetype)ice_router:(ICEObjectPrx* _Nullable)router error:(NSError* _Nullable* _Nonnull)error;
 - (nullable ICEObjectPrx*)ice_getLocator;
-- (nullable instancetype)ice_locator:(ICEObjectPrx* _Nullable)locator error:(NSError* _Nullable* _Nullable)error;
+- (nullable instancetype)ice_locator:(ICEObjectPrx* _Nullable)locator error:(NSError* _Nullable* _Nonnull)error;
 - (bool)ice_isTwoway;
 - (nonnull instancetype)ice_twoway;
 - (bool)ice_isOneway;
@@ -58,14 +58,14 @@ ICEIMPL_API @interface ICEObjectPrx : NSObject
 // id represents Any in Swift which we use as an Optional int32_t
 - (nullable id)ice_getCompress;
 - (nonnull instancetype)ice_compress:(bool)compress;
-- (nullable instancetype)ice_fixed:(ICEConnection*)connection error:(NSError* _Nullable* _Nullable)error;
+- (nullable instancetype)ice_fixed:(ICEConnection*)connection error:(NSError* _Nullable* _Nonnull)error;
 - (bool)ice_isFixed;
 - (void)ice_getConnection:(void (^)(ICEConnection* _Nullable))response exception:(void (^)(NSError*))exception;
 - (nullable ICEConnection*)ice_getCachedConnection;
 - (void)ice_flushBatchRequests:(void (^)(NSError*))exception
                           sent:(void (^)(bool))sent NS_SWIFT_NAME(ice_flushBatchRequests(exception:sent:));
 - (bool)ice_isCollocationOptimized;
-- (nullable instancetype)ice_collocationOptimized:(bool)collocated error:(NSError* _Nullable* _Nullable)error;
+- (nullable instancetype)ice_collocationOptimized:(bool)collocated error:(NSError* _Nullable* _Nonnull)error;
 
 // Either ICEObjectPrx or NSNull
 + (nullable id)ice_read:(NSData*)data
@@ -73,7 +73,7 @@ ICEIMPL_API @interface ICEObjectPrx : NSObject
           encodingMajor:(uint8_t)major
           encodingMinor:(uint8_t)minor
               bytesRead:(NSInteger*)bytesRead
-                  error:(NSError* _Nullable* _Nullable)error;
+                  error:(NSError* _Nullable* _Nonnull)error;
 
 - (void)ice_write:(id<ICEOutputStreamHelper>)os
     encodingMajor:(uint8_t)encodingMajor
@@ -84,7 +84,7 @@ ICEIMPL_API @interface ICEObjectPrx : NSObject
                 mode:(uint8_t)mode
             inParams:(NSData*)inParams
              context:(NSDictionary* _Nullable)context
-               error:(NSError* _Nullable* _Nullable)error;
+               error:(NSError* _Nullable* _Nonnull)error;
 
 - (void)invoke:(NSString* _Nonnull)op
           mode:(uint8_t)mode

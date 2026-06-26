@@ -27,7 +27,7 @@
     return toNSString(self.properties->getPropertyWithDefault(fromNSString(key), fromNSString(value)));
 }
 
-- (BOOL)getPropertyAsInt:(NSString*)key value:(int32_t*)value error:(NSError**)error
+- (BOOL)getPropertyAsInt:(NSString*)key value:(int32_t*)value error:(NSError* _Nullable* _Nonnull)error
 {
     assert(value != nullptr);
     try
@@ -42,7 +42,7 @@
     }
 }
 
-- (BOOL)getIcePropertyAsInt:(NSString*)key value:(int32_t*)value error:(NSError**)error
+- (BOOL)getIcePropertyAsInt:(NSString*)key value:(int32_t*)value error:(NSError* _Nullable* _Nonnull)error
 {
     assert(value != nullptr);
     try
@@ -60,7 +60,7 @@
 - (BOOL)getPropertyAsIntWithDefault:(NSString*)key
                        defaultValue:(int32_t)defaultValue
                               value:(int32_t*)value
-                              error:(NSError**)error
+                              error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -96,7 +96,7 @@
     return toNSDictionary(self.properties->getPropertiesForPrefix(fromNSString(prefix)));
 }
 
-- (BOOL)setProperty:(NSString*)key value:(NSString*)value error:(NSError**)error;
+- (BOOL)setProperty:(NSString*)key value:(NSString*)value error:(NSError* _Nullable* _Nonnull)error;
 {
     try
     {
@@ -117,7 +117,7 @@
 
 - (NSArray<NSString*>*)parseCommandLineOptions:(NSString*)prefix
                                        options:(NSArray<NSString*>*)options
-                                         error:(NSError**)error;
+                                         error:(NSError* _Nullable* _Nonnull)error;
 {
     try
     {
@@ -132,7 +132,8 @@
     }
 }
 
-- (NSArray<NSString*>*)parseIceCommandLineOptions:(NSArray<NSString*>*)options error:(NSError**)error;
+- (NSArray<NSString*>*)parseIceCommandLineOptions:(NSArray<NSString*>*)options
+                                            error:(NSError* _Nullable* _Nonnull)error;
 {
     try
     {
@@ -147,7 +148,7 @@
     }
 }
 
-- (BOOL)load:(NSString*)file error:(NSError**)error
+- (BOOL)load:(NSString*)file error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
