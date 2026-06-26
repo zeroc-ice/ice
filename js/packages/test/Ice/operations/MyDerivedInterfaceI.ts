@@ -105,7 +105,9 @@ export class MyDerivedInterfaceI extends Test.MyDerivedInterface {
         current: Ice.Current,
     ): [Test.MyInterfacePrx, Test.MyInterfacePrx, Test.MyInterfacePrx] {
         const p2 = p1;
-        const p3 = Test.MyInterfacePrx.uncheckedCast(current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")));
+        const p3 = Test.MyInterfacePrx.uncheckedCast(
+            current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity"))
+        );
         const r = Test.MyInterfacePrx.uncheckedCast(current.adapter.createProxy(current.id));
         return [r.ice_endpoints(this._endpoints), p2, p3.ice_endpoints(this._endpoints)];
     }
