@@ -2,6 +2,7 @@
 
 #include "CsVisitor.h"
 #include "CsUtil.h"
+#include "../Slice/Util.h"
 
 #include <cassert>
 
@@ -60,7 +61,8 @@ Slice::CsVisitor::emitObsoleteAttribute(const ContainedPtr& p)
     {
         if (auto reason = p->getDeprecationReason())
         {
-            _out << nl << "[global::System.Obsolete(\"" << *reason << "\")]";
+            const string escapedReason = toStringLiteral(*reason, "\a\b\f\n\r\t\v\0", "", UCN, 0);
+            _out << nl << "[global::System.Obsolete(\"" << escapedReason << "\")]";
         }
         else
         {
