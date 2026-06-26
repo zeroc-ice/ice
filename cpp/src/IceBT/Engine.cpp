@@ -485,10 +485,10 @@ namespace IceBT
             ProfilePtr profile = make_shared<ServerProfile>(cb);
 
             string path = generatePath();
-            _dbusConnection->addService(path, profile);
 
             try
             {
+                _dbusConnection->addService(path, profile);
                 DBus::AsyncResultPtr ar = registerProfileImpl(_dbusConnection, path, uuid, name, channel);
                 DBus::MessagePtr reply = ar->waitUntilFinished(); // Block until finished.
                 if (reply->isError())
@@ -499,7 +499,7 @@ namespace IceBT
             catch (const DBus::Exception& ex)
             {
                 // Undo the addService above so we don't leak the profile and its callback chain on the long-lived
-                // DBus connection.
+                // DBus connection. removeService is a no-op if addService never succeeded.
                 _dbusConnection->removeService(path);
                 throw BluetoothException{__FILE__, __LINE__, ex.reason};
             }
