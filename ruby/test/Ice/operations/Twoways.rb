@@ -98,8 +98,8 @@ def twoways(helper, communicator, p)
     ids = p.ice_ids
     test(ids.length == 3)
     test(ids[0] == "::Ice::Object")
-    test(ids[1] == "::Test::MyInterface")
-    test(ids[2] == "::Test::MyDerivedInterface")
+    test(ids[1] == "::Test::MyDerivedInterface")
+    test(ids[2] == "::Test::MyInterface")
 
     #
     # ice_id

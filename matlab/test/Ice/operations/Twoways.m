@@ -111,8 +111,8 @@ classdef Twoways
             ids = p.ice_ids();
             assert(length(ids) == 3);
             assert(strcmp(ids{1}, '::Ice::Object'));
-            assert(strcmp(ids{2}, '::Test::MyInterface'));
-            assert(strcmp(ids{3}, '::Test::MyDerivedInterface'));
+            assert(strcmp(ids{2}, '::Test::MyDerivedInterface'));
+            assert(strcmp(ids{3}, '::Test::MyInterface'));
 
             p.opVoid();
 
