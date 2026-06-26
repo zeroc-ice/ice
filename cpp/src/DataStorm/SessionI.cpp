@@ -767,6 +767,16 @@ SessionI::destroyImpl(const exception_ptr& ex)
     assert(!_destroyed);
     _destroyed = true;
 
+    // Cancel and clear any pending retry task. Its lambda captures a strong reference to this session
+    // (self = shared_from_this()), so leaving _retryTask set forms a reference cycle
+    // (_retryTask -> task -> lambda -> self) that keeps the session -- and, through its _parent/_instance members,
+    // the node and instance -- alive forever. connected()/retry() clear it on the live path; this covers teardown.
+    if (_retryTask)
+    {
+        _instance->cancelTimerTask(_retryTask);
+        _retryTask = nullptr;
+    }
+
     if (_traceLevels->session > 0)
     {
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
@@ -821,6 +831,17 @@ SessionI::destroyImpl(const exception_ptr& ex)
     }
     catch (const ObjectAdapterDestroyedException&)
     {
+    }
+}
+
+void
+SessionI::cancelRetryTask()
+{
+    lock_guard<mutex> lock(_mutex);
+    if (_retryTask)
+    {
+        _instance->cancelTimerTask(_retryTask);
+        _retryTask = nullptr;
     }
 }
 
