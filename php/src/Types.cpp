@@ -2244,9 +2244,12 @@ IcePHP::DictionaryInfo::KeyCallback::unmarshaled(zval* zv, zval*, void*)
     ZVAL_COPY(&key, zv);
 }
 
-IcePHP::DictionaryInfo::ValueCallback::ValueCallback(zval* k) { ZVAL_COPY_VALUE(&key, k); }
+// Hold a real reference to the key: for a class value type, unmarshaled() runs later (during pending-value
+// patching), after the loop has destroyed the KeyCallback that owns the key. ZVAL_COPY addrefs a string key (and is
+// inert for long/bool keys), and the destructor releases it.
+IcePHP::DictionaryInfo::ValueCallback::ValueCallback(zval* k) { ZVAL_COPY(&key, k); }
 
-IcePHP::DictionaryInfo::ValueCallback::~ValueCallback() = default;
+IcePHP::DictionaryInfo::ValueCallback::~ValueCallback() { zval_ptr_dtor(&key); }
 
 void
 IcePHP::DictionaryInfo::ValueCallback::unmarshaled(zval* zv, zval* target, void*)
