@@ -193,6 +193,13 @@ LookupI::LookupI(LocatorRegistryIPtr registry, const LookupPrx& lookup, const Ic
       _domainId(properties->getIceProperty("IceDiscovery.DomainId")),
       _timer(IceInternal::getInstanceTimer(lookup->ice_getCommunicator()))
 {
+    if (_latencyMultiplier < 1)
+    {
+        throw PropertyException{
+            __FILE__,
+            __LINE__,
+            "property 'IceDiscovery.LatencyMultiplier' must be greater than or equal to 1"};
+    }
 }
 
 void
