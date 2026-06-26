@@ -78,9 +78,6 @@ updates:
       interval: monthly
     cooldown:
       default-days: 7
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
     groups:
       github-actions:
         patterns:
@@ -142,8 +139,7 @@ updates:
       swift-minor-and-patch:
         update-types: ["minor", "patch"]
 
-  # 3.7 is in maintenance, so only its GitHub Actions are kept up to date
-  # (majors ignored, as on 3.8).
+  # 3.7 is in maintenance, so only its GitHub Actions are kept up to date.
   - package-ecosystem: "github-actions"
     # Two entries are required: "/" is the special value that scans
     # .github/workflows (plus any root action.yml); "/.github/actions/*"
@@ -156,9 +152,6 @@ updates:
       interval: monthly
     cooldown:
       default-days: 7
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
     groups:
       github-actions:
         patterns:
