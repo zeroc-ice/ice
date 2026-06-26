@@ -44,6 +44,11 @@
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
     </Project>
   </Folder>
+  <Folder Name="/DataStorm/relayHopDrop/">
+    <Project Path="../test/DataStorm/relayHopDrop/msbuild/writer/writer.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
   <Folder Name="/DataStorm/relayReconnect/">
     <Project Path="../test/DataStorm/relayReconnect/msbuild/reader/reader.vcxproj">
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
