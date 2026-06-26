@@ -70,7 +70,7 @@ internal class ServiceManagerI : ServiceManagerDisp_, IDisposable
             {
                 throw new NoSuchServiceException();
             }
-            _pendingStatusChanges = true;
+            ++_pendingStatusChanges;
         }
 
         bool started = false;
@@ -113,7 +113,7 @@ internal class ServiceManagerI : ServiceManagerDisp_, IDisposable
                     break;
                 }
             }
-            _pendingStatusChanges = false;
+            --_pendingStatusChanges;
             Monitor.PulseAll(_mutex);
         }
     }
@@ -146,7 +146,7 @@ internal class ServiceManagerI : ServiceManagerDisp_, IDisposable
             {
                 throw new NoSuchServiceException();
             }
-            _pendingStatusChanges = true;
+            ++_pendingStatusChanges;
         }
 
         bool stopped = false;
@@ -186,7 +186,7 @@ internal class ServiceManagerI : ServiceManagerDisp_, IDisposable
                     break;
                 }
             }
-            _pendingStatusChanges = false;
+            --_pendingStatusChanges;
             Monitor.PulseAll(_mutex);
         }
     }
@@ -684,7 +684,7 @@ internal class ServiceManagerI : ServiceManagerDisp_, IDisposable
             //
             // First wait for any active startService/stopService calls to complete.
             //
-            while (_pendingStatusChanges)
+            while (_pendingStatusChanges > 0)
             {
                 Monitor.Wait(_mutex);
             }
@@ -1020,7 +1020,7 @@ internal class ServiceManagerI : ServiceManagerDisp_, IDisposable
 #pragma warning restore CA2213
     private readonly string[] _argv; // Filtered server argument vector
     private readonly List<ServiceInfo> _services = new();
-    private bool _pendingStatusChanges;
+    private int _pendingStatusChanges;
     private readonly Dictionary<ServiceObserverPrx, bool> _observers = new();
     private readonly int _traceServiceObserver;
     private readonly object _mutex = new();

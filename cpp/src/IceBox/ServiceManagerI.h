@@ -70,7 +70,7 @@ namespace IceBox
         Ice::LoggerPtr _logger;
         Ice::StringSeq _argv; // Filtered server argument vector, not including program name
         std::vector<ServiceInfo> _services;
-        bool _pendingStatusChanges{false};
+        int _pendingStatusChanges{0};
 
         std::set<ServiceObserverPrx> _observers;
         int _traceServiceObserver{0};
