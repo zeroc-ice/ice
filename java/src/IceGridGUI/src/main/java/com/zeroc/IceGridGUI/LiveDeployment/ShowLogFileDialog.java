@@ -100,6 +100,8 @@ class ShowLogFileDialog extends JDialog {
 
     private class ReaderThread extends Thread {
         ReaderThread() {
+            // Daemon so a reader blocked on a hung remote read can't keep the JVM alive after stopReading().
+            setDaemon(true);
             _threadMaxLines = _maxLines;
             _threadMaxSize = _maxSize;
             _threadInitialLines = _initialLines;
@@ -523,12 +525,10 @@ class ShowLogFileDialog extends JDialog {
 
     void stopReading() {
         if (_thread != null) {
+            // Don't join the reader here: it may be blocked in a synchronous remote read against an
+            // unresponsive node, which would freeze the UI. The reader is a daemon that destroys its own
+            // file iterator and exits on its own, so just terminate it and move on.
             _thread.terminate();
-
-            try {
-                _thread.join();
-            } catch (InterruptedException e) {}
-
             _thread = null;
             _stopItem.setSelected(true);
             _stopButton.setSelected(true);
