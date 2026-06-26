@@ -12,6 +12,9 @@ on:
     paths:
       - .github/workflows/copilot-setup-steps.yml
 
+permissions:
+  contents: read
+
 jobs:
   copilot-setup-steps:
     # Use a dedicated GitHub-hosted larger runner rather than the shared
