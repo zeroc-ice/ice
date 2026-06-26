@@ -100,6 +100,8 @@ class ShowLogFileDialog extends JDialog {
 
     private class ReaderThread extends Thread {
         ReaderThread() {
+            // Daemon so a reader blocked on a hung remote read can't keep the JVM alive after stopReading().
+            setDaemon(true);
             _threadMaxLines = _maxLines;
             _threadMaxSize = _maxSize;
             _threadInitialLines = _initialLines;
@@ -523,35 +525,14 @@ class ShowLogFileDialog extends JDialog {
 
     void stopReading() {
         if (_thread != null) {
-            final ReaderThread thread = _thread;
-
-            // Update the toolbar synchronously on the UI thread: clear _thread, and disable Pause and Play.
-            // Clearing _thread stops a concurrent stopReading or the reader's own stop callback from acting on
-            // the terminating reader; disabling Play prevents a new reader from starting before this one has
-            // fully terminated, which would let the two readers interfere.
+            // Don't join the reader here: it may be blocked in a synchronous remote read against an
+            // unresponsive node, which would freeze the UI. The reader is a daemon that destroys its own
+            // file iterator and exits on its own, so just terminate it and move on.
+            _thread.terminate();
             _thread = null;
-            thread.terminate();
             _stopItem.setSelected(true);
             _stopButton.setSelected(true);
             _pause.setEnabled(false);
-            _play.setEnabled(false);
-
-            // The reader may be blocked in a synchronous remote read, so join it off the UI thread instead
-            // of freezing the UI until the read returns. The reader destroys its own file iterator. Re-enable
-            // Play once the reader is gone so the log can be read again. This joiner is a daemon thread so a
-            // reader stuck on a hung read cannot keep the JVM alive.
-            Thread joiner =
-                new Thread(
-                    () -> {
-                        try {
-                            thread.join();
-                        } catch (InterruptedException e) {
-                        }
-                        SwingUtilities.invokeLater(() -> _play.setEnabled(true));
-                    },
-                    "IceGridGUI.ShowLogFileDialog.stopReading");
-            joiner.setDaemon(true);
-            joiner.start();
         }
     }
 
