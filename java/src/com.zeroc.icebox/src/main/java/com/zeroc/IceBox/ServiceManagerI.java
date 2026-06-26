@@ -79,7 +79,7 @@ final class ServiceManagerI implements ServiceManager {
             if (info == null) {
                 throw new NoSuchServiceException();
             }
-            _pendingStatusChanges = true;
+            ++_pendingStatusChanges;
         }
 
         boolean started = false;
@@ -112,7 +112,7 @@ final class ServiceManagerI implements ServiceManager {
                     break;
                 }
             }
-            _pendingStatusChanges = false;
+            --_pendingStatusChanges;
             notifyAll();
         }
     }
@@ -136,7 +136,7 @@ final class ServiceManagerI implements ServiceManager {
             if (info == null) {
                 throw new NoSuchServiceException();
             }
-            _pendingStatusChanges = true;
+            ++_pendingStatusChanges;
         }
 
         boolean stopped = false;
@@ -166,7 +166,7 @@ final class ServiceManagerI implements ServiceManager {
                     break;
                 }
             }
-            _pendingStatusChanges = false;
+            --_pendingStatusChanges;
             notifyAll();
         }
     }
@@ -549,7 +549,7 @@ final class ServiceManagerI implements ServiceManager {
 
     private synchronized void stopAll() {
         // First wait for any active startService/stopService calls to complete.
-        while (_pendingStatusChanges) {
+        while (_pendingStatusChanges > 0) {
             try {
                 wait();
             } catch (InterruptedException ex) {}
@@ -858,7 +858,7 @@ final class ServiceManagerI implements ServiceManager {
     private final Logger _logger;
     private final String[] _argv; // Filtered server argument vector
     private final List<ServiceInfo> _services = new LinkedList<>();
-    private boolean _pendingStatusChanges;
+    private int _pendingStatusChanges;
     private final HashSet<ServiceObserverPrx> _observers = new HashSet<>();
     private final int _traceServiceObserver;
     private Map<String, ClassLoader> _classLoaders;
