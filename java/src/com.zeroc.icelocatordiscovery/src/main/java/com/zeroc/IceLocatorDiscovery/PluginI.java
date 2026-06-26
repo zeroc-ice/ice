@@ -339,6 +339,8 @@ class PluginI implements Plugin {
                     _pending = true;
                     _pendingRetryCount = _retryCount;
                     _failureCount = 0;
+                    ++_generation;
+                    final int generation = _generation;
                     try {
                         if (_traceLevel > 1) {
                             StringBuilder s = new StringBuilder("looking up locator:\nlookup = ");
@@ -354,7 +356,7 @@ class PluginI implements Plugin {
                                 .whenCompleteAsync(
                                     (v, ex) -> {
                                         if (ex != null) {
-                                            exception(ex);
+                                            exception(ex, generation);
                                         }
                                     },
                                     entry.getKey()
@@ -383,7 +385,12 @@ class PluginI implements Plugin {
             }
         }
 
-        synchronized void exception(Throwable ex) {
+        synchronized void exception(Throwable ex, int generation) {
+            // Ignore a delayed failure from an earlier lookup round: it must not count against the current round, which
+            // reset _failureCount and may still have outstanding lookups.
+            if (generation != _generation) {
+                return;
+            }
             if (++_failureCount == _lookups.size() && _pending) {
                 // All the lookup calls failed, cancel the timer and propagate the error to the requests.
                 _future.cancel(false);
@@ -446,13 +453,15 @@ class PluginI implements Plugin {
                                 }
 
                                 _failureCount = 0;
+                                ++_generation;
+                                final int generation = _generation;
                                 for (Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet()) {
                                     entry.getKey()
                                         .findLocatorAsync(_instanceName, entry.getValue())
                                         .whenCompleteAsync(
                                             (v, ex) -> {
                                                 if (ex != null) {
-                                                    exception(ex);
+                                                    exception(ex, generation);
                                                 }
                                             },
                                             entry.getKey().ice_executor()); // Send multicast request.
@@ -506,6 +515,11 @@ class PluginI implements Plugin {
         private boolean _pending;
         private int _pendingRetryCount;
         private int _failureCount;
+
+        // Incremented at the start of each lookup round. The findLocatorAsync exception callbacks capture the value
+        // current when they were sent, so a delayed failure from an earlier round is ignored instead of counting
+        // against the current round.
+        private int _generation;
         private boolean _warnOnce;
         private List<Request> _pendingRequests = new ArrayList<>();
         private long _nextRetry;
