@@ -350,6 +350,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                     _pending = true;
                     _pendingRetryCount = _retryCount;
                     _failureCount = 0;
+                    ++_generation;
                     try
                     {
                         if (_traceLevel > 1)
@@ -365,7 +366,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
                         foreach (KeyValuePair<LookupPrx, LookupReplyPrx> l in _lookups)
                         {
-                            _ = performFindLocatorAsync(l.Key, l.Value);
+                            _ = performFindLocatorAsync(l.Key, l.Value, _generation);
                         }
                         _timer.schedule(this, _timeout);
                     }
@@ -395,7 +396,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
             }
         }
 
-        async Task performFindLocatorAsync(LookupPrx lookupPrx, LookupReplyPrx lookupReplyPrx)
+        async Task performFindLocatorAsync(LookupPrx lookupPrx, LookupReplyPrx lookupReplyPrx, int generation)
         {
             // Exit the mutex lock before proceeding.
             await Task.Yield();
@@ -407,15 +408,21 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
             }
             catch (System.Exception ex)
             {
-                exception(ex);
+                exception(ex, generation);
             }
         }
     }
 
-    private void exception(Exception ex)
+    private void exception(Exception ex, int generation)
     {
         lock (_mutex)
         {
+            // Ignore a delayed failure from an earlier lookup round: it must not count against the current round, which
+            // reset _failureCount and may still have outstanding lookups.
+            if (generation != _generation)
+            {
+                return;
+            }
             if (++_failureCount == _lookups.Count && _pending)
             {
                 //
@@ -487,6 +494,9 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                         _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.ToString());
                     }
 
+                    _failureCount = 0;
+                    ++_generation;
+                    int generation = _generation;
                     foreach (KeyValuePair<LookupPrx, LookupReplyPrx> l in _lookups)
                     {
                         l.Key.findLocatorAsync(_instanceName, l.Value).ContinueWith(
@@ -498,7 +508,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                                 }
                                 catch (AggregateException ex)
                                 {
-                                    exception(ex.InnerException);
+                                    exception(ex.InnerException, generation);
                                 }
                             },
                             l.Key.ice_scheduler()); // Send multicast request.
@@ -555,6 +565,11 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
     private bool _pending;
     private int _pendingRetryCount;
     private int _failureCount;
+
+    // Incremented at the start of each lookup round. The findLocatorAsync exception callbacks capture the value current
+    // when they were sent, so a delayed failure from an earlier round is ignored instead of counting against the
+    // current round.
+    private int _generation;
     private bool _warnOnce = true;
     private readonly List<Request> _pendingRequests = new List<Request>();
     private long _nextRetry;

@@ -76,7 +76,7 @@ namespace
 
         vector<Ice::LocatorPrx> getLocators(const string&, const chrono::milliseconds&);
 
-        void exception(std::exception_ptr);
+        void exception(std::exception_ptr, size_t generation);
 
     private:
         void runTimerTask() final;
@@ -99,6 +99,10 @@ namespace
         bool _pending{false};
         int _pendingRetryCount{0};
         size_t _failureCount{0};
+        // Incremented at the start of each lookup round. The findLocatorAsync exception callbacks capture the value
+        // current when they were sent, so a delayed failure from an earlier round is ignored instead of counting
+        // against the current round.
+        size_t _generation{0};
         bool _warnOnce{true};
         vector<RequestPtr> _pendingRequests;
         std::mutex _mutex;
@@ -629,6 +633,7 @@ LocatorI::invoke(const optional<Ice::LocatorPrx>& locator, const RequestPtr& req
         {
             _pending = true;
             _failureCount = 0;
+            ++_generation;
             _pendingRetryCount = _retryCount;
             try
             {
@@ -647,7 +652,8 @@ LocatorI::invoke(const optional<Ice::LocatorPrx>& locator, const RequestPtr& req
                         _instanceName,
                         l.second,
                         nullptr,
-                        [self = shared_from_this()](exception_ptr ex) { self->exception(ex); });
+                        [self = shared_from_this(), generation = _generation](exception_ptr ex)
+                        { self->exception(ex, generation); });
                 }
                 _timer->schedule(shared_from_this(), _timeout);
             }
@@ -677,9 +683,15 @@ LocatorI::invoke(const optional<Ice::LocatorPrx>& locator, const RequestPtr& req
 }
 
 void
-LocatorI::exception(std::exception_ptr ex)
+LocatorI::exception(std::exception_ptr ex, size_t generation)
 {
     lock_guard lock(_mutex);
+    // Ignore a delayed failure from an earlier lookup round: it must not count against the current round, which reset
+    // _failureCount and may still have outstanding lookups.
+    if (generation != _generation)
+    {
+        return;
+    }
     if (++_failureCount == _lookups.size() && _pending)
     {
         //
@@ -762,13 +774,15 @@ LocatorI::runTimerTask()
                 }
             }
             _failureCount = 0;
+            ++_generation;
             for (const auto& l : _lookups)
             {
                 l.first->findLocatorAsync(
                     _instanceName,
                     l.second,
                     nullptr,
-                    [self = shared_from_this()](exception_ptr ex) { self->exception(ex); });
+                    [self = shared_from_this(), generation = _generation](exception_ptr ex)
+                    { self->exception(ex, generation); });
             }
             _timer->schedule(shared_from_this(), _timeout);
             return;
