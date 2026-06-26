@@ -199,8 +199,8 @@ class Twoways {
             String[] ids = p.ice_ids();
             test(ids.length == 3);
             test("::Ice::Object".equals(ids[0]));
-            test("::Test::MyInterface".equals(ids[1]));
-            test("::Test::MyDerivedInterface".equals(ids[2]));
+            test("::Test::MyDerivedInterface".equals(ids[1]));
+            test("::Test::MyInterface".equals(ids[2]));
         }
 
         {

@@ -124,8 +124,8 @@ internal class Twoways
             string[] ids = p.ice_ids();
             test(ids.Length == 3);
             test(ids[0] == "::Ice::Object");
-            test(ids[1] == "::Test::MyInterface");
-            test(ids[2] == "::Test::MyDerivedInterface");
+            test(ids[1] == "::Test::MyDerivedInterface");
+            test(ids[2] == "::Test::MyInterface");
         }
 
         {

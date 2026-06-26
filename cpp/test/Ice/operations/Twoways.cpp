@@ -171,8 +171,8 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
         Ice::StringSeq ids = p->ice_ids();
         test(ids.size() == 3);
         test(ids[0] == "::Ice::Object");
-        test(ids[1] == "::Test::MyInterface");
         test(ids[2] == "::Test::MyDerivedInterface");
+        test(ids[1] == "::Test::MyInterface");
     }
 
     {

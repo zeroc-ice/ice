@@ -79,8 +79,8 @@ namespace
         {
             test(ids.size() == 3);
             test(ids[0] == "::Ice::Object");
-            test(ids[1] == "::Test::MyInterface");
-            test(ids[2] == "::Test::MyDerivedInterface");
+            test(ids[1] == "::Test::MyDerivedInterface");
+            test(ids[2] == "::Test::MyInterface");
             called();
         }
 

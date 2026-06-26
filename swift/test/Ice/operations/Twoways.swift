@@ -122,8 +122,8 @@ func testProxyMethods(helper: TestHelper, prx p: MyInterfacePrx) async throws {
     let ids = try await p.ice_ids()
     try test(ids.count == 3)
     try test(ids[0] == "::Ice::Object")
-    try test(ids[1] == "::Test::MyInterface")
-    try test(ids[2] == "::Test::MyDerivedInterface")
+    try test(ids[1] == "::Test::MyDerivedInterface")
+    try test(ids[2] == "::Test::MyInterface")
 }
 
 func testVoid(helper: TestHelper, prx p: MyInterfacePrx) async throws {
