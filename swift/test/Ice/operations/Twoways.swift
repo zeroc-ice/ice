@@ -52,14 +52,14 @@ func twoways(_ helper: TestHelper, _ p: MyInterfacePrx) async throws {
         try test(s.tesT == "MyStruct1.s")
         try test(s.myInterface == nil)
         try test(s.myStruct1 == "MyStruct1.myStruct1")
-        var c = MyClass1()
-        c.tesT = "MyClass1.testT"
+        var c = MyClass()
+        c.tesT = "MyClass.testT"
         c.myInterface = nil
-        c.myClass1 = "MyClass1.myClass1"
-        c = try await d.opMyClass1(c)!
-        try test(c.tesT == "MyClass1.testT")
+        c.myClass = "MyClass.myClass"
+        c = try await d.opMyClass(c)!
+        try test(c.tesT == "MyClass.testT")
         try test(c.myInterface == nil)
-        try test(c.myClass1 == "MyClass1.myClass1")
+        try test(c.myClass == "MyClass.myClass")
     }
 }
 

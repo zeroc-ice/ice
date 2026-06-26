@@ -1380,14 +1380,14 @@ classdef Twoways
             assert(isempty(s.myInterface));
             assert(strcmp(s.myStruct1, 'Test.MyStruct1.myStruct1'));
 
-            c = MyClass1();
-            c.tesT = 'Test.MyClass1.testT';
+            c = MyClass();
+            c.tesT = 'Test.MyClass.testT';
             c.myInterface = Test.MyInterfacePrx.empty;
-            c.myClass1 = 'Test.MyClass1.myClass1';
-            c = d.opMyClass1(c);
-            assert(strcmp(c.tesT, 'Test.MyClass1.testT'));
+            c.myClass = 'Test.MyClass.myClass';
+            c = d.opMyClass(c);
+            assert(strcmp(c.tesT, 'Test.MyClass.testT'));
             assert(isempty(c.myInterface));
-            assert(strcmp(c.myClass1, 'Test.MyClass1.myClass1'));
+            assert(strcmp(c.myClass, 'Test.MyClass.myClass'));
         end
     end
 end

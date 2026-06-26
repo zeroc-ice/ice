@@ -467,8 +467,8 @@ class MyDerivedInterfaceI(Test.MyDerivedInterface):
         return byteBoolD
 
     @override
-    def opMyClass1(self, opMyClass1: Test.MyClass1 | None, current: Ice.Current) -> Test.MyClass1 | None:
-        return opMyClass1
+    def opMyClass(self, opMyClass: Test.MyClass | None, current: Ice.Current) -> Test.MyClass | None:
+        return opMyClass
 
     @override
     def opMyStruct1(self, opMyStruct1: Test.MyStruct1, current: Ice.Current) -> Test.MyStruct1:

@@ -3,7 +3,7 @@
 #include "WstringAMDI.h"
 
 void
-Test1::WstringClassI::opStringAsync(
+Test1::WstringInterfaceI::opStringAsync(
     std::wstring in,
     std::function<void(std::wstring_view, std::wstring_view)> response,
     std::function<void(std::exception_ptr)>,
@@ -13,7 +13,7 @@ Test1::WstringClassI::opStringAsync(
 }
 
 void
-Test1::WstringClassI::opStructAsync(
+Test1::WstringInterfaceI::opStructAsync(
     Test1::WstringStruct in,
     std::function<void(const Test1::WstringStruct&, const Test1::WstringStruct&)> response,
     std::function<void(std::exception_ptr)>,
@@ -23,7 +23,7 @@ Test1::WstringClassI::opStructAsync(
 }
 
 void
-Test1::WstringClassI::throwExceptAsync(
+Test1::WstringInterfaceI::throwExceptAsync(
     std::wstring in,
     std::function<void()>,
     std::function<void(std::exception_ptr)> error,
@@ -34,7 +34,7 @@ Test1::WstringClassI::throwExceptAsync(
 }
 
 void
-Test2::WstringClassI::opStringAsync(
+Test2::WstringInterfaceI::opStringAsync(
     std::wstring in,
     std::function<void(std::wstring_view, std::wstring_view)> response,
     std::function<void(std::exception_ptr)>,
@@ -44,7 +44,7 @@ Test2::WstringClassI::opStringAsync(
 }
 
 void
-Test2::WstringClassI::opStructAsync(
+Test2::WstringInterfaceI::opStructAsync(
     Test2::WstringStruct in,
     std::function<void(const Test2::WstringStruct&, const Test2::WstringStruct&)> response,
     std::function<void(std::exception_ptr)>,
@@ -54,7 +54,7 @@ Test2::WstringClassI::opStructAsync(
 }
 
 void
-Test2::WstringClassI::throwExceptAsync(
+Test2::WstringInterfaceI::throwExceptAsync(
     std::wstring in,
     std::function<void()>,
     std::function<void(std::exception_ptr)> error,

@@ -160,7 +160,7 @@ module Test
     const Test::M1::M2::C MyConstant3 = ::Test::M1::M2::C::C2; // OK
     const ::Test::M1::M2::C MyConstant4 = ::Test::M1::M2::C::C2; // OK
 
-    interface smnpTest1Class
+    interface smnpTest1Interface
     {
         M1::smnpStruct smnpTest1Op1() throws M1::smnpException; // OK
     }

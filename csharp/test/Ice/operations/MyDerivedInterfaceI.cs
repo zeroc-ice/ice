@@ -783,7 +783,7 @@ public sealed class MyDerivedInterfaceI : Test.MyDerivedInterfaceDisp_
     public override Dictionary<byte, bool> opByteBoolD2(Dictionary<byte, bool> byteBoolD, Ice.Current current) =>
         byteBoolD;
 
-    public override Test.MyClass1 opMyClass1(Test.MyClass1 opMyClass1, Ice.Current current) => opMyClass1;
+    public override Test.MyClass opMyClass(Test.MyClass opMyClass, Ice.Current current) => opMyClass;
 
     public override Test.MyStruct1 opMyStruct1(Test.MyStruct1 opMyStruct1, Ice.Current current) => opMyStruct1;
 

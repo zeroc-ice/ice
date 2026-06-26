@@ -756,8 +756,8 @@ public sealed class MyDerivedInterfaceI : Test.AsyncMyDerivedInterfaceDisp_
     public override Task<Dictionary<byte, bool>>
     opByteBoolD2Async(Dictionary<byte, bool> byteBoolD, Current current) => Task.FromResult(byteBoolD);
 
-    public override Task<Test.MyClass1>
-    opMyClass1Async(Test.MyClass1 opMyClass1, Current current) => Task.FromResult<Test.MyClass1>(opMyClass1);
+    public override Task<Test.MyClass>
+    opMyClassAsync(Test.MyClass opMyClass, Current current) => Task.FromResult<Test.MyClass>(opMyClass);
 
     public override Task<Test.MyStruct1>
     opMyStruct1Async(Test.MyStruct1 opMyStruct1, Current current) => Task.FromResult(opMyStruct1);

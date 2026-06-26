@@ -7,7 +7,7 @@ import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.OperationMode;
 
 import test.Ice.operations.Test.AsyncMyDerivedInterface;
-import test.Ice.operations.Test.MyClass1;
+import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyEnum;
 import test.Ice.operations.Test.MyInterface;
 import test.Ice.operations.Test.MyInterfacePrx;
@@ -725,7 +725,7 @@ public final class AMDMyDerivedInterfaceI implements AsyncMyDerivedInterface {
     }
 
     @Override
-    public CompletionStage<MyClass1> opMyClass1Async(MyClass1 value, Current current) {
+    public CompletionStage<MyClass> opMyClassAsync(MyClass value, Current current) {
         return CompletableFuture.completedFuture(value);
     }
 

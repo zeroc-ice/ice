@@ -1542,14 +1542,14 @@ internal class Twoways
             test(s.tesT == "MyStruct1.s");
             test(s.myInterface == null);
             test(s.myStruct1 == "MyStruct1.myStruct1");
-            var c = new Test.MyClass1();
-            c.tesT = "MyClass1.testT";
+            var c = new Test.MyClass();
+            c.tesT = "MyClass.testT";
             c.myInterface = null;
-            c.myClass1 = "MyClass1.myClass1";
-            c = d.opMyClass1(c);
-            test(c.tesT == "MyClass1.testT");
+            c.myClass = "MyClass.myClass";
+            c = d.opMyClass(c);
+            test(c.tesT == "MyClass.testT");
             test(c.myInterface == null);
-            test(c.myClass1 == "MyClass1.myClass1");
+            test(c.myClass == "MyClass.myClass");
         }
 
         {

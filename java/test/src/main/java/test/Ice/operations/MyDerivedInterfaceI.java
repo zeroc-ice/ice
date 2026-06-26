@@ -7,7 +7,7 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.OperationMode;
 
-import test.Ice.operations.Test.MyClass1;
+import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyDerivedInterface;
 import test.Ice.operations.Test.MyEnum;
 import test.Ice.operations.Test.MyInterface;
@@ -671,7 +671,7 @@ public final class MyDerivedInterfaceI implements MyDerivedInterface {
     }
 
     @Override
-    public MyClass1 opMyClass1(MyClass1 value, Current current) {
+    public MyClass opMyClass(MyClass value, Current current) {
         return value;
     }
 

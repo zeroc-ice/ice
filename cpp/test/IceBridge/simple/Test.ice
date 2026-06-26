@@ -13,7 +13,7 @@ module Test
         int getDatagramCount();
     }
 
-    interface MyClass
+    interface MyInterface
     {
         ["amd"] void callCallback();
         ["amd"] int getCallbackCount();

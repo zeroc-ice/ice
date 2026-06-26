@@ -1443,15 +1443,15 @@ def twoways(helper: TestHelper, p: Test.MyInterfacePrx) -> None:
     test(s.tesT == "Test.MyStruct1.s")
     test(s.myInterface is None)
     test(s.myStruct1 == "Test.MyStruct1.myStruct1")
-    c = Test.MyClass1()
-    c.tesT = "Test.MyClass1.testT"
+    c = Test.MyClass()
+    c.tesT = "Test.MyClass.testT"
     c.myInterface = None
-    c.myClass1 = "Test.MyClass1.myClass1"
-    c = d.opMyClass1(c)
+    c.myClass = "Test.MyClass.myClass"
+    c = d.opMyClass(c)
     assert c is not None
-    test(c.tesT == "Test.MyClass1.testT")
+    test(c.tesT == "Test.MyClass.testT")
     test(c.myInterface is None)
-    test(c.myClass1 == "Test.MyClass1.myClass1")
+    test(c.myClass == "Test.MyClass.myClass")
 
     p1 = p.opMStruct1()
     p1.e = Test.MyEnum.enum3

@@ -12,7 +12,7 @@
   <ItemGroup>
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../AllTests.cs" />
-    <Compile Include="../../MyClassI.cs" />
+    <Compile Include="../../MyInterfaceI.cs" />
     <Compile Include="../../Twoways.cs" />
     <Compile Include="../../TwowaysAMI.cs" />
     <Compile Include="../../Collocated.cs" />

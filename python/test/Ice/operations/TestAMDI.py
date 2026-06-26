@@ -522,8 +522,8 @@ class MyDerivedInterfaceI(Test.MyDerivedInterface):
         return Ice.Future.completed(byteBoolD)
 
     @override
-    def opMyClass1(self, opMyClass1: Test.MyClass1 | None, current: Ice.Current) -> Awaitable[Test.MyClass1 | None]:
-        return Ice.Future.completed(opMyClass1)
+    def opMyClass(self, opMyClass: Test.MyClass | None, current: Ice.Current) -> Awaitable[Test.MyClass | None]:
+        return Ice.Future.completed(opMyClass)
 
     @override
     def opMyStruct1(self, opMyStruct1: Test.MyStruct1, current: Ice.Current) -> Awaitable[Test.MyStruct1]:

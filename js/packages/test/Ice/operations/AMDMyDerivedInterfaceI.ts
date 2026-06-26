@@ -461,7 +461,7 @@ export class AMDMyDerivedInterfaceI extends Test.MyDerivedInterface {
         return value;
     }
 
-    opMyClass1(value: Test.MyClass1, _: Ice.Current): Test.MyClass1 {
+    opMyClass(value: Test.MyClass, _: Ice.Current): Test.MyClass {
         return value;
     }
 

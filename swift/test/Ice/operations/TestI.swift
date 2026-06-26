@@ -464,8 +464,8 @@ final class MyDerivedInterfaceI: MyDerivedInterface {
         return byteBoolD
     }
 
-    func opMyClass1(opMyClass1: MyClass1?, current _: Ice.Current) -> MyClass1? {
-        return opMyClass1
+    func opMyClass(opMyClass: MyClass?, current _: Ice.Current) -> MyClass? {
+        return opMyClass
     }
 
     func opMyStruct1(opMyStruct1: MyStruct1, current _: Ice.Current) -> MyStruct1 {

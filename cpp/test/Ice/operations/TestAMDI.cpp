@@ -855,9 +855,9 @@ MyDerivedInterfaceI::opMyStruct1Async(
 }
 
 void
-MyDerivedInterfaceI::opMyClass1Async(
-    shared_ptr<MyClass1> c,
-    function<void(const shared_ptr<MyClass1>&)> response,
+MyDerivedInterfaceI::opMyClassAsync(
+    shared_ptr<MyClass> c,
+    function<void(const shared_ptr<MyClass>&)> response,
     function<void(exception_ptr)>,
     const Current&)
 {

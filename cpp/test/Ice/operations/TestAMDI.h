@@ -415,9 +415,9 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
-    void opMyClass1Async(
-        std::shared_ptr<Test::MyClass1>,
-        std::function<void(const std::shared_ptr<Test::MyClass1>&)>,
+    void opMyClassAsync(
+        std::shared_ptr<Test::MyClass>,
+        std::function<void(const std::shared_ptr<Test::MyClass>&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 

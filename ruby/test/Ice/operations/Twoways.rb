@@ -1199,14 +1199,14 @@ def twoways(helper, communicator, p)
     test(s.tesT == "Test.MyStruct1.s")
     test(s.myInterface == nil)
     test(s.myStruct1 == "Test.MyStruct1.myStruct1")
-    c = Test::MyClass1.new
-    c.tesT = "Test.MyClass1.testT"
+    c = Test::MyClass.new
+    c.tesT = "Test.MyClass.testT"
     c.myInterface = nil
-    c.myClass1 = "Test.MyClass1.myClass1"
-    c = d.opMyClass1(c)
-    test(c.tesT == "Test.MyClass1.testT")
+    c.myClass = "Test.MyClass.myClass"
+    c = d.opMyClass(c)
+    test(c.tesT == "Test.MyClass.testT")
     test(c.myInterface == nil)
-    test(c.myClass1 == "Test.MyClass1.myClass1")
+    test(c.myClass == "Test.MyClass.myClass")
 
     p1 = p.opMStruct1()
     p1.e = Test::MyEnum::Enum3

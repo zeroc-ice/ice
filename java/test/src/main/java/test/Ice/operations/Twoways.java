@@ -4,7 +4,7 @@ package test.Ice.operations;
 
 import test.TestHelper;
 import test.Ice.operations.Test.AnotherStruct;
-import test.Ice.operations.Test.MyClass1;
+import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyDerivedInterface;
 import test.Ice.operations.Test.MyDerivedInterfacePrx;
 import test.Ice.operations.Test.MyEnum;
@@ -1467,14 +1467,14 @@ class Twoways {
         test("Test.MyStruct1.s".equals(s.tesT));
         test(s.myInterface == null);
         test("Test.MyStruct1.myStruct1".equals(s.myStruct1));
-        MyClass1 c = new MyClass1();
-        c.tesT = "Test.MyClass1.testT";
+        MyClass c = new MyClass();
+        c.tesT = "Test.MyClass.testT";
         c.myInterface = null;
-        c.myClass1 = "Test.MyClass1.myClass1";
-        c = d.opMyClass1(c);
-        test("Test.MyClass1.testT".equals(c.tesT));
+        c.myClass = "Test.MyClass.myClass";
+        c = d.opMyClass(c);
+        test("Test.MyClass.testT".equals(c.tesT));
         test(c.myInterface == null);
-        test("Test.MyClass1.myClass1".equals(c.myClass1));
+        test("Test.MyClass.myClass".equals(c.myClass));
 
         {
             Structure p1 = p.opMStruct1();

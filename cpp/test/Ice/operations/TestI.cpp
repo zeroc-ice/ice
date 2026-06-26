@@ -650,8 +650,8 @@ MyDerivedInterfaceI::opMyStruct1(Test::MyStruct1 s, const Ice::Current&)
     return s;
 }
 
-Test::MyClass1Ptr
-MyDerivedInterfaceI::opMyClass1(Test::MyClass1Ptr c, const Ice::Current&)
+Test::MyClassPtr
+MyDerivedInterfaceI::opMyClass(Test::MyClassPtr c, const Ice::Current&)
 {
     return c;
 }

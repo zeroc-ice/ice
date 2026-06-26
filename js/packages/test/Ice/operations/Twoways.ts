@@ -1422,14 +1422,14 @@ export async function twoways(
         test(s.tesT == "Test.MyStruct1.s");
         test(s.myInterface === null);
         test(s.myStruct1 == "Test.MyStruct1.myStruct1");
-        let c = new Test.MyClass1();
-        c.tesT = "Test.MyClass1.testT";
+        let c = new Test.MyClass();
+        c.tesT = "Test.MyClass.testT";
         c.myInterface = null;
-        c.myClass1 = "Test.MyClass1.myClass1";
-        c = (await d.opMyClass1(c)) as Test.MyClass1;
-        test(c.tesT == "Test.MyClass1.testT");
+        c.myClass = "Test.MyClass.myClass";
+        c = (await d.opMyClass(c)) as Test.MyClass;
+        test(c.tesT == "Test.MyClass.testT");
         test(c.myInterface === null);
-        test(c.myClass1 == "Test.MyClass1.myClass1");
+        test(c.myClass == "Test.MyClass.myClass");
     }
 
     {

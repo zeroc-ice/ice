@@ -237,18 +237,18 @@ module Test
         string myStruct1; // Same name as the enclosing struct
     }
 
-    class MyClass1
+    class MyClass
     {
         string tesT; // Same name as the enclosing module
         MyInterface* myInterface; // Same name as an already defined interface
-        string myClass1; // Same name as the enclosing class
+        string myClass; // Same name as the enclosing class
     }
 
     interface MyDerivedInterface extends MyInterface
     {
         void opDerived();
         MyStruct1 opMyStruct1(MyStruct1 s);
-        MyClass1 opMyClass1(MyClass1 c);
+        MyClass opMyClass(MyClass c);
     }
 
     //

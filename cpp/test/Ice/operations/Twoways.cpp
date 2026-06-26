@@ -1758,14 +1758,14 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
     test(s.myInterface == nullopt);
     test(s.myStruct1 == "Test::MyStruct1::myStruct1");
 
-    Test::MyClass1Ptr c = make_shared<Test::MyClass1>();
-    c->tesT = "Test::MyClass1::testT";
+    Test::MyClassPtr c = make_shared<Test::MyClass>();
+    c->tesT = "Test::MyClass::testT";
     c->myInterface = nullopt;
-    c->myClass1 = "Test::MyClass1::myClass1";
-    c = d->opMyClass1(c);
-    test(c->tesT == "Test::MyClass1::testT");
+    c->myClass = "Test::MyClass::myClass";
+    c = d->opMyClass(c);
+    test(c->tesT == "Test::MyClass::testT");
     test(c->myInterface == nullopt);
-    test(c->myClass1 == "Test::MyClass1::myClass1");
+    test(c->myClass == "Test::MyClass::myClass");
 
     Test::StringS seq;
     p->opStringS1(seq);

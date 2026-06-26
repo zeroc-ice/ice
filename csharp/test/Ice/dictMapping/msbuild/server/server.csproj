@@ -11,7 +11,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
-    <Compile Include="../../MyClassI.cs" />
+    <Compile Include="../../MyInterfaceI.cs" />
     <Compile Include="../../Server.cs" />
     <Compile Include="generated\Test.cs">
       <SliceCompileSource>../../Test.ice</SliceCompileSource>

@@ -7,7 +7,7 @@
 
 #include <atomic>
 
-class MyClassI final : public Test::MyClass, public std::enable_shared_from_this<MyClassI>
+clInterfaceI final : public Test::MyInterface, public std::enable_shared_from_this<MyInterfaceI>
 {
 public:
     void
