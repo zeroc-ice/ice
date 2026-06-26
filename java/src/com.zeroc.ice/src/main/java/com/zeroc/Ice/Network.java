@@ -264,14 +264,18 @@ public final class Network {
     }
 
     public static SocketChannel doAccept(ServerSocketChannel socketChannel) {
-        SocketChannel fd = null;
-        while (true) {
-            try {
-                fd = socketChannel.accept();
-                break;
-            } catch (IOException ex) {
-                throw new SocketException(ex);
-            }
+        SocketChannel fd;
+        try {
+            fd = socketChannel.accept();
+        } catch (IOException ex) {
+            throw new SocketException(ex);
+        }
+
+        // The acceptor's channel is non-blocking, so accept() returns null when no connection is actually pending
+        // (e.g. a spurious selector wakeup, or the pending connection was reset before accept()). Surface this as a
+        // SocketException so it's handled like any other accept failure, instead of dereferencing null.
+        if (fd == null) {
+            throw new SocketException();
         }
 
         try {
