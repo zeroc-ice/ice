@@ -13,7 +13,7 @@ import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.OperationNotExistException;
 import com.zeroc.Ice.Properties;
 
-import test.Ice.operations.Test.MyClassPrx;
+import test.Ice.operations.Test.MyInterfacePrx;
 import test.TestHelper;
 
 import java.io.PrintWriter;
@@ -64,12 +64,12 @@ class BatchOneways {
         private int _lastRequestSize;
     }
 
-    static void batchOneways(TestHelper helper, MyClassPrx p, PrintWriter out) {
+    static void batchOneways(TestHelper helper, MyInterfacePrx p, PrintWriter out) {
         final Communicator communicator = helper.communicator();
         final Properties properties = communicator.getProperties();
         final byte[] bs1 = new byte[10 * 1024];
 
-        MyClassPrx batch = p.ice_batchOneway();
+        MyInterfacePrx batch = p.ice_batchOneway();
         batch.ice_flushBatchRequests(); // Empty flush
         if (batch.ice_getConnection() != null) {
             batch.ice_getConnection().flushBatchRequests(CompressBatch.BasedOnProxy);
@@ -97,8 +97,8 @@ class BatchOneways {
         final boolean bluetooth =
             properties.getIceProperty("Ice.Default.Protocol").indexOf("bt") == 0;
         if (batch.ice_getConnection() != null && !bluetooth) {
-            MyClassPrx batch1 = p.ice_batchOneway();
-            MyClassPrx batch2 = p.ice_batchOneway();
+            MyInterfacePrx batch1 = p.ice_batchOneway();
+            MyInterfacePrx batch2 = p.ice_batchOneway();
 
             batch1.ice_ping();
             batch2.ice_ping();
@@ -134,7 +134,7 @@ class BatchOneways {
             BatchRequestInterceptorI interceptor = new BatchRequestInterceptorI();
             initData.batchRequestInterceptor = interceptor;
             try (Communicator ic = helper.initialize(initData)) {
-                batch = MyClassPrx.createProxy(ic, p.toString()).ice_batchOneway();
+                batch = MyInterfacePrx.createProxy(ic, p.toString()).ice_batchOneway();
 
                 test(interceptor.count() == 0);
                 batch.ice_ping();
@@ -175,9 +175,9 @@ class BatchOneways {
             ObjectPrx prx =
                 p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();
 
-            final MyClassPrx batchC1 = MyClassPrx.uncheckedCast(prx.ice_compress(false));
-            final MyClassPrx batchC2 = MyClassPrx.uncheckedCast(prx.ice_compress(true));
-            final MyClassPrx batchC3 = MyClassPrx.uncheckedCast(prx.ice_identity(identity));
+            final MyInterfacePrx batchC1 = MyInterfacePrx.uncheckedCast(prx.ice_compress(false));
+            final MyInterfacePrx batchC2 = MyInterfacePrx.uncheckedCast(prx.ice_compress(true));
+            final MyInterfacePrx batchC3 = MyInterfacePrx.uncheckedCast(prx.ice_identity(identity));
 
             batchC1.opByteSOneway(bs1);
             batchC1.opByteSOneway(bs1);

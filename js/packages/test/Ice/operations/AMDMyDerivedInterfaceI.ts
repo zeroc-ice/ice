@@ -4,7 +4,9 @@ import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
 import { test } from "../../Common/TestHelper.js";
 
-export class MyDerivedClassI extends Test.MyDerivedClass {
+// TODO this class is identical to MyDerivedInterfaceI, we should update it to return
+// a promise.
+export class AMDMyDerivedInterfaceI extends Test.MyDerivedInterface {
     _opByteSOnewayCount: number;
     _endpoints: Ice.Endpoint[];
     constructor(endpoints: Ice.Endpoint[]) {
@@ -100,10 +102,10 @@ export class MyDerivedClassI extends Test.MyDerivedClass {
         return [r, p1];
     }
 
-    opMyClass(p1: Test.MyClassPrx, current: Ice.Current): [Test.MyClassPrx, Test.MyClassPrx, Test.MyClassPrx] {
+    opMyInterface(p1: Test.MyInterfacePrx, current: Ice.Current): [Test.MyInterfacePrx, Test.MyInterfacePrx, Test.MyInterfacePrx] {
         const p2 = p1;
-        const p3 = Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")));
-        const r = Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
+        const p3 = Test.MyInterfacePrx.uncheckedCast(current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")));
+        const r = Test.MyInterfacePrx.uncheckedCast(current.adapter.createProxy(current.id));
         return [r.ice_endpoints(this._endpoints), p2, p3.ice_endpoints(this._endpoints)];
     }
 
@@ -354,6 +356,10 @@ export class MyDerivedClassI extends Test.MyDerivedClass {
         this._opByteSOnewayCount += 1;
     }
 
+    opOneway(current: Ice.Current): void {
+        test(current.requestId === 0);
+    }
+
     opByteSOnewayCallCount(_: Ice.Current): number {
         const count = this._opByteSOnewayCount;
         this._opByteSOnewayCount = 0;
@@ -407,10 +413,6 @@ export class MyDerivedClassI extends Test.MyDerivedClass {
 
     opIdempotent(current: Ice.Current) {
         test(current.mode === Ice.OperationMode.Idempotent);
-    }
-
-    opOneway(current: Ice.Current) {
-        test(current.requestId === 0);
     }
 
     opDerived(_: Ice.Current) {}

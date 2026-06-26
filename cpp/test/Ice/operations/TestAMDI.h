@@ -5,10 +5,10 @@
 
 #include "Test.h"
 
-class MyDerivedClassI final : public Test::AsyncMyDerivedClass
+class MyDerivedInterfaceI final : public Test::AsyncMyDerivedInterface
 {
 public:
-    MyDerivedClassI();
+    MyDerivedInterfaceI();
 
     void shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
 
@@ -59,12 +59,12 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
-    void opMyClassAsync(
-        std::optional<Test::MyClassPrx>,
+    void opMyInterfaceAsync(
+        std::optional<Test::MyInterfacePrx>,
         std::function<void(
-            const std::optional<Test::MyClassPrx>&,
-            const std::optional<Test::MyClassPrx>&,
-            const std::optional<Test::MyClassPrx>&)>,
+            const std::optional<Test::MyInterfacePrx>&,
+            const std::optional<Test::MyInterfacePrx>&,
+            const std::optional<Test::MyInterfacePrx>&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 

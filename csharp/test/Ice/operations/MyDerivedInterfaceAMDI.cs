@@ -2,7 +2,7 @@
 
 namespace Ice.operations.AMD;
 
-public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
+public sealed class MyDerivedInterfaceI : Test.AsyncMyDerivedInterfaceDisp_
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
@@ -64,10 +64,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         return _opVoidThread.Task;
     }
 
-    public override Task<Test.MyClass_OpBoolResult> opBoolAsync(bool p1, bool p2, Current current) =>
-        Task.FromResult(new Test.MyClass_OpBoolResult(p2, p1));
+    public override Task<Test.MyInterface_OpBoolResult> opBoolAsync(bool p1, bool p2, Current current) =>
+        Task.FromResult(new Test.MyInterface_OpBoolResult(p2, p1));
 
-    public override Task<Test.MyClass_OpBoolSResult> opBoolSAsync(bool[] p1, bool[] p2, Current current)
+    public override Task<Test.MyInterface_OpBoolSResult> opBoolSAsync(bool[] p1, bool[] p2, Current current)
     {
         bool[] p3 = new bool[p1.Length + p2.Length];
         Array.Copy(p1, p3, p1.Length);
@@ -79,10 +79,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
             r[i] = p1[^(i + 1)];
         }
 
-        return Task.FromResult(new Test.MyClass_OpBoolSResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpBoolSResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpBoolSSResult>
+    public override Task<Test.MyInterface_OpBoolSSResult>
     opBoolSSAsync(bool[][] p1, bool[][] p2, Current current)
     {
         bool[][] p3 = new bool[p1.Length + p2.Length][];
@@ -95,14 +95,14 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
             r[i] = p1[^(i + 1)];
         }
 
-        return Task.FromResult(new Test.MyClass_OpBoolSSResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpBoolSSResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpByteResult>
+    public override Task<Test.MyInterface_OpByteResult>
     opByteAsync(byte p1, byte p2, Current current) =>
-        Task.FromResult(new Test.MyClass_OpByteResult(p1, (byte)(p1 ^ p2)));
+        Task.FromResult(new Test.MyInterface_OpByteResult(p1, (byte)(p1 ^ p2)));
 
-    public override Task<Test.MyClass_OpByteBoolDResult>
+    public override Task<Test.MyInterface_OpByteBoolDResult>
     opByteBoolDAsync(Dictionary<byte, bool> p1, Dictionary<byte, bool> p2, Current current)
     {
         Dictionary<byte, bool> p3 = p1;
@@ -116,10 +116,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
             r[e.Key] = e.Value;
         }
 
-        return Task.FromResult(new Test.MyClass_OpByteBoolDResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpByteBoolDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpByteSResult>
+    public override Task<Test.MyInterface_OpByteSResult>
     opByteSAsync(byte[] p1, byte[] p2, Current current)
     {
         byte[] p3 = new byte[p1.Length];
@@ -132,10 +132,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         Array.Copy(p1, r, p1.Length);
         Array.Copy(p2, 0, r, p1.Length, p2.Length);
 
-        return Task.FromResult(new Test.MyClass_OpByteSResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpByteSResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpByteSSResult>
+    public override Task<Test.MyInterface_OpByteSSResult>
     opByteSSAsync(byte[][] p1, byte[][] p2, Current current)
     {
         byte[][] p3 = new byte[p1.Length][];
@@ -148,14 +148,14 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         Array.Copy(p1, r, p1.Length);
         Array.Copy(p2, 0, r, p1.Length, p2.Length);
 
-        return Task.FromResult(new Test.MyClass_OpByteSSResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpByteSSResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpFloatDoubleResult>
+    public override Task<Test.MyInterface_OpFloatDoubleResult>
     opFloatDoubleAsync(float p1, double p2, Current current) =>
-        Task.FromResult(new Test.MyClass_OpFloatDoubleResult(p2, p1, p2));
+        Task.FromResult(new Test.MyInterface_OpFloatDoubleResult(p2, p1, p2));
 
-    public override Task<Test.MyClass_OpFloatDoubleSResult>
+    public override Task<Test.MyInterface_OpFloatDoubleSResult>
     opFloatDoubleSAsync(float[] p1, double[] p2, Current current)
     {
         float[] p3 = p1;
@@ -173,10 +173,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
             r[p2.Length + i] = p1[i];
         }
 
-        return Task.FromResult(new Test.MyClass_OpFloatDoubleSResult(r, p3, p4));
+        return Task.FromResult(new Test.MyInterface_OpFloatDoubleSResult(r, p3, p4));
     }
 
-    public override Task<Test.MyClass_OpFloatDoubleSSResult>
+    public override Task<Test.MyInterface_OpFloatDoubleSSResult>
     opFloatDoubleSSAsync(float[][] p1, double[][] p2, Current current)
     {
         float[][] p3 = p1;
@@ -198,10 +198,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
             }
         }
 
-        return Task.FromResult(new Test.MyClass_OpFloatDoubleSSResult(r, p3, p4));
+        return Task.FromResult(new Test.MyInterface_OpFloatDoubleSSResult(r, p3, p4));
     }
 
-    public override Task<Test.MyClass_OpLongFloatDResult>
+    public override Task<Test.MyInterface_OpLongFloatDResult>
     opLongFloatDAsync(Dictionary<long, float> p1, Dictionary<long, float> p2, Current current)
     {
         Dictionary<long, float> p3 = p1;
@@ -215,24 +215,24 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
             r[e.Key] = e.Value;
         }
 
-        return Task.FromResult(new Test.MyClass_OpLongFloatDResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpLongFloatDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpMyClassResult>
-    opMyClassAsync(Test.MyClassPrx p1, Current current)
+    public override Task<Test.MyInterface_OpMyInterfaceResult>
+    opMyInterfaceAsync(Test.MyInterfacePrx p1, Current current)
     {
-        Test.MyClassPrx p2 = p1;
-        Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(
+        Test.MyInterfacePrx p2 = p1;
+        Test.MyInterfacePrx p3 = Test.MyInterfacePrxHelper.uncheckedCast(current.adapter.createProxy(
                                                 Ice.Util.stringToIdentity("noSuchIdentity")));
-        return Task.FromResult(new Test.MyClass_OpMyClassResult(
-            Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id)), p2, p3));
+        return Task.FromResult(new Test.MyInterface_OpMyInterfaceResult(
+            Test.MyInterfacePrxHelper.uncheckedCast(current.adapter.createProxy(current.id)), p2, p3));
     }
 
-    public override Task<Test.MyClass_OpMyEnumResult>
+    public override Task<Test.MyInterface_OpMyEnumResult>
     opMyEnumAsync(Test.MyEnum p1, Current current) =>
-        Task.FromResult(new Test.MyClass_OpMyEnumResult(Test.MyEnum.enum3, p1));
+        Task.FromResult(new Test.MyInterface_OpMyEnumResult(Test.MyEnum.enum3, p1));
 
-    public override Task<Test.MyClass_OpShortIntDResult>
+    public override Task<Test.MyInterface_OpShortIntDResult>
     opShortIntDAsync(Dictionary<short, int> p1, Dictionary<short, int> p2, Current current)
     {
         Dictionary<short, int> p3 = p1;
@@ -245,14 +245,14 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[e.Key] = e.Value;
         }
-        return Task.FromResult(new Test.MyClass_OpShortIntDResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpShortIntDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpShortIntLongResult>
+    public override Task<Test.MyInterface_OpShortIntLongResult>
     opShortIntLongAsync(short p1, int p2, long p3, Current current) =>
-        Task.FromResult(new Test.MyClass_OpShortIntLongResult(p3, p1, p2, p3));
+        Task.FromResult(new Test.MyInterface_OpShortIntLongResult(p3, p1, p2, p3));
 
-    public override Task<Test.MyClass_OpShortIntLongSResult>
+    public override Task<Test.MyInterface_OpShortIntLongSResult>
     opShortIntLongSAsync(short[] p1, int[] p2, long[] p3, Current current)
     {
         short[] p4 = p1;
@@ -264,10 +264,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         long[] p6 = new long[p3.Length + p3.Length];
         Array.Copy(p3, p6, p3.Length);
         Array.Copy(p3, 0, p6, p3.Length, p3.Length);
-        return Task.FromResult(new Test.MyClass_OpShortIntLongSResult(p3, p4, p5, p6));
+        return Task.FromResult(new Test.MyInterface_OpShortIntLongSResult(p3, p4, p5, p6));
     }
 
-    public override Task<Test.MyClass_OpShortIntLongSSResult>
+    public override Task<Test.MyInterface_OpShortIntLongSSResult>
     opShortIntLongSSAsync(short[][] p1, int[][] p2, long[][] p3, Current current)
     {
         short[][] p4 = p1;
@@ -281,14 +281,14 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         long[][] p6 = new long[p3.Length + p3.Length][];
         Array.Copy(p3, p6, p3.Length);
         Array.Copy(p3, 0, p6, p3.Length, p3.Length);
-        return Task.FromResult(new Test.MyClass_OpShortIntLongSSResult(p3, p4, p5, p6));
+        return Task.FromResult(new Test.MyInterface_OpShortIntLongSSResult(p3, p4, p5, p6));
     }
 
-    public override Task<Test.MyClass_OpStringResult>
+    public override Task<Test.MyInterface_OpStringResult>
     opStringAsync(string p1, string p2, Current current) =>
-        Task.FromResult(new Test.MyClass_OpStringResult(p1 + " " + p2, p2 + " " + p1));
+        Task.FromResult(new Test.MyInterface_OpStringResult(p1 + " " + p2, p2 + " " + p1));
 
-    public override Task<Test.MyClass_OpStringMyEnumDResult>
+    public override Task<Test.MyInterface_OpStringMyEnumDResult>
     opStringMyEnumDAsync(Dictionary<string, Test.MyEnum> p1, Dictionary<string, Test.MyEnum> p2, Current current)
     {
         Dictionary<string, Test.MyEnum> p3 = p1;
@@ -301,10 +301,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[e.Key] = e.Value;
         }
-        return Task.FromResult(new Test.MyClass_OpStringMyEnumDResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpStringMyEnumDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpMyEnumStringDResult>
+    public override Task<Test.MyInterface_OpMyEnumStringDResult>
     opMyEnumStringDAsync(Dictionary<Test.MyEnum, string> p1, Dictionary<Test.MyEnum, string> p2, Current current)
     {
         Dictionary<Test.MyEnum, string> p3 = p1;
@@ -317,10 +317,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[e.Key] = e.Value;
         }
-        return Task.FromResult(new Test.MyClass_OpMyEnumStringDResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpMyEnumStringDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpMyStructMyEnumDResult> opMyStructMyEnumDAsync(
+    public override Task<Test.MyInterface_OpMyStructMyEnumDResult> opMyStructMyEnumDAsync(
         Dictionary<Test.MyStruct, Test.MyEnum> p1,
         Dictionary<Test.MyStruct, Test.MyEnum> p2,
         Current current)
@@ -335,10 +335,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[e.Key] = e.Value;
         }
-        return Task.FromResult(new Test.MyClass_OpMyStructMyEnumDResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpMyStructMyEnumDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpByteBoolDSResult>
+    public override Task<Test.MyInterface_OpByteBoolDSResult>
     opByteBoolDSAsync(Dictionary<byte, bool>[] p1, Dictionary<byte, bool>[] p2, Current current)
     {
         var p3 = new Dictionary<byte, bool>[p1.Length + p2.Length];
@@ -350,10 +350,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[i] = p1[^(i + 1)];
         }
-        return Task.FromResult(new Test.MyClass_OpByteBoolDSResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpByteBoolDSResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpShortIntDSResult>
+    public override Task<Test.MyInterface_OpShortIntDSResult>
     opShortIntDSAsync(Dictionary<short, int>[] p1, Dictionary<short, int>[] p2, Current current)
     {
         var p3 = new Dictionary<short, int>[p1.Length + p2.Length];
@@ -365,10 +365,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[i] = p1[^(i + 1)];
         }
-        return Task.FromResult(new Test.MyClass_OpShortIntDSResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpShortIntDSResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpLongFloatDSResult>
+    public override Task<Test.MyInterface_OpLongFloatDSResult>
     opLongFloatDSAsync(Dictionary<long, float>[] p1, Dictionary<long, float>[] p2, Current current)
     {
         var p3 = new Dictionary<long, float>[p1.Length + p2.Length];
@@ -380,10 +380,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[i] = p1[^(i + 1)];
         }
-        return Task.FromResult(new Test.MyClass_OpLongFloatDSResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpLongFloatDSResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpStringStringDSResult>
+    public override Task<Test.MyInterface_OpStringStringDSResult>
     opStringStringDSAsync(Dictionary<string, string>[] p1, Dictionary<string, string>[] p2, Current current)
     {
         var p3 = new Dictionary<string, string>[p1.Length + p2.Length];
@@ -395,10 +395,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[i] = p1[^(i + 1)];
         }
-        return Task.FromResult(new Test.MyClass_OpStringStringDSResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpStringStringDSResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpStringMyEnumDSResult>
+    public override Task<Test.MyInterface_OpStringMyEnumDSResult>
     opStringMyEnumDSAsync(Dictionary<string, Test.MyEnum>[] p1, Dictionary<string, Test.MyEnum>[] p2, Current current)
     {
         var p3 = new Dictionary<string, Test.MyEnum>[p1.Length + p2.Length];
@@ -410,10 +410,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[i] = p1[^(i + 1)];
         }
-        return Task.FromResult(new Test.MyClass_OpStringMyEnumDSResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpStringMyEnumDSResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpMyEnumStringDSResult>
+    public override Task<Test.MyInterface_OpMyEnumStringDSResult>
     opMyEnumStringDSAsync(Dictionary<Test.MyEnum, string>[] p1, Dictionary<Test.MyEnum, string>[] p2, Current current)
     {
         var p3 = new Dictionary<Test.MyEnum, string>[p1.Length + p2.Length];
@@ -425,10 +425,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[i] = p1[^(i + 1)];
         }
-        return Task.FromResult(new Test.MyClass_OpMyEnumStringDSResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpMyEnumStringDSResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpMyStructMyEnumDSResult> opMyStructMyEnumDSAsync(
+    public override Task<Test.MyInterface_OpMyStructMyEnumDSResult> opMyStructMyEnumDSAsync(
         Dictionary<Test.MyStruct, Test.MyEnum>[] p1,
         Dictionary<Test.MyStruct, Test.MyEnum>[] p2,
         Current current)
@@ -442,10 +442,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[i] = p1[^(i + 1)];
         }
-        return Task.FromResult(new Test.MyClass_OpMyStructMyEnumDSResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpMyStructMyEnumDSResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpByteByteSDResult>
+    public override Task<Test.MyInterface_OpByteByteSDResult>
     opByteByteSDAsync(Dictionary<byte, byte[]> p1, Dictionary<byte, byte[]> p2, Current current)
     {
         Dictionary<byte, byte[]> p3 = p2;
@@ -458,10 +458,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[e.Key] = e.Value;
         }
-        return Task.FromResult(new Test.MyClass_OpByteByteSDResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpByteByteSDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpBoolBoolSDResult>
+    public override Task<Test.MyInterface_OpBoolBoolSDResult>
     opBoolBoolSDAsync(Dictionary<bool, bool[]> p1, Dictionary<bool, bool[]> p2, Current current)
     {
         Dictionary<bool, bool[]> p3 = p2;
@@ -474,10 +474,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[e.Key] = e.Value;
         }
-        return Task.FromResult(new Test.MyClass_OpBoolBoolSDResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpBoolBoolSDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpShortShortSDResult>
+    public override Task<Test.MyInterface_OpShortShortSDResult>
     opShortShortSDAsync(Dictionary<short, short[]> p1, Dictionary<short, short[]> p2, Current current)
     {
         Dictionary<short, short[]> p3 = p2;
@@ -490,10 +490,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[e.Key] = e.Value;
         }
-        return Task.FromResult(new Test.MyClass_OpShortShortSDResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpShortShortSDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpIntIntSDResult>
+    public override Task<Test.MyInterface_OpIntIntSDResult>
     opIntIntSDAsync(Dictionary<int, int[]> p1, Dictionary<int, int[]> p2, Current current)
     {
         Dictionary<int, int[]> p3 = p2;
@@ -506,10 +506,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[e.Key] = e.Value;
         }
-        return Task.FromResult(new Test.MyClass_OpIntIntSDResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpIntIntSDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpLongLongSDResult>
+    public override Task<Test.MyInterface_OpLongLongSDResult>
     opLongLongSDAsync(Dictionary<long, long[]> p1, Dictionary<long, long[]> p2, Current current)
     {
         Dictionary<long, long[]> p3 = p2;
@@ -522,10 +522,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[e.Key] = e.Value;
         }
-        return Task.FromResult(new Test.MyClass_OpLongLongSDResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpLongLongSDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpStringFloatSDResult>
+    public override Task<Test.MyInterface_OpStringFloatSDResult>
     opStringFloatSDAsync(Dictionary<string, float[]> p1, Dictionary<string, float[]> p2, Current current)
     {
         Dictionary<string, float[]> p3 = p2;
@@ -538,10 +538,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[e.Key] = e.Value;
         }
-        return Task.FromResult(new Test.MyClass_OpStringFloatSDResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpStringFloatSDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpStringDoubleSDResult>
+    public override Task<Test.MyInterface_OpStringDoubleSDResult>
     opStringDoubleSDAsync(Dictionary<string, double[]> p1, Dictionary<string, double[]> p2, Current current)
     {
         Dictionary<string, double[]> p3 = p2;
@@ -554,10 +554,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[e.Key] = e.Value;
         }
-        return Task.FromResult<Test.MyClass_OpStringDoubleSDResult>(new Test.MyClass_OpStringDoubleSDResult(r, p3));
+        return Task.FromResult<Test.MyInterface_OpStringDoubleSDResult>(new Test.MyInterface_OpStringDoubleSDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpStringStringSDResult>
+    public override Task<Test.MyInterface_OpStringStringSDResult>
     opStringStringSDAsync(Dictionary<string, string[]> p1, Dictionary<string, string[]> p2, Current current)
     {
         Dictionary<string, string[]> p3 = p2;
@@ -570,10 +570,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[e.Key] = e.Value;
         }
-        return Task.FromResult<Test.MyClass_OpStringStringSDResult>(new Test.MyClass_OpStringStringSDResult(r, p3));
+        return Task.FromResult<Test.MyInterface_OpStringStringSDResult>(new Test.MyInterface_OpStringStringSDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpMyEnumMyEnumSDResult> opMyEnumMyEnumSDAsync(
+    public override Task<Test.MyInterface_OpMyEnumMyEnumSDResult> opMyEnumMyEnumSDAsync(
         Dictionary<Test.MyEnum, Test.MyEnum[]> p1,
         Dictionary<Test.MyEnum, Test.MyEnum[]> p2,
         Current current)
@@ -588,7 +588,7 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[e.Key] = e.Value;
         }
-        return Task.FromResult(new Test.MyClass_OpMyEnumMyEnumSDResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpMyEnumMyEnumSDResult(r, p3));
     }
 
     public override Task<int[]>
@@ -638,7 +638,7 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         return Task.CompletedTask;
     }
 
-    public override Task<Test.MyClass_OpStringSResult>
+    public override Task<Test.MyInterface_OpStringSResult>
     opStringSAsync(string[] p1, string[] p2, Current current)
     {
         string[] p3 = new string[p1.Length + p2.Length];
@@ -650,10 +650,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[i] = p1[^(i + 1)];
         }
-        return Task.FromResult(new Test.MyClass_OpStringSResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpStringSResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpStringSSResult>
+    public override Task<Test.MyInterface_OpStringSSResult>
     opStringSSAsync(string[][] p1, string[][] p2, Current current)
     {
         string[][] p3 = new string[p1.Length + p2.Length][];
@@ -664,10 +664,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[i] = p2[^(i + 1)];
         }
-        return Task.FromResult(new Test.MyClass_OpStringSSResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpStringSSResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpStringSSSResult>
+    public override Task<Test.MyInterface_OpStringSSSResult>
     opStringSSSAsync(string[][][] p1, string[][][] p2, Current current)
     {
         string[][][] p3 = new string[p1.Length + p2.Length][][];
@@ -679,10 +679,10 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[i] = p2[^(i + 1)];
         }
-        return Task.FromResult(new Test.MyClass_OpStringSSSResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpStringSSSResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpStringStringDResult>
+    public override Task<Test.MyInterface_OpStringStringDResult>
     opStringStringDAsync(Dictionary<string, string> p1, Dictionary<string, string> p2, Current current)
     {
         Dictionary<string, string> p3 = p1;
@@ -695,15 +695,15 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
         {
             r[e.Key] = e.Value;
         }
-        return Task.FromResult(new Test.MyClass_OpStringStringDResult(r, p3));
+        return Task.FromResult(new Test.MyInterface_OpStringStringDResult(r, p3));
     }
 
-    public override Task<Test.MyClass_OpStructResult>
+    public override Task<Test.MyInterface_OpStructResult>
     opStructAsync(Test.Structure p1, Test.Structure p2, Current current)
     {
         Test.Structure p3 = p1;
         p3.s.s = "a new string";
-        return Task.FromResult(new Test.MyClass_OpStructResult(p2, p3));
+        return Task.FromResult(new Test.MyInterface_OpStructResult(p2, p3));
     }
 
     public override Task
@@ -846,26 +846,26 @@ public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
             });
     }
 
-    public override Task<Test.MyClass_OpMStruct1MarshaledResult> opMStruct1Async(Current current) =>
+    public override Task<Test.MyInterface_OpMStruct1MarshaledResult> opMStruct1Async(Current current) =>
         Task.FromResult(
-            new Test.MyClass_OpMStruct1MarshaledResult(new Test.Structure(new Test.AnotherStruct()), current));
+            new Test.MyInterface_OpMStruct1MarshaledResult(new Test.Structure(new Test.AnotherStruct()), current));
 
-    public override Task<Test.MyClass_OpMStruct2MarshaledResult> opMStruct2Async(Test.Structure p1, Current current) =>
-        Task.FromResult(new Test.MyClass_OpMStruct2MarshaledResult(p1, p1, current));
+    public override Task<Test.MyInterface_OpMStruct2MarshaledResult> opMStruct2Async(Test.Structure p1, Current current) =>
+        Task.FromResult(new Test.MyInterface_OpMStruct2MarshaledResult(p1, p1, current));
 
-    public override Task<Test.MyClass_OpMSeq1MarshaledResult> opMSeq1Async(Current current) =>
-        Task.FromResult(new Test.MyClass_OpMSeq1MarshaledResult([], current));
+    public override Task<Test.MyInterface_OpMSeq1MarshaledResult> opMSeq1Async(Current current) =>
+        Task.FromResult(new Test.MyInterface_OpMSeq1MarshaledResult([], current));
 
-    public override Task<Test.MyClass_OpMSeq2MarshaledResult> opMSeq2Async(string[] p1, Current current) =>
-        Task.FromResult(new Test.MyClass_OpMSeq2MarshaledResult(p1, p1, current));
+    public override Task<Test.MyInterface_OpMSeq2MarshaledResult> opMSeq2Async(string[] p1, Current current) =>
+        Task.FromResult(new Test.MyInterface_OpMSeq2MarshaledResult(p1, p1, current));
 
-    public override Task<Test.MyClass_OpMDict1MarshaledResult> opMDict1Async(Current current) =>
-        Task.FromResult(new Test.MyClass_OpMDict1MarshaledResult([], current));
+    public override Task<Test.MyInterface_OpMDict1MarshaledResult> opMDict1Async(Current current) =>
+        Task.FromResult(new Test.MyInterface_OpMDict1MarshaledResult([], current));
 
-    public override Task<Test.MyClass_OpMDict2MarshaledResult> opMDict2Async(
+    public override Task<Test.MyInterface_OpMDict2MarshaledResult> opMDict2Async(
         Dictionary<string, string> p1,
         Current current) =>
-        Task.FromResult(new Test.MyClass_OpMDict2MarshaledResult(p1, p1, current));
+        Task.FromResult(new Test.MyInterface_OpMDict2MarshaledResult(p1, p1, current));
 
     private Thread_opVoid _opVoidThread;
     private int _opByteSOnewayCallCount;

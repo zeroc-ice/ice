@@ -90,7 +90,7 @@ def twoways(helper, communicator, p)
     #
     # ice_isA
     #
-    test(p.ice_isA("::Test::MyClass"))
+    test(p.ice_isA("::Test::MyInterface"))
 
     #
     # ice_ids
@@ -98,19 +98,19 @@ def twoways(helper, communicator, p)
     ids = p.ice_ids
     test(ids.length == 3)
     test(ids[0] == "::Ice::Object")
-    test(ids[1] == "::Test::MyClass")
-    test(ids[2] == "::Test::MyDerivedClass")
+    test(ids[1] == "::Test::MyInterface")
+    test(ids[2] == "::Test::MyDerivedInterface")
 
     #
     # ice_id
     #
-    test(p.ice_id == "::Test::MyDerivedClass")
+    test(p.ice_id == "::Test::MyDerivedInterface")
 
     #
     # Proxy ice_staticId
     #
-    test(Test::MyClassPrx::ice_staticId() == "::Test::MyClass")
-    test(Test::MyDerivedClassPrx::ice_staticId() == "::Test::MyDerivedClass")
+    test(Test::MyInterfacePrx::ice_staticId() == "::Test::MyInterface")
+    test(Test::MyDerivedInterfacePrx::ice_staticId() == "::Test::MyDerivedInterface")
     test(Ice::ObjectPrx::ice_staticId() == Ice::Value::ice_staticId())
 
     #
@@ -253,9 +253,9 @@ def twoways(helper, communicator, p)
     test(r == Test::MyEnum::Enum3)
 
     #
-    # opMyClass
+    # opMyInterface
     #
-    r, c1, c2 = p.opMyClass(p)
+    r, c1, c2 = p.opMyInterface(p)
     test(Ice::proxyIdentityAndFacetEqual(c1, p))
     test(!Ice::proxyIdentityAndFacetEqual(c2, p))
     test(Ice::proxyIdentityAndFacetEqual(r, p))
@@ -270,7 +270,7 @@ def twoways(helper, communicator, p)
     rescue Ice::ObjectNotExistException
     end
 
-    r, c1, c2 = p.opMyClass(nil)
+    r, c1, c2 = p.opMyInterface(nil)
     test(!c1)
     test(c2)
     test(Ice::proxyIdentityAndFacetEqual(r, p))
@@ -1188,24 +1188,24 @@ def twoways(helper, communicator, p)
     test(p.opStringS2(nil).length == 0)
     test(p.opByteBoolD2(nil).length == 0)
 
-    d = Test::MyDerivedClassPrx.uncheckedCast(p)
-    test(d.class == Test::MyDerivedClassPrx)
+    d = Test::MyDerivedInterfacePrx.uncheckedCast(p)
+    test(d.class == Test::MyDerivedInterfacePrx)
 
     s = Test::MyStruct1.new
     s.tesT = "Test.MyStruct1.s"
-    s.myClass = nil
+    s.myInterface = nil
     s.myStruct1 = "Test.MyStruct1.myStruct1"
     s = d.opMyStruct1(s)
     test(s.tesT == "Test.MyStruct1.s")
-    test(s.myClass == nil)
+    test(s.myInterface == nil)
     test(s.myStruct1 == "Test.MyStruct1.myStruct1")
     c = Test::MyClass1.new
     c.tesT = "Test.MyClass1.testT"
-    c.myClass = nil
+    c.myInterface = nil
     c.myClass1 = "Test.MyClass1.myClass1"
     c = d.opMyClass1(c)
     test(c.tesT == "Test.MyClass1.testT")
-    test(c.myClass == nil)
+    test(c.myInterface == nil)
     test(c.myClass1 == "Test.MyClass1.myClass1")
 
     p1 = p.opMStruct1()
@@ -1236,7 +1236,7 @@ def twoways(helper, communicator, p)
 
         ctx = {'one'=>'ONE', 'two'=>'TWO', 'three'=>'THREE'}
 
-        p = Test::MyClassPrx.new(ic, "test:#{helper.getTestEndpoint()}")
+        p = Test::MyInterfacePrx.new(ic, "test:#{helper.getTestEndpoint()}")
 
         ic.getImplicitContext().setContext(ctx)
         test(ic.getImplicitContext().getContext() == ctx)

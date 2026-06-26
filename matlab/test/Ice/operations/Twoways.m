@@ -104,15 +104,15 @@ classdef Twoways
 
             p.ice_ping();
 
-            assert(p.ice_isA(MyClassPrx.ice_staticId()));
+            assert(p.ice_isA(MyInterfacePrx.ice_staticId()));
 
-            assert(strcmp(p.ice_id(), MyDerivedClassPrx.ice_staticId()));
+            assert(strcmp(p.ice_id(), MyDerivedInterfacePrx.ice_staticId()));
 
             ids = p.ice_ids();
             assert(length(ids) == 3);
             assert(strcmp(ids{1}, '::Ice::Object'));
-            assert(strcmp(ids{2}, '::Test::MyClass'));
-            assert(strcmp(ids{3}, '::Test::MyDerivedClass'));
+            assert(strcmp(ids{2}, '::Test::MyInterface'));
+            assert(strcmp(ids{3}, '::Test::MyDerivedInterface'));
 
             p.opVoid();
 
@@ -165,7 +165,7 @@ classdef Twoways
             assert(p2 == MyEnum.enum2);
             assert(r == MyEnum.enum3);
 
-            [r, p2, p3] = p.opMyClass(p);
+            [r, p2, p3] = p.opMyInterface(p);
             assert(Ice.proxyIdentityAndFacetCompare(p2, p) == 0);
             assert(Ice.proxyIdentityAndFacetCompare(p3, p) ~= 0);
             assert(Ice.proxyIdentityAndFacetCompare(r, p) == 0);
@@ -181,7 +181,7 @@ classdef Twoways
                 assert(isa(ex, 'Ice.ObjectNotExistException'));
             end
 
-            [r, p2, p3] = p.opMyClass(MyClassPrx.empty);
+            [r, p2, p3] = p.opMyInterface(MyInterfacePrx.empty);
             assert(isempty(p2));
             assert(~isempty(p3));
             assert(Ice.proxyIdentityAndFacetCompare(r, p) == 0);
@@ -193,7 +193,7 @@ classdef Twoways
             si1.s = AnotherStruct();
             si1.s.s = 'abc';
             si2 = Structure();
-            si2.p = Test.MyClassPrx.empty;
+            si2.p = Test.MyInterfacePrx.empty;
             si2.e = MyEnum.enum2;
             si2.s = AnotherStruct();
             si2.s.s = 'def';
@@ -1309,7 +1309,7 @@ classdef Twoways
                 ctx('two') = 'TWO';
                 ctx('three') = 'THREE';
 
-                p3 = MyClassPrx(ic, ['test:', helper.getTestEndpoint()]);
+                p3 = MyInterfacePrx(ic, ['test:', helper.getTestEndpoint()]);
 
                 ic.getImplicitContext().setContext(ctx);
                 assert(isequal(ic.getImplicitContext().getContext(), ctx));
@@ -1370,23 +1370,23 @@ classdef Twoways
             assert(length(p.opStringS2([])) == 0);
             assert(p.opByteBoolD2(emptyByteBoolD).numEntries == 0);
 
-            d = MyDerivedClassPrx.uncheckedCast(p);
+            d = MyDerivedInterfacePrx.uncheckedCast(p);
             s = MyStruct1();
             s.tesT = 'Test.MyStruct1.s';
-            s.myClass = Test.MyClassPrx.empty;
+            s.myInterface = Test.MyInterfacePrx.empty;
             s.myStruct1 = 'Test.MyStruct1.myStruct1';
             s = d.opMyStruct1(s);
             assert(strcmp(s.tesT, 'Test.MyStruct1.s'));
-            assert(isempty(s.myClass));
+            assert(isempty(s.myInterface));
             assert(strcmp(s.myStruct1, 'Test.MyStruct1.myStruct1'));
 
             c = MyClass1();
             c.tesT = 'Test.MyClass1.testT';
-            c.myClass = Test.MyClassPrx.empty;
+            c.myInterface = Test.MyInterfacePrx.empty;
             c.myClass1 = 'Test.MyClass1.myClass1';
             c = d.opMyClass1(c);
             assert(strcmp(c.tesT, 'Test.MyClass1.testT'));
-            assert(isempty(c.myClass));
+            assert(isempty(c.myInterface));
             assert(strcmp(c.myClass1, 'Test.MyClass1.myClass1'));
         end
     end

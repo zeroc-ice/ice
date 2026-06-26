@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-func allTests(helper: TestHelper) async throws -> MyClassPrx {
+func allTests(helper: TestHelper) async throws -> MyInterfacePrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -12,8 +12,8 @@ func allTests(helper: TestHelper) async throws -> MyClassPrx {
     let communicator = helper.communicator()
 
     let baseProxy = try communicator.stringToProxy("test:\(helper.getTestEndpoint(num: 0))")!
-    let cl = try await checkedCast(prx: baseProxy, type: MyClassPrx.self)!
-    let derivedProxy = try await checkedCast(prx: cl, type: MyDerivedClassPrx.self)!
+    let cl = try await checkedCast(prx: baseProxy, type: MyInterfacePrx.self)!
+    let derivedProxy = try await checkedCast(prx: cl, type: MyDerivedInterfacePrx.self)!
 
     output.write("testing twoway operations... ")
     try await twoways(helper, cl)

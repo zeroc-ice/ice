@@ -9,8 +9,8 @@ public class Client : TestHelper
     public override async Task runAsync(string[] args)
     {
         await using Communicator communicator = initialize(ref args);
-        Test.MyClassPrx myClass = await AllTests.allTests(this);
-        myClass.shutdown();
+        Test.MyInterfacePrx myInterface = await AllTests.allTests(this);
+        myInterface.shutdown();
     }
 
     public static Task<int> Main(string[] args) =>

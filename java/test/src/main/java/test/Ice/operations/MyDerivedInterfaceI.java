@@ -7,11 +7,11 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.OperationMode;
 
-import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyClass1;
-import test.Ice.operations.Test.MyClassPrx;
-import test.Ice.operations.Test.MyDerivedClass;
+import test.Ice.operations.Test.MyDerivedInterface;
 import test.Ice.operations.Test.MyEnum;
+import test.Ice.operations.Test.MyInterface;
+import test.Ice.operations.Test.MyInterfacePrx;
 import test.Ice.operations.Test.MyStruct;
 import test.Ice.operations.Test.MyStruct1;
 import test.Ice.operations.Test.Structure;
@@ -53,7 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class MyDerivedClassI implements MyDerivedClass {
+public final class MyDerivedInterfaceI implements MyDerivedInterface {
     private static void test(boolean b) {
         if (!b) {
             throw new RuntimeException();
@@ -76,13 +76,13 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpBoolResult opBool(boolean p1, boolean p2, Current current) {
-        return new MyClass.OpBoolResult(p2, p1);
+    public MyInterface.OpBoolResult opBool(boolean p1, boolean p2, Current current) {
+        return new MyInterface.OpBoolResult(p2, p1);
     }
 
     @Override
-    public MyClass.OpBoolSResult opBoolS(boolean[] p1, boolean[] p2, Current current) {
-        MyClass.OpBoolSResult r = new MyClass.OpBoolSResult();
+    public MyInterface.OpBoolSResult opBoolS(boolean[] p1, boolean[] p2, Current current) {
+        MyInterface.OpBoolSResult r = new MyInterface.OpBoolSResult();
         r.p3 = new boolean[p1.length + p2.length];
         System.arraycopy(p1, 0, r.p3, 0, p1.length);
         System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
@@ -95,8 +95,8 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpBoolSSResult opBoolSS(boolean[][] p1, boolean[][] p2, Current current) {
-        MyClass.OpBoolSSResult r = new MyClass.OpBoolSSResult();
+    public MyInterface.OpBoolSSResult opBoolSS(boolean[][] p1, boolean[][] p2, Current current) {
+        MyInterface.OpBoolSSResult r = new MyInterface.OpBoolSSResult();
         r.p3 = new boolean[p1.length + p2.length][];
         System.arraycopy(p1, 0, r.p3, 0, p1.length);
         System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
@@ -109,14 +109,14 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpByteResult opByte(byte p1, byte p2, Current current) {
-        return new MyClass.OpByteResult(p1, (byte) (p1 ^ p2));
+    public MyInterface.OpByteResult opByte(byte p1, byte p2, Current current) {
+        return new MyInterface.OpByteResult(p1, (byte) (p1 ^ p2));
     }
 
     @Override
-    public MyClass.OpByteBoolDResult opByteBoolD(
+    public MyInterface.OpByteBoolDResult opByteBoolD(
             Map<Byte, Boolean> p1, Map<Byte, Boolean> p2, Current current) {
-        MyClass.OpByteBoolDResult r = new MyClass.OpByteBoolDResult();
+        MyInterface.OpByteBoolDResult r = new MyInterface.OpByteBoolDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -125,8 +125,8 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpByteSResult opByteS(byte[] p1, byte[] p2, Current current) {
-        MyClass.OpByteSResult r = new MyClass.OpByteSResult();
+    public MyInterface.OpByteSResult opByteS(byte[] p1, byte[] p2, Current current) {
+        MyInterface.OpByteSResult r = new MyInterface.OpByteSResult();
         r.p3 = new byte[p1.length];
         for (int i = 0; i < p1.length; i++) {
             r.p3[i] = p1[p1.length - (i + 1)];
@@ -139,8 +139,8 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpByteSSResult opByteSS(byte[][] p1, byte[][] p2, Current current) {
-        MyClass.OpByteSSResult r = new MyClass.OpByteSSResult();
+    public MyInterface.OpByteSSResult opByteSS(byte[][] p1, byte[][] p2, Current current) {
+        MyInterface.OpByteSSResult r = new MyInterface.OpByteSSResult();
         r.p3 = new byte[p1.length][];
         for (int i = 0; i < p1.length; i++) {
             r.p3[i] = p1[p1.length - (i + 1)];
@@ -153,13 +153,13 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpFloatDoubleResult opFloatDouble(float p1, double p2, Current current) {
-        return new MyClass.OpFloatDoubleResult(p2, p1, p2);
+    public MyInterface.OpFloatDoubleResult opFloatDouble(float p1, double p2, Current current) {
+        return new MyInterface.OpFloatDoubleResult(p2, p1, p2);
     }
 
     @Override
-    public MyClass.OpFloatDoubleSResult opFloatDoubleS(float[] p1, double[] p2, Current current) {
-        MyClass.OpFloatDoubleSResult r = new MyClass.OpFloatDoubleSResult();
+    public MyInterface.OpFloatDoubleSResult opFloatDoubleS(float[] p1, double[] p2, Current current) {
+        MyInterface.OpFloatDoubleSResult r = new MyInterface.OpFloatDoubleSResult();
         r.p3 = p1;
         r.p4 = new double[p2.length];
         for (int i = 0; i < p2.length; i++) {
@@ -174,9 +174,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpFloatDoubleSSResult opFloatDoubleSS(
+    public MyInterface.OpFloatDoubleSSResult opFloatDoubleSS(
             float[][] p1, double[][] p2, Current current) {
-        MyClass.OpFloatDoubleSSResult r = new MyClass.OpFloatDoubleSSResult();
+        MyInterface.OpFloatDoubleSSResult r = new MyInterface.OpFloatDoubleSSResult();
         r.p3 = p1;
         r.p4 = new double[p2.length][];
         for (int i = 0; i < p2.length; i++) {
@@ -189,9 +189,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpLongFloatDResult opLongFloatD(
+    public MyInterface.OpLongFloatDResult opLongFloatD(
             Map<Long, Float> p1, Map<Long, Float> p2, Current current) {
-        MyClass.OpLongFloatDResult r = new MyClass.OpLongFloatDResult();
+        MyInterface.OpLongFloatDResult r = new MyInterface.OpLongFloatDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -200,26 +200,26 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpMyClassResult opMyClass(MyClassPrx p1, Current current) {
-        MyClass.OpMyClassResult r = new MyClass.OpMyClassResult();
+    public MyInterface.OpMyInterfaceResult opMyInterface(MyInterfacePrx p1, Current current) {
+        MyInterface.OpMyInterfaceResult r = new MyInterface.OpMyInterfaceResult();
         r.p2 = p1;
         r.p3 =
-            MyClassPrx.uncheckedCast(
+            MyInterfacePrx.uncheckedCast(
                 current.adapter.createProxy(
                     new Identity("noSuchIdentity", "")));
-        r.returnValue = MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
+        r.returnValue = MyInterfacePrx.uncheckedCast(current.adapter.createProxy(current.id));
         return r;
     }
 
     @Override
-    public MyClass.OpMyEnumResult opMyEnum(MyEnum p1, Current current) {
-        return new MyClass.OpMyEnumResult(MyEnum.enum3, p1);
+    public MyInterface.OpMyEnumResult opMyEnum(MyEnum p1, Current current) {
+        return new MyInterface.OpMyEnumResult(MyEnum.enum3, p1);
     }
 
     @Override
-    public MyClass.OpShortIntDResult opShortIntD(
+    public MyInterface.OpShortIntDResult opShortIntD(
             Map<Short, Integer> p1, Map<Short, Integer> p2, Current current) {
-        MyClass.OpShortIntDResult r = new MyClass.OpShortIntDResult();
+        MyInterface.OpShortIntDResult r = new MyInterface.OpShortIntDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -228,14 +228,14 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpShortIntLongResult opShortIntLong(short p1, int p2, long p3, Current current) {
-        return new MyClass.OpShortIntLongResult(p3, p1, p2, p3);
+    public MyInterface.OpShortIntLongResult opShortIntLong(short p1, int p2, long p3, Current current) {
+        return new MyInterface.OpShortIntLongResult(p3, p1, p2, p3);
     }
 
     @Override
-    public MyClass.OpShortIntLongSResult opShortIntLongS(
+    public MyInterface.OpShortIntLongSResult opShortIntLongS(
             short[] p1, int[] p2, long[] p3, Current current) {
-        MyClass.OpShortIntLongSResult r = new MyClass.OpShortIntLongSResult();
+        MyInterface.OpShortIntLongSResult r = new MyInterface.OpShortIntLongSResult();
         r.p4 = p1;
         r.p5 = new int[p2.length];
         for (int i = 0; i < p2.length; i++) {
@@ -249,9 +249,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpShortIntLongSSResult opShortIntLongSS(
+    public MyInterface.OpShortIntLongSSResult opShortIntLongSS(
             short[][] p1, int[][] p2, long[][] p3, Current current) {
-        MyClass.OpShortIntLongSSResult r = new MyClass.OpShortIntLongSSResult();
+        MyInterface.OpShortIntLongSSResult r = new MyInterface.OpShortIntLongSSResult();
         r.p4 = p1;
         r.p5 = new int[p2.length][];
         for (int i = 0; i < p2.length; i++) {
@@ -265,17 +265,17 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpStringResult opString(String p1, String p2, Current current) {
-        MyClass.OpStringResult r = new MyClass.OpStringResult();
+    public MyInterface.OpStringResult opString(String p1, String p2, Current current) {
+        MyInterface.OpStringResult r = new MyInterface.OpStringResult();
         r.p3 = p2 + " " + p1;
         r.returnValue = p1 + " " + p2;
         return r;
     }
 
     @Override
-    public MyClass.OpStringMyEnumDResult opStringMyEnumD(
+    public MyInterface.OpStringMyEnumDResult opStringMyEnumD(
             Map<String, MyEnum> p1, Map<String, MyEnum> p2, Current current) {
-        MyClass.OpStringMyEnumDResult r = new MyClass.OpStringMyEnumDResult();
+        MyInterface.OpStringMyEnumDResult r = new MyInterface.OpStringMyEnumDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -284,9 +284,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpMyEnumStringDResult opMyEnumStringD(
+    public MyInterface.OpMyEnumStringDResult opMyEnumStringD(
             Map<MyEnum, String> p1, Map<MyEnum, String> p2, Current current) {
-        MyClass.OpMyEnumStringDResult r = new MyClass.OpMyEnumStringDResult();
+        MyInterface.OpMyEnumStringDResult r = new MyInterface.OpMyEnumStringDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -295,11 +295,11 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpMyStructMyEnumDResult opMyStructMyEnumD(
+    public MyInterface.OpMyStructMyEnumDResult opMyStructMyEnumD(
             Map<MyStruct, MyEnum> p1,
             Map<MyStruct, MyEnum> p2,
             Current current) {
-        MyClass.OpMyStructMyEnumDResult r = new MyClass.OpMyStructMyEnumDResult();
+        MyInterface.OpMyStructMyEnumDResult r = new MyInterface.OpMyStructMyEnumDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -308,9 +308,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpByteBoolDSResult opByteBoolDS(
+    public MyInterface.OpByteBoolDSResult opByteBoolDS(
             List<Map<Byte, Boolean>> p1, List<Map<Byte, Boolean>> p2, Current current) {
-        MyClass.OpByteBoolDSResult r = new MyClass.OpByteBoolDSResult();
+        MyInterface.OpByteBoolDSResult r = new MyInterface.OpByteBoolDSResult();
         r.p3 = new ArrayList<>();
         r.p3.addAll(p2);
         r.p3.addAll(p1);
@@ -322,9 +322,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpShortIntDSResult opShortIntDS(
+    public MyInterface.OpShortIntDSResult opShortIntDS(
             List<Map<Short, Integer>> p1, List<Map<Short, Integer>> p2, Current current) {
-        MyClass.OpShortIntDSResult r = new MyClass.OpShortIntDSResult();
+        MyInterface.OpShortIntDSResult r = new MyInterface.OpShortIntDSResult();
         r.p3 = new ArrayList<>();
         r.p3.addAll(p2);
         r.p3.addAll(p1);
@@ -336,9 +336,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpLongFloatDSResult opLongFloatDS(
+    public MyInterface.OpLongFloatDSResult opLongFloatDS(
             List<Map<Long, Float>> p1, List<Map<Long, Float>> p2, Current current) {
-        MyClass.OpLongFloatDSResult r = new MyClass.OpLongFloatDSResult();
+        MyInterface.OpLongFloatDSResult r = new MyInterface.OpLongFloatDSResult();
         r.p3 = new ArrayList<>();
         r.p3.addAll(p2);
         r.p3.addAll(p1);
@@ -350,9 +350,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpStringStringDSResult opStringStringDS(
+    public MyInterface.OpStringStringDSResult opStringStringDS(
             List<Map<String, String>> p1, List<Map<String, String>> p2, Current current) {
-        MyClass.OpStringStringDSResult r = new MyClass.OpStringStringDSResult();
+        MyInterface.OpStringStringDSResult r = new MyInterface.OpStringStringDSResult();
         r.p3 = new ArrayList<>();
         r.p3.addAll(p2);
         r.p3.addAll(p1);
@@ -364,9 +364,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpStringMyEnumDSResult opStringMyEnumDS(
+    public MyInterface.OpStringMyEnumDSResult opStringMyEnumDS(
             List<Map<String, MyEnum>> p1, List<Map<String, MyEnum>> p2, Current current) {
-        MyClass.OpStringMyEnumDSResult r = new MyClass.OpStringMyEnumDSResult();
+        MyInterface.OpStringMyEnumDSResult r = new MyInterface.OpStringMyEnumDSResult();
         r.p3 = new ArrayList<>();
         r.p3.addAll(p2);
         r.p3.addAll(p1);
@@ -378,9 +378,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpMyEnumStringDSResult opMyEnumStringDS(
+    public MyInterface.OpMyEnumStringDSResult opMyEnumStringDS(
             List<Map<MyEnum, String>> p1, List<Map<MyEnum, String>> p2, Current current) {
-        MyClass.OpMyEnumStringDSResult r = new MyClass.OpMyEnumStringDSResult();
+        MyInterface.OpMyEnumStringDSResult r = new MyInterface.OpMyEnumStringDSResult();
         r.p3 = new ArrayList<>();
         r.p3.addAll(p2);
         r.p3.addAll(p1);
@@ -392,9 +392,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpMyStructMyEnumDSResult opMyStructMyEnumDS(
+    public MyInterface.OpMyStructMyEnumDSResult opMyStructMyEnumDS(
             List<Map<MyStruct, MyEnum>> p1, List<Map<MyStruct, MyEnum>> p2, Current current) {
-        MyClass.OpMyStructMyEnumDSResult r = new MyClass.OpMyStructMyEnumDSResult();
+        MyInterface.OpMyStructMyEnumDSResult r = new MyInterface.OpMyStructMyEnumDSResult();
         r.p3 = new ArrayList<>();
         r.p3.addAll(p2);
         r.p3.addAll(p1);
@@ -406,9 +406,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpByteByteSDResult opByteByteSD(
+    public MyInterface.OpByteByteSDResult opByteByteSD(
             Map<Byte, byte[]> p1, Map<Byte, byte[]> p2, Current current) {
-        MyClass.OpByteByteSDResult r = new MyClass.OpByteByteSDResult();
+        MyInterface.OpByteByteSDResult r = new MyInterface.OpByteByteSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -417,9 +417,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpBoolBoolSDResult opBoolBoolSD(
+    public MyInterface.OpBoolBoolSDResult opBoolBoolSD(
             Map<Boolean, boolean[]> p1, Map<Boolean, boolean[]> p2, Current current) {
-        MyClass.OpBoolBoolSDResult r = new MyClass.OpBoolBoolSDResult();
+        MyInterface.OpBoolBoolSDResult r = new MyInterface.OpBoolBoolSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -428,9 +428,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpShortShortSDResult opShortShortSD(
+    public MyInterface.OpShortShortSDResult opShortShortSD(
             Map<Short, short[]> p1, Map<Short, short[]> p2, Current current) {
-        MyClass.OpShortShortSDResult r = new MyClass.OpShortShortSDResult();
+        MyInterface.OpShortShortSDResult r = new MyInterface.OpShortShortSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -439,9 +439,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpIntIntSDResult opIntIntSD(
+    public MyInterface.OpIntIntSDResult opIntIntSD(
             Map<Integer, int[]> p1, Map<Integer, int[]> p2, Current current) {
-        MyClass.OpIntIntSDResult r = new MyClass.OpIntIntSDResult();
+        MyInterface.OpIntIntSDResult r = new MyInterface.OpIntIntSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -450,9 +450,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpLongLongSDResult opLongLongSD(
+    public MyInterface.OpLongLongSDResult opLongLongSD(
             Map<Long, long[]> p1, Map<Long, long[]> p2, Current current) {
-        MyClass.OpLongLongSDResult r = new MyClass.OpLongLongSDResult();
+        MyInterface.OpLongLongSDResult r = new MyInterface.OpLongLongSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -461,9 +461,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpStringFloatSDResult opStringFloatSD(
+    public MyInterface.OpStringFloatSDResult opStringFloatSD(
             Map<String, float[]> p1, Map<String, float[]> p2, Current current) {
-        MyClass.OpStringFloatSDResult r = new MyClass.OpStringFloatSDResult();
+        MyInterface.OpStringFloatSDResult r = new MyInterface.OpStringFloatSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -472,9 +472,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpStringDoubleSDResult opStringDoubleSD(
+    public MyInterface.OpStringDoubleSDResult opStringDoubleSD(
             Map<String, double[]> p1, Map<String, double[]> p2, Current current) {
-        MyClass.OpStringDoubleSDResult r = new MyClass.OpStringDoubleSDResult();
+        MyInterface.OpStringDoubleSDResult r = new MyInterface.OpStringDoubleSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -483,9 +483,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpStringStringSDResult opStringStringSD(
+    public MyInterface.OpStringStringSDResult opStringStringSD(
             Map<String, String[]> p1, Map<String, String[]> p2, Current current) {
-        MyClass.OpStringStringSDResult r = new MyClass.OpStringStringSDResult();
+        MyInterface.OpStringStringSDResult r = new MyInterface.OpStringStringSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -494,9 +494,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpMyEnumMyEnumSDResult opMyEnumMyEnumSD(
+    public MyInterface.OpMyEnumMyEnumSDResult opMyEnumMyEnumSD(
             Map<MyEnum, MyEnum[]> p1, Map<MyEnum, MyEnum[]> p2, Current current) {
-        MyClass.OpMyEnumMyEnumSDResult r = new MyClass.OpMyEnumMyEnumSDResult();
+        MyInterface.OpMyEnumMyEnumSDResult r = new MyInterface.OpMyEnumMyEnumSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -540,8 +540,8 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpStringSResult opStringS(String[] p1, String[] p2, Current current) {
-        MyClass.OpStringSResult r = new MyClass.OpStringSResult();
+    public MyInterface.OpStringSResult opStringS(String[] p1, String[] p2, Current current) {
+        MyInterface.OpStringSResult r = new MyInterface.OpStringSResult();
         r.p3 = new String[p1.length + p2.length];
         System.arraycopy(p1, 0, r.p3, 0, p1.length);
         System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
@@ -554,8 +554,8 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpStringSSResult opStringSS(String[][] p1, String[][] p2, Current current) {
-        MyClass.OpStringSSResult r = new MyClass.OpStringSSResult();
+    public MyInterface.OpStringSSResult opStringSS(String[][] p1, String[][] p2, Current current) {
+        MyInterface.OpStringSSResult r = new MyInterface.OpStringSSResult();
         r.p3 = new String[p1.length + p2.length][];
         System.arraycopy(p1, 0, r.p3, 0, p1.length);
         System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
@@ -568,9 +568,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpStringSSSResult opStringSSS(
+    public MyInterface.OpStringSSSResult opStringSSS(
             String[][][] p1, String[][][] p2, Current current) {
-        MyClass.OpStringSSSResult r = new MyClass.OpStringSSSResult();
+        MyInterface.OpStringSSSResult r = new MyInterface.OpStringSSSResult();
         r.p3 = new String[p1.length + p2.length][][];
         System.arraycopy(p1, 0, r.p3, 0, p1.length);
         System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
@@ -583,9 +583,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpStringStringDResult opStringStringD(
+    public MyInterface.OpStringStringDResult opStringStringD(
             Map<String, String> p1, Map<String, String> p2, Current current) {
-        MyClass.OpStringStringDResult r = new MyClass.OpStringStringDResult();
+        MyInterface.OpStringStringDResult r = new MyInterface.OpStringStringDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -594,8 +594,8 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public MyClass.OpStructResult opStruct(Structure p1, Structure p2, Current current) {
-        MyClass.OpStructResult r = new MyClass.OpStructResult();
+    public MyInterface.OpStructResult opStruct(Structure p1, Structure p2, Current current) {
+        MyInterface.OpStructResult r = new MyInterface.OpStructResult();
         r.p3 = p1;
         r.p3.s.s = "a new string";
         r.returnValue = p2;

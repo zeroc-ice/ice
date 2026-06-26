@@ -20,7 +20,7 @@ actor OpByteSOnewayCallCount {
     }
 }
 
-final class MyDerivedClassI: MyDerivedClass {
+final class MyDerivedInterfaceI: MyDerivedInterface {
     let _helper: TestHelper
     let _opByteSOnewayCallCount = OpByteSOnewayCallCount()
 
@@ -118,17 +118,17 @@ final class MyDerivedClassI: MyDerivedClass {
         return (p1.merging(p2) { _, new in new }, p1)
     }
 
-    func opMyClass(
-        p1: MyClassPrx?,
+    func opMyInterface(
+        p1: MyInterfacePrx?,
         current: Ice.Current
-    ) throws -> (returnValue: MyClassPrx?, p2: MyClassPrx?, p3: MyClassPrx?) {
+    ) throws -> (returnValue: MyInterfacePrx?, p2: MyInterfacePrx?, p3: MyInterfacePrx?) {
         let adapter = current.adapter
         return try (
-            uncheckedCast(prx: adapter.createProxy(current.id), type: MyClassPrx.self),
+            uncheckedCast(prx: adapter.createProxy(current.id), type: MyInterfacePrx.self),
             p1,
             uncheckedCast(
                 prx: adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")),
-                type: MyClassPrx.self)
+                type: MyInterfacePrx.self)
         )
     }
 

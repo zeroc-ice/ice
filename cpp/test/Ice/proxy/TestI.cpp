@@ -6,29 +6,29 @@
 using namespace std;
 using namespace Ice;
 
-MyDerivedClassI::MyDerivedClassI() = default;
+MyDerivedInterfaceI::MyDerivedInterfaceI() = default;
 
 optional<ObjectPrx>
-MyDerivedClassI::echo(optional<ObjectPrx> obj, const Current&)
+MyDerivedInterfaceI::echo(optional<ObjectPrx> obj, const Current&)
 {
     return obj;
 }
 
 void
-MyDerivedClassI::shutdown(const Current& c)
+MyDerivedInterfaceI::shutdown(const Current& c)
 {
     c.adapter->getCommunicator()->shutdown();
 }
 
 Context
-MyDerivedClassI::getContext(const Current&)
+MyDerivedInterfaceI::getContext(const Current&)
 {
     return _ctx;
 }
 
 bool
-MyDerivedClassI::ice_isA(string s, const Current& current) const
+MyDerivedInterfaceI::ice_isA(string s, const Current& current) const
 {
     _ctx = current.ctx;
-    return Test::MyDerivedClass::ice_isA(std::move(s), current);
+    return Test::MyDerivedInterface::ice_isA(std::move(s), current);
 }

@@ -95,11 +95,11 @@ function twoways($communicator, $p)
     }
 
     {
-        test($p->ice_isA(Test\MyClassPrxHelper::ice_staticId()));
+        test($p->ice_isA(Test\MyInterfacePrxHelper::ice_staticId()));
     }
 
     {
-        test($p->ice_id() == Test\MyDerivedClassPrxHelper::ice_staticId());
+        test($p->ice_id() == Test\MyDerivedInterfacePrxHelper::ice_staticId());
     }
 
     {
@@ -107,7 +107,7 @@ function twoways($communicator, $p)
     }
 
     {
-        test($p->ice_id() == "::Test::MyDerivedClass");
+        test($p->ice_id() == "::Test::MyDerivedInterface");
     }
 
     {
@@ -281,7 +281,7 @@ function twoways($communicator, $p)
     }
 
     {
-        $r = $p->opMyClass($p, $c1, $c2);
+        $r = $p->opMyInterface($p, $c1, $c2);
         test(Ice\proxyIdentityAndFacetEqual($c1, $p));
         test(!Ice\proxyIdentityAndFacetEqual($c2, $p));
         test(Ice\proxyIdentityAndFacetEqual($r, $p));
@@ -299,7 +299,7 @@ function twoways($communicator, $p)
         {
         }
 
-        $r = $p->opMyClass(null, $c1, $c2);
+        $r = $p->opMyInterface(null, $c1, $c2);
         test($c1 == null);
         test($c2 != null);
         $r->opVoid();
@@ -1022,8 +1022,8 @@ function allTests($helper)
 {
     $ref = sprintf("test:%s", $helper->getTestEndpoint());
     $communicator = $helper->communicator();
-    $cl = Test\MyClassPrxHelper::createProxy($communicator, $ref);
-    $derived = Test\MyDerivedClassPrxHelper::checkedCast($cl);
+    $cl = Test\MyInterfacePrxHelper::createProxy($communicator, $ref);
+    $derived = Test\MyDerivedInterfacePrxHelper::checkedCast($cl);
 
     echo "testing twoway operations... ";
     flush();

@@ -15,8 +15,8 @@ import Ice
 
 
 def allTests(helper: TestHelper, communicator: Ice.Communicator) -> None:
-    cl = Test.MyClassPrx(communicator, f"test:{helper.getTestEndpoint()}")
-    derived = Test.MyDerivedClassPrx(communicator, f"test:{helper.getTestEndpoint()}")
+    cl = Test.MyInterfacePrx(communicator, f"test:{helper.getTestEndpoint()}")
+    derived = Test.MyDerivedInterfacePrx(communicator, f"test:{helper.getTestEndpoint()}")
 
     sys.stdout.write("testing twoway operations... ")
     sys.stdout.flush()

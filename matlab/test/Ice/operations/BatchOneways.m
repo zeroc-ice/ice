@@ -71,12 +71,12 @@ classdef BatchOneways
 
             p.ice_ping();
             if ~isempty(p.ice_getConnection()) && isempty(properties.getProperty('Ice.Override.Compress'))
-                prx = MyClassPrx.uncheckedCast(...
+                prx = MyInterfacePrx.uncheckedCast(...
                     p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
 
                 batchC1 = prx.ice_compress(false);
                 batchC2 = prx.ice_compress(true);
-                batchC3 = MyClassPrx.uncheckedCast(prx.ice_identity(identity));
+                batchC3 = MyInterfacePrx.uncheckedCast(prx.ice_identity(identity));
 
                 batchC1.opByteSOneway(bs1);
                 batchC1.opByteSOneway(bs1);

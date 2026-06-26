@@ -5,10 +5,10 @@
 
 #include "Test.h"
 
-class MyDerivedClassI final : public Test::MyDerivedClass
+class MyDerivedInterfaceI final : public Test::MyDerivedInterface
 {
 public:
-    MyDerivedClassI();
+    MyDerivedInterfaceI();
 
     void shutdown(const Ice::Current&) final;
 
@@ -35,10 +35,10 @@ public:
 
     Test::MyEnum opMyEnum(Test::MyEnum, Test::MyEnum&, const Ice::Current&) final;
 
-    std::optional<Test::MyClassPrx> opMyClass(
-        std::optional<Test::MyClassPrx>,
-        std::optional<Test::MyClassPrx>&,
-        std::optional<Test::MyClassPrx>&,
+    std::optional<Test::MyInterfacePrx> opMyInterface(
+        std::optional<Test::MyInterfacePrx>,
+        std::optional<Test::MyInterfacePrx>&,
+        std::optional<Test::MyInterfacePrx>&,
         const Ice::Current&) final;
 
     Test::Structure opStruct(Test::Structure, Test::Structure, Test::Structure&, const Ice::Current&) final;

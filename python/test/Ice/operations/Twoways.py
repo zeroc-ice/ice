@@ -11,7 +11,7 @@ from TestHelper import TestHelper, test
 import Ice
 
 
-def twoways(helper: TestHelper, p: Test.MyClassPrx) -> None:
+def twoways(helper: TestHelper, p: Test.MyInterfacePrx) -> None:
     communicator = helper.communicator()
     literals = p.opStringLiterals()
 
@@ -100,7 +100,7 @@ def twoways(helper: TestHelper, p: Test.MyClassPrx) -> None:
     #
     # ice_isA
     #
-    test(p.ice_isA(Test.MyClass.ice_staticId()))
+    test(p.ice_isA(Test.MyInterface.ice_staticId()))
 
     #
     # ice_ids
@@ -108,19 +108,19 @@ def twoways(helper: TestHelper, p: Test.MyClassPrx) -> None:
     ids = p.ice_ids()
     test(len(ids) == 3)
     test(ids[0] == "::Ice::Object")
-    test(ids[1] == "::Test::MyClass")
-    test(ids[2] == "::Test::MyDerivedClass")
+    test(ids[1] == "::Test::MyInterface")
+    test(ids[2] == "::Test::MyDerivedInterface")
 
     #
     # ice_id
     #
-    test(p.ice_id() == Test.MyDerivedClass.ice_staticId())
+    test(p.ice_id() == Test.MyDerivedInterface.ice_staticId())
 
     #
     # Prx ice_staticId
     #
-    test(Test.MyClassPrx.ice_staticId() == Test.MyClass.ice_staticId())
-    test(Test.MyDerivedClassPrx.ice_staticId() == Test.MyDerivedClass.ice_staticId())
+    test(Test.MyInterfacePrx.ice_staticId() == Test.MyInterface.ice_staticId())
+    test(Test.MyDerivedInterfacePrx.ice_staticId() == Test.MyDerivedInterface.ice_staticId())
     test(Ice.ObjectPrx.ice_staticId() == Ice.Object.ice_staticId())
 
     #
@@ -318,9 +318,9 @@ def twoways(helper: TestHelper, p: Test.MyClassPrx) -> None:
     test(r == Test.MyEnum.enum3)
 
     #
-    # opMyClass
+    # opMyInterface
     #
-    r, c1, c2 = p.opMyClass(p)
+    r, c1, c2 = p.opMyInterface(p)
     assert r is not None
     assert c1 is not None
     assert c2 is not None
@@ -338,7 +338,7 @@ def twoways(helper: TestHelper, p: Test.MyClassPrx) -> None:
     except Ice.ObjectNotExistException:
         pass
 
-    r, c1, c2 = p.opMyClass(None)
+    r, c1, c2 = p.opMyInterface(None)
     assert r is not None
     assert c1 is None
     assert c2 is not None
@@ -1352,7 +1352,7 @@ def twoways(helper: TestHelper, p: Test.MyClassPrx) -> None:
     test(len(cast(dict[str, str], p.ice_getContext())) == 0)
     test(r == ctx)
 
-    p2 = Test.MyClassPrx.checkedCast(p.ice_context(ctx))
+    p2 = Test.MyInterfacePrx.checkedCast(p.ice_context(ctx))
     assert p2 is not None
     test(cast(dict[str, str], p2.ice_getContext()) == ctx)
     r = p2.opContext()
@@ -1373,7 +1373,7 @@ def twoways(helper: TestHelper, p: Test.MyClassPrx) -> None:
 
             ctx = {"one": "ONE", "two": "TWO", "three": "THREE"}
 
-            p1 = Test.MyClassPrx(communicator, f"test:{helper.getTestEndpoint()}")
+            p1 = Test.MyInterfacePrx(communicator, f"test:{helper.getTestEndpoint()}")
 
             implicitContext = communicator.getImplicitContext()
             assert implicitContext is not None
@@ -1399,7 +1399,7 @@ def twoways(helper: TestHelper, p: Test.MyClassPrx) -> None:
             combined.update(prxContext)
             test(combined["one"] == "UN")
 
-            p2 = Test.MyClassPrx.uncheckedCast(p1.ice_context(prxContext))
+            p2 = Test.MyInterfacePrx.uncheckedCast(p1.ice_context(prxContext))
 
             implicitContext.setContext({})
             test(p2.opContext() == prxContext)
@@ -1434,23 +1434,23 @@ def twoways(helper: TestHelper, p: Test.MyClassPrx) -> None:
     test(len(p.opStringS2(None)) == 0)  # pyright: ignore
     test(len(p.opByteBoolD2(None)) == 0)  # pyright: ignore
 
-    d = Test.MyDerivedClassPrx.uncheckedCast(p)
+    d = Test.MyDerivedInterfacePrx.uncheckedCast(p)
     s = Test.MyStruct1()
     s.tesT = "Test.MyStruct1.s"
-    s.myClass = None
+    s.myInterface = None
     s.myStruct1 = "Test.MyStruct1.myStruct1"
     s = d.opMyStruct1(s)
     test(s.tesT == "Test.MyStruct1.s")
-    test(s.myClass is None)
+    test(s.myInterface is None)
     test(s.myStruct1 == "Test.MyStruct1.myStruct1")
     c = Test.MyClass1()
     c.tesT = "Test.MyClass1.testT"
-    c.myClass = None
+    c.myInterface = None
     c.myClass1 = "Test.MyClass1.myClass1"
     c = d.opMyClass1(c)
     assert c is not None
     test(c.tesT == "Test.MyClass1.testT")
-    test(c.myClass is None)
+    test(c.myInterface is None)
     test(c.myClass1 == "Test.MyClass1.myClass1")
 
     p1 = p.opMStruct1()

@@ -6,8 +6,8 @@ require './BatchOneways'
 
 def allTests(helper, communicator)
     ref = "test:#{helper.getTestEndpoint()}"
-    cl = Test::MyClassPrx.new(communicator, ref)
-    derived = Test::MyDerivedClassPrx.checkedCast(cl)
+    cl = Test::MyInterfacePrx.new(communicator, ref)
+    derived = Test::MyDerivedInterfacePrx.checkedCast(cl)
 
     print "testing twoway operations... "
     STDOUT.flush

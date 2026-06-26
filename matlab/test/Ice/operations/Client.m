@@ -14,11 +14,11 @@ function client(args)
     communicator = helper.initialize(Properties = properties);
     cleanup = onCleanup(@() communicator.destroy());
 
-    myClass = AllTests.allTests(helper);
+    myInterface = AllTests.allTests(helper);
     fprintf('testing server shutdown... ');
-    myClass.shutdown();
+    myInterface.shutdown();
     try
-        myClass.ice_invocationTimeout(100).ice_ping(); % Use timeout to speed up testing on Windows
+        myInterface.ice_invocationTimeout(100).ice_ping(); % Use timeout to speed up testing on Windows
         throw(MException('Ice:TestException', 'expected exception not thrown'));
     catch ex
         if isa(ex, 'Ice.LocalException')

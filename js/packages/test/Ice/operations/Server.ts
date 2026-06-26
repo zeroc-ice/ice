@@ -3,7 +3,7 @@
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
 import { TestHelper } from "../../Common/TestHelper.js";
-import { MyDerivedClassI } from "./MyDerivedClassI.js";
+import { MyDerivedInterfaceI } from "./MyDerivedInterfaceI.js";
 
 export class Server extends TestHelper {
     async run(args: string[]) {
@@ -18,7 +18,7 @@ export class Server extends TestHelper {
             [communicator] = this.initialize(properties);
             echo = new Test.EchoPrx(communicator, `__echo:${this.getTestEndpoint()}`);
             const adapter = await communicator.createObjectAdapter("");
-            adapter.add(new MyDerivedClassI(echo.ice_getEndpoints()), Ice.stringToIdentity("test"));
+            adapter.add(new MyDerivedInterfaceI(echo.ice_getEndpoints()), Ice.stringToIdentity("test"));
             await echo.setConnection();
             echo.ice_getCachedConnection().setAdapter(adapter);
             this.serverReady();

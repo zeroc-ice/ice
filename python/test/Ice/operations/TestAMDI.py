@@ -25,7 +25,7 @@ class FutureThread(threading.Thread):
         self.future.set_result(self.result)
 
 
-class MyDerivedClassI(Test.MyDerivedClass):
+class MyDerivedInterfaceI(Test.MyDerivedInterface):
     def __init__(self):
         self.threads = []
         self.threadLock = threading.Lock()
@@ -98,14 +98,14 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return Ice.Future.completed((Test.MyEnum.enum3, p1))
 
     @override
-    def opMyClass(
-        self, p1: Test.MyClassPrx | None, current: Ice.Current
-    ) -> Awaitable[tuple[Test.MyClassPrx | None, Test.MyClassPrx | None, Test.MyClassPrx | None]]:
+    def opMyInterface(
+        self, p1: Test.MyInterfacePrx | None, current: Ice.Current
+    ) -> Awaitable[tuple[Test.MyInterfacePrx | None, Test.MyInterfacePrx | None, Test.MyInterfacePrx | None]]:
         p2 = p1
-        p3 = Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")))
+        p3 = Test.MyInterfacePrx.uncheckedCast(current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")))
         return Ice.Future.completed(
             (
-                Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id)),
+                Test.MyInterfacePrx.uncheckedCast(current.adapter.createProxy(current.id)),
                 p2,
                 p3,
             )

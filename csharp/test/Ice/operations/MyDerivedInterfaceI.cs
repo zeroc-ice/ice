@@ -2,7 +2,7 @@
 
 namespace Ice.operations;
 
-public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
+public sealed class MyDerivedInterfaceI : Test.MyDerivedInterfaceDisp_
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
@@ -178,16 +178,16 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Test.MyClassPrx opMyClass(
-        Test.MyClassPrx p1,
-        out Test.MyClassPrx p2,
-        out Test.MyClassPrx p3,
+    public override Test.MyInterfacePrx opMyInterface(
+        Test.MyInterfacePrx p1,
+        out Test.MyInterfacePrx p2,
+        out Test.MyInterfacePrx p3,
         Current current)
     {
         p2 = p1;
-        p3 = Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(
+        p3 = Test.MyInterfacePrxHelper.uncheckedCast(current.adapter.createProxy(
                                                 Ice.Util.stringToIdentity("noSuchIdentity")));
-        return Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
+        return Test.MyInterfacePrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
     }
 
     public override Test.MyEnum opMyEnum(Test.MyEnum p1, out Test.MyEnum p2, Current current)
@@ -830,26 +830,26 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
 
     public override string[] opWStringLiterals(Ice.Current current) => opStringLiterals(current);
 
-    public override Test.MyClass_OpMStruct1MarshaledResult opMStruct1(Ice.Current current)
+    public override Test.MyInterface_OpMStruct1MarshaledResult opMStruct1(Ice.Current current)
     {
-        return new Test.MyClass_OpMStruct1MarshaledResult(
+        return new Test.MyInterface_OpMStruct1MarshaledResult(
             new Test.Structure(new Test.AnotherStruct()), current);
     }
 
-    public override Test.MyClass_OpMStruct2MarshaledResult opMStruct2(Test.Structure p1, Ice.Current current) =>
-        new Test.MyClass_OpMStruct2MarshaledResult(p1, p1, current);
+    public override Test.MyInterface_OpMStruct2MarshaledResult opMStruct2(Test.Structure p1, Ice.Current current) =>
+        new Test.MyInterface_OpMStruct2MarshaledResult(p1, p1, current);
 
-    public override Test.MyClass_OpMSeq1MarshaledResult opMSeq1(Ice.Current current) =>
-        new Test.MyClass_OpMSeq1MarshaledResult([], current);
+    public override Test.MyInterface_OpMSeq1MarshaledResult opMSeq1(Ice.Current current) =>
+        new Test.MyInterface_OpMSeq1MarshaledResult([], current);
 
-    public override Test.MyClass_OpMSeq2MarshaledResult opMSeq2(string[] p1, Ice.Current current) =>
-        new Test.MyClass_OpMSeq2MarshaledResult(p1, p1, current);
+    public override Test.MyInterface_OpMSeq2MarshaledResult opMSeq2(string[] p1, Ice.Current current) =>
+        new Test.MyInterface_OpMSeq2MarshaledResult(p1, p1, current);
 
-    public override Test.MyClass_OpMDict1MarshaledResult opMDict1(Ice.Current current) =>
-        new Test.MyClass_OpMDict1MarshaledResult(new Dictionary<string, string>(), current);
+    public override Test.MyInterface_OpMDict1MarshaledResult opMDict1(Ice.Current current) =>
+        new Test.MyInterface_OpMDict1MarshaledResult(new Dictionary<string, string>(), current);
 
-    public override Test.MyClass_OpMDict2MarshaledResult opMDict2(Dictionary<string, string> p1, Ice.Current current) =>
-        new Test.MyClass_OpMDict2MarshaledResult(p1, p1, current);
+    public override Test.MyInterface_OpMDict2MarshaledResult opMDict2(Dictionary<string, string> p1, Ice.Current current) =>
+        new Test.MyInterface_OpMDict2MarshaledResult(p1, p1, current);
 
     private int _opByteSOnewayCallCount;
     private readonly object _mutex = new();

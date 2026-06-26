@@ -8,7 +8,7 @@ public static class TwowaysAMI
 
     private const int _length = 100;
 
-    internal static async Task twowaysAMI(Communicator communicator, Test.MyClassPrx p)
+    internal static async Task twowaysAMI(Communicator communicator, Test.MyInterfacePrx p)
     {
         {
             byte[] i = new byte[_length];
@@ -16,7 +16,7 @@ public static class TwowaysAMI
             {
                 i[c] = (byte)c;
             }
-            Test.MyClass_OpAByteSResult result = await p.opAByteSAsync(i);
+            Test.MyInterface_OpAByteSResult result = await p.opAByteSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -28,7 +28,7 @@ public static class TwowaysAMI
                 i.Add((byte)c);
             }
 
-            Test.MyClass_OpLByteSResult result = await p.opLByteSAsync(i);
+            Test.MyInterface_OpLByteSResult result = await p.opLByteSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -40,7 +40,7 @@ public static class TwowaysAMI
                 i.AddLast((byte)c);
             }
 
-            Test.MyClass_OpKByteSResult result = await p.opKByteSAsync(i);
+            Test.MyInterface_OpKByteSResult result = await p.opKByteSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -52,7 +52,7 @@ public static class TwowaysAMI
                 i.Enqueue((byte)c);
             }
 
-            Test.MyClass_OpQByteSResult result = await p.opQByteSAsync(i);
+            Test.MyInterface_OpQByteSResult result = await p.opQByteSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -64,7 +64,7 @@ public static class TwowaysAMI
                 i.Push((byte)c);
             }
 
-            Test.MyClass_OpSByteSResult result = await p.opSByteSAsync(i);
+            Test.MyInterface_OpSByteSResult result = await p.opSByteSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -76,7 +76,7 @@ public static class TwowaysAMI
                 i[c] = c % 1 == 1;
             }
 
-            Test.MyClass_OpABoolSResult result = await p.opABoolSAsync(i);
+            Test.MyInterface_OpABoolSResult result = await p.opABoolSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -88,7 +88,7 @@ public static class TwowaysAMI
                 i.Add(c % 1 == 1);
             }
 
-            Test.MyClass_OpLBoolSResult result = await p.opLBoolSAsync(i);
+            Test.MyInterface_OpLBoolSResult result = await p.opLBoolSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -100,7 +100,7 @@ public static class TwowaysAMI
                 i.AddLast(c % 1 == 1);
             }
 
-            Test.MyClass_OpKBoolSResult result = await p.opKBoolSAsync(i);
+            Test.MyInterface_OpKBoolSResult result = await p.opKBoolSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -112,7 +112,7 @@ public static class TwowaysAMI
                 i.Enqueue(c % 1 == 1);
             }
 
-            Test.MyClass_OpQBoolSResult result = await p.opQBoolSAsync(i);
+            Test.MyInterface_OpQBoolSResult result = await p.opQBoolSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -124,7 +124,7 @@ public static class TwowaysAMI
                 i.Push(c % 1 == 1);
             }
 
-            Test.MyClass_OpSBoolSResult result = await p.opSBoolSAsync(i);
+            Test.MyInterface_OpSBoolSResult result = await p.opSBoolSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -136,7 +136,7 @@ public static class TwowaysAMI
                 i[c] = (short)c;
             }
 
-            Test.MyClass_OpAShortSResult result = await p.opAShortSAsync(i);
+            Test.MyInterface_OpAShortSResult result = await p.opAShortSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -148,7 +148,7 @@ public static class TwowaysAMI
                 i.Add((short)c);
             }
 
-            Test.MyClass_OpLShortSResult result = await p.opLShortSAsync(i);
+            Test.MyInterface_OpLShortSResult result = await p.opLShortSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -160,7 +160,7 @@ public static class TwowaysAMI
                 i.AddLast((short)c);
             }
 
-            Test.MyClass_OpKShortSResult result = await p.opKShortSAsync(i);
+            Test.MyInterface_OpKShortSResult result = await p.opKShortSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -172,7 +172,7 @@ public static class TwowaysAMI
                 i.Enqueue((short)c);
             }
 
-            Test.MyClass_OpQShortSResult result = await p.opQShortSAsync(i);
+            Test.MyInterface_OpQShortSResult result = await p.opQShortSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -184,7 +184,7 @@ public static class TwowaysAMI
                 i.Push((short)c);
             }
 
-            Test.MyClass_OpSShortSResult result = await p.opSShortSAsync(i);
+            Test.MyInterface_OpSShortSResult result = await p.opSShortSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -196,7 +196,7 @@ public static class TwowaysAMI
                 i[c] = c;
             }
 
-            Test.MyClass_OpAIntSResult result = await p.opAIntSAsync(i);
+            Test.MyInterface_OpAIntSResult result = await p.opAIntSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -208,7 +208,7 @@ public static class TwowaysAMI
                 i.Add((int)c);
             }
 
-            Test.MyClass_OpLIntSResult result = await p.opLIntSAsync(i);
+            Test.MyInterface_OpLIntSResult result = await p.opLIntSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -220,7 +220,7 @@ public static class TwowaysAMI
                 i.AddLast(c);
             }
 
-            Test.MyClass_OpKIntSResult result = await p.opKIntSAsync(i);
+            Test.MyInterface_OpKIntSResult result = await p.opKIntSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -232,7 +232,7 @@ public static class TwowaysAMI
                 i.Enqueue(c);
             }
 
-            Test.MyClass_OpQIntSResult result = await p.opQIntSAsync(i);
+            Test.MyInterface_OpQIntSResult result = await p.opQIntSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -244,7 +244,7 @@ public static class TwowaysAMI
                 i.Push(c);
             }
 
-            Test.MyClass_OpSIntSResult result = await p.opSIntSAsync(i);
+            Test.MyInterface_OpSIntSResult result = await p.opSIntSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -256,7 +256,7 @@ public static class TwowaysAMI
                 i[c] = c;
             }
 
-            Test.MyClass_OpALongSResult result = await p.opALongSAsync(i);
+            Test.MyInterface_OpALongSResult result = await p.opALongSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -268,7 +268,7 @@ public static class TwowaysAMI
                 i.Add(c);
             }
 
-            Test.MyClass_OpLLongSResult result = await p.opLLongSAsync(i);
+            Test.MyInterface_OpLLongSResult result = await p.opLLongSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -280,7 +280,7 @@ public static class TwowaysAMI
                 i.AddLast((long)c);
             }
 
-            Test.MyClass_OpKLongSResult result = await p.opKLongSAsync(i);
+            Test.MyInterface_OpKLongSResult result = await p.opKLongSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -292,7 +292,7 @@ public static class TwowaysAMI
                 i.Enqueue(c);
             }
 
-            Test.MyClass_OpQLongSResult result = await p.opQLongSAsync(i);
+            Test.MyInterface_OpQLongSResult result = await p.opQLongSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -304,7 +304,7 @@ public static class TwowaysAMI
                 i.Push(c);
             }
 
-            Test.MyClass_OpSLongSResult result = await p.opSLongSAsync(i);
+            Test.MyInterface_OpSLongSResult result = await p.opSLongSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -316,7 +316,7 @@ public static class TwowaysAMI
                 i[c] = c;
             }
 
-            Test.MyClass_OpAFloatSResult result = await p.opAFloatSAsync(i);
+            Test.MyInterface_OpAFloatSResult result = await p.opAFloatSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -328,7 +328,7 @@ public static class TwowaysAMI
                 i.Add(c);
             }
 
-            Test.MyClass_OpLFloatSResult result = await p.opLFloatSAsync(i);
+            Test.MyInterface_OpLFloatSResult result = await p.opLFloatSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -340,7 +340,7 @@ public static class TwowaysAMI
                 i.AddLast(c);
             }
 
-            Test.MyClass_OpKFloatSResult result = await p.opKFloatSAsync(i);
+            Test.MyInterface_OpKFloatSResult result = await p.opKFloatSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -352,7 +352,7 @@ public static class TwowaysAMI
                 i.Enqueue(c);
             }
 
-            Test.MyClass_OpQFloatSResult result = await p.opQFloatSAsync(i);
+            Test.MyInterface_OpQFloatSResult result = await p.opQFloatSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -364,7 +364,7 @@ public static class TwowaysAMI
                 i.Push(c);
             }
 
-            Test.MyClass_OpSFloatSResult result = await p.opSFloatSAsync(i);
+            Test.MyInterface_OpSFloatSResult result = await p.opSFloatSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -376,7 +376,7 @@ public static class TwowaysAMI
                 i[c] = c;
             }
 
-            Test.MyClass_OpADoubleSResult result = await p.opADoubleSAsync(i);
+            Test.MyInterface_OpADoubleSResult result = await p.opADoubleSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -388,7 +388,7 @@ public static class TwowaysAMI
                 i.Add(c);
             }
 
-            Test.MyClass_OpLDoubleSResult result = await p.opLDoubleSAsync(i);
+            Test.MyInterface_OpLDoubleSResult result = await p.opLDoubleSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -400,7 +400,7 @@ public static class TwowaysAMI
                 i.AddLast(c);
             }
 
-            Test.MyClass_OpKDoubleSResult result = await p.opKDoubleSAsync(i);
+            Test.MyInterface_OpKDoubleSResult result = await p.opKDoubleSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -412,7 +412,7 @@ public static class TwowaysAMI
                 i.Enqueue(c);
             }
 
-            Test.MyClass_OpQDoubleSResult result = await p.opQDoubleSAsync(i);
+            Test.MyInterface_OpQDoubleSResult result = await p.opQDoubleSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -424,7 +424,7 @@ public static class TwowaysAMI
                 i.Push(c);
             }
 
-            Test.MyClass_OpSDoubleSResult result = await p.opSDoubleSAsync(i);
+            Test.MyInterface_OpSDoubleSResult result = await p.opSDoubleSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -436,7 +436,7 @@ public static class TwowaysAMI
                 i[c] = $"{c}";
             }
 
-            Test.MyClass_OpAStringSResult result = await p.opAStringSAsync(i);
+            Test.MyInterface_OpAStringSResult result = await p.opAStringSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -448,7 +448,7 @@ public static class TwowaysAMI
                 i.Add($"{c}");
             }
 
-            Test.MyClass_OpLStringSResult result = await p.opLStringSAsync(i);
+            Test.MyInterface_OpLStringSResult result = await p.opLStringSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -460,7 +460,7 @@ public static class TwowaysAMI
                 i.AddLast($"{c}");
             }
 
-            Test.MyClass_OpKStringSResult result = await p.opKStringSAsync(i);
+            Test.MyInterface_OpKStringSResult result = await p.opKStringSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -472,7 +472,7 @@ public static class TwowaysAMI
                 i.Enqueue($"{c}");
             }
 
-            Test.MyClass_OpQStringSResult result = await p.opQStringSAsync(i);
+            Test.MyInterface_OpQStringSResult result = await p.opQStringSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -484,7 +484,7 @@ public static class TwowaysAMI
                 i.Push($"{c}");
             }
 
-            Test.MyClass_OpSStringSResult result = await p.opSStringSAsync(i);
+            Test.MyInterface_OpSStringSResult result = await p.opSStringSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -496,7 +496,7 @@ public static class TwowaysAMI
                 i[c] = new Test.CV(c);
             }
 
-            Test.MyClass_OpAObjectSResult result = await p.opAObjectSAsync(i);
+            Test.MyInterface_OpAObjectSResult result = await p.opAObjectSAsync(i);
             System.Collections.IEnumerator eo = result.o.GetEnumerator();
             System.Collections.IEnumerator er = result.returnValue.GetEnumerator();
             foreach (Test.CV obj in i)
@@ -515,7 +515,7 @@ public static class TwowaysAMI
                 i.Add(new Test.CV(c));
             }
 
-            Test.MyClass_OpLObjectSResult result = await p.opLObjectSAsync(i);
+            Test.MyInterface_OpLObjectSResult result = await p.opLObjectSAsync(i);
             System.Collections.IEnumerator eo = result.o.GetEnumerator();
             System.Collections.IEnumerator er = result.returnValue.GetEnumerator();
             foreach (Test.CV obj in i)
@@ -534,7 +534,7 @@ public static class TwowaysAMI
                 i[c] = communicator.stringToProxy($"{c}");
             }
 
-            Test.MyClass_OpAObjectPrxSResult result = await p.opAObjectPrxSAsync(i);
+            Test.MyInterface_OpAObjectPrxSResult result = await p.opAObjectPrxSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -546,7 +546,7 @@ public static class TwowaysAMI
                 i.Add(communicator.stringToProxy($"{c}"));
             }
 
-            Test.MyClass_OpLObjectPrxSResult result = await p.opLObjectPrxSAsync(i);
+            Test.MyInterface_OpLObjectPrxSResult result = await p.opLObjectPrxSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -558,7 +558,7 @@ public static class TwowaysAMI
                 i.AddLast(communicator.stringToProxy($"{c}"));
             }
 
-            Test.MyClass_OpKObjectPrxSResult result = await p.opKObjectPrxSAsync(i);
+            Test.MyInterface_OpKObjectPrxSResult result = await p.opKObjectPrxSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -570,7 +570,7 @@ public static class TwowaysAMI
                 i.Enqueue(communicator.stringToProxy($"{c}"));
             }
 
-            Test.MyClass_OpQObjectPrxSResult result = await p.opQObjectPrxSAsync(i);
+            Test.MyInterface_OpQObjectPrxSResult result = await p.opQObjectPrxSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -582,7 +582,7 @@ public static class TwowaysAMI
                 i.Push(communicator.stringToProxy($"{c}"));
             }
 
-            Test.MyClass_OpSObjectPrxSResult result = await p.opSObjectPrxSAsync(i);
+            Test.MyInterface_OpSObjectPrxSResult result = await p.opSObjectPrxSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -594,7 +594,7 @@ public static class TwowaysAMI
                 i[c].i = c;
             }
 
-            Test.MyClass_OpAStructSResult result = await p.opAStructSAsync(i);
+            Test.MyInterface_OpAStructSResult result = await p.opAStructSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -606,7 +606,7 @@ public static class TwowaysAMI
                 i.Add(new Test.S(c));
             }
 
-            Test.MyClass_OpLStructSResult result = await p.opLStructSAsync(i);
+            Test.MyInterface_OpLStructSResult result = await p.opLStructSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -618,7 +618,7 @@ public static class TwowaysAMI
                 i.AddLast(new Test.S(c));
             }
 
-            Test.MyClass_OpKStructSResult result = await p.opKStructSAsync(i);
+            Test.MyInterface_OpKStructSResult result = await p.opKStructSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -630,7 +630,7 @@ public static class TwowaysAMI
                 i.Enqueue(new Test.S(c));
             }
 
-            Test.MyClass_OpQStructSResult result = await p.opQStructSAsync(i);
+            Test.MyInterface_OpQStructSResult result = await p.opQStructSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -642,7 +642,7 @@ public static class TwowaysAMI
                 i.Push(new Test.S(c));
             }
 
-            Test.MyClass_OpSStructSResult result = await p.opSStructSAsync(i);
+            Test.MyInterface_OpSStructSResult result = await p.opSStructSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -654,7 +654,7 @@ public static class TwowaysAMI
                 i[c] = new Test.CV(c);
             }
 
-            Test.MyClass_OpACVSResult result = await p.opACVSAsync(i);
+            Test.MyInterface_OpACVSResult result = await p.opACVSAsync(i);
             System.Collections.IEnumerator eo = result.o.GetEnumerator();
             System.Collections.IEnumerator er = result.returnValue.GetEnumerator();
             foreach (Test.CV obj in i)
@@ -673,7 +673,7 @@ public static class TwowaysAMI
                 i.Add(new Test.CV(c));
             }
 
-            Test.MyClass_OpLCVSResult result = await p.opLCVSAsync(i);
+            Test.MyInterface_OpLCVSResult result = await p.opLCVSAsync(i);
             System.Collections.IEnumerator eo = result.o.GetEnumerator();
             System.Collections.IEnumerator er = result.returnValue.GetEnumerator();
             foreach (Test.CV obj in i)
@@ -692,7 +692,7 @@ public static class TwowaysAMI
                 i[c] = Test.IPrxHelper.uncheckedCast(communicator.stringToProxy($"{c}"));
             }
 
-            Test.MyClass_OpAIPrxSResult result = await p.opAIPrxSAsync(i);
+            Test.MyInterface_OpAIPrxSResult result = await p.opAIPrxSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -704,7 +704,7 @@ public static class TwowaysAMI
                 i.Add(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy($"{c}")));
             }
 
-            Test.MyClass_OpLIPrxSResult result = await p.opLIPrxSAsync(i);
+            Test.MyInterface_OpLIPrxSResult result = await p.opLIPrxSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -716,7 +716,7 @@ public static class TwowaysAMI
                 i.AddLast(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy($"{c}")));
             }
 
-            Test.MyClass_OpKIPrxSResult result = await p.opKIPrxSAsync(i);
+            Test.MyInterface_OpKIPrxSResult result = await p.opKIPrxSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -728,7 +728,7 @@ public static class TwowaysAMI
                 i.Enqueue(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy($"{c}")));
             }
 
-            Test.MyClass_OpQIPrxSResult result = await p.opQIPrxSAsync(i);
+            Test.MyInterface_OpQIPrxSResult result = await p.opQIPrxSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -740,7 +740,7 @@ public static class TwowaysAMI
                 i.Push(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy($"{c}")));
             }
 
-            Test.MyClass_OpSIPrxSResult result = await p.opSIPrxSAsync(i);
+            Test.MyInterface_OpSIPrxSResult result = await p.opSIPrxSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -752,7 +752,7 @@ public static class TwowaysAMI
                 i[c] = new Test.CR(new Test.CV(c));
             }
 
-            Test.MyClass_OpACRSResult result = await p.opACRSAsync(i);
+            Test.MyInterface_OpACRSResult result = await p.opACRSAsync(i);
             System.Collections.IEnumerator eo = result.o.GetEnumerator();
             System.Collections.IEnumerator er = result.returnValue.GetEnumerator();
             foreach (Test.CR obj in i)
@@ -771,7 +771,7 @@ public static class TwowaysAMI
                 i.Add(new Test.CR(new Test.CV(c)));
             }
 
-            Test.MyClass_OpLCRSResult result = await p.opLCRSAsync(i);
+            Test.MyInterface_OpLCRSResult result = await p.opLCRSAsync(i);
             System.Collections.IEnumerator eo = result.o.GetEnumerator();
             System.Collections.IEnumerator er = result.returnValue.GetEnumerator();
             foreach (Test.CR obj in i)
@@ -790,7 +790,7 @@ public static class TwowaysAMI
                 i[c] = (Test.En)(c % 3);
             }
 
-            Test.MyClass_OpAEnSResult result = await p.opAEnSAsync(i);
+            Test.MyInterface_OpAEnSResult result = await p.opAEnSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -802,7 +802,7 @@ public static class TwowaysAMI
                 i.Add((Test.En)(c % 3));
             }
 
-            Test.MyClass_OpLEnSResult result = await p.opLEnSAsync(i);
+            Test.MyInterface_OpLEnSResult result = await p.opLEnSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -814,7 +814,7 @@ public static class TwowaysAMI
                 i.AddLast((Test.En)(c % 3));
             }
 
-            Test.MyClass_OpKEnSResult result = await p.opKEnSAsync(i);
+            Test.MyInterface_OpKEnSResult result = await p.opKEnSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -826,7 +826,7 @@ public static class TwowaysAMI
                 i.Enqueue((Test.En)(c % 3));
             }
 
-            Test.MyClass_OpQEnSResult result = await p.opQEnSAsync(i);
+            Test.MyInterface_OpQEnSResult result = await p.opQEnSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -838,7 +838,7 @@ public static class TwowaysAMI
                 i.Push((Test.En)(c % 3));
             }
 
-            Test.MyClass_OpSEnSResult result = await p.opSEnSAsync(i);
+            Test.MyInterface_OpSEnSResult result = await p.opSEnSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -850,7 +850,7 @@ public static class TwowaysAMI
                 i.Add(c);
             }
 
-            Test.MyClass_OpCustomIntSResult result = await p.opCustomIntSAsync(i);
+            Test.MyInterface_OpCustomIntSResult result = await p.opCustomIntSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -862,7 +862,7 @@ public static class TwowaysAMI
                 i.Add(new Test.CV(c));
             }
 
-            Test.MyClass_OpCustomCVSResult result = await p.opCustomCVSAsync(i);
+            Test.MyInterface_OpCustomCVSResult result = await p.opCustomCVSAsync(i);
             System.Collections.IEnumerator eo = result.o.GetEnumerator();
             System.Collections.IEnumerator er = result.returnValue.GetEnumerator();
             foreach (Test.CV obj in i)
@@ -886,7 +886,7 @@ public static class TwowaysAMI
                 i.Add(inner);
             }
 
-            Test.MyClass_OpCustomIntSSResult result = await p.opCustomIntSSAsync(i);
+            Test.MyInterface_OpCustomIntSSResult result = await p.opCustomIntSSAsync(i);
             test(Enumerable.SequenceEqual(i, result.o));
             test(Enumerable.SequenceEqual(i, result.returnValue));
         }
@@ -903,7 +903,7 @@ public static class TwowaysAMI
                 i.Add(inner);
             }
 
-            Test.MyClass_OpCustomCVSSResult result = await p.opCustomCVSSAsync(i);
+            Test.MyInterface_OpCustomCVSSResult result = await p.opCustomCVSSAsync(i);
             IEnumerator<Custom<Test.CV>> eo = result.o.GetEnumerator();
             IEnumerator<Custom<Test.CV>> er = result.returnValue.GetEnumerator();
             foreach (Custom<Test.CV> s in i)

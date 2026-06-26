@@ -8,8 +8,8 @@ classdef AllTests
 
             communicator = helper.communicator();
             ref = ['test:', helper.getTestEndpoint()];
-            cl = MyClassPrx(communicator, ref);
-            derived = MyDerivedClassPrx.checkedCast(cl);
+            cl = MyInterfacePrx(communicator, ref);
+            derived = MyDerivedInterfacePrx.checkedCast(cl);
 
             fprintf('testing twoway operations... ');
             Twoways.twoways(helper, cl);

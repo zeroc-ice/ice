@@ -18,7 +18,7 @@ class Collocated: TestHelperI, @unchecked Sendable {
             key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         try adapter.add(
-            servant: MyDerivedClassI(),
+            servant: MyDerivedInterfaceI(),
             id: Ice.Identity(name: "test"))
         try adapter.add(
             servant: CI(),

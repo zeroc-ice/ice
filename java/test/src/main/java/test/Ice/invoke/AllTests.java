@@ -9,8 +9,8 @@ import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.OperationMode;
 import com.zeroc.Ice.OutputStream;
 
-import test.Ice.invoke.Test.MyClassPrx;
 import test.Ice.invoke.Test.MyException;
+import test.Ice.invoke.Test.MyInterfacePrx;
 import test.TestHelper;
 
 import java.io.PrintWriter;
@@ -27,14 +27,14 @@ public class AllTests {
         }
     }
 
-    public static MyClassPrx allTests(TestHelper helper) {
+    public static MyInterfacePrx allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         String ref = "test:" + helper.getTestEndpoint(0);
         ObjectPrx base = communicator.stringToProxy(ref);
-        MyClassPrx cl = MyClassPrx.checkedCast(base);
-        MyClassPrx oneway = cl.ice_oneway();
-        MyClassPrx batchOneway = cl.ice_batchOneway();
+        MyInterfacePrx cl = MyInterfacePrx.checkedCast(base);
+        MyInterfacePrx oneway = cl.ice_oneway();
+        MyInterfacePrx batchOneway = cl.ice_batchOneway();
 
         out.print("testing ice_invoke... ");
         out.flush();

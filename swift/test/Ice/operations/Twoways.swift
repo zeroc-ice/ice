@@ -4,7 +4,7 @@ import Ice
 import TestCommon
 
 // temporary work-around for issue #816
-func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
+func twoways(_ helper: TestHelper, _ p: MyInterfacePrx) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -20,7 +20,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     try await testStrings(helper: helper, prx: p)
 
     try await testEnums(helper: helper, prx: p)
-    try await testClasses(helper: helper, prx: p)
+    try await testProxies(helper: helper, prx: p)
     try await testStructs(helper: helper, prx: p)
 
     try await testSequences(helper: helper, prx: p)
@@ -43,27 +43,27 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         try await test(p.opStringS2([]).count == 0)
         try await test(p.opByteBoolD2([:]).count == 0)
 
-        let d = uncheckedCast(prx: p, type: MyDerivedClassPrx.self)
+        let d = uncheckedCast(prx: p, type: MyDerivedInterfacePrx.self)
         var s = MyStruct1()
         s.tesT = "MyStruct1.s"
-        s.myClass = nil
+        s.myInterface = nil
         s.myStruct1 = "MyStruct1.myStruct1"
         s = try await d.opMyStruct1(s)
         try test(s.tesT == "MyStruct1.s")
-        try test(s.myClass == nil)
+        try test(s.myInterface == nil)
         try test(s.myStruct1 == "MyStruct1.myStruct1")
         var c = MyClass1()
         c.tesT = "MyClass1.testT"
-        c.myClass = nil
+        c.myInterface = nil
         c.myClass1 = "MyClass1.myClass1"
         c = try await d.opMyClass1(c)!
         try test(c.tesT == "MyClass1.testT")
-        try test(c.myClass == nil)
+        try test(c.myInterface == nil)
         try test(c.myClass1 == "MyClass1.myClass1")
     }
 }
 
-func testLiterals(helper: TestHelper, prx p: MyClassPrx) async throws {
+func testLiterals(helper: TestHelper, prx p: MyInterfacePrx) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -106,31 +106,31 @@ func testLiterals(helper: TestHelper, prx p: MyClassPrx) async throws {
         su0 == su1 && su0 == su2 && su0 == literals[28] && su0 == literals[29] && su0 == literals[30])
 }
 
-func testProxyMethods(helper: TestHelper, prx p: MyClassPrx) async throws {
+func testProxyMethods(helper: TestHelper, prx p: MyInterfacePrx) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
 
     try await p.ice_ping()
 
-    try test(ice_staticId(MyClassPrx.self) == "::Test::MyClass")
+    try test(ice_staticId(MyInterfacePrx.self) == "::Test::MyInterface")
     try test(ice_staticId(Ice.ObjectPrx.self) == "::Ice::Object")
 
-    try await test(p.ice_isA(id: ice_staticId(MyClassPrx.self)))
-    try await test(p.ice_id() == ice_staticId(MyDerivedClassPrx.self))
+    try await test(p.ice_isA(id: ice_staticId(MyInterfacePrx.self)))
+    try await test(p.ice_id() == ice_staticId(MyDerivedInterfacePrx.self))
 
     let ids = try await p.ice_ids()
     try test(ids.count == 3)
     try test(ids[0] == "::Ice::Object")
-    try test(ids[1] == "::Test::MyClass")
-    try test(ids[2] == "::Test::MyDerivedClass")
+    try test(ids[1] == "::Test::MyInterface")
+    try test(ids[2] == "::Test::MyDerivedInterface")
 }
 
-func testVoid(helper: TestHelper, prx p: MyClassPrx) async throws {
+func testVoid(helper: TestHelper, prx p: MyInterfacePrx) async throws {
     try await p.opVoid()
 }
 
-func testNumerics(helper: TestHelper, prx p: MyClassPrx) async throws {
+func testNumerics(helper: TestHelper, prx p: MyInterfacePrx) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -186,7 +186,7 @@ func testNumerics(helper: TestHelper, prx p: MyClassPrx) async throws {
     }
 }
 
-func testStrings(helper: TestHelper, prx p: MyClassPrx) async throws {
+func testStrings(helper: TestHelper, prx p: MyInterfacePrx) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -198,7 +198,7 @@ func testStrings(helper: TestHelper, prx p: MyClassPrx) async throws {
     }
 }
 
-func testEnums(helper: TestHelper, prx p: MyClassPrx) async throws {
+func testEnums(helper: TestHelper, prx p: MyInterfacePrx) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -211,13 +211,13 @@ func testEnums(helper: TestHelper, prx p: MyClassPrx) async throws {
 
 }
 
-func testClasses(helper: TestHelper, prx p: MyClassPrx) async throws {
+func testProxies(helper: TestHelper, prx p: MyInterfacePrx) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
 
     do {
-        var (r, c1, c2) = try await p.opMyClass(p)
+        var (r, c1, c2) = try await p.opMyInterface(p)
 
         try test(c1!.ice_getIdentity() == Ice.Identity(name: "test"))
         try test(c2!.ice_getIdentity() == Ice.stringToIdentity("noSuchIdentity"))
@@ -230,14 +230,14 @@ func testClasses(helper: TestHelper, prx p: MyClassPrx) async throws {
             try test(false)
         } catch is Ice.ObjectNotExistException {}
 
-        (r, c1, c2) = try await p.opMyClass(nil)
+        (r, c1, c2) = try await p.opMyInterface(nil)
         try test(c1 == nil)
         try test(c2 != nil)
         try await r!.opVoid()
     }
 }
 
-func testStructs(helper: TestHelper, prx p: MyClassPrx) async throws {
+func testStructs(helper: TestHelper, prx p: MyInterfacePrx) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -265,7 +265,7 @@ func testStructs(helper: TestHelper, prx p: MyClassPrx) async throws {
     }
 }
 
-func testSequences(helper: TestHelper, prx p: MyClassPrx) async throws {
+func testSequences(helper: TestHelper, prx p: MyInterfacePrx) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -605,7 +605,7 @@ func testSequences(helper: TestHelper, prx p: MyClassPrx) async throws {
     }
 }
 
-func testDictionaries(helper: TestHelper, prx p: MyClassPrx) async throws {
+func testDictionaries(helper: TestHelper, prx p: MyInterfacePrx) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -1169,7 +1169,7 @@ func testDictionaries(helper: TestHelper, prx p: MyClassPrx) async throws {
     }
 }
 
-func testContext(helper: TestHelper, prx p: MyClassPrx) async throws {
+func testContext(helper: TestHelper, prx p: MyInterfacePrx) async throws {
 
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
@@ -1190,7 +1190,7 @@ func testContext(helper: TestHelper, prx p: MyClassPrx) async throws {
         }
 
         do {
-            let p2 = try await checkedCast(prx: p.ice_context(ctx), type: MyClassPrx.self)!
+            let p2 = try await checkedCast(prx: p.ice_context(ctx), type: MyInterfacePrx.self)!
             try test(p2.ice_getContext() == ctx)
             var r = try await p2.opContext()
             try test(r == ctx)
@@ -1218,7 +1218,7 @@ func testContext(helper: TestHelper, prx p: MyClassPrx) async throws {
 
         var p3 = try uncheckedCast(
             prx: ic.stringToProxy("test:\(helper.getTestEndpoint(num: 0))")!,
-            type: MyClassPrx.self)
+            type: MyInterfacePrx.self)
 
         guard let implicitContext = ic.getImplicitContext() else {
             try test(false)
@@ -1246,7 +1246,7 @@ func testContext(helper: TestHelper, prx p: MyClassPrx) async throws {
         }
         try test(combined["one"] == "UN")
 
-        p3 = uncheckedCast(prx: p3.ice_context(prxContext), type: MyClassPrx.self)
+        p3 = uncheckedCast(prx: p3.ice_context(prxContext), type: MyInterfacePrx.self)
 
         implicitContext.setContext(Ice.Context())
         try await test(p3.opContext() == prxContext)
@@ -1258,6 +1258,6 @@ func testContext(helper: TestHelper, prx p: MyClassPrx) async throws {
     }
 }
 
-func testIdempotent(helper: TestHelper, prx p: MyClassPrx) async throws {
+func testIdempotent(helper: TestHelper, prx p: MyInterfacePrx) async throws {
     try await p.opIdempotent()
 }

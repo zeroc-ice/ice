@@ -48,7 +48,7 @@ struct DispatcherI: Ice.Dispatcher {
             return request.current.makeOutgoingResponse(
                 s, formatType: nil
             ) { ostr, s in
-                if s == "::Test::MyClass" {
+                if s == "::Test::MyInterface" {
                     ostr.write(true)
                 } else {
                     ostr.write(false)

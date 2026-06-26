@@ -30,7 +30,7 @@ namespace
     class PerThreadContextInvokeThread final
     {
     public:
-        PerThreadContextInvokeThread(Test::MyClassPrx proxy) : _proxy(std::move(proxy)) {}
+        PerThreadContextInvokeThread(Test::MyInterfacePrx proxy) : _proxy(std::move(proxy)) {}
 
         void run()
         {
@@ -42,12 +42,12 @@ namespace
         }
 
     private:
-        Test::MyClassPrx _proxy;
+        Test::MyInterfacePrx _proxy;
     };
 }
 
 void
-twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
+twoways(const Ice::CommunicatorPtr& communicator, const Test::MyInterfacePrx& p)
 {
     const string protocol{communicator->getProperties()->getIceProperty("Ice.Default.Protocol")};
     bool bluetooth = protocol == "bt" || protocol == "bts";
@@ -155,24 +155,24 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     }
 
     {
-        test(string{Test::MyClassPrx::ice_staticId()} == Test::MyClass::ice_staticId());
+        test(string{Test::MyInterfacePrx::ice_staticId()} == Test::MyInterface::ice_staticId());
         test(string{Ice::ObjectPrx::ice_staticId()} == Ice::Object::ice_staticId());
     }
 
     {
-        test(p->ice_isA(Test::MyClass::ice_staticId()));
+        test(p->ice_isA(Test::MyInterface::ice_staticId()));
     }
 
     {
-        test(p->ice_id() == Test::MyDerivedClass::ice_staticId());
+        test(p->ice_id() == Test::MyDerivedInterface::ice_staticId());
     }
 
     {
         Ice::StringSeq ids = p->ice_ids();
         test(ids.size() == 3);
         test(ids[0] == "::Ice::Object");
-        test(ids[1] == "::Test::MyClass");
-        test(ids[2] == "::Test::MyDerivedClass");
+        test(ids[1] == "::Test::MyInterface");
+        test(ids[2] == "::Test::MyDerivedInterface");
     }
 
     {
@@ -274,11 +274,11 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     }
 
     {
-        optional<MyClassPrx> c1;
-        optional<MyClassPrx> c2;
-        optional<MyClassPrx> r;
+        optional<MyInterfacePrx> c1;
+        optional<MyInterfacePrx> c2;
+        optional<MyInterfacePrx> r;
 
-        r = p->opMyClass(p, c1, c2);
+        r = p->opMyInterface(p, c1, c2);
         test(Ice::proxyIdentityAndFacetEqual(c1, p));
         test(!Ice::proxyIdentityAndFacetEqual(c2, p));
         test(Ice::proxyIdentityAndFacetEqual(r, p));
@@ -296,7 +296,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         {
         }
 
-        r = p->opMyClass(nullopt, c1, c2);
+        r = p->opMyInterface(nullopt, c1, c2);
         test(c1 == nullopt);
         test(c2 != nullopt);
         test(Ice::proxyIdentityAndFacetEqual(r, p));
@@ -1655,7 +1655,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
                 test(r == ctx);
             }
             {
-                MyClassPrx p2 = p->ice_context(ctx);
+                MyInterfacePrx p2 = p->ice_context(ctx);
                 test(p2->ice_getContext() == ctx);
                 Ice::Context r = p2->opContext();
                 test(r == ctx);
@@ -1686,7 +1686,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
                 ctx["three"] = "THREE";
 
                 Ice::PropertiesPtr properties = ic->getProperties();
-                Test::MyClassPrx q(ic, "test:" + TestHelper::getTestEndpoint(properties, 0));
+                Test::MyInterfacePrx q(ic, "test:" + TestHelper::getTestEndpoint(properties, 0));
 
                 ic->getImplicitContext()->setContext(ctx);
                 test(ic->getImplicitContext()->getContext() == ctx);
@@ -1747,24 +1747,24 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     test(p->opDouble1(1.0) == 1.0);
     test(p->opString1("opString1") == "opString1");
 
-    auto d = Ice::uncheckedCast<MyDerivedClassPrx>(p);
+    auto d = Ice::uncheckedCast<MyDerivedInterfacePrx>(p);
 
     Test::MyStruct1 s;
     s.tesT = "Test::MyStruct1::s";
-    s.myClass = nullopt;
+    s.myInterface = nullopt;
     s.myStruct1 = "Test::MyStruct1::myStruct1";
     s = d->opMyStruct1(s);
     test(s.tesT == "Test::MyStruct1::s");
-    test(s.myClass == nullopt);
+    test(s.myInterface == nullopt);
     test(s.myStruct1 == "Test::MyStruct1::myStruct1");
 
     Test::MyClass1Ptr c = make_shared<Test::MyClass1>();
     c->tesT = "Test::MyClass1::testT";
-    c->myClass = nullopt;
+    c->myInterface = nullopt;
     c->myClass1 = "Test::MyClass1::myClass1";
     c = d->opMyClass1(c);
     test(c->tesT == "Test::MyClass1::testT");
-    test(c->myClass == nullopt);
+    test(c->myInterface == nullopt);
     test(c->myClass1 == "Test::MyClass1::myClass1");
 
     Test::StringS seq;

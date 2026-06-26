@@ -55,7 +55,7 @@ public class BlobjectAsyncI implements BlobjectAsync {
             return CompletableFuture.completedFuture(r);
         } else if ("ice_isA".equals(current.operation)) {
             String s = in.readString();
-            if ("::Test::MyClass".equals(s)) {
+            if ("::Test::MyInterface".equals(s)) {
                 out.writeBool(true);
             } else {
                 out.writeBool(false);

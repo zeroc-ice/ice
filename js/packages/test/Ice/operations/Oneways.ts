@@ -4,12 +4,12 @@ import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
 import { test } from "../../Common/TestHelper.js";
 
-export async function oneways(prx: Test.MyClassPrx) {
+export async function oneways(prx: Test.MyInterfacePrx) {
     prx = prx.ice_oneway();
     await prx.ice_ping();
 
     try {
-        await prx.ice_isA(Test.MyClass.ice_staticId());
+        await prx.ice_isA(Test.MyInterface.ice_staticId());
         test(false);
     } catch (ex) {
         // Expected: twoway proxy required

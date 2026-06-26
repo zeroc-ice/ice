@@ -2,9 +2,9 @@
 
 namespace Ice.proxy;
 
-public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_, Ice.Object
+public sealed class MyDerivedInterfaceI : Test.MyDerivedInterfaceDisp_, Ice.Object
 {
-    public MyDerivedClassI()
+    public MyDerivedInterfaceI()
     {
     }
 

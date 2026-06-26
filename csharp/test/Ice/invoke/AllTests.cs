@@ -6,13 +6,13 @@ public class AllTests : global::Test.AllTests
 {
     private const string testString = "This is a test string";
 
-    public static Test.MyClassPrx allTests(global::Test.TestHelper helper)
+    public static Test.MyInterfacePrx allTests(global::Test.TestHelper helper)
     {
         Ice.Communicator communicator = helper.communicator();
         Ice.ObjectPrx baseProxy = communicator.stringToProxy("test:" + helper.getTestEndpoint(0));
-        Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
-        Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_oneway());
-        Test.MyClassPrx batchOneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_batchOneway());
+        Test.MyInterfacePrx cl = Test.MyInterfacePrxHelper.checkedCast(baseProxy);
+        Test.MyInterfacePrx oneway = Test.MyInterfacePrxHelper.uncheckedCast(cl.ice_oneway());
+        Test.MyInterfacePrx batchOneway = Test.MyInterfacePrxHelper.uncheckedCast(cl.ice_batchOneway());
 
         TextWriter output = helper.getWriter();
         output.Write("testing ice_invoke... ");

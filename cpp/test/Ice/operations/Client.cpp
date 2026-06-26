@@ -26,17 +26,17 @@ Client::run(int argc, char** argv)
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
-    Test::MyClassPrx allTests(Test::TestHelper*);
-    Test::MyClassPrx myClass = allTests(this);
+    Test::MyInterfacePrx allTests(Test::TestHelper*);
+    Test::MyInterfacePrx myInterface = allTests(this);
 
-    myClass->shutdown();
+    myInterface->shutdown();
     cout << "testing server shutdown... " << flush;
     try
     {
 #ifdef _WIN32
-        myClass = myClass->ice_invocationTimeout(100); // Workaround to speed up testing
+        myInterface = myInterface->ice_invocationTimeout(100); // Workaround to speed up testing
 #endif
-        myClass->opVoid();
+        myInterface->opVoid();
         test(false);
     }
     catch (const Ice::LocalException&)

@@ -8,7 +8,7 @@ internal class Twoways
 
     private const int _length = 100;
 
-    internal static void twoways(Ice.Communicator communicator, Test.MyClassPrx p)
+    internal static void twoways(Ice.Communicator communicator, Test.MyInterfacePrx p)
     {
         {
             byte[] i = new byte[_length];

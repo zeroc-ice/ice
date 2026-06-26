@@ -10,6 +10,6 @@ function client(args)
     communicator = helper.initialize(args);
     cleanup = onCleanup(@() communicator.destroy());
 
-    myClass = AllTests.allTests(helper);
-    myClass.shutdown();
+    myInterface = AllTests.allTests(helper);
+    myInterface.shutdown();
 end

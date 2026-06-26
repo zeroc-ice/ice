@@ -6,7 +6,7 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
 
-import test.Ice.seqMapping.Test.MyClassPrx;
+import test.Ice.seqMapping.Test.MyInterfacePrx;
 import test.TestHelper;
 
 import java.io.PrintWriter;
@@ -20,11 +20,11 @@ public class Client extends TestHelper {
 
         PrintWriter out = getWriter();
         try (Communicator communicator = initialize(initData)) {
-            MyClassPrx myClass = AllTests.allTests(this, false);
+            MyInterfacePrx myInterface = AllTests.allTests(this, false);
 
             out.print("shutting down server... ");
             out.flush();
-            myClass.shutdown();
+            myInterface.shutdown();
             out.println("ok");
         }
     }

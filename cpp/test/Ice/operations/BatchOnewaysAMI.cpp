@@ -10,10 +10,10 @@
 using namespace std;
 
 void
-batchOnewaysAMI(const Test::MyClassPrx& p)
+batchOnewaysAMI(const Test::MyInterfacePrx& p)
 {
     const Test::ByteS bs1(10 * 1024);
-    Test::MyClassPrx batch = p->ice_batchOneway();
+    Test::MyInterfacePrx batch = p->ice_batchOneway();
     promise<void> prom;
     batch->ice_flushBatchRequestsAsync(
         nullptr,
@@ -41,8 +41,8 @@ batchOnewaysAMI(const Test::MyClassPrx& p)
 
     if (batch->ice_getConnection() && !bluetooth)
     {
-        Test::MyClassPrx batch1 = p->ice_batchOneway();
-        Test::MyClassPrx batch2 = p->ice_batchOneway();
+        Test::MyInterfacePrx batch1 = p->ice_batchOneway();
+        Test::MyInterfacePrx batch2 = p->ice_batchOneway();
 
         batch1->ice_pingAsync().get();
         batch2->ice_pingAsync().get();

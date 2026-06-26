@@ -8,11 +8,11 @@ import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 
 import test.Ice.operations.Test.AnotherStruct;
-import test.Ice.operations.Test.MyClass;
-import test.Ice.operations.Test.MyClassPrx;
-import test.Ice.operations.Test.MyDerivedClass;
-import test.Ice.operations.Test.MyDerivedClassPrx;
+import test.Ice.operations.Test.MyDerivedInterface;
+import test.Ice.operations.Test.MyDerivedInterfacePrx;
 import test.Ice.operations.Test.MyEnum;
+import test.Ice.operations.Test.MyInterface;
+import test.Ice.operations.Test.MyInterfacePrx;
 import test.Ice.operations.Test.MyStruct;
 import test.Ice.operations.Test.Structure;
 import test.TestHelper;
@@ -57,7 +57,7 @@ class TwowaysAMI {
         private boolean _called;
     }
 
-    static void twowaysAMI(TestHelper helper, MyClassPrx p) {
+    static void twowaysAMI(TestHelper helper, MyInterfacePrx p) {
         Communicator communicator = helper.communicator();
         final boolean bluetooth =
             communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
@@ -76,7 +76,7 @@ class TwowaysAMI {
 
         {
             Callback cb = new Callback();
-            p.ice_isAAsync(MyClass.ice_staticId())
+            p.ice_isAAsync(MyInterface.ice_staticId())
                 .whenComplete(
                     (result, ex) -> {
                         test(ex == null);
@@ -92,7 +92,7 @@ class TwowaysAMI {
                 .whenComplete(
                     (result, ex) -> {
                         test(ex == null);
-                        test(result.equals(MyDerivedClass.ice_staticId()));
+                        test(result.equals(MyDerivedInterface.ice_staticId()));
                         cb.called();
                     });
             cb.check();
@@ -208,7 +208,7 @@ class TwowaysAMI {
 
         {
             Callback cb = new Callback();
-            p.opMyClassAsync(p)
+            p.opMyInterfaceAsync(p)
                 .whenComplete(
                     (result, ex) -> {
                         test(ex == null);
@@ -1536,7 +1536,7 @@ class TwowaysAMI {
                 Map<String, String> c = p.opContextAsync(ctx).join();
                 test(c.equals(ctx));
             }
-            MyClassPrx p2 = MyClassPrx.checkedCast(p.ice_context(ctx));
+            MyInterfacePrx p2 = MyInterfacePrx.checkedCast(p.ice_context(ctx));
             test(p2.ice_getContext().equals(ctx));
             {
                 Map<String, String> c = p2.opContextAsync().join();
@@ -1565,7 +1565,7 @@ class TwowaysAMI {
                     ctx.put("three", "THREE");
 
                     var p3 =
-                        MyClassPrx.createProxy(
+                        MyInterfacePrx.createProxy(
                             ic, "test:" + TestHelper.getTestEndpoint(properties, 0, ""));
 
                     ic.getImplicitContext().setContext(ctx);
@@ -1636,7 +1636,7 @@ class TwowaysAMI {
         }
 
         {
-            MyDerivedClassPrx derived = MyDerivedClassPrx.checkedCast(p);
+            MyDerivedInterfacePrx derived = MyDerivedInterfacePrx.checkedCast(p);
             test(derived != null);
             Callback cb = new Callback();
             derived.opDerivedAsync()

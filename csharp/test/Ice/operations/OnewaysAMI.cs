@@ -6,15 +6,15 @@ public static class OnewaysAMI
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
-    internal static async Task onewaysAMI(Test.MyClassPrx proxy)
+    internal static async Task onewaysAMI(Test.MyInterfacePrx proxy)
     {
-        Test.MyClassPrx p = Test.MyClassPrxHelper.uncheckedCast(proxy.ice_oneway());
+        Test.MyInterfacePrx p = Test.MyInterfacePrxHelper.uncheckedCast(proxy.ice_oneway());
 
         await p.ice_pingAsync();
 
         try
         {
-            _ = p.ice_isAAsync("::Test::MyClass");
+            _ = p.ice_isAAsync("::Test::MyInterface");
             test(false);
         }
         catch (TwowayOnlyException)
@@ -48,7 +48,7 @@ public static class OnewaysAMI
         // Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
         try
         {
-            _ = Test.MyClassPrxHelper.uncheckedCast(proxy.ice_twoway()).opOnewayAsync();
+            _ = Test.MyInterfacePrxHelper.uncheckedCast(proxy.ice_twoway()).opOnewayAsync();
             test(false);
         }
         catch (OnewayOnlyException)
