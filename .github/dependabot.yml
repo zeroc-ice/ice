@@ -62,10 +62,9 @@ updates:
       swift-major:
         update-types: ["major"]
 
-  # The blocks below mirror the ones above with target-branch: "3.8". 3.8 is a
-  # stable release branch, so major version updates are ignored there. Dependabot
-  # reads this config from the default branch only, and security updates always
-  # target the default branch (they cannot be pointed at 3.8).
+  # 3.8 only receives GitHub Actions updates here; its language deps are kept in
+  # sync with main by cherry-pick. (Config is read from the default branch only,
+  # and security updates always target the default branch.)
   - package-ecosystem: "github-actions"
     # Two entries are required: "/" is the special value that scans
     # .github/workflows (plus any root action.yml); "/.github/actions/*"
@@ -82,62 +81,6 @@ updates:
       github-actions:
         patterns:
           - "*"
-
-  - package-ecosystem: "npm"
-    directory: "/js"
-    target-branch: "3.8"
-    schedule:
-      interval: monthly
-    cooldown:
-      default-days: 7
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-    groups:
-      js-minor-and-patch:
-        update-types: ["minor", "patch"]
-
-  - package-ecosystem: "pip"
-    directory: "/python"
-    target-branch: "3.8"
-    schedule:
-      interval: monthly
-    cooldown:
-      default-days: 7
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-    groups:
-      python-minor-and-patch:
-        update-types: ["minor", "patch"]
-
-  - package-ecosystem: "pip"
-    directory: "/python/docs"
-    target-branch: "3.8"
-    schedule:
-      interval: monthly
-    cooldown:
-      default-days: 7
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-    groups:
-      python-docs:
-        patterns: ["*"]
-
-  - package-ecosystem: "swift"
-    directory: "/"
-    target-branch: "3.8"
-    schedule:
-      interval: monthly
-    cooldown:
-      default-days: 7
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-    groups:
-      swift-minor-and-patch:
-        update-types: ["minor", "patch"]
 
   # 3.7 is in maintenance, so only its GitHub Actions are kept up to date.
   - package-ecosystem: "github-actions"
