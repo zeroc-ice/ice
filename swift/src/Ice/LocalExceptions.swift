@@ -342,7 +342,7 @@ public final class ConnectionAbortedException: LocalException, @unchecked Sendab
 
 /// This exception indicates the connection was closed gracefully.
 public final class ConnectionClosedException: LocalException, @unchecked Sendable {
-    /// When true, the connection was aborted by the application. When false, the connection was aborted by the Ice
+    /// When true, the connection was closed by the application. When false, the connection was closed by the Ice
     /// runtime.
     public let closedByApplication: Bool
 
@@ -446,7 +446,7 @@ public final class ObjectAdapterIdInUseException: LocalException, @unchecked Sen
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
     public convenience init(id: String, file: String = #fileID, line: Int32 = #line) {
-        self.init("an object adapter with adapter ID'\(id)' is already active", file: file, line: line)
+        self.init("an object adapter with adapter ID '\(id)' is already active", file: file, line: line)
     }
 }
 
