@@ -1112,28 +1112,60 @@ public final class Instance {
 
     private void updateConnectionObservers() {
         try {
-            assert (_outgoingConnectionFactory != null);
-            _outgoingConnectionFactory.updateConnectionObservers();
-            assert (_objectAdapterFactory != null);
-            _objectAdapterFactory.updateConnectionObservers();
+            // This updater can run concurrently with destroy(). Copy the subsystem references under the lock, and bail
+            // out once destruction has started: destroy() tears down these subsystems (while _state is
+            // StateDestroyInProgress) before nulling them (when it sets _state to StateDestroyed).
+            OutgoingConnectionFactory outgoingConnectionFactory;
+            ObjectAdapterFactory objectAdapterFactory;
+            synchronized (this) {
+                if (_state >= StateDestroyInProgress) {
+                    return;
+                }
+                outgoingConnectionFactory = _outgoingConnectionFactory;
+                objectAdapterFactory = _objectAdapterFactory;
+            }
+
+            assert (outgoingConnectionFactory != null);
+            outgoingConnectionFactory.updateConnectionObservers();
+            assert (objectAdapterFactory != null);
+            objectAdapterFactory.updateConnectionObservers();
         } catch (CommunicatorDestroyedException ex) {}
     }
 
     private void updateThreadObservers() {
         try {
-            if (_clientThreadPool != null) {
-                _clientThreadPool.updateObservers();
+            // This updater can run concurrently with destroy(). Copy the subsystem references under the lock, and bail
+            // out once destruction has started: destroy() tears down these subsystems (while _state is
+            // StateDestroyInProgress) before nulling them (when it sets _state to StateDestroyed).
+            ThreadPool clientThreadPool;
+            ThreadPool serverThreadPool;
+            ObjectAdapterFactory objectAdapterFactory;
+            EndpointHostResolver endpointHostResolver;
+            Timer timer;
+            synchronized (this) {
+                if (_state >= StateDestroyInProgress) {
+                    return;
+                }
+                clientThreadPool = _clientThreadPool;
+                serverThreadPool = _serverThreadPool;
+                objectAdapterFactory = _objectAdapterFactory;
+                endpointHostResolver = _endpointHostResolver;
+                timer = _timer;
             }
-            if (_serverThreadPool != null) {
-                _serverThreadPool.updateObservers();
+
+            if (clientThreadPool != null) {
+                clientThreadPool.updateObservers();
             }
-            assert (_objectAdapterFactory != null);
-            _objectAdapterFactory.updateThreadObservers();
-            if (_endpointHostResolver != null) {
-                _endpointHostResolver.updateObserver();
+            if (serverThreadPool != null) {
+                serverThreadPool.updateObservers();
             }
-            if (_timer != null) {
-                _timer.updateObserver(_initData.observer);
+            assert (objectAdapterFactory != null);
+            objectAdapterFactory.updateThreadObservers();
+            if (endpointHostResolver != null) {
+                endpointHostResolver.updateObserver();
+            }
+            if (timer != null) {
+                timer.updateObserver(_initData.observer);
             }
         } catch (CommunicatorDestroyedException ex) {}
     }
