@@ -28,7 +28,7 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -54,7 +54,7 @@ jobs:
 
       - name: Sign MSI with Trusted Signing
         if: ${{ inputs.authenticode_sign }}
-        uses: azure/trusted-signing-action@v2
+        uses: azure/trusted-signing-action@c7ab2a863ab5f9a846ddb8265964877ef296ee82 # v2.0.0
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -89,7 +89,7 @@ jobs:
 
       - name: Sign Burn engine with Trusted Signing
         if: ${{ inputs.authenticode_sign }}
-        uses: azure/trusted-signing-action@v2
+        uses: azure/trusted-signing-action@c7ab2a863ab5f9a846ddb8265964877ef296ee82 # v2.0.0
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -112,7 +112,7 @@ jobs:
 
       - name: Sign Bundle installer with Trusted Signing
         if: ${{ inputs.authenticode_sign }}
-        uses: azure/trusted-signing-action@v2
+        uses: azure/trusted-signing-action@c7ab2a863ab5f9a846ddb8265964877ef296ee82 # v2.0.0
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -127,7 +127,7 @@ jobs:
           timestamp-digest: SHA256
 
       - name: Upload Installer
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: windows-installer
           path: |
