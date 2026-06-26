@@ -75,7 +75,7 @@ final class HTTPNetworkProxy implements NetworkProxy {
         try {
             parser.parse(readBuffer.b, 0, readBuffer.b.position());
         } catch (WebSocketException ex) {
-            throw new ProtocolException("malformed HTTP proxy response: " + ex.getMessage());
+            throw new ProtocolException("malformed HTTP proxy response", ex);
         }
         if (parser.status() != 200) {
             throw new ConnectFailedException();

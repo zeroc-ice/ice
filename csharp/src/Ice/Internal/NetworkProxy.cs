@@ -234,7 +234,7 @@ public sealed class HTTPNetworkProxy : NetworkProxy
         }
         catch (WebSocketException ex)
         {
-            throw new Ice.ProtocolException("malformed HTTP proxy response: " + ex.Message);
+            throw new Ice.ProtocolException("malformed HTTP proxy response", ex);
         }
         if (parser.status() != 200)
         {
