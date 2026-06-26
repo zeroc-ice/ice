@@ -132,10 +132,10 @@ class LookupI implements Lookup {
             if (isReplicaGroup) {
                 _proxies.add(proxy);
                 if (_latency == 0) {
-                    _latency = (long) ((System.nanoTime() - _start) * _latencyMultiplier / 100000.0);
-                    if (_latency == 0) {
-                        _latency = 1; // 1ms
-                    }
+                    // The aggregation window is the measured response time, scaled by IceDiscovery.LatencyMultiplier,
+                    // with a 1ms floor so we never schedule a degenerate zero-length window.
+                    long responseTimeMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - _start);
+                    _latency = Math.max(1, responseTimeMillis * _latencyMultiplier);
                     cancelTimer();
                     scheduleTimer(_latency);
                 }
