@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: weekly
+      interval: monthly
     cooldown:
       default-days: 7
     groups:
@@ -54,6 +54,82 @@ updates:
 
   - package-ecosystem: "swift"
     directory: "/"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+      semver-minor-days: 14
+      semver-patch-days: 7
+    groups:
+      swift-minor-and-patch:
+        update-types: ["minor", "patch"]
+      swift-major:
+        update-types: ["major"]
+
+  # The blocks below mirror the ones above with target-branch: "3.8" so
+  # Dependabot also opens version-update PRs against the 3.8 release branch.
+  # (Dependabot reads this config from the default branch only; security
+  # updates always target the default branch and cannot be pointed at 3.8.)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "3.8"
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "npm"
+    directory: "/js"
+    target-branch: "3.8"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+      semver-minor-days: 14
+      semver-patch-days: 7
+    groups:
+      js-minor-and-patch:
+        update-types: ["minor", "patch"]
+      js-major:
+        update-types: ["major"]
+
+  - package-ecosystem: "pip"
+    directory: "/python"
+    target-branch: "3.8"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+      semver-minor-days: 14
+      semver-patch-days: 7
+    groups:
+      python-minor-and-patch:
+        update-types: ["minor", "patch"]
+      python-major:
+        update-types: ["major"]
+
+  - package-ecosystem: "pip"
+    directory: "/python/docs"
+    target-branch: "3.8"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    groups:
+      python-docs:
+        patterns: ["*"]
+
+  - package-ecosystem: "swift"
+    directory: "/"
+    target-branch: "3.8"
     schedule:
       interval: "monthly"
     cooldown:
