@@ -69,36 +69,50 @@ IceInternal::UdpTransceiver::closing(bool, exception_ptr)
 void
 IceInternal::UdpTransceiver::close()
 {
-    assert(_fd != INVALID_SOCKET);
-    SOCKET fd = _fd;
-    _fd = INVALID_SOCKET;
-    closeSocket(fd);
+    // _fd can be INVALID_SOCKET when bind failed: the bind/setup helper that threw already closed the socket and
+    // reset _fd.
+    if (_fd != INVALID_SOCKET)
+    {
+        SOCKET fd = _fd;
+        _fd = INVALID_SOCKET;
+        closeSocket(fd);
+    }
 }
 
 EndpointIPtr
 IceInternal::UdpTransceiver::bind()
 {
-    if (isMulticast(_addr))
+    try
     {
-        // Set SO_REUSEADDR socket option to allow multiple sockets to bind to the same multicast address.
-        setReuseAddress(_fd, true);
-        _mcastAddr = _addr;
+        if (isMulticast(_addr))
+        {
+            // Set SO_REUSEADDR socket option to allow multiple sockets to bind to the same multicast address.
+            setReuseAddress(_fd, true);
+            _mcastAddr = _addr;
 
 #ifdef _WIN32
-        // Windows does not allow binding to the mcast address itself so we bind to INADDR_ANY instead.
-        const_cast<Address&>(_addr) = getAddressForServer("", _port, getProtocolSupport(_addr), false, false);
+            // Windows does not allow binding to the mcast address itself so we bind to INADDR_ANY instead.
+            const_cast<Address&>(_addr) = getAddressForServer("", _port, getProtocolSupport(_addr), false, false);
 #endif
 
-        const_cast<Address&>(_addr) = doBind(_fd, _addr, _mcastInterface);
-        if (getPort(_mcastAddr) == 0)
-        {
-            setPort(_mcastAddr, getPort(_addr));
+            const_cast<Address&>(_addr) = doBind(_fd, _addr, _mcastInterface);
+            if (getPort(_mcastAddr) == 0)
+            {
+                setPort(_mcastAddr, getPort(_addr));
+            }
+            setMcastGroup(_fd, _mcastAddr, _mcastInterface);
         }
-        setMcastGroup(_fd, _mcastAddr, _mcastInterface);
+        else
+        {
+            const_cast<Address&>(_addr) = doBind(_fd, _addr);
+        }
     }
-    else
+    catch (...)
     {
-        const_cast<Address&>(_addr) = doBind(_fd, _addr);
+        // setReuseAddress/doBind/setMcastGroup close the socket before throwing, so reset _fd to avoid a double
+        // close when close() runs during cleanup. Mirrors TcpAcceptor::listen.
+        _fd = INVALID_SOCKET;
+        throw;
     }
 
     _bound = true;
