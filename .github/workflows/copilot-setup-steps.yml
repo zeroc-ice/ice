@@ -1,0 +1,51 @@
+name: Copilot Setup Steps
+
+# This workflow provisions the environment for the GitHub Copilot coding agent.
+# The job must be named `copilot-setup-steps` for Copilot to pick it up.
+# It mirrors the toolchain setup used by the Linux jobs in ci.yml.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  copilot-setup-steps:
+    # Use a dedicated GitHub-hosted larger runner rather than the shared
+    # `ubuntu-*` pool, which is sometimes exhausted and leaves the Copilot
+    # agent waiting for a runner. GitHub Actions has no availability-based
+    # fallback (a `runs-on` array is AND-matched, not OR), so we pin the
+    # custom runner directly.
+    runs-on: linux-latest-copilot
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.0
+
+      - name: Print System Info
+        uses: ./.github/actions/system-info
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup PHP
+        uses: ./.github/actions/setup-php
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
+        with:
+          include_net10: true
+
+      - name: Setup Java
+        uses: ./.github/actions/setup-java
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Setup Ruby
+        uses: ./.github/actions/setup-ruby
