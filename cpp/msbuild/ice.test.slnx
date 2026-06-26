@@ -76,6 +76,14 @@
       <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
     </Project>
   </Folder>
+  <Folder Name="/DataStorm/writerActiveReconnect/">
+    <Project Path="../test/DataStorm/writerActiveReconnect/msbuild/reader/reader.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+    <Project Path="../test/DataStorm/writerActiveReconnect/msbuild/writer/writer.vcxproj">
+      <BuildDependency Project="../test/Common/msbuild/testcommon.vcxproj" />
+    </Project>
+  </Folder>
   <Folder Name="/Glacier2/" />
   <Folder Name="/Glacier2/attack/">
     <Project Path="../test/Glacier2/attack/msbuild/client/client.vcxproj">
