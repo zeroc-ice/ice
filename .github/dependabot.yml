@@ -141,3 +141,25 @@ updates:
     groups:
       swift-minor-and-patch:
         update-types: ["minor", "patch"]
+
+  # 3.7 is in maintenance, so only its GitHub Actions are kept up to date
+  # (majors ignored, as on 3.8).
+  - package-ecosystem: "github-actions"
+    # Two entries are required: "/" is the special value that scans
+    # .github/workflows (plus any root action.yml); "/.github/actions/*"
+    # covers the composite actions, which each have their own action.yml.
+    directories:
+      - "/"
+      - "/.github/actions/*"
+    target-branch: "3.7"
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      github-actions:
+        patterns:
+          - "*"
