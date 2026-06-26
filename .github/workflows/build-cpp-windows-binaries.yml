@@ -31,7 +31,7 @@ jobs:
         configuration: [Release, Debug]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -43,7 +43,7 @@ jobs:
 
       - name: Sign C++ Binaries with Trusted Signing
         if: ${{ inputs.authenticode_sign }}
-        uses: azure/trusted-signing-action@v2
+        uses: azure/trusted-signing-action@c7ab2a863ab5f9a846ddb8265964877ef296ee82 # v2.0.0
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -58,7 +58,7 @@ jobs:
           timestamp-digest: SHA256
 
       - name: Upload C++ Build
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: windows-cpp-${{ matrix.platform }}-${{ matrix.configuration }}-build
           path: |
@@ -69,7 +69,7 @@ jobs:
             cpp/src/**/msbuild/**/${{ matrix.platform }}/${{ matrix.configuration }}/*.h
 
       - name: Upload C++ Slice Tools
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         # We only need to upload the Slice Tools once (Release x64 build) which are included in the Nuget packages
         if: ${{ matrix.configuration == 'Release' && matrix.platform == 'x64' }}
         with:
