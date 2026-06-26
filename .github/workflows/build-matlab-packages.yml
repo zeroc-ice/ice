@@ -32,7 +32,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -74,7 +74,7 @@ jobs:
           Add-Content -Path "${{ github.workspace }}\catalog.txt" -Value "cpp\bin\x64\Release\slice2matlab.exe"
 
       - name: Sign C++ Binaries
-        uses: azure/trusted-signing-action@v2
+        uses: azure/trusted-signing-action@c7ab2a863ab5f9a846ddb8265964877ef296ee82 # v2.0.0
         if: runner.os == 'Windows' && inputs.authenticode_sign
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -93,7 +93,7 @@ jobs:
         if: runner.os == 'Windows'
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: matlab-packages-${{ matrix.os }}
           path: matlab/toolbox/*.mltbx
