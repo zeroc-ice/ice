@@ -52,7 +52,7 @@
     return self.communicator->isShutdown();
 }
 
-- (id)stringToProxy:(NSString*)str error:(NSError**)error
+- (id)stringToProxy:(NSString*)str error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -70,7 +70,7 @@
     }
 }
 
-- (nullable id)propertyToProxy:(NSString*)property error:(NSError* _Nullable* _Nullable)error
+- (nullable id)propertyToProxy:(NSString*)property error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -90,7 +90,7 @@
 
 - (NSDictionary<NSString*, NSString*>*)proxyToProperty:(ICEObjectPrx*)prx
                                               property:(NSString*)property
-                                                 error:(NSError* _Nullable* _Nullable)error
+                                                 error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -103,7 +103,7 @@
     }
 }
 
-- (ICEObjectAdapter*)createObjectAdapter:(NSString*)name error:(NSError* _Nullable* _Nullable)error
+- (ICEObjectAdapter*)createObjectAdapter:(NSString*)name error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -119,7 +119,7 @@
 
 - (ICEObjectAdapter*)createObjectAdapterWithEndpoints:(NSString*)name
                                             endpoints:(NSString*)endpoints
-                                                error:(NSError* _Nullable* _Nullable)error
+                                                error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -135,7 +135,7 @@
 
 - (ICEObjectAdapter*)createObjectAdapterWithRouter:(NSString*)name
                                             router:(ICEObjectPrx*)router
-                                             error:(NSError* _Nullable* _Nullable)error
+                                             error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -202,7 +202,7 @@
     }
 }
 
-- (BOOL)setDefaultRouter:(ICEObjectPrx*)router error:(NSError**)error
+- (BOOL)setDefaultRouter:(ICEObjectPrx*)router error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -234,7 +234,7 @@
     }
 }
 
-- (BOOL)setDefaultLocator:(ICEObjectPrx*)locator error:(NSError**)error
+- (BOOL)setDefaultLocator:(ICEObjectPrx*)locator error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -278,7 +278,7 @@
 - (nullable ICEObjectPrx*)createAdmin:(ICEObjectAdapter* _Nullable)adminAdapter
                                  name:(NSString*)name
                              category:(NSString*)category
-                                error:(NSError**)error
+                                error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -294,7 +294,7 @@
     }
 }
 
-- (nullable id)getAdmin:(NSError**)error
+- (nullable id)getAdmin:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -308,7 +308,9 @@
     }
 }
 
-- (BOOL)addAdminFacet:(id<ICEDispatchAdapter>)dispatchAdapter facet:(NSString*)facet error:(NSError**)error
+- (BOOL)addAdminFacet:(id<ICEDispatchAdapter>)dispatchAdapter
+                facet:(NSString*)facet
+                error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -323,7 +325,7 @@
     }
 }
 
-- (id<ICEDispatchAdapter>)removeAdminFacet:(NSString*)facet error:(NSError**)error
+- (id<ICEDispatchAdapter>)removeAdminFacet:(NSString*)facet error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -337,7 +339,7 @@
     }
 }
 
-- (nullable id)findAdminFacet:(NSString*)facet error:(NSError**)error
+- (nullable id)findAdminFacet:(NSString*)facet error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -358,7 +360,7 @@
     }
 }
 
-- (nullable NSDictionary<NSString*, id<ICEDispatchAdapter>>*)findAllAdminFacets:(NSError**)error
+- (nullable NSDictionary<NSString*, id<ICEDispatchAdapter>>*)findAllAdminFacets:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -418,7 +420,7 @@
     return [factory createUnsupported:self];
 }
 
-- (BOOL)initializePlugins:(NSError**)error
+- (BOOL)initializePlugins:(NSError* _Nullable* _Nonnull)error
 {
     try
     {

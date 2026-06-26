@@ -27,18 +27,18 @@ ICEIMPL_API @interface ICEUtil : NSObject
 
 + (nullable ICECommunicator*)initialize:(ICEProperties*)properties
                                  logger:(id<ICELoggerProtocol> _Nullable)logger
-                                  error:(NSError* _Nullable* _Nullable)error;
+                                  error:(NSError* _Nullable* _Nonnull)error;
 
 + (ICEProperties*)createProperties;
 
 + (nullable ICEProperties*)createProperties:(NSArray* _Nullable)swiftArgs
                                    defaults:(ICEProperties* _Nullable)defaults
                                     remArgs:(NSArray* _Null_unspecified* _Null_unspecified)remArgs
-                                      error:(NSError* _Nullable* _Nullable)error;
+                                      error:(NSError* _Nullable* _Nonnull)error;
 + (BOOL)stringToIdentity:(NSString*)str
                     name:(NSString* __strong _Nonnull* _Nonnull)name
                 category:(NSString* __strong _Nonnull* _Nonnull)category
-                   error:(NSError* _Nullable* _Nullable)error NS_SWIFT_NAME(stringToIdentity(str:name:category:));
+                   error:(NSError* _Nullable* _Nonnull)error NS_SWIFT_NAME(stringToIdentity(str:name:category:));
 
 + (NSString*)identityToString:(NSString*)name
                      category:(NSString*)category
