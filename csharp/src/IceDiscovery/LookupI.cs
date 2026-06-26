@@ -27,6 +27,7 @@ internal abstract class Request<T>
 
     public void invoke(string domainId, Dictionary<LookupPrx, LookupReplyPrx> lookups)
     {
+        ++_generation;
         _lookupCount = lookups.Count;
         _failureCount = 0;
         var id = new Ice.Identity(_requestId, "");
@@ -39,8 +40,15 @@ internal abstract class Request<T>
         }
     }
 
-    public bool exception()
+    public bool exception(int generation)
     {
+        // Ignore a delayed failure from an earlier invocation round: it must not count against the current round, which
+        // reset _failureCount and may still have outstanding lookups.
+        if (generation != _generation)
+        {
+            return false;
+        }
+
         if (++_failureCount == _lookupCount)
         {
             finished(null);
@@ -61,6 +69,10 @@ internal abstract class Request<T>
     protected int retryCount_;
     protected int _lookupCount;
     protected int _failureCount;
+
+    // Incremented on each invoke() (i.e. each retry round). The exception callbacks capture the value current when they
+    // were sent, so a delayed failure from an earlier round is ignored instead of counting against the current round.
+    protected int _generation;
     protected List<TaskCompletionSource<Ice.ObjectPrx>> callbacks_ = new List<TaskCompletionSource<Ice.ObjectPrx>>();
 
     protected T _id;
@@ -71,7 +83,21 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
     public AdapterRequest(LookupI lookup, string id, int retryCount)
         : base(lookup, id, retryCount) => _start = DateTime.Now.Ticks;
 
-    public override bool retry() => _proxies.Count == 0 && --retryCount_ >= 0;
+    public override bool retry()
+    {
+        if (_proxies.Count == 0 && --retryCount_ >= 0)
+        {
+            // We only reach here with _proxies empty, i.e. no replica-group response arrived. _latency is set only
+            // together with inserting into _proxies, so the latency timer is not running.
+            Debug.Assert(_latency == 0);
+
+            // Restart the replica-group latency window so it's measured from this round rather than from request
+            // creation.
+            _start = DateTime.Now.Ticks;
+            return true;
+        }
+        return false;
+    }
 
     public bool response(Ice.ObjectPrx proxy, bool isReplicaGroup)
     {
@@ -121,6 +147,7 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
 
     protected override void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
     {
+        int generation = _generation;
         lookup.findAdapterByIdAsync(domainId, _id, lookupReply).ContinueWith(
             task =>
             {
@@ -130,7 +157,7 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
                 }
                 catch (AggregateException ex)
                 {
-                    lookup_.adapterRequestException(this, ex.InnerException);
+                    lookup_.adapterRequestException(this, ex.InnerException, generation);
                 }
             },
             lookup.ice_scheduler());
@@ -151,7 +178,7 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
     // also sent the request to multiple interfaces.
     //
     private readonly HashSet<Ice.ObjectPrx> _proxies = new HashSet<Ice.ObjectPrx>();
-    private readonly long _start;
+    private long _start;
     private long _latency;
 }
 
@@ -177,6 +204,7 @@ internal class ObjectRequest : Request<Ice.Identity>, Ice.Internal.TimerTask
 
     protected override void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
     {
+        int generation = _generation;
         lookup.findObjectByIdAsync(domainId, _id, lookupReply).ContinueWith(
             task =>
             {
@@ -186,7 +214,7 @@ internal class ObjectRequest : Request<Ice.Identity>, Ice.Internal.TimerTask
                 }
                 catch (AggregateException ex)
                 {
-                    lookup_.objectRequestException(this, ex.InnerException);
+                    lookup_.objectRequestException(this, ex.InnerException, generation);
                 }
             },
             lookup.ice_scheduler());
@@ -416,7 +444,7 @@ internal class LookupI : LookupDisp_
         }
     }
 
-    internal void objectRequestException(ObjectRequest request, Exception ex)
+    internal void objectRequestException(ObjectRequest request, Exception ex, int generation)
     {
         lock (_mutex)
         {
@@ -425,7 +453,7 @@ internal class LookupI : LookupDisp_
                 return;
             }
 
-            if (request.exception())
+            if (request.exception(generation))
             {
                 if (_warnOnce)
                 {
@@ -473,7 +501,7 @@ internal class LookupI : LookupDisp_
         }
     }
 
-    internal void adapterRequestException(AdapterRequest request, Exception ex)
+    internal void adapterRequestException(AdapterRequest request, Exception ex, int generation)
     {
         lock (_mutex)
         {
@@ -482,7 +510,7 @@ internal class LookupI : LookupDisp_
                 return;
             }
 
-            if (request.exception())
+            if (request.exception(generation))
             {
                 if (_warnOnce)
                 {
