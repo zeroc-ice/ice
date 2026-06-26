@@ -27,7 +27,7 @@ internal abstract class Request<T>
 
     public void invoke(string domainId, Dictionary<LookupPrx, LookupReplyPrx> lookups)
     {
-        ++_invokeId;
+        ++_generation;
         _lookupCount = lookups.Count;
         _failureCount = 0;
         var id = new Ice.Identity(_requestId, "");
@@ -40,11 +40,11 @@ internal abstract class Request<T>
         }
     }
 
-    public bool exception(int invokeId)
+    public bool exception(int generation)
     {
         // Ignore a delayed failure from an earlier invocation round: it must not count against the current round, which
         // reset _failureCount and may still have outstanding lookups.
-        if (invokeId != _invokeId)
+        if (generation != _generation)
         {
             return false;
         }
@@ -72,7 +72,7 @@ internal abstract class Request<T>
 
     // Incremented on each invoke() (i.e. each retry round). The exception callbacks capture the value current when they
     // were sent, so a delayed failure from an earlier round is ignored instead of counting against the current round.
-    protected int _invokeId;
+    protected int _generation;
     protected List<TaskCompletionSource<Ice.ObjectPrx>> callbacks_ = new List<TaskCompletionSource<Ice.ObjectPrx>>();
 
     protected T _id;
@@ -147,7 +147,7 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
 
     protected override void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
     {
-        int invokeId = _invokeId;
+        int generation = _generation;
         lookup.findAdapterByIdAsync(domainId, _id, lookupReply).ContinueWith(
             task =>
             {
@@ -157,7 +157,7 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
                 }
                 catch (AggregateException ex)
                 {
-                    lookup_.adapterRequestException(this, ex.InnerException, invokeId);
+                    lookup_.adapterRequestException(this, ex.InnerException, generation);
                 }
             },
             lookup.ice_scheduler());
@@ -204,7 +204,7 @@ internal class ObjectRequest : Request<Ice.Identity>, Ice.Internal.TimerTask
 
     protected override void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
     {
-        int invokeId = _invokeId;
+        int generation = _generation;
         lookup.findObjectByIdAsync(domainId, _id, lookupReply).ContinueWith(
             task =>
             {
@@ -214,7 +214,7 @@ internal class ObjectRequest : Request<Ice.Identity>, Ice.Internal.TimerTask
                 }
                 catch (AggregateException ex)
                 {
-                    lookup_.objectRequestException(this, ex.InnerException, invokeId);
+                    lookup_.objectRequestException(this, ex.InnerException, generation);
                 }
             },
             lookup.ice_scheduler());
@@ -444,7 +444,7 @@ internal class LookupI : LookupDisp_
         }
     }
 
-    internal void objectRequestException(ObjectRequest request, Exception ex, int invokeId)
+    internal void objectRequestException(ObjectRequest request, Exception ex, int generation)
     {
         lock (_mutex)
         {
@@ -453,7 +453,7 @@ internal class LookupI : LookupDisp_
                 return;
             }
 
-            if (request.exception(invokeId))
+            if (request.exception(generation))
             {
                 if (_warnOnce)
                 {
@@ -501,7 +501,7 @@ internal class LookupI : LookupDisp_
         }
     }
 
-    internal void adapterRequestException(AdapterRequest request, Exception ex, int invokeId)
+    internal void adapterRequestException(AdapterRequest request, Exception ex, int generation)
     {
         lock (_mutex)
         {
@@ -510,7 +510,7 @@ internal class LookupI : LookupDisp_
                 return;
             }
 
-            if (request.exception(invokeId))
+            if (request.exception(generation))
             {
                 if (_warnOnce)
                 {

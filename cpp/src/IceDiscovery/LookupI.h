@@ -22,7 +22,7 @@ namespace IceDiscovery
 
         virtual bool retry();
         void invoke(const std::string&, const std::vector<std::pair<LookupPrx, LookupReplyPrx>>&);
-        bool exception(size_t invokeId);
+        bool exception(size_t generation);
         [[nodiscard]] std::string getRequestId() const;
 
         virtual void finished(const std::optional<Ice::ObjectPrx>&) = 0;
@@ -39,7 +39,7 @@ namespace IceDiscovery
         // Incremented on each invoke() (i.e. each retry round). The exception callbacks capture the value current when
         // they were sent, so a delayed failure from an earlier round can be ignored instead of counting against the
         // current round.
-        size_t _invokeId{0};
+        size_t _generation{0};
     };
     using RequestPtr = std::shared_ptr<Request>;
 
@@ -133,9 +133,9 @@ namespace IceDiscovery
         void foundAdapter(const std::string&, const std::string&, const Ice::ObjectPrx&, bool);
 
         void adapterRequestTimedOut(const AdapterRequestPtr&);
-        void adapterRequestException(const AdapterRequestPtr&, std::exception_ptr, size_t invokeId);
+        void adapterRequestException(const AdapterRequestPtr&, std::exception_ptr, size_t generation);
         void objectRequestTimedOut(const ObjectRequestPtr&);
-        void objectRequestException(const ObjectRequestPtr&, std::exception_ptr, size_t invokeId);
+        void objectRequestException(const ObjectRequestPtr&, std::exception_ptr, size_t generation);
 
         const IceInternal::TimerPtr& timer() { return _timer; }
 

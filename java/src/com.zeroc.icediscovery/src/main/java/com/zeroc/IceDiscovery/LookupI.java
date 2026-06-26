@@ -47,7 +47,7 @@ class LookupI implements Lookup {
         }
 
         void invoke(String domainId, Map<LookupPrx, LookupReplyPrx> lookups) {
-            ++_invokeId;
+            ++_generation;
             _lookupCount = lookups.size();
             _failureCount = 0;
             final Identity id = new Identity(_requestId, "");
@@ -59,10 +59,10 @@ class LookupI implements Lookup {
             }
         }
 
-        boolean exception(int invokeId) {
+        boolean exception(int generation) {
             // Ignore a delayed failure from an earlier invocation round: it must not count against the current round,
             // which reset _failureCount and may still have outstanding lookups.
-            if (invokeId != _invokeId) {
+            if (generation != _generation) {
                 return false;
             }
 
@@ -100,7 +100,7 @@ class LookupI implements Lookup {
         // Incremented on each invoke() (i.e. each retry round). The exception callbacks capture the value current when
         // they were sent, so a delayed failure from an earlier round is ignored instead of counting against the current
         // round.
-        protected int _invokeId;
+        protected int _generation;
         protected List<CompletableFuture<Ret>> _futures = new ArrayList<>();
         protected T _id;
         protected Future<?> _future;
@@ -171,12 +171,12 @@ class LookupI implements Lookup {
 
         @Override
         protected void invokeWithLookup(String domainId, LookupPrx lookup, LookupReplyPrx lookupReply) {
-            final int invokeId = _invokeId;
+            final int generation = _generation;
             lookup.findAdapterByIdAsync(domainId, _id, lookupReply)
                 .whenCompleteAsync(
                     (v, ex) -> {
                         if (ex != null) {
-                            adapterRequestException(AdapterRequest.this, ex, invokeId);
+                            adapterRequestException(AdapterRequest.this, ex, generation);
                         }
                     },
                     lookup.ice_executor());
@@ -221,12 +221,12 @@ class LookupI implements Lookup {
 
         @Override
         protected void invokeWithLookup(String domainId, LookupPrx lookup, LookupReplyPrx lookupReply) {
-            final int invokeId = _invokeId;
+            final int generation = _generation;
             lookup.findObjectByIdAsync(domainId, _id, lookupReply)
                 .whenCompleteAsync(
                     (v, ex) -> {
                         if (ex != null) {
-                            objectRequestException(ObjectRequest.this, ex, invokeId);
+                            objectRequestException(ObjectRequest.this, ex, generation);
                         }
                     },
                     lookup.ice_executor());
@@ -384,13 +384,13 @@ class LookupI implements Lookup {
         _objectRequests.remove(request.getId());
     }
 
-    synchronized void objectRequestException(ObjectRequest request, Throwable ex, int invokeId) {
+    synchronized void objectRequestException(ObjectRequest request, Throwable ex, int generation) {
         ObjectRequest r = _objectRequests.get(request.getId());
         if (r == null || r != request) {
             return;
         }
 
-        if (request.exception(invokeId)) {
+        if (request.exception(generation)) {
             if (_warnOnce) {
                 StringBuilder s = new StringBuilder();
                 s.append("failed to lookup object `");
@@ -425,13 +425,13 @@ class LookupI implements Lookup {
         _adapterRequests.remove(request.getId());
     }
 
-    synchronized void adapterRequestException(AdapterRequest request, Throwable ex, int invokeId) {
+    synchronized void adapterRequestException(AdapterRequest request, Throwable ex, int generation) {
         AdapterRequest r = _adapterRequests.get(request.getId());
         if (r == null || r != request) {
             return;
         }
 
-        if (request.exception(invokeId)) {
+        if (request.exception(generation)) {
             if (_warnOnce) {
                 StringBuilder s = new StringBuilder();
                 s.append("failed to lookup adapter `");

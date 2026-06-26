@@ -30,7 +30,7 @@ IceDiscovery::Request::retry()
 void
 IceDiscovery::Request::invoke(const string& domainId, const vector<pair<LookupPrx, LookupReplyPrx>>& lookups)
 {
-    ++_invokeId;
+    ++_generation;
     _lookupCount = lookups.size();
     _failureCount = 0;
     Ice::Identity id;
@@ -43,11 +43,11 @@ IceDiscovery::Request::invoke(const string& domainId, const vector<pair<LookupPr
 }
 
 bool
-IceDiscovery::Request::exception(size_t invokeId)
+IceDiscovery::Request::exception(size_t generation)
 {
     // Ignore a delayed failure from an earlier invocation round: it must not count against the current round, which
     // reset _failureCount and may still have outstanding lookups.
-    if (invokeId != _invokeId)
+    if (generation != _generation)
     {
         return false;
     }
@@ -95,6 +95,7 @@ AdapterRequest::response(const ObjectPrx& proxy, bool isReplicaGroup)
 {
     if (isReplicaGroup)
     {
+        _proxies.insert(proxy);
         if (_latency == chrono::nanoseconds::zero())
         {
             _latency = chrono::duration_cast<chrono::nanoseconds>(chrono::steady_clock::now() - _start) *
@@ -102,7 +103,6 @@ AdapterRequest::response(const ObjectPrx& proxy, bool isReplicaGroup)
             _lookup->timer()->cancel(shared_from_this());
             _lookup->timer()->schedule(shared_from_this(), _latency);
         }
-        _proxies.insert(proxy);
         return false;
     }
     finished(proxy);
@@ -145,8 +145,8 @@ AdapterRequest::invokeWithLookup(const string& domainId, const LookupPrx& lookup
         _id,
         lookupReply,
         nullptr,
-        [self = shared_from_this(), invokeId = _invokeId](exception_ptr ex)
-        { self->_lookup->adapterRequestException(self, ex, invokeId); });
+        [self = shared_from_this(), generation = _generation](exception_ptr ex)
+        { self->_lookup->adapterRequestException(self, ex, generation); });
 }
 
 void
@@ -174,8 +174,8 @@ ObjectRequest::invokeWithLookup(const string& domainId, const LookupPrx& lookup,
         _id,
         lookupReply,
         nullptr,
-        [self = shared_from_this(), invokeId = _invokeId](exception_ptr ex)
-        { self->_lookup->objectRequestException(self, ex, invokeId); });
+        [self = shared_from_this(), generation = _generation](exception_ptr ex)
+        { self->_lookup->objectRequestException(self, ex, generation); });
 }
 
 void
@@ -410,7 +410,7 @@ LookupI::objectRequestTimedOut(const ObjectRequestPtr& request)
 }
 
 void
-LookupI::adapterRequestException(const AdapterRequestPtr& request, exception_ptr ex, size_t invokeId)
+LookupI::adapterRequestException(const AdapterRequestPtr& request, exception_ptr ex, size_t generation)
 {
     lock_guard lock(_mutex);
     auto p = _adapterRequests.find(request->getId());
@@ -419,7 +419,7 @@ LookupI::adapterRequestException(const AdapterRequestPtr& request, exception_ptr
         return;
     }
 
-    if (request->exception(invokeId))
+    if (request->exception(generation))
     {
         if (_warnOnce)
         {
@@ -468,7 +468,7 @@ LookupI::adapterRequestTimedOut(const AdapterRequestPtr& request)
 }
 
 void
-LookupI::objectRequestException(const ObjectRequestPtr& request, exception_ptr ex, size_t invokeId)
+LookupI::objectRequestException(const ObjectRequestPtr& request, exception_ptr ex, size_t generation)
 {
     lock_guard lock(_mutex);
     auto p = _objectRequests.find(request->getId());
@@ -477,7 +477,7 @@ LookupI::objectRequestException(const ObjectRequestPtr& request, exception_ptr e
         return;
     }
 
-    if (request->exception(invokeId))
+    if (request->exception(generation))
     {
         if (_warnOnce)
         {
