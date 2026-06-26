@@ -38,7 +38,9 @@ allTests(Test::TestHelper* helper)
     auto communicator = helper->communicator();
     cout << "testing connection to bridge... " << flush;
 
-    Test::MyInterfacePrx cl(communicator, "test:" + helper->getTestEndpoint(1) + ":" + helper->getTestEndpoint(1, "udp"));
+    Test::MyInterfacePrx cl(
+        communicator,
+        "test:" + helper->getTestEndpoint(1) + ":" + helper->getTestEndpoint(1, "udp"));
     cl->ice_ping();
     cout << "ok" << endl;
 

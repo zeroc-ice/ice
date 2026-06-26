@@ -125,7 +125,8 @@ MyDerivedInterfaceI::opMyEnumAsync(
 void
 MyDerivedInterfaceI::opMyInterfaceAsync(
     optional<MyInterfacePrx> p1,
-    function<void(const optional<MyInterfacePrx>&, const optional<MyInterfacePrx>&, const optional<MyInterfacePrx>&)> response,
+    function<void(const optional<MyInterfacePrx>&, const optional<MyInterfacePrx>&, const optional<MyInterfacePrx>&)>
+        response,
     function<void(exception_ptr)>,
     const Current& current)
 {
@@ -763,7 +764,11 @@ MyDerivedInterfaceI::opShort1Async(
 }
 
 void
-MyDerivedInterfaceI::opInt1Async(int32_t i, function<void(int32_t)> response, function<void(exception_ptr)>, const Current&)
+MyDerivedInterfaceI::opInt1Async(
+    int32_t i,
+    function<void(int32_t)> response,
+    function<void(exception_ptr)>,
+    const Current&)
 {
     response(i);
 }
@@ -779,7 +784,11 @@ MyDerivedInterfaceI::opLong1Async(
 }
 
 void
-MyDerivedInterfaceI::opFloat1Async(float f, function<void(float)> response, function<void(exception_ptr)>, const Current&)
+MyDerivedInterfaceI::opFloat1Async(
+    float f,
+    function<void(float)> response,
+    function<void(exception_ptr)>,
+    const Current&)
 {
     response(f);
 }

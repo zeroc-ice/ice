@@ -5,8 +5,8 @@ package test.Ice.operations;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ObjectPrx;
 
-import test.Ice.operations.Test.MyInterfacePrx;
 import test.Ice.operations.Test.MyDerivedInterfacePrx;
+import test.Ice.operations.Test.MyInterfacePrx;
 import test.TestHelper;
 
 import java.io.PrintWriter;

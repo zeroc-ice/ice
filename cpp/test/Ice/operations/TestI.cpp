@@ -349,7 +349,11 @@ MyDerivedInterfaceI::opShortIntDS(Test::ShortIntDS p1, Test::ShortIntDS p2, Test
 }
 
 Test::LongFloatDS
-MyDerivedInterfaceI::opLongFloatDS(Test::LongFloatDS p1, Test::LongFloatDS p2, Test::LongFloatDS& p3, const Ice::Current&)
+MyDerivedInterfaceI::opLongFloatDS(
+    Test::LongFloatDS p1,
+    Test::LongFloatDS p2,
+    Test::LongFloatDS& p3,
+    const Ice::Current&)
 {
     p3 = p2;
     std::copy(p1.begin(), p1.end(), std::back_inserter(p3));

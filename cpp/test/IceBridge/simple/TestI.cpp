@@ -13,7 +13,10 @@ namespace
 }
 
 void
-MyInterfaceI::callCallbackAsync(function<void()> response, function<void(exception_ptr)> error, const Ice::Current& current)
+MyInterfaceI::callCallbackAsync(
+    function<void()> response,
+    function<void(exception_ptr)> error,
+    const Ice::Current& current)
 {
     checkConnection(current.con);
     auto prx = current.con->createProxy<CallbackPrx>(callbackId);

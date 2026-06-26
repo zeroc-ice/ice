@@ -180,7 +180,7 @@ public:
 
     Test::MyStruct1 opMyStruct1(Test::MyStruct1, const Ice::Current&) final;
 
-    Test::MyClass1Ptr opMyClass1(Test::MyClass1Ptr, const Ice::Current&) final;
+    Test::MyClassPtr opMyClass(Test::MyClassPtr, const Ice::Current&) final;
 
     Test::StringS opStringLiterals(const Ice::Current&) final;
 
