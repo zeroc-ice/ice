@@ -92,7 +92,15 @@
                                               property:(NSString*)property
                                                  error:(NSError* _Nullable* _Nullable)error
 {
-    return toNSDictionary(self.communicator->proxyToProperty([prx prx], fromNSString(property)));
+    try
+    {
+        return toNSDictionary(self.communicator->proxyToProperty([prx prx], fromNSString(property)));
+    }
+    catch (...)
+    {
+        *error = convertException(std::current_exception());
+        return nil;
+    }
 }
 
 - (ICEObjectAdapter*)createObjectAdapter:(NSString*)name error:(NSError* _Nullable* _Nullable)error
