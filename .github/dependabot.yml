@@ -23,10 +23,8 @@ updates:
     cooldown:
       default-days: 7
     groups:
-      js-minor-and-patch:
-        update-types: ["minor", "patch"]
-      js-major:
-        update-types: ["major"]
+      js:
+        patterns: ["*"]
 
   - package-ecosystem: "pip"
     directory: "/python"
@@ -35,10 +33,8 @@ updates:
     cooldown:
       default-days: 7
     groups:
-      python-minor-and-patch:
-        update-types: ["minor", "patch"]
-      python-major:
-        update-types: ["major"]
+      python:
+        patterns: ["*"]
 
   - package-ecosystem: "pip"
     directory: "/python/docs"
@@ -57,10 +53,8 @@ updates:
     cooldown:
       default-days: 7
     groups:
-      swift-minor-and-patch:
-        update-types: ["minor", "patch"]
-      swift-major:
-        update-types: ["major"]
+      swift:
+        patterns: ["*"]
 
   # 3.8 only receives GitHub Actions updates here; its language deps are kept in
   # sync with main by cherry-pick. (Config is read from the default branch only,
