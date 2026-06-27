@@ -65,7 +65,7 @@ jobs:
       S3_BUCKET: zeroc-sourcesandsymbols
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install Windows Debug Tools
         uses: ./.github/actions/install-windows-debug-tools
