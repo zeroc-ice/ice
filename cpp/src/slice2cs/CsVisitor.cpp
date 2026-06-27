@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "CsVisitor.h"
-#include "CsUtil.h"
 #include "../Slice/Util.h"
+#include "CsUtil.h"
 
 #include <cassert>
 
