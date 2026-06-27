@@ -225,7 +225,9 @@ public static class BZip2
             }
 
             bzStream.NextIn = compressedHandle.AddrOfPinnedObject() + headerSize + 4;
-            bzStream.AvailIn = (uint)(compressed.Length - headerSize - 4);
+            // Size the input from the buffer's logical limit, not the backing array capacity (which can be larger),
+            // so bzip2 doesn't consume padding past the message. getInt above guarantees limit >= headerSize + 4.
+            bzStream.AvailIn = (uint)(buf.b.limit() - headerSize - 4);
             rc = (BzStatus)BZ2_bzDecompress(ref bzStream);
             if (rc != BzStatus.StreamEnd)
             {
