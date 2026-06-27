@@ -106,11 +106,10 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
             _proxies.Add(proxy);
             if (_latency == 0)
             {
-                _latency = (long)((DateTime.Now.Ticks - _start) * lookup_.latencyMultiplier() / 10000.0);
-                if (_latency == 0)
-                {
-                    _latency = 1; // 1ms
-                }
+                // The aggregation window is the measured response time, scaled by IceDiscovery.LatencyMultiplier,
+                // with a 1ms floor so we never schedule a degenerate zero-length window.
+                double responseTimeMs = TimeSpan.FromTicks(DateTime.Now.Ticks - _start).TotalMilliseconds;
+                _latency = Math.Max(1, (long)(responseTimeMs * lookup_.latencyMultiplier()));
                 lookup_.timer().cancel(this);
                 lookup_.timer().schedule(this, _latency);
             }
@@ -230,6 +229,11 @@ internal class LookupI : LookupDisp_
         _timeout = properties.getIcePropertyAsInt("IceDiscovery.Timeout");
         _retryCount = properties.getIcePropertyAsInt("IceDiscovery.RetryCount");
         _latencyMultiplier = properties.getIcePropertyAsInt("IceDiscovery.LatencyMultiplier");
+        if (_latencyMultiplier < 1)
+        {
+            throw new Ice.PropertyException(
+                "property 'IceDiscovery.LatencyMultiplier' must be greater than or equal to 1");
+        }
         _domainId = properties.getIceProperty("IceDiscovery.DomainId");
         _timer = Ice.Internal.Util.getInstance(lookup.ice_getCommunicator()).timer();
 
