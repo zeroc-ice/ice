@@ -10,6 +10,7 @@ import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.PropertyException;
 import com.zeroc.Ice.UDPEndpointInfo;
 
 import java.util.ArrayList;
@@ -134,8 +135,8 @@ class LookupI implements Lookup {
                 if (_latency == 0) {
                     // The aggregation window is the measured response time, scaled by IceDiscovery.LatencyMultiplier,
                     // with a 1ms floor so we never schedule a degenerate zero-length window.
-                    long responseTimeMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - _start);
-                    _latency = Math.max(1, responseTimeMillis * _latencyMultiplier);
+                    long responseTimeMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - _start);
+                    _latency = Math.max(1, responseTimeMs * _latencyMultiplier);
                     cancelTimer();
                     scheduleTimer(_latency);
                 }
@@ -239,6 +240,10 @@ class LookupI implements Lookup {
         _timeout = properties.getIcePropertyAsInt("IceDiscovery.Timeout");
         _retryCount = properties.getIcePropertyAsInt("IceDiscovery.RetryCount");
         _latencyMultiplier = properties.getIcePropertyAsInt("IceDiscovery.LatencyMultiplier");
+        if (_latencyMultiplier < 1) {
+            throw new PropertyException(
+                "property 'IceDiscovery.LatencyMultiplier' must be greater than or equal to 1");
+        }
         _domainId = properties.getIceProperty("IceDiscovery.DomainId");
         _timer = lookup.ice_getCommunicator().getInstance().timer();
 
