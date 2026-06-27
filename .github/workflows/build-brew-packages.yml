@@ -41,7 +41,7 @@ jobs:
     if: ${{ inputs.quality == 'nightly' }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
@@ -68,7 +68,7 @@ jobs:
           ./packaging/brew/update-nightly-tap.sh "${{ inputs.channel }}" "${{ inputs.quality }}" "${{ inputs.ice_version }}" "${{ steps.icegridgui.outputs.icegridgui_dmg_sha256 }}"
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: homebrew-bottle
           path: |

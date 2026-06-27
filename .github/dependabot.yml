@@ -1,9 +1,14 @@
 version: 2
 updates:
   - package-ecosystem: "github-actions"
-    directory: "/"
+    # Two entries are required: "/" is the special value that scans
+    # .github/workflows (plus any root action.yml); "/.github/actions/*"
+    # covers the composite actions, which each have their own action.yml.
+    directories:
+      - "/"
+      - "/.github/actions/*"
     schedule:
-      interval: weekly
+      interval: monthly
     cooldown:
       default-days: 7
     groups:
@@ -14,13 +19,9 @@ updates:
   - package-ecosystem: "npm"
     directory: "/js"
     schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 5
+      interval: monthly
     cooldown:
       default-days: 7
-      semver-major-days: 30
-      semver-minor-days: 14
-      semver-patch-days: 7
     groups:
       js-minor-and-patch:
         update-types: ["minor", "patch"]
@@ -30,13 +31,9 @@ updates:
   - package-ecosystem: "pip"
     directory: "/python"
     schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 3
+      interval: monthly
     cooldown:
       default-days: 7
-      semver-major-days: 30
-      semver-minor-days: 14
-      semver-patch-days: 7
     groups:
       python-minor-and-patch:
         update-types: ["minor", "patch"]
@@ -46,8 +43,9 @@ updates:
   - package-ecosystem: "pip"
     directory: "/python/docs"
     schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 2
+      interval: monthly
+    cooldown:
+      default-days: 7
     groups:
       python-docs:
         patterns: ["*"]
@@ -55,14 +53,49 @@ updates:
   - package-ecosystem: "swift"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: monthly
     cooldown:
       default-days: 7
-      semver-major-days: 30
-      semver-minor-days: 14
-      semver-patch-days: 7
     groups:
       swift-minor-and-patch:
         update-types: ["minor", "patch"]
       swift-major:
         update-types: ["major"]
+
+  # 3.8 only receives GitHub Actions updates here; its language deps are kept in
+  # sync with main by cherry-pick. (Config is read from the default branch only,
+  # and security updates always target the default branch.)
+  - package-ecosystem: "github-actions"
+    # Two entries are required: "/" is the special value that scans
+    # .github/workflows (plus any root action.yml); "/.github/actions/*"
+    # covers the composite actions, which each have their own action.yml.
+    directories:
+      - "/"
+      - "/.github/actions/*"
+    target-branch: "3.8"
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  # 3.7 is in maintenance, so only its GitHub Actions are kept up to date.
+  - package-ecosystem: "github-actions"
+    # Two entries are required: "/" is the special value that scans
+    # .github/workflows (plus any root action.yml); "/.github/actions/*"
+    # covers the composite actions, which each have their own action.yml.
+    directories:
+      - "/"
+      - "/.github/actions/*"
+    target-branch: "3.7"
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"
