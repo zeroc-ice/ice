@@ -28,7 +28,7 @@ runs:
 
     - name: Sign Compiler Artifact
       if: runner.os == 'Windows' && inputs.authenticode_sign == 'true'
-      uses: azure/trusted-signing-action@v0
+      uses: azure/trusted-signing-action@v2
       with:
         azure-tenant-id: ${{ env.AZURE_TENANT_ID }}
         azure-client-id: ${{ env.AZURE_CLIENT_ID }}
