@@ -139,7 +139,8 @@ static_ldflags  = -pie
 
 # Link the Slice compilers without any shared libraries.
 # On Amazon Linux 2023, disable static linking since libmcpp-devel provides only the shared library.
-ifeq ($(filter amzn,$(linux_id)),)
+# On hppa (PA-RISC), disable static linking because static PIE executables crash at startup.
+ifeq ($(filter amzn,$(linux_id))$(filter parisc%,$(shell uname -m)),)
 fully_static_ldflags = -static
 endif
 
