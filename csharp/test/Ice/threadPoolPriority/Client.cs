@@ -10,7 +10,7 @@ public class Client : global::Test.TestHelper
         TextWriter output = getWriter();
 
         output.Write("testing thread priority property parsing... ");
-        Properties properties = new Properties();
+        var properties = new Properties();
         properties.setProperty("Ice.ThreadPriority", "ThreadPriority.AboveNormal");
         test(Ice.Internal.Util.getThreadPriorityProperty(properties, "Ice") ==
             System.Threading.ThreadPriority.AboveNormal);
