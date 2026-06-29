@@ -221,15 +221,8 @@ NodeSessionI::destroy()
 
         for (const auto& [_, session] : _sessions)
         {
-            // Notify each session of the disconnection (we don't wait for the result). Catch per session so that a
-            // dead or stale session proxy can't prevent the remaining sessions from being notified.
-            try
-            {
-                session->disconnectedAsync(nullptr);
-            }
-            catch (const Ice::LocalException&)
-            {
-            }
+            // Notify each session of the disconnection; we don't wait for the result.
+            session->disconnectedAsync(nullptr);
         }
     }
     catch (const ObjectAdapterDestroyedException&)
