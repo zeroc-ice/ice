@@ -4,6 +4,8 @@ package test.Ice.threadPoolPriority;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.PropertyException;
 
 import test.Ice.threadPoolPriority.Test.PriorityPrx;
 import test.TestHelper;
@@ -24,5 +26,16 @@ public class Client extends TestHelper {
             out.println("ok");
             priority.shutdown();
         }
+
+        out.print("testing invalid thread priority... ");
+        out.flush();
+        Properties properties = new Properties();
+        properties.setProperty("Ice.ThreadPool.Client.ThreadPriority", "11");
+        try (Communicator communicator = initialize(properties)) {
+            test(false);
+        } catch (PropertyException ex) {
+            // expected: 11 is outside the allowed range [1, 10]
+        }
+        out.println("ok");
     }
 }

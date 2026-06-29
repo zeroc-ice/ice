@@ -9,12 +9,26 @@ public class Client : global::Test.TestHelper
         using Communicator communicator = initialize(ref args);
         TextWriter output = getWriter();
 
-        output.Write("testing stringToThreadPriority parsing... ");
-        test(Ice.Internal.Util.stringToThreadPriority("ThreadPriority.AboveNormal") ==
+        output.Write("testing thread priority property parsing... ");
+        Properties properties = new Properties();
+        properties.setProperty("Ice.ThreadPriority", "ThreadPriority.AboveNormal");
+        test(Ice.Internal.Util.getThreadPriorityProperty(properties, "Ice") ==
             System.Threading.ThreadPriority.AboveNormal);
-        test(Ice.Internal.Util.stringToThreadPriority("AboveNormal") ==
+        properties.setProperty("Ice.ThreadPriority", "AboveNormal");
+        test(Ice.Internal.Util.getThreadPriorityProperty(properties, "Ice") ==
             System.Threading.ThreadPriority.AboveNormal);
-        test(Ice.Internal.Util.stringToThreadPriority("") == System.Threading.ThreadPriority.Normal);
+        properties.setProperty("Ice.ThreadPriority", "");
+        test(Ice.Internal.Util.getThreadPriorityProperty(properties, "Ice") ==
+            System.Threading.ThreadPriority.Normal);
+        properties.setProperty("Ice.ThreadPriority", "BogusPriority");
+        try
+        {
+            Ice.Internal.Util.getThreadPriorityProperty(properties, "Ice");
+            test(false);
+        }
+        catch (PropertyException)
+        {
+        }
         output.WriteLine("ok");
 
         output.Write("testing server priority... ");

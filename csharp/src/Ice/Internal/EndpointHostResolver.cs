@@ -14,8 +14,7 @@ public class EndpointHostResolver
         _preferIPv6 = instance.preferIPv6();
         _thread = new HelperThread(this);
         updateObserver();
-        _thread.Start(Util.stringToThreadPriority(
-                instance.initializationData().properties.getIceProperty("Ice.ThreadPriority")));
+        _thread.Start(Util.getThreadPriorityProperty(instance.initializationData().properties, "Ice"));
     }
 
     public void resolve(string host, int port, IPEndpointI endpoint, EndpointI_connectors callback)
