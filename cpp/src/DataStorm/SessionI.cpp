@@ -1147,10 +1147,19 @@ SessionI::getLastIds(int64_t topicId, int64_t keyOrFilterId, const std::shared_p
         else
         {
             // Key subscription: report this element's lastId for each remote element it's subscribed to under this
-            // key. Key subscriptions are indexed by remote key id, so look the key up directly.
+            // key. Key subscriptions are indexed by remote key id, so look the key up directly. An element id can
+            // remain in the key map after its ElementSubscribers was removed (e.g. a multi-key element detaches
+            // under one key but its other keys are still counted), so skip ids with no live subscriber, like the
+            // filter branch above.
             for (const auto& [elementId, _] : subscriber.keys[keyOrFilterId].second)
             {
-                lastIds.emplace(elementId, subscriber.get(elementId)->getSubscriber(element)->lastId);
+                if (auto* elementSubscribers = subscriber.get(elementId))
+                {
+                    if (auto* s = elementSubscribers->getSubscriber(element))
+                    {
+                        lastIds.emplace(elementId, s->lastId);
+                    }
+                }
             }
         }
     }
