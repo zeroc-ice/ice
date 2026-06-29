@@ -24,14 +24,13 @@ void ::Writer::run(int argc, char* argv[])
     Topic<string, int> topic(node, "topic");
     auto writer = makeSingleKeyWriter(topic, "key", "", config);
 
-    // Wait for both subscribers to attach through the relay, so both subscriber sessions are registered with
-    // the relay's node session for this publisher -- where their colliding identities overwrite each other.
+    // Wait for both subscribers to attach through the relay, then publish a sample to them.
     writer.waitForReaders(2);
     writer.update(42);
     cout << "writer published" << endl;
 
-    // Stay alive until the test terminates this process. Terminating it drops the relay's connection to this
-    // publisher, which is what triggers the disconnect notifications the subscribers are waiting for.
+    // Stay alive until the test terminates this process; that drops the relay's connection to this publisher and
+    // the subscribers are notified that there are no more writers.
     writer.waitForNoReaders();
     cout << "writer completed" << endl;
 }

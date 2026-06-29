@@ -21,8 +21,7 @@ void ::Reader::run(int argc, char* argv[])
     ReaderConfig config;
     config.clearHistory = ClearHistoryPolicy::Never;
 
-    // Subscribe to the publisher's topic, relayed through the relay node. This creates this node's first
-    // subscriber session; every fresh subscriber node assigns it the same identity {"1","s"}.
+    // Subscribe to the publisher's topic, relayed through the relay node.
     Topic<string, int> topic(node, "topic");
     auto reader = makeSingleKeyReader(topic, "key", "", config);
 
@@ -31,10 +30,8 @@ void ::Reader::run(int argc, char* argv[])
     test(sample.getValue() == 42);
     cout << "reader attached" << endl;
 
-    // After the relay loses its connection to the publisher, every subscriber must observe the writer
-    // disconnecting. If the relay dropped this subscriber's session (its identity collided with another
-    // subscriber's and was overwritten in the relay's session map), this subscriber is never told and
-    // waitForNoWriters blocks forever.
+    // Once the relay loses its connection to the publisher, this subscriber must observe that there are no more
+    // writers.
     reader.waitForNoWriters();
     cout << "reader saw no writers" << endl;
 }

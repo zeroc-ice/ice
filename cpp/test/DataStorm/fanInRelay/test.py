@@ -1,16 +1,12 @@
 # Copyright (c) ZeroC, Inc.
 
 #
-# Regression test for a DataStorm fan-in relay session-identity collision.
+# Ensures that multiple subscribers which share the same subscriber session id, but originate in different nodes,
+# are all notified when the publisher they are subscribed to disconnects.
 #
-# Two subscriber applications and one publisher application all connect to a single relay node. The publisher
-# has no public endpoint, so the subscribers reach it through the relay. Each fresh subscriber node assigns
-# its first subscriber session the same Ice identity {"1","s"} (the session-id counter is per-node and has no
-# node-unique component), and the relay tracks relayed sessions in a map keyed by that identity. The second
-# subscriber's session therefore overwrites the first's in the relay's map.
-#
-# When the relay loses its connection to the publisher, it notifies only the surviving session, so the
-# overwritten subscriber is never told the publisher disconnected and waitForNoWriters() blocks forever.
+# Two subscriber applications and one publisher application connect to a single relay node. The publisher has no
+# public endpoint, so the subscribers reach it through the relay. The publisher is then terminated, dropping the
+# relay's connection to it; both subscribers must observe that there are no more writers.
 #
 #   subA --app--> \
 #                  relay  <--app-- publisher   (publisher and subscribers have no public endpoint)
@@ -67,18 +63,15 @@ class FanInTestCase(ClientServerTestCase):
         self.subA.start(current)
         self.subB.start(current)
 
-        # Wait until both subscribers have attached to the publisher through the relay, so both subscriber
-        # sessions -- with their colliding identities -- are registered in the relay's session map.
+        # Wait until both subscribers have attached to the publisher through the relay.
         self.publisher.expect(current, "writer published", timeout=30)
         self.subA.expect(current, "reader attached", timeout=30)
         self.subB.expect(current, "reader attached", timeout=30)
 
-        # Drop the relay's connection to the publisher by terminating it. The relay then notifies the relayed
-        # subscriber sessions of the disconnection.
+        # Terminate the publisher, dropping the relay's connection to it.
         current.processes[self.publisher].terminate()
 
-        # Both subscribers must observe the disconnect. Without the fix, the overwritten subscriber's session
-        # was dropped from the relay's map, so it is never notified and this hangs.
+        # Both subscribers must observe that the publisher is gone.
         self.subA.expect(current, "reader saw no writers", timeout=15)
         self.subB.expect(current, "reader saw no writers", timeout=15)
 
@@ -95,7 +88,7 @@ TestSuite(
     __file__,
     [
         FanInTestCase(
-            name="fan-in relay session-identity collision",
+            name="fan-in subscribers notified of publisher disconnect",
             relayNode=Node(desc="relay", props=relay("relay-node")),
             publisher=Writer(props=app("publisher-app")),
             subA=Reader(props=app("subscriber-a")),
