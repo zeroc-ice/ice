@@ -117,7 +117,7 @@ namespace IceInternal
         size_t _readHeaderLength;
         size_t _readPayloadLength;
         Buffer::Container::iterator _readStart;
-        size_t _readFrameOffset;
+        size_t _readFrameOffset{0};
         std::byte _readMask[4];
 
         enum WriteState
