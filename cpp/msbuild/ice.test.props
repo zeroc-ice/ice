@@ -20,7 +20,7 @@
   -->
   <ItemDefinitionGroup>
     <Link>
-      <GenerateDebugInformation>Yes</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
 

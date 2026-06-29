@@ -179,7 +179,7 @@
   -->
   <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes'">
     <Link>
-      <GenerateDebugInformation>Yes</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
 
