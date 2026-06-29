@@ -30,11 +30,11 @@ public class Client extends TestHelper {
         out.print("testing invalid thread priority... ");
         out.flush();
         Properties properties = new Properties();
-        properties.setProperty("Ice.ThreadPool.Client.ThreadPriority", "11");
+        properties.setProperty("Ice.ThreadPool.Client.ThreadPriority", Integer.toString(Thread.MAX_PRIORITY + 1));
         try (Communicator communicator = initialize(properties)) {
             test(false);
         } catch (PropertyException ex) {
-            // expected: 11 is outside the allowed range [1, 10]
+            // expected: outside the allowed range
         }
         out.println("ok");
     }
