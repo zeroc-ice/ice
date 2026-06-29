@@ -4,6 +4,7 @@ package com.zeroc.Ice;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 
 /** A dispatcher that manages servants and servant locators for an object adapter. */
@@ -70,15 +71,17 @@ final class ServantManager implements Object {
                         ex = finishedEx;
                     }
                     if (ex != null) {
-                        // We only marshal errors and runtime exceptions
-                        // (including CompletionException) at a higher level.
+                        // Propagate the dispatch error like the plain-servant path so error-inspecting
+                        // middleware observes it (instead of converting it to a response here). Errors and
+                        // runtime exceptions propagate directly; the remaining (checked) user exception is
+                        // wrapped so it can flow through the completion stage.
                         if (ex instanceof Error errorEx) {
                             throw errorEx;
                         }
                         if (ex instanceof RuntimeException runtimeEx) {
                             throw runtimeEx;
                         }
-                        return current.createOutgoingResponse(ex);
+                        throw new CompletionException(ex);
                     } else {
                         return r;
                     }
