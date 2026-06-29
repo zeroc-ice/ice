@@ -1255,35 +1255,50 @@ IceInternal::getRecvBufferSize(SOCKET fd)
 void
 IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
 {
-    vector<string> interfaces = getInterfacesForMulticast(intf, getProtocolSupport(group));
-    set<int> indexes;
-    for (const auto& interface : interfaces)
+    try
     {
-        int rc = 0;
-        if (group.saStorage.ss_family == AF_INET)
+        vector<string> interfaces = getInterfacesForMulticast(intf, getProtocolSupport(group));
+        set<int> indexes;
+        for (const auto& interface : interfaces)
         {
-            struct ip_mreq mreq;
-            mreq.imr_multiaddr = group.saIn.sin_addr;
-            mreq.imr_interface = getInterfaceAddress(interface);
-            rc = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
-        }
-        else
-        {
-            int index = getInterfaceIndex(interface);
-            if (indexes.find(index) == indexes.end()) // Don't join twice the same interface (if it has multiple IPs)
+            int rc = 0;
+            if (group.saStorage.ss_family == AF_INET)
             {
-                indexes.insert(index);
-                struct ipv6_mreq mreq;
-                mreq.ipv6mr_multiaddr = group.saIn6.sin6_addr;
-                mreq.ipv6mr_interface = static_cast<unsigned int>(index);
-                rc = setsockopt(fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
+                struct ip_mreq mreq;
+                mreq.imr_multiaddr = group.saIn.sin_addr;
+                mreq.imr_interface = getInterfaceAddress(interface);
+                rc = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
+            }
+            else
+            {
+                int index = getInterfaceIndex(interface);
+                // Don't join twice the same interface (if it has multiple IPs).
+                if (indexes.find(index) == indexes.end())
+                {
+                    indexes.insert(index);
+                    struct ipv6_mreq mreq;
+                    mreq.ipv6mr_multiaddr = group.saIn6.sin6_addr;
+                    mreq.ipv6mr_interface = static_cast<unsigned int>(index);
+                    rc = setsockopt(
+                        fd,
+                        IPPROTO_IPV6,
+                        IPV6_JOIN_GROUP,
+                        reinterpret_cast<char*>(&mreq),
+                        int(sizeof(mreq)));
+                }
+            }
+            if (rc == SOCKET_ERROR)
+            {
+                throw SocketException(__FILE__, __LINE__, getSocketErrno());
             }
         }
-        if (rc == SOCKET_ERROR)
-        {
-            closeSocketNoThrow(fd);
-            throw SocketException(__FILE__, __LINE__, getSocketErrno());
-        }
+    }
+    catch (...)
+    {
+        // Close the socket on any failure (interface resolution or the multicast join) so this helper always
+        // leaves the socket closed when it throws, like doBind and setReuseAddress.
+        closeSocketNoThrow(fd);
+        throw;
     }
 }
 
