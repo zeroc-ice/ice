@@ -512,13 +512,25 @@ public final class Network {
             return v;
         }
 
-        byte[] larr = addr1.getAddress().getAddress();
-        byte[] rarr = addr2.getAddress().getAddress();
-        v = larr.length - rarr.length;
+        InetAddress inetAddress1 = addr1.getAddress();
+        InetAddress inetAddress2 = addr2.getAddress();
+        byte[] addressBytes1 = inetAddress1.getAddress();
+        byte[] addressBytes2 = inetAddress2.getAddress();
+        v = addressBytes1.length - addressBytes2.length;
         if (v != 0) {
             return v;
         }
-        return Arrays.compare(larr, rarr);
+        v = Arrays.compare(addressBytes1, addressBytes2);
+        if (v != 0) {
+            return v;
+        }
+
+        // Distinguish scoped link-local addresses such as fe80::1%eth0 and fe80::1%eth1.
+        if (inetAddress1 instanceof Inet6Address inet6Address1
+                && inetAddress2 instanceof Inet6Address inet6Address2) {
+            return Integer.compare(inet6Address1.getScopeId(), inet6Address2.getScopeId());
+        }
+        return 0;
     }
 
     public static List<InetSocketAddress> getAddresses(
