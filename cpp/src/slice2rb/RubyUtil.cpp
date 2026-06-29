@@ -466,8 +466,9 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         if (op->isDeprecated())
         {
             // Get the deprecation reason if present, or default to an empty string.
-            string reason = op->getDeprecationReason().value_or("");
-            _out << nl << proxyName << "_mixin::OP_" << opName << ".deprecate(\"" << reason << "\")";
+            const string reason = op->getDeprecationReason().value_or("");
+            const string escapedReason = toStringLiteral(reason, "\a\b\f\n\r\t\v\x20\x1b", "", EC6UCN, 0);
+            _out << nl << proxyName << "_mixin::OP_" << opName << ".deprecate(\"" << escapedReason << "\")";
         }
     }
 

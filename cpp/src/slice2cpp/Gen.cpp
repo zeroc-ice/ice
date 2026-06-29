@@ -75,7 +75,8 @@ namespace
         {
             if (auto reason = p1->getDeprecationReason())
             {
-                deprecatedAttribute = "[[deprecated(\"" + *reason + "\")]] ";
+                const string escapedReason = toStringLiteral(*reason, "\a\b\f\n\r\t\v", "?", UCN, 0);
+                deprecatedAttribute = "[[deprecated(\"" + escapedReason + "\")]] ";
             }
             else
             {
