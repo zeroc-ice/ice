@@ -289,6 +289,11 @@ namespace DataStormI
         [[nodiscard]] bool retry(DataStormContract::NodePrx, std::exception_ptr);
         void destroyImpl(const std::exception_ptr&);
 
+        // Cancels and clears any pending retry task, breaking the _retryTask -> task -> lambda -> self reference
+        // cycle so the session can be reclaimed. Used by NodeI::destroy, which drops sessions without calling
+        // destroyImpl. Safe to call when no retry is pending.
+        void cancelRetryTask();
+
         [[nodiscard]] const std::string& getId() const { return _id; }
 
         [[nodiscard]] Ice::ConnectionPtr getConnection() const;
