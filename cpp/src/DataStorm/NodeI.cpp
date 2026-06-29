@@ -126,9 +126,8 @@ NodeI::destroy(bool ownsCommunicator)
             }
         }
     }
-    // Cancel any pending retry task before dropping the sessions. A session that is mid-retry holds its task via
-    // _retryTask, whose lambda captures a strong reference back to the session, so simply clearing the maps would
-    // leave that self-reference cycle behind and leak the session (and, through it, this node and the instance).
+    // Cancel any pending retry task before dropping the sessions, to break the reference cycle
+    // (_retryTask -> task -> lambda -> self).
     for (const auto& [_, subscriber] : _subscribers)
     {
         subscriber->cancelRetryTask();

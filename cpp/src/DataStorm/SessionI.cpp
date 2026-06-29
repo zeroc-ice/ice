@@ -767,10 +767,7 @@ SessionI::destroyImpl(const exception_ptr& ex)
     assert(!_destroyed);
     _destroyed = true;
 
-    // Cancel and clear any pending retry task. Its lambda captures a strong reference to this session
-    // (self = shared_from_this()), so leaving _retryTask set forms a reference cycle
-    // (_retryTask -> task -> lambda -> self) that keeps the session -- and, through its _parent/_instance members,
-    // the node and instance -- alive forever. connected()/retry() clear it on the live path; this covers teardown.
+    // Cancel and clear any pending retry task to break the reference cycle (_retryTask -> task -> lambda -> self).
     if (_retryTask)
     {
         _instance->cancelTimerTask(_retryTask);
