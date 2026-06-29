@@ -10,6 +10,12 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+// syslog's openlog/closelog and its ident are process-global, and openlog retains the ident pointer rather than
+// copying it. We therefore allow at most one SysLoggerI alive at a time, so the ident never dangles and closelog never
+// tears down a connection another logger is still using. The constructor claims this flag; the destructor releases it.
+std::mutex Ice::SysLoggerI::_mutex;
+bool Ice::SysLoggerI::_active = false;
+
 Ice::SysLoggerI::SysLoggerI(string prefix, string_view facilityString) : _facility(0), _prefix(std::move(prefix))
 {
     if (facilityString == "LOG_KERN")
@@ -104,17 +110,26 @@ Ice::SysLoggerI::SysLoggerI(string prefix, string_view facilityString) : _facili
             "Invalid value for Ice.SyslogFacility: " + string{facilityString});
     }
 
+    claimSyslog(__FILE__, __LINE__);
+
     int logopt = LOG_PID | LOG_CONS;
     openlog(_prefix.c_str(), logopt, _facility);
 }
 
 Ice::SysLoggerI::SysLoggerI(string prefix, int facility) : _facility(facility), _prefix(std::move(prefix))
 {
+    claimSyslog(__FILE__, __LINE__);
+
     int logopt = LOG_PID | LOG_CONS;
     openlog(_prefix.c_str(), logopt, facility);
 }
 
-Ice::SysLoggerI::~SysLoggerI() { closelog(); }
+Ice::SysLoggerI::~SysLoggerI()
+{
+    lock_guard lock(_mutex);
+    closelog();
+    _active = false;
+}
 
 void
 Ice::SysLoggerI::print(const string& message)
@@ -152,9 +167,21 @@ Ice::SysLoggerI::getPrefix()
 }
 
 Ice::LoggerPtr
-Ice::SysLoggerI::cloneWithPrefix(string prefix)
+Ice::SysLoggerI::cloneWithPrefix(string)
 {
-    return make_shared<SysLoggerI>(std::move(prefix), _facility);
+    // syslog is process-global, so a second SysLoggerI would fight over the global openlog ident and connection.
+    throw FeatureNotSupportedException(__FILE__, __LINE__, "the Ice syslog logger does not support cloneWithPrefix");
+}
+
+void
+Ice::SysLoggerI::claimSyslog(const char* file, int line)
+{
+    lock_guard lock(_mutex);
+    if (_active)
+    {
+        throw InitializationException(file, line, "another Ice syslog logger is already active in this process");
+    }
+    _active = true;
 }
 
 #endif
