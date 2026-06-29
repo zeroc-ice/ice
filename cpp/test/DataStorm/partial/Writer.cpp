@@ -59,6 +59,30 @@ void ::Writer::run(int argc, char* argv[])
         writer.waitForNoReaders();
     }
     cout << "ok" << endl;
+
+    // Destroying a multi-key writer leaves a stale entry in the reader's per-key subscriber map
+    // (DataElementI::detachKey detaches every key with the element's first key id). A later attach then drives
+    // SessionI::getLastIds over the stale entry, which must not crash the reader.
+    Topic<string, int> detachTopic(node, "multiKeyDetach");
+    detachTopic.setWriterDefaultConfig(config);
+    Topic<string, int> detachBarrier(node, "multiKeyDetachBarrier");
+    cout << "testing multi-key writer detach then reattach... " << flush;
+    {
+        {
+            auto writer = makeMultiKeyWriter(detachTopic, {"k1", "k2"});
+            writer.waitForReaders();
+            writer.add("k1", 1);
+        } // writer destroyed here -> detachElements -> stale per-key entry on the reader
+
+        // Wait for the reader to confirm it has processed the detach before creating the second writer, so the
+        // second attach is guaranteed to run getLastIds over the stale entry.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(detachBarrier, "barrier").getNextUnread();
+
+        auto writer = makeMultiKeyWriter(detachTopic, {"k1", "k2"});
+        writer.waitForReaders();
+        writer.add("k2", 2);
+    }
+    cout << "ok" << endl;
 }
 
 DEFINE_TEST(::Writer)
