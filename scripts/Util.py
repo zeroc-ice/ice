@@ -2106,6 +2106,7 @@ class LocalProcessController(ProcessController):
             "testcase": current.testcase,
             "testdir": current.testsuite.getPath(),
             "builddir": current.getBuildDir(process.getExe(current)),
+            "certsdir": os.path.join(toplevel, "certs", "configuration"),
         }
 
         traceFile = ""

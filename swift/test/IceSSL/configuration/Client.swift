@@ -15,9 +15,9 @@ class Client: TestHelperI {
             }
             var path = Bundle.main.bundlePath
             #if os(iOS) || os(watchOS) || os(tvOS)
-                path += "/Frameworks/IceSSLConfiguration.bundle/certs"
+                path += "/Frameworks/IceSSLConfiguration.bundle/configuration"
             #else
-                path += "/Contents/Frameworks/IceSSLConfiguration.bundle/Contents/Resources/certs"
+                path += "/Contents/Frameworks/IceSSLConfiguration.bundle/Contents/Resources/configuration"
             #endif
 
             let factory = try allTests(self, path)

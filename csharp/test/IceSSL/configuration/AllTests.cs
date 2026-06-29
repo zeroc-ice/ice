@@ -104,7 +104,7 @@ public class AllTests
         Test.ServerFactoryPrx factory = Test.ServerFactoryPrxHelper.checkedCast(b);
 
         string defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
-        string defaultDir = testDir + "/../certs";
+        string defaultDir = testDir;
         Ice.Properties defaultProperties = communicator.getProperties();
         defaultProperties.setProperty("IceSSL.DefaultDir", defaultDir);
         defaultProperties.setProperty("Ice.Default.Host", defaultHost);

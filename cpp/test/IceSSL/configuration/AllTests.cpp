@@ -545,9 +545,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
     string defaultHost = communicator->getProperties()->getProperty("Ice.Default.Host");
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-    string defaultDir = testDir + "/../certs";
+    string defaultDir = testDir;
 #else
-    string defaultDir = "certs";
+    string defaultDir = "configuration";
 #endif
 
     Ice::PropertiesPtr defaultProps = communicator->getProperties()->clone();
@@ -3513,7 +3513,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, p12);
             initData.properties->setProperty("IceSSL.CAs", "cacert1.pem");
-            initData.properties->setProperty("IceSSL.Keychain", "../certs/Find.keychain");
+            initData.properties->setProperty("IceSSL.Keychain", defaultDir + "/Find.keychain");
             initData.properties->setProperty("IceSSL.KeychainPassword", "password");
             initData.properties->setProperty("IceSSL.FindCert", clientFindCertProperties[i]);
             //
@@ -3527,7 +3527,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             test(fact);
             Test::Properties d = createServerProps(defaultProps, p12);
             d["IceSSL.CAs"] = "cacert1.pem";
-            d["IceSSL.Keychain"] = "../certs/Find.keychain";
+            d["IceSSL.Keychain"] = defaultDir + "/Find.keychain";
             d["IceSSL.KeychainPassword"] = "password";
             d["IceSSL.FindCert"] = serverFindCertProperties[i];
 
@@ -3554,7 +3554,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         {
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, p12);
-            initData.properties->setProperty("IceSSL.Keychain", "../certs/Find.keychain");
+            initData.properties->setProperty("IceSSL.Keychain", defaultDir + "/Find.keychain");
             initData.properties->setProperty("IceSSL.KeychainPassword", "password");
             initData.properties->setProperty("IceSSL.FindCert", failFindCertProperties[i]);
             try

@@ -21,7 +21,7 @@ public class Server extends test.TestHelper
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity("factory");
-            adapter.add(new ServerFactoryI(rargs.get(0) + "/../certs"), id);
+            adapter.add(new ServerFactoryI(rargs.get(0)), id);
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

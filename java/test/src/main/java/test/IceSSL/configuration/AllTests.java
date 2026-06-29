@@ -115,7 +115,7 @@ public class AllTests
         ServerFactoryPrx factory = ServerFactoryPrx.checkedCast(b);
 
         final String defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
-        final String defaultDir = testDir + "/../certs";
+        final String defaultDir = testDir;
         final com.zeroc.Ice.Properties defaultProperties = communicator.getProperties()._clone();
         final String[] args = new String[0];
         defaultProperties.setProperty("IceSSL.DefaultDir", defaultDir);
