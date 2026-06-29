@@ -77,11 +77,8 @@ namespace
                     optional<SubscriberSessionPrx> subscriberSessionForwarder = subscriberSession;
                     updateNodeAndSessionProxy(*subscriber, subscriberSessionForwarder, current);
 
-                    // Keep track of the subscriber session with the NodeSession, the NodeSession will use this proxy
-                    // to inform the subscriber of the disconnection if the target publisher is disconnected. Key the
-                    // entry by (subscriber node identity, session identity): the session identity alone is only
-                    // unique within a node, so two different subscriber nodes can produce the same one and overwrite
-                    // each other in the map.
+                    // Keep track of the subscriber session with the NodeSession; the NodeSession will use this proxy
+                    // to inform the subscriber of the disconnection if the target publisher is disconnected.
                     nodeSession->addSession(
                         subscriber->ice_getIdentity(),
                         subscriberSession->ice_getIdentity(),
@@ -116,11 +113,8 @@ namespace
                     optional<PublisherSessionPrx> publisherSessionForwarder = publisherSession;
                     updateNodeAndSessionProxy(*publisher, publisherSessionForwarder, current);
 
-                    // Keep track of the publisher session with the NodeSession, the NodeSession will use this proxy
-                    // to inform the publisher of the disconnection if the target subscriber is disconnected. Key the
-                    // entry by (publisher node identity, session identity): the session identity alone is only unique
-                    // within a node, so two different publisher nodes can produce the same one and overwrite each
-                    // other in the map.
+                    // Keep track of the publisher session with the NodeSession; the NodeSession will use this proxy
+                    // to inform the publisher of the disconnection if the target subscriber is disconnected.
                     nodeSession->addSession(
                         publisher->ice_getIdentity(),
                         publisherSession->ice_getIdentity(),
