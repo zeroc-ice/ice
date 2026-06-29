@@ -57,7 +57,7 @@ namespace IceInternal
         [[nodiscard]] int effectivePort() const;
 
     private:
-        void setBufSize(int, int);
+        int adjustBufferSize(int sizeRequested, int defaultSize, std::string_view prop);
 
         UdpEndpointIPtr _endpoint;
         const ProtocolInstancePtr _instance;
