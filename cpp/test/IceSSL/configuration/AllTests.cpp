@@ -1223,16 +1223,16 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         const char* authorities[] =
         {
             "", // Self signed CA cert has not X509v3 Authority Key Identifier extension
-            "8C:5E:81:E9:A9:5F:C3:91:93:79:E3:28:67:40:47:BC:AD:B8:DD:A1",
-            "8C:5E:81:E9:A9:5F:C3:91:93:79:E3:28:67:40:47:BC:AD:B8:DD:A1",
+            "57:36:67:A0:76:BA:87:75:35:19:1A:70:8C:D2:FE:1D:74:F7:8B:DC",
+            "57:36:67:A0:76:BA:87:75:35:19:1A:70:8C:D2:FE:1D:74:F7:8B:DC",
             0
         };
 
         const char* subjects[] =
         {
-            "8C:5E:81:E9:A9:5F:C3:91:93:79:E3:28:67:40:47:BC:AD:B8:DD:A1",
-            "0C:8A:4F:53:BE:DF:C8:1B:70:05:AD:39:AA:EE:30:C6:F3:BE:FD:79",
-            "A2:DD:5E:A5:52:06:0B:9D:64:89:DC:E1:01:B0:7E:46:F5:60:A5:D7",
+            "57:36:67:A0:76:BA:87:75:35:19:1A:70:8C:D2:FE:1D:74:F7:8B:DC",
+            "E3:6D:D0:B7:A9:FA:66:70:52:55:01:86:A1:48:57:49:F0:03:5D:54",
+            "7A:C6:C0:D0:4C:DE:61:B1:FB:5C:3D:58:84:8F:74:CE:4B:8A:1B:5C",
             0
         };
 
@@ -1687,17 +1687,17 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "30:03:01:01:FF";
 
         const string subjectKeyIdentifier =
-            "04:14:13:FA:72:67:FE:34:05:9A:C9:3E:61:D2:91:D6:BA:03:65:1B:8A:9A";
+            "04:14:19:C8:58:AD:66:1C:18:9E:C8:AF:B8:ED:60:75:EB:F2:08:71:DF:19";
 
         const string authorityKeyIdentifier =
-            "30:81:AD:80:14:13:FA:72:67:FE:34:05:9A:C9:3E:61:D2:91:D6:BA:03:65:"
-            "1B:8A:9A:A1:7F:A4:7D:30:7B:31:0B:30:09:06:03:55:04:06:13:02:55:53:"
+            "30:81:AD:80:14:19:C8:58:AD:66:1C:18:9E:C8:AF:B8:ED:60:75:EB:F2:08:"
+            "71:DF:19:A1:7F:A4:7D:30:7B:31:0B:30:09:06:03:55:04:06:13:02:55:53:"
             "31:10:30:0E:06:03:55:04:08:0C:07:46:6C:6F:72:69:64:61:31:10:30:0E:"
             "06:03:55:04:07:0C:07:4A:75:70:69:74:65:72:31:0E:30:0C:06:03:55:04:"
             "0A:0C:05:5A:65:72:6F:43:31:0C:30:0A:06:03:55:04:0B:0C:03:49:63:65:"
             "31:0B:30:09:06:03:55:04:03:0C:02:43:41:31:1D:30:1B:06:09:2A:86:48:"
             "86:F7:0D:01:09:01:16:0E:69:6E:66:6F:40:7A:65:72:6F:63:2E:63:6F:6D:"
-            "82:14:7C:42:21:39:C9:B9:EE:71:00:F6:E2:3D:75:6C:AB:F3:17:EC:39:BC";
+            "82:14:5A:1F:59:D3:39:20:7B:CD:BD:96:FA:6A:61:E5:20:23:7B:D2:4A:28";
 
         const string subjectAltName =
             "30:0B:82:09:7A:65:72:6F:63:2E:63:6F:6D";
@@ -3337,8 +3337,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTDN:'CN=Client, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
             "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:02",
             "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\",L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Client",
-            "THUMBPRINT:'49 D0 0C 39 C7 A6 44 51 2F 2C 6E 58 5F 33 76 39 74 47 84 14'",
-            "SUBJECTKEYID:'0C 8A 4F 53 BE DF C8 1B 70 05 AD 39 AA EE 30 C6 F3 BE FD 79'",
+            "THUMBPRINT:'91 3E 4E BF A5 D3 8F 50 69 6F 72 9E 6F 26 23 BD F1 31 7D F0'",
+            "SUBJECTKEYID:'E3 6D D0 B7 A9 FA 66 70 52 55 01 86 A1 48 57 49 F0 03 5D 54'",
             0
         };
 
@@ -3347,8 +3347,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTDN:'CN=Server, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
             "ISSUER:'ZeroC, Inc.' SUBJECT:Server SERIAL:01",
             "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Server",
-            "THUMBPRINT:'72 E7 51 C7 DF 19 E3 0C 98 58 47 DB B8 39 0B 04 2C E4 D0 92'",
-            "SUBJECTKEYID:'A2 DD 5E A5 52 06 0B 9D 64 89 DC E1 01 B0 7E 46 F5 60 A5 D7'",
+            "THUMBPRINT:'53 AA 97 73 59 BD 46 92 4F 78 79 A8 68 B9 15 82 40 60 2A DE'",
+            "SUBJECTKEYID:'7A C6 C0 D0 4C DE 61 B1 FB 5C 3D 58 84 8F 74 CE 4B 8A 1B 5C'",
             0
         };
 
@@ -3470,7 +3470,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         {
 //            "SUBJECT:Client",
             "LABEL:'Client'",
-            "SUBJECTKEYID:'0C 8A 4F 53 BE DF C8 1B 70 05 AD 39 AA EE 30 C6 F3 BE FD 79'",
+            "SUBJECTKEYID:'E3 6D D0 B7 A9 FA 66 70 52 55 01 86 A1 48 57 49 F0 03 5D 54'",
             "SERIAL:02",
             "SERIAL:02 LABEL:Client",
             0
@@ -3483,7 +3483,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECT:Server",
 #endif
             "LABEL:'Server'",
-            "SUBJECTKEYID:'A2 DD 5E A5 52 06 0B 9D 64 89 DC E1 01 B0 7E 46 F5 60 A5 D7'",
+            "SUBJECTKEYID:'7A C6 C0 D0 4C DE 61 B1 FB 5C 3D 58 84 8F 74 CE 4B 8A 1B 5C'",
             "SERIAL:01",
             "SERIAL:01 LABEL:Server",
             0

@@ -23,25 +23,26 @@ C++ and C#), `*.jks` (Java), and `*.bks` (Bouncy Castle, for the Android test co
 The certificates are valid for 398 days (the maximum accepted by macOS), so they must be
 regenerated roughly once a year.
 
-`makecerts.sh` currently regenerates the **common** certificates (at the `certs/` root). The
-`configuration` certificates are consolidated in `certs/configuration` but are still the set
-generated previously with `zeroc-icecertutils`; porting their generation to this openssl/keytool
-toolchain is tracked separately.
+`makecerts.sh` regenerates the **common** certificates (at the `certs/` root) and the
+**configuration** certificates (in `certs/configuration`). `generate_configuration` lives in
+`makeconfiguration.sh`.
 
 > **Note:** regenerating creates new key pairs, which changes key-derived values (subject key
-> identifiers, authority key identifiers, and SHA-1 thumbprints). When the `configuration`
-> certificates are regenerated, the corresponding literals in
-> `cpp/test/IceSSL/configuration/AllTests.cpp` and `csharp/test/IceSSL/configuration/AllTests.cs`
-> must be updated. The certificate subjects, serial numbers (`s_rsa_ca1` = 1, `c_rsa_ca1` = 2),
-> SANs and extended key usages should be reproduced so the DN-based assertions do not change.
+> identifiers, authority key identifiers, and SHA-1 thumbprints). After regenerating the
+> `configuration` certificates you must update the corresponding literals in
+> `cpp/test/IceSSL/configuration/AllTests.cpp` and `csharp/test/IceSSL/configuration/AllTests.cs`.
+> The certificate subjects, serial numbers (`s_rsa_ca1` = 1, `c_rsa_ca1` = 2), SANs and extended
+> key usages are reproduced by the scripts, so the DN-based assertions do not change.
 
 ### Using Docker (recommended)
 
-Run `makecerts-docker.sh` to regenerate the common certificates inside a container that bundles the
-required tools, so the host only needs Docker:
+Run `makecerts-docker.sh` to regenerate everything inside a container that bundles the required
+tools, so the host only needs Docker:
 
 ```shell
-./makecerts-docker.sh          # regenerate the common (--protocol ssl) certificates
+./makecerts-docker.sh                 # everything
+./makecerts-docker.sh common          # only the --protocol ssl certificates
+./makecerts-docker.sh configuration   # only the IceSSL/configuration certificates
 ```
 
 This builds the `Dockerfile` in this directory (with `openssl`, `keytool`, the Bouncy Castle
@@ -49,9 +50,8 @@ provider, and `faketime`) and runs `makecerts.sh` inside it.
 
 ### Without Docker
 
-Run `makecerts.sh` directly. This requires `openssl`, `keytool`, and the Bouncy Castle provider to
-be installed on the host. (The Docker image also bundles `faketime`, which the configuration
-certificates will need once their generation is ported to this toolchain.)
+Run `makecerts.sh` directly. This requires `openssl`, `keytool`, the Bouncy Castle provider, and
+`faketime` to be installed on the host.
 
 ## Contents of `configuration`
 
