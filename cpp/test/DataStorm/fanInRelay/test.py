@@ -16,30 +16,34 @@
 from DataStormUtil import Node, Reader, Writer
 from Util import ClientServerTestCase, TestSuite
 
-nodeProps = {
+# Properties shared by every node in the test.
+commonProps = {
     "DataStorm.Node.Multicast.Enabled": 0,
-    "DataStorm.Trace.Session": 2,
 }
 
 
 def relay(name):
     return dict(
-        nodeProps,
+        commonProps,
         **{
             "DataStorm.Node.Server.Endpoints": "tcp -p {port1}",
             "DataStorm.Node.ConnectTo": "",
             "DataStorm.Node.Name": name,
+            # Trace the relay's sessions: it is where the subscribers' disconnect notifications originate.
+            "DataStorm.Trace.Session": 2,
         },
     )
 
 
 def app(name):
-    return {
-        "DataStorm.Node.Multicast.Enabled": 0,
-        "DataStorm.Node.Server.Enabled": 0,
-        "DataStorm.Node.ConnectTo": "tcp -p {port1}",
-        "DataStorm.Node.Name": name,
-    }
+    return dict(
+        commonProps,
+        **{
+            "DataStorm.Node.Server.Enabled": 0,
+            "DataStorm.Node.ConnectTo": "tcp -p {port1}",
+            "DataStorm.Node.Name": name,
+        },
+    )
 
 
 class FanInTestCase(ClientServerTestCase):

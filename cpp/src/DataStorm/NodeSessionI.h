@@ -16,7 +16,7 @@ namespace DataStormI
 
         void init();
         void destroy();
-        void addSession(Ice::Identity, Ice::Identity, DataStormContract::SessionPrx);
+        void addSession(Ice::Identity nodeId, Ice::Identity sessionId, DataStormContract::SessionPrx session);
 
         [[nodiscard]] DataStormContract::NodePrx getPublicNode() const
         {
