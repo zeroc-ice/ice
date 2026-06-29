@@ -69,13 +69,12 @@ IceInternal::UdpTransceiver::closing(bool, exception_ptr)
 void
 IceInternal::UdpTransceiver::close()
 {
-    // _fd can be INVALID_SOCKET when bind failed: the bind/setup helper that threw already closed the socket and
-    // reset _fd.
+    // _fd can be INVALID_SOCKET when bind failed: the bind/setup helper that threw already closed the socket, and
+    // bind()'s catch reset _fd.
     if (_fd != INVALID_SOCKET)
     {
-        SOCKET fd = _fd;
+        closeSocketNoThrow(_fd);
         _fd = INVALID_SOCKET;
-        closeSocket(fd);
     }
 }
 
