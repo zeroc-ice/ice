@@ -737,18 +737,20 @@ DataReaderI::getNextUnread()
 bool
 DataReaderI::hasLowerPriorityThanConnected(int priority, const shared_ptr<Key>& key) const
 {
-    // Find the connected publishers that determine the priority threshold for this sample. They're registered under
-    // the sample's key for a keyed reader, or under the null key for a filter or any-key reader (whose samples carry a
-    // real key); fall back to the null key when there's no entry for the sample's key.
-    auto p = _connectedKeys.find(key);
-    if (p == _connectedKeys.end() || p->second.empty())
+    // A sample with this key can come from a connected publisher registered under the key itself (a keyed peer) or
+    // under the null key (a filter or any-key peer, which delivers every key). Discard the sample when its priority is
+    // below the highest priority among all of them. Each list is sorted by ascending priority in addConnectedKey, so
+    // back() is the highest priority; don't discard when there are no connected publishers to compare against.
+    int threshold = priority;
+    for (const auto& k : {key, shared_ptr<Key>{}})
     {
-        p = _connectedKeys.find(nullptr);
+        auto p = _connectedKeys.find(k);
+        if (p != _connectedKeys.end() && !p->second.empty())
+        {
+            threshold = std::max(threshold, p->second.back()->priority);
+        }
     }
-
-    // The subscriber list is sorted by ascending priority in addConnectedKey, so back() is the highest priority. Don't
-    // discard when there are no connected publishers to compare against.
-    return p != _connectedKeys.end() && !p->second.empty() && priority < p->second.back()->priority;
+    return priority < threshold;
 }
 
 void
