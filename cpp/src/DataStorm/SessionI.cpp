@@ -767,6 +767,13 @@ SessionI::destroyImpl(const exception_ptr& ex)
     assert(!_destroyed);
     _destroyed = true;
 
+    // Cancel and clear any pending retry task to break the reference cycle (_retryTask -> task -> lambda -> self).
+    if (_retryTask)
+    {
+        _instance->cancelTimerTask(_retryTask);
+        _retryTask = nullptr;
+    }
+
     if (_traceLevels->session > 0)
     {
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
@@ -821,6 +828,17 @@ SessionI::destroyImpl(const exception_ptr& ex)
     }
     catch (const ObjectAdapterDestroyedException&)
     {
+    }
+}
+
+void
+SessionI::cancelRetryTask()
+{
+    lock_guard<mutex> lock(_mutex);
+    if (_retryTask)
+    {
+        _instance->cancelTimerTask(_retryTask);
+        _retryTask = nullptr;
     }
 }
 

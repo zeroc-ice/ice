@@ -126,6 +126,17 @@ NodeI::destroy(bool ownsCommunicator)
             }
         }
     }
+    // Cancel any pending retry task before dropping the sessions, to break the reference cycle
+    // (_retryTask -> task -> lambda -> self).
+    for (const auto& [_, subscriber] : _subscribers)
+    {
+        subscriber->cancelRetryTask();
+    }
+    for (const auto& [_, publisher] : _publishers)
+    {
+        publisher->cancelRetryTask();
+    }
+
     _subscribers.clear();
     _publishers.clear();
     _subscriberSessions.clear();

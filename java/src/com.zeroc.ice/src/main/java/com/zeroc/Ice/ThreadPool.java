@@ -131,14 +131,10 @@ final class ThreadPool implements Executor {
         }
         _stackSize = stackSize;
 
-        boolean hasPriority = properties.getProperty(_prefix + ".ThreadPriority").length() > 0;
-        int priority = properties.getPropertyAsInt(_prefix + ".ThreadPriority");
-        if (!hasPriority) {
-            hasPriority = properties.getIceProperty("Ice.ThreadPriority").length() > 0;
-            priority = properties.getIcePropertyAsInt("Ice.ThreadPriority");
-        }
-        _hasPriority = hasPriority;
-        _priority = priority;
+        _priority =
+            properties.getProperty(_prefix + ".ThreadPriority").length() > 0
+                ? Util.getThreadPriorityProperty(properties, _prefix)
+                : Util.getThreadPriorityProperty(properties, "Ice");
 
         _workQueue = new ThreadPoolWorkQueue(_instance, this, _selector);
         _nextHandler = _handlers.iterator();
@@ -152,7 +148,7 @@ final class ThreadPool implements Executor {
         try {
             for (int i = 0; i < _size; i++) {
                 EventHandlerThread thread = new EventHandlerThread(_threadPrefix + "-" + _threadIndex++);
-                thread.start(_hasPriority ? _priority : Thread.NORM_PRIORITY);
+                thread.start();
                 _threads.add(thread);
             }
         } catch (RuntimeException ex) {
@@ -413,11 +409,7 @@ final class ThreadPool implements Executor {
                     try {
                         EventHandlerThread thread = new EventHandlerThread(_threadPrefix + "-" + _threadIndex++);
                         _threads.add(thread);
-                        if (_hasPriority) {
-                            thread.start(_priority);
-                        } else {
-                            thread.start(Thread.NORM_PRIORITY);
-                        }
+                        thread.start();
                     } catch (RuntimeException ex) {
                         String s = "cannot create thread for `" + _prefix + "':\n" + Ex.toString(ex);
                         _instance.initializationData().logger.error(s);
@@ -524,9 +516,9 @@ final class ThreadPool implements Executor {
             _thread.join();
         }
 
-        public void start(int priority) {
+        public void start() {
             _thread = new Thread(null, this, _name, _stackSize);
-            _thread.setPriority(priority);
+            _thread.setPriority(_priority);
             _thread.start();
         }
 
@@ -576,7 +568,6 @@ final class ThreadPool implements Executor {
     private final int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
     private final boolean _serialize; // True if requests need to be serialized over the connection.
     private final int _priority;
-    private final boolean _hasPriority;
     private final long _serverIdleTime;
     private final long _threadIdleTime;
     private final int _stackSize;
