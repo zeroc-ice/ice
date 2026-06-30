@@ -42,11 +42,7 @@ export class IncomingRequest {
             facet = facetPath[0];
         }
         const operation = inputStream.readString();
-        const modeByte = inputStream.readByte();
-        const mode = OperationMode.valueOf(modeByte);
-        if (mode === undefined) {
-            throw new MarshalException(`Received invalid operation mode ${modeByte}.`);
-        }
+        const mode = OperationMode._read(inputStream);
         const ctx = new Context();
         let sz = inputStream.readSize();
         while (sz-- > 0) {

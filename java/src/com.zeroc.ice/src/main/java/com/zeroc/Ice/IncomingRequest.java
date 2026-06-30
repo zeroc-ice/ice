@@ -46,11 +46,7 @@ public final class IncomingRequest {
             facet = facetPath[0];
         }
         String operation = inputStream.readString();
-        byte modeByte = inputStream.readByte();
-        OperationMode mode = OperationMode.valueOf(modeByte);
-        if (mode == null) {
-            throw new MarshalException("Received invalid operation mode " + (modeByte & 0xff) + ".");
-        }
+        OperationMode mode = OperationMode.ice_read(inputStream);
         Map<String, String> ctx = new HashMap<>();
         int sz = inputStream.readSize();
         while (sz-- > 0) {
