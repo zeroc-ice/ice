@@ -268,6 +268,12 @@ public final class TestI implements TestIntf {
     }
 
     @Override
+    public TestIntf.OpOptASeqLocalTypeResult opOptASeqLocalType(
+            Optional<List<A>> inSeq, Current current) {
+        return new TestIntf.OpOptASeqLocalTypeResult(inSeq, inSeq);
+    }
+
+    @Override
     public TestIntf.OpOptByteBufferSeqResult opOptByteBufferSeq(
             Optional<ByteBuffer> inSeq, Current current) {
         return new TestIntf.OpOptByteBufferSeqResult(inSeq, inSeq);

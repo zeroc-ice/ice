@@ -267,8 +267,10 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                     {
                         out << nl << param << " = " << helper << ".read" << spar << stream << tag << epar << ";";
                     }
+                    return;
                 }
-                return;
+                // Otherwise the helper is incompatible with the local 'java:type' metadata; fall through to the in-line
+                // code below.
             }
 
             if (marshal)

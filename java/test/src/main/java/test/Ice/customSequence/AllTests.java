@@ -226,6 +226,20 @@ public class AllTests {
         }
 
         {
+            List<A> list = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                list.add(new A(i));
+            }
+            TestIntf.OpOptASeqLocalTypeResult r = t.opOptASeqLocalType(java.util.Optional.of(list));
+            test(r.returnValue.isPresent() && r.outSeq.isPresent());
+            test(r.returnValue.get().equals(list));
+            test(r.outSeq.get().equals(list));
+
+            r = t.opOptASeqLocalType(java.util.Optional.empty());
+            test(!r.returnValue.isPresent() && !r.outSeq.isPresent());
+        }
+
+        {
             final byte[] fullSeq = new byte[]{0, 1, 2, 3, 4, 5, 6, 7};
             final byte[] usedSeq = new byte[]{2, 3, 4, 5};
 
