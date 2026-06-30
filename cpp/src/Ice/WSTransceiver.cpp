@@ -1365,7 +1365,7 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
                     }
                     _readState = ReadStatePayload;
                     assert(buf.i != buf.b.end());
-                    _readFrameStart = buf.i;
+                    _readFrameOffset = 0;
                     break;
                 }
                 case OP_CLOSE: // Connection close
@@ -1529,13 +1529,16 @@ IceInternal::WSTransceiver::postRead(Buffer& buf)
     if (_incoming)
     {
         //
-        // Unmask the data we just read.
+        // Unmask the data we just read. _readFrameOffset is the mask index (payload bytes consumed so far in
+        // this frame). We keep it as an integer rather than an iterator into buf because ConnectionI reallocates
+        // the read buffer between reads of the same frame, which would invalidate such an iterator.
         //
         IceInternal::Buffer::Container::iterator p = _readStart;
-        for (auto n = static_cast<size_t>(_readStart - _readFrameStart); p < buf.i; ++p, ++n)
+        for (size_t n = _readFrameOffset; p < buf.i; ++p, ++n)
         {
             *p ^= _readMask[n % 4];
         }
+        _readFrameOffset += static_cast<size_t>(buf.i - _readStart);
     }
 
     _readPayloadLength -= static_cast<size_t>(buf.i - _readStart);
