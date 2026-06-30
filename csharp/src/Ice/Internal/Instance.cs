@@ -955,8 +955,7 @@ public sealed class Instance
         //
         try
         {
-            _timer = new Timer(this, Util.stringToThreadPriority(
-                                            initializationData().properties.getIceProperty("Ice.ThreadPriority")));
+            _timer = new Timer(this, Util.getThreadPriorityProperty(initializationData().properties, "Ice"));
         }
         catch (System.Exception ex)
         {

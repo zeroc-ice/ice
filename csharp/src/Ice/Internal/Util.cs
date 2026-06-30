@@ -6,36 +6,24 @@ public sealed class Util
 {
     public static Instance getInstance(Ice.Communicator communicator) => communicator.instance;
 
-    public static ThreadPriority stringToThreadPriority(string s)
+    public static ThreadPriority getThreadPriorityProperty(Ice.Properties properties, string prefix)
     {
+        string propertyName = prefix + ".ThreadPriority";
+        string s = properties.getProperty(propertyName);
         if (string.IsNullOrEmpty(s))
         {
             return ThreadPriority.Normal;
         }
-        if (s.StartsWith("ThreadPriority.", StringComparison.Ordinal))
+        string value = s.StartsWith("ThreadPriority.", StringComparison.Ordinal) ?
+            s["ThreadPriority.".Length..] : s;
+        return value switch
         {
-            s = s["ThreadPriority.".Length..];
-        }
-        if (s == "Lowest")
-        {
-            return ThreadPriority.Lowest;
-        }
-        else if (s == "BelowNormal")
-        {
-            return ThreadPriority.BelowNormal;
-        }
-        else if (s == "Normal")
-        {
-            return ThreadPriority.Normal;
-        }
-        else if (s == "AboveNormal")
-        {
-            return ThreadPriority.AboveNormal;
-        }
-        else if (s == "Highest")
-        {
-            return ThreadPriority.Highest;
-        }
-        return ThreadPriority.Normal;
+            "Lowest" => ThreadPriority.Lowest,
+            "BelowNormal" => ThreadPriority.BelowNormal,
+            "Normal" => ThreadPriority.Normal,
+            "AboveNormal" => ThreadPriority.AboveNormal,
+            "Highest" => ThreadPriority.Highest,
+            _ => throw new PropertyException($"property '{propertyName}' has an invalid value: '{s}'"),
+        };
     }
 }
