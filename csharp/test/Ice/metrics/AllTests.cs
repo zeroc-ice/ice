@@ -33,6 +33,14 @@ public class AllTests : Test.AllTests
         }
     }
 
+    // Formats a metrics array for assertion failure messages, to make intermittent metrics failures diagnosable.
+    private static string metricsToString(IceMX.Metrics[] metrics) =>
+        "[" +
+        string.Join(
+            ", ",
+            metrics.Select(m => $"{{ id=\"{m.id}\" current={m.current} total={m.total} failures={m.failures} }}")) +
+        "]";
+
     public abstract class CallbackBase
     {
         protected CallbackBase() => Wait = true;
@@ -869,7 +877,8 @@ public class AllTests : Test.AllTests
 
             props["IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy"] = "id";
             updateProps(clientProps, serverProps, update, props, "EndpointLookup");
-            test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 0);
+            IceMX.Metrics[] lookups = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"];
+            test(lookups.Length == 0, $"expected no EndpointLookup metrics after reset, got {metricsToString(lookups)}");
 
             Ice.ObjectPrx prx =
                 communicator.stringToProxy("metrics:" + protocol + " -p " + port + " -h localhost -t 500");
@@ -882,9 +891,14 @@ public class AllTests : Test.AllTests
             {
             }
 
-            test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 1);
-            m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][0];
-            test(m1.current <= 1 && m1.total == 1);
+            lookups = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"];
+            test(
+                lookups.Length == 1,
+                $"expected 1 EndpointLookup metric after pinging localhost, got {metricsToString(lookups)}");
+            m1 = lookups[0];
+            test(
+                m1.current <= 1 && m1.total == 1,
+                $"unexpected localhost EndpointLookup metric: {metricsToString(lookups)}");
 
             bool dnsException = false;
             try
@@ -900,14 +914,19 @@ public class AllTests : Test.AllTests
             {
                 // Some DNS servers don't fail on unknown DNS names.
             }
-            test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 2);
-            m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][0];
+            lookups = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"];
+            test(
+                lookups.Length == 2,
+                $"expected 2 EndpointLookup metrics after the DNS lookup, got {metricsToString(lookups)}");
+            m1 = lookups[0];
             if (m1.id != $"tcp -h unknownfoo.zeroc.com -p {port} -t 500")
             {
-                m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][1];
+                m1 = lookups[1];
             }
-            test(m1.id == $"tcp -h unknownfoo.zeroc.com -p {port} -t 500" && m1.total == 2 &&
-                 (!dnsException || m1.failures == 2));
+            test(
+                m1.id == $"tcp -h unknownfoo.zeroc.com -p {port} -t 500" && m1.total == 2 &&
+                    (!dnsException || m1.failures == 2),
+                $"unexpected unknownfoo EndpointLookup metric (dnsException={dnsException}): {metricsToString(lookups)}");
             if (dnsException)
             {
                 checkFailure(clientMetrics, "EndpointLookup", m1.id, "::Ice::DNSException", 2, output);
