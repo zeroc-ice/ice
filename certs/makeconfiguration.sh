@@ -132,6 +132,9 @@ EOF
     [ "${legacy}" = "no" ] && p12args=()
     openssl pkcs12 -export -out "${out}.p12" -inkey "${key}" -in "${cert}" "${certfile[@]}" \
         -name cert -passout pass:"${pass}" "${p12args[@]}"
+    # Append the issuer chain (intermediates, excluding the root) to the PEM certificate as well, so
+    # SecureTransport can build the chain up to the root when the certificate is loaded from PEM.
+    [ -n "${chain}" ] && cat "${chain}" >> "${cert}"
     rm -f "${csr}" "${extf}"
 }
 
