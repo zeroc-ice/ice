@@ -527,7 +527,7 @@ public final class Network {
 
         // Distinguish scoped link-local addresses such as fe80::1%eth0 and fe80::1%eth1.
         if (inetAddress1 instanceof Inet6Address inet6Address1
-                && inetAddress2 instanceof Inet6Address inet6Address2) {
+            && inetAddress2 instanceof Inet6Address inet6Address2) {
             return Integer.compare(inet6Address1.getScopeId(), inet6Address2.getScopeId());
         }
         return 0;
