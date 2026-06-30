@@ -734,6 +734,23 @@ DataReaderI::getNextUnread()
     return sample;
 }
 
+bool
+DataReaderI::hasLowerPriorityThanConnected(int priority, const shared_ptr<Key>& key) const
+{
+    // Find the connected publishers that determine the priority threshold for this sample. They're registered under
+    // the sample's key for a keyed reader, or under the null key for a filter or any-key reader (whose samples carry a
+    // real key); fall back to the null key when there's no entry for the sample's key.
+    auto p = _connectedKeys.find(key);
+    if (p == _connectedKeys.end() || p->second.empty())
+    {
+        p = _connectedKeys.find(nullptr);
+    }
+
+    // The subscriber list is sorted by ascending priority in addConnectedKey, so back() is the highest priority. Don't
+    // discard when there are no connected publishers to compare against.
+    return p != _connectedKeys.end() && !p->second.empty() && priority < p->second.back()->priority;
+}
+
 void
 DataReaderI::initSamples(
     const vector<shared_ptr<Sample>>& samples,
@@ -765,7 +782,7 @@ DataReaderI::initSamples(
         //   publishers for the same key. The subscriber list is sorted by priority in addConnectedKey.
         if ((_discardPolicy == DataStorm::DiscardPolicy::SendTime && sample->timestamp <= _lastSendTime) ||
             (_discardPolicy == DataStorm::DiscardPolicy::Priority &&
-             priority < _connectedKeys[sample->key].back()->priority))
+             hasLowerPriorityThanConnected(priority, sample->key)))
         {
             continue;
         }
@@ -908,8 +925,7 @@ DataReaderI::queue(
     // - Priority: discard samples from publisher with lower priority than the highest priority among the connected
     //   publishers for the same key. The subscriber list is sorted by priority in addConnectedKey.
     if ((_discardPolicy == DataStorm::DiscardPolicy::SendTime && sample->timestamp <= _lastSendTime) ||
-        (_discardPolicy == DataStorm::DiscardPolicy::Priority &&
-         priority < _connectedKeys[sample->key].back()->priority))
+        (_discardPolicy == DataStorm::DiscardPolicy::Priority && hasLowerPriorityThanConnected(priority, sample->key)))
     {
         if (_traceLevels->data > 2)
         {
