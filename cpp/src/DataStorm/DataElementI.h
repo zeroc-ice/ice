@@ -374,8 +374,8 @@ namespace DataStormI
         [[nodiscard]] virtual bool matchKey(const std::shared_ptr<Key>&) const = 0;
         [[nodiscard]] bool addConnectedKey(const std::shared_ptr<Key>&, const std::shared_ptr<Subscriber>&) override;
 
-        // Returns true if a sample with the given priority and key should be discarded under DiscardPolicy::Priority,
-        // i.e. its priority is lower than the highest-priority connected publisher governing that key.
+        // Returns true if the given sample priority is lower than the highest priority among the connected publishers
+        // that can deliver the given key (a keyed peer under the key, or a filter/any-key peer under the null key).
         [[nodiscard]] bool hasLowerPriorityThanConnected(int priority, const std::shared_ptr<Key>& key) const;
 
         TopicReaderI* _parent;
