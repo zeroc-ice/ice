@@ -249,7 +249,7 @@ final class UdpTransceiver implements Transceiver {
     }
 
     @Override
-    public synchronized void checkSendSize(Buffer buf) {
+    public void checkSendSize(Buffer buf) {
         // The maximum packetSize is either the maximum allowable UDP packet size, or the UDP send
         // buffer size (which ever is smaller).
         final int packetSize = java.lang.Math.min(_maxPacketSize, _sndSize - _udpOverhead);
@@ -260,7 +260,7 @@ final class UdpTransceiver implements Transceiver {
     }
 
     @Override
-    public synchronized void setBufferSize(int rcvSize, int sndSize) {
+    public void setBufferSize(int rcvSize, int sndSize) {
         assert (_fd != null);
 
         // The default size is the size currently configured on the socket. We don't set the buffer size when the
