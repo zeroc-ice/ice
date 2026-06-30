@@ -6,12 +6,12 @@ distinguished_name  = req_distinguished_name
 x509_extensions     = v3_extensions
 
 [ req_distinguished_name ]
-C  = US
-ST = Florida
-L  = Jupiter
-O  = ZeroC, Inc.
-OU = Ice
 CN = Ice Tests CA
+OU = Ice
+O  = ZeroC, Inc.
+L  = Jupiter
+ST = Florida
+C  = US
 emailAddress = info@zeroc.com
 
 [ v3_extensions ]
