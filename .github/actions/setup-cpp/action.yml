@@ -38,3 +38,13 @@ runs:
       with:
         msbuild-architecture: x64
       if: runner.os == 'Windows'
+
+    # Ice 3.7 supports the Visual Studio 2019/2022 (v141/v142/v143) toolsets. Newer runner images (e.g. the VS2026 /
+    # v145 image) would otherwise build with a platform toolset Ice 3.7 does not support, which fails. Pin to v143
+    # through the environment so every Windows build uses a supported toolset. Workflows that build a specific toolset
+    # (the C++ binary and NuGet package builds) pass /p:DefaultPlatformToolset=... explicitly, and that command-line
+    # property overrides this environment default.
+    - name: Pin MSVC platform toolset to v143
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: Add-Content -Path $env:GITHUB_ENV -Value "DefaultPlatformToolset=v143"
