@@ -605,7 +605,11 @@ Schannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
                 memcpy(_extraBuffer.i, extraBuffer->pvBuffer, extraBuffer->cbBuffer);
                 _extraBuffer.i += extraBuffer->cbBuffer;
             }
-            return 0;
+            // Return the application data already copied into the caller's buffer during this call (it may be non-zero
+            // because earlier records in the same batch were decrypted before this renegotiation request). The caller
+            // must advance buf.i by this amount before performing the re-handshake, otherwise the next decryptMessage
+            // overwrites these bytes and the plaintext is silently lost.
+            return i - buffer.i;
         }
         else if (err == SEC_I_CONTEXT_EXPIRED)
         {
@@ -829,6 +833,9 @@ Schannel::TransceiverI::read(IceInternal::Buffer& buf)
         }
 
         size_t decrypted = decryptMessage(buf);
+        // Account for the bytes decryptMessage copied into buf right away, so a renegotiation in the middle of the
+        // batch does not drop the plaintext already extracted before it.
+        buf.i += decrypted;
         if (_sslConnectionRenegotiating)
         {
             // The peer has requested a renegotiation.
@@ -854,8 +861,6 @@ Schannel::TransceiverI::read(IceInternal::Buffer& buf)
             }
             continue;
         }
-
-        buf.i += decrypted;
     }
     _delegate->getNativeInfo()->ready(
         IceInternal::SocketOperationRead,
@@ -925,10 +930,14 @@ Schannel::TransceiverI::finishRead(IceInternal::Buffer& buf)
     _delegate->finishRead(_readBuffer);
     if (_state == StateHandshakeComplete)
     {
-        size_t decrypted;
-        while (true)
+        std::byte* const start = buf.i;
+        // Decrypt the buffered data into buf, advancing buf.i as we go so that a renegotiation in the middle of the
+        // batch does not drop or overwrite the plaintext already extracted. The loop guard matches decryptMessage's
+        // precondition: there is buffered (_readBuffer) or unprocessed data left to decrypt.
+        while (buf.i != buf.b.end() && (_readBuffer.i != _readBuffer.b.begin() || !_readUnprocessed.b.empty()))
         {
-            decrypted = decryptMessage(buf);
+            size_t decrypted = decryptMessage(buf);
+            buf.i += decrypted;
             if (_sslConnectionRenegotiating)
             {
                 // The peer has requested a renegotiation.
@@ -938,31 +947,23 @@ Schannel::TransceiverI::finishRead(IceInternal::Buffer& buf)
                     _extraBuffer.b.begin()};
                 IceInternal::SocketOperation op = sslHandshake(&extraBuffer);
                 _extraBuffer.b.clear();
-                if (op == IceInternal::SocketOperationNone)
+                if (op != IceInternal::SocketOperationNone)
                 {
-                    _sslConnectionRenegotiating = false;
-                    if (buf.i != buf.b.begin())
-                    {
-                        continue;
-                    }
-                    break;
+                    throw ConnectionLostException(__FILE__, __LINE__);
                 }
-                throw ConnectionLostException(__FILE__, __LINE__);
+                _sslConnectionRenegotiating = false;
+                continue;
             }
-            break;
+            if (decrypted == 0)
+            {
+                // Not enough buffered data to decrypt a complete record; wait for the next read.
+                break;
+            }
         }
 
-        if (decrypted > 0)
-        {
-            buf.i += decrypted;
-            _delegate->getNativeInfo()->ready(
-                IceInternal::SocketOperationRead,
-                !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
-        }
-        else
-        {
-            _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead, false);
-        }
+        _delegate->getNativeInfo()->ready(
+            IceInternal::SocketOperationRead,
+            buf.i != start && (!_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin()));
     }
 }
 
