@@ -129,6 +129,7 @@ Env::Env(const string& path, MDB_dbi maxDbs, size_t mapSize, unsigned int maxRea
     auto envMaxKeySize = static_cast<size_t>(mdb_env_get_maxkeysize(_menv));
     if (maxKeySize > envMaxKeySize)
     {
+        mdb_env_close(_menv);
         throw BadEnvException(__FILE__, __LINE__, envMaxKeySize);
     }
 }

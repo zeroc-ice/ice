@@ -7,13 +7,16 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.ErrorObserverMiddleware;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.IncomingRequest;
+import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.OutgoingResponse;
+import com.zeroc.Ice.ServantLocator;
 import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UserException;
 
+import test.Ice.middleware.Test.MyException;
 import test.Ice.middleware.Test.MyObject;
 import test.Ice.middleware.Test.MyObjectPrx;
 import test.TestHelper;
@@ -82,6 +85,53 @@ public class AllTests {
         Error error;
     }
 
+    // A custom dispatcher whose dispatch always completes exceptionally with a (bare) user exception.
+    private static class ThrowingServant implements Object {
+        @Override
+        public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request) {
+            return CompletableFuture.failedFuture(new MyException());
+        }
+    }
+
+    private static class ThrowingServantLocator implements ServantLocator {
+        @Override
+        public ServantLocator.LocateResult locate(Current curr) {
+            return new ServantLocator.LocateResult(new ThrowingServant(), null);
+        }
+
+        @Override
+        public void finished(Current curr, Object servant, java.lang.Object cookie) {}
+
+        @Override
+        public void deactivate(String category) {}
+    }
+
+    private static class ThrowObserver {
+        boolean observed;
+    }
+
+    private static class ThrowObservingMiddleware implements Object {
+        private final Object _next;
+        private final ThrowObserver _observer;
+
+        ThrowObservingMiddleware(Object next, ThrowObserver observer) {
+            _next = next;
+            _observer = observer;
+        }
+
+        @Override
+        public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
+            throws UserException {
+            return _next.dispatch(request)
+                .whenComplete(
+                    (response, ex) -> {
+                        if (ex != null) {
+                            _observer.observed = true;
+                        }
+                    });
+        }
+    }
+
     public static void allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
         PrintWriter output = helper.getWriter();
@@ -94,6 +144,8 @@ public class AllTests {
         // With error
         testErrorObserverMiddleware(communicator, output, true, false);
         testErrorObserverMiddleware(communicator, output, true, true);
+
+        testMiddlewareObservesLocatorDispatchError(communicator, output);
     }
 
     private static void testMiddlewareExecutionOrder(
@@ -162,6 +214,39 @@ public class AllTests {
         } else {
             test(errorHolder.error == null);
         }
+
+        output.println("ok");
+        oa.destroy();
+    }
+
+    private static void testMiddlewareObservesLocatorDispatchError(
+            Communicator communicator, PrintWriter output) {
+        output.write("testing middleware observes a servant-locator dispatch error... ");
+        output.flush();
+
+        // Arrange
+        var observer = new ThrowObserver();
+        ObjectAdapter oa =
+            communicator.createObjectAdapterWithEndpoints("MiddlewareLocatorOA", "tcp -h 127.0.0.1 -p 0");
+        oa.addServantLocator(new ThrowingServantLocator(), "");
+        oa.use(next -> new ThrowObservingMiddleware(next, observer));
+        oa.activate();
+
+        var p = MyObjectPrx.uncheckedCast(oa.createProxy(new Identity("test", "")));
+
+        // Act
+        boolean threw = false;
+        try {
+            p.getName();
+        } catch (LocalException e) {
+            threw = true;
+        }
+
+        // Assert: the located servant always fails, so the client sees a dispatch error and the middleware
+        // observed the dispatch completing exceptionally, rather than it being converted to a response inside
+        // ServantManager.
+        test(threw);
+        test(observer.observed);
 
         output.println("ok");
         oa.destroy();

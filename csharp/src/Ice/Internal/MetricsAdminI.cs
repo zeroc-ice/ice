@@ -423,6 +423,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
                 catch (System.Exception)
                 {
                     Debug.Assert(false);
+                    return null;
                 }
             }
             e.attach(helper);
