@@ -38,9 +38,7 @@ IncomingRequest::IncomingRequest(
 
     inputStream.read(_current.operation, false);
 
-    uint8_t mode;
-    inputStream.read(mode);
-    _current.mode = static_cast<OperationMode>(mode);
+    inputStream.read(_current.mode);
 
     int32_t sz = inputStream.readSize();
     while (sz--)

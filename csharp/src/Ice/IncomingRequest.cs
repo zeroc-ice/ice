@@ -54,7 +54,12 @@ public sealed class IncomingRequest
             facet = facetPath[0];
         }
         string operation = inputStream.readString();
-        var mode = (OperationMode)inputStream.readByte();
+        byte modeByte = inputStream.readByte();
+        if (modeByte > (byte)OperationMode.Idempotent)
+        {
+            throw new MarshalException($"Received invalid operation mode {modeByte}.");
+        }
+        var mode = (OperationMode)modeByte;
         var ctx = new Dictionary<string, string>();
         int sz = inputStream.readSize();
         while (sz-- > 0)
