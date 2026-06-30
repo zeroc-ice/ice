@@ -1222,7 +1222,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         const char* authorities[] =
         {
-            "", // Self signed CA cert has not X509v3 Authority Key Identifier extension
+            // The self-signed CA certificate's authority key identifier matches its subject key
+            // identifier.
+            "57:36:67:A0:76:BA:87:75:35:19:1A:70:8C:D2:FE:1D:74:F7:8B:DC",
             "57:36:67:A0:76:BA:87:75:35:19:1A:70:8C:D2:FE:1D:74:F7:8B:DC",
             "57:36:67:A0:76:BA:87:75:35:19:1A:70:8C:D2:FE:1D:74:F7:8B:DC",
             0
