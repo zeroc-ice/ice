@@ -586,10 +586,63 @@ IceInternal::UdpTransceiver::checkSendSize(const Buffer& buf)
     }
 }
 
+//
+// Set UDP receive and send buffer sizes.
+//
 void
 IceInternal::UdpTransceiver::setBufferSize(int rcvSize, int sndSize)
 {
-    setBufSize(rcvSize, sndSize);
+    assert(_fd != INVALID_SOCKET);
+
+    // The default size is the size currently configured on the socket. We don't set the buffer size when the requested
+    // size matches the default: re-setting it would needlessly grow the buffer on systems (e.g. Linux) where the kernel
+    // doubles the value on each set.
+
+    int rcvDefault = getRecvBufferSize(_fd);
+    rcvSize = adjustBufferSize(rcvSize, rcvDefault, "Ice.UDP.RcvSize");
+    if (rcvSize == rcvDefault)
+    {
+        _rcvSize = rcvDefault;
+    }
+    else
+    {
+        // The kernel silently adjusts the size to an acceptable value, so read it back to get the size actually set.
+        setRecvBufferSize(_fd, rcvSize);
+        _rcvSize = getRecvBufferSize(_fd);
+        if (_rcvSize < rcvSize)
+        {
+            // The kernel reduced the requested size; warn unless we already warned for this size.
+            BufSizeWarnInfo winfo = _instance->getBufSizeWarn(UDPEndpointType);
+            if (!winfo.rcvWarn || winfo.rcvSize != rcvSize)
+            {
+                Warning out(_instance->logger());
+                out << "UDP receive buffer size: requested size of " << rcvSize << " adjusted to " << _rcvSize;
+                _instance->setRcvBufSizeWarn(UDPEndpointType, rcvSize);
+            }
+        }
+    }
+
+    int sndDefault = getSendBufferSize(_fd);
+    sndSize = adjustBufferSize(sndSize, sndDefault, "Ice.UDP.SndSize");
+    if (sndSize == sndDefault)
+    {
+        _sndSize = sndDefault;
+    }
+    else
+    {
+        setSendBufferSize(_fd, sndSize);
+        _sndSize = getSendBufferSize(_fd);
+        if (_sndSize < sndSize)
+        {
+            BufSizeWarnInfo winfo = _instance->getBufSizeWarn(UDPEndpointType);
+            if (!winfo.sndWarn || winfo.sndSize != sndSize)
+            {
+                Warning out(_instance->logger());
+                out << "UDP send buffer size: requested size of " << sndSize << " adjusted to " << _sndSize;
+                _instance->setSndBufSizeWarn(UDPEndpointType, sndSize);
+            }
+        }
+    }
 }
 
 int
@@ -615,8 +668,15 @@ IceInternal::UdpTransceiver::UdpTransceiver(
       _write(SocketOperationWrite)
 #endif
 {
+    int rcvSize = _instance->properties()->getIcePropertyAsInt("Ice.UDP.RcvSize");
+    int sndSize = _instance->properties()->getIcePropertyAsInt("Ice.UDP.SndSize");
     _fd = createSocket(true, _addr);
-    setBufSize(-1, -1);
+
+    // Sets _rcvSize and _sndSize:
+    setBufferSize(rcvSize, sndSize);
+    assert(_rcvSize >= _udpOverhead + headerSize);
+    assert(_sndSize >= _udpOverhead + headerSize);
+
     setBlock(_fd, false);
 
     _mcastAddr.saStorage.ss_family = AF_UNSPEC;
@@ -683,8 +743,15 @@ IceInternal::UdpTransceiver::UdpTransceiver(
       _write(SocketOperationWrite)
 #endif
 {
+    int rcvSize = _instance->properties()->getIcePropertyAsInt("Ice.UDP.RcvSize");
+    int sndSize = _instance->properties()->getIcePropertyAsInt("Ice.UDP.SndSize");
     _fd = createServerSocket(true, _addr, instance->protocolSupport());
-    setBufSize(-1, -1);
+
+    // Sets _rcvSize and _sndSize:
+    setBufferSize(rcvSize, sndSize);
+    assert(_rcvSize >= _udpOverhead + headerSize);
+    assert(_sndSize >= _udpOverhead + headerSize);
+
     setBlock(_fd, false);
 
     memset(&_mcastAddr.saStorage, 0, sizeof(sockaddr_storage));
@@ -695,122 +762,23 @@ IceInternal::UdpTransceiver::UdpTransceiver(
 
 IceInternal::UdpTransceiver::~UdpTransceiver() { assert(_fd == INVALID_SOCKET); }
 
-//
-// Set UDP receive and send buffer sizes.
-//
-void
-IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
+int
+IceInternal::UdpTransceiver::adjustBufferSize(int sizeRequested, int defaultSize, string_view prop)
 {
-    assert(_fd != INVALID_SOCKET);
-
-    for (int i = 0; i < 2; ++i)
+    if (sizeRequested == 0)
     {
-        bool isSnd;
-        string direction;
-        string prop;
-        int* addr;
-        int dfltSize;
-        int sizeRequested;
-        if (i == 0)
-        {
-            isSnd = false;
-            direction = "receive";
-            prop = "Ice.UDP.RcvSize";
-            addr = &_rcvSize;
-            dfltSize = getRecvBufferSize(_fd);
-            sizeRequested = rcvSize;
-        }
-        else
-        {
-            isSnd = true;
-            direction = "send";
-            prop = "Ice.UDP.SndSize";
-            addr = &_sndSize;
-            dfltSize = getSendBufferSize(_fd);
-            sizeRequested = sndSize;
-        }
-
-        if (dfltSize <= 0)
-        {
-            dfltSize = _maxPacketSize;
-        }
-        *addr = dfltSize;
-
-        //
-        // Get property for buffer size if size not passed in.
-        //
-        if (sizeRequested == -1)
-        {
-            try
-            {
-                sizeRequested = _instance->properties()->getPropertyAsIntWithDefault(prop, dfltSize);
-            }
-            catch (const Ice::PropertyException&)
-            {
-                // getPropertyAsIntWithDefault throws if the property is set to a non-integer value.
-                closeSocketNoThrow(_fd);
-                _fd = INVALID_SOCKET;
-                throw;
-            }
-        }
-        //
-        // Check for sanity.
-        //
-        if (sizeRequested < (_udpOverhead + headerSize))
-        {
-            Warning out(_instance->logger());
-            out << "Invalid " << prop << " value of " << sizeRequested << " adjusted to " << dfltSize;
-            sizeRequested = dfltSize;
-        }
-
-        if (sizeRequested != dfltSize)
-        {
-            //
-            // Try to set the buffer size. The kernel will silently adjust
-            // the size to an acceptable value. Then read the size back to
-            // get the size that was actually set.
-            //
-            if (i == 0)
-            {
-                setRecvBufferSize(_fd, sizeRequested);
-                *addr = getRecvBufferSize(_fd);
-            }
-            else
-            {
-                setSendBufferSize(_fd, sizeRequested);
-                *addr = getSendBufferSize(_fd);
-            }
-
-            //
-            // Warn if the size that was set is less than the requested size and
-            // we have not already warned.
-            //
-            if (*addr == 0) // set buffer size not supported.
-            {
-                *addr = sizeRequested;
-            }
-            else if (*addr < sizeRequested)
-            {
-                BufSizeWarnInfo winfo = _instance->getBufSizeWarn(UDPEndpointType);
-                if ((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested)) ||
-                    (!isSnd && (!winfo.rcvWarn || winfo.rcvSize != sizeRequested)))
-                {
-                    Warning out(_instance->logger());
-                    out << "UDP " << direction << " buffer size: requested size of " << sizeRequested << " adjusted to "
-                        << *addr;
-
-                    if (isSnd)
-                    {
-                        _instance->setSndBufSizeWarn(UDPEndpointType, sizeRequested);
-                    }
-                    else
-                    {
-                        _instance->setRcvBufSizeWarn(UDPEndpointType, sizeRequested);
-                    }
-                }
-            }
-        }
+        // 0 (the property default) means we want the default size.
+        return defaultSize;
     }
+
+    if (sizeRequested < _udpOverhead + headerSize)
+    {
+        Warning out(_instance->logger());
+        out << "Invalid " << prop << " value of " << sizeRequested << " adjusted to " << defaultSize;
+        return defaultSize;
+    }
+
+    return sizeRequested;
 }
 
 //

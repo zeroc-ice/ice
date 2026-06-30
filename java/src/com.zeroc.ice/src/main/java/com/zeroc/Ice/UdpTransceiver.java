@@ -261,7 +261,48 @@ final class UdpTransceiver implements Transceiver {
 
     @Override
     public synchronized void setBufferSize(int rcvSize, int sndSize) {
-        setBufSize(rcvSize, sndSize);
+        assert (_fd != null);
+
+        // The default size is the size currently configured on the socket. We don't set the buffer size when the
+        // requested size matches the default: re-setting it would needlessly grow the buffer on systems (e.g. Linux)
+        // where the kernel doubles the value on each set.
+
+        int rcvDefault = Network.getRecvBufferSize(_fd);
+        rcvSize = adjustBufferSize(rcvSize, rcvDefault, "Ice.UDP.RcvSize");
+        if (rcvSize == rcvDefault) {
+            _rcvSize = rcvDefault;
+        } else {
+            // The kernel silently adjusts the size to an acceptable value, so read it back to get the size actually
+            // set.
+            Network.setRecvBufferSize(_fd, rcvSize);
+            _rcvSize = Network.getRecvBufferSize(_fd);
+            if (_rcvSize < rcvSize) {
+                // The kernel reduced the requested size; warn unless we already warned for this size.
+                BufSizeWarnInfo winfo = _instance.getBufSizeWarn(UDPEndpointType.value);
+                if (!winfo.rcvWarn || winfo.rcvSize != rcvSize) {
+                    _instance.logger().warning(
+                        "UDP receive buffer size: requested size of " + rcvSize + " adjusted to " + _rcvSize);
+                    _instance.setRcvBufSizeWarn(UDPEndpointType.value, rcvSize);
+                }
+            }
+        }
+
+        int sndDefault = Network.getSendBufferSize(_fd);
+        sndSize = adjustBufferSize(sndSize, sndDefault, "Ice.UDP.SndSize");
+        if (sndSize == sndDefault) {
+            _sndSize = sndDefault;
+        } else {
+            Network.setSendBufferSize(_fd, sndSize);
+            _sndSize = Network.getSendBufferSize(_fd);
+            if (_sndSize < sndSize) {
+                BufSizeWarnInfo winfo = _instance.getBufSizeWarn(UDPEndpointType.value);
+                if (!winfo.sndWarn || winfo.sndSize != sndSize) {
+                    _instance.logger().warning(
+                        "UDP send buffer size: requested size of " + sndSize + " adjusted to " + _sndSize);
+                    _instance.setSndBufSizeWarn(UDPEndpointType.value, sndSize);
+                }
+            }
+        }
     }
 
     public final int effectivePort() {
@@ -281,9 +322,17 @@ final class UdpTransceiver implements Transceiver {
         _state = StateNeedConnect;
         _addr = addr;
 
+        int rcvSize = _instance.properties().getIcePropertyAsInt("Ice.UDP.RcvSize");
+        int sndSize = _instance.properties().getIcePropertyAsInt("Ice.UDP.SndSize");
+
         try {
             _fd = Network.createUdpSocket(_addr);
-            setBufSize(-1, -1);
+
+            // Sets _rcvSize and _sndSize:
+            setBufferSize(rcvSize, sndSize);
+            assert _rcvSize >= _udpOverhead + Protocol.headerSize;
+            assert _sndSize >= _udpOverhead + Protocol.headerSize;
+
             Network.setBlock(_fd, false);
             //
             // NOTE: setting the multicast interface before performing the
@@ -324,9 +373,17 @@ final class UdpTransceiver implements Transceiver {
         _addr = addr;
         _port = addr.getPort();
 
+        int rcvSize = _instance.properties().getIcePropertyAsInt("Ice.UDP.RcvSize");
+        int sndSize = _instance.properties().getIcePropertyAsInt("Ice.UDP.SndSize");
+
         try {
             _fd = Network.createUdpSocket(_addr);
-            setBufSize(-1, -1);
+
+            // Sets _rcvSize and _sndSize:
+            setBufferSize(rcvSize, sndSize);
+            assert _rcvSize >= _udpOverhead + Protocol.headerSize;
+            assert _sndSize >= _udpOverhead + Protocol.headerSize;
+
             Network.setBlock(_fd, false);
         } catch (LocalException ex) {
             if (_fd != null) {
@@ -337,74 +394,19 @@ final class UdpTransceiver implements Transceiver {
         }
     }
 
-    private void setBufSize(int rcvSize, int sndSize) {
-        assert (_fd != null);
-
-        for (int i = 0; i < 2; i++) {
-            boolean isSnd;
-            String direction;
-            String prop;
-            int dfltSize;
-            int sizeRequested;
-            if (i == 0) {
-                isSnd = false;
-                direction = "receive";
-                prop = "Ice.UDP.RcvSize";
-                dfltSize = Network.getRecvBufferSize(_fd);
-                sizeRequested = rcvSize;
-                _rcvSize = dfltSize;
-            } else {
-                isSnd = true;
-                direction = "send";
-                prop = "Ice.UDP.SndSize";
-                dfltSize = Network.getSendBufferSize(_fd);
-                sizeRequested = sndSize;
-                _sndSize = dfltSize;
-            }
-
-            // Get property for buffer size if size not passed in.
-            if (sizeRequested == -1) {
-                sizeRequested = _instance.properties().getPropertyAsIntWithDefault(prop, dfltSize);
-            }
-            // Check for sanity.
-            if (sizeRequested < (_udpOverhead + Protocol.headerSize)) {
-                String msg = "Invalid " + prop + " value of " + sizeRequested + " adjusted to " + dfltSize;
-                _instance.logger().warning(msg);
-                sizeRequested = dfltSize;
-            }
-
-            if (sizeRequested != dfltSize) {
-                // Try to set the buffer size. The kernel will silently adjust the size to an
-                // acceptable value. Then read the size back to get the size that was actually set.
-                int sizeSet;
-                if (i == 0) {
-                    Network.setRecvBufferSize(_fd, sizeRequested);
-                    _rcvSize = Network.getRecvBufferSize(_fd);
-                    sizeSet = _rcvSize;
-                } else {
-                    Network.setSendBufferSize(_fd, sizeRequested);
-                    _sndSize = Network.getSendBufferSize(_fd);
-                    sizeSet = _sndSize;
-                }
-
-                // Warn if the size that was set is less than the requested size and we have not already warned
-                if (sizeSet < sizeRequested) {
-                    BufSizeWarnInfo winfo = _instance.getBufSizeWarn(UDPEndpointType.value);
-                    if ((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested))
-                        || (!isSnd && (!winfo.rcvWarn || winfo.rcvSize != sizeRequested))) {
-                        String msg = "UDP " + direction + " buffer size: requested size of " + sizeRequested
-                            + " adjusted to " + sizeSet;
-                        _instance.logger().warning(msg);
-
-                        if (isSnd) {
-                            _instance.setSndBufSizeWarn(UDPEndpointType.value, sizeRequested);
-                        } else {
-                            _instance.setRcvBufSizeWarn(UDPEndpointType.value, sizeRequested);
-                        }
-                    }
-                }
-            }
+    private int adjustBufferSize(int sizeRequested, int defaultSize, String prop) {
+        if (sizeRequested == 0) {
+            // 0 (the property default) means we want the default size.
+            return defaultSize;
         }
+
+        if (sizeRequested < (_udpOverhead + Protocol.headerSize)) {
+            _instance.logger().warning(
+                "Invalid " + prop + " value of " + sizeRequested + " adjusted to " + defaultSize);
+            return defaultSize;
+        }
+
+        return sizeRequested;
     }
 
     private UdpEndpointI _endpoint;
