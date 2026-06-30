@@ -107,6 +107,11 @@ OpenSSL::SSLEngine::initialize()
 
         _password = properties->getIceProperty("IceSSL.Password");
 
+        // Register the password callback so IceSSL.Password is used when loading an encrypted PEM private key.
+        // Without it, OpenSSL falls back to its default tty prompt.
+        SSL_CTX_set_default_passwd_cb(_ctx, Ice_SSL_opensslPasswordCallback);
+        SSL_CTX_set_default_passwd_cb_userdata(_ctx, this);
+
         // Establish the location of CA certificates.
         {
             string path = properties->getIceProperty("IceSSL.CAs");
