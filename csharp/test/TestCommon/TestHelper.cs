@@ -159,6 +159,16 @@ public abstract class AllTests
             throw new Exception();
         }
     }
+
+    // Like test(bool), but includes a message in the thrown exception to aid diagnosing intermittent failures.
+    protected static void test(bool b, string message)
+    {
+        if (!b)
+        {
+            Debug.Assert(false, message);
+            throw new Exception(message);
+        }
+    }
 }
 
 public static class TestDriver
