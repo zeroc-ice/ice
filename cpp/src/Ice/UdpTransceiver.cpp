@@ -671,7 +671,12 @@ IceInternal::UdpTransceiver::UdpTransceiver(
     int rcvSize = _instance->properties()->getIcePropertyAsInt("Ice.UDP.RcvSize");
     int sndSize = _instance->properties()->getIcePropertyAsInt("Ice.UDP.SndSize");
     _fd = createSocket(true, _addr);
+
+    // Sets _rcvSize and _sndSize:
     setBufferSize(rcvSize, sndSize);
+    assert(_rcvSize >= _udpOverhead + headerSize);
+    assert(_sndSize >= _udpOverhead + headerSize);
+
     setBlock(_fd, false);
 
     _mcastAddr.saStorage.ss_family = AF_UNSPEC;
@@ -741,7 +746,12 @@ IceInternal::UdpTransceiver::UdpTransceiver(
     int rcvSize = _instance->properties()->getIcePropertyAsInt("Ice.UDP.RcvSize");
     int sndSize = _instance->properties()->getIcePropertyAsInt("Ice.UDP.SndSize");
     _fd = createServerSocket(true, _addr, instance->protocolSupport());
+
+    // Sets _rcvSize and _sndSize:
     setBufferSize(rcvSize, sndSize);
+    assert(_rcvSize >= _udpOverhead + headerSize);
+    assert(_sndSize >= _udpOverhead + headerSize);
+
     setBlock(_fd, false);
 
     memset(&_mcastAddr.saStorage, 0, sizeof(sockaddr_storage));

@@ -685,7 +685,12 @@ internal sealed class UdpTransceiver : Transceiver
         try
         {
             _fd = Network.createSocket(true, _addr.AddressFamily);
+
+            // Sets _rcvSize and _sndSize:
             setBufferSize(rcvSize, sndSize);
+            Debug.Assert(_rcvSize >= _udpOverhead + Protocol.headerSize);
+            Debug.Assert(_sndSize >= _udpOverhead + Protocol.headerSize);
+
             Network.setBlock(_fd, false);
             if (Network.isMulticast((IPEndPoint)_addr))
             {
@@ -742,7 +747,12 @@ internal sealed class UdpTransceiver : Transceiver
             _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
 
             _fd = Network.createServerSocket(true, _addr.AddressFamily, instance.protocolSupport());
+
+            // Sets _rcvSize and _sndSize:
             setBufferSize(rcvSize, sndSize);
+            Debug.Assert(_rcvSize >= _udpOverhead + Protocol.headerSize);
+            Debug.Assert(_sndSize >= _udpOverhead + Protocol.headerSize);
+
             Network.setBlock(_fd, false);
         }
         catch (Ice.LocalException)

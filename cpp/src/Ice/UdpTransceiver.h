@@ -74,8 +74,8 @@ namespace IceInternal
 #endif
 
         State _state;
-        int _rcvSize;
-        int _sndSize;
+        int _rcvSize{0};
+        int _sndSize{0};
         static const int _udpOverhead;
         static const int _maxPacketSize;
 

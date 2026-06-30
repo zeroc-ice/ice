@@ -327,7 +327,12 @@ final class UdpTransceiver implements Transceiver {
 
         try {
             _fd = Network.createUdpSocket(_addr);
+
+            // Sets _rcvSize and _sndSize:
             setBufferSize(rcvSize, sndSize);
+            assert _rcvSize >= _udpOverhead + Protocol.headerSize;
+            assert _sndSize >= _udpOverhead + Protocol.headerSize;
+
             Network.setBlock(_fd, false);
             //
             // NOTE: setting the multicast interface before performing the
@@ -373,7 +378,12 @@ final class UdpTransceiver implements Transceiver {
 
         try {
             _fd = Network.createUdpSocket(_addr);
+
+            // Sets _rcvSize and _sndSize:
             setBufferSize(rcvSize, sndSize);
+            assert _rcvSize >= _udpOverhead + Protocol.headerSize;
+            assert _sndSize >= _udpOverhead + Protocol.headerSize;
+
             Network.setBlock(_fd, false);
         } catch (LocalException ex) {
             if (_fd != null) {
