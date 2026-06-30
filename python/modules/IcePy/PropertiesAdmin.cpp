@@ -107,8 +107,7 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
                     if (!obj.get())
                     {
                         assert(PyErr_Occurred());
-                        // The update callback raised. Propagate the exception out of setProperties (aborting the
-                        // dispatch and skipping any remaining callbacks), matching the C++, C#, and Java mappings.
+                        // The update callback raised.
                         throwPythonException();
                     }
                 });
