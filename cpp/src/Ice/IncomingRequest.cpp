@@ -40,6 +40,10 @@ IncomingRequest::IncomingRequest(
 
     uint8_t mode;
     inputStream.read(mode);
+    if (mode > static_cast<uint8_t>(OperationMode::Idempotent))
+    {
+        throw MarshalException{__FILE__, __LINE__, "received invalid operation mode"};
+    }
     _current.mode = static_cast<OperationMode>(mode);
 
     int32_t sz = inputStream.readSize();
