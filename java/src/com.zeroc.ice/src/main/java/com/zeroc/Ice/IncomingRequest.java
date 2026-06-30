@@ -46,7 +46,7 @@ public final class IncomingRequest {
             facet = facetPath[0];
         }
         String operation = inputStream.readString();
-        OperationMode mode = OperationMode.valueOf(inputStream.readByte());
+        OperationMode mode = OperationMode.ice_read(inputStream);
         Map<String, String> ctx = new HashMap<>();
         int sz = inputStream.readSize();
         while (sz-- > 0) {
