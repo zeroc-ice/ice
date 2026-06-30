@@ -27,7 +27,7 @@ namespace
         Ice::CommunicatorHolder communicator = Ice::initialize();
         communicator->getProperties()->setProperty("TestAdapter.Endpoints", endpoint1);
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-        adapter->add(std::make_shared<MyDerivedClassI>(), Ice::stringToIdentity("test"));
+        adapter->add(std::make_shared<MyDerivedInterfaceI>(), Ice::stringToIdentity("test"));
         // Don't activate OA to ensure collocation is used.
 
         auto prx = Ice::ObjectPrx{communicator.communicator(), "test:" + endpoint1};
@@ -47,12 +47,12 @@ Collocated::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPrx prx = adapter->add(std::make_shared<MyDerivedClassI>(), Ice::stringToIdentity("test"));
+    Ice::ObjectPrx prx = adapter->add(std::make_shared<MyDerivedInterfaceI>(), Ice::stringToIdentity("test"));
     // adapter->activate(); // Don't activate OA to ensure collocation is used.
 
     test(!prx->ice_getConnection());
 
-    Test::MyClassPrx allTests(Test::TestHelper*);
+    Test::MyInterfacePrx allTests(Test::TestHelper*);
     allTests(this);
 
     testCollocatedIPv6Invocation(this);

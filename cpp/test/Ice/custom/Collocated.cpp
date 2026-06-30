@@ -25,8 +25,8 @@ Collocated::run(int argc, char** argv)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(std::make_shared<TestIntfI>(), Ice::stringToIdentity("TEST"));
-    adapter->add(make_shared<Test1::WstringClassI>(), Ice::stringToIdentity("WSTRING1"));
-    adapter->add(make_shared<Test2::WstringClassI>(), Ice::stringToIdentity("WSTRING2"));
+    adapter->add(make_shared<Test1::WstringInterfaceI>(), Ice::stringToIdentity("WSTRING1"));
+    adapter->add(make_shared<Test2::WstringInterfaceI>(), Ice::stringToIdentity("WSTRING2"));
 
     Test::TestIntfPrx allTests(Test::TestHelper*);
     allTests(this);

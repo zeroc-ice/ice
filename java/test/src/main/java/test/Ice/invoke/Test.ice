@@ -5,10 +5,9 @@
 ["java:identifier:test.Ice.invoke.Test"]
 module Test
 {
-    exception MyException
-    {}
+    exception MyException {}
 
-    interface MyClass
+    interface MyInterface
     {
         void opOneway();
 

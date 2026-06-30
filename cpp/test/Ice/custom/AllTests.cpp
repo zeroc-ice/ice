@@ -1632,11 +1632,11 @@ allTests(TestHelper* helper)
     Test2::WstringWStringDict wdict2;
     wdict2 = wdict1;
 
-    Test1::WstringClassPrx wsc1(
+    Test1::WstringInterfacePrx wsc1(
         communicator,
         communicator->getProperties()->getPropertyWithDefault("Custom.WstringProxy1", "wstring1:" + endp));
 
-    Test2::WstringClassPrx wsc2(
+    Test2::WstringInterfacePrx wsc2(
         communicator,
         communicator->getProperties()->getPropertyWithDefault("Custom.WstringProxy2", "wstring2:" + endp));
 

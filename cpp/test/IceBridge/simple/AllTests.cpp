@@ -38,7 +38,9 @@ allTests(Test::TestHelper* helper)
     auto communicator = helper->communicator();
     cout << "testing connection to bridge... " << flush;
 
-    Test::MyClassPrx cl(communicator, "test:" + helper->getTestEndpoint(1) + ":" + helper->getTestEndpoint(1, "udp"));
+    Test::MyInterfacePrx cl(
+        communicator,
+        "test:" + helper->getTestEndpoint(1) + ":" + helper->getTestEndpoint(1, "udp"));
     cl->ice_ping();
     cout << "ok" << endl;
 
@@ -59,7 +61,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing connection close... " << flush;
     {
-        Test::MyClassPrx clc = cl->ice_fixed(cl->ice_getConnection());
+        Test::MyInterfacePrx clc = cl->ice_fixed(cl->ice_getConnection());
         clc->ice_ping();
         clc->closeConnection(false);
         int nRetry = 20;
@@ -188,7 +190,7 @@ allTests(Test::TestHelper* helper)
     {
         Ice::RouterFinderPrx finder(communicator, "Ice/RouterFinder:" + helper->getTestEndpoint(1));
         auto router = finder->getRouter();
-        auto p = Test::MyClassPrx(communicator, "test")->ice_router(router);
+        auto p = Test::MyInterfacePrx(communicator, "test")->ice_router(router);
         p->ice_ping();
     }
     cout << "ok" << endl;

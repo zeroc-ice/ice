@@ -6,7 +6,7 @@ public static class TwowaysAMI
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
-    internal static async Task twowaysAMI(global::Test.TestHelper helper, Test.MyClassPrx p)
+    internal static async Task twowaysAMI(global::Test.TestHelper helper, Test.MyInterfacePrx p)
     {
         Communicator communicator = helper.communicator();
         {
@@ -14,7 +14,7 @@ public static class TwowaysAMI
         }
 
         {
-            bool result = await p.ice_isAAsync(Test.MyClassDisp_.ice_staticId());
+            bool result = await p.ice_isAAsync(Test.MyInterfaceDisp_.ice_staticId());
             test(result);
         }
 
@@ -25,7 +25,7 @@ public static class TwowaysAMI
 
         {
             string result = await p.ice_idAsync();
-            test(result == Test.MyDerivedClassDisp_.ice_staticId());
+            test(result == Test.MyDerivedInterfaceDisp_.ice_staticId());
         }
 
         {
@@ -33,19 +33,19 @@ public static class TwowaysAMI
         }
 
         {
-            Test.MyClass_OpByteResult result = await p.opByteAsync(0xff, 0x0f);
+            Test.MyInterface_OpByteResult result = await p.opByteAsync(0xff, 0x0f);
             test(result.p3 == 0xf0);
             test(result.returnValue == 0xff);
         }
 
         {
-            Test.MyClass_OpBoolResult result = await p.opBoolAsync(true, false);
+            Test.MyInterface_OpBoolResult result = await p.opBoolAsync(true, false);
             test(result.p3);
             test(!result.returnValue);
         }
 
         {
-            Test.MyClass_OpShortIntLongResult result = await p.opShortIntLongAsync(10, 11, 12);
+            Test.MyInterface_OpShortIntLongResult result = await p.opShortIntLongAsync(10, 11, 12);
             test(result.p4 == 10);
             test(result.p5 == 11);
             test(result.p6 == 12);
@@ -53,26 +53,26 @@ public static class TwowaysAMI
         }
 
         {
-            Test.MyClass_OpFloatDoubleResult result = await p.opFloatDoubleAsync(3.14f, 1.1E10);
+            Test.MyInterface_OpFloatDoubleResult result = await p.opFloatDoubleAsync(3.14f, 1.1E10);
             test(result.p3 == 3.14f);
             test(result.p4 == 1.1e10);
             test(result.returnValue == 1.1e10);
         }
 
         {
-            Test.MyClass_OpStringResult result = await p.opStringAsync("hello", "world");
+            Test.MyInterface_OpStringResult result = await p.opStringAsync("hello", "world");
             test(result.p3 == "world hello");
             test(result.returnValue == "hello world");
         }
 
         {
-            Test.MyClass_OpMyEnumResult result = p.opMyEnumAsync(Test.MyEnum.enum2).Result;
+            Test.MyInterface_OpMyEnumResult result = p.opMyEnumAsync(Test.MyEnum.enum2).Result;
             test(result.p2 == Test.MyEnum.enum2);
             test(result.returnValue == Test.MyEnum.enum3);
         }
 
         {
-            Test.MyClass_OpMyClassResult ret = p.opMyClassAsync(p).Result;
+            Test.MyInterface_OpMyInterfaceResult ret = p.opMyInterfaceAsync(p).Result;
             test(ret.p2.ice_getIdentity().Equals(Util.stringToIdentity("test")));
             test(ret.p3.ice_getIdentity().Equals(Util.stringToIdentity("noSuchIdentity")));
             test(ret.returnValue.ice_getIdentity().Equals(Util.stringToIdentity("test")));
@@ -105,7 +105,7 @@ public static class TwowaysAMI
             si2.e = Test.MyEnum.enum2;
             si2.s.s = "def";
 
-            Test.MyClass_OpStructResult ret = p.opStructAsync(si1, si2).Result;
+            Test.MyInterface_OpStructResult ret = p.opStructAsync(si1, si2).Result;
             test(ret.returnValue.p == null);
             test(ret.returnValue.e == Test.MyEnum.enum2);
             test(ret.returnValue.s.s == "def");
@@ -125,7 +125,7 @@ public static class TwowaysAMI
             byte[] bsi1 = [0x01, 0x11, 0x12, 0x22];
             byte[] bsi2 = [0xf1, 0xf2, 0xf3, 0xf4];
 
-            Test.MyClass_OpByteSResult ret = p.opByteSAsync(bsi1, bsi2).Result;
+            Test.MyInterface_OpByteSResult ret = p.opByteSAsync(bsi1, bsi2).Result;
             test(ret.p3.Length == 4);
             test(ret.p3[0] == 0x22);
             test(ret.p3[1] == 0x12);
@@ -146,7 +146,7 @@ public static class TwowaysAMI
             bool[] bsi1 = [true, true, false];
             bool[] bsi2 = [false];
 
-            Test.MyClass_OpBoolSResult result = p.opBoolSAsync(bsi1, bsi2).Result;
+            Test.MyInterface_OpBoolSResult result = p.opBoolSAsync(bsi1, bsi2).Result;
             test(result.p3.Length == 4);
             test(result.p3[0]);
             test(result.p3[1]);
@@ -163,7 +163,7 @@ public static class TwowaysAMI
             int[] isi = [5, 6, 7, 8];
             long[] lsi = [10, 30, 20];
 
-            Test.MyClass_OpShortIntLongSResult ret = p.opShortIntLongSAsync(ssi, isi, lsi).Result;
+            Test.MyInterface_OpShortIntLongSResult ret = p.opShortIntLongSAsync(ssi, isi, lsi).Result;
             test(ret.p4.Length == 3);
             test(ret.p4[0] == 1);
             test(ret.p4[1] == 2);
@@ -190,7 +190,7 @@ public static class TwowaysAMI
             float[] fsi = [3.14f, 1.11f];
             double[] dsi = [1.1e10, 1.2e10, 1.3e10];
 
-            Test.MyClass_OpFloatDoubleSResult result = p.opFloatDoubleSAsync(fsi, dsi).Result;
+            Test.MyInterface_OpFloatDoubleSResult result = p.opFloatDoubleSAsync(fsi, dsi).Result;
             test(result.p3.Length == 2);
             test(result.p3[0] == 3.14f);
             test(result.p3[1] == 1.11f);
@@ -210,7 +210,7 @@ public static class TwowaysAMI
             string[] ssi1 = ["abc", "de", "fghi"];
             string[] ssi2 = ["xyz"];
 
-            Test.MyClass_OpStringSResult result = await p.opStringSAsync(ssi1, ssi2);
+            Test.MyInterface_OpStringSResult result = await p.opStringSAsync(ssi1, ssi2);
             test(result.p3.Length == 4);
             test(result.p3[0] == "abc");
             test(result.p3[1] == "de");
@@ -231,7 +231,7 @@ public static class TwowaysAMI
             byte[] s22 = [0xf2, 0xf1];
             byte[][] bsi2 = [s21, s22];
 
-            Test.MyClass_OpByteSSResult ret = p.opByteSSAsync(bsi1, bsi2).Result;
+            Test.MyInterface_OpByteSSResult ret = p.opByteSSAsync(bsi1, bsi2).Result;
             test(ret.p3.Length == 2);
             test(ret.p3[0].Length == 1);
             test(ret.p3[0][0] == 0xff);
@@ -262,7 +262,7 @@ public static class TwowaysAMI
             bool[] s21 = [false, false, true];
             bool[][] bsi2 = [s21];
 
-            Test.MyClass_OpBoolSSResult ret = p.opBoolSSAsync(bsi1, bsi2).Result;
+            Test.MyInterface_OpBoolSSResult ret = p.opBoolSSAsync(bsi1, bsi2).Result;
             test(ret.p3.Length == 4);
             test(ret.p3[0].Length == 1);
             test(ret.p3[0][0]);
@@ -298,7 +298,7 @@ public static class TwowaysAMI
             long[] l11 = [496, 1729];
             long[][] lsi = [l11];
 
-            Test.MyClass_OpShortIntLongSSResult result = await p.opShortIntLongSSAsync(ssi, isi, lsi);
+            Test.MyInterface_OpShortIntLongSSResult result = await p.opShortIntLongSSAsync(ssi, isi, lsi);
             test(result.returnValue.Length == 1);
             test(result.returnValue[0].Length == 2);
             test(result.returnValue[0][0] == 496);
@@ -335,7 +335,7 @@ public static class TwowaysAMI
             double[] d11 = [1.1e10, 1.2e10, 1.3e10];
             double[][] dsi = [d11];
 
-            Test.MyClass_OpFloatDoubleSSResult result = await p.opFloatDoubleSSAsync(fsi, dsi);
+            Test.MyInterface_OpFloatDoubleSSResult result = await p.opFloatDoubleSSAsync(fsi, dsi);
             test(result.p3.Length == 3);
             test(result.p3[0].Length == 1);
             test(result.p3[0][0] == 3.14f);
@@ -368,7 +368,7 @@ public static class TwowaysAMI
             string[] s23 = ["xyz"];
             string[][] ssi2 = [s21, s22, s23];
 
-            Test.MyClass_OpStringSSResult result = await p.opStringSSAsync(ssi1, ssi2);
+            Test.MyInterface_OpStringSSResult result = await p.opStringSSAsync(ssi1, ssi2);
             test(result.p3.Length == 5);
             test(result.p3[0].Length == 1);
             test(result.p3[0][0] == "abc");
@@ -402,7 +402,7 @@ public static class TwowaysAMI
             string[][] ss23 = [];
             string[][][] sssi2 = [ss21, ss22, ss23];
 
-            Test.MyClass_OpStringSSSResult result = p.opStringSSSAsync(sssi1, sssi2).Result;
+            Test.MyInterface_OpStringSSSResult result = p.opStringSSSAsync(sssi1, sssi2).Result;
             test(result.p3.Length == 5);
             test(result.p3[0].Length == 2);
             test(result.p3[0][0].Length == 2);
@@ -451,7 +451,7 @@ public static class TwowaysAMI
                 [101] = true
             };
 
-            Test.MyClass_OpByteBoolDResult result = p.opByteBoolDAsync(di1, di2).Result;
+            Test.MyInterface_OpByteBoolDResult result = p.opByteBoolDAsync(di1, di2).Result;
 
             test(Internal.DictionaryExtensions.DictionaryEqual(result.p3, di1));
             test(Internal.DictionaryExtensions.DictionaryEqual(result.returnValue, di2));
@@ -471,7 +471,7 @@ public static class TwowaysAMI
                 [1101] = 0
             };
 
-            Test.MyClass_OpShortIntDResult result = await p.opShortIntDAsync(di1, di2);
+            Test.MyInterface_OpShortIntDResult result = await p.opShortIntDAsync(di1, di2);
 
             test(Internal.DictionaryExtensions.DictionaryEqual(result.p3, di1));
             test(Internal.DictionaryExtensions.DictionaryEqual(result.returnValue, di2));
@@ -491,7 +491,7 @@ public static class TwowaysAMI
                 [999999130L] = 0.5f
             };
 
-            Test.MyClass_OpLongFloatDResult result = p.opLongFloatDAsync(di1, di2).Result;
+            Test.MyInterface_OpLongFloatDResult result = p.opLongFloatDAsync(di1, di2).Result;
 
             test(Internal.DictionaryExtensions.DictionaryEqual(result.p3, di1));
             test(Internal.DictionaryExtensions.DictionaryEqual(result.returnValue, di2));
@@ -511,7 +511,7 @@ public static class TwowaysAMI
                 ["BAR"] = "abc 0.5"
             };
 
-            Test.MyClass_OpStringStringDResult result = p.opStringStringDAsync(di1, di2).Result;
+            Test.MyInterface_OpStringStringDResult result = p.opStringStringDAsync(di1, di2).Result;
 
             test(Internal.DictionaryExtensions.DictionaryEqual(result.p3, di1));
             test(Internal.DictionaryExtensions.DictionaryEqual(result.returnValue, di2));
@@ -531,7 +531,7 @@ public static class TwowaysAMI
                 ["Hello!!"] = Test.MyEnum.enum2
             };
 
-            Test.MyClass_OpStringMyEnumDResult result = p.opStringMyEnumDAsync(di1, di2).Result;
+            Test.MyInterface_OpStringMyEnumDResult result = p.opStringMyEnumDAsync(di1, di2).Result;
 
             test(Internal.DictionaryExtensions.DictionaryEqual(result.p3, di1));
             test(Internal.DictionaryExtensions.DictionaryEqual(result.returnValue, di2));
@@ -549,7 +549,7 @@ public static class TwowaysAMI
                 [Test.MyEnum.enum3] = "qwerty"
             };
 
-            Test.MyClass_OpMyEnumStringDResult result = await p.opMyEnumStringDAsync(di1, di2);
+            Test.MyInterface_OpMyEnumStringDResult result = await p.opMyEnumStringDAsync(di1, di2);
 
             test(Internal.DictionaryExtensions.DictionaryEqual(result.p3, di1));
             test(Internal.DictionaryExtensions.DictionaryEqual(result.returnValue, di2));
@@ -573,7 +573,7 @@ public static class TwowaysAMI
                 [s23] = Test.MyEnum.enum2
             };
 
-            Test.MyClass_OpMyStructMyEnumDResult result = await p.opMyStructMyEnumDAsync(di1, di2);
+            Test.MyInterface_OpMyStructMyEnumDResult result = await p.opMyStructMyEnumDAsync(di1, di2);
             di2[s12] = Test.MyEnum.enum2;
 
             test(Internal.DictionaryExtensions.DictionaryEqual(result.p3, di1));
@@ -607,7 +607,7 @@ public static class TwowaysAMI
             dsi1[1] = di2;
             dsi2[0] = di3;
 
-            Test.MyClass_OpByteBoolDSResult result = await p.opByteBoolDSAsync(dsi1, dsi2);
+            Test.MyInterface_OpByteBoolDSResult result = await p.opByteBoolDSAsync(dsi1, dsi2);
 
             test(result.returnValue.Length == 2);
             test(result.returnValue[0].Count == 3);
@@ -655,7 +655,7 @@ public static class TwowaysAMI
             dsi1[1] = di2;
             dsi2[0] = di3;
 
-            Test.MyClass_OpShortIntDSResult result = p.opShortIntDSAsync(dsi1, dsi2).Result;
+            Test.MyInterface_OpShortIntDSResult result = p.opShortIntDSAsync(dsi1, dsi2).Result;
 
             test(result.returnValue.Length == 2);
             test(result.returnValue[0].Count == 3);
@@ -702,7 +702,7 @@ public static class TwowaysAMI
             dsi1[1] = di2;
             dsi2[0] = di3;
 
-            Test.MyClass_OpLongFloatDSResult result = await p.opLongFloatDSAsync(dsi1, dsi2);
+            Test.MyInterface_OpLongFloatDSResult result = await p.opLongFloatDSAsync(dsi1, dsi2);
 
             test(result.returnValue.Length == 2);
             test(result.returnValue[0].Count == 3);
@@ -749,7 +749,7 @@ public static class TwowaysAMI
             dsi1[1] = di2;
             dsi2[0] = di3;
 
-            Test.MyClass_OpStringStringDSResult result = p.opStringStringDSAsync(dsi1, dsi2).Result;
+            Test.MyInterface_OpStringStringDSResult result = p.opStringStringDSAsync(dsi1, dsi2).Result;
 
             test(result.returnValue.Length == 2);
             test(result.returnValue[0].Count == 3);
@@ -796,7 +796,7 @@ public static class TwowaysAMI
             dsi1[1] = di2;
             dsi2[0] = di3;
 
-            Test.MyClass_OpStringMyEnumDSResult result = await p.opStringMyEnumDSAsync(dsi1, dsi2);
+            Test.MyInterface_OpStringMyEnumDSResult result = await p.opStringMyEnumDSAsync(dsi1, dsi2);
 
             test(result.returnValue.Length == 2);
             test(result.returnValue[0].Count == 3);
@@ -841,7 +841,7 @@ public static class TwowaysAMI
             dsi1[1] = di2;
             dsi2[0] = di3;
 
-            Test.MyClass_OpMyEnumStringDSResult result = await p.opMyEnumStringDSAsync(dsi1, dsi2);
+            Test.MyInterface_OpMyEnumStringDSResult result = await p.opMyEnumStringDSAsync(dsi1, dsi2);
 
             test(result.returnValue.Length == 2);
             test(result.returnValue[0].Count == 2);
@@ -890,7 +890,7 @@ public static class TwowaysAMI
             dsi1[1] = di2;
             dsi2[0] = di3;
 
-            Test.MyClass_OpMyStructMyEnumDSResult result = await p.opMyStructMyEnumDSAsync(dsi1, dsi2);
+            Test.MyInterface_OpMyStructMyEnumDSResult result = await p.opMyStructMyEnumDSAsync(dsi1, dsi2);
 
             test(result.returnValue.Length == 2);
             test(result.returnValue[0].Count == 3);
@@ -925,7 +925,7 @@ public static class TwowaysAMI
             sdi1[0x22] = si2;
             sdi2[0xf1] = si3;
 
-            Test.MyClass_OpByteByteSDResult result = await p.opByteByteSDAsync(sdi1, sdi2);
+            Test.MyInterface_OpByteByteSDResult result = await p.opByteByteSDAsync(sdi1, sdi2);
 
             test(result.p3.Count == 1);
             test(result.p3[0xf1].Length == 2);
@@ -954,7 +954,7 @@ public static class TwowaysAMI
             sdi1[true] = si2;
             sdi2[false] = si1;
 
-            Test.MyClass_OpBoolBoolSDResult result = await p.opBoolBoolSDAsync(sdi1, sdi2);
+            Test.MyInterface_OpBoolBoolSDResult result = await p.opBoolBoolSDAsync(sdi1, sdi2);
 
             test(result.p3.Count == 1);
             test(result.p3[false].Length == 2);
@@ -982,7 +982,7 @@ public static class TwowaysAMI
             sdi1[2] = si2;
             sdi2[4] = si3;
 
-            Test.MyClass_OpShortShortSDResult result = await p.opShortShortSDAsync(sdi1, sdi2);
+            Test.MyInterface_OpShortShortSDResult result = await p.opShortShortSDAsync(sdi1, sdi2);
 
             test(result.p3.Count == 1);
             test(result.p3[4].Length == 2);
@@ -1014,7 +1014,7 @@ public static class TwowaysAMI
             sdi1[200] = si2;
             sdi2[400] = si3;
 
-            Test.MyClass_OpIntIntSDResult result = await p.opIntIntSDAsync(sdi1, sdi2);
+            Test.MyInterface_OpIntIntSDResult result = await p.opIntIntSDAsync(sdi1, sdi2);
 
             test(result.p3.Count == 1);
             test(result.p3[400].Length == 2);
@@ -1046,7 +1046,7 @@ public static class TwowaysAMI
             sdi1[999999991L] = si2;
             sdi2[999999992L] = si3;
 
-            Test.MyClass_OpLongLongSDResult result = await p.opLongLongSDAsync(sdi1, sdi2);
+            Test.MyInterface_OpLongLongSDResult result = await p.opLongLongSDAsync(sdi1, sdi2);
 
             test(result.p3.Count == 1);
             test(result.p3[999999992L].Length == 2);
@@ -1077,7 +1077,7 @@ public static class TwowaysAMI
             sdi1["ABC"] = si2;
             sdi2["aBc"] = si3;
 
-            Test.MyClass_OpStringFloatSDResult result = await p.opStringFloatSDAsync(sdi1, sdi2);
+            Test.MyInterface_OpStringFloatSDResult result = await p.opStringFloatSDAsync(sdi1, sdi2);
 
             test(result.p3.Count == 1);
             test(result.p3["aBc"].Length == 2);
@@ -1109,7 +1109,7 @@ public static class TwowaysAMI
             sdi1["Goodbye"] = si2;
             sdi2[""] = si3;
 
-            Test.MyClass_OpStringDoubleSDResult result = await p.opStringDoubleSDAsync(sdi1, sdi2);
+            Test.MyInterface_OpStringDoubleSDResult result = await p.opStringDoubleSDAsync(sdi1, sdi2);
 
             test(result.p3.Count == 1);
             test(result.p3[""].Length == 2);
@@ -1140,7 +1140,7 @@ public static class TwowaysAMI
             sdi1["def"] = si2;
             sdi2["ghi"] = si3;
 
-            Test.MyClass_OpStringStringSDResult result = await p.opStringStringSDAsync(sdi1, sdi2);
+            Test.MyInterface_OpStringStringSDResult result = await p.opStringStringSDAsync(sdi1, sdi2);
 
             test(result.p3.Count == 1);
             test(result.p3["ghi"].Length == 2);
@@ -1172,7 +1172,7 @@ public static class TwowaysAMI
             sdi1[Test.MyEnum.enum2] = si2;
             sdi2[Test.MyEnum.enum1] = si3;
 
-            Test.MyClass_OpMyEnumMyEnumSDResult result = await p.opMyEnumMyEnumSDAsync(sdi1, sdi2);
+            Test.MyInterface_OpMyEnumMyEnumSDResult result = await p.opMyEnumMyEnumSDAsync(sdi1, sdi2);
 
             test(result.p3.Count == 1);
             test(result.p3[Test.MyEnum.enum1].Length == 2);
@@ -1229,13 +1229,13 @@ public static class TwowaysAMI
                 test(Internal.DictionaryExtensions.DictionaryEqual(result, ctx));
             }
             {
-                Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+                Test.MyInterfacePrx p2 = Test.MyInterfacePrxHelper.checkedCast(p.ice_context(ctx));
                 test(Internal.DictionaryExtensions.DictionaryEqual(p2.ice_getContext(), ctx));
                 Dictionary<string, string> result = await p2.opContextAsync();
                 test(Internal.DictionaryExtensions.DictionaryEqual(result, ctx));
             }
             {
-                Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+                Test.MyInterfacePrx p2 = Test.MyInterfacePrxHelper.checkedCast(p.ice_context(ctx));
                 Dictionary<string, string> result = await p2.opContextAsync(ctx);
                 test(Internal.DictionaryExtensions.DictionaryEqual(result, ctx));
             }
@@ -1262,7 +1262,7 @@ public static class TwowaysAMI
                     ["three"] = "THREE"
                 };
 
-                Test.MyClassPrx p3 = Test.MyClassPrxHelper.createProxy(ic, "test:" + helper.getTestEndpoint(0));
+                Test.MyInterfacePrx p3 = Test.MyInterfacePrxHelper.createProxy(ic, "test:" + helper.getTestEndpoint(0));
 
                 ic.getImplicitContext().setContext(ctx);
                 test(Internal.DictionaryExtensions.DictionaryEqual(ic.getImplicitContext().getContext(), ctx));
@@ -1297,7 +1297,7 @@ public static class TwowaysAMI
                 }
                 test(combined["one"] == "UN");
 
-                p3 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(prxContext));
+                p3 = Test.MyInterfacePrxHelper.uncheckedCast(p.ice_context(prxContext));
 
                 ic.getImplicitContext().setContext(null);
                 {
@@ -1316,7 +1316,7 @@ public static class TwowaysAMI
         }
 
         {
-            Test.MyDerivedClassPrx derived = Test.MyDerivedClassPrxHelper.checkedCast(p);
+            Test.MyDerivedInterfacePrx derived = Test.MyDerivedInterfacePrxHelper.checkedCast(p);
             test(derived != null);
             derived.opDerivedAsync().Wait();
         }

@@ -8,15 +8,15 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-Test::MyClassPrx
+Test::MyInterfacePrx
 allTests(Test::TestHelper* helper)
 {
     static const string testString = "This is a test string";
 
     CommunicatorPtr communicator = helper->communicator();
-    Test::MyClassPrx cl(communicator, "test:" + helper->getTestEndpoint());
-    Test::MyClassPrx oneway = cl->ice_oneway();
-    Test::MyClassPrx batchOneway = cl->ice_batchOneway();
+    Test::MyInterfacePrx cl(communicator, "test:" + helper->getTestEndpoint());
+    Test::MyInterfacePrx oneway = cl->ice_oneway();
+    Test::MyInterfacePrx batchOneway = cl->ice_batchOneway();
 
     cout << "testing ice_invoke... " << flush;
 

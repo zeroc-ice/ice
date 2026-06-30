@@ -7,21 +7,21 @@
 ["java:identifier:test.Ice.proxy.Test"]
 module Test
 {
-    interface MyClass
+    interface MyInterface
     {
         void shutdown();
 
         Ice::Context getContext();
     }
 
-    interface MyDerivedClass extends MyClass
+    interface MyDerivedInterface extends MyInterface
     {
         Object* echo(Object* obj);
     }
 
-    interface MyOtherDerivedClass extends MyClass {}
+    interface MyOtherDerivedInterface extends MyInterface {}
 
-    interface DiamondClass extends MyDerivedClass, MyOtherDerivedClass {}
+    interface DiamondInterface extends MyDerivedInterface, MyOtherDerivedInterface {}
 
     interface A
     {

@@ -7,7 +7,7 @@ import com.zeroc.Ice.OperationNotExistException;
 import test.Ice.seqMapping.Serialize.Large;
 import test.Ice.seqMapping.Serialize.Small;
 import test.Ice.seqMapping.Serialize.Struct;
-import test.Ice.seqMapping.Test.MyClassPrx;
+import test.Ice.seqMapping.Test.MyInterfacePrx;
 
 class TwowaysAMI {
     private static void test(boolean b) {
@@ -41,7 +41,7 @@ class TwowaysAMI {
         private boolean _called;
     }
 
-    static void twowaysAMI(MyClassPrx p) {
+    static void twowaysAMI(MyInterfacePrx p) {
         {
             Small i = null;
 

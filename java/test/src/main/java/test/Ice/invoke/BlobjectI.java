@@ -52,7 +52,7 @@ public class BlobjectI implements Blobject {
             return r;
         } else if ("ice_isA".equals(current.operation)) {
             String s = in.readString();
-            if ("::Test::MyClass".equals(s)) {
+            if ("::Test::MyInterface".equals(s)) {
                 out.writeBool(true);
             } else {
                 out.writeBool(false);

@@ -4,7 +4,7 @@ import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
 import { test } from "../../Common/TestHelper.js";
 
-export class MyDerivedClassI extends Test.MyDerivedClass {
+export class MyDerivedInterfaceI extends Test.MyDerivedInterface {
     _opByteSOnewayCount: number;
     _endpoints: Ice.Endpoint[];
     constructor(endpoints: Ice.Endpoint[]) {
@@ -100,10 +100,15 @@ export class MyDerivedClassI extends Test.MyDerivedClass {
         return [r, p1];
     }
 
-    opMyClass(p1: Test.MyClassPrx, current: Ice.Current): [Test.MyClassPrx, Test.MyClassPrx, Test.MyClassPrx] {
+    opMyInterface(
+        p1: Test.MyInterfacePrx,
+        current: Ice.Current,
+    ): [Test.MyInterfacePrx, Test.MyInterfacePrx, Test.MyInterfacePrx] {
         const p2 = p1;
-        const p3 = Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")));
-        const r = Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
+        const p3 = Test.MyInterfacePrx.uncheckedCast(
+            current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity"))
+        );
+        const r = Test.MyInterfacePrx.uncheckedCast(current.adapter.createProxy(current.id));
         return [r.ice_endpoints(this._endpoints), p2, p3.ice_endpoints(this._endpoints)];
     }
 
@@ -459,7 +464,7 @@ export class MyDerivedClassI extends Test.MyDerivedClass {
         return value;
     }
 
-    opMyClass1(value: Test.MyClass1, _: Ice.Current): Test.MyClass1 {
+    opMyClass(value: Test.MyClass, _: Ice.Current): Test.MyClass {
         return value;
     }
 

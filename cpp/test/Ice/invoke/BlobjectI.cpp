@@ -55,7 +55,7 @@ invokeInternal(InputStream& in, vector<byte>& outEncaps, const Current& current)
         in.startEncapsulation();
         in.read(s);
         in.endEncapsulation();
-        if (s == "::Test::MyClass")
+        if (s == "::Test::MyInterface")
         {
             out.write(true);
         }

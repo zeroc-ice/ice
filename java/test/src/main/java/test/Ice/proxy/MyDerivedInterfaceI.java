@@ -5,12 +5,12 @@ package test.Ice.proxy;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.ObjectPrx;
 
-import test.Ice.proxy.Test.MyDerivedClass;
+import test.Ice.proxy.Test.MyDerivedInterface;
 
 import java.util.Map;
 
-public final class MyDerivedClassI implements MyDerivedClass {
-    public MyDerivedClassI() {}
+public final class MyDerivedInterfaceI implements MyDerivedInterface {
+    public MyDerivedInterfaceI() {}
 
     @Override
     public ObjectPrx echo(ObjectPrx obj, Current c) {
@@ -30,7 +30,7 @@ public final class MyDerivedClassI implements MyDerivedClass {
     @Override
     public boolean ice_isA(String s, Current current) {
         _ctx = current.ctx;
-        return MyDerivedClass.super.ice_isA(s, current);
+        return MyDerivedInterface.super.ice_isA(s, current);
     }
 
     private Map<String, String> _ctx;

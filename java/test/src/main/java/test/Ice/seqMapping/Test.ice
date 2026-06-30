@@ -9,7 +9,7 @@ module Test
     ["java:serializable:test.Ice.seqMapping.Serialize.Large"] sequence<byte> SerialLarge;
     ["java:serializable:test.Ice.seqMapping.Serialize.Struct"] sequence<byte> SerialStruct;
 
-    interface MyClass
+    interface MyInterface
     {
         void shutdown();
 

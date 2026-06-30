@@ -5,11 +5,11 @@ package test.Ice.operations;
 import test.TestHelper;
 import test.Ice.operations.Test.AnotherStruct;
 import test.Ice.operations.Test.MyClass;
-import test.Ice.operations.Test.MyClass1;
-import test.Ice.operations.Test.MyClassPrx;
-import test.Ice.operations.Test.MyDerivedClass;
-import test.Ice.operations.Test.MyDerivedClassPrx;
+import test.Ice.operations.Test.MyDerivedInterface;
+import test.Ice.operations.Test.MyDerivedInterfacePrx;
 import test.Ice.operations.Test.MyEnum;
+import test.Ice.operations.Test.MyInterface;
+import test.Ice.operations.Test.MyInterfacePrx;
 import test.Ice.operations.Test.MyStruct;
 import test.Ice.operations.Test.MyStruct1;
 import test.Ice.operations.Test.Structure;
@@ -73,7 +73,7 @@ class Twoways {
     }
 
     static class PerThreadContextInvokeThread extends Thread {
-        public PerThreadContextInvokeThread(MyClassPrx proxy) {
+        public PerThreadContextInvokeThread(MyInterfacePrx proxy) {
             _proxy = proxy;
         }
 
@@ -87,10 +87,10 @@ class Twoways {
             test(_proxy.opContext().equals(ctx));
         }
 
-        private final MyClassPrx _proxy;
+        private final MyInterfacePrx _proxy;
     }
 
-    static void twoways(TestHelper helper, MyClassPrx p) {
+    static void twoways(TestHelper helper, MyInterfacePrx p) {
         Communicator communicator = helper.communicator();
         final boolean bluetooth =
             communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
@@ -187,11 +187,11 @@ class Twoways {
         //CHECKSTYLE:ON: AvoidEscapedUnicodeCharacters
         p.ice_ping();
 
-        test(p.ice_isA(MyClass.ice_staticId()));
+        test(p.ice_isA(MyInterface.ice_staticId()));
 
-        test(p.ice_id().equals(MyDerivedClass.ice_staticId()));
+        test(p.ice_id().equals(MyDerivedInterface.ice_staticId()));
 
-        test(MyDerivedClassPrx.ice_staticId().equals(MyDerivedClass.ice_staticId()));
+        test(MyDerivedInterfacePrx.ice_staticId().equals(MyDerivedInterface.ice_staticId()));
         test(ObjectPrx.ice_staticId().equals(Object.ice_staticId()));
         test(LocatorPrx.ice_staticId().equals(Locator.ice_staticId()));
 
@@ -199,8 +199,8 @@ class Twoways {
             String[] ids = p.ice_ids();
             test(ids.length == 3);
             test("::Ice::Object".equals(ids[0]));
-            test("::Test::MyClass".equals(ids[1]));
-            test("::Test::MyDerivedClass".equals(ids[2]));
+            test("::Test::MyDerivedInterface".equals(ids[1]));
+            test("::Test::MyInterface".equals(ids[2]));
         }
 
         {
@@ -208,19 +208,19 @@ class Twoways {
         }
 
         {
-            MyClass.OpByteResult r = p.opByte((byte) 0xff, (byte) 0x0f);
+            MyInterface.OpByteResult r = p.opByte((byte) 0xff, (byte) 0x0f);
             test(r.p3 == (byte) 0xf0);
             test(r.returnValue == (byte) 0xff);
         }
 
         {
-            MyClass.OpBoolResult r = p.opBool(true, false);
+            MyInterface.OpBoolResult r = p.opBool(true, false);
             test(r.p3);
             test(!r.returnValue);
         }
 
         {
-            MyClass.OpShortIntLongResult r = p.opShortIntLong((short) 10, 11, 12L);
+            MyInterface.OpShortIntLongResult r = p.opShortIntLong((short) 10, 11, 12L);
             test(r.p4 == 10);
             test(r.p5 == 11);
             test(r.p6 == 12);
@@ -240,7 +240,7 @@ class Twoways {
         }
 
         {
-            MyClass.OpFloatDoubleResult r = p.opFloatDouble(3.14f, 1.1E10);
+            MyInterface.OpFloatDoubleResult r = p.opFloatDouble(3.14f, 1.1E10);
             test(r.p3 == 3.14f);
             test(r.p4 == 1.1E10);
             test(r.returnValue == 1.1E10);
@@ -257,19 +257,19 @@ class Twoways {
         }
 
         {
-            MyClass.OpStringResult r = p.opString("hello", "world");
+            MyInterface.OpStringResult r = p.opString("hello", "world");
             test("world hello".equals(r.p3));
             test("hello world".equals(r.returnValue));
         }
 
         {
-            MyClass.OpMyEnumResult r = p.opMyEnum(MyEnum.enum2);
+            MyInterface.OpMyEnumResult r = p.opMyEnum(MyEnum.enum2);
             test(r.p2 == MyEnum.enum2);
             test(r.returnValue == MyEnum.enum3);
         }
 
         {
-            MyClass.OpMyClassResult r = p.opMyClass(p);
+            MyInterface.OpMyInterfaceResult r = p.opMyInterface(p);
             test(Util.proxyIdentityAndFacetCompare(r.p2, p) == 0);
             test(Util.proxyIdentityAndFacetCompare(r.p3, p) != 0);
             test(Util.proxyIdentityAndFacetCompare(r.returnValue, p) == 0);
@@ -288,7 +288,7 @@ class Twoways {
                 test(false);
             } catch (ObjectNotExistException ex) {}
 
-            r = p.opMyClass(null);
+            r = p.opMyInterface(null);
             test(r.p2 == null);
             test(r.p3 != null);
             test(Util.proxyIdentityAndFacetCompare(r.returnValue, p) == 0);
@@ -307,7 +307,7 @@ class Twoways {
             si2.s = new AnotherStruct();
             si2.s.s = "def";
 
-            MyClass.OpStructResult r = p.opStruct(si1, si2);
+            MyInterface.OpStructResult r = p.opStruct(si1, si2);
             test(r.returnValue.p == null);
             test(r.returnValue.e == MyEnum.enum2);
             test("def".equals(r.returnValue.s.s));
@@ -334,7 +334,7 @@ class Twoways {
             final byte[] bsi1 = {(byte) 0x01, (byte) 0x11, (byte) 0x12, (byte) 0x22};
             final byte[] bsi2 = {(byte) 0xf1, (byte) 0xf2, (byte) 0xf3, (byte) 0xf4};
 
-            MyClass.OpByteSResult r = p.opByteS(bsi1, bsi2);
+            MyInterface.OpByteSResult r = p.opByteS(bsi1, bsi2);
             test(r.p3.length == 4);
             test(r.p3[0] == (byte) 0x22);
             test(r.p3[1] == (byte) 0x12);
@@ -355,7 +355,7 @@ class Twoways {
             final boolean[] bsi1 = {true, true, false};
             final boolean[] bsi2 = {false};
 
-            MyClass.OpBoolSResult r = p.opBoolS(bsi1, bsi2);
+            MyInterface.OpBoolSResult r = p.opBoolS(bsi1, bsi2);
             test(r.p3.length == 4);
             test(r.p3[0]);
             test(r.p3[1]);
@@ -372,7 +372,7 @@ class Twoways {
             final int[] isi = {5, 6, 7, 8};
             final long[] lsi = {10, 30, 20};
 
-            MyClass.OpShortIntLongSResult r = p.opShortIntLongS(ssi, isi, lsi);
+            MyInterface.OpShortIntLongSResult r = p.opShortIntLongS(ssi, isi, lsi);
             test(r.p4.length == 3);
             test(r.p4[0] == 1);
             test(r.p4[1] == 2);
@@ -399,7 +399,7 @@ class Twoways {
             final float[] fsi = {3.14f, 1.11f};
             final double[] dsi = {1.1E10, 1.2E10, 1.3E10};
 
-            MyClass.OpFloatDoubleSResult r = p.opFloatDoubleS(fsi, dsi);
+            MyInterface.OpFloatDoubleSResult r = p.opFloatDoubleS(fsi, dsi);
             test(r.p3.length == 2);
             test(r.p3[0] == 3.14f);
             test(r.p3[1] == 1.11f);
@@ -419,7 +419,7 @@ class Twoways {
             final String[] ssi1 = {"abc", "de", "fghi"};
             final String[] ssi2 = {"xyz"};
 
-            MyClass.OpStringSResult r = p.opStringS(ssi1, ssi2);
+            MyInterface.OpStringSResult r = p.opStringS(ssi1, ssi2);
             test(r.p3.length == 4);
             test("abc".equals(r.p3[0]));
             test("de".equals(r.p3[1]));
@@ -438,7 +438,7 @@ class Twoways {
             };
             final byte[][] bsi2 = {{(byte) 0x0e}, {(byte) 0xf2, (byte) 0xf1}};
 
-            MyClass.OpByteSSResult r = p.opByteSS(bsi1, bsi2);
+            MyInterface.OpByteSSResult r = p.opByteSS(bsi1, bsi2);
             test(r.p3.length == 2);
             test(r.p3[0].length == 1);
             test(r.p3[0][0] == (byte) 0xff);
@@ -465,7 +465,7 @@ class Twoways {
 
             final boolean[][] bsi2 = {{false, false, true}};
 
-            MyClass.OpBoolSSResult r = p.opBoolSS(bsi1, bsi2);
+            MyInterface.OpBoolSSResult r = p.opBoolSS(bsi1, bsi2);
             test(r.p3.length == 4);
             test(r.p3[0].length == 1);
             test(r.p3[0][0]);
@@ -502,7 +502,7 @@ class Twoways {
                 {496, 1729},
             };
 
-            MyClass.OpShortIntLongSSResult r = p.opShortIntLongSS(ssi, isi, lsi);
+            MyInterface.OpShortIntLongSSResult r = p.opShortIntLongSS(ssi, isi, lsi);
             test(r.returnValue.length == 1);
             test(r.returnValue[0].length == 2);
             test(r.returnValue[0][0] == 496);
@@ -536,7 +536,7 @@ class Twoways {
             };
             final double[][] dsi = {{1.1E10, 1.2E10, 1.3E10}};
 
-            MyClass.OpFloatDoubleSSResult r = p.opFloatDoubleSS(fsi, dsi);
+            MyInterface.OpFloatDoubleSSResult r = p.opFloatDoubleSS(fsi, dsi);
             test(r.p3.length == 3);
             test(r.p3[0].length == 1);
             test(r.p3[0][0] == 3.14f);
@@ -563,7 +563,7 @@ class Twoways {
             final String[][] ssi1 = {{"abc"}, {"de", "fghi"}};
             final String[][] ssi2 = {{}, {}, {"xyz"}};
 
-            MyClass.OpStringSSResult r = p.opStringSS(ssi1, ssi2);
+            MyInterface.OpStringSSResult r = p.opStringSS(ssi1, ssi2);
             test(r.p3.length == 5);
             test(r.p3[0].length == 1);
             test("abc".equals(r.p3[0][0]));
@@ -599,7 +599,7 @@ class Twoways {
                 {}
             };
 
-            MyClass.OpStringSSSResult r = p.opStringSSS(sssi1, sssi2);
+            MyInterface.OpStringSSSResult r = p.opStringSSS(sssi1, sssi2);
             test(r.p3.length == 5);
             test(r.p3[0].length == 2);
             test(r.p3[0][0].length == 2);
@@ -643,7 +643,7 @@ class Twoways {
             di2.put((byte) 11, Boolean.FALSE);
             di2.put((byte) 101, Boolean.TRUE);
 
-            MyClass.OpByteBoolDResult r = p.opByteBoolD(di1, di2);
+            MyInterface.OpByteBoolDResult r = p.opByteBoolD(di1, di2);
 
             test(r.p3.equals(di1));
             test(r.returnValue.size() == 4);
@@ -662,7 +662,7 @@ class Twoways {
             di2.put((short) 111, -100);
             di2.put((short) 1101, 0);
 
-            MyClass.OpShortIntDResult r = p.opShortIntD(di1, di2);
+            MyInterface.OpShortIntDResult r = p.opShortIntD(di1, di2);
 
             test(r.p3.equals(di1));
             test(r.returnValue.size() == 4);
@@ -681,7 +681,7 @@ class Twoways {
             di2.put(999999120L, -100.4f);
             di2.put(999999130L, 0.5f);
 
-            MyClass.OpLongFloatDResult r = p.opLongFloatD(di1, di2);
+            MyInterface.OpLongFloatDResult r = p.opLongFloatD(di1, di2);
 
             test(r.p3.equals(di1));
             test(r.returnValue.size() == 4);
@@ -700,7 +700,7 @@ class Twoways {
             di2.put("FOO", "abc -100.4");
             di2.put("BAR", "abc 0.5");
 
-            MyClass.OpStringStringDResult r = p.opStringStringD(di1, di2);
+            MyInterface.OpStringStringDResult r = p.opStringStringD(di1, di2);
 
             test(r.p3.equals(di1));
             test(r.returnValue.size() == 4);
@@ -719,7 +719,7 @@ class Twoways {
             di2.put("qwerty", MyEnum.enum3);
             di2.put("Hello!!", MyEnum.enum2);
 
-            MyClass.OpStringMyEnumDResult r = p.opStringMyEnumD(di1, di2);
+            MyInterface.OpStringMyEnumDResult r = p.opStringMyEnumD(di1, di2);
 
             test(r.p3.equals(di1));
             test(r.returnValue.size() == 4);
@@ -736,7 +736,7 @@ class Twoways {
             di2.put(MyEnum.enum2, "Hello!!");
             di2.put(MyEnum.enum3, "qwerty");
 
-            MyClass.OpMyEnumStringDResult r = p.opMyEnumStringD(di1, di2);
+            MyInterface.OpMyEnumStringDResult r = p.opMyEnumStringD(di1, di2);
 
             test(r.p3.equals(di1));
             test(r.returnValue.size() == 3);
@@ -759,7 +759,7 @@ class Twoways {
             di2.put(s22, MyEnum.enum3);
             di2.put(s23, MyEnum.enum2);
 
-            MyClass.OpMyStructMyEnumDResult r = p.opMyStructMyEnumD(di1, di2);
+            MyInterface.OpMyStructMyEnumDResult r = p.opMyStructMyEnumD(di1, di2);
 
             test(r.p3.equals(di1));
             test(r.returnValue.size() == 4);
@@ -788,7 +788,7 @@ class Twoways {
             dsi1.add(di2);
             dsi2.add(di3);
 
-            MyClass.OpByteBoolDSResult r = p.opByteBoolDS(dsi1, dsi2);
+            MyInterface.OpByteBoolDSResult r = p.opByteBoolDS(dsi1, dsi2);
 
             test(r.returnValue.size() == 2);
             test(r.returnValue.get(0).size() == 3);
@@ -830,7 +830,7 @@ class Twoways {
             dsi1.add(di2);
             dsi2.add(di3);
 
-            MyClass.OpShortIntDSResult r = p.opShortIntDS(dsi1, dsi2);
+            MyInterface.OpShortIntDSResult r = p.opShortIntDS(dsi1, dsi2);
 
             test(r.returnValue.size() == 2);
             test(r.returnValue.get(0).size() == 3);
@@ -871,7 +871,7 @@ class Twoways {
             dsi1.add(di2);
             dsi2.add(di3);
 
-            MyClass.OpLongFloatDSResult r = p.opLongFloatDS(dsi1, dsi2);
+            MyInterface.OpLongFloatDSResult r = p.opLongFloatDS(dsi1, dsi2);
 
             test(r.returnValue.size() == 2);
             test(r.returnValue.get(0).size() == 3);
@@ -912,7 +912,7 @@ class Twoways {
             dsi1.add(di2);
             dsi2.add(di3);
 
-            MyClass.OpStringStringDSResult r = p.opStringStringDS(dsi1, dsi2);
+            MyInterface.OpStringStringDSResult r = p.opStringStringDS(dsi1, dsi2);
 
             test(r.returnValue.size() == 2);
             test(r.returnValue.get(0).size() == 3);
@@ -953,7 +953,7 @@ class Twoways {
             dsi1.add(di2);
             dsi2.add(di3);
 
-            MyClass.OpStringMyEnumDSResult r = p.opStringMyEnumDS(dsi1, dsi2);
+            MyInterface.OpStringMyEnumDSResult r = p.opStringMyEnumDS(dsi1, dsi2);
 
             test(r.returnValue.size() == 2);
             test(r.returnValue.get(0).size() == 3);
@@ -992,7 +992,7 @@ class Twoways {
             dsi1.add(di2);
             dsi2.add(di3);
 
-            MyClass.OpMyEnumStringDSResult r = p.opMyEnumStringDS(dsi1, dsi2);
+            MyInterface.OpMyEnumStringDSResult r = p.opMyEnumStringDS(dsi1, dsi2);
 
             test(r.returnValue.size() == 2);
             test(r.returnValue.get(0).size() == 2);
@@ -1035,7 +1035,7 @@ class Twoways {
             dsi1.add(di2);
             dsi2.add(di3);
 
-            MyClass.OpMyStructMyEnumDSResult r = p.opMyStructMyEnumDS(dsi1, dsi2);
+            MyInterface.OpMyStructMyEnumDSResult r = p.opMyStructMyEnumDS(dsi1, dsi2);
 
             test(r.returnValue.size() == 2);
             test(r.returnValue.get(0).size() == 3);
@@ -1070,7 +1070,7 @@ class Twoways {
             sdi1.put((byte) 0x22, si2);
             sdi2.put((byte) 0xf1, si3);
 
-            MyClass.OpByteByteSDResult r = p.opByteByteSD(sdi1, sdi2);
+            MyInterface.OpByteByteSDResult r = p.opByteByteSD(sdi1, sdi2);
 
             test(r.p3.size() == 1);
             test(r.p3.get((byte) 0xf1).length == 2);
@@ -1098,7 +1098,7 @@ class Twoways {
             sdi1.put(true, si2);
             sdi2.put(false, si1);
 
-            MyClass.OpBoolBoolSDResult r = p.opBoolBoolSD(sdi1, sdi2);
+            MyInterface.OpBoolBoolSDResult r = p.opBoolBoolSD(sdi1, sdi2);
 
             test(r.p3.size() == 1);
             test(r.p3.get(false).length == 2);
@@ -1126,7 +1126,7 @@ class Twoways {
             sdi1.put((short) 2, si2);
             sdi2.put((short) 4, si3);
 
-            MyClass.OpShortShortSDResult r = p.opShortShortSD(sdi1, sdi2);
+            MyInterface.OpShortShortSDResult r = p.opShortShortSD(sdi1, sdi2);
 
             test(r.p3.size() == 1);
             test(r.p3.get((short) 4).length == 2);
@@ -1157,7 +1157,7 @@ class Twoways {
             sdi1.put(200, si2);
             sdi2.put(400, si3);
 
-            MyClass.OpIntIntSDResult r = p.opIntIntSD(sdi1, sdi2);
+            MyInterface.OpIntIntSDResult r = p.opIntIntSD(sdi1, sdi2);
 
             test(r.p3.size() == 1);
             test(r.p3.get(400).length == 2);
@@ -1188,7 +1188,7 @@ class Twoways {
             sdi1.put(999999991L, si2);
             sdi2.put(999999992L, si3);
 
-            MyClass.OpLongLongSDResult r = p.opLongLongSD(sdi1, sdi2);
+            MyInterface.OpLongLongSDResult r = p.opLongLongSD(sdi1, sdi2);
 
             test(r.p3.size() == 1);
             test(r.p3.get(999999992L).length == 2);
@@ -1219,7 +1219,7 @@ class Twoways {
             sdi1.put("ABC", si2);
             sdi2.put("aBc", si3);
 
-            MyClass.OpStringFloatSDResult r = p.opStringFloatSD(sdi1, sdi2);
+            MyInterface.OpStringFloatSDResult r = p.opStringFloatSD(sdi1, sdi2);
 
             test(r.p3.size() == 1);
             test(r.p3.get("aBc").length == 2);
@@ -1250,7 +1250,7 @@ class Twoways {
             sdi1.put("Goodbye", si2);
             sdi2.put("", si3);
 
-            MyClass.OpStringDoubleSDResult r = p.opStringDoubleSD(sdi1, sdi2);
+            MyInterface.OpStringDoubleSDResult r = p.opStringDoubleSD(sdi1, sdi2);
 
             test(r.p3.size() == 1);
             test(r.p3.get("").length == 2);
@@ -1281,7 +1281,7 @@ class Twoways {
             sdi1.put("def", si2);
             sdi2.put("ghi", si3);
 
-            MyClass.OpStringStringSDResult r = p.opStringStringSD(sdi1, sdi2);
+            MyInterface.OpStringStringSDResult r = p.opStringStringSD(sdi1, sdi2);
 
             test(r.p3.size() == 1);
             test(r.p3.get("ghi").length == 2);
@@ -1312,7 +1312,7 @@ class Twoways {
             sdi1.put(MyEnum.enum2, si2);
             sdi2.put(MyEnum.enum1, si3);
 
-            MyClass.OpMyEnumMyEnumSDResult r = p.opMyEnumMyEnumSD(sdi1, sdi2);
+            MyInterface.OpMyEnumMyEnumSDResult r = p.opMyEnumMyEnumSD(sdi1, sdi2);
 
             test(r.p3.size() == 1);
             test(r.p3.get(MyEnum.enum1).length == 2);
@@ -1363,7 +1363,7 @@ class Twoways {
                 test(r.equals(ctx));
             }
             {
-                MyClassPrx p2 = MyClassPrx.checkedCast(p.ice_context(ctx));
+                MyInterfacePrx p2 = MyInterfacePrx.checkedCast(p.ice_context(ctx));
                 test(p2.ice_getContext().equals(ctx));
                 Map<String, String> r = p2.opContext();
                 test(r.equals(ctx));
@@ -1390,7 +1390,7 @@ class Twoways {
                     ctx.put("three", "THREE");
 
                     var p3 =
-                        MyClassPrx.createProxy(
+                        MyInterfacePrx.createProxy(
                             ic, "test:" + TestHelper.getTestEndpoint(properties, 0, ""));
 
                     ic.getImplicitContext().setContext(ctx);
@@ -1458,28 +1458,28 @@ class Twoways {
         test(p.opStringS2(null).length == 0);
         test(p.opByteBoolD2(null).size() == 0);
 
-        MyDerivedClassPrx d = MyDerivedClassPrx.uncheckedCast(p);
+        MyDerivedInterfacePrx d = MyDerivedInterfacePrx.uncheckedCast(p);
         MyStruct1 s = new MyStruct1();
         s.tesT = "Test.MyStruct1.s";
-        s.myClass = null;
+        s.myInterface = null;
         s.myStruct1 = "Test.MyStruct1.myStruct1";
         s = d.opMyStruct1(s);
         test("Test.MyStruct1.s".equals(s.tesT));
-        test(s.myClass == null);
+        test(s.myInterface == null);
         test("Test.MyStruct1.myStruct1".equals(s.myStruct1));
-        MyClass1 c = new MyClass1();
-        c.tesT = "Test.MyClass1.testT";
-        c.myClass = null;
-        c.myClass1 = "Test.MyClass1.myClass1";
-        c = d.opMyClass1(c);
-        test("Test.MyClass1.testT".equals(c.tesT));
-        test(c.myClass == null);
-        test("Test.MyClass1.myClass1".equals(c.myClass1));
+        MyClass c = new MyClass();
+        c.tesT = "Test.MyClass.testT";
+        c.myInterface = null;
+        c.myClass = "Test.MyClass.myClass";
+        c = d.opMyClass(c);
+        test("Test.MyClass.testT".equals(c.tesT));
+        test(c.myInterface == null);
+        test("Test.MyClass.myClass".equals(c.myClass));
 
         {
             Structure p1 = p.opMStruct1();
             p1.e = MyEnum.enum3;
-            MyClass.OpMStruct2Result r = p.opMStruct2(p1);
+            MyInterface.OpMStruct2Result r = p.opMStruct2(p1);
             test(r.p2.e == p1.e && r.returnValue.e == p1.e);
         }
 
@@ -1488,7 +1488,7 @@ class Twoways {
 
             String[] p1 = new String[1];
             p1[0] = "test";
-            MyClass.OpMSeq2Result r = p.opMSeq2(p1);
+            MyInterface.OpMSeq2Result r = p.opMSeq2(p1);
             test(Arrays.equals(r.p2, p1) && Arrays.equals(r.returnValue, p1));
         }
 
@@ -1497,7 +1497,7 @@ class Twoways {
 
             Map<String, String> p1 = new HashMap<>();
             p1.put("test", "test");
-            MyClass.OpMDict2Result r = p.opMDict2(p1);
+            MyInterface.OpMDict2Result r = p.opMDict2(p1);
             test(r.p2.equals(p1) && r.returnValue.equals(p1));
         }
     }

@@ -18,7 +18,7 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-MyClassPrx
+MyInterfacePrx
 allTests(TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
@@ -837,10 +837,10 @@ allTests(TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    auto cl = Ice::checkedCast<MyClassPrx>(base);
+    auto cl = Ice::checkedCast<MyInterfacePrx>(base);
     test(cl);
 
-    auto derived = Ice::checkedCast<MyDerivedClassPrx>(cl);
+    auto derived = Ice::checkedCast<MyDerivedInterfacePrx>(cl);
     test(derived);
     test(cl == base);
     test(derived == base);
@@ -852,7 +852,7 @@ allTests(TestHelper* helper)
     //
     // Upcasting
     //
-    auto cl2 = Ice::checkedCast<MyClassPrx>(derived);
+    auto cl2 = Ice::checkedCast<MyInterfacePrx>(derived);
     auto obj = Ice::checkedCast<Ice::ObjectPrx>(derived);
     test(cl2);
     test(obj);
@@ -866,7 +866,7 @@ allTests(TestHelper* helper)
 
     ctx["one"] = "hello";
     ctx["two"] = "world";
-    cl = Ice::checkedCast<MyClassPrx>(base, ctx);
+    cl = Ice::checkedCast<MyInterfacePrx>(base, ctx);
     Ice::Context c2 = cl->getContext();
     test(ctx == c2);
 
@@ -883,7 +883,7 @@ allTests(TestHelper* helper)
             if (connection)
             {
                 test(!cl->ice_isFixed());
-                MyClassPrx prx = cl->ice_fixed(connection); // Test factory method return type
+                MyInterfacePrx prx = cl->ice_fixed(connection); // Test factory method return type
                 test(prx->ice_isFixed());
                 prx->ice_ping();
                 test(cl->ice_facet("facet")->ice_fixed(connection)->ice_getFacet() == "facet");
@@ -926,7 +926,7 @@ allTests(TestHelper* helper)
 
     cout << "testing encoding versioning... " << flush;
     string ref20 = "test -e 2.0:" + endp;
-    MyClassPrx cl20(communicator, ref20);
+    MyInterfacePrx cl20(communicator, ref20);
     try
     {
         cl20->ice_ping();
@@ -938,7 +938,7 @@ allTests(TestHelper* helper)
     }
 
     string ref13 = "test -e 1.3:" + endp;
-    MyClassPrx cl13(communicator, ref13);
+    MyInterfacePrx cl13(communicator, ref13);
     try
     {
         cl13->ice_ping();
@@ -950,7 +950,7 @@ allTests(TestHelper* helper)
     }
 
     string ref10 = "test -e 1.0:" + endp;
-    MyClassPrx cl10(communicator, ref10);
+    MyInterfacePrx cl10(communicator, ref10);
     cl10->ice_ping();
     cl10->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
     cl->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
@@ -1006,7 +1006,7 @@ allTests(TestHelper* helper)
     cout << "testing protocol versioning... " << flush;
 
     ref20 = "test -p 2.0:" + endp;
-    cl20 = MyClassPrx(communicator, ref20);
+    cl20 = MyInterfacePrx(communicator, ref20);
     try
     {
         cl20->ice_ping();
@@ -1018,7 +1018,7 @@ allTests(TestHelper* helper)
     }
 
     ref13 = "test -p 1.3:" + endp;
-    cl13 = MyClassPrx(communicator, ref13);
+    cl13 = MyInterfacePrx(communicator, ref13);
     try
     {
         cl13->ice_ping();
@@ -1030,7 +1030,7 @@ allTests(TestHelper* helper)
     }
 
     ref10 = "test -p 1.0:" + endp;
-    cl10 = MyClassPrx(communicator, ref10);
+    cl10 = MyInterfacePrx(communicator, ref10);
     cl10->ice_ping();
 
     cout << "testing opaque endpoints... " << flush;

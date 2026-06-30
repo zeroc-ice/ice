@@ -50,9 +50,9 @@ namespace
 }
 
 void
-onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
+onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyInterfacePrx& proxy)
 {
-    Test::MyClassPrx p = proxy->ice_oneway();
+    Test::MyInterfacePrx p = proxy->ice_oneway();
 
     {
         CallbackPtr cb = std::make_shared<Callback>();
@@ -63,7 +63,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
     {
         try
         {
-            p->ice_isAAsync(Test::MyClass::ice_staticId(), [&](bool) { test(false); });
+            p->ice_isAAsync(Test::MyInterface::ice_staticId(), [&](bool) { test(false); });
             test(false);
         }
         catch (const Ice::TwowayOnlyException&)
@@ -156,7 +156,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
     {
         try
         {
-            p->ice_isAAsync(Test::MyClass::ice_staticId(), nullptr);
+            p->ice_isAAsync(Test::MyInterface::ice_staticId(), nullptr);
             test(false);
         }
         catch (const Ice::TwowayOnlyException&)

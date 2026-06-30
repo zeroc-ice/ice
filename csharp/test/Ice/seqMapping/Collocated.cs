@@ -13,7 +13,7 @@ public class Collocated : TestHelper
         await using Communicator communicator = initialize(initData);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new MyClassI(), Ice.Util.stringToIdentity("test"));
+        adapter.add(new MyInterfaceI(), Ice.Util.stringToIdentity("test"));
         // Don't activate OA to ensure collocation is used.
         await AllTests.allTests(this, true);
     }

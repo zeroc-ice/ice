@@ -6,14 +6,14 @@ module Test
 {
     dictionary<string, string> Context;
 
-    interface MyClass
+    interface MyInterface
     {
         void shutdown();
 
         Context getContext();
     }
 
-    interface MyDerivedClass extends MyClass
+    interface MyDerivedInterface extends MyInterface
     {
         ["php:identifier:_echo"]
         Object* echo(Object* obj);

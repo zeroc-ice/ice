@@ -27,7 +27,7 @@ public class Collocated extends TestHelper {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             ObjectPrx prx =
-                adapter.add(new MyDerivedClassI(), new Identity("test", ""));
+                adapter.add(new MyDerivedInterfaceI(), new Identity("test", ""));
             // adapter.activate(); // Don't activate OA to ensure collocation is used.
 
             if (prx.ice_getConnection() != null) {
@@ -48,7 +48,7 @@ public class Collocated extends TestHelper {
                 .getProperties()
                 .setProperty("TestAdapter.Endpoints", "tcp -h \"0:0:0:0:0:0:0:1\" -p " + port);
             var adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new MyDerivedClassI(), new Identity("test", ""));
+            adapter.add(new MyDerivedInterfaceI(), new Identity("test", ""));
 
             var prx = ObjectPrx.createProxy(communicator, "test:tcp -h \"::1\" -p " + port);
             prx.ice_ping();

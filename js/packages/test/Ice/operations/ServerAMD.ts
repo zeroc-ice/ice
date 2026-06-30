@@ -3,7 +3,7 @@
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
 import { TestHelper } from "../../Common/TestHelper.js";
-import { AMDMyDerivedClassI } from "./AMDMyDerivedClassI.js";
+import { AMDMyDerivedInterfaceI } from "./AMDMyDerivedInterfaceI.js";
 
 export class ServerAMD extends TestHelper {
     async run(args: string[]) {
@@ -18,7 +18,7 @@ export class ServerAMD extends TestHelper {
             [communicator] = this.initialize(properties);
             echo = new Test.EchoPrx(communicator, `__echo:${this.getTestEndpoint()}`);
             const adapter = await communicator.createObjectAdapter("");
-            adapter.add(new AMDMyDerivedClassI(echo.ice_getEndpoints()), Ice.stringToIdentity("test"));
+            adapter.add(new AMDMyDerivedInterfaceI(echo.ice_getEndpoints()), Ice.stringToIdentity("test"));
             await echo.setConnection();
             echo.ice_getCachedConnection().setAdapter(adapter);
             this.serverReady();

@@ -10,10 +10,10 @@ public class Client : TestHelper
     {
         await using Communicator communicator = initialize(ref args);
         TextWriter output = getWriter();
-        Test.MyClassPrx myClass = await AllTests.allTests(this, false);
+        Test.MyInterfacePrx myInterface = await AllTests.allTests(this, false);
         output.Write("shutting down server... ");
         output.Flush();
-        myClass.shutdown();
+        myInterface.shutdown();
         output.WriteLine("ok");
     }
 

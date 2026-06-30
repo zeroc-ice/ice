@@ -9,8 +9,8 @@ public class Client : global::Test.TestHelper
     public override void run(string[] args)
     {
         using Communicator communicator = initialize(ref args);
-        Test.MyClassPrx myClass = AllTests.allTests(this);
-        myClass.shutdown();
+        Test.MyInterfacePrx myInterface = AllTests.allTests(this);
+        myInterface.shutdown();
     }
 
     public static Task<int> Main(string[] args) =>

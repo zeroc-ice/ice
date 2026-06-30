@@ -4,14 +4,14 @@ namespace Ice.dictMapping;
 
 public class AllTests : global::Test.AllTests
 {
-    public static async Task<Test.MyClassPrx> allTests(global::Test.TestHelper helper, bool collocated)
+    public static async Task<Test.MyInterfacePrx> allTests(global::Test.TestHelper helper, bool collocated)
     {
         Communicator communicator = helper.communicator();
         TextWriter output = helper.getWriter();
         output.Flush();
         string rf = "test:" + helper.getTestEndpoint(0);
         ObjectPrx baseProxy = communicator.stringToProxy(rf);
-        Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
+        Test.MyInterfacePrx cl = Test.MyInterfacePrxHelper.checkedCast(baseProxy);
 
         output.Write("testing twoway operations... ");
         output.Flush();

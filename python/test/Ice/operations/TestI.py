@@ -10,7 +10,7 @@ from TestHelper import test
 import Ice
 
 
-class MyDerivedClassI(Test.MyDerivedClass):
+class MyDerivedInterfaceI(Test.MyDerivedInterface):
     def __init__(self):
         self.lock = threading.Lock()
         self.opByteSOnewayCount = 0
@@ -51,13 +51,13 @@ class MyDerivedClassI(Test.MyDerivedClass):
     def opMyEnum(self, p1: Test.MyEnum, current: Ice.Current) -> tuple[Test.MyEnum, Test.MyEnum]:
         return (Test.MyEnum.enum3, p1)
 
-    def opMyClass(
-        self, p1: Test.MyClassPrx | None, current: Ice.Current
-    ) -> tuple[Test.MyClassPrx | None, Test.MyClassPrx | None, Test.MyClassPrx | None]:
+    def opMyInterface(
+        self, p1: Test.MyInterfacePrx | None, current: Ice.Current
+    ) -> tuple[Test.MyInterfacePrx | None, Test.MyInterfacePrx | None, Test.MyInterfacePrx | None]:
         return (
-            Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id)),
+            Test.MyInterfacePrx.uncheckedCast(current.adapter.createProxy(current.id)),
             p1,
-            Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity"))),
+            Test.MyInterfacePrx.uncheckedCast(current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity"))),
         )
 
     @override
@@ -467,8 +467,8 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return byteBoolD
 
     @override
-    def opMyClass1(self, opMyClass1: Test.MyClass1 | None, current: Ice.Current) -> Test.MyClass1 | None:
-        return opMyClass1
+    def opMyClass(self, opMyClass: Test.MyClass | None, current: Ice.Current) -> Test.MyClass | None:
+        return opMyClass
 
     @override
     def opMyStruct1(self, opMyStruct1: Test.MyStruct1, current: Ice.Current) -> Test.MyStruct1:

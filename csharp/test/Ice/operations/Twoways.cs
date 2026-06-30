@@ -8,7 +8,7 @@ internal class Twoways
 
     private class PerThreadContextInvokeThread
     {
-        public PerThreadContextInvokeThread(Test.MyClassPrx proxy) => _proxy = proxy;
+        public PerThreadContextInvokeThread(Test.MyInterfacePrx proxy) => _proxy = proxy;
 
         public void Join() => _thread.Join();
 
@@ -27,11 +27,11 @@ internal class Twoways
             test(Internal.DictionaryExtensions.DictionaryEqual(_proxy.opContext(), ctx));
         }
 
-        private readonly Test.MyClassPrx _proxy;
+        private readonly Test.MyInterfacePrx _proxy;
         private Thread _thread;
     }
 
-    internal static void twoways(global::Test.TestHelper helper, Test.MyClassPrx p)
+    internal static void twoways(global::Test.TestHelper helper, Test.MyInterfacePrx p)
     {
         Ice.Communicator communicator = helper.communicator();
         string[] literals = p.opStringLiterals();
@@ -115,17 +115,17 @@ internal class Twoways
 
         p.ice_ping();
 
-        test(Test.MyClassPrxHelper.ice_staticId() == Test.MyClassDisp_.ice_staticId());
+        test(Test.MyInterfacePrxHelper.ice_staticId() == Test.MyInterfaceDisp_.ice_staticId());
         test(ObjectPrxHelper.ice_staticId() == Object.ice_staticId());
 
-        test(p.ice_isA(Test.MyClassDisp_.ice_staticId()));
-        test(p.ice_id() == Test.MyDerivedClassDisp_.ice_staticId());
+        test(p.ice_isA(Test.MyInterfaceDisp_.ice_staticId()));
+        test(p.ice_id() == Test.MyDerivedInterfaceDisp_.ice_staticId());
         {
             string[] ids = p.ice_ids();
             test(ids.Length == 3);
             test(ids[0] == "::Ice::Object");
-            test(ids[1] == "::Test::MyClass");
-            test(ids[2] == "::Test::MyDerivedClass");
+            test(ids[1] == "::Test::MyDerivedInterface");
+            test(ids[2] == "::Test::MyInterface");
         }
 
         {
@@ -206,9 +206,9 @@ internal class Twoways
         }
 
         {
-            Test.MyClassPrx r;
+            Test.MyInterfacePrx r;
 
-            r = p.opMyClass(p, out Test.MyClassPrx c1, out Test.MyClassPrx c2);
+            r = p.opMyInterface(p, out Test.MyInterfacePrx c1, out Test.MyInterfacePrx c2);
             test(Ice.Util.proxyIdentityAndFacetCompare(c1, p) == 0);
             test(Ice.Util.proxyIdentityAndFacetCompare(c2, p) != 0);
             test(Ice.Util.proxyIdentityAndFacetCompare(r, p) == 0);
@@ -226,7 +226,7 @@ internal class Twoways
             {
             }
 
-            r = p.opMyClass(null, out c1, out c2);
+            r = p.opMyInterface(null, out c1, out c2);
             test(c1 == null);
             test(c2 != null);
             test(Ice.Util.proxyIdentityAndFacetCompare(r, p) == 0);
@@ -1418,7 +1418,7 @@ internal class Twoways
                 test(Internal.DictionaryExtensions.DictionaryEqual(r, ctx));
             }
             {
-                Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+                Test.MyInterfacePrx p2 = Test.MyInterfacePrxHelper.checkedCast(p.ice_context(ctx));
                 test(Internal.DictionaryExtensions.DictionaryEqual(p2.ice_getContext(), ctx));
                 Dictionary<string, string> r = p2.opContext();
                 test(Internal.DictionaryExtensions.DictionaryEqual(r, ctx));
@@ -1449,7 +1449,7 @@ internal class Twoways
                     ["three"] = "THREE"
                 };
 
-                Test.MyClassPrx p3 = Test.MyClassPrxHelper.createProxy(ic, "test:" + helper.getTestEndpoint(0));
+                Test.MyInterfacePrx p3 = Test.MyInterfacePrxHelper.createProxy(ic, "test:" + helper.getTestEndpoint(0));
 
                 ic.getImplicitContext().setContext(ctx);
                 test(Internal.DictionaryExtensions.DictionaryEqual(ic.getImplicitContext().getContext(), ctx));
@@ -1496,7 +1496,7 @@ internal class Twoways
                 }
                 test(combined["one"] == "UN");
 
-                p3 = Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
+                p3 = Test.MyInterfacePrxHelper.uncheckedCast(p3.ice_context(prxContext));
 
                 ic.getImplicitContext().setContext(null);
                 test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContext(), prxContext));
@@ -1509,7 +1509,7 @@ internal class Twoways
                 if (impls[i] == "PerThread")
                 {
                     var thread = new PerThreadContextInvokeThread(
-                        Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(null)));
+                        Test.MyInterfacePrxHelper.uncheckedCast(p3.ice_context(null)));
                     thread.Start();
                     thread.Join();
                 }
@@ -1533,23 +1533,23 @@ internal class Twoways
             test(p.opStringS2(null).Length == 0);
             test(p.opByteBoolD2(null).Count == 0);
 
-            Test.MyDerivedClassPrx d = Test.MyDerivedClassPrxHelper.uncheckedCast(p);
+            Test.MyDerivedInterfacePrx d = Test.MyDerivedInterfacePrxHelper.uncheckedCast(p);
             var s = new Test.MyStruct1();
             s.tesT = "MyStruct1.s";
-            s.myClass = null;
+            s.myInterface = null;
             s.myStruct1 = "MyStruct1.myStruct1";
             s = d.opMyStruct1(s);
             test(s.tesT == "MyStruct1.s");
-            test(s.myClass == null);
+            test(s.myInterface == null);
             test(s.myStruct1 == "MyStruct1.myStruct1");
-            var c = new Test.MyClass1();
-            c.tesT = "MyClass1.testT";
-            c.myClass = null;
-            c.myClass1 = "MyClass1.myClass1";
-            c = d.opMyClass1(c);
-            test(c.tesT == "MyClass1.testT");
-            test(c.myClass == null);
-            test(c.myClass1 == "MyClass1.myClass1");
+            var c = new Test.MyClass();
+            c.tesT = "MyClass.testT";
+            c.myInterface = null;
+            c.myClass = "MyClass.myClass";
+            c = d.opMyClass(c);
+            test(c.tesT == "MyClass.testT");
+            test(c.myInterface == null);
+            test(c.myClass == "MyClass.myClass");
         }
 
         {

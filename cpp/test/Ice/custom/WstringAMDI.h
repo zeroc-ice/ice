@@ -7,7 +7,7 @@
 
 namespace Test1
 {
-    class WstringClassI : public virtual AsyncWstringClass
+    class WstringInterfaceI : public virtual AsyncWstringInterface
     {
     public:
         void opStringAsync(
@@ -32,7 +32,7 @@ namespace Test1
 
 namespace Test2
 {
-    class WstringClassI : public virtual AsyncWstringClass
+    class WstringInterfaceI : public virtual AsyncWstringInterface
     {
     public:
         void opStringAsync(

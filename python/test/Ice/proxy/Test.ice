@@ -7,14 +7,14 @@
 ["python:identifier:generated.test.Ice.proxy.Test"]
 module Test
 {
-    interface MyClass
+    interface MyInterface
     {
         void shutdown();
 
         Ice::Context getContext();
     }
 
-    interface MyDerivedClass extends MyClass
+    interface MyDerivedInterface extends MyInterface
     {
         Object* echo(Object* obj);
     }

@@ -27,6 +27,6 @@ class Server(TestHelper):
         with self.initialize(properties=properties) as communicator:
             communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("TestAdapter")
-            adapter.add(TestI.MyDerivedClassI(), Ice.stringToIdentity("test"))
+            adapter.add(TestI.MyDerivedInterfaceI(), Ice.stringToIdentity("test"))
             adapter.activate()
             communicator.waitForShutdown()

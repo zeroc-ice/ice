@@ -27,7 +27,7 @@ class Server: TestHelperI, @unchecked Sendable {
             key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         try adapter.add(
-            servant: MyDerivedClassI(self), id: Ice.Identity(name: "test"))
+            servant: MyDerivedInterfaceI(self), id: Ice.Identity(name: "test"))
         try adapter.activate()
         serverReady()
         await communicator.shutdownCompleted()

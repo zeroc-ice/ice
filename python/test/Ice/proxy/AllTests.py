@@ -9,7 +9,7 @@ from TestHelper import TestHelper, test
 import Ice
 
 
-def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClassPrx:
+def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyInterfacePrx:
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
 
@@ -663,17 +663,17 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
 
     sys.stdout.write("testing checked cast... ")
     sys.stdout.flush()
-    cl = Test.MyClassPrx.checkedCast(base)
+    cl = Test.MyInterfacePrx.checkedCast(base)
     assert cl is not None
 
-    derived = Test.MyDerivedClassPrx.checkedCast(cl)
+    derived = Test.MyDerivedInterfacePrx.checkedCast(cl)
     assert derived is not None
     test(cl == base)
     test(derived == base)
     test(cl == derived)
 
     try:
-        Test.MyDerivedClassPrx.checkedCast(cl, "facet")
+        Test.MyDerivedInterfacePrx.checkedCast(cl, "facet")
         test(False)
     except Ice.FacetNotExistException:
         pass
@@ -684,7 +684,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
     #
     # Upcasting
     #
-    cl2 = Test.MyClassPrx.checkedCast(derived)
+    cl2 = Test.MyInterfacePrx.checkedCast(derived)
     assert cl2 is not None
     obj = Ice.ObjectPrx.checkedCast(derived)
     assert cl2 is not None
@@ -696,7 +696,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
 
     sys.stdout.write("testing checked cast with context... ")
     sys.stdout.flush()
-    tccp = Test.MyClassPrx.checkedCast(base)
+    tccp = Test.MyInterfacePrx.checkedCast(base)
     assert tccp is not None
     c = tccp.getContext()
     assert c is None or len(c) == 0
@@ -704,7 +704,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
     c = {}
     c["one"] = "hello"
     c["two"] = "world"
-    tccp = Test.MyClassPrx.checkedCast(base, context=c)
+    tccp = Test.MyInterfacePrx.checkedCast(base, context=c)
     assert tccp is not None
     c2 = tccp.getContext()
     test(c == c2)
@@ -748,7 +748,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
     sys.stdout.write("testing encoding versioning... ")
     sys.stdout.flush()
     ref20 = "test -e 2.0:{0}".format(helper.getTestEndpoint())
-    cl20 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref20))
+    cl20 = Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy(ref20))
     assert cl20 is not None
     try:
         cl20.ice_ping()
@@ -758,7 +758,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
         pass
 
     ref10 = "test -e 1.0:{0}".format(helper.getTestEndpoint())
-    cl10 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref10))
+    cl10 = Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy(ref10))
     assert cl10 is not None
     cl10.ice_ping()
     cl10.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()

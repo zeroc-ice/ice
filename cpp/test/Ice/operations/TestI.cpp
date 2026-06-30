@@ -12,42 +12,42 @@ using namespace Ice;
 using namespace Test;
 using namespace std;
 
-MyDerivedClassI::MyDerivedClassI() = default;
+MyDerivedInterfaceI::MyDerivedInterfaceI() = default;
 
 void
-MyDerivedClassI::shutdown(const Ice::Current& current)
+MyDerivedInterfaceI::shutdown(const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
 }
 
 bool
-MyDerivedClassI::supportsCompress(const Ice::Current&)
+MyDerivedInterfaceI::supportsCompress(const Ice::Current&)
 {
     return true;
 }
 
 void
-MyDerivedClassI::opVoid(const Ice::Current& current)
+MyDerivedInterfaceI::opVoid(const Ice::Current& current)
 {
     test(current.mode == OperationMode::Normal);
 }
 
 uint8_t
-MyDerivedClassI::opByte(uint8_t p1, uint8_t p2, uint8_t& p3, const Ice::Current&)
+MyDerivedInterfaceI::opByte(uint8_t p1, uint8_t p2, uint8_t& p3, const Ice::Current&)
 {
     p3 = p1 ^ p2;
     return p1;
 }
 
 bool
-MyDerivedClassI::opBool(bool p1, bool p2, bool& p3, const Ice::Current&)
+MyDerivedInterfaceI::opBool(bool p1, bool p2, bool& p3, const Ice::Current&)
 {
     p3 = p1;
     return p2;
 }
 
 int64_t
-MyDerivedClassI::opShortIntLong(
+MyDerivedInterfaceI::opShortIntLong(
     int16_t p1,
     int32_t p2,
     int64_t p3,
@@ -63,7 +63,7 @@ MyDerivedClassI::opShortIntLong(
 }
 
 double
-MyDerivedClassI::opFloatDouble(float p1, double p2, float& p3, double& p4, const Ice::Current&)
+MyDerivedInterfaceI::opFloatDouble(float p1, double p2, float& p3, double& p4, const Ice::Current&)
 {
     p3 = p1;
     p4 = p2;
@@ -71,33 +71,33 @@ MyDerivedClassI::opFloatDouble(float p1, double p2, float& p3, double& p4, const
 }
 
 std::string
-MyDerivedClassI::opString(string p1, string p2, string& p3, const Ice::Current&)
+MyDerivedInterfaceI::opString(string p1, string p2, string& p3, const Ice::Current&)
 {
     p3 = p2 + " " + p1;
     return p1 + " " + p2;
 }
 
 Test::MyEnum
-MyDerivedClassI::opMyEnum(Test::MyEnum p1, Test::MyEnum& p2, const Ice::Current&)
+MyDerivedInterfaceI::opMyEnum(Test::MyEnum p1, Test::MyEnum& p2, const Ice::Current&)
 {
     p2 = p1;
     return MyEnum::enum3;
 }
 
-optional<Test::MyClassPrx>
-MyDerivedClassI::opMyClass(
-    optional<Test::MyClassPrx> p1,
-    optional<Test::MyClassPrx>& p2,
-    optional<Test::MyClassPrx>& p3,
+optional<Test::MyInterfacePrx>
+MyDerivedInterfaceI::opMyInterface(
+    optional<Test::MyInterfacePrx> p1,
+    optional<Test::MyInterfacePrx>& p2,
+    optional<Test::MyInterfacePrx>& p3,
     const Ice::Current& current)
 {
     p2 = p1;
-    p3 = current.adapter->createProxy<Test::MyClassPrx>(stringToIdentity("noSuchIdentity"));
-    return current.adapter->createProxy<Test::MyClassPrx>(current.id);
+    p3 = current.adapter->createProxy<Test::MyInterfacePrx>(stringToIdentity("noSuchIdentity"));
+    return current.adapter->createProxy<Test::MyInterfacePrx>(current.id);
 }
 
 Test::Structure
-MyDerivedClassI::opStruct(Test::Structure p1, Test::Structure p2, Test::Structure& p3, const Ice::Current&)
+MyDerivedInterfaceI::opStruct(Test::Structure p1, Test::Structure p2, Test::Structure& p3, const Ice::Current&)
 {
     p3 = p1;
     p3.s.s = "a new string";
@@ -105,7 +105,7 @@ MyDerivedClassI::opStruct(Test::Structure p1, Test::Structure p2, Test::Structur
 }
 
 Test::ByteS
-MyDerivedClassI::opByteS(Test::ByteS p1, Test::ByteS p2, Test::ByteS& p3, const Ice::Current&)
+MyDerivedInterfaceI::opByteS(Test::ByteS p1, Test::ByteS p2, Test::ByteS& p3, const Ice::Current&)
 {
     p3.resize(p1.size());
     std::reverse_copy(p1.begin(), p1.end(), p3.begin());
@@ -115,7 +115,7 @@ MyDerivedClassI::opByteS(Test::ByteS p1, Test::ByteS p2, Test::ByteS& p3, const 
 }
 
 Test::BoolS
-MyDerivedClassI::opBoolS(Test::BoolS p1, Test::BoolS p2, Test::BoolS& p3, const Ice::Current&)
+MyDerivedInterfaceI::opBoolS(Test::BoolS p1, Test::BoolS p2, Test::BoolS& p3, const Ice::Current&)
 {
     p3 = p1;
     std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
@@ -126,7 +126,7 @@ MyDerivedClassI::opBoolS(Test::BoolS p1, Test::BoolS p2, Test::BoolS& p3, const 
 }
 
 Test::LongS
-MyDerivedClassI::opShortIntLongS(
+MyDerivedInterfaceI::opShortIntLongS(
     Test::ShortS p1,
     Test::IntS p2,
     Test::LongS p3,
@@ -144,7 +144,7 @@ MyDerivedClassI::opShortIntLongS(
 }
 
 Test::DoubleS
-MyDerivedClassI::opFloatDoubleS(
+MyDerivedInterfaceI::opFloatDoubleS(
     Test::FloatS p1,
     Test::DoubleS p2,
     Test::FloatS& p3,
@@ -160,7 +160,7 @@ MyDerivedClassI::opFloatDoubleS(
 }
 
 Test::StringS
-MyDerivedClassI::opStringS(Test::StringS p1, Test::StringS p2, Test::StringS& p3, const Ice::Current&)
+MyDerivedInterfaceI::opStringS(Test::StringS p1, Test::StringS p2, Test::StringS& p3, const Ice::Current&)
 {
     p3 = p1;
     std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
@@ -171,7 +171,7 @@ MyDerivedClassI::opStringS(Test::StringS p1, Test::StringS p2, Test::StringS& p3
 }
 
 Test::ByteSS
-MyDerivedClassI::opByteSS(Test::ByteSS p1, Test::ByteSS p2, Test::ByteSS& p3, const Ice::Current&)
+MyDerivedInterfaceI::opByteSS(Test::ByteSS p1, Test::ByteSS p2, Test::ByteSS& p3, const Ice::Current&)
 {
     p3.resize(p1.size());
     std::reverse_copy(p1.begin(), p1.end(), p3.begin());
@@ -181,7 +181,7 @@ MyDerivedClassI::opByteSS(Test::ByteSS p1, Test::ByteSS p2, Test::ByteSS& p3, co
 }
 
 Test::BoolSS
-MyDerivedClassI::opBoolSS(Test::BoolSS p1, Test::BoolSS p2, Test::BoolSS& p3, const Ice::Current&)
+MyDerivedInterfaceI::opBoolSS(Test::BoolSS p1, Test::BoolSS p2, Test::BoolSS& p3, const Ice::Current&)
 {
     p3 = p1;
     std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
@@ -192,7 +192,7 @@ MyDerivedClassI::opBoolSS(Test::BoolSS p1, Test::BoolSS p2, Test::BoolSS& p3, co
 }
 
 Test::LongSS
-MyDerivedClassI::opShortIntLongSS(
+MyDerivedInterfaceI::opShortIntLongSS(
     Test::ShortSS p1,
     Test::IntSS p2,
     Test::LongSS p3,
@@ -210,7 +210,7 @@ MyDerivedClassI::opShortIntLongSS(
 }
 
 Test::DoubleSS
-MyDerivedClassI::opFloatDoubleSS(
+MyDerivedInterfaceI::opFloatDoubleSS(
     Test::FloatSS p1,
     Test::DoubleSS p2,
     Test::FloatSS& p3,
@@ -226,7 +226,7 @@ MyDerivedClassI::opFloatDoubleSS(
 }
 
 Test::StringSS
-MyDerivedClassI::opStringSS(Test::StringSS p1, Test::StringSS p2, Test::StringSS& p3, const Ice::Current&)
+MyDerivedInterfaceI::opStringSS(Test::StringSS p1, Test::StringSS p2, Test::StringSS& p3, const Ice::Current&)
 {
     p3 = p1;
     std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
@@ -237,7 +237,7 @@ MyDerivedClassI::opStringSS(Test::StringSS p1, Test::StringSS p2, Test::StringSS
 }
 
 Test::StringSSS
-MyDerivedClassI::opStringSSS(Test::StringSSS p1, Test::StringSSS p2, Test::StringSSS& p3, const Ice::Current&)
+MyDerivedInterfaceI::opStringSSS(Test::StringSSS p1, Test::StringSSS p2, Test::StringSSS& p3, const Ice::Current&)
 {
     p3 = p1;
     std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
@@ -248,7 +248,7 @@ MyDerivedClassI::opStringSSS(Test::StringSSS p1, Test::StringSSS p2, Test::Strin
 }
 
 Test::ByteBoolD
-MyDerivedClassI::opByteBoolD(Test::ByteBoolD p1, Test::ByteBoolD p2, Test::ByteBoolD& p3, const Ice::Current&)
+MyDerivedInterfaceI::opByteBoolD(Test::ByteBoolD p1, Test::ByteBoolD p2, Test::ByteBoolD& p3, const Ice::Current&)
 {
     p3 = p1;
     Test::ByteBoolD r = p1;
@@ -257,7 +257,7 @@ MyDerivedClassI::opByteBoolD(Test::ByteBoolD p1, Test::ByteBoolD p2, Test::ByteB
 }
 
 Test::ShortIntD
-MyDerivedClassI::opShortIntD(Test::ShortIntD p1, Test::ShortIntD p2, Test::ShortIntD& p3, const Ice::Current&)
+MyDerivedInterfaceI::opShortIntD(Test::ShortIntD p1, Test::ShortIntD p2, Test::ShortIntD& p3, const Ice::Current&)
 {
     p3 = p1;
     Test::ShortIntD r = p1;
@@ -266,7 +266,7 @@ MyDerivedClassI::opShortIntD(Test::ShortIntD p1, Test::ShortIntD p2, Test::Short
 }
 
 Test::LongFloatD
-MyDerivedClassI::opLongFloatD(Test::LongFloatD p1, Test::LongFloatD p2, Test::LongFloatD& p3, const Ice::Current&)
+MyDerivedInterfaceI::opLongFloatD(Test::LongFloatD p1, Test::LongFloatD p2, Test::LongFloatD& p3, const Ice::Current&)
 {
     p3 = p1;
     Test::LongFloatD r = p1;
@@ -275,7 +275,7 @@ MyDerivedClassI::opLongFloatD(Test::LongFloatD p1, Test::LongFloatD p2, Test::Lo
 }
 
 Test::StringStringD
-MyDerivedClassI::opStringStringD(
+MyDerivedInterfaceI::opStringStringD(
     Test::StringStringD p1,
     Test::StringStringD p2,
     Test::StringStringD& p3,
@@ -288,7 +288,7 @@ MyDerivedClassI::opStringStringD(
 }
 
 Test::StringMyEnumD
-MyDerivedClassI::opStringMyEnumD(
+MyDerivedInterfaceI::opStringMyEnumD(
     Test::StringMyEnumD p1,
     Test::StringMyEnumD p2,
     Test::StringMyEnumD& p3,
@@ -301,7 +301,7 @@ MyDerivedClassI::opStringMyEnumD(
 }
 
 Test::MyEnumStringD
-MyDerivedClassI::opMyEnumStringD(
+MyDerivedInterfaceI::opMyEnumStringD(
     Test::MyEnumStringD p1,
     Test::MyEnumStringD p2,
     Test::MyEnumStringD& p3,
@@ -314,7 +314,7 @@ MyDerivedClassI::opMyEnumStringD(
 }
 
 Test::MyStructMyEnumD
-MyDerivedClassI::opMyStructMyEnumD(
+MyDerivedInterfaceI::opMyStructMyEnumD(
     Test::MyStructMyEnumD p1,
     Test::MyStructMyEnumD p2,
     Test::MyStructMyEnumD& p3,
@@ -327,7 +327,7 @@ MyDerivedClassI::opMyStructMyEnumD(
 }
 
 Test::ByteBoolDS
-MyDerivedClassI::opByteBoolDS(Test::ByteBoolDS p1, Test::ByteBoolDS p2, Test::ByteBoolDS& p3, const Ice::Current&)
+MyDerivedInterfaceI::opByteBoolDS(Test::ByteBoolDS p1, Test::ByteBoolDS p2, Test::ByteBoolDS& p3, const Ice::Current&)
 {
     p3 = p2;
     std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
@@ -338,7 +338,7 @@ MyDerivedClassI::opByteBoolDS(Test::ByteBoolDS p1, Test::ByteBoolDS p2, Test::By
 }
 
 Test::ShortIntDS
-MyDerivedClassI::opShortIntDS(Test::ShortIntDS p1, Test::ShortIntDS p2, Test::ShortIntDS& p3, const Ice::Current&)
+MyDerivedInterfaceI::opShortIntDS(Test::ShortIntDS p1, Test::ShortIntDS p2, Test::ShortIntDS& p3, const Ice::Current&)
 {
     p3 = p2;
     std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
@@ -349,7 +349,11 @@ MyDerivedClassI::opShortIntDS(Test::ShortIntDS p1, Test::ShortIntDS p2, Test::Sh
 }
 
 Test::LongFloatDS
-MyDerivedClassI::opLongFloatDS(Test::LongFloatDS p1, Test::LongFloatDS p2, Test::LongFloatDS& p3, const Ice::Current&)
+MyDerivedInterfaceI::opLongFloatDS(
+    Test::LongFloatDS p1,
+    Test::LongFloatDS p2,
+    Test::LongFloatDS& p3,
+    const Ice::Current&)
 {
     p3 = p2;
     std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
@@ -360,7 +364,7 @@ MyDerivedClassI::opLongFloatDS(Test::LongFloatDS p1, Test::LongFloatDS p2, Test:
 }
 
 Test::StringStringDS
-MyDerivedClassI::opStringStringDS(
+MyDerivedInterfaceI::opStringStringDS(
     Test::StringStringDS p1,
     Test::StringStringDS p2,
     Test::StringStringDS& p3,
@@ -375,7 +379,7 @@ MyDerivedClassI::opStringStringDS(
 }
 
 Test::StringMyEnumDS
-MyDerivedClassI::opStringMyEnumDS(
+MyDerivedInterfaceI::opStringMyEnumDS(
     Test::StringMyEnumDS p1,
     Test::StringMyEnumDS p2,
     Test::StringMyEnumDS& p3,
@@ -390,7 +394,7 @@ MyDerivedClassI::opStringMyEnumDS(
 }
 
 Test::MyEnumStringDS
-MyDerivedClassI::opMyEnumStringDS(
+MyDerivedInterfaceI::opMyEnumStringDS(
     Test::MyEnumStringDS p1,
     Test::MyEnumStringDS p2,
     Test::MyEnumStringDS& p3,
@@ -405,7 +409,7 @@ MyDerivedClassI::opMyEnumStringDS(
 }
 
 Test::MyStructMyEnumDS
-MyDerivedClassI::opMyStructMyEnumDS(
+MyDerivedInterfaceI::opMyStructMyEnumDS(
     Test::MyStructMyEnumDS p1,
     Test::MyStructMyEnumDS p2,
     Test::MyStructMyEnumDS& p3,
@@ -420,7 +424,7 @@ MyDerivedClassI::opMyStructMyEnumDS(
 }
 
 Test::ByteByteSD
-MyDerivedClassI::opByteByteSD(Test::ByteByteSD p1, Test::ByteByteSD p2, Test::ByteByteSD& p3, const Ice::Current&)
+MyDerivedInterfaceI::opByteByteSD(Test::ByteByteSD p1, Test::ByteByteSD p2, Test::ByteByteSD& p3, const Ice::Current&)
 {
     p3 = p2;
     Test::ByteByteSD r = p1;
@@ -429,7 +433,7 @@ MyDerivedClassI::opByteByteSD(Test::ByteByteSD p1, Test::ByteByteSD p2, Test::By
 }
 
 Test::BoolBoolSD
-MyDerivedClassI::opBoolBoolSD(Test::BoolBoolSD p1, Test::BoolBoolSD p2, Test::BoolBoolSD& p3, const Ice::Current&)
+MyDerivedInterfaceI::opBoolBoolSD(Test::BoolBoolSD p1, Test::BoolBoolSD p2, Test::BoolBoolSD& p3, const Ice::Current&)
 {
     p3 = p2;
     Test::BoolBoolSD r = p1;
@@ -438,7 +442,7 @@ MyDerivedClassI::opBoolBoolSD(Test::BoolBoolSD p1, Test::BoolBoolSD p2, Test::Bo
 }
 
 Test::ShortShortSD
-MyDerivedClassI::opShortShortSD(
+MyDerivedInterfaceI::opShortShortSD(
     Test::ShortShortSD p1,
     Test::ShortShortSD p2,
     Test::ShortShortSD& p3,
@@ -451,7 +455,7 @@ MyDerivedClassI::opShortShortSD(
 }
 
 Test::IntIntSD
-MyDerivedClassI::opIntIntSD(Test::IntIntSD p1, Test::IntIntSD p2, Test::IntIntSD& p3, const Ice::Current&)
+MyDerivedInterfaceI::opIntIntSD(Test::IntIntSD p1, Test::IntIntSD p2, Test::IntIntSD& p3, const Ice::Current&)
 {
     p3 = p2;
     Test::IntIntSD r = p1;
@@ -460,7 +464,7 @@ MyDerivedClassI::opIntIntSD(Test::IntIntSD p1, Test::IntIntSD p2, Test::IntIntSD
 }
 
 Test::LongLongSD
-MyDerivedClassI::opLongLongSD(Test::LongLongSD p1, Test::LongLongSD p2, Test::LongLongSD& p3, const Ice::Current&)
+MyDerivedInterfaceI::opLongLongSD(Test::LongLongSD p1, Test::LongLongSD p2, Test::LongLongSD& p3, const Ice::Current&)
 {
     p3 = p2;
     Test::LongLongSD r = p1;
@@ -469,7 +473,7 @@ MyDerivedClassI::opLongLongSD(Test::LongLongSD p1, Test::LongLongSD p2, Test::Lo
 }
 
 Test::StringFloatSD
-MyDerivedClassI::opStringFloatSD(
+MyDerivedInterfaceI::opStringFloatSD(
     Test::StringFloatSD p1,
     Test::StringFloatSD p2,
     Test::StringFloatSD& p3,
@@ -482,7 +486,7 @@ MyDerivedClassI::opStringFloatSD(
 }
 
 Test::StringDoubleSD
-MyDerivedClassI::opStringDoubleSD(
+MyDerivedInterfaceI::opStringDoubleSD(
     Test::StringDoubleSD p1,
     Test::StringDoubleSD p2,
     Test::StringDoubleSD& p3,
@@ -495,7 +499,7 @@ MyDerivedClassI::opStringDoubleSD(
 }
 
 Test::StringStringSD
-MyDerivedClassI::opStringStringSD(
+MyDerivedInterfaceI::opStringStringSD(
     Test::StringStringSD p1,
     Test::StringStringSD p2,
     Test::StringStringSD& p3,
@@ -508,7 +512,7 @@ MyDerivedClassI::opStringStringSD(
 }
 
 Test::MyEnumMyEnumSD
-MyDerivedClassI::opMyEnumMyEnumSD(
+MyDerivedInterfaceI::opMyEnumMyEnumSD(
     Test::MyEnumMyEnumSD p1,
     Test::MyEnumMyEnumSD p2,
     Test::MyEnumMyEnumSD& p3,
@@ -521,7 +525,7 @@ MyDerivedClassI::opMyEnumMyEnumSD(
 }
 
 Test::IntS
-MyDerivedClassI::opIntS(Test::IntS s, const Ice::Current&)
+MyDerivedInterfaceI::opIntS(Test::IntS s, const Ice::Current&)
 {
     Test::IntS r;
     std::transform(s.begin(), s.end(), std::back_inserter(r), std::negate<>());
@@ -529,14 +533,14 @@ MyDerivedClassI::opIntS(Test::IntS s, const Ice::Current&)
 }
 
 void
-MyDerivedClassI::opByteSOneway(Test::ByteS, const Ice::Current&)
+MyDerivedInterfaceI::opByteSOneway(Test::ByteS, const Ice::Current&)
 {
     lock_guard lock(_mutex);
     ++_opByteSOnewayCallCount;
 }
 
 int
-MyDerivedClassI::opByteSOnewayCallCount(const Ice::Current&)
+MyDerivedInterfaceI::opByteSOnewayCallCount(const Ice::Current&)
 {
     lock_guard lock(_mutex);
     int count = _opByteSOnewayCallCount;
@@ -545,13 +549,13 @@ MyDerivedClassI::opByteSOnewayCallCount(const Ice::Current&)
 }
 
 Ice::Context
-MyDerivedClassI::opContext(const Ice::Current& c)
+MyDerivedInterfaceI::opContext(const Ice::Current& c)
 {
     return c.ctx;
 }
 
 void
-MyDerivedClassI::opDoubleMarshaling(double p1, Test::DoubleS p2, const Ice::Current&)
+MyDerivedInterfaceI::opDoubleMarshaling(double p1, Test::DoubleS p2, const Ice::Current&)
 {
     double d = 1278312346.0 / 13.0;
     test(p1 == d);
@@ -562,102 +566,102 @@ MyDerivedClassI::opDoubleMarshaling(double p1, Test::DoubleS p2, const Ice::Curr
 }
 
 void
-MyDerivedClassI::opIdempotent(const Ice::Current& current)
+MyDerivedInterfaceI::opIdempotent(const Ice::Current& current)
 {
     test(current.mode == OperationMode::Idempotent);
 }
 
 void
-MyDerivedClassI::opOneway(const Ice::Current& current)
+MyDerivedInterfaceI::opOneway(const Ice::Current& current)
 {
     test(current.requestId == 0);
 }
 
 void
-MyDerivedClassI::opDerived(const Ice::Current&)
+MyDerivedInterfaceI::opDerived(const Ice::Current&)
 {
 }
 
 uint8_t
-MyDerivedClassI::opByte1(uint8_t b, const Ice::Current&)
+MyDerivedInterfaceI::opByte1(uint8_t b, const Ice::Current&)
 {
     return b;
 }
 
 int16_t
-MyDerivedClassI::opShort1(int16_t s, const Ice::Current&)
+MyDerivedInterfaceI::opShort1(int16_t s, const Ice::Current&)
 {
     return s;
 }
 
 int32_t
-MyDerivedClassI::opInt1(int32_t i, const Ice::Current&)
+MyDerivedInterfaceI::opInt1(int32_t i, const Ice::Current&)
 {
     return i;
 }
 
 int64_t
-MyDerivedClassI::opLong1(int64_t l, const Ice::Current&)
+MyDerivedInterfaceI::opLong1(int64_t l, const Ice::Current&)
 {
     return l;
 }
 
 float
-MyDerivedClassI::opFloat1(float f, const Ice::Current&)
+MyDerivedInterfaceI::opFloat1(float f, const Ice::Current&)
 {
     return f;
 }
 
 double
-MyDerivedClassI::opDouble1(double d, const Ice::Current&)
+MyDerivedInterfaceI::opDouble1(double d, const Ice::Current&)
 {
     return d;
 }
 
 std::string
-MyDerivedClassI::opString1(string s, const Ice::Current&)
+MyDerivedInterfaceI::opString1(string s, const Ice::Current&)
 {
     return s;
 }
 
 Test::StringS
-MyDerivedClassI::opStringS1(Test::StringS seq, const Ice::Current&)
+MyDerivedInterfaceI::opStringS1(Test::StringS seq, const Ice::Current&)
 {
     return seq;
 }
 
 Test::ByteBoolD
-MyDerivedClassI::opByteBoolD1(Test::ByteBoolD dict, const Ice::Current&)
+MyDerivedInterfaceI::opByteBoolD1(Test::ByteBoolD dict, const Ice::Current&)
 {
     return dict;
 }
 
 Test::StringS
-MyDerivedClassI::opStringS2(Test::StringS seq, const Ice::Current&)
+MyDerivedInterfaceI::opStringS2(Test::StringS seq, const Ice::Current&)
 {
     return seq;
 }
 
 Test::ByteBoolD
-MyDerivedClassI::opByteBoolD2(Test::ByteBoolD dict, const Ice::Current&)
+MyDerivedInterfaceI::opByteBoolD2(Test::ByteBoolD dict, const Ice::Current&)
 {
     return dict;
 }
 
 Test::MyStruct1
-MyDerivedClassI::opMyStruct1(Test::MyStruct1 s, const Ice::Current&)
+MyDerivedInterfaceI::opMyStruct1(Test::MyStruct1 s, const Ice::Current&)
 {
     return s;
 }
 
-Test::MyClass1Ptr
-MyDerivedClassI::opMyClass1(Test::MyClass1Ptr c, const Ice::Current&)
+Test::MyClassPtr
+MyDerivedInterfaceI::opMyClass(Test::MyClassPtr c, const Ice::Current&)
 {
     return c;
 }
 
 Test::StringS
-MyDerivedClassI::opStringLiterals(const Ice::Current&)
+MyDerivedInterfaceI::opStringLiterals(const Ice::Current&)
 {
     Test::StringS data;
     data.push_back(Test::s0);
@@ -699,7 +703,7 @@ MyDerivedClassI::opStringLiterals(const Ice::Current&)
 }
 
 Test::WStringS
-MyDerivedClassI::opWStringLiterals(const Ice::Current&)
+MyDerivedInterfaceI::opWStringLiterals(const Ice::Current&)
 {
     Test::WStringS data;
     data.push_back(Test::ws0);
@@ -740,40 +744,40 @@ MyDerivedClassI::opWStringLiterals(const Ice::Current&)
     return data;
 }
 
-MyDerivedClassI::OpMStruct1MarshaledResult
-MyDerivedClassI::opMStruct1(const Ice::Current& current)
+MyDerivedInterfaceI::OpMStruct1MarshaledResult
+MyDerivedInterfaceI::opMStruct1(const Ice::Current& current)
 {
     Test::Structure s;
     s.e = MyEnum::enum1; // enum must be initialized
     return {s, current};
 }
 
-MyDerivedClassI::OpMStruct2MarshaledResult
-MyDerivedClassI::opMStruct2(Test::Structure p1, const Ice::Current& current)
+MyDerivedInterfaceI::OpMStruct2MarshaledResult
+MyDerivedInterfaceI::opMStruct2(Test::Structure p1, const Ice::Current& current)
 {
     return {p1, p1, current};
 }
 
-MyDerivedClassI::OpMSeq1MarshaledResult
-MyDerivedClassI::opMSeq1(const Ice::Current& current)
+MyDerivedInterfaceI::OpMSeq1MarshaledResult
+MyDerivedInterfaceI::opMSeq1(const Ice::Current& current)
 {
     return {Test::StringS{}, current};
 }
 
-MyDerivedClassI::OpMSeq2MarshaledResult
-MyDerivedClassI::opMSeq2(Test::StringS p1, const Ice::Current& current)
+MyDerivedInterfaceI::OpMSeq2MarshaledResult
+MyDerivedInterfaceI::opMSeq2(Test::StringS p1, const Ice::Current& current)
 {
     return {p1, p1, current};
 }
 
-MyDerivedClassI::OpMDict1MarshaledResult
-MyDerivedClassI::opMDict1(const Ice::Current& current)
+MyDerivedInterfaceI::OpMDict1MarshaledResult
+MyDerivedInterfaceI::opMDict1(const Ice::Current& current)
 {
     return {Test::StringStringD{}, current};
 }
 
-MyDerivedClassI::OpMDict2MarshaledResult
-MyDerivedClassI::opMDict2(Test::StringStringD p1, const Ice::Current& current)
+MyDerivedInterfaceI::OpMDict2MarshaledResult
+MyDerivedInterfaceI::opMDict2(Test::StringStringD p1, const Ice::Current& current)
 {
     return {p1, p1, current};
 }

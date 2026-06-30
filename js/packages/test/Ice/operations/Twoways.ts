@@ -19,7 +19,7 @@ function floatEquals(a: number | undefined, b: number | undefined): boolean {
 
 export async function twoways(
     communicator: Ice.Communicator,
-    prx: Test.MyClassPrx,
+    prx: Test.MyInterfacePrx,
     bidir: boolean,
     helper: TestHelper,
 ) {
@@ -72,9 +72,9 @@ export async function twoways(
 
     await prx.ice_ping();
 
-    test(await prx.ice_isA(Test.MyClass.ice_staticId()));
+    test(await prx.ice_isA(Test.MyInterface.ice_staticId()));
 
-    test((await prx.ice_id()) === Test.MyDerivedClass.ice_staticId());
+    test((await prx.ice_id()) === Test.MyDerivedInterface.ice_staticId());
 
     test((await prx.ice_ids()).length === 3);
 
@@ -214,7 +214,7 @@ export async function twoways(
     }
 
     {
-        const [retval, p2, p3] = await prx.opMyClass(prx);
+        const [retval, p2, p3] = await prx.opMyInterface(prx);
 
         test(p2 !== null);
         test(p2.ice_getIdentity().equals(Ice.stringToIdentity("test")));
@@ -1307,7 +1307,7 @@ export async function twoways(
         }
 
         {
-            const p2 = await Test.MyClassPrx.checkedCast(prx.ice_context(ctx));
+            const p2 = await Test.MyInterfacePrx.checkedCast(prx.ice_context(ctx));
             test(p2 !== null);
             test(Ice.MapUtil.equals(p2.ice_getContext(), ctx));
             let r = await p2.opContext();
@@ -1332,7 +1332,7 @@ export async function twoways(
         ctx.set("two", "TWO");
         ctx.set("three", "THREE");
 
-        let p3 = new Test.MyClassPrx(ic, "test:" + helper.getTestEndpoint());
+        let p3 = new Test.MyInterfacePrx(ic, "test:" + helper.getTestEndpoint());
 
         const implicitContext = ic.getImplicitContext();
         implicitContext.setContext(ctx);
@@ -1376,7 +1376,7 @@ export async function twoways(
 
         test(combined.get("one") == "UN");
 
-        p3 = Test.MyClassPrx.uncheckedCast(p3.ice_context(prxContext));
+        p3 = Test.MyInterfacePrx.uncheckedCast(p3.ice_context(prxContext));
 
         implicitContext.setContext(null!);
         test(Ice.MapUtil.equals(await p3.opContext(), prxContext));
@@ -1413,23 +1413,23 @@ export async function twoways(
         test((await prx.opStringS2([])).length === 0);
         test((await prx.opByteBoolD2(new Map())).size === 0);
 
-        const d = Test.MyDerivedClassPrx.uncheckedCast(prx);
+        const d = Test.MyDerivedInterfacePrx.uncheckedCast(prx);
         let s = new Test.MyStruct1();
         s.tesT = "Test.MyStruct1.s";
-        s.myClass = null;
+        s.myInterface = null;
         s.myStruct1 = "Test.MyStruct1.myStruct1";
         s = await d.opMyStruct1(s);
         test(s.tesT == "Test.MyStruct1.s");
-        test(s.myClass === null);
+        test(s.myInterface === null);
         test(s.myStruct1 == "Test.MyStruct1.myStruct1");
-        let c = new Test.MyClass1();
-        c.tesT = "Test.MyClass1.testT";
-        c.myClass = null;
-        c.myClass1 = "Test.MyClass1.myClass1";
-        c = (await d.opMyClass1(c)) as Test.MyClass1;
-        test(c.tesT == "Test.MyClass1.testT");
-        test(c.myClass === null);
-        test(c.myClass1 == "Test.MyClass1.myClass1");
+        let c = new Test.MyClass();
+        c.tesT = "Test.MyClass.testT";
+        c.myInterface = null;
+        c.myClass = "Test.MyClass.myClass";
+        c = (await d.opMyClass(c)) as Test.MyClass;
+        test(c.tesT == "Test.MyClass.testT");
+        test(c.myInterface === null);
+        test(c.myClass == "Test.MyClass.myClass");
     }
 
     {
