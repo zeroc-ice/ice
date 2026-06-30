@@ -765,7 +765,7 @@ DataReaderI::initSamples(
         //   publishers for the same key. The subscriber list is sorted by priority in addConnectedKey.
         if ((_discardPolicy == DataStorm::DiscardPolicy::SendTime && sample->timestamp <= _lastSendTime) ||
             (_discardPolicy == DataStorm::DiscardPolicy::Priority &&
-             priority < _connectedKeys[sample->key].back()->priority))
+             hasLowerPriorityThanConnected(priority, sample->key)))
         {
             continue;
         }
@@ -908,8 +908,7 @@ DataReaderI::queue(
     // - Priority: discard samples from publisher with lower priority than the highest priority among the connected
     //   publishers for the same key. The subscriber list is sorted by priority in addConnectedKey.
     if ((_discardPolicy == DataStorm::DiscardPolicy::SendTime && sample->timestamp <= _lastSendTime) ||
-        (_discardPolicy == DataStorm::DiscardPolicy::Priority &&
-         priority < _connectedKeys[sample->key].back()->priority))
+        (_discardPolicy == DataStorm::DiscardPolicy::Priority && hasLowerPriorityThanConnected(priority, sample->key)))
     {
         if (_traceLevels->data > 2)
         {
@@ -1015,6 +1014,25 @@ DataReaderI::addConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Subscr
     {
         return false;
     }
+}
+
+bool
+DataReaderI::hasLowerPriorityThanConnected(int priority, const shared_ptr<Key>& key) const
+{
+    // The connected publishers that can deliver this key are registered under the key itself (a keyed peer) and under
+    // the null key (a filter or any-key peer, which delivers every key). The threshold is the highest priority across
+    // both; each list is sorted ascending in addConnectedKey, so back() is the highest. With no connected publishers
+    // the threshold stays at the sample's own priority, so the function returns false.
+    int threshold = priority;
+    for (const auto& k : {key, shared_ptr<Key>{}})
+    {
+        auto p = _connectedKeys.find(k);
+        if (p != _connectedKeys.end() && !p->second.empty())
+        {
+            threshold = std::max(threshold, p->second.back()->priority);
+        }
+    }
+    return priority < threshold;
 }
 
 DataWriterI::DataWriterI(TopicWriterI* topic, string name, int64_t id, const DataStorm::WriterConfig& config)
