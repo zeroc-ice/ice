@@ -3,7 +3,6 @@
 #include "PropertiesAdmin.h"
 #include "Ice/DisableWarnings.h"
 #include "Thread.h"
-#include "Types.h"
 #include "Util.h"
 
 #include <algorithm>
@@ -83,7 +82,7 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
                     PyObjectHandle result{PyDict_New()};
                     if (!result.get())
                     {
-                        return;
+                        throwPythonException();
                     }
 
                     for (const auto& [key, value] : dict)
@@ -93,14 +92,14 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
                         if (!pyKey.get() || !pyValue.get() ||
                             PyDict_SetItem(result.get(), pyKey.get(), pyValue.get()) < 0)
                         {
-                            return;
+                            throwPythonException();
                         }
                     }
 
                     PyObjectHandle callbackArgs{PyTuple_New(1)};
                     if (!callbackArgs.get())
                     {
-                        return;
+                        throwPythonException();
                     }
                     PyTuple_SetItem(callbackArgs.get(), 0, result.release());
 
@@ -108,7 +107,8 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
                     if (!obj.get())
                     {
                         assert(PyErr_Occurred());
-                        throw AbortMarshaling();
+                        // The update callback raised.
+                        throwPythonException();
                     }
                 });
 
