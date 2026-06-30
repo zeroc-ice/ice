@@ -81,20 +81,27 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
                     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
                     PyObjectHandle result{PyDict_New()};
-                    if (result.get())
+                    if (!result.get())
                     {
-                        for (const auto& [key, value] : dict)
+                        return;
+                    }
+
+                    for (const auto& [key, value] : dict)
+                    {
+                        PyObjectHandle pyKey{createString(key)};
+                        PyObjectHandle pyValue{createString(value)};
+                        if (!pyKey.get() || !pyValue.get() ||
+                            PyDict_SetItem(result.get(), pyKey.get(), pyValue.get()) < 0)
                         {
-                            PyObjectHandle pyKey{createString(key)};
-                            PyObjectHandle pyValue{createString(value)};
-                            if (!pyValue.get() || PyDict_SetItem(result.get(), pyKey.get(), pyValue.get()) < 0)
-                            {
-                                return;
-                            }
+                            return;
                         }
                     }
 
                     PyObjectHandle callbackArgs{PyTuple_New(1)};
+                    if (!callbackArgs.get())
+                    {
+                        return;
+                    }
                     PyTuple_SetItem(callbackArgs.get(), 0, result.release());
 
                     PyObjectHandle obj{PyObject_Call(callback, callbackArgs.get(), nullptr)};
