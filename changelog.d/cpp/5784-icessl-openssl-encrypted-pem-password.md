@@ -1,2 +1,2 @@
-- Fixed Ice on the OpenSSL transport to use `IceSSL.Password` when loading an encrypted PEM private key. Previously the
-  password was ignored, so OpenSSL prompted for it on the terminal or failed to load the key.
+- Fixed `IceSSL.Password` not being used when loading an encrypted PEM private key in the OpenSSL-based IceSSL
+  transport. Previously OpenSSL prompted for the password on the terminal or failed to load the key.
