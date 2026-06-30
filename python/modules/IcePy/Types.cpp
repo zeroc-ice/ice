@@ -766,6 +766,11 @@ IcePy::PrimitiveInfo::unmarshal(
             uint8_t val;
             is->read(val);
             PyObjectHandle p{PyLong_FromLong(val)};
+            if (!p.get())
+            {
+                assert(PyErr_Occurred());
+                throw AbortMarshaling();
+            }
             cb->unmarshaled(p.get(), target, closure);
             break;
         }
@@ -774,6 +779,11 @@ IcePy::PrimitiveInfo::unmarshal(
             int16_t val;
             is->read(val);
             PyObjectHandle p{PyLong_FromLong(val)};
+            if (!p.get())
+            {
+                assert(PyErr_Occurred());
+                throw AbortMarshaling();
+            }
             cb->unmarshaled(p.get(), target, closure);
             break;
         }
@@ -782,6 +792,11 @@ IcePy::PrimitiveInfo::unmarshal(
             int32_t val;
             is->read(val);
             PyObjectHandle p{PyLong_FromLong(val)};
+            if (!p.get())
+            {
+                assert(PyErr_Occurred());
+                throw AbortMarshaling();
+            }
             cb->unmarshaled(p.get(), target, closure);
             break;
         }
@@ -790,6 +805,11 @@ IcePy::PrimitiveInfo::unmarshal(
             int64_t val;
             is->read(val);
             PyObjectHandle p{PyLong_FromLongLong(val)};
+            if (!p.get())
+            {
+                assert(PyErr_Occurred());
+                throw AbortMarshaling();
+            }
             cb->unmarshaled(p.get(), target, closure);
             break;
         }
@@ -798,6 +818,11 @@ IcePy::PrimitiveInfo::unmarshal(
             float val;
             is->read(val);
             PyObjectHandle p{PyFloat_FromDouble(val)};
+            if (!p.get())
+            {
+                assert(PyErr_Occurred());
+                throw AbortMarshaling();
+            }
             cb->unmarshaled(p.get(), target, closure);
             break;
         }
@@ -806,6 +831,11 @@ IcePy::PrimitiveInfo::unmarshal(
             double val;
             is->read(val);
             PyObjectHandle p{PyFloat_FromDouble(val)};
+            if (!p.get())
+            {
+                assert(PyErr_Occurred());
+                throw AbortMarshaling();
+            }
             cb->unmarshaled(p.get(), target, closure);
             break;
         }
@@ -814,6 +844,11 @@ IcePy::PrimitiveInfo::unmarshal(
             string val;
             is->read(val, false); // Bypass string conversion.
             PyObjectHandle p{createString(val)};
+            if (!p.get())
+            {
+                assert(PyErr_Occurred());
+                throw AbortMarshaling();
+            }
             cb->unmarshaled(p.get(), target, closure);
             break;
         }
@@ -1855,6 +1890,11 @@ IcePy::SequenceInfo::createSequenceFromMemory(
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
     PyObjectHandle args{PyTuple_New(2)};
+    if (!args.get())
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
     PyTuple_SET_ITEM(args.get(), 0, memoryView.get() ? memoryView.release() : Py_None);
     PyTuple_SET_ITEM(args.get(), 1, builtinType.release());
     PyObjectHandle result{PyObject_Call(sm->factory, args.get(), nullptr)};
@@ -2744,6 +2784,11 @@ IcePy::ProxyInfo::unmarshal(
     }
 
     PyObjectHandle p{createProxy(proxy.value(), proxy->ice_getCommunicator(), pythonType)};
+    if (!p.get())
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
     cb->unmarshaled(p.get(), target, closure);
 }
 

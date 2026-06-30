@@ -2031,6 +2031,10 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*> i
     // Create an object to represent Ice::Current. We need to append this to the argument tuple.
     //
     PyObjectHandle curr{createCurrent(current)};
+    if (!curr.get())
+    {
+        throwPythonException();
+    }
     PyTuple_SET_ITEM(
         args.get(),
         PyTuple_GET_SIZE(args.get()) - 1,
@@ -2167,6 +2171,10 @@ IcePy::BlobjectUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*
     // this to the argument tuple.
     //
     PyObjectHandle curr{createCurrent(current)};
+    if (!curr.get())
+    {
+        throwPythonException();
+    }
     PyTuple_SET_ITEM(args.get(), start, curr.release()); // PyTuple_SET_ITEM steals a reference.
 
     dispatchImpl(servant, "ice_invoke", args.get(), current);
