@@ -256,6 +256,11 @@ IceObjC::iAPEndpointI::connectorsAsync(
         EAAccessory* accessory = nil;
         while ((accessory = [enumerator nextObject]))
         {
+            if (!accessory.connected)
+            {
+                continue;
+            }
+
             vector<string> accessoryProtocols;
             for (NSString* p in accessory.protocolStrings)
             {
@@ -267,7 +272,6 @@ IceObjC::iAPEndpointI::connectorsAsync(
                     _modelNumber,
                     _name,
                     toString(protocol),
-                    accessory.connected,
                     toString(accessory.manufacturer),
                     toString(accessory.modelNumber),
                     toString(accessory.name),

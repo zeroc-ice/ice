@@ -98,21 +98,19 @@ namespace
         using IceObjC::iAPMatches;
         const vector<string> proto{"com.zeroc.ice"};
 
-        // Empty filters match any connected accessory that advertises the protocol.
-        test(iAPMatches("", "", "", "com.zeroc.ice", true, "Acme", "Model3", "HeadUnit", proto));
-        // A disconnected accessory never matches.
-        test(!iAPMatches("", "", "", "com.zeroc.ice", false, "Acme", "Model3", "HeadUnit", proto));
+        // Empty filters match any accessory that advertises the protocol.
+        test(iAPMatches("", "", "", "com.zeroc.ice", "Acme", "Model3", "HeadUnit", proto));
         // The protocol must be advertised by the accessory.
-        test(!iAPMatches("", "", "", "com.zeroc.ice", true, "Acme", "Model3", "HeadUnit", {"com.other"}));
+        test(!iAPMatches("", "", "", "com.zeroc.ice", "Acme", "Model3", "HeadUnit", {"com.other"}));
         // An empty required protocol never matches, even against an accessory advertising "".
-        test(!iAPMatches("", "", "", "", true, "Acme", "Model3", "HeadUnit", {""}));
+        test(!iAPMatches("", "", "", "", "Acme", "Model3", "HeadUnit", {""}));
         // Manufacturer / modelNumber / name filters must match when set.
-        test(iAPMatches("Acme", "", "", "com.zeroc.ice", true, "Acme", "Model3", "HeadUnit", proto));
-        test(!iAPMatches("Other", "", "", "com.zeroc.ice", true, "Acme", "Model3", "HeadUnit", proto));
-        test(!iAPMatches("", "Model4", "", "com.zeroc.ice", true, "Acme", "Model3", "HeadUnit", proto));
-        test(!iAPMatches("", "", "Other", "com.zeroc.ice", true, "Acme", "Model3", "HeadUnit", proto));
+        test(iAPMatches("Acme", "", "", "com.zeroc.ice", "Acme", "Model3", "HeadUnit", proto));
+        test(!iAPMatches("Other", "", "", "com.zeroc.ice", "Acme", "Model3", "HeadUnit", proto));
+        test(!iAPMatches("", "Model4", "", "com.zeroc.ice", "Acme", "Model3", "HeadUnit", proto));
+        test(!iAPMatches("", "", "Other", "com.zeroc.ice", "Acme", "Model3", "HeadUnit", proto));
         // All filters set and matching.
-        test(iAPMatches("Acme", "Model3", "HeadUnit", "com.zeroc.ice", true, "Acme", "Model3", "HeadUnit", proto));
+        test(iAPMatches("Acme", "Model3", "HeadUnit", "com.zeroc.ice", "Acme", "Model3", "HeadUnit", proto));
         cout << "ok" << endl;
     }
 }

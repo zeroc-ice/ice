@@ -12,16 +12,11 @@ IceObjC::iAPMatches(
     const string& modelNumber,
     const string& name,
     const string& protocol,
-    bool connected,
     const string& accessoryManufacturer,
     const string& accessoryModelNumber,
     const string& accessoryName,
     const vector<string>& accessoryProtocols)
 {
-    if (!connected)
-    {
-        return false;
-    }
     if (!manufacturer.empty() && manufacturer != accessoryManufacturer)
     {
         return false;
