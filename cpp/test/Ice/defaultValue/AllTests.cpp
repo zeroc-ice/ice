@@ -46,6 +46,7 @@ allTests()
         test(v.i == ConstInt);
         test(v.l == ConstLong);
         test(v.f == ConstFloat);
+        test(ConstExpFloat == 1e8f);
         test(v.d == ConstDouble);
         test(v.str == ConstString);
         test(v.c1 == ConstColor1);

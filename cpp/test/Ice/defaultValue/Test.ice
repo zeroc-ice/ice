@@ -45,6 +45,7 @@ module Test
     const int ConstInt = 3;
     const long ConstLong = 4;
     const float ConstFloat = 5.1;
+    const float ConstExpFloat = 1e8;
     const double ConstDouble = 6.2;
     const string ConstString = "foo \\ \"bar\n \r\n\t\v\f\a\b\? \007 \x07";
     const Color ConstColor1 = ::Test::Color::red;
