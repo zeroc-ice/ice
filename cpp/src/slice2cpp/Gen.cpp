@@ -124,7 +124,9 @@ namespace
             else if (bp && bp->kind() == Builtin::KindFloat)
             {
                 out << value;
-                if (value.find('.') == string::npos)
+                // Append ".0" only when the value is an integer literal, i.e. it has neither a decimal point nor an
+                // exponent (values such as "1e+07" are already valid floating-point literals).
+                if (value.find_first_of(".eE") == string::npos)
                 {
                     out << ".0";
                 }
