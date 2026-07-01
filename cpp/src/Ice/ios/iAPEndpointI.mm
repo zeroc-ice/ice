@@ -18,6 +18,7 @@
 #    include "iAPConnector.h"
 #    include "iAPEndpointI.h"
 #    include "iAPMatch.h"
+#    include "iAPUtil.h"
 
 #    include <CoreFoundation/CoreFoundation.h>
 
@@ -132,7 +133,7 @@ IceObjC::iAPEndpointI::getInfo() const noexcept
         _manufacturer,
         _modelNumber,
         _name,
-        protocol(),
+        _protocol,
         type(),
         secure());
 }
@@ -244,12 +245,6 @@ IceObjC::iAPEndpointI::connectorsAsync(
 
         NSString* protocol =
             _protocol.empty() ? @"com.zeroc.ice" : [[NSString alloc] initWithUTF8String:_protocol.c_str()];
-        // Converts an NSString to a std::string, yielding "" when the string is nil or not representable as UTF-8.
-        auto toString = [](NSString* s)
-        {
-            const char* utf8 = [s UTF8String];
-            return utf8 ? string{utf8} : string{};
-        };
 
         NSArray* array = [manager connectedAccessories];
         NSEnumerator* enumerator = [array objectEnumerator];
@@ -264,17 +259,17 @@ IceObjC::iAPEndpointI::connectorsAsync(
             vector<string> accessoryProtocols;
             for (NSString* p in accessory.protocolStrings)
             {
-                accessoryProtocols.emplace_back(toString(p));
+                accessoryProtocols.emplace_back(nsToString(p));
             }
 
             if (iAPMatches(
                     _manufacturer,
                     _modelNumber,
                     _name,
-                    toString(protocol),
-                    toString(accessory.manufacturer),
-                    toString(accessory.modelNumber),
-                    toString(accessory.name),
+                    nsToString(protocol),
+                    nsToString(accessory.manufacturer),
+                    nsToString(accessory.modelNumber),
+                    nsToString(accessory.name),
                     accessoryProtocols))
             {
                 connectors.emplace_back(

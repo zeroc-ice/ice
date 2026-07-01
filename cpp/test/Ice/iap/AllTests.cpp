@@ -49,6 +49,7 @@ namespace
             test(info->manufacturer == "Acme");
             test(info->modelNumber == "Model3");
             test(info->name == "HeadUnit");
+            test(info->protocol == "com.zeroc.ice");
         }
 
         {
@@ -59,6 +60,7 @@ namespace
             test(info->manufacturer.empty());
             test(info->modelNumber.empty());
             test(info->name.empty());
+            test(info->protocol.empty());
         }
 
         {
