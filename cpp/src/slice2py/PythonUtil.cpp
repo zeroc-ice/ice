@@ -32,6 +32,24 @@ using namespace IceInternal;
 namespace
 {
     const char* const tripleQuotes = R"(""")";
+
+    // Escapes a line of documentation text for safe inclusion in a Python triple-quoted docstring.
+    // Backslashes are doubled so escape sequences such as '\u' are not interpreted, and double-quotes are
+    // escaped so a run of three or more cannot prematurely terminate the docstring.
+    string escapeDocstring(const string& line)
+    {
+        string result;
+        result.reserve(line.size());
+        for (char c : line)
+        {
+            if (c == '\\' || c == '"')
+            {
+                result += '\\';
+            }
+            result += c;
+        }
+        return result;
+    }
 }
 
 class PythonDocCommentFormatter final : public DocCommentFormatter
@@ -1617,7 +1635,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             string param = q->mappedName();
             inParams.append(param);
-            param += ": " + typeToTypeHintString(q->type(), q->isOptional(), p, true);
+            param += ": " + typeToTypeHintString(q->type(), q->isOptional(), p, true, q->getMetadata());
             if (afterLastRequiredParameter)
             {
                 param += " = None";
@@ -2256,7 +2274,7 @@ Slice::Python::CodeVisitor::writeRemarksDocComment(const StringList& remarks, bo
         out << nl << "-----";
         for (const auto& line : remarks)
         {
-            out << nl << "    " << line;
+            out << nl << "    " << escapeDocstring(line);
         }
     }
 }
@@ -2275,7 +2293,7 @@ Slice::Python::CodeVisitor::writeSeeAlso(const StringList& seeAlso, bool needsNe
         out << nl << "--------";
         for (const string& line : seeAlso)
         {
-            out << nl << "    " << line;
+            out << nl << "    " << escapeDocstring(line);
         }
     }
 }
@@ -2335,7 +2353,7 @@ Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, c
 
     for (const auto& line : overview)
     {
-        out << nl << line;
+        out << nl << escapeDocstring(line);
     }
 
     // Only emit Attributes if there's a docstring for at least one field.
@@ -2356,7 +2374,7 @@ Slice::Python::CodeVisitor::writeDocstring(const ContainedPtr& p, Output& out, c
             {
                 for (const auto& line : q->second)
                 {
-                    out << nl << "    " << line;
+                    out << nl << "    " << escapeDocstring(line);
                 }
             }
         }
@@ -2384,7 +2402,7 @@ Slice::Python::CodeVisitor::writeEnumeratorDocstring(const EnumeratorPtr& p, Out
 
     for (const auto& line : overview)
     {
-        out << nl << line;
+        out << nl << escapeDocstring(line);
     }
     writeRemarksDocComment(remarks, !overview.empty(), out);
     writeSeeAlso(seeAlso, !overview.empty() || !remarks.empty(), out);
@@ -2435,7 +2453,7 @@ Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind 
     out << nl << tripleQuotes;
     for (const string& line : overview)
     {
-        out << nl << line;
+        out << nl << escapeDocstring(line);
     }
 
     // Emit arguments.
@@ -2467,7 +2485,7 @@ Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind 
             {
                 for (const auto& line : r->second)
                 {
-                    out << nl << "    " << line;
+                    out << nl << "    " << escapeDocstring(line);
                 }
             }
         }
@@ -2533,11 +2551,11 @@ Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind 
                     if (firstLine)
                     {
                         firstLine = false;
-                        out << " " << line;
+                        out << " " << escapeDocstring(line);
                     }
                     else
                     {
-                        out << nl << "          " << line;
+                        out << nl << "          " << escapeDocstring(line);
                     }
                 }
             }
@@ -2555,11 +2573,11 @@ Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind 
                         if (firstLine)
                         {
                             firstLine = false;
-                            out << " " << line;
+                            out << " " << escapeDocstring(line);
                         }
                         else
                         {
-                            out << nl << "          " << line;
+                            out << nl << "          " << escapeDocstring(line);
                         }
                     }
                 }
@@ -2569,7 +2587,7 @@ Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind 
         {
             for (const string& line : returnsDoc)
             {
-                out << nl << "    " << line;
+                out << nl << "    " << escapeDocstring(line);
             }
         }
         else if (!outParams.empty())
@@ -2583,7 +2601,7 @@ Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind 
             {
                 for (const string& line : r->second)
                 {
-                    out << nl << "    " << line;
+                    out << nl << "    " << escapeDocstring(line);
                 }
             }
         }
@@ -2603,7 +2621,7 @@ Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind 
             out << nl << exception;
             for (const auto& line : exceptionDescription)
             {
-                out << nl << "    " << line;
+                out << nl << "    " << escapeDocstring(line);
             }
         }
     }
