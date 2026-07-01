@@ -31,8 +31,9 @@ class Client(TestHelper):
                         # The doc-comments contain '"""' and backslash escapes; if they were emitted
                         # verbatim the generated file would not be valid Python.
                         py_compile.compile(path, doraise=True)
-                        if '\\"\\"\\"' in open(path, encoding="utf-8").read():
-                            sawEscapedQuotes = True
+                        with open(path, encoding="utf-8") as f:
+                            if '\\"\\"\\"' in f.read():
+                                sawEscapedQuotes = True
 
             # Make sure we actually exercised the escaping path rather than silently dropping the text.
             test(sawEscapedQuotes)

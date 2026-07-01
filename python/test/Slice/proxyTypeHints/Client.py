@@ -14,18 +14,16 @@ import Ice
 import IcePy
 
 
-def findClass(tree: ast.Module, name: str) -> ast.ClassDef | None:
-    for node in ast.walk(tree):
-        if isinstance(node, ast.ClassDef) and node.name == name:
-            return node
-    return None
+def classNamed(tree: ast.Module, name: str) -> ast.ClassDef:
+    nodes = [node for node in ast.walk(tree) if isinstance(node, ast.ClassDef) and node.name == name]
+    test(len(nodes) == 1)
+    return nodes[0]
 
 
-def findMethod(classNode: ast.ClassDef, name: str) -> ast.FunctionDef | None:
-    for node in classNode.body:
-        if isinstance(node, ast.FunctionDef) and node.name == name:
-            return node
-    return None
+def methodNamed(classNode: ast.ClassDef, name: str) -> ast.FunctionDef:
+    methods = [node for node in classNode.body if isinstance(node, ast.FunctionDef) and node.name == name]
+    test(len(methods) == 1)
+    return methods[0]
 
 
 def paramAnnotation(method: ast.FunctionDef, name: str) -> str:
@@ -60,14 +58,8 @@ class Client(TestHelper):
 
             # The "python:numpy.ndarray" metadata is on the parameter, so the generated proxy method
             # signature must include the NumPy type hint, just like the servant abstract method.
-            proxyClass = findClass(tree, "ProxyHintsPrx")
-            test(proxyClass is not None)
-            servantClass = findClass(tree, "ProxyHints")
-            test(servantClass is not None)
-
-            for cls in [proxyClass, servantClass]:
-                op = findMethod(cls, "op")
-                test(op is not None)
+            for className in ["ProxyHintsPrx", "ProxyHints"]:
+                op = methodNamed(classNamed(tree, className), "op")
                 test("NDArray" in paramAnnotation(op, "values"))
 
         print("ok")
