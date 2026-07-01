@@ -12,7 +12,7 @@ class ConfigurationTestCase(ClientServerTestCase):
         if not isinstance(self.getMapping(), CppMapping):
             return
 
-        certsPath = os.path.abspath(os.path.join(current.testsuite.getPath(), "..", "certs"))
+        certsPath = os.path.join(toplevel, "certs", "configuration")
 
         self.crlServer = None
         self.ocspServer = None
@@ -59,7 +59,7 @@ class ConfigurationTestCase(ClientServerTestCase):
         if self.ocspServer:
             self.ocspServer.shutdown()
 
-        certsPath = os.path.abspath(os.path.join(current.testsuite.getPath(), "..", "certs"))
+        certsPath = os.path.join(toplevel, "certs", "configuration")
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
             os.system("rm -rf {0}".format(os.path.join(certsPath, "Find.keychain")))
         elif current.config.openssl or platform.hasOpenSSL():
@@ -94,6 +94,6 @@ class IceSSLConfigurationServer(Server):
         return Server.getExe(self, current)
 
 TestSuite(__name__, [
-   ConfigurationTestCase(client=IceSSLConfigurationClient(args=['"{testdir}"']),
-                         server=IceSSLConfigurationServer(args=['"{testdir}"']))
+   ConfigurationTestCase(client=IceSSLConfigurationClient(args=['"{certsdir}"']),
+                         server=IceSSLConfigurationServer(args=['"{certsdir}"']))
 ], multihost=False)

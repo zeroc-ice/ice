@@ -1,3 +1,0 @@
-R	270125152612Z	241022152621Z	0F9C79C6ABF2E968	unknown	/CN=Server ca3 revoked/OU=Ice/O=ZeroC, Inc./L=Jupiter/ST=Florida/C=US/emailAddress=info@zeroc.com
-R	270125152612Z	241022152621Z	A8EA6694C8592167	unknown	/CN=Client ca3 revoked/OU=Ice/O=ZeroC, Inc./L=Jupiter/ST=Florida/C=US/emailAddress=info@zeroc.com
-R	270125152610Z	241022152621Z	723B5FD4D0E7BDE8	unknown	/CN=ZeroC Test Intermediate CA 3/OU=Ice/O=ZeroC, Inc./L=Jupiter/ST=Florida/C=US/emailAddress=info@zeroc.com

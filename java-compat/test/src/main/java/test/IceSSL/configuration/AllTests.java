@@ -122,7 +122,7 @@ public class AllTests
         ServerFactoryPrx factory = ServerFactoryPrxHelper.checkedCast(b);
 
         final String defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
-        final String defaultDir = testDir + "/../certs";
+        final String defaultDir = testDir;
         final Ice.Properties defaultProperties = communicator.getProperties();
         final String[] args = new String[0];
 

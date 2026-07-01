@@ -5272,7 +5272,7 @@
 		0177D46738C1CB86A794F5FB /* InputStream.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = InputStream.cpp; path = ../cpp/src/Ice/InputStream.cpp; sourceTree = "<group>"; };
 		02363C2E6188BD5423C57D46 /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/enums/AllTests.swift; sourceTree = "<group>"; };
 		02AD98E557CF1FFCD77B3261 /* TestAMDI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestAMDI.swift; path = test/Ice/optional/TestAMDI.swift; sourceTree = "<group>"; };
-		02D41C09D09D0832D1CCB413 /* certs */ = {isa = PBXFileReference; includeInIndex = 1; name = certs; path = test/IceSSL/configuration/../../../../cpp/test/IceSSL/certs; sourceTree = "<group>"; };
+		02D41C09D09D0832D1CCB413 /* configuration */ = {isa = PBXFileReference; includeInIndex = 1; name = configuration; path = test/IceSSL/configuration/../../../../certs/configuration; sourceTree = "<group>"; };
 		0336B153F1F37A86F0776257 /* Metrics.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Metrics.ice; path = ../slice/Ice/Metrics.ice; sourceTree = "<group>"; };
 		038E9D9FFB33FC6A490E2F32 /* InstrumentationF.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = InstrumentationF.ice; path = ../slice/Ice/InstrumentationF.ice; sourceTree = "<group>"; };
 		03937851F13F0DF1B4C322C5 /* Endpoint.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Endpoint.h; path = src/IceImpl/Endpoint.h; sourceTree = "<group>"; };

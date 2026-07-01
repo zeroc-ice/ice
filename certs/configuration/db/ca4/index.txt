@@ -1,0 +1,2 @@
+R	270801143800Z	260629143809Z	1000	unknown	/CN=ZeroC Test Intermediate CA 4/OU=Ice/O=ZeroC, Inc./L=Jupiter/ST=Florida/C=US/emailAddress=info@zeroc.com
+R	270801143808Z	260629143809Z	1002	unknown	/CN=Server ca4 revoked/OU=Ice/O=ZeroC, Inc./L=Jupiter/ST=Florida/C=US/emailAddress=info@zeroc.com

@@ -126,7 +126,7 @@
 		1440D8891E0189F300CF7ED3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		148ABA171DFB12C800594F70 /* client.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; name = client.p12; path = ../../../../certs/client.p12; sourceTree = "<group>"; };
 		148ABA181DFB12C800594F70 /* server.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; name = server.p12; path = ../../../../certs/server.p12; sourceTree = "<group>"; };
-		148ABA1C1DFB12DB00594F70 /* certs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = certs; path = ../../IceSSL/certs; sourceTree = "<group>"; };
+		148ABA1C1DFB12DB00594F70 /* certs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = configuration; path = ../../../../certs/configuration; sourceTree = "<group>"; };
 		148ABA1E1DFB18A300594F70 /* C++ Test Controller.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "C++ Test Controller.entitlements"; sourceTree = "<group>"; };
 		148ABA551DFEEAEE00594F70 /* C++11 Test Controller.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "C++11 Test Controller.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		14905C511DF98FD8002AE61B /* C++98 Test Controller.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "C++98 Test Controller.app"; sourceTree = BUILT_PRODUCTS_DIR; };

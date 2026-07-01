@@ -93,7 +93,7 @@ $test_extra_frameworks = {
 }
 
 $test_resources = {
-    "IceSSL/configuration" => ["../../../../cpp/test/IceSSL/certs"]
+    "IceSSL/configuration" => ["../../../../certs/configuration"]
 }
 
 desc "Generate Xcode projects required to build Ice for Swift"
