@@ -244,8 +244,12 @@ IceObjC::iAPEndpointI::connectorsAsync(
 
         NSString* protocol =
             _protocol.empty() ? @"com.zeroc.ice" : [[NSString alloc] initWithUTF8String:_protocol.c_str()];
-        // Converts a possibly-nil NSString to a std::string ("" when nil).
-        auto toString = [](NSString* s) { return s ? string{[s UTF8String]} : string{}; };
+        // Converts an NSString to a std::string, yielding "" when the string is nil or not representable as UTF-8.
+        auto toString = [](NSString* s)
+        {
+            const char* utf8 = [s UTF8String];
+            return utf8 ? string{utf8} : string{};
+        };
 
         NSArray* array = [manager connectedAccessories];
         NSEnumerator* enumerator = [array objectEnumerator];

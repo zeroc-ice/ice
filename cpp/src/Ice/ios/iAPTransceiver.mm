@@ -417,8 +417,10 @@ IceObjC::iAPTransceiver::iAPTransceiver(const ProtocolInstancePtr& instance, EAS
 #    endif
       _readStream([session inputStream]),
       _writeStream([session outputStream]),
+      _callback(nil),
       _readStreamRegistered(false),
       _writeStreamRegistered(false),
+      _opening(false),
       _error(false),
       _state(StateNeedConnect)
 {

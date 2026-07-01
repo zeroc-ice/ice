@@ -82,8 +82,8 @@ namespace
         {
             pump();
         }
-        test([in streamStatus] >= NSStreamStatusOpen);
-        test([out streamStatus] >= NSStreamStatusOpen);
+        test([in streamStatus] == NSStreamStatusOpen);
+        test([out streamStatus] == NSStreamStatusOpen);
     }
 
     Buffer makeBuffer(const string& data)
