@@ -605,6 +605,10 @@ Schannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
                 memcpy(_extraBuffer.i, extraBuffer->pvBuffer, extraBuffer->cbBuffer);
                 _extraBuffer.i += extraBuffer->cbBuffer;
             }
+            // Unlike the SEC_E_OK path below, we deliberately leave _readBuffer untouched here: sslHandshake resumes
+            // the handshake from the data still buffered in _readBuffer and moves the trailing post-renegotiation
+            // records back to its front, which is how the application data following the renegotiation is recovered.
+            // Resetting _readBuffer.i here would underflow that memmove.
             // Return the application data already copied into the caller's buffer during this call (it may be non-zero
             // because earlier records in the same batch were decrypted before this renegotiation request). The caller
             // must advance buf.i by this amount before performing the re-handshake, otherwise the next decryptMessage
