@@ -8,7 +8,7 @@
 
 namespace IceObjC
 {
-    // Returns true if an accessory with the given properties satisfies the endpoint's
+    // Returns true if a connected accessory with the given properties satisfies the endpoint's
     // manufacturer/modelNumber/name/protocol filters. Empty filter strings match any value. Extracted as a
     // free function so the matching logic can be unit-tested without the ExternalAccessory framework.
     bool iAPMatches(

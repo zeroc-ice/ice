@@ -168,6 +168,81 @@ namespace
         cout << "ok" << endl;
     }
 
+    void testPartialIO(const ProtocolInstancePtr& instance)
+    {
+        cout << "testing iAP transceiver partial I/O... " << flush;
+        FakePeer peer;
+        NSInputStream* in;
+        NSOutputStream* out;
+        makeFakePeer(peer, in, out);
+
+        auto transceiver = make_shared<IceObjC::iAPTransceiver>(instance, in, out, "test");
+        openAndScheduleStreams(in, out);
+
+        Buffer rb, wb;
+        for (int i = 0; i < 100 && transceiver->initialize(rb, wb) != SocketOperationNone; ++i)
+        {
+        }
+
+        // A payload much larger than the socket buffers, so a single write()/read() cannot transfer it in
+        // one pass and must defer (SocketOperationWrite/Read). Content varies per byte to catch corruption
+        // across the partial transfers.
+        const size_t size = 512 * 1024;
+        string payload(size, '\0');
+        for (size_t i = 0; i < size; ++i)
+        {
+            payload[i] = static_cast<char>('a' + (i % 26));
+        }
+
+        // Write direction: interleave writing through the transceiver with draining the peer.
+        Buffer wbuf = makeBuffer(payload);
+        string received;
+        bool writeDeferred = false;
+        while (wbuf.i != wbuf.b.end() || received.size() < size)
+        {
+            if (wbuf.i != wbuf.b.end() && transceiver->write(wbuf) == SocketOperationWrite)
+            {
+                writeDeferred = true;
+            }
+            char tmp[256 * 1024];
+            ssize_t n = ::read(peer.peerFd, tmp, sizeof(tmp));
+            if (n > 0)
+            {
+                received.append(tmp, static_cast<size_t>(n));
+            }
+            pump();
+        }
+        test(writeDeferred);
+        test(received == payload);
+
+        // Read direction: the peer sends the payload while the transceiver reads it into one buffer.
+        vector<byte> readData(size);
+        Buffer rbuf{readData.data(), readData.data() + readData.size()};
+        size_t sent = 0;
+        bool readDeferred = false;
+        while (rbuf.i != rbuf.b.end())
+        {
+            if (sent < size)
+            {
+                ssize_t n = ::write(peer.peerFd, payload.data() + sent, size - sent);
+                if (n > 0)
+                {
+                    sent += static_cast<size_t>(n);
+                }
+            }
+            if (transceiver->read(rbuf) == SocketOperationRead)
+            {
+                readDeferred = true;
+            }
+            pump();
+        }
+        test(readDeferred);
+        test(string(reinterpret_cast<const char*>(readData.data()), readData.size()) == payload);
+
+        transceiver->closeStreams();
+        cout << "ok" << endl;
+    }
+
     void testConnectionLost(const ProtocolInstancePtr& instance)
     {
         cout << "testing iAP transceiver connection loss... " << flush;
@@ -212,14 +287,24 @@ namespace
         cout << "ok" << endl;
     }
 
-    // Minimal selector-callback stub recording the last operation reported by the transceiver.
+    // Selector-callback stub that mirrors what Ice's selector does on iOS: it feeds each readiness
+    // notification straight back into unregisterFromRunLoop (see EventHandlerWrapper::ready in
+    // Selector.cpp), which is what finishes the transceiver's opening phase. Once that call returns
+    // SocketOperationConnect, the connect is complete.
     class TestReadyCallback final : public SelectorReadyCallback
     {
     public:
-        void readyCallback(SocketOperation op, int = 0) final
+        TestReadyCallback(IceObjC::iAPTransceiver* transceiver) : _transceiver(transceiver) {}
+
+        void readyCallback(SocketOperation op, int error = 0) final
         {
+            SocketOperation result = _transceiver->unregisterFromRunLoop(op, error != 0);
             lock_guard lock(_mutex);
             _ops = static_cast<SocketOperation>(_ops | op);
+            if (result & SocketOperationConnect)
+            {
+                _openingComplete = true;
+            }
         }
 
         SocketOperation ops()
@@ -228,9 +313,17 @@ namespace
             return _ops;
         }
 
+        bool openingComplete()
+        {
+            lock_guard lock(_mutex);
+            return _openingComplete;
+        }
+
     private:
+        IceObjC::iAPTransceiver* _transceiver;
         mutex _mutex;
         SocketOperation _ops{SocketOperationNone};
+        bool _openingComplete{false};
     };
 
     void testRunLoopRegistration(const ProtocolInstancePtr& instance)
@@ -243,30 +336,26 @@ namespace
 
         auto transceiver = make_shared<IceObjC::iAPTransceiver>(instance, in, out, "test");
 
-        // Let the transceiver open and schedule the streams, and drive the open completion through the
-        // delegate callback (mirrors how Ice's selector thread uses the transceiver).
-        TestReadyCallback callback;
+        // initialize() begins the connect: StateNeedConnect -> StateConnectPending, requesting Connect.
+        Buffer rb, wb;
+        test(transceiver->initialize(rb, wb) == SocketOperationConnect);
+
+        // Register with the run loop and drive the open completion through the delegate callback, which
+        // (like the real selector) feeds each notification back into unregisterFromRunLoop.
+        TestReadyCallback callback{transceiver.get()};
         transceiver->initStreams(&callback);
         transceiver->registerWithRunLoop(SocketOperationConnect);
 
-        // Wait for both streams to open and the connect notification to reach the callback.
-        for (int i = 0;
-             i < 200 && !((callback.ops() & SocketOperationConnect) && [in streamStatus] == NSStreamStatusOpen &&
-                          [out streamStatus] == NSStreamStatusOpen);
-             ++i)
+        for (int i = 0; i < 200 && !callback.openingComplete(); ++i)
         {
             pump();
         }
-        test((callback.ops() & SocketOperationConnect) != 0);
-        test([in streamStatus] == NSStreamStatusOpen);
-        test([out streamStatus] == NSStreamStatusOpen);
+        test(callback.ops() & SocketOperationConnect);
+        test(callback.openingComplete());
 
-        // Fully finish the opening phase (both the write and read+connect sides) so neither stream is
-        // left scheduled in the run loop.
-        transceiver->unregisterFromRunLoop(SocketOperationWrite, false);
-        transceiver->unregisterFromRunLoop(
-            static_cast<SocketOperation>(SocketOperationRead | SocketOperationConnect),
-            false);
+        // With the opening phase complete, initialize() advances StateConnectPending -> StateConnected.
+        test(transceiver->initialize(rb, wb) == SocketOperationNone);
+
         transceiver->closeStreams();
         cout << "ok" << endl;
     }
@@ -277,6 +366,7 @@ allTestsTransceiver(const Ice::CommunicatorPtr& communicator)
 {
     auto instance = make_shared<ProtocolInstance>(communicator, iAPEndpointType, "iap", false);
     testReadWrite(instance);
+    testPartialIO(instance);
     testConnectionLost(instance);
     testRunLoopRegistration(instance);
 }
