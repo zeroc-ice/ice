@@ -104,6 +104,8 @@ namespace
         test(!iAPMatches("", "", "", "com.zeroc.ice", false, "Acme", "Model3", "HeadUnit", proto));
         // The protocol must be advertised by the accessory.
         test(!iAPMatches("", "", "", "com.zeroc.ice", true, "Acme", "Model3", "HeadUnit", {"com.other"}));
+        // An empty required protocol never matches, even against an accessory advertising "".
+        test(!iAPMatches("", "", "", "", true, "Acme", "Model3", "HeadUnit", {""}));
         // Manufacturer / modelNumber / name filters must match when set.
         test(iAPMatches("Acme", "", "", "com.zeroc.ice", true, "Acme", "Model3", "HeadUnit", proto));
         test(!iAPMatches("Other", "", "", "com.zeroc.ice", true, "Acme", "Model3", "HeadUnit", proto));

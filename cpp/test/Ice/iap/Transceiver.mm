@@ -249,13 +249,24 @@ namespace
         transceiver->initStreams(&callback);
         transceiver->registerWithRunLoop(SocketOperationConnect);
 
-        for (int i = 0; i < 200 && (callback.ops() & SocketOperationConnect) == 0; ++i)
+        // Wait for both streams to open and the connect notification to reach the callback.
+        for (int i = 0;
+             i < 200 && !((callback.ops() & SocketOperationConnect) && [in streamStatus] == NSStreamStatusOpen &&
+                          [out streamStatus] == NSStreamStatusOpen);
+             ++i)
         {
             pump();
         }
         test((callback.ops() & SocketOperationConnect) != 0);
+        test([in streamStatus] == NSStreamStatusOpen);
+        test([out streamStatus] == NSStreamStatusOpen);
 
+        // Fully finish the opening phase (both the write and read+connect sides) so neither stream is
+        // left scheduled in the run loop.
         transceiver->unregisterFromRunLoop(SocketOperationWrite, false);
+        transceiver->unregisterFromRunLoop(
+            static_cast<SocketOperation>(SocketOperationRead | SocketOperationConnect),
+            false);
         transceiver->closeStreams();
         cout << "ok" << endl;
     }

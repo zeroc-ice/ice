@@ -34,5 +34,11 @@ IceObjC::iAPMatches(
     {
         return false;
     }
+    // Unlike the manufacturer/modelNumber/name filters, the protocol is required: the accessory must
+    // advertise it. An empty protocol is never a wildcard and matches nothing.
+    if (protocol.empty())
+    {
+        return false;
+    }
     return find(accessoryProtocols.begin(), accessoryProtocols.end(), protocol) != accessoryProtocols.end();
 }
