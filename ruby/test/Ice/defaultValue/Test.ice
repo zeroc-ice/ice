@@ -47,6 +47,7 @@ module Test
     const float ConstFloat = 5.1;
     const double ConstDouble = 6.2;
     const string ConstString = "foo \\ \"bar\n \r\n\t\v\f\a\b\? \007 \x07";
+    const string ConstHashString = "a#{b}c #@d #$e #f";
     const Color ConstColor1 = ::Test::Color::red;
     const Color ConstColor2 = Test::green;
     const Color ConstColor3 = blue;
