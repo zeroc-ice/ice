@@ -467,7 +467,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             // Get the deprecation reason if present, or default to an empty string.
             const string reason = op->getDeprecationReason().value_or("");
-            const string escapedReason = toStringLiteral(reason, "\a\b\f\n\r\t\v\x20\x1b", "", EC6UCN, 0);
+            const string escapedReason = toStringLiteral(reason, "\a\b\f\n\r\t\v\x20\x1b", "#", EC6UCN, 0);
             _out << nl << proxyName << "_mixin::OP_" << opName << ".deprecate(\"" << escapedReason << "\")";
         }
     }
@@ -1006,7 +1006,9 @@ Slice::Ruby::CodeVisitor::writeConstantValue(
             case Builtin::KindString:
             {
                 // RubyUCN available in Ruby 1.9 or greater
-                _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\x20\x1b", "", EC6UCN, 0) << "\"";
+                // Escape '#' so that '#{', '#@', and '#$' are not interpreted as interpolation in the
+                // double-quoted Ruby string literal.
+                _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\x20\x1b", "#", EC6UCN, 0) << "\"";
                 break;
             }
 
