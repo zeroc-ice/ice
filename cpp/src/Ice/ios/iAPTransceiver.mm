@@ -9,6 +9,7 @@
 #    include "Ice/LocalExceptions.h"
 #    include "iAPEndpointI.h"
 #    include "iAPTransceiver.h"
+#    include "iAPUtil.h"
 
 #    import <Foundation/NSError.h>
 #    import <Foundation/NSRunLoop.h>
@@ -389,12 +390,12 @@ IceObjC::iAPTransceiver::getInfo([[maybe_unused]] bool incoming, string adapterN
     return make_shared<Ice::IAPConnectionInfo>(
         std::move(adapterName),
         std::move(connectionId),
-        [_session.accessory.name UTF8String],
-        [_session.accessory.manufacturer UTF8String],
-        [_session.accessory.modelNumber UTF8String],
-        [_session.accessory.firmwareRevision UTF8String],
-        [_session.accessory.hardwareRevision UTF8String],
-        [_session.protocolString UTF8String]);
+        nsToString(_session.accessory.name),
+        nsToString(_session.accessory.manufacturer),
+        nsToString(_session.accessory.modelNumber),
+        nsToString(_session.accessory.firmwareRevision),
+        nsToString(_session.accessory.hardwareRevision),
+        nsToString(_session.protocolString));
 }
 
 void
