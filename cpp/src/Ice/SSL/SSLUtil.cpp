@@ -513,18 +513,22 @@ namespace
                 case GEN_EMAIL:
                 {
                     ASN1_IA5STRING* str = gen->d.rfc822Name;
-                    if (str && str->type == V_ASN1_IA5STRING && str->data && str->length > 0)
+                    if (str && ASN1_STRING_type(str) == V_ASN1_IA5STRING && ASN1_STRING_get0_data(str) &&
+                        ASN1_STRING_length(str) > 0)
                     {
-                        p.second = string(reinterpret_cast<const char*>(str->data), str->length);
+                        p.second =
+                            string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(str)), ASN1_STRING_length(str));
                     }
                     break;
                 }
                 case GEN_DNS:
                 {
                     ASN1_IA5STRING* str = gen->d.dNSName;
-                    if (str && str->type == V_ASN1_IA5STRING && str->data && str->length > 0)
+                    if (str && ASN1_STRING_type(str) == V_ASN1_IA5STRING && ASN1_STRING_get0_data(str) &&
+                        ASN1_STRING_length(str) > 0)
                     {
-                        p.second = string(reinterpret_cast<const char*>(str->data), str->length);
+                        p.second =
+                            string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(str)), ASN1_STRING_length(str));
                     }
                     break;
                 }
@@ -536,9 +540,11 @@ namespace
                 case GEN_URI:
                 {
                     ASN1_IA5STRING* str = gen->d.uniformResourceIdentifier;
-                    if (str && str->type == V_ASN1_IA5STRING && str->data && str->length > 0)
+                    if (str && ASN1_STRING_type(str) == V_ASN1_IA5STRING && ASN1_STRING_get0_data(str) &&
+                        ASN1_STRING_length(str) > 0)
                     {
-                        p.second = string(reinterpret_cast<const char*>(str->data), str->length);
+                        p.second =
+                            string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(str)), ASN1_STRING_length(str));
                     }
                     break;
                 }
@@ -546,7 +552,8 @@ namespace
                 {
                     ASN1_OCTET_STRING* addr = gen->d.iPAddress;
                     // TODO: Support IPv6 someday.
-                    if (addr && addr->type == V_ASN1_OCTET_STRING && addr->data && addr->length == 4)
+                    if (addr && ASN1_STRING_type(addr) == V_ASN1_OCTET_STRING && ASN1_STRING_get0_data(addr) &&
+                        ASN1_STRING_length(addr) == 4)
                     {
                         ostringstream ostr;
                         for (int j = 0; j < 4; ++j)
@@ -555,7 +562,7 @@ namespace
                             {
                                 ostr << '.';
                             }
-                            ostr << static_cast<int>(addr->data[j]);
+                            ostr << static_cast<int>(ASN1_STRING_get0_data(addr)[j]);
                         }
                         p.second = ostr.str();
                     }
