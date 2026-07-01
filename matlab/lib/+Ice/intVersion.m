@@ -1,7 +1,7 @@
 function r = intVersion()
     %INTVERSION Returns the Ice version as an integer in the form AABBCC, where AA indicates the major version, BB
-    %   indicates the minor version, and CC indicates the patch level. For example, for Ice 3.8.2, the returned
-    %   value is 30802.
+    %   indicates the minor version, and CC indicates the patch level. For example, for Ice 3.8.3, the returned
+    %   value is 30803.
     %
     %   Output Arguments
     %     r - The Ice version

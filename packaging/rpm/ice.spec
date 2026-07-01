@@ -51,7 +51,7 @@ getent passwd ice > /dev/null || \\\
 %endif
 
 Name: %{?nameprefix}ice
-Version: 3.8.2
+Version: 3.8.3
 Release: 1%{?dist}
 Summary: Comprehensive RPC framework with support for C++, Java, JavaScript, Python and more.
 %if "%{?ice_license}"
@@ -678,6 +678,9 @@ exit 0
 %{_mandir}/man1/slice2py.1*
 
 %changelog
+* Wed Jul 1 2026 José Gutiérrez de la Concha <jose@zeroc.com> 3.8.3
+- The 3.8.3 release
+
 * Tue Jun 2 2026 José Gutiérrez de la Concha <jose@zeroc.com> 3.8.2
 - The 3.8.2 release
 

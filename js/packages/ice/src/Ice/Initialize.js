@@ -12,9 +12,9 @@ export function createProperties(args, defaults) {
 }
 
 export function stringVersion() {
-    return "3.8.2"; // "A.B.C", with A=major, B=minor, C=patch
+    return "3.8.3"; // "A.B.C", with A=major, B=minor, C=patch
 }
 
 export function intVersion() {
-    return 30802; // AABBCC, with AA=major, BB=minor, CC=patch
+    return 30803; // AABBCC, with AA=major, BB=minor, CC=patch
 }

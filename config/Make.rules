@@ -86,7 +86,7 @@ supported-languages     ?= $(strip cpp java python ruby php \
 supported-configs       ?= shared
 default-configs         ?= $(firstword $(supported-configs))
 
-version                 = 3.8.2
+version                 = 3.8.3
 mmversion               = 3.8
 soversion               = 38
 
