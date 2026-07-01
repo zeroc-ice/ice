@@ -8,9 +8,11 @@
 
 namespace IceObjC
 {
-    // Returns true if an accessory with the given properties satisfies the endpoint's
-    // manufacturer/modelNumber/name/protocol filters. Empty filter strings match any value. Extracted as a
-    // free function so the matching logic can be unit-tested without the ExternalAccessory framework.
+    // Returns true if an accessory with the given properties satisfies the endpoint's filters. The
+    // manufacturer, modelNumber, and name are optional filters: an empty value matches any accessory. The
+    // protocol is required: it must be one the accessory advertises, and an empty protocol matches nothing.
+    // Extracted as a free function so the matching logic can be unit-tested without the ExternalAccessory
+    // framework.
     bool iAPMatches(
         const std::string& manufacturer,
         const std::string& modelNumber,
