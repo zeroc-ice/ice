@@ -17,6 +17,7 @@
 #    include "Ice/Properties.h"
 #    include "iAPConnector.h"
 #    include "iAPEndpointI.h"
+#    include "iAPMatch.h"
 
 #    include <CoreFoundation/CoreFoundation.h>
 
@@ -243,32 +244,34 @@ IceObjC::iAPEndpointI::connectorsAsync(
 
         NSString* protocol =
             _protocol.empty() ? @"com.zeroc.ice" : [[NSString alloc] initWithUTF8String:_protocol.c_str()];
+        // Converts a possibly-nil NSString to a std::string ("" when nil).
+        auto toString = [](NSString* s) { return s ? string{[s UTF8String]} : string{}; };
+
         NSArray* array = [manager connectedAccessories];
         NSEnumerator* enumerator = [array objectEnumerator];
         EAAccessory* accessory = nil;
         while ((accessory = [enumerator nextObject]))
         {
-            if (!accessory.connected)
+            vector<string> accessoryProtocols;
+            for (NSString* p in accessory.protocolStrings)
             {
-                continue;
+                accessoryProtocols.emplace_back(toString(p));
             }
-            if (!_manufacturer.empty() && _manufacturer != [accessory.manufacturer UTF8String])
+
+            if (iAPMatches(
+                    _manufacturer,
+                    _modelNumber,
+                    _name,
+                    toString(protocol),
+                    accessory.connected,
+                    toString(accessory.manufacturer),
+                    toString(accessory.modelNumber),
+                    toString(accessory.name),
+                    accessoryProtocols))
             {
-                continue;
+                connectors.emplace_back(
+                    make_shared<iAPConnector>(_instance, _timeout, _connectionId, protocol, accessory));
             }
-            if (!_modelNumber.empty() && _modelNumber != [accessory.modelNumber UTF8String])
-            {
-                continue;
-            }
-            if (!_name.empty() && _name != [accessory.name UTF8String])
-            {
-                continue;
-            }
-            if (![accessory.protocolStrings containsObject:protocol])
-            {
-                continue;
-            }
-            connectors.emplace_back(make_shared<iAPConnector>(_instance, _timeout, _connectionId, protocol, accessory));
         }
 #    if defined(__clang__) && !__has_feature(objc_arc)
         [protocol release];
