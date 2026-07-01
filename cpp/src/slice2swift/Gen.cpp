@@ -1295,6 +1295,9 @@ Slice::TypesVisitor::visitOperation(const OperationPtr& op)
         const string paramLabel = (inParams.size() == 1 ? "_" : param->mappedName());
         _out << (paramLabel + " " + paramName + ": " + typeString + (isOptional ? " = nil" : ""));
     }
+    // We don't escape this synthesized "context" argument label even when an in-parameter is also named
+    // "context": Swift allows a function to declare two parameters with the same argument label, and call
+    // sites disambiguate positionally, so the duplicate label compiles fine.
     _out << "context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil";
     _out << epar;
     _out << " async throws";
