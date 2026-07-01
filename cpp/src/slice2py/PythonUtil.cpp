@@ -2479,7 +2479,12 @@ Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind 
         for (const auto& param : inParams)
         {
             out << nl << param->mappedName() << " : "
-                << typeToTypeHintString(param->type(), param->isOptional(), p, methodKind != MethodKind::Dispatch);
+                << typeToTypeHintString(
+                       param->type(),
+                       param->isOptional(),
+                       p,
+                       methodKind != MethodKind::Dispatch,
+                       param->getMetadata());
             const auto r = parametersDoc.find(param->name());
             if (r != parametersDoc.end())
             {
@@ -2544,7 +2549,12 @@ Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind 
             if (returnType)
             {
                 out << nl << "        - "
-                    << typeToTypeHintString(returnType, op->returnIsOptional(), p, methodKind == MethodKind::Dispatch);
+                    << typeToTypeHintString(
+                           returnType,
+                           op->returnIsOptional(),
+                           p,
+                           methodKind == MethodKind::Dispatch,
+                           op->getMetadata());
                 bool firstLine = true;
                 for (const string& line : returnsDoc)
                 {
@@ -2563,7 +2573,12 @@ Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind 
             for (const auto& param : outParams)
             {
                 out << nl << "        - "
-                    << typeToTypeHintString(param->type(), param->isOptional(), p, methodKind == MethodKind::Dispatch);
+                    << typeToTypeHintString(
+                           param->type(),
+                           param->isOptional(),
+                           p,
+                           methodKind == MethodKind::Dispatch,
+                           param->getMetadata());
                 const auto r = parametersDoc.find(param->name());
                 if (r != parametersDoc.end())
                 {
@@ -2595,7 +2610,12 @@ Slice::Python::CodeVisitor::writeOpDocstring(const OperationPtr& op, MethodKind 
             assert(outParams.size() == 1);
             const auto& param = outParams.front();
             out << nl;
-            out << typeToTypeHintString(param->type(), param->isOptional(), p, methodKind == MethodKind::Dispatch);
+            out << typeToTypeHintString(
+                param->type(),
+                param->isOptional(),
+                p,
+                methodKind == MethodKind::Dispatch,
+                param->getMetadata());
             const auto r = parametersDoc.find(param->name());
             if (r != parametersDoc.end())
             {

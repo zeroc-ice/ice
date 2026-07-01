@@ -57,9 +57,12 @@ class Client(TestHelper):
                 tree = ast.parse(f.read())
 
             # The "python:numpy.ndarray" metadata is on the parameter, so the generated proxy method
-            # signature must include the NumPy type hint, just like the servant abstract method.
+            # signature and its docstring "Parameters" section must both include the NumPy type hint,
+            # just like the servant abstract method.
             for className in ["ProxyHintsPrx", "ProxyHints"]:
                 op = methodNamed(classNamed(tree, className), "op")
                 test("NDArray" in paramAnnotation(op, "values"))
+                docstring = ast.get_docstring(op) or ""
+                test("NDArray" in docstring)
 
         print("ok")
