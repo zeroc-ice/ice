@@ -379,6 +379,13 @@ IceObjC::iAPTransceiver::getInfo([[maybe_unused]] bool incoming, string adapterN
 {
     assert(!incoming);
 
+    if (_session == nil)
+    {
+        // Test-only transceiver constructed without an EASession; no accessory metadata is available.
+        return make_shared<
+            Ice::IAPConnectionInfo>(std::move(adapterName), std::move(connectionId), "", "", "", "", "", "");
+    }
+
     return make_shared<Ice::IAPConnectionInfo>(
         std::move(adapterName),
         std::move(connectionId),
@@ -410,8 +417,10 @@ IceObjC::iAPTransceiver::iAPTransceiver(const ProtocolInstancePtr& instance, EAS
 #    endif
       _readStream([session inputStream]),
       _writeStream([session outputStream]),
+      _callback(nil),
       _readStreamRegistered(false),
       _writeStreamRegistered(false),
+      _opening(false),
       _error(false),
       _state(StateNeedConnect)
 {
@@ -419,6 +428,26 @@ IceObjC::iAPTransceiver::iAPTransceiver(const ProtocolInstancePtr& instance, EAS
     os << "name = " << [session.accessory.name UTF8String] << "\n";
     os << "protocol = " << [session.protocolString UTF8String];
     _desc = os.str();
+}
+
+IceObjC::iAPTransceiver::iAPTransceiver(
+    const ProtocolInstancePtr& instance,
+    NSInputStream* readStream,
+    NSOutputStream* writeStream,
+    string desc)
+    : StreamNativeInfo(INVALID_SOCKET),
+      _instance(instance),
+      _session(nil),
+      _readStream(readStream),
+      _writeStream(writeStream),
+      _callback(nil),
+      _readStreamRegistered(false),
+      _writeStreamRegistered(false),
+      _opening(false),
+      _error(false),
+      _state(StateNeedConnect),
+      _desc(std::move(desc))
+{
 }
 
 IceObjC::iAPTransceiver::~iAPTransceiver()
