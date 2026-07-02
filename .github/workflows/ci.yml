@@ -239,6 +239,29 @@ jobs:
           echo "AppTargetFramework=net10.0" >> $env:GITHUB_ENV
         shell: pwsh
 
+      # Report whether the runner can host an emulated Bluetooth stack (virtual HCI + BlueZ) -- a
+      # prerequisite for eventually exercising the IceBT transport over Bluetooth in CI without radios.
+      - name: Probe Bluetooth runner capabilities
+        if: runner.os == 'Linux' && matrix.config == 'release'
+        continue-on-error: true
+        shell: bash
+        run: |
+          echo "## Load Bluetooth kernel modules"
+          for m in bluetooth l2cap rfcomm bnep hci_vhci; do
+            if sudo modprobe "$m" 2>/dev/null; then echo "  OK    $m"; else echo "  FAIL  $m"; fi
+          done
+          lsmod | grep -Ei 'blue|rfcomm|bnep|vhci|l2cap' || echo "  (no bt modules loaded)"
+          echo "## /dev/vhci"; ls -l /dev/vhci 2>/dev/null || echo "  not present"
+          echo "## CONFIG_BT* (RFCOMM matters for IceBT)"
+          { zcat /proc/config.gz 2>/dev/null || cat "/boot/config-$(uname -r)" 2>/dev/null; } \
+            | grep -E 'CONFIG_BT(_RFCOMM|_HCIVHCI|_BNEP)?=' || echo "  kernel config not exposed"
+          echo "## BlueZ user-space"
+          sudo apt-get install -y bluez bluez-tools >/dev/null 2>&1 || true
+          sudo apt-get install -y bluez-tests >/dev/null 2>&1 || echo "  bluez-tests not packaged"
+          if command -v btvirt >/dev/null; then echo "  btvirt: present"; else
+            echo "  btvirt: NOT packaged (would need building from BlueZ source)"; fi
+          sudo btmgmt info 2>/dev/null || true
+
       - name: Build ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/build
         timeout-minutes: 90
