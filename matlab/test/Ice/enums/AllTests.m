@@ -98,7 +98,7 @@ classdef AllTests
 
             fprintf('testing enum streaming... ');
 
-            encoding_1_0 = strcmp(communicator.getProperties().getProperty('Ice.Default.EncodingVersion'), '1.0');
+            encoding_1_0 = strcmp(communicator.getProperties().getIceProperty('Ice.Default.EncodingVersion'), '1.0');
 
             os = Ice.OutputStream(communicator.getEncoding());
             ByteEnum.ice_write(os, ByteEnum.benum11);

@@ -86,16 +86,12 @@ classdef Communicator < IceInternal.WrapperObject
                     obj.SliceLoader, notFoundCacheSize, cacheFullLogger);
             end
 
-            enc = options.Properties.getProperty('Ice.Default.EncodingVersion');
-            if isempty(enc)
-                obj.encoding = IceInternal.Protocol.Encoding_1_1;
-            else
-                arr = sscanf(enc, '%u.%u');
-                if length(arr) ~= 2
-                    error('Ice:ArgumentException', 'Invalid value for Ice.Default.EncodingVersion');
-                end
-                obj.encoding = Ice.EncodingVersion(arr(1), arr(2));
+            enc = options.Properties.getIceProperty('Ice.Default.EncodingVersion');
+            arr = sscanf(enc, '%u.%u');
+            if length(arr) ~= 2
+                error('Ice:ArgumentException', 'Invalid value for Ice.Default.EncodingVersion');
             end
+            obj.encoding = Ice.EncodingVersion(arr(1), arr(2));
             if options.Properties.getIcePropertyAsInt('Ice.Default.SlicedFormat') > 0
                 obj.format = Ice.FormatType.SlicedFormat;
             else
