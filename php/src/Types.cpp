@@ -1538,7 +1538,7 @@ IcePHP::SequenceInfo::unmarshal(
     array_init(&zv);
     AutoDestroy destroy(&zv);
 
-    int32_t sz = is->readSize();
+    int32_t sz = is->readAndCheckSeqSize(elementType->wireSize());
     for (int32_t i = 0; i < sz; ++i)
     {
         void* cl = reinterpret_cast<void*>(i);
