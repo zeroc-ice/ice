@@ -14,10 +14,8 @@ final class CommunicatorI: LocalObject<ICECommunicator>, Communicator, @unchecke
         self.initData = initData
         do {
             defaultsAndOverrides = try DefaultsAndOverrides(initData.properties!)
-            classGraphDepthMax = try initData.properties!.getIcePropertyAsInt("Ice.ClassGraphDepthMax")
-            precondition(
-                classGraphDepthMax >= 1 && classGraphDepthMax <= 0x7FFF_FFFF,
-                "Ice.ClassGraphDepthMax must be >= 0 and <= 0x7FFF_FFFF")
+            let classGraphDepthMax = try initData.properties!.getIcePropertyAsInt("Ice.ClassGraphDepthMax")
+            self.classGraphDepthMax = classGraphDepthMax < 1 ? Int32.max : classGraphDepthMax
             traceSlicing = try initData.properties!.getIcePropertyAsInt("Ice.Trace.Slicing") > 0
             acceptClassCycles = try initData.properties!.getIcePropertyAsInt("Ice.AcceptClassCycles") > 0
         } catch {
