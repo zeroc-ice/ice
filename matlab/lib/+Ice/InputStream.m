@@ -16,8 +16,7 @@ classdef InputStream < handle
             obj.encoding = encoding;
             obj.encoding_1_0 = encoding.major == 1 && encoding.minor == 0;
             obj.size = length(buf);
-            obj.classGraphDepthMax = ...
-                communicator.getProperties().getPropertyAsIntWithDefault('Ice.ClassGraphDepthMax', 100);
+            obj.classGraphDepthMax = communicator.getProperties().getIcePropertyAsInt('Ice.ClassGraphDepthMax');
             if obj.classGraphDepthMax < 1 || obj.classGraphDepthMax > intmax('int32')
                 obj.classGraphDepthMax = intmax('int32');
             end

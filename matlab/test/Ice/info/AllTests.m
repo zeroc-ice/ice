@@ -54,7 +54,7 @@ classdef AllTests
 
             endpointPort = helper.getTestPort();
 
-            defaultHost = communicator.getProperties().getProperty('Ice.Default.Host');
+            defaultHost = communicator.getProperties().getIceProperty('Ice.Default.Host');
             fprintf('test connection endpoint information... ');
 
             info = testIntf.ice_getConnection().getEndpoint().getInfo();
