@@ -426,8 +426,8 @@ IceObjC::iAPTransceiver::iAPTransceiver(const ProtocolInstancePtr& instance, EAS
       _state(StateNeedConnect)
 {
     ostringstream os;
-    os << "name = " << [session.accessory.name UTF8String] << "\n";
-    os << "protocol = " << [session.protocolString UTF8String];
+    os << "name = " << nsToString(session.accessory.name) << "\n";
+    os << "protocol = " << nsToString(session.protocolString);
     _desc = os.str();
 }
 
@@ -494,10 +494,7 @@ IceObjC::iAPTransceiver::checkErrorStatus(NSStream* stream, const char* file, in
     }
 
     // Otherwise throw a generic exception.
-    throw SocketException{
-        file,
-        line,
-        "CFNetwork error in domain " + string{[domain UTF8String]} + ": " + to_string([err code])};
+    throw SocketException{file, line, "CFNetwork error in domain " + nsToString(domain) + ": " + to_string([err code])};
 }
 
 #endif
