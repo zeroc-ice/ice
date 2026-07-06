@@ -117,8 +117,7 @@ void ::Reader::run(int argc, char* argv[])
     }
 
     // A sampleCount=0 reader keeps no history but must still resolve a partial update against the previous full
-    // sample of the same key. Before the fix the per-key base was recorded only on the history-keeping path, so with
-    // sampleCount=0 the partial resolved against a null base and the class-typed updater dereferenced it.
+    // sample of the same key.
     Topic<string, StockPtr> noHistoryTopic(node, "noHistoryTopic");
     noHistoryTopic.setReaderDefaultConfig(config);
     noHistoryTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
