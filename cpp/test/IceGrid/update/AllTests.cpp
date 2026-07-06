@@ -641,6 +641,51 @@ allTests(Test::TestHelper* helper)
     }
 
     {
+        cout << "testing property set diamond resolution... " << flush;
+
+        //
+        // A non-leaf property set reached through two independent parents (a diamond) must resolve, not be
+        // rejected as a circular dependency. A -> {B, C}, B -> {D}, C -> {D}, D -> {E}: D is reached via both B
+        // and C, which is a legitimate DAG rather than a cycle.
+        //
+        ApplicationDescriptor app;
+        app.name = "DiamondApp";
+
+        PropertySetDescriptor a;
+        a.references = {"B", "C"};
+        app.propertySets["A"] = a;
+
+        PropertySetDescriptor b;
+        b.references = {"D"};
+        app.propertySets["B"] = b;
+
+        PropertySetDescriptor c;
+        c.references = {"D"};
+        app.propertySets["C"] = c;
+
+        PropertySetDescriptor d;
+        d.references = {"E"};
+        app.propertySets["D"] = d;
+
+        PropertySetDescriptor e;
+        e.properties.push_back(createProperty("Diamond", "1"));
+        app.propertySets["E"] = e;
+
+        try
+        {
+            admin->addApplication(app);
+        }
+        catch (const DeploymentException& ex)
+        {
+            cerr << ex.reason << endl;
+            test(false);
+        }
+        admin->removeApplication("DiamondApp");
+
+        cout << "ok" << endl;
+    }
+
+    {
         cout << "testing node add... " << flush;
 
         ApplicationDescriptor testApp;
