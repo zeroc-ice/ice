@@ -2714,7 +2714,7 @@ IcePy::ProxyInfo::variableLength() const
 int
 IcePy::ProxyInfo::wireSize() const
 {
-    return 1;
+    return 2;
 }
 
 Ice::OptionalFormat
