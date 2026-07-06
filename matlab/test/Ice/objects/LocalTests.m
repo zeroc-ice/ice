@@ -13,13 +13,13 @@ classdef LocalTests
 
             fprintf('testing class members locally... ');
 
-            if props.getPropertyAsIntWithDefault('Ice.Default.SlicedFormat', 0) == 1
+            if props.getIcePropertyAsInt('Ice.Default.SlicedFormat') > 0
                 format = Ice.FormatType.SlicedFormat;
             else
                 format = Ice.FormatType.CompactFormat;
             end
 
-            if strcmp(props.getPropertyWithDefault('Ice.Default.EncodingVersion', '1.1'), '1.1')
+            if strcmp(props.getIceProperty('Ice.Default.EncodingVersion'), '1.1')
                 encoding = Ice.EncodingVersion(1, 1);
             else
                 encoding = Ice.EncodingVersion(1, 0);
