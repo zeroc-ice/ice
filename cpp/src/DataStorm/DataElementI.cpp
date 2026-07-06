@@ -1069,8 +1069,7 @@ DataWriterI::publish(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
     }
     send(key, sample);
 
-    // Record the sample as the per-key base for resolving future partial updates. This must happen before the
-    // sampleCount == 0 early-return below: the base is independent of history retention.
+    // The per-key base for partial updates is maintained even when the element keeps no history (sampleCount == 0).
     _lastByKey[key] = sample;
 
     if (_config->sampleLifetime && *_config->sampleLifetime > 0)
