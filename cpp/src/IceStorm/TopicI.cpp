@@ -1006,6 +1006,12 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
 {
     lock_guard lock(_subscribersMutex);
 
+    // Ignore updates for a destroyed topic.
+    if (_destroyed)
+    {
+        return;
+    }
+
     auto traceLevels = _instance->traceLevels();
     if (traceLevels->topic > 0)
     {
