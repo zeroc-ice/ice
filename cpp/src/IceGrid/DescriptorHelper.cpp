@@ -954,9 +954,8 @@ Resolver::getProperties(const Ice::StringSeq& references, set<string>& resolved)
         PropertySetDescriptor desc = getPropertySet(reference);
         if (!desc.references.empty())
         {
-            // Track references only for the current resolution path so a shared non-leaf property set reached through
-            // two independent parents (a diamond) is not mistaken for a cycle. Erasing after recursion mirrors the
-            // variable cycle check in substitute().
+            // 'resolved' tracks only the current resolution path: a property set reached twice through independent
+            // parents is not a cycle.
             resolved.insert(reference);
             PropertyDescriptorSeq q = getProperties(desc.references, resolved);
             resolved.erase(reference);
