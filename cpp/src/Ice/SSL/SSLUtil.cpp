@@ -503,7 +503,7 @@ namespace
             const unsigned char* data = ASN1_STRING_get0_data(str);
             if (data)
             {
-                return string(reinterpret_cast<const char*>(data), ASN1_STRING_length(str));
+                return {reinterpret_cast<const char*>(data), static_cast<size_t>(ASN1_STRING_length(str))};
             }
         }
         return {};
