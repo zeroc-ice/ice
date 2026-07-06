@@ -1446,7 +1446,7 @@ IcePy::SequenceInfo::unmarshal(
         return;
     }
 
-    int32_t sz = is->readSize();
+    int32_t sz = is->readAndCheckSeqSize(elementType->wireSize());
     PyObjectHandle result{sm->createContainer(sz)};
 
     if (!result.get())
