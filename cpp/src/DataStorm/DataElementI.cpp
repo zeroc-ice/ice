@@ -939,9 +939,7 @@ DataReaderI::queue(
     }
     _lastSendTime = sample->timestamp;
 
-    // Record the sample as the per-key base for resolving future partial updates. This must happen before the
-    // sampleCount == 0 early-return below: the base is independent of history retention, so a reader that keeps no
-    // history (sampleCount == 0) must still resolve a subsequent partial update against this value.
+    // The per-key base for partial updates is maintained even when the element keeps no history (sampleCount == 0).
     _lastByKey[sample->key] = sample;
 
     if (_onSamples)
