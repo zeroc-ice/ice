@@ -479,6 +479,14 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
         {
             installTopic(name, q.id, true, q.records);
         }
+        else if (r->second->destroyed())
+        {
+            // A topic destroyed on this replica can linger in _topics until the next reap. Since a destroyed
+            // TopicImpl has no servants and ignores replicated updates, we can't reuse it: install a fresh
+            // topic from the content instead.
+            _topics.erase(r);
+            installTopic(name, q.id, true, q.records);
+        }
         else
         {
             r->second->update(q.records);
