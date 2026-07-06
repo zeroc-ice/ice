@@ -372,6 +372,13 @@ namespace
                 error(true, current_exception());
             }
         }
+
+        // If every queued event was filtered out by cost, we emptied _events without forwarding anything and no
+        // completion callback will fire; wake a waiting shutdown() ourselves, as SubscriberOneway::flush() does.
+        if (_events.empty() && _outstanding == 0 && _shutdown)
+        {
+            _condVar.notify_one();
+        }
     }
 }
 
