@@ -816,9 +816,7 @@ DataReaderI::initSamples(
     }
     _lastSendTime = valid.back()->timestamp;
 
-    // Record the resolved per-key bases before the sampleCount == 0 early-return below: the base is independent of
-    // history retention, so a reader that keeps no history must still resolve future partial updates against these
-    // values. valid is non-empty here (checked above), matching the previous placement of this assignment.
+    // The per-key bases for partial updates are maintained even when the element keeps no history (sampleCount == 0).
     _lastByKey = std::move(previousByKey);
 
     if (_config->sampleLifetime && *_config->sampleLifetime > 0)
