@@ -2236,7 +2236,7 @@ IceRuby::ProxyInfo::variableLength() const
 int
 IceRuby::ProxyInfo::wireSize() const
 {
-    return 1;
+    return 2;
 }
 
 Ice::OptionalFormat

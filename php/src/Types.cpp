@@ -2621,7 +2621,7 @@ IcePHP::ProxyInfo::variableLength() const
 int
 IcePHP::ProxyInfo::wireSize() const
 {
-    return 1;
+    return 2;
 }
 
 Ice::OptionalFormat
