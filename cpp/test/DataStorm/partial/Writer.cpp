@@ -83,6 +83,25 @@ void ::Writer::run(int argc, char* argv[])
         writer.add("k2", 2);
     }
     cout << "ok" << endl;
+
+    // A reader that keeps no history (sampleCount == 0) must still resolve a partial update against the previous
+    // full sample of the same key, because the per-key base is recorded independently of history retention.
+    Topic<string, StockPtr> noHistoryTopic(node, "noHistoryTopic");
+    noHistoryTopic.setWriterDefaultConfig(config);
+    noHistoryTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    Topic<string, int> noHistoryBarrier(node, "noHistoryBarrier");
+    cout << "testing partial update delivered to a sampleCount=0 reader... " << flush;
+    {
+        auto writer = makeSingleKeyWriter(noHistoryTopic, "AAPL");
+        writer.waitForReaders();
+        // Wait until the reader has installed its onSamples callback: a sampleCount=0 reader keeps no history, so it
+        // observes samples only through that callback, which must be registered before we publish.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(noHistoryBarrier, "barrier").getNextUnread();
+        writer.add(make_shared<Stock>(12.0f, 13.0f, 14.0f));
+        writer.partialUpdate<float>("price")(15.0f);
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
 }
 
 DEFINE_TEST(::Writer)

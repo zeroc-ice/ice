@@ -816,6 +816,11 @@ DataReaderI::initSamples(
     }
     _lastSendTime = valid.back()->timestamp;
 
+    // Record the resolved per-key bases before the sampleCount == 0 early-return below: the base is independent of
+    // history retention, so a reader that keeps no history must still resolve future partial updates against these
+    // values. valid is non-empty here (checked above), matching the previous placement of this assignment.
+    _lastByKey = std::move(previousByKey);
+
     if (_config->sampleLifetime && *_config->sampleLifetime > 0)
     {
         cleanOldSamples(_samples, now, *_config->sampleLifetime);
@@ -865,7 +870,6 @@ DataReaderI::initSamples(
         }
     }
     assert(!_samples.empty());
-    _lastByKey = std::move(previousByKey);
     _parent->_cond.notify_all();
 }
 
@@ -935,6 +939,11 @@ DataReaderI::queue(
     }
     _lastSendTime = sample->timestamp;
 
+    // Record the sample as the per-key base for resolving future partial updates. This must happen before the
+    // sampleCount == 0 early-return below: the base is independent of history retention, so a reader that keeps no
+    // history (sampleCount == 0) must still resolve a subsequent partial update against this value.
+    _lastByKey[sample->key] = sample;
+
     if (_onSamples)
     {
         _executor->queue([callback = _onSamples, sample] { callback(sample); });
@@ -976,7 +985,6 @@ DataReaderI::queue(
         _samples.clear();
     }
     _samples.push_back(sample);
-    _lastByKey[sample->key] = sample;
     _parent->_cond.notify_all();
 }
 
@@ -1065,6 +1073,10 @@ DataWriterI::publish(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
     }
     send(key, sample);
 
+    // Record the sample as the per-key base for resolving future partial updates. This must happen before the
+    // sampleCount == 0 early-return below: the base is independent of history retention.
+    _lastByKey[key] = sample;
+
     if (_config->sampleLifetime && *_config->sampleLifetime > 0)
     {
         cleanOldSamples(_samples, sample->timestamp, *_config->sampleLifetime);
@@ -1096,7 +1108,6 @@ DataWriterI::publish(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
     }
     assert(sample->key);
     _samples.push_back(sample);
-    _lastByKey[key] = sample;
 }
 
 KeyDataReaderI::KeyDataReaderI(

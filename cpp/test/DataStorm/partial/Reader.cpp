@@ -4,6 +4,8 @@
 #include "Test.h"
 #include "TestHelper.h"
 
+#include <future>
+
 using namespace DataStorm;
 using namespace std;
 using namespace Test;
@@ -112,6 +114,43 @@ void ::Reader::run(int argc, char* argv[])
 
         sample = reader.getNextUnread(); // from writer 2: attach runs getLastIds over the stale entry
         test(sample.getValue() == 2);
+    }
+
+    // A sampleCount=0 reader keeps no history but must still resolve a partial update against the previous full
+    // sample of the same key. Before the fix the per-key base was recorded only on the history-keeping path, so with
+    // sampleCount=0 the partial resolved against a null base and the class-typed updater dereferenced it.
+    Topic<string, StockPtr> noHistoryTopic(node, "noHistoryTopic");
+    noHistoryTopic.setReaderDefaultConfig(config);
+    noHistoryTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    Topic<string, int> noHistoryBarrier(node, "noHistoryBarrier");
+    {
+        ReaderConfig noHistory;
+        noHistory.sampleCount = 0;
+        auto reader = makeSingleKeyReader(noHistoryTopic, "AAPL", "", noHistory);
+
+        // A sampleCount=0 reader keeps no history, so getNextUnread would never return; observe samples through the
+        // update callback instead. It fires for the Add (which establishes the base) and then the partial update.
+        promise<shared_ptr<Stock>> partial;
+        reader.onSamples(
+            [](const vector<Sample<string, StockPtr>>&) {},
+            [&partial](const Sample<string, StockPtr>& sample)
+            {
+                if (sample.getEvent() == SampleEvent::PartialUpdate)
+                {
+                    partial.set_value(sample.getValue());
+                }
+            });
+
+        // Tell the writer the callback is installed so it can publish.
+        auto barrier = makeSingleKeyWriter(noHistoryBarrier, "barrier");
+        barrier.waitForReaders();
+        barrier.update(0);
+
+        auto aapl = partial.get_future().get();
+        test(aapl);
+        test(aapl->price == 15.0f);   // the partial update
+        test(aapl->lastBid == 13.0f); // carried over from the base, not a default-constructed 0
+        test(aapl->lastAsk == 14.0f);
     }
 }
 
