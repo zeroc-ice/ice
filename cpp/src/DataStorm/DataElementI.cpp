@@ -825,26 +825,9 @@ DataReaderI::initSamples(
         cleanOldSamples(_samples, now, *_config->sampleLifetime);
     }
 
-    if (_config->sampleCount)
+    if (_config->sampleCount && *_config->sampleCount == 0)
     {
-        if (*_config->sampleCount > 0)
-        {
-            size_t count = _samples.size();
-            auto maxCount = static_cast<size_t>(*_config->sampleCount);
-            if (count + valid.size() > maxCount)
-            {
-                count = count + valid.size() - maxCount;
-                while (!_samples.empty() && count-- > 0)
-                {
-                    _samples.pop_front();
-                }
-                assert(_samples.size() + valid.size() == maxCount);
-            }
-        }
-        else if (*_config->sampleCount == 0)
-        {
-            return; // Don't keep history
-        }
+        return; // Don't keep history
     }
 
     if (_config->clearHistory && *_config->clearHistory == ClearHistoryPolicy::OnAll)
@@ -868,6 +851,18 @@ DataReaderI::initSamples(
             _samples.push_back(s);
         }
     }
+
+    // Keep at most sampleCount samples. The init batch can exceed sampleCount when the writer delivers one base per
+    // key (an any-key reader joining a writer with more distinct keys than sampleCount); those per-key bases were
+    // already recorded in _lastByKey above, so trimming the surplus from the visible history here is safe.
+    if (_config->sampleCount && *_config->sampleCount > 0)
+    {
+        while (_samples.size() > static_cast<size_t>(*_config->sampleCount))
+        {
+            _samples.pop_front();
+        }
+    }
+
     assert(!_samples.empty());
     _parent->_cond.notify_all();
 }
@@ -1297,11 +1292,12 @@ KeyDataWriterI::getSamples(
             sources.end(),
             [](const shared_ptr<Sample>& lhs, const shared_ptr<Sample>& rhs) { return lhs->id < rhs->id; });
 
-        // Never deliver more than the reader's sampleCount: the reader applies the batch atomically and caps its own
-        // history to sampleCount, so a larger batch would exceed the cap. sampleCount == 0 keeps no history and is
-        // handled by the caller (the reader records the bases in its per-key state without keeping them). When
-        // capping, keep the newest sample of each key first so every key the reader may later receive a partial
-        // update for keeps a resolvable base, then fill any remaining budget with the newest of the other samples.
+        // Cap the batch to the reader's sampleCount, but keep the newest sample of every key even when the number of
+        // distinct keys exceeds sampleCount: each key the reader may later receive a partial update for needs a
+        // resolvable base. The reader records these bases in _lastByKey before capping its own visible history, so
+        // delivering one per key never overflows it. sampleCount == 0 keeps no history and is handled by the caller
+        // (the reader still records the bases). First reserve the newest sample of each key, then fill any remaining
+        // budget with the newest of the other samples.
         if (config->sampleCount && *config->sampleCount > 0 &&
             sources.size() > static_cast<size_t>(*config->sampleCount))
         {
@@ -1309,8 +1305,8 @@ KeyDataWriterI::getSamples(
             vector<bool> keep(sources.size(), false);
             size_t kept = 0;
             set<shared_ptr<Key>> keptKeys;
-            // First pass (newest to oldest): reserve a slot for the newest sample of each key.
-            for (size_t i = sources.size(); i-- > 0 && kept < maxCount;)
+            // First pass (newest to oldest): reserve the newest sample of every key, even past maxCount.
+            for (size_t i = sources.size(); i-- > 0;)
             {
                 if (keptKeys.insert(sources[i]->key).second)
                 {

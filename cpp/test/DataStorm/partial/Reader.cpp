@@ -270,9 +270,10 @@ void ::Reader::run(int argc, char* argv[])
         test(aapl->lastAsk == 14.0f);
     }
 
-    // A reader with a limited sampleCount joins a writer where one key (GOOG) has more history samples than another
-    // (AAPL). Capping the init batch to sampleCount must keep AAPL's base, not just GOOG's two newest samples, so a
-    // later partial update on AAPL resolves rather than crashing on a null base.
+    // A reader with a limited sampleCount joins a writer that has more distinct keys (MSFT, AAPL, GOOG) than the
+    // reader's sampleCount, with GOOG carrying extra history. Capping the init batch to sampleCount must keep a base
+    // for every key, including MSFT (the oldest, which a naive "newest N samples" cap drops), so a later partial
+    // update on MSFT resolves rather than crashing on a null base.
     Topic<string, StockPtr> capTopic(node, "capTopic");
     capTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
     Topic<string, int> capBarrier(node, "capBarrier");
@@ -283,18 +284,18 @@ void ::Reader::run(int argc, char* argv[])
         limited.sampleCount = 2;
         limited.clearHistory = ClearHistoryPolicy::Never;
         auto reader = makeAnyKeyReader(capTopic, "", limited);
-        shared_ptr<Stock> aapl;
-        while (!aapl)
+        shared_ptr<Stock> msft;
+        while (!msft)
         {
             auto sample = reader.getNextUnread();
-            if (sample.getKey() == "AAPL" && sample.getEvent() == SampleEvent::PartialUpdate)
+            if (sample.getKey() == "MSFT" && sample.getEvent() == SampleEvent::PartialUpdate)
             {
-                aapl = sample.getValue();
+                msft = sample.getValue();
             }
         }
-        test(aapl->price == 15.0f);
-        test(aapl->lastBid == 13.0f); // AAPL's base survived the cap (not evicted by GOOG's extra history)
-        test(aapl->lastAsk == 14.0f);
+        test(msft->price == 55.0f);
+        test(msft->lastBid == 51.0f); // MSFT's base survived the cap despite the key count exceeding sampleCount
+        test(msft->lastAsk == 52.0f);
     }
 }
 

@@ -212,9 +212,11 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
-    // When a reader with a limited sampleCount joins a multi-key writer, capping the init batch must keep at least
-    // one value per key, not just the newest N samples overall: here GOOG has two samples and AAPL one, and a
-    // sampleCount=2 reader must still receive AAPL's base so a later partial update on AAPL resolves.
+    // When a reader with a limited sampleCount joins a writer whose number of distinct keys exceeds that sampleCount,
+    // capping the init batch must keep one value per key (a resolvable base), not just the newest N samples overall.
+    // Here three keys (MSFT, AAPL, GOOG) share a sampleCount=2 reader and GOOG has extra history, so a naive "newest
+    // two samples" cap would drop MSFT's base entirely. The cap must keep it so a later partial update on MSFT
+    // resolves.
     Topic<string, StockPtr> capTopic(node, "capTopic");
     capTopic.setWriterDefaultConfig(config); // keep full history
     capTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
@@ -222,16 +224,17 @@ void ::Writer::run(int argc, char* argv[])
     cout << "testing sampleCount cap keeps a base per key... " << flush;
     {
         auto writer = makeAnyKeyWriter(capTopic);
-        writer.add("AAPL", make_shared<Stock>(12.0f, 13.0f, 14.0f)); // id 1
-        writer.add("GOOG", make_shared<Stock>(100.0f, 101.0f, 102.0f));
-        writer.update("GOOG", make_shared<Stock>(200.0f, 201.0f, 202.0f)); // two GOOG samples
+        writer.add("MSFT", make_shared<Stock>(50.0f, 51.0f, 52.0f));       // id 1 (oldest)
+        writer.add("AAPL", make_shared<Stock>(12.0f, 13.0f, 14.0f));       // id 2
+        writer.add("GOOG", make_shared<Stock>(100.0f, 101.0f, 102.0f));    // id 3
+        writer.update("GOOG", make_shared<Stock>(200.0f, 201.0f, 202.0f)); // id 4, two GOOG samples
 
         auto barrier = makeSingleKeyWriter(capBarrier, "barrier");
         barrier.waitForReaders();
         barrier.update(0);
 
         writer.waitForReaders();
-        writer.partialUpdate<float>("price")("AAPL", 15.0f); // resolves only if AAPL's base survived the cap
+        writer.partialUpdate<float>("price")("MSFT", 55.0f); // resolves only if MSFT's base survived the cap
         writer.waitForNoReaders();
     }
     cout << "ok" << endl;
