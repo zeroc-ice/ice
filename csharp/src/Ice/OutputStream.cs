@@ -9,8 +9,7 @@ using Protocol = Ice.Internal.Protocol;
 namespace Ice;
 
 /// <summary>
-/// Interface for output streams used to write Slice types to a sequence
-/// of bytes.
+/// Represents a byte buffer used for marshaling data using the Slice encoding.
 /// </summary>
 public sealed class OutputStream
 {
@@ -206,7 +205,7 @@ public sealed class OutputStream
     }
 
     /// <summary>
-    /// Ends the previous encapsulation.
+    /// Ends the current encapsulation.
     /// </summary>
     public void endEncapsulation()
     {
@@ -1590,8 +1589,9 @@ public sealed class OutputStream
     /// <summary>
     /// Writes a class instance to the stream.
     /// </summary>
-    /// <param name="v">The value to write. This method writes the index of an instance; the state of the value is
-    /// written once writePendingValues() is called.</param>
+    /// <param name="v">The value to write. With the 1.0 encoding, this method writes an index and the state of the
+    /// value is marshaled when <see cref="writePendingValues" /> is called; with the 1.1 encoding, the state is
+    /// marshaled eagerly, without waiting for <see cref="writePendingValues" />.</param>
     public void writeValue(Value? v)
     {
         initEncaps();

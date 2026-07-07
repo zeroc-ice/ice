@@ -142,22 +142,22 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
 
     /// <summary>
     /// Gets the identity embedded in this proxy.
-    /// <returns>The identity of the target object.</returns>
     /// </summary>
+    /// <returns>The identity of the target object.</returns>
     Identity ice_getIdentity();
 
     /// <summary>
-    /// Creates a new proxy that is identical to this proxy, except for the per-proxy context.
-    /// <param name="newIdentity">The identity for the new proxy.</param>
-    /// <returns>The proxy with the new identity.</returns>
+    /// Creates a new proxy that is identical to this proxy, except for the proxy identity.
     /// </summary>
+    /// <param name="newIdentity">The identity for the new proxy.</param>
+    /// <returns>The new proxy with the specified identity.</returns>
     ObjectPrx ice_identity(Identity newIdentity);
 
     /// <summary>
     /// Gets the per-proxy context for this proxy.
     /// </summary>
-    /// <returns>The per-proxy context. If the proxy does not have a per-proxy (implicit) context, the return value
-    /// is null.</returns>
+    /// <returns>A copy of the per-proxy context. The dictionary is empty when this proxy has no per-proxy
+    /// context.</returns>
     Dictionary<string, string> ice_getContext();
 
     /// <summary>
@@ -275,12 +275,12 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// Creates a new proxy that is identical to this proxy, except for the encoding used to marshal
     /// parameters.
     /// </summary>
-    /// <param name="encodingVersion">The encoding version to use to marshal requests parameters.</param>
+    /// <param name="encodingVersion">The encoding version to use to marshal request parameters.</param>
     /// <returns>The new proxy with the specified encoding version.</returns>
     ObjectPrx ice_encodingVersion(EncodingVersion encodingVersion);
 
     /// <summary>
-    /// Gets the encoding version used to marshal requests parameters.
+    /// Gets the encoding version used to marshal request parameters.
     /// </summary>
     /// <returns>The encoding version.</returns>
     EncodingVersion ice_getEncodingVersion();
@@ -900,8 +900,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Gets the per-proxy context for this proxy.
     /// </summary>
-    /// <returns>The per-proxy context. If the proxy does not have a per-proxy (implicit) context, the return value
-    /// is null.</returns>
+    /// <returns>A copy of the per-proxy context. The dictionary is empty when this proxy has no per-proxy
+    /// context.</returns>
     public Dictionary<string, string> ice_getContext() => new Dictionary<string, string>(_reference.getContext());
 
     /// <summary>
@@ -1107,7 +1107,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Creates a new proxy that is identical to this proxy, except for the encoding used to marshal
     /// parameters.
     /// </summary>
-    /// <param name="encodingVersion">The encoding version to use to marshal requests parameters.</param>
+    /// <param name="encodingVersion">The encoding version to use to marshal request parameters.</param>
     /// <returns>The new proxy with the specified encoding version.</returns>
     public ObjectPrx ice_encodingVersion(EncodingVersion encodingVersion)
     {
@@ -1122,7 +1122,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Gets the encoding version used to marshal requests parameters.
+    /// Gets the encoding version used to marshal request parameters.
     /// </summary>
     /// <returns>The encoding version.</returns>
     public EncodingVersion ice_getEncodingVersion() => _reference.getEncoding();
@@ -1709,7 +1709,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
 }
 
 /// <summary>
-/// Base class for all proxy helpers.
+/// The concrete proxy class that implements <see cref="ObjectPrx" />.
 /// </summary>
 public class ObjectPrxHelper : ObjectPrxHelperBase
 {
@@ -1719,7 +1719,7 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <param name="communicator">The communicator of the new proxy.</param>
     /// <param name="proxyString">The string representation of the proxy.</param>
     /// <returns>The new proxy.</returns>
-    /// <exception name="ParseException">Thrown when <paramref name="proxyString" /> is not a valid proxy string.
+    /// <exception cref="ParseException">Thrown when <paramref name="proxyString" /> is not a valid proxy string.
     /// </exception>
     public static ObjectPrx createProxy(Communicator communicator, string proxyString)
     {

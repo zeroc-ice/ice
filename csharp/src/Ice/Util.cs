@@ -134,7 +134,8 @@ public sealed class Util
     /// Converts an object identity to a string.
     /// </summary>
     /// <param name="ident">The object identity to convert.</param>
-    /// <param name="toStringMode">Specifies if and how non-printable ASCII characters are escaped in the result.</param>
+    /// <param name="toStringMode">Specifies how to handle non-ASCII characters and non-printable ASCII
+    /// characters.</param>
     /// <returns>The string representation of the object identity.</returns>
     public static string identityToString(Identity ident, ToStringMode toStringMode = ToStringMode.Unicode)
     {
