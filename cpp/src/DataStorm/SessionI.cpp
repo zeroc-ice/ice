@@ -1227,8 +1227,13 @@ SessionI::subscriberInitialized(
     }
     else
     {
-        assert(samples.front().id > elementSubscriber->lastId);
-        elementSubscriber->lastId = samples.back().id;
+        // A multi-key subscriber shares a single ElementSubscriber across its keys, and the peer acks one batch per
+        // key, so this runs once per key with sample ids interleaved across keys — a later batch need not strictly
+        // follow the previous one. Advance lastId monotonically to the newest id seen (samples are ordered by id).
+        if (samples.back().id > elementSubscriber->lastId)
+        {
+            elementSubscriber->lastId = samples.back().id;
+        }
 
         vector<shared_ptr<Sample>> samplesI;
         samplesI.reserve(samples.size());
