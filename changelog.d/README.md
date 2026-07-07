@@ -17,7 +17,8 @@ A PR that warrants a changelog entry adds `changelog.d/<section>/<id>.md`, where
 
 The fragment content is the literal changelog bullet(s), inserted verbatim by the collation script:
 
-- Each bullet starts with `- `, with continuation lines indented two spaces and wrapped at 120 columns.
+- Each bullet is a Markdown list item starting with `-`, with continuation lines indented two spaces and wrapped at
+  120 columns.
 - Describe the change from the user's perspective, symptom first. The issue/PR reference stays out of the entry;
   git ties the fragment to its PR.
 - A fragment may contain several bullets when one PR makes several user-visible changes.
@@ -49,16 +50,18 @@ A change with no user-facing impact gets **no fragment** — that is a deliberat
 
 ## Releasing
 
-On the release branch, run:
+Fragments are collated only when making a release, and releases are made from release branches: on `main`, the
+fragments simply accumulate until a release branch is cut. On the release branch, run:
 
 ```shell
 python3 scripts/collate_changelog.py <version>
 ```
 
-The script inserts the collated sections into the `## Changes in Ice <version>` section of the changelog
-(`CHANGELOG-<major>.<minor>.md` if it exists, else `CHANGELOG.md`), creating that section when it doesn't exist yet,
-and deletes the consumed fragments. It does not touch git: review the diff, reorder entries as needed, regenerate
-the table of contents in your editor, and commit. Use `--dry-run` to preview the collated sections.
+The script inserts the collated sections into the `## Changes in Ice <version>` section of
+`CHANGELOG-<major>.<minor>.md`, creating that section when it doesn't exist yet, and deletes the consumed fragments.
+It fails when `CHANGELOG-<major>.<minor>.md` doesn't exist; use `--file` to collate into another file. It does not
+touch git: review the diff, reorder entries as needed, regenerate the table of contents in your editor, and commit.
+Use `--dry-run` to preview the collated sections.
 
 Backporting a fix carries its fragment along with the cherry-pick. After a patch release from a release branch, the
 fragments it consumed are also removed from `main` by hand, since those fixes are documented in the release branch's

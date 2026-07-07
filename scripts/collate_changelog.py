@@ -154,7 +154,7 @@ def main():
     parser.add_argument(
         "--file",
         type=Path,
-        help="the changelog file to update (default: CHANGELOG-<major>.<minor>.md if it exists, else CHANGELOG.md)",
+        help="the changelog file to update (default: CHANGELOG-<major>.<minor>.md)",
     )
     parser.add_argument("--dry-run", action="store_true", help="print the collated sections without changing anything")
     parser.add_argument("--keep-fragments", action="store_true", help="do not delete the consumed fragment files")
@@ -178,8 +178,8 @@ def main():
         major_minor = ".".join(args.version.split(".")[:2])
         changelog = root / f"CHANGELOG-{major_minor}.md"
         if not changelog.exists():
-            changelog = root / "CHANGELOG.md"
-    if not changelog.exists():
+            die(f"{changelog} does not exist: run this script on a release branch, or specify the file with --file")
+    elif not changelog.exists():
         die(f"{changelog} does not exist")
 
     lines = insert_sections(changelog, args.version, sections)
