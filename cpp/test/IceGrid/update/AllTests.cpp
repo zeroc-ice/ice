@@ -686,6 +686,37 @@ allTests(Test::TestHelper* helper)
     }
 
     {
+        cout << "testing property set cycle detection... " << flush;
+
+        //
+        // A genuine property set reference cycle (B -> {C}, C -> {B}) must still be rejected as a circular
+        // dependency.
+        //
+        ApplicationDescriptor app;
+        app.name = "PropertySetCycleApp";
+
+        PropertySetDescriptor b;
+        b.references = {"C"};
+        app.propertySets["B"] = b;
+
+        PropertySetDescriptor c;
+        c.references = {"B"};
+        app.propertySets["C"] = c;
+
+        try
+        {
+            admin->addApplication(app);
+            test(false);
+        }
+        catch (const DeploymentException& ex)
+        {
+            test(ex.reason.find("circular dependency with property reference") != string::npos);
+        }
+
+        cout << "ok" << endl;
+    }
+
+    {
         cout << "testing node add... " << flush;
 
         ApplicationDescriptor testApp;
