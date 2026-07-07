@@ -28,12 +28,90 @@ void ::Writer::run(int argc, char* argv[])
             auto nm2 = std::move(nm);
             [[maybe_unused]] Ice::CommunicatorPtr communicator = nm2.getCommunicator();
             [[maybe_unused]] Ice::ConnectionPtr connection = nm2.getSessionConnection("s");
+
+            // A malformed session identity is fail-soft.
+            test(nm2.getSessionConnection("a/b/c") == nullptr);
+
+            // The shutdown members are safe on a moved-from node; a moved-from node reports itself as shut down.
+            n.shutdown();
+            test(n.isShutdown());
+            n.waitForShutdown();
         }
 
         {
             Ice::CommunicatorPtr communicator = Ice::initialize();
             Ice::CommunicatorHolder communicatorHolder{communicator};
             Node n2{communicator};
+        }
+
+        {
+            auto makeInitData = [](const string& property, const string& value)
+            {
+                Ice::InitializationData initData;
+                initData.properties = Ice::createProperties();
+                initData.properties->setProperty(property, value);
+                return initData;
+            };
+
+            // A node configured with an invalid DataStorm.Node.ConnectTo endpoint surfaces a catchable exception
+            // from the Node constructor, with and without communicator ownership.
+            {
+                Ice::CommunicatorHolder holder{Ice::initialize(makeInitData("DataStorm.Node.ConnectTo", "invalid"))};
+                try
+                {
+                    Node n7{holder.communicator()};
+                    test(false);
+                }
+                catch (const Ice::ParseException&)
+                {
+                }
+            }
+            try
+            {
+                Node n8{NodeOptions{
+                    .communicator = Ice::initialize(makeInitData("DataStorm.Node.ConnectTo", "invalid")),
+                    .nodeOwnsCommunicator = true}};
+                test(false);
+            }
+            catch (const Ice::ParseException&)
+            {
+            }
+
+            // An invalid DataStorm.Topic.* property value surfaces a catchable exception from the Node constructor
+            // rather than from the noexcept Topic methods that lazily create the topic reader or writer.
+            {
+                Ice::CommunicatorHolder holder{Ice::initialize(makeInitData("DataStorm.Topic.ClearHistory", "onAdd"))};
+                try
+                {
+                    Node n9{holder.communicator()};
+                    test(false);
+                }
+                catch (const Ice::ParseException&)
+                {
+                }
+            }
+
+            // A non-numeric topic default surfaces the property exception from the Node constructor as well.
+            {
+                Ice::CommunicatorHolder holder{Ice::initialize(makeInitData("DataStorm.Topic.SampleCount", "abc"))};
+                try
+                {
+                    Node n10{holder.communicator()};
+                    test(false);
+                }
+                catch (const Ice::PropertyException&)
+                {
+                }
+            }
+
+            // "None" is accepted as an alias for the "Never" discard policy, matching the DiscardPolicy::None
+            // enumerator.
+            {
+                Ice::CommunicatorHolder holder{Ice::initialize(makeInitData("DataStorm.Topic.DiscardPolicy", "None"))};
+                Node n11{holder.communicator()};
+                Topic<int, string> topic(n11, "discardPolicyAlias");
+                auto reader = makeSingleKeyReader(topic, 0);
+            }
         }
 
         Node n3;
