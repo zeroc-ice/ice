@@ -649,6 +649,13 @@ SessionI::disconnected(const ConnectionPtr& connection, exception_ptr ex)
         runWithTopics(topicId, [topicId, self](TopicI* topic, TopicSubscriber&) { topic->detach(topicId, self); });
     }
 
+    // The peer's wire disconnected() op is not a connection close, so unregister the session that connected()
+    // registered with the connection manager here (a no-op if the connection already closed).
+    if (_connection)
+    {
+        _instance->getConnectionManager()->remove(self, _connection);
+    }
+
     _session = nullopt;
     _connection = nullptr;
     _retryCount = 0;
