@@ -245,6 +245,57 @@ void ::Reader::run(int argc, char* argv[])
         test(aapl->lastBid == 13.0f); // resolved against the bootstrapped base
         test(aapl->lastAsk == 14.0f);
     }
+
+    // A late any-key reader with the default history policy fetches only the newest sample for all keys, so AAPL's
+    // full value (trimmed from the writer's history) must be bootstrapped from the per-key base for the partial
+    // update to resolve rather than crash on a null base.
+    Topic<string, StockPtr> trimTopic(node, "trimHistoryTopic"); // default config: ClearHistory=OnAll
+    trimTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    Topic<string, int> trimBarrier(node, "trimHistoryBarrier");
+    {
+        [[maybe_unused]] auto _ = makeSingleKeyReader(trimBarrier, "barrier").getNextUnread();
+
+        auto reader = makeAnyKeyReader(trimTopic);
+        shared_ptr<Stock> aapl;
+        while (!aapl)
+        {
+            auto sample = reader.getNextUnread();
+            if (sample.getKey() == "AAPL" && sample.getEvent() == SampleEvent::PartialUpdate)
+            {
+                aapl = sample.getValue();
+            }
+        }
+        test(aapl->price == 15.0f);
+        test(aapl->lastBid == 13.0f); // carried from AAPL's own base, bootstrapped after the history trim
+        test(aapl->lastAsk == 14.0f);
+    }
+
+    // A reader with a limited sampleCount joins a writer where one key (GOOG) has more history samples than another
+    // (AAPL). Capping the init batch to sampleCount must keep AAPL's base, not just GOOG's two newest samples, so a
+    // later partial update on AAPL resolves rather than crashing on a null base.
+    Topic<string, StockPtr> capTopic(node, "capTopic");
+    capTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    Topic<string, int> capBarrier(node, "capBarrier");
+    {
+        [[maybe_unused]] auto _ = makeSingleKeyReader(capBarrier, "barrier").getNextUnread();
+
+        ReaderConfig limited;
+        limited.sampleCount = 2;
+        limited.clearHistory = ClearHistoryPolicy::Never;
+        auto reader = makeAnyKeyReader(capTopic, "", limited);
+        shared_ptr<Stock> aapl;
+        while (!aapl)
+        {
+            auto sample = reader.getNextUnread();
+            if (sample.getKey() == "AAPL" && sample.getEvent() == SampleEvent::PartialUpdate)
+            {
+                aapl = sample.getValue();
+            }
+        }
+        test(aapl->price == 15.0f);
+        test(aapl->lastBid == 13.0f); // AAPL's base survived the cap (not evicted by GOOG's extra history)
+        test(aapl->lastAsk == 14.0f);
+    }
 }
 
 DEFINE_TEST(::Reader)

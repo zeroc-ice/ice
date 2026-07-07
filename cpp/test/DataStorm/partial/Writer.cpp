@@ -189,6 +189,52 @@ void ::Writer::run(int argc, char* argv[])
         writer.waitForNoReaders();
     }
     cout << "ok" << endl;
+
+    // An any-key (or filtered) reader fetches all keys in a single request. With the default history policy
+    // (ClearHistory=OnAll) the writer keeps only the newest sample, so a late joiner receives the newest key's
+    // value and every other key's base must be bootstrapped from the per-key base, not merged onto a null base.
+    Topic<string, StockPtr> trimTopic(node, "trimHistoryTopic"); // default config: ClearHistory=OnAll
+    trimTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    Topic<string, int> trimBarrier(node, "trimHistoryBarrier");
+    cout << "testing partial update to a late any-key reader after the writer trimmed the key's history... " << flush;
+    {
+        auto writer = makeAnyKeyWriter(trimTopic);
+        writer.add("AAPL", make_shared<Stock>(12.0f, 13.0f, 14.0f));
+        writer.add("GOOG", make_shared<Stock>(100.0f, 101.0f, 102.0f)); // clears history: only GOOG's full value kept
+
+        auto barrier = makeSingleKeyWriter(trimBarrier, "barrier");
+        barrier.waitForReaders();
+        barrier.update(0);
+
+        writer.waitForReaders();
+        writer.partialUpdate<float>("price")("AAPL", 15.0f); // AAPL's full value was trimmed; must still resolve
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
+    // When a reader with a limited sampleCount joins a multi-key writer, capping the init batch must keep at least
+    // one value per key, not just the newest N samples overall: here GOOG has two samples and AAPL one, and a
+    // sampleCount=2 reader must still receive AAPL's base so a later partial update on AAPL resolves.
+    Topic<string, StockPtr> capTopic(node, "capTopic");
+    capTopic.setWriterDefaultConfig(config); // keep full history
+    capTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    Topic<string, int> capBarrier(node, "capBarrier");
+    cout << "testing sampleCount cap keeps a base per key... " << flush;
+    {
+        auto writer = makeAnyKeyWriter(capTopic);
+        writer.add("AAPL", make_shared<Stock>(12.0f, 13.0f, 14.0f)); // id 1
+        writer.add("GOOG", make_shared<Stock>(100.0f, 101.0f, 102.0f));
+        writer.update("GOOG", make_shared<Stock>(200.0f, 201.0f, 202.0f)); // two GOOG samples
+
+        auto barrier = makeSingleKeyWriter(capBarrier, "barrier");
+        barrier.waitForReaders();
+        barrier.update(0);
+
+        writer.waitForReaders();
+        writer.partialUpdate<float>("price")("AAPL", 15.0f); // resolves only if AAPL's base survived the cap
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
 }
 
 DEFINE_TEST(::Writer)

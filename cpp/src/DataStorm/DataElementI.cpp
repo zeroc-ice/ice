@@ -9,6 +9,7 @@
 #include "TraceUtil.h"
 
 #include <algorithm>
+#include <set>
 
 using namespace std;
 using namespace DataStormI;
@@ -1286,45 +1287,97 @@ KeyDataWriterI::getSamples(
     DataSamples samples;
     samples.id = _keys.empty() ? -_id : _id;
 
-    // Append the current per-key base value(s) so a reader with no other init sample can still resolve subsequent
-    // partial updates. A removed key has no value and is skipped; a partial base is sent as a full Update. A single-key
-    // writer stores its base under a null publish key, so the key is matched on the sample rather than the map key.
-    auto appendBaseSamples = [&]
+    // Orders the source samples to deliver by id, caps them to the reader's history depth, and delivers them. A
+    // partial base is sent as a full Update, and the earliest delivered sample of each key is likewise resolved to a
+    // full value so the reader always has a base to merge later partial updates for that key onto.
+    auto finalize = [&](vector<shared_ptr<Sample>> sources)
     {
-        vector<DataSample> bases;
-        for (const auto& [baseKey, baseSample] : _lastByKey)
-        {
-            if (baseSample->id <= lastId || !baseSample->hasValue() || (key && key != baseSample->key) ||
-                (sampleFilter && !sampleFilter->match(baseSample)))
-            {
-                continue;
-            }
+        sort(
+            sources.begin(),
+            sources.end(),
+            [](const shared_ptr<Sample>& lhs, const shared_ptr<Sample>& rhs) { return lhs->id < rhs->id; });
 
-            DataSample ds = toSample(baseSample, getCommunicator(), _keys.empty());
-            if (baseSample->event == DataStorm::SampleEvent::PartialUpdate)
+        // Never deliver more than the reader's sampleCount: the reader applies the batch atomically and caps its own
+        // history to sampleCount, so a larger batch would exceed the cap. sampleCount == 0 keeps no history and is
+        // handled by the caller (the reader records the bases in its per-key state without keeping them). When
+        // capping, keep the newest sample of each key first so every key the reader may later receive a partial
+        // update for keeps a resolvable base, then fill any remaining budget with the newest of the other samples.
+        if (config->sampleCount && *config->sampleCount > 0 &&
+            sources.size() > static_cast<size_t>(*config->sampleCount))
+        {
+            auto maxCount = static_cast<size_t>(*config->sampleCount);
+            vector<bool> keep(sources.size(), false);
+            size_t kept = 0;
+            set<shared_ptr<Key>> keptKeys;
+            // First pass (newest to oldest): reserve a slot for the newest sample of each key.
+            for (size_t i = sources.size(); i-- > 0 && kept < maxCount;)
+            {
+                if (keptKeys.insert(sources[i]->key).second)
+                {
+                    keep[i] = true;
+                    ++kept;
+                }
+            }
+            // Second pass (newest to oldest): fill the remaining budget with the newest not-yet-kept samples.
+            for (size_t i = sources.size(); i-- > 0 && kept < maxCount;)
+            {
+                if (!keep[i])
+                {
+                    keep[i] = true;
+                    ++kept;
+                }
+            }
+            vector<shared_ptr<Sample>> capped;
+            capped.reserve(kept);
+            for (size_t i = 0; i < sources.size(); ++i)
+            {
+                if (keep[i])
+                {
+                    capped.push_back(sources[i]);
+                }
+            }
+            sources = std::move(capped);
+        }
+
+        set<shared_ptr<Key>> seen;
+        for (const auto& sample : sources)
+        {
+            DataSample ds = toSample(sample, getCommunicator(), _keys.empty());
+            // The earliest delivered sample of each key must carry a full value; a partial is sent as a full Update
+            // built from the sample's own resolved value.
+            if (seen.insert(sample->key).second && sample->event == DataStorm::SampleEvent::PartialUpdate)
             {
                 ds.tag = 0;
                 ds.event = DataStorm::SampleEvent::Update;
-                ds.value = baseSample->encodeValue(getCommunicator());
+                ds.value = sample->encodeValue(getCommunicator());
             }
-            bases.push_back(std::move(ds));
+            samples.samples.push_back(std::move(ds));
         }
+    };
 
-        // _lastByKey is ordered by key (pointer), not by sample id. The subscriber records the last delivered
-        // sample's id as its lastId, so deliver the bases in ascending id order to keep the newest last; otherwise a
-        // higher-id base could be re-sent as a duplicate on the next resync.
-        sort(bases.begin(), bases.end(), [](const DataSample& lhs, const DataSample& rhs) { return lhs.id < rhs.id; });
-        for (auto& base : bases)
+    // Collects the current per-key base for every key that passes the caller's key/sample filter and is newer than
+    // lastId; `covered` excludes keys already represented by the writer's history. A removed key has no value and is
+    // skipped. A single-key writer stores its base under a null publish key, so the key is matched on the sample.
+    auto collectBases = [&](const set<shared_ptr<Key>>& covered)
+    {
+        vector<shared_ptr<Sample>> bases;
+        for (const auto& [baseKey, baseSample] : _lastByKey)
         {
-            samples.samples.push_back(std::move(base));
+            if (baseSample->id <= lastId || !baseSample->hasValue() || (key && key != baseSample->key) ||
+                (sampleFilter && !sampleFilter->match(baseSample)) || covered.count(baseSample->key))
+            {
+                continue;
+            }
+            bases.push_back(baseSample);
         }
+        return bases;
     };
 
     // A reader that keeps no history still needs the current per-key base to resolve partial updates. Send just the
     // base, not the history.
     if (config->sampleCount && *config->sampleCount == 0)
     {
-        appendBaseSamples();
+        finalize(collectBases({}));
         return samples;
     }
 
@@ -1341,16 +1394,15 @@ KeyDataWriterI::getSamples(
         staleTime = now - chrono::milliseconds(*config->sampleLifetime);
     }
 
-    shared_ptr<Sample> first;
     // Iterate through samples in reverse chronological order, starting with the newest.
     // Stop iterating if any of the following conditions are met:
     // - A sample's timestamp is older than the specified stale time.
     // - A sample's ID is less than or equal to the specified last ID.
     // - The requested number of samples has been collected.
     // - A sample event triggers history clearing based on the caller's clear history policy.
-    // For each sample:
-    // - Check if it matches the optional key and sample filter.
-    // - If it matches, add it to the result set and update the first matched sample.
+    // For each matching sample, add it to the source set and record the key it covers.
+    vector<shared_ptr<Sample>> sources;
+    set<shared_ptr<Key>> covered;
     for (auto p = _samples.rbegin(); p != _samples.rend(); ++p)
     {
         if ((*p)->timestamp < staleTime)
@@ -1364,10 +1416,10 @@ KeyDataWriterI::getSamples(
 
         if ((!key || key == (*p)->key) && (!sampleFilter || sampleFilter->match(*p)))
         {
-            first = *p;
-            samples.samples.push_front(toSample(*p, getCommunicator(), _keys.empty()));
+            sources.push_back(*p);
+            covered.insert((*p)->key);
             if (config->sampleCount && *config->sampleCount > 0 &&
-                static_cast<size_t>(*config->sampleCount) == samples.samples.size())
+                static_cast<size_t>(*config->sampleCount) == sources.size())
             {
                 break;
             }
@@ -1385,28 +1437,11 @@ KeyDataWriterI::getSamples(
         }
     }
 
-    // If the reader received no history (a no-history writer, or all history aged out or was cleared), bootstrap it
-    // from the current per-key base so it can still resolve subsequent partial updates.
-    if (samples.samples.empty())
-    {
-        appendBaseSamples();
-    }
-
-    if (!samples.samples.empty())
-    {
-        // If the first sample is a partial update, transform it to a full Update
-        if (first && first->event == DataStorm::SampleEvent::PartialUpdate)
-        {
-            samples.samples[0] = DataSample{
-                .id = first->id,
-                .keyId = samples.samples[0].keyId,
-                .keyValue = samples.samples[0].keyValue,
-                .timestamp = chrono::time_point_cast<chrono::microseconds>(first->timestamp).time_since_epoch().count(),
-                .tag = 0,
-                .event = DataStorm::SampleEvent::Update,
-                .value = first->encodeValue(getCommunicator())};
-        }
-    }
+    // Bootstrap the base for every key the history does not already cover (trimmed by ClearHistory, aged out, or a
+    // no-history writer) so the reader can resolve later partial updates for those keys too.
+    auto bases = collectBases(covered);
+    sources.insert(sources.end(), bases.begin(), bases.end());
+    finalize(std::move(sources));
     return samples;
 }
 
