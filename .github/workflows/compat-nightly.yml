@@ -163,6 +163,13 @@ jobs:
           ls -la stable/java/lib/
         shell: bash
 
+      # The test certificates committed on the stable tag have a limited validity period (398 days) and eventually
+      # expire, causing all SSL tests to fail. The HEAD certificates are regenerated regularly and use the same
+      # layout, so the stable tests can use them as-is.
+      - name: Swap HEAD test certificates
+        run: cp -afv head/certs/. stable/certs/
+        shell: bash
+
       - name: Install testing dependencies
         run: python3 -m pip install passlib cryptography numpy
         shell: bash
