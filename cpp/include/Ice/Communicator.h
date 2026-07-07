@@ -28,7 +28,6 @@ namespace Ice
     /// - managing properties (configuration), retries, logging, instrumentation, and more.
     /// You create a communicator with `Ice::initialize`, and it's usually the first object you create when programming
     /// with Ice. You can create multiple communicators in a single program, but this is not common.
-    /// @see ::initialize(int&, const char*[])
     /// @see ::initialize(InitializationData)
     /// @headerfile Ice/Ice.h
     class ICE_API Communicator final : public std::enable_shared_from_this<Communicator>
@@ -44,7 +43,7 @@ namespace Ice
 
         /// Destroys this communicator asynchronously.
         /// @param completed The callback to call when the destruction is complete. This function must not throw any
-        /// exception.
+        /// exception. When @p completed is null, this function does nothing: the communicator is not destroyed.
         /// @remark This function starts a thread to call #destroy and @p completed unless you call this function on a
         /// communicator that has already been destroyed, in which case @p completed is called by the current thread.
         /// @see #destroy
@@ -65,8 +64,8 @@ namespace Ice
         /// Waits until this communicator is shut down.
         /// @param completed The callback to call when the shutdown is complete. This function must not throw any
         /// exception.
-        /// @remark If you call this function on a communicator that has already been shut down, the callback is called
-        /// immediately by the current thread.
+        /// @remark The callback is usually called by a dedicated background thread. It can also be called by the
+        /// current thread when the shutdown has already completed.
         /// @see #shutdown
         void waitForShutdownAsync(std::function<void()> completed) noexcept;
 

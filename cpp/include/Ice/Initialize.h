@@ -112,13 +112,12 @@ namespace Ice
         return initialize(std::move(initData));
     }
 
-    /// Gets the per-process logger. This logger is used by all communicators that do not have their own specific logger
-    /// configured at the time the communicator is created.
+    /// Gets the per-process logger.
     /// @return The current per-process logger instance.
     ICE_API LoggerPtr getProcessLogger();
 
-    /// Sets the per-process logger. This logger is used by all communicators that do not have their own specific logger
-    /// configured at the time the communicator is created.
+    /// Sets the per-process logger. Communicators created after this call use this logger unless a logger is set in
+    /// InitializationData or configured through logger properties such as `Ice.LogFile`.
     /// @param logger The new per-process logger instance.
     ICE_API void setProcessLogger(const LoggerPtr& logger);
 

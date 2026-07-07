@@ -94,7 +94,7 @@ namespace Ice
 
         ~LoggerOutput() { flush(); }
 
-        /// Flushes the colleted output to the logger method.
+        /// Flushes the collected output to the logger method.
         void flush()
         {
             std::string s = _stream().str();

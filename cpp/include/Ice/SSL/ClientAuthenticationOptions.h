@@ -43,7 +43,7 @@ namespace Ice::SSL
         /// @param host The target host name.
         /// @return The client SSL credentials.
         ///
-        /// Example of setting `clientCertificateSelectionCallback`:
+        /// Example of setting `clientCredentialsSelectionCallback`:
         /// @snippet Ice/SSL/SchannelClientAuthenticationOptions.cpp clientCertificateSelectionCallback
         ///
         /// @see [SCH_CREDENTIALS]
@@ -150,7 +150,7 @@ namespace Ice::SSL
         /// [SecTrustSetAnchorCertificatesOnly] with the `anchorCertificatesOnly` parameter set to true.
         ///
         /// Example of setting `trustedRootCertificates`:
-        /// @snippet Ice/SSL/SecureTransportServerAuthenticationOptions.cpp trustedRootCertificates
+        /// @snippet Ice/SSL/SecureTransportClientAuthenticationOptions.cpp trustedRootCertificates
         ///
         /// [SecTrustSetAnchorCertificates]:
         /// https://developer.apple.com/documentation/security/1396098-sectrustsetanchorcertificates?language=objc

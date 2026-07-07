@@ -64,7 +64,8 @@ namespace Ice
         /// Gets the exception ID of the response.
         /// @return The exception ID of the response. It's empty when #replyStatus is ReplyStatus::Ok or
         /// ReplyStatus::UserException. Otherwise, this ID is the value returned by LocalException#ice_id. For other
-        /// exceptions, this ID is the value returned by `std::exception::what()`.
+        /// exceptions, this ID is the demangled name of the exception type, or `"unknown"` when the dispatch throws a
+        /// value that is not derived from `std::exception`.
         [[nodiscard]] const std::string& exceptionId() const noexcept { return _exceptionId; }
 
         /// Gets the full details of the exception marshaled into the response.
