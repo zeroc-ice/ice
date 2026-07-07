@@ -7,6 +7,9 @@
 #include "Test.h"
 #include "TestHelper.h"
 
+#include <chrono>
+#include <thread>
+
 using namespace DataStorm;
 using namespace std;
 using namespace Test;
@@ -98,6 +101,90 @@ void ::Writer::run(int argc, char* argv[])
         // observes samples only through that callback, which must be registered before we publish.
         [[maybe_unused]] auto _ = makeSingleKeyReader(noHistoryBarrier, "barrier").getNextUnread();
         writer.add(make_shared<Stock>(12.0f, 13.0f, 14.0f));
+        writer.partialUpdate<float>("price")(15.0f);
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
+    // A reader that joins after a no-history (sampleCount == 0) writer's initial value is bootstrapped with the
+    // writer's current per-key base value, so a subsequent partial update resolves against it rather than crashing on
+    // a null base.
+    Topic<string, StockPtr> lateJoinTopic(node, "lateJoinTopic");
+    WriterConfig noHistoryWriter;
+    noHistoryWriter.sampleCount = 0;
+    lateJoinTopic.setWriterDefaultConfig(noHistoryWriter);
+    lateJoinTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    Topic<string, int> lateJoinBarrier(node, "lateJoinBarrier");
+    cout << "testing partial update to a late joiner of a no-history writer... " << flush;
+    {
+        auto writer = makeSingleKeyWriter(lateJoinTopic, "AAPL");
+
+        // Publish the initial full value before any reader connects. The writer keeps no history, so this snapshot is
+        // not retained and a later reader cannot be bootstrapped with it.
+        writer.add(make_shared<Stock>(12.0f, 13.0f, 14.0f));
+
+        // Let the reader attach as a late joiner, after the add.
+        auto barrier = makeSingleKeyWriter(lateJoinBarrier, "barrier");
+        barrier.waitForReaders();
+        barrier.update(0);
+
+        writer.waitForReaders();
+        writer.partialUpdate<float>("price")(15.0f);            // resolves against the bootstrapped base
+        writer.update(make_shared<Stock>(20.0f, 21.0f, 22.0f)); // a later full value
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
+    // The base is also unavailable when the writer keeps history (sampleCount != 0) but the full sample has aged out
+    // of that history (sampleLifetime). A late joiner then gets no init sample, yet must still be bootstrapped from
+    // the per-key base, which is not subject to the sample lifetime.
+    Topic<string, StockPtr> lifetimeTopic(node, "lifetimeTopic");
+    WriterConfig lifetimeWriter;
+    lifetimeWriter.sampleCount = -1;     // keep history...
+    lifetimeWriter.sampleLifetime = 100; // ...but only for 100ms
+    lifetimeWriter.clearHistory = ClearHistoryPolicy::Never;
+    lifetimeTopic.setWriterDefaultConfig(lifetimeWriter);
+    lifetimeTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    Topic<string, int> lifetimeBarrier(node, "lifetimeBarrier");
+    cout << "testing partial update to a late joiner after the base aged out (sampleLifetime)... " << flush;
+    {
+        auto writer = makeSingleKeyWriter(lifetimeTopic, "AAPL");
+        writer.add(make_shared<Stock>(12.0f, 13.0f, 14.0f));
+
+        // Wait until the full sample has aged out of the writer's history, then let the reader join.
+        this_thread::sleep_for(chrono::milliseconds(500));
+
+        auto barrier = makeSingleKeyWriter(lifetimeBarrier, "barrier");
+        barrier.waitForReaders();
+        barrier.update(0);
+
+        writer.waitForReaders();
+        writer.partialUpdate<float>("price")(15.0f);
+        writer.update(make_shared<Stock>(20.0f, 21.0f, 22.0f));
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
+    // A reader that keeps no history (sampleCount == 0) and joins after the writer's add is bootstrapped with the base
+    // value (sent even though it keeps no history), so a subsequent partial update resolves against it.
+    Topic<string, StockPtr> lateReaderTopic(node, "lateReaderTopic");
+    lateReaderTopic.setWriterDefaultConfig(config); // writer keeps history
+    lateReaderTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    Topic<string, int> lateReaderJoinBarrier(node, "lateReaderJoinBarrier");
+    Topic<string, int> lateReaderReadyBarrier(node, "lateReaderReadyBarrier");
+    cout << "testing partial update to a late-joining sampleCount=0 reader... " << flush;
+    {
+        auto writer = makeSingleKeyWriter(lateReaderTopic, "AAPL");
+        writer.add(make_shared<Stock>(12.0f, 13.0f, 14.0f));
+
+        // Tell the reader the add is published; it can now join as a late joiner.
+        auto joinBarrier = makeSingleKeyWriter(lateReaderJoinBarrier, "barrier");
+        joinBarrier.waitForReaders();
+        joinBarrier.update(0);
+
+        // Wait until the reader has installed its onSamples callback before publishing the partial.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(lateReaderReadyBarrier, "barrier").getNextUnread();
+
         writer.partialUpdate<float>("price")(15.0f);
         writer.waitForNoReaders();
     }

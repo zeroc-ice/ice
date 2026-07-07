@@ -1286,9 +1286,45 @@ KeyDataWriterI::getSamples(
     DataSamples samples;
     samples.id = _keys.empty() ? -_id : _id;
 
-    // If the caller sample queueing is disabled, there is no need to return any samples.
+    // Append the current per-key base value(s) so a reader with no other init sample can still resolve subsequent
+    // partial updates. A removed key has no value and is skipped; a partial base is sent as a full Update. A single-key
+    // writer stores its base under a null publish key, so the key is matched on the sample rather than the map key.
+    auto appendBaseSamples = [&]
+    {
+        vector<DataSample> bases;
+        for (const auto& [baseKey, baseSample] : _lastByKey)
+        {
+            if (baseSample->id <= lastId || !baseSample->hasValue() || (key && key != baseSample->key) ||
+                (sampleFilter && !sampleFilter->match(baseSample)))
+            {
+                continue;
+            }
+
+            DataSample ds = toSample(baseSample, getCommunicator(), _keys.empty());
+            if (baseSample->event == DataStorm::SampleEvent::PartialUpdate)
+            {
+                ds.tag = 0;
+                ds.event = DataStorm::SampleEvent::Update;
+                ds.value = baseSample->encodeValue(getCommunicator());
+            }
+            bases.push_back(std::move(ds));
+        }
+
+        // _lastByKey is ordered by key (pointer), not by sample id. The subscriber records the last delivered
+        // sample's id as its lastId, so deliver the bases in ascending id order to keep the newest last; otherwise a
+        // higher-id base could be re-sent as a duplicate on the next resync.
+        sort(bases.begin(), bases.end(), [](const DataSample& lhs, const DataSample& rhs) { return lhs.id < rhs.id; });
+        for (auto& base : bases)
+        {
+            samples.samples.push_back(std::move(base));
+        }
+    };
+
+    // A reader that keeps no history still needs the current per-key base to resolve partial updates. Send just the
+    // base, not the history.
     if (config->sampleCount && *config->sampleCount == 0)
     {
+        appendBaseSamples();
         return samples;
     }
 
@@ -1349,10 +1385,17 @@ KeyDataWriterI::getSamples(
         }
     }
 
+    // If the reader received no history (a no-history writer, or all history aged out or was cleared), bootstrap it
+    // from the current per-key base so it can still resolve subsequent partial updates.
+    if (samples.samples.empty())
+    {
+        appendBaseSamples();
+    }
+
     if (!samples.samples.empty())
     {
         // If the first sample is a partial update, transform it to a full Update
-        if (first->event == DataStorm::SampleEvent::PartialUpdate)
+        if (first && first->event == DataStorm::SampleEvent::PartialUpdate)
         {
             samples.samples[0] = DataSample{
                 .id = first->id,
