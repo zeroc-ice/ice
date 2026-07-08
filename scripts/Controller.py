@@ -34,7 +34,7 @@ class ControllerDriver(Driver):
 
     @classmethod
     def getSupportedArgs(self):
-        return ("", ["clean", "id=", "endpoints="])
+        return ("", ["clean", "id=", "endpoints=", "bt-setup=", "bt-bond=", "uuid=", "bt-diagnostics"])
 
     @classmethod
     def usage(self):
@@ -43,18 +43,37 @@ class ControllerDriver(Driver):
         print("--id=<identity>       The identify of the controller object.")
         print("--endpoints=<endpts>  The endpoints to listen on.")
         print("--clean               Remove trust settings (macOS).")
+        print("--bt-setup=<apk>      Prepare --device for Bluetooth (boot-wait, install the btecho")
+        print("                      privileged helper, enable Bluetooth, grant permissions) and exit.")
+        print("--bt-bond=<serial>    Bond --device to the given peer emulator over RFCOMM and exit.")
+        print("--uuid=<uuid>         RFCOMM service UUID used by --bt-bond.")
+        print("--bt-diagnostics      Dump adb state (controller pid, forwards, logcat) for --device.")
 
     def __init__(self, options, *args, **kargs):
         Driver.__init__(self, options, *args, **kargs)
         self.id = "controller"
         self.endpoints = ""
         self.clean = False
-        parseOptions(self, options, {"clean": "clean"})
+        self.btSetup = ""  # path to the btecho APK; when set, run Bluetooth device setup and exit
+        self.btBond = ""  # peer emulator serial; when set, bond --device to it and exit
+        self.uuid = ""  # RFCOMM service UUID used by the btecho bond
+        self.btDiagnostics = False  # when set, dump adb diagnostics for --device and exit
+        # NB: don't add a self.device here -- parseOptions consumes the options it recognizes, so a
+        # self.device would swallow --device before the per-mapping Config can read it. The Bluetooth
+        # setup reads the emulator serial from the config instead (see runBluetoothSetup).
+        parseOptions(
+            self,
+            options,
+            {"clean": "clean", "bt-setup": "btSetup", "bt-bond": "btBond", "bt-diagnostics": "btDiagnostics"},
+        )
 
         if not self.endpoints:
             self.endpoints = ("tcp -h " + self.interface) if self.interface else "tcp"
 
     def run(self, mappings, testSuiteIds):
+        if self.btSetup or self.btBond or self.btDiagnostics:
+            return self.runBluetoothSetup()
+
         if isinstance(platform, Darwin):
             #
             # On macOS, we set the trust settings on the certificate to prevent
@@ -188,6 +207,42 @@ class ControllerDriver(Driver):
         adapter.add(ControllerI(self), Ice.stringToIdentity(self.id))
         adapter.activate()
         self.communicator.waitForShutdown()
+
+    def runBluetoothSetup(self):
+        # adb-driven Bluetooth setup/diagnostics for one Android emulator, invoked by the Bluetooth CI
+        # harness instead of inline `adb` shell. It reuses the adb helpers already on
+        # AndroidProcessController (self.adb(), waitForBoot, install, etc.) rather than reimplementing
+        # them. No Ice communicator is needed, so this returns before the controller is started.
+        from Util import AndroidProcessController
+
+        device = next((c.device for c in self.configs.values() if c.device), "")
+        if not device:
+            raise RuntimeError("--bt-setup/--bt-bond/--bt-diagnostics require --device=<emulator serial>")
+
+        controller = AndroidProcessController.forDevice(device)
+
+        if self.btSetup:
+            controller.waitForBoot()
+            controller.installSystemApp(
+                self.btSetup, "btecho", "com.zeroc.btecho", ["android.permission.BLUETOOTH_PRIVILEGED"]
+            )
+            controller.enableBluetooth()
+            controller.grantRuntimePermissions(
+                "com.zeroc.btecho",
+                ["android.permission.BLUETOOTH_CONNECT", "android.permission.BLUETOOTH_SCAN"],
+            )
+            print(f"BT_ADDRESS={controller.bluetoothAddress()}")
+
+        if self.btBond:
+            if not self.uuid:
+                raise RuntimeError("--bt-bond requires --uuid=<uuid>")
+            controller.bond(self.btBond, self.uuid)
+            print(f"bonded {device} to {self.btBond}")
+
+        if self.btDiagnostics:
+            controller.diagnostics()
+
+        return 0
 
     def getCurrent(self, mapping, testsuite, testcase, cross, protocol=None, host=None, args=[]):
         from Test import Common as Test_Common

@@ -156,3 +156,6 @@ packaging/msi/staging
 *.tar.gz
 
 .kotlin
+
+# Generated at build time by the Bluetooth CI workflow
+java/test/android/btecho/debug.keystore
