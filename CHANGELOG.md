@@ -7,9 +7,9 @@ might need to be aware of.
 
 ## Changes in Ice 3.9.0
 
-Unreleased changes are recorded as fragments under `changelog.d/` and collated into this file at
-release time. See the `changelog.d/` directory for the pending entries.
-
 These are the changes since the [Ice 3.8.2] release.
 
 [Ice 3.8.2]: https://github.com/zeroc-ice/ice/blob/3.8/CHANGELOG-3.8.md
+
+Unreleased changes are recorded as fragments under `changelog.d/` and collated into this file at
+release time. See the `changelog.d/` directory for the pending entries.
