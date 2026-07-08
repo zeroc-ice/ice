@@ -171,6 +171,15 @@ NodeSessionI::NodeSessionI(
 {
     if (forwardAnnouncements)
     {
+        enableAnnouncementForwarding();
+    }
+}
+
+void
+NodeSessionI::enableAnnouncementForwarding()
+{
+    if (!_lookup)
+    {
         _lookup = _connection->createProxy<LookupPrx>(Identity{.name = "Lookup", .category = "DataStorm"});
     }
 }
