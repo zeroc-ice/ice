@@ -297,6 +297,37 @@ void ::Reader::run(int argc, char* argv[])
         test(msft->lastBid == 51.0f); // MSFT's base survived the cap despite the key count exceeding sampleCount
         test(msft->lastAsk == 52.0f);
     }
+
+    // The reader-side updater throws on one of the initialization samples: only that sample is dropped, the other
+    // initialization samples are delivered, and the following partial update resolves against the last successfully
+    // applied value.
+    Topic<string, StockPtr> throwTopic(node, "throwingUpdater");
+    throwTopic.setReaderDefaultConfig(config); // keep full history, so the samples arrive unmerged
+    throwTopic.setUpdater<float>(
+        "price",
+        [](StockPtr& stock, float price)
+        {
+            if (price < 0)
+            {
+                throw std::runtime_error("negative price");
+            }
+            stock->price = price;
+        });
+    Topic<string, int> throwBarrier(node, "throwingUpdaterBarrier");
+    {
+        [[maybe_unused]] auto _ = makeSingleKeyReader(throwBarrier, "barrier").getNextUnread();
+
+        auto reader = makeSingleKeyReader(throwTopic, "AAPL");
+
+        auto sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Add);
+        test(sample.getValue()->price == 12.0f);
+
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::PartialUpdate);
+        test(sample.getValue()->price == 15.0f);   // the throwing sample was dropped...
+        test(sample.getValue()->lastBid == 13.0f); // ...and the update resolved against the Add sample
+    }
 }
 
 DEFINE_TEST(::Reader)

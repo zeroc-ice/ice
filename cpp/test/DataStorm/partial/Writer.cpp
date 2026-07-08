@@ -238,6 +238,30 @@ void ::Writer::run(int argc, char* argv[])
         writer.waitForNoReaders();
     }
     cout << "ok" << endl;
+
+    // The reader-side updater throws on one of the initialization samples: only that sample is dropped, the other
+    // initialization samples are delivered, and the following partial update resolves against the last successfully
+    // applied value.
+    Topic<string, StockPtr> throwTopic(node, "throwingUpdater");
+    throwTopic.setWriterDefaultConfig(config); // keep full history
+    throwTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    Topic<string, int> throwBarrier(node, "throwingUpdaterBarrier");
+    cout << "testing reader-side updater exception... " << flush;
+    {
+        auto writer = makeSingleKeyWriter(throwTopic, "AAPL");
+        writer.add(make_shared<Stock>(12.0f, 13.0f, 14.0f));
+        writer.partialUpdate<float>("price")(-99.0f); // the reader's updater throws on negative prices
+        writer.partialUpdate<float>("price")(15.0f);
+
+        // Let the reader join late, so the three samples above are delivered as initialization samples.
+        auto barrier = makeSingleKeyWriter(throwBarrier, "barrier");
+        barrier.waitForReaders();
+        barrier.update(0);
+
+        writer.waitForReaders();
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
 }
 
 DEFINE_TEST(::Writer)
