@@ -2699,6 +2699,13 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
                 _destroy->finished();
                 _destroy = nullptr;
             }
+            if (_load)
+            {
+                // load() can queue a load command while the server is being destroyed, since destroy() runs mostly
+                // without the mutex. Fail it here so its reply is sent and the servant is removed below.
+                _load->failed(make_exception_ptr(DeploymentException("The server was destroyed.")));
+                _load = nullptr;
+            }
             _condVar.notify_all(); // for getProperties()
             break;
         default:
