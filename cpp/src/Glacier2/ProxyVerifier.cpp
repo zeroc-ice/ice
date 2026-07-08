@@ -99,14 +99,21 @@ namespace Glacier2
     public:
         virtual ~AddressMatcher() = default;
 
-        virtual bool match(const string&, string::size_type& pos) = 0;
+        // Matches space, the string to search, starting at position pos. Returns true when the matcher finds a
+        // match, and false otherwise. When this function returns true, it sets pos to the position immediately
+        // after the matched portion of space.
+        virtual bool match(const string& space, string::size_type& pos) = 0;
         [[nodiscard]] virtual const char* toString() const = 0;
     };
 
     class MatchesAny final : public AddressMatcher
     {
     public:
-        bool match(const string&, string::size_type&) override { return true; }
+        bool match(const string& space, string::size_type& pos) override
+        {
+            pos = space.size();
+            return true;
+        }
 
         [[nodiscard]] const char* toString() const override { return "(ANY)"; }
     };
@@ -164,6 +171,7 @@ namespace Glacier2
                 }
                 --spaceEnd;
             }
+            pos = space.size();
             return true;
         }
 
@@ -291,7 +299,9 @@ namespace Glacier2
             {
                 return false;
             }
-            pos += static_cast<string::size_type>(istr.tellg());
+
+            // tellg() returns -1 once the extraction reached the end of the string.
+            pos = istr.eof() ? space.size() : pos + static_cast<string::size_type>(istr.tellg());
             {
                 for (int value : _values)
                 {
@@ -489,6 +499,17 @@ namespace Glacier2
                         out << rule->toString() << " matched " << host << " at pos=" << pos << "\n";
                     }
                 }
+
+                // The rule must match the whole host, not just a prefix of it.
+                if (pos != host.size())
+                {
+                    if (_traceLevel >= 3)
+                    {
+                        Trace out(_communicator->getLogger(), "Glacier2");
+                        out << "matched a prefix of " << host << " only, up to pos=" << pos << "\n";
+                    }
+                    return false;
+                }
             }
 
             return true;
@@ -674,15 +695,25 @@ namespace Glacier2
                             mark = current + 1;
                         }
                     }
-                    currentFactory = &endsWithFactory;
-
                     if (inGroup)
                     {
                         throw invalid_argument("unclosed group");
                     }
+
                     if (mark != current)
                     {
+                        // A trailing string matches the end of the host only when a wildcard precedes it. Otherwise
+                        // it must match at the position the preceding matchers stopped at.
+                        if (currentFactory == &wildCardFactory)
+                        {
+                            currentFactory = &endsWithFactory;
+                        }
                         currentRuleSet.push_back(currentFactory->create(addr.substr(mark, current - mark)));
+                    }
+                    else if (currentFactory == &wildCardFactory)
+                    {
+                        // A trailing wildcard matches the remainder of the host.
+                        currentRuleSet.push_back(new MatchesAny);
                     }
                 }
                 allRules.push_back(new AddressRule(communicator, currentRuleSet, portMatch, traceLevel));

@@ -304,6 +304,22 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                     ],
                     [],
                 ),
+                (
+                    "testing address filter without a trailing wildcard matches the whole host",
+                    ("12[7]", "", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    "testing address filter without a wildcard is not a suffix match",
+                    ("", "7.0.0.1", "", "", "", ""),
+                    [
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
             ]
         )
 
