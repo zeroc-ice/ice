@@ -558,6 +558,9 @@ TopicImpl::subscribeAndGetPublisher(QoS qos, Ice::ObjectPrx obj)
     catch (const IceDB::LMDBException& ex)
     {
         logError(_instance->communicator(), ex);
+        // The subscriber was created (and its publisher servant registered) before the transaction; remove
+        // it so a retry with the same subscriber identity is not rejected with AlreadyRegisteredException.
+        subscriber->destroy();
         throw; // will become UnknownException in caller
     }
 
@@ -791,7 +794,6 @@ TopicImpl::destroy()
     {
         throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
-    _destroyed = true;
 
     auto traceLevels = _instance->traceLevels();
     if (traceLevels->topic > 0)
@@ -800,9 +802,12 @@ TopicImpl::destroy()
         out << _name << ": destroy";
     }
 
-    // destroyInternal clears out the topic content.
+    // destroyInternal clears out the topic content. Mark the topic destroyed only once its database
+    // transaction has committed, so a failed commit leaves the topic intact and still destroyable.
     LogUpdate llu = {0, 0};
-    _instance->observers()->destroyTopic(destroyInternal(llu, true), _name);
+    LogUpdate destroyLLU = destroyInternal(llu, true);
+    _destroyed = true;
+    _instance->observers()->destroyTopic(destroyLLU, _name);
 
     _observer.detach();
 }
@@ -856,11 +861,19 @@ TopicImpl::update(const SubscriberRecordSeq& records)
                 (*p)->destroy();
                 p = _subscribers.erase(p);
             }
-            else
+            else if ((*p)->record() == *q)
             {
-                // Otherwise reset the reaped status if necessary.
+                // The record is unchanged; reset the reaped status if necessary.
                 (*p)->resetIfReaped();
                 ++p;
+            }
+            else
+            {
+                // The subscriber re-registered with a different proxy or QoS while this replica was out
+                // of sync. Destroy the stale in-memory subscriber; the second scan re-creates it from the
+                // incoming record so it matches the database.
+                (*p)->destroy();
+                p = _subscribers.erase(p);
             }
         }
     }
@@ -1064,6 +1077,9 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
     catch (const IceDB::LMDBException& ex)
     {
         logError(_instance->communicator(), ex);
+        // The subscriber was created (and its publisher servant registered) before the transaction; remove
+        // it so a later replica sync does not fail re-registering the same subscriber identity.
+        subscriber->destroy();
         throw; // will become UnknownException in caller
     }
 
