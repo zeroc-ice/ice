@@ -39,7 +39,11 @@ Node::Node(NodeOptions options)
     }
     catch (...)
     {
-        if (_ownsCommunicator)
+        if (_instance)
+        {
+            _instance->destroy(_ownsCommunicator);
+        }
+        else if (_ownsCommunicator)
         {
             communicator->destroy();
         }
@@ -74,19 +78,25 @@ Node::~Node()
 void
 Node::shutdown() noexcept
 {
-    _instance->shutdown();
+    if (_instance)
+    {
+        _instance->shutdown();
+    }
 }
 
 bool
 Node::isShutdown() const noexcept
 {
-    return _instance->isShutdown();
+    return _instance ? _instance->isShutdown() : true;
 }
 
 void
 Node::waitForShutdown() const noexcept
 {
-    _instance->waitForShutdown();
+    if (_instance)
+    {
+        _instance->waitForShutdown();
+    }
 }
 
 Node&

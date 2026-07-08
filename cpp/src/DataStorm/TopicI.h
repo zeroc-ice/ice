@@ -217,7 +217,6 @@ namespace DataStormI
         void destroy() final;
 
     private:
-        [[nodiscard]] DataStorm::ReaderConfig parseConfig() const;
         [[nodiscard]] DataStorm::ReaderConfig mergeConfigs(DataStorm::ReaderConfig) const;
 
         DataStorm::ReaderConfig _defaultConfig;
@@ -246,7 +245,6 @@ namespace DataStormI
         void destroy() final;
 
     private:
-        [[nodiscard]] DataStorm::WriterConfig parseConfig() const;
         [[nodiscard]] DataStorm::WriterConfig mergeConfigs(DataStorm::WriterConfig) const;
 
         DataStorm::WriterConfig _defaultConfig;
