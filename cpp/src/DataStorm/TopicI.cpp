@@ -438,7 +438,7 @@ TopicI::attachElements(
     return specs;
 }
 
-DataSamplesSeq
+ElementSpecAckSeq
 TopicI::attachElementsAck(
     int64_t topicId,
     const ElementSpecAckSeq& elements,
@@ -447,11 +447,11 @@ TopicI::attachElementsAck(
     const chrono::time_point<chrono::system_clock>& now,
     LongSeq& removedIds)
 {
-    DataSamplesSeq samples;
+    ElementSpecAckSeq reacks;
     vector<function<void()>> initCallbacks;
     for (const auto& spec : elements)
     {
-        if (spec.peerId > 0) // Key
+        if (spec.peerId > 0) // Local element is a key
         {
             auto key = _keyFactory->get(spec.peerId);
             auto p = _keyElements.find(key);
@@ -474,6 +474,7 @@ TopicI::attachElementsAck(
                     }
                 }
 
+                ElementDataAckSeq returnAcks;
                 for (const auto& data : spec.elements)
                 {
                     bool found = false;
@@ -484,13 +485,15 @@ TopicI::attachElementsAck(
                             function<void()> initCb;
                             if (spec.id > 0) // Key
                             {
-                                initCb = dataElement
-                                             ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, samples);
+                                initCb =
+                                    dataElement
+                                        ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, returnAcks);
                             }
                             else if (filter->match(key)) // Filter
                             {
-                                initCb = dataElement
-                                             ->attach(topicId, spec.id, key, filter, session, prx, data, now, samples);
+                                initCb =
+                                    dataElement
+                                        ->attach(topicId, spec.id, key, filter, session, prx, data, now, returnAcks);
                             }
 
                             if (initCb)
@@ -507,6 +510,21 @@ TopicI::attachElementsAck(
                         removedIds.push_back(data.peerId);
                     }
                 }
+
+                // Return the writer's samples as an acknowledgment addressed to the peer reader elements, mirroring
+                // the envelope built by attachElements. Each inner ack self-addresses via its own peerId, so grouping
+                // the spec's return acks under a single ElementSpecAck is equivalent to attachElements' per-element
+                // acks.
+                if (!returnAcks.empty())
+                {
+                    reacks.push_back(ElementSpecAck{
+                        .elements = std::move(returnAcks),
+                        .id = key->getId(),
+                        .name = "",
+                        .value = spec.id < 0 ? key->encode(_instance->getCommunicator()) : ByteSeq{},
+                        .peerId = spec.id,
+                        .peerName = spec.name});
+                }
             }
             else
             {
@@ -516,7 +534,7 @@ TopicI::attachElementsAck(
                 }
             }
         }
-        else // Filter
+        else // Local element is a filter
         {
             shared_ptr<Filter> filter;
             if (spec.peerId == -1)
@@ -537,6 +555,7 @@ TopicI::attachElementsAck(
                     key = _keyFactory->decode(_instance->getCommunicator(), spec.value);
                 }
 
+                ElementDataAckSeq returnAcks;
                 for (const auto& data : spec.elements)
                 {
                     bool found = false;
@@ -547,14 +566,22 @@ TopicI::attachElementsAck(
                             function<void()> initCb;
                             if (spec.id < 0) // Filter
                             {
-                                initCb =
-                                    dataElement
-                                        ->attach(topicId, spec.id, nullptr, filter, session, prx, data, now, samples);
+                                initCb = dataElement->attach(
+                                    topicId,
+                                    spec.id,
+                                    nullptr,
+                                    filter,
+                                    session,
+                                    prx,
+                                    data,
+                                    now,
+                                    returnAcks);
                             }
                             else if (filter->match(key))
                             {
-                                initCb = dataElement
-                                             ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, samples);
+                                initCb =
+                                    dataElement
+                                        ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, returnAcks);
                             }
 
                             if (initCb)
@@ -569,6 +596,20 @@ TopicI::attachElementsAck(
                     {
                         removedIds.push_back(-data.peerId);
                     }
+                }
+
+                // Return the writer's samples as an acknowledgment addressed to the peer, as in the key branch above.
+                // This branch handles an any-key writer: a KeyDataWriterI with no keys is registered under the
+                // always-match filter, so it produces samples here and returnAcks is populated.
+                if (!returnAcks.empty())
+                {
+                    reacks.push_back(ElementSpecAck{
+                        .elements = std::move(returnAcks),
+                        .id = -filter->getId(),
+                        .name = filter->getName(),
+                        .value = spec.id > 0 ? filter->encode(_instance->getCommunicator()) : ByteSeq{},
+                        .peerId = spec.id,
+                        .peerName = spec.name});
                 }
             }
             else
@@ -587,7 +628,7 @@ TopicI::attachElementsAck(
     {
         initCb();
     }
-    return samples;
+    return reacks;
 }
 
 void

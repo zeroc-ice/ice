@@ -369,16 +369,16 @@ SessionI::attachElementsAck(int64_t topicId, ElementSpecAckSeq elements, const C
             }
 
             LongSeq removedIds;
-            auto samples = topic->attachElementsAck(topicId, elements, shared_from_this(), *_session, now, removedIds);
-            if (!samples.empty())
+            auto reacks = topic->attachElementsAck(topicId, elements, shared_from_this(), *_session, now, removedIds);
+            if (!reacks.empty())
             {
                 if (_traceLevels->session > 2)
                 {
                     Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-                    out << _id << ": initializing elements '[" << samples << "]@" << topicId << "' on topic '" << topic
+                    out << _id << ": initializing elements '[" << reacks << "]@" << topicId << "' on topic '" << topic
                         << "'";
                 }
-                _session->initSamplesAsync(topic->getId(), samples, nullptr);
+                _session->attachElementsAckAsync(topic->getId(), reacks, nullptr);
             }
 
             if (!removedIds.empty())
@@ -1222,12 +1222,25 @@ SessionI::subscriberInitialized(
     const shared_ptr<Key>& key,
     const std::shared_ptr<DataElementI>& element)
 {
-    // Called with the session locked, from DataElementI::attach.
+    // Called with the session locked, from DataElementI::attach. The subscriber bucket for elementId was created when
+    // this element attached in an earlier round of the same handshake; per-connection message ordering guarantees that
+    // attach ran before this call, so the bucket and its subscriber entry are present. Assert this in debug builds so a
+    // routing or element-id mismatch fails loudly in the tests, but tolerate a missing entry in release rather than
+    // dereferencing a pointer derived from peer-supplied ids.
     assert(_topics.find(topicId) != _topics.end());
     TopicSubscriber& subscriber = _topics.at(topicId).getSubscriber(element->getTopic());
     ElementSubscribers* elementSubscribers = subscriber.get(elementId);
+    assert(elementSubscribers);
+    if (!elementSubscribers)
+    {
+        return {};
+    }
     ElementSubscriber* elementSubscriber = elementSubscribers->getSubscriber(element);
     assert(elementSubscriber);
+    if (!elementSubscriber)
+    {
+        return {};
+    }
 
     if (_traceLevels->session > 1)
     {

@@ -154,7 +154,7 @@ DataElementI::attach(
     SessionPrx prx,
     const ElementDataAck& data,
     const chrono::time_point<chrono::system_clock>& now,
-    DataSamplesSeq& samples)
+    ElementDataAckSeq& acks)
 {
     // Called with the topic and session from TopicI::attachElementsAck locked.
     shared_ptr<Filter> sampleFilter;
@@ -178,10 +178,11 @@ DataElementI::attach(
         name = os.str();
     }
 
-    // Attach a key or filter. If the attachment is successful, compute the queued samples to send to the peer.
-    // - If this data element is a data reader, the computed samples will be empty.
-    // - If this data element is a data writer, the computed samples will contain the samples to send to the peer
-    //   based on the peer reader configuration.
+    // Attach a key or filter. If the attachment succeeds and this element is a data writer, emit its queued samples
+    // as an acknowledgment addressed to the exact peer reader element (data.id), mirroring the acknowledgment the
+    // announce-first attachElements path builds. A data reader has no samples to send. This addressed return
+    // acknowledgment replaces the old unaddressed initSamples leg, so the peer routes the batch to the reader that
+    // attached instead of guessing from the writer element id.
     if ((id > 0 &&
          attachKey(topicId, data.id, key, sampleFilter, session, std::move(prx), facet, id, name, priority)) ||
         (id < 0 &&
@@ -189,7 +190,22 @@ DataElementI::attach(
     {
         auto q = data.lastIds.find(_id);
         int64_t lastId = q != data.lastIds.end() ? q->second : 0;
-        samples.push_back(getSamples(key, sampleFilter, data.config, lastId, now));
+        DataSamples batch = getSamples(key, sampleFilter, data.config, lastId, now);
+
+        // Only a data writer produces samples: KeyDataWriterI::getSamples always stamps a nonzero batch id (+/-_id),
+        // even for an empty history, whereas a data reader's base getSamples returns an id-0 batch. Send even an empty
+        // writer batch, so the peer marks the reader initialized and enables its live sample path. The acknowledgment
+        // carries the raw positive element id (_id); batch.id is used only as the writer discriminator here. lastIds
+        // is left empty: on this terminating leg the peer's element is already attached, so it never reads them.
+        if (batch.id != 0)
+        {
+            acks.push_back(ElementDataAck{
+                .id = _id,
+                .config = _config,
+                .lastIds = {},
+                .samples = std::move(batch.samples),
+                .peerId = data.id});
+        }
     }
 
     auto samplesI =

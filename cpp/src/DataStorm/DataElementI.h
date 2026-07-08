@@ -192,8 +192,9 @@ namespace DataStormI
         /// @param data The acknowledgment data associated with the remote element, describing its configuration or
         /// state.
         /// @param now The timestamp indicating when the attachment was requested.
-        /// @param samples Output parameter filled with the data samples in the publisher's queue. This parameter is
-        /// always empty when the method is called on the subscriber side.
+        /// @param acks Output parameter filled with the publisher's queued samples as an acknowledgment addressed to
+        /// the peer reader element (`data.id`). Empty when the method is called on the subscriber side, since a reader
+        /// has no samples to send.
         /// @return A function that initializes the reader with the prepared samples:
         /// - For a publisher, this method always returns a `nullptr` function.
         /// - For a subscriber, this method returns a function that initializes the reader with samples provided by the
@@ -207,7 +208,7 @@ namespace DataStormI
             DataStormContract::SessionPrx prx,
             const DataStormContract::ElementDataAck& data,
             const std::chrono::time_point<std::chrono::system_clock>& now,
-            DataStormContract::DataSamplesSeq& samples);
+            DataStormContract::ElementDataAckSeq& acks);
 
         [[nodiscard]] bool attachKey(
             std::int64_t,
