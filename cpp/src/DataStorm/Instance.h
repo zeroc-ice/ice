@@ -6,6 +6,7 @@
 #include "../Ice/Timer.h"
 #include "DataStorm/Config.h"
 #include "DataStorm/Contract.h"
+#include "DataStorm/Types.h"
 #include "Ice/Ice.h"
 
 #include <cmath>
@@ -53,6 +54,16 @@ namespace DataStormI
         {
             assert(_adapter);
             return _adapter;
+        }
+
+        [[nodiscard]] const DataStorm::ReaderConfig& getDefaultReaderConfig() const noexcept
+        {
+            return _defaultReaderConfig;
+        }
+
+        [[nodiscard]] const DataStorm::WriterConfig& getDefaultWriterConfig() const noexcept
+        {
+            return _defaultWriterConfig;
         }
 
         [[nodiscard]] std::shared_ptr<ForwarderManager> getCollocatedForwarder() const
@@ -149,6 +160,8 @@ namespace DataStormI
         std::chrono::milliseconds _retryDelay;
         int _retryMultiplier;
         int _retryCount;
+        DataStorm::ReaderConfig _defaultReaderConfig;
+        DataStorm::WriterConfig _defaultWriterConfig;
 
         mutable std::mutex _mutex;
         mutable std::condition_variable _cond;

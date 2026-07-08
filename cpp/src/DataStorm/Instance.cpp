@@ -14,6 +14,58 @@ using namespace std;
 using namespace DataStormI;
 using namespace Ice;
 
+namespace
+{
+    DataStorm::ClearHistoryPolicy parseClearHistory(const std::string& value)
+    {
+        if (value == "OnAdd")
+        {
+            return DataStorm::ClearHistoryPolicy::OnAdd;
+        }
+        else if (value == "OnRemove")
+        {
+            return DataStorm::ClearHistoryPolicy::OnRemove;
+        }
+        else if (value == "OnAll")
+        {
+            return DataStorm::ClearHistoryPolicy::OnAll;
+        }
+        else if (value == "OnAllExceptPartialUpdate")
+        {
+            return DataStorm::ClearHistoryPolicy::OnAllExceptPartialUpdate;
+        }
+        else if (value == "Never")
+        {
+            return DataStorm::ClearHistoryPolicy::Never;
+        }
+        else
+        {
+            throw ParseException(__FILE__, __LINE__, "Invalid clear history policy: " + value);
+        }
+    }
+
+    DataStorm::DiscardPolicy parseDiscardPolicy(const std::string& value)
+    {
+        // "None" is accepted as an alias for "Never" to match the DataStorm::DiscardPolicy::None enumerator name.
+        if (value == "Never" || value == "None")
+        {
+            return DataStorm::DiscardPolicy::None;
+        }
+        else if (value == "SendTime")
+        {
+            return DataStorm::DiscardPolicy::SendTime;
+        }
+        else if (value == "Priority")
+        {
+            return DataStorm::DiscardPolicy::Priority;
+        }
+        else
+        {
+            throw ParseException(__FILE__, __LINE__, "Invalid discard policy: " + value);
+        }
+    }
+}
+
 Instance::Instance(
     CommunicatorPtr communicator,
     function<void(function<void()> call)> customExecutor,
@@ -27,6 +79,21 @@ Instance::Instance(
     }
 
     PropertiesPtr properties = _communicator->getProperties();
+
+    // Parse the topic default configurations eagerly, before any resource is created: an invalid DataStorm.Topic.*
+    // property value then surfaces as a catchable exception from the Node constructor. Parsing these lazily when a
+    // topic reader or writer is first created would let the exception escape the noexcept Topic methods
+    // (hasWriters/hasReaders/setReaderDefaultConfig/setWriterDefaultConfig) and call std::terminate.
+    _defaultReaderConfig.clearHistory = parseClearHistory(properties->getIceProperty("DataStorm.Topic.ClearHistory"));
+    _defaultReaderConfig.sampleCount = properties->getIcePropertyAsInt("DataStorm.Topic.SampleCount");
+    _defaultReaderConfig.sampleLifetime = properties->getIcePropertyAsInt("DataStorm.Topic.SampleLifetime");
+    _defaultReaderConfig.discardPolicy =
+        parseDiscardPolicy(properties->getIceProperty("DataStorm.Topic.DiscardPolicy"));
+
+    _defaultWriterConfig.clearHistory = *_defaultReaderConfig.clearHistory;
+    _defaultWriterConfig.sampleCount = *_defaultReaderConfig.sampleCount;
+    _defaultWriterConfig.sampleLifetime = *_defaultReaderConfig.sampleLifetime;
+    _defaultWriterConfig.priority = properties->getIcePropertyAsInt("DataStorm.Topic.Priority");
 
     if (properties->getIcePropertyAsInt("DataStorm.Node.Server.Enabled") > 0)
     {
@@ -208,7 +275,10 @@ Instance::destroy(bool ownsCommunicator)
             _multicastAdapter->destroy();
         }
     }
-    _node->destroy(ownsCommunicator);
+    if (_node)
+    {
+        _node->destroy(ownsCommunicator);
+    }
 
     _executor->destroy();
     _connectionManager->destroy();
