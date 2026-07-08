@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "TopicI.h"
+#include "../Ice/CheckIdentity.h"
 #include "Ice/LoggerUtil.h"
 #include "Instance.h"
 #include "NodeI.h"
@@ -188,6 +189,11 @@ namespace
 
         void reap(Ice::IdentitySeq ids, const Ice::Current&) override
         {
+            for (const auto& id : ids)
+            {
+                checkIdentity(id, __FILE__, __LINE__);
+            }
+
             auto node = _instance->node();
             if (!node->updateMaster(__FILE__, __LINE__))
             {
