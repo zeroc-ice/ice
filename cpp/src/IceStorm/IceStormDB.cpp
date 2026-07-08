@@ -7,6 +7,7 @@
 #include "DBTypes.h"
 #include "Ice/Ice.h"
 #include "Ice/StringUtil.h"
+#include "Util.h"
 
 #include <fstream>
 #include <iterator>
@@ -145,6 +146,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
         IceStorm::AllData data;
 
         IceDB::IceContext dbContext = {communicator};
+        IceStormInternal::setKeyComparatorCommunicator(communicator);
 
         if (import)
         {
@@ -231,7 +233,12 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
 
                 IceDB::
                     Dbi<IceStorm::SubscriberRecordKey, IceStorm::SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
-                        subscriberMap(txn, "subscribers", dbContext, MDB_CREATE);
+                        subscriberMap(
+                            txn,
+                            "subscribers",
+                            dbContext,
+                            MDB_CREATE,
+                            IceStormInternal::compareSubscriberRecordKey);
 
                 for (const auto& subscriber : data.subscribers)
                 {
@@ -287,7 +294,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
 
                 IceDB::
                     Dbi<IceStorm::SubscriberRecordKey, IceStorm::SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
-                        subscriberMap(txn, "subscribers", dbContext, 0);
+                        subscriberMap(txn, "subscribers", dbContext, 0, IceStormInternal::compareSubscriberRecordKey);
 
                 IceStorm::SubscriberRecordKey key;
                 IceStorm::SubscriberRecord record;
@@ -325,6 +332,11 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
             }
             fs.write(reinterpret_cast<const char*>(stream.b.begin()), static_cast<streamsize>(stream.b.size()));
             fs.close();
+            if (fs.fail())
+            {
+                consoleErr << args[0] << ": could not write output file: " << IceInternal::errorToString(errno) << endl;
+                return 1;
+            }
         }
     }
     catch (const Ice::Exception& ex)

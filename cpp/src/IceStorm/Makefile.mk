@@ -25,6 +25,7 @@ IceStormService_sources         := $(addprefix $(currentdir)/,Instance.cpp \
                                                              TransientTopicI.cpp \
                                                              TransientTopicManagerI.cpp \
                                                              Util.cpp \
+                                                             SubscriberRecordKeyCompare.cpp \
                                                              ../IceDB/IceDB.cpp \
                                                              Election.ice \
                                                              IceStormInternal.ice \
@@ -46,6 +47,7 @@ icestormadmin_sources           := $(addprefix $(currentdir)/,Admin.cpp \
 icestormdb_targetdir            := $(bindir)
 icestormdb_libs                 := lmdb
 icestormdb_sources              := $(addprefix $(currentdir)/,IceStormDB.cpp \
+                                                              SubscriberRecordKeyCompare.cpp \
                                                               ../IceDB/IceDB.cpp \
                                                               SubscriberRecord.ice \
                                                               DBTypes.ice \
