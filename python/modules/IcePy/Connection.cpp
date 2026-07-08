@@ -102,7 +102,13 @@ the default object adapter of an outgoing connection is the communicator's defau
 Parameters
 ----------
 adapter : Ice.ObjectAdapter | None
-    The object adapter to associate with this connection.)";
+    The object adapter to associate with this connection.
+
+Raises
+------
+LocalException
+    If this connection is an incoming (server) connection: setAdapter can only be called on outgoing
+    connections.)";
 
     constexpr const char* connectionGetAdapter_doc = R"(getAdapter() -> Ice.ObjectAdapter | None
 
@@ -150,7 +156,7 @@ The callback is called from the Ice thread pool associated with the connection.
 Parameters
 ----------
 callback : Callable[[Connection], None] | None
-    The close callback callable, or None to remove the current callback.)";
+    The close callback callable, or ``None`` to remove the current callback.)";
 
     constexpr const char* connectionType_doc = R"(type() -> str
 
@@ -208,7 +214,7 @@ sndSize : int
 Raises an exception that provides the reason for the closure of this connection. For example,
 this function raises :class:`CloseConnectionException` when the connection was closed gracefully by the peer;
 it raises :class:`ConnectionAbortedException` when the connection is aborted with :func:`abort`.
-This function does nothing if the connection is not yet closed.)";
+This function does nothing if the connection is not yet closing or closed.)";
 }
 
 namespace IcePy

@@ -94,13 +94,13 @@ class ServantLocatorI(Ice.ServantLocator):
         test(self._deactivated)
 
     @override
-    def locate(self, current: Ice.Current) -> tuple[Ice.Object | None, object | None]:
+    def locate(self, current: Ice.Current) -> Ice.Object | tuple[Ice.Object, object | None] | None:
         test(not self._deactivated)
 
         test(current.id.category == self._category or self._category == "")
 
         if current.id.name == "unknown":
-            return (None, None)
+            return None
 
         if current.id.name == "invalidReturnValue":
             return (45, 12)  # type: ignore
