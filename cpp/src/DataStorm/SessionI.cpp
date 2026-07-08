@@ -524,12 +524,9 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Current&
 void
 SessionI::disconnected(const Current& current)
 {
-    if (disconnected(current.con, nullptr))
+    if (!handleDisconnected(current.con, nullptr))
     {
-        if (!retry(getNode(), nullptr))
-        {
-            remove();
-        }
+        remove();
     }
 }
 
@@ -555,12 +552,9 @@ SessionI::connected(SessionPrx session, const ConnectionPtr& newConnection, cons
             self,
             [self](const auto& connection, auto ex)
             {
-                if (self->disconnected(connection, ex))
+                if (!self->handleDisconnected(connection, ex))
                 {
-                    if (!self->retry(self->getNode(), nullptr))
-                    {
-                        self->remove();
-                    }
+                    self->remove();
                 }
             });
     }
@@ -601,6 +595,25 @@ bool
 SessionI::disconnected(const ConnectionPtr& connection, exception_ptr ex)
 {
     lock_guard<mutex> lock(_mutex);
+    return disconnectedImpl(connection, ex);
+}
+
+bool
+SessionI::handleDisconnected(const ConnectionPtr& connection, exception_ptr ex)
+{
+    lock_guard<mutex> lock(_mutex);
+    if (!disconnectedImpl(connection, ex))
+    {
+        // Nothing to do: the session is destroyed, already reconnected, or the disconnect was already handled.
+        return true;
+    }
+    return retryImpl(_node, nullptr); // getNode() would deadlock, the mutex is locked
+}
+
+bool
+SessionI::disconnectedImpl(const ConnectionPtr& connection, exception_ptr ex)
+{
+    // Called with the session mutex locked.
     if (_destroyed)
     {
         // Ignore already destroyed.
@@ -608,8 +621,12 @@ SessionI::disconnected(const ConnectionPtr& connection, exception_ptr ex)
     }
     else if (!_session)
     {
-        // A recovery attempt was in progress and failed. Return true to let the caller retry.
-        return true;
+        // When a retry is already scheduled, this is a second notification for the same disconnect: a peer shutdown
+        // produces both the wire disconnected() request and the connection closure, in either order. Letting the
+        // caller retry again would cancel the pending immediate reconnect and replace it with a delayed one,
+        // consuming a retry slot. Otherwise, a recovery attempt was in progress and failed: return true to let the
+        // caller retry.
+        return !_retryTask;
     }
     else if (connection && _connection != connection)
     {
@@ -666,7 +683,13 @@ bool
 SessionI::retry(NodePrx node, exception_ptr exception)
 {
     lock_guard<mutex> lock(_mutex);
+    return retryImpl(std::move(node), std::move(exception));
+}
 
+bool
+SessionI::retryImpl(NodePrx node, exception_ptr exception)
+{
+    // Called with the session mutex locked.
     if (exception)
     {
         // Don't retry if we are shutting down.
