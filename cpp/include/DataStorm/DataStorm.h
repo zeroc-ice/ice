@@ -188,8 +188,9 @@ namespace DataStorm
 
         /// Calls the given function to provide the initial set of unread samples and when new samples are queued.
         /// If a function is already set, it will be replaced.
-        /// The @p init callback is always called after this method returns to provide the initial set of unread
-        /// samples. The @p queue callback is called when a new sample is received.
+        /// The @p init callback is called after this method returns to provide the initial set of unread samples;
+        /// it is only called when the reader has unread samples. The @p queue callback is called when a new sample
+        /// is received.
         /// @param init The function to call with the initial set of unread samples.
         /// @param queue The function to call when a new sample is received.
         void onSamples(
@@ -378,6 +379,8 @@ namespace DataStorm
         /// Sets an updater function for the given update tag. The function is called when a partial update is
         /// received or sent to compute the new value. The function is provided the latest value and the partial
         /// update. It should return the new value.
+        /// An updater that throws when applying a received partial update causes the sample to be dropped: a
+        /// warning is logged and the following samples are delivered normally.
         /// @param tag The update tag.
         /// @param updater The updater function.
         template<typename UpdateValue>
