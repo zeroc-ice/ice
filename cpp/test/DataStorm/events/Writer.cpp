@@ -393,6 +393,20 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
+    // A multi-key writer must only forward a key's samples to the sessions subscribed to that key: a session whose
+    // only reader subscribes elem1 must not receive elem2's samples; an any-key reader receives every key.
+    cout << "testing multi-key writer with a partially subscribed session... " << flush;
+    {
+        Topic<string, string> topic(node, "unmatchedKey");
+
+        auto writer = makeMultiKeyWriter(topic, {"elem1", "elem2"}, "", config);
+        writer.waitForReaders(2);         // the single-key reader and the any-key reader
+        writer.update("elem2", "value2"); // only the any-key reader subscribes elem2
+        writer.update("elem1", "value1");
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
     cout << "testing topic collocated key reader and writer... " << flush;
     {
         Topic<string, string> topic(node, "collocated");
