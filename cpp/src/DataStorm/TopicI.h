@@ -179,8 +179,10 @@ namespace DataStormI
         // The number of connected listeners.
         size_t _listenerCount{0};
 
+        // Element ids are drawn from a single counter for all elements of a topic (keyed, any-key, and filtered).
+        // Any-key and filtered elements are both presented to the peer as negated ids (filter subscriptions), so
+        // distinct raw values are required across all of them to keep their subscriptions apart.
         std::int64_t _nextId{0};
-        std::int64_t _nextFilteredId{0};
         std::int64_t _nextSampleId{0};
     };
 

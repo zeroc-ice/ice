@@ -931,7 +931,7 @@ TopicReaderI::createFiltered(
     auto element = make_shared<FilteredDataReaderI>(
         this,
         std::move(name),
-        ++_nextFilteredId,
+        ++_nextId,
         filter,
         std::move(sampleFilterName),
         std::move(sampleFilterCriteria),
