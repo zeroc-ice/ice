@@ -11,7 +11,7 @@ export class Client extends TestHelper {
 
         const adapter = await communicator.createObjectAdapter("");
         await echo.setConnection();
-        echo.ice_getCachedConnection().setAdapter(adapter);
+        echo.ice_getCachedConnection()!.setAdapter(adapter);
 
         const out = this.getWriter();
 

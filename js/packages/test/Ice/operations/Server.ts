@@ -20,7 +20,7 @@ export class Server extends TestHelper {
             const adapter = await communicator.createObjectAdapter("");
             adapter.add(new MyDerivedClassI(echo.ice_getEndpoints()), Ice.stringToIdentity("test"));
             await echo.setConnection();
-            echo.ice_getCachedConnection().setAdapter(adapter);
+            echo.ice_getCachedConnection()!.setAdapter(adapter);
             this.serverReady();
             await communicator.waitForShutdown();
         } finally {

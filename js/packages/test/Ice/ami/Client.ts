@@ -222,7 +222,7 @@ export class Client extends TestHelper {
             }
 
             {
-                const con: Ice.Connection = p.ice_getCachedConnection();
+                const con: Ice.Connection = p.ice_getCachedConnection()!;
                 let p2 = p.ice_batchOneway();
                 p2.ice_ping();
                 await con.flushBatchRequests();
