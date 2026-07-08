@@ -768,27 +768,79 @@ DataReaderI::initSamples(
             (_discardPolicy == DataStorm::DiscardPolicy::Priority &&
              hasLowerPriorityThanConnected(priority, sample->key)))
         {
+            // The discard only affects the application-visible delivery: when the key has no base yet, still record
+            // the discarded sample as the base partial updates resolve against, otherwise a later partial update on
+            // the key would have no base.
+            if (sample->event != DataStorm::SampleEvent::PartialUpdate &&
+                previousByKey.find(sample->key) == previousByKey.end())
+            {
+                try
+                {
+                    if (!sample->hasValue())
+                    {
+                        sample->decode(_parent->instance()->getCommunicator());
+                    }
+                    previousByKey[sample->key] = sample;
+                }
+                catch (const std::exception&)
+                {
+                    // Ignore, the sample was discarded anyway.
+                }
+            }
             continue;
         }
 
         assert(sample->key);
-        valid.push_back(sample);
 
         if (!sample->hasValue())
         {
             if (sample->event == DataStorm::SampleEvent::PartialUpdate)
             {
                 auto p = previousByKey.find(sample->key);
-                _parent->getUpdater(sample->tag)(
-                    p == previousByKey.end() ? nullptr : p->second,
-                    sample,
-                    _parent->instance()->getCommunicator());
+                if (p == previousByKey.end())
+                {
+                    // No base to resolve the partial update against (for example a peer writer that doesn't
+                    // bootstrap the base): drop the sample rather than apply the update to a default-constructed
+                    // value.
+                    if (_traceLevels->data > 0)
+                    {
+                        Trace out(_traceLevels->logger, _traceLevels->dataCat);
+                        out << this << ": discarded partial update sample " << sample->id
+                            << ": no base value for the key";
+                    }
+                    continue;
+                }
+
+                try
+                {
+                    _parent->getUpdater(sample->tag)(p->second, sample, _parent->instance()->getCommunicator());
+                }
+                catch (const std::exception& ex)
+                {
+                    // An updater or decoder that throws (a user updater error, or a writer/reader update type
+                    // mismatch) drops the sample; the base is left unchanged so the next full sample resynchronizes
+                    // the key.
+                    Warning out(_traceLevels->logger);
+                    out << "dropped sample " << sample->id << ": the partial update could not be applied:\n"
+                        << ex.what();
+                    continue;
+                }
             }
             else
             {
-                sample->decode(_parent->instance()->getCommunicator());
+                try
+                {
+                    sample->decode(_parent->instance()->getCommunicator());
+                }
+                catch (const std::exception& ex)
+                {
+                    Warning out(_traceLevels->logger);
+                    out << "dropped sample " << sample->id << ": the value could not be decoded:\n" << ex.what();
+                    continue;
+                }
             }
         }
+        valid.push_back(sample);
         previousByKey[sample->key] = sample;
     }
 
@@ -813,6 +865,9 @@ DataReaderI::initSamples(
 
     if (valid.empty())
     {
+        // Even when every sample was discarded or dropped, keep the bases recorded above so a later partial update
+        // on their keys can resolve.
+        _lastByKey = std::move(previousByKey);
         return;
     }
     _lastSendTime = valid.back()->timestamp;
@@ -913,6 +968,25 @@ DataReaderI::queue(
             Trace out(_traceLevels->logger, _traceLevels->dataCat);
             out << this << ": discarded sample" << sample->id;
         }
+
+        // The discard only affects the application-visible delivery: when the key has no base yet, still record the
+        // discarded sample as the base partial updates resolve against, otherwise a later partial update on the key
+        // would have no base.
+        if (sample->event != DataStorm::SampleEvent::PartialUpdate && _lastByKey.find(sample->key) == _lastByKey.end())
+        {
+            try
+            {
+                if (!sample->hasValue())
+                {
+                    sample->decode(_parent->instance()->getCommunicator());
+                }
+                _lastByKey[sample->key] = sample;
+            }
+            catch (const std::exception&)
+            {
+                // Ignore, the sample was discarded anyway.
+            }
+        }
         return;
     }
 
@@ -921,14 +995,43 @@ DataReaderI::queue(
         if (sample->event == DataStorm::SampleEvent::PartialUpdate)
         {
             auto p = _lastByKey.find(sample->key);
-            _parent->getUpdater(sample->tag)(
-                p == _lastByKey.end() ? nullptr : p->second,
-                sample,
-                _parent->instance()->getCommunicator());
+            if (p == _lastByKey.end())
+            {
+                // No base to resolve the partial update against (for example a peer writer that doesn't bootstrap
+                // the base): drop the sample rather than apply the update to a default-constructed value.
+                if (_traceLevels->data > 0)
+                {
+                    Trace out(_traceLevels->logger, _traceLevels->dataCat);
+                    out << this << ": discarded partial update sample " << sample->id << ": no base value for the key";
+                }
+                return;
+            }
+
+            try
+            {
+                _parent->getUpdater(sample->tag)(p->second, sample, _parent->instance()->getCommunicator());
+            }
+            catch (const std::exception& ex)
+            {
+                // An updater or decoder that throws (a user updater error, or a writer/reader update type mismatch)
+                // drops the sample; the base is left unchanged so the next full sample resynchronizes the key.
+                Warning out(_traceLevels->logger);
+                out << "dropped sample " << sample->id << ": the partial update could not be applied:\n" << ex.what();
+                return;
+            }
         }
         else
         {
-            sample->decode(_parent->instance()->getCommunicator());
+            try
+            {
+                sample->decode(_parent->instance()->getCommunicator());
+            }
+            catch (const std::exception& ex)
+            {
+                Warning out(_traceLevels->logger);
+                out << "dropped sample " << sample->id << ": the value could not be decoded:\n" << ex.what();
+                return;
+            }
         }
     }
     _lastSendTime = sample->timestamp;
