@@ -961,15 +961,15 @@ void
 SessionI::disconnect(int64_t topicId, TopicI* topic)
 {
     lock_guard<mutex> lock(_mutex); // Called by TopicI::destroy
-    if (!_session)
-    {
-        return;
-    }
 
+    // No _session check: a session disconnected after the topic was marked destroyed skipped this topic when
+    // detaching (runWithTopics skips destroyed topics), so the subscriber entry must be cleaned up here even when
+    // the session is gone. The checks below cover every other state: the entry is absent when the peer detached the
+    // topic first or the session was destroyed.
     auto t = _topics.find(topicId);
     if (t == _topics.end())
     {
-        return; // Peer topic detached first.
+        return; // Peer topic detached first, or the session was destroyed.
     }
     auto& subscriber = t->second;
 
