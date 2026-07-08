@@ -102,6 +102,15 @@ NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& newConnection
         }
         else
         {
+            // The existing session may have been created without announcement forwarding by the NodeForwarder path
+            // racing this peer's createSession request over the same connection. Upgrade it and replay the recorded
+            // announcements, as when a forwarding session is created below; otherwise the relay would never forward
+            // announcements to the peer for the lifetime of the connection.
+            if (forwardAnnouncements && !p->second->getLookup())
+            {
+                p->second->enableAnnouncementForwarding();
+                announceKnownTopics(*p->second->getLookup(), newConnection);
+            }
             return p->second;
         }
     }
