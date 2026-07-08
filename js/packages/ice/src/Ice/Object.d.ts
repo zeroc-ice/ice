@@ -50,7 +50,7 @@ declare module "@zeroc/ice" {
             dispatch(request: IncomingRequest): OutgoingResponse | PromiseLike<OutgoingResponse>;
 
             /**
-             * Returns the Slice type id of the interface or class associated with this proxy class.
+             * Returns the Slice type id of the interface or class associated with this class.
              *
              * @returns The type id, "::Ice::Object".
              */

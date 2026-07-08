@@ -7,12 +7,6 @@ declare module "@zeroc/ice" {
          */
         abstract class UserException extends Exception {
             constructor();
-
-            /**
-             * Obtains the Slice type ID of this exception.
-             * @returns The fully-scoped type ID.
-             */
-            static ice_staticId(): string;
         }
     }
 }

@@ -98,7 +98,7 @@ declare module "@zeroc/ice" {
             createEmptyOutgoingResponse(): OutgoingResponse;
 
             /**
-             * Creates an outgoing response that marshals an exception or the request being dispatched corresponding
+             * Creates an outgoing response that marshals an exception for the request being dispatched corresponding
              * to this current object.
              *
              * @param exception The exception to marshal into the response payload.

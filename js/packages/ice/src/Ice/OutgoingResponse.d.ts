@@ -10,7 +10,7 @@ declare module "@zeroc/ice" {
              * Constructs an outgoing response.
              *
              * @param outputStream The output stream that holds the response.
-             * @param replyStatus The status of the response.
+             * @param replyStatus The status of the response. Defaults to {@link ReplyStatus.Ok}.
              * @param exceptionId The type ID of the exception, when the response carries an exception other than a
              * user exception.
              * @param exceptionDetails The full details of the exception, when the response carries an exception other
@@ -18,7 +18,7 @@ declare module "@zeroc/ice" {
              */
             constructor(
                 outputStream: OutputStream,
-                replyStatus: ReplyStatus,
+                replyStatus?: ReplyStatus,
                 exceptionId?: string,
                 exceptionDetails?: string,
             );
@@ -34,17 +34,18 @@ declare module "@zeroc/ice" {
             outputStream: OutputStream;
 
             /**
-             * The exception ID of the response. It's empty when `replyStatus` is {@link ReplyStatus.Ok} or
-             * {@link ReplyStatus.UserException}. Otherwise, this ID is the value returned by
+             * The exception ID of the response. It's null or undefined when `replyStatus` is {@link ReplyStatus.Ok}
+             * or {@link ReplyStatus.UserException}. Otherwise, this ID is the value returned by
              * {@link LocalException#ice_id}. For other exceptions, this ID is the value returned by `Error#name`.
              */
-            exceptionId: string;
+            exceptionId: string | null | undefined;
 
             /**
-             * The exception details marshaled into the response. It's null when replyStatus is {@link ReplyStatus.Ok}
-             * or {@link ReplyStatus.UserException}.
+             * The full details of the exception (typically the `Error` stack), used for logging; not marshaled into
+             * the response. It's null or undefined when replyStatus is {@link ReplyStatus.Ok} or
+             * {@link ReplyStatus.UserException}.
              */
-            exceptionDetails: string;
+            exceptionDetails: string | null | undefined;
 
             /**
              * The number of bytes in the response's payload.

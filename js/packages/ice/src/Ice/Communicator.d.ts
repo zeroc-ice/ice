@@ -3,7 +3,13 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * The central object in Ice. One or more communicators can be instantiated for an Ice application.
+         * Communicator is the central object in Ice. Its responsibilities include:
+         * - creating and managing outgoing connections
+         * - creating and destroying object adapters
+         * - managing properties (configuration), retries, logging, and more.
+         *
+         * You create a communicator with `new Ice.Communicator()`, and it's usually the first object you create when
+         * programming with Ice.
          *
          * @see {@link Logger}
          * @see {@link ObjectAdapter}
@@ -11,18 +17,9 @@ declare module "@zeroc/ice" {
          */
         class Communicator {
             /**
-             * Creates a communicator with default options.
-             *
-             * @returns The initialized communicator.
-             * @throws {@link InitializationException} If an error occurs during initialization.
-             */
-            constructor();
-
-            /**
              * Creates a communicator.
              *
              * @param initData Options for the new communicator.
-             * @returns The initialized communicator.
              * @throws {@link InitializationException} If an error occurs during initialization.
              */
             constructor(initData?: InitializationData);
@@ -32,7 +29,6 @@ declare module "@zeroc/ice" {
              *
              * @param args A command-line argument vector. Any Ice-related options in this vector are used to initialize
              * the communicator. This method modifies the argument vector by removing any Ice-related options.
-             * @returns The initialized communicator.
              * @throws {@link InitializationException} If an error occurs during initialization.
              */
             constructor(args: string[]);
@@ -87,6 +83,7 @@ declare module "@zeroc/ice" {
              * @param proxyString - The proxy string to convert.
              *
              * @returns The proxy, or `null` if `proxyString` is an empty string.
+             * @throws {@link ParseException} - Thrown when `proxyString` is not a valid proxy string.
              *
              * @see {@link proxyToString}
              */
@@ -98,7 +95,7 @@ declare module "@zeroc/ice" {
              * @param prx - The proxy to convert into a string.
              * @returns The string representation of the proxy, or an empty string if `prx` is `null`.
              */
-            proxyToString(prx: Ice.ObjectPrx): string;
+            proxyToString(prx: Ice.ObjectPrx | null): string;
 
             /**
              * Converts a set of proxy properties into a proxy. The "base" name supplied in the`property` argument
@@ -107,6 +104,7 @@ declare module "@zeroc/ice" {
              *
              * @param property The base property name.
              * @returns The proxy, or null if the property is not set.
+             * @throws {@link ParseException} - Thrown when the property value is not a valid proxy string.
              */
             propertyToProxy(property: string): Ice.ObjectPrx | null;
 
@@ -131,12 +129,16 @@ declare module "@zeroc/ice" {
              * Creates a new object adapter.
              *
              * It is valid to create an object adapter with an empty string as its name. Such an object adapter is
-             * accessible via bidirectional connections. Attempts to create a named object adapter for which no
-             * configuration can be found will raise an `InitializationException`.
+             * accessible via bidirectional connections.
              *
              * @param name - The object adapter name.
              * @returns A promise that resolves to the created object adapter.
-             * @throws {@link InitializationException} - Thrown if the object adapter cannot be created.
+             *
+             * @remarks The returned promise rejects with {@link InitializationException} when a named object adapter
+             * has no configuration, with {@link PropertyException} when the adapter properties are invalid (for
+             * example, `name.Endpoints` is not supported: JavaScript object adapters do not listen on endpoints; only
+             * bidirectional adapters and router-associated adapters are supported), and with
+             * {@link AlreadyRegisteredException} when an adapter with the same name already exists.
              *
              * @see {@link ObjectAdapter}
              * @see {@link Properties}
@@ -188,7 +190,7 @@ declare module "@zeroc/ice" {
              * @returns The implicit context associated with this communicator, or `null` if the `Ice.ImplicitContext`
              *          property is not set or is set to `None`.
              */
-            getImplicitContext(): Ice.ImplicitContext;
+            getImplicitContext(): Ice.ImplicitContext | null;
 
             /**
              * Retrieves the properties associated with this communicator.
