@@ -182,8 +182,11 @@ void ::Writer::run(int argc, char* argv[])
         joinBarrier.waitForReaders();
         joinBarrier.update(0);
 
-        // Wait until the reader has installed its onSamples callback before publishing the partial.
+        // Wait until the reader has installed its onSamples callback before publishing the partial. The barrier
+        // only orders the callback installation; also wait for the reader's element to attach, otherwise
+        // waitForNoReaders below can return before the reader ever attached.
         [[maybe_unused]] auto _ = makeSingleKeyReader(lateReaderReadyBarrier, "barrier").getNextUnread();
+        writer.waitForReaders();
 
         writer.partialUpdate<float>("price")(15.0f);
         writer.waitForNoReaders();
