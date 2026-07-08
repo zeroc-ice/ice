@@ -41,9 +41,6 @@ Node::Node(NodeOptions options)
     {
         if (_instance)
         {
-            // Destroy the instance: this joins the timer and callback executor threads started by the Instance
-            // constructor (destroying them still running would call std::terminate) and takes care of the
-            // communicator and adapter teardown for both ownership modes.
             _instance->destroy(_ownsCommunicator);
         }
         else if (_ownsCommunicator)
@@ -90,7 +87,6 @@ Node::shutdown() noexcept
 bool
 Node::isShutdown() const noexcept
 {
-    // A moved-from node is inert and can never transition to shutdown; report it as already shut down.
     return _instance ? _instance->isShutdown() : true;
 }
 

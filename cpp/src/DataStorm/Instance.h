@@ -56,11 +56,15 @@ namespace DataStormI
             return _adapter;
         }
 
-        // The topic default configurations are parsed from the DataStorm.Topic.* properties by the constructor, so an
-        // invalid property value surfaces as a catchable exception from the Node constructor rather than from the
-        // noexcept Topic methods that lazily create the topic reader or writer.
-        [[nodiscard]] const DataStorm::ReaderConfig& getDefaultReaderConfig() const { return _defaultReaderConfig; }
-        [[nodiscard]] const DataStorm::WriterConfig& getDefaultWriterConfig() const { return _defaultWriterConfig; }
+        [[nodiscard]] const DataStorm::ReaderConfig& getDefaultReaderConfig() const noexcept
+        {
+            return _defaultReaderConfig;
+        }
+
+        [[nodiscard]] const DataStorm::WriterConfig& getDefaultWriterConfig() const noexcept
+        {
+            return _defaultWriterConfig;
+        }
 
         [[nodiscard]] std::shared_ptr<ForwarderManager> getCollocatedForwarder() const
         {

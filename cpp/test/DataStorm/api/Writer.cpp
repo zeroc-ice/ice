@@ -33,9 +33,11 @@ void ::Writer::run(int argc, char* argv[])
             test(nm2.getSessionConnection("a/b/c") == nullptr);
 
             // The shutdown members are safe on a moved-from node; a moved-from node reports itself as shut down.
+            // NOLINTBEGIN(clang-analyzer-cplusplus.Move)
             n.shutdown();
             test(n.isShutdown());
             n.waitForShutdown();
+            // NOLINTEND(clang-analyzer-cplusplus.Move)
         }
 
         {

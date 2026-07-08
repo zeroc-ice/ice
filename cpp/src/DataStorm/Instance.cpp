@@ -277,8 +277,6 @@ Instance::destroy(bool ownsCommunicator)
     }
     if (_node)
     {
-        // _node is only set once init() has progressed far enough; it is null when the Node constructor destroys a
-        // partially-initialized instance after an init() failure.
         _node->destroy(ownsCommunicator);
     }
 
