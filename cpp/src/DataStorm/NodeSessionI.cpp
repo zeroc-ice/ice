@@ -145,6 +145,12 @@ namespace
         {
             if (node->ice_getEndpoints().empty() && node->ice_getAdapterId().empty())
             {
+                // Create the session without announcement forwarding. A node without a public endpoint can be a peer
+                // reached through the relay that current.con connects to, rather than the direct peer on that
+                // connection. Enabling forwarding for such a relayed identity would duplicate announcements over a
+                // connection whose direct peer already forwards them - once per relayed identity. A direct peer that
+                // wants forwarding has its session upgraded when its own Lookup::createSession arrives on the matching
+                // connection (see NodeSessionManager::createOrGet).
                 shared_ptr<NodeSessionI> nodeSession = _nodeSessionManager->createOrGet(node, current.con, false);
                 node = nodeSession->getPublicNode();
                 if (session)
