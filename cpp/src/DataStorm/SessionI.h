@@ -280,6 +280,7 @@ namespace DataStormI
         void detachElements(std::int64_t, Ice::LongSeq, const Ice::Current&) final;
 
         void initSamples(std::int64_t, DataStormContract::DataSamplesSeq, const Ice::Current&) final;
+        void initializeReaders(std::int64_t, DataStormContract::ReaderInitializationSeq, const Ice::Current&) final;
 
         void disconnected(const Ice::Current&) final;
 
@@ -314,6 +315,11 @@ namespace DataStormI
         [[nodiscard]] bool checkSession();
 
         [[nodiscard]] DataStormContract::SessionPrx getProxy() const { return _proxy; }
+
+        // The negotiated protocol epoch. Set during establishment (before connected()); read on the publisher side
+        // when initializing readers. The set happens-before connected(), which happens-before any element dispatch.
+        [[nodiscard]] int getProtocolEpoch() const { return _protocolEpoch; }
+        void setProtocolEpoch(int epoch) { _protocolEpoch = epoch; }
 
         [[nodiscard]] DataStormContract::NodePrx getNode() const;
         void setNode(DataStormContract::NodePrx);
@@ -363,6 +369,23 @@ namespace DataStormI
             const DataStormContract::DataSampleSeq&,
             const std::shared_ptr<Key>&,
             const std::shared_ptr<DataElementI>&);
+
+        /// Builds and delivers a reader element's initialization samples, records the highest delivered sample id, and
+        /// marks the subscriber initialized. Shared by the epoch-0 (initSamples) and epoch-1 (initializeReaders)
+        /// receive paths; the two paths differ only in how they select and order the samples handed to this method.
+        /// When `checkKey` is set, the reader element drops samples whose key it does not subscribe to: epoch 0 relies
+        /// on this to route a writer's merged samples to the right reader, while epoch 1 samples are already addressed.
+        void deliverReaderInitialization(
+            TopicI* topic,
+            TopicSubscriber& subscriber,
+            const ElementSubscribers& elementSubscribers,
+            const std::shared_ptr<DataElementI>& element,
+            ElementSubscriber& elementSubscriber,
+            std::int64_t topicId,
+            std::int64_t writerId,
+            const DataStormContract::DataSampleSeq& samples,
+            const std::chrono::time_point<std::chrono::system_clock>& now,
+            bool checkKey);
 
         /// Attempts to reconnect the session with the specified node.
         ///
@@ -427,6 +450,11 @@ namespace DataStormI
 
         // The proxy to the peer node that established the session.
         DataStormContract::NodePrx _node;
+
+        // The DataStorm protocol epoch negotiated for this session, set during establishment before connected() and on
+        // each reconnect. Determines whether the publisher side initializes readers with initSamples (epoch 0) or
+        // initializeReaders (epoch 1). Defaults to 0 for a peer that does not advertise an epoch (Ice 3.8.0-3.8.2).
+        int _protocolEpoch{0};
 
         // Indicates whether the session has been destroyed.
         bool _destroyed{false};

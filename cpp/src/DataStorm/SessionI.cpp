@@ -36,6 +36,48 @@ namespace
         ObjectPtr _servant;
         shared_ptr<CallbackExecutor> _executor;
     };
+
+    // Collapses the per-key batches produced by TopicI::attachElementsAck into one ReaderInitialization per
+    // (writer, reader) pair for the epoch-1 initializeReaders envelope. A multi-key reader produces one batch per key;
+    // merging them and ordering the result by sample id lets the reader's policies (SendTime, sampleCount, history
+    // clearing) observe the writer's global order. Duplicate sample ids (a sample matched by overlapping filters) are
+    // removed. The first-seen order of the (writer, reader) pairs is preserved. Empty batches are kept: an empty
+    // initialization still marks the reader initialized and enables its live sample delivery.
+    ReaderInitializationSeq mergeReaderInitializations(ReaderInitializationSeq batches)
+    {
+        vector<ReaderInitialization> merged;
+        map<pair<int64_t, int64_t>, size_t> index;
+        for (auto& batch : batches)
+        {
+            auto pairKey = make_pair(batch.writerId, batch.readerId);
+            auto p = index.find(pairKey);
+            if (p == index.end())
+            {
+                index.emplace(pairKey, merged.size());
+                merged.push_back(std::move(batch));
+            }
+            else
+            {
+                auto& samples = merged[p->second].samples;
+                samples.insert(samples.end(), batch.samples.begin(), batch.samples.end());
+            }
+        }
+
+        for (auto& init : merged)
+        {
+            sort(
+                init.samples.begin(),
+                init.samples.end(),
+                [](const DataSample& lhs, const DataSample& rhs) { return lhs.id < rhs.id; });
+            init.samples.erase(
+                unique(
+                    init.samples.begin(),
+                    init.samples.end(),
+                    [](const DataSample& lhs, const DataSample& rhs) { return lhs.id == rhs.id; }),
+                init.samples.end());
+        }
+        return merged;
+    }
 }
 
 SessionI::SessionI(shared_ptr<Instance> instance, shared_ptr<NodeI> parent, NodePrx node, SessionPrx proxy)
@@ -369,16 +411,40 @@ SessionI::attachElementsAck(int64_t topicId, ElementSpecAckSeq elements, const C
             }
 
             LongSeq removedIds;
-            auto samples = topic->attachElementsAck(topicId, elements, shared_from_this(), *_session, now, removedIds);
-            if (!samples.empty())
+            auto batches = topic->attachElementsAck(topicId, elements, shared_from_this(), *_session, now, removedIds);
+            if (!batches.empty())
             {
-                if (_traceLevels->session > 2)
+                if (_protocolEpoch >= 1)
                 {
-                    Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-                    out << _id << ": initializing elements '[" << samples << "]@" << topicId << "' on topic '" << topic
-                        << "'";
+                    // Epoch 1: address each reader element exactly and merge the per-key batches sharing a
+                    // (writer, reader) pair into one globally ordered sequence.
+                    auto initializations = mergeReaderInitializations(std::move(batches));
+                    if (_traceLevels->session > 2)
+                    {
+                        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                        out << _id << ": initializing readers '[" << initializations << "]@" << topicId
+                            << "' on topic '" << topic << "'";
+                    }
+                    _session->initializeReadersAsync(topic->getId(), std::move(initializations), nullptr);
                 }
-                _session->initSamplesAsync(topic->getId(), samples, nullptr);
+                else
+                {
+                    // Epoch 0: the legacy envelope names only the writer element. Emit one DataSamples per key batch,
+                    // preserving the order and batch ids the 3.8.0-3.8.2 wire uses.
+                    DataSamplesSeq samples;
+                    samples.reserve(batches.size());
+                    for (auto& batch : batches)
+                    {
+                        samples.push_back(DataSamples{.id = batch.writerId, .samples = std::move(batch.samples)});
+                    }
+                    if (_traceLevels->session > 2)
+                    {
+                        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                        out << _id << ": initializing elements '[" << samples << "]@" << topicId << "' on topic '"
+                            << topic << "'";
+                    }
+                    _session->initSamplesAsync(topic->getId(), std::move(samples), nullptr);
+                }
             }
 
             if (!removedIds.empty())
@@ -430,6 +496,60 @@ SessionI::detachElements(int64_t id, LongSeq elements, const Current&)
 }
 
 void
+SessionI::deliverReaderInitialization(
+    TopicI* topic,
+    TopicSubscriber& subscriber,
+    const ElementSubscribers& elementSubscribers,
+    const shared_ptr<DataElementI>& element,
+    ElementSubscriber& elementSubscriber,
+    int64_t topicId,
+    int64_t writerId,
+    const DataSampleSeq& samples,
+    const chrono::time_point<chrono::system_clock>& now,
+    bool checkKey)
+{
+    // Mark the reader initialized even for an empty batch: an empty initialization enables the reader's live sample
+    // delivery for this writer.
+    elementSubscriber.initialized = true;
+    if (samples.empty())
+    {
+        return;
+    }
+
+    vector<shared_ptr<Sample>> samplesI;
+    samplesI.reserve(samples.size());
+    const auto& sampleFactory = topic->getSampleFactory();
+    for (const auto& sample : samples)
+    {
+        shared_ptr<Key> key;
+        if (sample.keyValue.empty())
+        {
+            key = subscriber.keys[sample.keyId].first;
+        }
+        else
+        {
+            key = topic->getKeyFactory()->decode(_instance->getCommunicator(), sample.keyValue);
+        }
+        assert(key);
+
+        samplesI.push_back(sampleFactory->create(
+            _id,
+            elementSubscribers.name,
+            sample.id,
+            sample.event,
+            key,
+            subscriber.tags[sample.tag],
+            sample.value,
+            sample.timestamp));
+    }
+
+    // Advance the reader's high-water mark to the writer's highest delivered sample id so later live samples with a
+    // lower id are not re-requested. When checkKey is set, the reader drops samples for keys it does not subscribe to.
+    elementSubscriber.lastId = samplesI.back()->id;
+    element->initSamples(samplesI, topicId, writerId, elementSubscribers.priority, now, checkKey);
+}
+
+void
 SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
@@ -439,42 +559,69 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Current&
     }
 
     auto now = chrono::system_clock::now();
-    auto communicator = _instance->getCommunicator();
-    for (const auto& samples : samplesSeq)
+
+    // One initSamples request carries a whole initialization round. A writer covering several keys contributes one
+    // batch per key, all under the same writer element id, and two readers of that writer can be attached for
+    // different keys. The original receiver marked every attached reader initialized on the first batch and dropped the
+    // rest, so a multi-key or any-key late reader lost all but one key's samples (issue #5819).
+    //
+    // Group the round's batches by writer element id and merge them, then deliver the merged samples to every attached
+    // reader with checkKey set so the reader keeps only the samples for the keys it subscribes to. This fixes the
+    // dropped and misrouted batches and lets the reader observe the writer's samples in global id order. This is the
+    // epoch-0 best-effort receiver: the DataSamples envelope names only the writer element, so two readers on the same
+    // key with different sample filters still cannot be told apart. Protocol epoch 1 (initializeReaders) addresses each
+    // reader exactly.
+    map<int64_t, DataSampleSeq> batchesByWriter;
+    vector<int64_t> writerOrder;
+    for (auto& batch : samplesSeq)
     {
+        auto [p, inserted] = batchesByWriter.try_emplace(batch.id);
+        if (inserted)
+        {
+            writerOrder.push_back(batch.id);
+        }
+        p->second.insert(
+            p->second.end(),
+            make_move_iterator(batch.samples.begin()),
+            make_move_iterator(batch.samples.end()));
+    }
+
+    for (int64_t writerId : writerOrder)
+    {
+        DataSampleSeq& writerSamples = batchesByWriter[writerId];
+        sort(
+            writerSamples.begin(),
+            writerSamples.end(),
+            [](const DataSample& lhs, const DataSample& rhs) { return lhs.id < rhs.id; });
+        writerSamples.erase(
+            unique(
+                writerSamples.begin(),
+                writerSamples.end(),
+                [](const DataSample& lhs, const DataSample& rhs) { return lhs.id == rhs.id; }),
+            writerSamples.end());
+
         runWithTopics(
             topicId,
             [&](TopicI* topic, TopicSubscriber& subscriber)
             {
-                ElementSubscribers* elementSubscribers = subscriber.get(samples.id);
-                if (elementSubscribers)
+                ElementSubscribers* elementSubscribers = subscriber.get(writerId);
+                if (!elementSubscribers)
                 {
-                    if (_traceLevels->session > 2)
+                    return;
+                }
+
+                for (auto& [element, elementSubscriber] : elementSubscribers->getSubscribers())
+                {
+                    if (elementSubscriber.initialized)
                     {
-                        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-                        out << _id << ": initializing samples from '" << samples.id << "'"
-                            << " on [";
-                        for (auto q = elementSubscribers->getSubscribers().begin();
-                             q != elementSubscribers->getSubscribers().end();
-                             ++q)
-                        {
-                            if (q != elementSubscribers->getSubscribers().begin())
-                            {
-                                out << ", ";
-                            }
-                            out << q->first;
-                            if (!q->second.facet.empty())
-                            {
-                                out << ":" << q->second.facet;
-                            }
-                        }
-                        out << "]";
+                        continue;
                     }
 
-                    vector<shared_ptr<Sample>> samplesI;
-                    samplesI.reserve(samples.samples.size());
-                    const auto& sampleFactory = topic->getSampleFactory();
-                    for (const auto& sample : samples.samples)
+                    // Select the merged samples this reader matches by key or filter. Routing at the receiver is what
+                    // the legacy envelope leaves to us: each reader keeps only its own keys, so two readers of one
+                    // writer on different keys do not receive each other's samples.
+                    DataSampleSeq selected;
+                    for (const auto& sample : writerSamples)
                     {
                         shared_ptr<Key> key;
                         if (sample.keyValue.empty())
@@ -485,37 +632,97 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Current&
                         {
                             key = topic->getKeyFactory()->decode(_instance->getCommunicator(), sample.keyValue);
                         }
-                        assert(key);
-
-                        samplesI.push_back(sampleFactory->create(
-                            _id,
-                            elementSubscribers->name,
-                            sample.id,
-                            sample.event,
-                            key,
-                            subscriber.tags[sample.tag],
-                            sample.value,
-                            sample.timestamp));
-                    }
-
-                    for (auto& [element, elementSubscriber] : elementSubscribers->getSubscribers())
-                    {
-                        if (!elementSubscriber.initialized)
+                        if (key && element->matchKey(key))
                         {
-                            elementSubscriber.initialized = true;
-                            if (!samplesI.empty())
-                            {
-                                elementSubscriber.lastId = samplesI.back()->id;
-                                element->initSamples(
-                                    samplesI,
-                                    topicId,
-                                    samples.id,
-                                    elementSubscribers->priority,
-                                    now,
-                                    samples.id < 0);
-                            }
+                            selected.push_back(sample);
                         }
                     }
+
+                    // Initialize the reader only when this round carries samples for it, or when the round is empty and
+                    // is therefore the reader's own empty initialization. A non-empty round with nothing for this
+                    // reader belongs to another reader of the same writer; leave this reader for the round that carries
+                    // its samples, rather than marking it initialized and dropping them. The one case the legacy
+                    // envelope cannot resolve - a reader whose empty initialization shares a round with another
+                    // reader's samples - is left to protocol epoch 1.
+                    if (selected.empty() && !writerSamples.empty())
+                    {
+                        continue;
+                    }
+
+                    if (_traceLevels->session > 2)
+                    {
+                        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                        out << _id << ": initializing samples from 'e" << writerId << "' on '" << element << "'";
+                    }
+
+                    deliverReaderInitialization(
+                        topic,
+                        subscriber,
+                        *elementSubscribers,
+                        element,
+                        elementSubscriber,
+                        topicId,
+                        writerId,
+                        selected,
+                        now,
+                        /* checkKey */ false);
+                }
+            });
+    }
+}
+
+void
+SessionI::initializeReaders(int64_t topicId, ReaderInitializationSeq initializations, const Current&)
+{
+    lock_guard<mutex> lock(_mutex);
+    if (!_session)
+    {
+        return;
+    }
+
+    auto now = chrono::system_clock::now();
+
+    // Protocol epoch 1: each entry is addressed to an exact reader element and its samples are already merged and
+    // ordered by the publisher, so no receiver-side routing or reordering is needed. Initialize only the named reader.
+    for (const auto& init : initializations)
+    {
+        runWithTopics(
+            topicId,
+            [&](TopicI* topic, TopicSubscriber& subscriber)
+            {
+                ElementSubscribers* elementSubscribers = subscriber.get(init.writerId);
+                if (!elementSubscribers)
+                {
+                    return;
+                }
+
+                for (auto& [element, elementSubscriber] : elementSubscribers->getSubscribers())
+                {
+                    if (element->getId() != init.readerId || elementSubscriber.initialized)
+                    {
+                        continue;
+                    }
+
+                    if (_traceLevels->session > 2)
+                    {
+                        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                        out << _id << ": initializing reader 'e" << init.readerId << "' from 'e" << init.writerId
+                            << "' on '" << element << "'";
+                    }
+
+                    // The samples are already addressed and filtered to this reader by the publisher; checkKey mirrors
+                    // the legacy any-key discriminator (a negative writer id is an any-key writer).
+                    deliverReaderInitialization(
+                        topic,
+                        subscriber,
+                        *elementSubscribers,
+                        element,
+                        elementSubscriber,
+                        topicId,
+                        init.writerId,
+                        init.samples,
+                        now,
+                        /* checkKey */ init.writerId < 0);
                 }
             });
     }
@@ -1230,12 +1437,25 @@ SessionI::subscriberInitialized(
     const shared_ptr<Key>& key,
     const std::shared_ptr<DataElementI>& element)
 {
-    // Called with the session locked, from DataElementI::attach.
+    // Called with the session locked, from DataElementI::attach. The subscriber bucket for elementId was created when
+    // this element attached in an earlier round of the same handshake; per-connection message ordering guarantees that
+    // attach ran before this call, so the bucket and its subscriber entry are present. Assert this in debug builds so a
+    // routing or element-id mismatch fails loudly in the tests, but tolerate a missing entry in release rather than
+    // dereferencing a pointer derived from peer-supplied ids.
     assert(_topics.find(topicId) != _topics.end());
     TopicSubscriber& subscriber = _topics.at(topicId).getSubscriber(element->getTopic());
     ElementSubscribers* elementSubscribers = subscriber.get(elementId);
+    assert(elementSubscribers);
+    if (!elementSubscribers)
+    {
+        return {};
+    }
     ElementSubscriber* elementSubscriber = elementSubscribers->getSubscriber(element);
     assert(elementSubscriber);
+    if (!elementSubscriber)
+    {
+        return {};
+    }
 
     if (_traceLevels->session > 1)
     {

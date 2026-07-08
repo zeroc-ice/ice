@@ -438,7 +438,7 @@ TopicI::attachElements(
     return specs;
 }
 
-DataSamplesSeq
+ReaderInitializationSeq
 TopicI::attachElementsAck(
     int64_t topicId,
     const ElementSpecAckSeq& elements,
@@ -447,7 +447,10 @@ TopicI::attachElementsAck(
     const chrono::time_point<chrono::system_clock>& now,
     LongSeq& removedIds)
 {
-    DataSamplesSeq samples;
+    // Each attach appends this key's samples for the peer reader, tagged with the peer reader element id. The caller
+    // (SessionI::attachElementsAck) turns these into the epoch-0 initSamples envelope or the epoch-1 initializeReaders
+    // envelope depending on the session's negotiated protocol epoch.
+    ReaderInitializationSeq batches;
     vector<function<void()>> initCallbacks;
     for (const auto& spec : elements)
     {
@@ -485,12 +488,12 @@ TopicI::attachElementsAck(
                             if (spec.id > 0) // Key
                             {
                                 initCb = dataElement
-                                             ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, samples);
+                                             ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, batches);
                             }
                             else if (filter->match(key)) // Filter
                             {
                                 initCb = dataElement
-                                             ->attach(topicId, spec.id, key, filter, session, prx, data, now, samples);
+                                             ->attach(topicId, spec.id, key, filter, session, prx, data, now, batches);
                             }
 
                             if (initCb)
@@ -549,12 +552,12 @@ TopicI::attachElementsAck(
                             {
                                 initCb =
                                     dataElement
-                                        ->attach(topicId, spec.id, nullptr, filter, session, prx, data, now, samples);
+                                        ->attach(topicId, spec.id, nullptr, filter, session, prx, data, now, batches);
                             }
                             else if (filter->match(key))
                             {
                                 initCb = dataElement
-                                             ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, samples);
+                                             ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, batches);
                             }
 
                             if (initCb)
@@ -587,7 +590,7 @@ TopicI::attachElementsAck(
     {
         initCb();
     }
-    return samples;
+    return batches;
 }
 
 void

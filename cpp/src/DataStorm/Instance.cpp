@@ -96,6 +96,26 @@ Instance::Instance(CommunicatorPtr communicator, function<void(function<void()> 
     _retryMultiplier = properties->getIcePropertyAsInt("DataStorm.Node.RetryMultiplier");
     _retryCount = properties->getIcePropertyAsInt("DataStorm.Node.RetryCount");
 
+    // The advertised epoch must name an epoch this build implements, and the accepted floor must not exceed it
+    // (otherwise the node could never accept any session it negotiates). An out-of-range value is a misconfiguration,
+    // so reject it rather than silently coerce it.
+    _maxProtocolEpoch = properties->getIcePropertyAsInt("DataStorm.Node.MaxProtocolEpoch");
+    if (_maxProtocolEpoch < 0 || _maxProtocolEpoch > DataStormContract::CurrentProtocolEpoch)
+    {
+        ostringstream os;
+        os << "invalid value for property 'DataStorm.Node.MaxProtocolEpoch': " << _maxProtocolEpoch
+           << " is not in the range [0, " << DataStormContract::CurrentProtocolEpoch << "]";
+        throw invalid_argument(os.str());
+    }
+    _minProtocolEpoch = properties->getIcePropertyAsInt("DataStorm.Node.MinProtocolEpoch");
+    if (_minProtocolEpoch < 0 || _minProtocolEpoch > _maxProtocolEpoch)
+    {
+        ostringstream os;
+        os << "invalid value for property 'DataStorm.Node.MinProtocolEpoch': " << _minProtocolEpoch
+           << " is not in the range [0, " << _maxProtocolEpoch << "]";
+        throw invalid_argument(os.str());
+    }
+
     _traceLevels = make_shared<TraceLevels>(properties, _communicator->getLogger());
     _executor = make_shared<CallbackExecutor>(std::move(customExecutor));
     _connectionManager = make_shared<ConnectionManager>(_executor);

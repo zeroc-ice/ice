@@ -102,6 +102,14 @@ namespace DataStormI
 
         [[nodiscard]] int getRetryCount() const { return _retryCount; }
 
+        // The highest DataStorm protocol epoch this node advertises during session establishment, from
+        // DataStorm.Node.MaxProtocolEpoch (validated to be in [0, CurrentProtocolEpoch]).
+        [[nodiscard]] int getMaxProtocolEpoch() const { return _maxProtocolEpoch; }
+
+        // The lowest DataStorm protocol epoch this node accepts; a session whose negotiated epoch is below this value
+        // is rejected. From DataStorm.Node.MinProtocolEpoch.
+        [[nodiscard]] int getMinProtocolEpoch() const { return _minProtocolEpoch; }
+
         void shutdown();
         [[nodiscard]] bool isShutdown() const;
         void checkShutdown() const;
@@ -157,6 +165,8 @@ namespace DataStormI
         std::chrono::milliseconds _retryDelay;
         int _retryMultiplier;
         int _retryCount;
+        int _maxProtocolEpoch;
+        int _minProtocolEpoch;
         DataStorm::ReaderConfig _defaultReaderConfig;
         DataStorm::WriterConfig _defaultWriterConfig;
 

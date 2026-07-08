@@ -154,7 +154,7 @@ DataElementI::attach(
     SessionPrx prx,
     const ElementDataAck& data,
     const chrono::time_point<chrono::system_clock>& now,
-    DataSamplesSeq& samples)
+    ReaderInitializationSeq& batches)
 {
     // Called with the topic and session from TopicI::attachElementsAck locked.
     shared_ptr<Filter> sampleFilter;
@@ -178,10 +178,12 @@ DataElementI::attach(
         name = os.str();
     }
 
-    // Attach a key or filter. If the attachment is successful, compute the queued samples to send to the peer.
-    // - If this data element is a data reader, the computed samples will be empty.
-    // - If this data element is a data writer, the computed samples will contain the samples to send to the peer
-    //   based on the peer reader configuration.
+    // Attach a key or filter. If the attachment is successful, compute the queued samples to send to the peer, tagged
+    // with the peer reader element (data.id) so the caller can address them.
+    // - If this data element is a data reader, the computed batch is empty.
+    // - If this data element is a data writer, the computed batch contains this key's samples to send to the peer based
+    //   on the peer reader configuration. A multi-key reader produces one batch per key here; the caller merges the
+    //   batches sharing a (writer, reader) pair when the session uses protocol epoch 1.
     if ((id > 0 &&
          attachKey(topicId, data.id, key, sampleFilter, session, std::move(prx), facet, id, name, priority)) ||
         (id < 0 &&
@@ -189,7 +191,9 @@ DataElementI::attach(
     {
         auto q = data.lastIds.find(_id);
         int64_t lastId = q != data.lastIds.end() ? q->second : 0;
-        samples.push_back(getSamples(key, sampleFilter, data.config, lastId, now));
+        DataSamples batch = getSamples(key, sampleFilter, data.config, lastId, now);
+        batches.push_back(
+            ReaderInitialization{.writerId = batch.id, .readerId = data.id, .samples = std::move(batch.samples)});
     }
 
     auto samplesI =

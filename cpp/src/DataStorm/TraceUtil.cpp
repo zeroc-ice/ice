@@ -114,4 +114,10 @@ namespace DataStormContract
         os << 'e' << samples.id << ":sz" << samples.samples.size();
         return os;
     }
+
+    ostream& operator<<(ostream& os, const ReaderInitialization& init)
+    {
+        os << 'e' << init.writerId << ":pe" << init.readerId << ":sz" << init.samples.size();
+        return os;
+    }
 }

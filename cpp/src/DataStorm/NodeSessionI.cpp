@@ -35,6 +35,7 @@ namespace
 
         void initiateCreateSessionAsync(
             optional<NodePrx> publisher,
+            optional<int32_t> protocolEpoch,
             function<void()> response,
             function<void(exception_ptr)> exception,
             const Current& current) final
@@ -46,8 +47,9 @@ namespace
                 {
                     optional<SessionPrx> sessionPrx;
                     updateNodeAndSessionProxy(*publisher, sessionPrx, current);
-                    // Forward the call to the target Node.
-                    _node->initiateCreateSessionAsync(publisher, response, exception);
+                    // Forward the call to the target Node, carrying the peer's advertised protocol epoch so two
+                    // upgraded nodes negotiate through this relay instead of falling back to epoch 0.
+                    _node->initiateCreateSessionAsync(publisher, protocolEpoch, response, exception);
                 }
                 catch (const CommunicatorDestroyedException&)
                 {
@@ -60,6 +62,7 @@ namespace
             optional<NodePrx> subscriber,
             optional<SubscriberSessionPrx> subscriberSession,
             bool /* fromRelay */,
+            optional<int32_t> protocolEpoch,
             function<void()> response,
             function<void(exception_ptr)> exception,
             const Current& current) final
@@ -84,8 +87,15 @@ namespace
                         subscriberSession->ice_getIdentity(),
                         subscriberIsHostedOnRelay ? subscriberSession->ice_fixed(current.con) : *subscriberSession);
 
-                    // Forward the call to the target Node.
-                    _node->createSessionAsync(subscriber, subscriberSessionForwarder, true, response, exception);
+                    // Forward the call to the target Node, carrying the peer's advertised protocol epoch so two
+                    // upgraded nodes negotiate through this relay instead of falling back to epoch 0.
+                    _node->createSessionAsync(
+                        subscriber,
+                        subscriberSessionForwarder,
+                        true,
+                        protocolEpoch,
+                        response,
+                        exception);
                 }
                 catch (const CommunicatorDestroyedException&)
                 {
@@ -97,6 +107,7 @@ namespace
         void confirmCreateSessionAsync(
             optional<NodePrx> publisher,
             optional<PublisherSessionPrx> publisherSession,
+            optional<int32_t> protocolEpoch,
             function<void()> response,
             function<void(exception_ptr)> exception,
             const Current& current) final
@@ -119,8 +130,14 @@ namespace
                         publisher->ice_getIdentity(),
                         publisherSession->ice_getIdentity(),
                         publisherIsHostedOnRelay ? publisherSession->ice_fixed(current.con) : *publisherSession);
-                    // Forward the request to the target subscriber.
-                    _node->confirmCreateSessionAsync(publisher, publisherSessionForwarder, response, exception);
+                    // Forward the request to the target subscriber, carrying the peer's advertised protocol epoch so
+                    // two upgraded nodes negotiate through this relay instead of falling back to epoch 0.
+                    _node->confirmCreateSessionAsync(
+                        publisher,
+                        publisherSessionForwarder,
+                        protocolEpoch,
+                        response,
+                        exception);
                 }
                 catch (const CommunicatorDestroyedException&)
                 {

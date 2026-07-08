@@ -557,6 +557,8 @@ const PropertyArray PropertyNames::Glacier2Props
 const Property DataStormPropsData[] =
 {
     Property{"Node.ConnectTo", "", false, false, nullptr},
+    Property{"Node.MaxProtocolEpoch", "1", false, false, nullptr},
+    Property{"Node.MinProtocolEpoch", "0", false, false, nullptr},
     Property{"Node.Multicast", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Node.Multicast.Enabled", "1", false, false, nullptr},
     Property{"Node.Multicast.Proxy", "", false, false, &PropertyNames::ProxyProps},
@@ -583,7 +585,7 @@ const PropertyArray PropertyNames::DataStormProps
     .prefixOnly=false,
     .isOptIn=false,
     .properties=DataStormPropsData,
-    .length=19
+    .length=21
 };
 
 const std::array<PropertyArray, 16> PropertyNames::validProps =

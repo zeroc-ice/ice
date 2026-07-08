@@ -28,6 +28,7 @@ namespace DataStormI
 
         void initiateCreateSessionAsync(
             std::optional<DataStormContract::NodePrx>,
+            std::optional<std::int32_t>,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) final;
@@ -36,6 +37,7 @@ namespace DataStormI
             std::optional<DataStormContract::NodePrx>,
             std::optional<DataStormContract::SubscriberSessionPrx>,
             bool,
+            std::optional<std::int32_t>,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) final;
@@ -43,6 +45,7 @@ namespace DataStormI
         void confirmCreateSessionAsync(
             std::optional<DataStormContract::NodePrx>,
             std::optional<DataStormContract::PublisherSessionPrx>,
+            std::optional<std::int32_t>,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) final;
@@ -99,6 +102,13 @@ namespace DataStormI
         }
 
     private:
+        // Negotiates the session protocol epoch with a peer that advertised peerEpoch (unset means an Ice 3.8.0-3.8.2
+        // node, epoch 0). Returns the negotiated epoch, which is the lower of this node's advertised maximum and the
+        // peer's. Returns std::nullopt when the negotiated epoch is below this node's minimum; the caller then rejects
+        // the session through its exception continuation with makeIncompatibleEpochException.
+        [[nodiscard]] std::optional<int>
+        negotiateProtocolEpoch(const std::shared_ptr<Instance>& instance, std::optional<std::int32_t> peerEpoch) const;
+
         [[nodiscard]] std::shared_ptr<SubscriberSessionI>
         createSubscriberSessionServant(const DataStormContract::NodePrx&);
 

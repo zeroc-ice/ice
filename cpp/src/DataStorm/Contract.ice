@@ -10,6 +10,18 @@
 
 module DataStormContract
 {
+    /// The DataStorm protocol epoch implemented by this node.
+    ///
+    /// During session establishment, each node advertises the highest epoch it supports (capped by
+    /// `DataStorm.Node.MaxProtocolEpoch`), and the two peers use the lowest of the two advertised values as the
+    /// session epoch. A node rejects a session whose negotiated epoch is below its `DataStorm.Node.MinProtocolEpoch`.
+    ///
+    /// - Epoch 0 is the original protocol used by Ice 3.8.0 through 3.8.2. Reader initialization is delivered with
+    ///   {@link Session::initSamples}, whose envelope identifies only the writer element.
+    /// - Epoch 1 adds {@link Session::initializeReaders}, which delivers each reader's initialization addressed to the
+    ///   exact reader element and merged across its keys.
+    const int CurrentProtocolEpoch = 1;
+
     /// Defines policies for clearing the data sample history of a reader in response to sample events.
     /// @see DataSample
     enum ClearHistoryPolicy
@@ -72,6 +84,26 @@ module DataStormContract
         DataSampleSeq samples;
     }
     sequence<DataSamples> DataSamplesSeq;
+
+    /// Represents the complete initialization of a single reader element by a single writer element. Used with protocol
+    /// epoch 1 and later.
+    ///
+    /// Unlike {@link DataSamples}, which carries only the writer element id and is delivered per key, a
+    /// `ReaderInitialization` names both the writer and the exact reader element it initializes, and its samples are
+    /// the merged result across all of that reader's keys.
+    ["cpp:custom-print"]
+    struct ReaderInitialization
+    {
+        /// The remote writer element that produced these samples.
+        long writerId;
+
+        /// The local reader element that must receive these samples.
+        long readerId;
+
+        /// The samples for this writer-reader pair, ordered by increasing sample id and deduplicated by id.
+        DataSampleSeq samples;
+    }
+    sequence<ReaderInitialization> ReaderInitializationSeq;
 
     /// Provides metadata about an element, such as a key, filter, or tag.
     ["cpp:custom-print"]
@@ -363,11 +395,29 @@ module DataStormContract
         /// @param elements A sequence of element identifiers representing the keys or filters to detach.
         void detachElements(long topicId, Ice::LongSeq elements);
 
-        /// Initializes the subscriber with the publisher queued samples for a topic during session establishment.
+        /// Initializes the subscriber with the publisher queued samples for a topic during session establishment. Used
+        /// with protocol epoch 0. Epoch 1 and later use {@link initializeReaders}, which addresses each reader element
+        /// exactly instead of relying on the receiver to route per-key batches by the writer element id.
         ///
         /// @param topicId The unique identifier for the topic.
         /// @param samples A sequence of {@link DataSamples} containing the queued samples to initialize the subscriber.
         void initSamples(long topicId, DataSamplesSeq samples);
+
+        /// Initializes reader elements with the publisher's queued samples during session establishment, addressing
+        /// each reader element exactly. Used with protocol epoch 1 and later; epoch 0 sessions use {@link initSamples}.
+        ///
+        /// The publisher builds one {@link ReaderInitialization} per (writer element, reader element) pair in an
+        /// initialization round. For each entry, it applies the reader element's key set and sample filter, then merges
+        /// the selected per-key histories, deduplicates them by sample id, and orders them by increasing sample id. An
+        /// entry with an empty `samples` sequence is still sent: it marks the reader element initialized and enables the
+        /// subsequent live sample delivery for that writer-reader pair.
+        ///
+        /// The receiver initializes only the reader element named by `readerId` and delivers the merged sequence to it
+        /// in a single call.
+        ///
+        /// @param topicId The unique identifier for the topic.
+        /// @param initializations The per-reader initialization entries for this round.
+        void initializeReaders(long topicId, ReaderInitializationSeq initializations);
 
         /// Notifies the peer that the session is being disconnected.
         ///
@@ -429,9 +479,11 @@ module DataStormContract
         /// reader for which this node has a corresponding topic writer.
         ///
         /// @param publisher The publisher node initiating the session. The proxy is never null.
+        /// @param protocolEpoch The highest DataStorm protocol epoch the publisher node supports. When not set, the
+        /// publisher is an Ice 3.8.0-3.8.2 node and epoch 0 is assumed. See {@link CurrentProtocolEpoch}.
         /// @throws SessionCreationException Thrown when the session cannot be created.
         /// @see Lookup::announceTopicReader
-        void initiateCreateSession(Node* publisher) throws SessionCreationException;
+        void initiateCreateSession(Node* publisher, optional(1) int protocolEpoch) throws SessionCreationException;
 
         /// Initiates the creation of a subscriber session with a node. The subscriber node sends this request to a
         /// publisher node in one of the following scenarios:
@@ -446,16 +498,21 @@ module DataStormContract
         /// @param subscriber The subscriber node initiating the session. This proxy is never null.
         /// @param session The subscriber session being created. This proxy is never null.
         /// @param fromRelay Indicates whether the session is being created from a relay node.
+        /// @param protocolEpoch The highest DataStorm protocol epoch the subscriber node supports. When not set, the
+        /// subscriber is an Ice 3.8.0-3.8.2 node and epoch 0 is assumed. See {@link CurrentProtocolEpoch}.
         /// @throws SessionCreationException Thrown when the session cannot be created.
-        void createSession(Node* subscriber, SubscriberSession* session, bool fromRelay)
+        void createSession(Node* subscriber, SubscriberSession* session, bool fromRelay, optional(1) int protocolEpoch)
             throws SessionCreationException;
 
         /// Confirm the creation of a publisher session with a node.
         ///
         /// @param publisher The publisher node confirming the session. The proxy is never null.
         /// @param session The publisher session being confirmed. The proxy is never null.
+        /// @param protocolEpoch The highest DataStorm protocol epoch the publisher node supports. When not set, the
+        /// publisher is an Ice 3.8.0-3.8.2 node and epoch 0 is assumed. See {@link CurrentProtocolEpoch}.
         /// @throws SessionCreationException Thrown when the session cannot be created.
-        void confirmCreateSession(Node* publisher, PublisherSession* session) throws SessionCreationException;
+        void confirmCreateSession(Node* publisher, PublisherSession* session, optional(1) int protocolEpoch)
+            throws SessionCreationException;
     }
 
     /// The lookup interface is used by DataStorm nodes to announce their topic readers and writers to other connected

@@ -79,7 +79,7 @@ namespace DataStormI
             const DataStormContract::SessionPrx&,
             const std::chrono::time_point<std::chrono::system_clock>&);
 
-        [[nodiscard]] DataStormContract::DataSamplesSeq attachElementsAck(
+        [[nodiscard]] DataStormContract::ReaderInitializationSeq attachElementsAck(
             std::int64_t,
             const DataStormContract::ElementSpecAckSeq&,
             const std::shared_ptr<SessionI>&,

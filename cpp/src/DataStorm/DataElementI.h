@@ -192,8 +192,9 @@ namespace DataStormI
         /// @param data The acknowledgment data associated with the remote element, describing its configuration or
         /// state.
         /// @param now The timestamp indicating when the attachment was requested.
-        /// @param samples Output parameter filled with the data samples in the publisher's queue. This parameter is
-        /// always empty when the method is called on the subscriber side.
+        /// @param batches Output parameter appended with this key's samples from the publisher's queue, tagged with the
+        /// peer reader element id (`data.id`) so the caller can address them. The appended batch is empty when the
+        /// method is called on the subscriber side, since a reader has no samples to send.
         /// @return A function that initializes the reader with the prepared samples:
         /// - For a publisher, this method always returns a `nullptr` function.
         /// - For a subscriber, this method returns a function that initializes the reader with samples provided by the
@@ -207,7 +208,7 @@ namespace DataStormI
             DataStormContract::SessionPrx prx,
             const DataStormContract::ElementDataAck& data,
             const std::chrono::time_point<std::chrono::system_clock>& now,
-            DataStormContract::DataSamplesSeq& samples);
+            DataStormContract::ReaderInitializationSeq& batches);
 
         [[nodiscard]] bool attachKey(
             std::int64_t,
@@ -283,6 +284,10 @@ namespace DataStormI
             const std::string&,
             const std::chrono::time_point<std::chrono::system_clock>&,
             bool);
+
+        /// Determines whether this element subscribes to the given key. Reader elements override this to match against
+        /// their keys or filter; the default suits writer elements, which never receive initialization samples.
+        [[nodiscard]] virtual bool matchKey(const std::shared_ptr<Key>&) const { return true; }
 
         [[nodiscard]] virtual std::string toString() const = 0;
 
@@ -371,7 +376,9 @@ namespace DataStormI
             std::function<void(const std::shared_ptr<Sample>&)>) override;
 
     protected:
-        [[nodiscard]] virtual bool matchKey(const std::shared_ptr<Key>&) const = 0;
+        // Re-declared pure so every concrete reader must implement key matching, even though the base DataElementI
+        // provides a default for writer elements.
+        [[nodiscard]] bool matchKey(const std::shared_ptr<Key>&) const override = 0;
         [[nodiscard]] bool addConnectedKey(const std::shared_ptr<Key>&, const std::shared_ptr<Subscriber>&) override;
 
         // Returns true if the given sample priority is lower than the highest priority among the connected publishers

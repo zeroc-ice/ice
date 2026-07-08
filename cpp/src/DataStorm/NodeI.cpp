@@ -42,6 +42,21 @@ namespace
         shared_ptr<NodeI> _node;
         shared_ptr<CallbackExecutor> _executor;
     };
+
+    // Builds the exception used to reject a session whose negotiated protocol epoch is below this node's minimum. A
+    // NotSupported dispatch exception is understood by every Ice version, including the 3.8.0-3.8.2 nodes that predate
+    // the epoch handshake; adding a new SessionCreationError enumerator instead would make an old peer report a marshal
+    // failure rather than the intended reason. The exception must be delivered through the dispatch exception
+    // continuation: throwing it from a NodeI try block would let the generic catch convert it to
+    // SessionCreationError::Internal, losing the reply status and message.
+    exception_ptr makeIncompatibleEpochException(int negotiatedEpoch, int minEpoch)
+    {
+        ostringstream os;
+        os << "the DataStorm session was rejected because the negotiated protocol epoch " << negotiatedEpoch
+           << " is below the required minimum " << minEpoch
+           << "; upgrade the peer node (and any relay on the path) or lower DataStorm.Node.MinProtocolEpoch";
+        return make_exception_ptr(DispatchException{__FILE__, __LINE__, ReplyStatus::NotSupported, os.str()});
+    }
 }
 
 NodeI::NodeI(const shared_ptr<Instance>& instance, std::string name)
@@ -143,9 +158,21 @@ NodeI::destroy(bool ownsCommunicator)
     _publisherSessions.clear();
 }
 
+optional<int>
+NodeI::negotiateProtocolEpoch(const shared_ptr<Instance>& instance, optional<int32_t> peerEpoch) const
+{
+    int negotiated = min(instance->getMaxProtocolEpoch(), peerEpoch.value_or(0));
+    if (negotiated < instance->getMinProtocolEpoch())
+    {
+        return nullopt;
+    }
+    return negotiated;
+}
+
 void
 NodeI::initiateCreateSessionAsync(
     optional<NodePrx> publisher,
+    optional<int32_t> protocolEpoch,
     function<void()> response,
     function<void(std::exception_ptr)> exception,
     const Current& current)
@@ -153,6 +180,23 @@ NodeI::initiateCreateSessionAsync(
     try
     {
         checkNotNull(publisher, __FILE__, __LINE__, current);
+
+        // The instance class owns this object, so it is guaranteed to be available.
+        auto instance = _instance.lock();
+        assert(instance);
+
+        // Reject an incompatible publisher before creating any session state. The subscriber session also negotiates in
+        // confirmCreateSession, where the publisher re-sends its epoch, so this early check only avoids the extra
+        // round-trip of building the session and having it rejected there; it is not the sole enforcement point (a
+        // subscriber-initiated session skips this operation and is rejected in confirmCreateSession).
+        if (!negotiateProtocolEpoch(instance, protocolEpoch))
+        {
+            exception(makeIncompatibleEpochException(
+                min(instance->getMaxProtocolEpoch(), protocolEpoch.value_or(0)),
+                instance->getMinProtocolEpoch()));
+            return;
+        }
+
         // Create a session with the given publisher.
         createPublisherSession(*publisher, current.con, nullptr);
         response();
@@ -182,6 +226,7 @@ NodeI::createSessionAsync(
     optional<NodePrx> subscriber,
     optional<SubscriberSessionPrx> subscriberSession,
     bool fromRelay,
+    optional<int32_t> protocolEpoch,
     function<void()> response,
     function<void(exception_ptr)> exception,
     const Current& current)
@@ -192,6 +237,18 @@ NodeI::createSessionAsync(
     // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
+
+    // Negotiate the protocol epoch before creating any session state, so an incompatible peer is rejected before a
+    // oneway session proxy is connected. Reject through the exception continuation rather than throwing, so the
+    // NotSupported reply status survives to the peer.
+    auto protocolEpochOrReject = negotiateProtocolEpoch(instance, protocolEpoch);
+    if (!protocolEpochOrReject)
+    {
+        exception(makeIncompatibleEpochException(
+            min(instance->getMaxProtocolEpoch(), protocolEpoch.value_or(0)),
+            instance->getMinProtocolEpoch()));
+        return;
+    }
 
     shared_ptr<PublisherSessionI> session;
     try
@@ -220,6 +277,14 @@ NodeI::createSessionAsync(
 
         unique_lock<mutex> lock(_mutex);
         session = createPublisherSessionServant(*subscriber);
+        session->setProtocolEpoch(*protocolEpochOrReject);
+        if (*protocolEpochOrReject == 0 && instance->getMaxProtocolEpoch() > 0 && traceLevels->session > 0)
+        {
+            Trace out(traceLevels->logger, traceLevels->sessionCat);
+            out << "publisher session with '" << *subscriber
+                << "' established at protocol epoch 0; the peer does not support epoch "
+                << instance->getMaxProtocolEpoch();
+        }
         s->ice_getConnectionAsync(
             [=, self = shared_from_this()](const auto& connection) mutable
             {
@@ -262,6 +327,7 @@ NodeI::createSessionAsync(
                     s->confirmCreateSessionAsync(
                         self->_proxy,
                         uncheckedCast<PublisherSessionPrx>(session->getProxy()),
+                        instance->getMaxProtocolEpoch(),
                         [session, subscriberSession, connection, instance]
                         {
                             // Session::connected informs the subscriber session of all the topic writers in the
@@ -315,6 +381,7 @@ void
 NodeI::confirmCreateSessionAsync(
     optional<NodePrx> publisher,
     optional<PublisherSessionPrx> publisherSession,
+    optional<int32_t> protocolEpoch,
     function<void()> response,
     function<void(exception_ptr)> exception,
     const Current& current)
@@ -358,6 +425,25 @@ NodeI::confirmCreateSessionAsync(
         return;
     }
 
+    // Negotiate the protocol epoch before connecting the subscriber session. Rejecting here, before connected() and
+    // before the response, keeps an incompatible peer from ever reaching a connected session: the publisher only
+    // connects its own session in the confirmCreateSession response callback, which now receives this rejection.
+    auto protocolEpochOrReject = negotiateProtocolEpoch(instance, protocolEpoch);
+    if (!protocolEpochOrReject)
+    {
+        exception(makeIncompatibleEpochException(
+            min(instance->getMaxProtocolEpoch(), protocolEpoch.value_or(0)),
+            instance->getMinProtocolEpoch()));
+        return;
+    }
+    session->setProtocolEpoch(*protocolEpochOrReject);
+    if (*protocolEpochOrReject == 0 && instance->getMaxProtocolEpoch() > 0 && traceLevels->session > 0)
+    {
+        Trace out(traceLevels->logger, traceLevels->sessionCat);
+        out << "subscriber session with '" << *publisher
+            << "' established at protocol epoch 0; the peer does not support epoch " << instance->getMaxProtocolEpoch();
+    }
+
     // If the publisher session is hosted on a relay, current.con represents the connection to the relay.
     // Otherwise, it represents the connection to the publisher node. In both cases, a fixed proxy is used
     // to ensure the session is no longer used once the connection is closed.
@@ -397,6 +483,7 @@ NodeI::createSubscriberSession(
 
         subscriber->initiateCreateSessionAsync(
             _proxy,
+            instance->getMaxProtocolEpoch(),
             nullptr,
             [self = shared_from_this(), session, subscriber](exception_ptr ex)
             {
@@ -464,6 +551,7 @@ NodeI::createPublisherSession(
             _proxy,
             uncheckedCast<SubscriberSessionPrx>(session->getProxy()),
             false,
+            instance->getMaxProtocolEpoch(),
             nullptr,
             [self = shared_from_this(), publisher, session](exception_ptr ex)
             { self->retrySubscriberSessionCreation(publisher, session, ex); });
