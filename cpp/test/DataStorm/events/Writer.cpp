@@ -374,6 +374,25 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
+    // An any-key reader and a filtered reader coexisting on the same topic must each keep their own subscription:
+    // both receive matching samples, and destroying one must not detach the other.
+    cout << "testing coexisting any-key and filtered readers... " << flush;
+    {
+        Topic<string, string> topic(node, "readerCoexistence");
+        Topic<string, int> barrier(node, "readerCoexistenceBarrier");
+
+        auto writer = makeAnyKeyWriter(topic, "", config);
+        writer.waitForReaders(2);  // the any-key reader and the filtered reader
+        writer.update("k0", "v0"); // matches the filter, delivered to both readers
+
+        // Wait until the peer destroyed the filtered reader.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(barrier, "barrier").getNextUnread();
+
+        writer.update("k1", "v1"); // the any-key reader must still be subscribed and receive this
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
     cout << "testing topic collocated key reader and writer... " << flush;
     {
         Topic<string, string> topic(node, "collocated");
