@@ -136,11 +136,13 @@ public interface Connection
     void setBufferSize(int rcvSize, int sndSize);
 
     /// <summary>
-    /// Throws an exception that provides the reason for the closure of this connection. For example,
-    /// this method throws <see cref="CloseConnectionException"/> when the connection was closed gracefully by the peer;
-    /// it throws <see cref="ConnectionAbortedException"/> when the connection is aborted with <see cref="abort"/>.
-    /// This method does nothing if the connection is not yet closing or closed.
+    /// Throws the exception that provides the reason for the closure of this connection. Does nothing if the
+    /// connection is not yet closing or closed.
     /// </summary>
+    /// <exception cref="CloseConnectionException">Thrown when the connection was closed gracefully by the
+    /// peer.</exception>
+    /// <exception cref="ConnectionAbortedException">Thrown when the connection is aborted with <see cref="abort"/>.
+    /// </exception>
     void throwException();
 }
 
