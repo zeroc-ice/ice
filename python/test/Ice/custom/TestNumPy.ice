@@ -70,6 +70,8 @@ module Test
             DoubleSeq2 opDoubleSeq(DoubleSeq1 v1, DoubleSeq2 v2, out DoubleSeq3 v3);
             Complex128Seq opComplex128Seq(Complex128Seq v1);
 
+            ["python:numpy.ndarray"] optional(1) IntSeq1 opOptIntSeq(["python:numpy.ndarray"] optional(1) IntSeq1 v);
+
             ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] BoolSeq1 opBoolMatrix();
             ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] ByteSeq1 opByteMatrix();
             ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] ShortSeq1 opShortMatrix();
@@ -83,16 +85,6 @@ module Test
             D opD(D d);
 
             void shutdown();
-        }
-
-        // Regression test for #5801: the "python:numpy.ndarray" metadata is applied locally to an
-        // optional parameter and to the optional return type, on IntSeq1 which has no metadata of its
-        // own. The generated NDArray type hints are only produced if typeToTypeHintString forwards the
-        // local metadata through its optional branch. This is a type-hint-only concern (no runtime
-        // effect), so the generated annotations are inspected directly rather than exercised via a call.
-        interface OptionalCustom
-        {
-            ["python:numpy.ndarray"] optional(1) IntSeq1 opOptionalIntSeq(["python:numpy.ndarray"] optional(1) IntSeq1 values);
         }
     }
 }

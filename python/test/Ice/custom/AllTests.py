@@ -568,6 +568,11 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == len(v2))
 
+        # Test that local metadata on optional parameters and return types generates the correct type hints.
+        opAnnotations = NumPy.Custom.opOptIntSeq.__annotations__
+        test("NDArray" in opAnnotations["values"])
+        test("NDArray" in opAnnotations["return"])
+
         v1 = custom.opBoolMatrix()
         test(
             numpy.array_equal(
@@ -612,15 +617,6 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
             test(False)
         except ValueError:
             pass
-
-        # Regression test for #5801: "python:numpy.ndarray" metadata applied to an *optional* parameter
-        # and return type must still map to the numpy.typing.NDArray type hint. Generated code uses
-        # "from __future__ import annotations", so the hints are stored as strings on the servant's
-        # abstract methods and can be inspected directly. The isinstance checks above cannot catch this:
-        # type hints have no runtime effect, and marshaling of optional numpy sequences already works.
-        opAnnotations = NumPy.OptionalCustom.opOptionalIntSeq.__annotations__
-        test("NDArray" in opAnnotations["values"])
-        test("NDArray" in opAnnotations["return"])
 
         print("ok")
 
