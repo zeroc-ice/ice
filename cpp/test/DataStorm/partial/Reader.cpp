@@ -327,6 +327,11 @@ void ::Reader::run(int argc, char* argv[])
         test(sample.getEvent() == SampleEvent::PartialUpdate);
         test(sample.getValue()->price == 15.0f);   // the throwing sample was dropped...
         test(sample.getValue()->lastBid == 13.0f); // ...and the update resolved against the Add sample
+
+        // Tell the writer the samples were verified.
+        auto done = makeSingleKeyWriter(throwBarrier, "done");
+        done.waitForReaders();
+        done.update(0);
     }
 }
 
