@@ -884,7 +884,7 @@ Resolver::substitute(const string& v, bool useParams, bool useIgnored, set<strin
             }
             else
             {
-                throw invalid_argument("use of the '" + name + "' variable is now allowed here");
+                throw invalid_argument("use of the '" + name + "' variable is not allowed here");
             }
         }
 
