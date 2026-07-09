@@ -1133,7 +1133,7 @@ proxyIceGetConnectionAsync(ProxyObject* self, PyObject* /*args*/, PyObject* /*kw
         return nullptr;
     }
     callback->setFuture(future.get());
-    return future.release();
+    return IcePy::wrapFuture(*self->communicator, future.get());
 }
 
 extern "C" PyObject*
@@ -1399,11 +1399,11 @@ static PyMethodDef ProxyMethods[] = {
     {"ice_getConnection",
      reinterpret_cast<PyCFunction>(proxyIceGetConnection),
      METH_NOARGS,
-     PyDoc_STR("ice_getConnection() -> Ice.Connection")},
+     PyDoc_STR("ice_getConnection() -> Ice.Connection | None")},
     {"ice_getConnectionAsync",
      reinterpret_cast<PyCFunction>(proxyIceGetConnectionAsync),
      METH_NOARGS,
-     PyDoc_STR("ice_getConnectionAsync() -> Ice.Future")},
+     PyDoc_STR("ice_getConnectionAsync() -> Awaitable[Ice.Connection | None]")},
     {"ice_getCachedConnection",
      reinterpret_cast<PyCFunction>(proxyIceGetCachedConnection),
      METH_NOARGS,
