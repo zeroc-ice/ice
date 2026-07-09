@@ -307,24 +307,24 @@ Parser::subscribers(const list<string>& args)
 {
     if (args.empty())
     {
-        error("subscribers' requires at least one argument (type `help' for more info) ");
+        error("`subscribers' requires at least one argument (type `help' for more info)");
         return;
     }
-    try
+    for (const auto& arg : args)
     {
-        for (const auto& arg : args)
+        try
         {
-            auto topic = _defaultManager->retrieve(arg);
+            auto topic = findTopic(arg);
             consoleOut << arg << ": subscribers:" << endl;
             for (const auto& subscriber : topic->getSubscribers())
             {
                 consoleOut << "\t" << _communicator->identityToString(subscriber) << endl;
             }
         }
-    }
-    catch (const std::exception&)
-    {
-        exception(current_exception());
+        catch (const std::exception&)
+        {
+            exception(current_exception());
+        }
     }
 }
 

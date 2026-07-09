@@ -155,7 +155,9 @@ NodeI::start()
     unique_lock<mutex> lock(_mutex);
 
     _checkTask = make_shared<CheckTask>(shared_from_this());
-    _timer->schedule(_checkTask, chrono::seconds(static_cast<int64_t>(_nodes.size() - static_cast<size_t>(_id)) * 2));
+    // Stagger the initial check by node id. Node ids need not be contiguous, so clamp at zero to avoid an
+    // out-of-range (negative) delay when the id is larger than the node count.
+    _timer->schedule(_checkTask, chrono::seconds(std::max<int64_t>(0, static_cast<int64_t>(_nodes.size()) - _id) * 2));
     recovery(lock);
 }
 
@@ -839,8 +841,10 @@ NodeI::accept(
     optional<Ice::ObjectPrx> observer,
     LogUpdate llu,
     int max,
-    const Ice::Current&)
+    const Ice::Current& current)
 {
+    checkNotNull(observer, __FILE__, __LINE__, current);
+
     // Verify that j exists in our node set.
     if (_nodes.find(j) == _nodes.end())
     {
