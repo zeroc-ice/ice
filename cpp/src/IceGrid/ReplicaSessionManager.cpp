@@ -294,7 +294,6 @@ ReplicaSessionManager::create(
 void
 ReplicaSessionManager::create(const InternalRegistryPrx& replica)
 {
-    shared_ptr<Thread> thread;
     {
         unique_lock lock(_mutex);
 
@@ -302,14 +301,12 @@ ReplicaSessionManager::create(const InternalRegistryPrx& replica)
         // overload once the slave registry is ready.
         _condVar.wait(lock, [this] { return _thread || !_communicator; });
 
-        if (!_thread)
+        if (!_communicator)
         {
-            // Destroyed before initialization completed.
+            // Destroyed before initialization completed, or destroyed while we were waiting.
             return;
         }
-
-        // Capture under the lock: destroy() clears _thread, so we keep it alive for the calls below.
-        thread = _thread;
+        // The wait predicate guarantees _thread is set once _communicator is still alive here.
     }
 
     assert(_master); // a slave always has a default locator (enforced by RegistryI::startImpl)
@@ -320,9 +317,9 @@ ReplicaSessionManager::create(const InternalRegistryPrx& replica)
         return;
     }
 
-    thread->setRegistry(replica);
-    thread->tryCreateSession();
-    thread->waitTryCreateSession();
+    _thread->setRegistry(replica);
+    _thread->tryCreateSession();
+    _thread->waitTryCreateSession();
 }
 
 NodePrxSeq
@@ -349,26 +346,23 @@ ReplicaSessionManager::getNodes(const NodePrxSeq& nodes) const
 void
 ReplicaSessionManager::destroy()
 {
-    shared_ptr<Thread> thread;
     {
         lock_guard lock(_mutex);
         if (!_communicator)
         {
             return;
         }
-        thread = _thread;
-        _thread = nullptr;
-
         _communicator = nullptr;
 
         // Wake any create(replica) parked waiting for initialization so it can bail out instead of hanging.
         _condVar.notify_all();
     }
 
-    if (thread)
+    // _thread is set once in create() and never cleared.
+    if (_thread)
     {
-        thread->terminate();
-        thread->join();
+        _thread->terminate();
+        _thread->join();
     }
 
     _database = nullptr;
