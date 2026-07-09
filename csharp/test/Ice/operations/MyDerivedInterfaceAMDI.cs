@@ -554,7 +554,8 @@ public sealed class MyDerivedInterfaceI : Test.AsyncMyDerivedInterfaceDisp_
         {
             r[e.Key] = e.Value;
         }
-        return Task.FromResult<Test.MyInterface_OpStringDoubleSDResult>(new Test.MyInterface_OpStringDoubleSDResult(r, p3));
+        return Task.FromResult<Test.MyInterface_OpStringDoubleSDResult>(
+            new Test.MyInterface_OpStringDoubleSDResult(r, p3));
     }
 
     public override Task<Test.MyInterface_OpStringStringSDResult>
@@ -570,7 +571,8 @@ public sealed class MyDerivedInterfaceI : Test.AsyncMyDerivedInterfaceDisp_
         {
             r[e.Key] = e.Value;
         }
-        return Task.FromResult<Test.MyInterface_OpStringStringSDResult>(new Test.MyInterface_OpStringStringSDResult(r, p3));
+        return Task.FromResult<Test.MyInterface_OpStringStringSDResult>(
+            new Test.MyInterface_OpStringStringSDResult(r, p3));
     }
 
     public override Task<Test.MyInterface_OpMyEnumMyEnumSDResult> opMyEnumMyEnumSDAsync(
@@ -850,7 +852,8 @@ public sealed class MyDerivedInterfaceI : Test.AsyncMyDerivedInterfaceDisp_
         Task.FromResult(
             new Test.MyInterface_OpMStruct1MarshaledResult(new Test.Structure(new Test.AnotherStruct()), current));
 
-    public override Task<Test.MyInterface_OpMStruct2MarshaledResult> opMStruct2Async(Test.Structure p1, Current current) =>
+    public override Task<Test.MyInterface_OpMStruct2MarshaledResult>
+    opMStruct2Async(Test.Structure p1, Current current) =>
         Task.FromResult(new Test.MyInterface_OpMStruct2MarshaledResult(p1, p1, current));
 
     public override Task<Test.MyInterface_OpMSeq1MarshaledResult> opMSeq1Async(Current current) =>

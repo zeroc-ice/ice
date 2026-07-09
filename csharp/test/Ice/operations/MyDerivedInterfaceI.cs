@@ -848,7 +848,8 @@ public sealed class MyDerivedInterfaceI : Test.MyDerivedInterfaceDisp_
     public override Test.MyInterface_OpMDict1MarshaledResult opMDict1(Ice.Current current) =>
         new Test.MyInterface_OpMDict1MarshaledResult(new Dictionary<string, string>(), current);
 
-    public override Test.MyInterface_OpMDict2MarshaledResult opMDict2(Dictionary<string, string> p1, Ice.Current current) =>
+    public override Test.MyInterface_OpMDict2MarshaledResult
+    opMDict2(Dictionary<string, string> p1, Ice.Current current) =>
         new Test.MyInterface_OpMDict2MarshaledResult(p1, p1, current);
 
     private int _opByteSOnewayCallCount;

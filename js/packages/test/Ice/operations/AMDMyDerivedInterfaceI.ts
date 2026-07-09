@@ -108,7 +108,7 @@ export class AMDMyDerivedInterfaceI extends Test.MyDerivedInterface {
     ): [Test.MyInterfacePrx, Test.MyInterfacePrx, Test.MyInterfacePrx] {
         const p2 = p1;
         const p3 = Test.MyInterfacePrx.uncheckedCast(
-            current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity"))
+            current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")),
         );
         const r = Test.MyInterfacePrx.uncheckedCast(current.adapter.createProxy(current.id));
         return [r.ice_endpoints(this._endpoints), p2, p3.ice_endpoints(this._endpoints)];
