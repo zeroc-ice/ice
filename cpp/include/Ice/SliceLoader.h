@@ -60,7 +60,7 @@ namespace Ice
         std::vector<SliceLoaderPtr> _loaders;
     };
 
-    /// A shared pointer to a CompositeSliceLoaderPtr.
+    /// A shared pointer to a CompositeSliceLoader.
     using CompositeSliceLoaderPtr = std::shared_ptr<CompositeSliceLoader>;
 }
 

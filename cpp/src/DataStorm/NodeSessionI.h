@@ -16,7 +16,7 @@ namespace DataStormI
 
         void init();
         void destroy();
-        void addSession(DataStormContract::SessionPrx);
+        void addSession(Ice::Identity nodeId, Ice::Identity sessionId, DataStormContract::SessionPrx session);
 
         [[nodiscard]] DataStormContract::NodePrx getPublicNode() const
         {
@@ -27,6 +27,11 @@ namespace DataStormI
 
         [[nodiscard]] std::optional<DataStormContract::LookupPrx> getLookup() const { return _lookup; }
         [[nodiscard]] const Ice::ConnectionPtr& getConnection() const { return _connection; }
+
+        /// Enables forwarding announcements to the peer node. Called by the node session manager - with its mutex
+        /// locked - when the peer requests announcement forwarding for an existing session that was created without
+        /// it.
+        void enableAnnouncementForwarding();
 
         // Helper method to create a forwarder proxy for a subscriber or publisher session proxy.
         template<typename Prx> [[nodiscard]] Prx forwarder(const Prx& session) const
@@ -63,8 +68,12 @@ namespace DataStormI
         // A map containing all publisher and subscriber sessions established with the session's target node via a
         // node forwarder.
         //
-        // The key is the session identity, and the value is the session proxy.
-        std::map<Ice::Identity, DataStormContract::SessionPrx> _sessions;
+        // The key is a pair of (source node identity, session identity); the session identity alone is only unique
+        // within a node, so two different source nodes can produce the same one. The value is the session proxy.
+        //
+        // We use a map keyed on this pair (rather than a vector or list) so that re-adding a session with an
+        // existing key replaces its proxy in place via insert_or_assign, instead of leaving a stale entry behind.
+        std::map<std::pair<Ice::Identity, Ice::Identity>, DataStormContract::SessionPrx> _sessions;
     };
 }
 #endif

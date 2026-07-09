@@ -39,53 +39,6 @@ namespace
     };
     const auto alwaysMatchFilter = make_shared<AlwaysMatchFilter>(); // NOLINT(cert-err58-cpp)
 
-    DataStorm::ClearHistoryPolicy parseClearHistory(const std::string& value)
-    {
-        if (value == "OnAdd")
-        {
-            return DataStorm::ClearHistoryPolicy::OnAdd;
-        }
-        else if (value == "OnRemove")
-        {
-            return DataStorm::ClearHistoryPolicy::OnRemove;
-        }
-        else if (value == "OnAll")
-        {
-            return DataStorm::ClearHistoryPolicy::OnAll;
-        }
-        else if (value == "OnAllExceptPartialUpdate")
-        {
-            return DataStorm::ClearHistoryPolicy::OnAllExceptPartialUpdate;
-        }
-        else if (value == "Never")
-        {
-            return DataStorm::ClearHistoryPolicy::Never;
-        }
-        else
-        {
-            throw ParseException(__FILE__, __LINE__, "Invalid clear history policy: " + value);
-        }
-    }
-
-    DataStorm::DiscardPolicy parseDiscardPolicy(const std::string& value)
-    {
-        if (value == "Never")
-        {
-            return DataStorm::DiscardPolicy::None;
-        }
-        else if (value == "SendTime")
-        {
-            return DataStorm::DiscardPolicy::SendTime;
-        }
-        else if (value == "Priority")
-        {
-            return DataStorm::DiscardPolicy::Priority;
-        }
-        else
-        {
-            throw ParseException(__FILE__, __LINE__, "Invalid discard policy: " + value);
-        }
-    }
 }
 
 TopicI::TopicI(
@@ -684,6 +637,21 @@ TopicI::setUpdaters(map<shared_ptr<Tag>, Updater> updaters)
 {
     unique_lock<mutex> lock(_mutex);
     _updaters = std::move(updaters);
+
+    // Forward the tag set to the connected sessions, like setUpdater does: a peer that attached before the updaters
+    // were set (topics are announced first) would otherwise never learn the tags and silently resolve partial
+    // updates with the no-op updater.
+    if (!_updaters.empty())
+    {
+        try
+        {
+            _forwarder->attachTags(_id, getTags(), true);
+        }
+        catch (const std::exception&)
+        {
+            forwarderException();
+        }
+    }
 }
 
 map<shared_ptr<Tag>, Topic::Updater>
@@ -916,7 +884,7 @@ TopicReaderI::TopicReaderI(
           std::move(name),
           id)
 {
-    _defaultConfig = parseConfig();
+    _defaultConfig = _instance->getDefaultReaderConfig();
 }
 
 shared_ptr<DataReader>
@@ -931,7 +899,7 @@ TopicReaderI::createFiltered(
     auto element = make_shared<FilteredDataReaderI>(
         this,
         std::move(name),
-        ++_nextFilteredId,
+        ++_nextId,
         filter,
         std::move(sampleFilterName),
         std::move(sampleFilterCriteria),
@@ -992,18 +960,6 @@ TopicReaderI::destroy()
 }
 
 DataStorm::ReaderConfig
-TopicReaderI::parseConfig() const
-{
-    auto properties = _instance->getCommunicator()->getProperties();
-    DataStorm::ReaderConfig config;
-    config.clearHistory = parseClearHistory(properties->getIceProperty("DataStorm.Topic.ClearHistory"));
-    config.sampleCount = properties->getIcePropertyAsInt("DataStorm.Topic.SampleCount");
-    config.sampleLifetime = properties->getIcePropertyAsInt("DataStorm.Topic.SampleLifetime");
-    config.discardPolicy = parseDiscardPolicy(properties->getIceProperty("DataStorm.Topic.DiscardPolicy"));
-    return config;
-}
-
-DataStorm::ReaderConfig
 TopicReaderI::mergeConfigs(DataStorm::ReaderConfig config) const
 {
     if (!config.sampleCount.has_value())
@@ -1053,7 +1009,7 @@ TopicWriterI::TopicWriterI(
           std::move(name),
           id)
 {
-    _defaultConfig = parseConfig();
+    _defaultConfig = _instance->getDefaultWriterConfig();
 }
 
 shared_ptr<DataWriter>
@@ -1093,18 +1049,6 @@ TopicWriterI::destroy()
     {
         factory->removeTopicWriter(_name, shared_from_this());
     }
-}
-
-DataStorm::WriterConfig
-TopicWriterI::parseConfig() const
-{
-    auto properties = _instance->getCommunicator()->getProperties();
-    DataStorm::WriterConfig config;
-    config.clearHistory = parseClearHistory(properties->getIceProperty("DataStorm.Topic.ClearHistory"));
-    config.sampleCount = properties->getIcePropertyAsInt("DataStorm.Topic.SampleCount");
-    config.sampleLifetime = properties->getIcePropertyAsInt("DataStorm.Topic.SampleLifetime");
-    config.priority = properties->getIcePropertyAsInt("DataStorm.Topic.Priority");
-    return config;
 }
 
 DataStorm::WriterConfig

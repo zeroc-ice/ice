@@ -126,6 +126,17 @@ NodeI::destroy(bool ownsCommunicator)
             }
         }
     }
+    // Cancel any pending retry task before dropping the sessions, to break the reference cycle
+    // (_retryTask -> task -> lambda -> self).
+    for (const auto& [_, subscriber] : _subscribers)
+    {
+        subscriber->cancelRetryTask();
+    }
+    for (const auto& [_, publisher] : _publishers)
+    {
+        publisher->cancelRetryTask();
+    }
+
     _subscribers.clear();
     _publishers.clear();
     _subscriberSessions.clear();
@@ -551,7 +562,19 @@ NodeI::removePublisherSession(const NodePrx& node, const shared_ptr<PublisherSes
 ConnectionPtr
 NodeI::getSessionConnection(string_view id) const
 {
-    auto session = getSession(stringToIdentity(id));
+    Identity ident;
+    try
+    {
+        ident = stringToIdentity(id);
+    }
+    catch (const ParseException&)
+    {
+        // A malformed identity cannot match any session; this accessor is fail-soft (and noexcept in the public
+        // Node API), so return null rather than letting the exception escape.
+        return nullptr;
+    }
+
+    auto session = getSession(ident);
     if (session)
     {
         return session->getConnection();

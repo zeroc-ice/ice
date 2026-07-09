@@ -33,6 +33,8 @@ exclude = [
     "^https?://gitter\\.im",
     # npm returns 403 to bots
     "^https?://www\\.npmjs\\.com",
+    # dotnet.microsoft.com returns 403 to bots
+    "^https?://dotnet\\.microsoft\\.com",
     # Symbol server
     "^https?://symbols\\.zeroc\\.com",
 ]

@@ -368,7 +368,7 @@ classdef AllTests
 
             fprintf('ok\n');
 
-            if communicator.getProperties().getPropertyAsInt('Ice.Default.SlicedFormat') > 0
+            if communicator.getProperties().getIcePropertyAsInt('Ice.Default.SlicedFormat') > 0
                 fprintf('testing marshaling with unknown class slices... ');
 
                 c = C();

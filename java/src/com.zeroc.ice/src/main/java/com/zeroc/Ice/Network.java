@@ -264,14 +264,18 @@ public final class Network {
     }
 
     public static SocketChannel doAccept(ServerSocketChannel socketChannel) {
-        SocketChannel fd = null;
-        while (true) {
-            try {
-                fd = socketChannel.accept();
-                break;
-            } catch (IOException ex) {
-                throw new SocketException(ex);
-            }
+        SocketChannel fd;
+        try {
+            fd = socketChannel.accept();
+        } catch (IOException ex) {
+            throw new SocketException(ex);
+        }
+
+        // The acceptor's channel is non-blocking, so accept() returns null when no connection is actually pending
+        // (e.g. a spurious selector wakeup, or the pending connection was reset before accept()). Surface this as a
+        // SocketException so it's handled like any other accept failure, instead of dereferencing null.
+        if (fd == null) {
+            throw new SocketException();
         }
 
         try {
@@ -508,13 +512,25 @@ public final class Network {
             return v;
         }
 
-        byte[] larr = addr1.getAddress().getAddress();
-        byte[] rarr = addr2.getAddress().getAddress();
-        v = larr.length - rarr.length;
+        InetAddress inetAddress1 = addr1.getAddress();
+        InetAddress inetAddress2 = addr2.getAddress();
+        byte[] addressBytes1 = inetAddress1.getAddress();
+        byte[] addressBytes2 = inetAddress2.getAddress();
+        v = addressBytes1.length - addressBytes2.length;
         if (v != 0) {
             return v;
         }
-        return Arrays.compare(larr, rarr);
+        v = Arrays.compare(addressBytes1, addressBytes2);
+        if (v != 0) {
+            return v;
+        }
+
+        // Distinguish scoped link-local addresses such as fe80::1%eth0 and fe80::1%eth1.
+        if (inetAddress1 instanceof Inet6Address inet6Address1
+            && inetAddress2 instanceof Inet6Address inet6Address2) {
+            return Integer.compare(inet6Address1.getScopeId(), inet6Address2.getScopeId());
+        }
+        return 0;
     }
 
     public static List<InetSocketAddress> getAddresses(

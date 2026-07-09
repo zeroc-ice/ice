@@ -384,8 +384,6 @@ Slice::toStringLiteral(
     }
     else
     {
-        assert(escapeMode == Octal);
-
         for (size_t i = 0; i < value.size(); ++i)
         {
             char c = value[i];

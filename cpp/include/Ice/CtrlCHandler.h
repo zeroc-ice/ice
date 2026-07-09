@@ -27,7 +27,7 @@ namespace Ice
 
         /// Constructs a CtrlCHandler. Only one instance of this class can exist in a program at any point in time.
         /// On Linux and macOS, this constructor masks the SIGHUP, SIGINT and SIGTERM signals and then creates a thread
-        /// that waits for these signals using sigwait. On Windows, this constructor calls SetConsoleCtrlCHandler to
+        /// that waits for these signals using sigwait. On Windows, this constructor calls SetConsoleCtrlHandler to
         /// register a handler routine that calls the supplied callback function.
         /// @param cb The callback function to invoke when a signal is received.
         explicit CtrlCHandler(CtrlCHandlerCallback cb);

@@ -285,7 +285,7 @@ namespace IceGrid
         std::optional<TPrx> getSession()
         {
             std::lock_guard<std::mutex> lock(_mutex);
-            return _session;
+            return _state == Destroyed ? std::nullopt : _session;
         }
 
         void setRegistry(InternalRegistryPrx registry)

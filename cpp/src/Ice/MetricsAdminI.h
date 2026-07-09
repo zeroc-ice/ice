@@ -443,7 +443,12 @@ namespace IceInternal
             // If there's still no room, remove the oldest entry (at the front).
             if (static_cast<int>(_detachedQueue.size()) == _retain)
             {
-                _objects.erase(_detachedQueue.front()->_object->id);
+                EntryTPtr front = _detachedQueue.front();
+                // Reset the evicted entry's position so a surviving EntryTPtr doesn't keep an iterator into the erased
+                // list node.
+                front->_detachedPos = _detachedQueue.end();
+
+                _objects.erase(front->_object->id);
                 _detachedQueue.pop_front();
             }
 

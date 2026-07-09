@@ -403,10 +403,7 @@ public final class Util {
             public Thread newThread(Runnable r) {
                 Thread t = new Thread(r);
                 t.setName(name);
-
-                if (properties.getIceProperty("Ice.ThreadPriority").length() > 0) {
-                    t.setPriority(Util.getThreadPriorityProperty(properties, "Ice"));
-                }
+                t.setPriority(Util.getThreadPriorityProperty(properties, "Ice"));
                 return t;
             }
         };
@@ -521,20 +518,35 @@ public final class Util {
         return null;
     }
 
-    private static int getThreadPriorityProperty(Properties properties, String prefix) {
+    static int getThreadPriorityProperty(Properties properties, String prefix) {
         String pri = properties.getProperty(prefix + ".ThreadPriority");
-        if ("MIN_PRIORITY".equals(pri) || "java.lang.Thread.MIN_PRIORITY".equals(pri)) {
-            return Thread.MIN_PRIORITY;
-        } else if ("NORM_PRIORITY".equals(pri) || "java.lang.Thread.NORM_PRIORITY".equals(pri)) {
+        if (pri.isEmpty()) {
             return Thread.NORM_PRIORITY;
-        } else if ("MAX_PRIORITY".equals(pri) || "java.lang.Thread.MAX_PRIORITY".equals(pri)) {
-            return Thread.MAX_PRIORITY;
+        }
+        switch (pri) {
+            case "MIN_PRIORITY", "java.lang.Thread.MIN_PRIORITY" -> {
+                return Thread.MIN_PRIORITY;
+            }
+            case "NORM_PRIORITY", "java.lang.Thread.NORM_PRIORITY" -> {
+                return Thread.NORM_PRIORITY;
+            }
+            case "MAX_PRIORITY", "java.lang.Thread.MAX_PRIORITY" -> {
+                return Thread.MAX_PRIORITY;
+            }
         }
 
+        int priority;
         try {
-            return Integer.parseInt(pri);
-        } catch (NumberFormatException ex) {}
-        return Thread.NORM_PRIORITY;
+            priority = Integer.parseInt(pri);
+        } catch (NumberFormatException ex) {
+            throw new PropertyException(
+                "property '" + prefix + ".ThreadPriority' has an invalid value: '" + pri + "'");
+        }
+        if (priority < Thread.MIN_PRIORITY || priority > Thread.MAX_PRIORITY) {
+            throw new PropertyException(
+                "property '" + prefix + ".ThreadPriority' has an invalid value: '" + pri + "'");
+        }
+        return priority;
     }
 
     /**

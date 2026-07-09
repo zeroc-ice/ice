@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "DataStorm/DataStorm.h"
+#include "DataStorm/InternalT.h"
 #include "Test.h"
 #include "TestHelper.h"
 
@@ -28,12 +29,92 @@ void ::Writer::run(int argc, char* argv[])
             auto nm2 = std::move(nm);
             [[maybe_unused]] Ice::CommunicatorPtr communicator = nm2.getCommunicator();
             [[maybe_unused]] Ice::ConnectionPtr connection = nm2.getSessionConnection("s");
+
+            // A malformed session identity is fail-soft.
+            test(nm2.getSessionConnection("a/b/c") == nullptr);
+
+            // The shutdown members are safe on a moved-from node; a moved-from node reports itself as shut down.
+            // NOLINTBEGIN(clang-analyzer-cplusplus.Move)
+            n.shutdown();
+            test(n.isShutdown());
+            n.waitForShutdown();
+            // NOLINTEND(clang-analyzer-cplusplus.Move)
         }
 
         {
             Ice::CommunicatorPtr communicator = Ice::initialize();
             Ice::CommunicatorHolder communicatorHolder{communicator};
             Node n2{communicator};
+        }
+
+        {
+            auto makeInitData = [](const string& property, const string& value)
+            {
+                Ice::InitializationData initData;
+                initData.properties = Ice::createProperties();
+                initData.properties->setProperty(property, value);
+                return initData;
+            };
+
+            // A node configured with an invalid DataStorm.Node.ConnectTo endpoint surfaces a catchable exception
+            // from the Node constructor, with and without communicator ownership.
+            {
+                Ice::CommunicatorHolder holder{Ice::initialize(makeInitData("DataStorm.Node.ConnectTo", "invalid"))};
+                try
+                {
+                    Node n7{holder.communicator()};
+                    test(false);
+                }
+                catch (const Ice::ParseException&)
+                {
+                }
+            }
+            try
+            {
+                Node n8{NodeOptions{
+                    .communicator = Ice::initialize(makeInitData("DataStorm.Node.ConnectTo", "invalid")),
+                    .nodeOwnsCommunicator = true}};
+                test(false);
+            }
+            catch (const Ice::ParseException&)
+            {
+            }
+
+            // An invalid DataStorm.Topic.* property value surfaces a catchable exception from the Node constructor
+            // rather than from the noexcept Topic methods that lazily create the topic reader or writer.
+            {
+                Ice::CommunicatorHolder holder{Ice::initialize(makeInitData("DataStorm.Topic.ClearHistory", "onAdd"))};
+                try
+                {
+                    Node n9{holder.communicator()};
+                    test(false);
+                }
+                catch (const Ice::ParseException&)
+                {
+                }
+            }
+
+            // A non-numeric topic default surfaces the property exception from the Node constructor as well.
+            {
+                Ice::CommunicatorHolder holder{Ice::initialize(makeInitData("DataStorm.Topic.SampleCount", "abc"))};
+                try
+                {
+                    Node n10{holder.communicator()};
+                    test(false);
+                }
+                catch (const Ice::PropertyException&)
+                {
+                }
+            }
+
+            // "None" is accepted as an alias for the "Never" discard policy, matching the DiscardPolicy::None
+            // enumerator.
+            {
+                Ice::CommunicatorHolder holder{Ice::initialize(makeInitData("DataStorm.Topic.DiscardPolicy", "None"))};
+                Node n11{holder.communicator()};
+                Topic<int, string> topic(n11, "discardPolicyAlias");
+                auto reader = makeSingleKeyReader(topic, 0);
+            }
         }
 
         Node n3;
@@ -293,6 +374,37 @@ void ::Writer::run(int argc, char* argv[])
         ostringstream os;
         os << skw.getLast();
         os << skw.getLast().getEvent();
+    }
+    cout << "ok" << endl;
+
+    cout << "testing element factory cleanup... " << flush;
+    {
+        // The factory interns elements by value; an element's entry must be erased when the last reference to the
+        // element goes away, so a value that is never used again does not keep a map entry alive.
+        struct TestKeyFactory : DataStormI::AbstractFactoryT<int, DataStormI::KeyT<int>>
+        {
+            [[nodiscard]] size_t size() const
+            {
+                lock_guard<mutex> lock(_mutex);
+                return _elements.size();
+            }
+        };
+
+        auto factory = make_shared<TestKeyFactory>();
+        factory->init();
+        {
+            auto key = factory->create(5);
+            test(factory->size() == 1);
+
+            // Creating the same value returns the interned element.
+            test(factory->create(5) == key);
+            test(factory->size() == 1);
+        }
+        test(factory->size() == 0); // the entry is erased when the element dies
+
+        // The value can be interned again afterwards.
+        auto key = factory->create(5);
+        test(factory->size() == 1);
     }
     cout << "ok" << endl;
 }

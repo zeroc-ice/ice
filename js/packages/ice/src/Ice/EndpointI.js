@@ -29,7 +29,7 @@ export class EndpointI {
 
         let knownOptions = new Set();
 
-        for (let i = 0; i < args.length; ) {
+        for (let i = 0; i < args.length;) {
             const option = args[i++];
             if (option.length < 2 || option.charAt(0) != "-") {
                 unknown.push(option);

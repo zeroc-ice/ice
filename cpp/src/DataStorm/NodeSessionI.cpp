@@ -77,9 +77,11 @@ namespace
                     optional<SubscriberSessionPrx> subscriberSessionForwarder = subscriberSession;
                     updateNodeAndSessionProxy(*subscriber, subscriberSessionForwarder, current);
 
-                    // Keep track of the subscriber session with the NodeSession, the NodeSession will use this proxy
+                    // Keep track of the subscriber session with the NodeSession; the NodeSession will use this proxy
                     // to inform the subscriber of the disconnection if the target publisher is disconnected.
                     nodeSession->addSession(
+                        subscriber->ice_getIdentity(),
+                        subscriberSession->ice_getIdentity(),
                         subscriberIsHostedOnRelay ? subscriberSession->ice_fixed(current.con) : *subscriberSession);
 
                     // Forward the call to the target Node.
@@ -111,9 +113,11 @@ namespace
                     optional<PublisherSessionPrx> publisherSessionForwarder = publisherSession;
                     updateNodeAndSessionProxy(*publisher, publisherSessionForwarder, current);
 
-                    // Keep track of the publisher session with the NodeSession, the NodeSession will use this proxy
+                    // Keep track of the publisher session with the NodeSession; the NodeSession will use this proxy
                     // to inform the publisher of the disconnection if the target subscriber is disconnected.
                     nodeSession->addSession(
+                        publisher->ice_getIdentity(),
+                        publisherSession->ice_getIdentity(),
                         publisherIsHostedOnRelay ? publisherSession->ice_fixed(current.con) : *publisherSession);
                     // Forward the request to the target subscriber.
                     _node->confirmCreateSessionAsync(publisher, publisherSessionForwarder, response, exception);
@@ -141,6 +145,12 @@ namespace
         {
             if (node->ice_getEndpoints().empty() && node->ice_getAdapterId().empty())
             {
+                // Create the session without announcement forwarding. A node without a public endpoint can be a peer
+                // reached through the relay that current.con connects to, rather than the direct peer on that
+                // connection. Enabling forwarding for such a relayed identity would duplicate announcements over a
+                // connection whose direct peer already forwards them - once per relayed identity. A direct peer that
+                // wants forwarding has its session upgraded when its own Lookup::createSession arrives on the matching
+                // connection (see NodeSessionManager::createOrGet).
                 shared_ptr<NodeSessionI> nodeSession = _nodeSessionManager->createOrGet(node, current.con, false);
                 node = nodeSession->getPublicNode();
                 if (session)
@@ -166,6 +176,15 @@ NodeSessionI::NodeSessionI(
       _connection(std::move(connection))
 {
     if (forwardAnnouncements)
+    {
+        enableAnnouncementForwarding();
+    }
+}
+
+void
+NodeSessionI::enableAnnouncementForwarding()
+{
+    if (!_lookup)
     {
         _lookup = _connection->createProxy<LookupPrx>(Identity{.name = "Lookup", .category = "DataStorm"});
     }
@@ -211,7 +230,7 @@ NodeSessionI::destroy()
 
         for (const auto& [_, session] : _sessions)
         {
-            // Notify sessions of the disconnection, don't need to wait for the result.
+            // Notify each session of the disconnection; we don't wait for the result.
             session->disconnectedAsync(nullptr);
         }
     }
@@ -230,9 +249,8 @@ NodeSessionI::destroy()
 }
 
 void
-NodeSessionI::addSession(SessionPrx session)
+NodeSessionI::addSession(Identity nodeId, Identity sessionId, SessionPrx session)
 {
     lock_guard<mutex> lock(_mutex);
-    Identity id = session->ice_getIdentity();
-    _sessions.insert_or_assign(std::move(id), std::move(session));
+    _sessions.insert_or_assign(std::pair{std::move(nodeId), std::move(sessionId)}, std::move(session));
 }

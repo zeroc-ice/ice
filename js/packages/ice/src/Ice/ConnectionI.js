@@ -642,12 +642,10 @@ export class ConnectionI {
         } else if (traceLevels.network >= 1) {
             let s = `closed ${this._endpoint.protocol()} connection\n${this}`;
             // Trace the cause of most connection closures
-            if (
-                !(
-                    this._exception instanceof CommunicatorDestroyedException ||
-                    this._exception instanceof ObjectAdapterDestroyedException
-                )
-            ) {
+            if (!(
+                this._exception instanceof CommunicatorDestroyedException ||
+                this._exception instanceof ObjectAdapterDestroyedException
+            )) {
                 s += `\n${this._exception}`;
             }
             this._logger.trace(traceLevels.networkCat, s);
@@ -808,15 +806,13 @@ export class ConnectionI {
                 // We don't warn if we are not validated.
                 if (this._warn && this._validated) {
                     // Don't warn about certain expected exceptions.
-                    if (
-                        !(
-                            this._exception instanceof CloseConnectionException ||
-                            this._exception instanceof ConnectionClosedException ||
-                            this._exception instanceof CommunicatorDestroyedException ||
-                            this._exception instanceof ObjectAdapterDestroyedException ||
-                            (this._exception instanceof ConnectionLostException && this._state === StateClosing)
-                        )
-                    ) {
+                    if (!(
+                        this._exception instanceof CloseConnectionException ||
+                        this._exception instanceof ConnectionClosedException ||
+                        this._exception instanceof CommunicatorDestroyedException ||
+                        this._exception instanceof ObjectAdapterDestroyedException ||
+                        (this._exception instanceof ConnectionLostException && this._state === StateClosing)
+                    )) {
                         this.warning("connection exception", this._exception);
                     }
                 }

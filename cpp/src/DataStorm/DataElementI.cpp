@@ -9,6 +9,7 @@
 #include "TraceUtil.h"
 
 #include <algorithm>
+#include <set>
 
 using namespace std;
 using namespace DataStormI;
@@ -765,29 +766,81 @@ DataReaderI::initSamples(
         //   publishers for the same key. The subscriber list is sorted by priority in addConnectedKey.
         if ((_discardPolicy == DataStorm::DiscardPolicy::SendTime && sample->timestamp <= _lastSendTime) ||
             (_discardPolicy == DataStorm::DiscardPolicy::Priority &&
-             priority < _connectedKeys[sample->key].back()->priority))
+             hasLowerPriorityThanConnected(priority, sample->key)))
         {
+            // The discard only affects the application-visible delivery: when the key has no base yet, still record
+            // the discarded sample as the base partial updates resolve against, otherwise a later partial update on
+            // the key would have no base.
+            if (sample->event != DataStorm::SampleEvent::PartialUpdate &&
+                previousByKey.find(sample->key) == previousByKey.end())
+            {
+                try
+                {
+                    if (!sample->hasValue())
+                    {
+                        sample->decode(_parent->instance()->getCommunicator());
+                    }
+                    previousByKey[sample->key] = sample;
+                }
+                catch (const std::exception&)
+                {
+                    // Ignore, the sample was discarded anyway.
+                }
+            }
             continue;
         }
 
         assert(sample->key);
-        valid.push_back(sample);
 
         if (!sample->hasValue())
         {
             if (sample->event == DataStorm::SampleEvent::PartialUpdate)
             {
                 auto p = previousByKey.find(sample->key);
-                _parent->getUpdater(sample->tag)(
-                    p == previousByKey.end() ? nullptr : p->second,
-                    sample,
-                    _parent->instance()->getCommunicator());
+                if (p == previousByKey.end())
+                {
+                    // No base to resolve the partial update against (for example a peer writer that doesn't
+                    // bootstrap the base): drop the sample rather than apply the update to a default-constructed
+                    // value.
+                    if (_traceLevels->data > 0)
+                    {
+                        Trace out(_traceLevels->logger, _traceLevels->dataCat);
+                        out << this << ": discarded partial update sample " << sample->id
+                            << ": no base value for the key";
+                    }
+                    continue;
+                }
+
+                try
+                {
+                    _parent->getUpdater(sample->tag)(p->second, sample, _parent->instance()->getCommunicator());
+                }
+                catch (const std::exception& ex)
+                {
+                    // An updater or decoder that throws (a user updater error, or a writer/reader update type
+                    // mismatch) drops the sample; the base is left unchanged so the next full sample resynchronizes
+                    // the key.
+                    Warning out(_traceLevels->logger);
+                    out << "dropped sample " << sample->id << ": the partial update could not be applied:\n"
+                        << ex.what();
+                    continue;
+                }
             }
             else
             {
-                sample->decode(_parent->instance()->getCommunicator());
+                try
+                {
+                    sample->decode(_parent->instance()->getCommunicator());
+                }
+                catch (const std::exception& ex)
+                {
+                    Warning out(_traceLevels->logger);
+                    out << "dropped sample " << sample->id << ": the value could not be decoded:\n" << ex.what();
+                    continue;
+                }
             }
         }
+        valid.push_back(sample);
         previousByKey[sample->key] = sample;
     }
 
@@ -812,35 +865,24 @@ DataReaderI::initSamples(
 
     if (valid.empty())
     {
+        // Even when every sample was discarded or dropped, keep the bases recorded above so a later partial update
+        // on their keys can resolve.
+        _lastByKey = std::move(previousByKey);
         return;
     }
     _lastSendTime = valid.back()->timestamp;
+
+    // The per-key bases for partial updates are maintained even when the element keeps no history (sampleCount == 0).
+    _lastByKey = std::move(previousByKey);
 
     if (_config->sampleLifetime && *_config->sampleLifetime > 0)
     {
         cleanOldSamples(_samples, now, *_config->sampleLifetime);
     }
 
-    if (_config->sampleCount)
+    if (_config->sampleCount && *_config->sampleCount == 0)
     {
-        if (*_config->sampleCount > 0)
-        {
-            size_t count = _samples.size();
-            auto maxCount = static_cast<size_t>(*_config->sampleCount);
-            if (count + valid.size() > maxCount)
-            {
-                count = count + valid.size() - maxCount;
-                while (!_samples.empty() && count-- > 0)
-                {
-                    _samples.pop_front();
-                }
-                assert(_samples.size() + valid.size() == maxCount);
-            }
-        }
-        else if (*_config->sampleCount == 0)
-        {
-            return; // Don't keep history
-        }
+        return; // Don't keep history
     }
 
     if (_config->clearHistory && *_config->clearHistory == ClearHistoryPolicy::OnAll)
@@ -864,8 +906,19 @@ DataReaderI::initSamples(
             _samples.push_back(s);
         }
     }
+
+    // Keep at most sampleCount samples. The init batch can exceed sampleCount when the writer delivers one base per
+    // key (an any-key reader joining a writer with more distinct keys than sampleCount); those per-key bases were
+    // already recorded in _lastByKey above, so trimming the surplus from the visible history here is safe.
+    if (_config->sampleCount && *_config->sampleCount > 0)
+    {
+        while (_samples.size() > static_cast<size_t>(*_config->sampleCount))
+        {
+            _samples.pop_front();
+        }
+    }
+
     assert(!_samples.empty());
-    _lastByKey = std::move(previousByKey);
     _parent->_cond.notify_all();
 }
 
@@ -908,13 +961,31 @@ DataReaderI::queue(
     // - Priority: discard samples from publisher with lower priority than the highest priority among the connected
     //   publishers for the same key. The subscriber list is sorted by priority in addConnectedKey.
     if ((_discardPolicy == DataStorm::DiscardPolicy::SendTime && sample->timestamp <= _lastSendTime) ||
-        (_discardPolicy == DataStorm::DiscardPolicy::Priority &&
-         priority < _connectedKeys[sample->key].back()->priority))
+        (_discardPolicy == DataStorm::DiscardPolicy::Priority && hasLowerPriorityThanConnected(priority, sample->key)))
     {
         if (_traceLevels->data > 2)
         {
             Trace out(_traceLevels->logger, _traceLevels->dataCat);
             out << this << ": discarded sample" << sample->id;
+        }
+
+        // The discard only affects the application-visible delivery: when the key has no base yet, still record the
+        // discarded sample as the base partial updates resolve against, otherwise a later partial update on the key
+        // would have no base.
+        if (sample->event != DataStorm::SampleEvent::PartialUpdate && _lastByKey.find(sample->key) == _lastByKey.end())
+        {
+            try
+            {
+                if (!sample->hasValue())
+                {
+                    sample->decode(_parent->instance()->getCommunicator());
+                }
+                _lastByKey[sample->key] = sample;
+            }
+            catch (const std::exception&)
+            {
+                // Ignore, the sample was discarded anyway.
+            }
         }
         return;
     }
@@ -924,17 +995,49 @@ DataReaderI::queue(
         if (sample->event == DataStorm::SampleEvent::PartialUpdate)
         {
             auto p = _lastByKey.find(sample->key);
-            _parent->getUpdater(sample->tag)(
-                p == _lastByKey.end() ? nullptr : p->second,
-                sample,
-                _parent->instance()->getCommunicator());
+            if (p == _lastByKey.end())
+            {
+                // No base to resolve the partial update against (for example a peer writer that doesn't bootstrap
+                // the base): drop the sample rather than apply the update to a default-constructed value.
+                if (_traceLevels->data > 0)
+                {
+                    Trace out(_traceLevels->logger, _traceLevels->dataCat);
+                    out << this << ": discarded partial update sample " << sample->id << ": no base value for the key";
+                }
+                return;
+            }
+
+            try
+            {
+                _parent->getUpdater(sample->tag)(p->second, sample, _parent->instance()->getCommunicator());
+            }
+            catch (const std::exception& ex)
+            {
+                // An updater or decoder that throws (a user updater error, or a writer/reader update type mismatch)
+                // drops the sample; the base is left unchanged so the next full sample resynchronizes the key.
+                Warning out(_traceLevels->logger);
+                out << "dropped sample " << sample->id << ": the partial update could not be applied:\n" << ex.what();
+                return;
+            }
         }
         else
         {
-            sample->decode(_parent->instance()->getCommunicator());
+            try
+            {
+                sample->decode(_parent->instance()->getCommunicator());
+            }
+            catch (const std::exception& ex)
+            {
+                Warning out(_traceLevels->logger);
+                out << "dropped sample " << sample->id << ": the value could not be decoded:\n" << ex.what();
+                return;
+            }
         }
     }
     _lastSendTime = sample->timestamp;
+
+    // The per-key base for partial updates is maintained even when the element keeps no history (sampleCount == 0).
+    _lastByKey[sample->key] = sample;
 
     if (_onSamples)
     {
@@ -977,7 +1080,6 @@ DataReaderI::queue(
         _samples.clear();
     }
     _samples.push_back(sample);
-    _lastByKey[sample->key] = sample;
     _parent->_cond.notify_all();
 }
 
@@ -1017,6 +1119,25 @@ DataReaderI::addConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Subscr
     }
 }
 
+bool
+DataReaderI::hasLowerPriorityThanConnected(int priority, const shared_ptr<Key>& key) const
+{
+    // The connected publishers that can deliver this key are registered under the key itself (a keyed peer) and under
+    // the null key (a filter or any-key peer, which delivers every key). The threshold is the highest priority across
+    // both; each list is sorted ascending in addConnectedKey, so back() is the highest. With no connected publishers
+    // the threshold stays at the sample's own priority, so the function returns false.
+    int threshold = priority;
+    for (const auto& k : {key, shared_ptr<Key>{}})
+    {
+        auto p = _connectedKeys.find(k);
+        if (p != _connectedKeys.end() && !p->second.empty())
+        {
+            threshold = std::max(threshold, p->second.back()->priority);
+        }
+    }
+    return priority < threshold;
+}
+
 DataWriterI::DataWriterI(TopicWriterI* topic, string name, int64_t id, const DataStorm::WriterConfig& config)
     : DataElementI(topic, std::move(name), id, config),
       _parent(topic),
@@ -1046,6 +1167,9 @@ DataWriterI::publish(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
         out << this << ": publishing sample " << sample->id << " listeners=" << _listenerCount;
     }
     send(key, sample);
+
+    // The per-key base for partial updates is maintained even when the element keeps no history (sampleCount == 0).
+    _lastByKey[key] = sample;
 
     if (_config->sampleLifetime && *_config->sampleLifetime > 0)
     {
@@ -1078,7 +1202,6 @@ DataWriterI::publish(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
     }
     assert(sample->key);
     _samples.push_back(sample);
-    _lastByKey[key] = sample;
 }
 
 KeyDataReaderI::KeyDataReaderI(
@@ -1262,9 +1385,98 @@ KeyDataWriterI::getSamples(
     DataSamples samples;
     samples.id = _keys.empty() ? -_id : _id;
 
-    // If the caller sample queueing is disabled, there is no need to return any samples.
+    // Orders the source samples to deliver by id, caps them to the reader's history depth, and delivers them. A
+    // partial base is sent as a full Update, and the earliest delivered sample of each key is likewise resolved to a
+    // full value so the reader always has a base to merge later partial updates for that key onto.
+    auto finalize = [&](vector<shared_ptr<Sample>> sources)
+    {
+        sort(
+            sources.begin(),
+            sources.end(),
+            [](const shared_ptr<Sample>& lhs, const shared_ptr<Sample>& rhs) { return lhs->id < rhs->id; });
+
+        // Cap the batch to the reader's sampleCount, but keep the newest sample of every key even when the number of
+        // distinct keys exceeds sampleCount: each key the reader may later receive a partial update for needs a
+        // resolvable base. The reader records these bases in _lastByKey before capping its own visible history, so
+        // delivering one per key never overflows it. sampleCount == 0 keeps no history and is handled by the caller
+        // (the reader still records the bases). First reserve the newest sample of each key, then fill any remaining
+        // budget with the newest of the other samples.
+        if (config->sampleCount && *config->sampleCount > 0 &&
+            sources.size() > static_cast<size_t>(*config->sampleCount))
+        {
+            auto maxCount = static_cast<size_t>(*config->sampleCount);
+            vector<bool> keep(sources.size(), false);
+            size_t kept = 0;
+            set<shared_ptr<Key>> keptKeys;
+            // First pass (newest to oldest): reserve the newest sample of every key, even past maxCount.
+            for (size_t i = sources.size(); i-- > 0;)
+            {
+                if (keptKeys.insert(sources[i]->key).second)
+                {
+                    keep[i] = true;
+                    ++kept;
+                }
+            }
+            // Second pass (newest to oldest): fill the remaining budget with the newest not-yet-kept samples.
+            for (size_t i = sources.size(); i-- > 0 && kept < maxCount;)
+            {
+                if (!keep[i])
+                {
+                    keep[i] = true;
+                    ++kept;
+                }
+            }
+            vector<shared_ptr<Sample>> capped;
+            capped.reserve(kept);
+            for (size_t i = 0; i < sources.size(); ++i)
+            {
+                if (keep[i])
+                {
+                    capped.push_back(sources[i]);
+                }
+            }
+            sources = std::move(capped);
+        }
+
+        set<shared_ptr<Key>> seen;
+        for (const auto& sample : sources)
+        {
+            DataSample ds = toSample(sample, getCommunicator(), _keys.empty());
+            // The earliest delivered sample of each key must carry a full value; a partial is sent as a full Update
+            // built from the sample's own resolved value.
+            if (seen.insert(sample->key).second && sample->event == DataStorm::SampleEvent::PartialUpdate)
+            {
+                ds.tag = 0;
+                ds.event = DataStorm::SampleEvent::Update;
+                ds.value = sample->encodeValue(getCommunicator());
+            }
+            samples.samples.push_back(std::move(ds));
+        }
+    };
+
+    // Collects the current per-key base for every key that passes the caller's key/sample filter and is newer than
+    // lastId; `covered` excludes keys already represented by the writer's history. A removed key has no value and is
+    // skipped. A single-key writer stores its base under a null publish key, so the key is matched on the sample.
+    auto collectBases = [&](const set<shared_ptr<Key>>& covered)
+    {
+        vector<shared_ptr<Sample>> bases;
+        for (const auto& [baseKey, baseSample] : _lastByKey)
+        {
+            if (baseSample->id <= lastId || !baseSample->hasValue() || (key && key != baseSample->key) ||
+                (sampleFilter && !sampleFilter->match(baseSample)) || covered.count(baseSample->key))
+            {
+                continue;
+            }
+            bases.push_back(baseSample);
+        }
+        return bases;
+    };
+
+    // A reader that keeps no history still needs the current per-key base to resolve partial updates. Send just the
+    // base, not the history.
     if (config->sampleCount && *config->sampleCount == 0)
     {
+        finalize(collectBases({}));
         return samples;
     }
 
@@ -1281,16 +1493,15 @@ KeyDataWriterI::getSamples(
         staleTime = now - chrono::milliseconds(*config->sampleLifetime);
     }
 
-    shared_ptr<Sample> first;
     // Iterate through samples in reverse chronological order, starting with the newest.
     // Stop iterating if any of the following conditions are met:
     // - A sample's timestamp is older than the specified stale time.
     // - A sample's ID is less than or equal to the specified last ID.
     // - The requested number of samples has been collected.
     // - A sample event triggers history clearing based on the caller's clear history policy.
-    // For each sample:
-    // - Check if it matches the optional key and sample filter.
-    // - If it matches, add it to the result set and update the first matched sample.
+    // For each matching sample, add it to the source set and record the key it covers.
+    vector<shared_ptr<Sample>> sources;
+    set<shared_ptr<Key>> covered;
     for (auto p = _samples.rbegin(); p != _samples.rend(); ++p)
     {
         if ((*p)->timestamp < staleTime)
@@ -1304,10 +1515,10 @@ KeyDataWriterI::getSamples(
 
         if ((!key || key == (*p)->key) && (!sampleFilter || sampleFilter->match(*p)))
         {
-            first = *p;
-            samples.samples.push_front(toSample(*p, getCommunicator(), _keys.empty()));
+            sources.push_back(*p);
+            covered.insert((*p)->key);
             if (config->sampleCount && *config->sampleCount > 0 &&
-                static_cast<size_t>(*config->sampleCount) == samples.samples.size())
+                static_cast<size_t>(*config->sampleCount) == sources.size())
             {
                 break;
             }
@@ -1325,21 +1536,11 @@ KeyDataWriterI::getSamples(
         }
     }
 
-    if (!samples.samples.empty())
-    {
-        // If the first sample is a partial update, transform it to a full Update
-        if (first->event == DataStorm::SampleEvent::PartialUpdate)
-        {
-            samples.samples[0] = DataSample{
-                .id = first->id,
-                .keyId = samples.samples[0].keyId,
-                .keyValue = samples.samples[0].keyValue,
-                .timestamp = chrono::time_point_cast<chrono::microseconds>(first->timestamp).time_since_epoch().count(),
-                .tag = 0,
-                .event = DataStorm::SampleEvent::Update,
-                .value = first->encodeValue(getCommunicator())};
-        }
-    }
+    // Bootstrap the base for every key the history does not already cover (trimmed by ClearHistory, aged out, or a
+    // no-history writer) so the reader can resolve later partial updates for those keys too.
+    auto bases = collectBases(covered);
+    sources.insert(sources.end(), bases.begin(), bases.end());
+    finalize(std::move(sources));
     return samples;
 }
 
@@ -1358,8 +1559,10 @@ KeyDataWriterI::forward(const ByteSeq& inParams, const Current& current) const
 {
     for (const auto& [_, listener] : _listeners)
     {
-        // If there's at least one subscriber interested in the update (check the key if any writer)
-        if (!_sample || listener.matchOne(_sample, _keys.empty()))
+        // Forward the sample if the listener has at least one subscriber interested in the update. The key is
+        // always matched: a multi-key writer's sessions don't necessarily subscribe to every key of the writer,
+        // and an unmatched key's sample would be wasted bandwidth at best (the receiver never subscribed its id).
+        if (!_sample || listener.matchOne(_sample, true))
         {
             // Forward the call using the listener's session proxy, don't need to wait for the result.
             listener.proxy

@@ -28,7 +28,7 @@ public interface ServantLocator
     /// Notifies this servant locator that the dispatch on the servant returned by <see cref="locate"/> is complete.
     /// The object adapter calls this method only when <see cref="locate"/> returns a non-null servant.
     /// </summary>
-    /// <param name="curr">Information about the incoming request for which a servant is required.</param>
+    /// <param name="curr">Information about the request being dispatched.</param>
     /// <param name="servant">The servant that was returned by <see cref="locate"/>.</param>
     /// <param name="cookie">The cookie that was returned by <see cref="locate"/>.</param>
     /// <remarks>The implementation can throw any exception, including user exceptions. The Ice runtime marshals this
@@ -37,7 +37,7 @@ public interface ServantLocator
     void finished(Current curr, Object servant, object? cookie);
 
     /// <summary>
-    /// Notifies this servant locator that the object adapter in which it's installed is being deactivated.
+    /// Notifies this servant locator that the object adapter in which it's installed is being destroyed.
     /// </summary>
     /// <param name="category">The category with which this servant locator was registered.</param>
     /// <seealso cref="ObjectAdapter.destroy"/>

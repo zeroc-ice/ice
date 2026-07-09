@@ -12,19 +12,19 @@ ICEIMPL_API @interface ICEConnection : ICELocalObject
 - (void)close:(void (^)(NSError* _Nullable error))completionHandler; // auto-mapped to Swift 'func close() async throws'
 - (nullable ICEObjectPrx*)createProxy:(NSString*)name
                              category:(NSString*)category
-                                error:(NSError* _Nullable* _Nullable)error;
-- (BOOL)setAdapter:(ICEObjectAdapter* _Nullable)oa error:(NSError* _Nullable* _Nullable)error;
+                                error:(NSError* _Nullable* _Nonnull)error;
+- (BOOL)setAdapter:(ICEObjectAdapter* _Nullable)oa error:(NSError* _Nullable* _Nonnull)error;
 - (nullable ICEObjectAdapter*)getAdapter;
 - (ICEEndpoint*)getEndpoint;
 - (void)flushBatchRequests:(uint8_t)compress exception:(void (^)(NSError*))exception sent:(void (^)(bool))sent;
-- (BOOL)setCloseCallback:(nullable void (^)(ICEConnection*))callback error:(NSError* _Nullable* _Nullable)error;
+- (BOOL)setCloseCallback:(nullable void (^)(ICEConnection*))callback error:(NSError* _Nullable* _Nonnull)error;
 - (void)disableInactivityCheck;
 
 - (NSString*)type;
 - (NSString*)toString;
-- (nullable id)getInfo:(NSError* _Nullable* _Nullable)error;
-- (BOOL)setBufferSize:(int32_t)rcvSize sndSize:(int32_t)sndSize error:(NSError* _Nullable* _Nullable)error;
-- (BOOL)throwException:(NSError* _Nullable* _Nullable)error;
+- (nullable id)getInfo:(NSError* _Nullable* _Nonnull)error;
+- (BOOL)setBufferSize:(int32_t)rcvSize sndSize:(int32_t)sndSize error:(NSError* _Nullable* _Nonnull)error;
+- (BOOL)throwException:(NSError* _Nullable* _Nonnull)error;
 @end
 
 // TODO: revise function signatures to be proper ObjC.

@@ -76,7 +76,7 @@ namespace
 
         vector<Ice::LocatorPrx> getLocators(const string&, const chrono::milliseconds&);
 
-        void exception(std::exception_ptr);
+        void exception(std::exception_ptr, size_t generation);
 
     private:
         void runTimerTask() final;
@@ -99,6 +99,10 @@ namespace
         bool _pending{false};
         int _pendingRetryCount{0};
         size_t _failureCount{0};
+        // Incremented at the start of each lookup round. The findLocatorAsync exception callbacks capture the value
+        // current when they were sent, so a delayed failure from an earlier round is ignored instead of counting
+        // against the current round.
+        size_t _generation{0};
         bool _warnOnce{true};
         vector<RequestPtr> _pendingRequests;
         std::mutex _mutex;
@@ -377,6 +381,11 @@ Request::exception(std::exception_ptr ex)
     catch (...)
     {
         _exception = ex;
+        // This catch-all is reached only from the asynchronous ice_invokeAsync completion (which runs off
+        // LocatorI::_mutex), never synchronously from Request::invoke: the local exceptions ice_invokeAsync can throw
+        // synchronously (caught by Request::invoke's own catch clause and passed to exception() in-line) are all
+        // handled by the specific catch clauses above. That matters because the retry below re-enters
+        // LocatorI::invoke and re-locks the non-recursive LocatorI::_mutex.
         _locator->invoke(_locatorPrx, shared_from_this()); // Retry with new locator proxy
     }
 }
@@ -624,6 +633,7 @@ LocatorI::invoke(const optional<Ice::LocatorPrx>& locator, const RequestPtr& req
         {
             _pending = true;
             _failureCount = 0;
+            ++_generation;
             _pendingRetryCount = _retryCount;
             try
             {
@@ -642,7 +652,8 @@ LocatorI::invoke(const optional<Ice::LocatorPrx>& locator, const RequestPtr& req
                         _instanceName,
                         l.second,
                         nullptr,
-                        [self = shared_from_this()](exception_ptr ex) { self->exception(ex); });
+                        [self = shared_from_this(), generation = _generation](exception_ptr ex)
+                        { self->exception(ex, generation); });
                 }
                 _timer->schedule(shared_from_this(), _timeout);
             }
@@ -672,9 +683,15 @@ LocatorI::invoke(const optional<Ice::LocatorPrx>& locator, const RequestPtr& req
 }
 
 void
-LocatorI::exception(std::exception_ptr ex)
+LocatorI::exception(std::exception_ptr ex, size_t generation)
 {
     lock_guard lock(_mutex);
+    // Ignore a delayed failure from an earlier lookup round: it must not count against the current round, which reset
+    // _failureCount and may still have outstanding lookups.
+    if (generation != _generation)
+    {
+        return;
+    }
     if (++_failureCount == _lookups.size() && _pending)
     {
         //
@@ -757,13 +774,15 @@ LocatorI::runTimerTask()
                 }
             }
             _failureCount = 0;
+            ++_generation;
             for (const auto& l : _lookups)
             {
                 l.first->findLocatorAsync(
                     _instanceName,
                     l.second,
                     nullptr,
-                    [self = shared_from_this()](exception_ptr ex) { self->exception(ex); });
+                    [self = shared_from_this(), generation = _generation](exception_ptr ex)
+                    { self->exception(ex, generation); });
             }
             _timer->schedule(shared_from_this(), _timeout);
             return;

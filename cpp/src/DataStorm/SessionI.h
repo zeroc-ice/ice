@@ -286,8 +286,26 @@ namespace DataStormI
         void
         connected(DataStormContract::SessionPrx, const Ice::ConnectionPtr&, const DataStormContract::TopicInfoSeq&);
         [[nodiscard]] bool disconnected(const Ice::ConnectionPtr&, std::exception_ptr);
+
+        /// Handles a disconnect notification (the peer's disconnected() request or the connection closure) and,
+        /// when the session was connected, schedules the reconnection retry. Handling both under a single lock
+        /// acquisition keeps a concurrent duplicate notification for the same disconnect from consuming an
+        /// additional retry attempt.
+        /// @return `false` when the retry limit was reached or no retry is possible: the caller must remove the
+        /// session.
+        [[nodiscard]] bool handleDisconnected(const Ice::ConnectionPtr&, std::exception_ptr);
+
         [[nodiscard]] bool retry(DataStormContract::NodePrx, std::exception_ptr);
         void destroyImpl(const std::exception_ptr&);
+
+        // The implementations of disconnected and retry; called with the session mutex locked.
+        [[nodiscard]] bool disconnectedImpl(const Ice::ConnectionPtr&, std::exception_ptr);
+        [[nodiscard]] bool retryImpl(DataStormContract::NodePrx, std::exception_ptr);
+
+        // Cancels and clears any pending retry task, breaking the _retryTask -> task -> lambda -> self reference
+        // cycle so the session can be reclaimed. Used by NodeI::destroy, which drops sessions without calling
+        // destroyImpl. Safe to call when no retry is pending.
+        void cancelRetryTask();
 
         [[nodiscard]] const std::string& getId() const { return _id; }
 

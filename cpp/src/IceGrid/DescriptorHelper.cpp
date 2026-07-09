@@ -954,8 +954,11 @@ Resolver::getProperties(const Ice::StringSeq& references, set<string>& resolved)
         PropertySetDescriptor desc = getPropertySet(reference);
         if (!desc.references.empty())
         {
+            // 'resolved' tracks only the current resolution path: a property set reached twice through independent
+            // parents is not a cycle.
             resolved.insert(reference);
             PropertyDescriptorSeq q = getProperties(desc.references, resolved);
+            resolved.erase(reference);
             properties.insert(properties.end(), q.begin(), q.end());
         }
 

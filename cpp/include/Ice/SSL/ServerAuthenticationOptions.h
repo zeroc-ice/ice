@@ -44,7 +44,7 @@ namespace Ice::SSL
         /// @param adapterName The name of the object adapter that accepted the connection.
         /// @return The server SSL credentials.
         ///
-        /// Example of setting `serverCertificateSelectionCallback`:
+        /// Example of setting `serverCredentialsSelectionCallback`:
         /// @snippet Ice/SSL/SchannelServerAuthenticationOptions.cpp serverCertificateSelectionCallback
         ///
         /// @see [SCH_CREDENTIALS]
@@ -98,7 +98,7 @@ namespace Ice::SSL
     };
 
     /// @cond INTERNAL
-    /// An alias for the platform-specific implementation of ClientAuthenticationOptions on Windows.
+    /// An alias for the platform-specific implementation of ServerAuthenticationOptions on Windows.
     using ServerAuthenticationOptions = SchannelServerAuthenticationOptions;
     /// @endcond
 #endif
@@ -199,7 +199,7 @@ namespace Ice::SSL
     };
 
     /// @cond INTERNAL
-    // An alias for the platform-specific implementation of ClientAuthenticationOptions on macOS and iOS.
+    // An alias for the platform-specific implementation of ServerAuthenticationOptions on macOS and iOS.
     using ServerAuthenticationOptions = SecureTransportServerAuthenticationOptions;
     /// @endcond
 #endif
@@ -277,7 +277,7 @@ namespace Ice::SSL
     };
 
     /// @cond INTERNAL
-    // An alias for the platform-specific implementation of ClientAuthenticationOptions on Linux.
+    // An alias for the platform-specific implementation of ServerAuthenticationOptions on Linux.
     using ServerAuthenticationOptions = OpenSSLServerAuthenticationOptions;
     /// @endcond
 #endif

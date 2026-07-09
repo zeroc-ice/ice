@@ -42,7 +42,7 @@ export class IncomingRequest {
             facet = facetPath[0];
         }
         const operation = inputStream.readString();
-        const mode = OperationMode.valueOf(inputStream.readByte());
+        const mode = OperationMode._read(inputStream);
         const ctx = new Context();
         let sz = inputStream.readSize();
         while (sz-- > 0) {

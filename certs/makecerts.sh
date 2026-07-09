@@ -197,6 +197,10 @@ openssl pkcs12 -export -out configuration/ca1/client_password_less.p12 \
     -in configuration/ca1/client_cert.pem \
     -name client -passout pass: "${COMMON_PKCS12_ARGS[@]}"
 
+# Create an encrypted PEM version of the ca1 server key, used to test IceSSL.Password with OpenSSL.
+openssl pkey -in configuration/ca1/server_key.pem -aes256 \
+    -passout pass:"${DEFAULT_PASSWORD}" -out configuration/ca1/server_encrypted_key.pem
+
 # Revoke client and server certificates used in certificate revocation tests
 revoke_certificates configuration/ca3/ca3.cnf \
     "configuration/ca3/server_revoked_cert.pem configuration/ca3/i1/i1_cert.pem"

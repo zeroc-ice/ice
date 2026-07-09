@@ -8,7 +8,7 @@ runs:
     #
     - name: Setup MATLAB
       id: setup-matlab
-      uses: matlab-actions/setup-matlab@v3
+      uses: matlab-actions/setup-matlab@a0180c939fb1a28de13f44f7b778b912384ced1f # v3.0.1
       with:
         release: "R2025b"
 

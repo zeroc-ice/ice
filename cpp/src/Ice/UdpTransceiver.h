@@ -57,7 +57,7 @@ namespace IceInternal
         [[nodiscard]] int effectivePort() const;
 
     private:
-        void setBufSize(int, int);
+        int adjustBufferSize(int sizeRequested, int defaultSize, std::string_view prop);
 
         UdpEndpointIPtr _endpoint;
         const ProtocolInstancePtr _instance;
@@ -74,8 +74,8 @@ namespace IceInternal
 #endif
 
         State _state;
-        int _rcvSize;
-        int _sndSize;
+        int _rcvSize{0};
+        int _sndSize{0};
         static const int _udpOverhead;
         static const int _maxPacketSize;
 

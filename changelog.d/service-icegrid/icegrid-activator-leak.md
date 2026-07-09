@@ -1,1 +1,0 @@
-- Fixed a shutdown hang in the IceGrid node on Windows that could occur after a server activation failed.

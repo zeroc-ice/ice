@@ -122,8 +122,8 @@ namespace Ice
         void resize(Container::size_type sz) { b.resize(sz); }
 
         /// Marks the start of a class instance.
-        /// @param data Contains the marshaled form of unknown slices from the class instance. If not nullptr, these
-        /// slices will be marshaled with the instance.
+        /// @param data Contains the marshaled form of unknown slices from the class instance. These slices are
+        /// marshaled with the instance only when this stream uses the sliced format; otherwise they are ignored.
         void startValue(const SlicedDataPtr& data)
         {
             assert(_currentEncaps && _currentEncaps->encoder);
@@ -151,7 +151,8 @@ namespace Ice
             _currentEncaps->encoder->endInstance();
         }
 
-        /// Writes the start of an encapsulation using the default encoding version and class encoding format.
+        /// Writes the start of an encapsulation. A nested encapsulation uses the encoding version and class format of
+        /// the enclosing encapsulation; a top-level encapsulation uses the stream's encoding version and class format.
         void startEncapsulation();
 
         /// Writes the start of an encapsulation using the specified encoding version and class encoding format.
@@ -283,7 +284,7 @@ namespace Ice
         /// @tparam Te The types of the values in the tuple, starting at index @p I.
         /// @param tuple The tuple to marshal.
         // Declared here because the actual definition below breaks doxygen 1.13.2.
-        template<size_t I = 0, typename... Te >> writeAll(std::tuple<Te...> tuple);
+        template<size_t I = 0, typename... Te> void writeAll(std::tuple<Te...> tuple);
 #endif
 
         /// Writes a value (single element list) to the stream.

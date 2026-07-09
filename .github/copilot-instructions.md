@@ -29,15 +29,18 @@ Breaking change(s):
 
 ## Changelog Validation
 
-**When reviewing PRs, check if code changes have a CHANGELOG.md entry.**
+**When reviewing PRs, check if code changes have a changelog fragment under `changelog.d/`.**
 
-### Requires changelog entry:
+Changelog entries are added as fragment files (`changelog.d/<section>/<id>.md`), not by editing `CHANGELOG.md`.
+See `changelog.d/README.md` for the convention.
+
+### Requires changelog fragment:
 
 - Non-trivial bug fixes, features, API changes, security fixes, performance improvements
 - Breaking changes, deprecations
 - Multi-language changes
 
-### Doesn't require entry:
+### Doesn't require fragment:
 
 - Comment/whitespace-only changes
 - Internal refactoring with no behavioral changes
@@ -47,8 +50,8 @@ Breaking change(s):
 ### Template if missing:
 
 ```
-This PR has [description], but doesn't update CHANGELOG.md.
-Please add an entry describing this change.
+This PR has [description], but doesn't add a changelog fragment under changelog.d/.
+Please add one describing this change (see changelog.d/README.md).
 
 Generated suggestion:
 - [Generated description based on the changes made]

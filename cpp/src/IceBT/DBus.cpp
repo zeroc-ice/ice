@@ -766,7 +766,9 @@ namespace
             if (!::dbus_pending_call_set_notify(_call, pendingCallCompletedCallback, self, pendingCallFree))
             {
                 ::dbus_pending_call_cancel(_call);
-                ::dbus_pending_call_unref(_call);
+                // set_notify failed, so dbus won't call pendingCallFree: free self ourselves. _call is unref'd by the
+                // destructor.
+                pendingCallFree(self);
                 throw ExceptionI("dbus_pending_call_set_notify failed");
             }
 

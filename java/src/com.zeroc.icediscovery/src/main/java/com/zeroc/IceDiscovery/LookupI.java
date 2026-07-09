@@ -10,6 +10,7 @@ import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.PropertyException;
 import com.zeroc.Ice.UDPEndpointInfo;
 
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ class LookupI implements Lookup {
         }
 
         void invoke(String domainId, Map<LookupPrx, LookupReplyPrx> lookups) {
+            ++_generation;
             _lookupCount = lookups.size();
             _failureCount = 0;
             final Identity id = new Identity(_requestId, "");
@@ -58,7 +60,13 @@ class LookupI implements Lookup {
             }
         }
 
-        boolean exception() {
+        boolean exception(int generation) {
+            // Ignore a delayed failure from an earlier invocation round: it must not count against the current round,
+            // which reset _failureCount and may still have outstanding lookups.
+            if (generation != _generation) {
+                return false;
+            }
+
             if (++_failureCount == _lookupCount) {
                 finished(null);
                 return true;
@@ -89,6 +97,11 @@ class LookupI implements Lookup {
         protected int _retryCount;
         protected int _lookupCount;
         protected int _failureCount;
+
+        // Incremented on each invoke() (i.e. each retry round). The exception callbacks capture the value current when
+        // they were sent, so a delayed failure from an earlier round is ignored instead of counting against the current
+        // round.
+        protected int _generation;
         protected List<CompletableFuture<Ret>> _futures = new ArrayList<>();
         protected T _id;
         protected Future<?> _future;
@@ -103,17 +116,27 @@ class LookupI implements Lookup {
 
         @Override
         boolean retry() {
-            return _proxies.isEmpty() && --_retryCount >= 0;
+            if (_proxies.isEmpty() && --_retryCount >= 0) {
+                // We only reach here with _proxies empty, i.e. no replica-group response arrived. _latency is set only
+                // together with adding to _proxies, so the latency timer is not running.
+                assert _latency == 0;
+
+                // Restart the replica-group latency window so it's measured from this round rather than from request
+                // creation.
+                _start = System.nanoTime();
+                return true;
+            }
+            return false;
         }
 
         boolean response(ObjectPrx proxy, boolean isReplicaGroup) {
             if (isReplicaGroup) {
                 _proxies.add(proxy);
                 if (_latency == 0) {
-                    _latency = (long) ((System.nanoTime() - _start) * _latencyMultiplier / 100000.0);
-                    if (_latency == 0) {
-                        _latency = 1; // 1ms
-                    }
+                    // The aggregation window is the measured response time, scaled by IceDiscovery.LatencyMultiplier,
+                    // with a 1ms floor so we never schedule a degenerate zero-length window.
+                    long responseTimeMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - _start);
+                    _latency = Math.max(1, responseTimeMs * _latencyMultiplier);
                     cancelTimer();
                     scheduleTimer(_latency);
                 }
@@ -149,11 +172,12 @@ class LookupI implements Lookup {
 
         @Override
         protected void invokeWithLookup(String domainId, LookupPrx lookup, LookupReplyPrx lookupReply) {
+            final int generation = _generation;
             lookup.findAdapterByIdAsync(domainId, _id, lookupReply)
                 .whenCompleteAsync(
                     (v, ex) -> {
                         if (ex != null) {
-                            adapterRequestException(AdapterRequest.this, ex);
+                            adapterRequestException(AdapterRequest.this, ex, generation);
                         }
                     },
                     lookup.ice_executor());
@@ -198,11 +222,12 @@ class LookupI implements Lookup {
 
         @Override
         protected void invokeWithLookup(String domainId, LookupPrx lookup, LookupReplyPrx lookupReply) {
+            final int generation = _generation;
             lookup.findObjectByIdAsync(domainId, _id, lookupReply)
                 .whenCompleteAsync(
                     (v, ex) -> {
                         if (ex != null) {
-                            objectRequestException(ObjectRequest.this, ex);
+                            objectRequestException(ObjectRequest.this, ex, generation);
                         }
                     },
                     lookup.ice_executor());
@@ -215,6 +240,10 @@ class LookupI implements Lookup {
         _timeout = properties.getIcePropertyAsInt("IceDiscovery.Timeout");
         _retryCount = properties.getIcePropertyAsInt("IceDiscovery.RetryCount");
         _latencyMultiplier = properties.getIcePropertyAsInt("IceDiscovery.LatencyMultiplier");
+        if (_latencyMultiplier < 1) {
+            throw new PropertyException(
+                "property 'IceDiscovery.LatencyMultiplier' must be greater than or equal to 1");
+        }
         _domainId = properties.getIceProperty("IceDiscovery.DomainId");
         _timer = lookup.ice_getCommunicator().getInstance().timer();
 
@@ -360,13 +389,13 @@ class LookupI implements Lookup {
         _objectRequests.remove(request.getId());
     }
 
-    synchronized void objectRequestException(ObjectRequest request, Throwable ex) {
+    synchronized void objectRequestException(ObjectRequest request, Throwable ex, int generation) {
         ObjectRequest r = _objectRequests.get(request.getId());
         if (r == null || r != request) {
             return;
         }
 
-        if (request.exception()) {
+        if (request.exception(generation)) {
             if (_warnOnce) {
                 StringBuilder s = new StringBuilder();
                 s.append("failed to lookup object `");
@@ -401,13 +430,13 @@ class LookupI implements Lookup {
         _adapterRequests.remove(request.getId());
     }
 
-    synchronized void adapterRequestException(AdapterRequest request, Throwable ex) {
+    synchronized void adapterRequestException(AdapterRequest request, Throwable ex, int generation) {
         AdapterRequest r = _adapterRequests.get(request.getId());
         if (r == null || r != request) {
             return;
         }
 
-        if (request.exception()) {
+        if (request.exception(generation)) {
             if (_warnOnce) {
                 StringBuilder s = new StringBuilder();
                 s.append("failed to lookup adapter `");

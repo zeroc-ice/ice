@@ -5,6 +5,8 @@
 ["java:identifier:test.Ice.middleware.Test"]
 module Test
 {
+    exception MyException {}
+
     interface MyObject
     {
         ["amd"] string getName();

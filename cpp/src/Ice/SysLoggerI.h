@@ -25,9 +25,16 @@ namespace Ice
         LoggerPtr cloneWithPrefix(std::string) final;
 
     private:
+        // Claims the process-wide syslog logger, throwing if another SysLoggerI is already active.
+        static void claimSyslog(const char* file, int line);
+
         int _facility;
         const std::string _prefix;
-        std::mutex _mutex;
+
+        // openlog/closelog and the syslog ident are process-global, so at most one SysLoggerI may be active at a time.
+        // _mutex (shared by all instances) guards _active and serializes the syslog calls.
+        static std::mutex _mutex;
+        static bool _active;
     };
 }
 

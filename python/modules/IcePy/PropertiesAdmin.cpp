@@ -3,7 +3,6 @@
 #include "PropertiesAdmin.h"
 #include "Ice/DisableWarnings.h"
 #include "Thread.h"
-#include "Types.h"
 #include "Util.h"
 
 #include <algorithm>
@@ -81,27 +80,35 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
                     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
                     PyObjectHandle result{PyDict_New()};
-                    if (result.get())
+                    if (!result.get())
                     {
-                        for (const auto& [key, value] : dict)
+                        throwPythonException();
+                    }
+
+                    for (const auto& [key, value] : dict)
+                    {
+                        PyObjectHandle pyKey{createString(key)};
+                        PyObjectHandle pyValue{createString(value)};
+                        if (!pyKey.get() || !pyValue.get() ||
+                            PyDict_SetItem(result.get(), pyKey.get(), pyValue.get()) < 0)
                         {
-                            PyObjectHandle pyKey{createString(key)};
-                            PyObjectHandle pyValue{createString(value)};
-                            if (!pyValue.get() || PyDict_SetItem(result.get(), pyKey.get(), pyValue.get()) < 0)
-                            {
-                                return;
-                            }
+                            throwPythonException();
                         }
                     }
 
                     PyObjectHandle callbackArgs{PyTuple_New(1)};
+                    if (!callbackArgs.get())
+                    {
+                        throwPythonException();
+                    }
                     PyTuple_SetItem(callbackArgs.get(), 0, result.release());
 
                     PyObjectHandle obj{PyObject_Call(callback, callbackArgs.get(), nullptr)};
                     if (!obj.get())
                     {
                         assert(PyErr_Occurred());
-                        throw AbortMarshaling();
+                        // The update callback raised.
+                        throwPythonException();
                     }
                 });
 

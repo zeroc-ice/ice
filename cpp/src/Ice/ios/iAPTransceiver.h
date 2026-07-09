@@ -28,6 +28,9 @@ namespace IceObjC
 
     public:
         iAPTransceiver(const IceInternal::ProtocolInstancePtr&, EASession*);
+        // Test-only constructor that bypasses EASession. The caller retains ownership of the streams and
+        // must keep them alive for the lifetime of the transceiver.
+        iAPTransceiver(const IceInternal::ProtocolInstancePtr&, NSInputStream*, NSOutputStream*, std::string desc);
         ~iAPTransceiver();
 
         void initStreams(IceInternal::SelectorReadyCallback*) final;
