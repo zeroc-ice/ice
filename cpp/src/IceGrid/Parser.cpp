@@ -2300,7 +2300,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 
         if (adminCallbackTemplate == nullopt)
         {
-            error("cannot retriever Callback template from IceGrid registry");
+            error("cannot retrieve Callback template from IceGrid registry");
             return;
         }
 
