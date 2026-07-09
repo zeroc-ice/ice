@@ -171,22 +171,26 @@ RouterService::start(int argc, char* argv[], int& status)
     try
     {
         verifier = communicator()->propertyToProxy<PermissionsVerifierPrx>(verifierProperty);
-        if (verifier)
-        {
-            verifier->ice_ping();
-        }
-    }
-    catch (const Ice::Exception& ex)
-    {
-        ServiceWarning warn(this);
-        warn << "unable to contact permissions verifier '" << properties->getIceProperty(verifierProperty) << "'\n"
-             << ex;
     }
     catch (const std::exception& ex)
     {
         ServiceError err(this);
         err << "permissions verifier '" << properties->getIceProperty(verifierProperty) << "' is invalid:\n" << ex;
         return false;
+    }
+
+    if (verifier)
+    {
+        try
+        {
+            verifier->ice_ping();
+        }
+        catch (const Ice::Exception& ex)
+        {
+            ServiceWarning warn(this);
+            warn << "unable to contact permissions verifier '" << properties->getIceProperty(verifierProperty) << "'\n"
+                 << ex;
+        }
     }
 
     //
@@ -197,24 +201,28 @@ RouterService::start(int argc, char* argv[], int& status)
     try
     {
         sessionManager = communicator()->propertyToProxy<SessionManagerPrx>(sessionManagerProperty);
-        if (sessionManager)
-        {
-            sessionManager->ice_ping();
-            sessionManager = sessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
-                properties->getPropertyAsIntWithDefault("Glacier2.SessionManager.LocatorCacheTimeout", 600));
-        }
-    }
-    catch (const Ice::Exception& ex)
-    {
-        ServiceWarning warn(this);
-        warn << "unable to contact session manager '" << properties->getIceProperty(sessionManagerProperty) << "'\n"
-             << ex;
     }
     catch (const std::exception& ex)
     {
         ServiceError err(this);
         err << "session manager '" << properties->getIceProperty(sessionManagerProperty) << "' is invalid:\n" << ex;
         return false;
+    }
+
+    if (sessionManager)
+    {
+        try
+        {
+            sessionManager->ice_ping();
+        }
+        catch (const Ice::Exception& ex)
+        {
+            ServiceWarning warn(this);
+            warn << "unable to contact session manager '" << properties->getIceProperty(sessionManagerProperty) << "'\n"
+                 << ex;
+        }
+        sessionManager = sessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
+            properties->getPropertyAsIntWithDefault("Glacier2.SessionManager.LocatorCacheTimeout", 600));
     }
 
     //
@@ -225,25 +233,28 @@ RouterService::start(int argc, char* argv[], int& status)
     try
     {
         sslVerifier = communicator()->propertyToProxy<SSLPermissionsVerifierPrx>(sslVerifierProperty);
-        if (sslVerifier)
-        {
-            sslVerifier->ice_ping();
-        }
-    }
-    catch (const Ice::Exception& ex)
-    {
-        ServiceWarning warn(this);
-        warn << "unable to contact ssl permissions verifier '" << properties->getIceProperty(sslVerifierProperty)
-             << "'\n"
-             << ex;
     }
     catch (const std::exception& ex)
     {
         ServiceError err(this);
-        err << "ssl permissions verifier '" << communicator()->getProperties()->getIceProperty(sslVerifierProperty)
-            << "' is invalid:\n"
+        err << "ssl permissions verifier '" << properties->getIceProperty(sslVerifierProperty) << "' is invalid:\n"
             << ex;
         return false;
+    }
+
+    if (sslVerifier)
+    {
+        try
+        {
+            sslVerifier->ice_ping();
+        }
+        catch (const Ice::Exception& ex)
+        {
+            ServiceWarning warn(this);
+            warn << "unable to contact ssl permissions verifier '" << properties->getIceProperty(sslVerifierProperty)
+                 << "'\n"
+                 << ex;
+        }
     }
 
     if (!verifier && !sslVerifier)
@@ -260,19 +271,6 @@ RouterService::start(int argc, char* argv[], int& status)
     try
     {
         sslSessionManager = communicator()->propertyToProxy<SSLSessionManagerPrx>(sslSessionManagerProperty);
-        if (sslSessionManager)
-        {
-            sslSessionManager->ice_ping();
-            sslSessionManager = sslSessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
-                properties->getPropertyAsIntWithDefault("Glacier2.SSLSessionManager.LocatorCacheTimeout", 600));
-        }
-    }
-    catch (const Ice::Exception& ex)
-    {
-        ServiceWarning warn(this);
-        warn << "unable to contact ssl session manager '" << properties->getIceProperty(sslSessionManagerProperty)
-             << "'\n"
-             << ex;
     }
     catch (const std::exception& ex)
     {
@@ -280,6 +278,23 @@ RouterService::start(int argc, char* argv[], int& status)
         err << "ssl session manager '" << properties->getIceProperty(sslSessionManagerProperty) << "' is invalid:\n"
             << ex;
         return false;
+    }
+
+    if (sslSessionManager)
+    {
+        try
+        {
+            sslSessionManager->ice_ping();
+        }
+        catch (const Ice::Exception& ex)
+        {
+            ServiceWarning warn(this);
+            warn << "unable to contact ssl session manager '" << properties->getIceProperty(sslSessionManagerProperty)
+                 << "'\n"
+                 << ex;
+        }
+        sslSessionManager = sslSessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
+            properties->getPropertyAsIntWithDefault("Glacier2.SSLSessionManager.LocatorCacheTimeout", 600));
     }
 
     //
