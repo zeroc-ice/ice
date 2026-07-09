@@ -307,7 +307,7 @@ Parser::subscribers(const list<string>& args)
 {
     if (args.empty())
     {
-        error("subscribers' requires at least one argument (type `help' for more info) ");
+        error("`subscribers' requires at least one argument (type `help' for more info)");
         return;
     }
     try
