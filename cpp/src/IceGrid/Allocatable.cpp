@@ -218,6 +218,9 @@ Allocatable::release(const shared_ptr<SessionI>& session, bool fromRelease)
         }
     }
 
+    // If we set _releasing above, clear it and notify waiting threads when we leave this function, no matter how.
+    ReleasingGuard releasingGuard(*this, hasRequests);
+
     if (isReleased)
     {
         releasedNoSync(session);
@@ -242,8 +245,6 @@ Allocatable::release(const shared_ptr<SessionI>& session, bool fromRelease)
                     {
                         assert(_requests.empty());
                         assert(_count == 0);
-                        _releasing = false;
-                        _condVar.notify_all();
                         return;
                     }
                 }
@@ -285,8 +286,6 @@ Allocatable::release(const shared_ptr<SessionI>& session, bool fromRelease)
                                 }
                                 if (!allocatable)
                                 {
-                                    _releasing = false;
-                                    _condVar.notify_all();
                                     return; // We're done, the allocatable was released (but is allocated again)!
                                 }
                             }
@@ -305,10 +304,12 @@ Allocatable::release(const shared_ptr<SessionI>& session, bool fromRelease)
                 }
                 catch (const Ice::UserException&)
                 {
-                    // Reachable only via the allocate(request, true) branch above; canTryAllocate()
-                    // never throws a UserException, so request is non-null here.
-                    assert(request);
-                    request->cancel(current_exception());
+                    // request is null when the exception comes from the canTryAllocate() branch above: a
+                    // destroyed allocatable throws ObjectNotRegisteredException from checkAllocatable().
+                    if (request)
+                    {
+                        request->cancel(current_exception());
+                    }
                 }
             }
         }
