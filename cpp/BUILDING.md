@@ -49,11 +49,11 @@ flowchart LR
 
 #### On Ubuntu and other Debian-based systems
 
-Install the required third-party libraries:
+Install the required build tools and third-party libraries:
 
 ```shell
-sudo apt-get install libbluetooth-dev libbz2-dev libdbus-1-dev libedit-dev libexpat1-dev liblmdb-dev libmcpp-dev \
-  libssl-dev libsystemd-dev
+sudo apt-get install build-essential libbluetooth-dev libbz2-dev libdbus-1-dev libedit-dev libexpat1-dev \
+  liblmdb-dev libmcpp-dev libssl-dev libsystemd-dev
 ```
 
 #### On RHEL
@@ -115,6 +115,11 @@ After the build completes, the libraries are placed in the `lib` subdirectory, a
 `bin` subdirectory.
 
 ### Testing
+
+Running the test suite requires Python 3.12 or later. The commands below use `python`; on Ubuntu and other
+Debian-based systems, make sure that `python` resolves to your Python 3 interpreter (for example by installing the
+`python-is-python3` package or by invoking the commands with `python3` instead). The `Glacier2/hashpassword` test also
+requires the `passlib` package (for example the `python3-passlib` package on Debian-based systems).
 
 You can run the tests with:
 
@@ -198,7 +203,7 @@ or simulator from the development machine.
 
 ##### Using Xcode
 
-Open the **C++ Test Controller** Xcode project located in the `tests/ios/controller` directory using Xcode, and deploy
+Open the **C++ Test Controller** Xcode project located in the `test/ios/controller` directory using Xcode, and deploy
 it to your target device or simulator.
 
 Then, from the command line, start the tests by running:
