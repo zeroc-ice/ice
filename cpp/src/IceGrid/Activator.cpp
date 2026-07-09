@@ -1316,6 +1316,7 @@ Activator::terminationListener()
 
         vector<Process> terminated;
         bool deactivated = false;
+        exception_ptr readException;
         {
             lock_guard lock(_mutex);
 
@@ -1346,9 +1347,21 @@ Activator::terminationListener()
                 //
                 // Read the message over the pipe.
                 //
-                while ((rs = read(fd, &s, 16)) > 0) // NOLINT(clang-analyzer-unix.BlockInCriticalSection)
+                while (true)
                 {
-                    message.append(s, static_cast<size_t>(rs));
+                    rs = read(fd, &s, 16); // NOLINT(clang-analyzer-unix.BlockInCriticalSection)
+                    if (rs > 0)
+                    {
+                        message.append(s, static_cast<size_t>(rs));
+                    }
+                    else if (rs == -1 && errno == EINTR)
+                    {
+                        continue; // Interrupted by a signal: retry.
+                    }
+                    else
+                    {
+                        break; // EOF or error.
+                    }
                 }
 
                 //
@@ -1363,7 +1376,9 @@ Activator::terminationListener()
                 {
                     if (errno != EAGAIN || message.empty())
                     {
-                        throw SyscallException{__FILE__, __LINE__, "read failed", errno};
+                        // Don't throw yet: the processes already moved to terminated must be notified first.
+                        readException = make_exception_ptr(SyscallException{__FILE__, __LINE__, "read failed", errno});
+                        break;
                     }
 
                     ++p;
@@ -1417,6 +1432,11 @@ Activator::terminationListener()
                 Ice::Warning out(_traceLevels->logger);
                 out << "unexpected exception raised by server '" << p.server->getId() << "' termination:\n" << ex;
             }
+        }
+
+        if (readException)
+        {
+            rethrow_exception(readException);
         }
 
         if (deactivated)
