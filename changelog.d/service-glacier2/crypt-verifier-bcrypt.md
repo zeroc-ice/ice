@@ -1,0 +1,1 @@
+- The Glacier2 Crypt permissions verifier now supports bcrypt password hashes (`$2a$`, `$2b$`, `$2y$`) on Linux.
