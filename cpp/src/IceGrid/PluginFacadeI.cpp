@@ -143,6 +143,12 @@ RegistryPluginFacadeI::getNodeLoad(const string& name) const
 std::string
 RegistryPluginFacadeI::getPropertyForAdapter(const std::string& adapterId, const std::string& name) const
 {
+    lock_guard lock(_mutex);
+    if (!_database)
+    {
+        throw RegistryUnreachableException("", "registry not initialized yet");
+    }
+
     try
     {
         ServerInfo info = _database->getServer(_database->getAdapterServer(adapterId))->getInfo(true);
