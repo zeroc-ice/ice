@@ -774,7 +774,7 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
         catch (const exception& ex)
         {
             ostringstream os;
-            os << "invalid `Glacier2.Filter.Address.Accept' property:\n" << ex.what();
+            os << "invalid 'Glacier2.Filter.Address.Accept' property:\n" << ex.what();
             throw InitializationException(__FILE__, __LINE__, os.str());
         }
     }
@@ -789,7 +789,7 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
         catch (const exception& ex)
         {
             ostringstream os;
-            os << "invalid `Glacier2.Filter.Address.Reject' property:\n" << ex.what();
+            os << "invalid 'Glacier2.Filter.Address.Reject' property:\n" << ex.what();
             throw InitializationException(__FILE__, __LINE__, os.str());
         }
     }
@@ -804,7 +804,7 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
         catch (const exception& ex)
         {
             ostringstream os;
-            os << "invalid `Glacier2.Filter.ProxySizeMax' property:\n" << ex.what();
+            os << "invalid 'Glacier2.Filter.ProxySizeMax' property:\n" << ex.what();
             throw InitializationException(__FILE__, __LINE__, os.str());
         }
     }

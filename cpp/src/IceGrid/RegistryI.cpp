@@ -180,28 +180,28 @@ RegistryI::startImpl()
     if (properties->getIceProperty("IceGrid.Registry.Client.Endpoints").empty())
     {
         Error out(_communicator->getLogger());
-        out << "property `IceGrid.Registry.Client.Endpoints' is not set";
+        out << "property 'IceGrid.Registry.Client.Endpoints' is not set";
         return false;
     }
 
     if (properties->getIceProperty("IceGrid.Registry.Server.Endpoints").empty())
     {
         Error out(_communicator->getLogger());
-        out << "property `IceGrid.Registry.Server.Endpoints' is not set";
+        out << "property 'IceGrid.Registry.Server.Endpoints' is not set";
         return false;
     }
 
     if (properties->getIceProperty("IceGrid.Registry.Internal.Endpoints").empty())
     {
         Error out(_communicator->getLogger());
-        out << "property `IceGrid.Registry.Internal.Endpoints' is not set";
+        out << "property 'IceGrid.Registry.Internal.Endpoints' is not set";
         return false;
     }
 
     if (!properties->getIceProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
     {
         Warning out(_communicator->getLogger());
-        out << "session manager endpoints `IceGrid.Registry.SessionManager.Endpoints' enabled";
+        out << "session manager endpoints 'IceGrid.Registry.SessionManager.Endpoints' enabled";
         if (properties->getIcePropertyAsInt("IceGrid.Registry.SessionFilters") <= 0)
         {
             out << " (with Glacier2 filters disabled)";
@@ -211,7 +211,7 @@ RegistryI::startImpl()
     if (!properties->getIceProperty("IceGrid.Registry.AdminSessionManager.Endpoints").empty())
     {
         Warning out(_communicator->getLogger());
-        out << "administrative session manager endpoints `IceGrid.Registry.AdminSessionManager.Endpoints' enabled";
+        out << "administrative session manager endpoints 'IceGrid.Registry.AdminSessionManager.Endpoints' enabled";
         if (properties->getIcePropertyAsInt("IceGrid.Registry.AdminSessionFilters") <= 0)
         {
             out << " (with Glacier2 filters disabled)";
@@ -254,7 +254,7 @@ RegistryI::startImpl()
     if (!_master && !_communicator->getDefaultLocator())
     {
         Error out(_communicator->getLogger());
-        out << "property `Ice.Default.Locator' is not set";
+        out << "property 'Ice.Default.Locator' is not set";
         return false;
     }
     else if (_master)
@@ -402,7 +402,7 @@ RegistryI::startImpl()
             Error out(_communicator->getLogger());
             out << "couldn't find replica '" << _initFromReplica << "' to\n";
             out << "initialize the database (specify the replica endpoints in the endpoints of\n";
-            out << "the `Ice.Default.Locator' proxy property to allow finding the replica)";
+            out << "the 'Ice.Default.Locator' proxy property to allow finding the replica)";
             return false;
         }
 
@@ -859,7 +859,7 @@ RegistryI::createSession(string user, string password, const Current& current)
     if (!_clientVerifier)
     {
         throw PermissionDeniedException("no permissions verifier configured, use the property\n"
-                                        "`IceGrid.Registry.PermissionsVerifier' to configure\n"
+                                        "'IceGrid.Registry.PermissionsVerifier' to configure\n"
                                         "a permissions verifier.");
     }
 
@@ -905,7 +905,7 @@ RegistryI::createAdminSession(string user, string password, const Current& curre
     if (!_adminVerifier)
     {
         throw PermissionDeniedException("no admin permissions verifier configured, use the property\n"
-                                        "`IceGrid.Registry.AdminPermissionsVerifier' to configure\n"
+                                        "'IceGrid.Registry.AdminPermissionsVerifier' to configure\n"
                                         "a permissions verifier.");
     }
 
@@ -956,7 +956,7 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
     if (!_sslClientVerifier)
     {
         throw PermissionDeniedException("no ssl permissions verifier configured, use the property\n"
-                                        "`IceGrid.Registry.SSLPermissionsVerifier' to configure\n"
+                                        "'IceGrid.Registry.SSLPermissionsVerifier' to configure\n"
                                         "a permissions verifier.");
     }
 
@@ -1000,7 +1000,7 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
     if (!_sslAdminVerifier)
     {
         throw PermissionDeniedException("no ssl admin permissions verifier configured, use the property\n"
-                                        "`IceGrid.Registry.AdminSSLPermissionsVerifier' to configure\n"
+                                        "'IceGrid.Registry.AdminSSLPermissionsVerifier' to configure\n"
                                         "a permissions verifier.");
     }
 

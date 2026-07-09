@@ -1785,7 +1785,7 @@ ServiceInstanceHelper::instantiate(const Resolver& resolve, const PropertySetDes
     //
     Resolver svcResolve(resolve, parameterValues, !_service.getDescriptor());
     svcResolve.setReserved("service", svcResolve(def.getDescriptor()->name, "service name", false));
-    svcResolve.setContext("service `${service}' from server `${server}'");
+    svcResolve.setContext("service '${service}' from server '${server}'");
 
     //
     // Instantiate the service instance.
@@ -1891,7 +1891,7 @@ ServerInstanceHelper::init(const shared_ptr<ServerDescriptor>& definition, const
     //
     Resolver svrResolve(resolve, parameterValues, true);
     svrResolve.setReserved("server", svrResolve.asId(def->id, "server id", false));
-    svrResolve.setContext("server `${server}'");
+    svrResolve.setContext("server '${server}'");
     svrResolve.setVersion(def->iceVersion);
     _id = svrResolve("${server}");
 

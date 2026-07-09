@@ -690,7 +690,7 @@ NodeEntry::getServerDescriptor(const ServerInfo& server, const shared_ptr<Sessio
     Resolver resolve(_session->getInfo(), _cache.getCommunicator());
     resolve.setReserved("application", server.application);
     resolve.setReserved("server", server.descriptor->id);
-    resolve.setContext("server `${server}'");
+    resolve.setContext("server '${server}'");
 
     if (session)
     {

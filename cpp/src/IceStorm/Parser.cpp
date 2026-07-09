@@ -86,7 +86,7 @@ Parser::create(const list<string>& args)
 {
     if (args.empty())
     {
-        error("`create' requires at least one argument (type `help' for more info)");
+        error("'create' requires at least one argument (type 'help' for more info)");
         return;
     }
 
@@ -112,7 +112,7 @@ Parser::destroy(const list<string>& args)
 {
     if (args.empty())
     {
-        error("`destroy' requires at least one argument (type `help' for more info)");
+        error("'destroy' requires at least one argument (type 'help' for more info)");
         return;
     }
 
@@ -136,7 +136,7 @@ Parser::link(const list<string>& args)
 {
     if (args.size() != 2 && args.size() != 3)
     {
-        error("`link' requires two or three arguments (type `help' for more info)");
+        error("'link' requires two or three arguments (type 'help' for more info)");
         return;
     }
 
@@ -161,7 +161,7 @@ Parser::unlink(const list<string>& args)
 {
     if (args.size() != 2)
     {
-        error("`unlink' requires exactly two arguments (type `help' for more info)");
+        error("'unlink' requires exactly two arguments (type 'help' for more info)");
         return;
     }
 
@@ -185,7 +185,7 @@ Parser::links(const list<string>& args)
 {
     if (args.size() > 1)
     {
-        error("`links' requires at most one argument (type `help' for more info)");
+        error("'links' requires at most one argument (type 'help' for more info)");
         return;
     }
 
@@ -212,7 +212,7 @@ Parser::topics(const list<string>& args)
 {
     if (args.size() > 1)
     {
-        error("`topics' requires at most one argument (type `help' for more info)");
+        error("'topics' requires at most one argument (type 'help' for more info)");
         return;
     }
 
@@ -235,7 +235,7 @@ Parser::replica(const list<string>& args)
 {
     if (args.size() > 1)
     {
-        error("`replica' requires at most one argument (type `help' for more info)");
+        error("'replica' requires at most one argument (type 'help' for more info)");
         return;
     }
 
@@ -307,7 +307,7 @@ Parser::subscribers(const list<string>& args)
 {
     if (args.empty())
     {
-        error("`subscribers' requires at least one argument (type `help' for more info)");
+        error("'subscribers' requires at least one argument (type 'help' for more info)");
         return;
     }
     try
@@ -338,7 +338,7 @@ Parser::current(const list<string>& args)
     }
     else if (args.size() > 1)
     {
-        error("`current' requires at most one argument (type `help' for more info)");
+        error("'current' requires at most one argument (type 'help' for more info)");
         return;
     }
 
