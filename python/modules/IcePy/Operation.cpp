@@ -1708,14 +1708,25 @@ IcePy::AsyncTypedInvocation::handleResponse(PyObject* future, bool ok, pair<cons
 IcePy::SyncBlobjectInvocation::SyncBlobjectInvocation(const Ice::ObjectPrx& prx) : Invocation(prx) {}
 
 PyObject*
-IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
+IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* kwds)
 {
     char* operation;
     PyObject* mode{nullptr};
     PyObject* inParams{nullptr};
     PyObject* operationModeType{lookupType("Ice.OperationMode")};
     PyObject* ctx{nullptr};
-    if (!PyArg_ParseTuple(args, "sO!O!|O", &operation, operationModeType, &mode, &PyBytes_Type, &inParams, &ctx))
+    static const char* const kwlist[] = {"operation", "mode", "inParams", "ctx", nullptr};
+    if (!PyArg_ParseTupleAndKeywords(
+            args,
+            kwds,
+            "sO!O!|O",
+            const_cast<char**>(kwlist),
+            &operation,
+            operationModeType,
+            &mode,
+            &PyBytes_Type,
+            &inParams,
+            &ctx))
     {
         return nullptr;
     }
@@ -1795,14 +1806,25 @@ IcePy::AsyncBlobjectInvocation::AsyncBlobjectInvocation(const Ice::ObjectPrx& pr
 }
 
 function<void()>
-IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds */)
+IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* kwds)
 {
     char* operation{nullptr};
     PyObject* mode{nullptr};
     PyObject* inParams{nullptr};
     PyObject* operationModeType{lookupType("Ice.OperationMode")};
     PyObject* ctx{nullptr};
-    if (!PyArg_ParseTuple(args, "sO!O!|O", &operation, operationModeType, &mode, &PyBytes_Type, &inParams, &ctx))
+    static const char* const kwlist[] = {"operation", "mode", "inParams", "ctx", nullptr};
+    if (!PyArg_ParseTupleAndKeywords(
+            args,
+            kwds,
+            "sO!O!|O",
+            const_cast<char**>(kwlist),
+            &operation,
+            operationModeType,
+            &mode,
+            &PyBytes_Type,
+            &inParams,
+            &ctx))
     {
         return nullptr;
     }
@@ -2252,19 +2274,19 @@ IcePy::BlobjectUpcall::exception(PyException& ex)
 }
 
 PyObject*
-IcePy::iceInvoke(PyObject* proxy, PyObject* args)
+IcePy::iceInvoke(PyObject* proxy, PyObject* args, PyObject* kwds)
 {
     Ice::ObjectPrx prx = getProxy(proxy);
     InvocationPtr i = make_shared<SyncBlobjectInvocation>(prx);
-    return i->invoke(args);
+    return i->invoke(args, kwds);
 }
 
 PyObject*
-IcePy::iceInvokeAsync(PyObject* proxy, PyObject* args)
+IcePy::iceInvokeAsync(PyObject* proxy, PyObject* args, PyObject* kwds)
 {
     Ice::ObjectPrx prx = getProxy(proxy);
     InvocationPtr i = make_shared<AsyncBlobjectInvocation>(prx, proxy);
-    return i->invoke(args);
+    return i->invoke(args, kwds);
 }
 
 PyObject*

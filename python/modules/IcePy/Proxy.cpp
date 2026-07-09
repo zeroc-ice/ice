@@ -1201,15 +1201,15 @@ proxyIceFlushBatchRequestsAsync(ProxyObject* self, PyObject* /*args*/, PyObject*
 }
 
 extern "C" PyObject*
-proxyIceInvoke(ProxyObject* self, PyObject* args)
+proxyIceInvoke(ProxyObject* self, PyObject* args, PyObject* kwds)
 {
-    return iceInvoke(reinterpret_cast<PyObject*>(self), args);
+    return iceInvoke(reinterpret_cast<PyObject*>(self), args, kwds);
 }
 
 extern "C" PyObject*
-proxyIceInvokeAsync(ProxyObject* self, PyObject* args, PyObject* /*kwds*/)
+proxyIceInvokeAsync(ProxyObject* self, PyObject* args, PyObject* kwds)
 {
-    return iceInvokeAsync(reinterpret_cast<PyObject*>(self), args);
+    return iceInvokeAsync(reinterpret_cast<PyObject*>(self), args, kwds);
 }
 
 extern "C" PyObject*
@@ -1418,7 +1418,7 @@ static PyMethodDef ProxyMethods[] = {
      PyDoc_STR("ice_flushBatchRequestsAsync() -> Awaitable[None]")},
     {"ice_invoke",
      reinterpret_cast<PyCFunction>(proxyIceInvoke),
-     METH_VARARGS,
+     METH_VARARGS | METH_KEYWORDS,
      PyDoc_STR("ice_invoke(operation: str, mode: Ice.OperationMode, inParams: bytes, ctx: dict[str, str] | None) -> "
                "tuple[bool, bytes]")},
     {"ice_invokeAsync",
