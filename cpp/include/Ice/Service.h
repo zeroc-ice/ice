@@ -41,7 +41,7 @@ namespace Ice
         ///
         /// Unix:
         ///
-        /// --daemon [--nochdir] [--noclose]
+        /// --daemon [--nochdir] [--noclose] [--pidfile FILE]
         ///
         /// If --service or --daemon are specified, the program runs as a service, otherwise the program runs as a
         /// regular foreground process. Any service-specific (and Ice-specific) options are stripped from @p argv (just
@@ -67,7 +67,7 @@ namespace Ice
         ///
         /// Unix:
         ///
-        /// --daemon [--nochdir] [--noclose]
+        /// --daemon [--nochdir] [--noclose] [--pidfile FILE]
         ///
         /// If --service or --daemon are specified, the program runs as a service, otherwise the program runs as a
         /// regular foreground process. Any service-specific (and Ice-specific) options are stripped from @p args (just

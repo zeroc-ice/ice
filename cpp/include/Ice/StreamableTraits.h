@@ -76,7 +76,7 @@ namespace Ice
         VSize = 5,
 
         /// Fixed "size encoding" using 4 bytes followed by data.
-        /// Used by variable-size structs, and containers whose sizes can't be computed prior to unmarshaling.
+        /// Used by variable-size structs, and containers whose sizes can't be computed prior to marshaling.
         FSize = 6,
 
         /// Class instance. No longer supported.
