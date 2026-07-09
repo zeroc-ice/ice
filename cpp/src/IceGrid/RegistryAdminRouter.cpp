@@ -33,7 +33,7 @@ namespace
             // Retry to forward the call.
             //
             _adminRouter->ice_invokeAsync(
-                {&_inParams[0], &_inParams[0] + _inParams.size()},
+                {_inParams.data(), _inParams.data() + _inParams.size()},
                 std::move(_response),
                 std::move(_exception),
                 _current);
@@ -136,17 +136,17 @@ RegistryNodeAdminRouter::ice_invokeAsync(
         catch (const NodeNotExistException&)
         {
         }
+    }
 
-        if (target == nullopt)
+    if (target == nullopt)
+    {
+        if (_traceLevels->admin > 0)
         {
-            if (_traceLevels->admin > 0)
-            {
-                Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
-                out << "could not find Admin proxy for node '" << current.id.name << "'";
-            }
-
-            throw ObjectNotExistException{__FILE__, __LINE__};
+            Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
+            out << "could not find Admin proxy for node '" << current.id.name << "'";
         }
+
+        throw ObjectNotExistException{__FILE__, __LINE__};
     }
 
     invokeOnTarget(target->ice_facet(current.facet), inParams, std::move(response), std::move(exception), current);
