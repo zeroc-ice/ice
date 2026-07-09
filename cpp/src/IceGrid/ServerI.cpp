@@ -1480,14 +1480,14 @@ ServerI::activate()
         //
         // We first ensure that the application is replicated on all the
         // registries before to start the server. We only do this each
-        // time the server is updated or initialy loaded on the node.
+        // time the server is updated or initially loaded on the node.
         //
         if (waitForReplication)
         {
             auto session = _node->getMasterNodeSession();
             if (session)
             {
-                _node->getMasterNodeSession()->waitForApplicationUpdateAsync(
+                session->waitForApplicationUpdateAsync(
                     desc->uuid,
                     desc->revision,
                     [self = shared_from_this()] { self->waitForApplicationUpdateCompleted(); },
