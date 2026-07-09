@@ -10,7 +10,7 @@ using Protocol = Ice.Internal.Protocol;
 namespace Ice;
 
 /// <summary>
-/// Interface for input streams used to extract Slice types from a sequence of bytes.
+/// Represents a byte buffer used for unmarshaling data encoded using the Slice encoding.
 /// </summary>
 public sealed class InputStream
 {
@@ -80,7 +80,7 @@ public sealed class InputStream
     }
 
     /// <summary>
-    /// Releases any data retained by encapsulations. Internally calls clear().
+    /// Releases any data retained by encapsulations.
     /// </summary>
     public void clear()
     {
@@ -225,7 +225,7 @@ public sealed class InputStream
     }
 
     /// <summary>
-    /// Ends the previous encapsulation.
+    /// Ends the current encapsulation.
     /// </summary>
     public void endEncapsulation()
     {
