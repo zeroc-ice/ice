@@ -261,8 +261,9 @@ void ::Writer::run(int argc, char* argv[])
         barrier.waitForReaders();
         barrier.update(0);
 
-        writer.waitForReaders();
-        writer.waitForNoReaders();
+        // The reader only consumes initialization samples, so it can attach and detach before this thread runs
+        // again: waiting on the reader count would race. Wait until the reader verified its samples instead.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(throwBarrier, "done").getNextUnread();
     }
     cout << "ok" << endl;
 }
