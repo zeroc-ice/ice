@@ -7,6 +7,7 @@ from generated.test.Ice.proxy import Test
 from TestHelper import TestHelper, test
 
 import Ice
+import IcePy
 
 
 def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClassPrx:
@@ -430,6 +431,11 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
     ident2 = Ice.stringToIdentity(idStr)
     test(ident == ident2)
     test(Ice.identityToString(ident) == idStr)
+
+    # toStringMode is optional and defaults to Unicode, including on the IcePy function Ice.identityToString wraps.
+    test(IcePy.identityToString(ident) == idStr)
+    test(IcePy.identityToString(ident, None) == idStr)
+    test(IcePy.identityToString(ident, Ice.ToStringMode.Unicode) == idStr)
 
     idStr = Ice.identityToString(ident, Ice.ToStringMode.ASCII)
     test(idStr == "\\u007f\\u20ac/test")

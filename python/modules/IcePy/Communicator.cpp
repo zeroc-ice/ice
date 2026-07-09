@@ -1615,8 +1615,8 @@ IcePy_identityToString(PyObject* /*self*/, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* obj{nullptr};
-    PyObject* mode{nullptr};
-    if (!PyArg_ParseTuple(args, "O!O", identityType, &obj, &mode))
+    PyObject* mode{Py_None};
+    if (!PyArg_ParseTuple(args, "O!|O", identityType, &obj, &mode))
     {
         return nullptr;
     }
