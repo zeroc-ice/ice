@@ -218,105 +218,122 @@ Allocatable::release(const shared_ptr<SessionI>& session, bool fromRelease)
         }
     }
 
-    // If we set _releasing above, clear it and notify waiting threads when we leave this function, no matter how.
-    ReleasingGuard releasingGuard(*this, hasRequests);
-
-    if (isReleased)
+    try
     {
-        releasedNoSync(session);
-    }
-
-    if (_parent)
-    {
-        _parent->release(session, fromRelease);
-    }
-    else if (!fromRelease)
-    {
-        if (hasRequests)
+        if (isReleased)
         {
-            while (true)
+            releasedNoSync(session);
+        }
+
+        if (_parent)
+        {
+            _parent->release(session, fromRelease);
+        }
+        else if (!fromRelease)
+        {
+            if (hasRequests)
             {
-                shared_ptr<AllocationRequest> request;
-                shared_ptr<Allocatable> allocatable;
+                while (true)
                 {
-                    lock_guard lock(_mutex);
-                    allocatable = dequeueAllocationAttempt(request);
-                    if (!allocatable)
+                    shared_ptr<AllocationRequest> request;
+                    shared_ptr<Allocatable> allocatable;
                     {
-                        assert(_requests.empty());
-                        assert(_count == 0);
-                        return;
-                    }
-                }
-
-                //
-                // Try to allocate the allocatable with the request or if
-                // there's no request, just notify the allocatable that it can
-                // be allocated again.
-                //
-                try
-                {
-                    if ((request && allocatable->allocate(request, true)) ||
-                        (!request && allocatable->canTryAllocate()))
-                    {
-                        while (true)
+                        lock_guard lock(_mutex);
+                        allocatable = dequeueAllocationAttempt(request);
+                        if (!allocatable)
                         {
+                            assert(_requests.empty());
+                            assert(_count == 0);
+                            _releasing = false;
+                            _condVar.notify_all();
+                            return;
+                        }
+                    }
+
+                    //
+                    // Try to allocate the allocatable with the request or if
+                    // there's no request, just notify the allocatable that it can
+                    // be allocated again.
+                    //
+                    try
+                    {
+                        if ((request && allocatable->allocate(request, true)) ||
+                            (!request && allocatable->canTryAllocate()))
+                        {
+                            while (true)
                             {
-                                lock_guard lock(_mutex);
-                                assert(_count);
-
-                                allocatable = nullptr;
-                                request = nullptr;
-
-                                //
-                                // Check if there's other requests from the session
-                                // waiting to allocate this allocatable.
-                                //
-                                auto p = _requests.begin();
-                                while (p != _requests.end())
                                 {
-                                    if (p->second && p->second->getSession() == _session)
+                                    lock_guard lock(_mutex);
+                                    assert(_count);
+
+                                    allocatable = nullptr;
+                                    request = nullptr;
+
+                                    //
+                                    // Check if there's other requests from the session
+                                    // waiting to allocate this allocatable.
+                                    //
+                                    auto p = _requests.begin();
+                                    while (p != _requests.end())
                                     {
-                                        allocatable = p->first;
-                                        request = p->second;
-                                        _requests.erase(p);
-                                        break;
+                                        if (p->second && p->second->getSession() == _session)
+                                        {
+                                            allocatable = p->first;
+                                            request = p->second;
+                                            _requests.erase(p);
+                                            break;
+                                        }
+                                        ++p;
                                     }
-                                    ++p;
+                                    if (!allocatable)
+                                    {
+                                        _releasing = false;
+                                        _condVar.notify_all();
+                                        return; // We're done, the allocatable was released (but is allocated again)!
+                                    }
                                 }
-                                if (!allocatable)
-                                {
-                                    return; // We're done, the allocatable was released (but is allocated again)!
-                                }
-                            }
 
-                            try
-                            {
-                                assert(allocatable && request);
-                                allocatable->allocate(request, true);
-                            }
-                            catch (const Ice::UserException&)
-                            {
-                                request->cancel(current_exception());
+                                try
+                                {
+                                    assert(allocatable && request);
+                                    allocatable->allocate(request, true);
+                                }
+                                catch (const Ice::UserException&)
+                                {
+                                    request->cancel(current_exception());
+                                }
                             }
                         }
                     }
-                }
-                catch (const Ice::UserException&)
-                {
-                    // request is null when the exception comes from the canTryAllocate() branch above: a
-                    // destroyed allocatable throws ObjectNotRegisteredException from checkAllocatable().
-                    if (request)
+                    catch (const Ice::UserException&)
                     {
-                        request->cancel(current_exception());
+                        // request is null when the exception comes from the canTryAllocate() branch above: a
+                        // destroyed allocatable throws ObjectNotRegisteredException from checkAllocatable().
+                        if (request)
+                        {
+                            request->cancel(current_exception());
+                        }
                     }
                 }
             }
+            else if (isReleased)
+            {
+                canTryAllocate(); // Notify that this allocatable can be allocated.
+            }
         }
-        else if (isReleased)
+    }
+    catch (...)
+    {
+        if (hasRequests)
         {
-            canTryAllocate(); // Notify that this allocatable can be allocated.
+            // Don't leave the function with _releasing set: later release() calls would wait forever. On the
+            // normal returns above, _releasing is cleared in the same critical section that observes _requests;
+            // new requests can't be queued behind a finished drain.
+            lock_guard lock(_mutex);
+            _releasing = false;
+            _condVar.notify_all();
         }
+        throw;
     }
 }
 

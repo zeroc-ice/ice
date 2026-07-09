@@ -96,31 +96,6 @@ namespace IceGrid
 
         mutable std::mutex _mutex;
         std::condition_variable _condVar;
-
-    private:
-        // When active, clears _releasing and notifies waiting threads when it goes out of scope.
-        class ReleasingGuard
-        {
-        public:
-            ReleasingGuard(Allocatable& allocatable, bool active) : _allocatable(allocatable), _active(active) {}
-
-            ReleasingGuard(const ReleasingGuard&) = delete;
-            ReleasingGuard& operator=(const ReleasingGuard&) = delete;
-
-            ~ReleasingGuard()
-            {
-                if (_active)
-                {
-                    std::lock_guard<std::mutex> lock(_allocatable._mutex);
-                    _allocatable._releasing = false;
-                    _allocatable._condVar.notify_all();
-                }
-            }
-
-        private:
-            Allocatable& _allocatable;
-            const bool _active;
-        };
     };
 
 };
