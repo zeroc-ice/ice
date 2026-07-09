@@ -1,0 +1,1 @@
+- Fixed a bug where local metadata that was directly applied to optional parameters was not being honored by `slice2py`.

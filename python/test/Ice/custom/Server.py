@@ -200,6 +200,11 @@ try:
         def opComplex128Seq(self, v1: numpy.typing.NDArray[numpy.complex128], current: Ice.Current):
             test(isinstance(v1, numpy.ndarray))
             return v1
+        
+        @override
+        def opOptIntSeq(self, v: numpy.typing.NDArray[numpy.int32], current: Ice.Current) -> numpy.typing.NDArray[numpy.int32]:
+            test(isinstance(v, numpy.ndarray))
+            return v
 
         @override
         def opBoolMatrix(self, current: Ice.Current):
