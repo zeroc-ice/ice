@@ -682,7 +682,8 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     if (!remove.empty())
     {
         Ice::Warning out(_traceLevels->logger);
-        out << "server directories containing data not created or written by IceGrid were not removed:\n";
+        out << "the following server directories were not removed because they contain data that was not created by "
+               "IceGrid:\n";
         out << toString(remove);
     }
     return commands;
