@@ -13,26 +13,50 @@ using namespace Test;
 
 namespace
 {
-    void testContext(bool ssl, const shared_ptr<Ice::Communicator>& communicator, const Ice::Context& context)
+    int testPortIndex(const string& type)
     {
-        Ice::Context ctx = context;
-        if (!ssl)
+        if (type == "tcp")
         {
-            test(ctx["_con.type"] == "tcp");
-            ostringstream port;
-            port << TestHelper::getTestPort(communicator->getProperties());
-            test(ctx["_con.localPort"] == port.str());
+            return 0;
+        }
+        else if (type == "ssl")
+        {
+            return 1;
         }
         else
         {
-            test(ctx["_con.type"] == "ssl");
-            ostringstream port;
-            port << TestHelper::getTestPort(communicator->getProperties(), 1);
-            test(ctx["_con.localPort"] == port.str());
+            test(type == "wss");
+            return 4;
         }
+    }
+
+    void testContext(const string& type, const shared_ptr<Ice::Communicator>& communicator, const Ice::Context& context)
+    {
+        Ice::Context ctx = context;
+        test(ctx["_con.type"] == type);
+        ostringstream port;
+        port << TestHelper::getTestPort(communicator->getProperties(), testPortIndex(type));
+        test(ctx["_con.localPort"] == port.str());
         test(ctx["_con.localAddress"] == "127.0.0.1");
         test(ctx["_con.remotePort"] != "");
         test(ctx["_con.remoteAddress"] == "127.0.0.1");
+        if (type == "tcp")
+        {
+            test(ctx.find("_con.peerCert") == ctx.end());
+        }
+        else
+        {
+            test(!ctx["_con.peerCert"].empty());
+        }
+    }
+
+    // The type of the secure connection ("ssl" or "wss") over which the client called the router.
+    string secureConnectionType(const Ice::Context& context)
+    {
+        auto p = context.find("_con.type");
+        test(p != context.end());
+        test(p->second == "ssl" || p->second == "wss");
+        return p->second;
     }
 
     void testSubjectName(const string& subjectName)
@@ -52,7 +76,7 @@ class PermissionsVerifierI final : public Glacier2::PermissionsVerifier
 public:
     bool checkPermissions(string userId, string, string&, const Ice::Current& current) const override
     {
-        testContext(userId == "ssl", current.adapter->getCommunicator(), current.ctx);
+        testContext(userId == "ssl" ? "ssl" : "tcp", current.adapter->getCommunicator(), current.ctx);
         return true;
     }
 };
@@ -62,7 +86,7 @@ class SSLPermissionsVerifierI final : public Glacier2::SSLPermissionsVerifier
 public:
     bool authorize(Glacier2::SSLInfo info, string&, const Ice::Current& current) const override
     {
-        testContext(true, current.adapter->getCommunicator(), current.ctx);
+        testContext(secureConnectionType(current.ctx), current.adapter->getCommunicator(), current.ctx);
 
         Ice::SSL::ScopedCertificate cert = Ice::SSL::decodeCertificate(info.certs[0]);
         testSubjectName(Ice::SSL::getSubjectName(cert.get()));
@@ -73,11 +97,11 @@ public:
 class SessionI final : public Glacier2::Session
 {
 public:
-    SessionI(bool shutdown, bool ssl) : _shutdown(shutdown), _ssl(ssl) {}
+    SessionI(bool shutdown, string type) : _shutdown(shutdown), _type(std::move(type)) {}
 
     void destroy(const Ice::Current& current) override
     {
-        testContext(_ssl, current.adapter->getCommunicator(), current.ctx);
+        testContext(_type, current.adapter->getCommunicator(), current.ctx);
 
         current.adapter->remove(current.id);
         if (_shutdown)
@@ -88,12 +112,12 @@ public:
 
     void ice_ping(const Ice::Current& current) const override
     {
-        testContext(_ssl, current.adapter->getCommunicator(), current.ctx);
+        testContext(_type, current.adapter->getCommunicator(), current.ctx);
     }
 
 private:
     const bool _shutdown;
-    const bool _ssl;
+    const string _type;
 };
 
 class SessionManagerI final : public Glacier2::SessionManager
@@ -102,9 +126,9 @@ public:
     optional<Glacier2::SessionPrx>
     create(string userId, optional<Glacier2::SessionControlPrx>, const Ice::Current& current) override
     {
-        testContext(userId == "ssl", current.adapter->getCommunicator(), current.ctx);
+        testContext(userId == "ssl" ? "ssl" : "tcp", current.adapter->getCommunicator(), current.ctx);
 
-        auto session = make_shared<SessionI>(false, userId == "ssl");
+        auto session = make_shared<SessionI>(false, userId == "ssl" ? "ssl" : "tcp");
         return current.adapter->addWithUUID<Glacier2::SessionPrx>(session);
     }
 };
@@ -115,11 +139,14 @@ public:
     optional<Glacier2::SessionPrx>
     create(Glacier2::SSLInfo info, optional<Glacier2::SessionControlPrx>, const Ice::Current& current) override
     {
-        testContext(true, current.adapter->getCommunicator(), current.ctx);
+        string type = secureConnectionType(current.ctx);
+        testContext(type, current.adapter->getCommunicator(), current.ctx);
 
         test(info.remoteHost == "127.0.0.1");
         test(info.localHost == "127.0.0.1");
-        test(info.localPort == TestHelper::getTestPort(current.adapter->getCommunicator()->getProperties(), 1));
+        test(
+            info.localPort ==
+            TestHelper::getTestPort(current.adapter->getCommunicator()->getProperties(), testPortIndex(type)));
 
         try
         {
@@ -131,7 +158,8 @@ public:
             test(false);
         }
 
-        auto session = make_shared<SessionI>(true, true);
+        // The wss session is the last session created by the client; destroying it shuts the server down.
+        auto session = make_shared<SessionI>(type == "wss", type);
         return current.adapter->addWithUUID<Glacier2::SessionPrx>(session);
     }
 };
