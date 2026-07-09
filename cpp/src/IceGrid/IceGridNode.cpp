@@ -220,9 +220,10 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
             desc = argv[++i];
 
-            while (i + 1 < argc && argv[++i][0] != '-')
+            // Consume the optional deployment targets following the descriptor, up to the next option.
+            while (i + 1 < argc && argv[i + 1][0] != '-')
             {
-                targets.emplace_back(argv[i]);
+                targets.emplace_back(argv[++i]);
             }
         }
         else
