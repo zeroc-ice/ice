@@ -162,6 +162,10 @@ FileCache::read(const string& file, int64_t offset, int size, int64_t& newOffset
     while (is.good())
     {
         getline(is, line);
+        if (is.eof() && line.empty()) // Don't return the last line if it's empty.
+        {
+            continue;
+        }
 
         int lineSize = static_cast<int>(line.size()) + 5; // 5 bytes for the encoding of the string size (worst case)
         if (lineSize + totalSize > size)
