@@ -223,11 +223,11 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
         if (isProxyType(type) || type->isClassType())
         {
             // We map optional proxies and classes like regular ones.
-            return typeToTypeHintString(type, false, source, forMarshaling);
+            return typeToTypeHintString(type, false, source, forMarshaling, localMetadata);
         }
         else
         {
-            return typeToTypeHintString(type, false, source, forMarshaling) + " | None";
+            return typeToTypeHintString(type, false, source, forMarshaling, localMetadata) + " | None";
         }
     }
 
