@@ -17,9 +17,10 @@ declare module "@zeroc/ice" {
          */
         class Communicator {
             /**
-             * Creates a communicator.
+             * Creates a communicator. When called without initialization data, the communicator is created with
+             * default options.
              *
-             * @param initData Options for the new communicator.
+             * @param initData The optional initialization data for the new communicator.
              * @throws {@link InitializationException} If an error occurs during initialization.
              */
             constructor(initData?: InitializationData);

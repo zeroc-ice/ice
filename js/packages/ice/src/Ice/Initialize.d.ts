@@ -3,12 +3,13 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * Creates a communicator.
+         * Creates a communicator. When called without initialization data, the communicator is created with default
+         * options.
          *
          * This method is provided for backwards compatibility. New code should call the {@link Communicator}
          * constructor directly.
          *
-         * @param initData Options for the new communicator.
+         * @param initData The optional initialization data for the new communicator.
          * @returns The initialized communicator.
          * @throws {@link InitializationException} If an error occurs during initialization.
          */
