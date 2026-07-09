@@ -1050,7 +1050,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
             {
                 if (!logfile.empty())
                 {
-                    throw InitializationException(__FILE__, __LINE__, "Both syslog and file logger cannot be enabled.");
+                    throw InitializationException(__FILE__, __LINE__, "cannot enable both syslog and file logger");
                 }
 
                 _initData.logger =
@@ -1222,7 +1222,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         const bool ipv6 = isIPv6Supported ? (_initData.properties->getIcePropertyAsInt("Ice.IPv6") > 0) : false;
         if (!ipv4 && !ipv6)
         {
-            throw InitializationException(__FILE__, __LINE__, "Both IPV4 and IPv6 support cannot be disabled.");
+            throw InitializationException(__FILE__, __LINE__, "cannot disable both IPv4 and IPv6 support");
         }
         else if (ipv4 && ipv6)
         {
