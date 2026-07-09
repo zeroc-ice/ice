@@ -118,7 +118,7 @@ public class AllTests {
         identity.name = "x";
         oa.addFacet(new MyObjectI(), identity, "theFacet");
         prx = MyObjectPrx.uncheckedCast(oa.createProxy(identity));
-        test(prx.getName().equals("x"));
+        test("x".equals(prx.getName()));
         oa.removeFacet(identity, "theFacet");
 
         oa.removeDefaultServant("foo");
