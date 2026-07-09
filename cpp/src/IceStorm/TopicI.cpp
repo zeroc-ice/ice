@@ -189,7 +189,7 @@ namespace
         void reap(Ice::IdentitySeq ids, const Ice::Current&) override
         {
             auto node = _instance->node();
-            if (!node->updateMaster(__FILE__, __LINE__))
+            if (node && !node->updateMaster(__FILE__, __LINE__))
             {
                 throw ReapWouldBlock();
             }
