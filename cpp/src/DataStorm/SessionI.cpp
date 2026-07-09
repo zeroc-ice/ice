@@ -1423,7 +1423,20 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
                 shared_ptr<Key> key;
                 if (dataSample.keyValue.empty())
                 {
-                    key = topicSubscriber.keys[dataSample.keyId].first;
+                    auto q = topicSubscriber.keys.find(dataSample.keyId);
+                    if (q == topicSubscriber.keys.end())
+                    {
+                        // The session never subscribed to this key (a peer can forward a sample for a key none of
+                        // this session's readers are subscribed to); no subscriber can match it.
+                        if (_traceLevels->session > 2)
+                        {
+                            Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                            out << _id << ": discarding sample '" << dataSample.id << "[k" << dataSample.keyId
+                                << "]' from 'e" << elementId << '@' << topicId << "': unknown key";
+                        }
+                        return;
+                    }
+                    key = q->second.first;
                 }
                 else
                 {
