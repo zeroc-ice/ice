@@ -633,7 +633,7 @@ ReplicaSessionManager::destroySession(const ReplicaSessionPrx& session)
         if (_traceLevels && _traceLevels->replica > 1)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-            out << "couldn't destroy master replica session:\n" << ex;
+            out << "could not destroy master replica session:\n" << ex;
         }
     }
 

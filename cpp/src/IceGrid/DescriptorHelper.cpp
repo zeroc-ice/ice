@@ -2683,18 +2683,18 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& updt) const
             desc.variables = node.variables;
             if (!node.removeVariables.empty())
             {
-                resolve.exception("can't remove variables for node '" + node.name + "': node doesn't exist");
+                resolve.exception("cannot remove variables for node '" + node.name + "': node doesn't exist");
             }
             desc.propertySets = node.propertySets;
             if (!node.removePropertySets.empty())
             {
-                resolve.exception("can't remove property sets for node '" + node.name + "': node doesn't exist");
+                resolve.exception("cannot remove property sets for node '" + node.name + "': node doesn't exist");
             }
             desc.servers = node.servers;
             desc.serverInstances = node.serverInstances;
             if (!node.removeServers.empty())
             {
-                resolve.exception("can't remove servers for node '" + node.name + "': node doesn't exist");
+                resolve.exception("cannot remove servers for node '" + node.name + "': node doesn't exist");
             }
             desc.loadFactor = node.loadFactor ? node.loadFactor->value : string("");
             desc.description = node.description ? node.description->value : string("");

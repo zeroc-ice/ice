@@ -351,7 +351,7 @@ RegistryI::startImpl()
     catch (const IceDB::LMDBException& ex)
     {
         Error out(_communicator->getLogger());
-        out << "couldn't open database:\n";
+        out << "could not open database:\n";
         out << ex;
         return false;
     }
@@ -400,7 +400,7 @@ RegistryI::startImpl()
         if (!proxy)
         {
             Error out(_communicator->getLogger());
-            out << "couldn't find replica '" << _initFromReplica << "' to\n";
+            out << "could not find replica '" << _initFromReplica << "' to\n";
             out << "initialize the database (specify the replica endpoints in the endpoints of\n";
             out << "the 'Ice.Default.Locator' proxy property to allow finding the replica)";
             return false;
@@ -420,14 +420,14 @@ RegistryI::startImpl()
         catch (const Ice::OperationNotExistException&)
         {
             Error out(_communicator->getLogger());
-            out << "couldn't initialize database from replica '" << _initFromReplica << "':\n";
+            out << "could not initialize database from replica '" << _initFromReplica << "':\n";
             out << "replica doesn't support this functionality (IceGrid < 3.5.1)";
             return false;
         }
         catch (const Ice::Exception& ex)
         {
             Error out(_communicator->getLogger());
-            out << "couldn't initialize database from replica '" << _initFromReplica << "':\n";
+            out << "could not initialize database from replica '" << _initFromReplica << "':\n";
             out << ex;
             return false;
         }

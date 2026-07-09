@@ -340,7 +340,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         catch (const FileException& ex)
         {
             Warning out(communicator()->getLogger());
-            out << "couldn't disable file indexing:\n" << ex;
+            out << "could not disable file indexing:\n" << ex;
         }
 #endif
     }

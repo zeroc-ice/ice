@@ -378,7 +378,7 @@ NodeEntry::loadServer(
             else
             {
                 ostringstream os;
-                os << "couldn't load '" << entry->getId() << "' on node '" << name << "'";
+                os << "could not load '" << entry->getId() << "' on node '" << name << "'";
                 entry->exception(make_exception_ptr(DeploymentException(os.str())));
             }
         };
@@ -394,11 +394,11 @@ NodeEntry::loadServer(
                 if (traceLevels && traceLevels->server > 1)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-                    out << "couldn't load '" << entry->getId() << "' on node '" << name << "':\n" << ex.reason;
+                    out << "could not load '" << entry->getId() << "' on node '" << name << "':\n" << ex.reason;
                 }
 
                 ostringstream os;
-                os << "couldn't load '" << entry->getId() << "' on node '" << name << "':\n" << ex.reason;
+                os << "could not load '" << entry->getId() << "' on node '" << name << "':\n" << ex.reason;
                 entry->exception(make_exception_ptr(DeploymentException(os.str())));
             }
             catch (const Ice::Exception& ex)
@@ -406,7 +406,7 @@ NodeEntry::loadServer(
                 if (traceLevels && traceLevels->server > 1)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-                    out << "couldn't load '" << entry->getId() << "' on node '" << name << "':\n" << ex;
+                    out << "could not load '" << entry->getId() << "' on node '" << name << "':\n" << ex;
                 }
 
                 entry->exception(make_exception_ptr(NodeUnreachableException(name, ex.what())));
@@ -486,11 +486,11 @@ NodeEntry::destroyServer(
                 if (traceLevels && traceLevels->server > 1)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-                    out << "couldn't unload '" << entry->getId() << "' on node '" << name << "':\n" << ex.reason;
+                    out << "could not unload '" << entry->getId() << "' on node '" << name << "':\n" << ex.reason;
                 }
 
                 ostringstream os;
-                os << "couldn't unload '" << entry->getId() << "' on node '" << name << "':\n" << ex.reason;
+                os << "could not unload '" << entry->getId() << "' on node '" << name << "':\n" << ex.reason;
                 entry->exception(make_exception_ptr(DeploymentException(os.str())));
             }
             catch (const Ice::Exception& ex)
@@ -498,7 +498,7 @@ NodeEntry::destroyServer(
                 if (traceLevels && traceLevels->server > 1)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-                    out << "couldn't unload '" << entry->getId() << "' on node '" << name << "':\n" << ex;
+                    out << "could not unload '" << entry->getId() << "' on node '" << name << "':\n" << ex;
                 }
                 entry->exception(make_exception_ptr(NodeUnreachableException(name, ex.what())));
             }

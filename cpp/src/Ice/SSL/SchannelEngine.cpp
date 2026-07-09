@@ -487,7 +487,7 @@ namespace
                             throw InitializationException(
                                 __FILE__,
                                 __LINE__,
-                                "SSL transport: invalid 'IceSSL.FindCert' property: can't decode the value");
+                                "SSL transport: invalid 'IceSSL.FindCert' property: cannot decode the value");
                         }
 
                         CRYPT_HASH_BLOB hash = {static_cast<DWORD>(buffer.size()), &buffer[0]};

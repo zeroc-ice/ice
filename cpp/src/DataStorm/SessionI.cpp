@@ -736,7 +736,7 @@ SessionI::retryImpl(NodePrx node, exception_ptr exception)
         if (_traceLevels->session > 0)
         {
             Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-            out << _id << ": can't retry connecting to '" << node->ice_toString() << "', waiting " << delay.count()
+            out << _id << ": cannot retry connecting to '" << node->ice_toString() << "', waiting " << delay.count()
                 << " (ms) for peer to reconnect";
         }
 

@@ -1317,7 +1317,7 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
         if (_instance->traceLevels()->location >= 1)
         {
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-            out << "couldn't update object adapter '" + _id + "' endpoints with the locator registry:\n";
+            out << "could not update object adapter '" + _id + "' endpoints with the locator registry:\n";
             out << "the object adapter is not known to the locator registry";
         }
 
@@ -1328,7 +1328,7 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
         if (_instance->traceLevels()->location >= 1)
         {
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-            out << "couldn't update object adapter '" + _id + "' endpoints with the locator registry:\n";
+            out << "could not update object adapter '" + _id + "' endpoints with the locator registry:\n";
             out << "the replica group '" << _replicaGroupId << "' is not known to the locator registry";
         }
 
@@ -1339,7 +1339,7 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
         if (_instance->traceLevels()->location >= 1)
         {
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-            out << "couldn't update object adapter '" + _id + "' endpoints with the locator registry:\n";
+            out << "could not update object adapter '" + _id + "' endpoints with the locator registry:\n";
             out << "the object adapter endpoints are already set";
         }
 
@@ -1358,7 +1358,7 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
         if (_instance->traceLevels()->location >= 1)
         {
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-            out << "couldn't update object adapter '" + _id + "' endpoints with the locator registry:\n" << ex;
+            out << "could not update object adapter '" + _id + "' endpoints with the locator registry:\n" << ex;
         }
         throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
     }

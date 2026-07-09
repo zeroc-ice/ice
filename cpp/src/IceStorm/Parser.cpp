@@ -630,7 +630,7 @@ Parser::exception(exception_ptr pex, bool warn)
     }
     catch (const NoSuchLink& ex)
     {
-        os << "couldn't find link '" << ex.name << "'";
+        os << "could not find link '" << ex.name << "'";
     }
     catch (const TopicExists& ex)
     {
@@ -638,11 +638,11 @@ Parser::exception(exception_ptr pex, bool warn)
     }
     catch (const NoSuchTopic& ex)
     {
-        os << "couldn't find topic '" << ex.name << "'";
+        os << "could not find topic '" << ex.name << "'";
     }
     catch (const UnknownManagerException& ex)
     {
-        os << "couldn't find IceStorm service '" << ex.what() << "'";
+        os << "could not find IceStorm service '" << ex.what() << "'";
     }
     catch (const ParseException& ex)
     {
@@ -650,7 +650,7 @@ Parser::exception(exception_ptr pex, bool warn)
     }
     catch (const Ice::LocalException& ex)
     {
-        os << "couldn't reach IceStorm service:\n" << ex;
+        os << "could not reach IceStorm service:\n" << ex;
     }
     catch (const Ice::Exception& ex)
     {

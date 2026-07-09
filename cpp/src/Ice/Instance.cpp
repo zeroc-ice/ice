@@ -741,7 +741,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
             if (_traceLevels->location >= 1)
             {
                 Trace out(_initData.logger, _traceLevels->locationCat);
-                out << "couldn't register server '" + serverId + "' with the locator registry:\n";
+                out << "could not register server '" + serverId + "' with the locator registry:\n";
                 out << "the server is not known to the locator registry";
             }
 
@@ -755,7 +755,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
             if (_traceLevels->location >= 1)
             {
                 Trace out(_initData.logger, _traceLevels->locationCat);
-                out << "couldn't register server '" + serverId + "' with the locator registry:\n" << ex;
+                out << "could not register server '" + serverId + "' with the locator registry:\n" << ex;
             }
             throw;
         }

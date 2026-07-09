@@ -320,7 +320,7 @@ namespace
     {
         if (error == 0)
         {
-            return "couldn't open file";
+            return "could not open file";
         }
         else
         {

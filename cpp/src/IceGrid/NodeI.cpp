@@ -605,7 +605,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     catch (const exception& ex)
     {
         Ice::Error out(_traceLevels->logger);
-        out << "couldn't read directory '" << _serversDir << "':\n" << ex.what();
+        out << "could not read directory '" << _serversDir << "':\n" << ex.what();
         return commands;
     }
 

@@ -134,7 +134,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     {
         if (properties->getPropertyAsInt("DependOnRegistry") != 0)
         {
-            throw logic_error("The IceGrid registry service can't depend on itself");
+            throw logic_error("The IceGrid registry service cannot depend on itself");
         }
 
         string registryDataDir = fixDirSeparator(_serviceProperties->getIceProperty("IceGrid.Registry.LMDB.Path"));

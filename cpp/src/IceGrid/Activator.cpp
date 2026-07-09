@@ -374,9 +374,9 @@ Activator::activate(
                 if (_traceLevels->activator > 0)
                 {
                     Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-                    out << "couldn't find '" << path << "' executable.";
+                    out << "could not find '" << path << "' executable.";
                 }
-                throw runtime_error("Couldn't find '" + path + "' executable.");
+                throw runtime_error("Could not find '" + path + "' executable.");
             }
             path = wstringToString(absbuf);
         }
@@ -404,7 +404,7 @@ Activator::activate(
                 out << "cannot convert '" << pwd << "' into an absolute path";
             }
             throw runtime_error(
-                "The server working directory path '" + pwd + "' can't be converted into an absolute path.");
+                "The server working directory path '" + pwd + "' cannot be converted into an absolute path.");
         }
         pwd = wstringToString(absbuf);
     }
@@ -612,7 +612,7 @@ Activator::activate(
         string message = IceInternal::lastErrorToString();
 
         Ice::Warning out(_traceLevels->logger);
-        out << "server activation failed for '" << name << "':\ncouldn't register wait callback\n" << message;
+        out << "server activation failed for '" << name << "':\ncould not register wait callback\n" << message;
 
         //
         // The wait callback was not registered, so this entry will never be reaped. Close the process

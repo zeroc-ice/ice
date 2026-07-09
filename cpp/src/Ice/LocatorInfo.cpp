@@ -661,7 +661,7 @@ IceInternal::LocatorInfo::getEndpointsException(const ReferencePtr& ref, std::ex
         if (ref->getInstance()->traceLevels()->location >= 1)
         {
             Trace out(ref->getInstance()->initializationData().logger, ref->getInstance()->traceLevels()->locationCat);
-            out << "couldn't contact the locator to retrieve endpoints\n";
+            out << "could not contact the locator to retrieve endpoints\n";
             if (ref->getAdapterId().empty())
             {
                 out << "well-known proxy = " << ref->toString() << "\n";
