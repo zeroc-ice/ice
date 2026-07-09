@@ -1559,8 +1559,10 @@ KeyDataWriterI::forward(const ByteSeq& inParams, const Current& current) const
 {
     for (const auto& [_, listener] : _listeners)
     {
-        // If there's at least one subscriber interested in the update (check the key if any writer)
-        if (!_sample || listener.matchOne(_sample, _keys.empty()))
+        // Forward the sample if the listener has at least one subscriber interested in the update. The key is
+        // always matched: a multi-key writer's sessions don't necessarily subscribe to every key of the writer,
+        // and an unmatched key's sample would be wasted bandwidth at best (the receiver never subscribed its id).
+        if (!_sample || listener.matchOne(_sample, true))
         {
             // Forward the call using the listener's session proxy, don't need to wait for the result.
             listener.proxy
