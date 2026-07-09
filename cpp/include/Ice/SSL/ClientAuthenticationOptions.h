@@ -44,7 +44,7 @@ namespace Ice::SSL
         /// @return The client SSL credentials.
         ///
         /// Example of setting `clientCredentialsSelectionCallback`:
-        /// @snippet Ice/SSL/SchannelClientAuthenticationOptions.cpp clientCertificateSelectionCallback
+        /// @snippet Ice/SSL/SchannelClientAuthenticationOptions.cpp clientCredentialsSelectionCallback
         ///
         /// @see [SCH_CREDENTIALS]
         /// @see [AcquireCredentialsHandle]

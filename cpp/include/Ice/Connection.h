@@ -152,10 +152,10 @@ namespace Ice
         /// @param sndSize The size of the send buffer.
         virtual void setBufferSize(int rcvSize, int sndSize) = 0;
 
-        /// Throws an exception that provides the reason for the closure of this connection. For example, this function
-        /// throws CloseConnectionException when the connection was closed gracefully by the peer; it throws
-        /// ConnectionAbortedException when the connection is aborted with #abort. This function does nothing if the
+        /// Throws the exception that provides the reason for the closure of this connection. Does nothing if the
         /// connection is not yet closing or closed.
+        /// @throws CloseConnectionException Thrown when the connection was closed gracefully by the peer.
+        /// @throws ConnectionAbortedException Thrown when the connection was aborted, for example with #abort.
         virtual void throwException() const = 0;
 
     protected:

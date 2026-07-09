@@ -114,6 +114,7 @@ namespace Ice
 
     /// Gets the per-process logger.
     /// @return The current per-process logger instance.
+    /// @see setProcessLogger
     ICE_API LoggerPtr getProcessLogger();
 
     /// Sets the per-process logger. Communicators created after this call use this logger unless a logger is set in

@@ -42,8 +42,8 @@ namespace Ice
         void destroy() noexcept;
 
         /// Destroys this communicator asynchronously.
-        /// @param completed The callback to call when the destruction is complete. This function must not throw any
-        /// exception. When @p completed is null, this function does nothing: the communicator is not destroyed.
+        /// @param completed If not @c nullptr, this callback is called when the destruction is complete. It must not
+        /// throw any exception.
         /// @remark This function starts a thread to call #destroy and @p completed unless you call this function on a
         /// communicator that has already been destroyed, in which case @p completed is called by the current thread.
         /// @see #destroy
