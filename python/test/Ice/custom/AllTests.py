@@ -570,7 +570,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
 
         # Test that local metadata on optional parameters and return types generates the correct type hints.
         opAnnotations = NumPy.Custom.opOptIntSeq.__annotations__
-        test("NDArray" in opAnnotations["values"])
+        test("NDArray" in opAnnotations["v"])
         test("NDArray" in opAnnotations["return"])
 
         v1 = custom.opBoolMatrix()

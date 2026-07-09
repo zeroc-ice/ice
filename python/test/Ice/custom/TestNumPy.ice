@@ -70,7 +70,7 @@ module Test
             DoubleSeq2 opDoubleSeq(DoubleSeq1 v1, DoubleSeq2 v2, out DoubleSeq3 v3);
             Complex128Seq opComplex128Seq(Complex128Seq v1);
 
-            ["python:numpy.ndarray"] optional(1) IntSeq1 opOptIntSeq(["python:numpy.ndarray"] optional(1) IntSeq1 v);
+            ["python:numpy.ndarray"] optional(1) IntSeq1 opOptIntSeq(["python:numpy.ndarray"] optional(2) IntSeq1 v);
 
             ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] BoolSeq1 opBoolMatrix();
             ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] ByteSeq1 opByteMatrix();
