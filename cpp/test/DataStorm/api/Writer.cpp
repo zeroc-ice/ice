@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "DataStorm/DataStorm.h"
+#include "DataStorm/InternalT.h"
 #include "Test.h"
 #include "TestHelper.h"
 
@@ -373,6 +374,37 @@ void ::Writer::run(int argc, char* argv[])
         ostringstream os;
         os << skw.getLast();
         os << skw.getLast().getEvent();
+    }
+    cout << "ok" << endl;
+
+    cout << "testing element factory cleanup... " << flush;
+    {
+        // The factory interns elements by value; an element's entry must be erased when the last reference to the
+        // element goes away, so a value that is never used again does not keep a map entry alive.
+        struct TestKeyFactory : DataStormI::AbstractFactoryT<int, DataStormI::KeyT<int>>
+        {
+            [[nodiscard]] size_t size() const
+            {
+                lock_guard<mutex> lock(_mutex);
+                return _elements.size();
+            }
+        };
+
+        auto factory = make_shared<TestKeyFactory>();
+        factory->init();
+        {
+            auto key = factory->create(5);
+            test(factory->size() == 1);
+
+            // Creating the same value returns the interned element.
+            test(factory->create(5) == key);
+            test(factory->size() == 1);
+        }
+        test(factory->size() == 0); // the entry is erased when the element dies
+
+        // The value can be interned again afterwards.
+        auto key = factory->create(5);
+        test(factory->size() == 1);
     }
     cout << "ok" << endl;
 }
