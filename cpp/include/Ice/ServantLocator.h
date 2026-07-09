@@ -38,7 +38,7 @@ namespace Ice
         /// @param cookie The cookie that was returned by #locate.
         virtual void finished(const Current& curr, const ObjectPtr& servant, const std::shared_ptr<void>& cookie) = 0;
 
-        /// Notifies this servant locator that the object adapter in which it's installed is being deactivated.
+        /// Notifies this servant locator that the object adapter in which it's installed is being destroyed.
         /// @param category The category with which this servant locator was registered.
         /// @see ObjectAdapter#destroy
         virtual void deactivate(std::string_view category) = 0;

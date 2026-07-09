@@ -37,7 +37,7 @@ namespace Ice::Instrumentation
     class ObserverUpdater;
     class CommunicatorObserver;
 
-    /// A shared point to an Observer.
+    /// A shared pointer to an Observer.
     using ObserverPtr = std::shared_ptr<Observer>;
 
     /// A shared pointer to a ThreadObserver.
