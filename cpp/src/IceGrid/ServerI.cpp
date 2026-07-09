@@ -2474,6 +2474,11 @@ ServerI::updateRuntimePropertiesCallback(const shared_ptr<InternalServerDescript
     assert(_process);
     if (_load->finishRuntimePropertiesUpdate(desc, *_process))
     {
+        // The server's runtime properties now match the updated descriptor: adopt it as the server's descriptor
+        // so that loading the same descriptor again replies immediately instead of waiting on the load command.
+        // The load command remains set: it still needs to run once the server stops, to write the updated
+        // configuration to disk.
+        _desc = _load->getInternalServerDescriptor();
         finishLoad();
     }
 }
@@ -2491,6 +2496,9 @@ ServerI::updateRuntimePropertiesCallback(exception_ptr ex, const shared_ptr<Inte
     if (_load->finishRuntimePropertiesUpdate(desc, *_process))
     {
         _load->failed(ex);
+        // Drop the load command so that loading the same descriptor again retries the runtime properties update
+        // instead of waiting forever on this completed command.
+        _load = nullptr;
     }
 }
 
