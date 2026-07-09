@@ -8,7 +8,7 @@
 
 namespace IceInternal
 {
-    /// Demangles a C++ type type.
+    /// Demangles a C++ type name.
     /// @param name The possibly mangled type name, as returned by typeid().name().
     /// @return The demangled name.
     ICE_API std::string demangle(const char* name);

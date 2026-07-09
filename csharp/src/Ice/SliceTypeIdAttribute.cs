@@ -16,7 +16,7 @@ public sealed class SliceTypeIdAttribute : Attribute
     public string Value { get; }
 
     /// <summary>Initializes a new instance of the <see cref="SliceTypeIdAttribute" /> class.</summary>
-    /// <param name="value">The Slice type ID.</param>>
+    /// <param name="value">The Slice type ID.</param>
     public SliceTypeIdAttribute(string value) => Value = value;
 }
 
@@ -31,6 +31,6 @@ public sealed class CompactSliceTypeIdAttribute : Attribute
     public int Value { get; }
 
     /// <summary>Initializes a new instance of the <see cref="CompactSliceTypeIdAttribute" /> class.</summary>
-    /// <param name="value">The compact type ID.</param>>
+    /// <param name="value">The compact type ID.</param>
     public CompactSliceTypeIdAttribute(int value) => Value = value;
 }

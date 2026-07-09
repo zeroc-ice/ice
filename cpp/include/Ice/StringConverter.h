@@ -21,9 +21,8 @@ namespace Ice
         /// Obtains more bytes.
         /// @param howMany The number of bytes requested.
         /// @param firstUnused A pointer to the first unused byte.
-        /// @return A pointer to the beginning of the buffer.
-        /// @throws std::bad_alloc Thrown when too many bytes are requested.
-        /// @throws MarshalException Thrown when too many bytes are requested.
+        /// @return A pointer to the start of the newly reserved space (the first unused byte).
+        /// @throws std::bad_alloc Thrown when the buffer cannot be resized.
         virtual std::byte* getMoreBytes(size_t howMany, std::byte* firstUnused) = 0;
 
         virtual ~UTF8Buffer();
