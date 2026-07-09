@@ -747,12 +747,12 @@ Resolver::setVersion(const string& version)
         _version = getMMVersion(v);
         if (_version < 0)
         {
-            exception("invalid ice version: " + v);
+            exception("invalid Ice version: " + v);
         }
         else if (_version > ICE_INT_VERSION && warningEnabled())
         {
             Ice::Warning out(_communicator->getLogger());
-            out << "invalid ice version: " << _version << " is superior to the IceGrid ";
+            out << "invalid Ice version: " << _version << " is greater than the IceGrid ";
             out << "registry version (" << ICE_STRING_VERSION << ")";
         }
     }
@@ -2509,7 +2509,7 @@ ApplicationHelper::ApplicationHelper(
             }
             else if (desc.loadBalancing->nReplicas[0] == '-')
             {
-                resolve.exception("invalid replica group load balancing number of replicas value: inferior to 0");
+                resolve.exception("invalid replica group load balancing number of replicas value: negative value");
             }
             auto al = dynamic_pointer_cast<AdaptiveLoadBalancingPolicy>(desc.loadBalancing);
             if (al)
