@@ -226,7 +226,7 @@ namespace DataStormI
                 // remove() runs from the element's deleter, so the entry for v is always expired; erase it unless a
                 // concurrent createImpl already replaced it with a new, still live element for the same value.
                 e = p->second.lock();
-                if (!e || e.get() == v)
+                if (!e)
                 {
                     _elements.erase(p);
                 }
