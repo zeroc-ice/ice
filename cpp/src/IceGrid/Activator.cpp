@@ -349,7 +349,7 @@ Activator::activate(
     string path{exePath}; // NOLINT(performance-unnecessary-copy-initialization)
     if (path.empty())
     {
-        throw invalid_argument("The server executable path is empty.");
+        throw invalid_argument("the server executable path is empty");
     }
 
     string pwd = simplify(pwdPath);
