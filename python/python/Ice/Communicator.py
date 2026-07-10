@@ -580,7 +580,7 @@ class Communicator:
         """
         self._impl.addAdminFacet(servant, facet)
 
-    def removeAdminFacet(self, facet: str) -> Object:
+    def removeAdminFacet(self, facet: str) -> Object | None:
         """
         Removes a facet from the Admin object.
 
@@ -591,8 +591,9 @@ class Communicator:
 
         Returns
         -------
-        Object
-            The servant associated with this Admin facet.
+        Object | None
+            The servant associated with this Admin facet, or ``None`` if this facet is implemented by the Ice
+            runtime. See :meth:`findAdminFacet` for the list of such facets.
 
         Raises
         ------
@@ -601,7 +602,7 @@ class Communicator:
         """
         return self._impl.removeAdminFacet(facet)
 
-    def findAdminFacet(self, facet: str) -> Object | None:
+    def findAdminFacet(self, facet: str) -> Object | IcePy.NativePropertiesAdmin | None:
         """
         Returns a facet of the Admin object.
 
@@ -612,19 +613,28 @@ class Communicator:
 
         Returns
         -------
-        Object | None
-            The servant associated with this Admin facet, or ``None`` if no facet is registered with the given name.
+        Object | IcePy.NativePropertiesAdmin | None
+            The servant associated with this Admin facet, or ``None`` if no facet is registered with the given name,
+            or if this facet is implemented by the Ice runtime and has no Python servant.
+
+        Notes
+        -----
+        Some Admin facets are implemented by the Ice runtime itself rather than by a Python servant. The
+        ``Properties`` facet is returned as an :class:`IcePy.NativePropertiesAdmin`, which is not an :class:`Object`.
+        The other runtime facets, such as ``Process`` and ``Metrics``, are reported as ``None`` even though they are
+        registered and reachable through the Admin object.
         """
         return self._impl.findAdminFacet(facet)
 
-    def findAllAdminFacets(self) -> dict[str, Object]:
+    def findAllAdminFacets(self) -> dict[str, Object | IcePy.NativePropertiesAdmin]:
         """
         Returns a map of all facets of the Admin object.
 
         Returns
         -------
-        dict[str, Object]
-            A collection containing all the facet names and servants of the Admin object.
+        dict[str, Object | IcePy.NativePropertiesAdmin]
+            A collection containing all the facet names and servants of the Admin object. Facets implemented by the
+            Ice runtime with no Python servant are omitted; see :meth:`findAdminFacet`.
         """
         return self._impl.findAllAdminFacets()
 
