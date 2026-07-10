@@ -1540,7 +1540,7 @@ static PyMethodDef AdapterMethods[] = {
     {"getEndpoints",
      reinterpret_cast<PyCFunction>(adapterGetEndpoints),
      METH_NOARGS,
-     PyDoc_STR("getEndpoints() -> tuple")},
+     PyDoc_STR("getEndpoints() -> tuple[Endpoint, ...]")},
     {"getPublishedEndpoints",
      reinterpret_cast<PyCFunction>(adapterGetPublishedEndpoints),
      METH_NOARGS,

@@ -35,13 +35,13 @@ class Future(Awaitable[_T]):
         """
         Attempts to cancel this future.
 
-        If this future has already completed, it cannot be cancelled and this method returns ``False``;
-        otherwise the future transitions to the cancelled state.
+        If this future has already completed, it cannot be cancelled and this method returns ``False``.
+        Otherwise, this method cancels the future (if it wasn't cancelled already) and returns ``True``.
 
         Returns
         -------
         bool
-            ``True`` if this future was cancelled, ``False`` otherwise.
+            ``True`` if this future is cancelled, ``False`` if it has completed.
         """
         callbacks = []
         with self._condition:
