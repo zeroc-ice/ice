@@ -207,9 +207,15 @@ SubscriberOneway::flush()
             {
                 ++_outstanding;
             }
-            else if (_observer)
+            else
             {
-                _observer->delivered(1);
+                // The event was delivered synchronously, so the subscriber is reachable: reset the
+                // consecutive-retry count as the twoway subscriber does on a successful reply.
+                _currentRetry = 0;
+                if (_observer)
+                {
+                    _observer->delivered(1);
+                }
             }
         }
         catch (const std::exception&)
@@ -233,6 +239,9 @@ SubscriberOneway::sentAsynchronously()
     // Decrement the _outstanding count.
     --_outstanding;
     assert(_outstanding >= 0 && _outstanding < _maxOutstanding);
+    // The event was delivered, so the subscriber is reachable: reset the consecutive-retry count as the
+    // twoway subscriber does on a successful reply.
+    _currentRetry = 0;
     if (_observer)
     {
         _observer->delivered(1);
