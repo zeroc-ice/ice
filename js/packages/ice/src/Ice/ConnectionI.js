@@ -114,7 +114,13 @@ export class ConnectionI {
         this._exception = null;
 
         this._startPromise = null;
-        this._closed = undefined;
+
+        // Settled by finish(); returned by close(). The no-op rejection handler prevents an unhandled rejection
+        // when the connection is closed forcefully and the application never calls close().
+        this._closed = new Promise();
+        this._closed.catch(() => {});
+        this._closeRequested = false;
+
         this._finishedPromises = [];
 
         if (options.idleTimeout > 0) {
@@ -183,11 +189,13 @@ export class ConnectionI {
     }
 
     close() {
-        if (this._closed === undefined) {
-            this._closed = new Promise();
-            scheduleCloseTimeout(this);
-            if (this._asyncRequests.size === 0) {
-                this.doApplicationClose();
+        if (!this._closeRequested) {
+            this._closeRequested = true;
+            if (this._state < StateClosed) {
+                scheduleCloseTimeout(this);
+                if (this._state < StateClosing && this._asyncRequests.size === 0) {
+                    this.doApplicationClose();
+                }
             }
         }
         return this._closed;
@@ -322,7 +330,7 @@ export class ConnectionI {
                 }
                 outAsync.completedEx(ex);
 
-                if (this._closed !== undefined && this._state < StateClosing && this._asyncRequests.size === 0) {
+                if (this._closeRequested && this._state < StateClosing && this._asyncRequests.size === 0) {
                     this.doApplicationClose();
                 }
                 return; // We're done.
@@ -335,7 +343,7 @@ export class ConnectionI {
                     this._asyncRequests.delete(key);
                     outAsync.completedEx(ex);
 
-                    if (this._closed !== undefined && this._state < StateClosing && this._asyncRequests.size === 0) {
+                    if (this._closeRequested && this._state < StateClosing && this._asyncRequests.size === 0) {
                         this.doApplicationClose();
                     }
                     return; // We're done.
@@ -699,18 +707,16 @@ export class ConnectionI {
         this._writeStream.clear();
         this._writeStream.buffer.clear();
 
-        if (this._closed !== undefined) {
-            if (
-                this._exception instanceof ConnectionClosedException ||
-                this._exception instanceof CloseConnectionException ||
-                this._exception instanceof CommunicatorDestroyedException ||
-                this._exception instanceof ObjectAdapterDestroyedException
-            ) {
-                this._closed.resolve();
-            } else {
-                console.assert(this._exception !== null);
-                this._closed.reject(this._exception);
-            }
+        if (
+            this._exception instanceof ConnectionClosedException ||
+            this._exception instanceof CloseConnectionException ||
+            this._exception instanceof CommunicatorDestroyedException ||
+            this._exception instanceof ObjectAdapterDestroyedException
+        ) {
+            this._closed.resolve();
+        } else {
+            console.assert(this._exception !== null);
+            this._closed.reject(this._exception);
         }
 
         if (this._closeCallback !== null) {
@@ -1332,11 +1338,7 @@ export class ConnectionI {
                             console.assert(info.outAsync.isSent());
                         }
 
-                        if (
-                            this._closed !== undefined &&
-                            this._state < StateClosing &&
-                            this._asyncRequests.size === 0
-                        ) {
+                        if (this._closeRequested && this._state < StateClosing && this._asyncRequests.size === 0) {
                             this.doApplicationClose();
                         }
                     } else {
