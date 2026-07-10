@@ -444,6 +444,41 @@ namespace Glacier2
         }
     };
 
+    static bool extractPart(const char* opt, const string& source, string& result)
+    {
+        string::size_type start = source.find(opt);
+        if (start == string::npos)
+        {
+            return false;
+        }
+        start += strlen(opt);
+        string::size_type end = source.find(' ', start);
+        if (end != string::npos)
+        {
+            result = source.substr(start, end - start);
+        }
+        else
+        {
+            result = source.substr(start);
+        }
+        return true;
+    }
+
+    // Returns true when an endpoint of the proxy has a host longer than 255 characters. No legal host name or
+    // IP address is that long, and the bound keeps the cost of matching the address rules low.
+    static bool hasOversizedHost(const ObjectPrx& proxy)
+    {
+        for (const auto& endpoint : proxy->ice_getEndpoints())
+        {
+            string host;
+            if (extractPart("-h ", endpoint->toString(), host) && host.size() > 255)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     //
     // A proxy validation rule encapsulating an address filter.
     //
@@ -572,26 +607,6 @@ namespace Glacier2
                 out << rule->toString() << " failed to match " << host << " at pos=" << pos << "\n";
             }
             return false;
-        }
-
-        bool extractPart(const char* opt, const string& source, string& result) const
-        {
-            string::size_type start = source.find(opt);
-            if (start == string::npos)
-            {
-                return false;
-            }
-            start += strlen(opt);
-            string::size_type end = source.find(' ', start);
-            if (end != string::npos)
-            {
-                result = source.substr(start, end - start);
-            }
-            else
-            {
-                result = source.substr(start);
-            }
-            return true;
         }
 
         const CommunicatorPtr _communicator;
@@ -910,7 +925,11 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
 
     bool result = false;
 
-    if (_rejectRules.size() == 0)
+    if (Glacier2::hasOversizedHost(proxy))
+    {
+        // Rejected regardless of the configured rules.
+    }
+    else if (_rejectRules.size() == 0)
     {
         //
         // If there are no reject rules, we assume "reject all".

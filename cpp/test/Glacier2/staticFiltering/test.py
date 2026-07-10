@@ -357,6 +357,17 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                     ],
                     [],
                 ),
+                (
+                    # A proxy with an endpoint host longer than 255 characters is rejected outright, even when
+                    # no reject rule matches it: no legal host name or IP address is that long.
+                    "testing address filter rejects an oversized host",
+                    ("", "*.invalid", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h " + "a" * 300 + " -p 12010"),
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
             ]
         )
 
