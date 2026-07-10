@@ -19,8 +19,8 @@ declare module "@zeroc/ice" {
             constructor(
                 outputStream: OutputStream,
                 replyStatus?: ReplyStatus,
-                exceptionId?: string,
-                exceptionDetails?: string,
+                exceptionId?: string | null,
+                exceptionDetails?: string | null,
             );
 
             /**
@@ -34,18 +34,18 @@ declare module "@zeroc/ice" {
             outputStream: OutputStream;
 
             /**
-             * The exception ID of the response. It's null or undefined when `replyStatus` is {@link ReplyStatus.Ok}
-             * or {@link ReplyStatus.UserException}. Otherwise, this ID is the value returned by
+             * The exception ID of the response. It's `null` when `replyStatus` is {@link ReplyStatus.Ok} or
+             * {@link ReplyStatus.UserException}. Otherwise, this ID is the value returned by
              * {@link LocalException#ice_id}. For other exceptions, this ID is the value returned by `Error#name`.
              */
-            exceptionId: string | null | undefined;
+            exceptionId: string | null;
 
             /**
              * The full details of the exception (typically the `Error` stack), used for logging; not marshaled into
-             * the response. It's null or undefined when replyStatus is {@link ReplyStatus.Ok} or
+             * the response. It's `null` when replyStatus is {@link ReplyStatus.Ok} or
              * {@link ReplyStatus.UserException}.
              */
-            exceptionDetails: string | null | undefined;
+            exceptionDetails: string | null;
 
             /**
              * The number of bytes in the response's payload.
