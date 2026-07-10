@@ -54,6 +54,8 @@ declare module "@zeroc/ice" {
              * @param servant The servant to add.
              * @param id The identity of the Ice object that is implemented by the servant.
              * @returns A proxy with the given id, created by this object adapter.
+             * @throws {@link AlreadyRegisteredException} Thrown when a servant with the same identity is already
+             * registered.
              *
              * @see {@link Identity}
              * @see {@link ObjectAdapter#addFacet}
@@ -73,6 +75,8 @@ declare module "@zeroc/ice" {
              * @param id The identity of the Ice object that is implemented by the servant.
              * @param facet The facet of the Ice object that is implemented by the servant.
              * @returns A proxy with the given id and facet, created by this object adapter.
+             * @throws {@link AlreadyRegisteredException} Thrown when a servant with the same identity and facet is
+             * already registered.
              */
             addFacet(servant: Ice.Object, id: Identity, facet: string): Ice.ObjectPrx;
 
@@ -158,14 +162,14 @@ declare module "@zeroc/ice" {
             removeDefaultServant(category: string): Ice.Object;
 
             /**
-             * Looks up a servant..
+             * Looks up a servant.
              * @param id The identity of an Ice object.
              * @returns The servant that implements the Ice object with the given identity, or null if no such servant
              * has been found.
              * @remarks This function only tries to find the servant in the ASM and among the default servants. It does
              * not attempt to locate a servant using servant locators.
              */
-            find(id: Identity): Ice.Object;
+            find(id: Identity): Ice.Object | null;
 
             /**
              * Looks up a servant with an identity and facet.
@@ -174,10 +178,10 @@ declare module "@zeroc/ice" {
              * @param facet The facet of an Ice object. An empty facet means the default facet.
              * @returns The servant that implements the Ice object with the given identity and facet, or null if no
              * such servant has been found.
-             * @remark This function only tries to find the servant in the ASM and among the default servants. It does
+             * @remarks This function only tries to find the servant in the ASM and among the default servants. It does
              * not attempt to locate a servant using servant locators.
              */
-            findFacet(id: Identity, facet: string): Ice.Object;
+            findFacet(id: Identity, facet: string): Ice.Object | null;
 
             /**
              * Find all facets with the given identity in the Active Servant Map.
@@ -190,13 +194,14 @@ declare module "@zeroc/ice" {
             findAllFacets(id: Identity): Map<string, Ice.Object>;
 
             /**
-             * Looks up a servant with an identity and a facet. It's equivalent to calling #findFacet.
+             * Looks up a servant with an identity and a facet. It's equivalent to calling
+             * {@link ObjectAdapter#findFacet}.
              *
              * @param proxy The proxy that provides the identity and facet to search.
              * @returns The servant that matches the identity and facet carried by the proxy, or null if no such
              * servant has been found.
              */
-            findByProxy(proxy: Ice.ObjectPrx): Ice.Object;
+            findByProxy(proxy: Ice.ObjectPrx): Ice.Object | null;
 
             /**
              * Adds a ServantLocator to this object adapter for a specific category.
@@ -213,7 +218,7 @@ declare module "@zeroc/ice" {
              *
              * @param category The category.
              * @returns The servant locator.
-             * @throws {@link NotRegisteredException}Thrown when no servant locator with the given category is
+             * @throws {@link NotRegisteredException} Thrown when no servant locator with the given category is
              * registered.
              */
             removeServantLocator(category: string): Ice.ServantLocator;
@@ -229,21 +234,19 @@ declare module "@zeroc/ice" {
              * @see {@link ObjectAdapter#removeServantLocator}
              * @see {@link ServantLocator}
              */
-            findServantLocator(category: string): Ice.ServantLocator;
+            findServantLocator(category: string): Ice.ServantLocator | null;
 
             /**
-             * Finds a ServantLocator registered with this object adapter.
+             * Finds the default servant for a specific category.
              *
              * @param category The category.
-             * @returns The servant locator, or null if not found.
+             * @returns The default servant, or null if not found.
              */
-            findDefaultServant(category: string): Ice.Object;
+            findDefaultServant(category: string): Ice.Object | null;
 
             /**
-             * Creates a proxy from an Ice identity. If this object adapter is configured with an adapter ID, the proxy
-             * is an indirect proxy that refers to this adapter ID. If a replica group ID is also defined, the proxy is an
-             * indirect proxy that refers to this replica group ID. Otherwise, the proxy is a direct proxy containing this
-             * object adapter's published endpoints.
+             * Creates a proxy from an Ice identity. The proxy is a direct proxy containing this object adapter's
+             * published endpoints.
              *
              * @param id The object's identity.
              * @returns A proxy for the object with the given identity.
@@ -262,6 +265,7 @@ declare module "@zeroc/ice" {
              * Gets the set of endpoints configured on this object adapter.
              *
              * @returns The set of endpoints.
+             * @remarks Always returns an empty array: JavaScript object adapters do not listen on endpoints.
              */
             getEndpoints(): Endpoint[];
 

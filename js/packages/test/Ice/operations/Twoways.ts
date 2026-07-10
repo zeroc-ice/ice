@@ -1334,7 +1334,7 @@ export async function twoways(
 
         let p3 = new Test.MyClassPrx(ic, "test:" + helper.getTestEndpoint());
 
-        const implicitContext = ic.getImplicitContext();
+        const implicitContext = ic.getImplicitContext()!;
         implicitContext.setContext(ctx);
         test(Ice.MapUtil.equals(implicitContext.getContext(), ctx));
         test(Ice.MapUtil.equals(await p3.opContext(), ctx));

@@ -8,10 +8,8 @@ export class OutgoingResponse {
     constructor(outputStream, replyStatus, exceptionId, exceptionDetails) {
         this._outputStream = outputStream;
         this._replyStatus = replyStatus || ReplyStatus.Ok;
-        if (replyStatus !== ReplyStatus.Ok) {
-            this._exceptionId = exceptionId;
-            this._exceptionDetails = exceptionDetails;
-        }
+        this._exceptionId = exceptionId ?? null;
+        this._exceptionDetails = exceptionDetails ?? null;
     }
 
     get replyStatus() {

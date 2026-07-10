@@ -229,10 +229,9 @@ export class Client extends TestHelper {
                 }
                 const connections: Ice.Connection[] = [];
                 for (let i = 0; i < proxies.length; i++) {
-                    if (proxies[i].ice_getCachedConnection() !== null) {
-                        if (!connections.includes(proxies[i].ice_getCachedConnection())) {
-                            connections.push(proxies[i].ice_getCachedConnection());
-                        }
+                    const connection = proxies[i].ice_getCachedConnection();
+                    if (connection !== null && !connections.includes(connection)) {
+                        connections.push(connection);
                     }
                 }
                 test(connections.length <= adapterCount);

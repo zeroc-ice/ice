@@ -25,7 +25,7 @@ export class Server extends TestHelper {
             adapter.add(new TestI(), Ice.stringToIdentity("asm"));
             adapter.add(new TestActivationI(), Ice.stringToIdentity("test/activation"));
             await echo.setConnection();
-            echo.ice_getCachedConnection().setAdapter(adapter);
+            echo.ice_getCachedConnection()!.setAdapter(adapter);
             this.serverReady();
             await communicator.waitForShutdown();
         } finally {

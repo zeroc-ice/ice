@@ -12,7 +12,7 @@ declare module "@zeroc/ice" {
              * Constructs a property set.
              *
              * @param args  The command-line arguments. This constructor parses arguments starting with `--` and one
-             * of the reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the vector.
+             * of the reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the array.
              * @param defaults Default values for the new Properties object. Settings in args override these defaults.
              * May be null.
              */
@@ -111,14 +111,15 @@ declare module "@zeroc/ice" {
 
             /**
              * Retrieves a property value as a list of strings. The strings must be separated by whitespace or commas.
-             * If the property is not set, an empty list is returned. The strings in the list can contain whitespace
-             * and commas if they are enclosed in single or double quotes. If quotes are mismatched, an empty list is
-             * returned. Within single or double quotes, the respective quote character can be escaped with a backslash.
-             * For example, O'Reilly can be written as O'Reilly, "O'Reilly", or 'O\'Reilly'.
+             * If the property is not set, the default list is returned. The strings in the list can contain whitespace
+             * and commas if they are enclosed in single or double quotes. If quotes are mismatched, the default list
+             * is returned. Within single or double quotes, the respective quote character can be escaped with a
+             * backslash. For example, O'Reilly can be written as O'Reilly, "O'Reilly", or 'O\'Reilly'.
              *
              * @param key - The property key.
              * @param value - The default value to use if the property is not set.
-             * @returns The property value interpreted as a list of strings.
+             * @returns The property value interpreted as a list of strings, or the default value if the property is
+             * not set.
              * @see {@link setProperty}
              */
             getPropertyAsListWithDefault(key: string, value: StringSeq): StringSeq;
@@ -133,10 +134,20 @@ declare module "@zeroc/ice" {
             getPropertiesForPrefix(prefix: string): PropertyDict;
 
             /**
+             * Gets the properties that were never read.
+             *
+             * @returns A list of unused properties.
+             */
+            getUnusedProperties(): string[];
+
+            /**
              * Sets a property. To unset a property, set it to the empty string.
              *
              * @param key - The property key.
              * @param value - The property value.
+             * @throws {@link InitializationException} - Thrown when the key is empty or contains only whitespace.
+             * @throws {@link PropertyException} - Thrown when the key uses a reserved Ice prefix (`Ice`, `IceSSL`,
+             * etc.) but is not a known Ice property.
              * @see {@link getProperty}
              */
             setProperty(key: string, value: string): void;
