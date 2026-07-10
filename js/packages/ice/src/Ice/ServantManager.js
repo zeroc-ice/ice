@@ -160,13 +160,14 @@ export class ServantManager {
 
         const m = this._servantMapMap.get(ident);
         let obj;
-        if (m === undefined) {
+        if (m !== undefined) {
+            obj = m.get(facet);
+        }
+        if (obj === undefined) {
             obj = this._defaultServantMap.get(ident.category);
             if (obj === undefined) {
                 obj = this._defaultServantMap.get("");
             }
-        } else {
-            obj = m.get(facet);
         }
 
         return obj === undefined ? null : obj;
