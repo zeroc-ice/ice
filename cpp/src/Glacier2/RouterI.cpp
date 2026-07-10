@@ -20,7 +20,10 @@ Glacier2::RouterI::RouterI(
     shared_ptr<FilterManager> filters,
     const Context& context)
     : _instance(std::move(instance)),
-      _routingTable(make_shared<RoutingTable>(_instance->communicator(), _instance->proxyVerifier())),
+      _routingTable(make_shared<RoutingTable>(
+          _instance->communicator(),
+          _instance->proxyVerifier(),
+          _instance->routingTableMaxSize())),
       _clientBlobject(make_shared<ClientBlobject>(_instance, std::move(filters), context, _routingTable)),
       _connection(std::move(connection)),
       _userId(std::move(userId)),
