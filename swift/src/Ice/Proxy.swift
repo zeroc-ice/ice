@@ -80,7 +80,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject, Sendable {
 
     /// Gets the invocation timeout of this proxy.
     ///
-    /// - Returns: The invocation timeout value.
+    /// - Returns: The invocation timeout value (in milliseconds).
     func ice_getInvocationTimeout() -> Int32
 
     /// Creates a proxy that is identical to this proxy, except for the invocation timeout.
@@ -292,7 +292,8 @@ public func checkedCast(
 ///   - prx: The source proxy.
 ///   - type: The type of the new proxy.
 ///   - facet: The optional facet for the new proxy.
-/// - Returns: A new proxy with the specified facet.
+/// - Returns: A proxy with the requested type and, when `facet` is provided, the specified facet. This is a purely
+///   local operation.
 public func uncheckedCast(
     prx: Ice.ObjectPrx,
     type _: ObjectPrx.Protocol,
@@ -308,10 +309,14 @@ public func ice_staticId(_: ObjectPrx.Protocol) -> String {
     return ObjectTraits.staticId
 }
 
+/// Returns `true` when the two proxies do not have identical settings (identity, facet, endpoints, context, and
+/// all other proxy options), `false` otherwise.
 public func != (lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
     return !(lhs == rhs)
 }
 
+/// Returns `true` when the two proxies have identical settings (identity, facet, endpoints, context, and all other
+/// proxy options), `false` otherwise.
 public func == (lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
     if lhs === rhs {
         return true
@@ -332,7 +337,7 @@ extension ObjectPrx {
         return self as! ObjectPrxI
     }
 
-    /// Sends ping request to the target object.
+    /// Tests whether the target object of this proxy can be reached.
     ///
     /// - Parameter context: The optional context dictionary for the invocation.
     public func ice_ping(context: Context? = nil) async throws {
@@ -347,7 +352,8 @@ extension ObjectPrx {
     /// - Parameters:
     ///   - id: The type ID of the Slice interface to test against.
     ///   - context: The optional context dictionary for the invocation.
-    /// - Returns: The result of the invocation.
+    /// - Returns: `true` if the target object implements the Slice interface specified by `id` or implements a
+    ///   derived interface, `false` otherwise.
     public func ice_isA(id: String, context: Context? = nil) async throws -> Bool {
         return try await _impl._invoke(
             operation: "ice_isA",
@@ -362,7 +368,7 @@ extension ObjectPrx {
     /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
     ///
     /// - Parameter context: The optional context dictionary for the invocation.
-    /// - Returns: `String` The result of the invocation.
+    /// - Returns: The Slice type ID of the most-derived interface supported by the target object.
     public func ice_id(context: Context? = nil) async throws -> String {
         return try await _impl._invoke(
             operation: "ice_id",
@@ -374,7 +380,7 @@ extension ObjectPrx {
     /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
     ///
     /// - Parameter context: The optional context dictionary for the invocation.
-    /// - Returns: The result of the invocation.
+    /// - Returns: The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
     public func ice_ids(context: Context? = nil) async throws -> StringSeq {
         return try await _impl._invoke(
             operation: "ice_ids",
@@ -390,7 +396,9 @@ extension ObjectPrx {
     ///   - mode: The operation mode (normal or idempotent).
     ///   - inEncaps: The encoded in-parameters for the operation.
     ///   - context: The context dictionary for the invocation.
-    /// - Returns: The result of the invocation.
+    /// - Returns: `ok` is `true` if the operation completed successfully, `false` if it completed with a user
+    ///   exception; `outEncaps` contains the encoded results (or the encoded user exception when `ok` is false).
+    ///   For oneway and batch proxies, `ok` is always `true` and `outEncaps` is empty.
     public func ice_invoke(
         operation: String,
         mode: OperationMode,
@@ -453,7 +461,8 @@ extension ObjectPrx {
     /// Returns the connection for this proxy. If the proxy does not yet have an established connection,
     /// it first attempts to create a connection.
     ///
-    /// - Returns: The result of the invocation.
+    /// - Returns: The connection for this proxy, or `nil` when the proxy uses collocation optimization and
+    ///   communicates with a collocated object adapter.
     public func ice_getConnection() async throws -> Connection? {
         return try await withCheckedThrowingContinuation { continuation in
             self._impl.handle.ice_getConnection(

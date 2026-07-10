@@ -115,7 +115,9 @@ public func createProperties() -> Properties {
     return PropertiesI(handle: ICEUtil.createProperties())
 }
 
-/// Creates a property set initialized from an argument array.
+/// Creates a property set initialized from an argument array. This function loads configuration files named by the
+/// `Ice.Config` property set through `args` or, when no `Ice.Config` property is set at all, by the `ICE_CONFIG`
+/// environment variable.
 ///
 /// - Parameters:
 ///   - args: A command-line argument array, possibly containing options to set properties. If the
@@ -137,7 +139,9 @@ public func createProperties(_ args: [String], defaults: Properties? = nil) thro
     }
 }
 
-/// Creates a property set initialized from an argument array.
+/// Creates a property set initialized from an argument array. This function loads configuration files named by the
+/// `Ice.Config` property set through `args` or, when no `Ice.Config` property is set at all, by the `ICE_CONFIG`
+/// environment variable.
 ///
 /// - Parameters:
 ///   - args: A command-line argument array, possibly containing options to set properties. If the
@@ -167,23 +171,28 @@ public func createProperties(_ args: inout [String], defaults: Properties? = nil
     }
 }
 
-/// Returns the Ice version as an integer in the form AABBCC, where AA
-/// indicates the major version, BB indicates the minor version, and CC
-/// indicates the patch level. For example, for Ice 3.9.1, the returned
-/// value is 30901.
+/// The Ice version as an integer in the form AABBCC, where AA indicates the major version, BB indicates the minor
+/// version, and CC indicates the patch level. For example, for Ice 3.9.1, the value is 30901.
+/// For pre-releases, CC encodes the pre-release instead of the patch version. For example, for Ice 3.9.0-alpha.0
+/// the value is 30950.
 public let intVersion: Int = 30950
 
-/// The Ice version in the form A.B.C, where A indicates the major version,
-/// B indicates the minor version, and C indicates the patch level.
+/// The Ice version in the form `A.B.C`, where A indicates the major version, B indicates the minor version, and C
+/// indicates the patch level, with an optional pre-release suffix, e.g. `3.9.0-alpha.0`.
 public let stringVersion: String = "3.9.0-alpha.0"
 
+/// Identifies encoding version 1.0.
 public let Encoding_1_0 = EncodingVersion(major: 1, minor: 0)
+
+/// Identifies encoding version 1.1.
 public let Encoding_1_1 = EncodingVersion(major: 1, minor: 1)
 
 /// Converts a stringified identity into an `Identity`.
 ///
 /// - Parameter string: The stringified identity.
 /// - Returns: An `Identity` containing the name and category components.
+/// - Throws: ``ParseException`` if `string` cannot be converted to an identity; a ``LocalException`` if the
+///   identity has an empty name.
 public func stringToIdentity(_ string: String) throws -> Identity {
     guard factoriesRegistered else {
         fatalError("Unable to initialize Ice")
@@ -202,6 +211,7 @@ public func stringToIdentity(_ string: String) throws -> Identity {
 ///   - id: The object identity to convert.
 ///   - mode: Specifies how to handle non-ASCII characters and non-printable ASCII characters.
 /// - Returns: The stringified identity.
+/// - Precondition: `id.name` must not be empty.
 public func identityToString(id: Identity, mode: ToStringMode = .Unicode) -> String {
     precondition(!id.name.isEmpty, "Invalid identity with an empty name")
     return ICEUtil.identityToString(name: id.name, category: id.category, mode: mode.rawValue)

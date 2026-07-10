@@ -12,7 +12,7 @@ public protocol Endpoint: AnyObject, CustomStringConvertible {
 
     /// Returns this endpoint's information.
     ///
-    /// - Returns: This endpoint's information class.
+    /// - Returns: The endpoint information, or `nil` when no information class is available for this endpoint type.
     func getInfo() -> EndpointInfo?
 }
 
@@ -20,7 +20,7 @@ public typealias EndpointSeq = [Endpoint]
 
 /// Base class for the endpoint info classes.
 open class EndpointInfo {
-    /// The information of the underlying endpoint or nil if there's no underlying endpoint.
+    /// The information of the underlying endpoint or `nil` if there's no underlying endpoint.
     public let underlying: EndpointInfo?
 
     /// Specifies whether or not compression should be used if available when using this endpoint.
