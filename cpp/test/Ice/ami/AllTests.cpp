@@ -1102,7 +1102,11 @@ allTests(TestHelper* helper, bool collocated)
                 struct Reenter
                 {
                     ConnectionPtr connection;
-                    ~Reenter() { connection->getInfo(); } // reenter the connection from the callback's destructor
+
+                    explicit Reenter(ConnectionPtr con) : connection(std::move(con)) {}
+
+                    // Reenter the connection from the callback's destructor.
+                    ~Reenter() { static_cast<void>(connection->getInfo()); }
                 };
 
                 auto con = p->ice_connectionId("CloseCallbackReplacement")->ice_getConnection();
