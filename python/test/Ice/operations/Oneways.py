@@ -6,8 +6,8 @@ from TestHelper import TestHelper, test
 import Ice
 
 
-def oneways(helper: TestHelper, p: Test.MyClassPrx) -> None:
-    p = Test.MyClassPrx.uncheckedCast(p.ice_oneway())
+def oneways(helper: TestHelper, p: Test.MyInterfacePrx) -> None:
+    p = Test.MyInterfacePrx.uncheckedCast(p.ice_oneway())
 
     #
     # ice_ping
@@ -33,7 +33,7 @@ def oneways(helper: TestHelper, p: Test.MyClassPrx) -> None:
     # Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
     #
     try:
-        Test.MyClassPrx.uncheckedCast(p.ice_twoway()).opOneway()
+        Test.MyInterfacePrx.uncheckedCast(p.ice_twoway()).opOneway()
         test(False)
     except Ice.OnewayOnlyException:
         pass

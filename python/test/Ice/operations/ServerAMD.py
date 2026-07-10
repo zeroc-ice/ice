@@ -9,7 +9,7 @@ from TestHelper import TestHelper
 if "--load-slice" in sys.argv:
     TestHelper.loadSlice(["Test.ice"])
 
-from TestAMDI import MyDerivedClassI
+from TestAMDI import MyDerivedInterfaceI
 
 import Ice
 
@@ -27,6 +27,6 @@ class ServerAMD(TestHelper):
         with self.initialize(properties=properties) as communicator:
             communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("TestAdapter")
-            adapter.add(MyDerivedClassI(), Ice.stringToIdentity("test"))
+            adapter.add(MyDerivedInterfaceI(), Ice.stringToIdentity("test"))
             adapter.activate()
             communicator.waitForShutdown()

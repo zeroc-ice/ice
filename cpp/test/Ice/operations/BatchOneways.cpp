@@ -58,11 +58,11 @@ namespace
 }
 
 void
-batchOneways(const MyClassPrx& p)
+batchOneways(const MyInterfacePrx& p)
 {
     const ByteS bs1(10 * 1024);
 
-    MyClassPrx batch = p->ice_batchOneway();
+    MyInterfacePrx batch = p->ice_batchOneway();
 
     batch->ice_flushBatchRequests(); // Empty flush
     if (batch->ice_getConnection())
@@ -97,8 +97,8 @@ batchOneways(const MyClassPrx& p)
     bool bluetooth = protocol == "bt" || protocol == "bts";
     if (batch->ice_getConnection() && !bluetooth)
     {
-        MyClassPrx batch1 = p->ice_batchOneway();
-        MyClassPrx batch2 = p->ice_batchOneway();
+        MyInterfacePrx batch1 = p->ice_batchOneway();
+        MyInterfacePrx batch2 = p->ice_batchOneway();
 
         batch1->ice_ping();
         batch2->ice_ping();
@@ -142,7 +142,7 @@ batchOneways(const MyClassPrx& p)
 
         CommunicatorPtr ic = initialize(initData);
 
-        auto batch4 = MyClassPrx(ic, p->ice_toString())->ice_batchOneway();
+        auto batch4 = MyInterfacePrx(ic, p->ice_toString())->ice_batchOneway();
 
         test(interceptor->count() == 0);
         batch4->ice_ping();
@@ -184,11 +184,11 @@ batchOneways(const MyClassPrx& p)
     if (supportsCompress && batch->ice_getConnection() &&
         p->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Override.Compress") == "")
     {
-        MyClassPrx prx = batch->ice_fixed(batch->ice_getConnection())->ice_batchOneway();
+        MyInterfacePrx prx = batch->ice_fixed(batch->ice_getConnection())->ice_batchOneway();
 
-        MyClassPrx batch1 = prx->ice_compress(false);
-        MyClassPrx batch2 = prx->ice_compress(true);
-        auto batch3 = prx->ice_identity<MyClassPrx>(identity);
+        MyInterfacePrx batch1 = prx->ice_compress(false);
+        MyInterfacePrx batch2 = prx->ice_compress(true);
+        auto batch3 = prx->ice_identity<MyInterfacePrx>(identity);
 
         batch1->opByteSOneway(bs1);
         batch1->opByteSOneway(bs1);

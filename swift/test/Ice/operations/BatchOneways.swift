@@ -4,7 +4,7 @@ import Darwin
 import Ice
 import TestCommon
 
-func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
+func batchOneways(_ helper: TestHelper, _ p: MyInterfacePrx) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -76,9 +76,9 @@ func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
     {
         let prx = try await p.ice_getConnection()!.createProxy(p.ice_getIdentity()).ice_batchOneway()
 
-        let batchC1 = uncheckedCast(prx: prx.ice_compress(false), type: MyClassPrx.self)
-        let batchC2 = uncheckedCast(prx: prx.ice_compress(true), type: MyClassPrx.self)
-        let batchC3 = uncheckedCast(prx: prx.ice_identity(identity), type: MyClassPrx.self)
+        let batchC1 = uncheckedCast(prx: prx.ice_compress(false), type: MyInterfacePrx.self)
+        let batchC2 = uncheckedCast(prx: prx.ice_compress(true), type: MyInterfacePrx.self)
+        let batchC3 = uncheckedCast(prx: prx.ice_identity(identity), type: MyInterfacePrx.self)
 
         try await batchC1.opByteSOneway(bs1)
         try await batchC1.opByteSOneway(bs1)

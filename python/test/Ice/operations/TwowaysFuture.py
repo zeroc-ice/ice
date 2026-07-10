@@ -89,7 +89,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opMyClass(self, f: Ice.Future):
+    def opMyInterface(self, f: Ice.Future):
         try:
             (r, c1, c2) = f.result()
             test(c1.ice_getIdentity() == Ice.stringToIdentity("test"))
@@ -854,19 +854,19 @@ class Callback(CallbackBase):
         self.called()
 
 
-def twowaysFuture(helper: TestHelper, p: Test.MyClassPrx):
+def twowaysFuture(helper: TestHelper, p: Test.MyInterfacePrx):
     communicator = helper.communicator()
     f = p.ice_pingAsync()
     assert isinstance(f, Ice.Future)
     test(f.result() is None)
 
-    f = p.ice_isAAsync(Test.MyClass.ice_staticId())
+    f = p.ice_isAAsync(Test.MyInterface.ice_staticId())
     assert isinstance(f, Ice.Future)
     test(f.result())
 
     f = p.ice_idAsync()
     assert isinstance(f, Ice.Future)
-    test(f.result() == "::Test::MyDerivedClass")
+    test(f.result() == "::Test::MyDerivedInterface")
 
     f = p.ice_idsAsync()
     assert isinstance(f, Ice.Future)
@@ -911,7 +911,7 @@ def twowaysFuture(helper: TestHelper, p: Test.MyClassPrx):
     cb.check()
 
     cb = Callback(communicator)
-    cast(Ice.InvocationFuture, p.opMyClassAsync(p)).add_done_callback(cb.opMyClass)
+    cast(Ice.InvocationFuture, p.opMyInterfaceAsync(p)).add_done_callback(cb.opMyInterface)
     cb.check()
 
     si1 = Test.Structure()
@@ -1235,7 +1235,7 @@ def twowaysFuture(helper: TestHelper, p: Test.MyClassPrx):
     c = f.result()
     test(c == ctx)
 
-    p2 = Test.MyClassPrx.checkedCast(p.ice_context(ctx))
+    p2 = Test.MyInterfacePrx.checkedCast(p.ice_context(ctx))
     assert p2 is not None
     test(cast(dict[str, str], p2.ice_getContext()) == ctx)
     f = p2.opContextAsync()
@@ -1261,7 +1261,7 @@ def twowaysFuture(helper: TestHelper, p: Test.MyClassPrx):
 
             ctx = {"one": "ONE", "two": "TWO", "three": "THREE"}
 
-            p3 = Test.MyClassPrx(ic, f"test:{helper.getTestEndpoint()}")
+            p3 = Test.MyInterfacePrx(ic, f"test:{helper.getTestEndpoint()}")
 
             cast(Ice.ImplicitContext, ic.getImplicitContext()).setContext(ctx)
             test(cast(Ice.ImplicitContext, ic.getImplicitContext()).getContext() == ctx)
@@ -1285,7 +1285,7 @@ def twowaysFuture(helper: TestHelper, p: Test.MyClassPrx):
             combined.update(prxContext)
             test(combined["one"] == "UN")
 
-            p3 = Test.MyClassPrx.uncheckedCast(p3.ice_context(prxContext))
+            p3 = Test.MyInterfacePrx.uncheckedCast(p3.ice_context(prxContext))
             cast(Ice.ImplicitContext, ic.getImplicitContext()).setContext({})
             f = p3.opContextAsync()
             assert isinstance(f, Ice.Future)
@@ -1304,7 +1304,7 @@ def twowaysFuture(helper: TestHelper, p: Test.MyClassPrx):
     cast(Ice.InvocationFuture, p.opIdempotentAsync()).add_done_callback(cb.opIdempotent)
     cb.check()
 
-    derived = Test.MyDerivedClassPrx.checkedCast(p)
+    derived = Test.MyDerivedInterfacePrx.checkedCast(p)
     assert derived is not None
     cb = Callback()
     cast(Ice.InvocationFuture, derived.opDerivedAsync()).add_done_callback(cb.opDerived)

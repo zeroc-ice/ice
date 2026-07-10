@@ -44,11 +44,11 @@ internal class BatchOneways
         private int _lastRequestSize;
     }
 
-    internal static void batchOneways(global::Test.TestHelper helper, Test.MyClassPrx p)
+    internal static void batchOneways(global::Test.TestHelper helper, Test.MyInterfacePrx p)
     {
         byte[] bs1 = new byte[10 * 1024];
 
-        Test.MyClassPrx batch = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
+        Test.MyInterfacePrx batch = Test.MyInterfacePrxHelper.uncheckedCast(p.ice_batchOneway());
         batch.ice_flushBatchRequests(); // Empty flush
 
         p.opByteSOnewayCallCount(); // Reset the call count
@@ -74,8 +74,8 @@ internal class BatchOneways
 
         if (batch.ice_getConnection() != null)
         {
-            Test.MyClassPrx batch1 = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
-            Test.MyClassPrx batch2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
+            Test.MyInterfacePrx batch1 = Test.MyInterfacePrxHelper.uncheckedCast(p.ice_batchOneway());
+            Test.MyInterfacePrx batch2 = Test.MyInterfacePrxHelper.uncheckedCast(p.ice_batchOneway());
 
             batch1.ice_ping();
             batch2.ice_ping();
@@ -112,7 +112,7 @@ internal class BatchOneways
             initData.batchRequestInterceptor = interceptor.enqueue;
             using Communicator ic = helper.initialize(initData);
 
-            batch = Test.MyClassPrxHelper.uncheckedCast(ic.stringToProxy(p.ToString()).ice_batchOneway());
+            batch = Test.MyInterfacePrxHelper.uncheckedCast(ic.stringToProxy(p.ToString()).ice_batchOneway());
 
             test(interceptor.count() == 0);
             batch.ice_ping();
@@ -156,9 +156,9 @@ internal class BatchOneways
         {
             Ice.ObjectPrx prx = p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();
 
-            Test.MyClassPrx batchC1 = Test.MyClassPrxHelper.uncheckedCast(prx.ice_compress(false));
-            Test.MyClassPrx batchC2 = Test.MyClassPrxHelper.uncheckedCast(prx.ice_compress(true));
-            Test.MyClassPrx batchC3 = Test.MyClassPrxHelper.uncheckedCast(prx.ice_identity(identity));
+            Test.MyInterfacePrx batchC1 = Test.MyInterfacePrxHelper.uncheckedCast(prx.ice_compress(false));
+            Test.MyInterfacePrx batchC2 = Test.MyInterfacePrxHelper.uncheckedCast(prx.ice_compress(true));
+            Test.MyInterfacePrx batchC3 = Test.MyInterfacePrxHelper.uncheckedCast(prx.ice_identity(identity));
 
             batchC1.opByteSOneway(bs1);
             batchC1.opByteSOneway(bs1);

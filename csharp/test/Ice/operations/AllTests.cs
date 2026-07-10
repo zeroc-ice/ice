@@ -4,14 +4,14 @@ namespace Ice.operations;
 
 public class AllTests : global::Test.AllTests
 {
-    public static async Task<Test.MyClassPrx> allTests(global::Test.TestHelper helper)
+    public static async Task<Test.MyInterfacePrx> allTests(global::Test.TestHelper helper)
     {
         Ice.Communicator communicator = helper.communicator();
         TextWriter output = helper.getWriter();
         output.Flush();
         string rf = "test:" + helper.getTestEndpoint(0);
-        Test.MyClassPrx cl = Test.MyClassPrxHelper.createProxy(communicator, rf);
-        Test.MyDerivedClassPrx derivedProxy = Test.MyDerivedClassPrxHelper.uncheckedCast(cl);
+        Test.MyInterfacePrx cl = Test.MyInterfacePrxHelper.createProxy(communicator, rf);
+        Test.MyDerivedInterfacePrx derivedProxy = Test.MyDerivedInterfacePrxHelper.uncheckedCast(cl);
 
         output.Write("testing twoway operations... ");
         output.Flush();
