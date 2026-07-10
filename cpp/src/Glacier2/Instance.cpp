@@ -17,8 +17,17 @@ Glacier2::Instance::Instance(
       _logger(_communicator->getLogger()),
       _clientAdapter(std::move(clientAdapter)),
       _serverAdapter(std::move(serverAdapter)),
-      _proxyVerifier(make_shared<ProxyVerifier>(_communicator))
+      _proxyVerifier(make_shared<ProxyVerifier>(_communicator)),
+      _routingTableMaxSize(_properties->getIcePropertyAsInt("Glacier2.RoutingTable.MaxSize"))
 {
+    if (_routingTableMaxSize < 1)
+    {
+        throw Ice::InitializationException(
+            __FILE__,
+            __LINE__,
+            "invalid value for Glacier2.RoutingTable.MaxSize: " + to_string(_routingTableMaxSize));
+    }
+
     //
     // If an Ice metrics observer is setup on the communicator, also enable metrics for Glacier2.
     //
