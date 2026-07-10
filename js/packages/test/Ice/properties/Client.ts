@@ -167,6 +167,29 @@ export class Client extends TestHelper {
             }
             out.writeLine("ok");
         }
+
+        {
+            out.write("testing that the logger set in InitializationData takes precedence over Ice.LogFile... ");
+            const initData = new Ice.InitializationData();
+            initData.properties = Ice.createProperties();
+            initData.properties.setProperty("Ice.LogFile", "unused.log");
+            const logger: Ice.Logger = {
+                print: () => {},
+                trace: () => {},
+                warning: () => {},
+                error: () => {},
+                getPrefix: () => "",
+                cloneWithPrefix: (): Ice.Logger => logger,
+            };
+            initData.logger = logger;
+            const communicator = new Ice.Communicator(initData);
+            try {
+                test(communicator.getLogger() === logger);
+            } finally {
+                await communicator.destroy();
+            }
+            out.writeLine("ok");
+        }
     }
 
     async run(args: string[]) {

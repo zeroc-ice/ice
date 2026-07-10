@@ -179,12 +179,15 @@ Instance.prototype.finishSetup = function (communicator) {
         );
 
         const programName = this._initData.properties.getIceProperty("Ice.ProgramName");
-        const logFile = this._initData.properties.getIceProperty("Ice.LogFile");
-        if (logFile.length > 0) {
-            if (FileLogger === null) {
-                throw new InitializationException("Ice.LogFile property is not supported in Web Browsers");
+        // Ice.LogFile is only consulted when the application didn't supply its own logger.
+        if (this._initData.logger === null) {
+            const logFile = this._initData.properties.getIceProperty("Ice.LogFile");
+            if (logFile.length > 0) {
+                if (FileLogger === null) {
+                    throw new InitializationException("Ice.LogFile property is not supported in Web Browsers");
+                }
+                this._initData.logger = new FileLogger(programName, logFile);
             }
-            this._initData.logger = new FileLogger(programName, logFile);
         }
 
         if (this._initData.logger === null) {
