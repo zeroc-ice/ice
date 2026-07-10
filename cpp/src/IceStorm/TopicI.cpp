@@ -855,24 +855,18 @@ TopicImpl::update(const SubscriberRecordSeq& records)
                     break;
                 }
             }
-            // The subscriber doesn't exist in the incoming subscriber
-            // set so destroy it.
-            if (q == records.end())
+            // Keep the subscriber only when it exists in the incoming subscriber set with the same
+            // record, and reset its reaped status if necessary. Otherwise destroy it: it is either
+            // gone, or it re-registered with a different proxy or QoS while this replica was out of
+            // sync, and the second scan re-creates it from the incoming record so it matches the
+            // database.
+            if (q != records.end() && (*p)->record() == *q)
             {
-                (*p)->destroy();
-                p = _subscribers.erase(p);
-            }
-            else if ((*p)->record() == *q)
-            {
-                // The record is unchanged; reset the reaped status if necessary.
                 (*p)->resetIfReaped();
                 ++p;
             }
             else
             {
-                // The subscriber re-registered with a different proxy or QoS while this replica was out
-                // of sync. Destroy the stale in-memory subscriber; the second scan re-creates it from the
-                // incoming record so it matches the database.
                 (*p)->destroy();
                 p = _subscribers.erase(p);
             }
