@@ -27,6 +27,20 @@ namespace
 
         return nullptr;
     }
+
+    shared_ptr<Ice::SSL::ConnectionInfo> getSSLConnectionInfo(const ConnectionInfoPtr& info)
+    {
+        for (ConnectionInfoPtr p = info; p; p = p->underlying)
+        {
+            auto sslInfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(p);
+            if (sslInfo)
+            {
+                return sslInfo;
+            }
+        }
+
+        return nullptr;
+    }
 }
 
 namespace Glacier2
@@ -346,7 +360,7 @@ CreateSession::CreateSession(shared_ptr<SessionRouterI> sessionRouter, string us
             }
         }
         {
-            auto info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(current.con->getInfo());
+            auto info = getSSLConnectionInfo(current.con->getInfo());
             if (info && info->peerCertificate)
             {
                 _context["_con.peerCert"] = Ice::SSL::encodeCertificate(info->peerCertificate);
@@ -665,10 +679,10 @@ SessionRouterI::createSessionFromSecureConnectionAsync(
     //
     try
     {
-        auto info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(current.con->getInfo());
+        auto info = getSSLConnectionInfo(current.con->getInfo());
         if (!info)
         {
-            exception(make_exception_ptr(PermissionDeniedException("not ssl connection")));
+            exception(make_exception_ptr(PermissionDeniedException("not an ssl connection")));
             return;
         }
 

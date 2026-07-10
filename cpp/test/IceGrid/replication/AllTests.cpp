@@ -403,7 +403,8 @@ allTests(Test::TestHelper* helper)
 
         auto session = masterRegistry->createSession("dummy", "dummy");
         session->destroy();
-        if (communicator->getProperties()->getIceProperty("Ice.Default.Protocol") == "ssl")
+        const string protocol = communicator->getProperties()->getIceProperty("Ice.Default.Protocol");
+        if (protocol == "ssl" || protocol == "wss")
         {
             session = masterRegistry->createSessionFromSecureConnection();
             session->destroy();
