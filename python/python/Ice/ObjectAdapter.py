@@ -556,14 +556,14 @@ class ObjectAdapter:
         """
         return self._impl.createIndirectProxy(id)
 
-    def setLocator(self, locator: LocatorPrx) -> None:
+    def setLocator(self, locator: LocatorPrx | None) -> None:
         """
         Sets an Ice locator on this object adapter.
 
         Parameters
         ----------
-        locator : LocatorPrx
-            The locator used by this object adapter.
+        locator : LocatorPrx | None
+            The locator used by this object adapter. May be ``None`` to clear the locator.
         """
         self._impl.setLocator(locator)
 

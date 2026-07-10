@@ -1,5 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
+from .SliceInfo import SliceInfo
+
 
 class SlicedData:
     """
@@ -11,4 +13,4 @@ class SlicedData:
         The slices of the unknown class, in order of most-derived to least-derived.
     """
 
-    pass
+    slices: tuple[SliceInfo, ...]

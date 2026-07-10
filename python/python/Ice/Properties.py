@@ -25,8 +25,9 @@ class Properties:
         """
         Initialize a new instance of the Properties class.
 
-        This constructor loads the configuration files specified by the ``Ice.Config`` property or the
-        ``ICE_CONFIG`` environment variable, and then parses Ice properties from ``args``.
+        When ``args`` and/or ``defaults`` is provided, this constructor loads the configuration files specified by
+        the ``Ice.Config`` property or the ``ICE_CONFIG`` environment variable, and then parses Ice properties from
+        ``args``. When called without arguments, this constructor creates an empty property set.
 
         Parameters
         ----------
@@ -42,8 +43,8 @@ class Properties:
 
         Notes
         -----
-        When there is no ``--Ice.Config`` command-line argument, this constructor loads properties from
-        the files specified by the ``ICE_CONFIG`` environment variable.
+        When ``args`` and/or ``defaults`` is provided and there is no ``--Ice.Config`` command-line argument,
+        this constructor loads properties from the files specified by the ``ICE_CONFIG`` environment variable.
 
         Examples
         --------

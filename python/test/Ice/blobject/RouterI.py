@@ -145,7 +145,7 @@ class ServantLocatorI(Ice.ServantLocator):
         self._blobject = blobject
 
     @override
-    def locate(self, current: Ice.Current) -> tuple[Ice.Object | None, object | None]:
+    def locate(self, current: Ice.Current) -> Ice.Object | tuple[Ice.Object, object | None] | None:
         return self._blobject, None  # and the cookie
 
     @override

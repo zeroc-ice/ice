@@ -8,6 +8,11 @@ from .SlicedData import SlicedData
 class Value:
     """
     The base class for instances of Slice-defined classes.
+
+    Notes
+    -----
+    If a subclass defines ``ice_preMarshal(self)``, the Ice runtime calls it just before marshaling the instance;
+    if it defines ``ice_postUnmarshal(self)``, the runtime calls it after the instance has been fully unmarshaled.
     """
 
     def ice_id(self) -> str:
@@ -50,10 +55,12 @@ class Value:
         Returns
         -------
         SlicedData | None
-            If this value has a preserved-slice base class and has been sliced during unmarshaling, this returns the
-            sliced data; otherwise this returns ``None``.
+            The sliced data if this value was sliced during unmarshaling, ``None`` otherwise. Unknown slices are
+            preserved only when the sender uses the sliced format.
         """
         return getattr(self, "_ice_slicedData", None)
 
 
 IcePy._t_Value = IcePy.defineValue("::Ice::Object", Value, -1, (), False, None, ())
+
+__all__ = ["Value"]
