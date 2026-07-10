@@ -5,10 +5,10 @@
 
 #include "Test.h"
 
-class MyDerivedClassI final : public Test::MyDerivedClass
+class MyDerivedInterfaceI final : public Test::MyDerivedInterface
 {
 public:
-    MyDerivedClassI();
+    MyDerivedInterfaceI();
 
     std::optional<Ice::ObjectPrx> echo(std::optional<Ice::ObjectPrx>, const Ice::Current&) final;
     [[nodiscard]] bool ice_isA(std::string, const Ice::Current&) const final;

@@ -2,7 +2,7 @@
 
 namespace Ice.seqMapping;
 
-public sealed class MyClassI : Test.MyClassDisp_
+public sealed class MyInterfaceI : Test.MyInterfaceDisp_
 {
     public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 

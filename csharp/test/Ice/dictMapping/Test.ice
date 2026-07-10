@@ -28,7 +28,7 @@ module Test
     dictionary<string, ASS> NDASS;
     dictionary<string, GSS> NDGSS;
 
-    interface MyClass
+    interface MyInterface
     {
         void shutdown();
 

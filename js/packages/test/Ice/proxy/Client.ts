@@ -761,16 +761,16 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing checked cast... ");
-        const cl = await Test.MyClassPrx.checkedCast(base);
+        const cl = await Test.MyInterfacePrx.checkedCast(base);
         test(cl !== null);
-        let derived = await Test.MyDerivedClassPrx.checkedCast(cl);
+        let derived = await Test.MyDerivedInterfacePrx.checkedCast(cl);
         test(derived !== null);
         test(cl.equals(base));
         test(derived.equals(base));
         test(cl.equals(derived));
 
         try {
-            await Test.MyDerivedClassPrx.checkedCast(cl, "facet");
+            await Test.MyDerivedInterfacePrx.checkedCast(cl, "facet");
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.FacetNotExistException);
@@ -784,7 +784,7 @@ export class Client extends TestHelper {
         c = new Map();
         c.set("one", "hello");
         c.set("two", "world");
-        const clc = await Test.MyClassPrx.checkedCast(base, undefined, c);
+        const clc = await Test.MyInterfacePrx.checkedCast(base, undefined, c);
         const c2 = await clc!.getContext();
         test(Ice.MapUtil.equals(c, c2));
         out.writeLine("ok");
@@ -825,7 +825,7 @@ export class Client extends TestHelper {
         out.write("testing encoding versioning... ");
 
         let ref20 = `test -e 2.0:${this.getTestEndpoint()}`;
-        let cl20 = new Test.MyClassPrx(communicator, ref20);
+        let cl20 = new Test.MyInterfacePrx(communicator, ref20);
         try {
             await cl20.ice_ping();
             test(false);
@@ -834,7 +834,7 @@ export class Client extends TestHelper {
         }
 
         let ref13 = `test -e 1.3:${this.getTestEndpoint()}`;
-        let cl13 = new Test.MyClassPrx(communicator, ref13);
+        let cl13 = new Test.MyInterfacePrx(communicator, ref13);
         try {
             await cl13.ice_ping();
             test(false);
@@ -843,7 +843,7 @@ export class Client extends TestHelper {
         }
 
         let ref10 = `test -e 1.0:${this.getTestEndpoint()}`;
-        let cl10 = new Test.MyClassPrx(communicator, ref10);
+        let cl10 = new Test.MyInterfacePrx(communicator, ref10);
 
         await cl10.ice_ping();
         await cl10.ice_encodingVersion(Ice.Encoding_1_0).ice_ping();
@@ -853,7 +853,7 @@ export class Client extends TestHelper {
 
         out.write("testing protocol versioning... ");
         ref20 = `test -p 2.0:${this.getTestEndpoint()}`;
-        cl20 = new Test.MyClassPrx(communicator, ref20);
+        cl20 = new Test.MyInterfacePrx(communicator, ref20);
         try {
             await cl20.ice_ping();
             test(false);
@@ -863,7 +863,7 @@ export class Client extends TestHelper {
         }
 
         ref13 = `test -p 1.3:${this.getTestEndpoint()}`;
-        cl13 = new Test.MyClassPrx(communicator, ref13);
+        cl13 = new Test.MyInterfacePrx(communicator, ref13);
         try {
             await cl13.ice_ping();
             test(false);
@@ -872,7 +872,7 @@ export class Client extends TestHelper {
         }
 
         ref10 = `test -p 1.0:${this.getTestEndpoint()}`;
-        cl10 = new Test.MyClassPrx(communicator, ref10);
+        cl10 = new Test.MyInterfacePrx(communicator, ref10);
         await cl10.ice_ping();
 
         out.writeLine("ok");
@@ -1043,7 +1043,7 @@ export class Client extends TestHelper {
         // be sent over the wire and returned by the server without
         // losing the opaque endpoints.
         //
-        derived = new Test.MyDerivedClassPrx(communicator, `test -e 1.0:${this.getTestEndpoint()}`);
+        derived = new Test.MyDerivedInterfacePrx(communicator, `test -e 1.0:${this.getTestEndpoint()}`);
         p2 = (await derived.echo(p1)) as Ice.ObjectPrx;
 
         pstr = communicator.proxyToString(p2);
@@ -1148,7 +1148,7 @@ export class Client extends TestHelper {
         test(s.b.equals(cPrx));
         out.writeLine("ok");
 
-        derived = new Test.MyDerivedClassPrx(communicator, `test:${this.getTestEndpoint()}`);
+        derived = new Test.MyDerivedInterfacePrx(communicator, `test:${this.getTestEndpoint()}`);
         await derived.shutdown();
     }
 

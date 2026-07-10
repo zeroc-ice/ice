@@ -16,10 +16,10 @@ void
 Client::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    Test::MyClassPrx allTests(Test::TestHelper*);
-    Test::MyClassPrx myClass = allTests(this);
+    Test::MyInterfacePrx allTests(Test::TestHelper*);
+    Test::MyInterfacePrx myInterface = allTests(this);
 
-    myClass->shutdown();
+    myInterface->shutdown();
 }
 
 DEFINE_TEST(Client)

@@ -26,9 +26,9 @@ import com.zeroc.Ice.Util;
 import test.Ice.proxy.Test.APrx;
 import test.Ice.proxy.Test.BPrx;
 import test.Ice.proxy.Test.CPrx;
-import test.Ice.proxy.Test.DiamondClassPrx;
-import test.Ice.proxy.Test.MyClassPrx;
-import test.Ice.proxy.Test.MyDerivedClassPrx;
+import test.Ice.proxy.Test.DiamondInterfacePrx;
+import test.Ice.proxy.Test.MyDerivedInterfacePrx;
+import test.Ice.proxy.Test.MyInterfacePrx;
 import test.Ice.proxy.Test.S;
 import test.TestHelper;
 
@@ -44,7 +44,7 @@ public class AllTests {
         }
     }
 
-    public static MyClassPrx allTests(TestHelper helper) {
+    public static MyInterfacePrx allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
         final boolean bluetooth =
             communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
@@ -685,9 +685,9 @@ public class AllTests {
                 .equals(Duration.ofSeconds(-2)));
 
         // Ensure that the proxy methods can be called unambiguously with the correct return type.
-        var diamondClass = DiamondClassPrx.uncheckedCast(base);
-        var onewayDiamondClass = diamondClass.ice_oneway();
-        test(onewayDiamondClass instanceof DiamondClassPrx);
+        var diamondInterface = DiamondInterfacePrx.uncheckedCast(base);
+        var onewayDiamondInterface = diamondInterface.ice_oneway();
+        test(onewayDiamondInterface instanceof DiamondInterfacePrx);
 
         out.println("ok");
 
@@ -808,15 +808,15 @@ public class AllTests {
 
         out.print("testing checked cast... ");
         out.flush();
-        MyClassPrx cl = MyClassPrx.checkedCast(base);
+        MyInterfacePrx cl = MyInterfacePrx.checkedCast(base);
         test(cl != null);
-        MyDerivedClassPrx derived = MyDerivedClassPrx.checkedCast(cl);
+        MyDerivedInterfacePrx derived = MyDerivedInterfacePrx.checkedCast(cl);
         test(derived != null);
         test(cl.equals(base));
         test(derived.equals(base));
         test(cl.equals(derived));
         try {
-            MyDerivedClassPrx.checkedCast(cl, "facet");
+            MyDerivedInterfacePrx.checkedCast(cl, "facet");
             test(false);
         } catch (FacetNotExistException ex) {
             // expected
@@ -832,7 +832,7 @@ public class AllTests {
         c = new HashMap<>();
         c.put("one", "hello");
         c.put("two", "world");
-        cl = MyClassPrx.checkedCast(base, c);
+        cl = MyInterfacePrx.checkedCast(base, c);
         Map<String, String> c2 = cl.getContext();
         test(c.equals(c2));
         out.println("ok");
@@ -844,7 +844,7 @@ public class AllTests {
                 Connection connection = cl.ice_getConnection();
                 if (connection != null) {
                     test(!cl.ice_isFixed());
-                    MyClassPrx prx = cl.ice_fixed(connection); // Test proxy return type.
+                    MyInterfacePrx prx = cl.ice_fixed(connection); // Test proxy return type.
                     test(prx.ice_isFixed());
                     prx.ice_ping();
                     test(
@@ -895,7 +895,7 @@ public class AllTests {
         out.print("testing encoding versioning... ");
         out.flush();
         String ref20 = "test -e 2.0:" + helper.getTestEndpoint(0);
-        var cl20 = MyClassPrx.createProxy(communicator, ref20);
+        var cl20 = MyInterfacePrx.createProxy(communicator, ref20);
         try {
             cl20.ice_ping();
             test(false);
@@ -904,7 +904,7 @@ public class AllTests {
         }
 
         String ref13 = "test -e 1.3:" + helper.getTestEndpoint(0);
-        var cl13 = MyClassPrx.createProxy(communicator, ref13);
+        var cl13 = MyInterfacePrx.createProxy(communicator, ref13);
         try {
             cl13.ice_ping();
             test(false);
@@ -913,7 +913,7 @@ public class AllTests {
         }
 
         String ref10 = "test -e 1.0:" + helper.getTestEndpoint(0);
-        var cl10 = MyClassPrx.createProxy(communicator, ref10);
+        var cl10 = MyInterfacePrx.createProxy(communicator, ref10);
         cl10.ice_ping();
         cl10.ice_encodingVersion(Util.Encoding_1_0).ice_ping();
         cl.ice_encodingVersion(Util.Encoding_1_0).ice_ping();
@@ -959,7 +959,7 @@ public class AllTests {
         out.print("testing protocol versioning... ");
         out.flush();
         ref20 = "test -p 2.0:" + helper.getTestEndpoint(0);
-        cl20 = MyClassPrx.createProxy(communicator, ref20);
+        cl20 = MyInterfacePrx.createProxy(communicator, ref20);
         try {
             cl20.ice_ping();
             test(false);
@@ -968,7 +968,7 @@ public class AllTests {
         }
 
         ref13 = "test -p 1.3:" + helper.getTestEndpoint(0);
-        cl13 = MyClassPrx.createProxy(communicator, ref13);
+        cl13 = MyInterfacePrx.createProxy(communicator, ref13);
         try {
             cl13.ice_ping();
             test(false);
@@ -977,7 +977,7 @@ public class AllTests {
         }
 
         ref10 = "test -p 1.0:" + helper.getTestEndpoint(0);
-        cl10 = MyClassPrx.createProxy(communicator, ref10);
+        cl10 = MyInterfacePrx.createProxy(communicator, ref10);
         cl10.ice_ping();
 
         out.println("ok");

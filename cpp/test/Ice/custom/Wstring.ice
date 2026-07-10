@@ -18,7 +18,7 @@
         string reason;
     }
 
-    interface WstringClass
+    interface WstringInterface
     {
         string opString(string s1, out string s2);
 
@@ -45,7 +45,7 @@ module Test2
         string reason;
     }
 
-    ["cpp:type:wstring"] interface WstringClass
+    ["cpp:type:wstring"] interface WstringInterface
     {
         string opString(string s1, out string s2);
 

@@ -7,8 +7,8 @@ import com.zeroc.Ice.OperationNotExistException;
 import test.Ice.seqMapping.Serialize.Large;
 import test.Ice.seqMapping.Serialize.Small;
 import test.Ice.seqMapping.Serialize.Struct;
-import test.Ice.seqMapping.Test.MyClass;
-import test.Ice.seqMapping.Test.MyClassPrx;
+import test.Ice.seqMapping.Test.MyInterface;
+import test.Ice.seqMapping.Test.MyInterfacePrx;
 
 class Twoways {
     private static void test(boolean b) {
@@ -17,11 +17,11 @@ class Twoways {
         }
     }
 
-    static void twoways(MyClassPrx p) {
+    static void twoways(MyInterfacePrx p) {
         {
             Small i = null;
 
-            MyClass.OpSerialSmallJavaResult r = p.opSerialSmallJava(i);
+            MyInterface.OpSerialSmallJavaResult r = p.opSerialSmallJava(i);
 
             test(r.o == null);
             test(r.returnValue == null);
@@ -32,7 +32,7 @@ class Twoways {
             i.i = 99;
 
             try {
-                MyClass.OpSerialSmallJavaResult r = p.opSerialSmallJava(i);
+                MyInterface.OpSerialSmallJavaResult r = p.opSerialSmallJava(i);
 
                 test(r.o.i == 99);
                 test(r.returnValue.i == 99);
@@ -55,7 +55,7 @@ class Twoways {
             i.d10 = 10.0;
 
             try {
-                MyClass.OpSerialLargeJavaResult r = p.opSerialLargeJava(i);
+                MyInterface.OpSerialLargeJavaResult r = p.opSerialLargeJava(i);
 
                 test(r.o.d1 == 1.0);
                 test(r.o.d2 == 2.0);
@@ -90,7 +90,7 @@ class Twoways {
             i.s2 = "Hello";
 
             try {
-                MyClass.OpSerialStructJavaResult r = p.opSerialStructJava(i);
+                MyInterface.OpSerialStructJavaResult r = p.opSerialStructJava(i);
 
                 test(r.o.o == null);
                 test(r.o.o2 != null);

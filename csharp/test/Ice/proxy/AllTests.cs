@@ -4,7 +4,7 @@ namespace Ice.proxy;
 
 public class AllTests : global::Test.AllTests
 {
-    public static async Task<Test.MyClassPrx> allTests(global::Test.TestHelper helper)
+    public static async Task<Test.MyInterfacePrx> allTests(global::Test.TestHelper helper)
     {
         Communicator communicator = helper.communicator();
         TextWriter output = helper.getWriter();
@@ -696,16 +696,16 @@ public class AllTests : global::Test.AllTests
 
         output.Write("testing checked cast... ");
         output.Flush();
-        Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
+        Test.MyInterfacePrx cl = Test.MyInterfacePrxHelper.checkedCast(baseProxy);
         test(cl != null);
-        Test.MyDerivedClassPrx derived = Test.MyDerivedClassPrxHelper.checkedCast(cl);
+        Test.MyDerivedInterfacePrx derived = Test.MyDerivedInterfacePrxHelper.checkedCast(cl);
         test(derived != null);
         test(cl.Equals(baseProxy));
         test(derived.Equals(baseProxy));
         test(cl.Equals(derived));
         try
         {
-            Test.MyDerivedClassPrxHelper.checkedCast(cl, "facet");
+            Test.MyDerivedInterfacePrxHelper.checkedCast(cl, "facet");
             test(false);
         }
         catch (Ice.FacetNotExistException)
@@ -725,7 +725,7 @@ public class AllTests : global::Test.AllTests
             ["one"] = "hello",
             ["two"] = "world"
         };
-        cl = Test.MyClassPrxHelper.checkedCast(baseProxy, c);
+        cl = Test.MyInterfacePrxHelper.checkedCast(baseProxy, c);
         Dictionary<string, string> c2 = cl.getContext();
         test(Internal.DictionaryExtensions.DictionaryEqual(c, c2));
         output.WriteLine("ok");
@@ -737,7 +737,7 @@ public class AllTests : global::Test.AllTests
             if (connection != null)
             {
                 test(!cl.ice_isFixed());
-                var prx = (Test.MyClassPrx)cl.ice_fixed(connection);
+                var prx = (Test.MyInterfacePrx)cl.ice_fixed(connection);
                 test(prx.ice_isFixed());
                 prx.ice_ping();
                 test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet() == "facet");
@@ -783,7 +783,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing encoding versioning... ");
         output.Flush();
         string ref20 = "test -e 2.0:" + helper.getTestEndpoint(0);
-        Test.MyClassPrx cl20 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
+        Test.MyInterfacePrx cl20 = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
         try
         {
             cl20.ice_ping();
@@ -795,7 +795,7 @@ public class AllTests : global::Test.AllTests
         }
 
         string ref13 = "test -e 1.3:" + helper.getTestEndpoint(0);
-        Test.MyClassPrx cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
+        Test.MyInterfacePrx cl13 = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
         try
         {
             await cl13.ice_pingAsync();
@@ -807,7 +807,7 @@ public class AllTests : global::Test.AllTests
         }
 
         string ref10 = "test -e 1.0:" + helper.getTestEndpoint(0);
-        Test.MyClassPrx cl10 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
+        Test.MyInterfacePrx cl10 = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
         cl10.ice_ping();
         cl10.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
         cl.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
@@ -857,7 +857,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing protocol versioning... ");
         output.Flush();
         ref20 = "test -p 2.0:" + helper.getTestEndpoint(0);
-        cl20 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
+        cl20 = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
         try
         {
             cl20.ice_ping();
@@ -869,7 +869,7 @@ public class AllTests : global::Test.AllTests
         }
 
         ref13 = "test -p 1.3:" + helper.getTestEndpoint(0);
-        cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
+        cl13 = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
 
         try
         {
@@ -882,7 +882,7 @@ public class AllTests : global::Test.AllTests
         }
 
         ref10 = "test -p 1.0:" + helper.getTestEndpoint(0);
-        cl10 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
+        cl10 = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
         cl10.ice_ping();
 
         output.WriteLine("ok");

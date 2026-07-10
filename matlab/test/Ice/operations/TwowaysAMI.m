@@ -7,11 +7,11 @@ classdef TwowaysAMI
 
             call(p, 'ice_ping');
 
-            b = call(p, 'ice_isA', MyClassPrx.ice_staticId());
+            b = call(p, 'ice_isA', MyInterfacePrx.ice_staticId());
             assert(b);
 
             id = call(p, 'ice_id');
-            assert(strcmp(id, MyDerivedClassPrx.ice_staticId()));
+            assert(strcmp(id, MyDerivedInterfacePrx.ice_staticId()));
 
             ids = call(p, 'ice_ids');
             assert(length(ids) == 3);
@@ -45,7 +45,7 @@ classdef TwowaysAMI
             assert(p2 == MyEnum.enum2);
             assert(r == MyEnum.enum3);
 
-            [r, p2, p3] = call(p, 'opMyClass', p);
+            [r, p2, p3] = call(p, 'opMyInterface', p);
             assert(isequal(p2.ice_getIdentity(), Ice.stringToIdentity('test')));
             assert(isequal(p3.ice_getIdentity(), Ice.stringToIdentity('noSuchIdentity')));
             assert(isequal(r.ice_getIdentity(), Ice.stringToIdentity('test')));
@@ -56,7 +56,7 @@ classdef TwowaysAMI
             si1.s = AnotherStruct();
             si1.s.s = 'abc';
             si2 = Structure();
-            si2.p = Test.MyClassPrx.empty;
+            si2.p = Test.MyInterfacePrx.empty;
             si2.e = MyEnum.enum2;
             si2.s = AnotherStruct();
             si2.s.s = 'def';
@@ -1125,7 +1125,7 @@ classdef TwowaysAMI
                 ctx('two') = 'TWO';
                 ctx('three') = 'THREE';
 
-                p3 = MyClassPrx(ic, ['test:', helper.getTestEndpoint()]);
+                p3 = MyInterfacePrx(ic, ['test:', helper.getTestEndpoint()]);
 
                 ic.getImplicitContext().setContext(ctx);
                 assert(isequal(ic.getImplicitContext().getContext(), ctx));
@@ -1188,24 +1188,24 @@ classdef TwowaysAMI
             empty = call(p, 'opByteBoolD2', emptyByteBoolD);
             assert(empty.numEntries == 0);
 
-            d = MyDerivedClassPrx.uncheckedCast(p);
+            d = MyDerivedInterfacePrx.uncheckedCast(p);
             s = MyStruct1();
             s.tesT = 'Test.MyStruct1.s';
-            s.myClass = Test.MyClassPrx.empty;
+            s.myInterface = Test.MyInterfacePrx.empty;
             s.myStruct1 = 'Test.MyStruct1.myStruct1';
             s = call(d, 'opMyStruct1', s);
             assert(strcmp(s.tesT, 'Test.MyStruct1.s'));
-            assert(isempty(s.myClass));
+            assert(isempty(s.myInterface));
             assert(strcmp(s.myStruct1, 'Test.MyStruct1.myStruct1'));
 
-            c = MyClass1();
-            c.tesT = 'Test.MyClass1.testT';
-            c.myClass = Test.MyClassPrx.empty;
-            c.myClass1 = 'Test.MyClass1.myClass1';
-            c = call(d, 'opMyClass1', c);
-            assert(strcmp(c.tesT, 'Test.MyClass1.testT'));
-            assert(isempty(c.myClass));
-            assert(strcmp(c.myClass1, 'Test.MyClass1.myClass1'));
+            c = MyClass();
+            c.tesT = 'Test.MyClass.testT';
+            c.myInterface = Test.MyInterfacePrx.empty;
+            c.myClass = 'Test.MyClass.myClass';
+            c = call(d, 'opMyClass', c);
+            assert(strcmp(c.tesT, 'Test.MyClass.testT'));
+            assert(isempty(c.myInterface));
+            assert(strcmp(c.myClass, 'Test.MyClass.myClass'));
         end
     end
 end

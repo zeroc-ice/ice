@@ -22,7 +22,7 @@ public class Server extends TestHelper {
         try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new MyDerivedClassI(), new Identity("test", ""));
+            adapter.add(new MyDerivedInterfaceI(), new Identity("test", ""));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

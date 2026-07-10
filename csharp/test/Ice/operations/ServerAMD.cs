@@ -26,7 +26,7 @@ namespace Ice.operations
                 await using Communicator communicator = initialize(initData);
                 communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                 Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+                adapter.add(new MyDerivedInterfaceI(), Ice.Util.stringToIdentity("test"));
                 adapter.activate();
                 serverReady();
                 await communicator.shutdownCompleted;

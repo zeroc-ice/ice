@@ -27,9 +27,9 @@ class Callback:
             self._cond.notify()
 
 
-def batchOneways(p: Test.MyClassPrx):
+def batchOneways(p: Test.MyInterfacePrx):
     bs1 = bytes([0 for _ in range(0, 10 * 1024)])
-    batch = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
+    batch = Test.MyInterfacePrx.uncheckedCast(p.ice_batchOneway())
 
     f = batch.ice_flushBatchRequestsAsync()  # Empty flush
     assert isinstance(f, Ice.Future)
@@ -48,8 +48,8 @@ def batchOneways(p: Test.MyClassPrx):
         time.sleep(0.01)
 
     if p.ice_getConnection():
-        batch1 = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
-        batch2 = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
+        batch1 = Test.MyInterfacePrx.uncheckedCast(p.ice_batchOneway())
+        batch2 = Test.MyInterfacePrx.uncheckedCast(p.ice_batchOneway())
 
         batch1.ice_pingAsync()
         batch2.ice_pingAsync()
