@@ -1089,7 +1089,7 @@ proxyIceGetConnection(ProxyObject* self, PyObject* /*args*/)
     Ice::ConnectionPtr con;
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
+        AllowThreads allowThreads; // Release Python's global interpreter lock during connection establishment.
         con = (*self->proxy)->ice_getConnection();
     }
     catch (...)
