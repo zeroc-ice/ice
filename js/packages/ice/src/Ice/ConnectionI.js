@@ -781,6 +781,7 @@ export class ConnectionI {
                     StateClosing,
                     new ConnectionClosedException(
                         "connection closed because it remained inactive for longer than the inactivity timeout",
+                        false,
                     ),
                 );
             }

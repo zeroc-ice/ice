@@ -12,6 +12,7 @@ export class Client extends TestHelper {
         const proxy = new Test.TestIntfPrx(communicator, `test:${this.getTestEndpoint()}`);
 
         out.write("testing enum values... ");
+        test(Test.ByteEnum.benum1 instanceof Ice.EnumBase);
         test(Test.ByteEnum.benum1.value === 0);
         test(Test.ByteEnum.benum2.value === 1);
         test(Test.ByteEnum.benum3.value === Test.ByteConst1);
