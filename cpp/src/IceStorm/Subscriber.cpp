@@ -626,9 +626,9 @@ Subscriber::destroy()
         {
             // Ignore
         }
-        catch (const Ice::ObjectAdapterDeactivatedException&)
+        catch (const Ice::ObjectAdapterDestroyedException&)
         {
-            // Ignore
+            // Ignore -- this can occur on shutdown.
         }
     }
 
