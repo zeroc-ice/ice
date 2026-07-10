@@ -24,6 +24,7 @@
         "icestorm",
         "istr",
         "jgoodies",
+        "libxcrypt",
         "LMDB",
         "nohup",
         "nullopt",
@@ -46,6 +47,7 @@
         "unregisters",
         "upcall",
         "upcalls",
+        "yescrypt",
         "zeroc"
     ],
     "flagWords": [
