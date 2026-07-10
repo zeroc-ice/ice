@@ -225,7 +225,7 @@ public final class Communicator implements AutoCloseable {
      *     ignored, and any SSL configuration must be done through the SSLEngineFactory. Pass null
      *     if the object adapter does not use secure endpoints, or if the ssl transport is
      *     configured through Ice.SSL configuration properties. Passing null is equivalent to
-     *     calling {@link #createObjectAdapterWithEndpoints(String, String)}.
+     *     calling {@link #createObjectAdapter(String)}.
      * @return the new object adapter
      * @throws IllegalArgumentException if the provided name is empty and sslEngineFactory is non-null
      * @see #createObjectAdapterWithEndpoints

@@ -25,7 +25,7 @@ import java.util.OptionalLong;
 import java.util.TreeMap;
 
 /**
- * Interface to marshal (write) Slice types into sequence of bytes encoded using the Slice encoding.
+ * Marshals (writes) Slice types into a sequence of bytes encoded using the Slice encoding.
  *
  * @see InputStream
  */
@@ -258,7 +258,7 @@ public final class OutputStream {
         _encapsStack.encoding.ice_writeMembers(this);
     }
 
-    /** Ends the previous encapsulation. */
+    /** Ends the current encapsulation. */
     public void endEncapsulation() {
         assert (_encapsStack != null);
 
@@ -1333,8 +1333,9 @@ public final class OutputStream {
     /**
      * Writes a Slice value to the stream.
      *
-     * @param v The value to write. This method writes the index of an instance; the state of the
-     *     value is written once {@link #writePendingValues} is called.
+     * @param v The value to write. With the 1.0 encoding, this method writes an index and the state of the value is
+     *     marshaled when {@link #writePendingValues} is called; with the 1.1 encoding, the state is marshaled eagerly,
+     *     without waiting for {@link #writePendingValues}.
      */
     public void writeValue(Value v) {
         initEncaps();
