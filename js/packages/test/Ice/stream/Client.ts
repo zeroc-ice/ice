@@ -41,6 +41,35 @@ export class Client extends TestHelper {
         }
 
         {
+            // The InputStream accepts an ArrayBuffer holding the encoded data.
+            const outS = new Ice.OutputStream(communicator);
+            outS.writeInt(0x01020304);
+            const data = outS.finished();
+            const buffer = new ArrayBuffer(data.byteLength);
+            new Uint8Array(buffer).set(data);
+            const inS = new Ice.InputStream(communicator, buffer);
+            test(inS.readInt() === 0x01020304);
+        }
+
+        {
+            // The InputStream reads from the exact range of a Uint8Array view into a larger buffer.
+            const outS = new Ice.OutputStream(communicator);
+            outS.writeInt(0x01020304);
+            const data = outS.finished();
+            const padded = new Uint8Array(data.byteLength + 8);
+            padded.fill(0xff);
+            padded.set(data, 4);
+            const inS = new Ice.InputStream(communicator, padded.subarray(4, 4 + data.byteLength));
+            test(inS.readInt() === 0x01020304);
+            try {
+                inS.readByte(); // no data remains within the view's range
+                test(false);
+            } catch (ex) {
+                test(ex instanceof Ice.MarshalException);
+            }
+        }
+
+        {
             const outS = new Ice.OutputStream(communicator);
             outS.writeBool(true);
             const data = outS.finished();
