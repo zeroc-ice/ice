@@ -202,7 +202,7 @@ try:
             return v1
 
         @override
-        def opOptIntSeq(self, v: numpy.typing.NDArray[numpy.int32], current: Ice.Current) -> numpy.typing.NDArray[numpy.int32]:
+        def opOptIntSeq(self, v: numpy.typing.NDArray[numpy.int32] | None, current: Ice.Current):
             test(isinstance(v, numpy.ndarray))
             return v
 
