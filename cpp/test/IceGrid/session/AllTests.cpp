@@ -608,7 +608,8 @@ allTests(TestHelper* helper)
         cout << "ok" << endl;
     }
 
-    if (properties->getIceProperty("Ice.Default.Protocol") == "ssl")
+    const string protocol = properties->getIceProperty("Ice.Default.Protocol");
+    if (protocol == "ssl" || protocol == "wss")
     {
         cout << "testing sessions from secure connection... " << flush;
 
@@ -865,7 +866,7 @@ allTests(TestHelper* helper)
         cout << "ok" << endl;
     }
 
-    if (properties->getIceProperty("Ice.Default.Protocol") == "ssl")
+    if (protocol == "ssl" || protocol == "wss")
     {
         cout << "testing Glacier2 sessions from secure connection... " << flush;
 

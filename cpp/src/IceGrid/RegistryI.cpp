@@ -120,6 +120,19 @@ namespace
         return nullptr;
     }
 
+    shared_ptr<Ice::SSL::ConnectionInfo> getSSLConnectionInfo(const ConnectionInfoPtr& info)
+    {
+        for (auto p = info; p; p = p->underlying)
+        {
+            auto sslInfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(p);
+            if (sslInfo)
+            {
+                return sslInfo;
+            }
+        }
+        return nullptr;
+    }
+
     ProcessI::ProcessI(shared_ptr<RegistryI> registry, shared_ptr<Process> origProcess)
         : _registry(std::move(registry)),
           _origProcess(std::move(origProcess))
@@ -1156,7 +1169,7 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
     Glacier2::SSLInfo sslinfo;
     try
     {
-        auto info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(connection->getInfo());
+        auto info = getSSLConnectionInfo(connection->getInfo());
         if (!info)
         {
             throw PermissionDeniedException("not an ssl connection");
