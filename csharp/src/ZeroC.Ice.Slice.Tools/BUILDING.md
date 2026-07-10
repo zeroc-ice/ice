@@ -12,7 +12,7 @@ This page describes how to build Slice Tools for Ice .NET from source and packag
    Download the .NET SDK from [dotnet.microsoft.com](https://dotnet.microsoft.com/en-us/download/dotnet).
 
 2. **The Slice to C# compiler from the C++ source distribution**
-   Refer to the [build instructions](../../cpp/BUILDING.md) in the `cpp` folder for details on how to build the C++
+   Refer to the [build instructions](../../../cpp/BUILDING.md) in the `cpp` folder for details on how to build the C++
    source distribution.
 
 ### Building
