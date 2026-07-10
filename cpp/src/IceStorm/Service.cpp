@@ -111,6 +111,10 @@ ServiceI::start([[maybe_unused]] const string& serviceName, const CommunicatorPt
         {
             _transientManager = make_shared<TransientTopicManagerImpl>(_instance);
             _managerProxy = topicAdapter->add<TopicManagerPrx>(_transientManager, topicManagerId);
+
+            topicAdapter->add(
+                make_shared<FinderI>(topicAdapter->createProxy<TopicManagerPrx>(topicManagerId)),
+                stringToIdentity("IceStorm/Finder"));
         }
         catch (const Ice::LocalException& ex)
         {
