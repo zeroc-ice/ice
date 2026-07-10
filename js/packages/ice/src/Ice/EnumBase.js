@@ -7,7 +7,7 @@ Object.defineProperty(OptionalFormat_Size, "value", { value: 4 });
 //
 // Ice.EnumBase
 //
-class EnumBase {
+export class EnumBase {
     constructor(name, value) {
         this._name = name;
         this._value = value;

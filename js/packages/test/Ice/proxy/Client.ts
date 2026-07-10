@@ -1031,6 +1031,7 @@ export class Client extends TestHelper {
         } catch (ex) {
             if (ex instanceof Ice.NoEndpointException) {
                 test(!ssl);
+                test(ex.message.startsWith("No suitable endpoint available for proxy"));
             } else if (ex instanceof Ice.ConnectFailedException) {
                 test(ssl);
             } else {

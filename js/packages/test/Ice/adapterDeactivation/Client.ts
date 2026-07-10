@@ -57,6 +57,12 @@ export class Client extends TestHelper {
             id.name = "dummy";
             test(Ice.ArrayUtil.equals(adapter.createProxy(id).ice_getEndpoints(), prx.ice_getEndpoints()));
             test(Ice.ArrayUtil.equals(adapter.getPublishedEndpoints(), prx.ice_getEndpoints()));
+            try {
+                adapter.setPublishedEndpoints([]);
+                test(false);
+            } catch (ex) {
+                test(ex instanceof Error && ex.message.includes("at least one endpoint"));
+            }
             adapter.destroy();
             test(adapter.getPublishedEndpoints().length === 0);
 
