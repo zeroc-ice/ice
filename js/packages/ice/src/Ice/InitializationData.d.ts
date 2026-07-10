@@ -12,27 +12,27 @@ declare module "@zeroc/ice" {
             constructor();
 
             /**
-             * Creates a deep copy of the object.
+             * Creates a shallow copy of this object.
              *
-             * @returns A deep copy of the object
+             * @returns A shallow copy of this object
              */
             clone(): InitializationData;
 
             /**
              * The properties for the communicator.
-             * When not-null, this corresponds to the object returned by the Communicator::getProperties function.
+             * When not-null, this corresponds to the object returned by {@link Communicator#getProperties}.
              */
-            properties: Properties;
+            properties: Properties | null;
 
             /**
              * The logger for the communicator.
              */
-            logger: Logger;
+            logger: Logger | null;
 
             /**
              * The Slice loader, used to unmarshal Slice classes and exceptions.
              */
-            sliceLoader: SliceLoader;
+            sliceLoader: SliceLoader | null;
         }
     }
 }

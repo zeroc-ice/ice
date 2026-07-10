@@ -2762,7 +2762,7 @@ Slice::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << " */";
     _out << nl << "static checkedCast(prx: " << _iceImportPrefix << "Ice.ObjectPrx | null"
          << ", "
-         << "facet?: string, context?: Map<string, string>): " << _iceImportPrefix << "Ice.AsyncResult"
+         << "facet?: string, context?: Map<string, string>): globalThis.Promise"
          << "<" << prxName << " | null>;";
     _out << eb;
 

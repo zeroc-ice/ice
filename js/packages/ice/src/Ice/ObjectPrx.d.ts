@@ -70,7 +70,14 @@ declare module "@zeroc/ice" {
              *
              * @returns A stringified proxy.
              */
-            ice_toString(): string;
+            toString(): string;
+
+            /**
+             * Returns the hash code of this proxy.
+             *
+             * @returns the hash code of this proxy.
+             */
+            hashCode(): number;
 
             /**
              * Creates a proxy that is identical to this proxy, except for the identity.
@@ -78,7 +85,7 @@ declare module "@zeroc/ice" {
              * @param id - The identity for the new proxy.
              * @returns A proxy with the new identity.
              */
-            ice_identity(id: Identity): this;
+            ice_identity(id: Identity): ObjectPrx;
 
             /**
              * Gets the identity embedded in this proxy.
@@ -150,10 +157,10 @@ declare module "@zeroc/ice" {
             /**
              * Creates a proxy that is identical to this proxy, except for the facet.
              *
-             * @param facet The facet for the new proxy.
+             * @param facet - The facet for the new proxy.
              * @returns A proxy with the new facet.
              */
-            ice_facet(facet: string): this;
+            ice_facet(facet: string): ObjectPrx;
 
             /**
              * Gets the facet for this proxy.
@@ -311,7 +318,8 @@ declare module "@zeroc/ice" {
             ice_isFixed(): boolean;
 
             /**
-             * Gets the connection ID of this proxy.
+             * Gets the connection for this proxy. If the proxy does not yet have an established connection, it first
+             * attempts to create a connection.
              *
              * @returns An asynchronous result that resolves to the connection used by this proxy.
              * @remarks You can call this function to establish a connection or associate the proxy with an existing
@@ -326,7 +334,7 @@ declare module "@zeroc/ice" {
              * @returns The cached connection for this proxy, or `null` if the proxy does not have an established
              * connection.
              */
-            ice_getCachedConnection(): Connection;
+            ice_getCachedConnection(): Connection | null;
 
             /**
              * Creates a proxy that is identical to this proxy, except for connection caching.
@@ -364,7 +372,7 @@ declare module "@zeroc/ice" {
              *
              * @param prx - The source proxy.
              * @param facet - An optional facet name.
-             * @returns A proxy with the requested type and facet, or null if the source proxy is null.
+             * @returns A proxy with the requested type and facet.
              */
             static uncheckedCast(prx: ObjectPrx, facet?: string): ObjectPrx;
 
@@ -384,14 +392,14 @@ declare module "@zeroc/ice" {
              * @param prx - The source proxy.
              * @param facet - An optional facet name.
              * @param context - The request context.
-             * @returns An asynchronous result resolving to a proxy with the requested type and facet, or `null` if the
+             * @returns A promise that resolves to a proxy with the requested type and facet, or `null` if the
              *          target object does not support the requested type.
              */
             static checkedCast(
                 prx: ObjectPrx | null,
                 facet?: string,
                 context?: Map<string, string>,
-            ): AsyncResult<ObjectPrx | null>;
+            ): globalThis.Promise<ObjectPrx | null>;
         }
     }
 }

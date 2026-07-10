@@ -30,6 +30,15 @@ declare module "@zeroc/ice" {
          * The base class for the 3 NotExist exceptions.
          */
         class RequestFailedException extends DispatchException {
+            /**
+             * Constructs a RequestFailedException.
+             *
+             * @param replyStatus The reply status.
+             * @param id The identity of the target Ice object.
+             * @param facet The facet of the target Ice object.
+             * @param operation The name of the operation.
+             */
+            protected constructor(replyStatus: ReplyStatus, id?: Identity, facet?: string, operation?: string);
             readonly id: Identity;
             readonly facet: string;
             readonly operation: string;
@@ -145,7 +154,7 @@ declare module "@zeroc/ice" {
         }
 
         /**
-         * This exception indicates that an invocation failed because it timed out.
+         * The exception that is thrown when an invocation times out.
          */
         class InvocationTimeoutException extends TimeoutException {
             constructor();
@@ -223,7 +232,7 @@ declare module "@zeroc/ice" {
 
         /**
          * The exception that is thrown when an operation fails because the communicator has been destroyed.
-         * @see {@link Communicator#destroy()}
+         * @see {@link Communicator#destroy}
          */
         class CommunicatorDestroyedException extends LocalException {}
 
@@ -256,12 +265,13 @@ declare module "@zeroc/ice" {
         class FixedProxyException extends LocalException {}
 
         /**
-         * The exception that is thrown when communicator initialization fails.
+         * The exception that is thrown when a failure occurs during initialization.
          */
         class InitializationException extends LocalException {}
 
         /**
-         * This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
+         * The exception that is thrown when an asynchronous invocation fails because it was canceled explicitly by
+         * the user.
          */
         class InvocationCanceledException extends LocalException {
             constructor();

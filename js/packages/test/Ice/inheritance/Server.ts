@@ -16,7 +16,7 @@ export class Server extends TestHelper {
             const base = new Ice.ObjectPrx(communicator, `initial:${this.getTestEndpoint()}`);
             adapter.add(new InitialI(adapter, base), Ice.stringToIdentity("initial"));
             await echo.setConnection();
-            echo.ice_getCachedConnection().setAdapter(adapter);
+            echo.ice_getCachedConnection()!.setAdapter(adapter);
             this.serverReady();
             await communicator.waitForShutdown();
         } finally {

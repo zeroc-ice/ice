@@ -41,7 +41,7 @@ export class Server extends TestHelper {
             adapter.add(new F2I(), Ice.stringToIdentity("F21"));
             adapter.add(new UnexpectedObjectExceptionTestI(), Ice.stringToIdentity("uoet"));
             await echo.setConnection();
-            echo.ice_getCachedConnection().setAdapter(adapter);
+            echo.ice_getCachedConnection()!.setAdapter(adapter);
             this.serverReady();
             await communicator.waitForShutdown();
         } finally {

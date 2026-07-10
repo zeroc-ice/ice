@@ -14,7 +14,7 @@ declare module "@zeroc/ice" {
 
         class HashMap<Key extends HashMapKey, Value> {
             /**
-             * Creates an empty HashMap that uses the operator === for key and value comparisons.
+             * Creates an empty HashMap that uses the operator `===` for key comparisons.
              */
             constructor();
 
@@ -45,7 +45,7 @@ declare module "@zeroc/ice" {
              * Retrieves the value associated with the specified key.
              *
              * @param key The key of the entry to retrieve.
-             * @return The value associated with the key, or undefined if the key does not exist.
+             * @returns The value associated with the key, or undefined if the key does not exist.
              */
             get(key: Key): Value | undefined;
 
@@ -53,7 +53,7 @@ declare module "@zeroc/ice" {
              * Checks if the specified key exists in the HashMap.
              *
              * @param key The key to check for existence.
-             * @return True if the key exists, false otherwise.
+             * @returns True if the key exists, false otherwise.
              */
             has(key: Key): boolean;
 
@@ -61,7 +61,7 @@ declare module "@zeroc/ice" {
              * Deletes the entry associated with the specified key.
              *
              * @param key The key of the entry to delete.
-             * @return The value associated with the deleted key, or undefined if the key did not exist.
+             * @returns The value associated with the deleted key, or undefined if the key did not exist.
              */
             delete(key: Key): Value | undefined;
 
@@ -81,28 +81,28 @@ declare module "@zeroc/ice" {
             /**
              * Returns an iterator over the key-value pairs in the HashMap.
              *
-             * @return An iterator of [key, value] pairs.
+             * @returns An iterator of [key, value] pairs.
              */
             [Symbol.iterator](): IterableIterator<[Key, Value]>;
 
             /**
              * Returns an iterable of key-value pairs in the HashMap.
              *
-             * @return An iterable iterator of [key, value] pairs.
+             * @returns An iterable iterator of [key, value] pairs.
              */
             entries(): IterableIterator<[Key, Value]>;
 
             /**
              * Returns an iterable of keys in the HashMap.
              *
-             * @return An iterable iterator of keys.
+             * @returns An iterable iterator of keys.
              */
             keys(): IterableIterator<Key>;
 
             /**
              * Returns an iterable of values in the HashMap.
              *
-             * @return An iterable iterator of values.
+             * @returns An iterable iterator of values.
              */
             values(): IterableIterator<Value>;
 
