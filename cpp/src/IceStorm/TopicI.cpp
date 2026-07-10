@@ -862,11 +862,19 @@ TopicImpl::update(const SubscriberRecordSeq& records)
                 (*p)->destroy();
                 p = _subscribers.erase(p);
             }
-            else
+            else if ((*p)->record() == *q)
             {
-                // Otherwise reset the reaped status if necessary.
+                // The record is unchanged; reset the reaped status if necessary.
                 (*p)->resetIfReaped();
                 ++p;
+            }
+            else
+            {
+                // The subscriber re-registered with a different proxy or QoS while this replica was out
+                // of sync. Destroy the stale in-memory subscriber; the second scan re-creates it from the
+                // incoming record so it matches the database.
+                (*p)->destroy();
+                p = _subscribers.erase(p);
             }
         }
     }
