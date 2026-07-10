@@ -2396,9 +2396,9 @@ IcePy::GetConnectionAsyncCallback::setFuture(PyObject* future)
     //
     // Check if any callbacks have been invoked already.
     //
-    if (_connection)
+    if (_responseReceived)
     {
-        PyObjectHandle pyConn{createConnection(_connection, _communicator)};
+        PyObjectHandle pyConn{_connection ? createConnection(_connection, _communicator) : Py_NewRef(Py_None)};
         assert(pyConn.get());
         PyObjectHandle tmp{callMethod(future, "set_result", pyConn.get())};
         PyErr_Clear();
@@ -2425,10 +2425,11 @@ IcePy::GetConnectionAsyncCallback::response(const Ice::ConnectionPtr& conn)
         // The future hasn't been set yet, which means the request is still being invoked. Save the results for later.
         //
         _connection = conn;
+        _responseReceived = true;
         return;
     }
 
-    PyObjectHandle pyConn{createConnection(conn, _communicator)};
+    PyObjectHandle pyConn{conn ? createConnection(conn, _communicator) : Py_NewRef(Py_None)};
     PyObjectHandle tmp{callMethod(_future, "set_result", pyConn.get())};
     PyErr_Clear();
 

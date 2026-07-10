@@ -31,6 +31,25 @@ async def allTestsAsync(helper: TestHelper, communicator: Ice.Communicator):
     test(p1 is not None)
     print("ok")
 
+    sys.stdout.write("testing ice_getConnectionAsync... ")
+    sys.stdout.flush()
+
+    # Like the other async proxy operations, ice_getConnectionAsync must go through the event loop adapter.
+    future = p.ice_getConnectionAsync()
+    assert isinstance(future, asyncio.Future)
+    test(await future is not None)
+
+    # A collocated proxy has no connection: the future resolves with None, like the synchronous ice_getConnection.
+    adapter = communicator.createObjectAdapter("")
+    collocated = adapter.addWithUUID(Ice.Object())
+    future = collocated.ice_getConnectionAsync()
+    assert isinstance(future, asyncio.Future)
+    test(await future is None)
+    test(collocated.ice_getConnection() is None)
+    adapter.destroy()
+
+    print("ok")
+
     sys.stdout.write("testing exceptions... ")
     sys.stdout.flush()
     try:
