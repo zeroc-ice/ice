@@ -913,12 +913,18 @@ export class InputStream {
                         if (this._buf !== undefined) {
                             throw new InitializationException("duplicate buffer argument to InputStream constructor");
                         }
-                        this._buf = new Buffer(arg.bytes);
+                        this._buf = new Buffer(arg);
                     } else if (arg.constructor === Uint8Array) {
                         if (this._buf !== undefined) {
                             throw new InitializationException("duplicate buffer argument to InputStream constructor");
                         }
-                        this._buf = new Buffer(arg.buffer);
+                        // Buffer works with a whole ArrayBuffer: copy the view's range when it doesn't span its
+                        // entire underlying buffer.
+                        this._buf = new Buffer(
+                            arg.byteOffset === 0 && arg.byteLength === arg.buffer.byteLength
+                                ? arg.buffer
+                                : arg.buffer.slice(arg.byteOffset, arg.byteOffset + arg.byteLength),
+                        );
                     } else {
                         throw new InitializationException("unknown argument to InputStream constructor");
                     }
