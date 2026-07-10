@@ -371,6 +371,14 @@ namespace Glacier2
                 {
                     return true;
                 }
+
+                // MatchesNumber::match does not advance pos when the extraction fails (the digit run is too
+                // long to fit in an int); skip the digit run so that the scan makes progress.
+                pos = space.find_first_not_of("0123456789", pos);
+                if (pos == string::npos)
+                {
+                    return false;
+                }
             }
             return false;
         }

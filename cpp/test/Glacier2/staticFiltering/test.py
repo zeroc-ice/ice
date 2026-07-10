@@ -358,6 +358,16 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                     [],
                 ),
                 (
+                    # A digit run too long to fit in an int does not match a numeric range: the scan skips the
+                    # run, finds no other number in the host, and the rule does not match.
+                    "testing address filter numeric range against a long digit run",
+                    ("*[0-9]", "", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h " + "9" * 255 + " -p 12010"),
+                    ],
+                    [],
+                ),
+                (
                     # A proxy with an endpoint host longer than 255 characters is rejected outright, even when
                     # no reject rule matches it: no legal host name or IP address is that long.
                     "testing address filter rejects an oversized host",
