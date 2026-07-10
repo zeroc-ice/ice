@@ -78,6 +78,14 @@ export class Client extends TestHelper {
             }
         }
 
+        // The identity is registered with a facet servant only: a request on the default facet still dispatches to
+        // the default servant.
+        const facetedId = new Ice.Identity("x", "foo");
+        adapter.addFacet(new MyObjectI(), facetedId, "theFacet");
+        prx = new Test.MyObjectPrx(communicator, `foo/x:${this.getTestEndpoint()}`);
+        test((await prx.getName()) == "x");
+        adapter.removeFacet(facetedId, "theFacet");
+
         adapter.removeDefaultServant("foo");
         prx = new Test.MyObjectPrx(communicator, `foo/x:${this.getTestEndpoint()}`);
         try {

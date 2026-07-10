@@ -118,6 +118,15 @@ allTests(Test::TestHelper* helper)
         }
     }
 
+    // The identity is registered with a facet servant only: a request on the default facet still dispatches to the
+    // default servant.
+    identity.category = "foo";
+    identity.name = "x";
+    oa->addFacet(std::make_shared<MyObjectI>(), identity, "theFacet");
+    prx = oa->createProxy<MyObjectPrx>(identity);
+    test(prx->getName() == "x");
+    oa->removeFacet(identity, "theFacet");
+
     oa->removeDefaultServant("foo");
     identity.category = "foo";
     prx = oa->createProxy<MyObjectPrx>(identity);

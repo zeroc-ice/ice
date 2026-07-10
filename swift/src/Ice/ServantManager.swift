@@ -90,15 +90,15 @@ final class ServantManager: Dispatcher {
 
     func findServant(id: Identity, facet: String) -> Dispatcher? {
         return state.withLock {
-            guard let m = $0.servantMapMap[id] else {
-                guard let obj = $0.defaultServantMap[id.category] else {
-                    return $0.defaultServantMap[""]
-                }
-
+            if let obj = $0.servantMapMap[id]?[facet] {
                 return obj
             }
 
-            return m[facet]
+            guard let obj = $0.defaultServantMap[id.category] else {
+                return $0.defaultServantMap[""]
+            }
+
+            return obj
         }
     }
 

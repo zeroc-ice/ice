@@ -115,6 +115,15 @@ public class AllTests : global::Test.AllTests
             }
         }
 
+        // The identity is registered with a facet servant only: a request on the default facet still dispatches
+        // to the default servant.
+        identity.category = "foo";
+        identity.name = "x";
+        oa.addFacet(new MyObjectI(), identity, "theFacet");
+        prx = Test.MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
+        test(prx.getName() == "x");
+        oa.removeFacet(identity, "theFacet");
+
         oa.removeDefaultServant("foo");
         identity.category = "foo";
         prx = Test.MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
