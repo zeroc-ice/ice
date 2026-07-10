@@ -1102,15 +1102,15 @@ allTests(TestHelper* helper, bool collocated)
                 struct Reenter
                 {
                     ConnectionPtr connection;
-                    ~Reenter() { connection->setCloseCallback(nullptr); }
+                    ~Reenter() { connection->getInfo(); } // reenter the connection from the callback's destructor
                 };
 
                 auto con = p->ice_connectionId("CloseCallbackReplacement")->ice_getConnection();
-                auto guard = make_shared<Reenter>(con);
-                con->setCloseCallback([guard](const ConnectionPtr&) {});
-                guard = nullptr; // only the connection's callback keeps the guard alive now
 
-                con->setCloseCallback(nullptr); // destroys the previous callback, and with it the guard
+                // The lambda is the sole owner of the Reenter object, so replacing the callback below destroys it.
+                con->setCloseCallback([owner = make_shared<Reenter>(con)](const ConnectionPtr&) {});
+
+                con->setCloseCallback(nullptr); // destroys the previous callback, and with it the Reenter object
                 con->close().get();
             }
             cout << "ok" << endl;
