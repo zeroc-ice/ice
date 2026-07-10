@@ -116,10 +116,8 @@ After the build completes, the libraries are placed in the `lib` subdirectory, a
 
 ### Testing
 
-Running the test suite requires Python 3.12 or later. The commands below use `python`; on Ubuntu and other
-Debian-based systems, make sure that `python` resolves to your Python 3 interpreter (for example by installing the
-`python-is-python3` package or by invoking the commands with `python3` instead). The `Glacier2/hashpassword` test also
-requires the `passlib` package (for example the `python3-passlib` package on Debian-based systems).
+Running the test suite requires Python 3.12 or later. The `Glacier2/hashpassword` test also requires the `passlib`
+package (for example the `python3-passlib` package on Debian-based systems).
 
 You can run the tests with:
 
