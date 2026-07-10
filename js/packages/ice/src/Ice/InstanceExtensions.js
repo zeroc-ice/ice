@@ -179,7 +179,7 @@ Instance.prototype.finishSetup = function (communicator) {
         );
 
         const programName = this._initData.properties.getIceProperty("Ice.ProgramName");
-        // Ice.LogFile is only consulted when the application didn't supply its own logger.
+        // Ice.LogFile is only consulted when the application doesn't supply its own logger.
         if (this._initData.logger === null) {
             const logFile = this._initData.properties.getIceProperty("Ice.LogFile");
             if (logFile.length > 0) {
