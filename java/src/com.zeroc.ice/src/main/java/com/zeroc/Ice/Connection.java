@@ -33,7 +33,7 @@ public interface Connection {
      * the default object adapter of an outgoing connection is the communicator's default object adapter.
      *
      * @param adapter the object adapter to associate with this connection
-     * @throws UnsupportedOperationException Thrown when this connection is an incoming connection: you can only call
+     * @throws UnsupportedOperationException if this connection is an incoming connection: you can only call
      *     this method on outgoing (client) connections.
      * @see #getAdapter
      * @see Communicator#setDefaultObjectAdapter
