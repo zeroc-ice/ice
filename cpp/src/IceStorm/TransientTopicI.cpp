@@ -157,6 +157,11 @@ TransientTopicImpl::subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> o
 
     lock_guard lock(_mutex);
 
+    if (_destroyed)
+    {
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+    }
+
     SubscriberRecord record;
     record.id = id;
     record.obj = obj;
@@ -230,6 +235,11 @@ TransientTopicImpl::link(optional<TopicPrx> topic, int cost, const Ice::Current&
     }
 
     lock_guard lock(_mutex);
+
+    if (_destroyed)
+    {
+        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+    }
 
     auto id = topic->ice_getIdentity();
 
