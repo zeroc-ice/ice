@@ -30,7 +30,7 @@ namespace Ice
         /// The Slice compact type ID for this slice, or `-1` if the slice has no compact ID.
         const int compactId;
 
-        /// The encoded bytes for this slice, including the leading size integer.
+        /// The encoded bytes for this slice.
         const std::vector<std::byte> bytes;
 
         /// The class instances referenced by this slice.
