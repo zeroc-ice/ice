@@ -216,6 +216,20 @@ export class Client extends TestHelper {
         }
 
         {
+            // The format argument of the OutputStream constructor selects the class format: the sliced format
+            // writes slice headers that the compact format omits.
+            const o = new Test.OptionalClass();
+            o.bo = true;
+            const outCompact = new Ice.OutputStream(Ice.Encoding_1_1, Ice.FormatType.CompactFormat);
+            outCompact.writeValue(o);
+            outCompact.writePendingValues();
+            const outSliced = new Ice.OutputStream(Ice.Encoding_1_1, Ice.FormatType.SlicedFormat);
+            outSliced.writeValue(o);
+            outSliced.writePendingValues();
+            test(outSliced.finished().length > outCompact.finished().length);
+        }
+
+        {
             const arr = [true, false, true, false];
             let outS = new Ice.OutputStream(communicator);
             Ice.BoolSeqHelper.write(outS, arr);
