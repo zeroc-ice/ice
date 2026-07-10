@@ -154,7 +154,8 @@ namespace IceGrid
                 if (traceLevels->locator > 0)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-                    out << "could not register server '" << _id << "' process proxy:\n" << toString(current_exception());
+                    out << "could not register server '" << _id << "' process proxy:\n"
+                        << toString(current_exception());
                 }
                 _exception(make_exception_ptr(Ice::ServerNotFoundException()));
             }
