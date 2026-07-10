@@ -21,6 +21,8 @@ class DispatchException(LocalException):
     The Ice runtime then logically re-raises this exception to the client.
     """
 
+    _ice_id = "::Ice::DispatchException"
+
     def __init__(self, replyStatus: int | None, msg: str = ""):
         if replyStatus is None or replyStatus <= ReplyStatus.UserException.value or replyStatus > 255:
             raise ValueError("the reply status must fit in a byte and be greater than ReplyStatus.UserException.value")
@@ -56,6 +58,9 @@ class RequestFailedException(DispatchException):
     """
     The base class for the 3 NotExist exceptions.
     """
+
+    # No _ice_id: like its C++ counterpart, this class does not override ice_id, so it reports
+    # "::Ice::DispatchException".
 
     def __init__(
         self, replyStatus: int, id: Identity | None = None, facet: str = "", operation: str = "", msg: str = ""
@@ -108,6 +113,8 @@ class ObjectNotExistException(RequestFailedException):
     The exception that is raised when a dispatch could not find a servant for the identity carried by the request.
     """
 
+    _ice_id = "::Ice::ObjectNotExistException"
+
     def __init__(self, id: Identity | None = None, facet: str = "", operation: str = "", msg: str = ""):
         RequestFailedException.__init__(self, ReplyStatus.ObjectNotExist.value, id, facet, operation, msg)
 
@@ -118,6 +125,8 @@ class FacetNotExistException(RequestFailedException):
     The exception that is raised when a dispatch could not find a servant for the identity + facet carried by the
     request.
     """
+
+    _ice_id = "::Ice::FacetNotExistException"
 
     def __init__(self, id: Identity | None = None, facet: str = "", operation: str = "", msg: str = ""):
         RequestFailedException.__init__(self, ReplyStatus.FacetNotExist.value, id, facet, operation, msg)
@@ -131,6 +140,8 @@ class OperationNotExistException(RequestFailedException):
     definitions newer than the server's.
     """
 
+    _ice_id = "::Ice::OperationNotExistException"
+
     def __init__(self, id: Identity | None = None, facet: str = "", operation: str = "", msg: str = ""):
         RequestFailedException.__init__(self, ReplyStatus.OperationNotExist.value, id, facet, operation, msg)
 
@@ -140,6 +151,8 @@ class UnknownException(DispatchException):
     The exception that is raised when a dispatch failed with an exception that is not a :class:`LocalException` or a
     :class:`UserException`.
     """
+
+    _ice_id = "::Ice::UnknownException"
 
     def __init__(self, msg: str, replyStatus: int = ReplyStatus.UnknownException.value):
         DispatchException.__init__(self, replyStatus, msg)
@@ -152,6 +165,8 @@ class UnknownLocalException(UnknownException):
     :class:`DispatchException`.
     """
 
+    _ice_id = "::Ice::UnknownLocalException"
+
     def __init__(self, msg: str):
         UnknownException.__init__(self, msg, ReplyStatus.UnknownLocalException.value)
 
@@ -162,6 +177,8 @@ class UnknownUserException(UnknownException):
     The exception that is raised when a client receives a :class:`UserException` that was not declared in the
     operation's exception specification.
     """
+
+    _ice_id = "::Ice::UnknownUserException"
 
     def __init__(self, msg: str):
         UnknownException.__init__(self, msg, ReplyStatus.UnknownUserException.value)
@@ -178,6 +195,8 @@ class ProtocolException(LocalException):
     The base class for exceptions related to the Ice protocol.
     """
 
+    _ice_id = "::Ice::ProtocolException"
+
 
 @final
 class CloseConnectionException(ProtocolException):
@@ -188,6 +207,8 @@ class CloseConnectionException(ProtocolException):
     connection again, and the retry limit has been reached, then this exception is propagated to the application code.
     """
 
+    _ice_id = "::Ice::CloseConnectionException"
+
 
 @final
 class DatagramLimitException(ProtocolException):
@@ -196,12 +217,16 @@ class DatagramLimitException(ProtocolException):
     maximum payload size of a UDP packet (65507 bytes).
     """
 
+    _ice_id = "::Ice::DatagramLimitException"
+
 
 @final
 class MarshalException(ProtocolException):
     """
     The exception that is raised when an error occurs during marshaling or unmarshaling.
     """
+
+    _ice_id = "::Ice::MarshalException"
 
 
 #
@@ -215,12 +240,16 @@ class TimeoutException(LocalException):
     The exception that is raised when a timeout occurs. This is the base class for all timeout exceptions.
     """
 
+    _ice_id = "::Ice::TimeoutException"
+
 
 @final
 class ConnectTimeoutException(TimeoutException):
     """
     The exception that is raised when a connection establishment times out.
     """
+
+    _ice_id = "::Ice::ConnectTimeoutException"
 
 
 @final
@@ -229,12 +258,16 @@ class CloseTimeoutException(TimeoutException):
     The exception that is raised when a graceful connection closure times out.
     """
 
+    _ice_id = "::Ice::CloseTimeoutException"
+
 
 @final
 class InvocationTimeoutException(TimeoutException):
     """
     The exception that is raised when an invocation times out.
     """
+
+    _ice_id = "::Ice::InvocationTimeoutException"
 
 
 #
@@ -248,12 +281,16 @@ class SyscallException(LocalException):
     The exception that is raised to report the failure of a system call.
     """
 
+    _ice_id = "::Ice::SyscallException"
+
 
 @final
 class DNSException(SyscallException):
     """
     The exception that is raised to report a DNS resolution failure.
     """
+
+    _ice_id = "::Ice::DNSException"
 
 
 #
@@ -267,11 +304,15 @@ class SocketException(SyscallException):
     The exception that is raised to report a socket error.
     """
 
+    _ice_id = "::Ice::SocketException"
+
 
 class ConnectFailedException(SocketException):
     """
     The exception that is raised when a connection establishment fails.
     """
+
+    _ice_id = "::Ice::ConnectFailedException"
 
 
 @final
@@ -280,12 +321,16 @@ class ConnectionLostException(SocketException):
     The exception that is raised when an established connection is lost.
     """
 
+    _ice_id = "::Ice::ConnectionLostException"
+
 
 @final
 class ConnectionRefusedException(ConnectFailedException):
     """
     The exception that is raised when the server host actively refuses a connection.
     """
+
+    _ice_id = "::Ice::ConnectionRefusedException"
 
 
 #
@@ -299,6 +344,8 @@ class AlreadyRegisteredException(LocalException):
     """
     The exception that is raised when you attempt to register an object more than once with the Ice runtime.
     """
+
+    _ice_id = "::Ice::AlreadyRegisteredException"
 
     def __init__(self, kindOfObject: str, id: str, msg: str):
         LocalException.__init__(self, msg)
@@ -337,12 +384,16 @@ class CommunicatorDestroyedException(LocalException):
     The exception that is raised when an operation fails because the communicator has been destroyed.
     """
 
+    _ice_id = "::Ice::CommunicatorDestroyedException"
+
 
 @final
 class ConnectionAbortedException(LocalException):
     """
     The exception that is raised when an operation fails because the connection has been aborted.
     """
+
+    _ice_id = "::Ice::ConnectionAbortedException"
 
     def __init__(self, closedByApplication: bool, msg: str):
         LocalException.__init__(self, msg)
@@ -359,6 +410,8 @@ class ConnectionClosedException(LocalException):
     The exception that is raised when an operation fails because the connection has been closed gracefully.
     """
 
+    _ice_id = "::Ice::ConnectionClosedException"
+
     def __init__(self, closedByApplication: bool, msg: str):
         LocalException.__init__(self, msg)
         self.__closedByApplication = closedByApplication
@@ -374,12 +427,16 @@ class FeatureNotSupportedException(LocalException):
     The exception that is raised when attempting to use an unsupported feature.
     """
 
+    _ice_id = "::Ice::FeatureNotSupportedException"
+
 
 @final
 class FixedProxyException(LocalException):
     """
     The exception that is raised when attempting to change a connection-related property on a fixed proxy.
     """
+
+    _ice_id = "::Ice::FixedProxyException"
 
 
 @final
@@ -388,11 +445,15 @@ class InitializationException(LocalException):
     The exception that is raised when communicator initialization fails.
     """
 
+    _ice_id = "::Ice::InitializationException"
+
 
 class InvocationCanceledException(LocalException):
     """
     The exception that is raised when an asynchronous invocation fails because it was canceled explicitly by the user.
     """
+
+    _ice_id = "::Ice::InvocationCanceledException"
 
 
 @final
@@ -401,12 +462,16 @@ class NoEndpointException(LocalException):
     The exception that is raised when the Ice runtime cannot find a suitable endpoint to connect to.
     """
 
+    _ice_id = "::Ice::NoEndpointException"
+
 
 @final
 class NotRegisteredException(LocalException):
     """
     The exception that is raised when attempting to find or deregister something that is not registered with Ice.
     """
+
+    _ice_id = "::Ice::NotRegisteredException"
 
     def __init__(self, kindOfObject: str, id: str, msg: str):
         LocalException.__init__(self, msg)
@@ -444,12 +509,16 @@ class ObjectAdapterDeactivatedException(LocalException):
     The exception that is raised when attempting to use an :class:`ObjectAdapter` that has been deactivated.
     """
 
+    _ice_id = "::Ice::ObjectAdapterDeactivatedException"
+
 
 @final
 class ObjectAdapterDestroyedException(LocalException):
     """
     The exception that is raised when attempting to use an :class:`ObjectAdapter` that has been destroyed.
     """
+
+    _ice_id = "::Ice::ObjectAdapterDestroyedException"
 
 
 @final
@@ -459,6 +528,8 @@ class ObjectAdapterIdInUseException(LocalException):
     :class:`Locator` implementation detects another active :class:`ObjectAdapter` with the same adapter ID.
     """
 
+    _ice_id = "::Ice::ObjectAdapterIdInUseException"
+
 
 @final
 class ParseException(LocalException):
@@ -466,12 +537,16 @@ class ParseException(LocalException):
     The exception that is raised when the parsing of a string fails.
     """
 
+    _ice_id = "::Ice::ParseException"
+
 
 @final
 class SecurityException(LocalException):
     """
     The exception that is raised when a failure occurs in the security subsystem. This includes IceSSL errors.
     """
+
+    _ice_id = "::Ice::SecurityException"
 
 
 @final
@@ -482,6 +557,8 @@ class TwowayOnlyException(LocalException):
     specification.
     """
 
+    _ice_id = "::Ice::TwowayOnlyException"
+
 
 @final
 class OnewayOnlyException(LocalException):
@@ -490,6 +567,8 @@ class OnewayOnlyException(LocalException):
     ``["oneway"]`` metadata directive) using a twoway proxy.
     """
 
+    _ice_id = "::Ice::OnewayOnlyException"
+
 
 @final
 class PropertyException(LocalException):
@@ -497,6 +576,8 @@ class PropertyException(LocalException):
     The exception that is raised when a property cannot be set or retrieved.
     For example, this exception is raised when attempting to set an unknown Ice property.
     """
+
+    _ice_id = "::Ice::PropertyException"
 
 
 __all__ = [

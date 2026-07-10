@@ -2,6 +2,7 @@
 
 import array
 import sys
+from collections.abc import Iterator
 from typing import cast, override
 
 from generated.test.Ice.exceptions import Test
@@ -29,7 +30,34 @@ class ServantLocatorI(Ice.ServantLocator):
         pass
 
 
+def localExceptionClasses(cls: type[Ice.LocalException]) -> Iterator[type[Ice.LocalException]]:
+    for subclass in cls.__subclasses__():
+        yield subclass
+        yield from localExceptionClasses(subclass)
+
+
 def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.ThrowerPrx:
+    sys.stdout.write("testing ice_id on local exceptions... ")
+    sys.stdout.flush()
+
+    test(Ice.LocalException("").ice_id() == "::Ice::LocalException")
+    test(Ice.CommunicatorDestroyedException().ice_id() == "::Ice::CommunicatorDestroyedException")
+    test(Ice.ObjectNotExistException().ice_id() == "::Ice::ObjectNotExistException")
+
+    # Every local exception defines its own type ID, "::Ice::" followed by its class name, and reports it from
+    # ice_id(). Checking __dict__ rather than the resolved attribute means a class added later without a type ID
+    # fails here instead of silently inheriting its base's. Construct with __new__ to avoid constructor arguments.
+    for cls in localExceptionClasses(Ice.LocalException):
+        if cls is Ice.RequestFailedException:
+            # The one exception: like its C++ counterpart it does not override ice_id, so it reports its base's ID.
+            test("_ice_id" not in cls.__dict__)
+            test(cls.__new__(cls).ice_id() == "::Ice::DispatchException")
+        else:
+            test(cls.__dict__.get("_ice_id") == f"::Ice::{cls.__name__}")
+            test(cls.__new__(cls).ice_id() == f"::Ice::{cls.__name__}")
+
+    print("ok")
+
     sys.stdout.write("testing servant registration exceptions... ")
     sys.stdout.flush()
     communicator.getProperties().setProperty("TestAdapter1.Endpoints", "tcp -h *")
