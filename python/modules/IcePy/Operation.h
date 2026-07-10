@@ -38,6 +38,9 @@ namespace IcePy
         std::string _op;
         PyObject* _future{nullptr};
         Ice::ConnectionPtr _connection;
+        // A collocated proxy has no connection, so a successful response can carry a null connection. _connection
+        // alone cannot tell an early response apart from no response at all.
+        bool _responseReceived{false};
         PyObject* _exception{nullptr};
     };
     using GetConnectionAsyncCallbackPtr = std::shared_ptr<GetConnectionAsyncCallback>;
