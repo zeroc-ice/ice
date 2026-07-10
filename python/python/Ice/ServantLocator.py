@@ -16,7 +16,7 @@ class ServantLocator(ABC):
     """
 
     @abstractmethod
-    def locate(self, current: Current) -> tuple[Object | None, object | None]:
+    def locate(self, current: Current) -> Object | tuple[Object, object | None] | None:
         """
         Asks this servant locator to find and return a servant.
 
@@ -38,13 +38,10 @@ class ServantLocator(ABC):
 
         Returns
         -------
-        tuple[Object | None, object | None]
-
-            A tuple containing the following:
-                - retval : Object or None
-                    The located servant, or ``None`` if no suitable servant was found.
-                - cookie : object | None
-                    A "cookie" that will be passed to :func:`finished`.
+        Object | tuple[Object, object | None] | None
+            The located servant, or ``None`` if no suitable servant was found. The servant can also be returned as
+            a ``(servant, cookie)`` tuple, where the cookie is an arbitrary object that will be passed to
+            :func:`finished`.
         """
         pass
 
@@ -75,7 +72,7 @@ class ServantLocator(ABC):
     @abstractmethod
     def deactivate(self, category: str):
         """
-        Notifies this servant locator that the object adapter in which it's installed is being deactivated.
+        Notifies this servant locator that the object adapter in which it's installed is being destroyed.
 
         Parameters
         ----------

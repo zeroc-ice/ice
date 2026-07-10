@@ -179,7 +179,7 @@ class Communicator:
         Notes
         -----
         The shutdown of a communicator completes when all its incoming connections are closed.
-        Awaiting this task is equivalent to awaiting :func:`waitForShutdown`.
+        Awaiting this task is equivalent to calling :func:`waitForShutdown`.
 
         Returns
         -------
@@ -463,6 +463,11 @@ class Communicator:
         -------
         LocatorPrx | None
             The default locator of this communicator, or ``None`` if no default locator has been set.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         return self._impl.getDefaultLocator()
 
@@ -562,7 +567,7 @@ class Communicator:
         """
         return self._impl.getAdmin()
 
-    def addAdminFacet(self, servant: Object | None, facet: str) -> None:
+    def addAdminFacet(self, servant: Object, facet: str) -> None:
         """
         Adds a new facet to the Admin object.
 

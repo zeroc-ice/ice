@@ -35,12 +35,13 @@ class Future(Awaitable[_T]):
         """
         Attempts to cancel this future.
 
-        If this future is already running or has completed, it cannot be cancelled.
+        If this future has already completed, it cannot be cancelled and this method returns ``False``.
+        Otherwise, this method cancels the future (if it wasn't cancelled already) and returns ``True``.
 
         Returns
         -------
         bool
-            ``True`` if this future was cancelled, ``False`` otherwise.
+            ``True`` if this future is cancelled, ``False`` if it has completed.
         """
         callbacks = []
         with self._condition:
@@ -78,7 +79,7 @@ class Future(Awaitable[_T]):
         Returns
         -------
         bool
-            ``True`` if this future is currently executing, otherwise ``False``.
+            ``True`` if this future has neither completed nor been cancelled, otherwise ``False``.
         """
         with self._condition:
             return self._state == Future.StateRunning
@@ -138,8 +139,8 @@ class Future(Awaitable[_T]):
             If the operation has not completed within the specified timeout.
         InvocationCanceledException
             If the operation was cancelled before completing.
-        Exception
-            If the operation raised an exception.
+        BaseException
+            The exception raised by the operation, if any.
         """
         with self._condition:
             if not self._wait(timeout, lambda: self._state == Future.StateRunning):
@@ -241,6 +242,7 @@ class Future(Awaitable[_T]):
 
     @staticmethod
     def completed(result: _T) -> "Future[_T]":
+        """Returns a new Future already completed with the given result."""
         f = Future()
         f.set_result(result)
         return f

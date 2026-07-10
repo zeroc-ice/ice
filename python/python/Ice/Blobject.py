@@ -9,7 +9,7 @@ from .Object import Object
 
 class Blobject(Object, ABC):
     """
-    Special-purpose servant base class that allows a subclass to handle synchronous Ice invocations as "blobs" of
+    Special-purpose servant base class that allows a subclass to handle Ice invocations as "blobs" of
     bytes.
 
     This class serves as a base for creating servants that can process encoded Ice operation arguments and return
@@ -20,7 +20,7 @@ class Blobject(Object, ABC):
     @abstractmethod
     def ice_invoke(self, bytes: bytes, current: Current) -> tuple[bool, bytes] | Awaitable[tuple[bool, bytes]]:
         """
-        Dispatches a synchronous Ice invocation.
+        Dispatches an incoming invocation.
 
         The operation's arguments are encoded in the `bytes` parameter. The return value must be a tuple of two
         values: the first is a boolean indicating whether the operation succeeded (True) or raised a user exception

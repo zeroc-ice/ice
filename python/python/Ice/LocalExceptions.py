@@ -17,7 +17,7 @@ class DispatchException(LocalException):
     """
     The exception that is raised when a dispatch failed. This is the base class for local exceptions that can be
     marshaled and transmitted "over the wire".
-    You can raise this exception in the implementation of an operation, or in a middleware.
+    You can raise this exception in the implementation of an operation.
     The Ice runtime then logically re-raises this exception to the client.
     """
 
@@ -355,8 +355,8 @@ class AlreadyRegisteredException(LocalException):
     @property
     def kindOfObject(self) -> str:
         """
-        Returns the kind of object that is already registered: "servant", "facet", "object", "default servant",
-        "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
+        Returns the kind of object that is already registered: "servant", "facet", "default servant",
+        "servant locator", "plugin", "object adapter", "object adapter with router".
 
         Returns
         -------
@@ -401,6 +401,7 @@ class ConnectionAbortedException(LocalException):
 
     @property
     def closedByApplication(self) -> bool:
+        """``True`` if the connection was aborted by the application, ``False`` if it was aborted by the Ice runtime."""
         return self.__closedByApplication
 
 
@@ -418,6 +419,7 @@ class ConnectionClosedException(LocalException):
 
     @property
     def closedByApplication(self) -> bool:
+        """``True`` if the connection was closed by the application, ``False`` if it was closed by the Ice runtime."""
         return self.__closedByApplication
 
 
@@ -442,12 +444,13 @@ class FixedProxyException(LocalException):
 @final
 class InitializationException(LocalException):
     """
-    The exception that is raised when communicator initialization fails.
+    The exception that is raised when a failure occurs during initialization.
     """
 
     _ice_id = "::Ice::InitializationException"
 
 
+@final
 class InvocationCanceledException(LocalException):
     """
     The exception that is raised when an asynchronous invocation fails because it was canceled explicitly by the user.

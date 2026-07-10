@@ -18,8 +18,8 @@ class EmptyI(Test.Empty):
 
 class ServantLocatorI(Ice.ServantLocator):
     @override
-    def locate(self, current: Ice.Current) -> tuple[Ice.Object | None, object | None]:
-        return (None, None)
+    def locate(self, current: Ice.Current) -> Ice.Object | tuple[Ice.Object, object | None] | None:
+        return None
 
     @override
     def finished(self, current: Ice.Current, servant: Ice.Object, cookie: object):

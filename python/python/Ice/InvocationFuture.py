@@ -123,6 +123,8 @@ class InvocationFuture(Future):
             If the invocation was not sent within the specified timeout.
         InvocationCanceledException
             If the invocation was cancelled before it was sent.
+        Exception
+            If the invocation failed before being sent, the invocation's exception is raised.
         """
         with self._condition:
             # Stop waiting once the invocation is sent, or once it completes without
