@@ -17,7 +17,7 @@ import Ice
 
 
 class Client(TestHelper):
-    def allTests(self, communicator: Ice.Communicator, sync: bool):
+    def allTests(self, communicator: Ice.Communicator, router: RouterI.RouterI, sync: bool):
         hello = Test.HelloPrx(communicator, f"test:{self.getTestEndpoint()}")
         hello.sayHello(False)
         hello.sayHello(False, {"_fwd": "o"})
@@ -30,6 +30,25 @@ class Client(TestHelper):
         assert isinstance(f, Ice.Future)
         ok, _ = f.result()
         test(ok)
+
+        # ice_invoke/ice_invokeAsync with the context passed as a keyword argument. The router's blobject records the
+        # context it receives, so a dropped context is caught here rather than silently ignored.
+        ok, _ = hello.ice_invoke("ice_ping", Ice.OperationMode.Normal, b"", ctx={"ctx": "sync"})
+        test(ok)
+        test(router.lastContext()["ctx"] == "sync")
+
+        f = hello.ice_invokeAsync("ice_ping", Ice.OperationMode.Normal, b"", ctx={"ctx": "async"})
+        assert isinstance(f, Ice.Future)
+        ok, _ = f.result()
+        test(ok)
+        test(router.lastContext()["ctx"] == "async")
+
+        # Every parameter can be passed by keyword.
+        ok, _ = hello.ice_invoke(
+            operation="ice_ping", mode=Ice.OperationMode.Normal, inParams=b"", ctx={"ctx": "keywords"}
+        )
+        test(ok)
+        test(router.lastContext()["ctx"] == "keywords")
         try:
             hello.raiseUE()
             test(False)
@@ -58,7 +77,7 @@ class Client(TestHelper):
             router = RouterI.RouterI(communicator, False)
             sys.stdout.write("testing async blobject... ")
             sys.stdout.flush()
-            self.allTests(communicator, False)
+            self.allTests(communicator, router, False)
             print("ok")
             router.destroy()
 
@@ -66,6 +85,6 @@ class Client(TestHelper):
             router = RouterI.RouterI(communicator, True)
             sys.stdout.write("testing sync blobject... ")
             sys.stdout.flush()
-            self.allTests(communicator, True)
+            self.allTests(communicator, router, True)
             print("ok")
             router.destroy()
