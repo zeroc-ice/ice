@@ -10,18 +10,20 @@ declare module "@zeroc/ice" {
              * Constructs an InputStream using a communicator and this communicator's default encoding version.
              *
              * @param communicator The communicator to use for unmarshaling tasks.
-             * @param buffer The encoded data.
+             * @param buffer The encoded data. When a `Uint8Array` is supplied, the stream reads the exact byte
+             * range of the view.
              */
-            constructor(communicator: Communicator, buffer: Uint8Array);
+            constructor(communicator: Communicator, buffer: Uint8Array | ArrayBuffer);
 
             /**
              * Constructs an InputStream using a communicator and encoding version.
              *
              * @param communicator The communicator to use for unmarshaling tasks.
              * @param encoding The encoding version used to encode the data to be unmarshaled.
-             * @param buffer The encoded data.
+             * @param buffer The encoded data. When a `Uint8Array` is supplied, the stream reads the exact byte
+             * range of the view.
              */
-            constructor(communicator: Communicator, encoding: EncodingVersion, buffer: Uint8Array);
+            constructor(communicator: Communicator, encoding: EncodingVersion, buffer: Uint8Array | ArrayBuffer);
 
             /**
              *  Releases any data retained by encapsulations.
