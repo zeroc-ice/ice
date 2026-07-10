@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <stdexcept>
+#include <utility>
 
 #ifdef ICE_HAS_BZIP2
 #    include <bzlib.h>
@@ -763,18 +764,25 @@ Ice::ConnectionI::flushBatchRequestsAsync(
 void
 Ice::ConnectionI::setCloseCallback(CloseCallback callback)
 {
-    std::lock_guard lock(_mutex);
-    if (_state >= StateClosed)
+    // Holds the callback this call replaces, so that it is destroyed after the lock is released. Destroying a
+    // callback can run arbitrary user code - a language mapping may attach a finalizer to it - and that code can
+    // call back into this connection, which would deadlock on the non-recursive _mutex.
+    CloseCallback previous;
+
     {
-        if (callback)
+        std::lock_guard lock(_mutex);
+        if (_state >= StateClosed)
         {
-            auto self = shared_from_this();
-            _threadPool->execute([self, callback = std::move(callback)]() { self->closeCallback(callback); }, self);
+            if (callback)
+            {
+                auto self = shared_from_this();
+                _threadPool->execute([self, callback = std::move(callback)]() { self->closeCallback(callback); }, self);
+            }
         }
-    }
-    else
-    {
-        _closeCallback = std::move(callback);
+        else
+        {
+            previous = std::exchange(_closeCallback, std::move(callback));
+        }
     }
 }
 
