@@ -1234,6 +1234,12 @@ TopicImpl::destroyInternal(const LogUpdate& origLLU, bool master)
     assert(_publisherPrx);
     _instance->publishAdapter()->remove(_publisherPrx->ice_getIdentity());
 
+    // Remove the topic servant before publishing the reaper entry: a concurrent createTopic for the same
+    // name could otherwise consume the reaper entry and re-add the servant while this one is still
+    // registered, failing with AlreadyRegisteredException and leaving the new topic without a servant.
+    _instance->topicAdapter()->remove(_id);
+    _servant = nullptr;
+
     _instance->topicReaper()->add(_name);
 
     // Destroy each of the subscribers.
@@ -1242,10 +1248,6 @@ TopicImpl::destroyInternal(const LogUpdate& origLLU, bool master)
         subscriber->destroy();
     }
     _subscribers.clear();
-
-    _instance->topicAdapter()->remove(_id);
-
-    _servant = nullptr;
 
     return llu;
 }
