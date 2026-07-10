@@ -13,7 +13,7 @@ CaseInsensitive.ice:71: data member 'l' is already defined as a data member in a
 CaseInsensitive.ice:76: data member 'L' differs only in capitalization from data member 'l', which is defined in a base class
 CaseInsensitive.ice:82: redefinition of data member 'l'
 CaseInsensitive.ice:88: data member 'L' differs only in capitalization from data member 'l'
-CaseInsensitive.ice:108: data member 'l' is already defined in a base exception
+CaseInsensitive.ice:108: data member 'l' is already defined as a data member in a base exception
 CaseInsensitive.ice:113: data member 'L' differs only in capitalization from data member 'l', which is defined in a base exception
 CaseInsensitive.ice:119: redefinition of data member 'l'
 CaseInsensitive.ice:125: data member 'L' differs only in capitalization from data member 'l'
