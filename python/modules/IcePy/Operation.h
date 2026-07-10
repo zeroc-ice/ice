@@ -18,8 +18,8 @@ namespace IcePy
     extern PyTypeObject AsyncInvocationContextType;
 
     // Blobject invocations.
-    PyObject* iceInvoke(PyObject*, PyObject*);
-    PyObject* iceInvokeAsync(PyObject*, PyObject*);
+    PyObject* iceInvoke(PyObject*, PyObject*, PyObject*);
+    PyObject* iceInvokeAsync(PyObject*, PyObject*, PyObject*);
 
     /// Used as the callback for getConnectionAsync operation.
     class GetConnectionAsyncCallback
