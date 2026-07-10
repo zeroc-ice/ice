@@ -209,15 +209,15 @@ class Connection:
         """
         ...
 
-    def setCloseCallback(self, callback: Callable[[Connection], None]) -> None:
+    def setCloseCallback(self, callback: Callable[[Connection], None] | None) -> None:
         """
         Sets a close callback on the connection. The callback is called by the connection when it's closed.
         The callback is called from the Ice thread pool associated with the connection.
 
         Parameters
         ----------
-        callback : Callable[[Connection], None]
-            The close callback callable.
+        callback : Callable[[Connection], None] | None
+            The close callback callable, or ``None`` to remove the current callback.
         """
         ...
 

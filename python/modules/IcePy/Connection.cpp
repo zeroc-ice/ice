@@ -142,15 +142,15 @@ Awaitable[None]
     A future that becomes available when the flush completes.)";
 
     constexpr const char* connectionSetCloseCallback_doc =
-        R"(setCloseCallback(callback: Callable[[Connection], None]) -> None
+        R"(setCloseCallback(callback: Callable[[Connection], None] | None) -> None
 
 Sets a close callback on the connection. The callback is called by the connection when it's closed.
 The callback is called from the Ice thread pool associated with the connection.
 
 Parameters
 ----------
-callback : Callable[[Connection], None]
-    The close callback callable.)";
+callback : Callable[[Connection], None] | None
+    The close callback callable, or None to remove the current callback.)";
 
     constexpr const char* connectionType_doc = R"(type() -> str
 
@@ -598,10 +598,9 @@ connectionSetCloseCallback(ConnectionObject* self, PyObject* args)
         return nullptr;
     }
 
-    PyObject* callbackType = lookupType("types.FunctionType");
-    if (cb != Py_None && !PyObject_IsInstance(cb, callbackType))
+    if (cb != Py_None && !PyCallable_Check(cb))
     {
-        PyErr_Format(PyExc_ValueError, "callback must be None or a function");
+        PyErr_Format(PyExc_TypeError, "callback must be None or a callable");
         return nullptr;
     }
 
