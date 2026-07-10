@@ -346,6 +346,17 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                     ],
                     [],
                 ),
+                (
+                    # A rule ending with a numeric range followed by a wildcard is a prefix match: 12[0-255]*
+                    # matches 127.0.0.1, with the range matching the number right after the 12 prefix.
+                    "testing address filter with a numeric range followed by a trailing wildcard",
+                    ("12[0-255]*", "", "", "", "", ""),
+                    [
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                        (False, "hello:tcp -h 12x.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
             ]
         )
 
