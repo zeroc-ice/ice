@@ -86,7 +86,7 @@ Parser::create(const list<string>& args)
 {
     if (args.empty())
     {
-        error("`create' requires at least one argument (type `help' for more info)");
+        error("'create' requires at least one argument (type 'help' for more info)");
         return;
     }
 
@@ -112,7 +112,7 @@ Parser::destroy(const list<string>& args)
 {
     if (args.empty())
     {
-        error("`destroy' requires at least one argument (type `help' for more info)");
+        error("'destroy' requires at least one argument (type 'help' for more info)");
         return;
     }
 
@@ -136,7 +136,7 @@ Parser::link(const list<string>& args)
 {
     if (args.size() != 2 && args.size() != 3)
     {
-        error("`link' requires two or three arguments (type `help' for more info)");
+        error("'link' requires two or three arguments (type 'help' for more info)");
         return;
     }
 
@@ -161,7 +161,7 @@ Parser::unlink(const list<string>& args)
 {
     if (args.size() != 2)
     {
-        error("`unlink' requires exactly two arguments (type `help' for more info)");
+        error("'unlink' requires exactly two arguments (type 'help' for more info)");
         return;
     }
 
@@ -185,7 +185,7 @@ Parser::links(const list<string>& args)
 {
     if (args.size() > 1)
     {
-        error("`links' requires at most one argument (type `help' for more info)");
+        error("'links' requires at most one argument (type 'help' for more info)");
         return;
     }
 
@@ -212,7 +212,7 @@ Parser::topics(const list<string>& args)
 {
     if (args.size() > 1)
     {
-        error("`topics' requires at most one argument (type `help' for more info)");
+        error("'topics' requires at most one argument (type 'help' for more info)");
         return;
     }
 
@@ -235,7 +235,7 @@ Parser::replica(const list<string>& args)
 {
     if (args.size() > 1)
     {
-        error("`replica' requires at most one argument (type `help' for more info)");
+        error("'replica' requires at most one argument (type 'help' for more info)");
         return;
     }
 
@@ -338,7 +338,7 @@ Parser::current(const list<string>& args)
     }
     else if (args.size() > 1)
     {
-        error("`current' requires at most one argument (type `help' for more info)");
+        error("'current' requires at most one argument (type 'help' for more info)");
         return;
     }
 
@@ -630,7 +630,7 @@ Parser::exception(exception_ptr pex, bool warn)
     }
     catch (const NoSuchLink& ex)
     {
-        os << "couldn't find link '" << ex.name << "'";
+        os << "could not find link '" << ex.name << "'";
     }
     catch (const TopicExists& ex)
     {
@@ -638,11 +638,11 @@ Parser::exception(exception_ptr pex, bool warn)
     }
     catch (const NoSuchTopic& ex)
     {
-        os << "couldn't find topic '" << ex.name << "'";
+        os << "could not find topic '" << ex.name << "'";
     }
     catch (const UnknownManagerException& ex)
     {
-        os << "couldn't find IceStorm service '" << ex.what() << "'";
+        os << "could not find IceStorm service '" << ex.what() << "'";
     }
     catch (const ParseException& ex)
     {
@@ -650,7 +650,7 @@ Parser::exception(exception_ptr pex, bool warn)
     }
     catch (const Ice::LocalException& ex)
     {
-        os << "couldn't reach IceStorm service:\n" << ex;
+        os << "could not reach IceStorm service:\n" << ex;
     }
     catch (const Ice::Exception& ex)
     {

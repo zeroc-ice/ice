@@ -198,7 +198,7 @@ Allocatable::release(const shared_ptr<SessionI>& session, bool fromRelease)
 
         if (!_session || _session != session)
         {
-            throw AllocationException("can't release object which is not allocated");
+            throw AllocationException("cannot release object which is not allocated");
         }
 
         if (--_count == 0)

@@ -504,7 +504,7 @@ Ice::Properties::load(string_view file)
                        << ":\n";
                     if (nameBufSize == 0)
                     {
-                        os << "property name can't be the empty string";
+                        os << "property name cannot be the empty string";
                     }
                     else
                     {

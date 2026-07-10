@@ -615,7 +615,7 @@ AdminSSLSessionManagerI::create(
         {
             // This shouldn't happen, the SSLInfo is supposed to be encoded by Glacier2.
             Ice::Error out(_factory->getTraceLevels()->logger);
-            out << "SSL session manager couldn't decode SSL certificates:\n" << ex;
+            out << "SSL session manager could not decode SSL certificates:\n" << ex;
             throw Glacier2::CannotCreateSessionException("internal server error");
         }
     }

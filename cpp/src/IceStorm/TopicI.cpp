@@ -1002,7 +1002,7 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
                 catch (const std::exception& e)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-                    out << "exception when calling `reap' on the master replica: " << e;
+                    out << "exception when calling 'reap' on the master replica: " << e;
                 }
             }
             instance->node()->recovery(generation);

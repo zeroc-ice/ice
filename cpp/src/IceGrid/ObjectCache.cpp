@@ -48,7 +48,7 @@ ObjectCache::add(const ObjectInfo& info, const string& application, const string
     if (getImpl(id))
     {
         Ice::Error out(_communicator->getLogger());
-        out << "can't add duplicate object '" << _communicator->identityToString(id) << "'";
+        out << "cannot add duplicate object '" << _communicator->identityToString(id) << "'";
         return;
     }
 
@@ -89,7 +89,7 @@ ObjectCache::remove(const Ice::Identity& id)
     if (!entry)
     {
         Ice::Error out(_communicator->getLogger());
-        out << "can't remove unknown object '" << _communicator->identityToString(id) << "'";
+        out << "cannot remove unknown object '" << _communicator->identityToString(id) << "'";
         return;
     }
     removeImpl(id);
