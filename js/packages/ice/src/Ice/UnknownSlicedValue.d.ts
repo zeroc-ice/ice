@@ -17,7 +17,7 @@ declare module "@zeroc/ice" {
             compactId: number;
 
             /**
-             * The encoded bytes for this slice, including the leading size integer.
+             * The encoded bytes for this slice.
              */
             bytes: Uint8Array;
 

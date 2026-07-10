@@ -82,7 +82,7 @@ public sealed class Util
                     //
                     // Extra unescaped slash found.
                     //
-                    throw new ParseException($"unescaped backslash in identity string '{s}'");
+                    throw new ParseException($"unescaped slash in identity string '{s}'");
                 }
             }
             pos++;

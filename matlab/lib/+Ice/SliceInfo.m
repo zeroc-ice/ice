@@ -4,7 +4,7 @@ classdef (Sealed) SliceInfo < handle
     %   SliceInfo Properties:
     %     typeId - The Slice type ID for this slice.
     %     compactId - The Slice compact type ID for this slice.
-    %     bytes - The encoded bytes for this slice, including the leading size integer.
+    %     bytes - The encoded bytes for this slice.
     %     hasOptionalMembers - Whether or not the slice contains optional members.
     %     isLastSlice - Whether or not this is the last slice.
     %     instances - The class instances referenced by this slice.
@@ -20,7 +20,7 @@ classdef (Sealed) SliceInfo < handle
         %   int32 scalar
         compactId (1, 1) int32
 
-        %BYTES The encoded bytes for this slice, including the leading size integer.
+        %BYTES The encoded bytes for this slice.
         %   uint8 vector
         bytes (1, :) uint8
 
