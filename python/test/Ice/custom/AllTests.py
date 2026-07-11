@@ -568,6 +568,11 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == len(v2))
 
+        # Test that local metadata on optional parameters and return types generates the correct type hints.
+        opAnnotations = NumPy.Custom.opOptIntSeq.__annotations__
+        test("NDArray" in opAnnotations["v"])
+        test("NDArray" in opAnnotations["return"])
+
         v1 = custom.opBoolMatrix()
         test(
             numpy.array_equal(
