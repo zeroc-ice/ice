@@ -151,10 +151,11 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
     ///   - sndSize: The size of the send buffer.
     func setBufferSize(rcvSize: Int32, sndSize: Int32) throws
 
-    /// Throws an exception that provides the reason for the closure of this connection. For example,
-    /// this method throws ``CloseConnectionException`` when the connection was closed gracefully by the peer;
-    /// it throws ``ConnectionAbortedException`` when the connection is aborted with ``abort()``.
+    /// Throws an exception that provides the reason for the closure of this connection.
     /// This method does nothing if the connection is not yet closing or closed.
+    ///
+    /// - Throws: ``CloseConnectionException`` when the connection was closed gracefully by the peer;
+    ///   ``ConnectionAbortedException`` when the connection was aborted, for example with ``abort()``.
     func throwException() throws
 }
 

@@ -116,8 +116,8 @@ public func createProperties() -> Properties {
 }
 
 /// Creates a property set initialized from an argument array. This function loads configuration files named by the
-/// `Ice.Config` property set through `args` or, when no `Ice.Config` property is set at all, by the `ICE_CONFIG`
-/// environment variable.
+/// `Ice.Config` property set through `args`, or by the `ICE_CONFIG` environment variable when `Ice.Config` is not
+/// set, is empty, or is set to `1` (the value a bare `--Ice.Config` option becomes).
 ///
 /// - Parameters:
 ///   - args: A command-line argument array, possibly containing options to set properties. If the
@@ -140,8 +140,8 @@ public func createProperties(_ args: [String], defaults: Properties? = nil) thro
 }
 
 /// Creates a property set initialized from an argument array. This function loads configuration files named by the
-/// `Ice.Config` property set through `args` or, when no `Ice.Config` property is set at all, by the `ICE_CONFIG`
-/// environment variable.
+/// `Ice.Config` property set through `args`, or by the `ICE_CONFIG` environment variable when `Ice.Config` is not
+/// set, is empty, or is set to `1` (the value a bare `--Ice.Config` option becomes).
 ///
 /// - Parameters:
 ///   - args: A command-line argument array, possibly containing options to set properties. If the

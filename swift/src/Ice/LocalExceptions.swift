@@ -20,7 +20,7 @@ public class DispatchException: LocalException, @unchecked Sendable {
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    /// - Precondition: `replyStatus` must be greater than `ReplyStatus.userException.rawValue`.
+    /// - Precondition: `replyStatus` must be greater than `ReplyStatus.userException`.
     public init(
         replyStatus: UInt8, message: String? = nil, file: String = #fileID, line: Int32 = #line
     ) {
