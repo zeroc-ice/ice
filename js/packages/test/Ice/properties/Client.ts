@@ -178,7 +178,6 @@ export class Client extends TestHelper {
                 trace: () => {},
                 warning: () => {},
                 error: () => {},
-                getPrefix: () => "",
                 cloneWithPrefix: (): Ice.Logger => logger,
             };
             initData.logger = logger;
