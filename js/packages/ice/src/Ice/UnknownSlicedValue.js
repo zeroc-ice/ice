@@ -15,7 +15,7 @@ export class SliceInfo {
         this.compactId = -1;
 
         //
-        // The encoded bytes for this slice, including the leading size integer.
+        // The encoded bytes for this slice.
         //
         this.bytes = [];
 

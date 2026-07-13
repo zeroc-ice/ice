@@ -188,13 +188,14 @@ final class ServantManager implements Object {
 
         Map<String, Object> m = _servantMapMap.get(ident);
         Object obj = null;
-        if (m == null) {
+        if (m != null) {
+            obj = m.get(facet);
+        }
+        if (obj == null) {
             obj = _defaultServantMap.get(ident.category);
             if (obj == null) {
                 obj = _defaultServantMap.get("");
             }
-        } else {
-            obj = m.get(facet);
         }
 
         return obj;

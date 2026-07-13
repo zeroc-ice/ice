@@ -30,6 +30,7 @@ namespace
 
 Returns the Ice version in the form ``A.B.C``, where ``A`` indicates the major version,
 ``B`` indicates the minor version, and ``C`` indicates the patch level.
+For pre-releases, the version includes a pre-release suffix, for example ``3.9.0-alpha.0``.
 
 Returns
 -------
@@ -41,6 +42,7 @@ str
 Returns the Ice version as an integer in the form ``AABBCC``, where ``AA`` indicates the major version,
 ``BB`` indicates the minor version, and ``CC`` indicates the patch level.
 For example, for Ice 3.9.1, the returned value is 30901.
+For pre-releases, ``CC`` encodes the pre-release; for example, for Ice 3.9.0-alpha.0, the returned value is 30950.
 
 Returns
 -------
@@ -81,7 +83,9 @@ Ice.Identity
 Raises
 ------
 ParseException
-    If the string cannot be converted to an object identity.)";
+    If the string cannot be converted to an object identity.
+LocalException
+    If the resulting identity has an empty name.)";
 
     constexpr const char* IcePy_identityToString_doc =
         R"(identityToString(identity: Ice.Identity, toStringMode: Ice.ToStringMode | None = None) -> str
@@ -103,8 +107,7 @@ str
 
     constexpr const char* IcePy_getProcessLogger_doc = R"(getProcessLogger() -> Ice.Logger
 
-Gets the per-process logger. This logger is used by all communicators that do not have their own specific logger
-configured at the time the communicator is created.
+Gets the per-process logger.
 
 Returns
 -------
@@ -113,8 +116,8 @@ Ice.Logger
 
     constexpr const char* IcePy_setProcessLogger_doc = R"(setProcessLogger(logger: Ice.Logger) -> None
 
-Sets the per-process logger. This logger is used by all communicators that do not have their own specific logger
-configured at the time the communicator is created.
+Sets the per-process logger. Communicators created after this call use this logger unless a logger is set in
+InitializationData or configured through logger properties such as Ice.LogFile.
 
 Parameters
 ----------

@@ -695,7 +695,7 @@ IceInternal::OutgoingConnectionFactory::handleException(exception_ptr ex, bool h
     {
         Trace out(_instance->initializationData().logger, traceLevels->networkCat);
 
-        out << "couldn't resolve endpoint host";
+        out << "could not resolve endpoint host";
 
         try
         {

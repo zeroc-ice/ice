@@ -28,7 +28,7 @@ class Collocated: TestHelperI, @unchecked Sendable {
             key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         try adapter.add(
-            servant: MyDerivedClassI(self),
+            servant: MyDerivedInterfaceI(self),
             id: Ice.Identity(name: "test"))
         // try adapter.activate() // Don't activate OA to ensure collocation is used.
         _ = try await allTests(helper: self)

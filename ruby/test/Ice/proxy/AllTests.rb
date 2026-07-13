@@ -572,16 +572,16 @@ def allTests(helper, communicator)
 
     print "testing checked cast... "
     STDOUT.flush
-    cl = Test::MyClassPrx.checkedCast(base)
+    cl = Test::MyInterfacePrx.checkedCast(base)
     test(cl)
 
-    derived = Test::MyDerivedClassPrx.checkedCast(cl)
+    derived = Test::MyDerivedInterfacePrx.checkedCast(cl)
     test(derived)
     test(cl == base)
     test(derived == base)
     test(cl == derived)
     begin
-        Test::MyDerivedClassPrx.checkedCast(cl, facet: "facet")
+        Test::MyDerivedInterfacePrx.checkedCast(cl, facet: "facet")
         test(false)
     rescue Ice::FacetNotExistException
     end
@@ -592,7 +592,7 @@ def allTests(helper, communicator)
     #
     # Upcasting
     #
-    cl2 = Test::MyClassPrx.checkedCast(derived)
+    cl2 = Test::MyInterfacePrx.checkedCast(derived)
     obj = Ice::ObjectPrx.checkedCast(derived)
     test(cl2)
     test(obj)
@@ -603,14 +603,14 @@ def allTests(helper, communicator)
 
     print "testing checked cast with context... "
     STDOUT.flush
-    tccp = Test::MyClassPrx.checkedCast(base)
+    tccp = Test::MyInterfacePrx.checkedCast(base)
     c = tccp.getContext()
     test(c == nil || c.length == 0)
 
     c = { }
     c["one"] = "hello"
     c["two"] =  "world"
-    tccp = Test::MyClassPrx.checkedCast(base, context: c)
+    tccp = Test::MyInterfacePrx.checkedCast(base, context: c)
     c2 = tccp.getContext()
     test(c == c2)
     puts "ok"
@@ -652,7 +652,7 @@ def allTests(helper, communicator)
     print "testing encoding versioning... "
     STDOUT.flush
     ref20 = "test -e 2.0:#{helper.getTestEndpoint()}";
-    cl20 = Test::MyClassPrx.new(communicator, ref20);
+    cl20 = Test::MyInterfacePrx.new(communicator, ref20);
     begin
         cl20.ice_ping();
         test(false);
@@ -661,7 +661,7 @@ def allTests(helper, communicator)
     end
 
     ref10 = "test -e 1.0:#{helper.getTestEndpoint()}"
-    cl10 = Test::MyClassPrx.new(communicator, ref10)
+    cl10 = Test::MyInterfacePrx.new(communicator, ref10)
     cl10.ice_ping()
     cl10.ice_encodingVersion(Ice::Encoding_1_0).ice_ping()
     cl.ice_encodingVersion(Ice::Encoding_1_0).ice_ping()

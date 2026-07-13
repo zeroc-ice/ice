@@ -222,7 +222,7 @@ export class Client extends TestHelper {
             }
 
             {
-                const con: Ice.Connection = p.ice_getCachedConnection();
+                const con: Ice.Connection = p.ice_getCachedConnection()!;
                 let p2 = p.ice_batchOneway();
                 p2.ice_ping();
                 await con.flushBatchRequests();
@@ -295,6 +295,39 @@ export class Client extends TestHelper {
             await testController.resumeAdapter();
 
             await Promise.all([r1Result, r2Result]);
+        }
+        out.writeLine("ok");
+
+        out.write("testing close on an already-closed connection... ");
+        {
+            // close() on a connection the peer closed gracefully resolves.
+            const connection = await p.ice_getConnection();
+            const closed = new Promise<void>((resolve) => connection.setCloseCallback(() => resolve()));
+            await p.closeConnection();
+            await closed;
+            await connection.close();
+        }
+
+        {
+            // close() on an aborted connection rejects with the exception that closed the connection.
+            const connection = await p.ice_connectionId("close-aborted").ice_getConnection();
+            connection.abort();
+            try {
+                await connection.close();
+                test(false);
+            } catch (ex) {
+                test(ex instanceof Ice.ConnectionAbortedException);
+                test(ex.closedByApplication);
+            }
+        }
+
+        {
+            // A close() promise that is never awaited does not trigger an unhandled rejection when the
+            // connection closure was not graceful.
+            const connection = await p.ice_connectionId("close-unobserved").ice_getConnection();
+            connection.abort();
+            connection.close();
+            await Ice.Promise.delay(0); // give an unhandled rejection a chance to surface
         }
         out.writeLine("ok");
 

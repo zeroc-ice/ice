@@ -349,7 +349,7 @@ Activator::activate(
     string path{exePath}; // NOLINT(performance-unnecessary-copy-initialization)
     if (path.empty())
     {
-        throw invalid_argument("The server executable path is empty.");
+        throw invalid_argument("the server executable path is empty");
     }
 
     string pwd = simplify(pwdPath);
@@ -374,9 +374,9 @@ Activator::activate(
                 if (_traceLevels->activator > 0)
                 {
                     Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-                    out << "couldn't find '" << path << "' executable.";
+                    out << "could not find '" << path << "' executable.";
                 }
-                throw runtime_error("Couldn't find '" + path + "' executable.");
+                throw runtime_error("Could not find '" + path + "' executable.");
             }
             path = wstringToString(absbuf);
         }
@@ -404,7 +404,7 @@ Activator::activate(
                 out << "cannot convert '" << pwd << "' into an absolute path";
             }
             throw runtime_error(
-                "The server working directory path '" + pwd + "' can't be converted into an absolute path.");
+                "The server working directory path '" + pwd + "' cannot be converted into an absolute path.");
         }
         pwd = wstringToString(absbuf);
     }
@@ -612,7 +612,7 @@ Activator::activate(
         string message = IceInternal::lastErrorToString();
 
         Ice::Warning out(_traceLevels->logger);
-        out << "server activation failed for '" << name << "':\ncouldn't register wait callback\n" << message;
+        out << "server activation failed for '" << name << "':\ncould not register wait callback\n" << message;
 
         //
         // The wait callback was not registered, so this entry will never be reaped. Close the process
@@ -1316,6 +1316,7 @@ Activator::terminationListener()
 
         vector<Process> terminated;
         bool deactivated = false;
+        exception_ptr readException;
         {
             lock_guard lock(_mutex);
 
@@ -1346,9 +1347,21 @@ Activator::terminationListener()
                 //
                 // Read the message over the pipe.
                 //
-                while ((rs = read(fd, &s, 16)) > 0) // NOLINT(clang-analyzer-unix.BlockInCriticalSection)
+                while (true)
                 {
-                    message.append(s, static_cast<size_t>(rs));
+                    rs = read(fd, &s, 16); // NOLINT(clang-analyzer-unix.BlockInCriticalSection)
+                    if (rs > 0)
+                    {
+                        message.append(s, static_cast<size_t>(rs));
+                    }
+                    else if (rs == -1 && errno == EINTR)
+                    {
+                        continue; // Interrupted by a signal: retry.
+                    }
+                    else
+                    {
+                        break; // EOF or error.
+                    }
                 }
 
                 //
@@ -1363,7 +1376,9 @@ Activator::terminationListener()
                 {
                     if (errno != EAGAIN || message.empty())
                     {
-                        throw SyscallException{__FILE__, __LINE__, "read failed", errno};
+                        // Don't throw yet: the processes already moved to terminated must be notified first.
+                        readException = make_exception_ptr(SyscallException{__FILE__, __LINE__, "read failed", errno});
+                        break;
                     }
 
                     ++p;
@@ -1417,6 +1432,11 @@ Activator::terminationListener()
                 Ice::Warning out(_traceLevels->logger);
                 out << "unexpected exception raised by server '" << p.server->getId() << "' termination:\n" << ex;
             }
+        }
+
+        if (readException)
+        {
+            rethrow_exception(readException);
         }
 
         if (deactivated)

@@ -5,20 +5,20 @@ package test.Ice.operations;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ObjectPrx;
 
-import test.Ice.operations.Test.MyClassPrx;
-import test.Ice.operations.Test.MyDerivedClassPrx;
+import test.Ice.operations.Test.MyDerivedInterfacePrx;
+import test.Ice.operations.Test.MyInterfacePrx;
 import test.TestHelper;
 
 import java.io.PrintWriter;
 
 public class AllTests {
-    public static MyClassPrx allTests(TestHelper helper) {
+    public static MyInterfacePrx allTests(TestHelper helper) {
         PrintWriter out = helper.getWriter();
         Communicator communicator = helper.communicator();
         String ref = "test:" + helper.getTestEndpoint(0);
         ObjectPrx base = communicator.stringToProxy(ref);
-        MyClassPrx cl = MyClassPrx.checkedCast(base);
-        MyDerivedClassPrx derived = MyDerivedClassPrx.checkedCast(cl);
+        MyInterfacePrx cl = MyInterfacePrx.checkedCast(base);
+        MyDerivedInterfacePrx derived = MyDerivedInterfacePrx.checkedCast(cl);
 
         out.print("testing twoway operations... ");
         out.flush();

@@ -9,10 +9,14 @@ class UnknownSlicedValue(Value):
     """
     Represents an instance of an unknown class.
 
+    Instances of this class are created by the Ice runtime during unmarshaling; they should not be constructed
+    directly. A directly constructed instance has no ``unknownTypeId``.
+
     Attributes
     ----------
     unknownTypeId : str
-        The Slice type ID of the unknown value.
+        The Slice type ID of the unknown value; empty when the most-derived slice was marshaled with a compact
+        type ID.
     """
 
     _ice_type = None  # Will be set after class definition

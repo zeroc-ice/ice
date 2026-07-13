@@ -37,7 +37,7 @@ declare module "@zeroc/ice" {
              * The object adapter calls this function only when {@link locate} returns a non-null servant.
              *
              * @remarks The implementation can throw any exception, including {@link UserException}. The Ice runtime
-             * marshals this  exception in the response. If both the dispatch and `finished` throw an exception, the
+             * marshals this exception in the response. If both the dispatch and `finished` throw an exception, the
              * exception thrown by `finished` prevails and is marshaled back to the client.
              *
              * @param current - Information about the incoming request being dispatched.
@@ -52,7 +52,7 @@ declare module "@zeroc/ice" {
             finished(current: Current, servant: Ice.Object, cookie: object | null): void;
 
             /**
-             * Notifies this servant locator that the object adapter in which it's installed is being deactivated.
+             * Notifies this servant locator that the object adapter in which it's installed is being destroyed.
              *
              * @param category - The category with which this servant locator was registered.
              *

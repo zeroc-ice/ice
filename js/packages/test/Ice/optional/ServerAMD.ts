@@ -15,7 +15,7 @@ export class ServerAMD extends TestHelper {
             const adapter = await communicator.createObjectAdapter("");
             adapter.add(new AMDInitialI(), Ice.stringToIdentity("initial"));
             await echo.setConnection();
-            echo.ice_getCachedConnection().setAdapter(adapter);
+            echo.ice_getCachedConnection()!.setAdapter(adapter);
             this.serverReady();
             await communicator.waitForShutdown();
         } finally {

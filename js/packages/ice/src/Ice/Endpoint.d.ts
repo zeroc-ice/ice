@@ -38,7 +38,8 @@ declare module "@zeroc/ice" {
             get underlying(): Ice.EndpointInfo | null;
 
             /**
-             * The timeout for the endpoint in milliseconds. -1 means no timeout.
+             * The timeout for the endpoint in milliseconds. -1 means no timeout. This timeout is provided for
+             * backwards compatibility and has no effect in Ice 3.8 or greater.
              */
             get timeout(): number;
 
@@ -54,8 +55,8 @@ declare module "@zeroc/ice" {
             type(): number;
 
             /**
-             * Returns `true` if this endpoint's transport uses WSS, `false` otherwise.
-             * @returns `true` for WSS transport, `false` otherwise.
+             * Returns `true` if this endpoint's transport is secure (SSL or WSS), `false` otherwise.
+             * @returns `true` when the transport is secure, `false` otherwise.
              */
             secure(): boolean;
         }
@@ -108,7 +109,7 @@ declare module "@zeroc/ice" {
             get rawEncoding(): EncodingVersion;
 
             /**
-             * The raw encoding of the opaque endpoint.
+             * The raw bytes of the opaque endpoint.
              */
             get rawBytes(): ByteSeq;
         }

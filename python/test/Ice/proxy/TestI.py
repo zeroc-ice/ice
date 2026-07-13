@@ -8,7 +8,7 @@ from generated.test.Ice.proxy import Test
 import Ice
 
 
-class MyDerivedClassI(Test.MyDerivedClass):
+class MyDerivedInterfaceI(Test.MyDerivedInterface):
     def __init__(self):
         self.ctx: dict[str, str] = {}
 
@@ -27,7 +27,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
     @override
     def ice_isA(self, id: str, current: Ice.Current) -> bool | Awaitable[bool]:
         self.ctx = current.ctx
-        return Test.MyDerivedClass.ice_isA(self, id, current)
+        return Test.MyDerivedInterface.ice_isA(self, id, current)
 
 
 class CI(Test.C):

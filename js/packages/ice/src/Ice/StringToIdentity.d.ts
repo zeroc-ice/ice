@@ -3,12 +3,11 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * Converts a string to an object identity, throwing a {@link ParseException} if the string cannot be
-         * converted.
+         * Converts a string to an object identity.
          *
          * @param s - The string to convert.
          * @returns The converted object identity.
-         * @throws {@link ParseException} - Thrown if the string cannot be converted to a valid object identity.
+         * @throws {@link ParseException} - Thrown if the string cannot be parsed.
          */
         function stringToIdentity(s: string): Identity;
     }

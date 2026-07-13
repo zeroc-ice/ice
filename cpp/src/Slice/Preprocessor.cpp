@@ -339,7 +339,7 @@ Slice::Preprocessor::checkInputFile()
     }
     if (suffix != ".ice")
     {
-        throw runtime_error(_path + ": error: input files must end with `.ice'");
+        throw runtime_error(_path + ": error: input files must end with '.ice'");
     }
 
     ifstream test(IceInternal::streamFilename(_fileName).c_str());

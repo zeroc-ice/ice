@@ -138,7 +138,7 @@ XmlAttributesHelper::asBool(const string& name, bool def) const
 void
 DescriptorBuilder::addVariable(const XmlAttributesHelper&)
 {
-    throw invalid_argument("the <variable> element can't be a child of this element");
+    throw invalid_argument("the <variable> element cannot be a child of this element");
 }
 
 PropertySetDescriptorBuilder::PropertySetDescriptorBuilder() = default;
@@ -192,7 +192,7 @@ PropertySetDescriptorBuilder::addPropertySet(const XmlAttributesHelper& attrs)
     }
     if (!_descriptor.properties.empty())
     {
-        throw invalid_argument("<properties refid=\"\"> can't be defined after a <property> element");
+        throw invalid_argument("<properties refid=\"\"> cannot be defined after a <property> element");
     }
     _descriptor.references.push_back(attrs("refid"));
     _inPropertySetRef = true;
@@ -552,7 +552,7 @@ TemplateDescriptorBuilder::createServer(const XmlAttributesHelper& attrs)
 {
     if (_serviceTemplate)
     {
-        throw invalid_argument("<server> element can't be a child of <service-template>");
+        throw invalid_argument("<server> element cannot be a child of <service-template>");
     }
     return new ServerDescriptorBuilder(_application.getCommunicator(), attrs);
 }
@@ -562,7 +562,7 @@ TemplateDescriptorBuilder::createIceBox(const XmlAttributesHelper& attrs)
 {
     if (_serviceTemplate)
     {
-        throw invalid_argument("<icebox> element can't be a child of <service-template>");
+        throw invalid_argument("<icebox> element cannot be a child of <service-template>");
     }
     return new IceBoxDescriptorBuilder(_application.getCommunicator(), attrs);
 }
@@ -572,7 +572,7 @@ TemplateDescriptorBuilder::createService(const XmlAttributesHelper& attrs)
 {
     if (!_serviceTemplate)
     {
-        throw invalid_argument("<service> element can't be a child of <server-template>");
+        throw invalid_argument("<service> element cannot be a child of <server-template>");
     }
     return new ServiceDescriptorBuilder(_application.getCommunicator(), attrs);
 }
@@ -838,7 +838,7 @@ IceBoxDescriptorBuilder::createServiceInstance(const XmlAttributesHelper& attrs)
 void
 IceBoxDescriptorBuilder::addAdapter(const XmlAttributesHelper& /*attrs*/)
 {
-    throw invalid_argument("<adapter> element can't be a child of an <icebox> element");
+    throw invalid_argument("<adapter> element cannot be a child of an <icebox> element");
 }
 
 void

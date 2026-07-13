@@ -206,7 +206,7 @@ NodeSessionKeepAliveThread::destroySession(const NodeSessionPrx& session)
         if (_node->getTraceLevels() && _node->getTraceLevels()->replica > 1)
         {
             Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
-            out << "couldn't destroy replica '" << _replicaName << "' session:\n" << ex;
+            out << "could not destroy replica '" << _replicaName << "' session:\n" << ex;
         }
     }
 }

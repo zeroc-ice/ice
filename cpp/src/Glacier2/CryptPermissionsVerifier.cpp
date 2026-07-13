@@ -165,6 +165,15 @@ namespace
     }
 #endif
 
+    // Verifies the password against the stored hash for the given user ID. The accepted hash formats are
+    // platform-specific:
+    //
+    // - Linux and FreeBSD: any format supported by the system's crypt library; with libxcrypt this includes DES,
+    //   $1$ (MD5), $5$/$6$ (sha-crypt), $2b$ (bcrypt), and $y$ (yescrypt).
+    // - macOS and Windows: passlib-style PBKDF2 only ($pbkdf2$, $pbkdf2-sha256$, $pbkdf2-sha512$).
+    //
+    // On Windows, the BCrypt* APIs used below belong to Microsoft's CNG (Cryptography API: Next Generation); they
+    // are unrelated to the bcrypt password-hashing scheme, which is not supported on Windows.
     bool CryptPermissionsVerifierI::checkPermissions(string userId, string password, string&, const Current&) const
     {
         auto p = _passwords.find(userId);
@@ -174,31 +183,11 @@ namespace
             return false;
         }
 #if defined(__GLIBC__) || defined(__FreeBSD__)
-        size_t i = p->second.rfind('$');
-        string salt;
-        if (i == string::npos)
-        {
-            //
-            // Crypt DES
-            //
-            if (p->second.size() != 13) // DES passwords are 13 characters long.
-            {
-                return false;
-            }
-            salt = p->second.substr(0, 2);
-        }
-        else
-        {
-            salt = p->second.substr(0, i + 1);
-            if (salt.empty())
-            {
-                return false;
-            }
-        }
-
+        // Pass the whole stored hash as the setting: crypt_r only reads its salt prefix, and this works for all
+        // schemes, including bcrypt whose salt is not terminated by '$'.
         struct crypt_data data;
         data.initialized = 0;
-        const char* hashed = crypt_r(password.c_str(), salt.c_str(), &data);
+        const char* hashed = crypt_r(password.c_str(), p->second.c_str(), &data);
 
         if (hashed == nullptr || p->second.size() != strlen(hashed))
         {
@@ -319,7 +308,7 @@ namespace
 
         //
         // passlib encoding is identical to base64 except that it uses . instead of +,
-        // and omits trailing padding = and whitepsace.
+        // and omits trailing padding = and whitespace.
         //
         std::replace(salt.begin(), salt.end(), '.', '+');
         salt += paddingBytes(salt.size());

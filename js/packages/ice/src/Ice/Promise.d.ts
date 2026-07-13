@@ -23,7 +23,7 @@ declare module "@zeroc/ice" {
              *
              * @param value - The value to resolve the promise with.
              */
-            resolve<T>(value?: T | PromiseLike<T>): void;
+            resolve(value?: T | PromiseLike<T>): void;
 
             /**
              * Rejects the promise with the specified reason.

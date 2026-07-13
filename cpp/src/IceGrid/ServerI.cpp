@@ -69,7 +69,7 @@ namespace IceGrid
                 if (chown(path.c_str(), uid, gid) != 0)
                 {
                     throw runtime_error(
-                        "can't change permissions on '" + name + "':\n" + IceInternal::lastErrorToString());
+                        "cannot change permissions on '" + name + "':\n" + IceInternal::lastErrorToString());
                 }
             }
             else if (name != "..")
@@ -91,7 +91,7 @@ namespace IceGrid
                     if (chown(name.c_str(), uid, gid) != 0)
                     {
                         throw runtime_error(
-                            "can't change permissions on '" + name + "':\n" + IceInternal::lastErrorToString());
+                            "cannot change permissions on '" + name + "':\n" + IceInternal::lastErrorToString());
                     }
                 }
             }
@@ -194,7 +194,7 @@ namespace IceGrid
             catch (const ServerStartException& ex)
             {
                 Ice::Error out(_traceLevels->logger);
-                out << "couldn't reactivate server '" << _server->getId()
+                out << "could not reactivate server '" << _server->getId()
                     << "' with 'always' activation mode after failure:\n"
                     << ex.reason;
             }
@@ -881,7 +881,7 @@ ServerI::setEnabled(bool enabled, const Ice::Current&)
         catch (const ServerStartException& ex)
         {
             Ice::Error out(_node->getTraceLevels()->logger);
-            out << "couldn't reactivate server '" << _id << "' with 'always' activation mode:\n" << ex.reason;
+            out << "could not reactivate server '" << _id << "' with 'always' activation mode:\n" << ex.reason;
         }
         catch (const Ice::ObjectNotExistException&)
         {
@@ -1480,14 +1480,14 @@ ServerI::activate()
         //
         // We first ensure that the application is replicated on all the
         // registries before to start the server. We only do this each
-        // time the server is updated or initialy loaded on the node.
+        // time the server is updated or initially loaded on the node.
         //
         if (waitForReplication)
         {
             auto session = _node->getMasterNodeSession();
             if (session)
             {
-                _node->getMasterNodeSession()->waitForApplicationUpdateAsync(
+                session->waitForApplicationUpdateAsync(
                     desc->uuid,
                     desc->revision,
                     [self = shared_from_this()] { self->waitForApplicationUpdateCompleted(); },
@@ -1905,12 +1905,12 @@ ServerI::update()
                 catch (const Ice::Exception& e)
                 {
                     Ice::Warning out(_node->getTraceLevels()->logger);
-                    out << "update failed:\n" << ex.reason << "\nand couldn't rollback old descriptor:\n" << e.what();
+                    out << "update failed:\n" << ex.reason << "\nand could not rollback old descriptor:\n" << e.what();
                 }
                 catch (const exception& e)
                 {
                     Ice::Warning out(_node->getTraceLevels()->logger);
-                    out << "update failed:\n" << ex.reason << "\nand couldn't rollback old descriptor:\n" << e.what();
+                    out << "update failed:\n" << ex.reason << "\nand could not rollback old descriptor:\n" << e.what();
                 }
             }
             else if (!_destroy)
@@ -1986,7 +1986,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
             catch (const Ice::LocalException& ex)
             {
                 Ice::Error out(_node->getTraceLevels()->logger);
-                out << "couldn't add adapter '" << adpt->id << "':\n" << ex;
+                out << "could not add adapter '" << adpt->id << "':\n" << ex;
             }
             oldAdapters.erase(adpt->id);
         }
@@ -2005,7 +2005,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
             catch (const Ice::LocalException& ex)
             {
                 Ice::Error out(_node->getTraceLevels()->logger);
-                out << "couldn't destroy adapter '" << adpt.first << "':\n" << ex;
+                out << "could not destroy adapter '" << adpt.first << "':\n" << ex;
             }
         }
     }
@@ -2123,7 +2123,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
                 IceInternal::streamFilename(configFilePath).c_str()); // configFilePath is a UTF-8 string
             if (!configfile.good())
             {
-                throw runtime_error("couldn't create configuration file: " + configFilePath);
+                throw runtime_error("could not create configuration file: " + configFilePath);
             }
             configfile << "# Configuration file ("
                        << IceInternal::timePointToDateTimeString(chrono::system_clock::now()) << ")" << endl
@@ -2160,7 +2160,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
                 catch (const exception& ex)
                 {
                     Ice::Warning out(_node->getTraceLevels()->logger);
-                    out << "couldn't remove file '" << _serverDir << "/config/" << str << "':\n" << ex.what();
+                    out << "could not remove file '" << _serverDir << "/config/" << str << "':\n" << ex.what();
                 }
             }
         }
@@ -2202,7 +2202,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
             catch (const exception& ex)
             {
                 Ice::Warning out(_node->getTraceLevels()->logger);
-                out << "couldn't remove directory '" << _serverDir << "/" << str << "':\n" << ex.what();
+                out << "could not remove directory '" << _serverDir << "/" << str << "':\n" << ex.what();
             }
         }
     }
@@ -2329,7 +2329,7 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
             }
             catch (const UserAccountNotFoundException&)
             {
-                throw runtime_error("couldn't find user account for user '" + user + "'");
+                throw runtime_error("could not find user account for user '" + user + "'");
             }
             catch (const Ice::LocalException& ex)
             {
@@ -2363,7 +2363,7 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
         if (user != string(&buf[0]))
         {
             throw runtime_error(
-                "couldn't load server under user account '" + user + "': feature not supported on Windows");
+                "could not load server under user account '" + user + "': feature not supported on Windows");
         }
     }
 #else
@@ -2474,6 +2474,11 @@ ServerI::updateRuntimePropertiesCallback(const shared_ptr<InternalServerDescript
     assert(_process);
     if (_load->finishRuntimePropertiesUpdate(desc, *_process))
     {
+        // The server's runtime properties now match the updated descriptor: adopt it as the server's descriptor
+        // so that loading the same descriptor again replies immediately instead of waiting on the load command.
+        // The load command remains set: it still needs to run once the server stops, to write the updated
+        // configuration to disk.
+        _desc = _load->getInternalServerDescriptor();
         finishLoad();
     }
 }
@@ -2491,6 +2496,9 @@ ServerI::updateRuntimePropertiesCallback(exception_ptr ex, const shared_ptr<Inte
     if (_load->finishRuntimePropertiesUpdate(desc, *_process))
     {
         _load->failed(ex);
+        // Drop the load command so that loading the same descriptor again retries the runtime properties update
+        // instead of waiting forever on this completed command.
+        _load = nullptr;
     }
 }
 
@@ -2698,6 +2706,13 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
                 loadFailure = _destroy->loadFailure();
                 _destroy->finished();
                 _destroy = nullptr;
+            }
+            if (_load)
+            {
+                // load() can queue a load command while the server is being destroyed, since destroy() runs mostly
+                // without the mutex. Fail it here so its reply is sent and the servant is removed below.
+                _load->failed(make_exception_ptr(DeploymentException("The server was destroyed.")));
+                _load = nullptr;
             }
             _condVar.notify_all(); // for getProperties()
             break;

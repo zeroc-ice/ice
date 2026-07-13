@@ -54,8 +54,8 @@ namespace Ice
         [[nodiscard]] ValuePtr ice_clone() const { return _iceCloneImpl(); }
 
         /// Gets the sliced data associated with this instance.
-        /// @return The sliced data if the value has a preserved-slice base class and has been sliced during
-        /// unmarshaling of the value, null otherwise.
+        /// @return The sliced data if this value was sliced during unmarshaling, null otherwise. Unknown slices are
+        /// preserved only when the sender uses the sliced format.
         [[nodiscard]] SlicedDataPtr ice_getSlicedData() const;
 
         /// Outputs a description of this instance to the stream. This description includes the type name and the name

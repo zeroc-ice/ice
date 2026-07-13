@@ -26,7 +26,7 @@ class ToStringMode(Enum):
     Compat = 2
     """
     Characters with ordinal values greater than 127 are encoded as a sequence of UTF-8 bytes using octal escapes.
-    Characters with ordinal values 127 and below are encoded as \\t, \\n (etc.) or an octal escape.
+    Non-printable ASCII characters with ordinal values 127 and below are encoded as \\t, \\n (etc.) or an octal escape.
     Use this mode to generate strings compatible with Ice 3.6 and earlier.
     """
 

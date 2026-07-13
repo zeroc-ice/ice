@@ -1135,7 +1135,7 @@ ServerEntry::allocated(const shared_ptr<SessionI>& session)
             if (traceLevels && traceLevels->server > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-                out << "couldn't add Glacier2 filters for server '" << _id << "' allocated by '" << session->getId()
+                out << "could not add Glacier2 filters for server '" << _id << "' allocated by '" << session->getId()
                     << ":\n"
                     << ex;
             }
@@ -1207,7 +1207,7 @@ ServerEntry::released(const shared_ptr<SessionI>& session)
             if (traceLevels && traceLevels->server > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-                out << "couldn't remove Glacier2 filters for server '" << _id << "' allocated by '";
+                out << "could not remove Glacier2 filters for server '" << _id << "' allocated by '";
                 out << session->getId() << ":\n" << ex;
             }
         }

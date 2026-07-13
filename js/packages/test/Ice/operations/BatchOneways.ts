@@ -4,13 +4,13 @@ import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
 import { test } from "../../Common/TestHelper.js";
 
-export async function batchOneways(prx: Test.MyClassPrx) {
+export async function batchOneways(prx: Test.MyInterfacePrx) {
     const bs1 = new Uint8Array(10 * 1024);
     for (let i = 0; i < bs1.length; ++i) {
         bs1[i] = 0;
     }
 
-    const batch = Test.MyClassPrx.uncheckedCast(prx.ice_batchOneway());
+    const batch = Test.MyInterfacePrx.uncheckedCast(prx.ice_batchOneway());
     await batch.ice_flushBatchRequests();
 
     let r = batch.ice_flushBatchRequests();
@@ -37,8 +37,8 @@ export async function batchOneways(prx: Test.MyClassPrx) {
     }
 
     if (batch.ice_getConnection() !== null) {
-        const batch1 = Test.MyClassPrx.uncheckedCast(prx.ice_batchOneway());
-        const batch2 = Test.MyClassPrx.uncheckedCast(prx.ice_batchOneway());
+        const batch1 = Test.MyInterfacePrx.uncheckedCast(prx.ice_batchOneway());
+        const batch2 = Test.MyInterfacePrx.uncheckedCast(prx.ice_batchOneway());
 
         batch1.ice_ping();
         batch2.ice_ping();

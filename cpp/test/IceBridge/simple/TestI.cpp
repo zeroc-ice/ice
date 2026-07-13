@@ -13,7 +13,10 @@ namespace
 }
 
 void
-MyClassI::callCallbackAsync(function<void()> response, function<void(exception_ptr)> error, const Ice::Current& current)
+MyInterfaceI::callCallbackAsync(
+    function<void()> response,
+    function<void(exception_ptr)> error,
+    const Ice::Current& current)
 {
     checkConnection(current.con);
     auto prx = current.con->createProxy<CallbackPrx>(callbackId);
@@ -24,7 +27,7 @@ MyClassI::callCallbackAsync(function<void()> response, function<void(exception_p
 }
 
 void
-MyClassI::getCallbackCountAsync(
+MyInterfaceI::getCallbackCountAsync(
     function<void(int)> response,
     function<void(exception_ptr)> error,
     const Ice::Current& current)
@@ -38,7 +41,7 @@ MyClassI::getCallbackCountAsync(
 }
 
 void
-MyClassI::incCounter(int expected, const Ice::Current& current)
+MyInterfaceI::incCounter(int expected, const Ice::Current& current)
 {
     checkConnection(current.con);
 
@@ -54,7 +57,7 @@ MyClassI::incCounter(int expected, const Ice::Current& current)
 }
 
 void
-MyClassI::waitCounter(int value, const Ice::Current&)
+MyInterfaceI::waitCounter(int value, const Ice::Current&)
 {
     unique_lock<mutex> lock(_lock);
     while (_counter != value)
@@ -64,21 +67,21 @@ MyClassI::waitCounter(int value, const Ice::Current&)
 }
 
 int
-MyClassI::getConnectionCount(const Ice::Current& current)
+MyInterfaceI::getConnectionCount(const Ice::Current& current)
 {
     checkConnection(current.con);
     return static_cast<int>(_connections.size());
 }
 
 string
-MyClassI::getConnectionInfo(const Ice::Current& current)
+MyInterfaceI::getConnectionInfo(const Ice::Current& current)
 {
     checkConnection(current.con);
     return current.con->toString();
 }
 
 void
-MyClassI::closeConnection(bool forceful, const Ice::Current& current)
+MyInterfaceI::closeConnection(bool forceful, const Ice::Current& current)
 {
     checkConnection(current.con);
     if (forceful)
@@ -92,7 +95,7 @@ MyClassI::closeConnection(bool forceful, const Ice::Current& current)
 }
 
 void
-MyClassI::datagram(const Ice::Current& current)
+MyInterfaceI::datagram(const Ice::Current& current)
 {
     checkConnection(current.con);
     test(current.con->getEndpoint()->getInfo()->datagram());
@@ -100,14 +103,14 @@ MyClassI::datagram(const Ice::Current& current)
 }
 
 int
-MyClassI::getDatagramCount(const Ice::Current& current)
+MyInterfaceI::getDatagramCount(const Ice::Current& current)
 {
     checkConnection(current.con);
     return _datagramCount;
 }
 
 void
-MyClassI::callDatagramCallback(const Ice::Current& current)
+MyInterfaceI::callDatagramCallback(const Ice::Current& current)
 {
     checkConnection(current.con);
     test(current.con->getEndpoint()->getInfo()->datagram());
@@ -115,7 +118,7 @@ MyClassI::callDatagramCallback(const Ice::Current& current)
 }
 
 void
-MyClassI::getCallbackDatagramCountAsync(
+MyInterfaceI::getCallbackDatagramCountAsync(
     function<void(int)> response,
     function<void(exception_ptr)> error,
     const Ice::Current& current)
@@ -129,21 +132,21 @@ MyClassI::getCallbackDatagramCountAsync(
 }
 
 void
-MyClassI::shutdown(const Ice::Current& current)
+MyInterfaceI::shutdown(const Ice::Current& current)
 {
     checkConnection(current.con);
     current.adapter->getCommunicator()->shutdown();
 }
 
 void
-MyClassI::removeConnection(const shared_ptr<Ice::Connection>& con)
+MyInterfaceI::removeConnection(const shared_ptr<Ice::Connection>& con)
 {
     lock_guard<mutex> lg(_lock);
     _connections.erase(con);
 }
 
 void
-MyClassI::checkConnection(const shared_ptr<Ice::Connection>& con)
+MyInterfaceI::checkConnection(const shared_ptr<Ice::Connection>& con)
 {
     lock_guard<mutex> lg(_lock);
     if (_connections.find(con) == _connections.end())

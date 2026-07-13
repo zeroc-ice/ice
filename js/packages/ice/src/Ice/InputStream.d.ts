@@ -10,18 +10,20 @@ declare module "@zeroc/ice" {
              * Constructs an InputStream using a communicator and this communicator's default encoding version.
              *
              * @param communicator The communicator to use for unmarshaling tasks.
-             * @param buffer The encoded data.
+             * @param buffer The encoded data. When a `Uint8Array` is supplied, the stream reads the exact byte
+             * range of the view.
              */
-            constructor(communicator: Communicator, buffer: Uint8Array);
+            constructor(communicator: Communicator, buffer: Uint8Array | ArrayBuffer);
 
             /**
              * Constructs an InputStream using a communicator and encoding version.
              *
              * @param communicator The communicator to use for unmarshaling tasks.
              * @param encoding The encoding version used to encode the data to be unmarshaled.
-             * @param buffer The encoded data.
+             * @param buffer The encoded data. When a `Uint8Array` is supplied, the stream reads the exact byte
+             * range of the view.
              */
-            constructor(communicator: Communicator, encoding: EncodingVersion, buffer: Uint8Array);
+            constructor(communicator: Communicator, encoding: EncodingVersion, buffer: Uint8Array | ArrayBuffer);
 
             /**
              *  Releases any data retained by encapsulations.
@@ -49,9 +51,10 @@ declare module "@zeroc/ice" {
             /**
              * Marks the end of a class instance.
              *
-             * @returns A SlicedData object containing the preserved slices for unknown types.
+             * @returns A SlicedData object containing the preserved slices for unknown types, or null if the instance
+             * has no preserved slices.
              */
-            endValue(): SlicedData;
+            endValue(): SlicedData | null;
 
             /**
              * Marks the start of an exception.
@@ -84,7 +87,7 @@ declare module "@zeroc/ice" {
             skipEmptyEncapsulation(): EncodingVersion;
 
             /**
-             * Reads and encapsulation from the stream.
+             * Reads an encapsulation from the stream.
              *
              * @returns a tuple containing:
              * - The encoding version of the encapsulation.
@@ -93,7 +96,7 @@ declare module "@zeroc/ice" {
             readEncapsulation(): [EncodingVersion, Uint8Array];
 
             /**
-             * Gets the current encoding version of the encapsulation.
+             * Gets the current encoding version.
              *
              * @returns The encoding version.
              */
@@ -146,7 +149,7 @@ declare module "@zeroc/ice" {
             /**
              * Reads and validates a sequence size.
              *
-             * @param minSize The minimum size of the sequence elements.
+             * @param minSize The minimum number of bytes required to encode each element of the sequence.
              * @returns The size read from the stream.
              */
             readAndCheckSeqSize(minSize: number): number;
@@ -232,25 +235,22 @@ declare module "@zeroc/ice" {
             readString(): string;
 
             /**
-             * Reads a proxy from the stream. The stream must have been initialized with a communicator.
+             * Reads a proxy from the stream.
              *
              * @param type the type of the proxy to read.
-             * @returns The proxy.
-             * @throws {@link Ice.MarshalException} If the stream has not been initialized with a communicator and
-             * cannot be used for unmarshaling proxies.
+             * @returns The proxy, or null if the proxy read from the stream is a nil (null) proxy.
              */
-            readProxy<T extends ObjectPrx>(type: new () => T): T;
+            readProxy<T extends ObjectPrx>(type: new () => T): T | null;
 
             /**
-             * Reads an optional proxy from the stream. The stream must have been initialized with a communicator.
+             * Reads an optional proxy from the stream.
              *
              * @param tag The numeric tag associated with the value.
              * @param type The type of the proxy to read.
-             * @returns The proxy or undefined if the optional value is not present.
-             * @throws {@link Ice.MarshalException} If the stream has not been initialized with a communicator and
-             * cannot be used for unmarshaling proxies.
+             * @returns The proxy, null if the proxy read from the stream is a nil (null) proxy, or undefined if the
+             * optional value is not present.
              */
-            readOptionalProxy<T extends ObjectPrx>(tag: number, type: new () => T): T | undefined;
+            readOptionalProxy<T extends ObjectPrx>(tag: number, type: new () => T): T | null | undefined;
 
             /**
              * Reads an enumerated value.
@@ -273,10 +273,12 @@ declare module "@zeroc/ice" {
              * Reads the index of a Slice value from the stream.
              *
              * @param cb The callback to notify the application when the extracted instance is available.
-             * The stream extracts Slice values in stages. The Ice run time invokes the callback when the
-             * corresponding instance has been fully unmarshaled.
+             * The stream extracts Slice values in stages. The Ice runtime invokes the callback when the
+             * corresponding instance has been fully unmarshaled; the callback receives null for a nil instance.
+             * @param type The expected type of the instance; unmarshaling throws {@link MarshalException} when the
+             * unmarshaled instance is not an instance of this type.
              */
-            readValue<T extends Value>(cb: (value: T) => void, type: new () => T): void;
+            readValue<T extends Value>(cb: (value: T | null) => void, type: new () => T): void;
 
             /**
              * Reads a user exception from the stream and throws it.

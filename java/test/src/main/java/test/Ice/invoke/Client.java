@@ -6,7 +6,7 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
 
-import test.Ice.invoke.Test.MyClassPrx;
+import test.Ice.invoke.Test.MyInterfacePrx;
 import test.TestHelper;
 
 public class Client extends TestHelper {
@@ -16,8 +16,8 @@ public class Client extends TestHelper {
         initData.properties = createTestProperties(args);
 
         try (Communicator communicator = initialize(initData)) {
-            MyClassPrx myClass = AllTests.allTests(this);
-            myClass.shutdown();
+            MyInterfacePrx myInterface = AllTests.allTests(this);
+            myInterface.shutdown();
         }
     }
 }

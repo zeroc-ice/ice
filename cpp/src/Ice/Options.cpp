@@ -51,7 +51,7 @@ IceInternal::Options::checkArgs(const string& shortOpt, const string& longOpt, b
         {
             string err = "'";
             err += shortOpt;
-            err += "': a short option cannot be `-'";
+            err += "': a short option cannot be '-'";
             throw invalid_argument(err);
         }
     }
@@ -69,7 +69,7 @@ IceInternal::Options::checkArgs(const string& shortOpt, const string& longOpt, b
         {
             string err = "'";
             err += longOpt;
-            err += "': a long option must not contain a leading `-'";
+            err += "': a long option must not contain a leading '-'";
             throw invalid_argument(err);
         }
     }

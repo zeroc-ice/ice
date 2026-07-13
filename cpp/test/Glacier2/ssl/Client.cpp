@@ -89,6 +89,26 @@ Client::run(int argc, char** argv)
     }
     cout << "ok" << endl;
 
+    //
+    // Switch to the WSS router. The connection is secured by TLS underneath the WebSocket transport.
+    //
+    communicator->setDefaultRouter(nullopt);
+    router = Glacier2::RouterPrx(communicator, "Glacier2/router:" + getTestEndpoint(4, "wss"));
+    communicator->setDefaultRouter(router);
+
+    cout << "creating ssl session with wss connection... ";
+    try
+    {
+        auto session = router->createSessionFromSecureConnection();
+        session->ice_ping();
+        router->destroySession();
+    }
+    catch (const Glacier2::PermissionDeniedException&)
+    {
+        test(false);
+    }
+    cout << "ok" << endl;
+
     communicator->setDefaultRouter(nullopt);
     auto process = checkedCast<Ice::ProcessPrx>(
         communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(2, "tcp")));

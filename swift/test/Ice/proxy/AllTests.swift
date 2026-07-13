@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
+public func allTests(_ helper: TestHelper) async throws -> MyInterfacePrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -641,8 +641,8 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     writer.writeLine("ok")
 
     writer.write("testing checked cast... ")
-    var cl = try await checkedCast(prx: baseProxy, type: MyClassPrx.self)!
-    let derived = try await checkedCast(prx: cl, type: MyDerivedClassPrx.self)!
+    var cl = try await checkedCast(prx: baseProxy, type: MyInterfacePrx.self)!
+    let derived = try await checkedCast(prx: cl, type: MyDerivedInterfacePrx.self)!
     try test(cl == baseProxy)
     try test(derived == baseProxy)
     try test(cl == derived)
@@ -652,7 +652,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     var c = try await cl.getContext()
     try test(c.isEmpty)
     c = ["one": "hello", "two": "world"]
-    cl = try await checkedCast(prx: baseProxy, type: MyClassPrx.self, context: c)!
+    cl = try await checkedCast(prx: baseProxy, type: MyInterfacePrx.self, context: c)!
     let c2 = try await cl.getContext()
     try test(c == c2)
     writer.writeLine("ok")
@@ -688,7 +688,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
 
     writer.write("testing encoding versioning... ")
     var ref20 = "test -e 2.0:\(helper.getTestEndpoint(num: 0))"
-    var cl20 = try uncheckedCast(prx: communicator.stringToProxy(ref20)!, type: MyClassPrx.self)
+    var cl20 = try uncheckedCast(prx: communicator.stringToProxy(ref20)!, type: MyInterfacePrx.self)
     do {
         try await cl20.ice_ping()
         try test(false)
@@ -697,7 +697,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     }
 
     var ref10 = "test -e 1.0:\(helper.getTestEndpoint(num: 0))"
-    var cl10 = try uncheckedCast(prx: communicator.stringToProxy(ref10)!, type: MyClassPrx.self)
+    var cl10 = try uncheckedCast(prx: communicator.stringToProxy(ref10)!, type: MyInterfacePrx.self)
     try await cl10.ice_ping()
     try await cl10.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
     try await cl.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
@@ -740,7 +740,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
 
     writer.write("testing protocol versioning... ")
     ref20 = "test -p 2.0:\(helper.getTestEndpoint(num: 0))"
-    cl20 = try uncheckedCast(prx: communicator.stringToProxy(ref20)!, type: MyClassPrx.self)
+    cl20 = try uncheckedCast(prx: communicator.stringToProxy(ref20)!, type: MyInterfacePrx.self)
     do {
         try await cl20.ice_ping()
         try test(false)
@@ -749,7 +749,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     }
 
     ref10 = "test -p 1.0:\(helper.getTestEndpoint(num: 0))"
-    cl10 = try uncheckedCast(prx: communicator.stringToProxy(ref10)!, type: MyClassPrx.self)
+    cl10 = try uncheckedCast(prx: communicator.stringToProxy(ref10)!, type: MyInterfacePrx.self)
     try await cl10.ice_ping()
 
     writer.write("testing opaque endpoints... ")

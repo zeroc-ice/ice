@@ -104,7 +104,7 @@ class IceStormRep1TestCase(IceStormTestCase):
         self.runadmin(current, "destroy single")
 
         for replica in range(0, 3):
-            adminForReplica(replica, "destroy single", "error: couldn't find topic 'single'")
+            adminForReplica(replica, "destroy single", "error: could not find topic 'single'")
         current.writeln("ok")
 
         current.write("testing topic creation without replica... ")
@@ -151,13 +151,13 @@ class IceStormRep1TestCase(IceStormTestCase):
         self.runadmin(current, "destroy single")
 
         for replica in range(1, 3):
-            adminForReplica(replica, "destroy single", "error: couldn't find topic 'single'")
+            adminForReplica(replica, "destroy single", "error: could not find topic 'single'")
 
         adminForReplica(0, "destroy single", ["ConnectionRefused", "ConnectFailed"])
 
         startReplica(0)
 
-        adminForReplica(0, "destroy single", "error: couldn't find topic 'single'")
+        adminForReplica(0, "destroy single", "error: could not find topic 'single'")
         current.writeln("ok")
 
         current.write("testing topic destruction without master... ")
@@ -169,13 +169,13 @@ class IceStormRep1TestCase(IceStormTestCase):
         self.runadmin(current, "destroy single")
 
         for replica in range(0, 2):
-            adminForReplica(replica, "destroy single", "error: couldn't find topic 'single'")
+            adminForReplica(replica, "destroy single", "error: could not find topic 'single'")
 
         adminForReplica(2, "destroy single", ["ConnectionRefused", "ConnectFailed"])
 
         startReplica(2)
 
-        adminForReplica(2, "destroy single", "error: couldn't find topic 'single'")
+        adminForReplica(2, "destroy single", "error: could not find topic 'single'")
         current.writeln("ok")
 
         # Now test subscription/unsubscription on all replicas.

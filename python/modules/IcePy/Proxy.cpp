@@ -1089,6 +1089,7 @@ proxyIceGetConnection(ProxyObject* self, PyObject* /*args*/)
     Ice::ConnectionPtr con;
     try
     {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during connection establishment.
         con = (*self->proxy)->ice_getConnection();
     }
     catch (...)
@@ -1133,7 +1134,7 @@ proxyIceGetConnectionAsync(ProxyObject* self, PyObject* /*args*/, PyObject* /*kw
         return nullptr;
     }
     callback->setFuture(future.get());
-    return future.release();
+    return IcePy::wrapFuture(*self->communicator, future.get());
 }
 
 extern "C" PyObject*
@@ -1201,15 +1202,15 @@ proxyIceFlushBatchRequestsAsync(ProxyObject* self, PyObject* /*args*/, PyObject*
 }
 
 extern "C" PyObject*
-proxyIceInvoke(ProxyObject* self, PyObject* args)
+proxyIceInvoke(ProxyObject* self, PyObject* args, PyObject* kwds)
 {
-    return iceInvoke(reinterpret_cast<PyObject*>(self), args);
+    return iceInvoke(reinterpret_cast<PyObject*>(self), args, kwds);
 }
 
 extern "C" PyObject*
-proxyIceInvokeAsync(ProxyObject* self, PyObject* args, PyObject* /*kwds*/)
+proxyIceInvokeAsync(ProxyObject* self, PyObject* args, PyObject* kwds)
 {
-    return iceInvokeAsync(reinterpret_cast<PyObject*>(self), args);
+    return iceInvokeAsync(reinterpret_cast<PyObject*>(self), args, kwds);
 }
 
 extern "C" PyObject*
@@ -1256,7 +1257,7 @@ static PyMethodDef ProxyMethods[] = {
     {"ice_identity",
      reinterpret_cast<PyCFunction>(proxyIceIdentity),
      METH_VARARGS,
-     PyDoc_STR("ice_identity(id: str) -> Self")},
+     PyDoc_STR("ice_identity(id: Ice.Identity) -> Ice.ObjectPrx")},
     {"ice_getContext",
      reinterpret_cast<PyCFunction>(proxyIceGetContext),
      METH_NOARGS,
@@ -1269,7 +1270,7 @@ static PyMethodDef ProxyMethods[] = {
     {"ice_facet",
      reinterpret_cast<PyCFunction>(proxyIceFacet),
      METH_VARARGS,
-     PyDoc_STR("ice_facet(new_facet: str) -> Self")},
+     PyDoc_STR("ice_facet(new_facet: str) -> Ice.ObjectPrx")},
     {"ice_getAdapterId",
      reinterpret_cast<PyCFunction>(proxyIceGetAdapterId),
      METH_NOARGS,
@@ -1325,7 +1326,7 @@ static PyMethodDef ProxyMethods[] = {
     {"ice_getEndpointSelection",
      reinterpret_cast<PyCFunction>(proxyIceGetEndpointSelection),
      METH_NOARGS,
-     PyDoc_STR("ice_getEndpointSelection() -> bool")},
+     PyDoc_STR("ice_getEndpointSelection() -> Ice.EndpointSelectionType")},
     {"ice_endpointSelection",
      reinterpret_cast<PyCFunction>(proxyIceEndpointSelection),
      METH_VARARGS,
@@ -1341,7 +1342,7 @@ static PyMethodDef ProxyMethods[] = {
     {"ice_getRouter",
      reinterpret_cast<PyCFunction>(proxyIceGetRouter),
      METH_NOARGS,
-     PyDoc_STR("ice_getRouter() -> Ice.RouterPrx")},
+     PyDoc_STR("ice_getRouter() -> Ice.RouterPrx | None")},
     {"ice_router",
      reinterpret_cast<PyCFunction>(proxyIceRouter),
      METH_VARARGS,
@@ -1349,7 +1350,7 @@ static PyMethodDef ProxyMethods[] = {
     {"ice_getLocator",
      reinterpret_cast<PyCFunction>(proxyIceGetLocator),
      METH_NOARGS,
-     PyDoc_STR("ice_getLocator() -> Ice.LocatorPrx")},
+     PyDoc_STR("ice_getLocator() -> Ice.LocatorPrx | None")},
     {"ice_locator",
      reinterpret_cast<PyCFunction>(proxyIceLocator),
      METH_VARARGS,
@@ -1386,7 +1387,7 @@ static PyMethodDef ProxyMethods[] = {
     {"ice_getCompress",
      reinterpret_cast<PyCFunction>(proxyIceGetCompress),
      METH_VARARGS,
-     PyDoc_STR("ice_getCompress() -> bool")},
+     PyDoc_STR("ice_getCompress() -> bool | None")},
     {"ice_connectionId",
      reinterpret_cast<PyCFunction>(proxyIceConnectionId),
      METH_VARARGS,
@@ -1399,11 +1400,11 @@ static PyMethodDef ProxyMethods[] = {
     {"ice_getConnection",
      reinterpret_cast<PyCFunction>(proxyIceGetConnection),
      METH_NOARGS,
-     PyDoc_STR("ice_getConnection() -> Ice.Connection")},
+     PyDoc_STR("ice_getConnection() -> Ice.Connection | None")},
     {"ice_getConnectionAsync",
      reinterpret_cast<PyCFunction>(proxyIceGetConnectionAsync),
      METH_NOARGS,
-     PyDoc_STR("ice_getConnectionAsync() -> Ice.Future")},
+     PyDoc_STR("ice_getConnectionAsync() -> Awaitable[Ice.Connection | None]")},
     {"ice_getCachedConnection",
      reinterpret_cast<PyCFunction>(proxyIceGetCachedConnection),
      METH_NOARGS,
@@ -1418,7 +1419,7 @@ static PyMethodDef ProxyMethods[] = {
      PyDoc_STR("ice_flushBatchRequestsAsync() -> Awaitable[None]")},
     {"ice_invoke",
      reinterpret_cast<PyCFunction>(proxyIceInvoke),
-     METH_VARARGS,
+     METH_VARARGS | METH_KEYWORDS,
      PyDoc_STR("ice_invoke(operation: str, mode: Ice.OperationMode, inParams: bytes, ctx: dict[str, str] | None) -> "
                "tuple[bool, bytes]")},
     {"ice_invokeAsync",

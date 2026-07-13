@@ -23,7 +23,8 @@ declare module "@zeroc/ice" {
              * Manually closes the connection gracefully after waiting for all pending invocations
              * to complete.
              *
-             * @returns A promise that resolves when the close operation is complete.
+             * @returns A promise that resolves when the connection is gracefully closed, and rejects when the
+             * connection is lost or the graceful closure times out ({@link CloseTimeoutException}).
              */
             close(): Promise<void>;
 
@@ -79,9 +80,9 @@ declare module "@zeroc/ice" {
              * Sets a close callback on the connection. The callback is invoked by the connection when it is closed.
              * If the callback needs more information about the closure, it can call {@link Connection#throwException}.
              *
-             * @param callback - The close callback object.
+             * @param callback - The close callback object. Pass `null` to clear the callback.
              */
-            setCloseCallback(callback: Ice.CloseCallback): void;
+            setCloseCallback(callback: Ice.CloseCallback | null): void;
 
             /**
              * Disables the inactivity check on this connection.
@@ -89,7 +90,7 @@ declare module "@zeroc/ice" {
             disableInactivityCheck(): void;
 
             /**
-             * Returns the connection type, which corresponds to the endpoint type (e.g., "tcp", "udp", etc.).
+             * Returns the connection type, which corresponds to the endpoint type (e.g., "tcp", "ws", "wss").
              *
              * @returns The type of the connection.
              */
@@ -106,14 +107,16 @@ declare module "@zeroc/ice" {
              * Retrieves the connection information.
              *
              * @returns The connection information.
+             * @throws The exception that caused the closure, when this connection is closed.
              */
             getInfo(): Ice.ConnectionInfo;
 
             /**
              * Throw an exception indicating the reason for connection closure. For example,
-             * {@link CloseConnectionException} is raised if the connection was closed gracefully, whereas
+             * {@link CloseConnectionException} is raised if the connection was closed gracefully by the peer, whereas
              * {@link ConnectionAbortedException}/{@link ConnectionClosedException} is raised if the connection was
-             * manually closed by the application. This operation does nothing if the connection is not yet closed.
+             * manually closed by the application. This operation does nothing if the connection is not yet closing
+             * or closed.
              */
             throwException(): void;
         }
@@ -143,12 +146,13 @@ declare module "@zeroc/ice" {
          */
         class IPConnectionInfo extends ConnectionInfo {
             /**
-             * The local address.
+             * The local address. For WebSocket connections, the local address is not available and `localAddress`
+             * is `""`.
              */
             get localAddress(): string;
 
             /**
-             * The local port.
+             * The local port. For WebSocket connections, the local port is not available and `localPort` is `-1`.
              */
             get localPort(): number;
 

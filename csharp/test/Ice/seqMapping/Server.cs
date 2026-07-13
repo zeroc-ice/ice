@@ -13,7 +13,7 @@ public class Server : global::Test.TestHelper
         using Communicator communicator = initialize(initData);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new MyClassI(), Ice.Util.stringToIdentity("test"));
+        adapter.add(new MyInterfaceI(), Ice.Util.stringToIdentity("test"));
         adapter.activate();
         serverReady();
         communicator.waitForShutdown();

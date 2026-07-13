@@ -480,6 +480,7 @@ export class OutputStream {
     constructor(arg1, arg2) {
         let instance = null;
         this._encoding = null;
+        this._format = null;
 
         if (arg1 !== undefined && arg1 !== null) {
             if (arg1.constructor == Communicator) {
@@ -488,13 +489,14 @@ export class OutputStream {
                 instance = arg1;
             } else if (arg1.constructor == EncodingVersion) {
                 this._encoding = arg1;
-                if (arg2 !== null && arg2 !== undefined) {
-                    if (arg2.constructor == FormatType) {
-                        this._format = arg2;
-                    } else {
-                        throw new InitializationException("unknown argument to OutputStream constructor");
-                    }
-                }
+            } else {
+                throw new InitializationException("unknown argument to OutputStream constructor");
+            }
+        }
+
+        if (arg2 !== undefined && arg2 !== null) {
+            if (arg2.constructor == FormatType) {
+                this._format = arg2;
             } else {
                 throw new InitializationException("unknown argument to OutputStream constructor");
             }
@@ -511,12 +513,16 @@ export class OutputStream {
             if (this._encoding === null) {
                 this._encoding = instance.defaultsAndOverrides().defaultEncoding;
             }
-            this._format = instance.defaultsAndOverrides().defaultFormat;
+            if (this._format === null) {
+                this._format = instance.defaultsAndOverrides().defaultFormat;
+            }
         } else {
             if (this._encoding === null) {
                 this._encoding = Encoding_1_1;
             }
-            this._format = FormatType.CompactFormat;
+            if (this._format === null) {
+                this._format = FormatType.CompactFormat;
+            }
         }
     }
 

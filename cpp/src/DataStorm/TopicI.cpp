@@ -637,6 +637,21 @@ TopicI::setUpdaters(map<shared_ptr<Tag>, Updater> updaters)
 {
     unique_lock<mutex> lock(_mutex);
     _updaters = std::move(updaters);
+
+    // Forward the tag set to the connected sessions, like setUpdater does: a peer that attached before the updaters
+    // were set (topics are announced first) would otherwise never learn the tags and silently resolve partial
+    // updates with the no-op updater.
+    if (!_updaters.empty())
+    {
+        try
+        {
+            _forwarder->attachTags(_id, getTags(), true);
+        }
+        catch (const std::exception&)
+        {
+            forwarderException();
+        }
+    }
 }
 
 map<shared_ptr<Tag>, Topic::Updater>

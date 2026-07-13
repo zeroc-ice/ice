@@ -15,7 +15,7 @@
     <Compile Include="../../BatchOneways.cs" />
     <Compile Include="../../BatchOnewaysAMI.cs" />
     <Compile Include="../../Collocated.cs" />
-    <Compile Include="../../MyDerivedClassI.cs" />
+    <Compile Include="../../MyDerivedInterfaceI.cs" />
     <Compile Include="../../Oneways.cs" />
     <Compile Include="../../OnewaysAMI.cs" />
     <Compile Include="../../Twoways.cs" />
