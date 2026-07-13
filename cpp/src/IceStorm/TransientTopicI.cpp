@@ -494,7 +494,8 @@ TransientTopicImpl::updateObserver()
 {
     lock_guard lock(_mutex);
 
-    if (_instance->observer())
+    // Don't reattach the observer of a topic that was destroyed but not reaped yet.
+    if (!_destroyed && _instance->observer())
     {
         _observer.attach(_instance->observer()->getTopicObserver(_name, _observer.get()));
     }
