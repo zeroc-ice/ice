@@ -401,7 +401,7 @@ public final class ObjectAdapter {
      * @param servant the servant to add
      * @param identity the identity of the Ice object that is implemented by the servant
      * @return a proxy for {@code identity}, created by this object adapter
-     * @throws AlreadyRegisteredException if a servant with the same identity is already registered.
+     * @throws AlreadyRegisteredException if a servant with the same identity and default facet is already registered.
      * @see #addFacet
      * @see #addWithUUID
      * @see #remove

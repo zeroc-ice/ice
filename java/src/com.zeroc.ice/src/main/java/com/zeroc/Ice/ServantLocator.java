@@ -68,7 +68,7 @@ public interface ServantLocator {
     void finished(Current curr, Object servant, java.lang.Object cookie) throws UserException;
 
     /**
-     * Notifies this servant locator that the object adapter in which it's installed is being deactivated.
+     * Notifies this servant locator that the object adapter in which it's installed is being destroyed.
      *
      * @param category the category with which this servant locator was registered
      * @see ObjectAdapter#destroy

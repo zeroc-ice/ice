@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Interface to read sequence of bytes encoded using the Slice encoding and recreate the corresponding Slice types.
+ * Reads a sequence of bytes encoded using the Slice encoding and recreates the corresponding Slice types.
  *
  * @see OutputStream
  */

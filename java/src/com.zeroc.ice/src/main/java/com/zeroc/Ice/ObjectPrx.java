@@ -215,7 +215,7 @@ public interface ObjectPrx {
     /**
      * Gets the per-proxy context for this proxy.
      *
-     * @return the per-proxy context, or {@code null} if the proxy does not have a per-proxy context.
+     * @return A copy of the per-proxy context. The map is empty when this proxy has no per-proxy context.
      */
     Map<String, String> ice_getContext();
 
@@ -580,7 +580,7 @@ public interface ObjectPrx {
 
     /**
      * Determines whether this proxy equals the passed object. Two proxies are equal if they are equal
-     * in all respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
+     * in all respects, that is, if their object identity, endpoints, timeout settings, and so on are all equal.
      *
      * @param r The object to compare this proxy with.
      * @return {@code true} if this proxy is equal to {@code r}, {@code false} otherwise.

@@ -10,7 +10,7 @@ public final class SliceInfo {
     /** The Slice compact type ID for this slice, or {@code -1} if the slice has no compact ID. */
     public final int compactId;
 
-    /** The encoded bytes for this slice, including the leading size integer. */
+    /** The encoded bytes for this slice. */
     public final byte[] bytes;
 
     /** The class instances referenced by this slice. */
