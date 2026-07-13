@@ -48,7 +48,7 @@ public abstract class Value implements Cloneable, Serializable {
     /**
      * Returns the sliced data associated with this instance.
      *
-     * @return The sliced data if this value was sliced during unmarshaling; otherwise {@code null}. Unknown slices are
+     * @return The sliced data if this value was sliced during unmarshaling, {@code null} otherwise. Unknown slices are
      *     preserved only when the sender uses the sliced format.
      */
     public SlicedData ice_getSlicedData() {
