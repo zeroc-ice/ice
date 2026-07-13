@@ -310,6 +310,7 @@ PersistentInstance::PersistentInstance(
     try
     {
         dbContext.communicator = std::move(communicator);
+        IceStormInternal::setKeyComparatorCommunicator(dbContext.communicator);
 
         IceDB::ReadWriteTxn txn(_dbEnv);
 
@@ -332,6 +333,7 @@ PersistentInstance::destroy() noexcept
 {
     _dbEnv.close();
     dbContext.communicator = nullptr;
+    IceStormInternal::setKeyComparatorCommunicator(nullptr);
 
     Instance::destroy();
 }
