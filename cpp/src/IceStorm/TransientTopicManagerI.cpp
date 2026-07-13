@@ -117,6 +117,28 @@ TransientTopicManagerImpl::reap()
 }
 
 void
+TransientTopicManagerImpl::updateTopicObservers()
+{
+    lock_guard lock(_mutex);
+
+    for (const auto& topic : _topics)
+    {
+        topic.second->updateObserver();
+    }
+}
+
+void
+TransientTopicManagerImpl::updateSubscriberObservers()
+{
+    lock_guard lock(_mutex);
+
+    for (const auto& topic : _topics)
+    {
+        topic.second->updateSubscriberObservers();
+    }
+}
+
+void
 TransientTopicManagerImpl::shutdown()
 {
     lock_guard lock(_mutex);
