@@ -71,7 +71,7 @@ namespace
 
         void id(const string& id)
         {
-            test(id == MyDerivedClass::ice_staticId());
+            test(id == MyDerivedInterface::ice_staticId());
             called();
         }
 
@@ -79,8 +79,8 @@ namespace
         {
             test(ids.size() == 3);
             test(ids[0] == "::Ice::Object");
-            test(ids[1] == "::Test::MyClass");
-            test(ids[2] == "::Test::MyDerivedClass");
+            test(ids[1] == "::Test::MyDerivedInterface");
+            test(ids[2] == "::Test::MyInterface");
             called();
         }
 
@@ -133,7 +133,7 @@ namespace
             called();
         }
 
-        void opMyClass(const MyClassPrx& r, const MyClassPrx& c1, const MyClassPrx& c2)
+        void opMyInterface(const MyInterfacePrx& r, const MyInterfacePrx& c1, const MyInterfacePrx& c2)
         {
             test(c1->ice_getIdentity() == stringToIdentity("test"));
             test(c2->ice_getIdentity() == stringToIdentity("noSuchIdentity"));
@@ -996,7 +996,7 @@ makeExceptionClosure(CallbackPtr& cb)
 }
 
 void
-twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
+twowaysAMI(const CommunicatorPtr& communicator, const MyInterfacePrx& p)
 {
     {
         CallbackPtr cb = make_shared<Callback>();
@@ -1006,7 +1006,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
     {
         CallbackPtr cb = make_shared<Callback>();
-        p->ice_isAAsync(MyClass::ice_staticId(), [&](bool v) { cb->isA(v); }, makeExceptionClosure(cb));
+        p->ice_isAAsync(MyInterface::ice_staticId(), [&](bool v) { cb->isA(v); }, makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1083,10 +1083,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
     {
         CallbackPtr cb = make_shared<Callback>(communicator);
-        p->opMyClassAsync(
+        p->opMyInterfaceAsync(
             p,
-            [&](optional<MyClassPrx> c1, optional<MyClassPrx> c2, optional<MyClassPrx> c3)
-            { cb->opMyClass(*c1, *c2, *c3); },
+            [&](optional<MyInterfacePrx> c1, optional<MyInterfacePrx> c2, optional<MyInterfacePrx> c3)
+            { cb->opMyInterface(*c1, *c2, *c3); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1968,7 +1968,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                 prom.get_future().get();
             }
             {
-                MyClassPrx p2 = p->ice_context(ctx);
+                MyInterfacePrx p2 = p->ice_context(ctx);
                 test(p2->ice_getContext() == ctx);
                 promise<void> prom;
                 p2->opContextAsync(
@@ -1981,7 +1981,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                 prom.get_future().get();
             }
             {
-                MyClassPrx p2 = p->ice_context(ctx);
+                MyInterfacePrx p2 = p->ice_context(ctx);
                 promise<void> prom;
                 p2->opContextAsync(
                     [&](const Context& c)
@@ -2020,7 +2020,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                 ctx["three"] = "THREE";
 
                 PropertiesPtr properties = ic->getProperties();
-                MyClassPrx q(ic, "test:" + TestHelper::getTestEndpoint(properties));
+                MyInterfacePrx q(ic, "test:" + TestHelper::getTestEndpoint(properties));
                 ic->getImplicitContext()->setContext(ctx);
                 test(ic->getImplicitContext()->getContext() == ctx);
                 {
@@ -2118,7 +2118,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
     }
 
     {
-        auto derived = uncheckedCast<MyDerivedClassPrx>(p);
+        auto derived = uncheckedCast<MyDerivedInterfacePrx>(p);
         CallbackPtr cb = make_shared<Callback>();
         derived->opDerivedAsync([&]() { cb->opDerived(); }, makeExceptionClosure(cb));
         cb->check();
@@ -2141,7 +2141,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
     {
         CallbackPtr cb = make_shared<Callback>();
-        auto f = p->ice_isAAsync(MyClass::ice_staticId());
+        auto f = p->ice_isAAsync(MyInterface::ice_staticId());
         try
         {
             cb->isA(f.get());
@@ -2288,11 +2288,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
     {
         CallbackPtr cb = make_shared<Callback>(communicator);
-        auto f = p->opMyClassAsync(p);
+        auto f = p->opMyInterfaceAsync(p);
         try
         {
             auto r = f.get();
-            cb->opMyClass(*get<0>(r), *get<1>(r), *get<2>(r));
+            cb->opMyInterface(*get<0>(r), *get<1>(r), *get<2>(r));
         }
         catch (...)
         {
@@ -3286,7 +3286,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
     }
 
     {
-        auto derived = uncheckedCast<MyDerivedClassPrx>(p);
+        auto derived = uncheckedCast<MyDerivedInterfacePrx>(p);
         CallbackPtr cb = make_shared<Callback>();
         auto f = derived->opDerivedAsync();
         try

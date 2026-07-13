@@ -7,7 +7,7 @@
 
 namespace Test1
 {
-    class WstringClassI : public virtual WstringClass
+    class WstringInterfaceI : public virtual WstringInterface
     {
     public:
         std::wstring opString(std::wstring, std::wstring&, const Ice::Current&) override;
@@ -20,7 +20,7 @@ namespace Test1
 
 namespace Test2
 {
-    class WstringClassI : public virtual WstringClass
+    class WstringInterfaceI : public virtual WstringInterface
     {
     public:
         std::wstring opString(std::wstring, std::wstring&, const Ice::Current&) override;

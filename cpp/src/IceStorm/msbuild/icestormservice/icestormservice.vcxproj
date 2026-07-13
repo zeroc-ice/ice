@@ -114,6 +114,7 @@
     <ClCompile Include="..\..\Observers.cpp" />
     <ClCompile Include="..\..\Service.cpp" />
     <ClCompile Include="..\..\Subscriber.cpp" />
+    <ClCompile Include="..\..\SubscriberRecordKeyCompare.cpp" />
     <ClCompile Include="..\..\TopicI.cpp" />
     <ClCompile Include="..\..\TopicManagerI.cpp" />
     <ClCompile Include="..\..\TraceLevels.cpp" />

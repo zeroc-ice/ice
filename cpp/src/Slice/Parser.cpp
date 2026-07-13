@@ -3436,7 +3436,7 @@ Slice::Exception::createDataMember(
                 if (baseMember->name() == name)
                 {
                     ostringstream os;
-                    os << "data member '" << name << "' is already defined in a base exception";
+                    os << "data member '" << name << "' is already defined as a data member in a base exception";
                     unit()->error(os.str());
                     break;
                 }

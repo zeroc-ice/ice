@@ -6,11 +6,11 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.OperationMode;
 
-import test.Ice.operations.Test.AsyncMyDerivedClass;
+import test.Ice.operations.Test.AsyncMyDerivedInterface;
 import test.Ice.operations.Test.MyClass;
-import test.Ice.operations.Test.MyClass1;
-import test.Ice.operations.Test.MyClassPrx;
 import test.Ice.operations.Test.MyEnum;
+import test.Ice.operations.Test.MyInterface;
+import test.Ice.operations.Test.MyInterfacePrx;
 import test.Ice.operations.Test.MyStruct;
 import test.Ice.operations.Test.MyStruct1;
 import test.Ice.operations.Test.Structure;
@@ -54,7 +54,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
+public final class AMDMyDerivedInterfaceI implements AsyncMyDerivedInterface {
     private static void test(boolean b) {
         if (!b) {
             throw new RuntimeException();
@@ -110,15 +110,15 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpBoolResult> opBoolAsync(
+    public CompletionStage<MyInterface.OpBoolResult> opBoolAsync(
             boolean p1, boolean p2, Current current) {
-        return CompletableFuture.completedFuture(new MyClass.OpBoolResult(p2, p1));
+        return CompletableFuture.completedFuture(new MyInterface.OpBoolResult(p2, p1));
     }
 
     @Override
-    public CompletionStage<MyClass.OpBoolSResult> opBoolSAsync(
+    public CompletionStage<MyInterface.OpBoolSResult> opBoolSAsync(
             boolean[] p1, boolean[] p2, Current current) {
-        MyClass.OpBoolSResult r = new MyClass.OpBoolSResult();
+        MyInterface.OpBoolSResult r = new MyInterface.OpBoolSResult();
         r.p3 = new boolean[p1.length + p2.length];
         System.arraycopy(p1, 0, r.p3, 0, p1.length);
         System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
@@ -131,9 +131,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpBoolSSResult> opBoolSSAsync(
+    public CompletionStage<MyInterface.OpBoolSSResult> opBoolSSAsync(
             boolean[][] p1, boolean[][] p2, Current current) {
-        MyClass.OpBoolSSResult r = new MyClass.OpBoolSSResult();
+        MyInterface.OpBoolSSResult r = new MyInterface.OpBoolSSResult();
         r.p3 = new boolean[p1.length + p2.length][];
         System.arraycopy(p1, 0, r.p3, 0, p1.length);
         System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
@@ -146,14 +146,14 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpByteResult> opByteAsync(byte p1, byte p2, Current current) {
-        return CompletableFuture.completedFuture(new MyClass.OpByteResult(p1, (byte) (p1 ^ p2)));
+    public CompletionStage<MyInterface.OpByteResult> opByteAsync(byte p1, byte p2, Current current) {
+        return CompletableFuture.completedFuture(new MyInterface.OpByteResult(p1, (byte) (p1 ^ p2)));
     }
 
     @Override
-    public CompletionStage<MyClass.OpByteBoolDResult> opByteBoolDAsync(
+    public CompletionStage<MyInterface.OpByteBoolDResult> opByteBoolDAsync(
             Map<Byte, Boolean> p1, Map<Byte, Boolean> p2, Current current) {
-        MyClass.OpByteBoolDResult r = new MyClass.OpByteBoolDResult();
+        MyInterface.OpByteBoolDResult r = new MyInterface.OpByteBoolDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -162,9 +162,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpByteSResult> opByteSAsync(
+    public CompletionStage<MyInterface.OpByteSResult> opByteSAsync(
             byte[] p1, byte[] p2, Current current) {
-        MyClass.OpByteSResult r = new MyClass.OpByteSResult();
+        MyInterface.OpByteSResult r = new MyInterface.OpByteSResult();
         r.p3 = new byte[p1.length];
         for (int i = 0; i < p1.length; i++) {
             r.p3[i] = p1[p1.length - (i + 1)];
@@ -177,9 +177,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpByteSSResult> opByteSSAsync(
+    public CompletionStage<MyInterface.OpByteSSResult> opByteSSAsync(
             byte[][] p1, byte[][] p2, Current current) {
-        MyClass.OpByteSSResult r = new MyClass.OpByteSSResult();
+        MyInterface.OpByteSSResult r = new MyInterface.OpByteSSResult();
         r.p3 = new byte[p1.length][];
         for (int i = 0; i < p1.length; i++) {
             r.p3[i] = p1[p1.length - (i + 1)];
@@ -192,15 +192,15 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpFloatDoubleResult> opFloatDoubleAsync(
+    public CompletionStage<MyInterface.OpFloatDoubleResult> opFloatDoubleAsync(
             float p1, double p2, Current current) {
-        return CompletableFuture.completedFuture(new MyClass.OpFloatDoubleResult(p2, p1, p2));
+        return CompletableFuture.completedFuture(new MyInterface.OpFloatDoubleResult(p2, p1, p2));
     }
 
     @Override
-    public CompletionStage<MyClass.OpFloatDoubleSResult> opFloatDoubleSAsync(
+    public CompletionStage<MyInterface.OpFloatDoubleSResult> opFloatDoubleSAsync(
             float[] p1, double[] p2, Current current) {
-        MyClass.OpFloatDoubleSResult r = new MyClass.OpFloatDoubleSResult();
+        MyInterface.OpFloatDoubleSResult r = new MyInterface.OpFloatDoubleSResult();
         r.p3 = p1;
         r.p4 = new double[p2.length];
         for (int i = 0; i < p2.length; i++) {
@@ -215,9 +215,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpFloatDoubleSSResult> opFloatDoubleSSAsync(
+    public CompletionStage<MyInterface.OpFloatDoubleSSResult> opFloatDoubleSSAsync(
             float[][] p1, double[][] p2, Current current) {
-        MyClass.OpFloatDoubleSSResult r = new MyClass.OpFloatDoubleSSResult();
+        MyInterface.OpFloatDoubleSSResult r = new MyInterface.OpFloatDoubleSSResult();
         r.p3 = p1;
         r.p4 = new double[p2.length][];
         for (int i = 0; i < p2.length; i++) {
@@ -230,9 +230,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpLongFloatDResult> opLongFloatDAsync(
+    public CompletionStage<MyInterface.OpLongFloatDResult> opLongFloatDAsync(
             Map<Long, Float> p1, Map<Long, Float> p2, Current current) {
-        MyClass.OpLongFloatDResult r = new MyClass.OpLongFloatDResult();
+        MyInterface.OpLongFloatDResult r = new MyInterface.OpLongFloatDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -241,26 +241,26 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpMyClassResult> opMyClassAsync(MyClassPrx p1, Current current) {
-        MyClass.OpMyClassResult r = new MyClass.OpMyClassResult();
+    public CompletionStage<MyInterface.OpMyInterfaceResult> opMyInterfaceAsync(MyInterfacePrx p1, Current current) {
+        MyInterface.OpMyInterfaceResult r = new MyInterface.OpMyInterfaceResult();
         r.p2 = p1;
         r.p3 =
-            MyClassPrx.uncheckedCast(
+            MyInterfacePrx.uncheckedCast(
                 current.adapter.createProxy(
                     new Identity("noSuchIdentity", "")));
-        r.returnValue = MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
+        r.returnValue = MyInterfacePrx.uncheckedCast(current.adapter.createProxy(current.id));
         return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public CompletionStage<MyClass.OpMyEnumResult> opMyEnumAsync(MyEnum p1, Current current) {
-        return CompletableFuture.completedFuture(new MyClass.OpMyEnumResult(MyEnum.enum3, p1));
+    public CompletionStage<MyInterface.OpMyEnumResult> opMyEnumAsync(MyEnum p1, Current current) {
+        return CompletableFuture.completedFuture(new MyInterface.OpMyEnumResult(MyEnum.enum3, p1));
     }
 
     @Override
-    public CompletionStage<MyClass.OpShortIntDResult> opShortIntDAsync(
+    public CompletionStage<MyInterface.OpShortIntDResult> opShortIntDAsync(
             Map<Short, Integer> p1, Map<Short, Integer> p2, Current current) {
-        MyClass.OpShortIntDResult r = new MyClass.OpShortIntDResult();
+        MyInterface.OpShortIntDResult r = new MyInterface.OpShortIntDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -269,15 +269,15 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpShortIntLongResult> opShortIntLongAsync(
+    public CompletionStage<MyInterface.OpShortIntLongResult> opShortIntLongAsync(
             short p1, int p2, long p3, Current current) {
-        return CompletableFuture.completedFuture(new MyClass.OpShortIntLongResult(p3, p1, p2, p3));
+        return CompletableFuture.completedFuture(new MyInterface.OpShortIntLongResult(p3, p1, p2, p3));
     }
 
     @Override
-    public CompletionStage<MyClass.OpShortIntLongSResult> opShortIntLongSAsync(
+    public CompletionStage<MyInterface.OpShortIntLongSResult> opShortIntLongSAsync(
             short[] p1, int[] p2, long[] p3, Current current) {
-        MyClass.OpShortIntLongSResult r = new MyClass.OpShortIntLongSResult();
+        MyInterface.OpShortIntLongSResult r = new MyInterface.OpShortIntLongSResult();
         r.p4 = p1;
         r.p5 = new int[p2.length];
         for (int i = 0; i < p2.length; i++) {
@@ -291,9 +291,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpShortIntLongSSResult> opShortIntLongSSAsync(
+    public CompletionStage<MyInterface.OpShortIntLongSSResult> opShortIntLongSSAsync(
             short[][] p1, int[][] p2, long[][] p3, Current current) {
-        MyClass.OpShortIntLongSSResult r = new MyClass.OpShortIntLongSSResult();
+        MyInterface.OpShortIntLongSSResult r = new MyInterface.OpShortIntLongSSResult();
         r.p4 = p1;
         r.p5 = new int[p2.length][];
         for (int i = 0; i < p2.length; i++) {
@@ -307,18 +307,18 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpStringResult> opStringAsync(
+    public CompletionStage<MyInterface.OpStringResult> opStringAsync(
             String p1, String p2, Current current) {
-        MyClass.OpStringResult r = new MyClass.OpStringResult();
+        MyInterface.OpStringResult r = new MyInterface.OpStringResult();
         r.p3 = p2 + " " + p1;
         r.returnValue = p1 + " " + p2;
         return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public CompletionStage<MyClass.OpStringMyEnumDResult> opStringMyEnumDAsync(
+    public CompletionStage<MyInterface.OpStringMyEnumDResult> opStringMyEnumDAsync(
             Map<String, MyEnum> p1, Map<String, MyEnum> p2, Current current) {
-        MyClass.OpStringMyEnumDResult r = new MyClass.OpStringMyEnumDResult();
+        MyInterface.OpStringMyEnumDResult r = new MyInterface.OpStringMyEnumDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -327,9 +327,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpMyEnumStringDResult> opMyEnumStringDAsync(
+    public CompletionStage<MyInterface.OpMyEnumStringDResult> opMyEnumStringDAsync(
             Map<MyEnum, String> p1, Map<MyEnum, String> p2, Current current) {
-        MyClass.OpMyEnumStringDResult r = new MyClass.OpMyEnumStringDResult();
+        MyInterface.OpMyEnumStringDResult r = new MyInterface.OpMyEnumStringDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -338,11 +338,11 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpMyStructMyEnumDResult> opMyStructMyEnumDAsync(
+    public CompletionStage<MyInterface.OpMyStructMyEnumDResult> opMyStructMyEnumDAsync(
             Map<MyStruct, MyEnum> p1,
             Map<MyStruct, MyEnum> p2,
             Current current) {
-        MyClass.OpMyStructMyEnumDResult r = new MyClass.OpMyStructMyEnumDResult();
+        MyInterface.OpMyStructMyEnumDResult r = new MyInterface.OpMyStructMyEnumDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -351,9 +351,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpByteBoolDSResult> opByteBoolDSAsync(
+    public CompletionStage<MyInterface.OpByteBoolDSResult> opByteBoolDSAsync(
             List<Map<Byte, Boolean>> p1, List<Map<Byte, Boolean>> p2, Current current) {
-        MyClass.OpByteBoolDSResult r = new MyClass.OpByteBoolDSResult();
+        MyInterface.OpByteBoolDSResult r = new MyInterface.OpByteBoolDSResult();
         r.p3 = new ArrayList<>();
         r.p3.addAll(p2);
         r.p3.addAll(p1);
@@ -365,9 +365,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpShortIntDSResult> opShortIntDSAsync(
+    public CompletionStage<MyInterface.OpShortIntDSResult> opShortIntDSAsync(
             List<Map<Short, Integer>> p1, List<Map<Short, Integer>> p2, Current current) {
-        MyClass.OpShortIntDSResult r = new MyClass.OpShortIntDSResult();
+        MyInterface.OpShortIntDSResult r = new MyInterface.OpShortIntDSResult();
         r.p3 = new ArrayList<>();
         r.p3.addAll(p2);
         r.p3.addAll(p1);
@@ -379,9 +379,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpLongFloatDSResult> opLongFloatDSAsync(
+    public CompletionStage<MyInterface.OpLongFloatDSResult> opLongFloatDSAsync(
             List<Map<Long, Float>> p1, List<Map<Long, Float>> p2, Current current) {
-        MyClass.OpLongFloatDSResult r = new MyClass.OpLongFloatDSResult();
+        MyInterface.OpLongFloatDSResult r = new MyInterface.OpLongFloatDSResult();
         r.p3 = new ArrayList<>();
         r.p3.addAll(p2);
         r.p3.addAll(p1);
@@ -393,9 +393,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpStringStringDSResult> opStringStringDSAsync(
+    public CompletionStage<MyInterface.OpStringStringDSResult> opStringStringDSAsync(
             List<Map<String, String>> p1, List<Map<String, String>> p2, Current current) {
-        MyClass.OpStringStringDSResult r = new MyClass.OpStringStringDSResult();
+        MyInterface.OpStringStringDSResult r = new MyInterface.OpStringStringDSResult();
         r.p3 = new ArrayList<>();
         r.p3.addAll(p2);
         r.p3.addAll(p1);
@@ -407,9 +407,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpStringMyEnumDSResult> opStringMyEnumDSAsync(
+    public CompletionStage<MyInterface.OpStringMyEnumDSResult> opStringMyEnumDSAsync(
             List<Map<String, MyEnum>> p1, List<Map<String, MyEnum>> p2, Current current) {
-        MyClass.OpStringMyEnumDSResult r = new MyClass.OpStringMyEnumDSResult();
+        MyInterface.OpStringMyEnumDSResult r = new MyInterface.OpStringMyEnumDSResult();
         r.p3 = new ArrayList<>();
         r.p3.addAll(p2);
         r.p3.addAll(p1);
@@ -421,9 +421,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpMyEnumStringDSResult> opMyEnumStringDSAsync(
+    public CompletionStage<MyInterface.OpMyEnumStringDSResult> opMyEnumStringDSAsync(
             List<Map<MyEnum, String>> p1, List<Map<MyEnum, String>> p2, Current current) {
-        MyClass.OpMyEnumStringDSResult r = new MyClass.OpMyEnumStringDSResult();
+        MyInterface.OpMyEnumStringDSResult r = new MyInterface.OpMyEnumStringDSResult();
         r.p3 = new ArrayList<>();
         r.p3.addAll(p2);
         r.p3.addAll(p1);
@@ -435,9 +435,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpMyStructMyEnumDSResult> opMyStructMyEnumDSAsync(
+    public CompletionStage<MyInterface.OpMyStructMyEnumDSResult> opMyStructMyEnumDSAsync(
             List<Map<MyStruct, MyEnum>> p1, List<Map<MyStruct, MyEnum>> p2, Current current) {
-        MyClass.OpMyStructMyEnumDSResult r = new MyClass.OpMyStructMyEnumDSResult();
+        MyInterface.OpMyStructMyEnumDSResult r = new MyInterface.OpMyStructMyEnumDSResult();
         r.p3 = new ArrayList<>();
         r.p3.addAll(p2);
         r.p3.addAll(p1);
@@ -449,9 +449,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpByteByteSDResult> opByteByteSDAsync(
+    public CompletionStage<MyInterface.OpByteByteSDResult> opByteByteSDAsync(
             Map<Byte, byte[]> p1, Map<Byte, byte[]> p2, Current current) {
-        MyClass.OpByteByteSDResult r = new MyClass.OpByteByteSDResult();
+        MyInterface.OpByteByteSDResult r = new MyInterface.OpByteByteSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -460,9 +460,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpBoolBoolSDResult> opBoolBoolSDAsync(
+    public CompletionStage<MyInterface.OpBoolBoolSDResult> opBoolBoolSDAsync(
             Map<Boolean, boolean[]> p1, Map<Boolean, boolean[]> p2, Current current) {
-        MyClass.OpBoolBoolSDResult r = new MyClass.OpBoolBoolSDResult();
+        MyInterface.OpBoolBoolSDResult r = new MyInterface.OpBoolBoolSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -471,9 +471,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpShortShortSDResult> opShortShortSDAsync(
+    public CompletionStage<MyInterface.OpShortShortSDResult> opShortShortSDAsync(
             Map<Short, short[]> p1, Map<Short, short[]> p2, Current current) {
-        MyClass.OpShortShortSDResult r = new MyClass.OpShortShortSDResult();
+        MyInterface.OpShortShortSDResult r = new MyInterface.OpShortShortSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -482,9 +482,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpIntIntSDResult> opIntIntSDAsync(
+    public CompletionStage<MyInterface.OpIntIntSDResult> opIntIntSDAsync(
             Map<Integer, int[]> p1, Map<Integer, int[]> p2, Current current) {
-        MyClass.OpIntIntSDResult r = new MyClass.OpIntIntSDResult();
+        MyInterface.OpIntIntSDResult r = new MyInterface.OpIntIntSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -493,9 +493,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpLongLongSDResult> opLongLongSDAsync(
+    public CompletionStage<MyInterface.OpLongLongSDResult> opLongLongSDAsync(
             Map<Long, long[]> p1, Map<Long, long[]> p2, Current current) {
-        MyClass.OpLongLongSDResult r = new MyClass.OpLongLongSDResult();
+        MyInterface.OpLongLongSDResult r = new MyInterface.OpLongLongSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -504,9 +504,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpStringFloatSDResult> opStringFloatSDAsync(
+    public CompletionStage<MyInterface.OpStringFloatSDResult> opStringFloatSDAsync(
             Map<String, float[]> p1, Map<String, float[]> p2, Current current) {
-        MyClass.OpStringFloatSDResult r = new MyClass.OpStringFloatSDResult();
+        MyInterface.OpStringFloatSDResult r = new MyInterface.OpStringFloatSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -515,9 +515,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpStringDoubleSDResult> opStringDoubleSDAsync(
+    public CompletionStage<MyInterface.OpStringDoubleSDResult> opStringDoubleSDAsync(
             Map<String, double[]> p1, Map<String, double[]> p2, Current current) {
-        MyClass.OpStringDoubleSDResult r = new MyClass.OpStringDoubleSDResult();
+        MyInterface.OpStringDoubleSDResult r = new MyInterface.OpStringDoubleSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -526,9 +526,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpStringStringSDResult> opStringStringSDAsync(
+    public CompletionStage<MyInterface.OpStringStringSDResult> opStringStringSDAsync(
             Map<String, String[]> p1, Map<String, String[]> p2, Current current) {
-        MyClass.OpStringStringSDResult r = new MyClass.OpStringStringSDResult();
+        MyInterface.OpStringStringSDResult r = new MyInterface.OpStringStringSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -537,9 +537,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpMyEnumMyEnumSDResult> opMyEnumMyEnumSDAsync(
+    public CompletionStage<MyInterface.OpMyEnumMyEnumSDResult> opMyEnumMyEnumSDAsync(
             Map<MyEnum, MyEnum[]> p1, Map<MyEnum, MyEnum[]> p2, Current current) {
-        MyClass.OpMyEnumMyEnumSDResult r = new MyClass.OpMyEnumMyEnumSDResult();
+        MyInterface.OpMyEnumMyEnumSDResult r = new MyInterface.OpMyEnumMyEnumSDResult();
         r.p3 = p2;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -585,9 +585,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpStringSResult> opStringSAsync(
+    public CompletionStage<MyInterface.OpStringSResult> opStringSAsync(
             String[] p1, String[] p2, Current current) {
-        MyClass.OpStringSResult r = new MyClass.OpStringSResult();
+        MyInterface.OpStringSResult r = new MyInterface.OpStringSResult();
         r.p3 = new String[p1.length + p2.length];
         System.arraycopy(p1, 0, r.p3, 0, p1.length);
         System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
@@ -600,9 +600,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpStringSSResult> opStringSSAsync(
+    public CompletionStage<MyInterface.OpStringSSResult> opStringSSAsync(
             String[][] p1, String[][] p2, Current current) {
-        MyClass.OpStringSSResult r = new MyClass.OpStringSSResult();
+        MyInterface.OpStringSSResult r = new MyInterface.OpStringSSResult();
         r.p3 = new String[p1.length + p2.length][];
         System.arraycopy(p1, 0, r.p3, 0, p1.length);
         System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
@@ -615,9 +615,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpStringSSSResult> opStringSSSAsync(
+    public CompletionStage<MyInterface.OpStringSSSResult> opStringSSSAsync(
             String[][][] p1, String[][][] p2, Current current) {
-        MyClass.OpStringSSSResult r = new MyClass.OpStringSSSResult();
+        MyInterface.OpStringSSSResult r = new MyInterface.OpStringSSSResult();
         r.p3 = new String[p1.length + p2.length][][];
         System.arraycopy(p1, 0, r.p3, 0, p1.length);
         System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
@@ -630,9 +630,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpStringStringDResult> opStringStringDAsync(
+    public CompletionStage<MyInterface.OpStringStringDResult> opStringStringDAsync(
             Map<String, String> p1, Map<String, String> p2, Current current) {
-        MyClass.OpStringStringDResult r = new MyClass.OpStringStringDResult();
+        MyInterface.OpStringStringDResult r = new MyInterface.OpStringStringDResult();
         r.p3 = p1;
         r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
@@ -641,9 +641,9 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass.OpStructResult> opStructAsync(
+    public CompletionStage<MyInterface.OpStructResult> opStructAsync(
             Structure p1, Structure p2, Current current) {
-        MyClass.OpStructResult r = new MyClass.OpStructResult();
+        MyInterface.OpStructResult r = new MyInterface.OpStructResult();
         r.p3 = p1;
         r.p3.s.s = "a new string";
         r.returnValue = p2;
@@ -725,7 +725,7 @@ public final class AMDMyDerivedClassI implements AsyncMyDerivedClass {
     }
 
     @Override
-    public CompletionStage<MyClass1> opMyClass1Async(MyClass1 value, Current current) {
+    public CompletionStage<MyClass> opMyClassAsync(MyClass value, Current current) {
         return CompletableFuture.completedFuture(value);
     }
 

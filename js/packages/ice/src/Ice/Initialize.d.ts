@@ -3,23 +3,13 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
-         * Creates a communicator.
+         * Creates a communicator. When called without initialization data, the communicator is created with default
+         * options.
          *
          * This method is provided for backwards compatibility. New code should call the {@link Communicator}
          * constructor directly.
          *
-         * @returns The initialized communicator.
-         * @throws {@link InitializationException} If an error occurs during initialization.
-         */
-        function initialize(): Communicator;
-
-        /**
-         * Creates a communicator.
-         *
-         * This method is provided for backwards compatibility. New code should call the {@link Communicator}
-         * constructor directly.
-         *
-         * @param initData Options for the new communicator.
+         * @param initData The optional initialization data for the new communicator.
          * @returns The initialized communicator.
          * @throws {@link InitializationException} If an error occurs during initialization.
          */
@@ -52,14 +42,14 @@ declare module "@zeroc/ice" {
         function createProperties(args?: string[], defaults?: Properties): Properties;
 
         /**
-         * Returns the Ice version as a string in the format "A.B.C", where:
+         * Returns the Ice version as a string in the form "A.B.C", where:
          * - A: major version
          * - B: minor version
          * - C: patch version
          *
-         * For example, "3.9.0".
+         * The version may include a pre-release suffix, for example, "3.9.0-alpha.0".
          *
-         * @returns The Ice version as a string.
+         * @returns The Ice version in the form `A.B.C`, with an optional pre-release suffix, e.g. `3.9.0-alpha.0`.
          */
         function stringVersion(): string;
 
@@ -70,6 +60,9 @@ declare module "@zeroc/ice" {
          * - CC: patch version
          *
          * For example, for Ice 3.9.1, the returned value is 30901.
+         *
+         * For pre-releases, CC encodes the pre-release instead of the patch version. For example, for
+         * Ice 3.9.0-alpha.0, the returned value is 30950.
          *
          * @returns The Ice version as an integer.
          */

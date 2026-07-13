@@ -11,7 +11,7 @@ export class Client extends TestHelper {
 
         const adapter = await communicator.createObjectAdapter("");
         await echo.setConnection();
-        echo.ice_getCachedConnection().setAdapter(adapter);
+        echo.ice_getCachedConnection()!.setAdapter(adapter);
 
         const out = this.getWriter();
 
@@ -77,6 +77,14 @@ export class Client extends TestHelper {
                 test(ex instanceof Ice.ObjectNotExistException);
             }
         }
+
+        // The identity is registered with a facet servant only: a request on the default facet still dispatches to
+        // the default servant.
+        const facetedId = new Ice.Identity("x", "foo");
+        adapter.addFacet(new MyObjectI(), facetedId, "theFacet");
+        prx = new Test.MyObjectPrx(communicator, `foo/x:${this.getTestEndpoint()}`);
+        test((await prx.getName()) == "x");
+        adapter.removeFacet(facetedId, "theFacet");
 
         adapter.removeDefaultServant("foo");
         prx = new Test.MyObjectPrx(communicator, `foo/x:${this.getTestEndpoint()}`);

@@ -2084,7 +2084,7 @@ Database::checkForUpdate(
         back_inserter(invalidAdptRepGrps));
     if (!invalidAdptRepGrps.empty())
     {
-        throw DeploymentException("couldn't find replica group '" + invalidAdptRepGrps.front() + "'");
+        throw DeploymentException("could not find replica group '" + invalidAdptRepGrps.front() + "'");
     }
 }
 
@@ -2175,7 +2175,7 @@ Database::checkReplicaGroupExists(const string& replicaGroup)
 
     if (!entry)
     {
-        throw DeploymentException("couldn't find replica group '" + replicaGroup + "'");
+        throw DeploymentException("could not find replica group '" + replicaGroup + "'");
     }
 }
 
@@ -2204,7 +2204,7 @@ Database::checkReplicaGroupForRemove(const string& replicaGroup)
     if (entry->hasAdaptersFromOtherApplications())
     {
         throw DeploymentException(
-            "couldn't remove application because the replica group '" + replicaGroup +
+            "could not remove application because the replica group '" + replicaGroup +
             "' is used by object adapters from other applications.");
     }
 }

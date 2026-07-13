@@ -13,12 +13,13 @@ def is_future(obj: object) -> bool:
     return callable(getattr(obj, "add_done_callback", None))
 
 
-def dispatch(cb: IcePy.DispatchCallback, method: Callable, args: list[Any]):
+def dispatch(cb: IcePy.DispatchCallback, method: Callable, args: tuple[Any, ...]):
     """
     Dispatch a request to the given servant method.
 
-    This function is called by IcePy from an Ice server thread pool thread to dispatch a request to a servant method
-    with the given arguments. The method's result is then sent back to IcePy using the provided callback.
+    This function is called by IcePy from the thread that dispatches the request (typically an Ice thread pool
+    thread) to dispatch a request to a servant method with the given arguments. The method's result is then sent
+    back to IcePy using the provided callback.
 
     The method parameter can return:
 
@@ -36,7 +37,7 @@ def dispatch(cb: IcePy.DispatchCallback, method: Callable, args: list[Any]):
     method : Callable
         The servant method to invoke. This method is bound to the servant instance and takes the request parameters as
         arguments.
-    args : list
+    args : tuple[Any, ...]
         The request parameters.
     """
 

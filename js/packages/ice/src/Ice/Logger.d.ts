@@ -4,7 +4,7 @@ declare module "@zeroc/ice" {
     namespace Ice {
         /**
          * Represents Ice's abstraction for logging and tracing. Applications can provide their own logger by
-         * implementing this abstraction and setting a logger on the communicator.
+         * implementing this abstraction and supplying a logger in {@link InitializationData}.
          * @see {@link InitializationData}
          */
         interface Logger {
@@ -35,12 +35,6 @@ declare module "@zeroc/ice" {
              * @see #warning
              */
             error(message: string): void;
-
-            /**
-             * Returns this logger's prefix.
-             * @returns The prefix.
-             */
-            getPrefix(): string;
 
             /**
              * Returns a clone of the logger with a new prefix.

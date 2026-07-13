@@ -186,7 +186,8 @@ internal sealed class ServantManager : Object
             {
                 m.TryGetValue(facet, out obj);
             }
-            else
+
+            if (obj is null)
             {
                 _defaultServantMap.TryGetValue(ident.category, out obj);
                 if (obj is null)

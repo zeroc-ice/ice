@@ -7,9 +7,9 @@
 using namespace std;
 
 void
-oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
+oneways(const Ice::CommunicatorPtr&, const Test::MyInterfacePrx& proxy)
 {
-    Test::MyClassPrx p = proxy->ice_oneway();
+    Test::MyInterfacePrx p = proxy->ice_oneway();
 
     {
         p->ice_ping();

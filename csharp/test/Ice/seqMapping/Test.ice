@@ -136,7 +136,7 @@ module Test
     ["cs:generic:Ice.seqMapping.Custom"] sequence<CustomIntS> CustomIntSS;
     ["cs:generic:Ice.seqMapping.Custom"] sequence<CustomCVS> CustomCVSS;
 
-    interface MyClass
+    interface MyInterface
     {
         void shutdown();
 

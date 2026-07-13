@@ -20,7 +20,7 @@ public class AMDServer extends TestHelper {
         try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new AMDMyClassI(), new Identity("test", ""));
+            adapter.add(new AMDMyInterfaceI(), new Identity("test", ""));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

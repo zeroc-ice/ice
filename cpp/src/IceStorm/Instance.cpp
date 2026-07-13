@@ -104,6 +104,15 @@ Instance::Instance(
             warn << "invalid value '" << policy << "' for 'IceStorm.Send.QueueSizeMaxPolicy'";
         }
 
+        // A queue size max of 0 matches an empty queue and would drop or remove a subscriber on its first
+        // event; treat it as unbounded (the default), like a negative value.
+        if (_sendQueueSizeMax == 0)
+        {
+            Ice::Warning warn(_traceLevels->logger);
+            warn << "'IceStorm.Send.QueueSizeMax' value 0 is invalid; treating the send queue as unbounded";
+            const_cast<int&>(_sendQueueSizeMax) = -1;
+        }
+
         //
         // If an Ice metrics observer is setup on the communicator, also
         // enable metrics for IceStorm.
@@ -301,6 +310,7 @@ PersistentInstance::PersistentInstance(
     try
     {
         dbContext.communicator = std::move(communicator);
+        IceStormInternal::setKeyComparatorCommunicator(dbContext.communicator);
 
         IceDB::ReadWriteTxn txn(_dbEnv);
 
@@ -323,6 +333,7 @@ PersistentInstance::destroy() noexcept
 {
     _dbEnv.close();
     dbContext.communicator = nullptr;
+    IceStormInternal::setKeyComparatorCommunicator(nullptr);
 
     Instance::destroy();
 }

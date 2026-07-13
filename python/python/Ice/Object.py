@@ -88,7 +88,7 @@ class Object:
         Returns
         -------
         bool | Awaitable[bool]
-            ``True`` if this object implements the Slice interface specified by ``typeId`` or implements a derived
+            ``True`` if this object implements the Slice interface specified by ``id`` or implements a derived
             interface, ``False`` otherwise.
         """
         return id in self._ice_ids

@@ -354,16 +354,16 @@ function allTests($helper)
 
     echo "testing checked cast... ";
     flush();
-    $cl = Test\MyClassPrxHelper::checkedCast($base);
+    $cl = Test\MyInterfacePrxHelper::checkedCast($base);
     test($cl != null);
-    $derived = Test\MyDerivedClassPrxHelper::checkedCast($cl);
+    $derived = Test\MyDerivedInterfacePrxHelper::checkedCast($cl);
     test($derived != null);
     test($cl == $base);
     test($derived == $base);
     test($cl == $derived);
 
     try {
-        Test\MyClassPrxHelper::checkedCast($base, "facet");
+        Test\MyInterfacePrxHelper::checkedCast($base, "facet");
         test(false);
     } catch (Ice\FacetNotExistException $ex) {
         // Expected
@@ -377,7 +377,7 @@ function allTests($helper)
 
     $c["one"] = "hello";
     $c["two"] = "world";
-    $clc = Test\MyClassPrxHelper::checkedCast($base, $c);
+    $clc = Test\MyInterfacePrxHelper::checkedCast($base, $c);
     $c2 = $clc->getContext();
     test($c == $c2);
 
@@ -420,7 +420,7 @@ function allTests($helper)
     echo "testing encoding versioning... ";
     flush();
     $ref20 = sprintf("test -e 2.0:%s", $helper->getTestEndpoint());
-    $cl20 = Test\MyClassPrxHelper::createProxy($communicator, $ref20);
+    $cl20 = Test\MyInterfacePrxHelper::createProxy($communicator, $ref20);
     try {
         $cl20->ice_ping();
         test(false);
@@ -428,7 +428,7 @@ function allTests($helper)
         // Server 2.0 endpoint doesn't support 1.1 version.
     }
     $ref10 = sprintf("test -e 1.0:%s", $helper->getTestEndpoint());
-    $cl10 = Test\MyClassPrxHelper::createProxy($communicator, $ref10);
+    $cl10 = Test\MyInterfacePrxHelper::createProxy($communicator, $ref10);
     $cl10->ice_ping();
     $cl10->ice_encodingVersion($Ice_Encoding_1_0)->ice_ping();
     $cl->ice_encodingVersion($Ice_Encoding_1_0)->ice_ping();

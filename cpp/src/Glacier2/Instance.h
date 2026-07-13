@@ -25,6 +25,7 @@ namespace Glacier2
 
         [[nodiscard]] std::shared_ptr<ProxyVerifier> proxyVerifier() const { return _proxyVerifier; }
         [[nodiscard]] std::shared_ptr<SessionRouterI> sessionRouter() const { return _sessionRouter; }
+        [[nodiscard]] int routingTableMaxSize() const { return _routingTableMaxSize; }
 
         [[nodiscard]] const std::shared_ptr<Glacier2::Instrumentation::RouterObserver>& getObserver() const
         {
@@ -42,6 +43,7 @@ namespace Glacier2
         const Ice::ObjectAdapterPtr _clientAdapter;
         const Ice::ObjectAdapterPtr _serverAdapter;
         const std::shared_ptr<ProxyVerifier> _proxyVerifier;
+        const int _routingTableMaxSize;
         std::shared_ptr<SessionRouterI> _sessionRouter;
         const std::shared_ptr<Glacier2::Instrumentation::RouterObserver> _observer;
     };

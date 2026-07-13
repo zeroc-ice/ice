@@ -1,5 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
+import functools
 import random
 import sys
 import threading
@@ -22,6 +23,16 @@ class PingReplyI(Test.PingReply):
 
     def checkReceived(self):
         return self._received
+
+
+class CloseCallbackI:
+    """A close callback that is neither a plain function nor a lambda: a bound method and a callable instance."""
+
+    def closed(self, connection: Ice.Connection) -> None:
+        pass
+
+    def __call__(self, connection: Ice.Connection) -> None:
+        pass
 
 
 class CallbackBase:
@@ -150,6 +161,18 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator, collocated: boo
         p = p.ice_connectionId("CloseGracefully")  # Start with a new connection.
         con = p.ice_getConnection()
         assert con is not None
+
+        # setCloseCallback accepts any callable, and None to clear the callback.
+        con.setCloseCallback(functools.partial(lambda c, x: None, x=1))
+        con.setCloseCallback(CloseCallbackI().closed)  # a bound method
+        con.setCloseCallback(CloseCallbackI())  # a callable instance
+        con.setCloseCallback(None)
+        try:
+            con.setCloseCallback(42)  # type: ignore[arg-type]
+            test(False)
+        except TypeError:
+            pass
+
         cb = CallbackBase()
         con.setCloseCallback(lambda c: cb.called())
         f = p.startDispatchAsync()

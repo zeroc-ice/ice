@@ -122,7 +122,7 @@ AllocatableObjectCache::add(const ObjectInfo& info, const shared_ptr<ServerEntry
     if (getImpl(id))
     {
         Ice::Error out(_communicator->getLogger());
-        out << "can't add duplicate allocatable object '" << _communicator->identityToString(id) << "'";
+        out << "cannot add duplicate allocatable object '" << _communicator->identityToString(id) << "'";
         return;
     }
 
@@ -167,7 +167,7 @@ AllocatableObjectCache::remove(const Ice::Identity& id)
         if (!entry)
         {
             Ice::Error out(_communicator->getLogger());
-            out << "can't remove unknown object '" << _communicator->identityToString(id) << "'";
+            out << "cannot remove unknown object '" << _communicator->identityToString(id) << "'";
             return;
         }
         removeImpl(id);
@@ -316,7 +316,7 @@ AllocatableObjectEntry::allocated(const shared_ptr<SessionI>& session)
             if (traceLevels && traceLevels->object > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
-                out << "couldn't add Glacier2 filter for object '" << _info.proxy->ice_toString();
+                out << "could not add Glacier2 filter for object '" << _info.proxy->ice_toString();
                 out << "' allocated by '" << session->getId() << "':\n" << ex;
             }
         }
@@ -346,7 +346,7 @@ AllocatableObjectEntry::released(const shared_ptr<SessionI>& session)
             if (traceLevels && traceLevels->object > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
-                out << "couldn't remove Glacier2 filter for object '" << _info.proxy->ice_toString();
+                out << "could not remove Glacier2 filter for object '" << _info.proxy->ice_toString();
                 out << "' allocated by '" << session->getId() << "':\n" << ex;
             }
         }

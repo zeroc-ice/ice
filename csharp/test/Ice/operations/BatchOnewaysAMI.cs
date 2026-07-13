@@ -37,11 +37,11 @@ internal class BatchOnewaysAMI
         private readonly object _mutex = new();
     }
 
-    internal static async Task batchOneways(Test.MyClassPrx p)
+    internal static async Task batchOneways(Test.MyInterfacePrx p)
     {
         byte[] bs1 = new byte[10 * 1024];
 
-        Test.MyClassPrx batch = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
+        Test.MyInterfacePrx batch = Test.MyInterfacePrxHelper.uncheckedCast(p.ice_batchOneway());
         for (int i = 0; i < 30; ++i)
         {
             await batch.opByteSOnewayAsync(bs1);
@@ -56,8 +56,8 @@ internal class BatchOnewaysAMI
 
         if (batch.ice_getConnection() != null)
         {
-            Test.MyClassPrx batch1 = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
-            Test.MyClassPrx batch2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
+            Test.MyInterfacePrx batch1 = Test.MyInterfacePrxHelper.uncheckedCast(p.ice_batchOneway());
+            Test.MyInterfacePrx batch2 = Test.MyInterfacePrxHelper.uncheckedCast(p.ice_batchOneway());
 
             await batch1.ice_pingAsync();
             await batch2.ice_pingAsync();
