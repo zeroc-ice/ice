@@ -195,10 +195,22 @@ TopicObserverI::published()
     forEach(inc(&TopicMetrics::published));
 }
 
-void
-TopicObserverI::forwarded()
+namespace
 {
-    forEach(inc(&TopicMetrics::forwarded));
+    struct ForwardedUpdate
+    {
+        ForwardedUpdate(int countP) : count(countP) {}
+
+        void operator()(const shared_ptr<TopicMetrics>& v) { v->forwarded += count; }
+
+        int count;
+    };
+}
+
+void
+TopicObserverI::forwarded(int count)
+{
+    forEach(ForwardedUpdate(count));
 }
 
 namespace
