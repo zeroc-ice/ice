@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** The exception that is thrown when communicator initialization fails. */
+/** The exception that is thrown when a failure occurs during initialization. */
 public final class InitializationException extends LocalException {
     /**
      * Constructs an InitializationException with a message.

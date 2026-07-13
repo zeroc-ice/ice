@@ -149,7 +149,7 @@ public final class Util {
                     slash = pos;
                 } else {
                     // Extra unescaped slash found.
-                    throw new ParseException("unescaped backslash in identity string '" + s + "'");
+                    throw new ParseException("unescaped slash in identity string '" + s + "'");
                 }
             }
             pos++;
@@ -281,10 +281,10 @@ public final class Util {
     }
 
     /**
-     * Gets the per-process logger. This logger is used by all communicators that do not have their own specific logger
-     * configured at the time the communicator is created.
+     * Gets the per-process logger.
      *
      * @return The current per-process logger instance.
+     * @see #setProcessLogger
      */
     public static Logger getProcessLogger() {
         synchronized (_processLoggerMutex) {
@@ -301,8 +301,8 @@ public final class Util {
     }
 
     /**
-     * Sets the per-process logger. This logger is used by all communicators that do not have their own specific logger
-     * configured at the time the communicator is created.
+     * Sets the per-process logger. Communicators created after this call use this logger unless a logger is set in
+     * {@link InitializationData} or configured through logger properties such as {@code Ice.LogFile}.
      *
      * @param logger The new per-process logger instance.
      */
