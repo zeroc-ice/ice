@@ -44,7 +44,7 @@ public abstract class Value
     /// <summary>
     /// Returns the sliced data associated with this instance.
     /// </summary>
-    /// <returns>The sliced data if this value was sliced during unmarshaling, null otherwise. Unknown slices are
+    /// <returns>The sliced data if this value was sliced during unmarshaling; otherwise null. Unknown slices are
     /// preserved only when the sender uses the sliced format.</returns>
     public SlicedData? ice_getSlicedData() => _slicedData;
 
