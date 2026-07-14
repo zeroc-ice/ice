@@ -196,9 +196,9 @@ TopicObserverI::published()
 }
 
 void
-TopicObserverI::forwarded()
+TopicObserverI::forwarded(int count)
 {
-    forEach(inc(&TopicMetrics::forwarded));
+    forEach(add(&TopicMetrics::forwarded, count));
 }
 
 namespace
