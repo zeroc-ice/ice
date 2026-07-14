@@ -2727,7 +2727,9 @@ public sealed class InputStream
                 b.position(end);
 
                 var info = new SliceInfo(
-                    typeId: _current.typeId!,
+                    // Empty type ID when the slice was decoded via a compact ID; the compact ID is carried
+                    // separately by SliceInfo.compactId (matches C++/Java/Python).
+                    typeId: _current.compactId == -1 ? _current.typeId! : "",
                     compactId: _current.compactId,
                     bytes: bytes,
                     hasOptionalMembers: hasOptionalMembers,
