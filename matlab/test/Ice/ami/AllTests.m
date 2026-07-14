@@ -108,7 +108,7 @@ classdef AllTests
 
             fprintf('testing fetchOutputs after a failed invocation... ');
             % A second fetchOutputs call must raise InvalidStateException rather than crash the MATLAB
-            % process, even when the first call completed exceptionally. See issue #5968.
+            % process, even when the first call completed exceptionally.
             f = p.ice_adapterId('dummy').opAsync();
             try
                 f.fetchOutputs();
