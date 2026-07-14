@@ -287,19 +287,24 @@ namespace
             return false; // Rounds end token not found
         }
 
-        // The rounds field is a decimal number; passlib does not produce octal or hexadecimal rounds.
-        int64_t rounds;
-        size_t roundsLength;
+        // The rounds field must contain decimal digits only; passlib does not produce a sign, whitespace, or
+        // octal or hexadecimal rounds.
         const string roundsField = p->second.substr(beg, (end - beg));
-        try
-        {
-            rounds = std::stoll(roundsField, &roundsLength, 10);
-        }
-        catch (const std::exception&)
+        if (roundsField.empty() || roundsField.find_first_not_of("0123456789") != string::npos)
         {
             return false; // Invalid rounds value
         }
-        if (roundsLength != roundsField.size() || rounds <= 0 || rounds > std::numeric_limits<uint32_t>::max())
+
+        int64_t rounds;
+        try
+        {
+            rounds = std::stoll(roundsField, nullptr, 10);
+        }
+        catch (const std::exception&)
+        {
+            return false; // Invalid rounds value (overflow)
+        }
+        if (rounds <= 0 || rounds > std::numeric_limits<uint32_t>::max())
         {
             return false; // Invalid rounds value
         }
