@@ -819,25 +819,17 @@ namespace Glacier2
     class ProxyLengthRule : public ProxyRule
     {
     public:
-        ProxyLengthRule(CommunicatorPtr communicator, const string& count, int traceLevel)
+        ProxyLengthRule(CommunicatorPtr communicator, int count, int traceLevel)
             : _communicator(std::move(communicator)),
-              _traceLevel(traceLevel)
+              _traceLevel(traceLevel),
+              _count(count)
         {
-            istringstream s(count);
-            if (!(s >> _count) || !s.eof())
-            {
-                throw invalid_argument("Error parsing ProxySizeMax property");
-            }
-            if (_count <= 0)
-            {
-                throw invalid_argument("ProxySizeMax must be greater than 1");
-            }
         }
 
         [[nodiscard]] bool check(const ObjectPrx& p) const override
         {
             string s = p->ice_toString();
-            bool result = (s.size() > _count);
+            bool result = (s.size() > static_cast<size_t>(_count));
             if (_traceLevel >= 1)
             {
                 Trace out(_communicator->getLogger(), "Glacier2");
@@ -849,7 +841,7 @@ namespace Glacier2
     private:
         const CommunicatorPtr _communicator;
         const int _traceLevel;
-        unsigned long _count;
+        const int _count;
     };
 
 } // End proxy rule implementations.
@@ -892,19 +884,17 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
         }
     }
 
-    s = _communicator->getProperties()->getIceProperty("Glacier2.Filter.ProxySizeMax");
-    if (s != "")
+    int proxySizeMax = _communicator->getProperties()->getIcePropertyAsInt("Glacier2.Filter.ProxySizeMax");
+    if (proxySizeMax < 0)
     {
-        try
-        {
-            _rejectRules.push_back(new ProxyLengthRule(_communicator, s, _traceLevel));
-        }
-        catch (const exception& ex)
-        {
-            ostringstream os;
-            os << "invalid 'Glacier2.Filter.ProxySizeMax' property:\n" << ex.what();
-            throw InitializationException(__FILE__, __LINE__, os.str());
-        }
+        throw InitializationException(
+            __FILE__,
+            __LINE__,
+            "invalid value for Glacier2.Filter.ProxySizeMax: " + to_string(proxySizeMax));
+    }
+    if (proxySizeMax > 0)
+    {
+        _rejectRules.push_back(new ProxyLengthRule(_communicator, proxySizeMax, _traceLevel));
     }
 }
 
