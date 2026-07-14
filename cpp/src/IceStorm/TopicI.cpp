@@ -948,7 +948,7 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
             {
                 if (forwarded)
                 {
-                    _observer->forwarded();
+                    _observer->forwarded(static_cast<int>(events.size()));
                 }
                 else
                 {
