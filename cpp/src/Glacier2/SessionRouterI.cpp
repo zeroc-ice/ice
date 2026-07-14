@@ -746,6 +746,24 @@ SessionRouterI::destroySessionAsync(function<void()> response, function<void(exc
 }
 
 void
+SessionRouterI::refreshSessionAsync(
+    function<void()> response,
+    function<void(exception_ptr)> exception,
+    const Current& current)
+{
+    // This operation is deprecated and no longer refreshes the session, but it still reports whether the caller
+    // has a session with this router.
+    if (getRouter(current.con, current.id, false))
+    {
+        response();
+    }
+    else
+    {
+        exception(make_exception_ptr(SessionNotExistException()));
+    }
+}
+
+void
 SessionRouterI::destroySession(const ConnectionPtr& connection, function<void(exception_ptr)> error)
 {
     shared_ptr<RouterI> router;
