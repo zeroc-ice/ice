@@ -8,10 +8,12 @@ classdef OptionalFormat < uint8
     %     F2 - Fixed-length format (2 bytes).
     %     F4 - Fixed-length format (4 bytes).
     %     F8 - Fixed-length format (8 bytes).
-    %     Size - Variable-length format with size.
-    %     VSize - Variable-length format with variable size.
-    %     FSize - Fixed-length format with size.
-    %     Class - Class format.
+    %     Size - Size encoding using either 1 or 5 bytes. Used by enums, class identifiers, etc.
+    %     VSize - Size encoding using either 1 or 5 bytes followed by data. Used by strings, fixed-size structs, and
+    %       containers whose size can be computed prior to marshaling.
+    %     FSize - Fixed size encoding using 4 bytes followed by data. Used by variable-size structs and containers
+    %       whose size cannot be computed prior to marshaling.
+    %     Class - Class instance; no longer supported (as of Ice 3.8).
 
     % Copyright (c) ZeroC, Inc.
 
@@ -29,16 +31,18 @@ classdef OptionalFormat < uint8
         %F8 Fixed-length format (8 bytes).
         F8 = uint8(3)
 
-        %SIZE Variable-length format with size.
+        %SIZE Size encoding using either 1 or 5 bytes. Used by enums, class identifiers, etc.
         Size = uint8(4)
 
-        %VSIZE Variable-length format with variable size.
+        %VSIZE Size encoding using either 1 or 5 bytes followed by data. Used by strings, fixed-size structs, and
+        %   containers whose size can be computed prior to marshaling.
         VSize = uint8(5)
 
-        %FSIZE Fixed-length format with size.
+        %FSIZE Fixed size encoding using 4 bytes followed by data. Used by variable-size structs and containers whose
+        %   size cannot be computed prior to marshaling.
         FSize = uint8(6)
 
-        %CLASS Class format, no longer supported as of Ice 3.8.
+        %CLASS Class instance; no longer supported (as of Ice 3.8).
         Class = uint8(7)
     end
 end

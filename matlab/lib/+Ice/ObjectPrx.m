@@ -8,7 +8,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
     %     Input Arguments
     %       communicator - The associated communicator.
     %         Ice.Communicator scalar
-    %       proxyString - A stringified proxy, such as 'name:tcp -p localhost -p 4061'.
+    %       proxyString - A stringified proxy, such as 'name:tcp -h localhost -p 4061'.
     %         character vector
     %
     %   ObjectPrx Methods:
@@ -17,7 +17,8 @@ classdef ObjectPrx < IceInternal.WrapperObject
     %     ice_adapterId - Returns a proxy that is identical to this proxy, except for the adapter ID.
     %     ice_batchDatagram - Returns a proxy that is identical to this proxy, but uses batch datagram invocations.
     %     ice_batchOneway - Returns a proxy that is identical to this proxy, but uses batch oneway invocations.
-    %     ice_compress - Returns a proxy that is identical to this proxy, except for compression.
+    %     ice_compress - Returns a proxy that is identical to this proxy, except for its compression setting, which
+    %       overrides the compression setting from the proxy endpoints.
     %     ice_connectionCached - Returns a proxy that is identical to this proxy, except for connection caching.
     %     ice_connectionId - Returns a proxy that is identical to this proxy, except for its connection ID.
     %     ice_context - Returns a proxy that is identical to this proxy, except for the per-proxy context.
@@ -26,18 +27,19 @@ classdef ObjectPrx < IceInternal.WrapperObject
     %     ice_endpointSelection - Returns a proxy that is identical to this proxy, except for the endpoint selection policy.
     %     ice_endpoints - Returns a proxy that is identical to this proxy, except for the endpoints.
     %     ice_facet - Returns a proxy that is identical to this proxy, except for the facet.
-    %     ice_fixed - Obtains a proxy that is identical to this proxy, except it's a fixed proxy bound to the given connection.
-    %     ice_flushBatchRequests - Flushes any pending batched requests for this communicator.
+    %     ice_fixed - Returns a proxy that is identical to this proxy, except it's a fixed proxy bound to the given
+    %       connection.
+    %     ice_flushBatchRequests - Flushes any pending batched requests for this proxy.
     %     ice_flushBatchRequestsAsync - An asynchronous ice_flushBatchRequests.
     %     ice_getAdapterId - Returns the adapter ID for this proxy.
     %     ice_getCachedConnection - Returns the cached Connection for this proxy.
     %     ice_getCommunicator - Gets the communicator that created this proxy.
-    %     ice_getCompress - Obtains the compression override setting of this proxy.
+    %     ice_getCompress - Returns the compression override setting of this proxy.
     %     ice_getConnection - Returns the Connection for this proxy.
     %     ice_getConnectionAsync - An asynchronous ice_getConnection.
-    %     ice_getConnectionId - Returns the connection id of this proxy.
+    %     ice_getConnectionId - Returns the connection ID of this proxy.
     %     ice_getContext - Returns the per-proxy context for this proxy.
-    %     ice_getEncodingVersion - Returns the encoding version used to marshal requests parameters.
+    %     ice_getEncodingVersion - Returns the encoding version used to marshal request parameters.
     %     ice_getEndpoints - Returns the endpoints used by this proxy.
     %     ice_getEndpointSelection - Returns how this proxy selects endpoints (randomly or ordered).
     %     ice_getFacet - Returns the facet for this proxy.
@@ -50,7 +52,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
     %     ice_idAsync - An asynchronous ice_id.
     %     ice_identity - Returns a proxy that is identical to this proxy, except for the identity.
     %     ice_ids - Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
-    %     ice_idsAsync - Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+    %     ice_idsAsync - An asynchronous ice_ids.
     %     ice_invocationTimeout - Returns a proxy that is identical to this proxy, except for the invocation timeout.
     %     ice_isA - Tests whether this object supports a specific Slice interface.
     %     ice_isAAsync - An asynchronous ice_isA.
@@ -69,6 +71,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
     %     ice_router - Returns a proxy that is identical to this proxy, except for the router.
     %     ice_toString - Creates a stringified version of this proxy.
     %     ice_twoway - Returns a proxy that is identical to this proxy, but uses twoway invocations.
+    %     checkedCast - Creates an Ice.ObjectPrx from an existing proxy after confirming the target object's type
+    %       via a remote invocation.
+    %     ice_staticId - Returns the Slice type ID associated with this type.
+    %     uncheckedCast - Creates a new Ice.ObjectPrx from an existing proxy without any validation.
 
     % Copyright (c) ZeroC, Inc.
 
@@ -79,7 +85,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %   Input Arguments
             %     communicator - The associated communicator.
             %       Ice.Communicator scalar
-            %     proxyString - A stringified proxy, such as 'name:tcp -p localhost -p 4061'.
+            %     proxyString - A stringified proxy, such as 'name:tcp -h localhost -p 4061'.
             %       character vector
             %
             %   Output Arguments
@@ -130,8 +136,13 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function r = eq(obj, other)
             %EQ Compares this proxy with another ObjectPrx for equality.
+            %   Two proxies are equal when all their settings (identity, facet, endpoints, and other proxy options)
+            %   are identical. To compare only the target object identities, use Ice.proxyIdentityCompare.
             %
-            %   See also eq.
+            %   Output Arguments
+            %     r - True if the proxies are equal, false otherwise.
+            %       logical scalar
+
             if isempty(other) || ~isa(other, 'Ice.ObjectPrx')
                 r = false;
             else
@@ -200,7 +211,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %       unconfigured dictionary (default) | dictionary(string, string) scalar
             %
             %   Output Arguments
-            %     future - A future that will be completed with the result of the invocation.
+            %     r - A future that will be completed when the invocation completes.
             %       Ice.Future scalar
             %
             %   See also ice_ping, Ice.Future.
@@ -431,7 +442,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %ICE_GETFACET Returns the facet for this proxy.
             %
             %   Output Arguments
-            %     r - The facet for this proxy.
+            %     r - The facet for this proxy. If the proxy uses the default facet, r is the empty string.
             %       character vector
 
             arguments
@@ -703,7 +714,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getEncodingVersion(obj)
-            %ICE_GETENCODINGVERSION Returns the encoding version used to marshal requests parameters.
+            %ICE_GETENCODINGVERSION Returns the encoding version used to marshal request parameters.
             %
             %   Output Arguments
             %      r - The encoding version.
@@ -739,7 +750,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %ICE_GETROUTER Returns the router for this proxy.
             %
             %   Output Arguments
-            %      r - The router for the proxy.
+            %      r - The router for this proxy, or an empty array if no router is configured.
             %        Ice.RouterPrx scalar | empty array of Ice.RouterPrx
 
             arguments
@@ -781,7 +792,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %ICE_GETLOCATOR Returns the locator for this proxy.
             %
             %   Output Arguments
-            %      r - The locator for the proxy.
+            %      r - The locator for this proxy, or an empty array if no locator is configured.
             %        Ice.LocatorPrx scalar | empty array of Ice.LocatorPrx
 
             arguments
@@ -950,7 +961,8 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_compress(obj, b)
-            %ICE_COMPRESS Returns a proxy that is identical to this proxy, except for compression.
+            %ICE_COMPRESS Returns a proxy that is identical to this proxy, except for its compression setting, which
+            %   overrides the compression setting from the proxy endpoints.
             %
             %   Input Arguments
             %     b - True enables compression for the new proxy; false disables compression.
@@ -973,7 +985,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getCompress(obj)
-            %ICE_GETCOMPRESS Obtains the compression override setting of this proxy.
+            %ICE_GETCOMPRESS Returns the compression override setting of this proxy.
             %
             %   Output Arguments
             %     r - The compression override setting. If Ice.Unset is returned, no override is set. Otherwise,
@@ -992,7 +1004,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_fixed(obj, connection)
-            %ICE_FIXED Obtains a proxy that is identical to this proxy, except it's a fixed proxy bound to the
+            %ICE_FIXED Returns a proxy that is identical to this proxy, except it's a fixed proxy bound to the
             %   given connection.
             %
             %   Input Arguments
@@ -1088,7 +1100,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function ice_flushBatchRequests(obj)
-            %ICE_FLUSHBATCHREQUESTS Flushes any pending batched requests for this communicator.
+            %ICE_FLUSHBATCHREQUESTS Flushes any pending batched requests for this proxy.
             %   The call blocks until the flush is complete.
 
             arguments
@@ -1098,10 +1110,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_flushBatchRequestsAsync(obj)
-            %ICE_FLUSHBATCHREQUESTSASYNC Flushes asynchronously any pending batched requests for this communicator.
+            %ICE_FLUSHBATCHREQUESTSASYNC Flushes any pending batched requests for this proxy asynchronously.
             %
             %   Output Arguments
-            %     r - A future that will be completed when the invocation completes.
+            %     r - A future that completes when all batch requests have been sent.
             %       Ice.Future scalar
 
             arguments
@@ -1264,12 +1276,18 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
     methods (Static)
         function r = ice_staticId()
+            %ICE_STATICID Returns the Slice type ID associated with this type.
+            %
+            %   Output Arguments
+            %     r - The Slice type ID ('::Ice::Object').
+            %       character vector
+
             r = '::Ice::Object';
         end
 
         function r = checkedCast(p, varargin)
-            %CHECKEDCAST Creates a proxy from an existing proxy after contacting the server to check if the target
-            %   object implements pseudo-Slice interface Ice::Object.
+            %CHECKEDCAST Creates an Ice.ObjectPrx from an existing proxy after confirming the target object's type
+            %   via a remote invocation.
             %
             %   Input Arguments
             %     p - The source proxy.
@@ -1280,8 +1298,8 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %       dictionary(string, string) scalar
             %
             %   Output Arguments
-            %     r - A new Ice.ObjectPrx scalar if the target object implements Slice interface
-            %       ::Ice::Object; otherwise, an empty array of Ice.ObjectPrx.
+            %     r - A new Ice.ObjectPrx scalar if the target object implements Slice interface ::Ice::Object; an
+            %       empty array of Ice.ObjectPrx if it does not, or when p is an empty array.
             %
             arguments
                 p Ice.ObjectPrx {mustBeScalarOrEmpty}
@@ -1294,6 +1312,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function r = uncheckedCast(p, varargin)
             %UNCHECKEDCAST Creates a new Ice.ObjectPrx from an existing proxy without any validation.
+            %   This is a purely local operation: it does not contact the server.
             %
             %   Input Arguments
             %     p - The source proxy.

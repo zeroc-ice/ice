@@ -1,6 +1,7 @@
 classdef (Sealed) OperationNotExistException < Ice.RequestFailedException
-    %OPERATIONNOTEXISTEXCEPTION This exception is raised if an operation for a given object does not exist on the
-    %   server. Typically this is caused by either the client or the server using an outdated Slice specification.
+    %OPERATIONNOTEXISTEXCEPTION The exception that is thrown when a dispatch could not find the operation carried by
+    %   the request on the target servant. This is typically due to a mismatch in the Slice definitions, such as the
+    %   client using Slice definitions newer than the server's.
 
     % Copyright (c) ZeroC, Inc.
 end

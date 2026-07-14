@@ -2,14 +2,16 @@ classdef (Sealed) ClassSliceLoader < Ice.SliceLoader
     %CLASSSLICELOADER Implements Ice.SliceLoader using meta classes.
     %
     %   ClassSliceLoader Methods:
-    %     ClassSliceLoader - Constructs a ClassSliceLoader from one or more meta classes.
+    %     ClassSliceLoader - Constructs a ClassSliceLoader from meta classes of generated classes or exceptions.
     %     newInstance - Creates a class or exception instance from a Slice type ID.
 
     % Copyright (c) ZeroC, Inc.
 
     methods
         function obj = ClassSliceLoader(metaclass)
-            %CLASSSLICELOADER Constructs a ClassSliceLoader from one or more meta classes.
+            %CLASSSLICELOADER Constructs a ClassSliceLoader from meta classes of generated classes or exceptions.
+            %   Errors with identifier 'Ice:ArgumentException' when a metaclass does not correspond to a generated
+            %   class or exception.
             %
             %   Input Arguments (Repeating)
             %     metaclass - The meta class of a generated class or exception.
@@ -42,6 +44,8 @@ classdef (Sealed) ClassSliceLoader < Ice.SliceLoader
         end
 
         function r = newInstance(obj, typeId)
+            %NEWINSTANCE Creates a class or exception instance from a Slice type ID.
+            %   See also Ice.SliceLoader.newInstance.
             arguments
                 obj (1, 1) Ice.ClassSliceLoader
                 typeId (1, :) char

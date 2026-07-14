@@ -2,7 +2,7 @@ classdef UnknownSlicedValue < Ice.Value
     %UNKNOWNSLICEDVALUE Represents an instance of an unknown class.
     %
     %   UnknownSlicedValue Methods:
-    %     ice_id - Returns the Slice type ID associated with this instance.
+    %     ice_id - Returns the Slice type ID of the unknown most-derived class (the type ID of the first slice).
 
     % Copyright (c) ZeroC, Inc.
 
@@ -13,6 +13,11 @@ classdef UnknownSlicedValue < Ice.Value
     end
     methods
         function id = ice_id(obj)
+            %ICE_ID Returns the Slice type ID of the unknown most-derived class (the type ID of the first slice).
+            %
+            %   Output Arguments
+            %     id - The Slice type ID.
+            %       character vector
             id = obj.unknownTypeId;
         end
     end

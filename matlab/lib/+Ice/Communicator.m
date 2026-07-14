@@ -14,7 +14,7 @@ classdef Communicator < IceInternal.WrapperObject
     %     getImplicitContext - Gets the implicit context associated with this communicator.
     %     getLogger - Gets the logger for this communicator.
     %     getProperties - Gets the Ice properties for this communicator.
-    %     identityToString - Convert an identity into a string.
+    %     identityToString - Converts an identity into a string.
     %     propertyToProxy - Converts a set of proxy properties into a proxy.
     %     proxyToProperty - Converts a proxy to a set of proxy properties.
     %     proxyToString - Converts a proxy into a string.
@@ -41,9 +41,10 @@ classdef Communicator < IceInternal.WrapperObject
             %
             %   Input Name-Value Arguments
             %     Properties - Properties object used to initialize the communicator properties. If args is non-empty,
-            %       any reserved properties specified in args override these properties.
+            %       any Ice options in args (arguments starting with -- and one of the reserved prefixes, such as Ice
+            %       or IceSSL) override these properties.
             %       Ice.Properties scalar
-            %     SliceLoader - Slice loader used to load Slice classes and exceptions.
+            %     SliceLoader - The Slice loader, used to unmarshal Slice classes and exceptions.
             %       Ice.SliceLoader scalar
             %
             %   Output Arguments
@@ -113,9 +114,11 @@ classdef Communicator < IceInternal.WrapperObject
             %STRINGTOPROXY Converts a stringified proxy into a proxy.
             %   Deprecated: Use the constructor of your proxy class instead.
             %
+            %   Throws an Ice.ParseException if str is not a valid proxy string.
+            %
             %   Input Arguments
             %     str - The stringified proxy to convert into a proxy.
-            %       character vector
+            %       character vector | string scalar
             %
             %   Output Arguments
             %     r - The proxy, or an empty array if str is an empty string.
@@ -170,7 +173,7 @@ classdef Communicator < IceInternal.WrapperObject
             %       character vector
             %
             %   Output Arguments
-            %     r - The proxy.
+            %     r - The proxy, or an empty array if the property is not set.
             %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
 
             arguments
@@ -212,7 +215,7 @@ classdef Communicator < IceInternal.WrapperObject
         end
 
         function r = identityToString(obj, id)
-            %IDENTITYTOSTRING Convert an identity into a string.
+            %IDENTITYTOSTRING Converts an identity into a string.
             %
             %   Input Arguments
             %     id - The identity to convert into a string.
@@ -304,7 +307,8 @@ classdef Communicator < IceInternal.WrapperObject
 
         function setDefaultRouter(obj, proxy)
             %SETDEFAULTROUTER Sets a default router for this communicator.
-            %   All newly created proxies will use this default router.
+            %   All newly created proxies will use this default router. This method has no effect on existing proxies.
+            %   Pass an empty array to remove the default router.
             %
             %   Input Arguments
             %     proxy - The default router to use for this communicator.
@@ -343,7 +347,8 @@ classdef Communicator < IceInternal.WrapperObject
 
         function setDefaultLocator(obj, proxy)
             %SETDEFAULTLOCATOR Sets a default locator for this communicator.
-            %   All newly created proxies will use this default locator.
+            %   All newly created proxies will use this default locator. This method has no effect on existing
+            %   proxies. Pass an empty array to remove the default locator.
             %
             %   Input Arguments
             %     proxy - The default locator to use for this communicator.
@@ -389,7 +394,7 @@ classdef Communicator < IceInternal.WrapperObject
             %       Ice.CompressBatch scalar
             %
             %   Output Arguments
-            %     r - A future that will be completed when the invocation completes.
+            %     r - A future that completes when all batch requests have been sent.
             %       Ice.Future scalar
 
             arguments
