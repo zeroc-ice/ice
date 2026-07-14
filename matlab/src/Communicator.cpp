@@ -85,8 +85,8 @@ extern "C"
         try
         {
             auto p = deref<Ice::Communicator>(self)->getImplicitContext();
-            // p is null when Ice.ImplicitContext is None (the default); return a null pointer so the MATLAB side
-            // can map it to an empty array instead of wrapping a null shared_ptr that later crashes on deref.
+            // p is null when Ice.ImplicitContext is None (the default); the MATLAB side maps a null pointer to an
+            // empty array.
             *ctx = p ? createShared<Ice::ImplicitContext>(p) : nullptr;
             return createEmptyArray();
         }
