@@ -2,11 +2,9 @@
 
 import IceImpl
 
-/// Closure called when the communicator's properties have been updated.
-///
-/// - Parameter: `PropertyDict` A dictionary containing the properties that were added,
-///   changed, or removed. Removed properties are denoted by an entry whose value is an
-///   empty string.
+/// A callback invoked when the communicator's properties are updated; it receives a `PropertyDict` containing the
+/// properties that were added, changed, or removed. Removed properties are denoted by an entry whose value is an
+/// empty string.
 public typealias PropertiesAdminUpdateCallback = (PropertyDict) -> Void
 
 /// Closure used to remove a ``PropertiesAdminUpdateCallback``.

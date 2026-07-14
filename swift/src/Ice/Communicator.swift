@@ -26,7 +26,8 @@ public protocol Communicator: AnyObject, Sendable {
     func waitForShutdown()
 
     /// Waits asynchronously until this communicator is shut down.
-    /// If the communicator is already shut down, this call returns immediately.
+    /// The continuation is usually resumed by a dedicated background thread; it can also be resumed by the current
+    /// thread when the shutdown has already completed.
     func shutdownCompleted() async
 
     /// Checks whether or not ``shutdown()`` was called on this communicator.
@@ -53,6 +54,7 @@ public protocol Communicator: AnyObject, Sendable {
     ///
     /// - Parameter property: The base property name.
     /// - Returns: The proxy, or `nil` if the property is not set.
+    /// - Throws: ``ParseException`` if the property value is not a valid proxy string.
     func propertyToProxy(_ property: String) throws -> ObjectPrx?
 
     /// Converts a proxy into a set of proxy properties.
@@ -61,6 +63,7 @@ public protocol Communicator: AnyObject, Sendable {
     ///   - proxy: The proxy.
     ///   - property: The base property name.
     /// - Returns: The property set.
+    /// - Precondition: `proxy` must not be a fixed proxy.
     func proxyToProperty(proxy: ObjectPrx, property: String) -> PropertyDict
 
     /// Converts an identity into a string.

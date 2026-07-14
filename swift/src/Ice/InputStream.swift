@@ -48,7 +48,8 @@ public final class InputStream {
         acceptClassCycles = (communicator as! CommunicatorI).acceptClassCycles
     }
 
-    /// Reads an encapsulation from the stream.
+    /// Reads an encapsulation from the stream. The stream position is not advanced past the encapsulation; the
+    /// returned data includes the 6-byte encapsulation header.
     ///
     /// - Returns: The encapsulation.
     public func readEncapsulation() throws -> (bytes: Data, encoding: EncodingVersion) {
@@ -101,7 +102,7 @@ public final class InputStream {
         return encoding
     }
 
-    /// Ends the previous encapsulation.
+    /// Ends the current encapsulation.
     public func endEncapsulation() throws {
         if !encaps.encoding_1_0 {
             try skipOptionals()
@@ -175,9 +176,10 @@ public final class InputStream {
     }
 
     /// Indicates that unmarshaling is complete, except for any class instances. The application must call this method
-    /// only if the stream actually contains class instances. Calling `readPendingValues` triggers the
-    /// calls to consumers provided with {@link #readValue} to inform the application that unmarshaling of an instance
-    /// is complete.
+    /// only if the stream actually contains class instances. With the 1.0 encoding, calling `readPendingValues`
+    /// triggers the calls to consumers provided to the class-read methods (`read(cb:)` and `read(_:cb:)`) to inform
+    /// the application that unmarshaling of an instance is complete; with the 1.1 encoding, the consumers are called
+    /// while the instance is read and this method does nothing.
     public func readPendingValues() throws {
         if encaps.decoder != nil {
             try encaps.decoder.readPendingValues()
@@ -294,7 +296,8 @@ public final class InputStream {
 
     /// Marks the end of a class instance.
     ///
-    /// - Returns: A SlicedData object containing the preserved slices for unknown types.
+    /// - Returns: A SlicedData object containing the preserved slices for unknown types, or `nil` when the instance
+    ///   has no preserved slices.
     @discardableResult
     public func endValue() throws -> SlicedData? {
         precondition(encaps.decoder != nil)

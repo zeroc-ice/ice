@@ -13,7 +13,7 @@ public struct IncomingRequest {
     /// - Parameters:
     ///   - current: The Current object for the request.
     ///   - inputStream: The input stream buffer over the incoming Ice protocol request message. The stream is
-    ///   positioned at the beginning of the request header - the next data to read is the identity of the target.
+    ///   positioned at the beginning of the encapsulation carrying the in-parameters.
     public init(current: Current, inputStream: InputStream) {
         self.current = current
         self.inputStream = inputStream

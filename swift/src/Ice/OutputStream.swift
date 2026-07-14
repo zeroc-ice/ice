@@ -44,16 +44,18 @@ public final class OutputStream {
         self.init(encoding: encoding, format: defaultsAndOverrides.defaultFormat)
     }
 
-    /// Writes the start of an encapsulation to the stream.
+    /// Writes the start of an encapsulation to the stream. A stream supports a single encapsulation: starting a
+    /// second encapsulation, nested or sequential, is a programming error (precondition failure).
     public func startEncapsulation() {
         startEncapsulation(encoding: encoding, format: nil)
     }
 
-    /// Writes the start of an encapsulation to the stream.
+    /// Writes the start of an encapsulation to the stream. A stream supports a single encapsulation: starting a
+    /// second encapsulation, nested or sequential, is a programming error (precondition failure).
     ///
     /// - Parameters:
     ///   - encoding: The encoding version of the encapsulation.
-    ///   - format: Specify the compact or sliced format.
+    ///   - format: Specify the compact or sliced format. When `nil`, the stream's default class format is used.
     public func startEncapsulation(encoding: EncodingVersion, format: FormatType?) {
         precondition(encaps == nil, "Nested or sequential encapsulations are not supported")
         encaps = Encaps(encoding: encoding, format: format, start: data.count)
@@ -61,7 +63,7 @@ public final class OutputStream {
         write(encaps.encoding)
     }
 
-    /// Ends the previous encapsulation.
+    /// Ends the current encapsulation.
     public func endEncapsulation() {
         // Size includes size and version.
         let start = encaps.start
@@ -101,7 +103,8 @@ public final class OutputStream {
 
     /// Marks the start of a class instance.
     ///
-    /// - Parameter data: Preserved slices for this instance, or nil.
+    /// - Parameter data: Preserved slices for this instance, or nil. These slices are marshaled with the instance
+    ///   only when this stream uses the sliced format; otherwise they are ignored.
     public func startValue(data: SlicedData?) {
         precondition(encaps.encoder != nil)
         encaps.encoder.startInstance(type: .ValueSlice, data: data)
@@ -142,7 +145,8 @@ public final class OutputStream {
         }
     }
 
-    /// Writes the state of Slice classes whose index was previously written with writeValue() to the stream.
+    /// Encodes the state of class instances whose insertion was delayed by a previous call to `write(_ v: Value?)`.
+    /// This method must be called only once; with the 1.1 encoding it does nothing (the state is marshaled eagerly).
     public func writePendingValues() {
         if encaps != nil, encaps.encoder != nil {
             encaps.encoder.writePendingValues()
@@ -444,7 +448,7 @@ extension OutputStream {
         data.append(bytes)
     }
 
-    /// Writes a string to the stream.
+    /// Writes an optional string to the stream.
     ///
     /// - Parameters:
     ///   - tag: The tag of the optional field or parameter.

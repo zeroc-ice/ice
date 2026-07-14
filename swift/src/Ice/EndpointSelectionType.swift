@@ -17,7 +17,7 @@ public enum EndpointSelectionType: UInt8 {
 
 /// An `Ice.InputStream` extension to read `EndpointSelectionType` enumerated values from the stream.
 extension InputStream {
-    /// Read an enumerated value.
+    /// Reads an enumerated value.
     ///
     /// - Returns: The enumerated value.
     public func read() throws -> EndpointSelectionType {
@@ -28,7 +28,7 @@ extension InputStream {
         return val
     }
 
-    /// Read an optional enumerated value from the stream.
+    /// Reads an optional enumerated value from the stream.
     ///
     /// - Parameter tag: The numeric tag associated with the value.
     /// - Returns: The enumerated value.

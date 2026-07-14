@@ -39,13 +39,13 @@ public protocol ImplicitContext: AnyObject {
     /// - Parameters:
     ///   - key: The key.
     ///   - value: The value.
-    /// - Returns: The previous value associated with the key, if any.
+    /// - Returns: The previous value associated with the key, or the empty string if the key had no previous value.
     @discardableResult
     func put(key: String, value: String) -> String
 
     /// Removes the entry for the specified key in the request context.
     ///
     /// - Parameter key: The key.
-    /// - Returns: The value associated with the key, if any.
+    /// - Returns: The value associated with the key, or the empty string if the key was not present.
     func remove(_ key: String) -> String
 }
