@@ -156,20 +156,37 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
         string host = properties->getIceProperty("IceStormAdmin.Host");
         string port = properties->getIceProperty("IceStormAdmin.Port");
 
-        const int timeout = 3000; // 3s connection timeout.
-        ostringstream os;
-        os << "IceStorm/Finder";
-        os << ":tcp" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
-        os << ":ssl" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
+        if (!host.empty() || !port.empty())
+        {
+            // The IceStorm/Finder fallback is configured. A host alone is not sufficient to build the Finder
+            // endpoints: the port is required, it has no default.
+            if (port.empty())
+            {
+                consoleErr << args[0] << ": IceStormAdmin.Host is set but IceStormAdmin.Port is not" << endl;
+                return 1;
+            }
 
-        IceStorm::FinderPrx finder{communicator, os.str()};
-        try
-        {
-            defaultManager = finder->getTopicManager();
-        }
-        catch (const Ice::LocalException&)
-        {
-            // Ignore.
+            const int timeout = 3000; // 3s connection timeout.
+            ostringstream os;
+            os << "IceStorm/Finder";
+            os << ":tcp" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
+            os << ":ssl" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
+
+            try
+            {
+                IceStorm::FinderPrx finder{communicator, os.str()};
+                defaultManager = finder->getTopicManager();
+            }
+            catch (const Ice::ParseException&)
+            {
+                consoleErr << args[0] << ": invalid IceStormAdmin.Host or IceStormAdmin.Port value" << endl;
+                return 1;
+            }
+            catch (const Ice::LocalException& ex)
+            {
+                consoleErr << args[0] << ": could not contact the IceStorm/Finder object:" << endl << ex << endl;
+                return 1;
+            }
         }
     }
 
