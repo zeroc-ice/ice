@@ -625,7 +625,9 @@ class EncapsDecoder11 extends EncapsDecoder {
         // Preserve this slice.
         //
         const info = new SliceInfo();
-        info.typeId = this._current.typeId;
+        // When the slice was decoded via a compact type ID, expose an empty type ID; the compact ID is
+        // carried separately by info.compactId (matches C++/Java/Python).
+        info.typeId = this._current.compactId === -1 ? this._current.typeId : "";
         info.compactId = this._current.compactId;
         info.hasOptionalMembers = (this._current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) !== 0;
         info.isLastSlice = (this._current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) !== 0;
