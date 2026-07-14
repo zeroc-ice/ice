@@ -379,6 +379,18 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                     [],
                 ),
                 (
+                    # A reject rule matches a proxy as soon as one of its endpoints matches: extra endpoints
+                    # that do not match the rule do not get the proxy accepted.
+                    "testing address filter reject rule against a multi-endpoint proxy",
+                    ("", "127.0.0.1", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h 127.0.0.1 -p 12010:tcp -h 127.0.0.2 -p 12010"),
+                        (False, "hello:tcp -h 127.0.0.2 -p 12010:tcp -h 127.0.0.1 -p 12010"),
+                        (True, "hello:tcp -h localhost -p 12010"),
+                    ],
+                    [],
+                ),
+                (
                     # A proxy with an endpoint host longer than 255 characters is rejected outright, even when
                     # no reject rule matches it: no legal host name or IP address is that long.
                     "testing address filter rejects an oversized host",

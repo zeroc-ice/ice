@@ -488,7 +488,9 @@ namespace Glacier2
     }
 
     //
-    // A proxy validation rule encapsulating an address filter.
+    // A proxy validation rule encapsulating an address filter. An accept rule matches a proxy only when every
+    // endpoint matches it, while a reject rule matches a proxy as soon as one endpoint matches it
+    // (matchAnyEndpoint == true).
     //
     class AddressRule final : public Glacier2::ProxyRule
     {
@@ -497,11 +499,13 @@ namespace Glacier2
             CommunicatorPtr communicator,
             const vector<AddressMatcher*>& address,
             MatchesNumber* port,
-            const int traceLevel)
+            const int traceLevel,
+            bool matchAnyEndpoint)
             : _communicator(std::move(communicator)),
               _addressRules(address),
               _portMatcher(port),
-              _traceLevel(traceLevel)
+              _traceLevel(traceLevel),
+              _matchAnyEndpoint(matchAnyEndpoint)
         {
         }
 
@@ -521,39 +525,28 @@ namespace Glacier2
             {
                 return false;
             }
-            for (const auto& endpoint : endpoints)
+            if (_matchAnyEndpoint)
             {
-                string info = endpoint->toString();
-                string host;
-                if (!extractPart("-h ", info, host))
+                for (const auto& endpoint : endpoints)
                 {
-                    return false;
-                }
-                string port;
-                if (!extractPart("-p ", info, port))
-                {
-                    return false;
-                }
-
-                string::size_type pos = 0;
-                if (_portMatcher && !_portMatcher->match(port, pos))
-                {
-                    if (_traceLevel >= 3)
+                    if (matchEndpoint(endpoint))
                     {
-                        Trace out(_communicator->getLogger(), "Glacier2");
-                        out << _portMatcher->toString() << " failed to match " << port << " at pos=" << pos << "\n";
+                        return true;
                     }
-                    return false;
                 }
-
-                vector<bool> failed(_addressRules.size() * (host.size() + 1), false);
-                if (!matchAddress(host, 0, 0, failed))
-                {
-                    return false;
-                }
+                return false;
             }
-
-            return true;
+            else
+            {
+                for (const auto& endpoint : endpoints)
+                {
+                    if (!matchEndpoint(endpoint))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
         }
 
         void dump() const
@@ -571,6 +564,36 @@ namespace Glacier2
         }
 
     private:
+        // Matches the host and port of endpoint against this rule.
+        [[nodiscard]] bool matchEndpoint(const EndpointPtr& endpoint) const
+        {
+            string info = endpoint->toString();
+            string host;
+            if (!extractPart("-h ", info, host))
+            {
+                return false;
+            }
+            string port;
+            if (!extractPart("-p ", info, port))
+            {
+                return false;
+            }
+
+            string::size_type pos = 0;
+            if (_portMatcher && !_portMatcher->match(port, pos))
+            {
+                if (_traceLevel >= 3)
+                {
+                    Trace out(_communicator->getLogger(), "Glacier2");
+                    out << _portMatcher->toString() << " failed to match " << port << " at pos=" << pos << "\n";
+                }
+                return false;
+            }
+
+            vector<bool> failed(_addressRules.size() * (host.size() + 1), false);
+            return matchAddress(host, 0, 0, failed);
+        }
+
         // Matches host against the matchers at position index and up, starting at position pos in host. The
         // matchers must match the remainder of the host in full. When they don't, this function retries the
         // matchers that can match at a later position (the matchers created for the portion of a rule that
@@ -635,13 +658,15 @@ namespace Glacier2
         vector<AddressMatcher*> _addressRules;
         MatchesNumber* _portMatcher;
         const int _traceLevel;
+        const bool _matchAnyEndpoint;
     };
 
     static void parseProperty(
         const shared_ptr<Ice::Communicator>& communicator,
         const string& property,
         vector<ProxyRule*>& rules,
-        const int traceLevel)
+        const int traceLevel,
+        bool matchAnyEndpoint)
     {
         StartFactory startsWithFactory;
         WildCardFactory wildCardFactory;
@@ -797,7 +822,8 @@ namespace Glacier2
                         currentRuleSet.push_back(new MatchesAny);
                     }
                 }
-                allRules.push_back(new AddressRule(communicator, currentRuleSet, portMatch, traceLevel));
+                allRules.push_back(
+                    new AddressRule(communicator, currentRuleSet, portMatch, traceLevel, matchAnyEndpoint));
             }
         }
         catch (...)
@@ -873,7 +899,8 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
     {
         try
         {
-            Glacier2::parseProperty(_communicator, s, _acceptRules, _traceLevel);
+            // An accept rule matches a proxy only when every endpoint matches it.
+            Glacier2::parseProperty(_communicator, s, _acceptRules, _traceLevel, false);
         }
         catch (const exception& ex)
         {
@@ -888,7 +915,8 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
     {
         try
         {
-            Glacier2::parseProperty(_communicator, s, _rejectRules, _traceLevel);
+            // A reject rule matches a proxy as soon as one endpoint matches it.
+            Glacier2::parseProperty(_communicator, s, _rejectRules, _traceLevel, true);
         }
         catch (const exception& ex)
         {
