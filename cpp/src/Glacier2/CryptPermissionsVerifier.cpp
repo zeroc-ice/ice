@@ -8,6 +8,7 @@
 
 #include <cstring>
 #include <fstream>
+#include <limits>
 
 #if defined(__GLIBC__)
 #    include <crypt.h>
@@ -122,7 +123,14 @@ namespace
 
             hasDESStylePassword = hasDESStylePassword || (password.find('$') == string::npos && password.size() == 13);
 
-            passwords.insert(make_pair(userId, password));
+            if (!passwords.insert(make_pair(userId, password)).second)
+            {
+                throw Ice::InitializationException(
+                    __FILE__,
+                    __LINE__,
+                    "duplicate entry for user '" + userId + "' in password file '" + file + "' at line " +
+                        std::to_string(lineNumber));
+            }
         }
 
         if (hasDESStylePassword)
@@ -279,12 +287,19 @@ namespace
             return false; // Rounds end token not found
         }
 
+        // The rounds field is a decimal number; passlib does not produce octal or hexadecimal rounds.
         int64_t rounds;
+        size_t roundsLength;
+        const string roundsField = p->second.substr(beg, (end - beg));
         try
         {
-            rounds = std::stoll(p->second.substr(beg, (end - beg)), nullptr, 0);
+            rounds = std::stoll(roundsField, &roundsLength, 10);
         }
         catch (const std::exception&)
+        {
+            return false; // Invalid rounds value
+        }
+        if (roundsLength != roundsField.size() || rounds <= 0 || rounds > std::numeric_limits<uint32_t>::max())
         {
             return false; // Invalid rounds value
         }
@@ -301,7 +316,7 @@ namespace
 
         string salt = p->second.substr(beg, (end - beg));
         string checksum = p->second.substr(end + 1);
-        if (checksum.empty())
+        if (salt.empty() || checksum.empty())
         {
             return false;
         }
@@ -408,7 +423,7 @@ namespace
                 salt.c_str(),
                 static_cast<DWORD>(salt.size()),
                 CRYPT_STRING_BASE64,
-                &saltBuffer[0],
+                saltBuffer.data(),
                 &saltLength,
                 0,
                 0))
@@ -429,12 +444,12 @@ namespace
 
         DWORD status = BCryptDeriveKeyPBKDF2(
             algorithmHandle,
-            &passwordBuffer[0],
+            passwordBuffer.data(),
             static_cast<DWORD>(passwordBuffer.size()),
-            &saltBuffer[0],
+            saltBuffer.data(),
             saltLength,
-            rounds,
-            &checksumBuffer1[0],
+            static_cast<ULONGLONG>(rounds),
+            checksumBuffer1.data(),
             static_cast<DWORD>(checksumLength),
             0);
 
@@ -452,7 +467,7 @@ namespace
                 checksum.c_str(),
                 static_cast<DWORD>(checksum.size()),
                 CRYPT_STRING_BASE64,
-                &checksumBuffer2[0],
+                checksumBuffer2.data(),
                 &checksumBuffer2Length,
                 0,
                 0))
