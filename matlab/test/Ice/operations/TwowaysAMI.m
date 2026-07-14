@@ -1112,7 +1112,7 @@ classdef TwowaysAMI
 
             %
             % Under the default configuration (Ice.ImplicitContext=None), getImplicitContext returns an empty
-            % array rather than crashing the MATLAB process. See issue #5967.
+            % array rather than crashing the MATLAB process.
             %
             icNone = helper.initialize(Properties = helper.communicator().getProperties().clone());
             assert(isempty(icNone.getImplicitContext()));
