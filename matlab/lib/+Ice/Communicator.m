@@ -242,7 +242,12 @@ classdef Communicator < IceInternal.WrapperObject
             if isempty(obj.implicitContext)
                 impl = libpointer('voidPtr');
                 obj.iceCall('getImplicitContext', impl);
-                obj.implicitContext = Ice.ImplicitContext(impl);
+                if isNull(impl)
+                    % The communicator has no implicit context (Ice.ImplicitContext=None, the default).
+                    obj.implicitContext = Ice.ImplicitContext.empty;
+                else
+                    obj.implicitContext = Ice.ImplicitContext(impl);
+                end
             end
             r = obj.implicitContext;
         end
