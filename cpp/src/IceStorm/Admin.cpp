@@ -166,11 +166,10 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
                 return 1;
             }
 
-            const int timeout = 3000; // 3s connection timeout.
             ostringstream os;
             os << "IceStorm/Finder";
-            os << ":tcp" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
-            os << ":ssl" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
+            os << ":tcp" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port;
+            os << ":ssl" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port;
 
             try
             {
