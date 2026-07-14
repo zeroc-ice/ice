@@ -67,6 +67,10 @@ namespace Glacier2
                             throw invalid_argument("expected number");
                         }
                         r.end = value;
+                        if (r.end < r.start)
+                        {
+                            throw invalid_argument("range lower bound is greater than its upper bound");
+                        }
                         ws(istr);
                         if (!istr.eof())
                         {
@@ -733,6 +737,10 @@ namespace Glacier2
                         }
                         else if (addr[current] == '[')
                         {
+                            if (inGroup)
+                            {
+                                throw invalid_argument("unexpected '[' in group");
+                            }
                             // ??? what does it mean if current == mark?
                             if (current != mark)
                             {
