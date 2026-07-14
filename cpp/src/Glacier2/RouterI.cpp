@@ -2,6 +2,7 @@
 
 #include "RouterI.h"
 #include "FilterManager.h"
+#include "ForwardObserver.h"
 #include "Glacier2/Session.h"
 #include "RoutingTable.h"
 
@@ -20,11 +21,13 @@ Glacier2::RouterI::RouterI(
     shared_ptr<FilterManager> filters,
     const Context& context)
     : _instance(std::move(instance)),
+      _forwardObserver(make_shared<ForwardObserver>()),
       _routingTable(make_shared<RoutingTable>(
           _instance->communicator(),
           _instance->proxyVerifier(),
           _instance->routingTableMaxSize())),
-      _clientBlobject(make_shared<ClientBlobject>(_instance, std::move(filters), context, _routingTable)),
+      _clientBlobject(
+          make_shared<ClientBlobject>(_instance, std::move(filters), context, _routingTable, _forwardObserver)),
       _connection(std::move(connection)),
       _userId(std::move(userId)),
       _session(std::move(session)),
@@ -46,7 +49,7 @@ Glacier2::RouterI::RouterI(
         const_cast<optional<ObjectPrx>&>(_serverProxy) = _instance->serverObjectAdapter()->createProxy(ident);
 
         auto& serverBlobject = const_cast<shared_ptr<ServerBlobject>&>(_serverBlobject);
-        serverBlobject = make_shared<ServerBlobject>(_instance, _connection);
+        serverBlobject = make_shared<ServerBlobject>(_instance, _forwardObserver, _connection);
     }
 
     if (_instance->getObserver())
@@ -162,31 +165,19 @@ Glacier2::RouterI::getACMTimeout(const Current&) const
 shared_ptr<ClientBlobject>
 Glacier2::RouterI::getClientBlobject() const
 {
-    // Can only be called with the SessionRouterI mutex locked
-    if (_observer)
-    {
-        _observer->forwarded(true);
-    }
     return _clientBlobject;
 }
 
 shared_ptr<ServerBlobject>
 Glacier2::RouterI::getServerBlobject() const
 {
-    // Can only be called with the SessionRouterI mutex locked
-    if (_observer)
-    {
-        _observer->forwarded(false);
-    }
     return _serverBlobject;
 }
 
 void
 Glacier2::RouterI::updateObserver(const shared_ptr<Glacier2::Instrumentation::RouterObserver>& observer)
 {
-    // Can only be called with the SessionRouterI mutex locked
-
-    _observer = _routingTable->updateObserver(observer, _userId, _connection);
+    _forwardObserver->update(_routingTable->updateObserver(observer, _userId, _connection));
 }
 
 string
