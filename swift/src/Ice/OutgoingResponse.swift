@@ -6,7 +6,7 @@ import Foundation
 public struct OutgoingResponse {
     /// The exception ID of the response.
     /// It's nil when ``replyStatus`` is `ok` or `userException`. Otherwise, this ID is the value returned by `ice_id` for
-    /// Ice local exceptions. For other exceptions, this ID is the full name of the exception's type.
+    /// Ice local exceptions. For other errors, this ID is the name of the error's type.
     public let exceptionId: String?
 
     /// The full details of the exception marshaled into the response.
