@@ -304,6 +304,80 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                     ],
                     [],
                 ),
+                (
+                    # A rule must match the host in full, so 12[7] does not match 127.0.0.1.
+                    "testing address filter without a trailing wildcard matches the whole host",
+                    ("12[7]", "", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # A rule without any wildcard is not a suffix match, so the reject rule 7.0.0.1 does not
+                    # reject 127.0.0.1.
+                    "testing address filter without a wildcard is not a suffix match",
+                    ("", "7.0.0.1", "", "", "", ""),
+                    [
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # A wildcard followed by a trailing numeric range matches when any alignment of the
+                    # wildcard reaches the end of the host: for 127.0.0.1, the first two dots leave part of
+                    # the host unmatched and only the last dot is the correct alignment. The range must match
+                    # right after a dot, so 127.0.0.x does not match.
+                    "testing address filter with a wildcard followed by a trailing numeric range",
+                    ("*.[0-255]", "", "", "", "", ""),
+                    [
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                        (False, "hello:tcp -h 127.0.0.x -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # Same with the numeric range directly after the wildcard: only the final 1 of 127.0.0.1
+                    # ends at the end of the host and lies in the 0-9 range.
+                    "testing address filter with a wildcard followed by a single-digit numeric range",
+                    ("*[0-9]", "", "", "", "", ""),
+                    [
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # A rule ending with a numeric range followed by a wildcard is a prefix match: 12[0-255]*
+                    # matches 127.0.0.1, with the range matching the number right after the 12 prefix.
+                    "testing address filter with a numeric range followed by a trailing wildcard",
+                    ("12[0-255]*", "", "", "", "", ""),
+                    [
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                        (False, "hello:tcp -h 12x.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # A digit run too long to fit in an int does not match a numeric range: the scan skips the
+                    # run, finds no other number in the host, and the rule does not match.
+                    "testing address filter numeric range against a long digit run",
+                    ("*[0-9]", "", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h " + "9" * 255 + " -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # A proxy with an endpoint host longer than 255 characters is rejected outright, even when
+                    # no reject rule matches it: no legal host name or IP address is that long.
+                    "testing address filter rejects an oversized host",
+                    ("", "*.invalid", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h " + "a" * 300 + " -p 12010"),
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
             ]
         )
 
