@@ -2,6 +2,7 @@
 
 #include "ProxyVerifier.h"
 #include "../Ice/ConsoleUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <stdexcept>
 #include <string>
@@ -529,6 +530,8 @@ namespace Glacier2
                 {
                     return false;
                 }
+                // Host names are case-insensitive; the rule was folded to lower case when parsed.
+                host = toLower(host);
                 string port;
                 if (!extractPart("-p ", info, port))
                 {
@@ -675,6 +678,10 @@ namespace Glacier2
                 {
                     addr = parameter;
                 }
+
+                // Host names are case-insensitive; fold the rule to lower case and match it against the
+                // lower-cased host.
+                addr = toLower(addr);
 
                 //
                 // The addr portion can contain alphanumerics, * and

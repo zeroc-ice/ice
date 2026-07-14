@@ -368,6 +368,28 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                     [],
                 ),
                 (
+                    # Host names are case-insensitive: an accept rule matches the host regardless of the case
+                    # of either the rule or the host.
+                    "testing address filter accept rule is case-insensitive",
+                    ("LocalHost", "", "", "", "", ""),
+                    [
+                        (True, "hello:tcp -h localhost -p 12010"),
+                        (True, "hello:tcp -h LOCALHOST -p 12010"),
+                        (False, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # Same for a reject rule: a case variation of the host still matches the rule.
+                    "testing address filter reject rule is case-insensitive",
+                    ("", "badhost.example.com", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h BadHost.Example.COM -p 12010"),
+                        (True, "hello:tcp -h localhost -p 12010"),
+                    ],
+                    [],
+                ),
+                (
                     # A proxy with an endpoint host longer than 255 characters is rejected outright, even when
                     # no reject rule matches it: no legal host name or IP address is that long.
                     "testing address filter rejects an oversized host",
