@@ -477,6 +477,24 @@ CallbackClient::run(int argc, char** argv)
     }
 
     {
+        cout << "testing that adding a different proxy with an existing identity is rejected... " << flush;
+        ObjectPrx dup1(communicator, "dup:" + getTestEndpoint());
+        ObjectPrx dup2 = dup1->ice_endpoints({}); // Same identity, no endpoint.
+        router->addProxies({dup1});
+        router->addProxies({dup1}); // Adding the same proxy again is fine.
+        try
+        {
+            router->addProxies({dup2});
+            test(false);
+        }
+        catch (const DispatchException& ex)
+        {
+            test(ex.replyStatus() == ReplyStatus::NotSupported);
+        }
+        cout << "ok" << endl;
+    }
+
+    {
         cout << "pinging object with client endpoint... " << flush;
         auto baseC = communicator->stringToProxy("collocated:" + getTestEndpoint(50));
         try

@@ -87,13 +87,26 @@ Glacier2::RoutingTable::add(
         }
         else
         {
+            auto& entry = p->second;
+
+            // Two distinct proxies with the same identity can't both be routed. We accept duplicate entries for
+            // routine concurrent registrations.
+            if (entry.proxy != proxy)
+            {
+                throw DispatchException{
+                    __FILE__,
+                    __LINE__,
+                    ReplyStatus::NotSupported,
+                    "cannot route two proxies with the same identity '" +
+                        _communicator->identityToString(proxy->ice_getIdentity()) + "'"};
+            }
+
             if (_traceLevel == 1 || _traceLevel >= 3)
             {
                 Trace out(_communicator->getLogger(), "Glacier2");
                 out << "proxy already in routing table:\n" << proxy;
             }
 
-            auto& entry = p->second;
             _queue.erase(entry.pos);
             auto q = _queue.insert(_queue.end(), p);
             entry.pos = q;
