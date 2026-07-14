@@ -394,27 +394,36 @@ CreateSession::addPendingCallback(shared_ptr<CreateSession> callback)
 void
 CreateSession::authorized(bool createSession)
 {
-    //
-    // Create the filter manager now as it's required for the session control object.
-    //
-    _filterManager = createFilterManager();
+    // This function runs from an AMI response callback: an exception escaping it would be swallowed by the
+    // Ice runtime, leaving the client without a reply and the connection's pending-creation entry in place.
+    try
+    {
+        //
+        // Create the filter manager now as it's required for the session control object.
+        //
+        _filterManager = createFilterManager();
 
-    //
-    // If we have a session manager configured, we create a client-visible session object,
-    // otherwise, we return a null session proxy.
-    //
-    if (createSession)
-    {
-        if (_instance->serverObjectAdapter())
+        //
+        // If we have a session manager configured, we create a client-visible session object,
+        // otherwise, we return a null session proxy.
+        //
+        if (createSession)
         {
-            auto obj = make_shared<SessionControlI>(_sessionRouter, _current.con, _filterManager);
-            _control = _instance->serverObjectAdapter()->addWithUUID<SessionControlPrx>(obj);
+            if (_instance->serverObjectAdapter())
+            {
+                auto obj = make_shared<SessionControlI>(_sessionRouter, _current.con, _filterManager);
+                _control = _instance->serverObjectAdapter()->addWithUUID<SessionControlPrx>(obj);
+            }
+            this->createSession();
         }
-        this->createSession();
+        else
+        {
+            sessionCreated(nullopt);
+        }
     }
-    else
+    catch (const Ice::Exception&)
     {
-        sessionCreated(nullopt);
+        unexpectedCreateSessionException(current_exception());
     }
 }
 
