@@ -4,11 +4,15 @@
 #define GLACIER2_INSTANCE_H
 
 #include "Ice/CommunicatorF.h"
+#include "Ice/Identity.h"
 #include "Ice/ObjectAdapterF.h"
 #include "Ice/PropertiesF.h"
 #include "Instrumentation.h"
 #include "ProxyVerifier.h"
 #include "SessionRouterI.h"
+
+#include <string>
+#include <vector>
 
 namespace Glacier2
 {
@@ -27,6 +31,13 @@ namespace Glacier2
         [[nodiscard]] std::shared_ptr<SessionRouterI> sessionRouter() const { return _sessionRouter; }
         [[nodiscard]] int routingTableMaxSize() const { return _routingTableMaxSize; }
 
+        // The session filter configuration, parsed from the Glacier2.Filter.* properties. Each session
+        // seeds its own filters from these values.
+        [[nodiscard]] const std::vector<std::string>& filterCategories() const { return _filterCategories; }
+        [[nodiscard]] const std::vector<std::string>& filterAdapterIds() const { return _filterAdapterIds; }
+        [[nodiscard]] const std::vector<Ice::Identity>& filterIdentities() const { return _filterIdentities; }
+        [[nodiscard]] int filterAddUserMode() const { return _filterAddUserMode; }
+
         [[nodiscard]] const std::shared_ptr<Glacier2::Instrumentation::RouterObserver>& getObserver() const
         {
             return _observer;
@@ -44,6 +55,10 @@ namespace Glacier2
         const Ice::ObjectAdapterPtr _serverAdapter;
         const std::shared_ptr<ProxyVerifier> _proxyVerifier;
         const int _routingTableMaxSize;
+        const std::vector<std::string> _filterCategories;
+        const std::vector<std::string> _filterAdapterIds;
+        const std::vector<Ice::Identity> _filterIdentities;
+        const int _filterAddUserMode;
         std::shared_ptr<SessionRouterI> _sessionRouter;
         const std::shared_ptr<Glacier2::Instrumentation::RouterObserver> _observer;
     };
