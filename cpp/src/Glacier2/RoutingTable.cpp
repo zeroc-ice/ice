@@ -75,7 +75,7 @@ Glacier2::RoutingTable::add(
 
         if (p == _map.end())
         {
-            if (_traceLevel == 1 || _traceLevel >= 3)
+            if (_traceLevel >= 1)
             {
                 Trace out(_communicator->getLogger(), "Glacier2");
                 out << "adding proxy to routing table:\n" << proxy;
@@ -87,7 +87,7 @@ Glacier2::RoutingTable::add(
         }
         else
         {
-            if (_traceLevel == 1 || _traceLevel >= 3)
+            if (_traceLevel >= 1)
             {
                 Trace out(_communicator->getLogger(), "Glacier2");
                 out << "proxy already in routing table:\n" << proxy;
