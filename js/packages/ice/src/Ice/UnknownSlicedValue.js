@@ -5,7 +5,7 @@ import { Value } from "./Value.js";
 export class SliceInfo {
     constructor() {
         //
-        // The Slice type ID for this slice.
+        // The Slice type ID for this slice. It's empty when the compact ID is set (compactId !== -1).
         //
         this.typeId = "";
 
