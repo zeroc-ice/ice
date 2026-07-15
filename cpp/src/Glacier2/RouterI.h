@@ -13,6 +13,7 @@ namespace Glacier2
     class RoutingTable;
     class RouterI;
     class FilterManager;
+    class ForwardObserver;
 
     class RouterI final : public Router
     {
@@ -60,6 +61,7 @@ namespace Glacier2
 
     private:
         const std::shared_ptr<Instance> _instance;
+        const std::shared_ptr<ForwardObserver> _forwardObserver;
         const std::shared_ptr<RoutingTable> _routingTable;
         const std::optional<Ice::ObjectPrx> _serverProxy;
         const std::shared_ptr<ClientBlobject> _clientBlobject;
@@ -69,8 +71,6 @@ namespace Glacier2
         const std::optional<SessionPrx> _session;
         const Ice::Identity _controlId;
         const Ice::Context _context;
-
-        std::shared_ptr<Glacier2::Instrumentation::SessionObserver> _observer;
     };
 }
 

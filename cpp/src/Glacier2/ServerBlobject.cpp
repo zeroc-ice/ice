@@ -6,8 +6,11 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::ServerBlobject::ServerBlobject(shared_ptr<Instance> instance, ConnectionPtr connection)
-    : Glacier2::Blobject(std::move(instance), std::move(connection), Ice::Context())
+Glacier2::ServerBlobject::ServerBlobject(
+    shared_ptr<Instance> instance,
+    shared_ptr<ForwardObserver> forwardObserver,
+    ConnectionPtr connection)
+    : Glacier2::Blobject(std::move(instance), std::move(forwardObserver), std::move(connection), Ice::Context())
 {
 }
 

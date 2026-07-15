@@ -8,10 +8,12 @@
 
 namespace Glacier2
 {
+    class ForwardObserver;
+
     class Blobject : public Ice::BlobjectArrayAsync, public std::enable_shared_from_this<Blobject>
     {
     public:
-        Blobject(std::shared_ptr<Instance>, Ice::ConnectionPtr, Ice::Context);
+        Blobject(std::shared_ptr<Instance>, std::shared_ptr<ForwardObserver>, Ice::ConnectionPtr, Ice::Context);
 
     protected:
         void invoke(
@@ -25,6 +27,7 @@ namespace Glacier2
         const Ice::ConnectionPtr _reverseConnection;
 
     private:
+        const std::shared_ptr<ForwardObserver> _forwardObserver;
         const bool _forwardContext;
         const int _requestTraceLevel;
         const Ice::Context _context;
