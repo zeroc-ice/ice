@@ -72,7 +72,7 @@ Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
             catch (const NotRegisteredException&)
             {
             }
-            catch (const ObjectAdapterDeactivatedException&)
+            catch (const ObjectAdapterDestroyedException&)
             {
                 //
                 // Expected if the router has been shutdown.
@@ -80,13 +80,20 @@ Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
             }
         }
 
-        if (_context.size() > 0)
+        try
         {
-            _session->destroyAsync(nullptr, std::move(error), nullptr, _context);
+            if (_context.size() > 0)
+            {
+                _session->destroyAsync(nullptr, std::move(error), nullptr, _context);
+            }
+            else
+            {
+                _session->destroyAsync(nullptr, std::move(error), nullptr);
+            }
         }
-        else
+        catch (const CommunicatorDestroyedException&)
         {
-            _session->destroyAsync(nullptr, std::move(error), nullptr);
+            // Ignored: the session is destroyed along with the communicator.
         }
     }
 
