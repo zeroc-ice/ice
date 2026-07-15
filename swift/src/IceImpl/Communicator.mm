@@ -103,6 +103,11 @@
     }
 }
 
+- (NSString*)identityToString:(NSString*)name category:(NSString*)category
+{
+    return toNSString(self.communicator->identityToString({fromNSString(name), fromNSString(category)}));
+}
+
 - (ICEObjectAdapter*)createObjectAdapter:(NSString*)name error:(NSError* _Nullable* _Nonnull)error
 {
     try
