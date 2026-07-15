@@ -1161,6 +1161,8 @@ TopicImpl::observerDestroyTopic(const LogUpdate& llu)
         out << " llu: " << llu.generation << "/" << llu.iteration;
     }
     destroyInternal(llu, false);
+
+    _observer.detach();
 }
 
 Ice::ObjectPtr
