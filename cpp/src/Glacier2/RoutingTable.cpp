@@ -87,6 +87,8 @@ Glacier2::RoutingTable::add(
         }
         else
         {
+            // We tolerate duplicate registrations and keep the first proxy: two objects with the same identity
+            // are the same object.
             if (_traceLevel >= 1)
             {
                 Trace out(_communicator->getLogger(), "Glacier2");
