@@ -104,6 +104,10 @@ TransientTopicImpl::TransientTopicImpl(shared_ptr<Instance> instance, std::strin
       _name(std::move(name)),
       _id(std::move(id))
 {
+    if (_instance->observer())
+    {
+        _observer.attach(_instance->observer()->getTopicObserver(_name, nullptr));
+    }
 }
 
 string
@@ -374,6 +378,8 @@ TransientTopicImpl::destroy(const Ice::Current&)
         subscriber->destroy();
     }
     _subscribers.clear();
+
+    _observer.detach();
 }
 
 void
@@ -405,6 +411,18 @@ TransientTopicImpl::publish(bool forwarded, const EventDataSeq& events)
     vector<shared_ptr<Subscriber>> copy;
     {
         lock_guard lock(_mutex);
+
+        if (_observer)
+        {
+            if (forwarded)
+            {
+                _observer->forwarded(static_cast<int>(events.size()));
+            }
+            else
+            {
+                _observer->published();
+            }
+        }
         copy = _subscribers;
     }
 
@@ -466,5 +484,30 @@ TransientTopicImpl::shutdown()
     for (const auto& subscriber : _subscribers)
     {
         subscriber->shutdown();
+    }
+
+    _observer.detach();
+}
+
+void
+TransientTopicImpl::updateObserver()
+{
+    lock_guard lock(_mutex);
+
+    // Don't reattach the observer of a topic that was destroyed but not reaped yet.
+    if (!_destroyed && _instance->observer())
+    {
+        _observer.attach(_instance->observer()->getTopicObserver(_name, _observer.get()));
+    }
+}
+
+void
+TransientTopicImpl::updateSubscriberObservers()
+{
+    lock_guard lock(_mutex);
+
+    for (const auto& subscriber : _subscribers)
+    {
+        subscriber->updateObserver();
     }
 }
