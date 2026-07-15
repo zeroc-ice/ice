@@ -1,6 +1,6 @@
 classdef (Sealed) ObjectNotExistException < Ice.RequestFailedException
-    %OBJECTNOTEXISTEXCEPTION This exception is raised if an object does not exist on the server, that is, if no
-    %   facets with the given identity exist.
+    %OBJECTNOTEXISTEXCEPTION The exception that is thrown when a dispatch could not find a servant for the identity
+    %   carried by the request.
 
     % Copyright (c) ZeroC, Inc.
 end

@@ -1,5 +1,6 @@
 classdef (Sealed) CompositeSliceLoader < Ice.SliceLoader
     %COMPOSITESLICELOADER Implements Ice.SliceLoader by combining multiple Slice loaders.
+    %   The loaders are consulted in the order they were added; the first non-empty result is returned.
     %
     %   CompositeSliceLoader Methods:
     %     CompositeSliceLoader - Constructs a new CompositeSliceLoader.
@@ -41,6 +42,8 @@ classdef (Sealed) CompositeSliceLoader < Ice.SliceLoader
         end
 
         function r = newInstance(obj, typeId)
+            %NEWINSTANCE Creates a class or exception instance from a Slice type ID.
+            %   See also Ice.SliceLoader.newInstance.
             arguments
                 obj (1, 1) Ice.CompositeSliceLoader
                 typeId (1, :) char

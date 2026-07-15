@@ -1,5 +1,5 @@
 classdef IPEndpointInfo < Ice.EndpointInfo
-    %IPENDPOINTINFO Provides access to the address details of a IP endpoint.
+    %IPENDPOINTINFO Provides access to the address details of an IP endpoint.
     %
     %   IPEndpointInfo Properties:
     %     host - The host or address configured with the endpoint.

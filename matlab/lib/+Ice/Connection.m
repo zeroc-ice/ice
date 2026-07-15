@@ -3,17 +3,19 @@ classdef Connection < IceInternal.WrapperObject
     %
     %   Connection Methods:
     %     abort - Aborts this connection.
-    %     close - Closes the connection gracefully after waiting for all outstanding invocations to complete.
-    %     createProxy - Creates a proxy that uses this connection.
+    %     close - Starts a graceful closure of this connection once all outstanding invocations have completed.
+    %     createProxy - Creates a special proxy (a "fixed proxy") that always uses this connection.
+    %     disableInactivityCheck - Disables the inactivity check on this connection.
     %     eq - Compares this connection with another Connection for equality.
     %     flushBatchRequests - Flushes any pending batch requests for this connection.
     %     flushBatchRequestsAsync - An asynchronous flushBatchRequests.
     %     getEndpoint - Gets the endpoint from which this connection was created.
-    %     getInfo - Gets the connection information for this connection.
-    %     setBufferSize - Sets the buffer sizes for this connection.
-    %     throwException - Manually throws an exception to indicate that the connection is lost.
-    %     toString - Gets a description of this connection.
-    %     type - Gets the type of this connection.
+    %     getInfo - Returns the connection information.
+    %     setBufferSize - Sets the size of the receive and send buffers.
+    %     throwException - Throws the exception that provides the reason for the closure of this connection.
+    %     toString - Returns a description of the connection as human readable text, suitable for logging or error
+    %       messages.
+    %     type - Returns the connection type.
 
     % Copyright (c) ZeroC, Inc.
 
@@ -27,7 +29,10 @@ classdef Connection < IceInternal.WrapperObject
     methods
         function r = eq(obj, other)
             %EQ Compares this connection with another Connection for equality.
-            %   See also eq.
+            %
+            %   Output Arguments
+            %     r - True if both objects refer to the same connection, false otherwise.
+            %       logical scalar
 
             if isempty(other) || ~isa(other, 'Ice.Connection')
                 r = false;
@@ -49,10 +54,12 @@ classdef Connection < IceInternal.WrapperObject
         end
 
         function f = close(obj)
-            %CLOSE Closes the connection gracefully after waiting for all outstanding invocations to complete.
+            %CLOSE Starts a graceful closure of this connection once all outstanding invocations have completed.
             %
             %   Output Arguments
-            %     f - A future that completes when the connection is closed.
+            %     f - A future that completes when the connection closure completes. If closing takes longer than the
+            %       configured close timeout, the connection is aborted with an Ice.CloseTimeoutException and the
+            %       future completes with this exception.
             %       Ice.Future scalar
 
             arguments
@@ -65,14 +72,14 @@ classdef Connection < IceInternal.WrapperObject
         end
 
         function r = createProxy(obj, id)
-            %CREATEPROXY Creates a special proxy that always uses this connection.
+            %CREATEPROXY Creates a special proxy (a "fixed proxy") that always uses this connection.
             %
             %   Input Arguments
-            %     id - The identity for which a proxy is to be created.
+            %     id - The identity of the target object.
             %       Ice.Identity scalar
             %
             %   Output Arguments
-            %     r - A proxy that matches the given identity and uses this connection.
+            %     r - A fixed proxy with the provided identity.
             %       Ice.ObjectPrx scalar
 
             arguments
@@ -85,7 +92,7 @@ classdef Connection < IceInternal.WrapperObject
         end
 
         function disableInactivityCheck(obj)
-            %DISABLEINACTIVITYCHECK Disables the inactivity check for this connection.
+            %DISABLEINACTIVITYCHECK Disables the inactivity check on this connection.
 
             arguments
                 obj (1, 1) Ice.Connection
@@ -148,7 +155,7 @@ classdef Connection < IceInternal.WrapperObject
         end
 
         function r = type(obj)
-            %TYPE Returns the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
+            %TYPE Returns the connection type. This corresponds to the endpoint type, such as "tcp", "udp", etc.
             %
             %   Output Arguments
             %     r - The type of the connection.
@@ -162,7 +169,7 @@ classdef Connection < IceInternal.WrapperObject
 
         function r = toString(obj)
             %TOSTRING Returns a description of the connection as human readable text, suitable for logging or error
-            %   messages.
+            %   messages. This method remains usable after the connection is closed or aborted.
             %
             %   Output Arguments
             %     r - The description of the connection as human readable text.
@@ -175,7 +182,8 @@ classdef Connection < IceInternal.WrapperObject
         end
 
         function r = getInfo(obj)
-            %GETINFO Returns the connection information.
+            %GETINFO Returns the connection information. If the connection is closed, this method throws the exception
+            %   that caused the closure.
             %
             %   Output Arguments
             %     r - The connection information.
@@ -189,12 +197,12 @@ classdef Connection < IceInternal.WrapperObject
         end
 
         function setBufferSize(obj, rcvSize, sndSize)
-            %SETBUFFERSIZE Sets the connection buffer receive/send size.
+            %SETBUFFERSIZE Sets the size of the receive and send buffers.
             %
             %   Input Arguments
-            %     rcvSize - The connection receive buffer size.
+            %     rcvSize - The size of the receive buffer.
             %       int32 scalar
-            %     sndSize - The connection send buffer size.
+            %     sndSize - The size of the send buffer.
             %       int32 scalar
 
             arguments
@@ -206,10 +214,11 @@ classdef Connection < IceInternal.WrapperObject
         end
 
         function throwException(obj)
-            %THROWEXCEPTION Throws an exception indicating the reason for connection closure.
-            %   For example, CloseConnectionException is thrown if the connection was closed gracefully, whereas
-            %   ConnectionAbortedException/ConnectionClosedException are thrown if the connection was manually closed by
-            %   the application. This method does nothing if the connection is not yet closed.
+            %THROWEXCEPTION Throws the exception that provides the reason for the closure of this connection.
+            %   This method does nothing if the connection is not yet closing or closed. For example, this method
+            %   throws Ice.CloseConnectionException when the connection was closed gracefully by the peer,
+            %   Ice.ConnectionClosedException when the connection was closed gracefully by the application, and
+            %   Ice.ConnectionAbortedException when the connection was aborted with abort.
 
             arguments
                 obj (1, 1) Ice.Connection

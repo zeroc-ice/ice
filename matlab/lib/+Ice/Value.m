@@ -3,9 +3,11 @@ classdef (Abstract) Value < matlab.mixin.Copyable
     %
     %   Value Methods:
     %     Value - Constructs a new Value instance.
-    %     ice_getSlicedData - Gets the sliced data if this object has a preserved-slice base class and has been sliced during unmarshaling.
+    %     ice_getSlicedData - Gets the sliced data if this value was sliced during unmarshaling.
+    %     ice_id - Gets the Slice type ID of the most-derived class supported by this object.
     %     ice_postUnmarshal - Ice invokes this method after unmarshaling the fields of this object.
     %     ice_preMarshal - Ice invokes this method prior to marshaling the fields of this object.
+    %     ice_staticId - Returns the Slice type ID associated with this type.
 
     % Copyright (c) ZeroC, Inc.
 
@@ -32,21 +34,26 @@ classdef (Abstract) Value < matlab.mixin.Copyable
 
         function ice_preMarshal(~)
             %ICE_PREMARSHAL Ice invokes this method prior to marshaling the fields of this object. This allows a
-            %   subclass to override this method in order to validate its fields.
+            %   subclass to override this method in order to update or validate its fields before marshaling.
         end
 
         function ice_postUnmarshal(~)
             %ICE_POSTUNMARSHAL Ice invokes this method after unmarshaling the fields of this object. This allows a
-            %   subclass to override this method in order to perform additional initialization.
+            %   subclass to override this method in order to update or validate its fields after unmarshaling.
         end
 
         function r = ice_getSlicedData(obj)
-            %ICE_GETSLICEDDATA Returns the sliced-off data of this object.
+            %ICE_GETSLICEDDATA Gets the sliced data associated with this instance.
+            %
+            %   Output Arguments
+            %     r - The sliced data if this value was sliced during unmarshaling, or an empty array if the value was
+            %       not sliced. Unknown slices are preserved only when the sender uses the sliced format.
+            %       Ice.SlicedData scalar | empty array of Ice.SlicedData
             r = obj.iceSlicedData_;
         end
     end
     methods (Abstract)
-        %ICE_ID Returns the Slice type ID associated with this instance.
+        %ICE_ID Gets the Slice type ID of the most-derived class supported by this object.
         %
         %   Output Arguments
         %     id - The Slice type ID.
@@ -55,6 +62,11 @@ classdef (Abstract) Value < matlab.mixin.Copyable
     end
     methods (Static)
         function id = ice_staticId()
+            %ICE_STATICID Returns the Slice type ID associated with this type.
+            %
+            %   Output Arguments
+            %     id - The Slice type ID ('::Ice::Object').
+            %       character vector
             id = '::Ice::Object';
         end
     end
