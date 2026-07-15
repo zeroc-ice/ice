@@ -114,19 +114,6 @@ parseFilterIdentities(const PropertiesPtr& properties)
     }
 }
 
-static int
-parseFilterAddUserMode(const PropertiesPtr& properties)
-{
-    try
-    {
-        return properties->getIcePropertyAsInt("Glacier2.Filter.Category.AcceptUser");
-    }
-    catch (const std::exception& ex)
-    {
-        throw InitializationException(__FILE__, __LINE__, string{ex.what()});
-    }
-}
-
 Glacier2::Instance::Instance(
     shared_ptr<Ice::Communicator> communicator,
     Ice::ObjectAdapterPtr clientAdapter,
@@ -141,7 +128,7 @@ Glacier2::Instance::Instance(
       _filterCategories(stringToStringSeq(_properties->getIceProperty("Glacier2.Filter.Category.Accept"))),
       _filterAdapterIds(stringToStringSeq(_properties->getIceProperty("Glacier2.Filter.AdapterId.Accept"))),
       _filterIdentities(parseFilterIdentities(_properties)),
-      _filterAddUserMode(parseFilterAddUserMode(_properties))
+      _filterAddUserMode(_properties->getIcePropertyAsInt("Glacier2.Filter.Category.AcceptUser"))
 {
     if (_routingTableMaxSize < 1)
     {
