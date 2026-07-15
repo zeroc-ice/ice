@@ -8,6 +8,7 @@ final class CommunicatorI: LocalObject<ICECommunicator>, Communicator, @unchecke
     let classGraphDepthMax: Int32
     let traceSlicing: Bool
     let acceptClassCycles: Bool
+    let toStringMode: ToStringMode
 
     init(handle: ICECommunicator, initData: InitializationData) {
 
@@ -20,6 +21,16 @@ final class CommunicatorI: LocalObject<ICECommunicator>, Communicator, @unchecke
             acceptClassCycles = try initData.properties!.getIcePropertyAsInt("Ice.AcceptClassCycles") > 0
         } catch {
             fatalError("\(error)")
+        }
+
+        // The value was already validated by the C++ communicator.
+        switch initData.properties!.getIceProperty("Ice.ToStringMode") {
+        case "ASCII":
+            toStringMode = .ASCII
+        case "Compat":
+            toStringMode = .Compat
+        default:
+            toStringMode = .Unicode
         }
 
         super.init(handle: handle)
@@ -80,7 +91,7 @@ final class CommunicatorI: LocalObject<ICECommunicator>, Communicator, @unchecke
     }
 
     func identityToString(_ id: Identity) -> String {
-        return Ice.identityToString(id: id)
+        return Ice.identityToString(id: id, mode: toStringMode)
     }
 
     func createObjectAdapter(_ name: String) throws -> ObjectAdapter {
