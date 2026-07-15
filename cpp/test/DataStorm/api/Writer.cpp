@@ -107,12 +107,49 @@ void ::Writer::run(int argc, char* argv[])
                 }
             }
 
+            // Retry properties are parsed before the DataStorm adapters are created, leaving a user-supplied
+            // communicator reusable when parsing fails.
+            {
+                Ice::CommunicatorHolder holder{Ice::initialize(makeInitData("DataStorm.Node.RetryDelay", "invalid"))};
+                try
+                {
+                    Node n11{holder.communicator()};
+                    test(false);
+                }
+                catch (const Ice::PropertyException&)
+                {
+                }
+
+                test(holder.communicator()->getDefaultObjectAdapter() == nullptr);
+                holder.communicator()->getProperties()->setProperty("DataStorm.Node.RetryDelay", "500");
+                Node n12{holder.communicator()};
+            }
+
+            // An adapter creation failure after the default adapter is set also leaves the communicator reusable.
+            // Reconstructing a node verifies that the named adapter from the failed construction was destroyed.
+            {
+                Ice::CommunicatorHolder holder{
+                    Ice::initialize(makeInitData("DataStorm.Node.Multicast.Endpoints", "invalid"))};
+                try
+                {
+                    Node n13{holder.communicator()};
+                    test(false);
+                }
+                catch (const invalid_argument&)
+                {
+                }
+
+                test(holder.communicator()->getDefaultObjectAdapter() == nullptr);
+                holder.communicator()->getProperties()->setProperty("DataStorm.Node.Multicast.Endpoints", "");
+                Node n14{holder.communicator()};
+            }
+
             // "None" is accepted as an alias for the "Never" discard policy, matching the DiscardPolicy::None
             // enumerator.
             {
                 Ice::CommunicatorHolder holder{Ice::initialize(makeInitData("DataStorm.Topic.DiscardPolicy", "None"))};
-                Node n11{holder.communicator()};
-                Topic<int, string> topic(n11, "discardPolicyAlias");
+                Node n15{holder.communicator()};
+                Topic<int, string> topic(n15, "discardPolicyAlias");
                 auto reader = makeSingleKeyReader(topic, 0);
             }
         }

@@ -31,11 +31,8 @@ Node::Node(NodeOptions options)
 
     try
     {
-        _instance = make_shared<DataStormI::Instance>(
-            communicator,
-            std::move(options.customExecutor),
-            std::move(options.serverAuthenticationOptions));
-        _instance->init();
+        _instance = make_shared<DataStormI::Instance>(communicator, std::move(options.customExecutor));
+        _instance->init(std::move(options.serverAuthenticationOptions));
     }
     catch (...)
     {
