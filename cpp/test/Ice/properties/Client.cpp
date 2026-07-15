@@ -240,6 +240,15 @@ Client::run(int, char**)
     }
 
     {
+        cout << "testing that a property value with mismatched quotes returns the default list... " << flush;
+        Ice::PropertiesPtr properties = Ice::createProperties();
+        properties->setProperty("Foo", "'foo");
+        vector<string> value = properties->getPropertyAsListWithDefault("Foo", {"default"});
+        test(value.size() == 1 && value[0] == "default");
+        cout << "ok" << endl;
+    }
+
+    {
         cout << "testing createProperties with args... " << flush;
         Ice::StringSeq args{"--Foo=Bar", "--Ice.Trace.Network=3"};
         Ice::PropertiesPtr properties = Ice::createProperties(args);

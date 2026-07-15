@@ -315,6 +315,7 @@ Ice::Properties::getPropertyAsListWithDefault(string_view key, const StringSeq& 
         {
             Warning out(getProcessLogger());
             out << "mismatched quotes in property " << key << "'s value, returning default value";
+            return value;
         }
         if (result.size() == 0)
         {
