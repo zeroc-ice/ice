@@ -27,7 +27,7 @@ declare module "@zeroc/ice" {
             static readonly F8: OptionalFormat;
 
             /**
-             * "Size encoding" using either 1 or 5 bytes. Used by enums, class identifiers, etc.
+             * "Size encoding" using either 1 or 5 bytes. Used by enums.
              */
             static readonly Size: OptionalFormat;
 
