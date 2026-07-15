@@ -108,11 +108,12 @@ classdef Future < IceInternal.WrapperObject
             if obj.Read
                 throw(MException('Ice:InvalidStateException', 'outputs already read'));
             end
+            %
+            % The fetch function runs at most once: it deletes the underlying C++ object even when
+            % it throws. Set Read before calling it so a second call always takes the guard above.
+            %
+            obj.Read = true;
             if ~isempty(obj.fetchFunc)
-                %
-                % We assume the fetch function implementation also deletes the C++ object so that we
-                % can avoid another call into C++.
-                %
                 try
                     [varargout{1:obj.NumOutputArguments}] = obj.fetchFunc(obj);
                     obj.impl_ = [];
@@ -121,7 +122,6 @@ classdef Future < IceInternal.WrapperObject
                     rethrow(ex);
                 end
             end
-            obj.Read = true;
         end
         function cancel(obj)
             % cancel   If the invocation is still pending, calling this method
