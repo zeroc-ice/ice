@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Blobject.h"
+#include "ForwardObserver.h"
 #include "Instrumentation.h"
 #include "SessionRouterI.h"
 
@@ -17,9 +18,14 @@ namespace
     constexpr string_view clientTraceRequest = "Glacier2.Client.Trace.Request";
 }
 
-Glacier2::Blobject::Blobject(shared_ptr<Instance> instance, ConnectionPtr reverseConnection, Context context)
+Glacier2::Blobject::Blobject(
+    shared_ptr<Instance> instance,
+    shared_ptr<ForwardObserver> forwardObserver,
+    ConnectionPtr reverseConnection,
+    Context context)
     : _instance(std::move(instance)),
       _reverseConnection(std::move(reverseConnection)),
+      _forwardObserver(std::move(forwardObserver)),
       _forwardContext(
           _reverseConnection ? _instance->properties()->getIcePropertyAsInt(serverForwardContext) > 0
                              : _instance->properties()->getIcePropertyAsInt(clientForwardContext) > 0),
@@ -38,6 +44,9 @@ Glacier2::Blobject::invoke(
     function<void(exception_ptr)> exception, // NOLINT(performance-unnecessary-value-param)
     const Current& current)
 {
+    // A client blobject has no reverse connection.
+    _forwardObserver->forwarded(_reverseConnection == nullptr);
+
     //
     // Set the correct facet on the proxy.
     //

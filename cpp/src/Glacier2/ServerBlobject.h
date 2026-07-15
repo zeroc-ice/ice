@@ -7,10 +7,12 @@
 
 namespace Glacier2
 {
+    class ForwardObserver;
+
     class ServerBlobject final : public Glacier2::Blobject
     {
     public:
-        ServerBlobject(std::shared_ptr<Instance>, Ice::ConnectionPtr);
+        ServerBlobject(std::shared_ptr<Instance>, std::shared_ptr<ForwardObserver>, Ice::ConnectionPtr);
 
         void ice_invokeAsync(
             std::pair<const std::byte*, const std::byte*> inEncaps,

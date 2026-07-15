@@ -10,6 +10,7 @@ namespace Glacier2
 {
     class FilterManager;
     class RoutingTable;
+    class ForwardObserver;
 
     class ClientBlobject final : public Glacier2::Blobject
     {
@@ -18,7 +19,8 @@ namespace Glacier2
             std::shared_ptr<Instance>,
             std::shared_ptr<FilterManager>,
             const Ice::Context&,
-            std::shared_ptr<RoutingTable>);
+            std::shared_ptr<RoutingTable>,
+            std::shared_ptr<ForwardObserver>);
 
         void ice_invokeAsync(
             std::pair<const std::byte*, const std::byte*> inEncaps,
