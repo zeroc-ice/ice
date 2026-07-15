@@ -2727,7 +2727,7 @@ public sealed class InputStream
                 b.position(end);
 
                 var info = new SliceInfo(
-                    typeId: _current.typeId!,
+                    typeId: _current.compactId == -1 ? _current.typeId! : "",
                     compactId: _current.compactId,
                     bytes: bytes,
                     hasOptionalMembers: hasOptionalMembers,
