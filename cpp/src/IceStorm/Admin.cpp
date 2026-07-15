@@ -35,6 +35,12 @@ main(int argc, char* argv[])
 
         auto properties = Ice::createProperties(argc, argv, "IceStormAdmin");
         properties->setProperty("Ice.Warn.Endpoints", "0");
+        // Give up quickly when a topic manager or the IceStorm/Finder fallback is unreachable, instead of waiting
+        // the full default connect timeout (10s). Only lower it when the user hasn't configured it explicitly.
+        if (properties->getProperty("Ice.Connection.Client.ConnectTimeout").empty())
+        {
+            properties->setProperty("Ice.Connection.Client.ConnectTimeout", "3"); // seconds
+        }
 
         Ice::InitializationData initData{.properties = properties};
         auto communicator = Ice::initialize(std::move(initData));
