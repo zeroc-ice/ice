@@ -2553,7 +2553,9 @@ IceRuby::ValueReader::_iceRead(Ice::InputStream* is)
         {
             assert(!_slicedData->slices.empty());
 
-            volatile VALUE typeId = createString(_slicedData->slices[0]->typeId);
+            const Ice::SliceInfoPtr& sliceInfo = _slicedData->slices[0];
+            volatile VALUE typeId =
+                createString(sliceInfo->typeId.empty() ? std::to_string(sliceInfo->compactId) : sliceInfo->typeId);
             callRuby(rb_iv_set, _object, "@unknownTypeId", typeId);
         }
     }
