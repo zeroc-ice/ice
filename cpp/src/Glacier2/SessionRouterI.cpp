@@ -473,7 +473,14 @@ CreateSession::sessionCreated(optional<SessionPrx> session)
     {
         if (session)
         {
-            session->destroyAsync(nullptr); // don't wait for response
+            try
+            {
+                session->destroyAsync(nullptr); // don't wait for response
+            }
+            catch (const Ice::CommunicatorDestroyedException&)
+            {
+                // Ignored: the session is destroyed along with the communicator.
+            }
         }
         unexpectedCreateSessionException(current_exception());
         return;
@@ -963,6 +970,10 @@ SessionRouterI::sessionDestroyException(exception_ptr ex) const
         try
         {
             rethrow_exception(ex);
+        }
+        catch (const Ice::CommunicatorDestroyedException&)
+        {
+            // Expected when the router shuts down with sessions still active.
         }
         catch (const Ice::Exception& e)
         {
