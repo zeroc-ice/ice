@@ -56,7 +56,7 @@ public protocol Properties: AnyObject {
     /// Gets a property as a list of strings. The strings must be separated by whitespace or comma. The strings in
     /// the list can contain whitespace and commas if they are enclosed in single or double quotes. If quotes are
     /// mismatched, an empty list is returned. Within single quotes or double quotes, you can escape the quote in
-    /// question with a backslash, e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+    /// question with a backslash, e.g. O'Reilly can be written as "O'Reilly" or 'O\'Reilly'.
     ///
     /// - Parameter key: The property key.
     /// - Returns: The property value interpreted as a list of strings, or an empty list if the property is not set.
@@ -65,7 +65,7 @@ public protocol Properties: AnyObject {
     /// Gets an Ice property as a list of strings. The strings must be separated by whitespace or comma. The strings in
     /// the list can contain whitespace and commas if they are enclosed in single or double quotes. If quotes are
     /// mismatched, the default list is returned. Within single quotes or double quotes, you can escape the quote in
-    /// question with a backslash, e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+    /// question with a backslash, e.g. O'Reilly can be written as "O'Reilly" or 'O\'Reilly'.
     ///
     /// - Parameter key: The property key.
     /// - Returns: The property value interpreted as a list of strings, or the default value if the property is not
@@ -76,7 +76,7 @@ public protocol Properties: AnyObject {
     /// Gets a property as a list of strings. The strings must be separated by whitespace or comma. The strings in
     /// the list can contain whitespace and commas if they are enclosed in single or double quotes. If quotes are
     /// mismatched, the default list is returned. Within single quotes or double quotes, you can escape the quote in
-    /// question with a backslash, e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+    /// question with a backslash, e.g. O'Reilly can be written as "O'Reilly" or 'O\'Reilly'.
     ///
     /// - Parameters:
     ///   - key: The property key.
