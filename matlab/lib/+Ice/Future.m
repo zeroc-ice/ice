@@ -110,10 +110,8 @@ classdef Future < IceInternal.WrapperObject
                 error('Ice:InvalidStateException', 'Outputs already read');
             end
             %
-            % Mark the outputs as read before invoking the fetch function. The fetch function deletes the
-            % underlying C++ object (clearing impl_ below), so it can only run once; arming Read here ensures a
-            % second call raises the exception above even when the first call completes exceptionally, rather
-            % than re-invoking the fetch function on a null object and crashing MATLAB.
+            % The fetch function runs at most once: it deletes the underlying C++ object even when
+            % it throws. Set Read before calling it so a second call always takes the guard above.
             %
             obj.Read = true;
             if ~isempty(obj.fetchFunc)
