@@ -114,7 +114,7 @@ declare module "@zeroc/ice" {
              * If the property is not set, the default list is returned. The strings in the list can contain whitespace
              * and commas if they are enclosed in single or double quotes. If quotes are mismatched, the default list
              * is returned. Within single or double quotes, the respective quote character can be escaped with a
-             * backslash. For example, O'Reilly can be written as "O'Reilly", or 'O\'Reilly'.
+             * backslash. For example, O'Reilly can be written as "O'Reilly" or 'O\'Reilly'.
              *
              * @param key - The property key.
              * @param value - The default value to use if the property is not set.
