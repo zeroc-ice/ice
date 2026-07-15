@@ -222,6 +222,12 @@ keyword
 | ICESTORM_TOPICS
 {
 }
+| ICESTORM_REPLICA
+{
+}
+| ICESTORM_SUBSCRIBERS
+{
+}
 
 %%
 
