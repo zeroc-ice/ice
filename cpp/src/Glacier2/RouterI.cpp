@@ -94,6 +94,9 @@ Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
     }
 
     _routingTable->destroy();
+
+    // Requests forwarded after this point are no longer counted in the session metrics.
+    _forwardObserver->update(nullptr);
 }
 
 optional<ObjectPrx>
