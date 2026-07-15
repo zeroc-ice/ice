@@ -122,7 +122,7 @@ class AdapterEditor extends CommunicatorChildEditor {
                 + "for example:<br>"
                 + " tcp (listen on all local interfaces using a random port)<br>"
                 + " tcp -h venus.foo.com (listen on just one interface)<br>"
-                + " tcp -t 10000 (sets a timeout of 10,000 milliseconds)<br>"
+                + " tcp -p 10000 (listen on a specific port)<br>"
                 + " ssl -h venus.foo.com (accepts SSL connections instead of plain TCP)"
                 + "</html>");
 
