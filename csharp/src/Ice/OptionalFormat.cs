@@ -32,7 +32,7 @@ public enum OptionalFormat
     F8 = 3,
 
     /// <summary>
-    /// "Size encoding" using either 1 or 5 bytes. Used by enums, class identifiers, etc.
+    /// "Size encoding" using either 1 or 5 bytes. Used by enums.
     /// </summary>
     Size = 4,
 
