@@ -7,7 +7,7 @@ declare module "@zeroc/ice" {
          */
         class SliceInfo {
             /**
-             * The Slice type ID for this slice.
+             * The Slice type ID for this slice. It's empty when the compact ID is set (compactId !== -1).
              */
             typeId: string;
 
