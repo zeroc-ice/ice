@@ -20,7 +20,8 @@ namespace IceGrid
             const std::shared_ptr<WellKnownObjectsManager>&,
             const std::shared_ptr<InternalReplicaInfo>&,
             InternalRegistryPrx,
-            std::chrono::seconds);
+            std::chrono::seconds,
+            bool dynamicRegistration);
 
         void keepAlive(const Ice::Current&) override;
         [[nodiscard]] int getTimeout(const Ice::Current&) const override;
@@ -52,6 +53,7 @@ namespace IceGrid
             const std::shared_ptr<InternalReplicaInfo>&,
             InternalRegistryPrx,
             std::chrono::seconds,
+            bool dynamicRegistration,
             ReplicaSessionPrx);
 
         void destroyImpl(bool);
@@ -62,6 +64,7 @@ namespace IceGrid
         const InternalRegistryPrx _internalRegistry;
         const std::shared_ptr<InternalReplicaInfo> _info;
         const std::chrono::seconds _timeout;
+        const bool _dynamicRegistration;
         const ReplicaSessionPrx _proxy;
         std::optional<DatabaseObserverPrx> _observer;
         ObjectInfoSeq _replicaWellKnownObjects;

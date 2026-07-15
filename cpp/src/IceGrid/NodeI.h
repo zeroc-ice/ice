@@ -113,6 +113,8 @@ namespace IceGrid
         [[nodiscard]] std::string getOutputDir() const;
         [[nodiscard]] bool getRedirectErrToOut() const;
         [[nodiscard]] bool allowEndpointsOverride() const;
+        [[nodiscard]] std::chrono::seconds getDisableOnFailure() const;
+        [[nodiscard]] bool allowRunningServersAsRoot() const;
 
         std::optional<NodeSessionPrx> registerWithRegistry(const InternalRegistryPrx&);
         void checkConsistency(const NodeSessionPrx&);
@@ -170,6 +172,8 @@ namespace IceGrid
         const bool _redirectErrToOut{false};
         const bool _allowEndpointsOverride{false};
         const int _waitTime{0};
+        const std::chrono::seconds _disableOnFailure{0};
+        const bool _allowRunningServersAsRoot{false};
         const std::string _instanceName;
         const std::optional<UserAccountMapperPrx> _userAccountMapper;
         PlatformInfo _platform;

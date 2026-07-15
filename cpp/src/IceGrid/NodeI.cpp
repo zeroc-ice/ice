@@ -73,6 +73,10 @@ NodeI::NodeI(
     const_cast<string&>(_outputDir) = props->getIceProperty("IceGrid.Node.Output");
     const_cast<bool&>(_redirectErrToOut) = props->getIcePropertyAsInt("IceGrid.Node.RedirectErrToOut") > 0;
     const_cast<bool&>(_allowEndpointsOverride) = props->getIcePropertyAsInt("IceGrid.Node.AllowEndpointsOverride") > 0;
+    const_cast<chrono::seconds&>(_disableOnFailure) =
+        chrono::seconds(props->getIcePropertyAsInt("IceGrid.Node.DisableOnFailure"));
+    const_cast<bool&>(_allowRunningServersAsRoot) =
+        props->getIcePropertyAsInt("IceGrid.Node.AllowRunningServersAsRoot") > 0;
 
     //
     // Parse the properties override property.
@@ -335,6 +339,18 @@ bool
 NodeI::allowEndpointsOverride() const
 {
     return _allowEndpointsOverride;
+}
+
+chrono::seconds
+NodeI::getDisableOnFailure() const
+{
+    return _disableOnFailure;
+}
+
+bool
+NodeI::allowRunningServersAsRoot() const
+{
+    return _allowRunningServersAsRoot;
 }
 
 optional<NodeSessionPrx>
