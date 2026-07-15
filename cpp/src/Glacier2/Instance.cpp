@@ -10,19 +10,20 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-//
-// Parse a space delimited string into a sequence of strings.
-//
-
+// Parses a property whose value is a space delimited string sequence, and fails on an unmatched quote. We don't
+// use getIcePropertyAsList because it returns the default value on an unmatched quote instead of failing (it also
+// treats ',' as a delimiter, while these filter properties have always been space delimited).
 static vector<string>
-stringToStringSeq(const string& str)
+parseSpaceDelimitedProperty(const PropertiesPtr& properties, const char* propertyName)
 {
     vector<string> seq;
-    IceInternal::splitString(str, " \t", seq);
-
-    //
-    // TODO: do something about unmatched quotes
-    //
+    if (!IceInternal::splitString(properties->getIceProperty(propertyName), " \t", seq))
+    {
+        throw InitializationException(
+            __FILE__,
+            __LINE__,
+            "invalid '" + string{propertyName} + "' property: unmatched quote");
+    }
     return seq;
 }
 
@@ -52,11 +53,7 @@ stringToIdentitySeq(const string& str)
 
                     if (end == string::npos)
                     {
-                        //
-                        // TODO: should this be an unmatched quote error?
-                        //
-                        seq.push_back(stringToIdentity(str.substr(current)));
-                        break;
+                        throw invalid_argument("unmatched quote");
                     }
 
                     bool markString = true;
@@ -125,8 +122,8 @@ Glacier2::Instance::Instance(
       _serverAdapter(std::move(serverAdapter)),
       _proxyVerifier(make_shared<ProxyVerifier>(_communicator)),
       _routingTableMaxSize(_properties->getIcePropertyAsInt("Glacier2.RoutingTable.MaxSize")),
-      _filterCategories(stringToStringSeq(_properties->getIceProperty("Glacier2.Filter.Category.Accept"))),
-      _filterAdapterIds(stringToStringSeq(_properties->getIceProperty("Glacier2.Filter.AdapterId.Accept"))),
+      _filterCategories(parseSpaceDelimitedProperty(_properties, "Glacier2.Filter.Category.Accept")),
+      _filterAdapterIds(parseSpaceDelimitedProperty(_properties, "Glacier2.Filter.AdapterId.Accept")),
       _filterIdentities(parseFilterIdentities(_properties)),
       _filterAddUserMode(_properties->getIcePropertyAsInt("Glacier2.Filter.Category.AcceptUser"))
 {
@@ -136,6 +133,14 @@ Glacier2::Instance::Instance(
             __FILE__,
             __LINE__,
             "invalid value for Glacier2.RoutingTable.MaxSize: " + to_string(_routingTableMaxSize));
+    }
+
+    if (_filterAddUserMode < 0 || _filterAddUserMode > 2)
+    {
+        throw Ice::InitializationException(
+            __FILE__,
+            __LINE__,
+            "invalid value for Glacier2.Filter.Category.AcceptUser: " + to_string(_filterAddUserMode));
     }
 
     //
