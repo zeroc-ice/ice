@@ -30,8 +30,8 @@ open class Value {
 
     /// Gets the sliced data associated with this instance.
     ///
-    /// - Returns: The sliced data if the value has a preserved-slice base class and has been sliced during
-    /// unmarshaling of the value, `nil` otherwise.
+    /// - Returns: The sliced data if this value was sliced during unmarshaling, `nil` otherwise. Unknown slices
+    /// are preserved only when the sender uses the sliced format.
     open func ice_getSlicedData() -> SlicedData? {
         return slicedData
     }

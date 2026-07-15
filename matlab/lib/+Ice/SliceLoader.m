@@ -4,6 +4,8 @@ classdef (Abstract) SliceLoader < handle
     %   SliceLoader Methods:
     %     newInstance - Creates a class or exception instance from a Slice type ID.
 
+    % Copyright (c) ZeroC, Inc.
+
     methods (Abstract)
         %NEWINSTANCE Creates a class or exception instance from a Slice type ID.
         %
@@ -11,10 +13,10 @@ classdef (Abstract) SliceLoader < handle
         %     typeId - The Slice type ID or compact ID.
         %       character vector
         %
-        %    Output Arguments
-        %      r - The new class instance or exception instance, or an empty array if the implementation cannot find a
-        %        class or exception for typeId.
-        %        Ice.Value | Ice.UserException | empty array
+        %   Output Arguments
+        %     r - The new class instance or exception instance, or an empty array if the implementation cannot find a
+        %       class or exception for typeId.
+        %       Ice.Value | Ice.UserException | empty array
         r = newInstance(obj, typeId)
     end
 end

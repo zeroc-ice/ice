@@ -4,13 +4,15 @@
 #define ICESTORM_TRANSIENT_TOPIC_MANAGER_I_H
 
 #include "IceStormInternal.h"
+#include "Instrumentation.h"
 
 namespace IceStorm
 {
     class Instance;
     class TransientTopicImpl;
 
-    class TransientTopicManagerImpl final : public TopicManagerInternal
+    class TransientTopicManagerImpl final : public TopicManagerInternal,
+                                            public IceStorm::Instrumentation::ObserverUpdater
     {
     public:
         TransientTopicManagerImpl(std::shared_ptr<Instance>);
@@ -22,6 +24,10 @@ namespace IceStorm
 
         TopicDict retrieveAll(const Ice::Current&) final;
         [[nodiscard]] std::optional<IceStormElection::NodePrx> getReplicaNode(const Ice::Current&) const final;
+
+        // Observer methods.
+        void updateTopicObservers() override;
+        void updateSubscriberObservers() override;
 
         void reap();
         void shutdown();

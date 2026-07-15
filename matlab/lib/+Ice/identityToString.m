@@ -4,8 +4,8 @@ function r = identityToString(id, mode)
     %   Input Arguments
     %     id - The object identity to convert.
     %       Ice.Identity scalar
-    %     mode - Specifies how non-printable ASCII characters are escaped in the result. Defaults to
-    %       Ice.ToStringMode.Unicode.
+    %     mode - Specifies how to handle non-ASCII characters and non-printable ASCII characters in the result.
+    %       Defaults to Ice.ToStringMode.Unicode.
     %       Ice.ToStringMode scalar
     %
     %   Output Arguments

@@ -3,7 +3,7 @@ classdef (Sealed) TCPEndpointInfo < Ice.IPEndpointInfo
     %
     %   TCPEndpointInfo Methods:
     %     type - Returns the type of the endpoint.
-    %     secure - Returns true if this endpoint is a secure endpoint.
+    %     secure - Returns true if this endpoint's transport uses SSL.
 
     % Copyright (c) ZeroC, Inc.
 
@@ -17,10 +17,14 @@ classdef (Sealed) TCPEndpointInfo < Ice.IPEndpointInfo
     end
     methods
         function r = type(obj)
+            %TYPE Returns the type of the endpoint.
+
             r = obj.type_;
         end
 
         function r = secure(obj)
+            %SECURE Returns true if this endpoint's transport uses SSL.
+
             r = obj.secure_;
         end
     end

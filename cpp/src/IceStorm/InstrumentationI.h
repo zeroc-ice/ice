@@ -14,7 +14,7 @@ namespace IceStorm
     {
     public:
         void published() override;
-        void forwarded() override;
+        void forwarded(int count) override;
     };
 
     class SubscriberObserverI final : public IceStorm::Instrumentation::SubscriberObserver,

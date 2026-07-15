@@ -280,7 +280,7 @@ final class CommunicatorI: LocalObject<ICECommunicator>, Communicator, @unchecke
 }
 
 extension Communicator {
-    /// Initialize the configured plug-ins. The communicator automatically initializes
+    /// Initializes the configured plug-ins. The communicator automatically initializes
     /// the plug-ins by default, but an application may need to interact directly with
     /// a plug-in prior to initialization. In this case, the application must set
     /// `Ice.InitPlugins=0` and then invoke `initializePlugins` manually. The plug-ins are
@@ -288,8 +288,7 @@ extension Communicator {
     /// during initialization, the communicator invokes destroy on the plug-ins that have
     /// already been initialized.
     ///
-    /// - Throws: Raised if the plug-ins have already been
-    ///           initialized.
+    /// - Throws: ``InitializationException`` if the plug-ins have already been initialized.
     public func initializePlugins() throws {
         try autoreleasepool {
             try (self as! CommunicatorI).handle.initializePlugins()
