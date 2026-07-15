@@ -68,6 +68,10 @@ namespace Glacier2
                             throw invalid_argument("expected number");
                         }
                         r.end = value;
+                        if (r.end < r.start)
+                        {
+                            throw invalid_argument("range lower bound is greater than its upper bound");
+                        }
                         ws(istr);
                         if (!istr.eof())
                         {
@@ -489,7 +493,9 @@ namespace Glacier2
     }
 
     //
-    // A proxy validation rule encapsulating an address filter.
+    // A proxy validation rule encapsulating an address filter. An accept rule matches a proxy only when every
+    // endpoint matches it, while a reject rule matches a proxy as soon as one endpoint matches it
+    // (matchAnyEndpoint == true).
     //
     class AddressRule final : public Glacier2::ProxyRule
     {
@@ -498,11 +504,13 @@ namespace Glacier2
             CommunicatorPtr communicator,
             const vector<AddressMatcher*>& address,
             MatchesNumber* port,
-            const int traceLevel)
+            const int traceLevel,
+            bool matchAnyEndpoint)
             : _communicator(std::move(communicator)),
               _addressRules(address),
               _portMatcher(port),
-              _traceLevel(traceLevel)
+              _traceLevel(traceLevel),
+              _matchAnyEndpoint(matchAnyEndpoint)
         {
         }
 
@@ -522,40 +530,28 @@ namespace Glacier2
             {
                 return false;
             }
-            for (const auto& endpoint : endpoints)
+            if (_matchAnyEndpoint)
             {
-                string info = endpoint->toString();
-                string host;
-                if (!extractPart("-h ", info, host))
+                for (const auto& endpoint : endpoints)
                 {
-                    return false;
-                }
-                // Host names are case-insensitive; the rule was folded to lower case when parsed.
-                host = toLower(host);
-                string port;
-                if (!extractPart("-p ", info, port))
-                {
-                    return false;
-                }
-
-                string::size_type pos = 0;
-                if (_portMatcher && !_portMatcher->match(port, pos))
-                {
-                    if (_traceLevel >= 3)
+                    if (matchEndpoint(endpoint))
                     {
-                        Trace out(_communicator->getLogger(), "Glacier2");
-                        out << _portMatcher->toString() << " failed to match " << port << " at pos=" << pos << "\n";
+                        return true;
                     }
-                    return false;
                 }
-
-                if (!matchAddress(host, 0, 0))
-                {
-                    return false;
-                }
+                return false;
             }
-
-            return true;
+            else
+            {
+                for (const auto& endpoint : endpoints)
+                {
+                    if (!matchEndpoint(endpoint))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
         }
 
         void dump() const
@@ -573,12 +569,50 @@ namespace Glacier2
         }
 
     private:
+        // Matches the host and port of endpoint against this rule.
+        [[nodiscard]] bool matchEndpoint(const EndpointPtr& endpoint) const
+        {
+            string info = endpoint->toString();
+            string host;
+            if (!extractPart("-h ", info, host))
+            {
+                return false;
+            }
+            // Host names are case-insensitive; the rule was folded to lower case when parsed.
+            host = toLower(host);
+            string port;
+            if (!extractPart("-p ", info, port))
+            {
+                return false;
+            }
+
+            string::size_type pos = 0;
+            if (_portMatcher && !_portMatcher->match(port, pos))
+            {
+                if (_traceLevel >= 3)
+                {
+                    Trace out(_communicator->getLogger(), "Glacier2");
+                    out << _portMatcher->toString() << " failed to match " << port << " at pos=" << pos << "\n";
+                }
+                return false;
+            }
+
+            vector<bool> failed(_addressRules.size() * (host.size() + 1), false);
+            return matchAddress(host, 0, 0, failed);
+        }
+
         // Matches host against the matchers at position index and up, starting at position pos in host. The
         // matchers must match the remainder of the host in full. When they don't, this function retries the
         // matchers that can match at a later position (the matchers created for the portion of a rule that
-        // follows a wildcard) until every later alignment is exhausted.
-        [[nodiscard]] bool
-        matchAddress(const string& host, vector<AddressMatcher*>::size_type index, string::size_type pos) const
+        // follows a wildcard) until every later alignment is exhausted. The same (index, pos) state can be
+        // reached through many alignments of the preceding wildcards; failed is a matcher-count by
+        // (host length + 1) matrix that records failed states so each one is evaluated at most once, keeping
+        // the matching cost polynomial in the host length.
+        [[nodiscard]] bool matchAddress(
+            const string& host,
+            vector<AddressMatcher*>::size_type index,
+            string::size_type pos,
+            vector<bool>& failed) const
         {
             if (index == _addressRules.size())
             {
@@ -595,6 +629,12 @@ namespace Glacier2
                 return true;
             }
 
+            vector<bool>::size_type state = index * (host.size() + 1) + pos;
+            if (failed[state])
+            {
+                return false;
+            }
+
             AddressMatcher* rule = _addressRules[index];
             string::size_type next = pos;
             bool matched = rule->match(host, next);
@@ -605,7 +645,7 @@ namespace Glacier2
                     Trace out(_communicator->getLogger(), "Glacier2");
                     out << rule->toString() << " matched " << host << " at pos=" << next << "\n";
                 }
-                if (matchAddress(host, index + 1, next))
+                if (matchAddress(host, index + 1, next, failed))
                 {
                     return true;
                 }
@@ -617,6 +657,7 @@ namespace Glacier2
                 Trace out(_communicator->getLogger(), "Glacier2");
                 out << rule->toString() << " failed to match " << host << " at pos=" << pos << "\n";
             }
+            failed[state] = true;
             return false;
         }
 
@@ -624,13 +665,15 @@ namespace Glacier2
         vector<AddressMatcher*> _addressRules;
         MatchesNumber* _portMatcher;
         const int _traceLevel;
+        const bool _matchAnyEndpoint;
     };
 
     static void parseProperty(
         const shared_ptr<Ice::Communicator>& communicator,
         const string& property,
         vector<ProxyRule*>& rules,
-        const int traceLevel)
+        const int traceLevel,
+        bool matchAnyEndpoint)
     {
         StartFactory startsWithFactory;
         WildCardFactory wildCardFactory;
@@ -740,6 +783,10 @@ namespace Glacier2
                         }
                         else if (addr[current] == '[')
                         {
+                            if (inGroup)
+                            {
+                                throw invalid_argument("unexpected '[' in group");
+                            }
                             // ??? what does it mean if current == mark?
                             if (current != mark)
                             {
@@ -790,7 +837,8 @@ namespace Glacier2
                         currentRuleSet.push_back(new MatchesAny);
                     }
                 }
-                allRules.push_back(new AddressRule(communicator, currentRuleSet, portMatch, traceLevel));
+                allRules.push_back(
+                    new AddressRule(communicator, currentRuleSet, portMatch, traceLevel, matchAnyEndpoint));
             }
         }
         catch (...)
@@ -866,7 +914,8 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
     {
         try
         {
-            Glacier2::parseProperty(_communicator, s, _acceptRules, _traceLevel);
+            // An accept rule matches a proxy only when every endpoint matches it.
+            Glacier2::parseProperty(_communicator, s, _acceptRules, _traceLevel, false);
         }
         catch (const exception& ex)
         {
@@ -881,7 +930,8 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
     {
         try
         {
-            Glacier2::parseProperty(_communicator, s, _rejectRules, _traceLevel);
+            // A reject rule matches a proxy as soon as one endpoint matches it.
+            Glacier2::parseProperty(_communicator, s, _rejectRules, _traceLevel, true);
         }
         catch (const exception& ex)
         {

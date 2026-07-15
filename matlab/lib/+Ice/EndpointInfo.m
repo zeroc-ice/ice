@@ -7,8 +7,8 @@ classdef EndpointInfo
     %
     %   EndpointInfo Methods:
     %     type - Returns the type of the endpoint.
-    %     datagram - Returns true if this endpoint is a datagram endpoint.
-    %     secure - Returns true if this endpoint is a secure endpoint.
+    %     datagram - Returns true if this endpoint's transport is a datagram transport (namely, UDP).
+    %     secure - Returns true if this endpoint's transport uses SSL.
 
     % Copyright (c) ZeroC, Inc.
 
@@ -31,7 +31,7 @@ classdef EndpointInfo
         end
 
         function r = datagram(obj)
-            %DATAGRAM Returns true if this endpoint is a datagram endpoint.
+            %DATAGRAM Returns true if this endpoint's transport is a datagram transport (namely, UDP).
             %
             %   Output Arguments
             %     r - True for a datagram endpoint.
@@ -48,7 +48,7 @@ classdef EndpointInfo
         end
 
         function r = secure(obj)
-            %SECURE Returns true if this endpoint is a secure endpoint.
+            %SECURE Returns true if this endpoint's transport uses SSL.
             %
             %   Output Arguments
             %     r - True for a secure endpoint.

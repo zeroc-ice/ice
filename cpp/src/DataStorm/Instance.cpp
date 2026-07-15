@@ -66,10 +66,7 @@ namespace
     }
 }
 
-Instance::Instance(
-    CommunicatorPtr communicator,
-    function<void(function<void()> call)> customExecutor,
-    std::optional<Ice::SSL::ServerAuthenticationOptions> serverAuthenticationOptions)
+Instance::Instance(CommunicatorPtr communicator, function<void(function<void()> call)> customExecutor)
     : _communicator(std::move(communicator))
 {
     if (_communicator->getDefaultObjectAdapter())
@@ -94,6 +91,21 @@ Instance::Instance(
     _defaultWriterConfig.sampleCount = *_defaultReaderConfig.sampleCount;
     _defaultWriterConfig.sampleLifetime = *_defaultReaderConfig.sampleLifetime;
     _defaultWriterConfig.priority = properties->getIcePropertyAsInt("DataStorm.Topic.Priority");
+
+    _retryDelay = chrono::milliseconds(properties->getIcePropertyAsInt("DataStorm.Node.RetryDelay"));
+    _retryMultiplier = properties->getIcePropertyAsInt("DataStorm.Node.RetryMultiplier");
+    _retryCount = properties->getIcePropertyAsInt("DataStorm.Node.RetryCount");
+
+    _traceLevels = make_shared<TraceLevels>(properties, _communicator->getLogger());
+    _executor = make_shared<CallbackExecutor>(std::move(customExecutor));
+    _connectionManager = make_shared<ConnectionManager>(_executor);
+    _timer = make_shared<IceInternal::Timer>();
+}
+
+void
+Instance::init(std::optional<Ice::SSL::ServerAuthenticationOptions> serverAuthenticationOptions)
+{
+    PropertiesPtr properties = _communicator->getProperties();
 
     if (properties->getIcePropertyAsInt("DataStorm.Node.Server.Enabled") > 0)
     {
@@ -149,10 +161,6 @@ Instance::Instance(
         }
     }
 
-    _retryDelay = chrono::milliseconds(properties->getIcePropertyAsInt("DataStorm.Node.RetryDelay"));
-    _retryMultiplier = properties->getIcePropertyAsInt("DataStorm.Node.RetryMultiplier");
-    _retryCount = properties->getIcePropertyAsInt("DataStorm.Node.RetryCount");
-
     // A collocated adapter is used with a unique AdapterId to enable collocation with default servants. Proxies created
     // by this adapter will be indirect, and ObjectAdapter::isLocal will compare the adapter's AdapterId with the
     // reference's AdapterId to determine if a collocated call can be used.
@@ -165,15 +173,6 @@ Instance::Instance(
     _collocatedForwarder = make_shared<ForwarderManager>(_collocatedAdapter, "forwarders");
     _collocatedAdapter->addDefaultServant(_collocatedForwarder, "forwarders");
 
-    _executor = make_shared<CallbackExecutor>(std::move(customExecutor));
-    _connectionManager = make_shared<ConnectionManager>(_executor);
-    _timer = make_shared<IceInternal::Timer>();
-    _traceLevels = make_shared<TraceLevels>(properties, _communicator->getLogger());
-}
-
-void
-Instance::init()
-{
     auto self = shared_from_this();
 
     _topicFactory = make_shared<TopicFactoryI>(self);
@@ -268,8 +267,14 @@ Instance::destroy(bool ownsCommunicator)
     }
     else
     {
-        _adapter->destroy();
-        _collocatedAdapter->destroy();
+        if (_adapter)
+        {
+            _adapter->destroy();
+        }
+        if (_collocatedAdapter)
+        {
+            _collocatedAdapter->destroy();
+        }
         if (_multicastAdapter)
         {
             _multicastAdapter->destroy();
@@ -282,5 +287,8 @@ Instance::destroy(bool ownsCommunicator)
 
     _executor->destroy();
     _connectionManager->destroy();
-    _collocatedForwarder->destroy();
+    if (_collocatedForwarder)
+    {
+        _collocatedForwarder->destroy();
+    }
 }

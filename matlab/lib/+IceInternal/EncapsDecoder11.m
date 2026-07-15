@@ -255,7 +255,14 @@ classdef (Hidden) EncapsDecoder11 < IceInternal.EncapsDecoder
                 else
                     bytes = is.getBytes(start, is.getPos() - 1);
                 end
-                info = Ice.SliceInfo(current.typeId, current.compactId, bytes, hasOptionalMembers,...
+                % When the slice was decoded via a compact type ID, the type ID is empty; the compact ID is
+                % carried separately by SliceInfo.compactId (matches C++/Java/Python).
+                if current.compactId == -1
+                    sliceTypeId = current.typeId;
+                else
+                    sliceTypeId = '';
+                end
+                info = Ice.SliceInfo(sliceTypeId, current.compactId, bytes, hasOptionalMembers,...
                     bitand(current.sliceFlags, Protocol.FLAG_IS_LAST_SLICE) > 0);
 
                 current.slices{end + 1} = info;

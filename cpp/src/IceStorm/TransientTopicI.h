@@ -3,7 +3,9 @@
 #ifndef ICESTORM_TRANSIENT_TOPIC_I_H
 #define ICESTORM_TRANSIENT_TOPIC_I_H
 
+#include "Ice/ObserverHelper.h"
 #include "IceStormInternal.h"
+#include "Instrumentation.h"
 
 namespace IceStorm
 {
@@ -36,6 +38,9 @@ namespace IceStorm
         [[nodiscard]] Ice::Identity id() const;
         void publish(bool, const EventDataSeq&);
 
+        void updateObserver();
+        void updateSubscriberObservers();
+
         void shutdown();
 
     private:
@@ -61,6 +66,8 @@ namespace IceStorm
         std::vector<std::shared_ptr<Subscriber>> _subscribers;
 
         bool _destroyed{false}; // Has this Topic been destroyed?
+
+        IceInternal::ObserverHelperT<IceStorm::Instrumentation::TopicObserver> _observer;
 
         mutable std::mutex _mutex;
     };

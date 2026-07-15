@@ -1,5 +1,8 @@
 classdef LocalException < Ice.Exception
     %LOCALEXCEPTION Base class for all Ice exceptions not defined in Slice.
+    %   The identifier of an Ice.LocalException is 'Ice:<Name>Exception' (for example 'Ice:TimeoutException'). Ice
+    %   local exceptions that do not have a corresponding MATLAB class are reported as instances of this class; their
+    %   identifier carries the underlying exception name.
 
     % Copyright (c) ZeroC, Inc.
 

@@ -2,8 +2,8 @@ classdef (Sealed) SliceInfo < handle
     %SLICEINFO Encapsulates the details of a class slice with an unknown type.
     %
     %   SliceInfo Properties:
-    %     typeId - The Slice type ID for this slice.
-    %     compactId - The Slice compact type ID for this slice.
+    %     typeId - The Slice type ID for this slice. It's empty when compactId is set (compactId ~= -1).
+    %     compactId - The Slice compact type ID for this slice, or -1 if the slice has no compact ID.
     %     bytes - The encoded bytes for this slice.
     %     hasOptionalMembers - Whether or not the slice contains optional members.
     %     isLastSlice - Whether or not this is the last slice.
@@ -12,11 +12,11 @@ classdef (Sealed) SliceInfo < handle
     % Copyright (c) ZeroC, Inc.
 
     properties (SetAccess = immutable)
-        %TYPEID The Slice type ID for this slice.
+        %TYPEID The Slice type ID for this slice. It's empty when compactId is set (compactId ~= -1).
         %   character vector
         typeId (1, :) char
 
-        %COMPACTID The Slice compact type ID for this slice.
+        %COMPACTID The Slice compact type ID for this slice, or -1 if the slice has no compact ID.
         %   int32 scalar
         compactId (1, 1) int32
 

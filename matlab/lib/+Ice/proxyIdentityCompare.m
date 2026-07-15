@@ -9,8 +9,8 @@ function r = proxyIdentityCompare(lhs, rhs)
     %
     %   Output Arguments
     %     r - -1 if the identity in lhs compares less than the identity in rhs; 0 if the identities compare equal;
-    %       1, otherwise.
-    %       int32 scalar
+    %       1, otherwise. An empty proxy compares less than any non-empty proxy; two empty proxies compare equal.
+    %       double scalar
 
     % Copyright (c) ZeroC, Inc.
 
