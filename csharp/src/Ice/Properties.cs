@@ -181,7 +181,7 @@ public sealed class Properties
     /// not set, an empty list is returned. The strings in the list can contain whitespace and commas if they are
     /// enclosed in single or double quotes. If quotes are mismatched, an empty list is returned. Within single quotes
     /// or double quotes, you can escape the quote in question with a backslash, e.g. O'Reilly can be written as
-    /// O'Reilly, "O'Reilly" or 'O\'Reilly'.
+    /// "O'Reilly" or 'O\'Reilly'.
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value interpreted as a list of strings.</returns>
@@ -193,7 +193,7 @@ public sealed class Properties
     /// not set, its default list is returned. The strings in the list can contain whitespace and commas if they are
     /// enclosed in single or double quotes. If quotes are mismatched, the default list is returned. Within single
     /// quotes or double quotes, you can escape the quote in question with a backslash, e.g. O'Reilly can be written as
-    /// O'Reilly, "O'Reilly" or 'O\'Reilly'.
+    /// "O'Reilly" or 'O\'Reilly'.
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value interpreted as list of strings, or the default value.</returns>
@@ -210,7 +210,7 @@ public sealed class Properties
     /// not set, the default list is returned. The strings in the list can contain whitespace and commas if they are
     /// enclosed in single or double quotes. If quotes are mismatched, the default list is returned. Within single
     /// quotes or double quotes, you can escape the quote in question with a backslash, e.g. O'Reilly can be written as
-    /// O'Reilly, "O'Reilly" or 'O\'Reilly'.
+    /// "O'Reilly" or 'O\'Reilly'.
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <param name="value">The default value to use if the property is not set.</param>
