@@ -118,7 +118,7 @@ classdef Communicator < IceInternal.WrapperObject
             %
             %   Input Arguments
             %     str - The stringified proxy to convert into a proxy.
-            %       character vector | string scalar
+            %       character vector
             %
             %   Output Arguments
             %     r - The proxy, or an empty array if str is an empty string.

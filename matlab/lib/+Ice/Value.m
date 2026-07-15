@@ -7,7 +7,7 @@ classdef (Abstract) Value < matlab.mixin.Copyable
     %     ice_id - Gets the Slice type ID of the most-derived class supported by this object.
     %     ice_postUnmarshal - Ice invokes this method after unmarshaling the fields of this object.
     %     ice_preMarshal - Ice invokes this method prior to marshaling the fields of this object.
-    %     ice_staticId - Gets the Slice type ID of this type.
+    %     ice_staticId - Returns the Slice type ID associated with this type.
 
     % Copyright (c) ZeroC, Inc.
 
@@ -62,10 +62,10 @@ classdef (Abstract) Value < matlab.mixin.Copyable
     end
     methods (Static)
         function id = ice_staticId()
-            %ICE_STATICID Gets the Slice type ID of this type.
+            %ICE_STATICID Returns the Slice type ID associated with this type.
             %
             %   Output Arguments
-            %     id - The return value is always '::Ice::Object'.
+            %     id - The Slice type ID ('::Ice::Object').
             %       character vector
             id = '::Ice::Object';
         end

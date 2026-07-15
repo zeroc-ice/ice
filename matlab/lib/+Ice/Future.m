@@ -33,9 +33,8 @@ classdef Future < IceInternal.WrapperObject
         %   logical scalar
         Read (1, 1) logical = false
 
-        %STATE The current state of the future. Its initial value is 'running' and its final value is 'finished'.
-        %   The 'sent' state is only reported for twoway invocations; other futures transition directly from 'running'
-        %   to 'finished'.
+        %STATE The current state of the future. Its final value is 'finished'.
+        %   The 'sent' state is only reported for twoway invocations.
         %   'running' | 'sent' | 'finished'
         State (1, :) char = 'running'
     end

@@ -12,6 +12,8 @@ classdef ObjectPrx < IceInternal.WrapperObject
     %         character vector
     %
     %   ObjectPrx Methods:
+    %     checkedCast - Creates an Ice.ObjectPrx from an existing proxy after confirming the target object's type
+    %       via a remote invocation.
     %     disp - Displays this proxy as a string.
     %     eq - Compares this proxy with another ObjectPrx for equality.
     %     ice_adapterId - Returns a proxy that is identical to this proxy, except for the adapter ID.
@@ -69,11 +71,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
     %     ice_ping - Tests whether the target object of this proxy can be reached.
     %     ice_pingAsync - An asynchronous ice_ping.
     %     ice_router - Returns a proxy that is identical to this proxy, except for the router.
+    %     ice_staticId - Returns the Slice type ID associated with this type.
     %     ice_toString - Creates a stringified version of this proxy.
     %     ice_twoway - Returns a proxy that is identical to this proxy, but uses twoway invocations.
-    %     checkedCast - Creates an Ice.ObjectPrx from an existing proxy after confirming the target object's type
-    %       via a remote invocation.
-    %     ice_staticId - Returns the Slice type ID associated with this type.
     %     uncheckedCast - Creates a new Ice.ObjectPrx from an existing proxy without any validation.
 
     % Copyright (c) ZeroC, Inc.
