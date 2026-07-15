@@ -10,7 +10,7 @@ classdef RequestFailedException < Ice.DispatchException
 
     properties
         %ID The identity of the Ice Object to which the request was sent.
-        %   Ice.Identity scalar
+        %   Ice.Identity scalar (empty if not set)
         id (1, :) Ice.Identity = Ice.Identity.empty
 
         %FACET The facet to which the request was sent.

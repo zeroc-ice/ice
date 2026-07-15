@@ -15,10 +15,10 @@ classdef ImplicitContext < IceInternal.WrapperObject
     end
     methods
         function r = getContext(obj)
-            %GETCONTEXT Gets a copy of the underlying context.
+            %GETCONTEXT Gets a copy of the request context.
             %
             %   Output Arguments
-            %     r - A copy of the underlying context.
+            %     r - A copy of the request context.
             %       dictionary(string, string) scalar
 
             arguments
@@ -28,7 +28,7 @@ classdef ImplicitContext < IceInternal.WrapperObject
         end
 
         function setContext(obj, newContext)
-            %SETCONTEXT Sets the underlying context.
+            %SETCONTEXT Sets the request context.
             %
             %   Input Arguments
             %     newContext - The new context.
@@ -42,7 +42,7 @@ classdef ImplicitContext < IceInternal.WrapperObject
         end
 
         function r = containsKey(obj, key)
-            %CONTAINSKEY Checks if this key has an associated value in the underlying context.
+            %CONTAINSKEY Checks if this key has an associated value in the request context.
             %
             %   Input Arguments
             %     key - The key.
@@ -60,7 +60,7 @@ classdef ImplicitContext < IceInternal.WrapperObject
         end
 
         function r = get(obj, key)
-            %GET Gets the value associated with the given key in the underlying context. Returns an empty string if no
+            %GET Gets the value associated with the given key in the request context. Returns an empty string if no
             %   value is associated with the key.
             %
             %   See also containsKey.
@@ -81,7 +81,7 @@ classdef ImplicitContext < IceInternal.WrapperObject
         end
 
         function r = put(obj, key, value)
-            %PUT Creates or updates a key/value entry in the underlying context.
+            %PUT Creates or updates a key/value entry in the request context.
             %
             %   Input Arguments
             %     key - The key.
@@ -102,7 +102,7 @@ classdef ImplicitContext < IceInternal.WrapperObject
         end
 
         function r = remove(obj, key)
-            %REMOVE Removes the entry for the given key in the underlying context. Returns an empty array if there is
+            %REMOVE Removes the entry for the given key in the request context. Returns an empty string if there is
             %   no entry for the key.
             %
             %   Input Arguments

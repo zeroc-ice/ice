@@ -1,7 +1,7 @@
 classdef Properties < IceInternal.WrapperObject
     %PROPERTIES Represents a set of properties used to configure Ice and Ice-based applications.
     %   A property is a key/value pair, where both the key and the value are strings. By convention, property keys
-    %   should have the form `application-name>[.category[.sub-category]].name`.
+    %   should have the form `application-name[.category[.sub-category]].name`.
     %
     %   Ice.Properties Methods:
     %     Properties - Constructs a new property set.
@@ -35,10 +35,13 @@ classdef Properties < IceInternal.WrapperObject
             %     [properties, remArgs] = Ice.Properties(args, defaults)
             %
             %   Input Arguments
-            %     args - A command-line argument vector, possibly containing options to set properties. If the
-            %       command-line options include an --Ice.Config option, the corresponding configuration file is parsed.
-            %       If the same property is set in a configuration file and in the argument vector, the argument vector
-            %       takes precedence.
+            %     args - The command-line arguments. The constructor parses arguments starting with -- and one of the
+            %       reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with
+            %       --Ice.Config, the constructor loads the specified configuration file. When the same property is
+            %       set in a configuration file and through a command-line argument, the command-line setting takes
+            %       precedence. When there is no --Ice.Config argument and Ice.Config is not already set (for example
+            %       via defaults), the constructor loads the configuration files specified by the ICE_CONFIG
+            %       environment variable.
             %       empty string array (default) | string array | cell array of character vectors
             %     defaults - A property set used to initialize the default state of the new property set. Settings in
             %       configuration files and the argument vector override these defaults.
@@ -91,6 +94,8 @@ classdef Properties < IceInternal.WrapperObject
         function r = getIceProperty(obj, key)
             %GETICEPROPERTY Gets an Ice property by key. If the property is not set, its default value is returned.
             %
+            %   Throws an Ice.PropertyException if the property is not a known Ice property.
+            %
             %   Input Arguments
             %     key - The property key.
             %       character vector
@@ -131,6 +136,8 @@ classdef Properties < IceInternal.WrapperObject
         function r = getPropertyAsInt(obj, key)
             %GETPROPERTYASINT Gets a property as an integer. If the property is not set, 0 is returned.
             %
+            %   Throws an Ice.PropertyException if the property value is not a valid integer.
+            %
             %   Input Arguments
             %     key - The property key.
             %       character vector
@@ -152,6 +159,9 @@ classdef Properties < IceInternal.WrapperObject
             %GETICEPROPERTYASINT Gets an Ice property as an integer. If the property is not set, its default value is
             %   returned.
             %
+            %   Throws an Ice.PropertyException if the property is not a known Ice property or the value is not a
+            %   valid integer.
+            %
             %   Input Arguments
             %     key - The property key.
             %       character vector
@@ -171,6 +181,8 @@ classdef Properties < IceInternal.WrapperObject
         function r = getPropertyAsIntWithDefault(obj, key, def)
             %GETPROPERTYASINTWITHDEFAULT Gets a property as an integer. If the property is not set, the given default
             %   value is returned.
+            %
+            %   Throws an Ice.PropertyException if the property value is not a valid integer.
             %
             %   Input Arguments
             %     key - The property key.
@@ -217,11 +229,13 @@ classdef Properties < IceInternal.WrapperObject
 
         function r = getIcePropertyAsList(obj, key)
             %GETICEPROPERTYASLIST Gets an Ice property as a list of strings.
-             %  The strings must be separated by whitespace or comma. If the property is not set, an empty list is
+            %   The strings must be separated by whitespace or comma. If the property is not set, its default list is
             %   returned. The strings in the list can contain whitespace and commas if they are enclosed in single or
-            %   double quotes. If quotes are mismatched, an empty list is returned. Within single quotes or double
+            %   double quotes. If quotes are mismatched, the default list is returned. Within single quotes or double
             %   quotes, you can escape the quote in question with \, e.g. O'Reilly can be written as O'Reilly,
             %   "O'Reilly" or 'O\'Reilly'.
+            %
+            %   Throws an Ice.PropertyException if the property is not a known Ice property.
             %
             %   Input Arguments
             %     key - The property key.
@@ -242,7 +256,7 @@ classdef Properties < IceInternal.WrapperObject
             %GETPROPERTYASLISTWITHDEFAULT Gets a property as a list of strings.
             %   The strings must be separated by whitespace or comma. If the property is not set, the default value is
             %   returned. The strings in the list can contain whitespace and commas if they are enclosed in single or
-            %   double quotes. If quotes are mismatched, an empty list is returned. Within single quotes or double
+            %   double quotes. If quotes are mismatched, the default list is returned. Within single quotes or double
             %   quotes, you can escape the quote in question with \, e.g. O'Reilly can be written as O'Reilly,
             %   "O'Reilly" or 'O\'Reilly'.
             %
@@ -265,7 +279,7 @@ classdef Properties < IceInternal.WrapperObject
         end
 
         function r = getPropertiesForPrefix(obj, prefix)
-            %GETPROPERTIESFORPREFIX Gets all properties whose keys begins with prefix. If prefix is an empty string,
+            %GETPROPERTIESFORPREFIX Gets all properties whose keys begin with prefix. If prefix is an empty string,
             %   then all properties are returned.
             %
             %   Input Arguments
@@ -350,15 +364,15 @@ classdef Properties < IceInternal.WrapperObject
 
         function r = parseIceCommandLineOptions(obj, options)
             %PARSEICECOMMANDLINEOPTIONS Converts a sequence of command-line options into properties. All options that
-            %   begin with one of the following prefixes are converted into properties: "--Ice", "--IceBox",
-            %   "--IceGrid", "--IceSSL", "--IceStorm", and "--Glacier2".
+            %   start with one of the reserved Ice prefixes (--Ice, --IceSSL, etc.) are converted into properties.
             %
             %   Input Arguments
             %     options - The command-line options.
             %       string array | cell array of character vectors
             %
             %   Output Arguments
-            %     r - The command-line options that do not start with one of the listed prefixes, in their original order.
+            %     r - The command-line options that do not start with one of the reserved prefixes, in their original
+            %       order.
             %       string array
 
             arguments
