@@ -20,6 +20,8 @@ classdef (Sealed) OpaqueEndpointInfo < Ice.EndpointInfo
     end
     methods
         function r = type(obj)
+            %TYPE Returns the type of the endpoint.
+
             r = obj.type_;
         end
     end

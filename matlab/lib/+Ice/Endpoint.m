@@ -19,7 +19,10 @@ classdef Endpoint < IceInternal.WrapperObject
         function r = eq(obj, other)
             %EQ Compares this Endpoint with another Endpoint for equality.
             %
-            %   See also eq.
+            %   Output Arguments
+            %     r - True if both objects refer to the same endpoint, false otherwise.
+            %       logical scalar
+
             if isempty(other) || ~isa(other, 'Ice.Endpoint')
                 r = false;
             else
@@ -34,7 +37,7 @@ classdef Endpoint < IceInternal.WrapperObject
             %TOSTRING Returns a string representation of the endpoint.
             %
             %   Output Arguments
-            %     The string representation of the endpoint.
+            %     r - The string representation of the endpoint.
             %       character vector
 
             arguments

@@ -67,6 +67,10 @@ namespace Glacier2
                             throw invalid_argument("expected number");
                         }
                         r.end = value;
+                        if (r.end < r.start)
+                        {
+                            throw invalid_argument("range lower bound is greater than its upper bound");
+                        }
                         ws(istr);
                         if (!istr.eof())
                         {
@@ -546,7 +550,8 @@ namespace Glacier2
                     return false;
                 }
 
-                if (!matchAddress(host, 0, 0))
+                vector<bool> failed(_addressRules.size() * (host.size() + 1), false);
+                if (!matchAddress(host, 0, 0, failed))
                 {
                     return false;
                 }
@@ -573,9 +578,15 @@ namespace Glacier2
         // Matches host against the matchers at position index and up, starting at position pos in host. The
         // matchers must match the remainder of the host in full. When they don't, this function retries the
         // matchers that can match at a later position (the matchers created for the portion of a rule that
-        // follows a wildcard) until every later alignment is exhausted.
-        [[nodiscard]] bool
-        matchAddress(const string& host, vector<AddressMatcher*>::size_type index, string::size_type pos) const
+        // follows a wildcard) until every later alignment is exhausted. The same (index, pos) state can be
+        // reached through many alignments of the preceding wildcards; failed is a matcher-count by
+        // (host length + 1) matrix that records failed states so each one is evaluated at most once, keeping
+        // the matching cost polynomial in the host length.
+        [[nodiscard]] bool matchAddress(
+            const string& host,
+            vector<AddressMatcher*>::size_type index,
+            string::size_type pos,
+            vector<bool>& failed) const
         {
             if (index == _addressRules.size())
             {
@@ -592,6 +603,12 @@ namespace Glacier2
                 return true;
             }
 
+            vector<bool>::size_type state = index * (host.size() + 1) + pos;
+            if (failed[state])
+            {
+                return false;
+            }
+
             AddressMatcher* rule = _addressRules[index];
             string::size_type next = pos;
             bool matched = rule->match(host, next);
@@ -602,7 +619,7 @@ namespace Glacier2
                     Trace out(_communicator->getLogger(), "Glacier2");
                     out << rule->toString() << " matched " << host << " at pos=" << next << "\n";
                 }
-                if (matchAddress(host, index + 1, next))
+                if (matchAddress(host, index + 1, next, failed))
                 {
                     return true;
                 }
@@ -614,6 +631,7 @@ namespace Glacier2
                 Trace out(_communicator->getLogger(), "Glacier2");
                 out << rule->toString() << " failed to match " << host << " at pos=" << pos << "\n";
             }
+            failed[state] = true;
             return false;
         }
 
@@ -733,6 +751,10 @@ namespace Glacier2
                         }
                         else if (addr[current] == '[')
                         {
+                            if (inGroup)
+                            {
+                                throw invalid_argument("unexpected '[' in group");
+                            }
                             // ??? what does it mean if current == mark?
                             if (current != mark)
                             {

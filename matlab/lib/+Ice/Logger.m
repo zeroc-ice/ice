@@ -2,9 +2,9 @@ classdef Logger < IceInternal.WrapperObject
     %LOGGER Represents Ice's abstraction for logging and tracing.
     %
     %   Logger Methods:
-    %     cloneWithPrefix - Creates a new logger with a different prefix.
+    %     cloneWithPrefix - Returns a clone of the logger with a new prefix.
     %     error - Logs an error message.
-    %     getPrefix - Gets the prefix for this logger.
+    %     getPrefix - Returns this logger's prefix.
     %     print - Prints a message.
     %     trace - Logs a trace message.
     %     warning - Logs a warning message.
@@ -20,7 +20,7 @@ classdef Logger < IceInternal.WrapperObject
     methods
         function print(obj, message)
             %PRINT Prints a message. The message is printed literally, without any decorations such as executable name
-            %   or time stamp.
+            %   or timestamp.
             %
             %   Input Arguments
             %     message - The message to log.

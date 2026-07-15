@@ -368,6 +368,17 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                     [],
                 ),
                 (
+                    # A rule with many wildcard segments stays fast even when every alignment of the wildcards
+                    # has to be tried before concluding that the host does not match.
+                    "testing address filter with many wildcard segments",
+                    ("*aa*aa*aa*aa*aa*aa*aab *7.*.1", "", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h " + "a" * 255 + " -p 12010"),
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
                     # A proxy with an endpoint host longer than 255 characters is rejected outright, even when
                     # no reject rule matches it: no legal host name or IP address is that long.
                     "testing address filter rejects an oversized host",

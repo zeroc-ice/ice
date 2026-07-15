@@ -9,8 +9,9 @@ function r = proxyIdentityAndFacetCompare(lhs, rhs)
     %
     %   Output Arguments
     %     r - -1 if the identity and facet in lhs compares less than the identity and facet in rhs; 0 if the
-    %       identities and facets compare equal; 1, otherwise.
-    %       int32 scalar
+    %       identities and facets compare equal; 1, otherwise. An empty proxy compares less than any non-empty
+    %       proxy; two empty proxies compare equal.
+    %       double scalar
 
     % Copyright (c) ZeroC, Inc.
 
