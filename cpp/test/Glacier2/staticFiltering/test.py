@@ -368,6 +368,17 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                     [],
                 ),
                 (
+                    # A rule with many wildcard segments stays fast even when every alignment of the wildcards
+                    # has to be tried before concluding that the host does not match.
+                    "testing address filter with many wildcard segments",
+                    ("*aa*aa*aa*aa*aa*aa*aab *7.*.1", "", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h " + "a" * 255 + " -p 12010"),
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
                     # A reject rule matches a proxy as soon as one of its endpoints matches: extra endpoints
                     # that do not match the rule do not get the proxy accepted.
                     "testing address filter reject rule against a multi-endpoint proxy",

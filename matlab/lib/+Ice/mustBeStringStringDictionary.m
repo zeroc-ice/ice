@@ -1,5 +1,5 @@
 function mustBeStringStringDictionary(dict)
-    %MUSTBESTRINGSTRINGDICTIONARY Verify dict is a string-string dictionary.
+    %MUSTBESTRINGSTRINGDICTIONARY Verifies that dict is a string-to-string dictionary.
     %
     %   Input Arguments
     %     dict - The dictionary to check.

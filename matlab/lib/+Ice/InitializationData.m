@@ -10,14 +10,23 @@ classdef (Sealed) InitializationData
     % Copyright (c) ZeroC, Inc.
 
     properties
-        Properties (1, 1) Ice.Properties = Ice.Properties() % The properties of the communicator.
-        SliceLoader (1, 1) Ice.SliceLoader = IceInternal.DefaultSliceLoader.Instance % The Slice loader.
+        %PROPERTIES The properties of the communicator.
+        %   Ice.Properties scalar
+        Properties (1, 1) Ice.Properties = Ice.Properties()
+
+        %SLICELOADER The Slice loader, used to unmarshal Slice classes and exceptions.
+        %   Ice.SliceLoader scalar
+        SliceLoader (1, 1) Ice.SliceLoader = IceInternal.DefaultSliceLoader.Instance
     end
     properties (Dependent, Hidden)
         properties_ (1, 1) Ice.Properties % Deprecated: Use Properties instead.
     end
     methods
         function obj = InitializationData(options)
+            %INITIALIZATIONDATA Constructs an InitializationData from name-value arguments.
+            %
+            %   Examples
+            %     initData = Ice.InitializationData(Properties = props);
             arguments
                 options.?Ice.InitializationData
             end

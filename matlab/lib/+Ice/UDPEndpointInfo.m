@@ -7,7 +7,7 @@ classdef (Sealed) UDPEndpointInfo < Ice.IPEndpointInfo
     %
     %   UDPEndpointInfo Methods:
     %     type - Returns the type of the endpoint.
-    %     datagram - Returns true if this endpoint is a datagram endpoint.
+    %     datagram - Returns true if this endpoint's transport is a datagram transport (namely, UDP).
 
     % Copyright (c) ZeroC, Inc.
 
@@ -21,10 +21,14 @@ classdef (Sealed) UDPEndpointInfo < Ice.IPEndpointInfo
     end
     methods
         function r = type(~)
+            %TYPE Returns the type of the endpoint.
+
             r = Ice.UDPEndpointType.value;
         end
 
         function r = datagram(~)
+            %DATAGRAM Returns true if this endpoint's transport is a datagram transport (namely, UDP).
+
             r = true;
         end
     end
