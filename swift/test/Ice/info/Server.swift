@@ -9,9 +9,7 @@ class Server: TestHelperI, @unchecked Sendable {
         let properties = try createTestProperties(args)
         // Accept SSL clients that don't present a certificate.
         properties.setProperty(key: "IceSSL.VerifyPeer", value: "1")
-        var initData = Ice.InitializationData()
-        initData.properties = properties
-        let communicator = try initialize(initData)
+        let communicator = try initialize(properties)
         defer {
             communicator.destroy()
         }
