@@ -19,6 +19,10 @@ Timer::destroy()
     {
         throw std::runtime_error("a timer task cannot destroy the timer");
     }
+    // Destroy the tasks after the lock is released and the worker joined: a task's destructor can re-enter the timer
+    // via cancel() (e.g. when it holds the last reference to a connection), which would deadlock while _mutex is held.
+    std::set<Token> tokens;
+    std::map<TimerTaskPtr, std::chrono::steady_clock::time_point> tasks;
     {
         std::lock_guard lock(_mutex);
         if (_destroyed)
@@ -26,8 +30,8 @@ Timer::destroy()
             return;
         }
         _destroyed = true;
-        _tasks.clear();
-        _tokens.clear();
+        tokens.swap(_tokens);
+        tasks.swap(_tasks);
         _condition.notify_one();
     }
     _worker.join();
