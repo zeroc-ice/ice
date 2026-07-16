@@ -26,7 +26,7 @@ namespace Glacier2
     class ProxyVerifier final
     {
     public:
-        ProxyVerifier(Ice::CommunicatorPtr);
+        ProxyVerifier(Ice::CommunicatorPtr, int traceLevel);
         ~ProxyVerifier();
 
         //

@@ -120,8 +120,15 @@ Glacier2::Instance::Instance(
       _logger(_communicator->getLogger()),
       _clientAdapter(std::move(clientAdapter)),
       _serverAdapter(std::move(serverAdapter)),
-      _proxyVerifier(make_shared<ProxyVerifier>(_communicator)),
       _routingTableMaxSize(_properties->getIcePropertyAsInt("Glacier2.RoutingTable.MaxSize")),
+      _routingTableTraceLevel(_properties->getIcePropertyAsInt("Glacier2.Trace.RoutingTable")),
+      _clientForwardContext(_properties->getIcePropertyAsInt("Glacier2.Client.ForwardContext") > 0),
+      _serverForwardContext(_properties->getIcePropertyAsInt("Glacier2.Server.ForwardContext") > 0),
+      _clientRequestTraceLevel(_properties->getIcePropertyAsInt("Glacier2.Client.Trace.Request")),
+      _serverRequestTraceLevel(_properties->getIcePropertyAsInt("Glacier2.Server.Trace.Request")),
+      _clientRejectTraceLevel(_properties->getIcePropertyAsInt("Glacier2.Client.Trace.Reject")),
+      _addConnectionContext(_properties->getIcePropertyAsInt("Glacier2.AddConnectionContext")),
+      _proxyVerifier(make_shared<ProxyVerifier>(_communicator, _clientRejectTraceLevel)),
       _filterCategories(parseSpaceDelimitedProperty(_properties, "Glacier2.Filter.Category.Accept")),
       _filterAdapterIds(parseSpaceDelimitedProperty(_properties, "Glacier2.Filter.AdapterId.Accept")),
       _filterIdentities(parseFilterIdentities(_properties)),
@@ -141,6 +148,14 @@ Glacier2::Instance::Instance(
             __FILE__,
             __LINE__,
             "invalid value for Glacier2.Filter.Category.AcceptUser: " + to_string(_filterAddUserMode));
+    }
+
+    if (_addConnectionContext < 0 || _addConnectionContext > 2)
+    {
+        throw Ice::InitializationException(
+            __FILE__,
+            __LINE__,
+            "invalid value for Glacier2.AddConnectionContext: " + to_string(_addConnectionContext));
     }
 
     //

@@ -7,9 +7,13 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::RoutingTable::RoutingTable(CommunicatorPtr communicator, shared_ptr<ProxyVerifier> verifier, int maxSize)
+Glacier2::RoutingTable::RoutingTable(
+    CommunicatorPtr communicator,
+    shared_ptr<ProxyVerifier> verifier,
+    int maxSize,
+    int traceLevel)
     : _communicator(std::move(communicator)),
-      _traceLevel(_communicator->getProperties()->getIcePropertyAsInt("Glacier2.Trace.RoutingTable")),
+      _traceLevel(traceLevel),
       _maxSize(maxSize),
       _verifier(std::move(verifier))
 {
