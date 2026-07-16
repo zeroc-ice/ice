@@ -30,6 +30,13 @@ namespace Glacier2
         [[nodiscard]] std::shared_ptr<ProxyVerifier> proxyVerifier() const { return _proxyVerifier; }
         [[nodiscard]] std::shared_ptr<SessionRouterI> sessionRouter() const { return _sessionRouter; }
         [[nodiscard]] int routingTableMaxSize() const { return _routingTableMaxSize; }
+        [[nodiscard]] int routingTableTraceLevel() const { return _routingTableTraceLevel; }
+        [[nodiscard]] bool clientForwardContext() const { return _clientForwardContext; }
+        [[nodiscard]] bool serverForwardContext() const { return _serverForwardContext; }
+        [[nodiscard]] int clientRequestTraceLevel() const { return _clientRequestTraceLevel; }
+        [[nodiscard]] int serverRequestTraceLevel() const { return _serverRequestTraceLevel; }
+        [[nodiscard]] int clientRejectTraceLevel() const { return _clientRejectTraceLevel; }
+        [[nodiscard]] int addConnectionContext() const { return _addConnectionContext; }
 
         // The session filter configuration, parsed from the Glacier2.Filter.* properties. Each session
         // seeds its own filters from these values.
@@ -55,6 +62,13 @@ namespace Glacier2
         const Ice::ObjectAdapterPtr _serverAdapter;
         const std::shared_ptr<ProxyVerifier> _proxyVerifier;
         const int _routingTableMaxSize;
+        const int _routingTableTraceLevel;
+        const bool _clientForwardContext;
+        const bool _serverForwardContext;
+        const int _clientRequestTraceLevel;
+        const int _serverRequestTraceLevel;
+        const int _clientRejectTraceLevel;
+        const int _addConnectionContext;
         const std::vector<std::string> _filterCategories;
         const std::vector<std::string> _filterAdapterIds;
         const std::vector<Ice::Identity> _filterIdentities;
