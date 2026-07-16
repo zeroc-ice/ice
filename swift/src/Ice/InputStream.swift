@@ -48,11 +48,12 @@ public final class InputStream {
         acceptClassCycles = (communicator as! CommunicatorI).acceptClassCycles
     }
 
-    /// Reads an encapsulation from the stream. The stream position is not advanced past the encapsulation; the
-    /// returned data includes the 6-byte encapsulation header.
+    /// Reads an encapsulation from the stream and advances the stream position past it. The returned data is a copy
+    /// that includes the 6-byte encapsulation header.
     ///
     /// - Returns: The encapsulation.
     public func readEncapsulation() throws -> (bytes: Data, encoding: EncodingVersion) {
+        let start = pos
         let sz: Int32 = try read()
         if sz < 6 {
             throw MarshalException(endOfBufferMessage)
@@ -63,9 +64,10 @@ public final class InputStream {
         }
 
         let encoding: EncodingVersion = try read()
-        try changePos(offset: -6)
+        // Advance past the remainder of the encapsulation (we've already read its 6-byte header).
+        try changePos(offset: Int(sz) - 6)
 
-        let bytes = data[pos..<pos + Int(sz)]
+        let bytes = Data(data[start..<start + Int(sz)])
         return (bytes, encoding)
     }
 
