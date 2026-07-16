@@ -259,12 +259,15 @@ namespace Ice
         /// are ignored.
         /// @param compress Specifies whether or not the queued batch requests should be compressed before being sent
         /// over the wire.
-        /// @param exception The exception callback. The Ice runtime always calls this function from an Ice thread
-        /// pool thread.
+        /// @param exception The exception callback. The Ice runtime calls this function from an Ice thread pool
+        /// thread. If you set InitializationData::executor, the executor determines the thread that executes this
+        /// function.
         /// @param sent The sent callback. The Ice runtime calls this function when all the batch requests have been
         /// accepted by the transport. When the batch requests are accepted synchronously, the Ice runtime calls this
         /// function from the current thread and passes `true` as argument. Otherwise, the Ice runtime calls this
-        /// function from an Ice thread pool thread and passes `false` as argument.
+        /// function from an Ice thread pool thread and passes `false` as argument. If you set
+        /// InitializationData::executor, the executor determines the thread that executes this function in the
+        /// asynchronous case.
         /// @return A function that can be called to cancel the flush.
         std::function<void()> flushBatchRequestsAsync(
             CompressBatch compress,

@@ -1537,22 +1537,31 @@ Slice::ProxyVisitor::visitOperation(const OperationPtr& p)
         {
             postParams.push_back(
                 "@param " + responseParam +
-                " The response callback. The Ice runtime always calls this function from an Ice thread pool");
-            postParams.emplace_back("thread. It accepts:");
+                " The response callback. The Ice runtime calls this function from an Ice thread pool");
+            postParams.emplace_back(
+                "thread. If you set Ice::InitializationData::executor, the executor determines the thread that "
+                "executes this");
+            postParams.emplace_back("function. It accepts:");
             postParams.splice(postParams.end(), createOpOutParamsDoc(p, *comment));
         }
         else
         {
             postParams.push_back(
                 "@param " + responseParam +
-                " The response callback. The Ice runtime always calls this function from an Ice thread pool");
-            postParams.emplace_back("thread.");
+                " The response callback. The Ice runtime calls this function from an Ice thread pool");
+            postParams.emplace_back(
+                "thread. If you set Ice::InitializationData::executor, the executor determines the thread that "
+                "executes this");
+            postParams.emplace_back("function.");
         }
 
         postParams.push_back(
             "@param " + exceptionParam +
-            " The exception callback. The Ice runtime always calls this function from an Ice thread pool");
-        postParams.emplace_back("thread.");
+            " The exception callback. The Ice runtime calls this function from an Ice thread pool");
+        postParams.emplace_back(
+            "thread. If you set Ice::InitializationData::executor, the executor determines the thread that "
+            "executes this");
+        postParams.emplace_back("function.");
         postParams.push_back(
             "@param " + sentParam +
             " The sent callback. The Ice runtime calls this function when the request is accepted by the");
@@ -1562,12 +1571,24 @@ Slice::ProxyVisitor::visitOperation(const OperationPtr& p)
         postParams.emplace_back(
             "thread and passes `true` as argument. When the request is accepted asynchronously, the Ice runtime "
             "calls");
-        postParams.emplace_back("this function from an Ice thread pool thread and passes `false` as argument.");
+        postParams.emplace_back(
+            "this function from an Ice thread pool thread and passes `false` as argument. If you set");
+        postParams.emplace_back(
+            "Ice::InitializationData::executor, the executor determines the thread that executes this function in "
+            "the");
+        postParams.emplace_back("asynchronous case.");
         postParams.push_back(contextDoc);
 
         StringList returns;
         returns.emplace_back("A function that can be called to cancel the invocation locally.");
         writeOpDocSummary(H, p, *comment, OpDocInParams, false, {}, StringList{}, postParams, returns);
+        if (!p->returnsData())
+        {
+            H << nl
+              << "/// @remark When this proxy is a batch proxy, this function only adds the request to the "
+                 "batch: the Ice";
+            H << nl << "/// runtime calls none of the callbacks, and the request is sent later, by a flush.";
+        }
     }
     H << nl << "// NOLINTNEXTLINE(modernize-use-nodiscard)";
     H << nl << deprecatedAttribute << "std::function<void()> " << opName << "Async" << spar;
