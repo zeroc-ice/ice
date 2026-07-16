@@ -15,8 +15,8 @@ class UnknownSlicedValue(Value):
     Attributes
     ----------
     unknownTypeId : str
-        The Slice type ID of the unknown value; empty when the most-derived slice was marshaled with a compact
-        type ID.
+        The Slice type ID of the unknown value, or the string form of the compact type ID (for example, ``"1"``)
+        when the most-derived slice was marshaled with a compact type ID.
     """
 
     _ice_type = None  # Will be set after class definition
@@ -29,7 +29,8 @@ class UnknownSlicedValue(Value):
         Returns
         -------
         str
-            The Slice type ID of the unknown value.
+            The Slice type ID of the unknown value, or the string form of the compact type ID (for example,
+            ``"1"``) when the most-derived slice was marshaled with a compact type ID.
         """
         return self.unknownTypeId
 

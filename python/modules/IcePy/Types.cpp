@@ -3011,7 +3011,9 @@ IcePy::ValueReader::_iceRead(Ice::InputStream* is)
         {
             assert(!_slicedData->slices.empty());
 
-            PyObjectHandle typeId{createString(_slicedData->slices[0]->typeId)};
+            const Ice::SliceInfoPtr& sliceInfo = _slicedData->slices[0];
+            PyObjectHandle typeId{
+                createString(sliceInfo->typeId.empty() ? std::to_string(sliceInfo->compactId) : sliceInfo->typeId)};
             if (!typeId.get() || PyObject_SetAttrString(_object.get(), "unknownTypeId", typeId.get()) < 0)
             {
                 assert(PyErr_Occurred());
