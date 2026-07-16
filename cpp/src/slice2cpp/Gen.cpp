@@ -1535,16 +1535,34 @@ Slice::ProxyVisitor::visitOperation(const OperationPtr& p)
         StringList postParams;
         if (!lambdaOutParams.empty())
         {
-            postParams.push_back("@param " + responseParam + " The response callback. It accepts:");
+            postParams.push_back(
+                "@param " + responseParam +
+                " The response callback. The Ice runtime always calls this function from an Ice thread pool");
+            postParams.emplace_back("thread. It accepts:");
             postParams.splice(postParams.end(), createOpOutParamsDoc(p, *comment));
         }
         else
         {
-            postParams.push_back("@param " + responseParam + " The response callback.");
+            postParams.push_back(
+                "@param " + responseParam +
+                " The response callback. The Ice runtime always calls this function from an Ice thread pool");
+            postParams.emplace_back("thread.");
         }
 
-        postParams.push_back("@param " + exceptionParam + " The exception callback.");
-        postParams.push_back("@param " + sentParam + " The sent callback.");
+        postParams.push_back(
+            "@param " + exceptionParam +
+            " The exception callback. The Ice runtime always calls this function from an Ice thread pool");
+        postParams.emplace_back("thread.");
+        postParams.push_back(
+            "@param " + sentParam +
+            " The sent callback. The Ice runtime calls this function when the request is accepted by the");
+        postParams.emplace_back(
+            "transport. When the request is accepted synchronously, the Ice runtime calls this function from the "
+            "current");
+        postParams.emplace_back(
+            "thread and passes `true` as argument. When the request is accepted asynchronously, the Ice runtime "
+            "calls");
+        postParams.emplace_back("this function from an Ice thread pool thread and passes `false` as argument.");
         postParams.push_back(contextDoc);
 
         StringList returns;
