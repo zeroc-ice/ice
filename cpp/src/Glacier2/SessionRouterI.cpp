@@ -71,24 +71,31 @@ namespace Glacier2
 
         void destroy(const Current&) final
         {
-            _sessionRouter->destroySession(
-                _connection,
-                [defaultExceptionHandler = _sessionRouter->defaultSessionDestroyExceptionHandler()](exception_ptr e)
-                {
-                    try
+            try
+            {
+                _sessionRouter->destroySession(
+                    _connection,
+                    [defaultExceptionHandler = _sessionRouter->defaultSessionDestroyExceptionHandler()](exception_ptr e)
                     {
-                        rethrow_exception(e);
-                    }
-                    catch (const Ice::ObjectNotExistException&)
-                    {
-                        // Ignored. This typically occurs when the application-provided session calls
-                        // SessionControl::destroy in its own destroy implementation.
-                    }
-                    catch (...)
-                    {
-                        defaultExceptionHandler(e);
-                    }
-                });
+                        try
+                        {
+                            rethrow_exception(e);
+                        }
+                        catch (const Ice::ObjectNotExistException&)
+                        {
+                            // Ignored. This typically occurs when the application-provided session calls
+                            // SessionControl::destroy in its own destroy implementation.
+                        }
+                        catch (...)
+                        {
+                            defaultExceptionHandler(e);
+                        }
+                    });
+            }
+            catch (const SessionNotExistException&)
+            {
+                // Ignored: the session is already destroyed. Makes this destroy idempotent.
+            }
 
             _filters->destroy();
 
@@ -473,7 +480,14 @@ CreateSession::sessionCreated(optional<SessionPrx> session)
     {
         if (session)
         {
-            session->destroyAsync(nullptr); // don't wait for response
+            try
+            {
+                session->destroyAsync(nullptr); // don't wait for response
+            }
+            catch (const Ice::CommunicatorDestroyedException&)
+            {
+                // Ignored: the session is destroyed along with the communicator.
+            }
         }
         unexpectedCreateSessionException(current_exception());
         return;
@@ -963,6 +977,10 @@ SessionRouterI::sessionDestroyException(exception_ptr ex) const
         try
         {
             rethrow_exception(ex);
+        }
+        catch (const Ice::CommunicatorDestroyedException&)
+        {
+            // Expected when the router shuts down with sessions still active.
         }
         catch (const Ice::Exception& e)
         {
