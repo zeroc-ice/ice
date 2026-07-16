@@ -159,6 +159,24 @@ namespace Glacier2
                 }
                 exception(make_exception_ptr(PermissionDeniedException("internal server error")));
             }
+            catch (const std::exception& e)
+            {
+                if (_sessionRouter->sessionTraceLevel() >= 1)
+                {
+                    Warning out(_instance->logger());
+                    out << "exception while verifying permissions:\n" << e;
+                }
+                exception(make_exception_ptr(PermissionDeniedException("internal server error")));
+            }
+            catch (...)
+            {
+                if (_sessionRouter->sessionTraceLevel() >= 1)
+                {
+                    Warning out(_instance->logger());
+                    out << "exception while verifying permissions:\nunknown c++ exception";
+                }
+                exception(make_exception_ptr(PermissionDeniedException("internal server error")));
+            }
         }
 
         void authorize() override
@@ -267,6 +285,24 @@ namespace Glacier2
                 {
                     Warning out(_instance->logger());
                     out << "exception while verifying permissions:\n" << e;
+                }
+                exception(make_exception_ptr(PermissionDeniedException("internal server error")));
+            }
+            catch (const std::exception& e)
+            {
+                if (_sessionRouter->sessionTraceLevel() >= 1)
+                {
+                    Warning out(_instance->logger());
+                    out << "exception while verifying permissions:\n" << e;
+                }
+                exception(make_exception_ptr(PermissionDeniedException("internal server error")));
+            }
+            catch (...)
+            {
+                if (_sessionRouter->sessionTraceLevel() >= 1)
+                {
+                    Warning out(_instance->logger());
+                    out << "exception while verifying permissions:\nunknown c++ exception";
                 }
                 exception(make_exception_ptr(PermissionDeniedException("internal server error")));
             }
@@ -379,16 +415,30 @@ CreateSession::CreateSession(shared_ptr<SessionRouterI> sessionRouter, string us
 void
 CreateSession::create()
 {
+    bool needAuthorize;
     try
     {
-        if (_sessionRouter->startCreateSession(shared_from_this(), _current.con))
+        needAuthorize = _sessionRouter->startCreateSession(shared_from_this(), _current.con);
+    }
+    catch (...)
+    {
+        // This CreateSession is not in _pending: just send the reply.
+        finished(current_exception());
+        return;
+    }
+
+    if (needAuthorize)
+    {
+        try
         {
             authorize();
         }
-    }
-    catch (const Ice::Exception&)
-    {
-        finished(current_exception());
+        catch (...)
+        {
+            // This CreateSession owns the connection's pending-creation entry: exception() removes it and
+            // runs any queued callbacks, in addition to sending the reply.
+            exception(current_exception());
+        }
     }
 }
 
@@ -428,7 +478,7 @@ CreateSession::authorized(bool createSession)
             sessionCreated(nullopt);
         }
     }
-    catch (const Ice::Exception&)
+    catch (...)
     {
         unexpectedCreateSessionException(current_exception());
     }
@@ -445,7 +495,7 @@ CreateSession::createException(exception_ptr ex)
     {
         exception(current_exception());
     }
-    catch (const Ice::Exception&)
+    catch (...)
     {
         unexpectedCreateSessionException(current_exception());
     }
@@ -476,7 +526,7 @@ CreateSession::sessionCreated(optional<SessionPrx> session)
                 make_shared<RouterI>(_instance, _current.con, _user, session, ident, _filterManager, Ice::Context());
         }
     }
-    catch (const Ice::Exception&)
+    catch (...)
     {
         if (session)
         {
@@ -501,7 +551,7 @@ CreateSession::sessionCreated(optional<SessionPrx> session)
         _sessionRouter->finishCreateSession(_current.con, router);
         finished(std::move(session));
     }
-    catch (const Ice::Exception&)
+    catch (...)
     {
         finished(current_exception());
     }
@@ -517,14 +567,23 @@ CreateSession::unexpectedCreateSessionException(exception_ptr ex)
 {
     if (_sessionRouter->sessionTraceLevel() >= 1)
     {
+        Trace out(_instance->logger(), "Glacier2");
+        out << "exception while creating session with session manager:\n";
         try
         {
             rethrow_exception(ex);
         }
         catch (const Ice::Exception& e)
         {
-            Trace out(_instance->logger(), "Glacier2");
-            out << "exception while creating session with session manager:\n" << e;
+            out << e;
+        }
+        catch (const std::exception& e)
+        {
+            out << e;
+        }
+        catch (...)
+        {
+            out << "unknown c++ exception";
         }
     }
     exception(make_exception_ptr(CannotCreateSessionException("internal server error")));
@@ -537,7 +596,7 @@ CreateSession::exception(exception_ptr ex)
     {
         _sessionRouter->finishCreateSession(_current.con, nullptr);
     }
-    catch (const Ice::Exception&)
+    catch (...)
     {
     }
 
@@ -549,7 +608,7 @@ CreateSession::exception(exception_ptr ex)
         {
             _instance->serverObjectAdapter()->remove(_control->ice_getIdentity());
         }
-        catch (const Exception&)
+        catch (...)
         {
         }
     }
@@ -986,6 +1045,16 @@ SessionRouterI::sessionDestroyException(exception_ptr ex) const
         {
             Trace out(_instance->logger(), "Glacier2");
             out << "exception while destroying session\n" << e;
+        }
+        catch (const std::exception& e)
+        {
+            Trace out(_instance->logger(), "Glacier2");
+            out << "exception while destroying session\n" << e;
+        }
+        catch (...)
+        {
+            Trace out(_instance->logger(), "Glacier2");
+            out << "exception while destroying session\nunknown c++ exception";
         }
     }
 }

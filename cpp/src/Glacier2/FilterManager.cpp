@@ -24,7 +24,7 @@ Glacier2::FilterManager::destroy()
                 adapter->remove(_categoriesPrx->ice_getIdentity());
             }
         }
-        catch (const Exception&)
+        catch (...)
         {
         }
         try
@@ -34,7 +34,7 @@ Glacier2::FilterManager::destroy()
                 adapter->remove(_adapterIdsPrx->ice_getIdentity());
             }
         }
-        catch (const Exception&)
+        catch (...)
         {
         }
         try
@@ -44,7 +44,7 @@ Glacier2::FilterManager::destroy()
                 adapter->remove(_identitiesPrx->ice_getIdentity());
             }
         }
-        catch (const Exception&)
+        catch (...)
         {
         }
     }
