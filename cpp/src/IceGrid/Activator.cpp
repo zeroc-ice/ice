@@ -868,7 +868,7 @@ Activator::activate(
         string message;
 
         // We keep the Activator mutex locked for the whole activate.
-        while ((rs = read(errorFds[0], &s, 16)) > 0) // NOLINT(clang-analyzer-unix.BlockInCriticalSection)
+        while ((rs = read(errorFds[0], s, sizeof(s))) > 0) // NOLINT(clang-analyzer-unix.BlockInCriticalSection)
         {
             message.append(s, static_cast<size_t>(rs));
         }
@@ -1349,7 +1349,7 @@ Activator::terminationListener()
                 //
                 while (true)
                 {
-                    rs = read(fd, &s, 16); // NOLINT(clang-analyzer-unix.BlockInCriticalSection)
+                    rs = read(fd, s, sizeof(s)); // NOLINT(clang-analyzer-unix.BlockInCriticalSection)
                     if (rs > 0)
                     {
                         message.append(s, static_cast<size_t>(rs));
