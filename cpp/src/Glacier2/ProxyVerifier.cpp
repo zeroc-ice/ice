@@ -901,9 +901,9 @@ namespace Glacier2
 
 } // End proxy rule implementations.
 
-Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
+Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator, int traceLevel)
     : _communicator(std::move(communicator)),
-      _traceLevel(_communicator->getProperties()->getIcePropertyAsInt("Glacier2.Client.Trace.Reject"))
+      _traceLevel(traceLevel)
 {
     //
     // Evaluation order is dependant on how the rules are stored to the

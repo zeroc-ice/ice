@@ -386,7 +386,7 @@ CreateSession::CreateSession(shared_ptr<SessionRouterI> sessionRouter, string us
     ctx.erase("_con.peerCert");
     const_cast<Ice::Current&>(_current).ctx = ctx;
 
-    if (_instance->properties()->getIcePropertyAsInt("Glacier2.AddConnectionContext") > 0)
+    if (_instance->addConnectionContext() > 0)
     {
         _context["_con.type"] = current.con->type();
         {
@@ -516,7 +516,7 @@ CreateSession::sessionCreated(optional<SessionPrx> session)
             ident = _control->ice_getIdentity();
         }
 
-        if (_instance->properties()->getIcePropertyAsInt("Glacier2.AddConnectionContext") == 1)
+        if (_instance->addConnectionContext() == 1)
         {
             router = make_shared<RouterI>(_instance, _current.con, _user, session, ident, _filterManager, _context);
         }
@@ -627,7 +627,7 @@ SessionRouterI::SessionRouterI(
     optional<SSLSessionManagerPrx> sslSessionManager)
     : _instance(std::move(instance)),
       _sessionTraceLevel(_instance->properties()->getIcePropertyAsInt("Glacier2.Trace.Session")),
-      _rejectTraceLevel(_instance->properties()->getIcePropertyAsInt("Glacier2.Client.Trace.Reject")),
+      _rejectTraceLevel(_instance->clientRejectTraceLevel()),
       _verifier(std::move(verifier)),
       _sessionManager(std::move(sessionManager)),
       _sslVerifier(std::move(sslVerifier)),
