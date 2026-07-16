@@ -408,16 +408,30 @@ CreateSession::CreateSession(shared_ptr<SessionRouterI> sessionRouter, string us
 void
 CreateSession::create()
 {
+    bool needAuthorize;
     try
     {
-        if (_sessionRouter->startCreateSession(shared_from_this(), _current.con))
-        {
-            authorize();
-        }
+        needAuthorize = _sessionRouter->startCreateSession(shared_from_this(), _current.con);
     }
     catch (...)
     {
+        // This CreateSession is not in _pending: just send the reply.
         finished(current_exception());
+        return;
+    }
+
+    if (needAuthorize)
+    {
+        try
+        {
+            authorize();
+        }
+        catch (...)
+        {
+            // This CreateSession owns the connection's pending-creation entry: exception() removes it and
+            // runs any queued callbacks, in addition to sending the reply.
+            exception(current_exception());
+        }
     }
 }
 
