@@ -140,7 +140,7 @@
     }
 }
 
-- (void)setLocator:(nullable ICEObjectPrx*)locator
+- (BOOL)setLocator:(nullable ICEObjectPrx*)locator error:(NSError* _Nullable* _Nonnull)error
 {
     try
     {
@@ -150,18 +150,12 @@
             l = [locator prx];
         }
         self.objectAdapter->setLocator(Ice::uncheckedCast<Ice::LocatorPrx>(l));
+        return YES;
     }
-    catch (const Ice::ObjectAdapterDeactivatedException&)
+    catch (...)
     {
-        // ignored
-    }
-    catch (const Ice::CommunicatorDestroyedException&)
-    {
-        // ignored
-    }
-    catch (const std::exception&)
-    {
-        // unexpected but ignored nevertheless
+        *error = convertException(std::current_exception());
+        return NO;
     }
 }
 

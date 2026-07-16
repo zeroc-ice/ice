@@ -320,6 +320,11 @@ public final class AlreadyRegisteredException: LocalException, @unchecked Sendab
 public final class CommunicatorDestroyedException: LocalException, @unchecked Sendable {}
 
 /// This exception indicates that a connection was aborted by the idle check.
+@available(
+    *, deprecated,
+    message:
+        "The Ice runtime never throws this exception; the idle check aborts the connection with ConnectionAbortedException (closedByApplication == false)."
+)
 public class ConnectionIdleException: LocalException, @unchecked Sendable {}
 
 /// This exception indicates the connection was closed forcefully.

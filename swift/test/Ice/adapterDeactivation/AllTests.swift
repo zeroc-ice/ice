@@ -55,6 +55,11 @@ func allTests(_ helper: TestHelper) async throws {
         try test(!adapter.isDeactivated())
         adapter.deactivate()
         try test(adapter.isDeactivated())
+        do {
+            // setLocator on a deactivated adapter throws, matching C++ and C#.
+            try adapter.setLocator(nil)
+            try test(false)
+        } catch is Ice.ObjectAdapterDeactivatedException {}
         adapter.destroy()
     }
     output.writeLine("ok")
