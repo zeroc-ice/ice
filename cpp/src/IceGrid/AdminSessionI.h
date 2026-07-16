@@ -141,6 +141,7 @@ namespace IceGrid
         void destroyImpl(bool) final;
 
         const std::string _replicaName;
+        const int _messageSizeMax;
         std::optional<AdminPrx> _admin;
         std::map<TopicName, std::pair<Ice::ObjectPrx, bool>> _observers;
         std::shared_ptr<RegistryI> _registry;

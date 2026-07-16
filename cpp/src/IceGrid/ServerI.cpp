@@ -713,8 +713,7 @@ ServerI::ServerI(
       _id(id),
       _waitTime(wt),
       _serverDir(serversDir + "/" + id),
-      _disableOnFailure(
-          _node->getCommunicator()->getProperties()->getIcePropertyAsInt("IceGrid.Node.DisableOnFailure")),
+      _disableOnFailure(_node->getDisableOnFailure()),
       _failureTime(chrono::steady_clock::now())
 {
     assert(_node->getActivator());
@@ -2405,8 +2404,7 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
             throw runtime_error("node has insufficient privileges to load server under user account '" + user + "'");
         }
 
-        if (pw->pw_uid == 0 && _node->getCommunicator()->getProperties()->getIcePropertyAsInt(
-                                   "IceGrid.Node.AllowRunningServersAsRoot") <= 0)
+        if (pw->pw_uid == 0 && !_node->allowRunningServersAsRoot())
         {
             throw runtime_error("running server as 'root' is not allowed");
         }
