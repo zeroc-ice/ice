@@ -77,6 +77,41 @@ add_cert_chain() {
     fi
 }
 
+# Export a certificate and its private key as PKCS12, and the same contents as a JKS keystore.
+#
+# The PKCS12 file is exported without a friendlyName. On Windows the friendlyName of the key bag becomes the name of
+# the CryptoAPI key container backing the imported private key, so every process importing a given PFX shares a single
+# on-disk container. The test suites run many short-lived processes in parallel, and a process exiting deletes that
+# shared container out from under a process that is still handshaking, which makes Schannel fail with 0x8009030D. With
+# no friendlyName, Windows names the container after a freshly generated GUID, so each import gets its own. This
+# mirrors the fix .NET applied to its own test data. See https://github.com/zeroc-ice/ice/issues/5973.
+#
+# keytool takes the JKS alias from the PKCS12 friendlyName, so the JKS is converted from a temporary named copy.
+export_pkcs12_and_jks() {
+    local pkcs12_file="$1"
+    local jks_file="$2"
+    local alias="$3"
+    shift 3
+    # The remaining arguments select the key and certificates to export (-inkey/-in/-certfile).
+    local contents=("$@")
+
+    local named_pkcs12_file="${pkcs12_file}.named"
+
+    rm -f "${pkcs12_file}" "${named_pkcs12_file}" "${jks_file}"
+
+    openssl pkcs12 -export -out "${pkcs12_file}" "${contents[@]}" \
+        -passout pass:"${DEFAULT_PASSWORD}" "${COMMON_PKCS12_ARGS[@]}"
+
+    openssl pkcs12 -export -out "${named_pkcs12_file}" "${contents[@]}" \
+        -name "${alias}" -passout pass:"${DEFAULT_PASSWORD}" "${COMMON_PKCS12_ARGS[@]}"
+
+    keytool -importkeystore \
+        -srckeystore "${named_pkcs12_file}" -srcstoretype PKCS12 -srcstorepass "${DEFAULT_PASSWORD}" \
+        -destkeystore "${jks_file}" -deststoretype JKS -deststorepass "${DEFAULT_PASSWORD}"
+
+    rm -f "${named_pkcs12_file}"
+}
+
 # Create self-signed root CA certificates
 for ca in ${ROOT_CAS}; do
     outputdir=$(dirname "${ca}")
@@ -100,15 +135,8 @@ for ca in ${ROOT_CAS}; do
     # Export the certificate as DER
     openssl x509 -in "${cert_file}" -out "${cert_der_file}" -outform DER
 
-    # Create a PKCS12 file for the root CA
-    openssl pkcs12 -export -out "${pkcs12_file}" -inkey "${key_file}" -in "${cert_file}" \
-        -name "${alias}" -passout pass:"${DEFAULT_PASSWORD}" "${COMMON_PKCS12_ARGS[@]}"
-
-    # Export PKCS12 as JKS
-    rm -f "${jks_file}"
-    keytool -importkeystore \
-        -srckeystore "${pkcs12_file}" -srcstoretype PKCS12 -srcstorepass "${DEFAULT_PASSWORD}" \
-        -destkeystore "${jks_file}" -deststoretype JKS -deststorepass "${DEFAULT_PASSWORD}"
+    # Create a PKCS12 file and a JKS keystore for the root CA
+    export_pkcs12_and_jks "${pkcs12_file}" "${jks_file}" "${alias}" -inkey "${key_file}" -in "${cert_file}"
 done
 
 # Create Intermediate CA certificates signed by its parent CA
@@ -160,15 +188,9 @@ for i in ${CLIENT_CERTS} ${SERVER_CERTS}; do
     # Add the certificate chain app to the ROOT CA without including it.
     add_cert_chain "${cert_file}" "${ca_cert}"
 
-    # Export as PCKS12
-    rm -f "${pkcs12_file}"
-    openssl pkcs12 -export -out "${pkcs12_file}" -inkey "${key_file}" -in "${cert_file}" -certfile "${ca_cert}" \
-        -name "${alias}" -passout pass:"${DEFAULT_PASSWORD}" "${COMMON_PKCS12_ARGS[@]}"
-
-    # Export PKCS12 as JKS
-    rm -f "${jks_file}"
-    keytool -importkeystore -srckeystore "${pkcs12_file}" -srcstoretype PKCS12 -destkeystore "${jks_file}" \
-        -deststoretype JKS -srcstorepass "${DEFAULT_PASSWORD}" -deststorepass "${DEFAULT_PASSWORD}"
+    # Export as PKCS12 and JKS
+    export_pkcs12_and_jks "${pkcs12_file}" "${jks_file}" "${alias}" \
+        -inkey "${key_file}" -in "${cert_file}" -certfile "${ca_cert}"
 done
 
 # Revoke the given cert_file using openssl ca, and update the crl file.
@@ -186,16 +208,17 @@ revoke_certificates(){
         -passin pass:"${DEFAULT_PASSWORD}"
 }
 
-# Create a PKCS12 password-less version of the main client/server ca1 certs
+# Create a PKCS12 password-less version of the main client/server ca1 certs. Like the PKCS12 files above, these are
+# exported without a friendlyName.
 openssl pkcs12 -export -out configuration/ca1/server_password_less.p12 \
     -inkey configuration/ca1/server_key.pem \
     -in configuration/ca1/server_cert.pem \
-    -name server -passout pass: "${COMMON_PKCS12_ARGS[@]}"
+    -passout pass: "${COMMON_PKCS12_ARGS[@]}"
 
 openssl pkcs12 -export -out configuration/ca1/client_password_less.p12 \
     -inkey configuration/ca1/client_key.pem \
     -in configuration/ca1/client_cert.pem \
-    -name client -passout pass: "${COMMON_PKCS12_ARGS[@]}"
+    -passout pass: "${COMMON_PKCS12_ARGS[@]}"
 
 # Create an encrypted PEM version of the ca1 server key, used to test IceSSL.Password with OpenSSL.
 openssl pkey -in configuration/ca1/server_key.pem -aes256 \
