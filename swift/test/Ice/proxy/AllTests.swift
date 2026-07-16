@@ -307,6 +307,15 @@ public func allTests(_ helper: TestHelper) async throws -> MyInterfacePrx {
     id2 = try Ice.stringToIdentity(communicator.identityToString(id))
     try test(id == id2)
 
+    // identityToString on a communicator uses the communicator's Ice.ToStringMode.
+    do {
+        let properties = Ice.createProperties()
+        properties.setProperty(key: "Ice.ToStringMode", value: "Compat")
+        let com = try Ice.initialize(Ice.InitializationData(properties: properties))
+        defer { com.destroy() }
+        try test(com.identityToString(id) == "\\177\\342\\202\\254/test")
+    }
+
     // More unicode character
     id = Ice.Identity(
         name: "banana \u{000E}-\u{1f34c}\u{20ac}\u{00a2}\u{0024}",
