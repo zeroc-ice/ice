@@ -229,6 +229,12 @@ TransientTopicImpl::link(optional<TopicPrx> topic, int cost, const Ice::Current&
     checkNotNull(topic, __FILE__, __LINE__, current);
     auto internal = Ice::uncheckedCast<TopicInternalPrx>(*topic);
     auto link = internal->getLinkProxy();
+    if (!link)
+    {
+        // A conforming peer always returns a non-null TopicLink; a null result would be dereferenced when
+        // constructing the SubscriberLink.
+        throw Ice::MarshalException{__FILE__, __LINE__, "getLinkProxy returned a null proxy"};
+    }
 
     auto traceLevels = _instance->traceLevels();
     if (traceLevels->topic > 0)
