@@ -1513,7 +1513,7 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
             ssize_t rs;
             char s[16];
             string message;
-            while ((rs = read(fds[0], &s, 16)) > 0)
+            while ((rs = read(fds[0], s, sizeof(s))) > 0)
             {
                 message.append(s, static_cast<size_t>(rs));
             }
