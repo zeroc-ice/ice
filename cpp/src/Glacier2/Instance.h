@@ -60,7 +60,6 @@ namespace Glacier2
         const Ice::LoggerPtr _logger;
         const Ice::ObjectAdapterPtr _clientAdapter;
         const Ice::ObjectAdapterPtr _serverAdapter;
-        const std::shared_ptr<ProxyVerifier> _proxyVerifier;
         const int _routingTableMaxSize;
         const int _routingTableTraceLevel;
         const bool _clientForwardContext;
@@ -69,6 +68,7 @@ namespace Glacier2
         const int _serverRequestTraceLevel;
         const int _clientRejectTraceLevel;
         const int _addConnectionContext;
+        const std::shared_ptr<ProxyVerifier> _proxyVerifier;
         const std::vector<std::string> _filterCategories;
         const std::vector<std::string> _filterAdapterIds;
         const std::vector<Ice::Identity> _filterIdentities;

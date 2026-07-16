@@ -627,7 +627,7 @@ SessionRouterI::SessionRouterI(
     optional<SSLSessionManagerPrx> sslSessionManager)
     : _instance(std::move(instance)),
       _sessionTraceLevel(_instance->properties()->getIcePropertyAsInt("Glacier2.Trace.Session")),
-      _rejectTraceLevel(_instance->properties()->getIcePropertyAsInt("Glacier2.Client.Trace.Reject")),
+      _rejectTraceLevel(_instance->clientRejectTraceLevel()),
       _verifier(std::move(verifier)),
       _sessionManager(std::move(sessionManager)),
       _sslVerifier(std::move(sslVerifier)),
