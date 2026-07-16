@@ -43,6 +43,7 @@ InternalRegistryI::InternalRegistryI(
     }
 
     _replicaSessionTimeout = chrono::seconds(properties->getIcePropertyAsInt("IceGrid.Registry.ReplicaSessionTimeout"));
+    _dynamicRegistration = properties->getIcePropertyAsInt("IceGrid.Registry.DynamicRegistration") > 0;
     if (_replicaSessionTimeout != 0s && _replicaSessionTimeout < 10s)
     {
         throw Ice::PropertyException{
@@ -108,7 +109,13 @@ InternalRegistryI::registerReplica(
 
     try
     {
-        auto s = ReplicaSessionI::create(_database, _wellKnownObjects, info, std::move(*prx), _replicaSessionTimeout);
+        auto s = ReplicaSessionI::create(
+            _database,
+            _wellKnownObjects,
+            info,
+            std::move(*prx),
+            _replicaSessionTimeout,
+            _dynamicRegistration);
 
         // nullptr for the connection parameter, meaning the reaper won't destroy the session if the connection is
         // closed.

@@ -79,6 +79,7 @@ FileIteratorI::destroy(const Ice::Current& current)
 AdminSessionI::AdminSessionI(const string& id, const shared_ptr<Database>& db, const shared_ptr<RegistryI>& registry)
     : BaseSessionI(id, "admin", db),
       _replicaName(registry->getName()),
+      _messageSizeMax(db->getCommunicator()->getProperties()->getIcePropertyAsInt("Ice.MessageSizeMax") * 1024),
       _registry(registry)
 {
 }
@@ -476,12 +477,9 @@ AdminSessionI::addFileIterator(FileReaderPrx reader, const string& filename, int
         throw FileNotAvailableException(ex.what());
     }
 
-    auto properties = reader->ice_getCommunicator()->getProperties();
-    int messageSizeMax = properties->getIcePropertyAsInt("Ice.MessageSizeMax") * 1024;
-
     auto self = static_pointer_cast<AdminSessionI>(shared_from_this());
     return Ice::uncheckedCast<FileIteratorPrx>(_servantManager->add(
-        make_shared<FileIteratorI>(self, std::move(reader), filename, offset, messageSizeMax),
+        make_shared<FileIteratorI>(self, std::move(reader), filename, offset, _messageSizeMax),
         self));
 }
 
