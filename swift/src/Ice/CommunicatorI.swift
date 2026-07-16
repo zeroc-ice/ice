@@ -80,7 +80,7 @@ final class CommunicatorI: LocalObject<ICECommunicator>, Communicator, @unchecke
     }
 
     func identityToString(_ id: Identity) -> String {
-        return Ice.identityToString(id: id)
+        return handle.identityToString(name: id.name, category: id.category)
     }
 
     func createObjectAdapter(_ name: String) throws -> ObjectAdapter {
