@@ -132,6 +132,27 @@ private:
 };
 using DestroyTaskPtr = std::shared_ptr<DestroyTask>;
 
+// A task whose destructor re-enters the timer by cancelling another task. This mirrors the shutdown scenario where
+// destroying a scheduled task drops the last reference to a connection, whose own destructor cancels its idle-timeout
+// task. Timer::destroy() must not run such a destructor while holding its internal lock.
+class ReentrantCancelTask final : public TimerTask
+{
+public:
+    ReentrantCancelTask(IceInternal::TimerPtr timer, TimerTaskPtr other)
+        : _timer(std::move(timer)),
+          _other(std::move(other))
+    {
+    }
+
+    ~ReentrantCancelTask() override { _timer->cancel(_other); }
+
+    void runTimerTask() override {}
+
+private:
+    const IceInternal::TimerPtr _timer;
+    const TimerTaskPtr _other;
+};
+
 class Client : public Test::TestHelper
 {
 public:
@@ -256,6 +277,21 @@ Client::run(int, char*[])
                 // Expected;
             }
         }
+    }
+    cout << "ok" << endl;
+
+    cout << "testing timer destroy with a re-entrant cancel... " << flush;
+    {
+        auto timer = make_shared<IceInternal::Timer>();
+        auto other = make_shared<TestTask>();
+        timer->schedule(other, chrono::hours(1));
+        {
+            auto reentrant = make_shared<ReentrantCancelTask>(timer, other);
+            timer->schedule(reentrant, chrono::hours(1));
+        }
+        // 'reentrant' is now referenced only by the timer. Destroying the timer runs its destructor, which cancels
+        // 'other'; this must complete without deadlocking.
+        timer->destroy();
     }
     cout << "ok" << endl;
 }
