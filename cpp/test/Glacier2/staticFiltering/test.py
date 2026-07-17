@@ -413,6 +413,44 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                     [],
                 ),
                 (
+                    # The host is normalized before matching: a trailing dot on a fully-qualified name and a
+                    # non-canonical spelling of an IPv4 address (octal or hexadecimal parts, fewer than four
+                    # parts, a single number) match rules written for the canonical form. The accepted proxies
+                    # also exercise the connection: the resolver accepts these spellings, which is why an
+                    # unnormalized reject rule could be bypassed with them.
+                    "testing address filter accept rule against non-canonical hosts",
+                    ("localhost 127.0.0.1", "", "", "", "", ""),
+                    [
+                        (True, "hello:tcp -h localhost. -p 12010"),
+                        (True, "hello:tcp -h 127.000.000.001 -p 12010"),
+                        (False, "hello:tcp -h localhost.example.com -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    "testing address filter reject rule against a trailing-dot host",
+                    ("", "badhost.example.com *.internal.example.com", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h badhost.example.com. -p 12010"),
+                        (False, "hello:tcp -h db.internal.example.com. -p 12010"),
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    "testing address filter reject rule against non-canonical IPv4 literals",
+                    ("", "127.0.0.1", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h 127.000.000.001 -p 12010"),
+                        (False, "hello:tcp -h 0x7f000001 -p 12010"),
+                        (False, "hello:tcp -h 2130706433 -p 12010"),
+                        (False, "hello:tcp -h 127.1 -p 12010"),
+                        (False, "hello:tcp -h 127.0.0.1. -p 12010"),
+                        (True, "hello:tcp -h localhost -p 12010"),
+                    ],
+                    [],
+                ),
+                (
                     # A proxy with an endpoint host longer than 255 characters is rejected outright, even when
                     # no reject rule matches it: no legal host name or IP address is that long.
                     "testing address filter rejects an oversized host",

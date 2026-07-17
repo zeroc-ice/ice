@@ -4,6 +4,11 @@
 #include "../Ice/ConsoleUtil.h"
 #include "Ice/StringUtil.h"
 
+#include <cctype>
+#include <cerrno>
+#include <cstdint>
+#include <cstdlib>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -477,6 +482,64 @@ namespace Glacier2
         return true;
     }
 
+    // Parses host as an IPv4 address literal, accepting every form the resolver accepts (the inet_aton
+    // grammar): one to four '.'-separated parts, each decimal, octal (leading 0), or hexadecimal (leading 0x),
+    // with the last part supplying the remaining bytes of the address. Returns the address in canonical
+    // dotted-quad form, or nullopt when host is not an IPv4 address literal.
+    static optional<string> canonicalIPv4Address(const string& host)
+    {
+        vector<unsigned long> parts;
+        const char* p = host.c_str();
+        while (true)
+        {
+            // Each part must start with a digit; strtoul alone would also accept whitespace and signs.
+            if (!isdigit(static_cast<unsigned char>(*p)))
+            {
+                return nullopt;
+            }
+            char* end;
+            errno = 0;
+            unsigned long value = strtoul(p, &end, 0);
+            if (errno == ERANGE || value > 0xFFFFFFFF)
+            {
+                return nullopt;
+            }
+            parts.push_back(value);
+            if (*end == '\0')
+            {
+                break;
+            }
+            if (*end != '.' || parts.size() == 4)
+            {
+                return nullopt;
+            }
+            p = end + 1;
+        }
+
+        // The leading parts are single bytes; the last part covers the remaining bytes.
+        uint32_t address = 0;
+        for (vector<unsigned long>::size_type i = 0; i + 1 < parts.size(); ++i)
+        {
+            if (parts[i] > 0xFF)
+            {
+                return nullopt;
+            }
+            address |= static_cast<uint32_t>(parts[i]) << (8 * (3 - i));
+        }
+        unsigned long last = parts.back();
+        int lastSize = 5 - static_cast<int>(parts.size()); // in bytes
+        if (lastSize < 4 && last >= (1ul << (8 * lastSize)))
+        {
+            return nullopt;
+        }
+        address |= static_cast<uint32_t>(last);
+
+        ostringstream os;
+        os << ((address >> 24) & 0xFF) << '.' << ((address >> 16) & 0xFF) << '.' << ((address >> 8) & 0xFF) << '.'
+           << (address & 0xFF);
+        return os.str();
+    }
+
     // Returns true when an endpoint of the proxy has a host longer than 255 characters. No legal host name or
     // IP address is that long, and the bound keeps the cost of matching the address rules low.
     static bool hasOversizedHost(const ObjectPrx& proxy)
@@ -580,6 +643,19 @@ namespace Glacier2
             }
             // Host names are case-insensitive; the rule was folded to lower case when parsed.
             host = toLower(host);
+
+            // Normalize the host so that a rule cannot be bypassed with an equivalent but different spelling
+            // of the same host: drop the trailing dot of a fully-qualified DNS name, and put an IPv4 address
+            // literal in canonical dotted-quad form.
+            if (host.size() > 1 && host.back() == '.')
+            {
+                host.pop_back();
+            }
+            if (optional<string> canonical = canonicalIPv4Address(host))
+            {
+                host = *canonical;
+            }
+
             string port;
             if (!extractPart("-p ", info, port))
             {
