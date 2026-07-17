@@ -225,6 +225,15 @@ public class Client : Test.TestHelper
         }
 
         {
+            Console.Out.Write("testing that a separators-only list value returns the default... ");
+            var properties = new Ice.Properties();
+            properties.setProperty("Foo", ",");
+            string[] result = properties.getPropertyAsListWithDefault("Foo", ["a", "b"]);
+            test(result.Length == 2 && result[0] == "a" && result[1] == "b");
+            Console.Out.WriteLine("ok");
+        }
+
+        {
             Console.Out.Write("testing Ice.ProgramName default... ");
             Console.Out.Flush();
             using var communicator = new Ice.Communicator();

@@ -235,10 +235,7 @@ public sealed class Properties
                     $"mismatched quotes in property {key}'s value, returning default value");
                 return value;
             }
-            else
-            {
-                return result;
-            }
+            return result.Length == 0 ? value : result;
         }
     }
 
