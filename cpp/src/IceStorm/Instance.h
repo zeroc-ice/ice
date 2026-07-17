@@ -63,12 +63,14 @@ namespace IceStorm
         [[nodiscard]] std::optional<IceStormElection::NodePrx> nodeProxy() const;
         [[nodiscard]] std::shared_ptr<TraceLevels> traceLevels() const;
         [[nodiscard]] IceInternal::TimerPtr timer() const;
+        [[nodiscard]] IceInternal::TimerPtr batchFlusher() const;
         [[nodiscard]] std::optional<Ice::ObjectPrx> topicReplicaProxy() const;
         [[nodiscard]] std::optional<Ice::ObjectPrx> publisherReplicaProxy() const;
         [[nodiscard]] std::shared_ptr<IceStorm::Instrumentation::TopicManagerObserver> observer() const;
         [[nodiscard]] std::shared_ptr<TopicReaper> topicReaper() const;
 
         [[nodiscard]] std::chrono::seconds discardInterval() const;
+        [[nodiscard]] std::chrono::milliseconds flushInterval() const;
         [[nodiscard]] std::chrono::milliseconds sendTimeout() const;
         [[nodiscard]] int sendQueueSizeMax() const;
         [[nodiscard]] SendQueueSizeMaxPolicy sendQueueSizeMaxPolicy() const;
@@ -95,6 +97,9 @@ namespace IceStorm
         std::shared_ptr<IceStormElection::NodeI> _node;
         std::shared_ptr<IceStormElection::Observers> _observers;
         IceInternal::TimerPtr _timer;
+        // A separate timer used to flush batch subscribers. Unlike _timer, it is destroyed in destroy() rather than
+        // shutdown(), so it outlives the subscriber drain in TopicManagerImpl::shutdown().
+        IceInternal::TimerPtr _batchFlusher;
         std::shared_ptr<IceStorm::Instrumentation::TopicManagerObserver> _observer;
     };
 

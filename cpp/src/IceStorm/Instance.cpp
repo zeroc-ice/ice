@@ -88,6 +88,7 @@ Instance::Instance(
         }
 
         _timer = make_shared<IceInternal::Timer>();
+        _batchFlusher = make_shared<IceInternal::Timer>();
 
         string policy = properties->getIceProperty("IceStorm.Send.QueueSizeMaxPolicy");
         if (policy == "RemoveSubscriber")
@@ -111,6 +112,16 @@ Instance::Instance(
             Ice::Warning warn(_traceLevels->logger);
             warn << "'IceStorm.Send.QueueSizeMax' value 0 is invalid; treating the send queue as unbounded";
             const_cast<int&>(_sendQueueSizeMax) = -1;
+        }
+
+        // A negative flush interval is invalid: it's used as the delay when scheduling a batch subscriber's flush on
+        // the batch flusher timer, and the timer rejects a negative delay. Fall back to the default of one second.
+        if (_flushInterval < chrono::milliseconds::zero())
+        {
+            Ice::Warning warn(_traceLevels->logger);
+            warn << "'IceStorm.Flush.Timeout' value " << _flushInterval.count()
+                 << " is invalid; using the default of 1000ms";
+            const_cast<chrono::milliseconds&>(_flushInterval) = chrono::milliseconds(1000);
         }
 
         //
@@ -205,6 +216,12 @@ Instance::timer() const
     return _timer;
 }
 
+IceInternal::TimerPtr
+Instance::batchFlusher() const
+{
+    return _batchFlusher;
+}
+
 optional<Ice::ObjectPrx>
 Instance::topicReplicaProxy() const
 {
@@ -233,6 +250,12 @@ chrono::seconds
 Instance::discardInterval() const
 {
     return _discardInterval;
+}
+
+chrono::milliseconds
+Instance::flushInterval() const
+{
+    return _flushInterval;
 }
 
 chrono::milliseconds
@@ -275,6 +298,14 @@ Instance::shutdown() noexcept
 void
 Instance::destroy() noexcept
 {
+    // Destroy the batch flusher here rather than in shutdown(): the subscribers are drained in
+    // TopicManagerImpl::shutdown(), which runs after Instance::shutdown() but before destroy(), and a pending batch
+    // flush must still be able to run during that drain.
+    if (_batchFlusher)
+    {
+        _batchFlusher->destroy();
+    }
+
     // The node instance must be cleared as the node holds the
     // replica (TopicManager) which holds the instance causing a
     // cyclic reference.

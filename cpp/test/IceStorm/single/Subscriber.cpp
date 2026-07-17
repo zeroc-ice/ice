@@ -96,6 +96,35 @@ private:
     condition_variable _condVar;
 };
 
+// A minimal servant that counts the events it receives; used to check that a batch subscriber defers delivery.
+class CountingSingleI final : public Single
+{
+public:
+    void event(int, const Current&) override
+    {
+        lock_guard<mutex> lg(_mutex);
+        ++_count;
+        _condVar.notify_all();
+    }
+
+    int count()
+    {
+        lock_guard<mutex> lg(_mutex);
+        return _count;
+    }
+
+    void waitForCount(int n)
+    {
+        unique_lock<mutex> lock(_mutex);
+        test(_condVar.wait_for(lock, 30s, [&] { return _count >= n; }));
+    }
+
+private:
+    int _count{0};
+    mutex _mutex;
+    condition_variable _condVar;
+};
+
 class Subscriber final : public Test::TestHelper
 {
 public:
@@ -246,6 +275,45 @@ Subscriber::run(int argc, char** argv)
     {
         p->waitForEvents();
     }
+
+    //
+    // Verify that a batch subscriber actually batches: its events must be coalesced and delivered together when the
+    // IceStorm.Flush.Timeout timer fires, not one at a time like a plain oneway subscriber. A plain oneway subscriber
+    // on the same topic serves as a checkpoint: once it has received every event, a batch subscriber must still have
+    // received nothing, because its events are queued until the next flush.
+    //
+    cout << "testing batch delivery ... " << flush;
+    {
+        auto batchTopic = manager->create("batch");
+
+        auto onewayCounter = make_shared<CountingSingleI>();
+        batchTopic->subscribeAndGetPublisher(IceStorm::QoS(), adapter->addWithUUID(onewayCounter)->ice_oneway());
+
+        auto batchCounter = make_shared<CountingSingleI>();
+        auto batchObject = adapter->addWithUUID(batchCounter)->ice_batchOneway();
+        batchTopic->subscribeAndGetPublisher(IceStorm::QoS(), batchObject);
+
+        const int count = 20;
+        auto publisher = uncheckedCast<SinglePrx>(batchTopic->getPublisher()->ice_twoway());
+        const auto start = chrono::steady_clock::now();
+        for (int i = 0; i < count; ++i)
+        {
+            publisher->event(i);
+        }
+
+        onewayCounter->waitForCount(count);
+        // The zero check is only meaningful while this run is still within the 1s IceStorm.Flush.Timeout window: on a
+        // slow machine the flush may already have fired. Skip the check rather than fail it.
+        if (chrono::steady_clock::now() - start < 500ms)
+        {
+            test(batchCounter->count() == 0);
+        }
+        batchCounter->waitForCount(count);
+
+        batchTopic->destroy();
+    }
+
+    cout << "ok" << endl;
 }
 
 DEFINE_TEST(Subscriber)
