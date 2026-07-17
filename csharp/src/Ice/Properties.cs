@@ -621,28 +621,26 @@ public sealed class Properties
     private void loadArgs(ref string[] args)
     {
         bool loadConfigFiles = false;
+        List<string> remainingArgs = [];
 
-        for (int i = 0; i < args.Length; i++)
+        foreach (string arg in args)
         {
-            if (args[i].StartsWith("--Ice.Config", StringComparison.Ordinal))
+            if (arg.StartsWith("--Ice.Config", StringComparison.Ordinal))
             {
-                string line = args[i];
+                string line = arg;
                 if (!line.Contains('=', StringComparison.Ordinal))
                 {
                     line += "=1";
                 }
                 parseLine(line[2..]);
                 loadConfigFiles = true;
-
-                string[] arr = new string[args.Length - 1];
-                Array.Copy(args, 0, arr, 0, i);
-                if (i < args.Length - 1)
-                {
-                    Array.Copy(args, i + 1, arr, i, args.Length - i - 1);
-                }
-                args = arr;
+            }
+            else
+            {
+                remainingArgs.Add(arg);
             }
         }
+        args = [.. remainingArgs];
 
         if (!loadConfigFiles)
         {
