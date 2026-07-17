@@ -13,7 +13,7 @@
     if (callback)
     {
         self->_cppObject.setCallback(
-            [callback, self](int signal)
+            [callback](int signal)
             {
                 // This callback executes in the C++ CtrlCHandler thread.
                 // We need an autorelease pool in case the callback creates autorelease objects.
