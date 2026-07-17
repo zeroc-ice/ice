@@ -2190,6 +2190,13 @@ Parser::showFile(
             while (!interrupted() && !eof && i < lineCount)
             {
                 eof = it->read(maxBytes, lines);
+                // Trim the batch to the remaining line count: the terminating-newline check below looks at
+                // the last entry of the batch, so the batch must contain only the printed lines.
+                if (lines.size() > static_cast<size_t>(lineCount - i))
+                {
+                    lines.resize(static_cast<size_t>(lineCount - i));
+                }
+                i += static_cast<int>(lines.size());
                 for (const auto& line : lines)
                 {
                     outputNewline();
@@ -2323,17 +2330,27 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 
         auto adapter = _communicator->createObjectAdapter("RemoteLoggerAdapter");
 
-        _session->ice_getConnection()->setAdapter(adapter);
-
         ostringstream os;
         os << "RemoteLogger-" << loggerCallbackCount++;
         Ice::Identity ident = {os.str(), adminCallbackTemplate->ice_getIdentity().category};
 
         auto servant = make_shared<RemoteLoggerI>();
-        auto prx = adapter->add<Ice::RemoteLoggerPrx>(servant, ident);
-        adapter->activate();
+        optional<Ice::RemoteLoggerPrx> prx;
+        try
+        {
+            _session->ice_getConnection()->setAdapter(adapter);
+            prx = adapter->add<Ice::RemoteLoggerPrx>(servant, ident);
+            adapter->activate();
 
-        loggerAdmin->attachRemoteLogger(prx, Ice::LogMessageTypeSeq(), Ice::StringSeq(), tail ? lineCount : -1);
+            loggerAdmin->attachRemoteLogger(*prx, Ice::LogMessageTypeSeq(), Ice::StringSeq(), tail ? lineCount : -1);
+        }
+        catch (...)
+        {
+            // Destroy the adapter so that the next 'log --follow' can create it again.
+            servant->destroy();
+            adapter->destroy();
+            throw;
+        }
 
         resetInterrupt();
         {
@@ -2346,7 +2363,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 
         try
         {
-            loggerAdmin->detachRemoteLogger(prx);
+            loggerAdmin->detachRemoteLogger(*prx);
         }
         catch (const Ice::ObjectNotExistException&)
         {
