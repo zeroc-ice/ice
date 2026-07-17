@@ -231,8 +231,8 @@ TransientTopicImpl::link(optional<TopicPrx> topic, int cost, const Ice::Current&
     auto link = internal->getLinkProxy();
     if (!link)
     {
-        // A conforming peer always returns a non-null TopicLink; a null result would be dereferenced when
-        // constructing the SubscriberLink.
+        // Defense in depth: getLinkProxy never returns a null proxy. Once proxies can be declared
+        // non-null in Slice (#5209), this check will be performed automatically during unmarshaling.
         throw Ice::MarshalException{__FILE__, __LINE__, "getLinkProxy returned a null proxy"};
     }
 
