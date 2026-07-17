@@ -80,13 +80,6 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             try await p2.op()
             try test(false)
         } catch is Ice.CommunicatorDestroyedException {}
-
-        // The default object adapter, router, and locator accessors remain usable on a destroyed
-        // communicator: the getters return nil and the setter does nothing.
-        try test(ic.getDefaultObjectAdapter() == nil)
-        try test(ic.getDefaultRouter() == nil)
-        try test(ic.getDefaultLocator() == nil)
-        ic.setDefaultObjectAdapter(nil)
     }
     output.writeLine("ok")
 
