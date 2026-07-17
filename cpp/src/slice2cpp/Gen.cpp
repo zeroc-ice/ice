@@ -1585,9 +1585,13 @@ Slice::ProxyVisitor::visitOperation(const OperationPtr& p)
         if (!p->returnsData())
         {
             H << nl
-              << "/// @remark When this proxy is a batch proxy, this function only adds the request to the "
-                 "batch: the Ice";
-            H << nl << "/// runtime calls none of the callbacks, and the request is sent later, by a flush.";
+              << "/// @remark When this proxy is a oneway or datagram proxy, the Ice runtime does not call the "
+                 "response";
+            H << nl
+              << "/// callback: a successful invocation completes with the sent callback. When this proxy is a "
+                 "batch";
+            H << nl << "/// proxy, this function only adds the request to the batch: the Ice runtime calls none of the";
+            H << nl << "/// callbacks, and the request is sent later, by a flush.";
         }
     }
     H << nl << "// NOLINTNEXTLINE(modernize-use-nodiscard)";

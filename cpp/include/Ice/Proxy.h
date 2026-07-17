@@ -319,8 +319,10 @@ namespace Ice
         /// asynchronous case.
         /// @param context The request context.
         /// @return A function that can be called to cancel the invocation locally.
-        /// @remark When this proxy is a batch proxy, this function only adds the request to the batch: the Ice
-        /// runtime calls none of the callbacks, and the request is sent later, by a flush.
+        /// @remark When this proxy is a oneway or datagram proxy, the Ice runtime does not call the response
+        /// callback: a successful invocation completes with the sent callback. When this proxy is a batch proxy, this
+        /// function only adds the request to the batch: the Ice runtime calls none of the callbacks, and the request
+        /// is sent later, by a flush.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_pingAsync(
             std::function<void()> response,
@@ -460,8 +462,10 @@ namespace Ice
         /// asynchronous case.
         /// @param context The request context.
         /// @return A function that can be called to cancel the invocation locally.
-        /// @remark When this proxy is a batch proxy, this function only adds the request to the batch: the Ice
-        /// runtime calls none of the callbacks, and the request is sent later, by a flush.
+        /// @remark When this proxy is a oneway or datagram proxy, the Ice runtime does not call the response
+        /// callback: a successful invocation completes with the sent callback. When this proxy is a batch proxy, this
+        /// function only adds the request to the batch: the Ice runtime calls none of the callbacks, and the request
+        /// is sent later, by a flush.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_invokeAsync(
             std::string_view operation,
@@ -521,8 +525,10 @@ namespace Ice
         /// asynchronous case.
         /// @param context The request context.
         /// @return A function that can be called to cancel the invocation locally.
-        /// @remark When this proxy is a batch proxy, this function only adds the request to the batch: the Ice
-        /// runtime calls none of the callbacks, and the request is sent later, by a flush.
+        /// @remark When this proxy is a oneway or datagram proxy, the Ice runtime does not call the response
+        /// callback: a successful invocation completes with the sent callback. When this proxy is a batch proxy, this
+        /// function only adds the request to the batch: the Ice runtime calls none of the callbacks, and the request
+        /// is sent later, by a flush.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_invokeAsync(
             std::string_view operation,
