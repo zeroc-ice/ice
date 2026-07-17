@@ -218,7 +218,9 @@ namespace Ice
             InputStream& messageStream);
         void finish(bool);
 
-        void closeCallback(const CloseCallback&);
+        // Executes a callback provided by the application, catching and logging any exception it throws.
+        void executeCallback(const CloseCallback& callback) noexcept;
+        void executeCallback(const std::function<void()>& callback) noexcept;
 
         /// Aborts the connection with a ConnectionAbortedException if the connection is active and did not receive
         /// a byte for some time. See the IdleTimeoutTransceiverDecorator.
