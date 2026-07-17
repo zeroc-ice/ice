@@ -690,6 +690,14 @@ bool
 SessionI::retryImpl(NodePrx node, exception_ptr exception)
 {
     // Called with the session mutex locked.
+
+    // A callback from an earlier session creation attempt can run after the session was destroyed; don't schedule a
+    // retry task for a destroyed session.
+    if (_destroyed)
+    {
+        return false;
+    }
+
     if (exception)
     {
         // Don't retry if we are shutting down.
