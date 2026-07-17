@@ -2190,15 +2190,18 @@ Parser::showFile(
             while (!interrupted() && !eof && i < lineCount)
             {
                 eof = it->read(maxBytes, lines);
+                // Trim the batch to the remaining line count: the terminating-newline check below looks at
+                // the last entry of the batch, so the batch must contain only the printed lines.
+                if (lines.size() > static_cast<size_t>(lineCount - i))
+                {
+                    lines.resize(static_cast<size_t>(lineCount - i));
+                }
+                i += static_cast<int>(lines.size());
                 for (const auto& line : lines)
                 {
                     outputNewline();
                     outputString(line);
                     flushOutput();
-                    if (++i == lineCount)
-                    {
-                        break;
-                    }
                 }
             }
         }
