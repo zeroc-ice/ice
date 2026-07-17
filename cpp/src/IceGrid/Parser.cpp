@@ -2195,6 +2195,10 @@ Parser::showFile(
                     outputNewline();
                     outputString(line);
                     flushOutput();
+                    if (++i == lineCount)
+                    {
+                        break;
+                    }
                 }
             }
         }
