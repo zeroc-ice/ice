@@ -759,9 +759,9 @@ public final class Instance {
                     // invalid and treated as 0.
                     if (!parsed || v < 0) {
                         _initData.logger.warning(
-                                "invalid value '"
-                                        + arr[i]
-                                        + "' in property Ice.RetryIntervals, assuming 0");
+                            "invalid value '"
+                                + arr[i]
+                                + "' in property Ice.RetryIntervals, assuming 0");
                         v = 0;
                     }
 
