@@ -500,7 +500,7 @@ namespace Glacier2
             char* end;
             errno = 0;
             unsigned long value = strtoul(p, &end, 0);
-            if (errno == ERANGE || value > 0xFFFFFFFF)
+            if (errno == ERANGE || value > UINT32_MAX)
             {
                 return nullopt;
             }
