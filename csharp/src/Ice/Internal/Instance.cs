@@ -819,26 +819,38 @@ public sealed class Instance
                 for (int i = 0; i < retryValues.Length; i++)
                 {
                     int v;
+                    bool parsed;
 
                     try
                     {
                         v = int.Parse(retryValues[i], CultureInfo.InvariantCulture);
+                        parsed = true;
                     }
-                    catch (System.FormatException)
+                    catch (System.Exception ex) when (ex is System.FormatException or System.OverflowException)
                     {
                         v = 0;
+                        parsed = false;
                     }
 
                     //
                     // If -1 is the first value, no retry and wait intervals.
                     //
-                    if (i == 0 && v == -1)
+                    if (parsed && i == 0 && v == -1)
                     {
                         retryIntervals = [];
                         break;
                     }
 
-                    retryIntervals[i] = v > 0 ? v : 0;
+                    // Any value that is not a non-negative integer (or the leading -1 handled above) is
+                    // invalid and treated as 0.
+                    if (!parsed || v < 0)
+                    {
+                        _initData.logger.warning(
+                            $"invalid value '{retryValues[i]}' in property Ice.RetryIntervals, assuming 0");
+                        v = 0;
+                    }
+
+                    retryIntervals[i] = v;
                 }
             }
 

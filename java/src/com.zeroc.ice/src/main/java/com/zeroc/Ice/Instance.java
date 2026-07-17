@@ -739,20 +739,33 @@ public final class Instance {
 
                 for (int i = 0; i < arr.length; i++) {
                     int v;
+                    boolean parsed;
 
                     try {
                         v = Integer.parseInt(arr[i]);
+                        parsed = true;
                     } catch (NumberFormatException ex) {
                         v = 0;
+                        parsed = false;
                     }
 
                     // If -1 is the first value, no retry and wait intervals.
-                    if (i == 0 && v == -1) {
+                    if (parsed && i == 0 && v == -1) {
                         _retryIntervals = new int[0];
                         break;
                     }
 
-                    _retryIntervals[i] = v > 0 ? v : 0;
+                    // Any value that is not a non-negative integer (or the leading -1 handled above) is
+                    // invalid and treated as 0.
+                    if (!parsed || v < 0) {
+                        _initData.logger.warning(
+                                "invalid value '"
+                                        + arr[i]
+                                        + "' in property Ice.RetryIntervals, assuming 0");
+                        v = 0;
+                    }
+
+                    _retryIntervals[i] = v;
                 }
             }
             _cacheMessageBuffers = properties.getIcePropertyAsInt("Ice.CacheMessageBuffers");
