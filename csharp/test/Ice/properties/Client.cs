@@ -210,6 +210,21 @@ public class Client : Test.TestHelper
         }
 
         {
+            Console.Out.Write("testing that reading an out-of-range value as an int throws... ");
+            var properties = new Ice.Properties();
+            properties.setProperty("Foo", "99999999999");
+            try
+            {
+                properties.getPropertyAsIntWithDefault("Foo", 0);
+                test(false);
+            }
+            catch (Ice.PropertyException)
+            {
+            }
+            Console.Out.WriteLine("ok");
+        }
+
+        {
             Console.Out.Write("testing Ice.ProgramName default... ");
             Console.Out.Flush();
             using var communicator = new Ice.Communicator();
