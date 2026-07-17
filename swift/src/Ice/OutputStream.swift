@@ -489,8 +489,10 @@ extension OutputStream {
     /// Writes a proxy to the stream.
     ///
     /// - Parameter v: The proxy to write.
+    /// - Precondition: `v` is not a fixed proxy.
     public func write(_ v: ObjectPrx?) {
         if let prxImpl = v as? ObjectPrxI {
+            precondition(!prxImpl.ice_isFixed(), "Cannot marshal a fixed proxy")
             prxImpl.ice_write(to: self)
         } else {
             // A nil proxy is represented by an Identity with empty name and category fields.
