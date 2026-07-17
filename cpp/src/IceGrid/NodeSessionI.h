@@ -43,7 +43,7 @@ namespace IceGrid
 
         [[nodiscard]] const NodePrx& getNode() const;
         [[nodiscard]] const std::shared_ptr<InternalNodeInfo>& getInfo() const noexcept;
-        [[nodiscard]] const LoadInfo& getLoadInfo() const;
+        [[nodiscard]] LoadInfo getLoadInfo() const;
         [[nodiscard]] NodeSessionPrx getProxy() const;
 
         [[nodiscard]] bool isDestroyed() const;
