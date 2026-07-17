@@ -266,11 +266,19 @@ namespace Ice
 
         /// Tests whether this object supports a specific Slice interface.
         /// @param typeId The type ID of the Slice interface to test against.
-        /// @param response The response callback. It accepts:
+        /// @param response The response callback. The Ice runtime calls this function from an Ice thread pool thread.
+        /// If you set InitializationData::executor, the executor determines the thread that executes this function.
+        /// It accepts:
         /// - `true` if the target object implements the Slice interface specified by @p typeId or implements a
         /// derived interface, `false` otherwise.
-        /// @param ex The exception callback.
-        /// @param sent The sent callback.
+        /// @param ex The exception callback. The Ice runtime calls this function from an Ice thread pool thread. If
+        /// you set InitializationData::executor, the executor determines the thread that executes this function.
+        /// @param sent The sent callback. The Ice runtime calls this function when the request is accepted by the
+        /// transport. When the request is accepted synchronously, the Ice runtime calls this function from the current
+        /// thread and passes `true` as argument. When the request is accepted asynchronously, the Ice runtime calls
+        /// this function from an Ice thread pool thread and passes `false` as argument. If you set
+        /// InitializationData::executor, the executor determines the thread that executes this function in the
+        /// asynchronous case.
         /// @param context The request context.
         /// @return A function that can be called to cancel the invocation locally.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
@@ -299,11 +307,22 @@ namespace Ice
         void ice_ping(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// Tests whether the target object of this proxy can be reached.
-        /// @param response The response callback.
-        /// @param ex The exception callback.
-        /// @param sent The sent callback.
+        /// @param response The response callback. The Ice runtime calls this function from an Ice thread pool thread.
+        /// If you set InitializationData::executor, the executor determines the thread that executes this function.
+        /// @param ex The exception callback. The Ice runtime calls this function from an Ice thread pool thread. If
+        /// you set InitializationData::executor, the executor determines the thread that executes this function.
+        /// @param sent The sent callback. The Ice runtime calls this function when the request is accepted by the
+        /// transport. When the request is accepted synchronously, the Ice runtime calls this function from the current
+        /// thread and passes `true` as argument. When the request is accepted asynchronously, the Ice runtime calls
+        /// this function from an Ice thread pool thread and passes `false` as argument. If you set
+        /// InitializationData::executor, the executor determines the thread that executes this function in the
+        /// asynchronous case.
         /// @param context The request context.
         /// @return A function that can be called to cancel the invocation locally.
+        /// @remark When this proxy is a oneway or datagram proxy, the Ice runtime does not call the response
+        /// callback: a successful invocation completes with the sent callback. When this proxy is a batch proxy, this
+        /// function only adds the request to the batch: the Ice runtime calls none of the callbacks, and the request
+        /// is sent later, by a flush.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_pingAsync(
             std::function<void()> response,
@@ -325,10 +344,18 @@ namespace Ice
         [[nodiscard]] std::vector<std::string> ice_ids(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// Gets the Slice interfaces supported by this object as a list of Slice type IDs.
-        /// @param response The response callback. It accepts:
+        /// @param response The response callback. The Ice runtime calls this function from an Ice thread pool thread.
+        /// If you set InitializationData::executor, the executor determines the thread that executes this function.
+        /// It accepts:
         /// - The Slice type IDs of the interfaces supported by this object, in alphabetical order.
-        /// @param ex The exception callback.
-        /// @param sent The sent callback.
+        /// @param ex The exception callback. The Ice runtime calls this function from an Ice thread pool thread. If
+        /// you set InitializationData::executor, the executor determines the thread that executes this function.
+        /// @param sent The sent callback. The Ice runtime calls this function when the request is accepted by the
+        /// transport. When the request is accepted synchronously, the Ice runtime calls this function from the current
+        /// thread and passes `true` as argument. When the request is accepted asynchronously, the Ice runtime calls
+        /// this function from an Ice thread pool thread and passes `false` as argument. If you set
+        /// InitializationData::executor, the executor determines the thread that executes this function in the
+        /// asynchronous case.
         /// @param context The request context.
         /// @return A function that can be called to cancel the invocation locally.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
@@ -356,10 +383,18 @@ namespace Ice
         [[nodiscard]] std::string ice_id(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// Gets the type ID of the most-derived Slice interface supported by this object.
-        /// @param response The response callback. It accepts:
+        /// @param response The response callback. The Ice runtime calls this function from an Ice thread pool thread.
+        /// If you set InitializationData::executor, the executor determines the thread that executes this function.
+        /// It accepts:
         /// - The type ID of the most-derived interface.
-        /// @param ex The exception callback.
-        /// @param sent The sent callback.
+        /// @param ex The exception callback. The Ice runtime calls this function from an Ice thread pool thread. If
+        /// you set InitializationData::executor, the executor determines the thread that executes this function.
+        /// @param sent The sent callback. The Ice runtime calls this function when the request is accepted by the
+        /// transport. When the request is accepted synchronously, the Ice runtime calls this function from the current
+        /// thread and passes `true` as argument. When the request is accepted asynchronously, the Ice runtime calls
+        /// this function from an Ice thread pool thread and passes `false` as argument. If you set
+        /// InitializationData::executor, the executor determines the thread that executes this function in the
+        /// asynchronous case.
         /// @param context The request context.
         /// @return A function that can be called to cancel the invocation locally.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
@@ -411,14 +446,26 @@ namespace Ice
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
         /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
-        /// @param response The response callback. It accepts:
+        /// @param response The response callback. The Ice runtime calls this function from an Ice thread pool thread.
+        /// If you set InitializationData::executor, the executor determines the thread that executes this function.
+        /// It accepts:
         /// - `returnValue` `true` if the operation completed successfully, `false` if it completed with a user
         ///    exception.
         /// - `outParams` An encapsulation containing the encoded result.
-        /// @param ex The exception callback.
-        /// @param sent The sent callback.
+        /// @param ex The exception callback. The Ice runtime calls this function from an Ice thread pool thread. If
+        /// you set InitializationData::executor, the executor determines the thread that executes this function.
+        /// @param sent The sent callback. The Ice runtime calls this function when the request is accepted by the
+        /// transport. When the request is accepted synchronously, the Ice runtime calls this function from the current
+        /// thread and passes `true` as argument. When the request is accepted asynchronously, the Ice runtime calls
+        /// this function from an Ice thread pool thread and passes `false` as argument. If you set
+        /// InitializationData::executor, the executor determines the thread that executes this function in the
+        /// asynchronous case.
         /// @param context The request context.
         /// @return A function that can be called to cancel the invocation locally.
+        /// @remark When this proxy is a oneway or datagram proxy, the Ice runtime does not call the response
+        /// callback: a successful invocation completes with the sent callback. When this proxy is a batch proxy, this
+        /// function only adds the request to the batch: the Ice runtime calls none of the callbacks, and the request
+        /// is sent later, by a flush.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_invokeAsync(
             std::string_view operation,
@@ -462,14 +509,26 @@ namespace Ice
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
         /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
-        /// @param response The response callback. It accepts:
+        /// @param response The response callback. The Ice runtime calls this function from an Ice thread pool thread.
+        /// If you set InitializationData::executor, the executor determines the thread that executes this function.
+        /// It accepts:
         /// - `returnValue` `true` if the operation completed successfully, `false` if it completed with a user
         ///    exception.
         /// - `outParams` An encapsulation containing the encoded result.
-        /// @param ex The exception callback.
-        /// @param sent The sent callback.
+        /// @param ex The exception callback. The Ice runtime calls this function from an Ice thread pool thread. If
+        /// you set InitializationData::executor, the executor determines the thread that executes this function.
+        /// @param sent The sent callback. The Ice runtime calls this function when the request is accepted by the
+        /// transport. When the request is accepted synchronously, the Ice runtime calls this function from the current
+        /// thread and passes `true` as argument. When the request is accepted asynchronously, the Ice runtime calls
+        /// this function from an Ice thread pool thread and passes `false` as argument. If you set
+        /// InitializationData::executor, the executor determines the thread that executes this function in the
+        /// asynchronous case.
         /// @param context The request context.
         /// @return A function that can be called to cancel the invocation locally.
+        /// @remark When this proxy is a oneway or datagram proxy, the Ice runtime does not call the response
+        /// callback: a successful invocation completes with the sent callback. When this proxy is a batch proxy, this
+        /// function only adds the request to the batch: the Ice runtime calls none of the callbacks, and the request
+        /// is sent later, by a flush.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_invokeAsync(
             std::string_view operation,
@@ -489,10 +548,14 @@ namespace Ice
 
         /// Gets the connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.
-        /// @param response The response callback. It accepts:
+        /// @param response The response callback. The Ice runtime calls this function from an Ice thread pool thread.
+        /// If you set InitializationData::executor, the executor determines the thread that executes this function.
+        /// It accepts:
         /// - The connection for this proxy.
-        /// @param ex The exception callback.
-        /// @param sent The sent callback.
+        /// @param ex The exception callback. The Ice runtime calls this function from an Ice thread pool thread. If
+        /// you set InitializationData::executor, the executor determines the thread that executes this function.
+        /// @param sent The sent callback. The Ice runtime never calls this function: no request is sent to get a
+        /// connection.
         /// @return A function that can be called to cancel the invocation locally.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_getConnectionAsync(
@@ -519,8 +582,14 @@ namespace Ice
         void ice_flushBatchRequests() const;
 
         /// Flushes any pending batched requests for this proxy asynchronously.
-        /// @param ex The exception callback.
-        /// @param sent The sent callback.
+        /// @param ex The exception callback. The Ice runtime calls this function from an Ice thread pool thread. If
+        /// you set InitializationData::executor, the executor determines the thread that executes this function.
+        /// @param sent The sent callback. The Ice runtime calls this function when the batch requests are accepted
+        /// by the transport. When the batch requests are accepted synchronously, the Ice runtime calls this function
+        /// from the current thread and passes `true` as argument. When the batch requests are accepted asynchronously,
+        /// the Ice runtime calls this function from an Ice thread pool thread and passes `false` as argument. If you
+        /// set InitializationData::executor, the executor determines the thread that executes this function in the
+        /// asynchronous case.
         /// @return A function that can be called to cancel the invocation locally.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_flushBatchRequestsAsync(
