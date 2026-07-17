@@ -214,7 +214,7 @@ NodeSessionI::getInfo() const noexcept
     return _info;
 }
 
-const LoadInfo&
+LoadInfo
 NodeSessionI::getLoadInfo() const
 {
     lock_guard lock(_mutex);
