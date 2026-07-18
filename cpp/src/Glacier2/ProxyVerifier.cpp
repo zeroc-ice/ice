@@ -518,7 +518,7 @@ namespace Glacier2
 
         // The leading parts are single bytes; the last part covers the remaining bytes.
         uint32_t address = 0;
-        for (vector<unsigned long>::size_type i = 0; i + 1 < parts.size(); ++i)
+        for (size_t i = 0; i + 1 < parts.size(); ++i)
         {
             if (parts[i] > 0xFF)
             {
@@ -651,7 +651,7 @@ namespace Glacier2
             {
                 host.pop_back();
             }
-            if (optional<string> canonical = canonicalIPv4Address(host))
+            else if (optional<string> canonical = canonicalIPv4Address(host))
             {
                 host = *canonical;
             }
