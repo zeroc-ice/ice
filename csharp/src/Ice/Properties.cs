@@ -168,7 +168,7 @@ public sealed class Properties
             {
                 return int.Parse(pv.value, CultureInfo.InvariantCulture);
             }
-            catch (FormatException)
+            catch (System.Exception ex) when (ex is System.FormatException or System.OverflowException)
             {
                 throw new PropertyException($"property '{key}' has an invalid integer value: '{pv.value}'");
             }
@@ -235,10 +235,7 @@ public sealed class Properties
                     $"mismatched quotes in property {key}'s value, returning default value");
                 return value;
             }
-            else
-            {
-                return result;
-            }
+            return result.Length == 0 ? value : result;
         }
     }
 
