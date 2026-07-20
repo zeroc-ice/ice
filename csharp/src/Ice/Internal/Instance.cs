@@ -818,19 +818,8 @@ public sealed class Instance
 
                 for (int i = 0; i < retryValues.Length; i++)
                 {
-                    int v;
-                    bool parsed;
-
-                    try
-                    {
-                        v = int.Parse(retryValues[i], CultureInfo.InvariantCulture);
-                        parsed = true;
-                    }
-                    catch (System.Exception ex) when (ex is System.FormatException or System.OverflowException)
-                    {
-                        v = 0;
-                        parsed = false;
-                    }
+                    bool parsed =
+                        int.TryParse(retryValues[i], NumberStyles.Integer, CultureInfo.InvariantCulture, out int v);
 
                     //
                     // If -1 is the first value, no retry and wait intervals.
