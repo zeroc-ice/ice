@@ -77,6 +77,9 @@ Run everything from the repository root with:
 ```bash
 export PYTHONPATH="$PWD/python/python"
 UUID=8ce255c0-200a-11e0-ac64-0800200c9a66
+IMG="system-images;android-36;google_apis;x86_64"  # use arm64-v8a on Apple silicon
+CLIENT=emulator-5554
+SERVER=emulator-5556
 ```
 
 **1. Build the `btecho` pre-bond helper.** IceBT uses secure RFCOMM, so the emulators must be bonded;
@@ -90,39 +93,41 @@ keytool -genkeypair -v -keystore java/test/android/btecho/debug.keystore -storep
 APK=$(find java/test/android/btecho/build/outputs/apk -name '*.apk')
 ```
 
-**2. Boot two emulators** on the shared Netsim network. `-writable-system` is required to install
-`btecho` as a privileged system app.
+**2. Create and boot the two emulators** (detached, on the shared Netsim Bluetooth network;
+`-writable-system` is set for you so `btecho` can be installed as a privileged system app):
 
 ```bash
-FLAGS="-writable-system -packet-streamer-endpoint default -no-snapshot -no-boot-anim -no-window"
-emulator -avd <avd> -port 5554 $FLAGS &   # client -> emulator-5554
-emulator -avd <avd> -port 5556 $FLAGS &   # server -> emulator-5556
+python scripts/Controller.py --android --bt-emulators \
+  --bt-client="$CLIENT" --bt-server="$SERVER" --bt-image="$IMG"
 ```
 
-**3. Prepare and bond both emulators.** `--bt-setup` waits for boot, installs `btecho`, enables
-Bluetooth, grants its permissions, and prints the device's `BT_ADDRESS`; `--bt-bond` pairs them.
+**3. Prepare and bond them.** This waits for boot, installs `btecho` as a privileged system app,
+enables Bluetooth, bonds the pair, and prints the server's Bluetooth address (per-device progress
+goes to stderr and to `setup_client.log` / `setup_server.log`):
 
 ```bash
-python scripts/Controller.py --android --device=emulator-5554 --bt-setup="$APK"
-out=$(python scripts/Controller.py --android --device=emulator-5556 --bt-setup="$APK"); echo "$out"
-BT_ADDR=$(echo "$out" | grep -oE 'BT_ADDRESS=[0-9A-Fa-f:]+' | cut -d= -f2)
-python scripts/Controller.py --android --device=emulator-5554 --bt-bond=emulator-5556 --uuid="$UUID"
+BT_ADDR=$(python scripts/Controller.py --android --bt-prepare \
+  --bt-client="$CLIENT" --bt-server="$SERVER" --bt-setup="$APK" --uuid="$UUID")
 ```
 
-**4. Run the tests**, passing the server's Bluetooth address (captured above) as `--host-bt`:
+**4. Run the tests:**
 
 ```bash
 cd java
-python ../scripts/Controller.py --id=server --android --controller-app --device=emulator-5556 --host-bt="$BT_ADDR" &
+python ../scripts/Controller.py --id=server --android --controller-app \
+  --device="$SERVER" --host-bt="$BT_ADDR" &
 python allTests.py --server=server --protocol=bt --cross=java --android --controller-app \
-  --device=emulator-5554 --host-bt="$BT_ADDR" Ice/operations
+  --device="$CLIENT" --host-bt="$BT_ADDR" Ice/operations
 ```
 
 If a run fails, dump an emulator's controller state (pid, adb forwards, logcat) with:
 
 ```bash
-python scripts/Controller.py --android --device=emulator-5554 --bt-diagnostics
+python scripts/Controller.py --android --device="$CLIENT" --bt-diagnostics
 ```
+
+Individual emulators can also be prepared or bonded on their own with `--device=<serial> --bt-setup=<apk>`
+and `--device=<serial> --bt-bond=<peer> --uuid=<uuid>`.
 
 ## Finding Bluetooth Addresses
 

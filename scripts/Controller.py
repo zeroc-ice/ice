@@ -3,6 +3,7 @@
 # Copyright (c) ZeroC, Inc.
 
 import os
+import subprocess
 import sys
 import uuid
 
@@ -34,7 +35,23 @@ class ControllerDriver(Driver):
 
     @classmethod
     def getSupportedArgs(self):
-        return ("", ["clean", "id=", "endpoints=", "bt-setup=", "bt-bond=", "uuid=", "bt-diagnostics"])
+        return (
+            "",
+            [
+                "clean",
+                "id=",
+                "endpoints=",
+                "uuid=",
+                "bt-setup=",
+                "bt-bond=",
+                "bt-diagnostics",
+                "bt-prepare",
+                "bt-emulators",
+                "bt-client=",
+                "bt-server=",
+                "bt-image=",
+            ],
+        )
 
     @classmethod
     def usage(self):
@@ -43,11 +60,18 @@ class ControllerDriver(Driver):
         print("--id=<identity>       The identify of the controller object.")
         print("--endpoints=<endpts>  The endpoints to listen on.")
         print("--clean               Remove trust settings (macOS).")
-        print("--bt-setup=<apk>      Prepare --device for Bluetooth (boot-wait, install the btecho")
-        print("                      privileged helper, enable Bluetooth, grant permissions) and exit.")
-        print("--bt-bond=<serial>    Bond --device to the given peer emulator over RFCOMM and exit.")
-        print("--uuid=<uuid>         RFCOMM service UUID used by --bt-bond.")
+        print("")
+        print("Bluetooth harness options (all exit without starting a controller):")
+        print("--bt-emulators        Create and boot the --bt-client/--bt-server emulators (--bt-image).")
+        print("--bt-prepare          Prepare both emulators and bond them; prints the server address.")
+        print("--bt-setup=<apk>      Prepare --device only (boot-wait, install the btecho privileged")
+        print("                      helper, enable Bluetooth, grant permissions).")
+        print("--bt-bond=<serial>    Bond --device to the given peer emulator over RFCOMM.")
         print("--bt-diagnostics      Dump adb state (controller pid, forwards, logcat) for --device.")
+        print("--bt-client=<serial>  Emulator running the IceBT client (e.g. emulator-5554).")
+        print("--bt-server=<serial>  Emulator running the IceBT server (e.g. emulator-5556).")
+        print("--bt-image=<sdk>      System image used to create the AVDs for --bt-emulators.")
+        print("--uuid=<uuid>         RFCOMM service UUID used when bonding.")
 
     def __init__(self, options, *args, **kargs):
         Driver.__init__(self, options, *args, **kargs)
@@ -58,21 +82,40 @@ class ControllerDriver(Driver):
         self.btBond = ""  # peer emulator serial; when set, bond --device to it and exit
         self.uuid = ""  # RFCOMM service UUID used by the btecho bond
         self.btDiagnostics = False  # when set, dump adb diagnostics for --device and exit
+        self.btPrepare = False  # when set, prepare + bond --bt-client/--bt-server and exit
+        self.btEmulators = False  # when set, create + boot the two emulators and exit
+        self.btClient = ""  # emulator serial running the IceBT client
+        self.btServer = ""  # emulator serial running the IceBT server
+        self.btImage = ""  # system image used to create the AVDs
         # NB: don't add a self.device here -- parseOptions consumes the options it recognizes, so a
-        # self.device would swallow --device before the per-mapping Config can read it. The Bluetooth
-        # setup reads the emulator serial from the config instead (see runBluetoothSetup).
+        # self.device would swallow --device before the per-mapping Config can read it. The per-device
+        # Bluetooth modes read the emulator serial from the config instead (see runBluetoothDevice).
         parseOptions(
             self,
             options,
-            {"clean": "clean", "bt-setup": "btSetup", "bt-bond": "btBond", "bt-diagnostics": "btDiagnostics"},
+            {
+                "clean": "clean",
+                "bt-setup": "btSetup",
+                "bt-bond": "btBond",
+                "bt-diagnostics": "btDiagnostics",
+                "bt-prepare": "btPrepare",
+                "bt-emulators": "btEmulators",
+                "bt-client": "btClient",
+                "bt-server": "btServer",
+                "bt-image": "btImage",
+            },
         )
 
         if not self.endpoints:
             self.endpoints = ("tcp -h " + self.interface) if self.interface else "tcp"
 
     def run(self, mappings, testSuiteIds):
+        if self.btEmulators:
+            return self.runBluetoothEmulators()
+        if self.btPrepare:
+            return self.runBluetoothPrepare()
         if self.btSetup or self.btBond or self.btDiagnostics:
-            return self.runBluetoothSetup()
+            return self.runBluetoothDevice()
 
         if isinstance(platform, Darwin):
             #
@@ -208,7 +251,65 @@ class ControllerDriver(Driver):
         adapter.activate()
         self.communicator.waitForShutdown()
 
-    def runBluetoothSetup(self):
+    @staticmethod
+    def emulatorPort(serial):
+        # "emulator-5554" -> 5554
+        try:
+            return int(serial.rsplit("-", 1)[1])
+        except (IndexError, ValueError):
+            raise RuntimeError(f"expected an emulator serial like 'emulator-5554', got '{serial}'")
+
+    def runBluetoothEmulators(self):
+        # Create and boot the two emulators used by the Bluetooth harness. They are launched detached
+        # so they outlive this process.
+        from Util import AndroidProcessController
+
+        if not (self.btClient and self.btServer and self.btImage):
+            raise RuntimeError("--bt-emulators requires --bt-client, --bt-server and --bt-image")
+        for role, serial in (("client", self.btClient), ("server", self.btServer)):
+            AndroidProcessController.createBluetoothEmulator(
+                f"bt_{role}", self.btImage, self.emulatorPort(serial), f"emu_{role}.log"
+            )
+        return 0
+
+    def runBluetoothPrepare(self):
+        # Prepare both emulators (in parallel, each with its own log) and bond the client to the
+        # server. Progress goes to stderr and only the server's Bluetooth address to stdout, so
+        # callers can capture it directly.
+        from Util import AndroidProcessController
+
+        if not (self.btClient and self.btServer and self.btSetup and self.uuid):
+            raise RuntimeError("--bt-prepare requires --bt-client, --bt-server, --bt-setup=<apk> and --uuid")
+
+        # Re-invoke this script per device so each emulator's setup keeps a separate log.
+        running = {}
+        for role, serial in (("client", self.btClient), ("server", self.btServer)):
+            log = open(f"setup_{role}.log", "wb")
+            running[role] = (
+                subprocess.Popen(
+                    [sys.executable, __file__, "--android", f"--device={serial}", f"--bt-setup={self.btSetup}"],
+                    stdout=log,
+                    stderr=subprocess.STDOUT,
+                ),
+                log,
+            )
+        failed = []
+        for role, (process, log) in running.items():
+            status = process.wait()
+            log.close()
+            with open(f"setup_{role}.log") as f:
+                print(f"==== {role} setup ====\n{f.read()}", file=sys.stderr)
+            if status != 0:
+                failed.append(role)
+        if failed:
+            raise RuntimeError(f"Bluetooth setup failed for: {', '.join(failed)}")
+
+        AndroidProcessController.forDevice(self.btClient).bond(self.btServer, self.uuid)
+        print(f"bonded {self.btClient} to {self.btServer}", file=sys.stderr)
+        print(AndroidProcessController.forDevice(self.btServer).bluetoothAddress())
+        return 0
+
+    def runBluetoothDevice(self):
         # adb-driven Bluetooth setup/diagnostics for one Android emulator, invoked by the Bluetooth CI
         # harness instead of inline `adb` shell. It reuses the adb helpers already on
         # AndroidProcessController (self.adb(), waitForBoot, install, etc.) rather than reimplementing

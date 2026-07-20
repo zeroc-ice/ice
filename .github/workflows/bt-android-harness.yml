@@ -75,7 +75,6 @@ jobs:
         run: |
           make -C java srcs
           make -C java tests
-          ls -l java/lib/ice-*.jar java/lib/icebt-*.jar java/lib/test.jar
 
       - name: Install Android SDK packages
         run: |
@@ -102,36 +101,25 @@ jobs:
 
       - name: Create and boot two emulators on Netsim Bluetooth
         run: |
+          export PYTHONPATH="$GITHUB_WORKSPACE/python/python"
           mkdir -p "$ANDROID_AVD_HOME"
-          for n in bt_a bt_b; do echo no | avdmanager -v create avd -k "$IMG" -d "Nexus 6" -n "$n"; done
-          # -writable-system lets us install btecho as a privileged system app; -packet-streamer-endpoint
-          # attaches both emulators to the shared Netsim virtual Bluetooth network. bt_a is the client
-          # (port 5554 -> $CLIENT), bt_b is the server (port 5556 -> $SERVER).
-          FLAGS="-no-audio -partition-size 2048 -no-snapshot -writable-system -gpu swiftshader_indirect -accel on -no-boot-anim -no-window -packet-streamer-endpoint default"
-          nohup emulator -avd bt_a -port 5554 $FLAGS > emu_client.log 2>&1 &
-          nohup emulator -avd bt_b -port 5556 $FLAGS > emu_server.log 2>&1 &
-          echo launched
+          python3 scripts/Controller.py --android --bt-emulators \
+            --bt-client="$CLIENT" --bt-server="$SERVER" --bt-image="$IMG"
 
       - name: Prepare and bond the two emulators over Bluetooth
         run: |
           export PYTHONPATH="$GITHUB_WORKSPACE/python/python"
-          # Start the adb server up front so the two parallel setups below don't race to start it
+          # Start the adb server up front so the parallel per-device setups don't race to start it
           # (which surfaces as "adb: failed to start daemon" and a failed root/remount).
           adb start-server
-          # --bt-setup waits for boot, installs btecho as a privileged system app, enables Bluetooth,
-          # grants its permissions, and prints BT_ADDRESS. The adb work lives in AndroidProcessController
-          # (scripts/Util.py). Prepare both emulators in parallel.
-          python3 scripts/Controller.py --android --device="$CLIENT" --bt-setup="$BTECHO_APK" > setup_client.log 2>&1 & client=$!
-          python3 scripts/Controller.py --android --device="$SERVER" --bt-setup="$BTECHO_APK" > setup_server.log 2>&1 & server=$!
-          rc=0; wait "$client" || rc=$?; wait "$server" || rc=$?
-          cat setup_client.log setup_server.log
-          [ "$rc" = 0 ] || { echo "bt-setup failed (rc=$rc)"; exit 1; }
-          BT_ADDR=$(grep -oE 'BT_ADDRESS=[0-9A-Fa-f:]+' setup_server.log | tail -1 | cut -d= -f2)
+          # --bt-prepare boots-waits both emulators, installs btecho as a privileged system app,
+          # enables Bluetooth, bonds them, and prints the server's address. Progress and the
+          # per-device setup_{client,server}.log contents go to stderr.
+          BT_ADDR=$(python3 scripts/Controller.py --android --bt-prepare \
+            --bt-client="$CLIENT" --bt-server="$SERVER" --bt-setup="$BTECHO_APK" --uuid="$UUID")
           [ -n "$BT_ADDR" ] || { echo "no server Bluetooth address"; exit 1; }
           echo "server ($SERVER) Bluetooth address = $BT_ADDR"
           echo "BT_ADDR=$BT_ADDR" >> "$GITHUB_ENV"
-          # Bond the client to the server over secure RFCOMM (required by IceBT).
-          python3 scripts/Controller.py --android --device="$CLIENT" --bt-bond="$SERVER" --uuid="$UUID"
 
       - name: Run the harness over Bluetooth
         run: |
@@ -139,24 +127,20 @@ jobs:
           # Start the server-side process controller on $SERVER (it spawns the IceBT test server).
           # --controller-app installs and starts the on-device controller app up front.
           nohup python3 ../scripts/Controller.py --id=server --android --controller-app \
-            --device="$SERVER" --host-bt="$BT_ADDR" > "$GITHUB_WORKSPACE/controller.log" 2>&1 & server=$!
+            --device="$SERVER" --host-bt="$BT_ADDR" > "$GITHUB_WORKSPACE/controller.log" 2>&1 &
           sleep 10
-          kill -0 "$server" 2>/dev/null || { echo "server controller exited early"; cat "$GITHUB_WORKSPACE/controller.log"; exit 1; }
-          # Run the client suites on $CLIENT. $TEST is unquoted so each suite is a separate argument.
-          rc=0
+          kill -0 $! 2>/dev/null || { echo "server controller exited early"; cat "$GITHUB_WORKSPACE/controller.log"; exit 1; }
+          # allTests exits non-zero if any suite fails. $TEST is unquoted so each suite is a
+          # separate argument.
           python3 allTests.py --server=server --protocol=bt --cross=java --android --controller-app \
-            --device="$CLIENT" --host-bt="$BT_ADDR" --workers=1 $TEST 2>&1 \
-            | tee "$GITHUB_WORKSPACE/alltests.log" || rc=${PIPESTATUS[0]}
-          tail -40 "$GITHUB_WORKSPACE/controller.log" || true
-          # Pass only if allTests exited 0 and printed a clean "<n> succeeded" summary (a failure
-          # summary reads "<x> succeeded and <y> failed:", which won't match the anchored regex).
-          grep -qE "^[0-9]+ succeeded$" "$GITHUB_WORKSPACE/alltests.log" && [ "$rc" = 0 ]
+            --device="$CLIENT" --host-bt="$BT_ADDR" --workers=1 $TEST
 
       - name: Diagnostics
         if: always()
         timeout-minutes: 5
         run: |
           set +e
+          echo "=== controller.log ==="; tail -40 "$GITHUB_WORKSPACE/controller.log" 2>/dev/null
           echo "=== emu_client.log ==="; tail -20 emu_client.log 2>/dev/null
           echo "=== emu_server.log ==="; tail -20 emu_server.log 2>/dev/null
           export PYTHONPATH="$GITHUB_WORKSPACE/python/python"

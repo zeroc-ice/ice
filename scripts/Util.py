@@ -2763,6 +2763,43 @@ class AndroidProcessController(RemoteProcessController):
         lines = [ln for ln in self._adbTolerant("logcat -d").splitlines() if keep.search(ln)]
         print("\n".join(lines[-50:]))
 
+    # Emulator flags for the Bluetooth harness: -writable-system allows installing btecho as a
+    # privileged system app, and -packet-streamer-endpoint attaches the emulator to the shared
+    # Netsim virtual Bluetooth network so the two emulators can reach each other.
+    bluetoothEmulatorFlags = [
+        "-no-audio",
+        "-partition-size",
+        "2048",
+        "-no-snapshot",
+        "-writable-system",
+        "-gpu",
+        "swiftshader_indirect",
+        "-accel",
+        "on",
+        "-no-boot-anim",
+        "-no-window",
+        "-packet-streamer-endpoint",
+        "default",
+    ]
+
+    @classmethod
+    def createBluetoothEmulator(cls, avd, image, port, logFile):
+        # Create the AVD (replacing any stale one) and launch it detached so the emulator outlives
+        # this process -- CI runs each step in a fresh shell, and the emulator must survive.
+        try:
+            run(f"avdmanager -v delete avd -n {avd}")
+        except RuntimeError:
+            pass  # no existing AVD to delete
+        run(f'echo no | avdmanager -v create avd -k "{image}" -d "Nexus 6" -n {avd}')
+        print(f"starting emulator '{avd}' on port {port} (log: {logFile})")
+        with open(logFile, "wb") as log:
+            subprocess.Popen(
+                ["emulator", "-avd", avd, "-port", str(port), *cls.bluetoothEmulatorFlags],
+                stdout=log,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+            )
+
     def startEmulator(self, avd):
         #
         # First check if the AVD image is available
