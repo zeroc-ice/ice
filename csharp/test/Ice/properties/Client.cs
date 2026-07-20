@@ -43,6 +43,21 @@ public class Client : Test.TestHelper
             Console.Out.WriteLine("ok");
         }
 
+        //
+        // Two separate --Ice.Config arguments: the last one wins, like C++.
+        //
+        {
+            Console.Out.Write("testing using Ice.Config with adjacent command-line arguments... ");
+            Console.Out.Flush();
+            string[] args1 = ["--Ice.Config=config/config.1", "--Ice.Config=config/config.2"];
+            var properties = new Ice.Properties(ref args1);
+            test(properties.getIceProperty("Ice.Config") == "config/config.2");
+            test(properties.getProperty("Config1").Length == 0);
+            test(properties.getProperty("Config2") == "Config2");
+            test(args1.Length == 0);
+            Console.Out.WriteLine("ok");
+        }
+
         {
             Console.Out.Write("testing configuration file escapes... ");
             Console.Out.Flush();

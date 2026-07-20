@@ -1262,20 +1262,26 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 istringstream value(retryValue);
 
                 int v;
-                if (!(value >> v) || !value.eof())
-                {
-                    v = 0;
-                }
+                bool parsed = static_cast<bool>(value >> v) && value.eof();
 
                 //
                 // If -1 is the first value, no retry and wait intervals.
                 //
-                if (v == -1 && _retryIntervals.empty())
+                if (parsed && v == -1 && _retryIntervals.empty())
                 {
                     break;
                 }
 
-                _retryIntervals.push_back(v > 0 ? v : 0);
+                // Any value that is not a non-negative integer (or the leading -1 handled above) is invalid and
+                // treated as 0.
+                if (!parsed || v < 0)
+                {
+                    Warning out(_initData.logger);
+                    out << "invalid value '" << retryValue << "' in property Ice.RetryIntervals, assuming 0";
+                    v = 0;
+                }
+
+                _retryIntervals.push_back(v);
             }
         }
 

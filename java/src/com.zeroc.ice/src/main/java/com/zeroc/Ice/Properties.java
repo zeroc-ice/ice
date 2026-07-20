@@ -590,24 +590,21 @@ public final class Properties {
 
     private void loadArgs(String[] args, List<String> remainingArgs) {
         boolean loadConfigFiles = false;
+        List<String> filteredArgs = new ArrayList<>();
 
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].startsWith("--Ice.Config")) {
-                String line = args[i];
+        for (String arg : args) {
+            if (arg.startsWith("--Ice.Config")) {
+                String line = arg;
                 if (line.indexOf('=') == -1) {
                     line += "=1";
                 }
                 parseLine(line.substring(2));
                 loadConfigFiles = true;
-
-                String[] arr = new String[args.length - 1];
-                System.arraycopy(args, 0, arr, 0, i);
-                if (i < args.length - 1) {
-                    System.arraycopy(args, i + 1, arr, i, args.length - i - 1);
-                }
-                args = arr;
+            } else {
+                filteredArgs.add(arg);
             }
         }
+        args = filteredArgs.toArray(new String[0]);
 
         if (!loadConfigFiles) {
             // If Ice.Config is not set, load from ICE_CONFIG (if set)

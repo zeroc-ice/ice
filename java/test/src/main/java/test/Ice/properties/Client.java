@@ -8,6 +8,9 @@ import com.zeroc.Ice.PropertyException;
 
 import test.TestHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Client extends TestHelper {
     public static void test(boolean b) {
         if (!b) {
@@ -39,6 +42,22 @@ public class Client extends TestHelper {
             test("Config1".equals(properties.getProperty("Config1")));
             test("Config2".equals(properties.getProperty("Config2")));
             test("Config3".equals(properties.getProperty("Config3")));
+            System.out.println("ok");
+        }
+
+        //
+        // Two separate --Ice.Config arguments: the last one wins, like C++.
+        //
+        {
+            System.out.print("testing using Ice.Config with adjacent command-line arguments... ");
+            String[] args1 =
+                new String[]{"--Ice.Config=config/config.1", "--Ice.Config=config/config.2"};
+            List<String> remainingArgs = new ArrayList<>();
+            Properties properties = new Properties(args1, remainingArgs);
+            test("config/config.2".equals(properties.getIceProperty("Ice.Config")));
+            test(properties.getProperty("Config1").isEmpty());
+            test("Config2".equals(properties.getProperty("Config2")));
+            test(remainingArgs.isEmpty());
             System.out.println("ok");
         }
 

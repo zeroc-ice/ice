@@ -42,8 +42,7 @@ public final class Options {
                             // we don't drop backslashes from Windows path names.
                             if (i < line.length() - 1 && line.charAt(++i) != '\n') {
                                 char nextChar = line.charAt(i);
-                                // TODO: comment says we should be checking single quotes here, but we aren't?
-                                if (nextChar != ' ' && nextChar != '$' && nextChar != '\\' && nextChar != '"') {
+                                if (nextChar != ' ' && nextChar != '\'' && nextChar != '$' && nextChar != '"') {
                                     arg.append('\\');
                                 }
                                 arg.append(nextChar);
