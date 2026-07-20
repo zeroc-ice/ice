@@ -1,89 +1,71 @@
 # Bluetooth Testing Guide
 
-This document describes how to run the Ice test suite over Bluetooth connections between different language mappings.
+Runs the Ice test suite over Bluetooth (IceBT). Three setups:
 
-## Prerequisites
+- C++ client against an Android server — needs hardware
+- Android client against a C++ server — needs hardware
+- Android against Android on two emulators — no hardware; this is what CI runs
 
-- C++ and Java source builds, refer to the [cpp/BUILDING.md] and [java/BUILDING.md] for details
-- An Android device with Bluetooth capability
-- The [Android test controller] application installed and running on the device
-- Bluetooth adapters on both client and server machines
-- Paired Bluetooth devices (the Android device and the machine running the C++ tests)
+## Common flags
 
-## Run C++ Client Against Android Server Over Bluetooth
+- `--host-bt` — Bluetooth address of the machine or device running the server
+- `--host` — its IP address
+- `--id=server` — this controller manages servers
+- `--android` — the controller drives an Android device
+- `--server=server` — use the remote server controller
+- `--protocol=bt` — Bluetooth transport; `bts` for Bluetooth over SSL
+- `--cross=<mapping>` — language mapping on the other side
 
-First, start the Android test controller application on your device.
+## Hardware setups
 
-From the `java` directory, start the Python controller to manage the Android server:
+Prerequisites:
+
+- C++ and Java source builds — see [cpp/BUILDING.md] and [java/BUILDING.md]
+- An Android device with Bluetooth, already paired with the host
+- The [Android test controller] app installed and running on it
+
+**C++ client, Android server.** From `java`, start the controller for the Android server:
 
 ```bash
 python ../scripts/Controller.py --host-bt="A4:FF:9F:A6:48:C1" --host=192.168.1.51 --id=server --android
 ```
 
-Where:
-- `--host-bt` is the Bluetooth address of the Android device running the server
-- `--host` is the IP address of the Android device running the server
-- `--id=server` identifies this controller as managing servers
-- `--android` indicates this is controlling an Android device
-
-Then from the `cpp` directory, start the C++ test suite to run against the Android servers:
+Then run the client from `cpp`:
 
 ```bash
 python ./allTests.py --server=server --protocol=bt --cross=java
 ```
 
-Where:
-- `--server=server` indicates to use the remote server controller
-- `--protocol=bt` specifies to use Bluetooth transport, use `--protocol=bts` to test Bluetooth over SSL
-- `--cross=java` indicates cross-language testing with Java servers
-
-## Run Android Client Against C++ Server Over Bluetooth
-
-First, start the Android test controller application on your device.
-
-From the `cpp` directory, start the Python controller to manage the C++ server:
+**Android client, C++ server.** From `cpp`, start the controller for the C++ server:
 
 ```bash
 python ../scripts/Controller.py --host-bt="00:15:83:ED:D7:29" --host=192.168.1.48 --id=server
 ```
 
-Where:
-- `--host-bt` is the Bluetooth address of the machine running the C++ server
-- `--host` is the IP address of the machine running the C++ server
-- `--id=server` identifies this controller as managing servers
-
-Then from the `java` directory, start the Java/Android test suite to run against the C++ servers:
+Then run the client from `java`:
 
 ```bash
 python ./allTests.py --server=server --protocol=bt --cross=cpp --android
 ```
 
-Where:
-- `--server=server` indicates to use the remote server controller
-- `--protocol=bt` specifies to use Bluetooth transport, use `--protocol=bts` to test Bluetooth over SSL
-- `--cross=cpp` indicates cross-language testing with C++ servers
-- `--android` runs the Android client tests
+## Two emulators, no hardware
 
-## Run Android Client Against Android Server Over Bluetooth (two emulators)
+The emulator ships a virtual Bluetooth controller (Netsim/Rootcanal) that does RFCOMM between
+emulators. One runs the server, the other the client. This is what CI's `android-bt` configuration
+does. All the adb work lives in the harness, so nothing is bonded by hand.
 
-Both sides can run on Android emulators using the emulator's virtual Bluetooth controller
-(Netsim/Rootcanal) — no radios required. One emulator runs the IceBT server, the other the client,
-each driven by a controller bound to it via `--device`. The steps below reproduce, locally, what
-CI's `android-bt` configuration does; all the adb work is inside the harness (`Controller.py
---bt-setup` / `--bt-bond` / `--bt-diagnostics`), so no manual bonding is needed.
-
-Run everything from the repository root with:
+Run from the repository root, with:
 
 ```bash
 export PYTHONPATH="$PWD/python/python"
 UUID=8ce255c0-200a-11e0-ac64-0800200c9a66
-IMG="system-images;android-36;google_apis;x86_64"  # use arm64-v8a on Apple silicon
+IMG="system-images;android-36;google_apis;x86_64"  # arm64-v8a on Apple silicon
 CLIENT=emulator-5554
 SERVER=emulator-5556
 ```
 
-**1. Build the `btbond` pre-bond helper.** IceBT uses secure RFCOMM, so the emulators must be bonded;
-`btbond` is a tiny privileged app that auto-confirms pairing.
+**1. Build `btbond`.** IceBT needs bonded devices. `btbond` is a privileged helper that
+auto-confirms pairing.
 
 ```bash
 keytool -genkeypair -v -keystore java/test/android/btbond/debug.keystore -storepass android \
@@ -93,24 +75,23 @@ keytool -genkeypair -v -keystore java/test/android/btbond/debug.keystore -storep
 APK=$(find java/test/android/btbond/build/outputs/apk -name '*.apk')
 ```
 
-**2. Create and boot the two emulators** (detached, on the shared Netsim Bluetooth network;
-`-writable-system` is set for you so `btbond` can be installed as a privileged system app):
+**2. Create and boot the emulators.** Detached, on a shared Netsim network. `-writable-system` is
+set for you, so `btbond` can be installed as a privileged system app.
 
 ```bash
 python scripts/Controller.py --android --bt-emulators \
   --bt-client="$CLIENT" --bt-server="$SERVER" --bt-image="$IMG"
 ```
 
-**3. Prepare and bond them.** This waits for boot, installs `btbond` as a privileged system app,
-enables Bluetooth, bonds the pair, and prints the server's Bluetooth address (per-device progress
-goes to stderr and to `setup_client.log` / `setup_server.log`):
+**3. Prepare and bond them.** Waits for boot, installs `btbond`, enables Bluetooth, bonds the pair,
+prints the server's address. Progress goes to stderr and to `setup_client.log` / `setup_server.log`.
 
 ```bash
 BT_ADDR=$(python scripts/Controller.py --android --bt-prepare \
   --bt-client="$CLIENT" --bt-server="$SERVER" --bt-setup="$APK" --uuid="$UUID")
 ```
 
-**4. Run the tests:**
+**4. Run the tests.**
 
 ```bash
 cd java
@@ -120,37 +101,30 @@ python allTests.py --server=server --protocol=bt --cross=java --android --contro
   --device="$CLIENT" --host-bt="$BT_ADDR" Ice/operations
 ```
 
-`Ice/operations` is just one suite; pass as many as you like. CI runs the full set listed in the
-`android-bt` entry of `.github/workflows/ci.yml`, with the emulator setup in
-`.github/actions/setup-bt`.
+Pass as many suites as you like. CI's list is in the `android-bt` entry of
+`.github/workflows/ci.yml`; its setup is in `.github/actions/setup-bt`.
 
-If a run fails, dump an emulator's controller state (pid, adb forwards, logcat) with:
+Dump an emulator's controller state (pid, adb forwards, logcat):
 
 ```bash
 python scripts/Controller.py --android --device="$CLIENT" --bt-diagnostics
 ```
 
-Individual emulators can also be prepared or bonded on their own with `--device=<serial> --bt-setup=<apk>`
+Emulators can also be prepared or bonded one at a time, with `--device=<serial> --bt-setup=<apk>`
 and `--device=<serial> --bt-bond=<peer> --uuid=<uuid>`.
 
-## Finding Bluetooth Addresses
+## Finding Bluetooth addresses
 
-On Linux, you can find the Bluetooth address of your machine using:
-
-```bash
-hciconfig
-```
-
-On Android, go to Settings → About phone → Status (or Settings → System → About phone) to find the Bluetooth address.
+On Linux, run `hciconfig`. On Android, see Settings → About phone → Status.
 
 ## Troubleshooting
 
-- Ensure Bluetooth is enabled on all devices
-- Verify devices are paired before running tests
-- Check that the Android test controller application is running and visible
-- Ensure IP addresses and Bluetooth addresses are correct
-- Use `--debug` flag for verbose output to diagnose connection issues
+- Is Bluetooth enabled on all devices?
+- Are the devices paired?
+- Is the Android test controller running and visible?
+- Are the IP and Bluetooth addresses correct?
+- Add `--debug` for verbose output.
 
-[Android test controller]: java/test//android/controller/
+[Android test controller]: java/test/android/controller/
 [cpp/BUILDING.md]: cpp/BUILDING.md
 [java/BUILDING.md]: java/BUILDING.md
