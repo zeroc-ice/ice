@@ -552,14 +552,14 @@ Ice::ConnectionI::close(function<void()> response, function<void(std::exception_
         {
             if (response)
             {
-                response();
+                executeCallback(response);
             }
         }
         else
         {
             if (exception)
             {
-                exception(closeException);
+                executeCallback([&] { exception(closeException); });
             }
         }
     }
@@ -776,7 +776,9 @@ Ice::ConnectionI::setCloseCallback(CloseCallback callback)
             if (callback)
             {
                 auto self = shared_from_this();
-                _threadPool->execute([self, callback = std::move(callback)]() { self->closeCallback(callback); }, self);
+                _threadPool->execute(
+                    [self, callback = std::move(callback)]() { self->executeCallback(callback); },
+                    self);
             }
         }
         else
@@ -795,11 +797,17 @@ Ice::ConnectionI::disableInactivityCheck() noexcept
 }
 
 void
-Ice::ConnectionI::closeCallback(const CloseCallback& callback)
+Ice::ConnectionI::executeCallback(const CloseCallback& callback) noexcept
+{
+    executeCallback([self = shared_from_this(), &callback] { callback(self); });
+}
+
+void
+Ice::ConnectionI::executeCallback(const std::function<void()>& callback) noexcept
 {
     try
     {
-        callback(shared_from_this());
+        callback();
     }
     catch (const std::exception& ex)
     {
@@ -1779,14 +1787,14 @@ Ice::ConnectionI::finish(bool close)
             {
                 if (pair.first)
                 {
-                    pair.first();
+                    executeCallback(pair.first);
                 }
             }
             else
             {
                 if (pair.second)
                 {
-                    pair.second(_exception);
+                    executeCallback([this, &pair] { pair.second(_exception); });
                 }
             }
         }
@@ -1795,7 +1803,7 @@ Ice::ConnectionI::finish(bool close)
 
     if (_closeCallback)
     {
-        closeCallback(_closeCallback);
+        executeCallback(_closeCallback);
         _closeCallback = nullptr;
     }
 
