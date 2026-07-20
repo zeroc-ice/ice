@@ -62,7 +62,8 @@ namespace Ice
         /// @remark The response and exception callbacks may be called synchronously (from the calling thread); in
         /// particular, this occurs when you call `close` on a connection that is already closed. The implementation
         /// always calls one of the two callbacks once; it never calls both. If closing the connection takes longer than
-        /// the configured close timeout, the connection is aborted with a CloseTimeoutException.
+        /// the configured close timeout, the connection is aborted with a CloseTimeoutException. The response and
+        /// exception callbacks must not throw any exception.
         virtual void
         close(std::function<void()> response, std::function<void(std::exception_ptr)> exception) noexcept = 0;
 

@@ -1223,6 +1223,75 @@ allTests(TestHelper* helper, bool collocated)
             }
             cout << "ok" << endl;
 
+            cout << "testing connection close with a throwing callback... " << flush;
+            {
+                // The callbacks passed to close must not throw. When one throws anyway, the connection must still
+                // invoke the other close callbacks and finish. The thrown exceptions are logged as errors; this
+                // communicator's logger swallows them to keep the test output clean.
+                class SwallowLogger final : public Ice::Logger
+                {
+                public:
+                    void print(const string&) override {}
+                    void trace(const string&, const string&) override {}
+                    void warning(const string&) override {}
+                    void error(const string&) override {}
+                    string getPrefix() override { return ""; }
+                    Ice::LoggerPtr cloneWithPrefix(string) override { return make_shared<SwallowLogger>(); }
+                };
+
+                InitializationData initData;
+                initData.properties = communicator->getProperties()->clone();
+                initData.logger = make_shared<SwallowLogger>();
+                installTransport(initData);
+                Ice::CommunicatorHolder ich(initialize(initData));
+                TestIntfPrx p2(ich.communicator(), p->ice_toString());
+
+                auto con = p2->ice_getConnection();
+
+                vector<string> order;
+                mutex orderMutex;
+                auto record = [&](const char* event)
+                {
+                    lock_guard<mutex> lock(orderMutex);
+                    order.emplace_back(event);
+                };
+
+                promise<void> closed;
+                con->setCloseCallback(
+                    [&](const ConnectionPtr&)
+                    {
+                        record("closed");
+                        closed.set_value();
+                    });
+
+                // Keeps the connection open until both close calls below have queued their callbacks.
+                auto sleepFuture = p2->sleepAsync(100);
+
+                con->close(
+                    [&]
+                    {
+                        record("first");
+                        throw std::runtime_error("from response callback");
+                    },
+                    [&](exception_ptr)
+                    {
+                        record("first");
+                        throw std::runtime_error("from exception callback");
+                    });
+                con->close([&] { record("second"); }, [&](exception_ptr) { record("second"); });
+
+                sleepFuture.get();
+                // The close callback runs after the close response callbacks: reaching it shows that the throwing
+                // callback did not interrupt the connection's finalization.
+                closed.get_future().get();
+                test((order == vector<string>{"first", "second", "closed"}));
+
+                // On an already-closed connection, the response callback runs synchronously from this thread; the
+                // exception must not escape close, which is noexcept.
+                con->close([] { throw std::runtime_error("from response callback"); }, nullptr);
+            }
+            cout << "ok" << endl;
+
             cout << "testing connection abort... " << flush;
             {
                 //
