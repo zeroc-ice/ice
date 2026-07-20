@@ -1247,31 +1247,44 @@ allTests(TestHelper* helper, bool collocated)
                 TestIntfPrx p2(ich.communicator(), p->ice_toString());
 
                 auto con = p2->ice_getConnection();
-                promise<void> closed;
-                con->setCloseCallback([&closed](const ConnectionPtr&) { closed.set_value(); });
 
-                promise<void> first;
-                con->close(
-                    [&first]
+                vector<string> order;
+                mutex orderMutex;
+                auto record = [&](const char* event)
+                {
+                    lock_guard<mutex> lock(orderMutex);
+                    order.emplace_back(event);
+                };
+
+                promise<void> closed;
+                con->setCloseCallback(
+                    [&](const ConnectionPtr&)
                     {
-                        first.set_value();
+                        record("closed");
+                        closed.set_value();
+                    });
+
+                // Keeps the connection open until both close calls below have queued their callbacks.
+                auto sleepFuture = p2->sleepAsync(100);
+
+                con->close(
+                    [&]
+                    {
+                        record("first");
                         throw std::runtime_error("from response callback");
                     },
-                    [&first](exception_ptr)
+                    [&](exception_ptr)
                     {
-                        first.set_value();
+                        record("first");
                         throw std::runtime_error("from exception callback");
                     });
-                promise<void> second;
-                con->close(
-                    [&second] { second.set_value(); },
-                    [&second](exception_ptr ex) { second.set_exception(ex); });
+                con->close([&] { record("second"); }, [&](exception_ptr) { record("second"); });
 
-                first.get_future().get();
-                second.get_future().get();
+                sleepFuture.get();
                 // The close callback runs after the close response callbacks: reaching it shows that the throwing
                 // callback did not interrupt the connection's finalization.
                 closed.get_future().get();
+                test((order == vector<string>{"first", "second", "closed"}));
 
                 // On an already-closed connection, the response callback runs synchronously from this thread; the
                 // exception must not escape close, which is noexcept.
