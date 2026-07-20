@@ -2650,14 +2650,15 @@ class AndroidProcessController(RemoteProcessController):
         raise RuntimeError(f"'{name}' not booted after {timeout}s")
 
     def reboot(self):
-        self._adbTolerant("reboot")
-        # `adb reboot` returns while the device is still up, so waitForBoot's wait-for-device would
-        # return at once and read sys.boot_completed from the system we just asked to go down. Wait
-        # for the device to actually drop off adb first.
+        # A reboot that doesn't happen must not be mistaken for one that did: waitForBoot's
+        # wait-for-device returns at once while the device is still up, and sys.boot_completed is
+        # still 1 from the old boot, so setup would carry on as though the /system changes had been
+        # applied. Fail on both a rejected `adb reboot` and a device that never drops off adb.
+        run(f"{self.adb()} reboot")
         try:
-            subprocess.run([*self.adb().split(), "wait-for-disconnect"], timeout=60, check=False)
-        except subprocess.TimeoutExpired:
-            pass
+            subprocess.run([*self.adb().split(), "wait-for-disconnect"], timeout=120, check=True)
+        except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as ex:
+            raise RuntimeError(f"'{self.device}' did not go down after 'adb reboot': {ex}")
         self.waitForBoot()
 
     def rootRemount(self, timeout=120):

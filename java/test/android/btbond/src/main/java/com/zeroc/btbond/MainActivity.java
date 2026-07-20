@@ -25,12 +25,17 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 public class MainActivity extends Activity {
     static final String TAG = "BTBOND";
+
+    // Probe exchanged over the bonded channel to prove it carries data.
+    static final String PROBE = "PING";
 
     // Both are touched from onDestroy (main thread) and the worker, so they are volatile.
     private volatile Thread worker;
@@ -46,16 +51,21 @@ public class MainActivity extends Activity {
             int variant = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_VARIANT, -1);
             Log.i(TAG, "PAIRING_REQUEST variant=" + variant + " from " + (dev == null ? "?" : dev.getAddress()));
             try {
-                dev.setPairingConfirmation(true);
-                Log.i(TAG, "setPairingConfirmation(true) accepted");
+                // setPairingConfirmation reports failure by returning false as well as by throwing;
+                // both need to reach the setPin fallback below, which handles the variants it can't.
+                if (dev.setPairingConfirmation(true)) {
+                    Log.i(TAG, "setPairingConfirmation(true) accepted");
+                    return;
+                }
+                Log.w(TAG, "setPairingConfirmation(true) returned false");
             } catch (Throwable t) {
                 Log.w(TAG, "setPairingConfirmation failed: " + t);
-                try {
-                    dev.setPin("0000".getBytes());
-                    Log.i(TAG, "setPin(0000) accepted");
-                } catch (Throwable t2) {
-                    Log.w(TAG, "setPin failed: " + t2);
-                }
+            }
+            try {
+                dev.setPin("0000".getBytes(StandardCharsets.UTF_8));
+                Log.i(TAG, "setPin(0000) accepted");
+            } catch (Throwable t2) {
+                Log.w(TAG, "setPin failed: " + t2);
             }
         }
     };
@@ -131,11 +141,11 @@ public class MainActivity extends Activity {
                         Log.i(TAG, "accepted a connection");
                         InputStream in = s.getInputStream();
                         OutputStream out = s.getOutputStream();
-                        byte[] buf = new byte[64];
-                        int n = in.read(buf);
+                        byte[] buf = new byte[PROBE.length()];
+                        int n = readFully(in, buf);
                         Log.i(TAG, "server read " + n + " bytes");
                         if (n > 0) { out.write(buf, 0, n); out.flush(); }
-                        result(mode, n > 0, "echoed " + n + " bytes");
+                        result(mode, n == buf.length, "echoed " + n + " bytes");
                     } finally {
                         s.close();
                     }
@@ -167,12 +177,12 @@ public class MainActivity extends Activity {
                     Log.i(TAG, "connected");
                     OutputStream out = s.getOutputStream();
                     InputStream in = s.getInputStream();
-                    out.write("PING".getBytes()); out.flush();
-                    byte[] buf = new byte[64];
-                    int n = in.read(buf);
-                    String echo = n > 0 ? new String(buf, 0, n) : "";
+                    out.write(PROBE.getBytes(StandardCharsets.UTF_8)); out.flush();
+                    byte[] buf = new byte[PROBE.length()];
+                    int n = readFully(in, buf);
+                    String echo = n > 0 ? new String(buf, 0, n, StandardCharsets.UTF_8) : "";
                     Log.i(TAG, "client got echo: '" + echo + "'");
-                    result(mode, "PING".equals(echo), "echo='" + echo + "'");
+                    result(mode, PROBE.equals(echo), "echo='" + echo + "'");
                 } finally {
                     s.close();
                 }
@@ -183,6 +193,21 @@ public class MainActivity extends Activity {
             Log.e(TAG, "EXC " + t, t);
             result(mode, false, "exception: " + t);
         }
+    }
+
+    // RFCOMM is a byte stream, so a single read may return fewer bytes than the peer sent. Read the
+    // whole probe (or EOF) before echoing or comparing it, otherwise a split write reads as a
+    // bonding failure.
+    static int readFully(InputStream in, byte[] buf) throws IOException {
+        int n = 0;
+        while (n < buf.length) {
+            int r = in.read(buf, n, buf.length - n);
+            if (r < 0) {
+                break;
+            }
+            n += r;
+        }
+        return n;
     }
 
     void result(String mode, boolean ok, String detail) {
