@@ -7,7 +7,7 @@ declare module "@zeroc/ice" {
          */
         class OutputStream {
             /**
-             * Constructs an OutputStream using the encoding, and format provided by the communicator.
+             * Constructs an OutputStream using the encoding and format provided by the communicator.
              *
              * @param communicator The communicator.
              */
@@ -27,7 +27,7 @@ declare module "@zeroc/ice" {
             clear(): void;
 
             /**
-             * Indicates that marshaling is complete. This function must only be called once.
+             * Indicates that marshaling is complete.
              * @returns The `Uint8Array` containing the encoded request or reply
              */
             finished(): Uint8Array;
@@ -44,22 +44,15 @@ declare module "@zeroc/ice" {
              *
              * @param sz The new size of the stream in bytes.
              */
-
             resize(sz: number): void;
-
-            /**
-             * Prepares the internal buffer for writing to a socket.
-             *
-             * @returns The `Uint8Array` containing the encoded request or reply.
-             */
-            prepareWrite(): Uint8Array;
 
             /**
              * Marks the start of a class instance.
              *
-             * @param slicedData Preserved slices for this instance, or `null`.
+             * @param slicedData Preserved slices for this instance, or `null`. These slices are marshaled with the
+             * instance only when this stream uses the sliced format; otherwise they are ignored.
              */
-            startValue(slicedData: SlicedData): void;
+            startValue(slicedData: SlicedData | null): void;
 
             /**
              * Marks the end of a class instance.
@@ -77,12 +70,14 @@ declare module "@zeroc/ice" {
             endException(): void;
 
             /**
-             * Writes the start of an encapsulation to the stream.
+             * Writes the start of an encapsulation. A nested encapsulation uses the encoding version and class format
+             * of the enclosing encapsulation; a top-level encapsulation uses the stream's encoding version and class
+             * format.
              */
             startEncapsulation(): void;
 
             /**
-             * Writes the end of an encapsulation to the stream.
+             * Writes the start of an encapsulation using the specified encoding version and class format.
              *
              * @param encoding The encoding version of the encapsulation.
              * @param format The class format of the encapsulation. If not specified, the OutputStream's class format
@@ -91,7 +86,7 @@ declare module "@zeroc/ice" {
             startEncapsulation(encoding: EncodingVersion, format?: FormatType): void;
 
             /**
-             * Ends the previous encapsulation.
+             * Ends the current encapsulation.
              */
             endEncapsulation(): void;
 
@@ -110,7 +105,7 @@ declare module "@zeroc/ice" {
             writeEncapsulation(buff: Uint8Array): void;
 
             /**
-             * Gets the stream encoding version.
+             * Gets the current encoding version.
              *
              * @returns The encoding version.
              */
@@ -132,7 +127,10 @@ declare module "@zeroc/ice" {
             endSlice(): void;
 
             /**
-             * Writes the state of Slice classes whose index was previously written with writeValue() to the stream.
+             * Encodes the state of class instances whose insertion was delayed during a previous call to
+             * {@link OutputStream#writeValue}. This function must be called only once. For backward compatibility with
+             * encoding version 1.0, this function must be called only when non-optional fields or parameters use class
+             * types.
              */
             writePendingValues(): void;
 
@@ -171,8 +169,10 @@ declare module "@zeroc/ice" {
              *
              * @param tag The numeric tag associated with the value.
              * @param format The optional format of the value.
+             * @returns `true` if the current encoding version supports optional values, `false` otherwise. If `true`,
+             * the data associated with the optional value must be written next.
              */
-            writeOptional(tag: number, format: OptionalFormat): void;
+            writeOptional(tag: number, format: OptionalFormat): boolean;
 
             /**
              * Writes a byte to the stream.
@@ -238,14 +238,14 @@ declare module "@zeroc/ice" {
              * @param v The string to write to the stream. Passing `null` causes an empty string to be written to the
              *          stream.
              */
-            writeString(v: string): void;
+            writeString(v: string | null): void;
 
             /**
              * Writes a proxy to the stream.
              *
              * @param v The proxy to write.
              */
-            writeProxy(v: ObjectPrx): void;
+            writeProxy(v: ObjectPrx | null): void;
 
             /**
              * Writes an optional proxy to the stream.
@@ -263,24 +263,25 @@ declare module "@zeroc/ice" {
             writeEnum(v: EnumBase): void;
 
             /**
-             * Writes a class instance to the stream. This method writes the index of an instance; the state of the
-             * value is written once {@link OutputStream.writePendingValues} is called.
+             * Writes a class instance to the stream.
              *
-             * @param v The value to write.
+             * @param v The value to write. With the 1.0 encoding, this method writes an index and the state of the
+             * value is marshaled when {@link OutputStream#writePendingValues} is called; with the 1.1 encoding, the
+             * state is marshaled eagerly, without waiting for {@link OutputStream#writePendingValues}.
              */
             writeValue(v: Ice.Value): void;
 
             /**
              * Writes a user exception to the stream.
              *
-             * @param exception The user exception to write.</param>
+             * @param exception The user exception to write.
              */
             writeException(exception: UserException): void;
 
             /**
              *  Returns whether the stream is empty.
              *
-             * @returns True if no data has been written yet, false otherwise.</returns>
+             * @returns True if no data has been written yet, false otherwise.
              */
             isEmpty(): boolean;
 
@@ -300,11 +301,6 @@ declare module "@zeroc/ice" {
              * Gets the size of the stream.
              */
             readonly size: number;
-
-            /**
-             * Gets the buffer containing the stream data.
-             */
-            readonly buffer: Uint8Array;
         }
     }
 }

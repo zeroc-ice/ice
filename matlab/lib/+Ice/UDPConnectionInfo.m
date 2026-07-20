@@ -4,8 +4,8 @@ classdef (Sealed) UDPConnectionInfo < Ice.IPConnectionInfo
     %   UDPConnectionInfo Properties:
     %     mcastAddress - The multicast address.
     %     mcastPort - The multicast port.
-    %     rcvSize - The connection buffer receive size.
-    %     sndSize - The connection buffer send size.
+    %     rcvSize - The size of the receive buffer.
+    %     sndSize - The size of the send buffer.
 
     % Copyright (c) ZeroC, Inc.
 
@@ -29,11 +29,11 @@ classdef (Sealed) UDPConnectionInfo < Ice.IPConnectionInfo
         %   int32 scalar
         mcastPort (1, 1) int32
 
-        %RCVSIZE The connection buffer receive size.
+        %RCVSIZE The size of the receive buffer.
         %   int32 scalar
         rcvSize (1, 1) int32
 
-        %SNDSIZE The connection buffer send size.
+        %SNDSIZE The size of the send buffer.
         %   int32 scalar
         sndSize (1, 1) int32
     end

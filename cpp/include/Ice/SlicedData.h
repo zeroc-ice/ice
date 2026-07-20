@@ -30,7 +30,7 @@ namespace Ice
         /// The Slice compact type ID for this slice, or `-1` if the slice has no compact ID.
         const int compactId;
 
-        /// The encoded bytes for this slice, including the leading size integer.
+        /// The encoded bytes for this slice.
         const std::vector<std::byte> bytes;
 
         /// The class instances referenced by this slice.
@@ -93,11 +93,13 @@ namespace Ice
     {
     public:
         /// Constructs the placeholder instance.
-        /// @param unknownTypeId The Slice type ID of the unknown value.
+        /// @param unknownTypeId The Slice type ID of the unknown value, or the string form of the compact type ID
+        /// (for example, "1") when the most-derived slice was marshaled with a compact type ID.
         UnknownSlicedValue(std::string unknownTypeId) noexcept;
 
         /// Returns the Slice type ID associated with this instance.
-        /// @return The type ID supplied to the constructor.
+        /// @return The type ID supplied to the constructor. It's the string form of the compact type ID (for
+        /// example, "1") when the most-derived slice was marshaled with a compact type ID.
         [[nodiscard]] const char* ice_id() const noexcept final;
 
         /// Clones this object.

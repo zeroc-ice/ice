@@ -59,26 +59,6 @@ IceStormInternal::describeEndpoints(const optional<Ice::ObjectPrx>& proxy)
     return os.str();
 }
 
-int
-IceStormInternal::compareSubscriberRecordKey(const MDB_val* v1, const MDB_val* v2)
-{
-    SubscriberRecordKey k1, k2;
-    IceDB::Codec<SubscriberRecordKey, IceDB::IceContext, Ice::OutputStream>::read(k1, *v1, dbContext);
-    IceDB::Codec<SubscriberRecordKey, IceDB::IceContext, Ice::OutputStream>::read(k2, *v2, dbContext);
-    if (k1 < k2)
-    {
-        return -1;
-    }
-    else if (k1 == k2)
-    {
-        return 0;
-    }
-    else
-    {
-        return 1;
-    }
-}
-
 IceStormElection::LogUpdate
 IceStormInternal::getIncrementedLLU(const IceDB::ReadWriteTxn& txn, LLUMap& lluMap)
 {

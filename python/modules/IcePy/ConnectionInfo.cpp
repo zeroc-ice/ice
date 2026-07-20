@@ -251,7 +251,8 @@ static PyGetSetDef WSConnectionInfoGetters[] = {
     {"headers",
      reinterpret_cast<getter>(wsConnectionInfoGetHeaders),
      nullptr,
-     PyDoc_STR("dict[str, str]: The headers from the HTTP upgrade request."),
+     PyDoc_STR("dict[str, str]: The HTTP headers from the WebSocket upgrade handshake: the request headers for an "
+               "incoming connection, and the response headers for an outgoing connection."),
      nullptr},
     {} /* sentinel */
 };
@@ -260,7 +261,7 @@ static PyGetSetDef SSLConnectionInfoGetters[] = {
     {"peerCertificate",
      reinterpret_cast<getter>(sslConnectionInfoGetPeerCertificate),
      nullptr,
-     PyDoc_STR("str: The certificate chain."),
+     PyDoc_STR("str: The peer certificate, PEM-encoded, or an empty string if the peer did not provide one."),
      nullptr},
     {} /* sentinel */
 };
@@ -371,7 +372,7 @@ IcePy::initConnectionInfo(PyObject* module)
         return false;
     }
 
-    UDPConnectionInfoType.tp_base = &IPConnectionInfoType; // Force inheritance from IPConnectionType.
+    UDPConnectionInfoType.tp_base = &IPConnectionInfoType; // Force inheritance from IPConnectionInfoType.
     if (PyType_Ready(&UDPConnectionInfoType) < 0)
     {
         return false;
@@ -382,7 +383,7 @@ IcePy::initConnectionInfo(PyObject* module)
         return false;
     }
 
-    WSConnectionInfoType.tp_base = &ConnectionInfoType; // Force inheritance from IPConnectionType.
+    WSConnectionInfoType.tp_base = &ConnectionInfoType; // Force inheritance from ConnectionInfoType.
     if (PyType_Ready(&WSConnectionInfoType) < 0)
     {
         return false;
@@ -393,7 +394,7 @@ IcePy::initConnectionInfo(PyObject* module)
         return false;
     }
 
-    SSLConnectionInfoType.tp_base = &ConnectionInfoType; // Force inheritance from IPConnectionInfoType.
+    SSLConnectionInfoType.tp_base = &ConnectionInfoType; // Force inheritance from ConnectionInfoType.
     if (PyType_Ready(&SSLConnectionInfoType) < 0)
     {
         return false;

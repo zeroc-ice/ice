@@ -30,7 +30,7 @@ ICEIMPL_API @interface ICEObjectAdapter : ICELocalObject
                                      category:(NSString*)category
                                         error:(NSError* _Nullable* _Nonnull)error
     NS_SWIFT_NAME(createIndirectProxy(name:category:));
-- (void)setLocator:(ICEObjectPrx* _Nullable)locator;
+- (BOOL)setLocator:(ICEObjectPrx* _Nullable)locator error:(NSError* _Nullable* _Nonnull)error;
 - (nullable ICEObjectPrx*)getLocator;
 - (NSArray<ICEEndpoint*>*)getEndpoints;
 - (NSArray<ICEEndpoint*>*)getPublishedEndpoints;

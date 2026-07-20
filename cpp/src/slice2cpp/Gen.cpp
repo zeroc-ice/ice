@@ -124,7 +124,9 @@ namespace
             else if (bp && bp->kind() == Builtin::KindFloat)
             {
                 out << value;
-                if (value.find('.') == string::npos)
+                // Append ".0" only when the value is an integer literal, i.e. it has neither a decimal point nor an
+                // exponent (values such as "1e+07" are already valid floating-point literals).
+                if (value.find_first_of(".eE") == string::npos)
                 {
                     out << ".0";
                 }
@@ -1533,21 +1535,64 @@ Slice::ProxyVisitor::visitOperation(const OperationPtr& p)
         StringList postParams;
         if (!lambdaOutParams.empty())
         {
-            postParams.push_back("@param " + responseParam + " The response callback. It accepts:");
+            postParams.push_back(
+                "@param " + responseParam +
+                " The response callback. The Ice runtime calls this function from an Ice thread pool");
+            postParams.emplace_back(
+                "thread. If you set Ice::InitializationData::executor, the executor determines the thread that "
+                "executes this");
+            postParams.emplace_back("function. It accepts:");
             postParams.splice(postParams.end(), createOpOutParamsDoc(p, *comment));
         }
         else
         {
-            postParams.push_back("@param " + responseParam + " The response callback.");
+            postParams.push_back(
+                "@param " + responseParam +
+                " The response callback. The Ice runtime calls this function from an Ice thread pool");
+            postParams.emplace_back(
+                "thread. If you set Ice::InitializationData::executor, the executor determines the thread that "
+                "executes this");
+            postParams.emplace_back("function.");
         }
 
-        postParams.push_back("@param " + exceptionParam + " The exception callback.");
-        postParams.push_back("@param " + sentParam + " The sent callback.");
+        postParams.push_back(
+            "@param " + exceptionParam +
+            " The exception callback. The Ice runtime calls this function from an Ice thread pool");
+        postParams.emplace_back(
+            "thread. If you set Ice::InitializationData::executor, the executor determines the thread that "
+            "executes this");
+        postParams.emplace_back("function.");
+        postParams.push_back(
+            "@param " + sentParam +
+            " The sent callback. The Ice runtime calls this function when the request is accepted by the");
+        postParams.emplace_back(
+            "transport. When the request is accepted synchronously, the Ice runtime calls this function from the "
+            "current");
+        postParams.emplace_back(
+            "thread and passes `true` as argument. When the request is accepted asynchronously, the Ice runtime "
+            "calls");
+        postParams.emplace_back(
+            "this function from an Ice thread pool thread and passes `false` as argument. If you set");
+        postParams.emplace_back(
+            "Ice::InitializationData::executor, the executor determines the thread that executes this function in "
+            "the");
+        postParams.emplace_back("asynchronous case.");
         postParams.push_back(contextDoc);
 
         StringList returns;
         returns.emplace_back("A function that can be called to cancel the invocation locally.");
         writeOpDocSummary(H, p, *comment, OpDocInParams, false, {}, StringList{}, postParams, returns);
+        if (!p->returnsData())
+        {
+            H << nl
+              << "/// @remark When this proxy is a oneway or datagram proxy, the Ice runtime does not call the "
+                 "response";
+            H << nl
+              << "/// callback: a successful invocation completes with the sent callback. When this proxy is a "
+                 "batch";
+            H << nl << "/// proxy, this function only adds the request to the batch: the Ice runtime calls none of the";
+            H << nl << "/// callbacks, and the request is sent later, by a flush.";
+        }
     }
     H << nl << "// NOLINTNEXTLINE(modernize-use-nodiscard)";
     H << nl << deprecatedAttribute << "std::function<void()> " << opName << "Async" << spar;

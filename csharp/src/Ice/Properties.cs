@@ -14,7 +14,7 @@ namespace Ice;
 /// <summary>
 /// Represents a set of properties used to configure Ice and Ice-based applications. A property is a key/value pair,
 /// where both the key and the value are strings. By convention, property keys should have the form
-/// <c>application-name>[.category[.sub-category]].name</c>.
+/// <c>application-name[.category[.sub-category]].name</c>.
 /// </summary>
 /// <remarks>This class is thread-safe: multiple threads can safely read and write the properties.</remarks>
 public sealed class Properties
@@ -94,7 +94,7 @@ public sealed class Properties
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value or the default value.</returns>
-    /// <exception name="PropertyException">Thrown if the property is not a known Ice property.</exception>
+    /// <exception cref="PropertyException">Thrown if the property is not a known Ice property.</exception>
     public string getIceProperty(string key) => getPropertyWithDefault(key, getDefaultProperty(key));
 
     /// <summary>
@@ -124,7 +124,7 @@ public sealed class Properties
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value interpreted as an integer.</returns>
-    /// <exception name="PropertyException">Thrown if the property value is not a valid integer.</exception>
+    /// <exception cref="PropertyException">Thrown if the property value is not a valid integer.</exception>
     public int getPropertyAsInt(string key) => getPropertyAsIntWithDefault(key, 0);
 
     /// <summary>
@@ -133,7 +133,7 @@ public sealed class Properties
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value interpreted as an integer, or the default value.</returns>
-    /// <exception name="PropertyException">Thrown if the property is not a known Ice property or the value is not a
+    /// <exception cref="PropertyException">Thrown if the property is not a known Ice property or the value is not a
     /// valid integer.</exception>
     public int getIcePropertyAsInt(string key)
     {
@@ -154,7 +154,7 @@ public sealed class Properties
     /// <param name="key">The property key.</param>
     /// <param name="value">The default value to use if the property does not exist.</param>
     /// <returns>The property value interpreted as an integer, or the default value.</returns>
-    /// <exception name="PropertyException">Thrown if the property value is not a valid integer.</exception>
+    /// <exception cref="PropertyException">Thrown if the property value is not a valid integer.</exception>
     public int getPropertyAsIntWithDefault(string key, int value)
     {
         lock (_mutex)
@@ -168,7 +168,7 @@ public sealed class Properties
             {
                 return int.Parse(pv.value, CultureInfo.InvariantCulture);
             }
-            catch (FormatException)
+            catch (System.Exception ex) when (ex is System.FormatException or System.OverflowException)
             {
                 throw new PropertyException($"property '{key}' has an invalid integer value: '{pv.value}'");
             }
@@ -181,7 +181,7 @@ public sealed class Properties
     /// not set, an empty list is returned. The strings in the list can contain whitespace and commas if they are
     /// enclosed in single or double quotes. If quotes are mismatched, an empty list is returned. Within single quotes
     /// or double quotes, you can escape the quote in question with a backslash, e.g. O'Reilly can be written as
-    /// O'Reilly, "O'Reilly" or 'O\'Reilly'.
+    /// "O'Reilly" or 'O\'Reilly'.
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value interpreted as a list of strings.</returns>
@@ -193,7 +193,7 @@ public sealed class Properties
     /// not set, its default list is returned. The strings in the list can contain whitespace and commas if they are
     /// enclosed in single or double quotes. If quotes are mismatched, the default list is returned. Within single
     /// quotes or double quotes, you can escape the quote in question with a backslash, e.g. O'Reilly can be written as
-    /// O'Reilly, "O'Reilly" or 'O\'Reilly'.
+    /// "O'Reilly" or 'O\'Reilly'.
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value interpreted as list of strings, or the default value.</returns>
@@ -210,7 +210,7 @@ public sealed class Properties
     /// not set, the default list is returned. The strings in the list can contain whitespace and commas if they are
     /// enclosed in single or double quotes. If quotes are mismatched, the default list is returned. Within single
     /// quotes or double quotes, you can escape the quote in question with a backslash, e.g. O'Reilly can be written as
-    /// O'Reilly, "O'Reilly" or 'O\'Reilly'.
+    /// "O'Reilly" or 'O\'Reilly'.
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <param name="value">The default value to use if the property is not set.</param>
@@ -235,10 +235,7 @@ public sealed class Properties
                     $"mismatched quotes in property {key}'s value, returning default value");
                 return value;
             }
-            else
-            {
-                return result;
-            }
+            return result.Length == 0 ? value : result;
         }
     }
 
@@ -394,13 +391,12 @@ public sealed class Properties
 
     /// <summary>
     /// Convert a sequence of command-line options into properties.
-    /// All options that begin with one of the following
-    /// prefixes are converted into properties: --Ice, --IceBox, --IceGrid,
-    /// --IceSSL, --IceStorm, and --Glacier2.
+    /// All options that begin with one of the reserved Ice prefixes (--Ice, --IceSSL, --IceBox, etc.) are converted
+    /// into properties.
     /// </summary>
     /// <param name="options">The command-line options.</param>
-    /// <returns>The command-line options that do not start with one of the listed prefixes, in their original order.
-    /// </returns>
+    /// <returns>The command-line options that do not start with one of the reserved prefixes, in their original
+    /// order.</returns>
     public string[] parseIceCommandLineOptions(string[] options)
     {
         string[] args = options;
@@ -622,28 +618,26 @@ public sealed class Properties
     private void loadArgs(ref string[] args)
     {
         bool loadConfigFiles = false;
+        List<string> remainingArgs = [];
 
-        for (int i = 0; i < args.Length; i++)
+        foreach (string arg in args)
         {
-            if (args[i].StartsWith("--Ice.Config", StringComparison.Ordinal))
+            if (arg.StartsWith("--Ice.Config", StringComparison.Ordinal))
             {
-                string line = args[i];
+                string line = arg;
                 if (!line.Contains('=', StringComparison.Ordinal))
                 {
                     line += "=1";
                 }
                 parseLine(line[2..]);
                 loadConfigFiles = true;
-
-                string[] arr = new string[args.Length - 1];
-                Array.Copy(args, 0, arr, 0, i);
-                if (i < args.Length - 1)
-                {
-                    Array.Copy(args, i + 1, arr, i, args.Length - i - 1);
-                }
-                args = arr;
+            }
+            else
+            {
+                remainingArgs.Add(arg);
             }
         }
+        args = [.. remainingArgs];
 
         if (!loadConfigFiles)
         {

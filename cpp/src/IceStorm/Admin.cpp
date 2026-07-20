@@ -35,6 +35,12 @@ main(int argc, char* argv[])
 
         auto properties = Ice::createProperties(argc, argv, "IceStormAdmin");
         properties->setProperty("Ice.Warn.Endpoints", "0");
+        // Give up quickly when a topic manager or the IceStorm/Finder fallback is unreachable, instead of waiting
+        // the full default connect timeout (10s). Only lower it when the user hasn't configured it explicitly.
+        if (properties->getProperty("Ice.Connection.Client.ConnectTimeout").empty())
+        {
+            properties->setProperty("Ice.Connection.Client.ConnectTimeout", "3"); // seconds
+        }
 
         Ice::InitializationData initData{.properties = properties};
         auto communicator = Ice::initialize(std::move(initData));
@@ -156,20 +162,36 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
         string host = properties->getIceProperty("IceStormAdmin.Host");
         string port = properties->getIceProperty("IceStormAdmin.Port");
 
-        const int timeout = 3000; // 3s connection timeout.
-        ostringstream os;
-        os << "IceStorm/Finder";
-        os << ":tcp" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
-        os << ":ssl" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
+        if (!host.empty() || !port.empty())
+        {
+            // The IceStorm/Finder fallback is configured. A host alone is not sufficient to build the Finder
+            // endpoints: the port is required, it has no default.
+            if (port.empty())
+            {
+                consoleErr << args[0] << ": IceStormAdmin.Host is set but IceStormAdmin.Port is not" << endl;
+                return 1;
+            }
 
-        IceStorm::FinderPrx finder{communicator, os.str()};
-        try
-        {
-            defaultManager = finder->getTopicManager();
-        }
-        catch (const Ice::LocalException&)
-        {
-            // Ignore.
+            ostringstream os;
+            os << "IceStorm/Finder";
+            os << ":tcp" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port;
+            os << ":ssl" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port;
+
+            try
+            {
+                IceStorm::FinderPrx finder{communicator, os.str()};
+                defaultManager = finder->getTopicManager();
+            }
+            catch (const Ice::ParseException&)
+            {
+                consoleErr << args[0] << ": invalid IceStormAdmin.Host or IceStormAdmin.Port value" << endl;
+                return 1;
+            }
+            catch (const Ice::LocalException& ex)
+            {
+                consoleErr << args[0] << ": could not contact the IceStorm/Finder object:" << endl << ex << endl;
+                return 1;
+            }
         }
     }
 

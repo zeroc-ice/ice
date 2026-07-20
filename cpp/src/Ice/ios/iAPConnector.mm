@@ -8,6 +8,7 @@
 #    include "iAPConnector.h"
 #    include "iAPEndpointI.h"
 #    include "iAPTransceiver.h"
+#    include "iAPUtil.h"
 
 using namespace std;
 using namespace Ice;
@@ -38,10 +39,10 @@ string
 IceObjC::iAPConnector::toString() const
 {
     ostringstream os;
-    os << [_accessory.name UTF8String];
-    os << " model `" << [_accessory.modelNumber UTF8String] << "'";
-    os << " made by `" << [_accessory.manufacturer UTF8String] << "'";
-    os << " protocol `" << [_protocol UTF8String] << "'";
+    os << nsToString(_accessory.name);
+    os << " model '" << nsToString(_accessory.modelNumber) << "'";
+    os << " made by '" << nsToString(_accessory.manufacturer) << "'";
+    os << " protocol '" << nsToString(_protocol) << "'";
     return os.str();
 }
 

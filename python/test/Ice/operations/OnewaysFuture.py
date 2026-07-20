@@ -6,15 +6,15 @@ from TestHelper import TestHelper, test
 import Ice
 
 
-def onewaysFuture(helper: TestHelper, proxy: Test.MyClassPrx) -> None:
-    p = Test.MyClassPrx.uncheckedCast(proxy.ice_oneway())
+def onewaysFuture(helper: TestHelper, proxy: Test.MyInterfacePrx) -> None:
+    p = Test.MyInterfacePrx.uncheckedCast(proxy.ice_oneway())
 
     f = p.ice_pingAsync()
     assert isinstance(f, Ice.InvocationFuture)
     f.sent()
 
     try:
-        p.ice_isAAsync(Test.MyClass.ice_staticId())
+        p.ice_isAAsync(Test.MyInterface.ice_staticId())
         test(False)
     except Ice.TwowayOnlyException:
         pass
@@ -46,7 +46,7 @@ def onewaysFuture(helper: TestHelper, proxy: Test.MyClassPrx) -> None:
 
     # Calling a ["oneway"] operation on a twoway proxy throws OnewayOnlyException.
     try:
-        Test.MyClassPrx.uncheckedCast(proxy.ice_twoway()).opOnewayAsync()
+        Test.MyInterfacePrx.uncheckedCast(proxy.ice_twoway()).opOnewayAsync()
         test(False)
     except Ice.OnewayOnlyException:
         pass

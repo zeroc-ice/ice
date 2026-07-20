@@ -6,7 +6,7 @@
 void
 clientCertificateSelectionCallbackExample()
 {
-    //! [clientCertificateSelectionCallback]
+    //! [clientCredentialsSelectionCallback]
     PCCERT_CONTEXT clientCertificateChain{};
     // Load the server certificate chain using Schannel APIs.
     // ...
@@ -26,7 +26,7 @@ clientCertificateSelectionCallbackExample()
 
     // Release the client certificate chain when no longer needed
     CertFreeCertificateContext(clientCertificateChain);
-    //! [clientCertificateSelectionCallback]
+    //! [clientCredentialsSelectionCallback]
 }
 
 void

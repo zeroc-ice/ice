@@ -2,12 +2,12 @@ classdef (Abstract) UserException < Ice.Exception
     %USEREXCEPTION Abstract base class for all Ice exceptions defined in Slice.
     %
     %   UserException Methods:
-    %     ice_id - Returns the Slice type ID associated with this instance.
+    %     ice_id - Gets the Slice type ID of the most-derived class supported by this object.
 
     % Copyright (c) ZeroC, Inc.
 
     methods (Abstract)
-        %ICE_ID Returns the Slice type ID associated with this instance.
+        %ICE_ID Gets the Slice type ID of the most-derived class supported by this object.
         %
         %   Output Arguments
         %     id - The Slice type ID.

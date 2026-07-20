@@ -40,7 +40,8 @@ class InitializationData:
         A :class:`Callable` that is invoked by the Ice runtime to enqueue a batch request.
         The callable receives three arguments: a BatchRequest object, an integer representing the number of requests
         currently in the queue, and an integer representing the number of bytes consumed by the requests in the queue.
-        The interceptor must eventually invoke the enqueue function on the BatchRequest object.
+        The interceptor calls ``enqueue`` on the BatchRequest to confirm queuing of the request; a request that is not
+        enqueued is discarded.
     eventLoopAdapter : Ice.EventLoopAdapter | None
         An event loop adapter used to run coroutines and wrap futures. If provided, this adapter is responsible for
         executing coroutines returned by Ice asynchronous dispatch functions and for wrapping Ice futures (from Ice

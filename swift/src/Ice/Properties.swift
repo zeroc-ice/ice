@@ -5,6 +5,8 @@ import Foundation
 /// Represents a set of properties used to configure Ice and Ice-based applications. A property is a key/value pair,
 /// where both the key and the value are strings. By convention, property keys should have the form
 /// `application-name[.category[.sub-category]].name`.
+///
+/// This protocol is thread-safe: multiple threads can safely read and write the properties.
 public protocol Properties: AnyObject {
     /// Gets a property by key.
     ///
@@ -16,7 +18,7 @@ public protocol Properties: AnyObject {
     ///
     /// - Parameter key: The property key.
     /// - Returns: The property value, or the default value for this property if the property is not set.
-    /// - Throws: ``PropertyException`` when the property is not a known Ice property.
+    /// - Note: Using a key that is not a known Ice property terminates the program.
     func getIceProperty(_ key: String) -> String
 
     /// Gets a property by key.
@@ -54,7 +56,7 @@ public protocol Properties: AnyObject {
     /// Gets a property as a list of strings. The strings must be separated by whitespace or comma. The strings in
     /// the list can contain whitespace and commas if they are enclosed in single or double quotes. If quotes are
     /// mismatched, an empty list is returned. Within single quotes or double quotes, you can escape the quote in
-    /// question with a backslash, e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+    /// question with a backslash, e.g. O'Reilly can be written as "O'Reilly" or 'O\'Reilly'.
     ///
     /// - Parameter key: The property key.
     /// - Returns: The property value interpreted as a list of strings, or an empty list if the property is not set.
@@ -63,18 +65,18 @@ public protocol Properties: AnyObject {
     /// Gets an Ice property as a list of strings. The strings must be separated by whitespace or comma. The strings in
     /// the list can contain whitespace and commas if they are enclosed in single or double quotes. If quotes are
     /// mismatched, the default list is returned. Within single quotes or double quotes, you can escape the quote in
-    /// question with a backslash, e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+    /// question with a backslash, e.g. O'Reilly can be written as "O'Reilly" or 'O\'Reilly'.
     ///
     /// - Parameter key: The property key.
     /// - Returns: The property value interpreted as a list of strings, or the default value if the property is not
     ///   set.
-    /// - Throws: `PropertyException` when the property is not a known Ice property.
+    /// - Note: Using a key that is not a known Ice property terminates the program.
     func getIcePropertyAsList(_ key: String) -> StringSeq
 
     /// Gets a property as a list of strings. The strings must be separated by whitespace or comma. The strings in
     /// the list can contain whitespace and commas if they are enclosed in single or double quotes. If quotes are
     /// mismatched, the default list is returned. Within single quotes or double quotes, you can escape the quote in
-    /// question with a backslash, e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+    /// question with a backslash, e.g. O'Reilly can be written as "O'Reilly" or 'O\'Reilly'.
     ///
     /// - Parameters:
     ///   - key: The property key.
@@ -94,6 +96,7 @@ public protocol Properties: AnyObject {
     /// - Parameters:
     ///   - key: The property key.
     ///   - value: The property value.
+    /// - Note: Setting an unknown property in a reserved Ice prefix (`Ice`, `IceSSL`, etc.) terminates the program.
     func setProperty(key: String, value: String)
 
     /// Gets a sequence of command-line options that is equivalent to this property set. Each element of the returned

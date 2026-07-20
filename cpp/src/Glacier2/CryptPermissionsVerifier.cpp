@@ -8,6 +8,7 @@
 
 #include <cstring>
 #include <fstream>
+#include <limits>
 
 #if defined(__GLIBC__)
 #    include <crypt.h>
@@ -122,7 +123,14 @@ namespace
 
             hasDESStylePassword = hasDESStylePassword || (password.find('$') == string::npos && password.size() == 13);
 
-            passwords.insert(make_pair(userId, password));
+            if (!passwords.insert(make_pair(userId, password)).second)
+            {
+                throw Ice::InitializationException(
+                    __FILE__,
+                    __LINE__,
+                    "duplicate entry for user '" + userId + "' in password file '" + file + "' at line " +
+                        std::to_string(lineNumber));
+            }
         }
 
         if (hasDESStylePassword)
@@ -165,6 +173,15 @@ namespace
     }
 #endif
 
+    // Verifies the password against the stored hash for the given user ID. The accepted hash formats are
+    // platform-specific:
+    //
+    // - Linux and FreeBSD: any format supported by the system's crypt library; with libxcrypt this includes DES,
+    //   $1$ (MD5), $5$/$6$ (sha-crypt), $2b$ (bcrypt), and $y$ (yescrypt).
+    // - macOS and Windows: passlib-style PBKDF2 only ($pbkdf2$, $pbkdf2-sha256$, $pbkdf2-sha512$).
+    //
+    // On Windows, the BCrypt* APIs used below belong to Microsoft's CNG (Cryptography API: Next Generation); they
+    // are unrelated to the bcrypt password-hashing scheme, which is not supported on Windows.
     bool CryptPermissionsVerifierI::checkPermissions(string userId, string password, string&, const Current&) const
     {
         auto p = _passwords.find(userId);
@@ -174,31 +191,11 @@ namespace
             return false;
         }
 #if defined(__GLIBC__) || defined(__FreeBSD__)
-        size_t i = p->second.rfind('$');
-        string salt;
-        if (i == string::npos)
-        {
-            //
-            // Crypt DES
-            //
-            if (p->second.size() != 13) // DES passwords are 13 characters long.
-            {
-                return false;
-            }
-            salt = p->second.substr(0, 2);
-        }
-        else
-        {
-            salt = p->second.substr(0, i + 1);
-            if (salt.empty())
-            {
-                return false;
-            }
-        }
-
+        // Pass the whole stored hash as the setting: crypt_r only reads its salt prefix, and this works for all
+        // schemes, including bcrypt whose salt is not terminated by '$'.
         struct crypt_data data;
         data.initialized = 0;
-        const char* hashed = crypt_r(password.c_str(), salt.c_str(), &data);
+        const char* hashed = crypt_r(password.c_str(), p->second.c_str(), &data);
 
         if (hashed == nullptr || p->second.size() != strlen(hashed))
         {
@@ -290,12 +287,24 @@ namespace
             return false; // Rounds end token not found
         }
 
+        // The rounds field must contain decimal digits only; passlib does not produce a sign, whitespace, or
+        // octal or hexadecimal rounds.
+        const string roundsField = p->second.substr(beg, (end - beg));
+        if (roundsField.empty() || roundsField.find_first_not_of("0123456789") != string::npos)
+        {
+            return false; // Invalid rounds value
+        }
+
         int64_t rounds;
         try
         {
-            rounds = std::stoll(p->second.substr(beg, (end - beg)), nullptr, 0);
+            rounds = std::stoll(roundsField, nullptr, 10);
         }
         catch (const std::exception&)
+        {
+            return false; // Invalid rounds value (overflow)
+        }
+        if (rounds <= 0 || rounds > std::numeric_limits<uint32_t>::max())
         {
             return false; // Invalid rounds value
         }
@@ -312,14 +321,14 @@ namespace
 
         string salt = p->second.substr(beg, (end - beg));
         string checksum = p->second.substr(end + 1);
-        if (checksum.empty())
+        if (salt.empty() || checksum.empty())
         {
             return false;
         }
 
         //
         // passlib encoding is identical to base64 except that it uses . instead of +,
-        // and omits trailing padding = and whitepsace.
+        // and omits trailing padding = and whitespace.
         //
         std::replace(salt.begin(), salt.end(), '.', '+');
         salt += paddingBytes(salt.size());
@@ -419,7 +428,7 @@ namespace
                 salt.c_str(),
                 static_cast<DWORD>(salt.size()),
                 CRYPT_STRING_BASE64,
-                &saltBuffer[0],
+                saltBuffer.data(),
                 &saltLength,
                 0,
                 0))
@@ -440,12 +449,12 @@ namespace
 
         DWORD status = BCryptDeriveKeyPBKDF2(
             algorithmHandle,
-            &passwordBuffer[0],
+            passwordBuffer.data(),
             static_cast<DWORD>(passwordBuffer.size()),
-            &saltBuffer[0],
+            saltBuffer.data(),
             saltLength,
-            rounds,
-            &checksumBuffer1[0],
+            static_cast<ULONGLONG>(rounds),
+            checksumBuffer1.data(),
             static_cast<DWORD>(checksumLength),
             0);
 
@@ -463,7 +472,7 @@ namespace
                 checksum.c_str(),
                 static_cast<DWORD>(checksum.size()),
                 CRYPT_STRING_BASE64,
-                &checksumBuffer2[0],
+                checksumBuffer2.data(),
                 &checksumBuffer2Length,
                 0,
                 0))

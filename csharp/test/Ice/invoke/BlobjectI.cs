@@ -47,7 +47,7 @@ public class BlobjectI : Ice.Blobject
         else if (current.operation == "ice_isA")
         {
             string s = inS.readString();
-            if (s == "::Test::MyClass")
+            if (s == "::Test::MyInterface")
             {
                 outS.writeBool(true);
             }
@@ -103,7 +103,7 @@ public class BlobjectAsyncI : Ice.BlobjectAsync
         else if (current.operation == "ice_isA")
         {
             string s = inS.readString();
-            if (s == "::Test::MyClass")
+            if (s == "::Test::MyInterface")
             {
                 outS.writeBool(true);
             }

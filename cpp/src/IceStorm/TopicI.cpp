@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "TopicI.h"
+#include "../Ice/CheckIdentity.h"
 #include "Ice/LoggerUtil.h"
 #include "Instance.h"
 #include "NodeI.h"
@@ -188,8 +189,13 @@ namespace
 
         void reap(Ice::IdentitySeq ids, const Ice::Current&) override
         {
+            for (const auto& id : ids)
+            {
+                checkIdentity(id, __FILE__, __LINE__);
+            }
+
             auto node = _instance->node();
-            if (!node->updateMaster(__FILE__, __LINE__))
+            if (node && !node->updateMaster(__FILE__, __LINE__))
             {
                 throw ReapWouldBlock();
             }
@@ -558,6 +564,9 @@ TopicImpl::subscribeAndGetPublisher(QoS qos, Ice::ObjectPrx obj)
     catch (const IceDB::LMDBException& ex)
     {
         logError(_instance->communicator(), ex);
+        // The subscriber was created (and its publisher servant registered) before the transaction; remove
+        // it so a retry with the same subscriber identity is not rejected with AlreadyRegisteredException.
+        subscriber->destroy();
         throw; // will become UnknownException in caller
     }
 
@@ -609,7 +618,12 @@ TopicImpl::link(const TopicPrx& topic, int cost)
 {
     auto internal = Ice::uncheckedCast<TopicInternalPrx>(topic);
     optional<TopicLinkPrx> link = internal->getLinkProxy();
-    assert(link);
+    if (!link)
+    {
+        // Defense in depth: getLinkProxy never returns a null proxy. Once proxies can be declared
+        // non-null in Slice (#5209), this check will be performed automatically during unmarshaling.
+        throw Ice::MarshalException{__FILE__, __LINE__, "getLinkProxy returned a null proxy"};
+    }
 
     auto traceLevels = _instance->traceLevels();
     if (traceLevels->topic > 0)
@@ -791,7 +805,6 @@ TopicImpl::destroy()
     {
         throw Ice::ObjectNotExistException{__FILE__, __LINE__};
     }
-    _destroyed = true;
 
     auto traceLevels = _instance->traceLevels();
     if (traceLevels->topic > 0)
@@ -800,9 +813,12 @@ TopicImpl::destroy()
         out << _name << ": destroy";
     }
 
-    // destroyInternal clears out the topic content.
+    // destroyInternal clears out the topic content. Mark the topic destroyed only once its database
+    // transaction has committed, so a failed commit leaves the topic intact and still destroyable.
     LogUpdate llu = {0, 0};
-    _instance->observers()->destroyTopic(destroyInternal(llu, true), _name);
+    LogUpdate destroyLLU = destroyInternal(llu, true);
+    _destroyed = true;
+    _instance->observers()->destroyTopic(destroyLLU, _name);
 
     _observer.detach();
 }
@@ -849,18 +865,20 @@ TopicImpl::update(const SubscriberRecordSeq& records)
                     break;
                 }
             }
-            // The subscriber doesn't exist in the incoming subscriber
-            // set so destroy it.
-            if (q == records.end())
+            // Keep the subscriber only when it exists in the incoming subscriber set with the same
+            // record, and reset its reaped status if necessary. Otherwise destroy it: it is either
+            // gone, or it re-registered with a different proxy or QoS while this replica was out of
+            // sync, and the second scan re-creates it from the incoming record so it matches the
+            // database.
+            if (q != records.end() && (*p)->record() == *q)
             {
-                (*p)->destroy();
-                p = _subscribers.erase(p);
+                (*p)->resetIfReaped();
+                ++p;
             }
             else
             {
-                // Otherwise reset the reaped status if necessary.
-                (*p)->resetIfReaped();
-                ++p;
+                (*p)->destroy();
+                p = _subscribers.erase(p);
             }
         }
     }
@@ -935,7 +953,7 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
             {
                 if (forwarded)
                 {
-                    _observer->forwarded();
+                    _observer->forwarded(static_cast<int>(events.size()));
                 }
                 else
                 {
@@ -994,7 +1012,7 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
                 catch (const std::exception& e)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-                    out << "exception when calling `reap' on the master replica: " << e;
+                    out << "exception when calling 'reap' on the master replica: " << e;
                 }
             }
             instance->node()->recovery(generation);
@@ -1005,6 +1023,12 @@ void
 TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& record)
 {
     lock_guard lock(_subscribersMutex);
+
+    // Ignore updates for a destroyed topic.
+    if (_destroyed)
+    {
+        return;
+    }
 
     auto traceLevels = _instance->traceLevels();
     if (traceLevels->topic > 0)
@@ -1058,6 +1082,9 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
     catch (const IceDB::LMDBException& ex)
     {
         logError(_instance->communicator(), ex);
+        // The subscriber was created (and its publisher servant registered) before the transaction; remove
+        // it so a later replica sync does not fail re-registering the same subscriber identity.
+        subscriber->destroy();
         throw; // will become UnknownException in caller
     }
 
@@ -1139,6 +1166,8 @@ TopicImpl::observerDestroyTopic(const LogUpdate& llu)
         out << " llu: " << llu.generation << "/" << llu.iteration;
     }
     destroyInternal(llu, false);
+
+    _observer.detach();
 }
 
 Ice::ObjectPtr
@@ -1152,7 +1181,8 @@ TopicImpl::updateObserver()
 {
     lock_guard lock(_subscribersMutex);
 
-    if (_instance->observer())
+    // Don't reattach the observer of a topic that was destroyed but not reaped yet.
+    if (!_destroyed && _instance->observer())
     {
         _observer.attach(_instance->observer()->getTopicObserver(_name, _observer.get()));
     }
@@ -1220,6 +1250,12 @@ TopicImpl::destroyInternal(const LogUpdate& origLLU, bool master)
     assert(_publisherPrx);
     _instance->publishAdapter()->remove(_publisherPrx->ice_getIdentity());
 
+    // Remove the topic servant before publishing the reaper entry: a concurrent createTopic for the same
+    // name could otherwise consume the reaper entry and re-add the servant while this one is still
+    // registered, failing with AlreadyRegisteredException and leaving the new topic without a servant.
+    _instance->topicAdapter()->remove(_id);
+    _servant = nullptr;
+
     _instance->topicReaper()->add(_name);
 
     // Destroy each of the subscribers.
@@ -1228,10 +1264,6 @@ TopicImpl::destroyInternal(const LogUpdate& origLLU, bool master)
         subscriber->destroy();
     }
     _subscribers.clear();
-
-    _instance->topicAdapter()->remove(_id);
-
-    _servant = nullptr;
 
     return llu;
 }

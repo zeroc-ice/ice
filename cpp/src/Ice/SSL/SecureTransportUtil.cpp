@@ -676,7 +676,7 @@ Ice::SSL::SecureTransport::loadCertificateChain(
     if (!chain)
     {
         ostringstream os;
-        os << "SSL transport: couldn't find identity in file " << file;
+        os << "SSL transport: could not find identity in file " << file;
         throw InitializationException(__FILE__, __LINE__, os.str());
     }
 #else
@@ -693,7 +693,7 @@ Ice::SSL::SecureTransport::loadCertificateChain(
         if (SecCertificateGetTypeID() != CFGetTypeID(cert))
         {
             ostringstream os;
-            os << "SSL transport: couldn't find certificate in '" << file << "'";
+            os << "SSL transport: could not find certificate in '" << file << "'";
             throw CertificateReadException(__FILE__, __LINE__, os.str());
         }
 
@@ -912,7 +912,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
     if (err != noErr)
     {
         ostringstream os;
-        os << "SSL transport: couldn't create identity for certificate found in the keychain:\n"
+        os << "SSL transport: could not create identity for certificate found in the keychain:\n"
            << sslErrorToString(err);
         throw InitializationException(__FILE__, __LINE__, os.str());
     }
@@ -926,7 +926,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
         throw InitializationException(
             __FILE__,
             __LINE__,
-            "SSL transport: couldn't create identity for certificate found in the keychain: the certificate has no "
+            "SSL transport: could not create identity for certificate found in the keychain: the certificate has no "
             "label attribute");
     }
 
@@ -950,7 +950,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
     if (err != noErr)
     {
         ostringstream os;
-        os << "SSL transport: couldn't create identity for certificate found in the keychain:\n"
+        os << "SSL transport: could not create identity for certificate found in the keychain:\n"
            << sslErrorToString(err);
         throw InitializationException(__FILE__, __LINE__, os.str());
     }

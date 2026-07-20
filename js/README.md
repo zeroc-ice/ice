@@ -63,5 +63,5 @@ configured to drop `console.assert` via `drop_console` in [terser options].
 [esbuild]: https://esbuild.github.io/
 [esbuild-drop]: https://esbuild.github.io/api/#drop
 [@rollup/plugin-strip]: https://github.com/rollup/plugins/tree/master/packages/strip
-[webpack-js-minification]: https://docs.webpack.js.org/guides/production#javascript-minification
+[webpack-js-minification]: https://webpack.js.org/guides/production/#minification
 [terser options]: https://terser.org/docs/options/

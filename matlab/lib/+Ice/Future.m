@@ -9,7 +9,7 @@ classdef Future < IceInternal.WrapperObject
     %     State - The current state of the future.
     %
     %   Future Methods:
-    %     cancel - If the invocation is still pending, calling this method instructs the local Ice runtime to ignore its results.
+    %     cancel - Cancels this invocation locally if it is still pending.
     %     fetchOutputs - Blocks until the invocation completes and then returns the results or throws an exception.
     %     wait - Blocks until the invocation reaches a certain state, or a timeout expires.
 
@@ -33,7 +33,8 @@ classdef Future < IceInternal.WrapperObject
         %   logical scalar
         Read (1, 1) logical = false
 
-        %STATE The current state of the future. Its initial value is 'running' and its final value is 'finished'.
+        %STATE The current state of the future. Its final value is 'finished'.
+        %   The 'sent' state is only reported for twoway invocations.
         %   'running' | 'sent' | 'finished'
         State (1, :) char = 'running'
     end
@@ -76,7 +77,7 @@ classdef Future < IceInternal.WrapperObject
             %     state - If provided, wait blocks until the future reaches the given state. If not provided, wait
             %     blocks until the state is 'finished'. Note that the future enters the 'finished' state when completed
             %     successfully or exceptionally.
-            %     'running' | 'sent' | 'finished' | empty array (default)
+            %     'running' | 'sent' | 'finished'
             %   timeout - If provided, wait blocks up to the given number of seconds while waiting for the future to
             %     reach the desired state. If the timeout is negative or not provided, wait blocks indefinitely.
             %     double | empty array (default)
@@ -109,11 +110,12 @@ classdef Future < IceInternal.WrapperObject
             if obj.Read
                 error('Ice:InvalidStateException', 'Outputs already read');
             end
+            %
+            % The fetch function runs at most once: it deletes the underlying C++ object even when
+            % it throws. Set Read before calling it so a second call always takes the guard above.
+            %
+            obj.Read = true;
             if ~isempty(obj.fetchFunc)
-                %
-                % We assume the fetch function implementation also deletes the C++ object so that we
-                % can avoid another call into C++.
-                %
                 try
                     [varargout{1:obj.NumOutputArguments}] = obj.fetchFunc(obj);
                     obj.impl_ = [];
@@ -122,12 +124,12 @@ classdef Future < IceInternal.WrapperObject
                     rethrow(ex);
                 end
             end
-            obj.Read = true;
         end
 
         function cancel(obj)
-            %CANCEL If the invocation is still pending, calling this method instructs the local Ice runtime to ignore
-            %   its results.
+            %CANCEL Cancels this invocation locally if it is still pending. The future then completes with an
+            %   Ice.InvocationCanceledException. Cancellation has no effect on the request if it was already sent to
+            %   the server.
 
             if ~isempty(obj.impl_)
                 obj.iceCall('cancel');

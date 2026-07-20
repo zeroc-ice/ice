@@ -18,7 +18,7 @@ public class Server : TestHelper
         using Communicator communicator = initialize(properties);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+        adapter.add(new MyDerivedInterfaceI(), Ice.Util.stringToIdentity("test"));
         adapter.add(new CI(), Ice.Util.stringToIdentity("c"));
         adapter.activate();
         serverReady();

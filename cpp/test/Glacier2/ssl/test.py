@@ -8,8 +8,10 @@ def routerProps(process, current):
     return {
         "Ice.Warn.Dispatch": "0",
         "Glacier2.AddConnectionContext": "1",
-        "Glacier2.Client.Endpoints": "{0}:{1}".format(
-            current.getTestEndpoint(0, "tcp"), current.getTestEndpoint(1, "ssl")
+        "Glacier2.Client.Endpoints": "{0}:{1}:{2}".format(
+            current.getTestEndpoint(0, "tcp"),
+            current.getTestEndpoint(1, "ssl"),
+            current.getTestEndpoint(4, "wss"),
         ),
         "Ice.Admin.Endpoints": current.getTestEndpoint(2, "tcp"),
         "Glacier2.SessionManager": "sessionmanager:{0}".format(current.getTestEndpoint(3, "tcp")),

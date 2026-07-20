@@ -202,6 +202,11 @@ try:
             return v1
 
         @override
+        def opOptIntSeq(self, v: numpy.typing.NDArray[numpy.int32] | None, current: Ice.Current):
+            test(isinstance(v, numpy.ndarray))
+            return v
+
+        @override
         def opBoolMatrix(self, current: Ice.Current):
             return numpy.array(
                 [[True, False, True], [True, False, True], [True, False, True]],

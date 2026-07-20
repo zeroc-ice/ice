@@ -249,16 +249,30 @@ NodeI::createSessionAsync(
 
                 try
                 {
-                    // Must be called before connected
+                    // The confirmation response is this session's send barrier: the subscriber connects its session
+                    // before sending the response, so everything this session sends once the response arrives - the
+                    // initial topic announcements and any forwarded samples - is processed by a connected subscriber
+                    // session.
+                    //
+                    // Mark the session as connected only once the subscriber acknowledges the confirmation. A
+                    // session marked connected earlier rejects concurrent session creation requests with
+                    // AlreadyConnected and, if the subscriber never processes the confirmation, remains connected
+                    // to a peer session that no longer exists, rejecting all future session creation requests from
+                    // this peer.
                     s->confirmCreateSessionAsync(
                         self->_proxy,
                         uncheckedCast<PublisherSessionPrx>(session->getProxy()),
-                        nullptr,
+                        [session, subscriberSession, connection, instance]
+                        {
+                            // Session::connected informs the subscriber session of all the topic writers in the
+                            // current node.
+                            session->connected(
+                                *subscriberSession,
+                                connection,
+                                instance->getTopicFactory()->getTopicWriters());
+                        },
                         [self, subscriber, session](auto ex)
                         { self->retryPublisherSessionCreation(*subscriber, session, ex); });
-
-                    // Session::connected informs the subscriber session of all the topic writers in the current node.
-                    session->connected(*subscriberSession, connection, instance->getTopicFactory()->getTopicWriters());
                 }
                 catch (const CommunicatorDestroyedException&)
                 {
@@ -343,7 +357,6 @@ NodeI::confirmCreateSessionAsync(
         exception(make_exception_ptr(SessionCreationException{SessionCreationError::AlreadyConnected}));
         return;
     }
-    response();
 
     // If the publisher session is hosted on a relay, current.con represents the connection to the relay.
     // Otherwise, it represents the connection to the publisher node. In both cases, a fixed proxy is used
@@ -354,8 +367,15 @@ NodeI::confirmCreateSessionAsync(
     }
     // else collocated call.
 
-    // Session::connected informs the publisher session of all the topic readers in the current node.
+    // Session::connected informs the publisher session of all the topic readers in the current node. The publisher
+    // session is not connected yet - it connects when the confirmation response arrives - so it drops this initial
+    // announcement; the attachment is instead driven by the publisher's own topic announcement, sent once connected.
     session->connected(*publisherSession, current.con, instance->getTopicFactory()->getTopicReaders());
+
+    // Send the response only after this session is connected: the response is the publisher's send barrier. The
+    // publisher marks its session connected and starts announcing topics and forwarding samples only after this node
+    // acknowledges the confirmation.
+    response();
 }
 
 void
@@ -562,7 +582,19 @@ NodeI::removePublisherSession(const NodePrx& node, const shared_ptr<PublisherSes
 ConnectionPtr
 NodeI::getSessionConnection(string_view id) const
 {
-    auto session = getSession(stringToIdentity(id));
+    Identity ident;
+    try
+    {
+        ident = stringToIdentity(id);
+    }
+    catch (const ParseException&)
+    {
+        // A malformed identity cannot match any session; this accessor is fail-soft (and noexcept in the public
+        // Node API), so return null rather than letting the exception escape.
+        return nullptr;
+    }
+
+    auto session = getSession(ident);
     if (session)
     {
         return session->getConnection();

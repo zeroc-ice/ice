@@ -1,1 +1,0 @@
-- Fixed a certificate context leak in the Schannel (Windows) SSL transport.

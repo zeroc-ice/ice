@@ -304,6 +304,125 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                     ],
                     [],
                 ),
+                (
+                    # A rule must match the host in full, so 12[7] does not match 127.0.0.1.
+                    "testing address filter without a trailing wildcard matches the whole host",
+                    ("12[7]", "", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # A rule without any wildcard is not a suffix match, so the reject rule 7.0.0.1 does not
+                    # reject 127.0.0.1.
+                    "testing address filter without a wildcard is not a suffix match",
+                    ("", "7.0.0.1", "", "", "", ""),
+                    [
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # A wildcard followed by a trailing numeric range matches when any alignment of the
+                    # wildcard reaches the end of the host: for 127.0.0.1, the first two dots leave part of
+                    # the host unmatched and only the last dot is the correct alignment. The range must match
+                    # right after a dot, so 127.0.0.x does not match.
+                    "testing address filter with a wildcard followed by a trailing numeric range",
+                    ("*.[0-255]", "", "", "", "", ""),
+                    [
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                        (False, "hello:tcp -h 127.0.0.x -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # Same with the numeric range directly after the wildcard: only the final 1 of 127.0.0.1
+                    # ends at the end of the host and lies in the 0-9 range.
+                    "testing address filter with a wildcard followed by a single-digit numeric range",
+                    ("*[0-9]", "", "", "", "", ""),
+                    [
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # A rule ending with a numeric range followed by a wildcard is a prefix match: 12[0-255]*
+                    # matches 127.0.0.1, with the range matching the number right after the 12 prefix.
+                    "testing address filter with a numeric range followed by a trailing wildcard",
+                    ("12[0-255]*", "", "", "", "", ""),
+                    [
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                        (False, "hello:tcp -h 12x.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # A digit run too long to fit in an int does not match a numeric range: the scan skips the
+                    # run, finds no other number in the host, and the rule does not match.
+                    "testing address filter numeric range against a long digit run",
+                    ("*[0-9]", "", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h " + "9" * 255 + " -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # A rule with many wildcard segments stays fast even when every alignment of the wildcards
+                    # has to be tried before concluding that the host does not match.
+                    "testing address filter with many wildcard segments",
+                    ("*aa*aa*aa*aa*aa*aa*aab *7.*.1", "", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h " + "a" * 255 + " -p 12010"),
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # Host names are case-insensitive: an accept rule matches the host regardless of the case
+                    # of either the rule or the host.
+                    "testing address filter accept rule is case-insensitive",
+                    ("LocalHost", "", "", "", "", ""),
+                    [
+                        (True, "hello:tcp -h localhost -p 12010"),
+                        (True, "hello:tcp -h LOCALHOST -p 12010"),
+                        (False, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # A reject rule matches a proxy as soon as one of its endpoints matches: extra endpoints
+                    # that do not match the rule do not get the proxy accepted.
+                    "testing address filter reject rule against a multi-endpoint proxy",
+                    ("", "127.0.0.1", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h 127.0.0.1 -p 12010:tcp -h 127.0.0.2 -p 12010"),
+                        (False, "hello:tcp -h 127.0.0.2 -p 12010:tcp -h 127.0.0.1 -p 12010"),
+                        (True, "hello:tcp -h localhost -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # Same for a reject rule: a case variation of the host still matches the rule.
+                    "testing address filter reject rule is case-insensitive",
+                    ("", "badhost.example.com", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h BadHost.Example.COM -p 12010"),
+                        (True, "hello:tcp -h localhost -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # A proxy with an endpoint host longer than 255 characters is rejected outright, even when
+                    # no reject rule matches it: no legal host name or IP address is that long.
+                    "testing address filter rejects an oversized host",
+                    ("", "*.invalid", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h " + "a" * 300 + " -p 12010"),
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
             ]
         )
 

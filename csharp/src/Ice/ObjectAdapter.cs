@@ -697,7 +697,7 @@ public sealed class ObjectAdapter
     /// Finds the default servant for a specific category.
     /// </summary>
     /// <param name="category">The category.</param>
-    /// <returns>The default servant, or nullptr if not found.</returns>
+    /// <returns>The default servant, or null if not found.</returns>
     public Object? findDefaultServant(string category)
     {
         lock (_mutex)

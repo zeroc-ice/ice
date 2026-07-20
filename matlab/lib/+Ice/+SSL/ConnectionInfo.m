@@ -2,7 +2,8 @@ classdef (Sealed) ConnectionInfo < Ice.ConnectionInfo
     %CONNECTIONINFO Provides access to the connection details of an SSL connection.
     %
     %   ConnectionInfo Properties:
-    %     peerCertificate - The peer certificate.
+    %     peerCertificate - The peer certificate encoded in PEM format, or an empty character vector if the peer did
+    %       not provide a certificate.
 
     % Copyright (c) ZeroC, Inc.
 
@@ -14,7 +15,8 @@ classdef (Sealed) ConnectionInfo < Ice.ConnectionInfo
         end
     end
     properties (SetAccess = immutable)
-        %PEERCERTIFICATE The peer certificate.
+        %PEERCERTIFICATE The peer certificate encoded in PEM format, or an empty character vector if the peer did not
+        %   provide a certificate.
         %   character vector
         peerCertificate (1, :) char
     end

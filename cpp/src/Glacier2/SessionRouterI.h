@@ -105,10 +105,7 @@ namespace Glacier2
         void refreshSessionAsync(
             std::function<void()> response,
             std::function<void(std::exception_ptr)>,
-            const Ice::Current&) final
-        {
-            response();
-        }
+            const Ice::Current&) final;
 
         void destroySessionAsync(
             std::function<void()> response,

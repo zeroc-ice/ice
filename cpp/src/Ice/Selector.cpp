@@ -130,7 +130,7 @@ Selector::getNextHandler(SocketOperation& status, DWORD& count, int& error, int 
                 // This indicates a internal error with the IOCP completion port, we log the error and abort.
                 Ice::SocketException ex(__FILE__, __LINE__, err);
                 Ice::Error out(_instance->initializationData().logger);
-                out << "couldn't dequeue packet from completion port:\n" << ex;
+                out << "could not dequeue packet from completion port:\n" << ex;
                 std::abort();
             }
         }

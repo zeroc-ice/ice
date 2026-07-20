@@ -1225,7 +1225,7 @@ IceRuby::SequenceInfo::unmarshal(
         return;
     }
 
-    int32_t sz = is->readSize();
+    int32_t sz = is->readAndCheckSeqSize(elementType->wireSize());
     volatile VALUE arr = createArray(sz);
 
     for (int32_t i = 0; i < sz; ++i)
@@ -2236,7 +2236,7 @@ IceRuby::ProxyInfo::variableLength() const
 int
 IceRuby::ProxyInfo::wireSize() const
 {
-    return 1;
+    return 2;
 }
 
 Ice::OptionalFormat
@@ -2553,7 +2553,9 @@ IceRuby::ValueReader::_iceRead(Ice::InputStream* is)
         {
             assert(!_slicedData->slices.empty());
 
-            volatile VALUE typeId = createString(_slicedData->slices[0]->typeId);
+            const Ice::SliceInfoPtr& sliceInfo = _slicedData->slices[0];
+            volatile VALUE typeId =
+                createString(sliceInfo->typeId.empty() ? std::to_string(sliceInfo->compactId) : sliceInfo->typeId);
             callRuby(rb_iv_set, _object, "@unknownTypeId", typeId);
         }
     }

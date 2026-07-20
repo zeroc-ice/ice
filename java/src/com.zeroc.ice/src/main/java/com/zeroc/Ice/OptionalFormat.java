@@ -16,7 +16,7 @@ public enum OptionalFormat {
     F4(2),
     /** Fixed 8-byte encoding. */
     F8(3),
-    /** "Size encoding" using either 1 or 5 bytes. Used by enums, class identifiers, etc. */
+    /** "Size encoding" using either 1 or 5 bytes. Used by enums. */
     Size(4),
     /** Variable "size encoding" using either 1 or 5 bytes followed by data.
      *  Used by strings, fixed-size structs, and containers whose size can be computed prior to marshaling. */

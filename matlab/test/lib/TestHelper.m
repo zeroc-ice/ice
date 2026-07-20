@@ -40,7 +40,7 @@ classdef TestHelper < handle
             end
 
             if length(protocol) == 0
-                protocol = properties.getPropertyWithDefault('Ice.Default.Protocol', 'default');
+                protocol = properties.getIceProperty('Ice.Default.Protocol');
             end
             port = properties.getPropertyAsIntWithDefault('Test.BasePort', 12010) + num;
             endpoint = sprintf('%s -p %d', protocol, port);
@@ -63,7 +63,7 @@ classdef TestHelper < handle
             else
                 properties = varargin{1};
             end
-            host = properties.getPropertyWithDefault('Ice.Default.Protocol', 'tcp');
+            host = properties.getIceProperty('Ice.Default.Protocol');
         end
 
         function port = getTestPort(obj, varargin)

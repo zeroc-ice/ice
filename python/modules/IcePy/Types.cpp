@@ -1446,7 +1446,7 @@ IcePy::SequenceInfo::unmarshal(
         return;
     }
 
-    int32_t sz = is->readSize();
+    int32_t sz = is->readAndCheckSeqSize(elementType->wireSize());
     PyObjectHandle result{sm->createContainer(sz)};
 
     if (!result.get())
@@ -2714,7 +2714,7 @@ IcePy::ProxyInfo::variableLength() const
 int
 IcePy::ProxyInfo::wireSize() const
 {
-    return 1;
+    return 2;
 }
 
 Ice::OptionalFormat
@@ -3011,7 +3011,9 @@ IcePy::ValueReader::_iceRead(Ice::InputStream* is)
         {
             assert(!_slicedData->slices.empty());
 
-            PyObjectHandle typeId{createString(_slicedData->slices[0]->typeId)};
+            const Ice::SliceInfoPtr& sliceInfo = _slicedData->slices[0];
+            PyObjectHandle typeId{
+                createString(sliceInfo->typeId.empty() ? std::to_string(sliceInfo->compactId) : sliceInfo->typeId)};
             if (!typeId.get() || PyObject_SetAttrString(_object.get(), "unknownTypeId", typeId.get()) < 0)
             {
                 assert(PyErr_Occurred());

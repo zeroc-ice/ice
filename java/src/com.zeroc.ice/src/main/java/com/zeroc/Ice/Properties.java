@@ -249,7 +249,7 @@ public final class Properties {
      * Gets a property as a list of strings. The strings must be separated by whitespace or comma. The strings in the
      * list can contain whitespace and commas if they are enclosed in single or double quotes. If quotes are mismatched,
      * an empty list is returned. Within single quotes or double quotes, you can escape the quote in question with
-     * a backslash, e.g. O'Reilly can be written as {@code O'Reilly}, {@code "O'Reilly"} or {@code 'O\'Reilly'}.
+     * a backslash, e.g. O'Reilly can be written as {@code "O'Reilly"} or {@code 'O\'Reilly'}.
      *
      * @param key the property key
      * @return the property value interpreted as a list of strings, or an empty list if the property is not set
@@ -263,7 +263,7 @@ public final class Properties {
      * Gets an Ice property as a list of strings. The strings must be separated by whitespace or comma. The strings in
      * the list can contain whitespace and commas if they are enclosed in single or double quotes. If quotes are
      * mismatched, the default list is returned. Within single quotes or double quotes, you can escape the quote in
-     * question with a backslash, e.g. O'Reilly can be written as {@code O'Reilly}, {@code "O'Reilly"} or
+     * question with a backslash, e.g. O'Reilly can be written as {@code "O'Reilly"} or
      * {@code 'O\'Reilly'}.
      *
      * @param key the property key
@@ -280,7 +280,7 @@ public final class Properties {
      * Gets a property as a list of strings. The strings must be separated by whitespace or comma. The strings in the
      * list can contain whitespace and commas if they are enclosed in single or double quotes. If quotes are mismatched,
      * the default list is returned. Within single quotes or double quotes, you can escape the quote in question with
-     * a backslash, e.g. O'Reilly can be written as {@code O'Reilly}, {@code "O'Reilly"} or {@code 'O\'Reilly'}.
+     * a backslash, e.g. O'Reilly can be written as {@code "O'Reilly"} or {@code 'O\'Reilly'}.
      *
      * @param key the property key
      * @param value the default value to return if the property is not set
@@ -590,24 +590,21 @@ public final class Properties {
 
     private void loadArgs(String[] args, List<String> remainingArgs) {
         boolean loadConfigFiles = false;
+        List<String> filteredArgs = new ArrayList<>();
 
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].startsWith("--Ice.Config")) {
-                String line = args[i];
+        for (String arg : args) {
+            if (arg.startsWith("--Ice.Config")) {
+                String line = arg;
                 if (line.indexOf('=') == -1) {
                     line += "=1";
                 }
                 parseLine(line.substring(2));
                 loadConfigFiles = true;
-
-                String[] arr = new String[args.length - 1];
-                System.arraycopy(args, 0, arr, 0, i);
-                if (i < args.length - 1) {
-                    System.arraycopy(args, i + 1, arr, i, args.length - i - 1);
-                }
-                args = arr;
+            } else {
+                filteredArgs.add(arg);
             }
         }
+        args = filteredArgs.toArray(new String[0]);
 
         if (!loadConfigFiles) {
             // If Ice.Config is not set, load from ICE_CONFIG (if set)

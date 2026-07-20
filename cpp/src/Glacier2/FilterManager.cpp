@@ -5,99 +5,9 @@
 #include "Ice/Communicator.h"
 #include "Ice/Ice.h"
 #include "Ice/Logger.h"
-#include "Ice/Properties.h"
-#include "Ice/StringUtil.h"
 
 using namespace std;
 using namespace Ice;
-
-//
-// Parse a space delimited string into a sequence of strings.
-//
-
-static vector<string>
-stringToStringSeq(const string& str)
-{
-    vector<string> seq;
-    IceInternal::splitString(str, " \t", seq);
-
-    //
-    // TODO: do something about unmatched quotes
-    //
-    return seq;
-}
-
-static vector<Identity>
-stringToIdentitySeq(const string& str)
-{
-    vector<Identity> seq;
-    string const ws = " \t";
-
-    //
-    // Eat white space.
-    //
-    string::size_type current = str.find_first_not_of(ws, 0);
-    string::size_type end = 0;
-    while (current != string::npos)
-    {
-        switch (str[current])
-        {
-            case '"':
-            case '\'':
-            {
-                char quote = str[current];
-                end = current + 1;
-                while (true)
-                {
-                    end = str.find(quote, end);
-
-                    if (end == string::npos)
-                    {
-                        //
-                        // TODO: should this be an unmatched quote error?
-                        //
-                        seq.push_back(stringToIdentity(str.substr(current)));
-                        break;
-                    }
-
-                    bool markString = true;
-                    for (string::size_type r = end - 1; r > current && str[r] == '\\'; --r)
-                    {
-                        markString = !markString;
-                    }
-                    //
-                    // We don't want the quote so we skip that.
-                    //
-                    if (markString)
-                    {
-                        ++current;
-                        seq.push_back(stringToIdentity(str.substr(current, end - current)));
-                        break;
-                    }
-                    else
-                    {
-                        ++end;
-                    }
-                }
-                if (end != string::npos)
-                {
-                    ++end;
-                }
-                break;
-            }
-
-            default:
-            {
-                end = str.find_first_of(ws, current);
-                string::size_type len = (end == string::npos) ? string::npos : end - current;
-                seq.push_back(stringToIdentity(str.substr(current, len)));
-                break;
-            }
-        }
-        current = str.find_first_not_of(ws, end);
-    }
-    return seq;
-}
 
 Glacier2::FilterManager::~FilterManager() { destroy(); }
 
@@ -114,7 +24,7 @@ Glacier2::FilterManager::destroy()
                 adapter->remove(_categoriesPrx->ice_getIdentity());
             }
         }
-        catch (const Exception&)
+        catch (...)
         {
         }
         try
@@ -124,7 +34,7 @@ Glacier2::FilterManager::destroy()
                 adapter->remove(_adapterIdsPrx->ice_getIdentity());
             }
         }
-        catch (const Exception&)
+        catch (...)
         {
         }
         try
@@ -134,7 +44,7 @@ Glacier2::FilterManager::destroy()
                 adapter->remove(_identitiesPrx->ice_getIdentity());
             }
         }
-        catch (const Exception&)
+        catch (...)
         {
         }
     }
@@ -170,12 +80,11 @@ Glacier2::FilterManager::FilterManager(
 shared_ptr<Glacier2::FilterManager>
 Glacier2::FilterManager::create(shared_ptr<Instance> instance, const string& userId, bool allowAddUser)
 {
-    auto props = instance->properties();
-    vector<string> allowSeq = stringToStringSeq(props->getIceProperty("Glacier2.Filter.Category.Accept"));
+    vector<string> allowSeq = instance->filterCategories();
 
     if (allowAddUser)
     {
-        int addUserMode = props->getIcePropertyAsInt("Glacier2.Filter.Category.AcceptUser");
+        int addUserMode = instance->filterAddUserMode();
 
         if (addUserMode > 0 && !userId.empty())
         {
@@ -191,12 +100,8 @@ Glacier2::FilterManager::create(shared_ptr<Instance> instance, const string& use
     }
 
     auto categoryFilter = make_shared<Glacier2::StringSetI>(allowSeq);
-
-    auto adapterIdFilter =
-        make_shared<Glacier2::StringSetI>(stringToStringSeq(props->getIceProperty("Glacier2.Filter.AdapterId.Accept")));
-
-    auto identityFilter = make_shared<Glacier2::IdentitySetI>(
-        stringToIdentitySeq(props->getIceProperty("Glacier2.Filter.Identity.Accept")));
+    auto adapterIdFilter = make_shared<Glacier2::StringSetI>(instance->filterAdapterIds());
+    auto identityFilter = make_shared<Glacier2::IdentitySetI>(instance->filterIdentities());
 
     return make_shared<Glacier2::FilterManager>(
         std::move(instance),

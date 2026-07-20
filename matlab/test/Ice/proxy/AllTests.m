@@ -573,10 +573,10 @@ classdef AllTests
             fprintf('ok\n');
 
             fprintf('testing checked cast... ');
-            cl = MyClassPrx.checkedCast(base);
+            cl = MyInterfacePrx.checkedCast(base);
             assert(~isempty(cl));
 
-            derived = MyDerivedClassPrx.checkedCast(cl);
+            derived = MyDerivedInterfacePrx.checkedCast(cl);
             assert(~isempty(derived));
             assert(cl == base);
             assert(derived == base);
@@ -586,7 +586,7 @@ classdef AllTests
             assert(isempty(loc));
 
             try
-                MyClassPrx.checkedCast(cl, 'facet');
+                MyInterfacePrx.checkedCast(cl, 'facet');
                 assert(false);
             catch ex
                 assert(isa(ex, 'Ice.FacetNotExistException'));
@@ -595,7 +595,7 @@ classdef AllTests
             %
             % Upcasting
             %
-            cl2 = MyClassPrx.checkedCast(derived);
+            cl2 = MyInterfacePrx.checkedCast(derived);
             obj = Ice.ObjectPrx.checkedCast(derived);
             assert(~isempty(cl2));
             assert(~isempty(obj));
@@ -605,14 +605,14 @@ classdef AllTests
             fprintf('ok\n');
 
             fprintf('testing checked cast with context... ');
-            tccp = MyClassPrx.checkedCast(base);
+            tccp = MyInterfacePrx.checkedCast(base);
             c = tccp.getContext();
             assert(c.numEntries == 0);
 
             c = configureDictionary('char', 'char');
             c('one') = 'hello';
             c('two') = 'world';
-            tccp = MyClassPrx.checkedCast(base, c);
+            tccp = MyInterfacePrx.checkedCast(base, c);
             c2 = tccp.getContext();
             assert(isequal(c, c2));
             fprintf('ok\n');
@@ -657,7 +657,7 @@ classdef AllTests
 
             fprintf('testing encoding versioning... ');
             ref20 = 'test -e 2.0:default -p 12010';
-            cl20 = MyClassPrx(communicator, ref20);
+            cl20 = MyInterfacePrx(communicator, ref20);
             try
                 cl20.ice_ping();
                 assert(false);
@@ -667,7 +667,7 @@ classdef AllTests
             end
 
             ref10 = 'test -e 1.0:default -p 12010';
-            cl10 = MyClassPrx(communicator, ref10);
+            cl10 = MyInterfacePrx(communicator, ref10);
             cl10.ice_ping();
             cl10.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_ping();
             cl.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_ping();
@@ -773,7 +773,7 @@ classdef AllTests
             p2 = communicator.stringToProxy('test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==');
             assert(strcmp(communicator.proxyToString(p2), 'test:tcp -h 127.0.0.1 -p 12010 -t 10000'));
 
-            if communicator.getProperties().getPropertyAsInt('Ice.IPv6') == 0
+            if communicator.getProperties().getIcePropertyAsInt('Ice.IPv6') == 0
                 % Two legal TCP endpoints expressed as opaque endpoints
                 p1 = communicator.stringToProxy('test -e 1.0:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAA==');
                 pstr = communicator.proxyToString(p1);

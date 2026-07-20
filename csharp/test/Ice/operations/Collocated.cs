@@ -16,7 +16,7 @@ public class Collocated : TestHelper
         await using Communicator communicator = initialize(initData);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        ObjectPrx prx = adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+        ObjectPrx prx = adapter.add(new MyDerivedInterfaceI(), Ice.Util.stringToIdentity("test"));
         // Don't activate OA to ensure collocation is used.
 
         if (prx.ice_getConnection() != null)
@@ -38,7 +38,7 @@ public class Collocated : TestHelper
         using var communicator = new Ice.Communicator();
         communicator.getProperties().setProperty("TestAdapter.Endpoints", $"tcp -h \"0:0:0:0:0:0:0:1\" -p {port}");
         ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+        adapter.add(new MyDerivedInterfaceI(), Ice.Util.stringToIdentity("test"));
 
         ObjectPrx prx = Ice.ObjectPrxHelper.createProxy(communicator, $"test:tcp -h \"::1\" -p {port}");
         prx.ice_ping();

@@ -73,7 +73,7 @@ export class Server extends TestHelper {
             const hi = new HI();
             adapter.addFacet(hi, Ice.stringToIdentity("d"), "facetGH");
             await echo.setConnection();
-            echo.ice_getCachedConnection().setAdapter(adapter);
+            echo.ice_getCachedConnection()!.setAdapter(adapter);
             this.serverReady();
             await communicator.waitForShutdown();
         } finally {

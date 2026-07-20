@@ -43,6 +43,21 @@ public class Client : Test.TestHelper
             Console.Out.WriteLine("ok");
         }
 
+        //
+        // Two separate --Ice.Config arguments: the last one wins, like C++.
+        //
+        {
+            Console.Out.Write("testing using Ice.Config with adjacent command-line arguments... ");
+            Console.Out.Flush();
+            string[] args1 = ["--Ice.Config=config/config.1", "--Ice.Config=config/config.2"];
+            var properties = new Ice.Properties(ref args1);
+            test(properties.getIceProperty("Ice.Config") == "config/config.2");
+            test(properties.getProperty("Config1").Length == 0);
+            test(properties.getProperty("Config2") == "Config2");
+            test(args1.Length == 0);
+            Console.Out.WriteLine("ok");
+        }
+
         {
             Console.Out.Write("testing configuration file escapes... ");
             Console.Out.Flush();
@@ -206,6 +221,30 @@ public class Client : Test.TestHelper
             catch (Ice.PropertyException)
             {
             }
+            Console.Out.WriteLine("ok");
+        }
+
+        {
+            Console.Out.Write("testing that reading an out-of-range value as an int throws... ");
+            var properties = new Ice.Properties();
+            properties.setProperty("Foo", "99999999999");
+            try
+            {
+                properties.getPropertyAsIntWithDefault("Foo", 0);
+                test(false);
+            }
+            catch (Ice.PropertyException)
+            {
+            }
+            Console.Out.WriteLine("ok");
+        }
+
+        {
+            Console.Out.Write("testing that a separators-only list value returns the default... ");
+            var properties = new Ice.Properties();
+            properties.setProperty("Foo", ",");
+            string[] result = properties.getPropertyAsListWithDefault("Foo", ["a", "b"]);
+            test(result.Length == 2 && result[0] == "a" && result[1] == "b");
             Console.Out.WriteLine("ok");
         }
 

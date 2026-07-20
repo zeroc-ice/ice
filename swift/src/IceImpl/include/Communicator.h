@@ -25,6 +25,8 @@ ICEIMPL_API @interface ICECommunicator : ICELocalObject
                                                        property:(NSString*)property
                                                           error:(NSError* _Nullable* _Nonnull)error
     NS_SWIFT_NAME(proxyToProperty(prx:property:));
+- (NSString*)identityToString:(NSString*)name
+                     category:(NSString*)category NS_SWIFT_NAME(identityToString(name:category:));
 ;
 - (nullable ICEObjectAdapter*)createObjectAdapter:(NSString*)name error:(NSError* _Nullable* _Nonnull)error;
 - (nullable ICEObjectAdapter*)createObjectAdapterWithEndpoints:(NSString*)name

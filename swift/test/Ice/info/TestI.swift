@@ -24,6 +24,17 @@ func getIPConnectionInfo(_ info: Ice.ConnectionInfo) -> Ice.IPConnectionInfo? {
     return nil
 }
 
+func getSSLConnectionInfo(_ info: Ice.ConnectionInfo) -> Ice.SSLConnectionInfo? {
+    var curr: Ice.ConnectionInfo? = info
+    while curr != nil {
+        if curr is Ice.SSLConnectionInfo {
+            return curr as? Ice.SSLConnectionInfo
+        }
+        curr = curr?.underlying
+    }
+    return nil
+}
+
 final class TestI: TestIntf {
     func shutdown(current: Ice.Current) {
         current.adapter.getCommunicator().shutdown()
@@ -60,6 +71,10 @@ final class TestI: TestIntf {
             for (key, value) in wsinfo.headers {
                 ctx["ws.\(key)"] = value
             }
+        }
+
+        if let sslinfo = getSSLConnectionInfo(info) {
+            ctx["peerCertificate"] = sslinfo.peerCertificate != nil ? "true" : "false"
         }
         return ctx
     }

@@ -3,13 +3,14 @@ classdef ConnectionAbortedException < Ice.LocalException
     %   aborted.
     %
     %   ConnectionAbortedException Properties:
-    %     closedByApplication - True if the connection was closed by the application, false if it was closed by the Ice runtime.
+    %     closedByApplication - True if the connection was aborted by the application, false if it was aborted by the
+    %       Ice runtime.
 
     % Copyright (c) ZeroC, Inc.
 
     properties
-        %CLOSEDBYAPPLICATION True if the connection was closed by the application, false if it was closed by the Ice
-        %   runtime.
+        %CLOSEDBYAPPLICATION True if the connection was aborted by the application, false if it was aborted by the
+        %   Ice runtime.
         %   logical scalar
         closedByApplication (1, 1) logical = false
     end

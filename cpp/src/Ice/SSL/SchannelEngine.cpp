@@ -459,7 +459,7 @@ namespace
                                 throw InitializationException(
                                     __FILE__,
                                     __LINE__,
-                                    "SSL transport: invalid value '" + value + "' for `IceSSL.FindCert' property:\n" +
+                                    "SSL transport: invalid value '" + value + "' for 'IceSSL.FindCert' property:\n" +
                                         IceInternal::lastErrorToString());
                             }
 
@@ -469,7 +469,7 @@ namespace
                                 throw InitializationException(
                                     __FILE__,
                                     __LINE__,
-                                    "SSL transport: invalid value '" + value + "' for `IceSSL.FindCert' property:\n" +
+                                    "SSL transport: invalid value '" + value + "' for 'IceSSL.FindCert' property:\n" +
                                         IceInternal::lastErrorToString());
                             }
 
@@ -487,7 +487,7 @@ namespace
                             throw InitializationException(
                                 __FILE__,
                                 __LINE__,
-                                "SSL transport: invalid 'IceSSL.FindCert' property: can't decode the value");
+                                "SSL transport: invalid 'IceSSL.FindCert' property: cannot decode the value");
                         }
 
                         CRYPT_HASH_BLOB hash = {static_cast<DWORD>(buffer.size()), &buffer[0]};
@@ -502,7 +502,7 @@ namespace
                             throw InitializationException(
                                 __FILE__,
                                 __LINE__,
-                                "SSL transport: invalid value '" + value + "' for `IceSSL.FindCert' property");
+                                "SSL transport: invalid value '" + value + "' for 'IceSSL.FindCert' property");
                         }
 
                         // CRYPT_INTEGER_BLOB stores serial data in little-endian format, parseBytes returns big-endian

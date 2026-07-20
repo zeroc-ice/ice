@@ -20,10 +20,10 @@ export class Server extends TestHelper {
             const adapter = await communicator.createObjectAdapter("");
             adapter.add(new ThrowerI(), Ice.stringToIdentity("thrower"));
             await echo.setConnection();
-            const connection = echo.ice_getCachedConnection();
+            const connection = echo.ice_getCachedConnection()!;
             connection.setCloseCallback(() => {
                 // Re-establish connection if it fails (necessary for MemoryLimitException test)
-                echo!.setConnection().then(() => echo!.ice_getCachedConnection().setAdapter(adapter));
+                echo!.setConnection().then(() => echo!.ice_getCachedConnection()!.setAdapter(adapter));
             });
             connection.setAdapter(adapter);
             this.serverReady();

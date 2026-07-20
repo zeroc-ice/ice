@@ -14,7 +14,8 @@ public final class UnknownSlicedValue: Value {
 
     /// Returns the Slice type ID associated with this instance.
     ///
-    /// - Returns: The type ID supplied to the constructor.
+    /// - Returns: The type ID supplied to the initializer. It's the string form of the compact type ID
+    ///   (for example, `"1"`) when the most-derived slice was marshaled with a compact type ID.
     override public func ice_id() -> String {
         return unknownTypeId
     }

@@ -1,6 +1,6 @@
 function r = Unset()
-    %UNSET This function returns a singleton instance that we use as a sentinel value to indicate an unset optional
-    %   value.
+    %UNSET Returns the sentinel value used to indicate an unset optional value.
+    %   Compare a value against Ice.Unset with == or ~= to determine whether an optional value is set.
     %
     %   Output Arguments
     %     r - The unset sentinel value.

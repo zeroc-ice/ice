@@ -8,7 +8,7 @@ classdef (Sealed) SlicedData < handle
 
     properties (SetAccess = immutable)
         %SLICES The details of each slice, in order of most-derived to least-derived.
-        %   cell array of SliceInfo objects
+        %   cell array of Ice.SliceInfo objects
         slices (1, :) cell
     end
     methods (Hidden)

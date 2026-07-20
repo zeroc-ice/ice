@@ -9,6 +9,7 @@
 #    include "Ice/LocalExceptions.h"
 #    include "iAPEndpointI.h"
 #    include "iAPTransceiver.h"
+#    include "iAPUtil.h"
 
 #    import <Foundation/NSError.h>
 #    import <Foundation/NSRunLoop.h>
@@ -379,15 +380,22 @@ IceObjC::iAPTransceiver::getInfo([[maybe_unused]] bool incoming, string adapterN
 {
     assert(!incoming);
 
+    if (_session == nil)
+    {
+        // Test-only transceiver constructed without an EASession; no accessory metadata is available.
+        return make_shared<
+            Ice::IAPConnectionInfo>(std::move(adapterName), std::move(connectionId), "", "", "", "", "", "");
+    }
+
     return make_shared<Ice::IAPConnectionInfo>(
         std::move(adapterName),
         std::move(connectionId),
-        [_session.accessory.name UTF8String],
-        [_session.accessory.manufacturer UTF8String],
-        [_session.accessory.modelNumber UTF8String],
-        [_session.accessory.firmwareRevision UTF8String],
-        [_session.accessory.hardwareRevision UTF8String],
-        [_session.protocolString UTF8String]);
+        nsToString(_session.accessory.name),
+        nsToString(_session.accessory.manufacturer),
+        nsToString(_session.accessory.modelNumber),
+        nsToString(_session.accessory.firmwareRevision),
+        nsToString(_session.accessory.hardwareRevision),
+        nsToString(_session.protocolString));
 }
 
 void
@@ -410,15 +418,37 @@ IceObjC::iAPTransceiver::iAPTransceiver(const ProtocolInstancePtr& instance, EAS
 #    endif
       _readStream([session inputStream]),
       _writeStream([session outputStream]),
+      _callback(nil),
       _readStreamRegistered(false),
       _writeStreamRegistered(false),
+      _opening(false),
       _error(false),
       _state(StateNeedConnect)
 {
     ostringstream os;
-    os << "name = " << [session.accessory.name UTF8String] << "\n";
-    os << "protocol = " << [session.protocolString UTF8String];
+    os << "name = " << nsToString(session.accessory.name) << "\n";
+    os << "protocol = " << nsToString(session.protocolString);
     _desc = os.str();
+}
+
+IceObjC::iAPTransceiver::iAPTransceiver(
+    const ProtocolInstancePtr& instance,
+    NSInputStream* readStream,
+    NSOutputStream* writeStream,
+    string desc)
+    : StreamNativeInfo(INVALID_SOCKET),
+      _instance(instance),
+      _session(nil),
+      _readStream(readStream),
+      _writeStream(writeStream),
+      _callback(nil),
+      _readStreamRegistered(false),
+      _writeStreamRegistered(false),
+      _opening(false),
+      _error(false),
+      _state(StateNeedConnect),
+      _desc(std::move(desc))
+{
 }
 
 IceObjC::iAPTransceiver::~iAPTransceiver()
@@ -464,10 +494,7 @@ IceObjC::iAPTransceiver::checkErrorStatus(NSStream* stream, const char* file, in
     }
 
     // Otherwise throw a generic exception.
-    throw SocketException{
-        file,
-        line,
-        "CFNetwork error in domain " + string{[domain UTF8String]} + ": " + to_string([err code])};
+    throw SocketException{file, line, "CFNetwork error in domain " + nsToString(domain) + ": " + to_string([err code])};
 }
 
 #endif

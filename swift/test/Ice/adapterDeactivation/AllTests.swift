@@ -55,6 +55,11 @@ func allTests(_ helper: TestHelper) async throws {
         try test(!adapter.isDeactivated())
         adapter.deactivate()
         try test(adapter.isDeactivated())
+        do {
+            // setLocator on a deactivated adapter throws, matching C++ and C#.
+            try adapter.setLocator(nil)
+            try test(false)
+        } catch is Ice.ObjectAdapterDeactivatedException {}
         adapter.destroy()
     }
     output.writeLine("ok")
@@ -206,4 +211,16 @@ func allTests(_ helper: TestHelper) async throws {
             output.writeLine("ok")
         }
     }
+
+    output.write("testing default object adapter, router, and locator on a destroyed communicator... ")
+    do {
+        // The getters return nil and the setter does nothing.
+        let com = try Ice.initialize()
+        com.destroy()
+        try test(com.getDefaultObjectAdapter() == nil)
+        try test(com.getDefaultRouter() == nil)
+        try test(com.getDefaultLocator() == nil)
+        com.setDefaultObjectAdapter(nil)
+    }
+    output.writeLine("ok")
 }

@@ -1538,7 +1538,7 @@ IcePHP::SequenceInfo::unmarshal(
     array_init(&zv);
     AutoDestroy destroy(&zv);
 
-    int32_t sz = is->readSize();
+    int32_t sz = is->readAndCheckSeqSize(elementType->wireSize());
     for (int32_t i = 0; i < sz; ++i)
     {
         void* cl = reinterpret_cast<void*>(i);
@@ -2621,7 +2621,7 @@ IcePHP::ProxyInfo::variableLength() const
 int
 IcePHP::ProxyInfo::wireSize() const
 {
-    return 1;
+    return 2;
 }
 
 Ice::OptionalFormat
@@ -2978,7 +2978,8 @@ IcePHP::ValueReader::_iceRead(Ice::InputStream* is)
         {
             assert(!_slicedData->slices.empty());
 
-            const string typeId = _slicedData->slices[0]->typeId;
+            const Ice::SliceInfoPtr& sliceInfo = _slicedData->slices[0];
+            const string typeId = sliceInfo->typeId.empty() ? std::to_string(sliceInfo->compactId) : sliceInfo->typeId;
             zval zv;
             AutoDestroy typeIdDestroyer(&zv);
             ZVAL_STRINGL(&zv, typeId.c_str(), static_cast<int>(typeId.size()));

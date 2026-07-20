@@ -7,10 +7,14 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::RoutingTable::RoutingTable(CommunicatorPtr communicator, shared_ptr<ProxyVerifier> verifier)
+Glacier2::RoutingTable::RoutingTable(
+    CommunicatorPtr communicator,
+    shared_ptr<ProxyVerifier> verifier,
+    int maxSize,
+    int traceLevel)
     : _communicator(std::move(communicator)),
-      _traceLevel(_communicator->getProperties()->getIcePropertyAsInt("Glacier2.Trace.RoutingTable")),
-      _maxSize(_communicator->getProperties()->getIcePropertyAsInt("Glacier2.RoutingTable.MaxSize")),
+      _traceLevel(traceLevel),
+      _maxSize(maxSize),
       _verifier(std::move(verifier))
 {
 }
@@ -75,7 +79,7 @@ Glacier2::RoutingTable::add(
 
         if (p == _map.end())
         {
-            if (_traceLevel == 1 || _traceLevel >= 3)
+            if (_traceLevel >= 1)
             {
                 Trace out(_communicator->getLogger(), "Glacier2");
                 out << "adding proxy to routing table:\n" << proxy;
@@ -87,7 +91,9 @@ Glacier2::RoutingTable::add(
         }
         else
         {
-            if (_traceLevel == 1 || _traceLevel >= 3)
+            // We tolerate duplicate registrations and keep the first proxy: two objects with the same identity
+            // are the same object.
+            if (_traceLevel >= 1)
             {
                 Trace out(_communicator->getLogger(), "Glacier2");
                 out << "proxy already in routing table:\n" << proxy;

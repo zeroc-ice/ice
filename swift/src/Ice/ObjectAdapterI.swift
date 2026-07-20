@@ -190,9 +190,11 @@ final class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDis
         }
     }
 
-    func setLocator(_ locator: LocatorPrx?) {
+    func setLocator(_ locator: LocatorPrx?) throws {
         let l = locator as? LocatorPrxI
-        handle.setLocator(l?.handle ?? nil)
+        try autoreleasepool {
+            try handle.setLocator(l?.handle ?? nil)
+        }
     }
 
     func getLocator() -> LocatorPrx? {

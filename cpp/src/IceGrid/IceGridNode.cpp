@@ -220,9 +220,10 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
             desc = argv[++i];
 
-            while (i + 1 < argc && argv[++i][0] != '-')
+            // Consume the optional deployment targets following the descriptor, up to the next option.
+            while (i + 1 < argc && argv[i + 1][0] != '-')
             {
-                targets.emplace_back(argv[i]);
+                targets.emplace_back(argv[++i]);
             }
         }
         else
@@ -238,7 +239,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     string name = properties->getIceProperty("IceGrid.Node.Name");
     if (name.empty())
     {
-        error("property `IceGrid.Node.Name' is not set");
+        error("property 'IceGrid.Node.Name' is not set");
         return false;
     }
 
@@ -297,7 +298,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     }
     else if (!communicator()->getDefaultLocator())
     {
-        error("property `Ice.Default.Locator' is not set");
+        error("property 'Ice.Default.Locator' is not set");
         return false;
     }
 
@@ -305,7 +306,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     string dataPath = properties->getIceProperty("IceGrid.Node.Data");
     if (dataPath.empty())
     {
-        error("property `IceGrid.Node.Data' is not set");
+        error("property 'IceGrid.Node.Data' is not set");
         return false;
     }
     else
@@ -314,7 +315,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         {
             FileException ex(__FILE__, __LINE__, dataPath);
             ServiceError err(this);
-            err << "property `IceGrid.Node.Data' is set to an invalid path:\n" << ex;
+            err << "property 'IceGrid.Node.Data' is set to an invalid path:\n" << ex;
             return false;
         }
 
@@ -340,7 +341,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         catch (const FileException& ex)
         {
             Warning out(communicator()->getLogger());
-            out << "couldn't disable file indexing:\n" << ex;
+            out << "could not disable file indexing:\n" << ex;
         }
 #endif
     }
@@ -350,7 +351,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     if (properties->getIceProperty("IceGrid.Node.Endpoints").empty())
     {
-        error("property `IceGrid.Node.Endpoints' is not set");
+        error("property 'IceGrid.Node.Endpoints' is not set");
         return false;
     }
 

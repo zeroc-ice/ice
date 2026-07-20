@@ -7,7 +7,7 @@ declare module "@zeroc/ice" {
          */
         class SliceInfo {
             /**
-             * The Slice type ID for this slice.
+             * The Slice type ID for this slice. It's empty when the compact ID is set (compactId !== -1).
              */
             typeId: string;
 
@@ -17,7 +17,7 @@ declare module "@zeroc/ice" {
             compactId: number;
 
             /**
-             * The encoded bytes for this slice, including the leading size integer.
+             * The encoded bytes for this slice.
              */
             bytes: Uint8Array;
 
@@ -54,14 +54,16 @@ declare module "@zeroc/ice" {
             /**
              * Constructs an unknown sliced value.
              *
-             * @param unknownTypeId The Slice type ID of the unknown class.
+             * @param unknownTypeId The Slice type ID of the unknown class, or the string form of the compact type
+             * ID (for example, "1") when the most-derived slice was marshaled with a compact type ID.
              */
             constructor(unknownTypeId: string);
 
             /**
              * Returns the Slice type ID associated with this object.
              *
-             * @returns The Slice type ID.
+             * @returns The type ID supplied to the constructor. It's the string form of the compact type ID (for
+             * example, "1") when the most-derived slice was marshaled with a compact type ID.
              */
             ice_id(): string;
         }

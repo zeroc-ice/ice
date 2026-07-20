@@ -121,7 +121,7 @@ namespace
         {"server", "enable", "server enable ID          Enable server ID.\n"},
         {"server",
          "disable",
-         "server disable ID         Disable server ID (a disabled server can't be\n"
+         "server disable ID         Disable server ID (a disabled server cannot be\n"
          "                          started on demand or administratively).\n"},
         {"service", "start", "service start ID NAME     Starts service NAME in IceBox server ID.\n"},
         {"service", "stop", "service stop ID NAME      Stops service NAME in IceBox server ID.\n"},
@@ -1277,7 +1277,7 @@ Parser::writeMessage(const list<string>& args, int fd)
     }
     catch (const Ice::ObjectNotExistException&)
     {
-        error("couldn't reach the server's Admin object");
+        error("could not reach the server's Admin object");
     }
     catch (const Ice::FacetNotExistException&)
     {
@@ -1444,7 +1444,7 @@ Parser::propertiesServer(const list<string>& args, bool single)
     }
     catch (const Ice::ObjectNotExistException&)
     {
-        error("couldn't reach the server's Admin object");
+        error("could not reach the server's Admin object");
     }
     catch (const Ice::FacetNotExistException&)
     {
@@ -1527,11 +1527,11 @@ Parser::startService(const list<string>& args)
     }
     catch (const IceBox::NoSuchServiceException&)
     {
-        error("couldn't find service '" + service + "'");
+        error("could not find service '" + service + "'");
     }
     catch (const Ice::ObjectNotExistException&)
     {
-        error("couldn't reach the server's Admin object");
+        error("could not reach the server's Admin object");
     }
     catch (const Ice::FacetNotExistException&)
     {
@@ -1566,11 +1566,11 @@ Parser::stopService(const list<string>& args)
     }
     catch (const IceBox::NoSuchServiceException&)
     {
-        error("couldn't find service '" + service + "'");
+        error("could not find service '" + service + "'");
     }
     catch (const Ice::ObjectNotExistException&)
     {
-        error("couldn't reach the server's Admin object");
+        error("could not reach the server's Admin object");
     }
     catch (const Ice::FacetNotExistException&)
     {
@@ -1602,11 +1602,11 @@ Parser::statusService(const list<string>& args)
     }
     catch (const IceBox::NoSuchServiceException&)
     {
-        error("couldn't find service '" + service + "'");
+        error("could not find service '" + service + "'");
     }
     catch (const Ice::ObjectNotExistException&)
     {
-        error("couldn't reach the server's Admin object");
+        error("could not reach the server's Admin object");
     }
     catch (const Ice::FacetNotExistException&)
     {
@@ -1656,7 +1656,7 @@ Parser::describeService(const list<string>& args)
 
         if (!found)
         {
-            error("couldn't find service '" + service + "'");
+            error("could not find service '" + service + "'");
             return;
         }
     }
@@ -1710,7 +1710,7 @@ Parser::propertiesService(const list<string>& args, bool single)
         }
         if (!found)
         {
-            error("couldn't find service '" + service + "'");
+            error("could not find service '" + service + "'");
             return;
         }
 
@@ -1737,7 +1737,7 @@ Parser::propertiesService(const list<string>& args, bool single)
     }
     catch (const Ice::ObjectNotExistException&)
     {
-        error("couldn't reach the server's Admin object");
+        error("could not reach the server's Admin object");
     }
     catch (const Ice::FacetNotExistException&)
     {
@@ -2064,12 +2064,12 @@ Parser::show(const string& reader, const list<string>& origArgs)
         bool tail = opts.isSet("tail");
         if (head && tail)
         {
-            invalidCommand("can't specify both -h | --head and -t | --tail options");
+            invalidCommand("cannot specify both -h | --head and -t | --tail options");
             return;
         }
         if (head && reader == "log")
         {
-            invalidCommand("can't specify -h | --head option with log");
+            invalidCommand("cannot specify -h | --head option with log");
             return;
         }
 
@@ -2097,7 +2097,7 @@ Parser::show(const string& reader, const list<string>& origArgs)
 
         if (head && follow)
         {
-            invalidCommand("can't use -f | --follow option with -h | --head option");
+            invalidCommand("cannot use -f | --follow option with -h | --head option");
             return;
         }
 
@@ -2190,6 +2190,13 @@ Parser::showFile(
             while (!interrupted() && !eof && i < lineCount)
             {
                 eof = it->read(maxBytes, lines);
+                // Trim the batch to the remaining line count: the terminating-newline check below looks at
+                // the last entry of the batch, so the batch must contain only the printed lines.
+                if (lines.size() > static_cast<size_t>(lineCount - i))
+                {
+                    lines.resize(static_cast<size_t>(lineCount - i));
+                }
+                i += static_cast<int>(lines.size());
                 for (const auto& line : lines)
                 {
                     outputNewline();
@@ -2300,7 +2307,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 
         if (adminCallbackTemplate == nullopt)
         {
-            error("cannot retriever Callback template from IceGrid registry");
+            error("cannot retrieve Callback template from IceGrid registry");
             return;
         }
 
@@ -2323,17 +2330,27 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 
         auto adapter = _communicator->createObjectAdapter("RemoteLoggerAdapter");
 
-        _session->ice_getConnection()->setAdapter(adapter);
-
         ostringstream os;
         os << "RemoteLogger-" << loggerCallbackCount++;
         Ice::Identity ident = {os.str(), adminCallbackTemplate->ice_getIdentity().category};
 
         auto servant = make_shared<RemoteLoggerI>();
-        auto prx = adapter->add<Ice::RemoteLoggerPrx>(servant, ident);
-        adapter->activate();
+        optional<Ice::RemoteLoggerPrx> prx;
+        try
+        {
+            _session->ice_getConnection()->setAdapter(adapter);
+            prx = adapter->add<Ice::RemoteLoggerPrx>(servant, ident);
+            adapter->activate();
 
-        loggerAdmin->attachRemoteLogger(prx, Ice::LogMessageTypeSeq(), Ice::StringSeq(), tail ? lineCount : -1);
+            loggerAdmin->attachRemoteLogger(*prx, Ice::LogMessageTypeSeq(), Ice::StringSeq(), tail ? lineCount : -1);
+        }
+        catch (...)
+        {
+            // Destroy the adapter so that the next 'log --follow' can create it again.
+            servant->destroy();
+            adapter->destroy();
+            throw;
+        }
 
         resetInterrupt();
         {
@@ -2346,7 +2363,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 
         try
         {
-            loggerAdmin->detachRemoteLogger(prx);
+            loggerAdmin->detachRemoteLogger(*prx);
         }
         catch (const Ice::ObjectNotExistException&)
         {
@@ -2653,27 +2670,27 @@ Parser::exception(std::exception_ptr pex)
     }
     catch (const ApplicationNotExistException& ex)
     {
-        error("couldn't find application '" + ex.name + "'");
+        error("could not find application '" + ex.name + "'");
     }
     catch (const NodeNotExistException& ex)
     {
-        error("couldn't find node '" + ex.name + "'");
+        error("could not find node '" + ex.name + "'");
     }
     catch (const RegistryNotExistException& ex)
     {
-        error("couldn't find registry '" + ex.name + "'");
+        error("could not find registry '" + ex.name + "'");
     }
     catch (const ServerNotExistException& ex)
     {
-        error("couldn't find server '" + ex.id + "'");
+        error("could not find server '" + ex.id + "'");
     }
     catch (const AdapterNotExistException& ex)
     {
-        error("couldn't find adapter '" + ex.id + "'");
+        error("could not find adapter '" + ex.id + "'");
     }
     catch (const ObjectNotRegisteredException& ex)
     {
-        error("couldn't find object '" + _communicator->identityToString(ex.id) + "'");
+        error("could not find object '" + _communicator->identityToString(ex.id) + "'");
     }
     catch (const ObjectExistsException& ex)
     {
@@ -2693,19 +2710,19 @@ Parser::exception(std::exception_ptr pex)
     }
     catch (const NodeUnreachableException& ex)
     {
-        error("node '" + ex.name + "' couldn't be reached:\n" + ex.reason);
+        error("node '" + ex.name + "' could not be reached:\n" + ex.reason);
     }
     catch (const RegistryUnreachableException& ex)
     {
-        error("registry '" + ex.name + "' couldn't be reached:\n" + ex.reason);
+        error("registry '" + ex.name + "' could not be reached:\n" + ex.reason);
     }
     catch (const AccessDeniedException& ex)
     {
-        error("couldn't update the registry, the session from '" + ex.lockUserId + "' is updating the registry");
+        error("could not update the registry, the session from '" + ex.lockUserId + "' is updating the registry");
     }
     catch (const FileNotAvailableException& ex)
     {
-        error("couldn't access file:\n" + ex.reason);
+        error("could not access file:\n" + ex.reason);
     }
     catch (const XMLParserException& ex)
     {
@@ -2716,7 +2733,7 @@ Parser::exception(std::exception_ptr pex)
     catch (const Ice::LocalException& ex)
     {
         ostringstream s;
-        s << "couldn't reach the IceGrid registry:\n" << ex;
+        s << "could not reach the IceGrid registry:\n" << ex;
         error(s.str());
     }
     catch (const Ice::Exception& ex)

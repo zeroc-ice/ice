@@ -8,23 +8,23 @@ classdef AllTests
             communicator = helper.communicator();
 
             fprintf('testing Ice.Admin.Facets property... ');
-            assert(length(communicator.getProperties().getPropertyAsList('Ice.Admin.Facets')) == 0);
+            assert(length(communicator.getProperties().getIcePropertyAsList('Ice.Admin.Facets')) == 0);
             communicator.getProperties().setProperty('Ice.Admin.Facets', 'foobar');
-            facetFilter = communicator.getProperties().getPropertyAsList('Ice.Admin.Facets');
+            facetFilter = communicator.getProperties().getIcePropertyAsList('Ice.Admin.Facets');
             assert(length(facetFilter) == 1 && strcmp(facetFilter{1}, 'foobar'));
             communicator.getProperties().setProperty('Ice.Admin.Facets', 'foo\''bar');
-            facetFilter = communicator.getProperties().getPropertyAsList('Ice.Admin.Facets');
+            facetFilter = communicator.getProperties().getIcePropertyAsList('Ice.Admin.Facets');
             assert(length(facetFilter) == 1 && strcmp(facetFilter{1}, 'foo''bar'));
             communicator.getProperties().setProperty('Ice.Admin.Facets', '''foo bar'' toto ''titi''');
-            facetFilter = communicator.getProperties().getPropertyAsList('Ice.Admin.Facets');
+            facetFilter = communicator.getProperties().getIcePropertyAsList('Ice.Admin.Facets');
             assert(length(facetFilter) == 3 && strcmp(facetFilter{1}, 'foo bar') && ...
                    strcmp(facetFilter{2}, 'toto') && strcmp(facetFilter{3}, 'titi'));
             communicator.getProperties().setProperty('Ice.Admin.Facets', '''foo bar\'' toto'' ''titi''');
-            facetFilter = communicator.getProperties().getPropertyAsList('Ice.Admin.Facets');
+            facetFilter = communicator.getProperties().getIcePropertyAsList('Ice.Admin.Facets');
             assert(length(facetFilter) == 2 && strcmp(facetFilter{1}, 'foo bar'' toto') && ...
                    strcmp(facetFilter{2}, 'titi'));
             % communicator.getProperties().setProperty('Ice.Admin.Facets', '''foo bar'' ''toto titi');
-            % facetFilter = communicator.getProperties().getPropertyAsList('Ice.Admin.Facets');
+            % facetFilter = communicator.getProperties().getIcePropertyAsList('Ice.Admin.Facets');
             % assert(length(facetFilter) == 0);
             communicator.getProperties().setProperty('Ice.Admin.Facets', '');
             fprintf('ok\n');

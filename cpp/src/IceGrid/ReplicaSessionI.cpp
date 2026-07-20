@@ -23,7 +23,8 @@ ReplicaSessionI::create(
     const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
     const shared_ptr<InternalReplicaInfo>& info,
     InternalRegistryPrx proxy,
-    chrono::seconds timeout)
+    chrono::seconds timeout,
+    bool dynamicRegistration)
 {
     Ice::Identity replicaSessionId{Ice::generateUUID(), ""};
     shared_ptr<ReplicaSessionI> replicaSession(new ReplicaSessionI(
@@ -32,6 +33,7 @@ ReplicaSessionI::create(
         info,
         std::move(proxy),
         timeout,
+        dynamicRegistration,
         database->getInternalAdapter()->createDirectProxy<ReplicaSessionPrx>(replicaSessionId)));
 
     try
@@ -66,6 +68,7 @@ ReplicaSessionI::ReplicaSessionI(
     const shared_ptr<InternalReplicaInfo>& info,
     InternalRegistryPrx internalRegistry,
     chrono::seconds timeout,
+    bool dynamicRegistration,
     ReplicaSessionPrx proxy)
     : _database(database),
       _wellKnownObjects(wellKnownObjects),
@@ -73,6 +76,7 @@ ReplicaSessionI::ReplicaSessionI(
       _internalRegistry(std::move(internalRegistry)),
       _info(info),
       _timeout(timeout),
+      _dynamicRegistration(dynamicRegistration),
       _proxy(std::move(proxy)),
       _timestamp(chrono::steady_clock::now())
 {
@@ -222,7 +226,7 @@ ReplicaSessionI::setAdapterDirectProxy(
     optional<Ice::ObjectPrx> proxy,
     const Ice::Current&)
 {
-    if (_database->getCommunicator()->getProperties()->getIcePropertyAsInt("IceGrid.Registry.DynamicRegistration") <= 0)
+    if (!_dynamicRegistration)
     {
         throw AdapterNotExistException();
     }

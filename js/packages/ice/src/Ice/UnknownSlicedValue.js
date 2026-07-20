@@ -5,7 +5,7 @@ import { Value } from "./Value.js";
 export class SliceInfo {
     constructor() {
         //
-        // The Slice type ID for this slice.
+        // The Slice type ID for this slice. It's empty when the compact ID is set (compactId !== -1).
         //
         this.typeId = "";
 
@@ -15,7 +15,7 @@ export class SliceInfo {
         this.compactId = -1;
 
         //
-        // The encoded bytes for this slice, including the leading size integer.
+        // The encoded bytes for this slice.
         //
         this.bytes = [];
 

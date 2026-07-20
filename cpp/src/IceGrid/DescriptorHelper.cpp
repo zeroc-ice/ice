@@ -747,12 +747,12 @@ Resolver::setVersion(const string& version)
         _version = getMMVersion(v);
         if (_version < 0)
         {
-            exception("invalid ice version: " + v);
+            exception("invalid Ice version: " + v);
         }
         else if (_version > ICE_INT_VERSION && warningEnabled())
         {
             Ice::Warning out(_communicator->getLogger());
-            out << "invalid ice version: " << _version << " is superior to the IceGrid ";
+            out << "invalid Ice version: " << _version << " is greater than the IceGrid ";
             out << "registry version (" << ICE_STRING_VERSION << ")";
         }
     }
@@ -884,7 +884,7 @@ Resolver::substitute(const string& v, bool useParams, bool useIgnored, set<strin
             }
             else
             {
-                throw invalid_argument("use of the '" + name + "' variable is now allowed here");
+                throw invalid_argument("use of the '" + name + "' variable is not allowed here");
             }
         }
 
@@ -954,8 +954,11 @@ Resolver::getProperties(const Ice::StringSeq& references, set<string>& resolved)
         PropertySetDescriptor desc = getPropertySet(reference);
         if (!desc.references.empty())
         {
+            // 'resolved' tracks only the current resolution path: a property set reached twice through independent
+            // parents is not a cycle.
             resolved.insert(reference);
             PropertyDescriptorSeq q = getProperties(desc.references, resolved);
+            resolved.erase(reference);
             properties.insert(properties.end(), q.begin(), q.end());
         }
 
@@ -1782,7 +1785,7 @@ ServiceInstanceHelper::instantiate(const Resolver& resolve, const PropertySetDes
     //
     Resolver svcResolve(resolve, parameterValues, !_service.getDescriptor());
     svcResolve.setReserved("service", svcResolve(def.getDescriptor()->name, "service name", false));
-    svcResolve.setContext("service `${service}' from server `${server}'");
+    svcResolve.setContext("service '${service}' from server '${server}'");
 
     //
     // Instantiate the service instance.
@@ -1888,7 +1891,7 @@ ServerInstanceHelper::init(const shared_ptr<ServerDescriptor>& definition, const
     //
     Resolver svrResolve(resolve, parameterValues, true);
     svrResolve.setReserved("server", svrResolve.asId(def->id, "server id", false));
-    svrResolve.setContext("server `${server}'");
+    svrResolve.setContext("server '${server}'");
     svrResolve.setVersion(def->iceVersion);
     _id = svrResolve("${server}");
 
@@ -2506,7 +2509,7 @@ ApplicationHelper::ApplicationHelper(
             }
             else if (desc.loadBalancing->nReplicas[0] == '-')
             {
-                resolve.exception("invalid replica group load balancing number of replicas value: inferior to 0");
+                resolve.exception("invalid replica group load balancing number of replicas value: negative value");
             }
             auto al = dynamic_pointer_cast<AdaptiveLoadBalancingPolicy>(desc.loadBalancing);
             if (al)
@@ -2671,7 +2674,6 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& updt) const
         auto q = _nodes.find(node.name);
         if (q != _nodes.end()) // Updated node
         {
-            NodeDescriptor desc = q->second.update(node, resolve);
             def.nodes.insert(make_pair(node.name, q->second.update(node, resolve)));
         }
         else // New node
@@ -2680,18 +2682,18 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& updt) const
             desc.variables = node.variables;
             if (!node.removeVariables.empty())
             {
-                resolve.exception("can't remove variables for node '" + node.name + "': node doesn't exist");
+                resolve.exception("cannot remove variables for node '" + node.name + "': node doesn't exist");
             }
             desc.propertySets = node.propertySets;
             if (!node.removePropertySets.empty())
             {
-                resolve.exception("can't remove property sets for node '" + node.name + "': node doesn't exist");
+                resolve.exception("cannot remove property sets for node '" + node.name + "': node doesn't exist");
             }
             desc.servers = node.servers;
             desc.serverInstances = node.serverInstances;
             if (!node.removeServers.empty())
             {
-                resolve.exception("can't remove servers for node '" + node.name + "': node doesn't exist");
+                resolve.exception("cannot remove servers for node '" + node.name + "': node doesn't exist");
             }
             desc.loadFactor = node.loadFactor ? node.loadFactor->value : string("");
             desc.description = node.description ? node.description->value : string("");

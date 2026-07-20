@@ -625,7 +625,8 @@ class EncapsDecoder11 extends EncapsDecoder {
         // Preserve this slice.
         //
         const info = new SliceInfo();
-        info.typeId = this._current.typeId;
+        // When the slice was decoded via a compact type ID, expose an empty type ID.
+        info.typeId = this._current.compactId === -1 ? this._current.typeId : "";
         info.compactId = this._current.compactId;
         info.hasOptionalMembers = (this._current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) !== 0;
         info.isLastSlice = (this._current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) !== 0;
@@ -913,12 +914,18 @@ export class InputStream {
                         if (this._buf !== undefined) {
                             throw new InitializationException("duplicate buffer argument to InputStream constructor");
                         }
-                        this._buf = new Buffer(arg.bytes);
+                        this._buf = new Buffer(arg);
                     } else if (arg.constructor === Uint8Array) {
                         if (this._buf !== undefined) {
                             throw new InitializationException("duplicate buffer argument to InputStream constructor");
                         }
-                        this._buf = new Buffer(arg.buffer);
+                        // Buffer works with a whole ArrayBuffer: copy the view's range when it doesn't span its
+                        // entire underlying buffer.
+                        this._buf = new Buffer(
+                            arg.byteOffset === 0 && arg.byteLength === arg.buffer.byteLength
+                                ? arg.buffer
+                                : arg.buffer.slice(arg.byteOffset, arg.byteOffset + arg.byteLength),
+                        );
                     } else {
                         throw new InitializationException("unknown argument to InputStream constructor");
                     }

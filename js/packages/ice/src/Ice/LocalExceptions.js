@@ -361,7 +361,7 @@ export class NoEndpointException extends LocalException {
     }
 
     static createMessage(arg) {
-        return arg instanceof ObjectPrx ? `$"No suitable endpoint available for proxy '${arg}'.` : arg;
+        return arg instanceof ObjectPrx ? `No suitable endpoint available for proxy '${arg}'.` : arg;
     }
 }
 

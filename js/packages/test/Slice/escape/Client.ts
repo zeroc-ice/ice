@@ -3,6 +3,7 @@
 import { Ice } from "@zeroc/ice";
 import { TestHelper, test } from "../../Common/TestHelper.js";
 import { escapedAwait } from "./Key.js";
+import { Clash } from "./Clash.js";
 export class Client extends TestHelper {
     async allTests() {
         const communicator = this.communicator();
@@ -62,6 +63,12 @@ export class Client extends TestHelper {
         test(p._debugger === "");
         test(p._null instanceof escapedAwait.explicitPrx);
         out.writeLine("ok");
+
+        // Referencing this proxy type-checks the generated Clash.d.ts, whose Intf::op has in-parameters named
+        // `context` and `current`: the synthesized `context` (proxy) and `current` (skeleton) parameters must be
+        // renamed so the generated declarations don't declare the same parameter twice.
+        const clashPrx = new Clash.IntfPrx(communicator, `hello: ${this.getTestEndpoint()}`);
+        test(clashPrx instanceof Clash.IntfPrx);
     }
 
     async run(args: string[]) {

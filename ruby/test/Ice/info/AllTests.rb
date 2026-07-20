@@ -93,6 +93,13 @@ def allTests(helper, communicator)
     connection = testIntf.ice_getConnection()
     connection.setBufferSize(1024, 2048)
 
+    # setBufferSize must reject values outside the C++ int range instead of silently truncating them.
+    begin
+        connection.setBufferSize(2 ** 40, 2048)
+        test(false)
+    rescue RangeError
+    end
+
     info = connection.getInfo()
     tcpinfo = getTCPConnectionInfo(info)
 

@@ -5,7 +5,7 @@ package test.Ice.operations;
 import com.zeroc.Ice.OnewayOnlyException;
 import com.zeroc.Ice.TwowayOnlyException;
 
-import test.Ice.operations.Test.MyClassPrx;
+import test.Ice.operations.Test.MyInterfacePrx;
 import test.TestHelper;
 
 class Oneways {
@@ -15,7 +15,7 @@ class Oneways {
         }
     }
 
-    static void oneways(TestHelper helper, MyClassPrx p) {
+    static void oneways(TestHelper helper, MyInterfacePrx p) {
         p = p.ice_oneway();
 
         p.ice_ping();

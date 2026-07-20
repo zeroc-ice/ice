@@ -103,6 +103,14 @@ public class Client extends TestHelper {
             args = Options.split("-Dir=$'C:\\\\\\cM\\x66\\146i'"); // -Dir=$'C:\\\cM\x66\146i'
             test(args.length == 1 && "-Dir=C:\\\015ffi".equals(args[0]));
             //CHECKSTYLE:ON: IllegalTokenText
+
+            // Backslash escaping in the normal (unquoted) state, matching C++ and C#: a backslash
+            // before another backslash is preserved, and a backslash before a single quote escapes
+            // the quote.
+            args = Options.split("-Dir=C:\\\\file"); // -Dir=C:\\file
+            test(args.length == 1 && "-Dir=C:\\\\file".equals(args[0])); // -Dir=C:\\file
+            args = Options.split("a\\'b"); // a\'b
+            test(args.length == 1 && "a'b".equals(args[0])); // a'b
         } catch (ParseException ex) {
             test(false);
         }

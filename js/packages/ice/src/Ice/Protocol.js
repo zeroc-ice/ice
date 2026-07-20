@@ -136,7 +136,7 @@ export function stringToProtocolVersion(version) {
  *
  * @param version The string to convert.
  *
- * @return The converted object identity.
+ * @return The converted encoding version.
  */
 export function stringToEncodingVersion(version) {
     return new EncodingVersion(stringToMajor(version), stringToMinor(version));

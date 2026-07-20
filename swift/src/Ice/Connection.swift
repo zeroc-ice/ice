@@ -20,7 +20,7 @@ public enum CompressBatch: UInt8 {
 
 /// An `Ice.InputStream` extension to read `CompressBatch` enumerated values from the stream.
 extension InputStream {
-    /// Read an enumerated value.
+    /// Reads an enumerated value.
     ///
     /// - Returns: The enumerated value.
     public func read() throws -> CompressBatch {
@@ -31,7 +31,7 @@ extension InputStream {
         return val
     }
 
-    /// Read an optional enumerated value from the stream.
+    /// Reads an optional enumerated value from the stream.
     ///
     /// - Parameter tag: The numeric tag associated with the value.
     /// - Returns: The enumerated value.
@@ -69,9 +69,8 @@ extension OutputStream {
 public typealias HeaderDict = [String: String]
 
 /// The callback function given to ``Connection/setCloseCallback(_:)``.
-/// This callback is called by the connection when the connection is closed.
-///
-/// - Parameter _: The connection that was closed. It's never `nil`.
+/// This callback is called by the connection when the connection is closed. Its argument is the connection that
+/// was closed; it's never `nil`.
 public typealias CloseCallback = (Connection?) -> Void
 
 /// Represents a connection that uses the Ice protocol.
@@ -81,12 +80,14 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
 
     /// Closes this connection gracefully once all outstanding invocations have completed. If closing the connection
     /// takes longer than the configured close timeout, the connection is aborted with a ``CloseTimeoutException``.
+    /// If the connection was lost or aborted, awaiting the result rethrows the exception that caused the closure.
     func close() async throws
 
     /// Creates a special proxy (a "fixed proxy") that always uses this connection.
     ///
     /// - Parameter id: The identity of the target object.
     /// - Returns: A fixed proxy with the provided identity.
+    /// - Precondition: `id.name` must not be empty.
     func createProxy(_ id: Identity) throws -> ObjectPrx
 
     /// Associates an object adapter with this connection. When a connection receives a request, it dispatches this
@@ -96,6 +97,8 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
     /// the default object adapter of an outgoing connection is the communicator's default object adapter.
     ///
     /// - Parameter adapter: The object adapter to associate with this connection.
+    /// - Throws: A ``LocalException`` when this connection is an incoming connection: you can only call this method
+    ///   on outgoing (client) connections.
     func setAdapter(_ adapter: ObjectAdapter?) throws
 
     /// Gets the object adapter associated with this connection.
@@ -148,10 +151,11 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
     ///   - sndSize: The size of the send buffer.
     func setBufferSize(rcvSize: Int32, sndSize: Int32) throws
 
-    /// Throws an exception that provides the reason for the closure of this connection. For example,
-    /// this method throws ``CloseConnectionException`` when the connection was closed gracefully by the peer;
-    /// it throws ``ConnectionAbortedException`` when the connection is aborted with ``abort()``.
-    /// This method does nothing if the connection is not yet closed.
+    /// Throws an exception that provides the reason for the closure of this connection.
+    /// This method does nothing if the connection is not yet closing or closed.
+    ///
+    /// - Throws: ``CloseConnectionException`` when the connection was closed gracefully by the peer;
+    ///   ``ConnectionAbortedException`` when the connection was aborted, for example with ``abort()``.
     func throwException() throws
 }
 
@@ -235,7 +239,7 @@ public final class TCPConnectionInfo: IPConnectionInfo {
 
 /// Provides access to the connection details of an SSL connection.
 public final class SSLConnectionInfo: ConnectionInfo {
-    /// The certificate chain.
+    /// The peer certificate, or `nil` if the peer did not provide one.
     public let peerCertificate: SecCertificate?
 
     internal init(underlying: ConnectionInfo, peerCertificate: SecCertificate?) {
@@ -277,7 +281,8 @@ public final class UDPConnectionInfo: IPConnectionInfo {
 
 /// Provides access to the connection details of a WebSocket connection.
 public final class WSConnectionInfo: ConnectionInfo {
-    /// The headers from the HTTP upgrade request.
+    /// The HTTP headers from the WebSocket upgrade handshake: the request headers for an incoming connection,
+    /// and the response headers for an outgoing connection.
     public let headers: HeaderDict
 
     internal init(underlying: ConnectionInfo, headers: HeaderDict) {

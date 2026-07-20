@@ -50,7 +50,7 @@ Create a build directory and clone the Ice repository:
 ```bash
 mkdir -p $HOME/zeroc-ice
 cd $HOME/zeroc-ice
-git clone git@github.com:zeroc-ice/ice.git
+git clone https://github.com/zeroc-ice/ice.git
 ```
 
 Set up the RPM build tree in the current directory:

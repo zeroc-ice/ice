@@ -2689,7 +2689,7 @@ Slice::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 << (param->mappedName() + optionalPrefix + ": " +
                     typeToTsString(param->type(), true, true, param->isOptional()));
         }
-        _out << "context?: Map<string, string>";
+        _out << (escapeParam(inParams, "context") + "?: Map<string, string>");
         _out << epar;
 
         _out << ": " << _iceImportPrefix << "Ice.AsyncResult";
@@ -2762,7 +2762,7 @@ Slice::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << " */";
     _out << nl << "static checkedCast(prx: " << _iceImportPrefix << "Ice.ObjectPrx | null"
          << ", "
-         << "facet?: string, context?: Map<string, string>): " << _iceImportPrefix << "Ice.AsyncResult"
+         << "facet?: string, context?: Map<string, string>): globalThis.Promise"
          << "<" << prxName << " | null>;";
     _out << eb;
 
@@ -2804,7 +2804,7 @@ Slice::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             _out << (param->mappedName() + ": " + typeToTsString(param->type(), true, true, param->isOptional()));
         }
-        _out << ("current: " + _iceImportPrefix + "Ice.Current");
+        _out << (escapeParam(inParams, "current") + ": " + _iceImportPrefix + "Ice.Current");
         _out << epar << ": ";
 
         if (!ret && outParams.empty())

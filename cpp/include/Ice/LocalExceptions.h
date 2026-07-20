@@ -568,15 +568,15 @@ namespace Ice
     class ICE_API AlreadyRegisteredException final : public LocalException
     {
     public:
-        /// Constructs a AlreadyRegisteredException.
+        /// Constructs an AlreadyRegisteredException.
         /// @param file The file where this exception is constructed. This C string is not copied.
         /// @param line The line where this exception is constructed.
         /// @param kindOfObject The kind of object that is already registered.
         /// @param id The ID (or name) of the object that is already registered.
         AlreadyRegisteredException(const char* file, int line, std::string kindOfObject, std::string id);
 
-        /// Gets the kind of object that is already registered: "servant", "facet", "object", "default servant",
-        /// "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
+        /// Gets the kind of object that is already registered: "servant", "facet", "default servant",
+        /// "servant locator", "plugin", "object adapter", "object adapter with router".
         [[nodiscard]] const std::string& kindOfObject() const noexcept { return *_kindOfObject; }
 
         /// Gets the ID (or name) of the object that is already registered.
@@ -684,7 +684,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// The exception that is thrown when communicator initialization fails.
+    /// The exception that is thrown when a failure occurs during initialization.
     /// @headerfile Ice/Ice.h
     class ICE_API InitializationException final : public LocalException
     {
@@ -718,7 +718,7 @@ namespace Ice
         /// Constructs a NoEndpointException.
         /// @param file The file where this exception is constructed. This C string is not copied.
         /// @param line The line where this exception is constructed.
-        /// @param proxy The proxy used to create the message return by what().
+        /// @param proxy The proxy used to create the message returned by what().
         NoEndpointException(const char* file, int line, const ObjectPrx& proxy);
 
         [[nodiscard]] const char* ice_id() const noexcept final;

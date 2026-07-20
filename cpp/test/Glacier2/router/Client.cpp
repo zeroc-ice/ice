@@ -8,6 +8,12 @@
 #include <random>
 #include <thread>
 
+#if defined(__GLIBC__)
+#    include <crypt.h>
+#elif defined(__FreeBSD__)
+#    include <unistd.h>
+#endif
+
 using namespace std;
 using namespace std::chrono_literals;
 using namespace Ice;
@@ -428,6 +434,50 @@ CallbackClient::run(int argc, char** argv)
         {
             cout << "ok" << endl;
         }
+    }
+
+    {
+        cout << "testing bcrypt password verification... " << flush;
+
+        // Known-answer bcrypt hash of "abc123" (cost 4); Glacier2Util.py puts the same entry in the password file.
+        const string bcryptHash = "$2b$04$cVv0r3VdmM5qjmJwUjDIne19WwQxB6Q8Py8MKRRDtcSU9Fo0ESRiK";
+#if defined(__GLIBC__) || defined(__FreeBSD__)
+        // The native crypt library supports bcrypt only in some configurations (for glibc, it comes with libxcrypt).
+        // Probe it directly: a probe through createSession would report a broken verifier as "bcrypt unsupported"
+        // and skip the very regression this test guards against.
+        struct crypt_data data;
+        data.initialized = 0;
+        const char* hashed = crypt_r("abc123", bcryptHash.c_str(), &data);
+        if (hashed != nullptr && bcryptHash == hashed)
+        {
+            router->createSession("bcryptuser", "abc123");
+            router->destroySession();
+            try
+            {
+                router->createSession("bcryptuser", "xxx");
+                test(false);
+            }
+            catch (const Glacier2::PermissionDeniedException&)
+            {
+            }
+            cout << "ok" << endl;
+        }
+        else
+        {
+            cout << "skipped (the crypt library does not support bcrypt)" << endl;
+        }
+#else
+        // bcrypt password hashes are not supported on this platform: the correct password must be denied.
+        try
+        {
+            router->createSession("bcryptuser", "abc123");
+            test(false);
+        }
+        catch (const Glacier2::PermissionDeniedException&)
+        {
+        }
+        cout << "ok" << endl;
+#endif
     }
 
     {

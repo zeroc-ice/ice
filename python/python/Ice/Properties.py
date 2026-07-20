@@ -25,8 +25,9 @@ class Properties:
         """
         Initialize a new instance of the Properties class.
 
-        This constructor loads the configuration files specified by the ``Ice.Config`` property or the
-        ``ICE_CONFIG`` environment variable, and then parses Ice properties from ``args``.
+        When ``args`` and/or ``defaults`` is provided, this constructor loads the configuration files specified by
+        the ``Ice.Config`` property or the ``ICE_CONFIG`` environment variable, and then parses Ice properties from
+        ``args``. When called without arguments, this constructor creates an empty property set.
 
         Parameters
         ----------
@@ -42,8 +43,8 @@ class Properties:
 
         Notes
         -----
-        When there is no ``--Ice.Config`` command-line argument, this constructor loads properties from
-        the files specified by the ``ICE_CONFIG`` environment variable.
+        When ``args`` and/or ``defaults`` is provided and there is no ``--Ice.Config`` command-line argument,
+        this constructor loads properties from the files specified by the ``ICE_CONFIG`` environment variable.
 
         Examples
         --------
@@ -196,7 +197,7 @@ class Properties:
         The strings must be separated by whitespace or comma. The strings in the list can contain whitespace and commas
         if they are enclosed in single or double quotes. If quotes are mismatched, an empty list is returned.
         Within single quotes or double quotes, you can escape the quote in question with a backslash,
-        e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+        e.g. O'Reilly can be written as "O'Reilly" or 'O\\'Reilly'.
 
         Parameters
         ----------
@@ -217,7 +218,7 @@ class Properties:
         The strings must be separated by whitespace or comma. The strings in the list can contain whitespace and commas
         if they are enclosed in single or double quotes. If quotes are mismatched, the default list is returned.
         Within single quotes or double quotes, you can escape the quote in question with a backslash,
-        e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+        e.g. O'Reilly can be written as "O'Reilly" or 'O\\'Reilly'.
 
         Parameters
         ----------
@@ -243,7 +244,7 @@ class Properties:
         The strings must be separated by whitespace or comma. The strings in the list can contain whitespace and commas
         if they are enclosed in single or double quotes. If quotes are mismatched, the default list is returned.
         Within single quotes or double quotes, you can escape the quote in question with a backslash,
-        e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+        e.g. O'Reilly can be written as "O'Reilly" or 'O\\'Reilly'.
 
         Parameters
         ----------
