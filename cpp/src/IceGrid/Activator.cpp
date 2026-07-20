@@ -112,10 +112,13 @@ namespace IceGrid
         // close_range (Linux 5.9+, FreeBSD 12.2+) closes a whole descriptor
         // range in a single syscall, so the child never iterates up to a huge
         // or unlimited RLIMIT_NOFILE. We keep lo and hi open by closing the
-        // ranges around them. Probe with the always-non-empty top range first;
-        // if the syscall exists close the lower ranges too and we are done,
-        // otherwise (e.g. an older kernel returns ENOSYS) fall through to the
-        // descriptor loop below.
+        // ranges around them. Probe with the always-non-empty top range first:
+        // on success, close the lower ranges too and return. The probe range is
+        // never inverted, so the only realistic failure is the syscall being
+        // unavailable (ENOSYS on an older kernel, or a seccomp EPERM), and on
+        // failure it closes nothing; we fall through to the /proc/self/fd
+        // enumeration below, which is a complete fallback, so there is no need
+        // to inspect errno.
         //
         if (syscall(SYS_close_range, static_cast<unsigned int>(hi) + 1, ~0u, 0u) == 0)
         {
