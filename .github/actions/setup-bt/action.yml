@@ -1,0 +1,76 @@
+name: Setup Bluetooth
+description: >
+  Prepares a pair of Android emulators for IceBT testing. GitHub-hosted runners cannot host a
+  Bluetooth stack, but the Android emulator ships a userspace virtual Bluetooth controller
+  (Netsim/Rootcanal) that does RFCOMM between emulators. This boots two emulators on it, bonds
+  them, and starts the server-side process controller, leaving the client for allTests.py.
+  Requires setup-android (SDK, KVM, PATH) and a build that produced Python Ice and the Java tests.
+
+inputs:
+  client:
+    description: "adb serial of the emulator running the IceBT client (allTests.py)"
+    default: "emulator-5554"
+
+  server:
+    description: "adb serial of the emulator running the IceBT server (Controller.py)"
+    default: "emulator-5556"
+
+  uuid:
+    description: "RFCOMM service UUID the two emulators bond over"
+    default: "8ce255c0-200a-11e0-ac64-0800200c9a66"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Build the btecho APK
+      shell: bash
+      run: |
+        # btecho needs an explicit keystore next to its build file -- unlike the controller app it
+        # can't fall back to AGP's default debug signing, which fails validateSigningDebug here.
+        keytool -genkeypair -v -storepass android -keypass android -alias androiddebugkey \
+          -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" \
+          -keystore java/test/android/btecho/debug.keystore
+        (cd java/test/android/btecho && ./gradlew --no-daemon assembleDebug)
+        echo "BTECHO_APK=$(find java/test/android/btecho/build/outputs/apk -name '*.apk' | head -1)" >> "$GITHUB_ENV"
+
+    - name: Create and boot two emulators on Netsim Bluetooth
+      shell: bash
+      run: |
+        export PYTHONPATH="$GITHUB_WORKSPACE/python/python"
+        mkdir -p "$ANDROID_AVD_HOME"
+        # Match the system image setup-android installed for this runner's architecture.
+        if [ "$(uname -m)" = "aarch64" ]; then ARCH="arm64-v8a"; else ARCH="x86_64"; fi
+        python3 scripts/Controller.py --android --bt-emulators \
+          --bt-client="${{ inputs.client }}" --bt-server="${{ inputs.server }}" \
+          --bt-image="system-images;android-36;google_apis;$ARCH"
+
+    - name: Prepare and bond the two emulators
+      shell: bash
+      run: |
+        export PYTHONPATH="$GITHUB_WORKSPACE/python/python"
+        # Start the adb server up front so the parallel per-device setups don't race to start it
+        # (which surfaces as "adb: failed to start daemon" and a failed root/remount).
+        adb start-server
+        # --bt-prepare boots-waits both emulators, installs btecho as a privileged system app,
+        # enables Bluetooth, bonds them, and prints the server's address. Progress and the
+        # per-device setup_{client,server}.log contents go to stderr.
+        BT_ADDR=$(python3 scripts/Controller.py --android --bt-prepare \
+          --bt-client="${{ inputs.client }}" --bt-server="${{ inputs.server }}" \
+          --bt-setup="$BTECHO_APK" --uuid="${{ inputs.uuid }}")
+        [ -n "$BT_ADDR" ] || { echo "no server Bluetooth address"; exit 1; }
+        echo "server (${{ inputs.server }}) Bluetooth address = $BT_ADDR"
+        echo "BT_ADDR=$BT_ADDR" >> "$GITHUB_ENV"
+        echo "BT_CLIENT=${{ inputs.client }}" >> "$GITHUB_ENV"
+        echo "BT_SERVER=${{ inputs.server }}" >> "$GITHUB_ENV"
+
+    - name: Start the server-side process controller
+      shell: bash
+      working-directory: java
+      run: |
+        # Runs on the server emulator and spawns the IceBT test server on demand; allTests.py on
+        # the client reaches it as --server=server. --controller-app installs and starts the
+        # on-device controller app up front.
+        nohup python3 ../scripts/Controller.py --id=server --android --controller-app \
+          --device="${{ inputs.server }}" --host-bt="$BT_ADDR" > "$GITHUB_WORKSPACE/controller.log" 2>&1 &
+        sleep 10
+        kill -0 $! 2>/dev/null || { echo "server controller exited early"; cat "$GITHUB_WORKSPACE/controller.log"; exit 1; }

@@ -114,6 +114,26 @@ jobs:
             build_cpp_and_python: true
             build_android_controller: true
 
+          # Android<->Android IceBT over the emulator's virtual Bluetooth controller: one emulator
+          # runs the test server (started by setup-bt), the other runs the client.
+          - os: ubuntu-24.04
+            config: "android-bt"
+            working_directory: "java"
+            build_cpp_and_python: true
+            build_android_controller: true
+            # A single device, and only the configuration under test -- --all would fan each suite
+            # out over configurations that don't apply to Bluetooth. Keep test_all a quoted string:
+            # a YAML boolean false is falsy in the `matrix.test_all || 'true'` default below.
+            test_workers: 1
+            test_all: "false"
+            # setup-bt exports $BT_CLIENT and $BT_ADDR; these flags are interpolated into a bash
+            # command, so the shell expands them at run time.
+            test_flags: >-
+              --android --controller-app --protocol=bt --cross=java --server=server
+              --device=$BT_CLIENT --host-bt=$BT_ADDR
+              Ice/operations Ice/ami Ice/enums Ice/exceptions Ice/facets
+              Ice/inheritance Ice/objects Ice/optional Ice/proxy
+
           # .NET 10.0
           - os: ubuntu-24.04
             config: ".NET10"
@@ -157,7 +177,7 @@ jobs:
 
       # Free up disk space to avoid running out of space when starting the Android emulator for tests
       - name: Free up disk space
-        if: matrix.config == 'android'
+        if: startsWith(matrix.config, 'android')
         run: |
           sudo rm -rf /usr/local/go* /opt/hostedtoolcache/go
           sudo rm -rf /usr/local/.ghcup
@@ -175,7 +195,7 @@ jobs:
         uses: ./.github/actions/setup-python
 
       - name: Setup .NET
-        if: matrix.config != 'android'
+        if: ${{ !startsWith(matrix.config, 'android') }}
         uses: ./.github/actions/setup-dotnet
         with:
           include_net10: ${{ matrix.net_target_framework == 'net10.0' }}
@@ -195,7 +215,7 @@ jobs:
         uses: ./.github/actions/setup-matlab
 
       - name: Setup Android
-        if: matrix.config == 'android'
+        if: startsWith(matrix.config, 'android')
         uses: ./.github/actions/setup-android
 
       - name: Install Windows Debug Tools
@@ -254,12 +274,35 @@ jobs:
         run: python3 -m pip install passlib cryptography numpy
         shell: bash
 
+      # Boots and bonds the emulator pair and starts the server-side process controller, so the
+      # test step below only has to run the client.
+      - name: Setup Bluetooth
+        if: matrix.config == 'android-bt'
+        uses: ./.github/actions/setup-bt
+
       - name: Test ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test
         timeout-minutes: 45
         with:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: ${{ matrix.test_flags }}
+          workers: ${{ matrix.test_workers || 4 }}
+          all: ${{ matrix.test_all || 'true' }}
+
+      - name: Bluetooth diagnostics
+        if: always() && matrix.config == 'android-bt'
+        timeout-minutes: 5
+        run: |
+          set +e
+          echo "=== controller.log ==="; tail -40 controller.log
+          echo "=== emu_client.log ==="; tail -20 emu_client.log
+          echo "=== emu_server.log ==="; tail -20 emu_server.log
+          export PYTHONPATH="$GITHUB_WORKSPACE/python/python"
+          for d in "$BT_CLIENT" "$BT_SERVER"; do
+            echo "==================== $d ===================="
+            timeout 60 python3 scripts/Controller.py --android --device="$d" --bt-diagnostics
+          done
+        shell: bash
 
       - name: Cross Test ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test

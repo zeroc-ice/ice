@@ -68,8 +68,8 @@ Where:
 
 Both sides can run on Android emulators using the emulator's virtual Bluetooth controller
 (Netsim/Rootcanal) — no radios required. One emulator runs the IceBT server, the other the client,
-each driven by a controller bound to it via `--device`. The steps below reproduce, locally, what the
-`bt-android-harness` CI workflow does; all the adb work is inside the harness (`Controller.py
+each driven by a controller bound to it via `--device`. The steps below reproduce, locally, what
+CI's `android-bt` configuration does; all the adb work is inside the harness (`Controller.py
 --bt-setup` / `--bt-bond` / `--bt-diagnostics`), so no manual bonding is needed.
 
 Run everything from the repository root with:
@@ -121,7 +121,8 @@ python allTests.py --server=server --protocol=bt --cross=java --android --contro
 ```
 
 `Ice/operations` is just one suite; pass as many as you like. CI runs the full set listed in the
-`TEST` variable of `.github/workflows/bt-android-harness.yml`.
+`android-bt` entry of `.github/workflows/ci.yml`, with the emulator setup in
+`.github/actions/setup-bt`.
 
 If a run fails, dump an emulator's controller state (pid, adb forwards, logcat) with:
 
