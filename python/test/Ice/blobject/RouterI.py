@@ -78,11 +78,13 @@ class BlobjectAsyncI(Ice.Blobject):
         self._queue.start()
         self._objects = {}
         self._lock = threading.Lock()
+        self._lastContext: dict[str, str] = {}
 
     @override
     def ice_invoke(self, bytes: bytes, current: Ice.Current) -> Awaitable[tuple[bool, bytes]]:
         f = Ice.Future()
         with self._lock:
+            self._lastContext = dict(current.ctx)
             proxy = self._objects[current.id]
             assert proxy is not None
             self._queue.add(BlobjectCall(proxy, f, bytes, current))
@@ -91,6 +93,10 @@ class BlobjectAsyncI(Ice.Blobject):
     def add(self, proxy: Ice.ObjectPrx):
         with self._lock:
             self._objects[proxy.ice_getIdentity()] = proxy.ice_facet("").ice_twoway().ice_router(None)
+
+    def lastContext(self) -> dict[str, str]:
+        with self._lock:
+            return self._lastContext
 
     def destroy(self):
         with self._lock:
@@ -102,10 +108,12 @@ class BlobjectI(Ice.Blobject):
     def __init__(self):
         self._objects = {}
         self._lock = threading.Lock()
+        self._lastContext: dict[str, str] = {}
 
     @override
     def ice_invoke(self, bytes: bytes, current: Ice.Current) -> tuple[bool, bytes]:
         with self._lock:
+            self._lastContext = dict(current.ctx)
             proxy = self._objects[current.id]
 
         if len(current.facet) > 0:
@@ -124,6 +132,10 @@ class BlobjectI(Ice.Blobject):
         with self._lock:
             self._objects[proxy.ice_getIdentity()] = proxy.ice_facet("").ice_twoway().ice_router(None)
 
+    def lastContext(self) -> dict[str, str]:
+        with self._lock:
+            return self._lastContext
+
     def destroy(self):
         pass
 
@@ -133,7 +145,7 @@ class ServantLocatorI(Ice.ServantLocator):
         self._blobject = blobject
 
     @override
-    def locate(self, current: Ice.Current) -> tuple[Ice.Object | None, object | None]:
+    def locate(self, current: Ice.Current) -> Ice.Object | tuple[Ice.Object, object | None] | None:
         return self._blobject, None  # and the cookie
 
     @override
@@ -157,6 +169,10 @@ class RouterI(Ice.Router):
         proxy = Ice.RouterPrx.uncheckedCast(self._adapter.addWithUUID(self))
         communicator.setDefaultRouter(proxy)
         self._adapter.activate()
+
+    def lastContext(self) -> dict[str, str]:
+        """Returns the request context of the last invocation this router's blobject received."""
+        return self._blobject.lastContext()
 
     @override
     def getClientProxy(self, current: Ice.Current) -> tuple[Ice.ObjectPrx | None, bool | None]:

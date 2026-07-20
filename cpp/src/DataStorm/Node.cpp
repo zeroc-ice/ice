@@ -31,15 +31,16 @@ Node::Node(NodeOptions options)
 
     try
     {
-        _instance = make_shared<DataStormI::Instance>(
-            communicator,
-            std::move(options.customExecutor),
-            std::move(options.serverAuthenticationOptions));
-        _instance->init();
+        _instance = make_shared<DataStormI::Instance>(communicator, std::move(options.customExecutor));
+        _instance->init(std::move(options.serverAuthenticationOptions));
     }
     catch (...)
     {
-        if (_ownsCommunicator)
+        if (_instance)
+        {
+            _instance->destroy(_ownsCommunicator);
+        }
+        else if (_ownsCommunicator)
         {
             communicator->destroy();
         }
@@ -74,19 +75,25 @@ Node::~Node()
 void
 Node::shutdown() noexcept
 {
-    _instance->shutdown();
+    if (_instance)
+    {
+        _instance->shutdown();
+    }
 }
 
 bool
 Node::isShutdown() const noexcept
 {
-    return _instance->isShutdown();
+    return _instance ? _instance->isShutdown() : true;
 }
 
 void
 Node::waitForShutdown() const noexcept
 {
-    _instance->waitForShutdown();
+    if (_instance)
+    {
+        _instance->waitForShutdown();
+    }
 }
 
 Node&

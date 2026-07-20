@@ -13,9 +13,10 @@ public sealed record class SlicedData(SliceInfo[] slices);
 /// <summary>
 /// Encapsulates the details of a class slice with an unknown type.
 /// </summary>
-/// <param name="typeId">The Slice type ID for this slice.</param>
+/// <param name="typeId">The Slice type ID for this slice. It's empty when the compact ID is set
+/// (<paramref name="compactId"/> is not -1).</param>
 /// <param name="compactId">The Slice compact type ID for this slice, or -1 if the slice has no compact ID.</param>
-/// <param name="bytes">The encoded bytes for this slice, including the leading size integer.</param>
+/// <param name="bytes">The encoded bytes for this slice.</param>
 /// <param name="hasOptionalMembers">Whether or not the slice contains optional members.</param>
 /// <param name="isLastSlice">Whether or not this is the last slice.</param>
 public sealed record class SliceInfo(

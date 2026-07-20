@@ -1,7 +1,6 @@
 classdef (Sealed) UnknownUserException < Ice.UnknownException
-    %UNKNOWNUSEREXCEPTION
-    %   The exception that is thrown when a client receives a UserException that was not declared in the operation's
-    %   exception specification.
+    %UNKNOWNUSEREXCEPTION The exception that is thrown when a client receives a UserException that was not declared
+    %   in the operation's exception specification.
 
     % Copyright (c) ZeroC, Inc.
 

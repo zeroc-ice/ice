@@ -8,6 +8,8 @@ declare module "@zeroc/ice" {
         const Protocol_1_0: ProtocolVersion;
 
         class Protocol {
+            private constructor();
+
             //
             // Size of the Ice protocol header
             //
@@ -82,7 +84,7 @@ declare module "@zeroc/ice" {
          *
          * @param version The string to convert.
          *
-         * @returns The converted object identity.
+         * @returns The converted encoding version.
          */
         function stringToEncodingVersion(version: string): EncodingVersion;
 

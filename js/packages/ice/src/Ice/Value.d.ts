@@ -7,13 +7,13 @@ declare module "@zeroc/ice" {
          */
         class Value {
             /**
-             * The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass
+             * The Ice runtime invokes this method prior to marshaling an object's data members. This allows a subclass
              * to override this method in order to validate its data members.
              */
             ice_preMarshal(): void;
 
             /**
-             * The Ice run time invokes this method after unmarshaling an object's data members. This allows a
+             * The Ice runtime invokes this method after unmarshaling an object's data members. This allows a
              * subclass to override this method in order to perform additional initialization.
              */
             ice_postUnmarshal(): void;
@@ -35,10 +35,10 @@ declare module "@zeroc/ice" {
             /**
              * Obtains the sliced data associated with this instance.
              *
-             * @returns The sliced data if the value has a preserved-slice base class and has been sliced during
-             * unmarshaling of the value, nil otherwise.
+             * @returns The sliced data if this value was sliced during unmarshaling, null otherwise. Unknown slices
+             * are preserved only when the sender uses the sliced format.
              */
-            ice_getSlicedData(): SlicedData;
+            ice_getSlicedData(): SlicedData | null;
         }
     }
 }

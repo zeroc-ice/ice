@@ -88,6 +88,29 @@ namespace
 // Each of the various Subscriber types.
 namespace
 {
+    class SubscriberBatch final : public Subscriber
+    {
+    public:
+        SubscriberBatch(
+            const shared_ptr<Instance>&,
+            const SubscriberRecord&,
+            const Ice::ObjectPrx&,
+            int,
+            Ice::ObjectPrx);
+
+        void flush() override;
+
+        // Called on the flush timer to deliver the queued events as a single batch.
+        void doFlush();
+
+    private:
+        // Called once the batch has been written to the transport.
+        void batchSent();
+
+        const Ice::ObjectPrx _obj;
+        const std::chrono::milliseconds _interval;
+    };
+
     class SubscriberOneway final : public Subscriber
     {
     public:
@@ -132,6 +155,119 @@ namespace
     private:
         const TopicLinkPrx _obj;
     };
+}
+
+SubscriberBatch::SubscriberBatch(
+    const shared_ptr<Instance>& instance,
+    const SubscriberRecord& rec,
+    const Ice::ObjectPrx& proxy,
+    int retryCount,
+    Ice::ObjectPrx obj)
+    : Subscriber(instance, rec, proxy, retryCount, 1),
+      _obj(std::move(obj)),
+      _interval(instance->flushInterval())
+{
+}
+
+void
+SubscriberBatch::flush()
+{
+    lock_guard lock(_mutex);
+
+    //
+    // If the subscriber isn't online, or there's nothing to send, we're done.
+    //
+    if (_state != SubscriberStateOnline || _events.empty())
+    {
+        return;
+    }
+
+    // Defer delivery: accumulate events and send them together when the flush timer fires. _outstanding doubles as a
+    // "flush already scheduled or in flight" guard, so at most one flush is pending at a time (_maxOutstanding is 1).
+    if (_outstanding == 0)
+    {
+        ++_outstanding;
+        auto self = static_pointer_cast<SubscriberBatch>(shared_from_this());
+        _instance->batchFlusher()->schedule([self] { self->doFlush(); }, _interval);
+    }
+}
+
+void
+SubscriberBatch::doFlush()
+{
+    lock_guard lock(_mutex);
+
+    if (_state != SubscriberStateOnline)
+    {
+        // The subscriber went offline or errored (e.g. the send queue filled up) after this flush was scheduled but
+        // before it ran: release the flush reservation and wake a waiting shutdown().
+        --_outstanding;
+        assert(_outstanding >= 0 && _outstanding < _maxOutstanding);
+        if (_events.empty() && _shutdown)
+        {
+            _condVar.notify_one();
+        }
+        return;
+    }
+
+    EventDataSeq v;
+    v.swap(_events);
+    assert(!v.empty());
+
+    if (_observer)
+    {
+        _outstandingCount = static_cast<int>(v.size());
+        _observer->outstanding(_outstandingCount);
+    }
+
+    try
+    {
+        // Queue the events on the batch proxy, then flush them to the transport as a single batch request.
+        vector<byte> dummy;
+        for (const auto& e : v)
+        {
+            _obj->ice_invoke(e.op, e.mode, e.data, dummy, e.context);
+        }
+
+        auto self = static_pointer_cast<SubscriberBatch>(shared_from_this());
+        _obj->ice_flushBatchRequestsAsync(
+            [self](exception_ptr ex) { self->error(true, ex); },
+            [self](bool) { self->batchSent(); });
+    }
+    catch (...)
+    {
+        // Catch everything, not just std::exception: a configured batch-request interceptor can throw a
+        // non-std::exception, which BatchRequestQueue rethrows. Letting it escape would leave _outstanding at 1 and
+        // hang shutdown().
+        error(true, current_exception());
+    }
+}
+
+void
+SubscriberBatch::batchSent()
+{
+    lock_guard lock(_mutex);
+
+    // The batch has been written to the transport; the flush is no longer outstanding.
+    --_outstanding;
+    assert(_outstanding >= 0 && _outstanding < _maxOutstanding);
+    if (_observer)
+    {
+        _observer->delivered(_outstandingCount);
+    }
+
+    // A successful send means the subscriber is reachable, so reset the consecutive-retry count.
+    _currentRetry = 0;
+
+    if (_events.empty() && _outstanding == 0 && _shutdown)
+    {
+        _condVar.notify_one();
+    }
+    else if (!_events.empty())
+    {
+        // More events were queued while the batch was in flight; schedule the next flush.
+        flush();
+    }
 }
 
 SubscriberOneway::SubscriberOneway(
@@ -207,9 +343,15 @@ SubscriberOneway::flush()
             {
                 ++_outstanding;
             }
-            else if (_observer)
+            else
             {
-                _observer->delivered(1);
+                // The event was delivered synchronously, so the subscriber is reachable: reset the
+                // consecutive-retry count as the twoway subscriber does on a successful reply.
+                _currentRetry = 0;
+                if (_observer)
+                {
+                    _observer->delivered(1);
+                }
             }
         }
         catch (const std::exception&)
@@ -233,6 +375,9 @@ SubscriberOneway::sentAsynchronously()
     // Decrement the _outstanding count.
     --_outstanding;
     assert(_outstanding >= 0 && _outstanding < _maxOutstanding);
+    // The event was delivered, so the subscriber is reachable: reset the consecutive-retry count as the
+    // twoway subscriber does on a successful reply.
+    _currentRetry = 0;
     if (_observer)
     {
         _observer->delivered(1);
@@ -457,17 +602,6 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
             newObj = newObj->ice_connectionCached(*value > 0);
         }
 
-        if (newObj->ice_isBatchOneway())
-        {
-            // Use Oneway in case of Batch Oneway
-            newObj = newObj->ice_oneway();
-        }
-        else if (newObj->ice_isBatchDatagram())
-        {
-            // Use Datagram in case of Batch Datagram
-            newObj = newObj->ice_datagram();
-        }
-
         shared_ptr<Subscriber> subscriber;
         if (reliability == "ordered")
         {
@@ -480,6 +614,10 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
         else if (newObj->ice_isOneway() || newObj->ice_isDatagram())
         {
             subscriber = make_shared<SubscriberOneway>(instance, rec, proxy, retryCount, newObj);
+        }
+        else if (newObj->ice_isBatchOneway() || newObj->ice_isBatchDatagram())
+        {
+            subscriber = make_shared<SubscriberBatch>(instance, rec, proxy, retryCount, newObj);
         }
         else // if(newObj->ice_isTwoway())
         {
@@ -626,9 +764,9 @@ Subscriber::destroy()
         {
             // Ignore
         }
-        catch (const Ice::ObjectAdapterDeactivatedException&)
+        catch (const Ice::ObjectAdapterDestroyedException&)
         {
-            // Ignore
+            // Ignore -- this can occur on shutdown.
         }
     }
 
@@ -716,6 +854,11 @@ Subscriber::error(bool dec, exception_ptr e)
     {
         hardError = false;
         what = ex.what();
+    }
+    catch (...)
+    {
+        hardError = false;
+        what = "unknown exception";
     }
 
     //

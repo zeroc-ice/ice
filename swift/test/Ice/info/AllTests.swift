@@ -212,6 +212,23 @@ func allTests(_ helper: TestHelper) async throws {
             try test(ctx["ws.Sec-WebSocket-Key"] != nil)
         }
 
+        if ["ssl", "wss"].contains(helper.getTestProtocol()) {
+            // Both peers presented a certificate.
+            let sslInfo = getSSLConnectionInfo(info)!
+            try test(sslInfo.peerCertificate != nil)
+            try test(ctx["peerCertificate"] == "true")
+
+            // The server reports a nil peer certificate for a client that doesn't present one.
+            let properties = communicator.getProperties().clone()
+            properties.setProperty(key: "IceSSL.CertFile", value: "")
+            let com = try Ice.initialize(Ice.InitializationData(properties: properties))
+            defer { com.destroy() }
+            let base2 = try com.stringToProxy("test:" + helper.getTestEndpoint(num: 0))!
+            let testIntf2 = uncheckedCast(prx: base2, type: TestIntfPrx.self)
+            let ctx2 = try await testIntf2.getConnectionInfoAsContext()
+            try test(ctx2["peerCertificate"] == "false")
+        }
+
         connection = try await base.ice_datagram().ice_getConnection()!
         try connection.setBufferSize(rcvSize: 2048, sndSize: 1024)
 

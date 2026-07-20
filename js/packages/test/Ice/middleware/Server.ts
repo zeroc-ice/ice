@@ -57,7 +57,7 @@ export class Server extends TestHelper {
             const adapter = await communicator.createObjectAdapter("");
 
             await echo.setConnection();
-            echo.ice_getCachedConnection().setAdapter(adapter);
+            echo.ice_getCachedConnection()!.setAdapter(adapter);
             this.serverReady();
 
             adapter.add(new MyObjectI(), new Ice.Identity("test"));

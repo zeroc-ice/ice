@@ -315,6 +315,7 @@ Ice::Properties::getPropertyAsListWithDefault(string_view key, const StringSeq& 
         {
             Warning out(getProcessLogger());
             out << "mismatched quotes in property " << key << "'s value, returning default value";
+            return value;
         }
         if (result.size() == 0)
         {
@@ -504,7 +505,7 @@ Ice::Properties::load(string_view file)
                        << ":\n";
                     if (nameBufSize == 0)
                     {
-                        os << "property name can't be the empty string";
+                        os << "property name cannot be the empty string";
                     }
                     else
                     {

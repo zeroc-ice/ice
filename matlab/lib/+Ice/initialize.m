@@ -3,7 +3,7 @@ function communicator = initialize(varargin)
     %   This function is provided for backwards compatibility. New code should call the Ice.Communicator
     %   constructor directly.
     %
-    %   Examples:
+    %   Examples
     %     communicator = Ice.initialize()
     %     communicator = Ice.initialize(args)
     %     communicator = Ice.initialize(initData)

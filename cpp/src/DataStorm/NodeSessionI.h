@@ -28,6 +28,11 @@ namespace DataStormI
         [[nodiscard]] std::optional<DataStormContract::LookupPrx> getLookup() const { return _lookup; }
         [[nodiscard]] const Ice::ConnectionPtr& getConnection() const { return _connection; }
 
+        /// Enables forwarding announcements to the peer node. Called by the node session manager - with its mutex
+        /// locked - when the peer requests announcement forwarding for an existing session that was created without
+        /// it.
+        void enableAnnouncementForwarding();
+
         // Helper method to create a forwarder proxy for a subscriber or publisher session proxy.
         template<typename Prx> [[nodiscard]] Prx forwarder(const Prx& session) const
         {

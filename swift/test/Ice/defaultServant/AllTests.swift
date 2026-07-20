@@ -117,6 +117,15 @@ func allTests(_ helper: TestHelper) async throws {
         } catch is Ice.ObjectNotExistException {}  // Expected
     }
 
+    // The identity is registered with a facet servant only: a request on the default facet still dispatches to the
+    // default servant.
+    identity.category = "foo"
+    identity.name = "x"
+    _ = try oa.addFacet(servant: MyObjectI(), id: identity, facet: "theFacet")
+    prx = try uncheckedCast(prx: oa.createProxy(identity), type: MyObjectPrx.self)
+    try await test(prx.getName() == "x")
+    _ = try oa.removeFacet(id: identity, facet: "theFacet")
+
     _ = try oa.removeDefaultServant("foo")
     identity.category = "foo"
     prx = try uncheckedCast(prx: oa.createProxy(identity), type: MyObjectPrx.self)

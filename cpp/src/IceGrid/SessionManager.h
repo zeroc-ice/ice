@@ -162,14 +162,19 @@ namespace IceGrid
             {
                 Ice::Error out(_logger);
                 out << "unknown exception in session manager keep alive thread:\n" << ex.what();
-                throw;
             }
             catch (...)
             {
                 Ice::Error out(_logger);
                 out << "unknown exception in session manager keep alive thread";
-                throw;
             }
+
+            // Mark this thread as destroyed once it exits (it normally already is); otherwise threads blocked in
+            // waitForCreate or waitTryCreateSession could wait forever.
+            std::lock_guard<std::mutex> lock(_mutex);
+            _state = Destroyed;
+            _nextAction = None;
+            _condVar.notify_all();
         }
 
         bool isWaitingForCreate()
@@ -285,7 +290,7 @@ namespace IceGrid
         std::optional<TPrx> getSession()
         {
             std::lock_guard<std::mutex> lock(_mutex);
-            return _session;
+            return _state == Destroyed ? std::nullopt : _session;
         }
 
         void setRegistry(InternalRegistryPrx registry)

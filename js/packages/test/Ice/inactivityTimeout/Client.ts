@@ -27,6 +27,14 @@ async function testClientInactivityTimeout(p: Test.TestIntfPrx, helper: TestHelp
         test(connection2 == connection);
     } else {
         test(connection2 != connection);
+        // The inactivity timeout closed the connection; this closure was not initiated by the application.
+        try {
+            connection.throwException();
+            test(false);
+        } catch (ex) {
+            test(ex instanceof Ice.ConnectionClosedException);
+            test(ex.closedByApplication === false);
+        }
     }
     await connection2.close();
     output.writeLine("ok");

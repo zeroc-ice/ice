@@ -261,11 +261,11 @@ static PyMethodDef ImplicitContextMethods[] = {
     {"put",
      reinterpret_cast<PyCFunction>(implicitContextPut),
      METH_VARARGS,
-     PyDoc_STR("put(key: str, value: str) -> str | None")},
+     PyDoc_STR("put(key: str, value: str) -> str")},
     {"remove",
      reinterpret_cast<PyCFunction>(implicitContextRemove),
      METH_VARARGS,
-     PyDoc_STR("remove(key: str) -> str | None")},
+     PyDoc_STR("remove(key: str) -> str")},
     {} /* sentinel */
 };
 

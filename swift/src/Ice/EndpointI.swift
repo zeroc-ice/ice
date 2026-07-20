@@ -17,10 +17,12 @@ final class EndpointI: LocalObject<ICEEndpoint>, Endpoint {
     }
 }
 
+/// Returns `true` when the two endpoints are not equal (the negation of `==`), `false` otherwise.
 public func != (lhs: Endpoint?, rhs: Endpoint?) -> Bool {
     return !(lhs == rhs)
 }
 
+/// Returns `true` when the two endpoints are equal (same transport, parameters, and address), `false` otherwise.
 public func == (lhs: Endpoint?, rhs: Endpoint?) -> Bool {
     if lhs === rhs {
         return true

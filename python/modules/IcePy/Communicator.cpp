@@ -1403,7 +1403,7 @@ static PyMethodDef CommunicatorMethods[] = {
     {"stringToProxy",
      reinterpret_cast<PyCFunction>(communicatorStringToProxy),
      METH_VARARGS,
-     PyDoc_STR("stringToProxy(str: str) -> Ice.ObjectPrx")},
+     PyDoc_STR("stringToProxy(str: str) -> Ice.ObjectPrx | None")},
     {"proxyToString",
      reinterpret_cast<PyCFunction>(communicatorProxyToString),
      METH_VARARGS,
@@ -1411,7 +1411,7 @@ static PyMethodDef CommunicatorMethods[] = {
     {"propertyToProxy",
      reinterpret_cast<PyCFunction>(communicatorPropertyToProxy),
      METH_VARARGS,
-     PyDoc_STR("propertyToProxy(property: str) -> Ice.ObjectPrx")},
+     PyDoc_STR("propertyToProxy(property: str) -> Ice.ObjectPrx | None")},
     {"proxyToProperty",
      reinterpret_cast<PyCFunction>(communicatorProxyToProperty),
      METH_VARARGS,
@@ -1487,19 +1487,19 @@ static PyMethodDef CommunicatorMethods[] = {
     {"addAdminFacet",
      reinterpret_cast<PyCFunction>(communicatorAddAdminFacet),
      METH_VARARGS,
-     PyDoc_STR("addAdminFacet(servant: Ice.Object | None, facet: str) -> None")},
+     PyDoc_STR("addAdminFacet(servant: Ice.Object, facet: str) -> None")},
     {"findAdminFacet",
      reinterpret_cast<PyCFunction>(communicatorFindAdminFacet),
      METH_VARARGS,
-     PyDoc_STR("findAdminFacet(facet: str) -> Ice.Object")},
+     PyDoc_STR("findAdminFacet(facet: str) -> Ice.Object | NativePropertiesAdmin | None")},
     {"findAllAdminFacets",
      reinterpret_cast<PyCFunction>(communicatorFindAllAdminFacets),
      METH_NOARGS,
-     PyDoc_STR("findAllAdminFacets() -> dict")},
+     PyDoc_STR("findAllAdminFacets() -> dict[str, Ice.Object | NativePropertiesAdmin]")},
     {"removeAdminFacet",
      reinterpret_cast<PyCFunction>(communicatorRemoveAdminFacet),
      METH_VARARGS,
-     PyDoc_STR("removeAdminFacet(facet: str) -> Ice.Object")},
+     PyDoc_STR("removeAdminFacet(facet: str) -> Ice.Object | None")},
     {"_setWrapper",
      reinterpret_cast<PyCFunction>(communicatorSetWrapper),
      METH_VARARGS,
@@ -1615,8 +1615,8 @@ IcePy_identityToString(PyObject* /*self*/, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* obj{nullptr};
-    PyObject* mode{nullptr};
-    if (!PyArg_ParseTuple(args, "O!O", identityType, &obj, &mode))
+    PyObject* mode{Py_None};
+    if (!PyArg_ParseTuple(args, "O!|O", identityType, &obj, &mode))
     {
         return nullptr;
     }

@@ -15,12 +15,12 @@ class Client < ::TestHelper
         #properties.setProperty('Ice.ThreadPool.Client.SizeWarn', '0')
         properties.setProperty("Ice.BatchAutoFlushSize", "100")
         self.init(properties:properties) do |communicator|
-            myClass = allTests(self, communicator)
+            myInterface = allTests(self, communicator)
             print "testing server shutdown... "
             STDOUT.flush
-            myClass.shutdown()
+            myInterface.shutdown()
             begin
-                myClass.ice_invocationTimeout(100).ice_ping(); # Use timeout to speed up testing on Windows
+                myInterface.ice_invocationTimeout(100).ice_ping(); # Use timeout to speed up testing on Windows
                 test(false)
             rescue Ice::LocalException
                 puts "ok"

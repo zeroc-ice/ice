@@ -28,7 +28,6 @@ namespace Ice
     /// - managing properties (configuration), retries, logging, instrumentation, and more.
     /// You create a communicator with `Ice::initialize`, and it's usually the first object you create when programming
     /// with Ice. You can create multiple communicators in a single program, but this is not common.
-    /// @see ::initialize(int&, const char*[])
     /// @see ::initialize(InitializationData)
     /// @headerfile Ice/Ice.h
     class ICE_API Communicator final : public std::enable_shared_from_this<Communicator>
@@ -43,8 +42,8 @@ namespace Ice
         void destroy() noexcept;
 
         /// Destroys this communicator asynchronously.
-        /// @param completed The callback to call when the destruction is complete. This function must not throw any
-        /// exception.
+        /// @param completed If not @c nullptr, this callback is called when the destruction is complete. It must not
+        /// throw any exception.
         /// @remark This function starts a thread to call #destroy and @p completed unless you call this function on a
         /// communicator that has already been destroyed, in which case @p completed is called by the current thread.
         /// @see #destroy
@@ -65,8 +64,8 @@ namespace Ice
         /// Waits until this communicator is shut down.
         /// @param completed The callback to call when the shutdown is complete. This function must not throw any
         /// exception.
-        /// @remark If you call this function on a communicator that has already been shut down, the callback is called
-        /// immediately by the current thread.
+        /// @remark The callback is usually called by a dedicated background thread. It can also be called by the
+        /// current thread when the shutdown has already completed.
         /// @see #shutdown
         void waitForShutdownAsync(std::function<void()> completed) noexcept;
 
@@ -260,8 +259,14 @@ namespace Ice
         /// are ignored.
         /// @param compress Specifies whether or not the queued batch requests should be compressed before being sent
         /// over the wire.
-        /// @param exception The exception callback.
-        /// @param sent The sent callback.
+        /// @param exception The exception callback. The Ice runtime never calls this function: errors that occur
+        /// while flushing a connection are ignored.
+        /// @param sent The sent callback. The Ice runtime calls this function when the flush completes for all
+        /// connections; since errors are ignored, a flush that fails on a connection is complete for this connection.
+        /// When the flush completes synchronously, the Ice runtime calls this function from the current thread and
+        /// passes `true` as argument. Otherwise, the Ice runtime calls this function from an Ice thread pool thread
+        /// and passes `false` as argument. If you set InitializationData::executor, the executor determines the
+        /// thread that executes this function in the asynchronous case.
         /// @return A function that can be called to cancel the flush.
         std::function<void()> flushBatchRequestsAsync(
             CompressBatch compress,

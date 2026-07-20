@@ -16,10 +16,11 @@ public class DispatchException: LocalException, @unchecked Sendable {
     /// Creates a DispatchException.
     ///
     /// - Parameters:
-    ///   - replyStatus: The reply status raw value. It may not correspond to a valid ``ReplyStatus`` enum value.
+    ///   - replyStatus: The reply status raw value.
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
+    /// - Precondition: `replyStatus` must be greater than `ReplyStatus.userException`.
     public init(
         replyStatus: UInt8, message: String? = nil, file: String = #fileID, line: Int32 = #line
     ) {
@@ -279,12 +280,10 @@ public final class ConnectionLostException: SocketException, @unchecked Sendable
 // Other leaf local exceptions in alphabetical order.
 //
 
-/// An attempt was made to register something more than once with the Ice run time. This exception is thrown if an
-/// attempt is made to register a servant, servant locator, facet,  plug-in, or object adapter more than once for the
-// same ID.
+/// The exception that is thrown when you attempt to register an object more than once with the Ice runtime.
 public final class AlreadyRegisteredException: LocalException, @unchecked Sendable {
-    /// The kind of object that could not be removed: "servant", "facet", "object", "default servant",
-    /// "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
+    /// The kind of object that is already registered: "servant", "facet", "default servant",
+    /// "servant locator", "plugin", "object adapter", "object adapter with router".
     public let kindOfObject: String
 
     /// The ID (or name) of the object that is registered already.
@@ -321,6 +320,11 @@ public final class AlreadyRegisteredException: LocalException, @unchecked Sendab
 public final class CommunicatorDestroyedException: LocalException, @unchecked Sendable {}
 
 /// This exception indicates that a connection was aborted by the idle check.
+@available(
+    *, deprecated,
+    message:
+        "The Ice runtime never throws this exception; the idle check aborts the connection with ConnectionAbortedException (closedByApplication == false)."
+)
 public class ConnectionIdleException: LocalException, @unchecked Sendable {}
 
 /// This exception indicates the connection was closed forcefully.

@@ -57,6 +57,12 @@ export class Client extends TestHelper {
             id.name = "dummy";
             test(Ice.ArrayUtil.equals(adapter.createProxy(id).ice_getEndpoints(), prx.ice_getEndpoints()));
             test(Ice.ArrayUtil.equals(adapter.getPublishedEndpoints(), prx.ice_getEndpoints()));
+            try {
+                adapter.setPublishedEndpoints([]);
+                test(false);
+            } catch (ex) {
+                test(ex instanceof Error && ex.message.includes("at least one endpoint"));
+            }
             adapter.destroy();
             test(adapter.getPublishedEndpoints().length === 0);
 
@@ -72,7 +78,7 @@ export class Client extends TestHelper {
         out.write("testing object adapter with bi-dir connection... ");
         {
             test(communicator.getDefaultObjectAdapter() === null);
-            test(obj.ice_getCachedConnection().getAdapter() === null);
+            test(obj.ice_getCachedConnection()!.getAdapter() === null);
 
             let adapter = await communicator.createObjectAdapter("");
 
@@ -80,27 +86,27 @@ export class Client extends TestHelper {
             test(communicator.getDefaultObjectAdapter() === adapter);
 
             // create new connection
-            await obj.ice_getCachedConnection().close();
+            await obj.ice_getCachedConnection()!.close();
             await obj.ice_ping();
 
-            test(obj.ice_getCachedConnection().getAdapter() === adapter);
+            test(obj.ice_getCachedConnection()!.getAdapter() === adapter);
 
             // Ensure destroying the OA doesn't affect the ability to send outgoing requests.
             adapter.destroy();
-            await obj.ice_getCachedConnection().close();
+            await obj.ice_getCachedConnection()!.close();
             await obj.ice_ping();
 
             communicator.setDefaultObjectAdapter(null);
 
             // create new connection
-            await obj.ice_getCachedConnection().close();
+            await obj.ice_getCachedConnection()!.close();
             await obj.ice_ping();
-            test(obj.ice_getCachedConnection().getAdapter() === null);
+            test(obj.ice_getCachedConnection()!.getAdapter() === null);
 
             adapter = await communicator.createObjectAdapter("");
-            obj.ice_getCachedConnection().setAdapter(adapter);
-            test(obj.ice_getCachedConnection().getAdapter() === adapter);
-            obj.ice_getCachedConnection().setAdapter(null);
+            obj.ice_getCachedConnection()!.setAdapter(adapter);
+            test(obj.ice_getCachedConnection()!.getAdapter() === adapter);
+            obj.ice_getCachedConnection()!.setAdapter(null);
 
             adapter.destroy();
             try {

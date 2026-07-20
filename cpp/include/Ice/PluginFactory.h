@@ -25,7 +25,7 @@ namespace Ice
                                           const StringSeq& args);
 
     /// Represents a plug-in factory.
-    /// @see InitializeData::pluginFactories
+    /// @see InitializationData::pluginFactories
     struct PluginFactory
     {
         /// The default and preferred name for plug-ins created by this factory.

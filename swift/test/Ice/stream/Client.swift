@@ -584,5 +584,25 @@ public class Client: TestHelperI, @unchecked Sendable {
             } catch is Ice.MarshalException {}
         }
         writer.writeLine("ok")
+
+        writer.write("testing readEncapsulation... ")
+        do {
+            outS = Ice.OutputStream(communicator: communicator)
+            outS.startEncapsulation()
+            outS.write(Int32(42))
+            outS.endEncapsulation()
+            outS.write(Int32(0x1234))  // a marker written immediately after the encapsulation
+            let data = outS.finished()
+
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let (bytes, _) = try inS.readEncapsulation()
+            // The returned blob is the whole encapsulation: 4-byte size + 2-byte encoding + a 4-byte Int32 body.
+            try test(bytes.count == 10)
+            try test(bytes.startIndex == 0)  // a zero-based copy, not a shared-storage slice
+            // The stream position advanced past the encapsulation, so the trailing marker is read next.
+            let marker: Int32 = try inS.read()
+            try test(marker == 0x1234)
+        }
+        writer.writeLine("ok")
     }
 }

@@ -236,7 +236,7 @@ AdminI::getDefaultApplicationDescriptor(const Current& current) const
     }
     catch (const XMLParserException& ex)
     {
-        throw DeploymentException("can't parse default templates:\n" + string{ex.what()});
+        throw DeploymentException("cannot parse default templates:\n" + string{ex.what()});
     }
     desc.name = "";
     if (!desc.nodes.empty())

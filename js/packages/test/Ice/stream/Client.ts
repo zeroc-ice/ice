@@ -41,6 +41,35 @@ export class Client extends TestHelper {
         }
 
         {
+            // The InputStream accepts an ArrayBuffer holding the encoded data.
+            const outS = new Ice.OutputStream(communicator);
+            outS.writeInt(0x01020304);
+            const data = outS.finished();
+            const buffer = new ArrayBuffer(data.byteLength);
+            new Uint8Array(buffer).set(data);
+            const inS = new Ice.InputStream(communicator, buffer);
+            test(inS.readInt() === 0x01020304);
+        }
+
+        {
+            // The InputStream reads from the exact range of a Uint8Array view into a larger buffer.
+            const outS = new Ice.OutputStream(communicator);
+            outS.writeInt(0x01020304);
+            const data = outS.finished();
+            const padded = new Uint8Array(data.byteLength + 8);
+            padded.fill(0xff);
+            padded.set(data, 4);
+            const inS = new Ice.InputStream(communicator, padded.subarray(4, 4 + data.byteLength));
+            test(inS.readInt() === 0x01020304);
+            try {
+                inS.readByte(); // no data remains within the view's range
+                test(false);
+            } catch (ex) {
+                test(ex instanceof Ice.MarshalException);
+            }
+        }
+
+        {
             const outS = new Ice.OutputStream(communicator);
             outS.writeBool(true);
             const data = outS.finished();
@@ -184,6 +213,20 @@ export class Client extends TestHelper {
             test(o2!.by == o.by);
             test(o2!.sh === undefined);
             test(o2!.i === undefined);
+        }
+
+        {
+            // The format argument of the OutputStream constructor selects the class format: the sliced format
+            // writes slice headers that the compact format omits.
+            const o = new Test.OptionalClass();
+            o.bo = true;
+            const outCompact = new Ice.OutputStream(Ice.Encoding_1_1, Ice.FormatType.CompactFormat);
+            outCompact.writeValue(o);
+            outCompact.writePendingValues();
+            const outSliced = new Ice.OutputStream(Ice.Encoding_1_1, Ice.FormatType.SlicedFormat);
+            outSliced.writeValue(o);
+            outSliced.writePendingValues();
+            test(outSliced.finished().length > outCompact.finished().length);
         }
 
         {

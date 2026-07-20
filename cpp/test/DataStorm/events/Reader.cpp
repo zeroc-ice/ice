@@ -404,6 +404,60 @@ void ::Reader::run(int argc, char* argv[])
             testSample(reader2, SampleEvent::Update, "elem3", "value");
         }
     }
+
+    // Coexisting any-key and filtered readers on the same topic: each keeps its own subscription. Both receive a
+    // sample matching the filter, and destroying the filtered reader leaves the any-key reader subscribed.
+    {
+        Topic<string, string> topic(node, "readerCoexistence");
+        Topic<string, int> barrier(node, "readerCoexistenceBarrier");
+
+        auto anyKeyReader = makeAnyKeyReader(topic, "", config);
+        {
+            auto filteredReader = makeFilteredKeyReader(topic, Filter<string>("_regex", "k0"), "", config);
+            filteredReader.waitForWriters(1);
+            anyKeyReader.waitForWriters(1);
+
+            auto sample = filteredReader.getNextUnread();
+            test(sample.getKey() == "k0");
+            test(sample.getValue() == "v0");
+            sample = anyKeyReader.getNextUnread();
+            test(sample.getKey() == "k0");
+            test(sample.getValue() == "v0");
+        }
+
+        // Signal that the filtered reader is destroyed; the writer then publishes a second key.
+        auto barrierWriter = makeSingleKeyWriter(barrier, "barrier");
+        barrierWriter.waitForReaders();
+        barrierWriter.update(0);
+
+        auto sample = anyKeyReader.getNextUnread();
+        test(sample.getKey() == "k1");
+        test(sample.getValue() == "v1");
+    }
+
+    // This single-key reader must only receive its subscribed key from the multi-key writer, while the any-key
+    // reader on the same session receives every key.
+    {
+        Topic<string, string> topic(node, "unmatchedKey");
+
+        auto reader = makeSingleKeyReader(topic, "elem1", "", config);
+        auto anyKeyReader = makeAnyKeyReader(topic, "", config);
+        reader.waitForWriters(1);
+        anyKeyReader.waitForWriters(1);
+
+        auto sample = reader.getNextUnread();
+        test(sample.getKey() == "elem1");
+        test(sample.getValue() == "value1");
+        test(!reader.hasUnread()); // elem2's sample was not delivered to the single-key reader
+
+        // The any-key reader receives both keys, in publication order.
+        sample = anyKeyReader.getNextUnread();
+        test(sample.getKey() == "elem2");
+        test(sample.getValue() == "value2");
+        sample = anyKeyReader.getNextUnread();
+        test(sample.getKey() == "elem1");
+        test(sample.getValue() == "value1");
+    }
 }
 
 DEFINE_TEST(::Reader)

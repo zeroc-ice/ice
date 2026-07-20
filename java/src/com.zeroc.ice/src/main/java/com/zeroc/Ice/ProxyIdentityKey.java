@@ -3,7 +3,7 @@
 package com.zeroc.Ice;
 
 /**
- * This class wraps a proxy to allow it to be used the key for a hashed collection.
+ * This class wraps a proxy to allow it to be used as the key for a hashed collection.
  * The {@code hashCode} and {@code equals} methods are based on the object identity of the proxy.
  *
  * @see Util#proxyIdentityCompare

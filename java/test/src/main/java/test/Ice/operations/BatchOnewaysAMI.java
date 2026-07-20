@@ -8,7 +8,7 @@ import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 
-import test.Ice.operations.Test.MyClassPrx;
+import test.Ice.operations.Test.MyInterfacePrx;
 
 import java.io.PrintWriter;
 
@@ -19,12 +19,12 @@ class BatchOnewaysAMI {
         }
     }
 
-    static void batchOneways(MyClassPrx p, PrintWriter out) {
+    static void batchOneways(MyInterfacePrx p, PrintWriter out) {
         final Communicator communicator = p.ice_getCommunicator();
         final Properties properties = communicator.getProperties();
         final byte[] bs1 = new byte[10 * 1024];
 
-        MyClassPrx batch = p.ice_batchOneway();
+        MyInterfacePrx batch = p.ice_batchOneway();
         batch.ice_flushBatchRequestsAsync().join(); // Empty flush
 
         {
@@ -56,7 +56,7 @@ class BatchOnewaysAMI {
         final boolean bluetooth =
             properties.getIceProperty("Ice.Default.Protocol").indexOf("bt") == 0;
         if (batch.ice_getConnection() != null && !bluetooth) {
-            MyClassPrx batch2 = p.ice_batchOneway();
+            MyInterfacePrx batch2 = p.ice_batchOneway();
 
             batch.ice_pingAsync();
             batch2.ice_pingAsync();

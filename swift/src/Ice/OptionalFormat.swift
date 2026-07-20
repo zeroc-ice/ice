@@ -15,7 +15,7 @@ public enum OptionalFormat: UInt8 {
     /// Fixed 8-byte encoding.
     case F8 = 3
 
-    /// "Size encoding" using either 1 or 5 bytes. Used by enums, class identifiers, etc.
+    /// "Size encoding" using either 1 or 5 bytes. Used by enums.
     case Size = 4
 
     /// Variable "size encoding" using either 1 or 5 bytes followed by data.
@@ -23,7 +23,7 @@ public enum OptionalFormat: UInt8 {
     case VSize = 5
 
     /// Fixed "size encoding" using 4 bytes followed by data.
-    /// Used by variable-size structs and containers whose sizes can't be computed prior to unmarshaling.
+    /// Used by variable-size structs and containers whose sizes can't be computed prior to marshaling.
     case FSize = 6
 
     /// Class instance. No longer supported.

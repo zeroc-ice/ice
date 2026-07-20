@@ -16,9 +16,9 @@ void
 Client::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder holder = initialize(argc, argv);
-    Test::MyClassPrx allTests(Test::TestHelper*);
-    Test::MyClassPrx myClass = allTests(this);
-    myClass->shutdown();
+    Test::MyInterfacePrx allTests(Test::TestHelper*);
+    Test::MyInterfacePrx myInterface = allTests(this);
+    myInterface->shutdown();
 }
 
 DEFINE_TEST(Client)

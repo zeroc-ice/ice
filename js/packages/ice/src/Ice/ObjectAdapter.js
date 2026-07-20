@@ -310,6 +310,9 @@ export class ObjectAdapter {
     }
 
     setPublishedEndpoints(newEndpoints) {
+        if (newEndpoints.length === 0) {
+            throw new Error("the newEndpoints argument must contain at least one endpoint");
+        }
         this.checkForDestruction();
         if (this._routerInfo !== null) {
             throw new Error("can't set published endpoints on object adapter associated with a router");

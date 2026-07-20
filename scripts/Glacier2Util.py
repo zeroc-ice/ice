@@ -16,6 +16,11 @@ from Util import (
 
 
 class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
+    # icehashpassword.py only emits sha512-crypt (Linux) and PBKDF2-sha256 (macOS/Windows), so schemes like
+    # bcrypt need pre-hashed entries. This is a known-answer bcrypt hash of "abc123" (cost 4); the
+    # Glacier2/router test authenticates against it where the native crypt library supports bcrypt.
+    hashedPasswords = {"bcryptuser": "$2b$04$cVv0r3VdmM5qjmJwUjDIne19WwQxB6Q8Py8MKRRDtcSU9Fo0ESRiK"}
+
     def __init__(self, portnum=50, passwords={"userid": "abc123"}, *args, **kargs):
         Server.__init__(
             self,
@@ -55,6 +60,9 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
                             run(command, stdin=(password + "\r\n").encode("UTF-8")),
                         )
                     )
+
+                for user, hashedPassword in self.hashedPasswords.items():
+                    file.write("%s %s\n" % (user, hashedPassword))
             current.files.append(path)
 
     def getProps(self, current):

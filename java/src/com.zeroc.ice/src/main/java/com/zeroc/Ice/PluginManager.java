@@ -7,9 +7,9 @@ public interface PluginManager {
     /**
      * Initializes the configured plug-ins. The communicator automatically initializes the plug-ins by default, but
      * an application may need to interact directly with a plug-in prior to initialization. In this case, the
-     * application must set `Ice.InitPlugins=0` and then invoke `initializePlugins` manually. The plug-ins are
-     * initialized in the order in which they are loaded. If a plug-in throws an exception during initialization,
-     * the communicator calls {@link Plugin#destroy} on the plug-ins that have already been initialized.
+     * application must set {@code Ice.InitPlugins=0} and then invoke {@code initializePlugins} manually. The
+     * plug-ins are initialized in the order in which they are loaded. If a plug-in throws an exception during
+     * initialization, the communicator calls {@link Plugin#destroy} on the plug-ins that have already been initialized.
      *
      * @throws InitializationException if the plug-ins have already been initialized
      */

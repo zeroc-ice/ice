@@ -58,7 +58,7 @@ final class ConnectionInfoFactory: ICEConnectionInfoFactory {
         WSConnectionInfo(underlying: underlying as! ConnectionInfo, headers: headers)
     }
 
-    static func createSSLConnectionInfo(_ underlying: Any, peerCertificate: SecCertificate) -> Any {
+    static func createSSLConnectionInfo(_ underlying: Any, peerCertificate: SecCertificate?) -> Any {
         return SSLConnectionInfo(
             underlying: underlying as! ConnectionInfo, peerCertificate: peerCertificate)
     }

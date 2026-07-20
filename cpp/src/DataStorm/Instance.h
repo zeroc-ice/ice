@@ -6,6 +6,7 @@
 #include "../Ice/Timer.h"
 #include "DataStorm/Config.h"
 #include "DataStorm/Contract.h"
+#include "DataStorm/Types.h"
 #include "Ice/Ice.h"
 
 #include <cmath>
@@ -24,12 +25,9 @@ namespace DataStormI
     class Instance final : public std::enable_shared_from_this<Instance>
     {
     public:
-        Instance(
-            Ice::CommunicatorPtr communicator,
-            std::function<void(std::function<void()> call)> customExecutor,
-            std::optional<Ice::SSL::ServerAuthenticationOptions> serverAuthenticationOptions);
+        Instance(Ice::CommunicatorPtr communicator, std::function<void(std::function<void()> call)> customExecutor);
 
-        void init();
+        void init(std::optional<Ice::SSL::ServerAuthenticationOptions> serverAuthenticationOptions);
 
         [[nodiscard]] std::shared_ptr<ConnectionManager> getConnectionManager() const
         {
@@ -53,6 +51,16 @@ namespace DataStormI
         {
             assert(_adapter);
             return _adapter;
+        }
+
+        [[nodiscard]] const DataStorm::ReaderConfig& getDefaultReaderConfig() const noexcept
+        {
+            return _defaultReaderConfig;
+        }
+
+        [[nodiscard]] const DataStorm::WriterConfig& getDefaultWriterConfig() const noexcept
+        {
+            return _defaultWriterConfig;
         }
 
         [[nodiscard]] std::shared_ptr<ForwarderManager> getCollocatedForwarder() const
@@ -149,6 +157,8 @@ namespace DataStormI
         std::chrono::milliseconds _retryDelay;
         int _retryMultiplier;
         int _retryCount;
+        DataStorm::ReaderConfig _defaultReaderConfig;
+        DataStorm::WriterConfig _defaultWriterConfig;
 
         mutable std::mutex _mutex;
         mutable std::condition_variable _cond;

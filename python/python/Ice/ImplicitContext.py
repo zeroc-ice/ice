@@ -81,7 +81,7 @@ class ImplicitContext:
         """
         return self._impl.get(key)
 
-    def put(self, key: str, value: str) -> str | None:
+    def put(self, key: str, value: str) -> str:
         """
         Creates or updates a key/value entry in the request context.
 
@@ -94,12 +94,12 @@ class ImplicitContext:
 
         Returns
         -------
-        str | None
-            The previous value associated with the key, if any.
+        str
+            The previous value associated with ``key``, or the empty string if there was none.
         """
         return self._impl.put(key, value)
 
-    def remove(self, key: str) -> str | None:
+    def remove(self, key: str) -> str:
         """
         Removes the entry for the specified key in the request context.
 
@@ -110,8 +110,8 @@ class ImplicitContext:
 
         Returns
         -------
-        str | None
-            The value associated with the key, if any.
+        str
+            The removed value, or the empty string if the key was not present.
         """
         return self._impl.remove(key)
 

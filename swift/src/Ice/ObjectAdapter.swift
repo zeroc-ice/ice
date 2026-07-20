@@ -65,7 +65,7 @@ public protocol ObjectAdapter: AnyObject, Sendable {
 
     /// Adds a middleware to the dispatch pipeline of this object adapter.
     /// Middleware are executed in the order they are added.
-    /// All middleware must be installed before the first dispatch and execute in the order they are installed.
+    /// All middleware must be installed before the first dispatch.
     ///
     /// - Parameter middlewareFactory: The middleware factory that creates the new middleware when this object adapter
     ///   creates its dispatch pipeline. A middleware factory is a function that takes a dispatcher (the next element
@@ -103,16 +103,18 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     ///
     /// - Parameter servant: The servant to add.
     /// - Returns: A proxy with the generated UUID identity created by this object adapter.
+    /// - Throws: `ObjectAdapterDestroyedException` when the object adapter has been destroyed.
     @discardableResult
     func addWithUUID(_ servant: Dispatcher) throws -> ObjectPrx
 
     /// Adds a servant to this object adapter's Active Servant Map (ASM), using an automatically generated UUID as its
-    /// identity.  Also specifies a facet.
+    /// identity. Also specifies a facet.
     ///
     /// - Parameters:
     ///   - servant: The servant to add.
     ///   - facet: The facet of the Ice object that is implemented by the servant.
     /// - Returns: A proxy with the generated UUID identity and specified facet created by this object adapter.
+    /// - Throws: `ObjectAdapterDestroyedException` when the object adapter has been destroyed.
     @discardableResult
     func addFacetWithUUID(servant: Dispatcher, facet: String) throws -> ObjectPrx
 
@@ -196,14 +198,14 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     func findAllFacets(_ id: Identity) -> FacetMap
 
     /// Looks up a servant in this object adapter's Active Servant Map or among the default servants, given a proxy.
-    /// This operation does not attempt to locate a servant using servant locators.
+    /// This method does not attempt to locate a servant using servant locators.
     ///
     /// - Parameter proxy: The proxy that provides the identity and facet to search.
     /// - Returns: The servant that matches the identity and facet carried by `proxy`,
     ///   or nil if no such servant has been found.
     func findByProxy(_ proxy: ObjectPrx) -> Dispatcher?
 
-    /// Adds a ``ServantLocator``` to this object adapter for a specific category.
+    /// Adds a ``ServantLocator`` to this object adapter for a specific category.
     ///
     /// - Parameters:
     ///   - locator: The servant locator to add.

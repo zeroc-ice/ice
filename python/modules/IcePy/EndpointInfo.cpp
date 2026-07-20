@@ -358,7 +358,7 @@ IcePy::initEndpointInfo(PyObject* module)
         return false;
     }
 
-    UDPEndpointInfoType.tp_base = &IPEndpointInfoType; // Force inheritance from IPEndpointType.
+    UDPEndpointInfoType.tp_base = &IPEndpointInfoType; // Force inheritance from IPEndpointInfoType.
     if (PyType_Ready(&UDPEndpointInfoType) < 0)
     {
         return false;
@@ -369,7 +369,7 @@ IcePy::initEndpointInfo(PyObject* module)
         return false;
     }
 
-    WSEndpointInfoType.tp_base = &EndpointInfoType; // Force inheritance from IPEndpointType.
+    WSEndpointInfoType.tp_base = &EndpointInfoType; // Force inheritance from EndpointInfoType.
     if (PyType_Ready(&WSEndpointInfoType) < 0)
     {
         return false;
@@ -380,7 +380,7 @@ IcePy::initEndpointInfo(PyObject* module)
         return false;
     }
 
-    SSLEndpointInfoType.tp_base = &EndpointInfoType; // Force inheritance from IPEndpointInfoType.
+    SSLEndpointInfoType.tp_base = &EndpointInfoType; // Force inheritance from EndpointInfoType.
     if (PyType_Ready(&SSLEndpointInfoType) < 0)
     {
         return false;
@@ -391,7 +391,7 @@ IcePy::initEndpointInfo(PyObject* module)
         return false;
     }
 
-    OpaqueEndpointInfoType.tp_base = &EndpointInfoType; // Force inheritance from EndpointType.
+    OpaqueEndpointInfoType.tp_base = &EndpointInfoType; // Force inheritance from EndpointInfoType.
     if (PyType_Ready(&OpaqueEndpointInfoType) < 0)
     {
         return false;

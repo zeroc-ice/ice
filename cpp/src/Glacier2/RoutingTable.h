@@ -16,7 +16,7 @@ namespace Glacier2
     class RoutingTable final
     {
     public:
-        RoutingTable(Ice::CommunicatorPtr, std::shared_ptr<ProxyVerifier>);
+        RoutingTable(Ice::CommunicatorPtr, std::shared_ptr<ProxyVerifier>, int maxSize, int traceLevel);
 
         void destroy();
 

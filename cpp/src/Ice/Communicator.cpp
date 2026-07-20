@@ -48,11 +48,12 @@ Ice::Communicator::destroy() noexcept
 void
 Ice::Communicator::destroyAsync(function<void()> completed) noexcept
 {
-    if (completed)
+    if (!completed)
     {
-        _instance->destroyAsync(std::move(completed));
+        // we tolerate null callbacks
+        completed = [] {};
     }
-    // we tolerate null callbacks, they do nothing
+    _instance->destroyAsync(std::move(completed));
 }
 
 void

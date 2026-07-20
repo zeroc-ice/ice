@@ -103,6 +103,11 @@
     }
 }
 
+- (NSString*)identityToString:(NSString*)name category:(NSString*)category
+{
+    return toNSString(self.communicator->identityToString({fromNSString(name), fromNSString(category)}));
+}
+
 - (ICEObjectAdapter*)createObjectAdapter:(NSString*)name error:(NSError* _Nullable* _Nonnull)error
 {
     try
@@ -154,12 +159,26 @@
 
 - (nullable ICEObjectAdapter*)getDefaultObjectAdapter
 {
-    return [ICEObjectAdapter getHandle:self.communicator->getDefaultObjectAdapter()];
+    try
+    {
+        return [ICEObjectAdapter getHandle:self.communicator->getDefaultObjectAdapter()];
+    }
+    catch (const Ice::CommunicatorDestroyedException&)
+    {
+        return nil;
+    }
 }
 
 - (void)setDefaultObjectAdapter:(ICEObjectAdapter* _Nullable)adapter
 {
-    self.communicator->setDefaultObjectAdapter(adapter == nil ? nullptr : [adapter objectAdapter]);
+    try
+    {
+        self.communicator->setDefaultObjectAdapter(adapter == nil ? nullptr : [adapter objectAdapter]);
+    }
+    catch (const Ice::CommunicatorDestroyedException&)
+    {
+        // Ignored
+    }
 }
 
 - (nullable ICEImplicitContext*)getImplicitContext
@@ -191,12 +210,19 @@
 
 - (nullable ICEObjectPrx*)getDefaultRouter
 {
-    std::optional<Ice::RouterPrx> router = self.communicator->getDefaultRouter();
-    if (router)
+    try
     {
-        return [[ICEObjectPrx alloc] initWithCppObjectPrx:router.value()];
+        std::optional<Ice::RouterPrx> router = self.communicator->getDefaultRouter();
+        if (router)
+        {
+            return [[ICEObjectPrx alloc] initWithCppObjectPrx:router.value()];
+        }
+        else
+        {
+            return nil;
+        }
     }
-    else
+    catch (const Ice::CommunicatorDestroyedException&)
     {
         return nil;
     }
@@ -223,12 +249,19 @@
 
 - (nullable ICEObjectPrx*)getDefaultLocator
 {
-    std::optional<Ice::LocatorPrx> locator = self.communicator->getDefaultLocator();
-    if (locator)
+    try
     {
-        return [[ICEObjectPrx alloc] initWithCppObjectPrx:locator.value()];
+        std::optional<Ice::LocatorPrx> locator = self.communicator->getDefaultLocator();
+        if (locator)
+        {
+            return [[ICEObjectPrx alloc] initWithCppObjectPrx:locator.value()];
+        }
+        else
+        {
+            return nil;
+        }
     }
-    else
+    catch (const Ice::CommunicatorDestroyedException&)
     {
         return nil;
     }

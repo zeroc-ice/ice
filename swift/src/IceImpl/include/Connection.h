@@ -53,7 +53,7 @@ ICEIMPL_API @protocol ICEConnectionInfoFactory
 
 + (id)createWSConnectionInfo:(id)underlying headers:(NSDictionary<NSString*, NSString*>*)headers;
 
-+ (id)createSSLConnectionInfo:(id)underlying peerCertificate:(SecCertificateRef)peerCertificate;
++ (id)createSSLConnectionInfo:(id)underlying peerCertificate:(nullable SecCertificateRef)peerCertificate;
 
 + (id)createIAPConnectionInfo:(BOOL)incoming
                   adapterName:(NSString*)adapterName

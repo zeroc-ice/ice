@@ -308,21 +308,30 @@ run(const Ice::StringSeq& args)
                 os << ":tcp -h \"" << host << "\" -p " << (port == 0 ? 4061 : port);
                 os << ":ssl -h \"" << host << "\" -p " << (port == 0 ? 4062 : port);
                 Ice::LocatorFinderPrx finder{communicator, os.str()};
+                optional<Ice::LocatorPrx> defaultLocator;
                 try
                 {
-                    communicator->setDefaultLocator(finder->getLocator());
+                    defaultLocator = finder->getLocator();
                 }
                 catch (const Ice::LocalException&)
                 {
                     // Ignore.
                 }
-                if (!instanceName.empty() &&
-                    communicator->getDefaultLocator()->ice_getIdentity().category != instanceName)
+
+                if (!defaultLocator)
                 {
-                    consoleErr << args[0] << ": registry running on '" << host << "' uses a different instance name:\n";
-                    consoleErr << communicator->getDefaultLocator()->ice_getIdentity().category << endl;
+                    consoleErr << args[0] << ": could not contact the registry running on '" << host << "'" << endl;
                     return 1;
                 }
+
+                if (!instanceName.empty() && defaultLocator->ice_getIdentity().category != instanceName)
+                {
+                    consoleErr << args[0] << ": registry running on '" << host << "' uses a different instance name:\n";
+                    consoleErr << defaultLocator->ice_getIdentity().category << endl;
+                    return 1;
+                }
+
+                communicator->setDefaultLocator(*defaultLocator);
             }
             else
             {

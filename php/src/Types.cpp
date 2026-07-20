@@ -2978,7 +2978,8 @@ IcePHP::ValueReader::_iceRead(Ice::InputStream* is)
         {
             assert(!_slicedData->slices.empty());
 
-            const string typeId = _slicedData->slices[0]->typeId;
+            const Ice::SliceInfoPtr& sliceInfo = _slicedData->slices[0];
+            const string typeId = sliceInfo->typeId.empty() ? std::to_string(sliceInfo->compactId) : sliceInfo->typeId;
             zval zv;
             AutoDestroy typeIdDestroyer(&zv);
             ZVAL_STRINGL(&zv, typeId.c_str(), static_cast<int>(typeId.size()));

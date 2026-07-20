@@ -1,5 +1,6 @@
 classdef NotRegisteredException < Ice.LocalException
-    %NOTREGISTEREDEXCEPTION An attempt was made to find or deregister something that is not registered with Ice.
+    %NOTREGISTEREDEXCEPTION The exception that is thrown when attempting to find or deregister something that is not
+    %   registered with Ice.
     %
     %   NotRegisteredException Properties:
     %     kindOfObject - The kind of object that is not registered.

@@ -29,8 +29,8 @@ namespace IceStorm::Instrumentation
         /// Notification of an event published on the topic by a publisher.
         virtual void published() = 0;
 
-        /// Notification of an event forwared on the topic by another topic.
-        virtual void forwarded() = 0;
+        /// Notification of some events being forwarded on the topic by another topic.
+        virtual void forwarded(int count) = 0;
     };
 
     class SubscriberObserver : public virtual Ice::Instrumentation::Observer

@@ -35,7 +35,7 @@ public protocol ServantLocator: Sendable {
     ///   an exception, the exception thrown by `finished` prevails and is marshaled back to the client.
     func finished(curr: Current, servant: Dispatcher, cookie: AnyObject?) throws
 
-    /// Notifies this servant locator that the object adapter in which it's installed is being deactivated.
+    /// Notifies this servant locator that the object adapter in which it's installed is being destroyed.
     ///
     /// - Parameter category: The category with which this servant locator was registered.
     func deactivate(_ category: String)

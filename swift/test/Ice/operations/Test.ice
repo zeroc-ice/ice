@@ -14,7 +14,7 @@ module Test
         enum3
     }
 
-    interface MyClass;
+    interface MyInterface;
 
     struct AnotherStruct
     {
@@ -23,7 +23,7 @@ module Test
 
     struct Structure
     {
-        MyClass* p;
+        MyInterface* p;
         MyEnum e;
         AnotherStruct s;
     }
@@ -38,7 +38,7 @@ module Test
     sequence<string> StringS;
     sequence<string> WStringS;
     sequence<MyEnum> MyEnumS;
-    sequence<MyClass*> MyClassS;
+    sequence<MyInterface*> MyInterfaceS;
 
     sequence<ByteS> ByteSS;
     sequence<BoolS> BoolSS;
@@ -49,7 +49,7 @@ module Test
     sequence<DoubleS> DoubleSS;
     sequence<StringS> StringSS;
     sequence<MyEnumS> MyEnumSS;
-    sequence<MyClassS> MyClassSS;
+    sequence<MyInterfaceS> MyInterfaceSS;
 
     sequence<StringSS> StringSSS;
 
@@ -87,7 +87,7 @@ module Test
 
     exception SomeException {}
 
-    interface MyClass
+    interface MyInterface
     {
         void shutdown();
 
@@ -112,7 +112,7 @@ module Test
 
         MyEnum opMyEnum(MyEnum p1, out MyEnum p2);
 
-        MyClass* opMyClass(MyClass* p1, out MyClass* p2, out MyClass* p3);
+        MyInterface* opMyInterface(MyInterface* p1, out MyInterface* p2, out MyInterface* p3);
 
         Structure opStruct(Structure p1, Structure p2,
             out Structure p3);
@@ -261,21 +261,21 @@ module Test
     struct MyStruct1
     {
         string tesT; // Same name as the enclosing module
-        MyClass* myClass; // Same name as an already defined class
+        MyInterface* myInterface; // Same name as an already defined interface
         string myStruct1; // Same name as the enclosing struct
     }
 
-    class MyClass1
+    class MyClass
     {
         string tesT; // Same name as the enclosing module
-        MyClass* myClass; // Same name as an already defined class
-        string myClass1; // Same name as the enclosing class
+        MyInterface* myInterface; // Same name as an already defined interface
+        string myClass; // Same name as the enclosing class
     }
 
-    interface MyDerivedClass extends MyClass
+    interface MyDerivedInterface extends MyInterface
     {
         void opDerived();
-        MyClass1 opMyClass1(MyClass1 opMyClass1);
+        MyClass opMyClass(MyClass opMyClass);
         MyStruct1 opMyStruct1(MyStruct1 opMyStruct1);
     }
 
@@ -422,8 +422,8 @@ module Test2
 {
     // Makes sure that proxy operations are correctly generated when extending an interface from
     // a different module (ICE-7639).
-    ["swift:identifier:Test2MyDerivedClass"]
-    interface MyDerivedClass extends Test::MyClass
+    ["swift:identifier:Test2MyDerivedInterface"]
+    interface MyDerivedInterface extends Test::MyInterface
     {
     }
 }

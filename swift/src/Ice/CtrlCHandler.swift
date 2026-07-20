@@ -4,11 +4,12 @@ import IceImpl
 
 /// Helps applications handle Ctrl+C (SIGINT) and similar signals (SIGHUP and SIGTERM). Only available on macOS.
 @available(macOS 15, *)
+@available(iOS, unavailable)
 public struct CtrlCHandler {
     private let handle = ICECtrlCHandler()
 
     /// Creates a CtrlCHandler. Only one instance of this struct can exist in a program at any point in time.
-    /// This instance must be created before starting any thread.
+    /// This instance must be created before starting any thread. Creating a second instance terminates the program.
     public init() {}
 
     /// Sets the signal callback. If there was a previous callback, it is replaced.

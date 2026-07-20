@@ -14,13 +14,12 @@ Glacier2::ClientBlobject::ClientBlobject(
     shared_ptr<Instance> instance,
     shared_ptr<FilterManager> filters,
     const Ice::Context& sslContext,
-    shared_ptr<RoutingTable> routingTable)
-    :
-
-      Glacier2::Blobject(std::move(instance), nullptr, sslContext),
+    shared_ptr<RoutingTable> routingTable,
+    shared_ptr<ForwardObserver> forwardObserver)
+    : Glacier2::Blobject(std::move(instance), std::move(forwardObserver), nullptr, sslContext),
       _routingTable(std::move(routingTable)),
       _filters(std::move(filters)),
-      _rejectTraceLevel(_instance->properties()->getIcePropertyAsInt("Glacier2.Client.Trace.Reject"))
+      _rejectTraceLevel(_instance->clientRejectTraceLevel())
 {
 }
 

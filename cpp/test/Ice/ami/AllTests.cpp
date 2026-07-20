@@ -1093,6 +1093,32 @@ allTests(TestHelper* helper, bool collocated)
 
         if (p->ice_getConnection() && !bluetooth)
         {
+            cout << "testing close callback replacement... " << flush;
+            {
+                // Replacing a close callback destroys the callback it replaces. That destructor can run user code -
+                // a language mapping may attach a finalizer to the callback - and that code may call back into the
+                // connection. It must therefore not run while the connection's mutex is held. This test deadlocks
+                // if it does.
+                struct Reenter
+                {
+                    ConnectionPtr connection;
+
+                    explicit Reenter(ConnectionPtr con) : connection(std::move(con)) {}
+
+                    // Reenter the connection from the callback's destructor.
+                    ~Reenter() { static_cast<void>(connection->getInfo()); }
+                };
+
+                auto con = p->ice_connectionId("CloseCallbackReplacement")->ice_getConnection();
+
+                // The lambda is the sole owner of the Reenter object, so replacing the callback below destroys it.
+                con->setCloseCallback([owner = make_shared<Reenter>(con)](const ConnectionPtr&) {});
+
+                con->setCloseCallback(nullptr); // destroys the previous callback, and with it the Reenter object
+                con->close().get();
+            }
+            cout << "ok" << endl;
+
             cout << "testing connection close... " << flush;
             {
                 //

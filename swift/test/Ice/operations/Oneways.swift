@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-func oneways(_ helper: TestHelper, _ prx: MyClassPrx) async throws {
+func oneways(_ helper: TestHelper, _ prx: MyInterfacePrx) async throws {
     let p = prx.ice_oneway()
 
     try await p.ice_ping()

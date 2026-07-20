@@ -12,7 +12,7 @@ class Cookie {
     }
 }
 
-func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
+func allTests(_ helper: TestHelper) async throws -> MyInterfacePrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -21,7 +21,7 @@ func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     let communicator = helper.communicator()
 
     let baseProxy = try communicator.stringToProxy("test:\(helper.getTestEndpoint(num: 0))")!
-    let cl = try await checkedCast(prx: baseProxy, type: MyClassPrx.self)!
+    let cl = try await checkedCast(prx: baseProxy, type: MyInterfacePrx.self)!
     let oneway = cl.ice_oneway()
     let batchOneway = cl.ice_batchOneway()
 

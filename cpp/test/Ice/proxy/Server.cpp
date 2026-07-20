@@ -20,7 +20,7 @@ Server::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(std::make_shared<MyDerivedClassI>(), Ice::stringToIdentity("test"));
+    adapter->add(std::make_shared<MyDerivedInterfaceI>(), Ice::stringToIdentity("test"));
     adapter->add(std::make_shared<CI>(), Ice::stringToIdentity("c"));
     adapter->activate();
     serverReady();

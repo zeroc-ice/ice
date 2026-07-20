@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Blobject.h"
+#include "ForwardObserver.h"
 #include "Instrumentation.h"
 #include "SessionRouterI.h"
 
@@ -9,23 +10,17 @@ using namespace Ice;
 using namespace Glacier2;
 using namespace Glacier2::Instrumentation;
 
-namespace
-{
-    constexpr string_view serverForwardContext = "Glacier2.Server.ForwardContext";
-    constexpr string_view clientForwardContext = "Glacier2.Client.ForwardContext";
-    constexpr string_view serverTraceRequest = "Glacier2.Server.Trace.Request";
-    constexpr string_view clientTraceRequest = "Glacier2.Client.Trace.Request";
-}
-
-Glacier2::Blobject::Blobject(shared_ptr<Instance> instance, ConnectionPtr reverseConnection, Context context)
+Glacier2::Blobject::Blobject(
+    shared_ptr<Instance> instance,
+    shared_ptr<ForwardObserver> forwardObserver,
+    ConnectionPtr reverseConnection,
+    Context context)
     : _instance(std::move(instance)),
       _reverseConnection(std::move(reverseConnection)),
-      _forwardContext(
-          _reverseConnection ? _instance->properties()->getIcePropertyAsInt(serverForwardContext) > 0
-                             : _instance->properties()->getIcePropertyAsInt(clientForwardContext) > 0),
+      _forwardObserver(std::move(forwardObserver)),
+      _forwardContext(_reverseConnection ? _instance->serverForwardContext() : _instance->clientForwardContext()),
       _requestTraceLevel(
-          _reverseConnection ? _instance->properties()->getIcePropertyAsInt(serverTraceRequest)
-                             : _instance->properties()->getIcePropertyAsInt(clientTraceRequest)),
+          _reverseConnection ? _instance->serverRequestTraceLevel() : _instance->clientRequestTraceLevel()),
       _context(std::move(context))
 {
 }
@@ -38,6 +33,9 @@ Glacier2::Blobject::invoke(
     function<void(exception_ptr)> exception, // NOLINT(performance-unnecessary-value-param)
     const Current& current)
 {
+    // A client blobject has no reverse connection.
+    _forwardObserver->forwarded(_reverseConnection == nullptr);
+
     //
     // Set the correct facet on the proxy.
     //

@@ -63,6 +63,8 @@ public interface Connection
     /// the default object adapter of an outgoing connection is the communicator's default object adapter.
     /// </summary>
     /// <param name="adapter">The object adapter to associate with this connection.</param>
+    /// <exception cref="InvalidOperationException">Thrown when this connection is an incoming connection: you can
+    /// only call this method on outgoing (client) connections.</exception>
     /// <seealso cref="Communicator.getDefaultObjectAdapter"/>
     /// <seealso cref="getAdapter"/>
     void setAdapter(ObjectAdapter? adapter);
@@ -134,11 +136,13 @@ public interface Connection
     void setBufferSize(int rcvSize, int sndSize);
 
     /// <summary>
-    /// Throws an exception that provides the reason for the closure of this connection. For example,
-    /// this method throws <see cref="CloseConnectionException"/> when the connection was closed gracefully by the peer;
-    /// It throws <see cref="ConnectionAbortedException"/> or <see cref="ConnectionClosedException"/>
-    /// when the connection is aborted. This method does nothing if the connection is not yet closed.
+    /// Throws the exception that provides the reason for the closure of this connection. Does nothing if the
+    /// connection is not yet closing or closed.
     /// </summary>
+    /// <exception cref="CloseConnectionException">Thrown when the connection was closed gracefully by the
+    /// peer.</exception>
+    /// <exception cref="ConnectionAbortedException">Thrown when the connection is aborted with <see cref="abort"/>.
+    /// </exception>
     void throwException();
 }
 
@@ -339,7 +343,8 @@ public sealed class UDPConnectionInfo : IPConnectionInfo
 public sealed class WSConnectionInfo : ConnectionInfo
 {
     /// <summary>
-    /// The headers from the HTTP upgrade request.
+    /// The HTTP headers from the WebSocket upgrade handshake: the request headers for an incoming connection, and
+    /// the response headers for an outgoing connection.
     /// </summary>
     public readonly Dictionary<string, string> headers;
 

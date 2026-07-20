@@ -168,7 +168,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
     @staticmethod
     def checkedCastAsync(
-        proxy: ObjectPrx, facet: str | None = None, context: dict[str, str] | None = None
+        proxy: ObjectPrx | None, facet: str | None = None, context: dict[str, str] | None = None
     ) -> Awaitable[ObjectPrx | None]:
         """
         Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
@@ -184,9 +184,10 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Returns
         -------
-        ObjectPrx | None
-            A new proxy with the requested facet, or ``None`` if the source proxy is ``None`` or if the target
-            object/facet does not support the requested type.
+        Awaitable[ObjectPrx | None]
+            An :class:`Awaitable` that completes when the invocation completes.
+            It holds a new proxy with the requested facet, or ``None`` if the source proxy is ``None`` or if the
+            target object/facet does not support the requested type.
         """
         return checkedCastAsync(ObjectPrx, proxy, facet, context)
 
@@ -356,7 +357,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getIdentity()
 
-    def ice_identity(self, newIdentity: Identity) -> Self:
+    def ice_identity(self, newIdentity: Identity) -> ObjectPrx:
         """
         Creates a proxy that is identical to this proxy, except for the identity.
 
@@ -367,19 +368,19 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Returns
         -------
-        Self
+        ObjectPrx
             A proxy with the new identity.
         """
         return super().ice_identity(newIdentity)
 
-    def ice_getContext(self) -> dict[str, str] | None:
+    def ice_getContext(self) -> dict[str, str]:
         """
         Gets the per-proxy context for this proxy.
 
         Returns
         -------
-        dict[str, str] | None
-            The per-proxy context, or ``None`` if the proxy does not have a per-proxy context.
+        dict[str, str]
+            The per-proxy context (an empty dictionary when this proxy has no per-proxy context).
         """
         return super().ice_getContext()
 
@@ -410,7 +411,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getFacet()
 
-    def ice_facet(self, new_facet: str) -> Self:
+    def ice_facet(self, new_facet: str) -> ObjectPrx:
         """
         Creates a proxy that is identical to this proxy, except for the facet.
 
@@ -421,7 +422,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Returns
         -------
-        Self
+        ObjectPrx
             A proxy with the new facet.
         """
         return super().ice_facet(new_facet)
@@ -829,6 +830,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Returns
         -------
+        bool | None
             The compression override setting. If ``None`` is returned, no override is set.
             Otherwise, ``True`` if compression is enabled, ``False`` otherwise.
         """

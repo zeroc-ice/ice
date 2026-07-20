@@ -44,11 +44,11 @@ class BatchRequestInterceptor:
         return self._count
 
 
-def batchOneways(p: Test.MyClassPrx) -> None:
+def batchOneways(p: Test.MyInterfacePrx) -> None:
     bs1 = bytes([0 for _ in range(0, 10 * 1024)])
 
     p.opByteSOneway(bs1)
-    batch = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
+    batch = Test.MyInterfacePrx.uncheckedCast(p.ice_batchOneway())
 
     batch.ice_flushBatchRequests()  # Empty flush
     batchConnection = batch.ice_getConnection()
@@ -67,8 +67,8 @@ def batchOneways(p: Test.MyClassPrx) -> None:
         time.sleep(0.01)
 
     if p.ice_getConnection():
-        batch1 = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
-        batch2 = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
+        batch1 = Test.MyInterfacePrx.uncheckedCast(p.ice_batchOneway())
+        batch2 = Test.MyInterfacePrx.uncheckedCast(p.ice_batchOneway())
 
         batch1.ice_ping()
         batch2.ice_ping()
@@ -110,7 +110,7 @@ def batchOneways(p: Test.MyClassPrx) -> None:
 
         ic = Ice.Communicator(initData=initData)
 
-        batch = Test.MyClassPrx(ic, p.ice_toString()).ice_batchOneway()
+        batch = Test.MyInterfacePrx(ic, p.ice_toString()).ice_batchOneway()
 
         test(interceptor.count() == 0)
         batch.ice_ping()
