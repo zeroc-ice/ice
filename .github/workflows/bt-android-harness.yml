@@ -34,7 +34,7 @@ env:
   SERVER: emulator-5556 # runs the IceBT server (Controller.py)
   # Suites proven to pass over emulated RFCOMM (marshalling/RPC core; no transport-specific endpoint
   # strings). Space-separated so each is passed to allTests.py as a separate suite argument.
-  TEST: "Ice/operations Ice/ami Ice/enums Ice/inheritance Ice/objects Ice/optional"
+  TEST: "Ice/operations Ice/ami Ice/enums Ice/exceptions Ice/facets Ice/inheritance Ice/objects Ice/optional Ice/proxy"
 
 jobs:
   android-bt:

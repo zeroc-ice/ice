@@ -120,6 +120,9 @@ python allTests.py --server=server --protocol=bt --cross=java --android --contro
   --device="$CLIENT" --host-bt="$BT_ADDR" Ice/operations
 ```
 
+`Ice/operations` is just one suite; pass as many as you like. CI runs the full set listed in the
+`TEST` variable of `.github/workflows/bt-android-harness.yml`.
+
 If a run fails, dump an emulator's controller state (pid, adb forwards, logcat) with:
 
 ```bash
