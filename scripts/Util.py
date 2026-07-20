@@ -2627,7 +2627,8 @@ class AndroidProcessController(RemoteProcessController):
         try:
             return run(f"{self.adb()} {args}")
         except RuntimeError as ex:
-            print(f"  (ignored) {self.adb()} {args}: {str(ex).splitlines()[0]}")
+            # stderr, not stdout: --bt-prepare's stdout carries only the server's Bluetooth address.
+            print(f"  (ignored) {self.adb()} {args}: {str(ex).splitlines()[0]}", file=sys.stderr)
             return ""
 
     def waitForBoot(self, timeout=300):
@@ -2650,6 +2651,13 @@ class AndroidProcessController(RemoteProcessController):
 
     def reboot(self):
         self._adbTolerant("reboot")
+        # `adb reboot` returns while the device is still up, so waitForBoot's wait-for-device would
+        # return at once and read sys.boot_completed from the system we just asked to go down. Wait
+        # for the device to actually drop off adb first.
+        try:
+            subprocess.run([*self.adb().split(), "wait-for-disconnect"], timeout=60, check=False)
+        except subprocess.TimeoutExpired:
+            pass
         self.waitForBoot()
 
     def rootRemount(self, timeout=120):
@@ -2680,6 +2688,12 @@ class AndroidProcessController(RemoteProcessController):
         time.sleep(2)
         self._adbTolerant("shell cmd bluetooth_manager enable")
         self._adbTolerant("shell cmd bluetooth_manager wait-for-state:STATE_ON")
+        # The commands above are tolerant because they can harmlessly fail (already enabled), but
+        # that also swallows a genuine failure to come up. Check the outcome here, rather than let
+        # it surface much later as an opaque bond or IceBT connect error.
+        address = self.bluetoothAddress()
+        if not address or address == "null":
+            raise RuntimeError(f"Bluetooth did not come up on '{self.device}'")
 
     def grantRuntimePermissions(self, package, permissions):
         for permission in permissions:
@@ -2710,8 +2724,8 @@ class AndroidProcessController(RemoteProcessController):
                 self.rootRemount()
                 self._adbTolerant(f"shell mkdir -p /system/priv-app/{name}")
                 try:
-                    run(f"{self.adb()} push {apk} /system/priv-app/{name}/{name}.apk")
-                    run(f"{self.adb()} push {xmlPath} /system/etc/permissions/privapp-permissions-{name}.xml")
+                    run(f'{self.adb()} push "{apk}" /system/priv-app/{name}/{name}.apk')
+                    run(f'{self.adb()} push "{xmlPath}" /system/etc/permissions/privapp-permissions-{name}.xml')
                     break
                 except RuntimeError:
                     if attempt == 3:
@@ -2726,11 +2740,19 @@ class AndroidProcessController(RemoteProcessController):
         # Bond this (client) emulator to `peerDevice` (server) over secure RFCOMM using the btbond
         # helper installed on both by installSystemApp: start its server mode on the peer, then
         # connect + pair from this device. Bonding is what secure RFCOMM (and hence IceBT) requires.
-        peerAdb = f"adb -s {peerDevice}"
+        # Build the peer's adb command through forDevice().adb() rather than by hand, so the peer
+        # serial goes through the same validation as our own (these all run with shell=True).
+        peerAdb = AndroidProcessController.forDevice(peerDevice).adb()
+        if not re.fullmatch(r"[A-Fa-f0-9-]+", uuid):
+            raise RuntimeError(f"invalid service UUID: {uuid!r}")
         peerAddress = run(f"{peerAdb} shell settings get secure bluetooth_address").strip()
         if not peerAddress or peerAddress == "null":
             raise RuntimeError(f"could not read the Bluetooth address of peer '{peerDevice}'")
         activity = f"{package}/.MainActivity"
+        # Clear both logs first: the result line is matched out of logcat below, and one left over
+        # from an earlier attempt would otherwise be read as this attempt's result.
+        self._adbTolerant("logcat -c")
+        run(f"{peerAdb} logcat -c")
         run(f"{peerAdb} shell am start -n {activity} --es mode server --es uuid {uuid} --ez secure true")
         time.sleep(6)
         run(
@@ -2743,6 +2765,10 @@ class AndroidProcessController(RemoteProcessController):
             if "RESULT client" in result:
                 break
             time.sleep(3)
+        # Match the verdict, not just the presence of a result: "RESULT client FAIL" also contains
+        # "RESULT client".
+        if "RESULT client OK" not in result:
+            raise RuntimeError(f"btbond did not report a successful bond on '{self.device}'\n{result[-500:]}")
         # dumpsys masks all but the last two octets of a bonded address, so match on those.
         bonded = self._adbTolerant("shell dumpsys bluetooth_manager")
         if peerAddress[-5:] not in bonded:

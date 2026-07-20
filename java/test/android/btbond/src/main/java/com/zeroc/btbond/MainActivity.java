@@ -4,9 +4,9 @@
 // app so it can hold BLUETOOTH_PRIVILEGED and auto-confirm the pairing request.
 //
 // Opening a secure RFCOMM socket is what triggers pairing, so the two modes below exchange a short
-// PING/echo: that round-trip both drives the bond and proves the bonded channel carries data. This
-// runs once during setup and exits; nothing of it is live while the tests run. It drives
-// android.bluetooth directly and has no Ice dependencies.
+// PING/echo: that round-trip both drives the bond and proves the bonded channel carries data. The
+// activity finishes once its mode completes, so it holds nothing open while the tests run and a
+// later `am start` re-runs it. It drives android.bluetooth directly and has no Ice dependencies.
 //
 // Launch (via adb am start), reading the result from logcat tag BTBOND:
 //   server: am start -n com.zeroc.btbond/.MainActivity --es mode server --es uuid <uuid> --ez secure <bool>
@@ -31,6 +31,10 @@ import java.util.UUID;
 
 public class MainActivity extends Activity {
     static final String TAG = "BTBOND";
+
+    // Both are touched from onDestroy (main thread) and the worker, so they are volatile.
+    private volatile Thread worker;
+    private volatile BluetoothServerSocket serverSocket;
 
     // Best-effort auto-accept of incoming pairing requests. The app runs as a privileged system app
     // (BLUETOOTH_PRIVILEGED), so setPairingConfirmation should succeed; setPin is a fallback that logs
@@ -65,10 +69,23 @@ public class MainActivity extends Activity {
         final String mode = it.getStringExtra("mode");
         final String peer = it.getStringExtra("peer");
         final String uuid = it.getStringExtra("uuid");
-        final boolean secure = it.getBooleanExtra("secure", false);
-        final boolean bond = it.getBooleanExtra("bond", false);
+        // Default to the secure, bonding behaviour: that is the only thing this app is for, and
+        // getBooleanExtra falls back to the default when the extra is missing *or* the wrong type,
+        // so a `--es secure true` typo would otherwise silently downgrade to insecure RFCOMM.
+        final boolean secure = it.getBooleanExtra("secure", true);
+        final boolean bond = it.getBooleanExtra("bond", true);
         Log.i(TAG, "start mode=" + mode + " peer=" + peer + " secure=" + secure + " bond=" + bond);
-        new Thread(() -> run(mode, peer, uuid, secure, bond)).start();
+        worker = new Thread(() -> {
+            try {
+                run(mode, peer, uuid, secure, bond);
+            } finally {
+                // Finish so a subsequent `am start` re-runs onCreate with the new extras. A
+                // standard-launch-mode activity left resident is simply brought to front, and the
+                // caller would then match the previous run's result line out of logcat.
+                finish();
+            }
+        });
+        worker.start();
     }
 
     @Override
@@ -77,6 +94,20 @@ public class MainActivity extends Activity {
             unregisterReceiver(pairingReceiver);
         } catch (IllegalArgumentException ignored) {
             // Receiver was not registered; nothing to do.
+        }
+        // Close the listening socket so a destroyed activity doesn't leave an RFCOMM listener (and
+        // its SDP record) live for the rest of accept()'s timeout with no receiver left to confirm
+        // pairing. Closing it makes accept() throw, which ends the worker.
+        BluetoothServerSocket ss = serverSocket;
+        if (ss != null) {
+            try {
+                ss.close();
+            } catch (Throwable ignored) {
+                // Already closed or never opened.
+            }
+        }
+        if (worker != null) {
+            worker.interrupt();
         }
         super.onDestroy();
     }
@@ -90,7 +121,7 @@ public class MainActivity extends Activity {
             UUID uuid = UUID.fromString(uuidStr);
 
             if ("server".equals(mode)) {
-                BluetoothServerSocket ss = secure
+                BluetoothServerSocket ss = serverSocket = secure
                     ? adapter.listenUsingRfcommWithServiceRecord("btbond", uuid)
                     : adapter.listenUsingInsecureRfcommWithServiceRecord("btbond", uuid);
                 try {

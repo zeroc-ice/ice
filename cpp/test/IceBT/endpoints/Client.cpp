@@ -96,10 +96,11 @@ Client::run(int argc, char** argv)
 
     cout << "testing malformed bt endpoints are rejected... " << flush;
     {
-        // Invalid device address.
+        // Invalid device address. -u is supplied so the address is what fails: a proxy endpoint
+        // without -u is rejected for the missing UUID before the address is ever validated.
         try
         {
-            Ice::ObjectPrx bad{communicator, "dummy:bt -a not-an-address"};
+            Ice::ObjectPrx bad{communicator, "dummy:bt -a not-an-address -u 8ce255c0-200a-11e0-ac64-0800200c9a66"};
             test(false);
         }
         catch (const Ice::ParseException&)

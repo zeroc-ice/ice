@@ -283,16 +283,24 @@ class ControllerDriver(Driver):
 
         # Re-invoke this script per device so each emulator's setup keeps a separate log.
         running = {}
-        for role, serial in (("client", self.btClient), ("server", self.btServer)):
-            log = open(f"setup_{role}.log", "wb")
-            running[role] = (
-                subprocess.Popen(
-                    [sys.executable, __file__, "--android", f"--device={serial}", f"--bt-setup={self.btSetup}"],
-                    stdout=log,
-                    stderr=subprocess.STDOUT,
-                ),
-                log,
-            )
+        try:
+            for role, serial in (("client", self.btClient), ("server", self.btServer)):
+                log = open(f"setup_{role}.log", "wb")
+                running[role] = (
+                    subprocess.Popen(
+                        [sys.executable, __file__, "--android", f"--device={serial}", f"--bt-setup={self.btSetup}"],
+                        stdout=log,
+                        stderr=subprocess.STDOUT,
+                    ),
+                    log,
+                )
+        except BaseException:
+            # Don't leave an already-started sibling running: it would keep driving its emulator
+            # through root/remount/reboot after we've given up.
+            for process, log in running.values():
+                process.kill()
+                log.close()
+            raise
         failed = []
         for role, (process, log) in running.items():
             status = process.wait()
@@ -328,10 +336,7 @@ class ControllerDriver(Driver):
                 self.btSetup, "btbond", "com.zeroc.btbond", ["android.permission.BLUETOOTH_PRIVILEGED"]
             )
             controller.enableBluetooth()
-            controller.grantRuntimePermissions(
-                "com.zeroc.btbond",
-                ["android.permission.BLUETOOTH_CONNECT", "android.permission.BLUETOOTH_SCAN"],
-            )
+            controller.grantRuntimePermissions("com.zeroc.btbond", ["android.permission.BLUETOOTH_CONNECT"])
             print(f"BT_ADDRESS={controller.bluetoothAddress()}")
 
         if self.btBond:

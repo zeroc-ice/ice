@@ -278,6 +278,7 @@ jobs:
       # test step below only has to run the client.
       - name: Setup Bluetooth
         if: matrix.config == 'android-bt'
+        timeout-minutes: 30
         uses: ./.github/actions/setup-bt
 
       - name: Test ${{ matrix.config }} on ${{ matrix.os }}
@@ -300,7 +301,9 @@ jobs:
           export PYTHONPATH="$GITHUB_WORKSPACE/python/python"
           for d in "$BT_CLIENT" "$BT_SERVER"; do
             echo "==================== $d ===================="
-            timeout 60 python3 scripts/Controller.py --android --device="$d" --bt-diagnostics
+            # `set +e` above stops the script aborting, but the step still exits with the status of
+            # its last command -- so keep the loop's status clean or diagnostics alone fails the job.
+            timeout 60 python3 scripts/Controller.py --android --device="$d" --bt-diagnostics || true
           done
         shell: bash
 

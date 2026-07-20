@@ -22,6 +22,14 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Record the emulator serials
+      shell: bash
+      run: |
+        # Exported up front rather than after bonding, so the diagnostics step still knows which
+        # devices to query when one of the steps below is what failed.
+        echo "BT_CLIENT=${{ inputs.client }}" >> "$GITHUB_ENV"
+        echo "BT_SERVER=${{ inputs.server }}" >> "$GITHUB_ENV"
+
     - name: Build the btbond APK
       shell: bash
       run: |
@@ -60,8 +68,6 @@ runs:
         [ -n "$BT_ADDR" ] || { echo "no server Bluetooth address"; exit 1; }
         echo "server (${{ inputs.server }}) Bluetooth address = $BT_ADDR"
         echo "BT_ADDR=$BT_ADDR" >> "$GITHUB_ENV"
-        echo "BT_CLIENT=${{ inputs.client }}" >> "$GITHUB_ENV"
-        echo "BT_SERVER=${{ inputs.server }}" >> "$GITHUB_ENV"
 
     - name: Start the server-side process controller
       shell: bash
