@@ -109,6 +109,15 @@ class Client < ::TestHelper
         end
         puts "ok"
 
+        print "testing that an out-of-range default value raises... "
+        properties = Ice.createProperties()
+        begin
+            properties.getPropertyAsIntWithDefault("Unset.Key", 99999999999)
+            test(false)
+        rescue RangeError => ex
+        end
+        puts "ok"
+
         print "testing createProperties with a defaults argument... "
         # Passing nil for the optional defaults argument must behave like omitting it (no defaults),
         # not crash. Regression test: a nil defaults argument previously bypassed the type check and
