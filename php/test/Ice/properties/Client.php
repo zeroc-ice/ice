@@ -79,6 +79,15 @@ class Client extends TestHelper
         }
         echo "ok\n";
 
+        echo "testing that an out-of-range default value throws... ";
+        $properties = Ice\createProperties();
+        try {
+            $properties->getPropertyAsIntWithDefault("Unset.Key", 99999999999);
+            test(False);
+        } catch (\InvalidArgumentException $ex) {
+        }
+        echo "ok\n";
+
         echo "testing Ice.initialize with args... ";
         $args = ["--Foo.Bar=1", "--Foo.Bar=2", "--Ice.Trace.Network=3"];
         $communicator = Ice\initialize($args);

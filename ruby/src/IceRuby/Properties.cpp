@@ -156,8 +156,12 @@ IceRuby_Properties_getPropertyAsIntWithDefault(VALUE self, VALUE key, VALUE def)
     {
         Ice::PropertiesPtr p = getProperties(self);
         string k = getString(key);
-        int32_t d = static_cast<int32_t>(getInteger(def));
-        int32_t v = p->getPropertyAsIntWithDefault(k, d);
+        long d = getInteger(def);
+        if (d < INT32_MIN || d > INT32_MAX)
+        {
+            throw RubyException(rb_eRangeError, "the default value is out of the range of a 32-bit integer");
+        }
+        int32_t v = p->getPropertyAsIntWithDefault(k, static_cast<int32_t>(d));
         return INT2FIX(v);
     }
     ICE_RUBY_CATCH
