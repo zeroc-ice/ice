@@ -21,6 +21,7 @@
 
 #ifndef _WIN32
 #    include <csignal>
+#    include <dirent.h>
 #    include <pwd.h> // for getpwuid
 #    include <sys/resource.h>
 #    include <sys/syscall.h>
@@ -93,9 +94,13 @@ namespace IceGrid
     // Close every inherited file descriptor >= 3 in the fork child, keeping the
     // two given descriptors open (the write ends of the interrupt and error
     // pipes). This runs after setuid/setgid, so a leaked descriptor would cross
-    // a privilege boundary. It runs in the fork child, so it uses only
-    // async-signal-safe facilities: close_range/close and the maxFd bound that
-    // the caller computed before fork().
+    // a privilege boundary.
+    //
+    // Runs in the fork child. The close_range fast path and the final bounded
+    // loop use only async-signal-safe calls; the /proc/self/fd enumeration uses
+    // opendir/readdir (which allocate), but that path runs only on Linux, where
+    // glibc keeps the allocator usable in the child after fork — as the
+    // surrounding child code, which also allocates, already relies on.
     //
     void closeInheritedDescriptors(int keep1, int keep2, long maxFd)
     {
@@ -127,9 +132,31 @@ namespace IceGrid
 #    endif
 
         //
-        // Fallback for platforms without close_range (or an older kernel that
-        // returns ENOSYS): close descriptors one by one up to maxFd, the bound
-        // the caller computed from the soft RLIMIT_NOFILE before fork().
+        // Fallback for kernels/platforms without close_range (e.g. Linux before
+        // 5.9): enumerate the descriptors that are actually open from
+        // /proc/self/fd and close them, so the child neither iterates up to a
+        // huge or unlimited limit nor leaks a descriptor above one.
+        //
+        if (DIR* dir = opendir("/proc/self/fd"))
+        {
+            const int dirFd = dirfd(dir);
+            for (dirent* entry = readdir(dir); entry != nullptr; entry = readdir(dir))
+            {
+                const int fd = atoi(entry->d_name); // "." and ".." parse to 0 and are skipped below
+                if (fd >= 3 && fd != lo && fd != hi && fd != dirFd)
+                {
+                    close(fd);
+                }
+            }
+            closedir(dir);
+            return;
+        }
+
+        //
+        // Last resort (no /proc, e.g. some minimal containers or non-Linux
+        // platforms without close_range): close descriptors one by one up to
+        // maxFd, the bound the caller computed from the soft RLIMIT_NOFILE
+        // before fork().
         //
         for (long fd = 3; fd < maxFd; ++fd)
         {
@@ -764,16 +791,17 @@ Activator::activate(
     const char* pwdCStr = pwd.c_str();
 
     //
-    // Compute the bound for closing inherited descriptors before fork(), so the
-    // child (which must stay async-signal-safe) does not call getrlimit(). A
-    // finite soft RLIMIT_NOFILE is an exact bound — the kernel never allocates a
-    // descriptor at or above it — so the child closes the whole range; if it is
-    // unlimited we fall back to a sane cap so the child cannot loop up to INT_MAX.
+    // Compute the last-resort descriptor-close bound before fork(), so the child
+    // has a finite bound to fall back on if it can use neither close_range nor
+    // /proc/self/fd (and so it need not call getrlimit() itself). Prefer the soft
+    // RLIMIT_NOFILE — the kernel never allocates a descriptor at or above it —
+    // capped so the loop stays bounded even under a huge or unlimited limit.
     //
-    long maxFdToClose = 65536;
+    long maxFdToClose = 1 << 20;
     {
         rlimit fdLimit{};
-        if (getrlimit(RLIMIT_NOFILE, &fdLimit) == 0 && fdLimit.rlim_cur != RLIM_INFINITY)
+        if (getrlimit(RLIMIT_NOFILE, &fdLimit) == 0 && fdLimit.rlim_cur != RLIM_INFINITY &&
+            static_cast<long>(fdLimit.rlim_cur) < maxFdToClose)
         {
             maxFdToClose = static_cast<long>(fdLimit.rlim_cur);
         }
