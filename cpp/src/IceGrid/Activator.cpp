@@ -22,6 +22,8 @@
 #ifndef _WIN32
 #    include <csignal>
 #    include <pwd.h> // for getpwuid
+#    include <sys/resource.h>
+#    include <sys/syscall.h>
 #    include <sys/wait.h>
 #    include <unistd.h>
 #else
@@ -85,6 +87,64 @@ namespace IceGrid
         // process.
         //
         _exit(EXIT_FAILURE);
+    }
+
+    //
+    // Close every inherited file descriptor >= 3 in the fork child, keeping the
+    // two given descriptors open (the write ends of the interrupt and error
+    // pipes). This runs after setuid/setgid, so a leaked descriptor would cross
+    // a privilege boundary; it must use only async-signal-safe facilities.
+    //
+    void closeInheritedDescriptors(int keep1, int keep2)
+    {
+        const int lo = keep1 < keep2 ? keep1 : keep2;
+        const int hi = keep1 < keep2 ? keep2 : keep1;
+
+#    ifdef SYS_close_range
+        //
+        // close_range (Linux 5.9+, FreeBSD 12.2+) closes a whole descriptor
+        // range in a single syscall, so the child never iterates up to a huge
+        // or unlimited RLIMIT_NOFILE. We keep lo and hi open by closing the
+        // ranges around them. Probe with the always-non-empty top range first;
+        // if the syscall exists close the lower ranges too and we are done,
+        // otherwise (e.g. an older kernel returns ENOSYS) fall through to the
+        // descriptor loop below.
+        //
+        if (syscall(SYS_close_range, static_cast<unsigned int>(hi) + 1, ~0u, 0u) == 0)
+        {
+            if (lo > 3)
+            {
+                syscall(SYS_close_range, 3u, static_cast<unsigned int>(lo) - 1, 0u);
+            }
+            if (hi > lo + 1)
+            {
+                syscall(SYS_close_range, static_cast<unsigned int>(lo) + 1, static_cast<unsigned int>(hi) - 1, 0u);
+            }
+            return;
+        }
+#    endif
+
+        //
+        // Fallback for platforms without close_range: close descriptors one by
+        // one up to the soft RLIMIT_NOFILE. The kernel does not allocate
+        // descriptors at or above that limit, so it is a suitable bound; when it
+        // is unlimited (or unavailable) we cap the loop so a single activation
+        // cannot issue billions of close() calls.
+        //
+        rlimit fdLimit{};
+        long maxFd = 65536;
+        if (getrlimit(RLIMIT_NOFILE, &fdLimit) == 0 && fdLimit.rlim_cur != RLIM_INFINITY &&
+            static_cast<long>(fdLimit.rlim_cur) < maxFd)
+        {
+            maxFd = static_cast<long>(fdLimit.rlim_cur);
+        }
+        for (long fd = 3; fd < maxFd; ++fd)
+        {
+            if (fd != lo && fd != hi)
+            {
+                close(static_cast<int>(fd));
+            }
+        }
     }
 
 #endif
@@ -792,23 +852,12 @@ Activator::activate(
         setpgid(0, 0);
 
         //
-        // Close all file descriptors, except for standard input,
-        // standard output, standard error, and the write side
-        // of the newly created pipe.
+        // Close all file descriptors, except for standard input, standard
+        // output, standard error, and the write ends of the two pipes created
+        // above: fds[1], kept open across exec so the node detects the server's
+        // termination, and errorFds[1], used to report pre-exec errors.
         //
-        int maxFd = static_cast<int>(sysconf(_SC_OPEN_MAX));
-        if (maxFd <= 0)
-        {
-            maxFd = numeric_limits<int>::max();
-        }
-
-        for (int fd = 3; fd < maxFd; ++fd)
-        {
-            if (fd != fds[1] && fd != errorFds[1])
-            {
-                close(fd);
-            }
-        }
+        closeInheritedDescriptors(fds[1], errorFds[1]);
 
         for (int i = 0; i < env.argc; i++) // NOLINT(clang-analyzer-unix.Malloc)
         {
