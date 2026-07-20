@@ -1,11 +1,17 @@
-// Minimal Bluetooth RFCOMM echo helper used by the IceBT Bluetooth CI harness to force a BR/EDR
-// bond between the two Android emulators (over Netsim/Rootcanal) before the IceBT tests run. It
-// drives android.bluetooth directly and has no Ice dependencies.
+// Forces a BR/EDR bond between the two Android emulators (over Netsim/Rootcanal) before the IceBT
+// tests run: IceBT uses secure RFCOMM, which only works between bonded devices, and bonding is
+// otherwise an interactive pairing dialog with no adb equivalent. Installed as a privileged system
+// app so it can hold BLUETOOTH_PRIVILEGED and auto-confirm the pairing request.
 //
-// Launch (via adb am start), reading the result from logcat tag BTECHO:
-//   server: am start -n com.zeroc.btecho/.MainActivity --es mode server --es uuid <uuid> --ez secure <bool>
-//   client: am start -n com.zeroc.btecho/.MainActivity --es mode client --es peer <addr> --es uuid <uuid> --ez secure <bool> --ez bond <bool>
-package com.zeroc.btecho;
+// Opening a secure RFCOMM socket is what triggers pairing, so the two modes below exchange a short
+// PING/echo: that round-trip both drives the bond and proves the bonded channel carries data. This
+// runs once during setup and exits; nothing of it is live while the tests run. It drives
+// android.bluetooth directly and has no Ice dependencies.
+//
+// Launch (via adb am start), reading the result from logcat tag BTBOND:
+//   server: am start -n com.zeroc.btbond/.MainActivity --es mode server --es uuid <uuid> --ez secure <bool>
+//   client: am start -n com.zeroc.btbond/.MainActivity --es mode client --es peer <addr> --es uuid <uuid> --ez secure <bool> --ez bond <bool>
+package com.zeroc.btbond;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -24,7 +30,7 @@ import java.io.OutputStream;
 import java.util.UUID;
 
 public class MainActivity extends Activity {
-    static final String TAG = "BTECHO";
+    static final String TAG = "BTBOND";
 
     // Best-effort auto-accept of incoming pairing requests. The app runs as a privileged system app
     // (BLUETOOTH_PRIVILEGED), so setPairingConfirmation should succeed; setPin is a fallback that logs
@@ -85,8 +91,8 @@ public class MainActivity extends Activity {
 
             if ("server".equals(mode)) {
                 BluetoothServerSocket ss = secure
-                    ? adapter.listenUsingRfcommWithServiceRecord("btecho", uuid)
-                    : adapter.listenUsingInsecureRfcommWithServiceRecord("btecho", uuid);
+                    ? adapter.listenUsingRfcommWithServiceRecord("btbond", uuid)
+                    : adapter.listenUsingInsecureRfcommWithServiceRecord("btbond", uuid);
                 try {
                     Log.i(TAG, "listening secure=" + secure + ", waiting up to 120s for client...");
                     BluetoothSocket s = ss.accept(120000);

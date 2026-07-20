@@ -64,7 +64,7 @@ class ControllerDriver(Driver):
         print("Bluetooth harness options (all exit without starting a controller):")
         print("--bt-emulators        Create and boot the --bt-client/--bt-server emulators (--bt-image).")
         print("--bt-prepare          Prepare both emulators and bond them; prints the server address.")
-        print("--bt-setup=<apk>      Prepare --device only (boot-wait, install the btecho privileged")
+        print("--bt-setup=<apk>      Prepare --device only (boot-wait, install the btbond privileged")
         print("                      helper, enable Bluetooth, grant permissions).")
         print("--bt-bond=<serial>    Bond --device to the given peer emulator over RFCOMM.")
         print("--bt-diagnostics      Dump adb state (controller pid, forwards, logcat) for --device.")
@@ -78,9 +78,9 @@ class ControllerDriver(Driver):
         self.id = "controller"
         self.endpoints = ""
         self.clean = False
-        self.btSetup = ""  # path to the btecho APK; when set, run Bluetooth device setup and exit
+        self.btSetup = ""  # path to the btbond APK; when set, run Bluetooth device setup and exit
         self.btBond = ""  # peer emulator serial; when set, bond --device to it and exit
-        self.uuid = ""  # RFCOMM service UUID used by the btecho bond
+        self.uuid = ""  # RFCOMM service UUID used by the btbond bond
         self.btDiagnostics = False  # when set, dump adb diagnostics for --device and exit
         self.btPrepare = False  # when set, prepare + bond --bt-client/--bt-server and exit
         self.btEmulators = False  # when set, create + boot the two emulators and exit
@@ -325,11 +325,11 @@ class ControllerDriver(Driver):
         if self.btSetup:
             controller.waitForBoot()
             controller.installSystemApp(
-                self.btSetup, "btecho", "com.zeroc.btecho", ["android.permission.BLUETOOTH_PRIVILEGED"]
+                self.btSetup, "btbond", "com.zeroc.btbond", ["android.permission.BLUETOOTH_PRIVILEGED"]
             )
             controller.enableBluetooth()
             controller.grantRuntimePermissions(
-                "com.zeroc.btecho",
+                "com.zeroc.btbond",
                 ["android.permission.BLUETOOTH_CONNECT", "android.permission.BLUETOOTH_SCAN"],
             )
             print(f"BT_ADDRESS={controller.bluetoothAddress()}")

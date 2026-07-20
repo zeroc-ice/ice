@@ -2722,9 +2722,9 @@ class AndroidProcessController(RemoteProcessController):
             os.remove(xmlPath)
         self.reboot()
 
-    def bond(self, peerDevice, uuid, package="com.zeroc.btecho"):
-        # Bond this (client) emulator to `peerDevice` (server) over secure RFCOMM using the btecho
-        # helper installed on both by installSystemApp: start the echo server on the peer, then
+    def bond(self, peerDevice, uuid, package="com.zeroc.btbond"):
+        # Bond this (client) emulator to `peerDevice` (server) over secure RFCOMM using the btbond
+        # helper installed on both by installSystemApp: start its server mode on the peer, then
         # connect + pair from this device. Bonding is what secure RFCOMM (and hence IceBT) requires.
         peerAdb = f"adb -s {peerDevice}"
         peerAddress = run(f"{peerAdb} shell settings get secure bluetooth_address").strip()
@@ -2739,7 +2739,7 @@ class AndroidProcessController(RemoteProcessController):
         )
         result = ""
         for _ in range(30):
-            result = self._adbTolerant("logcat -d -s BTECHO")
+            result = self._adbTolerant("logcat -d -s BTBOND")
             if "RESULT client" in result:
                 break
             time.sleep(3)
@@ -2763,7 +2763,7 @@ class AndroidProcessController(RemoteProcessController):
         lines = [ln for ln in self._adbTolerant("logcat -d").splitlines() if keep.search(ln)]
         print("\n".join(lines[-50:]))
 
-    # Emulator flags for the Bluetooth harness: -writable-system allows installing btecho as a
+    # Emulator flags for the Bluetooth harness: -writable-system allows installing btbond as a
     # privileged system app, and -packet-streamer-endpoint attaches the emulator to the shared
     # Netsim virtual Bluetooth network so the two emulators can reach each other.
     bluetoothEmulatorFlags = [

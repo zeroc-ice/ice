@@ -9,7 +9,7 @@
          privapp-permissions allowlist; lets it auto-confirm pairing (setPairingConfirmation). -->
     <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />
 
-    <application android:label="btecho">
+    <application android:label="btbond">
         <activity
             android:name=".MainActivity"
             android:exported="true">

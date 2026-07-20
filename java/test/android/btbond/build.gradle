@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-// btecho is a tiny standalone Android app used only by the Bluetooth CI harness to force a BR/EDR
+// btbond is a tiny standalone Android app used only by the Bluetooth CI harness to force a BR/EDR
 // bond between the two emulators before the IceBT tests run (IceBT uses secure RFCOMM, which
 // requires bonding). It has no Ice dependencies -- it drives android.bluetooth directly. It is
 // installed as a privileged system app so it can auto-confirm pairing.
@@ -9,11 +9,11 @@ plugins {
 }
 
 android {
-    namespace = 'com.zeroc.btecho'
+    namespace = 'com.zeroc.btbond'
     compileSdk = 36
 
     defaultConfig {
-        applicationId = 'com.zeroc.btecho'
+        applicationId = 'com.zeroc.btbond'
         minSdk = 34
         targetSdk = 36
         versionCode = 1

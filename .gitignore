@@ -158,4 +158,4 @@ packaging/msi/staging
 .kotlin
 
 # Generated at build time by the Bluetooth CI workflow
-java/test/android/btecho/debug.keystore
+java/test/android/btbond/debug.keystore

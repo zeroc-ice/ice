@@ -82,26 +82,26 @@ CLIENT=emulator-5554
 SERVER=emulator-5556
 ```
 
-**1. Build the `btecho` pre-bond helper.** IceBT uses secure RFCOMM, so the emulators must be bonded;
-`btecho` is a tiny privileged app that auto-confirms pairing.
+**1. Build the `btbond` pre-bond helper.** IceBT uses secure RFCOMM, so the emulators must be bonded;
+`btbond` is a tiny privileged app that auto-confirms pairing.
 
 ```bash
-keytool -genkeypair -v -keystore java/test/android/btecho/debug.keystore -storepass android \
+keytool -genkeypair -v -keystore java/test/android/btbond/debug.keystore -storepass android \
   -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
   -dname "CN=Android Debug,O=Android,C=US"
-(cd java/test/android/btecho && ./gradlew assembleDebug)
-APK=$(find java/test/android/btecho/build/outputs/apk -name '*.apk')
+(cd java/test/android/btbond && ./gradlew assembleDebug)
+APK=$(find java/test/android/btbond/build/outputs/apk -name '*.apk')
 ```
 
 **2. Create and boot the two emulators** (detached, on the shared Netsim Bluetooth network;
-`-writable-system` is set for you so `btecho` can be installed as a privileged system app):
+`-writable-system` is set for you so `btbond` can be installed as a privileged system app):
 
 ```bash
 python scripts/Controller.py --android --bt-emulators \
   --bt-client="$CLIENT" --bt-server="$SERVER" --bt-image="$IMG"
 ```
 
-**3. Prepare and bond them.** This waits for boot, installs `btecho` as a privileged system app,
+**3. Prepare and bond them.** This waits for boot, installs `btbond` as a privileged system app,
 enables Bluetooth, bonds the pair, and prints the server's Bluetooth address (per-device progress
 goes to stderr and to `setup_client.log` / `setup_server.log`):
 

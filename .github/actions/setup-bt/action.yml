@@ -22,16 +22,16 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Build the btecho APK
+    - name: Build the btbond APK
       shell: bash
       run: |
-        # btecho needs an explicit keystore next to its build file -- unlike the controller app it
+        # btbond needs an explicit keystore next to its build file -- unlike the controller app it
         # can't fall back to AGP's default debug signing, which fails validateSigningDebug here.
         keytool -genkeypair -v -storepass android -keypass android -alias androiddebugkey \
           -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" \
-          -keystore java/test/android/btecho/debug.keystore
-        (cd java/test/android/btecho && ./gradlew --no-daemon assembleDebug)
-        echo "BTECHO_APK=$(find java/test/android/btecho/build/outputs/apk -name '*.apk' | head -1)" >> "$GITHUB_ENV"
+          -keystore java/test/android/btbond/debug.keystore
+        (cd java/test/android/btbond && ./gradlew --no-daemon assembleDebug)
+        echo "BTBOND_APK=$(find java/test/android/btbond/build/outputs/apk -name '*.apk' | head -1)" >> "$GITHUB_ENV"
 
     - name: Create and boot two emulators on Netsim Bluetooth
       shell: bash
@@ -51,12 +51,12 @@ runs:
         # Start the adb server up front so the parallel per-device setups don't race to start it
         # (which surfaces as "adb: failed to start daemon" and a failed root/remount).
         adb start-server
-        # --bt-prepare boots-waits both emulators, installs btecho as a privileged system app,
+        # --bt-prepare boots-waits both emulators, installs btbond as a privileged system app,
         # enables Bluetooth, bonds them, and prints the server's address. Progress and the
         # per-device setup_{client,server}.log contents go to stderr.
         BT_ADDR=$(python3 scripts/Controller.py --android --bt-prepare \
           --bt-client="${{ inputs.client }}" --bt-server="${{ inputs.server }}" \
-          --bt-setup="$BTECHO_APK" --uuid="${{ inputs.uuid }}")
+          --bt-setup="$BTBOND_APK" --uuid="${{ inputs.uuid }}")
         [ -n "$BT_ADDR" ] || { echo "no server Bluetooth address"; exit 1; }
         echo "server (${{ inputs.server }}) Bluetooth address = $BT_ADDR"
         echo "BT_ADDR=$BT_ADDR" >> "$GITHUB_ENV"
