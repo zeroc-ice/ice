@@ -93,9 +93,11 @@ namespace IceGrid
     // Close every inherited file descriptor >= 3 in the fork child, keeping the
     // two given descriptors open (the write ends of the interrupt and error
     // pipes). This runs after setuid/setgid, so a leaked descriptor would cross
-    // a privilege boundary; it must use only async-signal-safe facilities.
+    // a privilege boundary. It runs in the fork child, so it uses only
+    // async-signal-safe facilities: close_range/close and the maxFd bound that
+    // the caller computed before fork().
     //
-    void closeInheritedDescriptors(int keep1, int keep2)
+    void closeInheritedDescriptors(int keep1, int keep2, long maxFd)
     {
         const int lo = keep1 < keep2 ? keep1 : keep2;
         const int hi = keep1 < keep2 ? keep2 : keep1;
@@ -125,19 +127,10 @@ namespace IceGrid
 #    endif
 
         //
-        // Fallback for platforms without close_range: close descriptors one by
-        // one up to the soft RLIMIT_NOFILE. The kernel does not allocate
-        // descriptors at or above that limit, so it is a suitable bound; when it
-        // is unlimited (or unavailable) we cap the loop so a single activation
-        // cannot issue billions of close() calls.
+        // Fallback for platforms without close_range (or an older kernel that
+        // returns ENOSYS): close descriptors one by one up to maxFd, the bound
+        // the caller computed from the soft RLIMIT_NOFILE before fork().
         //
-        rlimit fdLimit{};
-        long maxFd = 65536;
-        if (getrlimit(RLIMIT_NOFILE, &fdLimit) == 0 && fdLimit.rlim_cur != RLIM_INFINITY &&
-            static_cast<long>(fdLimit.rlim_cur) < maxFd)
-        {
-            maxFd = static_cast<long>(fdLimit.rlim_cur);
-        }
         for (long fd = 3; fd < maxFd; ++fd)
         {
             if (fd != lo && fd != hi)
@@ -770,6 +763,22 @@ Activator::activate(
     //
     const char* pwdCStr = pwd.c_str();
 
+    //
+    // Compute the bound for closing inherited descriptors before fork(), so the
+    // child (which must stay async-signal-safe) does not call getrlimit(). A
+    // finite soft RLIMIT_NOFILE is an exact bound — the kernel never allocates a
+    // descriptor at or above it — so the child closes the whole range; if it is
+    // unlimited we fall back to a sane cap so the child cannot loop up to INT_MAX.
+    //
+    long maxFdToClose = 65536;
+    {
+        rlimit fdLimit{};
+        if (getrlimit(RLIMIT_NOFILE, &fdLimit) == 0 && fdLimit.rlim_cur != RLIM_INFINITY)
+        {
+            maxFdToClose = static_cast<long>(fdLimit.rlim_cur);
+        }
+    }
+
     pid_t pid = fork();
     if (pid == -1)
     {
@@ -857,7 +866,7 @@ Activator::activate(
         // above: fds[1], kept open across exec so the node detects the server's
         // termination, and errorFds[1], used to report pre-exec errors.
         //
-        closeInheritedDescriptors(fds[1], errorFds[1]);
+        closeInheritedDescriptors(fds[1], errorFds[1], maxFdToClose);
 
         for (int i = 0; i < env.argc; i++) // NOLINT(clang-analyzer-unix.Malloc)
         {
