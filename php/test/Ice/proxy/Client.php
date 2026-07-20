@@ -330,6 +330,12 @@ function allTests($helper)
     $ident2 = Ice\stringToIdentity($idStr);
     test($ident == $ident2);
 
+    try {
+        Ice\identityToString($ident, 3);
+        test(false);
+    } catch (\InvalidArgumentException $ex) {
+    }
+
     $ident2 = Ice\stringToIdentity($communicator->identityToString($ident));
     test($ident == $ident2);
 
@@ -349,6 +355,18 @@ function allTests($helper)
     test($base->ice_getCompress() == Ice\None);
     test($base->ice_compress(true)->ice_getCompress() == true);
     test($base->ice_compress(false)->ice_getCompress() == false);
+
+    try {
+        $base->ice_invocationTimeout(pow(2, 32) + 5000);
+        test(false);
+    } catch (\InvalidArgumentException $ex) {
+    }
+
+    try {
+        $base->ice_locatorCacheTimeout(pow(2, 32) - 1);
+        test(false);
+    } catch (\InvalidArgumentException $ex) {
+    }
 
     echo "ok\n";
 

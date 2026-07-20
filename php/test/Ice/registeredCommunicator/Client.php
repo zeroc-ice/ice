@@ -47,6 +47,14 @@ class Client extends TestHelper
         $communicator = Ice\initialize();
         test(Ice\register($communicator, "Hello6") == false);
 
+        // An out-of-range expiration time is rejected.
+        try {
+            Ice\register($communicator, "Hello7", 1e300);
+            test(false);
+        } catch (\InvalidArgumentException $ex) {
+        }
+        test(Ice\find('Hello7') == null);
+
         // A registered communicator must not be reaped before its expiration time. The reap task runs every
         // expires/2; intermediate ticks must not destroy a communicator that has not yet expired (see #5533).
         $communicator = Ice\initialize();

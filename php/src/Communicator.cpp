@@ -1001,6 +1001,14 @@ ZEND_FUNCTION(Ice_register)
         RETURN_NULL();
     }
 
+    // This generous cap guarantees expires * 60 * 1000 fits in an int64_t, making the conversion to milliseconds
+    // below well-defined. INT32_MAX is exactly representable in a double, so the comparison is exact.
+    if (expires > INT32_MAX)
+    {
+        invalidArgument("expires is out of range");
+        RETURN_NULL();
+    }
+
     CommunicatorInfoIPtr info = Wrapper<CommunicatorInfoIPtr>::value(comm);
     assert(info);
 
@@ -1034,7 +1042,7 @@ ZEND_FUNCTION(Ice_register)
         // Update the expiration time. If a communicator is registered with multiple IDs, we always use the most
         // recent expiration setting. The expires parameter is number of minutes as a double number, internally we
         // convert it to milliseconds.
-        info->ac->expires = std::chrono::milliseconds(static_cast<int>(expires * 60 * 1000));
+        info->ac->expires = std::chrono::milliseconds(static_cast<int64_t>(expires * 60 * 1000));
         info->ac->lastAccess = std::chrono::steady_clock::now();
         info->ac->reapTask = make_shared<ReapCommunicatorTimerTask>(info->ac);
         _timer->scheduleRepeated(info->ac->reapTask, info->ac->expires / 2);
@@ -1169,6 +1177,14 @@ ZEND_FUNCTION(Ice_identityToString)
     Ice::Identity id;
     if (!extractIdentity(zv, id))
     {
+        RETURN_NULL();
+    }
+
+    if (mode < 0 || mode > static_cast<zend_long>(Ice::ToStringMode::Compat))
+    {
+        ostringstream os;
+        os << "enumerator " << mode << " is out of range for enum Ice::ToStringMode";
+        invalidArgument(os.str());
         RETURN_NULL();
     }
 

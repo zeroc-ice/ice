@@ -148,17 +148,7 @@ IceRuby_Connection_setBufferSize(VALUE self, VALUE r, VALUE s)
         Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
         assert(p);
 
-        long rcvSize = getInteger(r);
-        long sndSize = getInteger(s);
-
-        // Connection::setBufferSize takes int arguments in C++; reject values outside that range instead of silently
-        // truncating them.
-        if (rcvSize < INT_MIN || rcvSize > INT_MAX || sndSize < INT_MIN || sndSize > INT_MAX)
-        {
-            throw RubyException(rb_eRangeError, "buffer size must be in the range of a C++ int");
-        }
-
-        (*p)->setBufferSize(static_cast<int>(rcvSize), static_cast<int>(sndSize));
+        (*p)->setBufferSize(getInteger(r), getInteger(s));
     }
     ICE_RUBY_CATCH
     return Qnil;

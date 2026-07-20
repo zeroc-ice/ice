@@ -93,6 +93,10 @@ namespace IcePHP
     // Raise InvalidArgumentException with the given message.
     void invalidArgument(const std::string&);
 
+    // Convert a PHP long to a 32-bit integer. Returns nullopt after raising InvalidArgumentException if the value is
+    // out of range.
+    std::optional<std::int32_t> getInt32(zend_long value);
+
     // Invoke a method on a PHP object. The method must not take any arguments.
     bool invokeMethod(zval*, const std::string&);
 
