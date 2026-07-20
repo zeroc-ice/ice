@@ -1001,9 +1001,9 @@ ZEND_FUNCTION(Ice_register)
         RETURN_NULL();
     }
 
-    // This generous cap guarantees expires * 60 * 1000 fits in an int64_t, making the conversion to milliseconds
-    // below well-defined. INT32_MAX is exactly representable in a double, so the comparison is exact.
-    if (expires > INT32_MAX)
+    // This generous cap (one century, in minutes) keeps the duration well within range for the chrono arithmetic
+    // performed downstream, where the timer uses nanosecond precision: INT64_MAX nanoseconds is about 292 years.
+    if (expires > 60.0 * 24 * 365 * 100)
     {
         invalidArgument("expires is out of range");
         RETURN_NULL();
