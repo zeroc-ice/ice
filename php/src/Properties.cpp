@@ -237,7 +237,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsIntWithDefault)
     string_view propName(name, nameLen);
     if (def < INT32_MIN || def > INT32_MAX)
     {
-        invalidArgument("the value argument is out of the range of a 32-bit integer");
+        invalidArgument("the default value is out of the range of a 32-bit integer");
         RETURN_NULL();
     }
     try
