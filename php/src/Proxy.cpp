@@ -459,15 +459,21 @@ ZEND_METHOD(Ice_ObjectPrx, ice_locatorCacheTimeout)
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
-    zend_long l;
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("l"), &l) != SUCCESS)
+    zend_long value;
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("l"), &value) != SUCCESS)
+    {
+        RETURN_NULL();
+    }
+
+    optional<int32_t> timeout = getInt32(value);
+    if (!timeout)
     {
         RETURN_NULL();
     }
 
     try
     {
-        if (!_this->clone(return_value, _this->proxy->ice_locatorCacheTimeout(static_cast<int32_t>(l))))
+        if (!_this->clone(return_value, _this->proxy->ice_locatorCacheTimeout(*timeout)))
         {
             RETURN_NULL();
         }
@@ -1119,13 +1125,17 @@ ZEND_METHOD(Ice_ObjectPrx, ice_invocationTimeout)
 
     try
     {
-        zend_long l;
-        if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("l"), &l) != SUCCESS)
+        zend_long value;
+        if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("l"), &value) != SUCCESS)
         {
             RETURN_NULL();
         }
-        // TODO: range check?
-        if (!_this->clone(return_value, _this->proxy->ice_invocationTimeout(static_cast<int32_t>(l))))
+        optional<int32_t> timeout = getInt32(value);
+        if (!timeout)
+        {
+            RETURN_NULL();
+        }
+        if (!_this->clone(return_value, _this->proxy->ice_invocationTimeout(*timeout)))
         {
             RETURN_NULL();
         }

@@ -337,7 +337,7 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
 
                 auto info = std::make_shared<Ice::SliceInfo>(
                     getString(typeId),
-                    static_cast<int32_t>(getInteger(compactId)),
+                    getInteger(compactId),
                     std::move(vtmp),
                     hasOptionalMembers == Qtrue,
                     isLastSlice == Qtrue);
@@ -516,33 +516,28 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool)
         }
         case PrimitiveInfo::KindByte:
         {
-            long i = getInteger(p);
+            int32_t i = getInteger(p);
             if (i >= 0 && i <= 255)
             {
                 os->write(static_cast<uint8_t>(i));
                 break;
             }
-            throw RubyException(rb_eTypeError, "value is out of range for a byte");
+            throw RubyException(rb_eRangeError, "value is out of range for a byte");
         }
         case PrimitiveInfo::KindShort:
         {
-            long i = getInteger(p);
+            int32_t i = getInteger(p);
             if (i >= SHRT_MIN && i <= SHRT_MAX)
             {
                 os->write(static_cast<int16_t>(i));
                 break;
             }
-            throw RubyException(rb_eTypeError, "value is out of range for a short");
+            throw RubyException(rb_eRangeError, "value is out of range for a short");
         }
         case PrimitiveInfo::KindInt:
         {
-            long i = getInteger(p);
-            if (i >= INT_MIN && i <= INT_MAX)
-            {
-                os->write(static_cast<int32_t>(i));
-                break;
-            }
-            throw RubyException(rb_eTypeError, "value is out of range for an int");
+            os->write(getInteger(p));
+            break;
         }
         case PrimitiveInfo::KindLong:
         {
@@ -718,7 +713,7 @@ namespace
 
         virtual void element(VALUE key, VALUE value)
         {
-            const int32_t v = static_cast<int32_t>(getInteger(key));
+            const int32_t v = getInteger(key);
             assert(enumerators.find(v) == enumerators.end());
             enumerators[v] = value;
 
@@ -783,7 +778,7 @@ IceRuby::EnumInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool)
     // Validate value.
     //
     volatile VALUE val = callRuby(rb_iv_get, p, "@value");
-    const int32_t ival = static_cast<int32_t>(getInteger(val));
+    const int32_t ival = getInteger(val);
     if (enumerators.find(ival) == enumerators.end())
     {
         throw RubyException(rb_eRangeError, "invalid enumerator %d for enum %s", ival, id.c_str());
@@ -852,7 +847,7 @@ convertDataMembers(VALUE members, DataMemberList& reqMembers, DataMemberList& op
         if (allowOptional)
         {
             member->optional = RTEST(RARRAY_AREF(m, 2));
-            member->tag = static_cast<int>(getInteger(RARRAY_AREF(m, 3)));
+            member->tag = getInteger(RARRAY_AREF(m, 3));
         }
         else
         {
@@ -1365,10 +1360,10 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
                 Ice::ByteSeq seq(static_cast<size_t>(sz));
                 for (long i = 0; i < sz; ++i)
                 {
-                    long val = getInteger(RARRAY_AREF(arr, i));
+                    int32_t val = getInteger(RARRAY_AREF(arr, i));
                     if (val < 0 || val > 255)
                     {
-                        throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<byte>", i);
+                        throw RubyException(rb_eRangeError, "invalid value for element %ld of sequence<byte>", i);
                     }
                     seq[static_cast<size_t>(i)] = static_cast<byte>(val);
                 }
@@ -1382,10 +1377,10 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             Ice::ShortSeq seq(static_cast<size_t>(sz));
             for (long i = 0; i < sz; ++i)
             {
-                long val = getInteger(RARRAY_AREF(arr, i));
+                int32_t val = getInteger(RARRAY_AREF(arr, i));
                 if (val < SHRT_MIN || val > SHRT_MAX)
                 {
-                    throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<short>", i);
+                    throw RubyException(rb_eRangeError, "invalid value for element %ld of sequence<short>", i);
                 }
                 seq[static_cast<size_t>(i)] = static_cast<int16_t>(val);
             }
@@ -1398,12 +1393,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             Ice::IntSeq seq(static_cast<size_t>(sz));
             for (long i = 0; i < sz; ++i)
             {
-                long val = getInteger(RARRAY_AREF(arr, i));
-                if (val < INT_MIN || val > INT_MAX)
-                {
-                    throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<int>", i);
-                }
-                seq[static_cast<size_t>(i)] = static_cast<int32_t>(val);
+                seq[static_cast<size_t>(i)] = getInteger(RARRAY_AREF(arr, i));
             }
             os->write(seq);
             break;
@@ -1933,7 +1923,7 @@ IceRuby::ClassInfo::define(VALUE t, VALUE compact, VALUE intf, VALUE b, VALUE m)
         assert(base);
     }
 
-    const_cast<int32_t&>(compactId) = static_cast<int32_t>(getInteger(compact));
+    const_cast<int32_t&>(compactId) = getInteger(compact);
     const_cast<bool&>(interface) = RTEST(intf);
     convertDataMembers(m, const_cast<DataMemberList&>(members), const_cast<DataMemberList&>(optionalMembers), true);
     const_cast<VALUE&>(rubyClass) = t;

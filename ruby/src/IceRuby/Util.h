@@ -62,9 +62,10 @@ namespace IceRuby
     VALUE createString(std::string_view);
 
     //
-    // Convert a Ruby value into a long. May raise RubyException.
+    // Convert a Ruby value into an std::int32_t. Raises RangeError if the value is outside the range of a
+    // 32-bit integer. May raise RubyException.
     //
-    long getInteger(VALUE);
+    std::int32_t getInteger(VALUE);
 
     //
     // Convert a Ruby value into an std::int64_t. May raise RubyException.

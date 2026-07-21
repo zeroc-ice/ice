@@ -24,7 +24,7 @@ namespace
         volatile VALUE major = callRuby(rb_ivar_get, p, rb_intern("@major"));
         volatile VALUE minor = callRuby(rb_ivar_get, p, rb_intern("@minor"));
 
-        long m;
+        int32_t m;
 
         m = getInteger(major);
         if (m < 0 || m > 255)
@@ -151,17 +151,6 @@ namespace
     };
 
     //
-    // Wrapper function to call rb_num2long with rb_protect
-    //
-    VALUE
-    rb_num2long_wrapper(VALUE val)
-    {
-        RubyCallArgs<long>* data = (RubyCallArgs<long>*)val;
-        data->ret = rb_num2long(data->val);
-        return val;
-    }
-
-    //
     // Wrapper function to call rb_num2ll with rb_protect
     //
     VALUE
@@ -173,17 +162,15 @@ namespace
     }
 }
 
-long
+int32_t
 IceRuby::getInteger(VALUE val)
 {
-    RubyCallArgs<long> arg = {val, -1};
-    int error = 0;
-    rb_protect(rb_num2long_wrapper, (VALUE)&arg, &error);
-    if (error)
+    int64_t value = getLong(val);
+    if (value < INT32_MIN || value > INT32_MAX)
     {
-        throw RubyException(rb_eTypeError, "unable to convert value to an int");
+        throw RubyException(rb_eRangeError, "value is out of the range of a 32-bit integer");
     }
-    return arg.ret;
+    return static_cast<int32_t>(value);
 }
 
 int64_t
