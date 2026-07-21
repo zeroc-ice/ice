@@ -343,6 +343,12 @@ def allTests(helper, communicator)
     ident2 = Ice::stringToIdentity(idStr)
     test(ident == ident2)
 
+    begin
+        Ice::identityToString(ident, 3)
+        test(false)
+    rescue RangeError
+    end
+
     ident2 = Ice::stringToIdentity(communicator.identityToString(ident))
     test(ident == ident2)
 
@@ -376,6 +382,12 @@ def allTests(helper, communicator)
     end
 
     begin
+        base.ice_invocationTimeout(2**32 + 5000)
+        test(false)
+    rescue RangeError
+    end
+
+    begin
         base.ice_locatorCacheTimeout(0)
     rescue
         test(false)
@@ -391,6 +403,12 @@ def allTests(helper, communicator)
         base.ice_locatorCacheTimeout(-2)
         test(false)
     rescue
+    end
+
+    begin
+        base.ice_locatorCacheTimeout(2**32 - 1)
+        test(false)
+    rescue RangeError
     end
 
     puts "ok"

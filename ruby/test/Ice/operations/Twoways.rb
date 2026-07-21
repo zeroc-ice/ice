@@ -167,31 +167,31 @@ def twoways(helper, communicator, p)
     begin
         r, b = p.opByte(0x01ff, 0x01ff)
         test(false)
-    rescue TypeError
+    rescue RangeError
     end
 
     begin
         r, s, i, l = p.opShortIntLong(32767 + 1, 0, 0)
         test(false)
-    rescue TypeError
+    rescue RangeError
     end
 
     begin
         r, s, i, l = p.opShortIntLong(-32768 - 1, 0, 0)
         test(false)
-    rescue TypeError
+    rescue RangeError
     end
 
     begin
         r, s, i, l = p.opShortIntLong(0, 2147483647 + 1, 0)
         test(false)
-    rescue TypeError
+    rescue RangeError
     end
 
     begin
         r, s, i, l = p.opShortIntLong(0, -2147483648 - 1, 0)
         test(false)
-    rescue TypeError
+    rescue RangeError
     end
 
     begin

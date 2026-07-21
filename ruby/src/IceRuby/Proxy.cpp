@@ -316,8 +316,7 @@ IceRuby_ObjectPrx_ice_locatorCacheTimeout(VALUE self, VALUE timeout)
         try
         {
             Ice::ObjectPrx p = getProxy(self);
-            long t = getInteger(timeout);
-            return createProxy(p->ice_locatorCacheTimeout(static_cast<int32_t>(t)), rb_class_of(self));
+            return createProxy(p->ice_locatorCacheTimeout(getInteger(timeout)), rb_class_of(self));
         }
         catch (const invalid_argument& ex)
         {
@@ -336,8 +335,7 @@ IceRuby_ObjectPrx_ice_invocationTimeout(VALUE self, VALUE timeout)
         try
         {
             Ice::ObjectPrx p = getProxy(self);
-            long t = getInteger(timeout);
-            return createProxy(p->ice_invocationTimeout(static_cast<int32_t>(t)), rb_class_of(self));
+            return createProxy(p->ice_invocationTimeout(getInteger(timeout)), rb_class_of(self));
         }
         catch (const invalid_argument& ex)
         {

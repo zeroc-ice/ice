@@ -223,8 +223,12 @@ IceRuby_identityToString(int argc, VALUE* argv, VALUE /*self*/)
         if (argc == 2)
         {
             volatile VALUE modeValue = callRuby(rb_funcall, argv[1], rb_intern("to_i"), 0);
-            assert(TYPE(modeValue) == T_FIXNUM);
-            toStringMode = static_cast<Ice::ToStringMode>(FIX2LONG(modeValue));
+            int32_t mode = getInteger(modeValue);
+            if (mode < 0 || mode > static_cast<int32_t>(Ice::ToStringMode::Compat))
+            {
+                throw RubyException(rb_eRangeError, "invalid enumerator %d for enum Ice::ToStringMode", mode);
+            }
+            toStringMode = static_cast<Ice::ToStringMode>(mode);
         }
 
         string str = Ice::identityToString(ident, toStringMode);

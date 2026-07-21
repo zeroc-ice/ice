@@ -1156,7 +1156,6 @@ TopicImpl::observerDestroyTopic(const LogUpdate& llu)
     {
         return;
     }
-    _destroyed = true;
 
     auto traceLevels = _instance->traceLevels();
     if (traceLevels->topic > 0)
@@ -1165,7 +1164,11 @@ TopicImpl::observerDestroyTopic(const LogUpdate& llu)
         out << _name << ": destroyed";
         out << " llu: " << llu.generation << "/" << llu.iteration;
     }
+
+    // Mark the topic destroyed only once its database transaction has committed, so a failed commit leaves the topic
+    // intact and still destroyable.
     destroyInternal(llu, false);
+    _destroyed = true;
 
     _observer.detach();
 }
