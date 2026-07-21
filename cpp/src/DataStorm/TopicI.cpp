@@ -14,7 +14,11 @@ namespace
 {
     static Topic::Updater noOpUpdater = // NOLINT(cert-err58-cpp)
         [](const shared_ptr<Sample>& previous, const shared_ptr<Sample>& next, const CommunicatorPtr&)
-    { next->setValue(previous); };
+    {
+        // A value-less previous sample is not a usable base: fall back to a default value. This is defense in
+        // depth: callers discard partial updates that have no usable base before invoking the updater.
+        next->setValue(previous && previous->hasValue() ? previous : nullptr);
+    };
 
     // The always match filter always matches the value, it's used by the any key reader/writer.
     class AlwaysMatchFilter final : public Filter

@@ -402,9 +402,15 @@ void ::Writer::run(int argc, char* argv[])
         test(skw.getLast().getKey() == "key");
         test(skw.getLast().getValue() == "");
         test(skw.getLast().getEvent() == SampleEvent::Remove);
+        // A partial update requires the key to have a current value; after the remove it has none, so the partial
+        // update is discarded and the remove stays the last sample.
+        skw.partialUpdate<string>("partialupdate")("update");
+        test(skw.getLast().getEvent() == SampleEvent::Remove);
+        // A new full value makes the key updatable again.
+        skw.add("test3");
         skw.partialUpdate<string>("partialupdate")("update");
         test(skw.getLast().getKey() == "key");
-        test(skw.getLast().getValue() == "");
+        test(skw.getLast().getValue() == "test3"); // no updater is registered: the previous value carries over
         test(skw.getLast().getUpdateTag() == "partialupdate");
         test(skw.getLast().getEvent() == SampleEvent::PartialUpdate);
 

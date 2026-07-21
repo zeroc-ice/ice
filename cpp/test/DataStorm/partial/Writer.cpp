@@ -266,6 +266,50 @@ void ::Writer::run(int argc, char* argv[])
         [[maybe_unused]] auto _ = makeSingleKeyReader(throwBarrier, "done").getNextUnread();
     }
     cout << "ok" << endl;
+
+    // A partial update requires the key to have a current value: after a remove, the writer discards the partial
+    // update and publishes nothing; the next full value makes the key updatable again.
+    Topic<string, StockPtr> removeTopic(node, "removeTopic");
+    removeTopic.setWriterDefaultConfig(config);
+    removeTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    cout << "testing partial update after remove... " << flush;
+    {
+        auto writer = makeSingleKeyWriter(removeTopic, "AAPL");
+        writer.waitForReaders();
+        writer.add(make_shared<Stock>(12.0f, 13.0f, 14.0f));
+        writer.remove();
+        writer.partialUpdate<float>("price")(15.0f);              // discarded: the key has no value after the remove
+        test(writer.getLast().getEvent() == SampleEvent::Remove); // the discarded update was not published
+        writer.update(make_shared<Stock>(20.0f, 21.0f, 22.0f));
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
+    // Two writers publish the same key: writer 2's partial update reaches the reader after writer 1's remove
+    // cleared the key's value. The reader discards the partial update and resynchronizes on writer 2's next full
+    // value.
+    Topic<string, StockPtr> twoWritersTopic(node, "twoWritersTopic");
+    twoWritersTopic.setWriterDefaultConfig(config);
+    twoWritersTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    cout << "testing partial update after another writer's remove... " << flush;
+    {
+        auto writer1 = makeSingleKeyWriter(twoWritersTopic, "AAPL", "writer1");
+        auto writer2 = makeSingleKeyWriter(twoWritersTopic, "AAPL", "writer2");
+        writer1.waitForReaders();
+        writer2.waitForReaders();
+        writer1.add(make_shared<Stock>(12.0f, 13.0f, 14.0f));
+        writer2.add(make_shared<Stock>(100.0f, 101.0f, 102.0f));
+        writer1.remove();
+        // Writer 2 resolves the partial update against its own value and publishes it, but the reader no longer
+        // has a value for the key.
+        writer2.partialUpdate<float>("price")(55.0f);
+        test(writer2.getLast().getEvent() == SampleEvent::PartialUpdate);
+        test(writer2.getLast().getValue()->price == 55.0f);
+        writer2.update(make_shared<Stock>(200.0f, 201.0f, 202.0f));
+        writer1.waitForNoReaders();
+        writer2.waitForNoReaders();
+    }
+    cout << "ok" << endl;
 }
 
 DEFINE_TEST(::Writer)

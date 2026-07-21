@@ -333,6 +333,57 @@ void ::Reader::run(int argc, char* argv[])
         done.waitForReaders();
         done.update(0);
     }
+
+    // A partial update requires the key to have a current value: after a remove, the writer discards the partial
+    // update and publishes nothing; the next full value makes the key updatable again.
+    Topic<string, StockPtr> removeTopic(node, "removeTopic");
+    removeTopic.setReaderDefaultConfig(config);
+    removeTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    {
+        auto reader = makeSingleKeyReader(removeTopic, "AAPL");
+
+        auto sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Add);
+        test(sample.getValue()->price == 12.0f);
+
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Remove);
+
+        // The discarded partial update was never published: the next sample is the full update.
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Update);
+        test(sample.getValue()->price == 20.0f);
+    }
+
+    // Two writers publish the same key: writer 2's partial update reaches the reader after writer 1's remove
+    // cleared the key's value. The reader discards the partial update and resynchronizes on writer 2's next full
+    // value.
+    Topic<string, StockPtr> twoWritersTopic(node, "twoWritersTopic");
+    twoWritersTopic.setReaderDefaultConfig(config);
+    twoWritersTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    {
+        auto reader = makeSingleKeyReader(twoWritersTopic, "AAPL");
+
+        // Consume until writer 2's resynchronizing full value; the partial update published after the remove must
+        // never surface.
+        bool sawRemove = false;
+        shared_ptr<Stock> resync;
+        while (!resync)
+        {
+            auto sample = reader.getNextUnread();
+            test(sample.getEvent() != SampleEvent::PartialUpdate);
+            if (sample.getEvent() == SampleEvent::Remove)
+            {
+                sawRemove = true;
+            }
+            else if (sample.getValue()->price == 200.0f)
+            {
+                resync = sample.getValue();
+            }
+        }
+        test(sawRemove);
+        test(resync->lastBid == 201.0f); // writer 2's full value, not a merge against a stale base
+    }
 }
 
 DEFINE_TEST(::Reader)

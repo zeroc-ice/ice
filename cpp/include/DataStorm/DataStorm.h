@@ -766,6 +766,8 @@ namespace DataStorm
         /// function generates a SampleEvent::PartialUpdate sample with the given partial update value.
         /// The UpdateValue template parameter must match the UpdateValue type used to register the updater with
         /// the Topic::setUpdater method.
+        /// A partial update resolves against the key's current value. When the key has no value—no full value was
+        /// written yet, or the key was removed—the partial update is discarded and nothing is published.
         /// @param tag The partial update tag.
         template<typename UpdateValue>
         [[nodiscard]] std::function<void(const UpdateValue&)> partialUpdate(const UpdateTag& tag);
@@ -819,6 +821,8 @@ namespace DataStorm
         /// function generates a SampleEvent::PartialUpdate sample with the given partial update value.
         /// The UpdateValue template parameter must match the UpdateValue type used to register the updater with
         /// the Topic::setUpdater method.
+        /// A partial update resolves against the key's current value. When the key has no value—no full value was
+        /// written yet, or the key was removed—the partial update is discarded and nothing is published.
         /// @param tag The partial update tag.
         template<typename UpdateValue>
         [[nodiscard]] std::function<void(const Key&, const UpdateValue&)> partialUpdate(const UpdateTag& tag);
@@ -1630,8 +1634,10 @@ namespace DataStorm
                                            const std::shared_ptr<DataStormI::Sample>& next,
                                            const Ice::CommunicatorPtr& communicator)
             {
-                Value value;
-                if (previous)
+                // A value-less previous sample is not a usable base: fall back to a default value. This is defense
+                // in depth: callers discard partial updates that have no usable base before invoking the updater.
+                Value value{};
+                if (previous && previous->hasValue())
                 {
                     value = Cloner<Value>::clone(
                         std::static_pointer_cast<DataStormI::SampleT<Key, Value, UpdateTag>>(previous)->getValue());

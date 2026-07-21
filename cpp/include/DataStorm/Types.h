@@ -186,10 +186,13 @@ namespace DataStorm
         static T clone(const T& value) noexcept { return value; }
     };
 
-    /// Cloner template specialization to clone shared Ice values using ice_clone.
+    /// Cloner template specialization to clone shared Ice values using ice_clone. A null value clones to null.
     template<typename T> struct Cloner<std::shared_ptr<T>, typename std::enable_if_t<std::is_base_of_v<Ice::Value, T>>>
     {
-        static std::shared_ptr<T> clone(const std::shared_ptr<T>& value) noexcept { return value->ice_clone(); }
+        static std::shared_ptr<T> clone(const std::shared_ptr<T>& value) noexcept
+        {
+            return value ? value->ice_clone() : nullptr;
+        }
     };
 
     // Encoder template implementation.
