@@ -2548,6 +2548,7 @@ class AndroidProcessController(RemoteProcessController):
         RemoteProcessController.__init__(self, current, None)
         self.device = current.config.device if current.config.device != "" else None
         self.avd = current.config.avd
+        self.createdAvd = False  # Only the AVD we create is deleted on shutdown
         self.emulator = None  # Keep a reference to the android emulator process
         self.controllerPid = None
 
@@ -2632,6 +2633,7 @@ class AndroidProcessController(RemoteProcessController):
             except Exception:
                 pass
             run('avdmanager -v create avd -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
+            self.createdAvd = True
             self.startEmulator("IceTests")
         elif current.config.device != "usb":
             run("adb connect {}".format(current.config.device))
@@ -2717,9 +2719,9 @@ class AndroidProcessController(RemoteProcessController):
             except Exception:
                 pass
 
-            if self.avd == "IceTests":
+            if self.createdAvd:
                 try:
-                    run("avdmanager -v delete avd -n IceTests")  # Delete the created device
+                    run("avdmanager -v delete avd -n IceTests")  # Delete the device we created
                 except Exception:
                     pass
 
