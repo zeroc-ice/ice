@@ -160,6 +160,9 @@ jobs:
             build_cpp_and_python: true
 
     runs-on: ${{ matrix.os }}
+    # Individual steps carry their own tighter limits; this is a backstop so a stall in a step that
+    # has none (SDK download, cache, artifact upload) can't sit on a runner for the 6h default.
+    timeout-minutes: 150
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0

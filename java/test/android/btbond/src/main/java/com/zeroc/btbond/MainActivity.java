@@ -23,6 +23,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import java.io.IOException;
@@ -37,9 +39,18 @@ public class MainActivity extends Activity {
     // Probe exchanged over the bonded channel to prove it carries data.
     static final String PROBE = "PING";
 
-    // Both are touched from onDestroy (main thread) and the worker, so they are volatile.
+    // The whole run is bounded: BluetoothSocket.connect() and the stream reads are native blocking
+    // calls that ignore interrupt(), so the only way to unwedge them is to close the socket. Without
+    // this a stalled run never reaches finish(), and because `am start` on a resident
+    // standard-launch-mode activity is a no-op bring-to-front, btbond would stay unusable for the
+    // rest of the boot.
+    static final long WATCHDOG_MS = 150_000;
+
+    // Touched from the main thread (onDestroy, watchdog) and the worker, so all are volatile.
     private volatile Thread worker;
     private volatile BluetoothServerSocket serverSocket;
+    private volatile BluetoothSocket socket;
+    private volatile boolean destroyed;
 
     // Best-effort auto-accept of incoming pairing requests. The app runs as a privileged system app
     // (BLUETOOTH_PRIVILEGED), so setPairingConfirmation should succeed; setPin is a fallback that logs
@@ -49,7 +60,11 @@ public class MainActivity extends Activity {
         public void onReceive(Context ctx, Intent intent) {
             BluetoothDevice dev = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             int variant = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_VARIANT, -1);
-            Log.i(TAG, "PAIRING_REQUEST variant=" + variant + " from " + (dev == null ? "?" : dev.getAddress()));
+            if (dev == null) {
+                Log.w(TAG, "PAIRING_REQUEST variant=" + variant + " with no device; ignoring");
+                return;
+            }
+            Log.i(TAG, "PAIRING_REQUEST variant=" + variant + " from " + dev.getAddress());
             try {
                 // setPairingConfirmation reports failure by returning false as well as by throwing;
                 // both need to reach the setPin fallback below, which handles the variants it can't.
@@ -92,10 +107,40 @@ public class MainActivity extends Activity {
                 // Finish so a subsequent `am start` re-runs onCreate with the new extras. A
                 // standard-launch-mode activity left resident is simply brought to front, and the
                 // caller would then match the previous run's result line out of logcat.
-                finish();
+                // finish() is not documented as thread-safe, and the relaunch depends on it.
+                runOnUiThread(MainActivity.this::finish);
             }
         });
         worker.start();
+        new Handler(Looper.getMainLooper()).postDelayed(
+            () -> {
+                if (worker != null && worker.isAlive()) {
+                    Log.w(TAG, "watchdog: run exceeded " + WATCHDOG_MS + "ms, closing sockets");
+                    result(mode, false, "timed out after " + WATCHDOG_MS + "ms");
+                    closeSockets();
+                }
+            },
+            WATCHDOG_MS);
+    }
+
+    // Closing the sockets is what actually unblocks accept/connect/read; interrupt() does not.
+    private void closeSockets() {
+        BluetoothServerSocket ss = serverSocket;
+        if (ss != null) {
+            try {
+                ss.close();
+            } catch (Throwable ignored) {
+                // Already closed.
+            }
+        }
+        BluetoothSocket s = socket;
+        if (s != null) {
+            try {
+                s.close();
+            } catch (Throwable ignored) {
+                // Already closed.
+            }
+        }
     }
 
     @Override
@@ -105,19 +150,14 @@ public class MainActivity extends Activity {
         } catch (IllegalArgumentException ignored) {
             // Receiver was not registered; nothing to do.
         }
-        // Close the listening socket so a destroyed activity doesn't leave an RFCOMM listener (and
-        // its SDP record) live for the rest of accept()'s timeout with no receiver left to confirm
-        // pairing. Closing it makes accept() throw, which ends the worker.
-        BluetoothServerSocket ss = serverSocket;
-        if (ss != null) {
-            try {
-                ss.close();
-            } catch (Throwable ignored) {
-                // Already closed or never opened.
-            }
-        }
+        // Close the sockets so a destroyed activity doesn't leave an RFCOMM listener (and its SDP
+        // record) or a connection live with no receiver left to confirm pairing. Closing is what
+        // ends the worker: accept/connect/read are native blocking calls that ignore interrupt().
+        // Set destroyed first, so a socket opened concurrently in run() is closed by run() itself.
+        destroyed = true;
+        closeSockets();
         if (worker != null) {
-            worker.interrupt();
+            worker.interrupt(); // only unblocks the bond-state Thread.sleep
         }
         super.onDestroy();
     }
@@ -134,9 +174,16 @@ public class MainActivity extends Activity {
                 BluetoothServerSocket ss = serverSocket = secure
                     ? adapter.listenUsingRfcommWithServiceRecord("btbond", uuid)
                     : adapter.listenUsingInsecureRfcommWithServiceRecord("btbond", uuid);
+                // onDestroy may have run between opening the socket and publishing it above, in
+                // which case its closeSockets() saw null and this one would outlive the activity.
+                if (destroyed) {
+                    ss.close();
+                    result(mode, false, "destroyed before listening");
+                    return;
+                }
                 try {
                     Log.i(TAG, "listening secure=" + secure + ", waiting up to 120s for client...");
-                    BluetoothSocket s = ss.accept(120000);
+                    BluetoothSocket s = socket = ss.accept(120000);
                     try {
                         Log.i(TAG, "accepted a connection");
                         InputStream in = s.getInputStream();
@@ -168,9 +215,15 @@ public class MainActivity extends Activity {
                         return;
                     }
                 }
-                BluetoothSocket s = secure
+                BluetoothSocket s = socket = secure
                     ? dev.createRfcommSocketToServiceRecord(uuid)
                     : dev.createInsecureRfcommSocketToServiceRecord(uuid);
+                // As on the server path: onDestroy may have run before the socket was published.
+                if (destroyed) {
+                    s.close();
+                    result(mode, false, "destroyed before connecting");
+                    return;
+                }
                 try {
                     Log.i(TAG, "connecting secure=" + secure + "...");
                     s.connect();

@@ -39,7 +39,12 @@ runs:
           -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" \
           -keystore java/test/android/btbond/debug.keystore
         (cd java/test/android/btbond && ./gradlew --no-daemon assembleDebug)
-        echo "BTBOND_APK=$(find java/test/android/btbond/build/outputs/apk -name '*.apk' | head -1)" >> "$GITHUB_ENV"
+        # Check the glob found something here: inside the echo, find's status is discarded, so an
+        # unexpected output layout would leave BTBOND_APK empty and fail two steps later with a
+        # message about --bt-prepare's arguments rather than about the APK.
+        APK=$(find java/test/android/btbond/build/outputs/apk -name '*.apk' | head -1)
+        [ -n "$APK" ] || { echo "no btbond APK under build/outputs/apk"; exit 1; }
+        echo "BTBOND_APK=$APK" >> "$GITHUB_ENV"
 
     - name: Create and boot two emulators on Netsim Bluetooth
       shell: bash

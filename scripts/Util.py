@@ -2589,12 +2589,16 @@ class AndroidProcessController(RemoteProcessController):
     def supportsDiscovery(self):
         return False
 
-    # NB: getHost is not overridden for Bluetooth on purpose. RemoteProcessController.getHost asks
-    # the on-device controller app, which reports 127.0.0.1 on an emulator, so --host-bt does not
-    # reach the endpoints here. That is fine: the IceBT acceptor listens on the local Bluetooth
-    # adapter and publishes that adapter's own address (AcceptorI.java), so the client reaches the
-    # server through the published proxy rather than through Ice.Default.Host. Setting a bogus
-    # --host-bt does not break these tests for the same reason.
+    # NB: getHost is deliberately not overridden here, and this class's getHost is in fact never
+    # consulted for the host. _startServerSide calls getProcessController(current) with no process
+    # argument, and the Android branch of that dispatch is `elif process and config.android`, so it
+    # falls through to LocalProcessController -> Driver.getHost -> --host-bt.
+    #
+    # So --host-bt on the server-side Controller.py is load-bearing: it becomes the server's
+    # Ice.Default.Host, which IceBT's EndpointI uses as the endpoint address when no -a is given,
+    # and startServerSide hands the same value back for the client to use. (The --host-bt on the
+    # allTests.py side is inert for that reason -- the client takes the host from the server -- which
+    # is why passing a bogus one there does not fail the run. It is not a usable negative test.)
 
     def getControllerIdentity(self, current):
         return "Android/ProcessController"
@@ -2631,11 +2635,19 @@ class AndroidProcessController(RemoteProcessController):
         # Run an adb subcommand for this device, ignoring failures. Used for idempotent /
         # environment-setup steps (root, remount, enable, grant) that the equivalent shell ran under
         # `set +e` because they can harmlessly "fail" (already-root, already-enabled, ...).
+        return self._adbTolerantFor(self.adb(), args)
+
+    @staticmethod
+    def _adbTolerantFor(adb, args):
+        # As _adbTolerant, but for an explicitly given adb command (e.g. the bond peer's).
         try:
-            return run(f"{self.adb()} {args}")
+            return run(f"{adb} {args}")
         except RuntimeError as ex:
+            # These prints are the only record of swallowed failures in setup_{client,server}.log,
+            # so keep adb's own output: run() puts the command on the first line and the reason
+            # after it, and printing only the first line would drop the reason entirely.
             # stderr, not stdout: --bt-prepare's stdout carries only the server's Bluetooth address.
-            print(f"  (ignored) {self.adb()} {args}: {str(ex).splitlines()[0]}", file=sys.stderr)
+            print(f"  (ignored) {ex}", file=sys.stderr)
             return ""
 
     def waitForBoot(self, timeout=300):
@@ -2692,8 +2704,15 @@ class AndroidProcessController(RemoteProcessController):
         return run(f"{self.adb()} shell settings get secure bluetooth_address").strip()
 
     def enableBluetooth(self):
+        # `adb root` restarts adbd; wait for the device to come back rather than assuming a fixed
+        # sleep is enough, as rootRemount does. Under --bt-prepare two of these run in parallel
+        # against one adb server, and the commands below are fatal, so a slow adbd would otherwise
+        # surface as a spurious "Bluetooth did not reach STATE_ON".
         self._adbTolerant("root")
-        time.sleep(2)
+        try:
+            subprocess.run([*self.adb().split(), "wait-for-device"], timeout=60, check=False)
+        except subprocess.TimeoutExpired:
+            pass
         # Tolerant: enabling an already-enabled adapter fails harmlessly.
         self._adbTolerant("shell cmd bluetooth_manager enable")
         # Not tolerant: this is the only command that establishes the adapter actually reached
@@ -2758,8 +2777,11 @@ class AndroidProcessController(RemoteProcessController):
         activity = f"{package}/.MainActivity"
         # Clear both logs first: the result line is matched out of logcat below, and one left over
         # from an earlier attempt would otherwise be read as this attempt's result.
-        self._adbTolerant("logcat -c")
-        run(f"{peerAdb} logcat -c")
+        # Ours must be fatal: it is the buffer the verdict is read from below, and a stale
+        # "RESULT client OK" left in it would be read as this attempt's result. The peer's is only
+        # tidiness -- nothing reads it -- so a transient failure there must not kill the bond.
+        run(f"{self.adb()} logcat -c")
+        self._adbTolerantFor(peerAdb, "logcat -c")
         run(f"{peerAdb} shell am start -n {activity} --es mode server --es uuid {uuid} --ez secure true")
         time.sleep(6)
         run(
@@ -2767,19 +2789,27 @@ class AndroidProcessController(RemoteProcessController):
             f"--es peer {peerAddress} --es uuid {uuid} --ez secure true --ez bond true"
         )
         result = ""
-        for _ in range(30):
+        verdict = ""
+        for _ in range(40):
             result = self._adbTolerant("logcat -d -s BTBOND")
-            if "RESULT client" in result:
+            # Take the LAST verdict, not any match: if the activity ran more than once, an earlier
+            # line must not decide the outcome -- an old FAIL followed by an OK (or the reverse)
+            # would otherwise be read by substring search as whichever we happened to look for.
+            verdicts = re.findall(r"RESULT client (\w+)", result)
+            if verdicts:
+                verdict = verdicts[-1]
                 break
             time.sleep(3)
         # Match the verdict, not just the presence of a result: "RESULT client FAIL" also contains
         # "RESULT client".
-        if "RESULT client OK" not in result:
+        if verdict != "OK":
             raise RuntimeError(f"btbond did not report a successful bond on '{self.device}'\n{result[-500:]}")
         # dumpsys masks all but the last two octets of a bonded address, so match on those.
         bonded = self._adbTolerant("shell dumpsys bluetooth_manager")
         if peerAddress[-5:] not in bonded:
-            raise RuntimeError(f"'{self.device}' did not bond to '{peerDevice}' ({peerAddress})\n{result[-500:]}")
+            # Report the dumpsys output that actually failed, not the logcat tail -- which at this
+            # point necessarily contains "RESULT client OK" and reads as a contradiction.
+            raise RuntimeError(f"'{self.device}' did not bond to '{peerDevice}' ({peerAddress})\n{bonded[-500:]}")
         return peerAddress
 
     def diagnostics(self, package="com.zeroc.testcontroller"):
@@ -2826,12 +2856,19 @@ class AndroidProcessController(RemoteProcessController):
         run(f'echo no | avdmanager -v create avd -k "{image}" -d "Nexus 6" -n {avd}')
         print(f"starting emulator '{avd}' on port {port} (log: {logFile})")
         with open(logFile, "wb") as log:
-            subprocess.Popen(
+            emulator = subprocess.Popen(
                 ["emulator", "-avd", avd, "-port", str(port), *cls.bluetoothEmulatorFlags],
                 stdout=log,
                 stderr=subprocess.STDOUT,
                 start_new_session=True,
             )
+        # An emulator that rejects a flag (e.g. an image without Netsim support for
+        # -packet-streamer-endpoint) exits immediately. Catch that here rather than let it surface
+        # five minutes later as an opaque "not booted after 300s" with the cause only in the log.
+        time.sleep(2)
+        if emulator.poll() is not None:
+            with open(logFile) as log:
+                raise RuntimeError(f"emulator '{avd}' exited immediately:\n{log.read()[-1000:]}")
 
     def startEmulator(self, avd):
         #
