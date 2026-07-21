@@ -981,6 +981,15 @@ NodeI::recovery(unique_lock<mutex>& lock, int64_t generation)
         return;
     }
 
+    // Never interrupt an election in progress: merge() and invitation() drive it with the mutex released between
+    // their phases and call recovery() themselves if it fails. A generation-stamped recovery — another thread
+    // reacting to a replication failure — is also ignored during a reorganization: the group it asks to abandon is
+    // already being replaced.
+    if (_state == NodeState::NodeStateElection || (generation != -1 && _state == NodeState::NodeStateReorganization))
+    {
+        return;
+    }
+
     setState(NodeState::NodeStateInactive);
     while (!_destroy && _updateCounter > 0)
     {
