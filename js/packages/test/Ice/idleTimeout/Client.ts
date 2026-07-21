@@ -137,6 +137,8 @@ async function testServerWithEnableDisableIdleCheck(
         } catch (ex) {
             test(ex instanceof Ice.ConnectionAbortedException);
             test(enabled);
+            // The idle check must report the timeout in seconds (1s), not milliseconds (1000s). See issue #5948.
+            test((ex as Error).message.includes("did not receive any bytes for 1s."), ex as Error);
         }
         output.writeLine("ok");
     } finally {
