@@ -21,7 +21,6 @@
 
 #ifndef _WIN32
 #    include <csignal>
-#    include <dirent.h>
 #    include <pwd.h> // for getpwuid
 #    include <sys/resource.h>
 #    include <sys/syscall.h>
@@ -96,11 +95,7 @@ namespace IceGrid
     // pipes). This runs after setuid/setgid, so a leaked descriptor would cross
     // a privilege boundary.
     //
-    // Runs in the fork child. The close_range fast path and the final bounded
-    // loop use only async-signal-safe calls; the /proc/self/fd enumeration uses
-    // opendir/readdir (which allocate), but that path runs only on Linux, where
-    // glibc keeps the allocator usable in the child after fork — as the
-    // surrounding child code, which also allocates, already relies on.
+    // Runs in the fork child, using only async-signal-safe calls.
     //
     void closeInheritedDescriptors(int keep1, int keep2, long maxFd)
     {
@@ -111,14 +106,15 @@ namespace IceGrid
         //
         // close_range (Linux 5.9+, FreeBSD 12.2+) closes a whole descriptor
         // range in a single syscall, so the child never iterates up to a huge
-        // or unlimited RLIMIT_NOFILE. We keep lo and hi open by closing the
-        // ranges around them. Probe with the always-non-empty top range first:
-        // on success, close the lower ranges too and return. The probe range is
+        // or unlimited RLIMIT_NOFILE. Every supported platform with a huge or
+        // unlimited limit has it (the minimum supported Linux distributions all
+        // ship kernel 5.10+). We keep lo and hi open by closing the ranges
+        // around them. Probe with the always-non-empty top range first: on
+        // success, close the lower ranges too and return. The probe range is
         // never inverted, so the only realistic failure is the syscall being
         // unavailable (ENOSYS on an older kernel, or a seccomp EPERM), and on
-        // failure it closes nothing; we fall through to the /proc/self/fd
-        // enumeration below, which is a complete fallback, so there is no need
-        // to inspect errno.
+        // failure it closes nothing; we fall through to the bounded loop below,
+        // so there is no need to inspect errno.
         //
         if (syscall(SYS_close_range, static_cast<unsigned int>(hi) + 1, ~0u, 0u) == 0)
         {
@@ -126,40 +122,27 @@ namespace IceGrid
             {
                 syscall(SYS_close_range, 3u, static_cast<unsigned int>(lo) - 1, 0u);
             }
-            if (hi > lo + 1)
+            //
+            // Clamp the middle range's start to 3: lo can be below 3 (the pipe
+            // write ends land at 0/1/2 only when a standard descriptor was
+            // already closed before exec), and an unclamped lo + 1 == 2 would
+            // close stderr.
+            //
+            const int mid = lo + 1 > 3 ? lo + 1 : 3;
+            if (hi - 1 >= mid)
             {
-                syscall(SYS_close_range, static_cast<unsigned int>(lo) + 1, static_cast<unsigned int>(hi) - 1, 0u);
+                syscall(SYS_close_range, static_cast<unsigned int>(mid), static_cast<unsigned int>(hi) - 1, 0u);
             }
             return;
         }
 #    endif
 
         //
-        // Fallback for kernels/platforms without close_range (e.g. Linux before
-        // 5.9): enumerate the descriptors that are actually open from
-        // /proc/self/fd and close them, so the child neither iterates up to a
-        // huge or unlimited limit nor leaks a descriptor above one.
-        //
-        if (DIR* dir = opendir("/proc/self/fd"))
-        {
-            const int dirFd = dirfd(dir);
-            for (dirent* entry = readdir(dir); entry != nullptr; entry = readdir(dir))
-            {
-                const int fd = atoi(entry->d_name); // "." and ".." parse to 0 and are skipped below
-                if (fd >= 3 && fd != lo && fd != hi && fd != dirFd)
-                {
-                    close(fd);
-                }
-            }
-            closedir(dir);
-            return;
-        }
-
-        //
-        // Last resort (no /proc, e.g. some minimal containers or non-Linux
-        // platforms without close_range): close descriptors one by one up to
-        // maxFd, the bound the caller computed from the soft RLIMIT_NOFILE
-        // before fork().
+        // Fallback when close_range is unavailable (a pre-5.9 Linux kernel
+        // outside the supported set, macOS, or a seccomp profile that rejects
+        // the syscall): close descriptors one by one up to maxFd, the bound the
+        // caller computed from the soft RLIMIT_NOFILE before fork(). These
+        // platforms have a modest limit, so the loop stays cheap.
         //
         for (long fd = 3; fd < maxFd; ++fd)
         {
