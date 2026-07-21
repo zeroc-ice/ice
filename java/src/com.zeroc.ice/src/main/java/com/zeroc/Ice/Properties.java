@@ -336,6 +336,9 @@ public final class Properties {
      *
      * @param key the property key
      * @param value the property value
+     * @throws InitializationException if the key is empty
+     * @throws PropertyException if the key is an unknown Ice property, or is in an opt-in property
+     *     prefix that has not been explicitly enabled
      * @see #getProperty
      */
     public void setProperty(String key, String value) {

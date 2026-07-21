@@ -12,7 +12,8 @@ public class DispatchException extends LocalException {
     /**
      * Constructs a DispatchException with the specified reply status, message, and cause.
      *
-     * @param replyStatus the reply status as an int (see {@link ReplyStatus})
+     * @param replyStatus the reply status as an int (see {@link ReplyStatus}); it must be greater
+     *     than {@link ReplyStatus#UserException}
      * @param message the detail message
      * @param cause the cause
      */
@@ -24,7 +25,8 @@ public class DispatchException extends LocalException {
     /**
      * Constructs a DispatchException with the specified reply status and message.
      *
-     * @param replyStatus the reply status as an int (see {@link ReplyStatus})
+     * @param replyStatus the reply status as an int (see {@link ReplyStatus}); it must be greater
+     *     than {@link ReplyStatus#UserException}
      * @param message the detail message
      */
     public DispatchException(int replyStatus, String message) {
@@ -34,7 +36,8 @@ public class DispatchException extends LocalException {
     /**
      * Constructs a DispatchException with the specified reply status.
      *
-     * @param replyStatus the reply status as an int (see {@link ReplyStatus})
+     * @param replyStatus the reply status as an int (see {@link ReplyStatus}); it must be greater
+     *     than {@link ReplyStatus#UserException}
      */
     public DispatchException(int replyStatus) {
         this(replyStatus, null, null);

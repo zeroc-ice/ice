@@ -28,6 +28,7 @@ public interface PluginManager {
      *
      * @param name the plug-in's name
      * @return the plug-in
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      * @throws NotRegisteredException if no plug-in is found with the given name
      */
     Plugin getPlugin(String name);
@@ -37,6 +38,7 @@ public interface PluginManager {
      *
      * @param name the plug-in's name
      * @param pi the plug-in
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      * @throws AlreadyRegisteredException if a plug-in already exists with the given name
      */
     void addPlugin(String name, Plugin pi);

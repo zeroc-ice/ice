@@ -209,6 +209,7 @@ public interface ObjectPrx {
      *
      * @param newIdentity the identity for the new proxy
      * @return a proxy with the new identity
+     * @throws IllegalArgumentException if the name of the new identity is empty
      */
     ObjectPrx ice_identity(Identity newIdentity);
 

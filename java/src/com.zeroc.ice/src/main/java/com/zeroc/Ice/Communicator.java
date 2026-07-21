@@ -205,6 +205,8 @@ public final class Communicator implements AutoCloseable {
      *
      * @param name the object adapter name
      * @return the new object adapter
+     * @throws InitializationException if the object adapter configuration is invalid
+     * @throws AlreadyRegisteredException if an object adapter with the same name already exists
      * @see #createObjectAdapterWithEndpoints
      * @see Properties
      */
@@ -228,6 +230,8 @@ public final class Communicator implements AutoCloseable {
      *     calling {@link #createObjectAdapter(String)}.
      * @return the new object adapter
      * @throws IllegalArgumentException if the provided name is empty and sslEngineFactory is non-null
+     * @throws InitializationException if the object adapter configuration is invalid
+     * @throws AlreadyRegisteredException if an object adapter with the same name already exists
      * @see #createObjectAdapterWithEndpoints
      * @see Properties
      */
@@ -247,6 +251,8 @@ public final class Communicator implements AutoCloseable {
      * @param name the object adapter name
      * @param endpoints the endpoints of the object adapter
      * @return the new object adapter
+     * @throws InitializationException if the object adapter configuration is invalid
+     * @throws AlreadyRegisteredException if an object adapter with the same name already exists
      * @see #createObjectAdapter
      * @see Properties
      */
@@ -269,6 +275,8 @@ public final class Communicator implements AutoCloseable {
      *     through {@code Ice.SSL} configuration properties. Passing {@code null} is equivalent to
      *     calling {@link #createObjectAdapterWithEndpoints(String, String)}.
      * @return the new object adapter
+     * @throws InitializationException if the object adapter configuration is invalid
+     * @throws AlreadyRegisteredException if an object adapter with the same name already exists
      * @see #createObjectAdapter
      * @see Properties
      */
@@ -412,6 +420,7 @@ public final class Communicator implements AutoCloseable {
      * Gets the default locator of this communicator.
      *
      * @return the default locator of this communicator
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      * @see #setDefaultLocator
      * @see Locator
      */
@@ -486,6 +495,8 @@ public final class Communicator implements AutoCloseable {
      *     after creating and activating this adapter.
      * @param adminId the identity of the Admin object
      * @return a proxy to the main ("") facet of the Admin object
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
+     * @throws IllegalArgumentException if the admin identity is not valid
      * @throws InitializationException if this method is called more than once
      * @see #getAdmin
      */
