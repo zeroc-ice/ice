@@ -2782,12 +2782,9 @@ class AndroidProcessController(RemoteProcessController):
         # tidiness -- nothing reads it -- so a transient failure there must not kill the bond.
         run(f"{self.adb()} logcat -c")
         self._adbTolerantFor(peerAdb, "logcat -c")
-        run(f"{peerAdb} shell am start -n {activity} --es mode server --es uuid {uuid} --ez secure true")
+        run(f"{peerAdb} shell am start -n {activity} --es mode server --es uuid {uuid}")
         time.sleep(6)
-        run(
-            f"{self.adb()} shell am start -n {activity} --es mode client "
-            f"--es peer {peerAddress} --es uuid {uuid} --ez secure true --ez bond true"
-        )
+        run(f"{self.adb()} shell am start -n {activity} --es mode client --es peer {peerAddress} --es uuid {uuid}")
         result = ""
         verdict = ""
         for _ in range(40):

@@ -9,8 +9,8 @@
 // later `am start` re-runs it. It drives android.bluetooth directly and has no Ice dependencies.
 //
 // Launch (via adb am start), reading the result from logcat tag BTBOND:
-//   server: am start -n com.zeroc.btbond/.MainActivity --es mode server --es uuid <uuid> --ez secure <bool>
-//   client: am start -n com.zeroc.btbond/.MainActivity --es mode client --es peer <addr> --es uuid <uuid> --ez secure <bool> --ez bond <bool>
+//   server: am start -n com.zeroc.btbond/.MainActivity --es mode server --es uuid <uuid>
+//   client: am start -n com.zeroc.btbond/.MainActivity --es mode client --es peer <addr> --es uuid <uuid>
 package com.zeroc.btbond;
 
 import android.app.Activity;
@@ -31,13 +31,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.UUID;
 
 public class MainActivity extends Activity {
     static final String TAG = "BTBOND";
 
-    // Probe exchanged over the bonded channel to prove it carries data.
-    static final String PROBE = "PING";
+    // Probe exchanged over the bonded channel to prove it carries data. Held as bytes so the buffer
+    // sizes below are in the same units as what goes on the wire.
+    static final byte[] PROBE = "PING".getBytes(StandardCharsets.UTF_8);
 
     // The whole run is bounded: BluetoothSocket.connect() and the stream reads are native blocking
     // calls that ignore interrupt(), so the only way to unwedge them is to close the socket. Without
@@ -93,15 +95,10 @@ public class MainActivity extends Activity {
         final String mode = it.getStringExtra("mode");
         final String peer = it.getStringExtra("peer");
         final String uuid = it.getStringExtra("uuid");
-        // Default to the secure, bonding behaviour: that is the only thing this app is for, and
-        // getBooleanExtra falls back to the default when the extra is missing *or* the wrong type,
-        // so a `--es secure true` typo would otherwise silently downgrade to insecure RFCOMM.
-        final boolean secure = it.getBooleanExtra("secure", true);
-        final boolean bond = it.getBooleanExtra("bond", true);
-        Log.i(TAG, "start mode=" + mode + " peer=" + peer + " secure=" + secure + " bond=" + bond);
+        Log.i(TAG, "start mode=" + mode + " peer=" + peer);
         worker = new Thread(() -> {
             try {
-                run(mode, peer, uuid, secure, bond);
+                run(mode, peer, uuid);
             } finally {
                 // Finish so a subsequent `am start` re-runs onCreate with the new extras. A
                 // standard-launch-mode activity left resident is simply brought to front, and the
@@ -158,29 +155,31 @@ public class MainActivity extends Activity {
         super.onDestroy();
     }
 
-    void run(String mode, String peer, String uuidStr, boolean secure, boolean bond) {
+    // Everything here is deliberately fixed rather than configurable: only secure RFCOMM triggers
+    // pairing, which is the whole point of this app, so there is no insecure mode to select.
+    void run(String mode, String peer, String uuidStr) {
         try {
             BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
             if (adapter == null) { result(mode, false, "no adapter"); return; }
             if (!adapter.isEnabled()) { result(mode, false, "adapter not enabled"); return; }
-            Log.i(TAG, "adapter enabled=true");
             UUID uuid = UUID.fromString(uuidStr);
 
             if ("server".equals(mode)) {
-                BluetoothServerSocket ss = serverSocket = secure
-                    ? adapter.listenUsingRfcommWithServiceRecord("btbond", uuid)
-                    : adapter.listenUsingInsecureRfcommWithServiceRecord("btbond", uuid);
+                BluetoothServerSocket ss = serverSocket =
+                    adapter.listenUsingRfcommWithServiceRecord("btbond", uuid);
                 try {
-                    Log.i(TAG, "listening secure=" + secure + ", waiting up to 120s for client...");
+                    Log.i(TAG, "listening, waiting up to 120s for client...");
                     BluetoothSocket s = socket = ss.accept(120000);
                     try {
                         Log.i(TAG, "accepted a connection");
                         InputStream in = s.getInputStream();
                         OutputStream out = s.getOutputStream();
-                        byte[] buf = new byte[PROBE.length()];
+                        byte[] buf = new byte[PROBE.length];
                         int n = readFully(in, buf);
                         Log.i(TAG, "server read " + n + " bytes");
-                        if (n > 0) { out.write(buf, 0, n); out.flush(); }
+                        // Only echo a complete probe: a short read is already a failure, and echoing
+                        // it would just make the client report a mismatch instead of the real cause.
+                        if (n == buf.length) { out.write(buf); out.flush(); }
                         result(mode, n == buf.length, "echoed " + n + " bytes");
                     } finally {
                         s.close();
@@ -190,7 +189,7 @@ public class MainActivity extends Activity {
                 }
             } else if ("client".equals(mode)) {
                 BluetoothDevice dev = adapter.getRemoteDevice(peer);
-                if (bond && dev.getBondState() != BluetoothDevice.BOND_BONDED) {
+                if (dev.getBondState() != BluetoothDevice.BOND_BONDED) {
                     Log.i(TAG, "bond state=" + dev.getBondState() + ", createBond()...");
                     dev.createBond();
                     long deadline = System.currentTimeMillis() + 60000;
@@ -204,21 +203,21 @@ public class MainActivity extends Activity {
                         return;
                     }
                 }
-                BluetoothSocket s = socket = secure
-                    ? dev.createRfcommSocketToServiceRecord(uuid)
-                    : dev.createInsecureRfcommSocketToServiceRecord(uuid);
+                BluetoothSocket s = socket = dev.createRfcommSocketToServiceRecord(uuid);
                 try {
-                    Log.i(TAG, "connecting secure=" + secure + "...");
+                    Log.i(TAG, "connecting...");
                     s.connect();
                     Log.i(TAG, "connected");
                     OutputStream out = s.getOutputStream();
                     InputStream in = s.getInputStream();
-                    out.write(PROBE.getBytes(StandardCharsets.UTF_8)); out.flush();
-                    byte[] buf = new byte[PROBE.length()];
+                    out.write(PROBE); out.flush();
+                    byte[] buf = new byte[PROBE.length];
                     int n = readFully(in, buf);
-                    String echo = n > 0 ? new String(buf, 0, n, StandardCharsets.UTF_8) : "";
+                    String echo = new String(buf, 0, n, StandardCharsets.UTF_8);
                     Log.i(TAG, "client got echo: '" + echo + "'");
-                    result(mode, PROBE.equals(echo), "echo='" + echo + "'");
+                    // buf is exactly probe-sized, so a short read leaves trailing zeros and compares
+                    // unequal; no separate length check is needed.
+                    result(mode, Arrays.equals(buf, PROBE), "echo='" + echo + "'");
                 } finally {
                     s.close();
                 }
