@@ -253,11 +253,14 @@ class ControllerDriver(Driver):
 
     @staticmethod
     def emulatorPort(serial):
-        # "emulator-5554" -> 5554
-        try:
-            return int(serial.rsplit("-", 1)[1])
-        except (IndexError, ValueError):
+        # "emulator-5554" -> 5554. The prefix has to be checked too, not just the port: adb names an
+        # emulator after the port it is listening on, so a serial like "phone-5554" would boot an
+        # emulator that adb knows as "emulator-5554" and leave every later command pointed at a
+        # serial that does not exist -- failing slowly, as a boot timeout, rather than here.
+        prefix, _, port = serial.rpartition("-")
+        if prefix != "emulator" or not port.isdigit():
             raise RuntimeError(f"expected an emulator serial like 'emulator-5554', got '{serial}'")
+        return int(port)
 
     def runBluetoothEmulators(self):
         # Create and boot the two emulators used by the Bluetooth harness. They are launched detached

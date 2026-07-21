@@ -1,3 +1,5 @@
+// Copyright (c) ZeroC, Inc.
+
 // Forces a BR/EDR bond between the two Android emulators (over Netsim/Rootcanal) before the IceBT
 // tests run: IceBT uses secure RFCOMM, which only works between bonded devices, and bonding is
 // otherwise an interactive pairing dialog with no adb equivalent. Installed as a privileged system
