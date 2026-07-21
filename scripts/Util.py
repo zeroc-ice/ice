@@ -2687,14 +2687,13 @@ class AndroidProcessController(RemoteProcessController):
     def enableBluetooth(self):
         self._adbTolerant("root")
         time.sleep(2)
+        # Tolerant: enabling an already-enabled adapter fails harmlessly.
         self._adbTolerant("shell cmd bluetooth_manager enable")
-        self._adbTolerant("shell cmd bluetooth_manager wait-for-state:STATE_ON")
-        # The commands above are tolerant because they can harmlessly fail (already enabled), but
-        # that also swallows a genuine failure to come up. Check the outcome here, rather than let
-        # it surface much later as an opaque bond or IceBT connect error.
-        address = self.bluetoothAddress()
-        if not address or address == "null":
-            raise RuntimeError(f"Bluetooth did not come up on '{self.device}'")
+        # Not tolerant: this is the only command that establishes the adapter actually reached
+        # STATE_ON. bluetooth_address can't stand in for it -- it is a persisted secure setting that
+        # stays populated while the adapter is off, and enableBluetooth runs just after
+        # installSystemApp's reboot, so it would still hold the value from the previous boot.
+        run(f"{self.adb()} shell cmd bluetooth_manager wait-for-state:STATE_ON")
 
     def grantRuntimePermissions(self, package, permissions):
         for permission in permissions:
