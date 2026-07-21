@@ -24,19 +24,31 @@ _OP_PING = 0x9
 _OP_PONG = 0xA
 
 
-def _recvn(sock, n):
-    """Read exactly n bytes, raising if the connection closes first."""
-    buf = b""
-    while len(buf) < n:
-        chunk = sock.recv(n - len(buf))
-        if not chunk:
-            raise RuntimeError("connection closed while reading {0} bytes".format(n))
-        buf += chunk
-    return buf
+class _Reader:
+    """A buffered socket reader, primed with the bytes already read past the upgrade response."""
+
+    def __init__(self, sock, buf=b""):
+        self._sock = sock
+        self._buf = buf
+
+    def recvn(self, n):
+        """Read exactly n bytes, raising if the connection closes first."""
+        while len(self._buf) < n:
+            chunk = self._sock.recv(n - len(self._buf))
+            if not chunk:
+                raise RuntimeError("connection closed while reading {0} bytes".format(n))
+            self._buf += chunk
+        buf, self._buf = self._buf[:n], self._buf[n:]
+        return buf
 
 
 def _upgrade(sock, host, port):
-    """Perform the WebSocket upgrade handshake; raise unless the server returns 101."""
+    """
+    Perform the WebSocket upgrade handshake; raise unless the server returns 101.
+
+    Returns the bytes read past the end of the response headers: the server can send its first
+    frame in the same packet as the 101 response, and those bytes must not be dropped.
+    """
     key = base64.b64encode(os.urandom(16)).decode("ascii")
     request = (
         "\r\n".join(
@@ -63,6 +75,7 @@ def _upgrade(sock, host, port):
     status = buf.split(b"\r\n", 1)[0].decode("ascii", errors="replace") if buf else "<no response>"
     if not status.startswith("HTTP/1.1 101"):
         raise RuntimeError("WebSocket upgrade rejected: {0}".format(status))
+    return buf.partition(b"\r\n\r\n")[2]
 
 
 def _client_frame(opcode, payload):
@@ -74,18 +87,18 @@ def _client_frame(opcode, payload):
     return bytes([0x80 | opcode, 0x80 | len(payload)]) + mask + masked
 
 
-def _read_frame(sock):
+def _read_frame(reader):
     """Read one server->client frame and return (opcode, payload). Server frames are unmasked."""
-    b0, b1 = _recvn(sock, 2)
+    b0, b1 = reader.recvn(2)
     opcode = b0 & 0x0F
     masked = b1 & 0x80
     length = b1 & 0x7F
     if length == 126:
-        length = int.from_bytes(_recvn(sock, 2), "big")
+        length = int.from_bytes(reader.recvn(2), "big")
     elif length == 127:
-        length = int.from_bytes(_recvn(sock, 8), "big")
-    mask = _recvn(sock, 4) if masked else b""
-    payload = _recvn(sock, length) if length else b""
+        length = int.from_bytes(reader.recvn(8), "big")
+    mask = reader.recvn(4) if masked else b""
+    payload = reader.recvn(length) if length else b""
     if masked:
         payload = bytes(p ^ mask[i % 4] for i, p in enumerate(payload))
     return opcode, payload
@@ -99,10 +112,10 @@ def ping_pong(host, port, payload=b"", timeout=10.0):
     message) are skipped. Raises if the server sends CLOSE or never ponngs.
     """
     with socket.create_connection((host, port), timeout=timeout) as sock:
-        _upgrade(sock, host, port)
+        reader = _Reader(sock, _upgrade(sock, host, port))
         sock.sendall(_client_frame(_OP_PING, payload))
         for _ in range(16):
-            opcode, data = _read_frame(sock)
+            opcode, data = _read_frame(reader)
             if opcode == _OP_PONG:
                 return data
             if opcode == _OP_CLOSE:

@@ -258,7 +258,8 @@ class RemoteTestCaseRunner(TestCaseRunner):
         for key, values in options.items():
             for opts in [self.serverOptions, self.clientOptions]:
                 if hasattr(opts, key) and getattr(opts, key) is not None:
-                    options[key] = [v for v in values if v in getattr(opts, key)]
+                    values = [v for v in values if v in getattr(opts, key)]
+            options[key] = values
         return options
 
     def startServerSide(self, testcase, current):
@@ -346,7 +347,7 @@ class XmlExporter:
             out.write('<?xml version="1.1" encoding="UTF-8"?>\n')
             out.write(
                 '<testsuites tests="{0}" failures="{1}" time="{2:.9f}">\n'.format(
-                    len(self.results), self.duration, len(self.failures)
+                    len(self.results), len(self.failures), self.duration
                 )
             )
             for r in self.results:
@@ -428,9 +429,10 @@ class LocalDriver(Driver):
         )
 
         if self.cross:
-            self.cross = Mapping.getByName(self.cross)
-            if not self.cross:
+            cross = Mapping.getByName(self.cross)
+            if not cross:
                 raise RuntimeError("unknown mapping `{0}' for --cross option".format(self.cross))
+            self.cross = cross
 
         self.results = []
         self.threadlocal = threading.local()
@@ -621,7 +623,7 @@ class LocalDriver(Driver):
                 # behind.
                 #
                 failure = []
-                sem = threading.Semaphore(0)
+                stopped = threading.Event()
 
                 def stopServerSide():
                     try:
@@ -630,23 +632,23 @@ class LocalDriver(Driver):
                         failure.append(ex)
                     except KeyboardInterrupt:  # Potentially raised by Except.py if Ctrl-C
                         pass
-                    sem.release()
+                    finally:
+                        stopped.set()
 
                 t = threading.Thread(target=stopServerSide)
                 t.start()
-                while True:
+                #
+                # NOTE: we can't just use join() here because of https://bugs.python.org/issue21822
+                # We wait on an event instead, which stays set once the servers are stopped, so a
+                # Ctrl-C interrupting the wait can't leave us blocking on an already consumed permit.
+                #
+                while not stopped.is_set():
                     try:
-                        #
-                        # NOTE: we can't just use join() here because of https://bugs.python.org/issue21822
-                        # We use a semaphore to wait for the servers to be stopped and return.
-                        #
-                        sem.acquire()
-                        if failure:
-                            raise failure[0]
-                        t.join()
-                        break
+                        stopped.wait()
                     except KeyboardInterrupt:
                         pass  # Ignore keyboard interrupts
+                if failure:
+                    raise failure[0]
 
     def runTestCase(self, current):
         if self.cross or self.allCross:

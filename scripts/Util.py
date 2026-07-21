@@ -48,7 +48,8 @@ def run(cmd, cwd=None, expectErr=False, stdout=False, stdin=None, stdinRepeat=Tr
             except Exception:
                 pass
 
-        out = (p.stderr if stdout else p.stdout).read().decode("UTF-8").strip()
+        # With stdout=True, the child writes directly to our stdout, there's no pipe to read from.
+        out = "" if stdout else p.stdout.read().decode("UTF-8").strip()
 
         status = p.wait()
 
@@ -66,7 +67,8 @@ def run(cmd, cwd=None, expectErr=False, stdout=False, stdin=None, stdinRepeat=Tr
         #
         # ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='cp1252'>
         #
-        (p.stderr if stdout else p.stdout).close()
+        if p.stdout:
+            p.stdout.close()
         try:
             p.stdin.close()
         except Exception:
@@ -259,7 +261,7 @@ class Platform(object):
                 if m and m.group(1):
                     self._hasSwift = tuple([int(n) for n in m.group(1).split(".")]) >= version
                 else:
-                    self.hasSwift = False
+                    self._hasSwift = False
             except Exception:
                 self._hasSwift = False
         return self._hasSwift
@@ -951,10 +953,10 @@ class Mapping(object):
                         # WORKAROUND for Python issue 15230 (fixed in 3.2) where run_path doesn't work correctly.
                         #
                         # runpy.run_path(os.path.join(root, "test.py"))
-                        origsyspath = sys.path
+                        syspath = sys.path
                         sys.path = [root] + sys.path
                         runpy.run_module("test", init_globals=globals(), run_name=root)
-                        origsyspath = sys.path
+                        sys.path = syspath
                         continue
 
                     #
@@ -2018,9 +2020,13 @@ class Result:
         self._stdout.write("\n")
 
     def writeAsXml(self, out, hostname=""):
+        # Don't keep track of the setup/teardown steps (they use string keys) and don't write skipped
+        # tests, this doesn't really provide useful information and clutters the output.
+        testcases = [(k, v) for k, v in self._testcases.items() if not isinstance(k, str) and k not in self._skipped]
+
         out.write(
             '  <testsuite tests="{0}" failures="{1}" skipped="{2}" time="{3:.9f}" name="{5}/{4}">\n'.format(
-                len(self._testcases) - 2,
+                len(testcases),
                 len(self._failed),
                 0,
                 self._duration,
@@ -2029,16 +2035,7 @@ class Result:
             )
         )
 
-        for k, v in self._testcases.items():
-            if isinstance(k, str):
-                # Don't keep track of setup/teardown steps
-                continue
-
-            # Don't write skipped tests, this doesn't really provide useful information and clutters
-            # the output.
-            if k in self._skipped:
-                continue
-
+        for k, v in testcases:
             (tc, cf) = k
             (s, e, d, c) = v
             if c:
@@ -2905,7 +2902,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
         sys.stdout.write("shutting down simulator... ")
         sys.stdout.flush()
         try:
-            run('xcrun simctl shutdown "{0}"'.format(self.simulatorID))
+            run('xcrun simctl shutdown "{0}"'.format(self.device))
         except Exception:
             pass
         print("ok")
