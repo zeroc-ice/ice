@@ -46,11 +46,10 @@ public class MainActivity extends Activity {
     // rest of the boot.
     static final long WATCHDOG_MS = 150_000;
 
-    // Touched from the main thread (onDestroy, watchdog) and the worker, so all are volatile.
+    // Touched from the main thread (watchdog) and the worker, so all are volatile.
     private volatile Thread worker;
     private volatile BluetoothServerSocket serverSocket;
     private volatile BluetoothSocket socket;
-    private volatile boolean destroyed;
 
     // Best-effort auto-accept of incoming pairing requests. The app runs as a privileged system app
     // (BLUETOOTH_PRIVILEGED), so setPairingConfirmation should succeed; setPin is a fallback that logs
@@ -150,15 +149,12 @@ public class MainActivity extends Activity {
         } catch (IllegalArgumentException ignored) {
             // Receiver was not registered; nothing to do.
         }
-        // Close the sockets so a destroyed activity doesn't leave an RFCOMM listener (and its SDP
-        // record) or a connection live with no receiver left to confirm pairing. Closing is what
-        // ends the worker: accept/connect/read are native blocking calls that ignore interrupt().
-        // Set destroyed first, so a socket opened concurrently in run() is closed by run() itself.
-        destroyed = true;
-        closeSockets();
-        if (worker != null) {
-            worker.interrupt(); // only unblocks the bond-state Thread.sleep
-        }
+        // Deliberately does NOT close the sockets. Closing them here looks like the right cleanup --
+        // it does leak a listener and its SDP record until accept() times out -- but the system
+        // recreates this activity during a normal run, and closing the socket out from under a
+        // blocked accept() makes it throw, turning a survivable recreate into a failed bond. That
+        // regressed CI once; the leak is transient and self-heals, so leave it alone. The watchdog
+        // bounds a genuinely stuck run instead.
         super.onDestroy();
     }
 
@@ -174,13 +170,6 @@ public class MainActivity extends Activity {
                 BluetoothServerSocket ss = serverSocket = secure
                     ? adapter.listenUsingRfcommWithServiceRecord("btbond", uuid)
                     : adapter.listenUsingInsecureRfcommWithServiceRecord("btbond", uuid);
-                // onDestroy may have run between opening the socket and publishing it above, in
-                // which case its closeSockets() saw null and this one would outlive the activity.
-                if (destroyed) {
-                    ss.close();
-                    result(mode, false, "destroyed before listening");
-                    return;
-                }
                 try {
                     Log.i(TAG, "listening secure=" + secure + ", waiting up to 120s for client...");
                     BluetoothSocket s = socket = ss.accept(120000);
@@ -218,12 +207,6 @@ public class MainActivity extends Activity {
                 BluetoothSocket s = socket = secure
                     ? dev.createRfcommSocketToServiceRecord(uuid)
                     : dev.createInsecureRfcommSocketToServiceRecord(uuid);
-                // As on the server path: onDestroy may have run before the socket was published.
-                if (destroyed) {
-                    s.close();
-                    result(mode, false, "destroyed before connecting");
-                    return;
-                }
                 try {
                     Log.i(TAG, "connecting secure=" + secure + "...");
                     s.connect();
