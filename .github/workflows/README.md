@@ -1,31 +1,33 @@
 # Release Workflows
 
-The release workflows support building and publishing Ice packages for the `3.8` and `nightly` channels.
+The release workflows build and publish stable, release candidate, and nightly Ice packages. The release channel is
+read from `config/version.env` on the branch or tag being built.
 
-The `3.8` channel publishes packages to the stable release repositories, while the `nightly` channel publishes to the
-unstable nightly repositories.
+Nightly packages are intended for testing the latest development and must not be used in production. The
+`dispatch-nightly-release` workflow is the central scheduler: it runs from the default branch and dispatches nightly
+releases for `main` and the supported maintenance branches.
 
-The nightly repositories are updated daily from the `zeroc-ice/ice` `main` branch. These releases are intended for
-testing the latest development and must not be used in production.
+## Building and Publishing
 
-To build a stable release for `3.8`, run the `build-release` workflow and pass `3.8` as the channel.
-To build a dev release for `nightly`, run the `build-release` workflow and pass `nightly` as the channel.
+The `build-release` workflow builds all packages and uploads their artifacts. It never publishes them. For stable and
+release candidate releases, run `build-release`, make any required updates between building and publishing (such as
+updating the Swift package manifest with release binary hashes), and then run `publish-release` with the build's
+`run_id`, `channel`, and `quality`.
 
-The `build-nightly-release` workflow schedules a daily `build-release` run for the `nightly` channel.
+The `nightly-release` workflow orchestrates the nightly path. It always runs `build-release`; when `publish` is true,
+it then prunes expired nightly artifacts and runs `publish-release`. Pruning must finish before publishing because it
+can remove packages from the APT and RPM repository trees, while the publish workflows regenerate their metadata.
+Run `nightly-release` with `publish` false to build nightly artifacts without changing the repositories.
+
+The scheduler dispatches `nightly-release` for branches that contain this split workflow. Maintenance branches that
+have not received the workflow yet continue to use their branch-local `build-release` orchestration.
 
 ## Implementation Notes
 
-Each `build-xxx-package` workflow builds the corresponding `xxx` package, and each `publish-xxx-package` workflow
-publishes it.
+Each `build-xxx-package` workflow builds the corresponding package, and each `publish-xxx-package` workflow publishes
+it. `publish-release` calls all package-specific publish workflows and can also be run manually to publish artifacts
+from a specified build run.
 
-The `build-release` workflow orchestrates the build of all packages and triggers `publish-release` after all
-`build-xxx-package` workflows have completed successfully.
-
-The `publish-release` workflow orchestrates the publishing of all packages to their respective repositories by calling
-the `publish-xxx-package` workflows. You can also run it manually by providing a `run_id` and `channel`; in this case,
-it will publish the artifacts from the specified run to the specified channel.
-
-The RPM and DEB packaging workflows use Docker images from `packaging/rpm/docker` and `packaging/deb/docker`.
-
-The release pipeline is configured to use `ghcr.io`. These images can be built using the `build-container-images`
-workflow, which builds and publishes them to `ghcr.io` for internal use.
+The RPM and DEB packaging workflows use Docker images from `packaging/rpm/docker` and `packaging/deb/docker`. The
+release pipeline uses `ghcr.io`; the `build-container-images` workflow builds and publishes these images for internal
+use.

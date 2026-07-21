@@ -2,6 +2,10 @@ name: Build Release
 
 on:
   workflow_call:
+    outputs:
+      channel:
+        description: "The release channel from config/version.env"
+        value: ${{ jobs.configure.outputs.channel }}
     inputs:
       build_number:
         required: false
@@ -10,10 +14,6 @@ on:
       quality:
         required: true
         type: string
-      publish:
-        required: false
-        type: boolean
-        default: false
       authenticode_sign:
         description: "Sign Windows binaries with Authenticode (always true for stable quality)"
         required: false
@@ -30,11 +30,6 @@ on:
         description: "Release quality (e.g., stable, nightly, RC)"
         required: true
         default: "nightly"
-      publish:
-        description: "Publish the packages"
-        required: false
-        default: false
-        type: boolean
       authenticode_sign:
         description: "Sign Windows binaries with Authenticode (always true for stable quality)"
         required: false
@@ -290,28 +285,3 @@ jobs:
       - build-cpp-nuget-packages
     steps:
       - run: echo "All packages built successfully"
-
-  prune-nightly-artifacts:
-    name: Prune Nightly Artifacts
-    if: ${{ inputs.publish == true && inputs.quality == 'nightly' }}
-    needs:
-      - configure
-      - build-all
-    uses: ./.github/workflows/prune-nightly-artifacts.yml
-    with:
-      channel: ${{ needs.configure.outputs.channel }}
-    secrets: inherit
-
-  publish-release:
-    name: Publish Release
-    if: ${{ inputs.publish == true }}
-    needs:
-      - configure
-      - build-all
-      - prune-nightly-artifacts
-    uses: ./.github/workflows/publish-release.yml
-    with:
-      channel: ${{ needs.configure.outputs.channel }}
-      quality: ${{ inputs.quality }}
-      run_id: ${{ github.run_id }}
-    secrets: inherit

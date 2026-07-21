@@ -25,15 +25,16 @@ jobs:
         uses: ./.github/actions/dispatch-workflow
         with:
           ref: main
-          workflow: build-release.yml
+          workflow: nightly-release.yml
           token: ${{ secrets.GITHUB_TOKEN }}
-          inputs: '{"quality": "nightly", "publish": true}'
+          inputs: '{"publish": true}'
 
       - name: Dispatch nightly build for 3.8 (3:00 UTC)
         if: github.event.schedule == '0 3 * * *'
         uses: ./.github/actions/dispatch-workflow
         with:
           ref: 3.8
+          # Use the existing orchestrator until nightly-release.yml is backported.
           workflow: build-release.yml
           token: ${{ secrets.GITHUB_TOKEN }}
           inputs: '{"quality": "nightly", "publish": true}'
@@ -43,6 +44,7 @@ jobs:
         uses: ./.github/actions/dispatch-workflow
         with:
           ref: 3.7
+          # Use the existing orchestrator until nightly-release.yml is backported.
           workflow: build-release.yml
           token: ${{ secrets.GITHUB_TOKEN }}
           inputs: '{"quality": "nightly", "publish": true}'
