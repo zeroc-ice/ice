@@ -133,6 +133,13 @@ jobs:
               --device=$BT_CLIENT --host-bt=$BT_ADDR
               Ice/operations Ice/ami Ice/enums Ice/exceptions Ice/facets
               Ice/inheritance Ice/objects Ice/optional Ice/proxy
+            # bts is the same RFCOMM transport with SSL layered over it. The controller app bundles
+            # the keystores it needs (res/raw/*.p12), so this only needs the protocol switched. Kept
+            # to the core suites: it covers the SSL-over-Bluetooth path, not the marshalling again.
+            bts_test_flags: >-
+              --android --controller-app --protocol=bts --cross=java --server=server
+              --device=$BT_CLIENT --host-bt=$BT_ADDR
+              Ice/operations Ice/ami
 
           # .NET 10.0
           - os: ubuntu-24.04
@@ -290,6 +297,17 @@ jobs:
         with:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: ${{ matrix.test_flags }}
+          workers: ${{ matrix.test_workers || 4 }}
+          all: ${{ matrix.test_all || 'true' }}
+
+      # Runs before the diagnostics step so a bts failure still gets the adb/logcat dump.
+      - name: Test ${{ matrix.config }} over bts on ${{ matrix.os }}
+        if: matrix.bts_test_flags != ''
+        uses: ./.github/actions/test
+        timeout-minutes: 20
+        with:
+          working_directory: ${{ matrix.working_directory || '.' }}
+          flags: ${{ matrix.bts_test_flags }}
           workers: ${{ matrix.test_workers || 4 }}
           all: ${{ matrix.test_all || 'true' }}
 
