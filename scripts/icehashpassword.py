@@ -115,10 +115,13 @@ def main():
             usage()
             return 2
     if salt is not None:
-        if not passScheme.min_salt_size <= salt <= passScheme.max_salt_size:
+        # The schemes report a minimum salt size of 0, but hashing a password without a salt is never
+        # what the user wants: passlib emits an empty salt field that verifies just fine.
+        minSaltSize = max(1, passScheme.min_salt_size)
+        if not minSaltSize <= salt <= passScheme.max_salt_size:
             print(
                 "Invalid salt size for the digest algorithm. Value must be an integer between %s and %s"
-                % (passScheme.min_salt_size, passScheme.max_salt_size)
+                % (minSaltSize, passScheme.max_salt_size)
             )
             usage()
             return 2
