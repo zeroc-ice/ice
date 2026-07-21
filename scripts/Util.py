@@ -2019,6 +2019,13 @@ class Result:
         self._stdout.write(msg)
         self._stdout.write("\n")
 
+    def getXmlCounts(self):
+        # The (tests, failures) counts as written to the XML report by writeAsXml.
+        return (
+            len([k for k in self._testcases if not isinstance(k, str) and k not in self._skipped]),
+            len(self._failed),
+        )
+
     def writeAsXml(self, out, hostname=""):
         # Don't keep track of the setup/teardown steps (they use string keys) and don't write skipped
         # tests, this doesn't really provide useful information and clutters the output.

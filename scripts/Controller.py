@@ -197,16 +197,18 @@ class ControllerDriver(Driver):
     def getCurrent(self, mapping, testsuite, testcase, cross, protocol=None, host=None, args=[]):
         from Test import Common as Test_Common
 
-        mappingName = mapping
-        mapping = Mapping.getByName(mappingName)
-        if not mapping:
-            raise Test_Common.TestCaseNotExistException("unknown mapping {0}".format(mappingName))
+        # Mapping.getByName raises RuntimeError for an unknown mapping, but runTestCase is declared to
+        # throw TestCaseNotExistException.
+        try:
+            mapping = Mapping.getByName(mapping)
+        except RuntimeError as ex:
+            raise Test_Common.TestCaseNotExistException(str(ex))
 
         if cross:
-            crossName = cross
-            cross = Mapping.getByName(crossName)
-            if not cross:
-                raise Test_Common.TestCaseNotExistException("unknown mapping {0} for cross testing".format(crossName))
+            try:
+                cross = Mapping.getByName(cross)
+            except RuntimeError as ex:
+                raise Test_Common.TestCaseNotExistException("{0} for cross testing".format(ex))
 
         ts = mapping.findTestSuite(testsuite)
         if not ts:

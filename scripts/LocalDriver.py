@@ -337,17 +337,20 @@ class RemoteTestCaseRunner(TestCaseRunner):
 
 
 class XmlExporter:
-    def __init__(self, results, duration, failures):
+    def __init__(self, results, duration):
         self.results = results
         self.duration = duration
-        self.failures = failures
 
     def save(self, filename, hostname):
+        # The root element aggregates the per-testsuite counts, each result can write several testcases.
+        counts = [r.getXmlCounts() for r in self.results]
         with open(filename, "w", encoding="utf-8") as out:
             out.write('<?xml version="1.1" encoding="UTF-8"?>\n')
             out.write(
                 '<testsuites tests="{0}" failures="{1}" time="{2:.9f}">\n'.format(
-                    len(self.results), len(self.failures), self.duration
+                    sum(tests for (tests, _) in counts),
+                    sum(failures for (_, failures) in counts),
+                    self.duration,
                 )
             )
             for r in self.results:
@@ -429,10 +432,11 @@ class LocalDriver(Driver):
         )
 
         if self.cross:
-            cross = Mapping.getByName(self.cross)
-            if not cross:
+            # Mapping.getByName raises RuntimeError for an unknown mapping.
+            try:
+                self.cross = Mapping.getByName(self.cross)
+            except RuntimeError:
                 raise RuntimeError("unknown mapping `{0}' for --cross option".format(self.cross))
-            self.cross = cross
 
         self.results = []
         self.threadlocal = threading.local()
@@ -495,7 +499,7 @@ class LocalDriver(Driver):
                 duration = time.time() - now
 
                 if self.exportToXml:
-                    XmlExporter(results, duration, failures).save(self.exportToXml, os.getenv("NODE_NAME", ""))
+                    XmlExporter(results, duration).save(self.exportToXml, os.getenv("NODE_NAME", ""))
 
                 m, s = divmod(duration, 60)
                 print("")

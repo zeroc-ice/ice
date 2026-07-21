@@ -140,6 +140,11 @@ class reader(threading.Thread):
                 if not c:
                     self.cv.acquire()
                     try:
+                        # Flush the character the decoder may still be holding, otherwise a process
+                        # exiting in the middle of a multi-byte sequence loses its last character.
+                        for char in decoder.decode(b"", True):
+                            self.trace(char)
+                            self.buf.write(char)
                         self.trace(None)
                         self._finish = True  # We have finished processing output
                         self.cv.notify()
