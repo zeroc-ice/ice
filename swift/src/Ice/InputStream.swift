@@ -1500,7 +1500,6 @@ private class EncapsDecoder11: EncapsDecoder {
             let bytes = stream.data.subdata(in: start..<dataEnd)  // copy
 
             let info = SliceInfo(
-                // When the slice was decoded via a compact type ID, expose an empty type ID.
                 typeId: current.compactId == -1 ? current.typeId : "",
                 compactId: current.compactId,
                 bytes: bytes,
