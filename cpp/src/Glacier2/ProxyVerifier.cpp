@@ -518,7 +518,7 @@ namespace Glacier2
     }
 
     // Returns true when host is the canonical spelling of an IPv4 address: four decimal parts, each between 0
-    // and 255, with no leading zero.
+    // and 255, with no leading zeros.
     static bool isCanonicalIPv4Spelling(const string& host)
     {
         vector<string> parts = splitHost(host);
