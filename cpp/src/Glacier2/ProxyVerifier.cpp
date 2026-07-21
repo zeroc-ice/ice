@@ -497,17 +497,17 @@ namespace Glacier2
         return parts;
     }
 
-    // Returns true when every '.'-separated part of host is a numeral (digits, or hexadecimal digits with a
-    // 0x prefix): the host spells an IPv4 address in one of the many forms resolvers accept. This is a check
-    // on the spelling, not the value: a digit-only part covers the decimal and octal (leading zero) readings
-    // alike.
+    // Returns true when every '.'-separated part of host is a numeral (digits, or a 0x prefix followed by
+    // hexadecimal digits): the host spells an IPv4 address in one of the many forms resolvers accept. This is
+    // a check on the spelling, not the value: a digit-only part covers the decimal and octal (leading zero)
+    // readings alike, and a bare 0x with no digits reads as 0.
     static bool isIPv4Numeral(const string& host)
     {
         for (const string& part : splitHost(host))
         {
             bool digitsOnly =
                 !part.empty() && all_of(part.begin(), part.end(), [](unsigned char c) { return isdigit(c) != 0; });
-            bool hex = part.size() > 2 && part[0] == '0' && (part[1] == 'x' || part[1] == 'X') &&
+            bool hex = part.size() >= 2 && part[0] == '0' && (part[1] == 'x' || part[1] == 'X') &&
                        all_of(part.begin() + 2, part.end(), [](unsigned char c) { return isxdigit(c) != 0; });
             if (!digitsOnly && !hex)
             {
@@ -538,8 +538,8 @@ namespace Glacier2
         return true;
     }
 
-    // Returns true when an endpoint of the proxy has a host that the address rules cannot match reliably; such
-    // a proxy is rejected outright:
+    // Returns true when an endpoint of the proxy has a host that the address rules cannot match reliably;
+    // when an address filter is configured, such a proxy is rejected outright:
     // - A host longer than 255 characters. No legal host name or IP address is that long, and the bound keeps
     //   the cost of matching the address rules low.
     // - A non-canonical spelling of an IPv4 address, such as 0x7f000001, 2130706433, 0177.0.0.1, or 127.1.
@@ -1008,6 +1008,7 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator, int traceLe
     string s = _communicator->getProperties()->getIceProperty("Glacier2.Filter.Address.Accept");
     if (s != "")
     {
+        _hasAddressFilters = true;
         try
         {
             // An accept rule matches a proxy only when every endpoint matches it.
@@ -1024,6 +1025,7 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator, int traceLe
     s = _communicator->getProperties()->getIceProperty("Glacier2.Filter.Address.Reject");
     if (s != "")
     {
+        _hasAddressFilters = true;
         try
         {
             // A reject rule matches a proxy as soon as one endpoint matches it.
@@ -1076,7 +1078,7 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
 
     bool result = false;
 
-    if (Glacier2::hasDisallowedHost(proxy))
+    if (_hasAddressFilters && Glacier2::hasDisallowedHost(proxy))
     {
         // Rejected regardless of the configured rules.
     }

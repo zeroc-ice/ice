@@ -463,8 +463,20 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                         (False, "hello:tcp -h 2130706433 -p 12010"),
                         (False, "hello:tcp -h 127.1 -p 12010"),
                         (False, "hello:tcp -h 0177.0.0.1 -p 12010"),
+                        (False, "hello:tcp -h 0x.0.0.1 -p 12010"),
                         (False, "hello:tcp -h 127.0.0.1. -p 12010"),
                         (True, "hello:tcp -h localhost -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # The outright rejection of non-canonical spellings applies only when an address filter is
+                    # configured: with just a size limit, the proxy is matched against no address rule, so the
+                    # spelling of the host does not matter.
+                    "testing proxy size limit alone allows non-canonical hosts",
+                    ("", "", "100", "", "", ""),
+                    [
+                        (True, "hello:tcp -h 127.1 -p 12010"),
                     ],
                     [],
                 ),
