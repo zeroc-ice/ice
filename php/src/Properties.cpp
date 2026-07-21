@@ -235,14 +235,14 @@ ZEND_METHOD(Ice_Properties, getPropertyAsIntWithDefault)
     assert(_this);
 
     string_view propName(name, nameLen);
-    if (def < INT32_MIN || def > INT32_MAX)
+    optional<int32_t> defaultValue = getInt32(def);
+    if (!defaultValue)
     {
-        invalidArgument("the default value is out of the range of a 32-bit integer");
         RETURN_NULL();
     }
     try
     {
-        int32_t val = _this->getPropertyAsIntWithDefault(propName, static_cast<int32_t>(def));
+        int32_t val = _this->getPropertyAsIntWithDefault(propName, *defaultValue);
         RETURN_LONG(val);
     }
     catch (...)

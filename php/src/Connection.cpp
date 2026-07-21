@@ -231,20 +231,16 @@ ZEND_METHOD(Ice_Connection, setBufferSize)
         RETURN_NULL();
     }
 
-    // Connection::setBufferSize takes int arguments in C++; reject values outside that range instead of silently
-    // truncating them.
-    if (r < INT_MIN || r > INT_MAX || s < INT_MIN || s > INT_MAX)
+    optional<int32_t> rcvSize = getInt32(r);
+    optional<int32_t> sndSize = getInt32(s);
+    if (!rcvSize || !sndSize)
     {
-        invalidArgument("buffer size must be in the range of a C++ int");
         RETURN_NULL();
     }
 
-    int rcvSize = static_cast<int>(r);
-    int sndSize = static_cast<int>(s);
-
     try
     {
-        _this->setBufferSize(rcvSize, sndSize);
+        _this->setBufferSize(*rcvSize, *sndSize);
     }
     catch (...)
     {

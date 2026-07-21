@@ -368,7 +368,7 @@ IceRuby::OperationI::convertParam(VALUE v, long pos)
     ParamInfoPtr param = make_shared<ParamInfo>();
     param->type = getType(RARRAY_AREF(v, 0));
     param->optional = static_cast<bool>(RTEST(RARRAY_AREF(v, 1)));
-    param->tag = static_cast<int>(getInteger(RARRAY_AREF(v, 2)));
+    param->tag = getInteger(RARRAY_AREF(v, 2));
     param->pos = static_cast<int>(pos);
     return param;
 }

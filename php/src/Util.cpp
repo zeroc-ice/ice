@@ -604,6 +604,17 @@ IcePHP::invalidArgument(const string& msg)
     throwError("InvalidArgumentException", msg);
 }
 
+optional<int32_t>
+IcePHP::getInt32(zend_long value)
+{
+    if (value < INT32_MIN || value > INT32_MAX)
+    {
+        invalidArgument("value is out of the range of a 32-bit integer");
+        return nullopt;
+    }
+    return static_cast<int32_t>(value);
+}
+
 static bool
 invokeMethodHelper(zval* obj, const string& name, zval* param)
 {
