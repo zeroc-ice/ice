@@ -12,6 +12,7 @@ public interface PluginManager {
      * initialization, the communicator calls {@link Plugin#destroy} on the plug-ins that have already been initialized.
      *
      * @throws InitializationException if the plug-ins have already been initialized
+     * @throws PluginInitializationException if a plug-in fails to initialize
      */
     void initializePlugins();
 

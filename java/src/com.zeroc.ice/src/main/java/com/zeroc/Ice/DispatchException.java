@@ -16,9 +16,15 @@ public class DispatchException extends LocalException {
      *     than {@link ReplyStatus#UserException}
      * @param message the detail message
      * @param cause the cause
+     * @throws IllegalArgumentException if {@code replyStatus} does not fit in a byte or is not
+     *     greater than {@link ReplyStatus#UserException}
      */
     public DispatchException(int replyStatus, String message, Throwable cause) {
         super(createMessage(message, replyStatus), cause);
+        if (replyStatus <= ReplyStatus.UserException.value() || replyStatus > 255) {
+            throw new IllegalArgumentException(
+                "The reply status of a DispatchException must fit in a byte and be greater than ReplyStatus.UserException.");
+        }
         this.replyStatus = replyStatus;
     }
 
@@ -28,6 +34,8 @@ public class DispatchException extends LocalException {
      * @param replyStatus the reply status as an int (see {@link ReplyStatus}); it must be greater
      *     than {@link ReplyStatus#UserException}
      * @param message the detail message
+     * @throws IllegalArgumentException if {@code replyStatus} does not fit in a byte or is not
+     *     greater than {@link ReplyStatus#UserException}
      */
     public DispatchException(int replyStatus, String message) {
         this(replyStatus, message, null);
@@ -38,6 +46,8 @@ public class DispatchException extends LocalException {
      *
      * @param replyStatus the reply status as an int (see {@link ReplyStatus}); it must be greater
      *     than {@link ReplyStatus#UserException}
+     * @throws IllegalArgumentException if {@code replyStatus} does not fit in a byte or is not
+     *     greater than {@link ReplyStatus#UserException}
      */
     public DispatchException(int replyStatus) {
         this(replyStatus, null, null);
