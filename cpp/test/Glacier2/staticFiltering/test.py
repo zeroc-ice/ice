@@ -413,6 +413,74 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                     [],
                 ),
                 (
+                    # A non-canonical spelling of an IPv4 address (octal or hexadecimal parts, leading zeros,
+                    # fewer than four parts, a single number) is rejected outright when filters are
+                    # configured: the resolver accepts these spellings as aliases for an address that
+                    # string-based rules spell differently. A DNS name keeps its meaning with a trailing dot,
+                    # so 'name.' matches the rules written for 'name'.
+                    "testing address filter against non-canonical hosts",
+                    ("localhost 127.0.0.1", "", "", "", "", ""),
+                    [
+                        (True, "hello:tcp -h localhost -p 12010"),
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                        (True, "hello:tcp -h localhost. -p 12010"),
+                        (False, "hello:tcp -h 127.000.000.001 -p 12010"),
+                        (False, "hello:tcp -h localhost.example.com -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    "testing address filter reject rule against a trailing-dot host",
+                    ("", "badhost.example.com *.internal.example.com", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h badhost.example.com. -p 12010"),
+                        (False, "hello:tcp -h db.internal.example.com. -p 12010"),
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # A rule written with a trailing dot is stripped like the host, so both spellings of the
+                    # rule match both spellings of the host.
+                    "testing address filter reject rule written with a trailing dot",
+                    ("", "badhost.example.com.", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h badhost.example.com -p 12010"),
+                        (False, "hello:tcp -h badhost.example.com. -p 12010"),
+                        (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # The non-canonical spellings are rejected even though none of them matches the reject
+                    # rule as a string: without the outright rejection, each would be accepted and the
+                    # resolver would connect it to the very address the rule rejects.
+                    "testing address filter reject rule against non-canonical IPv4 literals",
+                    ("", "127.0.0.1", "", "", "", ""),
+                    [
+                        (False, "hello:tcp -h 127.000.000.001 -p 12010"),
+                        (False, "hello:tcp -h 0x7f000001 -p 12010"),
+                        (False, "hello:tcp -h 2130706433 -p 12010"),
+                        (False, "hello:tcp -h 127.1 -p 12010"),
+                        (False, "hello:tcp -h 0177.0.0.1 -p 12010"),
+                        (False, "hello:tcp -h 0x.0.0.1 -p 12010"),
+                        (False, "hello:tcp -h 127.0.0.1. -p 12010"),
+                        (True, "hello:tcp -h localhost -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # The outright rejection of non-canonical spellings applies only when an address filter is
+                    # configured: with just a size limit, the proxy is matched against no address rule, so the
+                    # spelling of the host does not matter.
+                    "testing proxy size limit alone allows non-canonical hosts",
+                    ("", "", "100", "", "", ""),
+                    [
+                        (True, "hello:tcp -h 127.1 -p 12010"),
+                    ],
+                    [],
+                ),
+                (
                     # A proxy with an endpoint host longer than 255 characters is rejected outright, even when
                     # no reject rule matches it: no legal host name or IP address is that long.
                     "testing address filter rejects an oversized host",
