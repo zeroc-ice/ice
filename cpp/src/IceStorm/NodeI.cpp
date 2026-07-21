@@ -590,7 +590,12 @@ NodeI::mergeContinue()
         max = _max;
     }
 
-    // Prepare the LogUpdate for this generation.
+    // Prepare the LogUpdate for this generation. The new stamp must be larger than every LLU in the group, including
+    // our own.
+    if (myLlu > maxllu)
+    {
+        maxllu = myLlu;
+    }
     maxllu.generation++;
     maxllu.iteration = 0;
 
