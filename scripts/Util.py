@@ -2589,6 +2589,13 @@ class AndroidProcessController(RemoteProcessController):
     def supportsDiscovery(self):
         return False
 
+    # NB: getHost is not overridden for Bluetooth on purpose. RemoteProcessController.getHost asks
+    # the on-device controller app, which reports 127.0.0.1 on an emulator, so --host-bt does not
+    # reach the endpoints here. That is fine: the IceBT acceptor listens on the local Bluetooth
+    # adapter and publishes that adapter's own address (AcceptorI.java), so the client reaches the
+    # server through the published proxy rather than through Ice.Default.Host. Setting a bogus
+    # --host-bt does not break these tests for the same reason.
+
     def getControllerIdentity(self, current):
         return "Android/ProcessController"
 
@@ -2889,7 +2896,9 @@ class AndroidProcessController(RemoteProcessController):
                 pass
             run('avdmanager -v create avd -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
             self.startEmulator("IceTests")
-        elif current.config.device != "usb":
+        elif current.config.device != "usb" and not current.config.device.startswith("emulator-"):
+            # Local emulator serials aren't network targets: `adb connect emulator-5554` just prints
+            # "failed to resolve host" (and exits 0, so it was harmless -- only noisy).
             run("adb connect {}".format(current.config.device))
 
         # First try uninstall in case the controller was left behind from a previous run
