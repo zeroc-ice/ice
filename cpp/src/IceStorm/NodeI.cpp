@@ -341,7 +341,13 @@ NodeI::timeout()
     }
     if (failed)
     {
-        recovery();
+        unique_lock<mutex> lock(_mutex);
+        // Apply the recovery only if the coordinator and group we probed are still the node's: the node may have
+        // moved to another group while the mutex was released.
+        if (_coord == myCoord && _group == myGroup)
+        {
+            recovery(lock);
+        }
     }
 }
 
