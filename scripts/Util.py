@@ -2723,7 +2723,10 @@ class AndroidProcessController(RemoteProcessController):
 
     def grantRuntimePermissions(self, package, permissions):
         for permission in permissions:
-            self._adbTolerant(f"shell pm grant {package} {permission}")
+            # Fatal: granting an already-granted permission is idempotent, so the only failures are
+            # real ones (unknown package/permission), and swallowing those would let setup report
+            # success and surface later as an opaque SecurityException inside the helper.
+            run(f"{self.adb()} shell pm grant {package} {permission}")
 
     def installSystemApp(self, apk, name, package, permissions):
         # Install `apk` as a privileged system app (/system/priv-app/<name>) together with a
@@ -2787,13 +2790,23 @@ class AndroidProcessController(RemoteProcessController):
         run(f"{self.adb()} shell am start -n {activity} --es mode client --es peer {peerAddress} --es uuid {uuid}")
         result = ""
         verdict = ""
-        for _ in range(40):
+        # Poll past btbond's own 150s watchdog (MainActivity.WATCHDOG_MS) with some margin: a bond
+        # that is slow but within the helper's budget must not be rejected by the host first, and if
+        # the watchdog does fire, its terminal FAIL verdict is worth collecting.
+        for _ in range(60):
             result = self._adbTolerant("logcat -d -s BTBOND")
             # Take the LAST verdict, not any match: if the activity ran more than once, an earlier
             # line must not decide the outcome -- an old FAIL followed by an OK (or the reverse)
             # would otherwise be read by substring search as whichever we happened to look for.
             verdicts = re.findall(r"RESULT client (\w+)", result)
             if verdicts:
+                # A recreated activity can leave two workers racing in one attempt, so a trailing
+                # verdict may land just after the first; settle briefly and re-read. The dumpsys
+                # check below stays the authority on the bond itself -- it reads device state, not
+                # logcat.
+                time.sleep(6)
+                result = self._adbTolerant("logcat -d -s BTBOND")
+                verdicts = re.findall(r"RESULT client (\w+)", result) or verdicts
                 verdict = verdicts[-1]
                 break
             time.sleep(3)
