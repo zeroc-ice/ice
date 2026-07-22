@@ -68,6 +68,7 @@ SERVER=emulator-5556
 auto-confirms pairing.
 
 ```bash
+rm -f java/test/android/btbond/debug.keystore   # keytool fails if the alias already exists
 keytool -genkeypair -v -keystore java/test/android/btbond/debug.keystore -storepass android \
   -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
   -dname "CN=Android Debug,O=Android,C=US"

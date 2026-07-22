@@ -35,6 +35,9 @@ runs:
       run: |
         # btbond needs an explicit keystore next to its build file -- unlike the controller app it
         # can't fall back to AGP's default debug signing, which fails validateSigningDebug here.
+        # Remove any existing one first: keytool fails with "alias already exists" otherwise, which
+        # a fresh runner never hits but a re-run does.
+        rm -f java/test/android/btbond/debug.keystore
         keytool -genkeypair -v -storepass android -keypass android -alias androiddebugkey \
           -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" \
           -keystore java/test/android/btbond/debug.keystore

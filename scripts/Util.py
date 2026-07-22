@@ -8,6 +8,7 @@ import os
 import random
 import re
 import runpy
+import shlex
 import shutil
 import subprocess
 import sys
@@ -2606,18 +2607,24 @@ class AndroidProcessController(RemoteProcessController):
     def getControllerEndpoints(self, current):
         return f"tcp -h 127.0.0.1 -p {self.hostPort()}"
 
-    def adb(self):
+    def adbArgs(self):
+        # argv form, for the callers that run adb without a shell.
         if self.device == "usb":
-            return "adb -d"
+            return ["adb", "-d"]
         elif self.device:
-            # The serial is interpolated into shell commands run with shell=True; only allow the
-            # characters that appear in adb serials (emulator-NNNN, USB serials, host:port) so a
-            # stray value can't inject shell syntax.
-            if not re.fullmatch(r"[A-Za-z0-9._:-]+", self.device):
+            # adb serials are emulator-NNNN, USB serials, or host:port -- including the bracketed
+            # IPv6 form adb reports for network devices, e.g. [2001:db8::1]:5555, optionally with a
+            # %scope. Validate the shape here; adb() quotes it for the shell, which also keeps the
+            # brackets from being read as a glob.
+            if not re.fullmatch(r"[A-Za-z0-9._:%\[\]-]+", self.device):
                 raise RuntimeError(f"invalid device serial: {self.device!r}")
-            return f"adb -s {self.device}"
+            return ["adb", "-s", self.device]
         else:
-            return "adb"
+            return ["adb"]
+
+    def adb(self):
+        # Shell form, for the f-string commands run with shell=True.
+        return " ".join(shlex.quote(arg) for arg in self.adbArgs())
 
     @classmethod
     def forDevice(cls, device):
@@ -2654,7 +2661,7 @@ class AndroidProcessController(RemoteProcessController):
         # Wait for the device to reconnect to adb and finish booting. Tolerant of the transient adb
         # errors seen while a device is mid-reboot.
         try:
-            subprocess.run([*self.adb().split(), "wait-for-device"], timeout=timeout, check=False)
+            subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=timeout, check=False)
         except subprocess.TimeoutExpired:
             pass
         name = self.device or self.avd or "device"
@@ -2675,7 +2682,7 @@ class AndroidProcessController(RemoteProcessController):
         # applied. Fail on both a rejected `adb reboot` and a device that never drops off adb.
         run(f"{self.adb()} reboot")
         try:
-            subprocess.run([*self.adb().split(), "wait-for-disconnect"], timeout=120, check=True)
+            subprocess.run([*self.adbArgs(), "wait-for-disconnect"], timeout=120, check=True)
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as ex:
             raise RuntimeError(f"'{self.device}' did not go down after 'adb reboot': {ex}")
         self.waitForBoot()
@@ -2688,7 +2695,7 @@ class AndroidProcessController(RemoteProcessController):
         while time.time() < deadline:
             self._adbTolerant("root")
             try:
-                subprocess.run([*self.adb().split(), "wait-for-device"], timeout=60, check=False)
+                subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=60, check=False)
             except subprocess.TimeoutExpired:
                 pass
             try:
@@ -2710,7 +2717,7 @@ class AndroidProcessController(RemoteProcessController):
         # surface as a spurious "Bluetooth did not reach STATE_ON".
         self._adbTolerant("root")
         try:
-            subprocess.run([*self.adb().split(), "wait-for-device"], timeout=60, check=False)
+            subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=60, check=False)
         except subprocess.TimeoutExpired:
             pass
         # Tolerant: enabling an already-enabled adapter fails harmlessly.
@@ -2916,7 +2923,7 @@ class AndroidProcessController(RemoteProcessController):
         self.avd = avd
 
         print("waiting for the emulator to respond to adb")
-        subprocess.run([*self.adb().split(), "wait-for-device"], timeout=60, check=True)
+        subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=60, check=True)
 
         # Wait for the device to be ready
         print("waiting for the emulator to boot")
@@ -2984,7 +2991,7 @@ class AndroidProcessController(RemoteProcessController):
         try:
             print("pulling log files from the device")
             subprocess.run(
-                [*self.adb().split(), "pull", "/sdcard/Android/data/com.zeroc.testcontroller/", androidLogsDir],
+                [*self.adbArgs(), "pull", "/sdcard/Android/data/com.zeroc.testcontroller/", androidLogsDir],
                 timeout=60,
                 check=True,
             )
@@ -2997,7 +3004,7 @@ class AndroidProcessController(RemoteProcessController):
             try:
                 logCatResult = subprocess.run(
                     [
-                        *self.adb().split(),
+                        *self.adbArgs(),
                         "logcat",
                         "-d",
                         "-v",

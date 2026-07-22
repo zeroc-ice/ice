@@ -126,9 +126,10 @@ jobs:
             # a YAML boolean false is falsy in the `matrix.test_all || 'true'` default below.
             test_workers: 1
             test_all: "false"
-            # The job normally takes ~25 min; this is the bound the standalone workflow had, so a
-            # wedged emulator costs that rather than GitHub's 6h default.
-            job_timeout: 90
+            # The job normally takes ~25 min; bound it so a wedged emulator costs that rather than
+            # GitHub's 6h default. Keeps clear of the sum of the step limits on the longest path
+            # (setup-bt 30 + test 45 + bts 20 + diagnostics 5, plus the build).
+            job_timeout: 120
             # setup-bt exports $BT_CLIENT and $BT_ADDR; these flags are interpolated into a bash
             # command, so the shell expands them at run time.
             test_flags: >-
