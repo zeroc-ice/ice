@@ -88,6 +88,19 @@ jobs:
             build_cpp_and_python: true
 
           # Static builds
+          # C++ IceBT over a pair of virtual Bluetooth controllers. arm64 only: the amd64 azure
+          # kernel has the Bluetooth modules stripped, so setup-bluetooth cannot succeed there.
+          # $BT_ADDR is exported by setup-bluetooth and expanded by the shell at run time.
+          - os: ubuntu-24.04-arm
+            config: "cpp-bt"
+            working_directory: "cpp"
+            bluetooth: true
+            build_cpp_and_python: true
+            # NB: the shared test action still hardcodes --all, so this currently fans Ice/operations
+            # out over configurations that don't apply to Bluetooth. #5839 adds `all`/`workers`
+            # inputs to that action; wire this entry to them once it lands.
+            test_flags: "--protocol=bt --host-bt=$BT_ADDR Ice/operations"
+
           - os: ubuntu-24.04
             config: "static"
             build_flags: "CONFIGS=static"
@@ -197,6 +210,10 @@ jobs:
       - name: Setup Android
         if: matrix.config == 'android'
         uses: ./.github/actions/setup-android
+
+      - name: Setup Bluetooth
+        if: matrix.bluetooth == true
+        uses: ./.github/actions/setup-bluetooth
 
       - name: Install Windows Debug Tools
         if: runner.os == 'Windows'

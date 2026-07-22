@@ -1,31 +1,28 @@
 name: Setup Bluetooth
 description: >
-  Brings up a virtual Bluetooth controller (vhci) so IceBT can be exercised against a real host
+  Brings up a pair of virtual Bluetooth controllers so IceBT can be exercised against a real host
   Bluetooth stack. C++ IceBT drives BlueZ over D-Bus, so unlike the Java tests -- which run between
-  two Android emulators -- it needs an actual controller on the runner.
+  two Android emulators -- it needs actual controllers on the runner.
 
   Linux only, and in practice arm64 only: Ubuntu builds the Bluetooth modules for the arm64 azure
   kernel but strips them from the amd64 one, where `modprobe bluetooth` reports "Module bluetooth
   not found" even after the module package is installed.
 
-  Not referenced by ci.yml yet -- the C++ IceBT tests that need a controller don't exist, and the
-  point of this action is to be called only where Bluetooth is actually being tested. The job that
-  adds those tests should add `uses: ./.github/actions/setup-bluetooth` alongside them, on an
-  ubuntu-24.04-arm runner. Verified working as a step in that position; it is deliberately fatal,
-  since a missing controller would otherwise surface later as an unexplained IceBT failure.
+  Exports BT_ADDR: the address of the second controller, for the test server to bind to.
 
 runs:
   using: "composite"
   steps:
-    - name: Install the Bluetooth kernel modules
+    - name: Install the Bluetooth modules and BlueZ
       shell: bash
       run: |
         # The modules aren't in the base linux-modules package -- hci_vhci.ko and the rest live in
-        # linux-modules-extra, which the runner images don't install.
+        # linux-modules-extra, which the runner images don't install. btvirt (the virtual controller
+        # tool) is in bluez-test-tools, not bluez.
         sudo apt-get update -qq
-        sudo apt-get install -y "linux-modules-extra-$(uname -r)" bluez
+        sudo apt-get install -y "linux-modules-extra-$(uname -r)" bluez bluez-test-tools
 
-    - name: Load the modules and check for /dev/vhci
+    - name: Load the modules
       shell: bash
       run: |
         # l2cap is deliberately absent: it is built into bluetooth.ko rather than being a module.
@@ -33,7 +30,32 @@ runs:
           sudo modprobe "$m"
         done
         lsmod | grep -Ei 'blue|rfcomm|bnep|vhci' || true
-        # The controller node is what the tests will attach to, so fail here rather than let a
-        # missing one surface later as an unexplained IceBT connect error.
         test -c /dev/vhci || { echo "no /dev/vhci after modprobe"; exit 1; }
-        ls -l /dev/vhci
+
+    - name: Create two virtual controllers
+      shell: bash
+      run: |
+        # btvirt holds the controllers open for as long as it runs, so it has to outlive this step.
+        sudo nohup btvirt -l2 > "$GITHUB_WORKSPACE/btvirt.log" 2>&1 &
+        for i in $(seq 1 30); do
+          hciconfig hci1 >/dev/null 2>&1 && break
+          sleep 1
+        done
+        echo "## controllers"
+        hciconfig -a || true
+        # Both are needed: the server binds to one, the client connects from the other.
+        hciconfig hci1 >/dev/null 2>&1 || {
+          echo "btvirt did not create two controllers"; cat "$GITHUB_WORKSPACE/btvirt.log"; exit 1; }
+        sudo hciconfig hci0 up || true
+        sudo hciconfig hci1 up || true
+        addr=$(hciconfig hci1 | sed -n 's/.*BD Address: \([0-9A-F:]*\).*/\1/p')
+        [ -n "$addr" ] || { echo "could not read hci1's address"; exit 1; }
+        echo "server controller (hci1) = $addr"
+        echo "BT_ADDR=$addr" >> "$GITHUB_ENV"
+
+    - name: Report BlueZ state
+      shell: bash
+      run: |
+        set +e
+        systemctl is-active bluetooth || sudo systemctl start bluetooth
+        sudo btmgmt info 2>&1 | head -30
