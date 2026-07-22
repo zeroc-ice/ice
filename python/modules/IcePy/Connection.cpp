@@ -79,7 +79,12 @@ identity : Ice.Identity
 Returns
 -------
 Ice.ObjectPrx
-    A fixed proxy with the provided identity.)";
+    A fixed proxy with the provided identity.
+
+Raises
+------
+CommunicatorDestroyedException
+    If the communicator has been destroyed.)";
 
     constexpr const char* connectionDisableInactivityCheck_doc = R"(disableInactivityCheck() -> None
 
@@ -128,7 +133,12 @@ This corresponds to all batch requests invoked on fixed proxies associated with 
 Parameters
 ----------
 compress : Ice.CompressBatch
-    Specifies whether or not the queued batch requests should be compressed before being sent over the wire.)";
+    Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
+
+Raises
+------
+CommunicatorDestroyedException
+    If the communicator has been destroyed.)";
 
     constexpr const char* connectionFlushBatchRequestsAsync_doc =
         R"(flushBatchRequestsAsync(compress: Ice.CompressBatch) -> Awaitable[None]
@@ -145,7 +155,12 @@ compress : Ice.CompressBatch
 Returns
 -------
 Awaitable[None]
-    A future that becomes available when the flush completes.)";
+    A future that becomes available when the flush completes.
+
+Raises
+------
+CommunicatorDestroyedException
+    If the communicator has been destroyed.)";
 
     constexpr const char* connectionSetCloseCallback_doc =
         R"(setCloseCallback(callback: Callable[[Connection], None] | None) -> None

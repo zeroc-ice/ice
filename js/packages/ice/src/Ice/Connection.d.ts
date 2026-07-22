@@ -35,6 +35,7 @@ declare module "@zeroc/ice" {
              *
              * @param id - The identity for which the proxy is to be created.
              * @returns A proxy that matches the given identity and uses this connection.
+             * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
              *
              * @see {@link setAdapter}
              */
@@ -73,6 +74,7 @@ declare module "@zeroc/ice" {
              * Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
              * associated with the connection.
              * @returns The asynchronous result object for the invocation.
+             * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
              */
             flushBatchRequests(): Promise<void>;
 

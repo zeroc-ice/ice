@@ -21,6 +21,7 @@ public interface Connection {
      *
      * @param id the identity of the target object
      * @return a fixed proxy with the provided identity
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      * @see #setAdapter
      */
     ObjectPrx createProxy(Identity id);
@@ -62,6 +63,7 @@ public interface Connection {
      *
      * @param compress Specifies whether or not the queued batch requests should be compressed before
      *     being sent over the wire.
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      */
     void flushBatchRequests(CompressBatch compress);
 
@@ -72,6 +74,7 @@ public interface Connection {
      * @param compress Specifies whether or not the queued batch requests should be compressed before
      *     being sent over the wire.
      * @return a future that becomes available when the flush completes
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      */
     CompletableFuture<Void> flushBatchRequestsAsync(CompressBatch compress);
 

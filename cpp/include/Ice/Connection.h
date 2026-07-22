@@ -75,6 +75,7 @@ namespace Ice
         /// @tparam Prx The type of the proxy to create.
         /// @param id The identity of the target object.
         /// @return A fixed proxy with the provided identity.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         [[nodiscard]] Prx createProxy(Identity id) const
         {
@@ -106,6 +107,7 @@ namespace Ice
         /// This means all batch requests invoked on fixed proxies associated with the connection.
         /// @param compress Specifies whether or not the queued batch requests should be compressed before being sent
         /// over the wire.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         void flushBatchRequests(CompressBatch compress);
 
         /// Flushes any pending batch requests for this connection.
@@ -122,6 +124,7 @@ namespace Ice
         /// InitializationData::executor, the executor determines the thread that executes this function in the
         /// asynchronous case.
         /// @return A function that can be called to cancel the invocation locally.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         virtual std::function<void()> flushBatchRequestsAsync(
             CompressBatch compress,
             std::function<void(std::exception_ptr)> exception,
@@ -132,6 +135,7 @@ namespace Ice
         /// @param compress Specifies whether or not the queued batch requests should be compressed before being sent
         /// over the wire.
         /// @return A future that becomes available when the flush completes.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         [[nodiscard]] std::future<void> flushBatchRequestsAsync(CompressBatch compress);
 
         /// Sets a close callback on the connection. The callback is called by the connection when it's closed.
