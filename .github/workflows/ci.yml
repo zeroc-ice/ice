@@ -126,12 +126,12 @@ jobs:
             # a YAML boolean false is falsy in the `matrix.test_all || 'true'` default below.
             test_workers: 1
             test_all: "false"
-            # The job normally takes ~25 min. This only has to beat GitHub's 6h default, and it has
-            # to clear the sum of the step limits on the longest path -- build 90 + setup-bt 30 +
-            # test 45 + bts 20 + diagnostics 5 = 190 -- because a job killed at the job level skips
-            # the always() diagnostics and artifact steps. The step limits are what actually bound a
-            # wedged emulator, and they fail the step while leaving those later steps to run.
-            job_timeout: 210
+            # Successful runs of this job take 23-29 minutes (worst observed: 29), so 60 gives 2x
+            # headroom over anything seen while still bounding a wedged runner. This is deliberately
+            # below the sum of the individual step limits: a run slow enough to hit 60 minutes is
+            # pathological here, and we accept that such a run is cut at the job level (skipping the
+            # always() diagnostics) in exchange for not tying up a runner for hours.
+            job_timeout: 60
             # setup-bt exports $BT_CLIENT and $BT_ADDR; these flags are interpolated into a bash
             # command, so the shell expands them at run time.
             test_flags: >-

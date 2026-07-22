@@ -2659,14 +2659,16 @@ class AndroidProcessController(RemoteProcessController):
 
     def waitForBoot(self, timeout=300):
         # Wait for the device to reconnect to adb and finish booting. Tolerant of the transient adb
-        # errors seen while a device is mid-reboot.
+        # errors seen while a device is mid-reboot. One deadline covers both phases -- otherwise
+        # wait-for-device could consume the whole budget and the poll loop would start a fresh one,
+        # doubling the advertised timeout.
+        deadline = time.time() + timeout
         try:
             subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=timeout, check=False)
         except subprocess.TimeoutExpired:
             pass
         name = self.device or self.avd or "device"
-        t = time.time()
-        while (time.time() - t) <= timeout:
+        while time.time() <= deadline:
             try:
                 if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
                     return
