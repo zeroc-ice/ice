@@ -103,11 +103,28 @@ SessionI::announceTopics(TopicInfoSeq topics, bool, const Current&)
         }
 
         // Reap dead topics corresponding to subscriptions from a previous session instance ID. Subscribers from the
-        // previous session instance ID that were not reattached to the new session instance ID are removed.
+        // previous session instance ID that were not reattached to the new session instance ID are removed. Before a
+        // subscriber is removed, detach its elements: a topic destroyed while the session was disconnected still
+        // holds element listeners (the detach paths skip destroyed topics), and TopicI::disconnect can no longer
+        // detach them once the subscriber entry is gone. The detach is a no-op for a subscriber whose elements were
+        // already detached when the session disconnected.
         auto p = _topics.begin();
         while (p != _topics.end())
         {
-            if (p->second.reap(_sessionInstanceId))
+            auto detach = [this, topicId = p->first](TopicI* topic, TopicSubscriber& subscriber)
+            {
+                if (subscriber.getAll().empty())
+                {
+                    // No element subscriptions: nothing to detach. The element subscribers are also what keeps the
+                    // topic alive (each element holds its parent topic), so the topic must not be dereferenced here.
+                    return;
+                }
+                unique_lock<mutex> topicLock(topic->getMutex());
+                _topicLock = &topicLock;
+                unsubscribe(topicId, topic);
+                _topicLock = nullptr;
+            };
+            if (p->second.reap(_sessionInstanceId, detach))
             {
                 _topics.erase(p++);
             }
@@ -190,9 +207,23 @@ SessionI::detachTopic(int64_t id, const Current&)
         return;
     }
 
-    runWithTopics(
-        id,
-        [&](TopicI* topic, TopicSubscriber&)
+    auto t = _topics.find(id);
+    if (t == _topics.end())
+    {
+        return;
+    }
+
+    for (auto& [topic, subscriber] : t->second.getSubscribers())
+    {
+        unique_lock<mutex> topicLock(topic->getMutex());
+        _topicLock = &topicLock;
+        if (topic->isDestroyed())
+        {
+            // The topic is being destroyed: TopicI::disconnect detaches its elements only while the subscriber
+            // entry exists, and the entry is erased below. Detach the elements directly instead.
+            unsubscribe(id, topic);
+        }
+        else
         {
             if (_traceLevels->session > 2)
             {
@@ -200,10 +231,12 @@ SessionI::detachTopic(int64_t id, const Current&)
                 out << _id << ": detaching topic '" << id << "' from '" << topic << "'";
             }
             topic->detach(id, shared_from_this());
-        });
+        }
+        _topicLock = nullptr;
+    }
 
     // Erase the topic
-    _topics.erase(id);
+    _topics.erase(t);
 }
 
 void
@@ -848,9 +881,24 @@ SessionI::destroyImpl(const exception_ptr& ex)
         _connection = nullptr;
 
         auto self = shared_from_this();
-        for (const auto& t : _topics)
+        for (auto& [topicId, subscribers] : _topics)
         {
-            runWithTopics(t.first, [id = t.first, self](TopicI* topic, TopicSubscriber&) { topic->detach(id, self); });
+            for (auto& [topic, subscriber] : subscribers.getSubscribers())
+            {
+                unique_lock<mutex> topicLock(topic->getMutex());
+                _topicLock = &topicLock;
+                if (topic->isDestroyed())
+                {
+                    // The topic is being destroyed: TopicI::disconnect detaches its elements only while the
+                    // subscriber entry exists, and the map is cleared below. Detach the elements directly instead.
+                    unsubscribe(topicId, topic);
+                }
+                else
+                {
+                    topic->detach(topicId, self);
+                }
+                _topicLock = nullptr;
+            }
         }
         _topics.clear();
     }

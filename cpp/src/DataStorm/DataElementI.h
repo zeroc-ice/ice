@@ -129,7 +129,8 @@ namespace DataStormI
 
             [[nodiscard]] std::shared_ptr<Subscriber> get(std::int64_t topicId, std::int64_t elementId)
             {
-                return subscribers.find(std::make_pair(topicId, elementId))->second;
+                auto p = subscribers.find(std::make_pair(topicId, elementId));
+                return p == subscribers.end() ? nullptr : p->second;
             }
 
             [[nodiscard]] bool remove(std::int64_t topicId, std::int64_t elementId)
