@@ -7,14 +7,12 @@ package com.zeroc.Ice.Instrumentation;
  */
 public interface Observer {
     /**
-     * This method is called when the instrumented object is created or when the observer is
-     * attached to an existing object.
+     * Notifies the observer that an instrumented object was created.
      */
     void attach();
 
     /**
-     * This method is called when the instrumented object is destroyed and as a result the observer
-     * detached from the object.
+     * Notifies the observer that an instrumented object was destroyed.
      */
     void detach();
 
