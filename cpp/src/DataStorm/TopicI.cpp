@@ -899,7 +899,7 @@ TopicReaderI::createFiltered(
     auto element = make_shared<FilteredDataReaderI>(
         this,
         std::move(name),
-        ++_nextId,
+        _instance->nextElementId(),
         filter,
         std::move(sampleFilterName),
         std::move(sampleFilterCriteria),
@@ -920,7 +920,7 @@ TopicReaderI::create(
     auto element = make_shared<KeyDataReaderI>(
         this,
         std::move(name),
-        ++_nextId,
+        _instance->nextElementId(),
         keys,
         std::move(sampleFilterName),
         std::move(sampleFilterCriteria),
@@ -1016,7 +1016,8 @@ shared_ptr<DataWriter>
 TopicWriterI::create(const vector<shared_ptr<Key>>& keys, string name, DataStorm::WriterConfig config)
 {
     lock_guard<mutex> lock(_mutex);
-    auto element = make_shared<KeyDataWriterI>(this, std::move(name), ++_nextId, keys, mergeConfigs(config));
+    auto element =
+        make_shared<KeyDataWriterI>(this, std::move(name), _instance->nextElementId(), keys, mergeConfigs(config));
     add(element, keys);
     return element;
 }

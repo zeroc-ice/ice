@@ -1520,12 +1520,17 @@ namespace DataStorm
     Topic<Key, Value, UpdateTag>::Topic(const Node& node, std::string name) noexcept
         : _name(std::move(name)),
           _topicFactory(node._factory),
-          _keyFactory(DataStormI::KeyFactoryT<Key>::createFactory()),
-          _tagFactory(DataStormI::TagFactoryT<UpdateTag>::createFactory()),
+          // The key, tag, and filter ids are drawn from a node-wide counter (rather than per-topic) so they are
+          // unique across all the node's topics; the peer echoes them back as opaque handles that this node
+          // resolves against every same-name topic, so per-topic ids would collide and misroute.
+          _keyFactory(DataStormI::KeyFactoryT<Key>::createFactory(node.getIdCounter())),
+          _tagFactory(DataStormI::TagFactoryT<UpdateTag>::createFactory(node.getIdCounter())),
           _keyFilterFactories(std::make_shared<DataStormI::FilterManagerT<DataStormI::KeyT<Key>>>()),
           _sampleFilterFactories(
               std::make_shared<DataStormI::FilterManagerT<DataStormI::SampleT<Key, Value, UpdateTag>>>())
     {
+        _keyFilterFactories->setIdCounter(node.getIdCounter());
+        _sampleFilterFactories->setIdCounter(node.getIdCounter());
         RegexFilter<Key, Key>::add(_keyFilterFactories);
         RegexFilter<Sample<Key, Value, UpdateTag>, Value>::add(_sampleFilterFactories);
         _sampleFilterFactories->set("_event", makeSampleEventFilter(*this));

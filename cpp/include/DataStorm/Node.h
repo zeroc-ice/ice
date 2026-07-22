@@ -6,6 +6,7 @@
 #include "Config.h"
 #include "InternalI.h"
 
+#include <atomic>
 #include <functional>
 
 namespace DataStorm
@@ -112,6 +113,10 @@ namespace DataStorm
             options.nodeOwnsCommunicator = true;
             return options;
         }
+
+        // The node-wide counter that a topic's key, tag, and filter factories draw their ids from, so those ids are
+        // unique across all the node's topics rather than per-topic (see Instance::getIdCounter). Used by Topic.
+        [[nodiscard]] std::shared_ptr<std::atomic<std::int64_t>> getIdCounter() const;
 
         std::shared_ptr<DataStormI::Instance> _instance;
         std::shared_ptr<DataStormI::TopicFactory> _factory;

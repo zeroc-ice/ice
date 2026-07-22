@@ -72,6 +72,12 @@ Node::~Node()
     }
 }
 
+shared_ptr<atomic<int64_t>>
+Node::getIdCounter() const
+{
+    return _instance->getIdCounter();
+}
+
 void
 Node::shutdown() noexcept
 {

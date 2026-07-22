@@ -458,6 +458,31 @@ void ::Reader::run(int argc, char* argv[])
         test(sample.getKey() == "elem1");
         test(sample.getValue() == "value1");
     }
+
+    // Two same-name topics on this node, each with a single-key reader on a different key of the one multi-key
+    // writer. Each reader receives only its own key's value. The reader element id and key id are drawn from a
+    // node-wide counter, so the two readers stay distinct across the same-name topics; per-topic ids gave both
+    // readers the same element and key id, and the writer's samples were delivered to the wrong reader.
+    {
+        Topic<string, string> topicA(node, "sameNameInit");
+        Topic<string, string> topicB(node, "sameNameInit");
+
+        // A prior reader on each topic, so the reader under test is the second key element of its topic: with
+        // per-topic numbering the two topics then assign it the same element and key id.
+        auto firstA = makeSingleKeyReader(topicA, "firstA", "", config);
+        auto firstB = makeSingleKeyReader(topicB, "firstB", "", config);
+
+        auto readerA = makeSingleKeyReader(topicA, "elemA", "", config);
+        auto readerB = makeSingleKeyReader(topicB, "elemB", "", config);
+
+        auto sampleA = readerA.getNextUnread();
+        test(sampleA.getKey() == "elemA");
+        test(sampleA.getValue() == "valueA");
+
+        auto sampleB = readerB.getNextUnread();
+        test(sampleB.getKey() == "elemB");
+        test(sampleB.getValue() == "valueB");
+    }
 }
 
 DEFINE_TEST(::Reader)

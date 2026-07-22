@@ -407,6 +407,21 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
+    // A single multi-key writer read by two same-name reader topics on the peer node, each with a single-key
+    // reader on one of the writer's keys. Each reader's sample must reach the reader that subscribed the key.
+    // Before the node-wide id counter, the two same-name reader topics assigned colliding ids and the samples
+    // were misrouted.
+    cout << "testing sample routing across same-name reader topics... " << flush;
+    {
+        Topic<string, string> topic(node, "sameNameInit");
+        auto writer = makeMultiKeyWriter(topic, {"elemA", "elemB"}, "", config);
+        writer.waitForReaders(2); // the two single-key readers whose keys the writer covers
+        writer.add("elemA", "valueA");
+        writer.add("elemB", "valueB");
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
     cout << "testing topic collocated key reader and writer... " << flush;
     {
         Topic<string, string> topic(node, "collocated");

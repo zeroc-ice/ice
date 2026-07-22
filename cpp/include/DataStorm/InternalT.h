@@ -8,6 +8,8 @@
 #include "InternalI.h"
 #include "Types.h"
 
+#include <atomic>
+
 #if defined(__clang__)
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
@@ -156,6 +158,11 @@ namespace DataStormI
 
         void init() { _deleter = Deleter{std::enable_shared_from_this<AbstractFactoryT<K, V>>::shared_from_this()}; }
 
+        // Draw element ids from the given node-wide counter instead of this factory's own, so ids are unique across
+        // all the node's topics rather than per-topic (see Instance::getIdCounter). Must be called before any
+        // element is created.
+        void setIdCounter(std::shared_ptr<std::atomic<std::int64_t>> counter) noexcept { _nextId = std::move(counter); }
+
         template<typename F, typename... Args>
         [[nodiscard]] std::shared_ptr<typename V::BaseClassType> create(F&& value, Args&&... args)
         {
@@ -208,7 +215,7 @@ namespace DataStormI
             }
 
             auto k =
-                std::shared_ptr<V>(new V(std::forward<F>(value), std::forward<Args>(args)..., ++_nextId), _deleter);
+                std::shared_ptr<V>(new V(std::forward<F>(value), std::forward<Args>(args)..., ++(*_nextId)), _deleter);
             _elements[k->get()] = k;
             _elementsById[k->getId()] = k;
             return k;
@@ -237,7 +244,9 @@ namespace DataStormI
         mutable std::mutex _mutex;
         std::map<K, std::weak_ptr<V>> _elements;
         std::map<std::int64_t, std::weak_ptr<V>> _elementsById;
-        std::int64_t _nextId{1};
+        // Defaults to this factory's own counter (starting at 1, so the first id is 2 and id 1 stays reserved for
+        // the match-all filter); setIdCounter replaces it with the shared node-wide counter.
+        std::shared_ptr<std::atomic<std::int64_t>> _nextId{std::make_shared<std::atomic<std::int64_t>>(1)};
     };
 
     template<typename K> class KeyT final : public Key, public AbstractElementT<K>
@@ -265,10 +274,15 @@ namespace DataStormI
             return AbstractFactoryT<K, KeyT<K>>::create(DecoderT<K>::decode(communicator, data));
         }
 
-        [[nodiscard]] static std::shared_ptr<KeyFactoryT<K>> createFactory()
+        [[nodiscard]] static std::shared_ptr<KeyFactoryT<K>>
+        createFactory(std::shared_ptr<std::atomic<std::int64_t>> idCounter = nullptr)
         {
             auto f = std::make_shared<KeyFactoryT<K>>();
             f->init();
+            if (idCounter)
+            {
+                f->setIdCounter(std::move(idCounter));
+            }
             return f;
         }
     };
@@ -298,10 +312,15 @@ namespace DataStormI
             return AbstractFactoryT<T, TagT<T>>::create(DecoderT<T>::decode(communicator, data));
         }
 
-        [[nodiscard]] static std::shared_ptr<TagFactoryT<T>> createFactory()
+        [[nodiscard]] static std::shared_ptr<TagFactoryT<T>>
+        createFactory(std::shared_ptr<std::atomic<std::int64_t>> idCounter = nullptr)
         {
             auto f = std::make_shared<TagFactoryT<T>>();
             f->init();
+            if (idCounter)
+            {
+                f->setIdCounter(std::move(idCounter));
+            }
             return f;
         }
     };
@@ -565,6 +584,10 @@ namespace DataStormI
             if (lambda)
             {
                 auto factory = std::make_unique<FactoryT<Criteria>>(name, std::move(lambda));
+                if (_idCounter)
+                {
+                    factory->filterFactory.setIdCounter(_idCounter);
+                }
                 _factories.emplace(std::move(name), std::move(factory));
             }
             else
@@ -573,9 +596,17 @@ namespace DataStormI
             }
         }
 
+        // Draw filter ids from the given node-wide counter, so filter ids are unique across all the node's topics
+        // rather than per-topic (see Instance::getIdCounter). Must be called before any filter factory is set.
+        void setIdCounter(std::shared_ptr<std::atomic<std::int64_t>> counter) noexcept
+        {
+            _idCounter = std::move(counter);
+        }
+
     private:
         // A map containing the filter factories, indexed by the filter name.
         std::map<std::string, std::unique_ptr<Factory>> _factories;
+        std::shared_ptr<std::atomic<std::int64_t>> _idCounter;
     };
 }
 

@@ -9,6 +9,7 @@
 #include "DataStorm/Types.h"
 #include "Ice/Ice.h"
 
+#include <atomic>
 #include <cmath>
 #include <mutex>
 
@@ -102,6 +103,24 @@ namespace DataStormI
 
         [[nodiscard]] int getRetryCount() const { return _retryCount; }
 
+        // Returns the next topic element id. Element ids are drawn from this single node-wide counter (rather than
+        // per-topic) so that they are unique across all the node's topics. Several same-name topics can read the
+        // same remote writer, and reader initialization and sample delivery are addressed by the local element id;
+        // two same-name topics numbering their elements independently would collide and misroute. Keyed, any-key,
+        // and filtered elements share the counter because any-key and filtered elements are both presented to the
+        // peer as negated ids and must stay distinct from each other.
+        [[nodiscard]] std::int64_t nextElementId() noexcept { return ++_nextElementId; }
+
+        // The node-wide counter that keys, tags, and filters draw their ids from. Like element ids, these ids are
+        // echoed back by the peer as opaque handles and resolved locally against every same-name topic, so they
+        // must be unique across all the node's topics rather than per-topic. The counter starts at 1, reserving id
+        // 1 for the match-all filter. The factories hold a shared_ptr to it, so it outlives this instance if
+        // needed.
+        [[nodiscard]] const std::shared_ptr<std::atomic<std::int64_t>>& getIdCounter() const noexcept
+        {
+            return _idCounter;
+        }
+
         void shutdown();
         [[nodiscard]] bool isShutdown() const;
         void checkShutdown() const;
@@ -159,6 +178,9 @@ namespace DataStormI
         int _retryCount;
         DataStorm::ReaderConfig _defaultReaderConfig;
         DataStorm::WriterConfig _defaultWriterConfig;
+
+        std::atomic<std::int64_t> _nextElementId{0};
+        const std::shared_ptr<std::atomic<std::int64_t>> _idCounter{std::make_shared<std::atomic<std::int64_t>>(1)};
 
         mutable std::mutex _mutex;
         mutable std::condition_variable _cond;
