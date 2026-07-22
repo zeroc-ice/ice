@@ -33,7 +33,7 @@ class IceGridProcess:
             props["Ice.Default.Locator"] = testcase.getMasterLocator(current)
         else:
             for r in testcase.icegridregistry:
-                # Match either the IceGridRegistrySlave object or the slave replica number
+                # Match either the IceGridRegistry object or its replica name (e.g. "Master", "Slave1")
                 if self.replica in [r, r.name]:
                     props["Ice.Default.Locator"] = r.getLocator(current)
                     break

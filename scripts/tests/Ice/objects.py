@@ -6,13 +6,13 @@
 # a client stack overflow if the client stack is too small compared to the
 # Java server stack.
 #
-from Util import ClientServerTestCase, CollocatedTestCase, Mapping, Server, TestSuite
+from Util import ClientServerTestCase, CollocatedTestCase, JavaMapping, Mapping, Server, TestSuite
 
 
 class ObjectClientServerTestCase(ClientServerTestCase):
     def getProps(self, process, current):
         props = ClientServerTestCase.getProps(self, process, current)
-        if process.getMapping(current) in ["java"] and isinstance(process, Server):
+        if isinstance(process.getMapping(current), JavaMapping) and isinstance(process, Server):
             props["Ice.ThreadPool.Server.StackSize"] = 512 * 1024
         elif current.config.buildPlatform == "iphoneos":
             #
