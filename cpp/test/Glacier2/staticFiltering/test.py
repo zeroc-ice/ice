@@ -491,6 +491,35 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                     ],
                     [],
                 ),
+                (
+                    # An endpoint with no host is rejected outright: Ice resolves it to the loopback address,
+                    # yet it matches no address rule, so without the rejection a reject rule for loopback would
+                    # not catch a proxy that connects to loopback. The same accepted IP endpoint flips to
+                    # rejected once the host-less endpoint is added alongside it, so the host-less endpoint
+                    # cannot ride in behind a legitimate one.
+                    "testing address filter rejects an endpoint with no host",
+                    ("", "127.0.0.1", "", "", "", ""),
+                    [
+                        (True, "hello:tcp -h localhost -p 12010"),
+                        (False, "hello:tcp -p 12010"),
+                        (False, "hello:tcp -h localhost -p 12010:tcp -p 12010"),
+                    ],
+                    [],
+                ),
+                (
+                    # A proxy with a non-IP endpoint (here an opaque endpoint of an unknown transport) is
+                    # rejected outright: the address rules describe IP hosts and ports, so an endpoint they
+                    # cannot interpret is rejected rather than admitted unchecked. The same accepted IP endpoint
+                    # flips to rejected once the non-IP endpoint is added alongside it, so the non-IP endpoint
+                    # cannot ride in behind a legitimate one.
+                    "testing address filter rejects a non-IP endpoint",
+                    ("", "127.0.0.1", "", "", "", ""),
+                    [
+                        (True, "hello:tcp -h localhost -p 12010"),
+                        (False, "hello:tcp -h localhost -p 12010:opaque -t 99 -v ABCD"),
+                    ],
+                    [],
+                ),
             ]
         )
 
