@@ -39,7 +39,9 @@ public protocol Communicator: AnyObject, Sendable {
     ///
     /// - Parameter str: The stringified proxy to convert into a proxy.
     /// - Returns: The proxy, or `nil` if `str` is an empty string.
-    /// - Throws: `ParseException` when `str` is not a valid proxy string.
+    /// - Throws:
+    ///   - `ParseException` when `str` is not a valid proxy string.
+    ///   - `CommunicatorDestroyedException` when the communicator has been destroyed.
     func stringToProxy(_ str: String) throws -> ObjectPrx?
 
     /// Converts a proxy into a string.
@@ -54,7 +56,9 @@ public protocol Communicator: AnyObject, Sendable {
     ///
     /// - Parameter property: The base property name.
     /// - Returns: The proxy, or `nil` if the property is not set.
-    /// - Throws: ``ParseException`` if the property value is not a valid proxy string.
+    /// - Throws:
+    ///   - `ParseException` when the property value is not a valid proxy string.
+    ///   - `CommunicatorDestroyedException` when the communicator has been destroyed.
     func propertyToProxy(_ property: String) throws -> ObjectPrx?
 
     /// Converts a proxy into a set of proxy properties.
@@ -79,6 +83,7 @@ public protocol Communicator: AnyObject, Sendable {
     ///
     /// - Parameter name: The object adapter name.
     /// - Returns: The new object adapter.
+    /// - Throws: `CommunicatorDestroyedException` when the communicator has been destroyed.
     func createObjectAdapter(_ name: String) throws -> ObjectAdapter
 
     /// Creates a new object adapter with endpoints. This method sets the property `name.Endpoints`, and then
@@ -89,6 +94,7 @@ public protocol Communicator: AnyObject, Sendable {
     ///   - name: The object adapter name.
     ///   - endpoints: The endpoints of the object adapter.
     /// - Returns: The new object adapter.
+    /// - Throws: `CommunicatorDestroyedException` when the communicator has been destroyed.
     func createObjectAdapterWithEndpoints(name: String, endpoints: String) throws -> ObjectAdapter
 
     /// Creates a new object adapter with a router. This method creates a routed object adapter. Calling this
@@ -98,6 +104,7 @@ public protocol Communicator: AnyObject, Sendable {
     ///   - name: The object adapter name.
     ///   - rtr: The router.
     /// - Returns: The new object adapter.
+    /// - Throws: `CommunicatorDestroyedException` when the communicator has been destroyed.
     func createObjectAdapterWithRouter(name: String, rtr: RouterPrx) throws -> ObjectAdapter
 
     /// Gets the object adapter that is associated by default with new outgoing connections created by this
@@ -157,6 +164,7 @@ public protocol Communicator: AnyObject, Sendable {
     ///
     /// - Parameter compress: Specifies whether or not the queued batch requests should be compressed before being
     ///   sent over the wire.
+    /// - Throws: `CommunicatorDestroyedException` when the communicator has been destroyed.
     func flushBatchRequests(_ compress: CompressBatch) async throws
 
     /// Adds the Admin object with all its facets to the provided object adapter. If `Ice.Admin.ServerId`
@@ -168,7 +176,9 @@ public protocol Communicator: AnyObject, Sendable {
     ///     is set, this method uses the `Ice.Admin` object adapter, after creating and activating it.
     ///   - adminId: The identity of the Admin object.
     /// - Returns: A proxy to the main ("") facet of the Admin object.
-    /// - Throws: `InitializationException` when `createAdmin` is called more than once.
+    /// - Throws:
+    ///   - `InitializationException` when `createAdmin` is called more than once.
+    ///   - `CommunicatorDestroyedException` when the communicator has been destroyed.
     func createAdmin(adminAdapter: ObjectAdapter?, adminId: Identity) throws -> ObjectPrx
 
     /// Gets a proxy to the main facet of the Admin object. `getAdmin` also creates the Admin object and creates and
@@ -178,6 +188,7 @@ public protocol Communicator: AnyObject, Sendable {
     /// `getAdmin` is called by the communicator initialization, after initialization of all plugins.
     ///
     /// - Returns: A proxy to the main ("") facet of the Admin object, or `nil` if no Admin object is configured.
+    /// - Throws: `CommunicatorDestroyedException` when the communicator has been destroyed.
     func getAdmin() throws -> ObjectPrx?
 
     /// Adds a new facet to the Admin object.
@@ -185,14 +196,18 @@ public protocol Communicator: AnyObject, Sendable {
     /// - Parameters:
     ///   - servant: The servant that implements the new Admin facet.
     ///   - facet: The name of the new Admin facet.
-    /// - Throws: `AlreadyRegisteredException` when a facet with the same name is already registered.
+    /// - Throws:
+    ///   - `AlreadyRegisteredException` when a facet with the same name is already registered.
+    ///   - `CommunicatorDestroyedException` when the communicator has been destroyed.
     func addAdminFacet(servant: Dispatcher, facet: String) throws
 
     /// Removes a facet from the Admin object.
     ///
     /// - Parameter facet: The name of the Admin facet.
     /// - Returns: The servant associated with this Admin facet.
-    /// - Throws: `NotRegisteredException` when no facet with the given name is registered.
+    /// - Throws:
+    ///   - `NotRegisteredException` when no facet with the given name is registered.
+    ///   - `CommunicatorDestroyedException` when the communicator has been destroyed.
     @discardableResult
     func removeAdminFacet(_ facet: String) throws -> Dispatcher
 

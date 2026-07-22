@@ -85,6 +85,7 @@ declare module "@zeroc/ice" {
              *
              * @returns The proxy, or `null` if `proxyString` is an empty string.
              * @throws {@link ParseException} - Thrown when `proxyString` is not a valid proxy string.
+             * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
              *
              * @see {@link proxyToString}
              */
@@ -106,6 +107,7 @@ declare module "@zeroc/ice" {
              * @param property The base property name.
              * @returns The proxy, or null if the property is not set.
              * @throws {@link ParseException} - Thrown when the property value is not a valid proxy string.
+             * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
              */
             propertyToProxy(property: string): Ice.ObjectPrx | null;
 
@@ -134,6 +136,7 @@ declare module "@zeroc/ice" {
              *
              * @param name - The object adapter name.
              * @returns A promise that resolves to the created object adapter.
+             * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
              *
              * @remarks The returned promise rejects with {@link InitializationException} when a named object adapter
              * has no configuration, with {@link PropertyException} when the adapter properties are invalid (for
@@ -152,6 +155,7 @@ declare module "@zeroc/ice" {
              * {@link setDefaultObjectAdapter}.
              *
              * @returns The object adapter associated by default with new outgoing connections.
+             * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
              *
              * @see {@link Connection#getAdapter}
              * @see {@link setDefaultObjectAdapter}
@@ -163,6 +167,7 @@ declare module "@zeroc/ice" {
              * communicator. This method has no effect on existing connections.
              *
              * @param adapter - The object adapter to associate by default with new outgoing connections.
+             * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
              *
              * @see {@link Connection#setAdapter}
              * @see {@link getDefaultObjectAdapter}
@@ -178,6 +183,7 @@ declare module "@zeroc/ice" {
              * @param name - The object adapter name.
              * @param router - The router to associate with the object adapter.
              * @returns A promise that resolves to the created object adapter.
+             * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
              *
              * @see {@link createObjectAdapter}
              * @see {@link ObjectAdapter}
@@ -211,6 +217,7 @@ declare module "@zeroc/ice" {
              * Retrieves the default router for this communicator.
              *
              * @returns The default router of the communicator.
+             * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
              *
              * @see {@link setDefaultRouter}
              */
@@ -226,6 +233,7 @@ declare module "@zeroc/ice" {
              *
              * @param router - The default router to use for this communicator, or `null` to disable the default
              *                 router.
+             * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
              *
              * @see {@link getDefaultRouter}
              * @see {@link createObjectAdapterWithRouter}
@@ -236,6 +244,7 @@ declare module "@zeroc/ice" {
              * Retrieves the communicator's default locator.
              *
              * @returns The default locator of the communicator.
+             * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
              *
              * @see {@link setDefaultLocator}
              */
@@ -251,6 +260,7 @@ declare module "@zeroc/ice" {
              *
              * @param locator - The default locator to use for this communicator, or `null` to disable the default
              *                  locator.
+             * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
              *
              * @see {@link getDefaultLocator}
              */
@@ -263,6 +273,8 @@ declare module "@zeroc/ice" {
              * communicator. Any errors that occur while flushing a connection are ignored.
              *
              * @returns A promise that resolves when the flush operation is complete.
+             * @throws {@link CommunicatorDestroyedException} - Thrown synchronously when the communicator has been
+             * destroyed.
              */
             flushBatchRequests(): Promise<void>;
         }

@@ -53,6 +53,7 @@ public interface Connection
     /// </summary>
     /// <param name="id">The identity of the target object.</param>
     /// <returns>A fixed proxy with the provided identity.</returns>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     ObjectPrx createProxy(Identity id);
 
     /// <summary>
@@ -88,6 +89,8 @@ public interface Connection
     /// </summary>
     /// <param name="compress">Specifies whether or not the queued batch requests should be compressed before being sent
     /// over the wire.</param>
+    /// <exception cref="LocalException">Thrown when the flush fails. For example, this method throws
+    /// <see cref="CommunicatorDestroyedException" /> when the communicator has been destroyed.</exception>
     void flushBatchRequests(CompressBatch compress);
 
     /// <summary>
@@ -99,6 +102,8 @@ public interface Connection
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>A task that completes when the flush completes.</returns>
+    /// <exception cref="CommunicatorDestroyedException">Thrown synchronously when the communicator has been
+    /// destroyed.</exception>
     System.Threading.Tasks.Task flushBatchRequestsAsync(
         CompressBatch compress,
         System.IProgress<bool>? progress = null,
