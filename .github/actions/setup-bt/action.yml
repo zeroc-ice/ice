@@ -41,12 +41,15 @@ runs:
         keytool -genkeypair -v -storepass android -keypass android -alias androiddebugkey \
           -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" \
           -keystore java/test/android/btbond/debug.keystore
-        # Run the same gates as the controller app, not just assembleDebug -- otherwise the
-        # checkstyle and rewrite plugins this project configures never actually run in CI.
+        # Run the checkstyle and rewrite gates, not just an assemble -- otherwise the plugins this
+        # project configures never actually run in CI. assembleDebug rather than build: only the
+        # debug APK is used here, and `build` additionally runs AGP's release lint, which fails to
+        # initialize on the runner's JDK ("Could not initialize class AndroidLintWorkAction") while
+        # passing locally. Skipping the release variant avoids that and the unsigned release APK.
         # btbond has no Gradle wrapper of its own; use java's.
         (
           cd java/test/android/btbond
-          ../../../gradlew --no-daemon build checkstyle
+          ../../../gradlew --no-daemon assembleDebug checkstyle
           ../../../gradlew --no-daemon rewriteDryRun --no-parallel --no-configuration-cache
         )
         # Name the debug APK explicitly rather than globbing: `build` also produces an unsigned
