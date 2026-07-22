@@ -54,7 +54,7 @@ class Client(TestHelper):
                 tree = ast.parse(f.read())
 
             # numpy is only used in type hints, so it must be imported in the TYPE_CHECKING
-            # block, not at run time.
+            # block, not at runtime.
             test(not importsModule(tree.body, "numpy"))
             test(importsModule(typeCheckingSuite(tree), "numpy"))
 

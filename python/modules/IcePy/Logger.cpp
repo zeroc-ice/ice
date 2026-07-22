@@ -295,7 +295,7 @@ loggerCloneWithPrefix(LoggerObject* self, PyObject* args)
 
     //
     // The new clone can either be a C++ object (such as
-    // the default logger supplied by the Ice run time), or a C++
+    // the default logger supplied by the Ice runtime), or a C++
     // wrapper around a Python implementation. If the latter, we
     // return it directly. Otherwise, we create a Python object
     // that delegates to the C++ object.
@@ -393,7 +393,7 @@ IcePy_getProcessLogger(PyObject* /*self*/, PyObject* /*args*/)
 
     //
     // The process logger can either be a C++ object (such as
-    // the default logger supplied by the Ice run time), or a C++
+    // the default logger supplied by the Ice runtime), or a C++
     // wrapper around a Python implementation. If the latter, we
     // return it directly. Otherwise, we create a Python object
     // that delegates to the C++ object.

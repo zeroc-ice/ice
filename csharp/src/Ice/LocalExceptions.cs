@@ -593,7 +593,7 @@ public sealed class ConnectionRefusedException : ConnectFailedException
 //
 
 /// <summary>
-/// An attempt was made to register something more than once with the Ice run time.
+/// An attempt was made to register something more than once with the Ice runtime.
 /// This exception is raised if an attempt is made to register a servant, servant locator, facet, object adapter (etc.)
 /// more than once for the same ID.
 /// </summary>

@@ -231,7 +231,7 @@ class RegistryEditor extends CommunicatorEditor {
 
         _adapters.getActionMap().put("delete", deleteAdapter);
         _adapters.getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
-        _adapters.setToolTipText("<html>Object adapters registered at run time.</html>");
+        _adapters.setToolTipText("<html>Object adapters registered at runtime.</html>");
 
         final JPopupMenu adaptersPopup = new JPopupMenu();
         adaptersPopup.add(deleteAdapter);

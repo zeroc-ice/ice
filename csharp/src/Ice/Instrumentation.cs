@@ -204,7 +204,7 @@ public interface CommunicatorObserver
 {
     /// <summary>
     /// This method should return an observer for the given endpoint information and connector.
-    /// The Ice run-time calls
+    /// The Ice runtime calls
     /// this method for each connection establishment attempt.
     /// </summary>
     /// <param name="endpt">The endpoint.</param>
@@ -215,7 +215,7 @@ public interface CommunicatorObserver
 
     /// <summary>
     /// This method should return an observer for the given endpoint information.
-    /// The Ice run-time calls this method to
+    /// The Ice runtime calls this method to
     /// resolve an endpoint and obtain the list of connectors. For IP endpoints, this typically involves doing a DNS
     /// lookup to obtain the IP addresses associated with the DNS name.
     /// </summary>
@@ -225,7 +225,7 @@ public interface CommunicatorObserver
 
     /// <summary>
     /// This method should return a connection observer for the given connection.
-    /// The Ice run-time calls this method
+    /// The Ice runtime calls this method
     /// for each new connection and for all the Ice communicator connections when
     /// ObserverUpdater.updateConnectionObservers is called.
     /// </summary>
@@ -238,7 +238,7 @@ public interface CommunicatorObserver
 
     /// <summary>
     /// This method should return a thread observer for the given thread.
-    /// The Ice run-time calls this method for each
+    /// The Ice runtime calls this method for each
     /// new thread and for all the Ice communicator threads when ObserverUpdater.updateThreadObservers is
     /// called.
     /// </summary>
@@ -251,7 +251,7 @@ public interface CommunicatorObserver
 
     /// <summary>
     /// This method should return an invocation observer for the given invocation.
-    /// The Ice run-time calls this method
+    /// The Ice runtime calls this method
     /// for each new invocation on a proxy.
     /// </summary>
     /// <param name="prx">The proxy used for the invocation.</param>
@@ -262,7 +262,7 @@ public interface CommunicatorObserver
 
     /// <summary>
     /// This method should return a dispatch observer for the given dispatch.
-    /// The Ice run-time calls this method each
+    /// The Ice runtime calls this method each
     /// time it receives an incoming invocation to be dispatched for an Ice object.
     /// </summary>
     /// <param name="c">The current object as provided to the Ice servant dispatching the invocation.</param>
@@ -271,9 +271,9 @@ public interface CommunicatorObserver
     DispatchObserver getDispatchObserver(Current c, int size);
 
     /// <summary>
-    /// The Ice run-time calls this method when the communicator is initialized.
+    /// The Ice runtime calls this method when the communicator is initialized.
     /// The add-in implementing this
-    /// interface can use this object to get the Ice run-time to re-obtain observers for observed objects.
+    /// interface can use this object to get the Ice runtime to re-obtain observers for observed objects.
     /// </summary>
     /// <param name="updater">The observer updater object.</param>
     void setObserverUpdater(ObserverUpdater updater);

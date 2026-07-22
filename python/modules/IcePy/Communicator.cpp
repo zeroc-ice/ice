@@ -1068,7 +1068,7 @@ communicatorGetLogger(CommunicatorObject* self, PyObject* /*args*/)
     assert(self->communicator);
     Ice::LoggerPtr logger = (*self->communicator)->getLogger();
 
-    // The communicator's logger can either be a C++ object (such as the default logger supplied by the Ice run time),
+    // The communicator's logger can either be a C++ object (such as the default logger supplied by the Ice runtime),
     // or a C++ wrapper around a Python implementation. If the latter, we return it directly. Otherwise, we create a
     // Python object that delegates to the C++ object.
     LoggerWrapperPtr wrapper = dynamic_pointer_cast<LoggerWrapper>(logger);
