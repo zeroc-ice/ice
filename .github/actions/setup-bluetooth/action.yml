@@ -53,9 +53,45 @@ runs:
         echo "server controller (hci1) = $addr"
         echo "BT_ADDR=$addr" >> "$GITHUB_ENV"
 
-    - name: Report BlueZ state
+    - name: Pair the two controllers
       shell: bash
       run: |
+        # IceBT resolves a peer address against the devices BlueZ has discovered, not against the
+        # local adapters, so the two controllers have to find and pair with each other first --
+        # the same bond that secure RFCOMM needs on the Android side. Driven through bluetoothctl
+        # rather than btmgmt because bluetoothd owns the mgmt socket, and because D-Bus is the
+        # interface IceBT itself uses.
         set +e
-        systemctl is-active bluetooth || sudo systemctl start bluetooth
-        sudo btmgmt info 2>&1 | head -30
+        systemctl is-active bluetooth >/dev/null || sudo systemctl start bluetooth
+        sleep 2
+        client=$(hciconfig hci0 | sed -n 's/.*BD Address: \([0-9A-F:]*\).*/\1/p')
+
+        # bluetoothctl is interactive by default and will sit waiting on stdin if it is given a
+        # terminal, so every call either feeds it a script or reads from /dev/null. Without this a
+        # single stray prompt burns the whole step timeout instead of failing.
+        btctl() { sudo bluetoothctl "$@" < /dev/null; }
+
+        echo "## controllers known to bluetoothd"
+        btctl list
+
+        echo "## make the server controller discoverable"
+        printf 'select %s\npower on\ndiscoverable on\npairable on\nquit\n' "$BT_ADDR" | sudo bluetoothctl
+
+        echo "## power the client controller and scan from it"
+        printf 'select %s\npower on\nquit\n' "$client" | sudo bluetoothctl
+        btctl --timeout 20 scan on
+
+        echo "## devices seen"
+        btctl devices
+
+        echo "## pair"
+        btctl --timeout 30 pair "$BT_ADDR"
+        btctl info "$BT_ADDR"
+
+        # Everything above is best-effort so one run reports the whole picture; this is the check
+        # that matters -- without a known peer device IceBT fails with "unknown address".
+        btctl devices | grep -qi "$BT_ADDR" || {
+          echo "the client controller never discovered $BT_ADDR"
+          echo "-- btvirt log --"; cat "$GITHUB_WORKSPACE/btvirt.log"
+          exit 1; }
+        echo "client $client discovered server $BT_ADDR"
