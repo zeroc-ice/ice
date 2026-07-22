@@ -424,7 +424,6 @@ public final class Communicator implements AutoCloseable {
      * Gets the default locator of this communicator.
      *
      * @return the default locator of this communicator
-     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      * @see #setDefaultLocator
      * @see Locator
      */
