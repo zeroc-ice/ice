@@ -1183,7 +1183,8 @@ DataWriterI::publish(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
         if (p == _lastByKey.end())
         {
             // No base to resolve the partial update against (the key was never set, or was removed): discard the
-            // update rather than apply it to a default-constructed value, like the reader side does.
+            // update rather than apply it to a default-constructed value. The reader side discards such updates
+            // the same way.
             Warning out(_traceLevels->logger);
             out << this << ": discarded partial update: no base value for the key";
             return;

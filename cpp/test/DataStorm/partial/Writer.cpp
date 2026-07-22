@@ -287,7 +287,8 @@ void ::Writer::run(int argc, char* argv[])
 
     // Two writers publish the same key: writer 2's partial update reaches the reader after writer 1's remove
     // cleared the key's value. The reader discards the partial update and resynchronizes on writer 2's next full
-    // value.
+    // value. Both writers deliver through the node's single session connection and the reader node dispatches
+    // samples serialized, so the reader is guaranteed to process the remove before the partial update.
     Topic<string, StockPtr> twoWritersTopic(node, "twoWritersTopic");
     twoWritersTopic.setWriterDefaultConfig(config);
     twoWritersTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });

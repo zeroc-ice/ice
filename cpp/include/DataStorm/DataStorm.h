@@ -10,6 +10,7 @@
 #include "Node.h"
 #include "Types.h"
 
+#include <cassert>
 #include <regex>
 
 #if defined(__clang__)
@@ -1634,8 +1635,9 @@ namespace DataStorm
                                            const std::shared_ptr<DataStormI::Sample>& next,
                                            const Ice::CommunicatorPtr& communicator)
             {
-                // A value-less previous sample is not a usable base: fall back to a default value. This is defense
-                // in depth: callers discard partial updates that have no usable base before invoking the updater.
+                // Callers discard partial updates that have no usable base before invoking the updater; assert that
+                // here, and keep the default-value fallback as defense in depth for release builds.
+                assert(previous && previous->hasValue());
                 Value value{};
                 if (previous && previous->hasValue())
                 {

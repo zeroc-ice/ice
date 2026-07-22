@@ -15,8 +15,9 @@ namespace
     static Topic::Updater noOpUpdater = // NOLINT(cert-err58-cpp)
         [](const shared_ptr<Sample>& previous, const shared_ptr<Sample>& next, const CommunicatorPtr&)
     {
-        // A value-less previous sample is not a usable base: fall back to a default value. This is defense in
-        // depth: callers discard partial updates that have no usable base before invoking the updater.
+        // Callers discard partial updates that have no usable base before invoking the updater; assert that here,
+        // and keep the default-value fallback as defense in depth for release builds.
+        assert(previous && previous->hasValue());
         next->setValue(previous && previous->hasValue() ? previous : nullptr);
     };
 
