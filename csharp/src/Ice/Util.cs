@@ -164,7 +164,7 @@ public sealed class Util
     /// <param name="lhs">The first proxy to compare.</param>
     /// <param name="rhs">The second proxy to compare.</param>
     /// <returns>-1 if the identity in lhs compares less than the identity in rhs; 0 if the identities compare equal;
-    /// 1, otherwise.</returns>
+    /// otherwise, 1.</returns>
     public static int proxyIdentityCompare(ObjectPrx? lhs, ObjectPrx? rhs)
     {
         if (lhs == null && rhs == null)
@@ -200,7 +200,7 @@ public sealed class Util
     /// <param name="rhs">The second proxy to compare.</param>
     /// <returns>-1 if the identity and facet in lhs compare
     /// less than the identity and facet in rhs; 0 if the identities
-    /// and facets compare equal; 1, otherwise.</returns>
+    /// and facets compare equal; otherwise, 1.</returns>
     public static int proxyIdentityAndFacetCompare(ObjectPrx? lhs, ObjectPrx? rhs)
     {
         if (lhs == null && rhs == null)

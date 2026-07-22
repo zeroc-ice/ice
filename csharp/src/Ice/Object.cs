@@ -35,7 +35,7 @@ public interface Object
     /// <param name="s">The type ID of the Slice interface to test against.</param>
     /// <param name="current">The Current object of the incoming request.</param>
     /// <returns><see langword="true"/> if this object implements the Slice interface specified by <paramref name="s"/>
-    /// or implements a derived interface, <see langword="false"/> otherwise.</returns>
+    /// or implements a derived interface; otherwise, <see langword="false"/>.</returns>
     public bool ice_isA(string s, Current current)
     {
         foreach (Type type in GetType().GetInterfaces())
