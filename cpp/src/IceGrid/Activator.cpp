@@ -90,12 +90,9 @@ namespace IceGrid
     }
 
     //
-    // Close every inherited file descriptor >= 3 in the fork child, keeping the
-    // two given descriptors open (the write ends of the interrupt and error
-    // pipes). This runs after setuid/setgid, so a leaked descriptor would cross
-    // a privilege boundary.
-    //
-    // Runs in the fork child, using only async-signal-safe calls.
+    // Close every inherited file descriptor >= 3, except keep1 and keep2. Runs in the fork child, using only
+    // async-signal-safe calls. maxFd bounds the fallback close loop used when close_range is unavailable. This runs
+    // after setuid/setgid, so a leaked descriptor would cross a privilege boundary.
     //
     void closeInheritedDescriptors(int keep1, int keep2, long maxFd)
     {
@@ -114,9 +111,11 @@ namespace IceGrid
         // never inverted, so the only realistic failure is the syscall being
         // unavailable (ENOSYS on an older kernel, or a seccomp EPERM), and on
         // failure it closes nothing; we fall through to the bounded loop below,
-        // so there is no need to inspect errno.
+        // so there is no need to inspect errno. Clamp the probe's start to 3 so
+        // that if both keeps landed below 3 it still cannot close stderr.
         //
-        if (syscall(SYS_close_range, static_cast<unsigned int>(hi) + 1, ~0u, 0u) == 0)
+        const unsigned int probeStart = static_cast<unsigned int>(hi + 1 > 3 ? hi + 1 : 3);
+        if (syscall(SYS_close_range, probeStart, ~0u, 0u) == 0)
         {
             if (lo > 3)
             {
@@ -777,17 +776,14 @@ Activator::activate(
     const char* pwdCStr = pwd.c_str();
 
     //
-    // Compute the last-resort descriptor-close bound before fork(), so the child
-    // has a finite bound to fall back on if it can use neither close_range nor
-    // /proc/self/fd (and so it need not call getrlimit() itself). Prefer the soft
-    // RLIMIT_NOFILE — the kernel never allocates a descriptor at or above it —
-    // capped so the loop stays bounded even under a huge or unlimited limit.
+    // Compute the fallback descriptor-close bound before fork(), so the child has a finite bound if it cannot use
+    // close_range (and doesn't need to call getrlimit() itself). Prefer the soft RLIMIT_NOFILE — the kernel never
+    // allocates a descriptor at or above it — capped so the loop stays bounded even under a huge or unlimited limit.
     //
     long maxFdToClose = 1 << 20;
     {
         rlimit fdLimit{};
-        if (getrlimit(RLIMIT_NOFILE, &fdLimit) == 0 && fdLimit.rlim_cur != RLIM_INFINITY &&
-            static_cast<long>(fdLimit.rlim_cur) < maxFdToClose)
+        if (getrlimit(RLIMIT_NOFILE, &fdLimit) == 0 && fdLimit.rlim_cur < static_cast<rlim_t>(maxFdToClose))
         {
             maxFdToClose = static_cast<long>(fdLimit.rlim_cur);
         }
