@@ -157,7 +157,7 @@ public class ConnectionInfo
     public readonly ConnectionInfo? underlying;
 
     /// <summary>
-    /// <see langword="true"/> if this is an incoming connection, <see langword="false"/> otherwise.
+    /// <see langword="true"/> if this is an incoming connection; otherwise, <see langword="false"/>.
     /// </summary>
     public readonly bool incoming;
 

@@ -299,8 +299,8 @@ public sealed class ObjectAdapter
     /// <summary>
     /// Checks whether or not <see cref="deactivate"/> was called on this object adapter.
     /// </summary>
-    /// <returns><see langword="true"/> if <see cref="deactivate"/> was called on this object adapter,
-    /// <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if <see cref="deactivate"/> was called on this object adapter; otherwise,
+    /// <see langword="false"/>.</returns>
     public bool isDeactivated()
     {
         lock (_mutex)
