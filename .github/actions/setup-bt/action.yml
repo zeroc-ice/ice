@@ -52,10 +52,13 @@ runs:
         # (along with the unsigned release APK `build` would otherwise leave behind).
         #
         # btbond has no Gradle wrapper of its own; use java's.
+        # No --no-daemon: AGP's lint fails to initialize its worker under it on this runner
+        # ("Could not initialize class AndroidLintWorkAction"), while the controller app -- which
+        # runs lint successfully in the same job -- invokes gradle without it. Matching that.
         (
           cd java/test/android/btbond
-          ../../../gradlew --no-daemon assembleDebug lintDebug checkstyle
-          ../../../gradlew --no-daemon rewriteDryRun --no-parallel --no-configuration-cache
+          ../../../gradlew assembleDebug lintDebug checkstyle
+          ../../../gradlew rewriteDryRun --no-parallel --no-configuration-cache
         )
         # Name the debug APK explicitly rather than globbing: `build` also produces an unsigned
         # release APK, and a glob could hand the installer that one instead.
