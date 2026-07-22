@@ -38,6 +38,9 @@ jobs:
             build_flags: "SKIP=csharp" # Skip C# on ARM as .NET compiler keeps crashing
             test_flags: "--rfilter=csharp"
             python_tests: true
+            # Only the arm64 azure kernel ships the Bluetooth modules, so this is the one leg that
+            # can host a virtual controller for the C++ IceBT tests.
+            bluetooth: true
           - os: windows-2022
             config: "release"
             build_flags: "/p:Platform=x64"
@@ -197,6 +200,10 @@ jobs:
       - name: Setup Android
         if: matrix.config == 'android'
         uses: ./.github/actions/setup-android
+
+      - name: Setup Bluetooth
+        if: matrix.bluetooth == true
+        uses: ./.github/actions/setup-bluetooth
 
       - name: Install Windows Debug Tools
         if: runner.os == 'Windows'

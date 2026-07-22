@@ -1,0 +1,33 @@
+name: Setup Bluetooth
+description: >
+  Brings up a virtual Bluetooth controller (vhci) so IceBT can be exercised against a real host
+  Bluetooth stack. C++ IceBT drives BlueZ over D-Bus, so unlike the Java tests -- which run between
+  two Android emulators -- it needs an actual controller on the runner.
+
+  Linux only, and in practice arm64 only: Ubuntu builds the Bluetooth modules for the arm64 azure
+  kernel but strips them from the amd64 one, where `modprobe bluetooth` reports "Module bluetooth
+  not found" even after the module package is installed.
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install the Bluetooth kernel modules
+      shell: bash
+      run: |
+        # The modules aren't in the base linux-modules package -- hci_vhci.ko and the rest live in
+        # linux-modules-extra, which the runner images don't install.
+        sudo apt-get update -qq
+        sudo apt-get install -y "linux-modules-extra-$(uname -r)" bluez
+
+    - name: Load the modules and check for /dev/vhci
+      shell: bash
+      run: |
+        # l2cap is deliberately absent: it is built into bluetooth.ko rather than being a module.
+        for m in bluetooth rfcomm bnep hci_vhci; do
+          sudo modprobe "$m"
+        done
+        lsmod | grep -Ei 'blue|rfcomm|bnep|vhci' || true
+        # The controller node is what the tests will attach to, so fail here rather than let a
+        # missing one surface later as an unexplained IceBT connect error.
+        test -c /dev/vhci || { echo "no /dev/vhci after modprobe"; exit 1; }
+        ls -l /dev/vhci
