@@ -1,14 +1,29 @@
 name: Setup Bluetooth
 description: >
-  Brings up a pair of virtual Bluetooth controllers so IceBT can be exercised against a real host
-  Bluetooth stack. C++ IceBT drives BlueZ over D-Bus, so unlike the Java tests -- which run between
-  two Android emulators -- it needs actual controllers on the runner.
+  Builds a two-sided Bluetooth setup on one runner so the C++ IceBT transport can be tested. C++
+  IceBT drives BlueZ over D-Bus and needs a real host Bluetooth stack, so unlike the Java tests --
+  which run between two Android emulators -- it cannot be exercised without one.
 
-  Linux only, and in practice arm64 only: Ubuntu builds the Bluetooth modules for the arm64 azure
-  kernel but strips them from the amd64 one, where `modprobe bluetooth` reports "Module bluetooth
-  not found" even after the module package is installed.
+  Two things make this work on a single machine:
 
-  Exports BT_ADDR: the address of the second controller, for the test server to bind to.
+  * Two BR/EDR-only virtual controllers from btvirt. LE is deliberately excluded: with LE enabled a
+    second bluetoothd cannot claim the adapters, failing on the GATT L2CAP bind.
+  * A second bluetoothd on a private D-Bus bus. BlueZ allows only one profile registration per UUID
+    per daemon (src/profile.c: "UUID already registered"), and Ice registers the same RFCOMM UUID on
+    both the client and the server side, so the two sides must talk to different daemons.
+
+  The server-side process controller is started against the system bus; DBUS_SYSTEM_BUS_ADDRESS is
+  then exported so every later step -- the test client -- uses the second daemon.
+
+  Linux arm64 only: Ubuntu builds the Bluetooth modules for the arm64 azure kernel but strips them
+  from the amd64 one, where modprobe reports "Module bluetooth not found".
+
+  Exports BT_ADDR (the server controller's address) and DBUS_SYSTEM_BUS_ADDRESS.
+
+inputs:
+  working_directory:
+    description: "Directory to start the server-side process controller from"
+    default: "cpp"
 
 runs:
   using: "composite"
@@ -16,12 +31,11 @@ runs:
     - name: Install the Bluetooth modules and BlueZ
       shell: bash
       run: |
-        # The modules aren't in the base linux-modules package -- hci_vhci.ko and the rest live in
-        # linux-modules-extra, which the runner images don't install. btvirt (the virtual controller
-        # tool) is in bluez-test-tools, not bluez.
+        # hci_vhci.ko and friends live in linux-modules-extra, which the runner images don't
+        # install. btvirt is in bluez-test-tools; bt-agent is in bluez-tools.
         sudo apt-get update -qq
-        # bluez-test-tools has btvirt (the virtual controller); bluez-tools has bt-agent.
-        sudo apt-get install -y "linux-modules-extra-$(uname -r)" bluez bluez-test-tools bluez-tools
+        sudo apt-get install -y \
+          "linux-modules-extra-$(uname -r)" bluez bluez-test-tools bluez-tools
 
     - name: Load the modules
       shell: bash
@@ -30,79 +44,103 @@ runs:
         for m in bluetooth rfcomm bnep hci_vhci; do
           sudo modprobe "$m"
         done
-        lsmod | grep -Ei 'blue|rfcomm|bnep|vhci' || true
         test -c /dev/vhci || { echo "no /dev/vhci after modprobe"; exit 1; }
 
-    - name: Create two virtual controllers
+    - name: Create two BR/EDR-only controllers
       shell: bash
       run: |
-        # btvirt holds the controllers open for as long as it runs, so it has to outlive this step.
-        sudo nohup btvirt -l2 > "$GITHUB_WORKSPACE/btvirt.log" 2>&1 &
-        for i in $(seq 1 30); do
-          hciconfig hci1 >/dev/null 2>&1 && break
-          sleep 1
-        done
-        echo "## controllers"
-        hciconfig -a || true
-        # Both are needed: the server binds to one, the client connects from the other.
+        # -B is load-bearing, not a preference: dual-mode controllers leave the second bluetoothd
+        # unable to register an adapter ("Failed to start listening: l2cap_bind: Address already in
+        # use"), because the first daemon already holds the LE/GATT socket.
+        sudo sh -c "nohup btvirt -B -l2 > '$GITHUB_WORKSPACE/btvirt.log' 2>&1 &"
+        for _ in $(seq 1 30); do hciconfig hci1 >/dev/null 2>&1 && break; sleep 1; done
         hciconfig hci1 >/dev/null 2>&1 || {
           echo "btvirt did not create two controllers"; cat "$GITHUB_WORKSPACE/btvirt.log"; exit 1; }
-        sudo hciconfig hci0 up || true
-        sudo hciconfig hci1 up || true
-        addr=$(hciconfig hci1 | sed -n 's/.*BD Address: \([0-9A-F:]*\).*/\1/p')
-        [ -n "$addr" ] || { echo "could not read hci1's address"; exit 1; }
-        echo "server controller (hci1) = $addr"
-        echo "BT_ADDR=$addr" >> "$GITHUB_ENV"
+        sudo hciconfig hci0 up
+        sudo hciconfig hci1 up
+        hciconfig -a | grep -E "^hci|BD Address"
+        server=$(hciconfig hci1 | sed -n 's/.*BD Address: \([0-9A-F:]*\).*/\1/p')
+        client=$(hciconfig hci0 | sed -n 's/.*BD Address: \([0-9A-F:]*\).*/\1/p')
+        [ -n "$server" ] && [ -n "$client" ] || { echo "could not read controller addresses"; exit 1; }
+        echo "BT_ADDR=$server" >> "$GITHUB_ENV"
+        echo "BT_CLIENT_ADDR=$client" >> "$GITHUB_ENV"
+
+    - name: Start a second bluetoothd on a private bus
+      shell: bash
+      run: |
+        sudo systemctl start bluetooth
+        cat > /tmp/bus2.conf <<'EOF'
+        <!DOCTYPE busconfig PUBLIC "-//freedesktop//DTD D-Bus Bus Configuration 1.0//EN"
+         "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
+        <busconfig>
+          <type>system</type>
+          <listen>unix:path=/tmp/bus2.sock</listen>
+          <policy context="default">
+            <allow user="*"/>
+            <allow own="*"/>
+            <allow send_type="method_call"/>
+            <allow send_type="signal"/>
+            <allow send_type="method_return"/>
+            <allow send_type="error"/>
+            <allow receive_type="*"/>
+          </policy>
+        </busconfig>
+        EOF
+        sudo rm -f /tmp/bus2.sock
+        sudo dbus-daemon --config-file=/tmp/bus2.conf --fork
+        sudo sh -c "DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
+          nohup /usr/libexec/bluetooth/bluetoothd -n > '$GITHUB_WORKSPACE/bluetoothd2.log' 2>&1 &"
+        sleep 5
+        # Both daemons see both adapters; what matters is that the second one could register them.
+        if grep -q "Unable to register new adapter" "$GITHUB_WORKSPACE/bluetoothd2.log"; then
+          echo "the second bluetoothd could not claim the adapters"
+          tail -20 "$GITHUB_WORKSPACE/bluetoothd2.log"
+          exit 1
+        fi
+        # An agent per daemon, and each must outlive the pairing: BlueZ answers a pending
+        # confirmation negatively as soon as the registering process exits, which surfaces as
+        # org.bluez.Error.AuthenticationFailed. NoInputNoOutput selects "just works" pairing.
+        sudo sh -c "nohup bt-agent --capability=NoInputNoOutput > '$GITHUB_WORKSPACE/bt-agent.log' 2>&1 &"
+        sudo sh -c "DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock \
+          nohup bt-agent --capability=NoInputNoOutput > '$GITHUB_WORKSPACE/bt-agent2.log' 2>&1 &"
+        sleep 2
 
     - name: Pair the two controllers
       shell: bash
       run: |
-        # IceBT resolves a peer address against the devices BlueZ has discovered, not against the
-        # local adapters, so the two controllers have to find and pair with each other first --
-        # the same bond that secure RFCOMM needs on the Android side. Driven through bluetoothctl
-        # rather than btmgmt because bluetoothd owns the mgmt socket, and because D-Bus is the
-        # interface IceBT itself uses.
-        set +e
-        systemctl is-active bluetooth >/dev/null || sudo systemctl start bluetooth
-        sleep 2
-        client=$(hciconfig hci0 | sed -n 's/.*BD Address: \([0-9A-F:]*\).*/\1/p')
-
-        # bluetoothctl is interactive by default and will sit waiting on stdin if it is given a
-        # terminal, so every call either feeds it a script or reads from /dev/null. Without this a
-        # single stray prompt burns the whole step timeout instead of failing.
-        btctl() { sudo bluetoothctl "$@" < /dev/null; }
-
-        echo "## controllers known to bluetoothd"
-        btctl list
-
-        echo "## make the server controller discoverable"
+        # IceBT uses secure RFCOMM, which only works between bonded devices.
         printf 'select %s\npower on\ndiscoverable on\npairable on\nquit\n' "$BT_ADDR" | sudo bluetoothctl
-
-        # The agent that answers the pairing request has to outlive the pairing. Registering one
-        # inside a bluetoothctl session does not work: BlueZ answers the pending confirmation
-        # negatively the moment the registering process exits, which shows up as
-        # org.bluez.Error.AuthenticationFailed even though the SSP exchange itself succeeded.
-        # bt-agent runs as a daemon instead. NoInputNoOutput selects "just works" pairing, so
-        # nothing waits for input no one is there to give -- the job btbond does on Android.
-        sudo sh -c "nohup bt-agent --capability=NoInputNoOutput > '$GITHUB_WORKSPACE/bt-agent.log' 2>&1 &"
-        sleep 2
-
-        echo "## scan, pair and trust from the client controller"
-        printf 'select %s\npower on\nquit\n' "$client" | sudo bluetoothctl
-        btctl --timeout 20 scan on
-        btctl devices
-        btctl --timeout 30 pair "$BT_ADDR"
-        # Trust as well: an unpaired, untrusted device is temporary and BlueZ drops it from the
-        # object tree once discovery stops, leaving IceBT nothing to resolve at test time.
-        btctl trust "$BT_ADDR"
-        btctl info "$BT_ADDR"
-
-        # IceBT uses secure RFCOMM, which needs the bond -- so this is the precondition that
-        # matters, not mere visibility.
-        btctl info "$BT_ADDR" | grep -qi "Paired: yes" || {
-          echo "$client did not pair with $BT_ADDR"
-          echo "-- devices --"; btctl devices
-          echo "-- agent --"; cat "$GITHUB_WORKSPACE/bt-agent.log"
-          echo "-- btvirt --"; cat "$GITHUB_WORKSPACE/btvirt.log"
+        printf 'select %s\npower on\nquit\n' "$BT_CLIENT_ADDR" | sudo bluetoothctl
+        sudo bluetoothctl --timeout 20 scan on < /dev/null
+        sudo bluetoothctl --timeout 30 pair "$BT_ADDR" < /dev/null
+        sudo bluetoothctl trust "$BT_ADDR" < /dev/null
+        # Assert on the stored link key rather than `bluetoothctl info`: the bond is what the tests
+        # need, and the device object can be pruned while the key on disk remains valid.
+        key="/var/lib/bluetooth/$BT_CLIENT_ADDR/$BT_ADDR/info"
+        sudo grep -q "\[LinkKey\]" "$key" 2>/dev/null || {
+          echo "no link key at $key -- $BT_CLIENT_ADDR did not bond with $BT_ADDR"
+          sudo find /var/lib/bluetooth -name info 2>/dev/null
+          cat "$GITHUB_WORKSPACE/bt-agent.log" "$GITHUB_WORKSPACE/bt-agent2.log" 2>/dev/null
           exit 1; }
-        echo "client $client paired with server $BT_ADDR"
+        echo "bonded: $BT_CLIENT_ADDR <-> $BT_ADDR"
+
+    - name: Start the server-side process controller
+      shell: bash
+      working-directory: ${{ inputs.working_directory }}
+      run: |
+        # Runs against the system bus, so the servers it spawns register their RFCOMM profile
+        # there. --host-bt is load-bearing here and inert on allTests: it becomes the server's
+        # Ice.Default.Host, and startServerSide hands the same value back to the client.
+        nohup python3 ../scripts/Controller.py --id=server --host-bt="$BT_ADDR" \
+          > "$GITHUB_WORKSPACE/controller.log" 2>&1 &
+        sleep 10
+        kill -0 $! 2>/dev/null || {
+          echo "server controller exited early"; cat "$GITHUB_WORKSPACE/controller.log"; exit 1; }
+
+    - name: Point later steps at the second bluetoothd
+      shell: bash
+      run: |
+        # Exported only now, after the controller has started: the controller and its servers must
+        # stay on the system bus, while everything after this -- the test client -- uses the second
+        # daemon. That split is what keeps the two sides from registering the same UUID twice.
+        echo "DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/bus2.sock" >> "$GITHUB_ENV"

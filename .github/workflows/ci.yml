@@ -35,10 +35,13 @@ jobs:
             working_directory: "cpp"
             bluetooth: true
             build_cpp_and_python: true
-            # NB: the shared test action still hardcodes --all, so this currently fans Ice/operations
-            # out over configurations that don't apply to Bluetooth. #5839 adds `all`/`workers`
-            # inputs to that action; wire this entry to them once it lands.
-            test_flags: "--protocol=bt --host-bt=$BT_ADDR Ice/operations"
+            # --cross=cpp keeps this to client/server cases. The collocated case has no server side,
+            # so Ice.Default.Host stays 127.0.0.1 and IceBT rejects it as a device address -- the
+            # same reason the Android job passes --cross=java.
+            # NB: the shared test action still hardcodes --all, so this also fans out over
+            # configurations that don't apply to Bluetooth. #5839 adds `all`/`workers` inputs to
+            # that action; wire this entry to them once it lands.
+            test_flags: "--server=server --protocol=bt --cross=cpp --host-bt=$BT_ADDR Ice/operations"
 
     runs-on: ${{ matrix.os }}
     steps:
