@@ -1755,7 +1755,7 @@ public sealed class InputStream
     /// </summary>
     /// <typeparam name="T">The type of the Slice value to extract.</typeparam>
     /// <param name="cb">The callback to notify the application when the extracted instance is available.
-    /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
+    /// The stream extracts Slice values in stages. The Ice runtime invokes the delegate when the
     /// corresponding instance has been fully unmarshaled.</param>
     public void readValue<T>(System.Action<T?> cb) where T : Value
     {
@@ -1777,7 +1777,7 @@ public sealed class InputStream
     /// Extracts the index of a Slice value from the stream.
     /// </summary>
     /// <param name="cb">The callback to notify the application when the extracted instance is available.
-    /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
+    /// The stream extracts Slice values in stages. The Ice runtime invokes the delegate when the
     /// corresponding instance has been fully unmarshaled.</param>
     public void readValue(System.Action<Value?> cb) => readValue<Value>(cb);
 

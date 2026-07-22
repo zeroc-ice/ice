@@ -57,8 +57,8 @@ Section: libs
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends},
          ${shlibs:Depends}
-Description: C++ run-time libraries for the Ice framework
- This package contains C++ run-time libraries for the Ice framework.
+Description: C++ runtime libraries for the Ice framework
+ This package contains C++ runtime libraries for the Ice framework.
  .
  Ice is a comprehensive RPC framework that helps you network your software
  with minimal effort. Ice takes care of all interactions with low-level

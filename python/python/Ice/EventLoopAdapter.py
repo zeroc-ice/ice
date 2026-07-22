@@ -18,7 +18,7 @@ class EventLoopAdapter(ABC):
     @abstractmethod
     def runCoroutine(self, coroutine: Coroutine) -> FutureLike:
         """
-        Runs a coroutine in the application-configured event loop. The Ice run time will call this function to run
+        Runs a coroutine in the application-configured event loop. The Ice runtime will call this function to run
         coroutines returned by async dispatch methods. This function is called from the Ice dispatch thread.
 
         Parameters
@@ -37,7 +37,7 @@ class EventLoopAdapter(ABC):
     def wrapFuture(self, future: Future) -> Awaitable:
         """
         Wraps an :class:`Ice.Future` so that it can be awaited in the application event loop.
-        The Ice run time calls this function before returning a future to the application.
+        The Ice runtime calls this function before returning a future to the application.
 
         Parameters
         ----------
