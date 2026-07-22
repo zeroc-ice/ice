@@ -71,7 +71,7 @@ auto-confirms pairing.
 keytool -genkeypair -v -keystore java/test/android/btbond/debug.keystore -storepass android \
   -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
   -dname "CN=Android Debug,O=Android,C=US"
-(cd java/test/android/btbond && ./gradlew assembleDebug)
+(cd java/test/android/btbond && ../../../gradlew assembleDebug)
 APK=$(find java/test/android/btbond/build/outputs/apk -name '*.apk')
 ```
 
