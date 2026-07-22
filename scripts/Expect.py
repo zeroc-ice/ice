@@ -455,8 +455,6 @@ class Expect(object):
             # import win32process
             # creationflags = win32process.CREATE_NEW_PROCESS_GROUP)
             #
-            # universal_newlines = True is necessary for Python 3 on Windows
-            #
             # We can't use shell=True because terminate() wouldn't
             # work. This means the PATH isn't searched for the
             # command.
@@ -472,7 +470,6 @@ class Expect(object):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 creationflags=CREATE_NEW_PROCESS_GROUP,
-                universal_newlines=True,
             )
         else:
             self.p = subprocess.Popen(
@@ -575,10 +572,7 @@ class Expect(object):
             self.logfile.write('%s: sendline: "%s"\n' % (self.desc, escape(data)))
             self.logfile.flush()
         data = data + "\n"
-        if win32 or sys.version_info[0] == 2:
-            self.p.stdin.write(data)
-        else:
-            self.p.stdin.write(data.encode("utf-8"))
+        self.p.stdin.write(data.encode("utf-8"))
 
     def wait(self, timeout=None):
         """Wait for the application to terminate for up to timeout seconds, or
