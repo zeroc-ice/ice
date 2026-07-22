@@ -280,17 +280,28 @@ Slice::Swift::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p,
     if (!docExceptions.empty())
     {
         out << nl << "/// - Throws:";
-        for (const auto& docException : docExceptions)
+        for (const auto& [name, lines] : docExceptions)
         {
             if (docExceptions.size() > 1)
             {
                 out << nl << "///   -";
             }
-            out << " " << docException.first;
-            if (!docException.second.empty())
+
+            // Try to locate the exception's definition using the name given in the comment, so we can reference it
+            // with a symbol link.
+            if (ExceptionPtr ex = p->container()->lookupException(name, false))
+            {
+                out << " " << swiftLinkFormatter(name, p, ex);
+            }
+            else
+            {
+                out << " `" << name << "`";
+            }
+
+            if (!lines.empty())
             {
                 out << " ";
-                writeDocLines(out, docException.second, false, "     ");
+                writeDocLines(out, lines, false, "     ");
             }
         }
     }

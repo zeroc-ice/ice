@@ -289,8 +289,8 @@ extension Communicator {
     /// already been initialized.
     ///
     /// - Throws:
-    ///   - `InitializationException` if the plug-ins have already been initialized.
-    ///   - `CommunicatorDestroyedException` if the communicator has been destroyed.
+    ///   - ``InitializationException`` if the plug-ins have already been initialized.
+    ///   - ``CommunicatorDestroyedException`` if the communicator has been destroyed.
     public func initializePlugins() throws {
         try autoreleasepool {
             try (self as! CommunicatorI).handle.initializePlugins()

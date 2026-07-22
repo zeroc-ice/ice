@@ -5,12 +5,13 @@ import Foundation
 /// Represents the response to an incoming request. It's returned by ``Dispatcher/dispatch(_:)``.
 public struct OutgoingResponse {
     /// The exception ID of the response.
-    /// It's nil when ``replyStatus`` is `ok` or `userException`. Otherwise, this ID is the value returned by `ice_id` for
-    /// Ice local exceptions. For other errors, this ID is the name of the error's type.
+    /// It's nil when ``replyStatus`` is ``ReplyStatus/ok`` or ``ReplyStatus/userException``. Otherwise, this ID is
+    /// the value returned by ``LocalException/ice_id()`` for Ice local exceptions. For other errors, this ID is the
+    /// name of the error's type.
     public let exceptionId: String?
 
     /// The full details of the exception marshaled into the response.
-    /// It's nil when ``replyStatus`` is `ok` or `userException`.
+    /// It's nil when ``replyStatus`` is ``ReplyStatus/ok`` or ``ReplyStatus/userException``.
     public let exceptionDetails: String?
 
     /// The output stream buffer of the response.
@@ -37,7 +38,7 @@ public struct OutgoingResponse {
         self.outputStream = outputStream
     }
 
-    /// Creates an OutgoingResponse object with the `ok` status.
+    /// Creates an OutgoingResponse object with the ``ReplyStatus/ok`` status.
     ///
     /// - Parameter outputStream: The output stream that holds the response.
     internal init(_ outputStream: OutputStream) {

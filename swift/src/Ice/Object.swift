@@ -83,7 +83,7 @@ public struct ObjectTraits: SliceTraits {
     public static let staticId = "::Ice::Object"
 }
 
-/// `DefaultObject` provides a default implementation of the 4 ``Object`` operations
+/// ``DefaultObject`` provides a default implementation of the 4 ``Object`` operations
 /// (`ice_id`, `ice_ids`, `ice_isA`, `ice_ping`) for a given Slice interface.
 public struct DefaultObject<T: SliceTraits>: Object {
     public init() {}

@@ -7,7 +7,7 @@ extension Current {
     /// The generated code calls this method to ensure that when an operation's mode is not idempotent (locally),
     /// the incoming request's operation mode is not idempotent.
     ///
-    /// - Throws: `MarshalException` when the request's operation mode is ``OperationMode/idempotent`` or
+    /// - Throws: ``MarshalException`` when the request's operation mode is ``OperationMode/idempotent`` or
     /// ``OperationMode/nonmutating``.
     public func checkNonIdempotent() throws {
         if mode != .normal {  // i.e. idempotent or non-mutating
@@ -17,7 +17,7 @@ extension Current {
         }
     }
 
-    /// Creates an OutgoingResponse with reply status `ok`.
+    /// Creates an OutgoingResponse with reply status ``ReplyStatus/ok``.
     ///
     /// - Parameters:
     ///   - result: The result to marshal into the response payload.
@@ -37,7 +37,7 @@ extension Current {
         return OutgoingResponse(ostr)
     }
 
-    /// Creates an empty OutgoingResponse with reply status `ok` and an empty payload.
+    /// Creates an empty OutgoingResponse with reply status ``ReplyStatus/ok`` and an empty payload.
     ///
     /// - Returns: The new response.
     public func makeEmptyOutgoingResponse() -> OutgoingResponse {
@@ -48,10 +48,12 @@ extension Current {
         return OutgoingResponse(ostr)
     }
 
-    /// Creates an OutgoingResponse with the specified payload with reply status `ok` or `user exception`.
+    /// Creates an OutgoingResponse with the specified payload with reply status ``ReplyStatus/ok`` or
+    /// ``ReplyStatus/userException``.
     ///
     /// - Parameters:
-    ///   - ok: When `true`, the reply status is `ok`. When `false`, the reply status is `userException`.
+    ///   - ok: When `true`, the reply status is ``ReplyStatus/ok``. When `false`, the reply status is
+    ///     ``ReplyStatus/userException``.
     ///   - encapsulation: The payload-encapsulation of the response or the user exception.
     /// - Returns: The new response.
     public func makeOutgoingResponse(ok: Bool, encapsulation: Data) -> OutgoingResponse {
@@ -68,7 +70,7 @@ extension Current {
             exceptionId: nil, exceptionDetails: nil, outputStream: ostr)
     }
 
-    /// Creates an OutgoingResponse with a reply status other than `ok`.
+    /// Creates an OutgoingResponse with a reply status other than ``ReplyStatus/ok``.
     ///
     /// - Parameter error: The exception to marshal into the response.
     /// - Returns: The new response.

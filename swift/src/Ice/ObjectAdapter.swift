@@ -81,7 +81,7 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     ///   - servant: The servant to add.
     ///   - id: The identity of the Ice object that is implemented by the servant.
     /// - Returns: A proxy for `id`, created by this object adapter.
-    /// - Throws: `AlreadyRegisteredException` when a servant with the same identity is already registered.
+    /// - Throws: ``AlreadyRegisteredException`` when a servant with the same identity is already registered.
     @discardableResult
     func add(servant: Dispatcher, id: Identity) throws -> ObjectPrx
 
@@ -94,7 +94,7 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     ///   - id: The identity of the Ice object that is implemented by the servant.
     ///   - facet: The facet of the Ice object that is implemented by the servant.
     /// - Returns: A proxy for `id` and `facet`, created by this object adapter.
-    /// - Throws: `AlreadyRegisteredException` when a servant with the same identity and facet is already registered.
+    /// - Throws: ``AlreadyRegisteredException`` when a servant with the same identity and facet is already registered.
     @discardableResult
     func addFacet(servant: Dispatcher, id: Identity, facet: String) throws -> ObjectPrx
 
@@ -103,7 +103,7 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     ///
     /// - Parameter servant: The servant to add.
     /// - Returns: A proxy with the generated UUID identity created by this object adapter.
-    /// - Throws: `ObjectAdapterDestroyedException` when the object adapter has been destroyed.
+    /// - Throws: ``ObjectAdapterDestroyedException`` when the object adapter has been destroyed.
     @discardableResult
     func addWithUUID(_ servant: Dispatcher) throws -> ObjectPrx
 
@@ -114,7 +114,7 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     ///   - servant: The servant to add.
     ///   - facet: The facet of the Ice object that is implemented by the servant.
     /// - Returns: A proxy with the generated UUID identity and specified facet created by this object adapter.
-    /// - Throws: `ObjectAdapterDestroyedException` when the object adapter has been destroyed.
+    /// - Throws: ``ObjectAdapterDestroyedException`` when the object adapter has been destroyed.
     @discardableResult
     func addFacetWithUUID(servant: Dispatcher, facet: String) throws -> ObjectPrx
 
@@ -135,14 +135,14 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     ///   - servant: The default servant to add.
     ///   - category: The category for which the default servant is registered. The empty category means it handles all
     ///     categories.
-    /// - Throws: `AlreadyRegisteredException` when a default servant with the same category is already registered.
+    /// - Throws: ``AlreadyRegisteredException`` when a default servant with the same category is already registered.
     func addDefaultServant(servant: Dispatcher, category: String) throws
 
     /// Removes a servant from the object adapter's Active Servant Map.
     ///
     /// - Parameter id: The identity of the Ice object that is implemented by the servant.
     /// - Returns: The removed servant.
-    /// - Throws: `NotRegisteredException` when no servant with the given identity is registered.
+    /// - Throws: ``NotRegisteredException`` when no servant with the given identity is registered.
     @discardableResult
     func remove(_ id: Identity) throws -> Dispatcher
 
@@ -152,7 +152,7 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     ///   - id: The identity of the Ice object that is implemented by the servant.
     ///   - facet: The facet. An empty facet means the default facet.
     /// - Returns: The removed servant.
-    /// - Throws: `NotRegisteredException` when no servant with the given identity and facet is registered.
+    /// - Throws: ``NotRegisteredException`` when no servant with the given identity and facet is registered.
     @discardableResult
     func removeFacet(id: Identity, facet: String) throws -> Dispatcher
 
@@ -161,7 +161,7 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     ///
     /// - Parameter id: The identity of the Ice object to be removed.
     /// - Returns: A collection containing all the facet names and servants of the removed Ice object.
-    /// - Throws: `NotRegisteredException` when no servant with the given identity is registered.
+    /// - Throws: ``NotRegisteredException`` when no servant with the given identity is registered.
     @discardableResult
     func removeAllFacets(_ id: Identity) throws -> FacetMap
 
@@ -169,7 +169,7 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     ///
     /// - Parameter category: The category of the default servant to remove.
     /// - Returns: The default servant.
-    /// - Throws: `NotRegisteredException` when no default servant is registered for the given category.
+    /// - Throws: ``NotRegisteredException`` when no default servant is registered for the given category.
     @discardableResult
     func removeDefaultServant(_ category: String) throws -> Dispatcher
 
@@ -210,14 +210,14 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     /// - Parameters:
     ///   - locator: The servant locator to add.
     ///   - category: The category. The empty category means `locator` handles all categories.
-    /// - Throws: `AlreadyRegisteredException` when a servant locator with the same category is already registered.
+    /// - Throws: ``AlreadyRegisteredException`` when a servant locator with the same category is already registered.
     func addServantLocator(locator: ServantLocator, category: String) throws
 
     /// Removes a ``ServantLocator`` from this object adapter.
     ///
     /// - Parameter category: The category.
     /// - Returns: The servant locator.
-    /// - Throws: `NotRegisteredException` when no servant locator with the given category is registered.
+    /// - Throws: ``NotRegisteredException`` when no servant locator with the given category is registered.
     @discardableResult
     func removeServantLocator(_ category: String) throws -> ServantLocator
 

@@ -2,7 +2,7 @@
 
 import IceImpl
 
-/// A callback invoked when the communicator's properties are updated; it receives a `PropertyDict` containing the
+/// A callback invoked when the communicator's properties are updated; it receives a ``PropertyDict`` containing the
 /// properties that were added, changed, or removed. Removed properties are denoted by an entry whose value is an
 /// empty string.
 public typealias PropertiesAdminUpdateCallback = (PropertyDict) -> Void

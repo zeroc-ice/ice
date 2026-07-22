@@ -1167,7 +1167,8 @@ Slice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "///    - proxyString: The proxy string to parse.";
     _out << nl << "///    - type: The type of the new proxy.";
     _out << nl << "/// - Returns: A new proxy with the requested type.";
-    _out << nl << "/// - Throws: `Ice.ParseException` if the proxy string is invalid.";
+    _out << nl << "/// - Throws: " << (swiftModule == "Ice" ? "``ParseException``" : "`Ice.ParseException`")
+         << " if the proxy string is invalid.";
     _out << nl << "public func makeProxy(communicator: Ice.Communicator, proxyString: String, type: " << prx
          << ".Protocol) throws -> " << prx;
     _out << sb;
@@ -1192,7 +1193,8 @@ Slice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "///   - context: The optional context dictionary for the remote invocation.";
     _out << nl
          << "/// - Returns: A proxy with the requested type or nil if the target object does not support this type.";
-    _out << nl << "/// - Throws: `Ice.LocalException` if a communication error occurs.";
+    _out << nl << "/// - Throws: " << (swiftModule == "Ice" ? "``LocalException``" : "`Ice.LocalException`")
+         << " if a communication error occurs.";
     _out << nl << "public func checkedCast" << spar << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
          << ("type: " + prx + ".Protocol") << ("facet: Swift.String? = nil")
          << ("context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil") << epar << " async throws -> " << prx
