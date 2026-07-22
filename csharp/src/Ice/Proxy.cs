@@ -1194,7 +1194,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <param name="collocated"><see langword="true"/> if the new proxy enables collocation optimization; otherwise,
     /// <see langword="false"/>.</param>
-    /// <returns>The new proxy the specified collocation optimization.</returns>
+    /// <returns>The new proxy with the specified collocation optimization.</returns>
     public ObjectPrx ice_collocationOptimized(bool collocated)
     {
         if (collocated == _reference.getCollocationOptimized())
