@@ -77,21 +77,25 @@ runs:
         echo "## make the server controller discoverable"
         printf 'select %s\npower on\ndiscoverable on\npairable on\nquit\n' "$BT_ADDR" | sudo bluetoothctl
 
-        echo "## power the client controller and scan from it"
-        printf 'select %s\npower on\nquit\n' "$client" | sudo bluetoothctl
+        # Pairing needs an agent to answer the request, the same job btbond does on Android.
+        # NoInputNoOutput selects "just works" pairing, so nothing waits for a PIN or a confirmation
+        # that no one is there to give. Scan, pair, then trust: an unpaired, untrusted device is
+        # temporary, and BlueZ drops it from the object tree once discovery stops -- which is why
+        # the first attempt found the device during setup and IceBT saw nothing by test time.
+        echo "## scan, pair and trust from the client controller"
+        printf 'select %s\npower on\nagent NoInputNoOutput\ndefault-agent\nscan on\nquit\n' "$client" |
+          sudo bluetoothctl
         btctl --timeout 20 scan on
-
-        echo "## devices seen"
         btctl devices
-
-        echo "## pair"
         btctl --timeout 30 pair "$BT_ADDR"
+        btctl trust "$BT_ADDR"
         btctl info "$BT_ADDR"
 
-        # Everything above is best-effort so one run reports the whole picture; this is the check
-        # that matters -- without a known peer device IceBT fails with "unknown address".
-        btctl devices | grep -qi "$BT_ADDR" || {
-          echo "the client controller never discovered $BT_ADDR"
+        # Everything above is best-effort so one run reports the whole picture. Assert on Paired,
+        # not on the device merely being visible: discovery alone does not survive to test time.
+        btctl info "$BT_ADDR" | grep -qi "Paired: yes" || {
+          echo "$client did not pair with $BT_ADDR"
+          echo "-- devices --"; btctl devices
           echo "-- btvirt log --"; cat "$GITHUB_WORKSPACE/btvirt.log"
           exit 1; }
-        echo "client $client discovered server $BT_ADDR"
+        echo "client $client paired with server $BT_ADDR"
