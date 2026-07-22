@@ -114,7 +114,7 @@ namespace IceGrid
         // so there is no need to inspect errno. Clamp the probe's start to 3 so
         // that if both keeps landed below 3 it still cannot close stderr.
         //
-        const unsigned int probeStart = static_cast<unsigned int>(hi + 1 > 3 ? hi + 1 : 3);
+        const auto probeStart = static_cast<unsigned int>(hi + 1 > 3 ? hi + 1 : 3);
         if (syscall(SYS_close_range, probeStart, ~0u, 0u) == 0)
         {
             if (lo > 3)
