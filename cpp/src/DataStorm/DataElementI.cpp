@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <set>
+#include <stdexcept>
 
 using namespace std;
 using namespace DataStormI;
@@ -1182,12 +1183,12 @@ DataWriterI::publish(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
         auto p = _lastByKey.find(key);
         if (p == _lastByKey.end())
         {
-            // No base to resolve the partial update against (the key was never set, or was removed): discard the
-            // update rather than apply it to a default-constructed value. The reader side discards such updates
-            // the same way.
-            Warning out(_traceLevels->logger);
-            out << this << ": discarded partial update: no base value for the key";
-            return;
+            // No base to resolve the partial update against: the key was never given a full value, or its last
+            // value was removed. On the writer this is always an application sequencing error, because _lastByKey
+            // holds only this writer's own published samples, so no other writer's remove can clear it (unlike the
+            // reader, where a concurrent remove can legitimately leave the key with no base). Throw so the mistake
+            // surfaces at the partialUpdate call site instead of being silently dropped.
+            throw std::logic_error("cannot apply a partial update to a key that has no value");
         }
         _parent->getUpdater(sample->tag)(p->second, sample, _parent->instance()->getCommunicator());
     }

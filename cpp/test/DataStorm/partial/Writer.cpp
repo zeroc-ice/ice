@@ -267,8 +267,9 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
-    // A partial update requires the key to have a current value: after a remove, the writer discards the partial
-    // update and publishes nothing; the next full value makes the key updatable again.
+    // A partial update requires the key to have a current value: after a remove, publishing a partial update is an
+    // application error that throws logic_error and publishes nothing; the next full value makes the key updatable
+    // again.
     Topic<string, StockPtr> removeTopic(node, "removeTopic");
     removeTopic.setWriterDefaultConfig(config);
     removeTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
@@ -278,8 +279,15 @@ void ::Writer::run(int argc, char* argv[])
         writer.waitForReaders();
         writer.add(make_shared<Stock>(12.0f, 13.0f, 14.0f));
         writer.remove();
-        writer.partialUpdate<float>("price")(15.0f);              // discarded: the key has no value after the remove
-        test(writer.getLast().getEvent() == SampleEvent::Remove); // the discarded update was not published
+        try
+        {
+            writer.partialUpdate<float>("price")(15.0f);
+            test(false);
+        }
+        catch (const std::logic_error&)
+        {
+        }
+        test(writer.getLast().getEvent() == SampleEvent::Remove); // the rejected update was not published
         writer.update(make_shared<Stock>(20.0f, 21.0f, 22.0f));
         writer.waitForNoReaders();
     }

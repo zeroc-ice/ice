@@ -767,8 +767,10 @@ namespace DataStorm
         /// function generates a SampleEvent::PartialUpdate sample with the given partial update value.
         /// The UpdateValue template parameter must match the UpdateValue type used to register the updater with
         /// the Topic::setUpdater method.
-        /// A partial update resolves against the key's current value. When the key has no value—no full value was
-        /// written yet, or the key was removed—the partial update is discarded and nothing is published.
+        /// A partial update resolves against the key's current value, so the key must have a current value when the
+        /// returned function is called: a full value was written for the key and the key was not since removed.
+        /// Calling the returned function for a key with no current value is an application error that throws
+        /// std::logic_error and publishes nothing.
         /// @param tag The partial update tag.
         template<typename UpdateValue>
         [[nodiscard]] std::function<void(const UpdateValue&)> partialUpdate(const UpdateTag& tag);
@@ -822,8 +824,10 @@ namespace DataStorm
         /// function generates a SampleEvent::PartialUpdate sample with the given partial update value.
         /// The UpdateValue template parameter must match the UpdateValue type used to register the updater with
         /// the Topic::setUpdater method.
-        /// A partial update resolves against the key's current value. When the key has no value—no full value was
-        /// written yet, or the key was removed—the partial update is discarded and nothing is published.
+        /// A partial update resolves against the key's current value, so the key must have a current value when the
+        /// returned function is called: a full value was written for the key and the key was not since removed.
+        /// Calling the returned function for a key with no current value is an application error that throws
+        /// std::logic_error and publishes nothing.
         /// @param tag The partial update tag.
         template<typename UpdateValue>
         [[nodiscard]] std::function<void(const Key&, const UpdateValue&)> partialUpdate(const UpdateTag& tag);
