@@ -708,6 +708,9 @@ SessionI::disconnectedImpl(const ConnectionPtr& connection, exception_ptr ex)
     auto self = shared_from_this();
     for (const auto& [topicId, _] : _topics)
     {
+        // The analyzer falsely flags the lambda's captures as undefined: it loses track of the closure once it
+        // is stored in runWithTopics' std::function parameter.
+        // NOLINTNEXTLINE(clang-analyzer-core.NullDereference)
         runWithTopics(topicId, [topicId, self](TopicI* topic, TopicSubscriber&) { topic->detach(topicId, self); });
     }
 
