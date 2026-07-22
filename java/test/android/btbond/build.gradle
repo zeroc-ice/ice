@@ -89,6 +89,15 @@ checkstyle {
     }
 }
 
+// btbond has no Ice or AndroidX dependencies; these are only the recipe artifacts the shared
+// rewrite.yml refers to, without which rewriteDryRun fails to resolve any of them.
+dependencies {
+    rewrite(
+        "org.openrewrite.recipe:rewrite-static-analysis:2.19.0",
+        "org.openrewrite.recipe:rewrite-java-dependencies:1.43.0"
+    )
+}
+
 rewrite {
     configFile = "${rootProject.projectDir}/../../../rewrite.yml"
 
