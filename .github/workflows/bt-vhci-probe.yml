@@ -1,0 +1,92 @@
+# Investigates whether a GitHub-hosted Linux runner can host a virtual Bluetooth controller, which
+# is what C++ IceBT would need: it talks to BlueZ over D-Bus and so requires a real host Bluetooth
+# stack, unlike the Java tests, which run between Android emulators.
+#
+# This is a diagnostic, not a test. Every step is best-effort and reports what it finds instead of
+# failing, so one run gives the whole picture. It is dispatch-only so it costs nothing per PR.
+#
+# Background: an earlier probe ran `modprobe` alone and concluded the runners cannot host a
+# Bluetooth stack. That was too strong -- the modules are not absent, they are in a package that
+# isn't installed by default (hci_vhci.ko lives in linux-modules-extra-*, not linux-modules-*).
+# This probe installs that package first, which is the step the earlier one skipped.
+name: Bluetooth vhci probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: vhci probe on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - name: Kernel and available module packages
+        shell: bash
+        run: |
+          set +e
+          echo "## kernel"
+          uname -r; uname -m
+          echo
+          echo "## does a modules-extra package exist for this exact kernel?"
+          apt-cache policy "linux-modules-extra-$(uname -r)" 2>&1 | head -20
+          echo
+          echo "## what is already on disk?"
+          find /lib/modules/"$(uname -r)"/kernel/drivers/bluetooth /lib/modules/"$(uname -r)"/kernel/net/bluetooth \
+            -name '*.ko*' 2>/dev/null | head -20 || echo "  no bluetooth module dirs present"
+
+      - name: Install the modules-extra package
+        shell: bash
+        run: |
+          set +e
+          sudo apt-get update -qq
+          sudo apt-get install -y "linux-modules-extra-$(uname -r)"
+          echo "  apt exit=$?"
+          echo
+          echo "## bluetooth modules on disk after install"
+          find /lib/modules/"$(uname -r)" -path '*bluetooth*' -name '*.ko*' 2>/dev/null | head -20 \
+            || echo "  still none"
+
+      - name: Load the modules
+        shell: bash
+        run: |
+          set +e
+          for m in bluetooth l2cap rfcomm bnep hci_vhci; do
+            sudo modprobe "$m" 2>&1 && echo "  OK    $m" || echo "  FAIL  $m"
+          done
+          echo
+          echo "## lsmod"
+          lsmod | grep -Ei 'blue|rfcomm|bnep|vhci|l2cap' || echo "  (none loaded)"
+          echo
+          echo "## /dev/vhci"
+          ls -l /dev/vhci 2>&1 || echo "  not present"
+
+      - name: BlueZ user space
+        shell: bash
+        run: |
+          set +e
+          sudo apt-get install -y bluez >/dev/null 2>&1
+          echo "## bluetoothd"; command -v bluetoothd || echo "  not found"
+          echo "## btmgmt / hciconfig"; command -v btmgmt; command -v hciconfig
+          echo "## btvirt (expected to be missing -- it needs BlueZ built with --enable-testing)"
+          command -v btvirt || echo "  not packaged, as expected"
+          echo
+          echo "## controllers visible to BlueZ"
+          sudo btmgmt info 2>&1 | head -20 || echo "  btmgmt unavailable"
+
+      - name: Verdict
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          if [ -e /dev/vhci ]; then
+            echo "VHCI AVAILABLE -- the kernel half works; next step is btvirt + bluetoothd."
+          else
+            echo "NO /dev/vhci -- the kernel half is the blocker on this runner image."
+          fi
