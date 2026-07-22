@@ -238,7 +238,7 @@ namespace Ice::Instrumentation
 
     /// The communicator observer interface used by the Ice runtime to obtain and update observers for its observable
     /// objects. This interface should be implemented by add-ins that wish to observe Ice objects in order to collect
-    /// statistics. An instance of this interface can be provided to the Ice run-time through the Ice communicator
+    /// statistics. An instance of this interface can be provided to the Ice runtime through the Ice communicator
     /// initialization data.
     /// @headerfile Ice/Ice.h
     class CommunicatorObserver
@@ -262,7 +262,7 @@ namespace Ice::Instrumentation
         /// @return The observer to instrument the endpoint lookup.
         virtual ObserverPtr getEndpointLookupObserver(const EndpointPtr& endpt) = 0;
 
-        /// Gets an observer for the given connection. The Ice run-time calls this method for each new connection and
+        /// Gets an observer for the given connection. The Ice runtime calls this method for each new connection and
         /// for all the Ice communicator connections when ObserverUpdater::updateConnectionObservers is called.
         /// @param c The connection information.
         /// @param e The connection endpoint.
@@ -305,7 +305,7 @@ namespace Ice::Instrumentation
         virtual DispatchObserverPtr getDispatchObserver(const Current& c, int size) = 0;
 
         /// Sets the observer updater. The Ice runtime calls this method when the communicator is initialized. The
-        /// add-in implementing this interface can use this object to get the Ice run-time to re-obtain observers for
+        /// add-in implementing this interface can use this object to get the Ice runtime to re-obtain observers for
         /// observed objects.
         /// @param updater The observer updater object.
         virtual void setObserverUpdater(const ObserverUpdaterPtr& updater) = 0;

@@ -17,7 +17,7 @@ class EventLoopAdapter(Ice_EventLoopAdapter):
     """
     An asyncio implementation of the Ice.EventLoopAdapter interface.
 
-    This event loop adapter is automatically used by the Ice run time when an asyncio event loop is used to initialize
+    This event loop adapter is automatically used by the Ice runtime when an asyncio event loop is used to initialize
     the communicator.
     """
 

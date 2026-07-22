@@ -3,7 +3,7 @@
 package com.zeroc.Ice.Instrumentation;
 
 /**
- * The observer updater interface. This interface is implemented by the Ice run-time and an instance of this interface
+ * The observer updater interface. This interface is implemented by the Ice runtime and an instance of this interface
  * is provided by the Ice communicator on initialization to the {@link CommunicatorObserver} object set with the
  * communicator initialization data. The Ice communicator calls {@link CommunicatorObserver#setObserverUpdater} to
  * provide the observer updater. This interface can be used by add-ins implementing the {@link CommunicatorObserver}

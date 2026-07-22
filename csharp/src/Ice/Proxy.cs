@@ -112,7 +112,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="context">The request context.</param>
     /// <returns>If the operation completed successfully, the return value is <see langword="true"/>.
     /// If the operation raises a user exception, the return value is <see langword="false"/>; in this case,
-    /// <paramref name="outEncaps"/> contains the encoded user exception. If the operation raises a run-time exception,
+    /// <paramref name="outEncaps"/> contains the encoded user exception. If the operation raises a runtime exception,
     /// it throws it directly.</returns>
     bool ice_invoke(
         string operation,
@@ -799,7 +799,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <returns>If the operation completed successfully, the return value is <see langword="true"/>.
     /// If the operation raises a user exception, the return value is <see langword="false"/>; in this case,
     /// <paramref name="outEncaps"/> contains the encoded user exception.
-    /// If the operation raises a run-time exception, it throws it directly.</returns>
+    /// If the operation raises a runtime exception, it throws it directly.</returns>
     public bool ice_invoke(
         string operation,
         OperationMode mode,

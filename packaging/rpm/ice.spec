@@ -130,9 +130,9 @@ your application logic.
 # libiceMm-c++ package
 #
 %package -n lib%{?nameprefix}ice%{mmversion}-c++
-Summary: Ice for C++ run-time libraries.
+Summary: Ice for C++ runtime libraries.
 %description -n lib%{?nameprefix}ice%{mmversion}-c++
-This package contains the C++ run-time libraries for the Ice framework.
+This package contains the C++ runtime libraries for the Ice framework.
 
 Ice is a comprehensive RPC framework that helps you network your software
 with minimal effort. Ice takes care of all interactions with low-level
