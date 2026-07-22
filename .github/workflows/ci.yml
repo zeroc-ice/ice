@@ -102,10 +102,6 @@ jobs:
         if: matrix.config == 'android'
         uses: ./.github/actions/setup-android
 
-      - name: Setup Bluetooth
-        if: matrix.bluetooth == true
-        uses: ./.github/actions/setup-bluetooth
-
       - name: Install Windows Debug Tools
         if: runner.os == 'Windows'
         uses: ./.github/actions/install-windows-debug-tools
@@ -161,6 +157,10 @@ jobs:
       - name: Install testing dependencies from pip
         run: python3 -m pip install passlib cryptography numpy
         shell: bash
+
+      - name: Setup Bluetooth
+        if: matrix.bluetooth == true
+        uses: ./.github/actions/setup-bluetooth
 
       - name: Test ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test
