@@ -107,6 +107,8 @@ public interface Connection {
      * Returns the connection information.
      *
      * @return the connection information
+     * @throws LocalException if the connection is closed; the exception provides the reason for the
+     *     closure (see {@link #throwException}).
      */
     ConnectionInfo getInfo();
 
@@ -115,6 +117,8 @@ public interface Connection {
      *
      * @param rcvSize the size of the receive buffer
      * @param sndSize the size of the send buffer
+     * @throws LocalException if the connection is closed; the exception provides the reason for the
+     *     closure (see {@link #throwException}).
      */
     void setBufferSize(int rcvSize, int sndSize);
 
