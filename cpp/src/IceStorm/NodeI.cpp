@@ -341,7 +341,13 @@ NodeI::timeout()
     }
     if (failed)
     {
-        recovery();
+        unique_lock<mutex> lock(_mutex);
+        // Apply the recovery only if the coordinator and group we probed are still the node's: the node may have
+        // moved to another group while the mutex was released.
+        if (_coord == myCoord && _group == myGroup)
+        {
+            recovery(lock);
+        }
     }
 }
 
@@ -977,6 +983,15 @@ NodeI::recovery(unique_lock<mutex>& lock, int64_t generation)
     // Ignore the recovery if the node has already advanced a
     // generation.
     if (generation != -1 && generation != _generation)
+    {
+        return;
+    }
+
+    // Never interrupt an election in progress: merge() and invitation() drive it with the mutex released between
+    // their phases and call recovery() themselves if it fails. A generation-stamped recovery — another thread
+    // reacting to a replication failure — is also ignored during a reorganization: the group it asks to abandon is
+    // already being replaced.
+    if (_state == NodeState::NodeStateElection || (generation != -1 && _state == NodeState::NodeStateReorganization))
     {
         return;
     }
