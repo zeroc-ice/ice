@@ -121,7 +121,19 @@ SessionI::announceTopics(TopicInfoSeq topics, bool, const Current&)
                 }
                 unique_lock<mutex> topicLock(topic->getMutex());
                 _topicLock = &topicLock;
-                unsubscribe(topicId, topic);
+                if (topic->isDestroyed())
+                {
+                    // The topic is being destroyed: TopicI::disconnect detaches its elements only while the
+                    // subscriber entry exists, and the entry is erased below. Detach the elements directly instead.
+                    unsubscribe(topicId, topic);
+                }
+                else
+                {
+                    // A live topic whose subscriber went stale (the peer topic was destroyed while the session was
+                    // disconnected, so it was not re-announced). Take the normal detach path, which also drops this
+                    // session from the topic's listeners.
+                    topic->detach(topicId, shared_from_this());
+                }
                 _topicLock = nullptr;
             };
             if (p->second.reap(_sessionInstanceId, detach))
@@ -213,7 +225,7 @@ SessionI::detachTopic(int64_t id, const Current&)
         return;
     }
 
-    for (auto& [topic, subscriber] : t->second.getSubscribers())
+    for (auto& [topic, _] : t->second.getSubscribers())
     {
         unique_lock<mutex> topicLock(topic->getMutex());
         _topicLock = &topicLock;
@@ -883,7 +895,7 @@ SessionI::destroyImpl(const exception_ptr& ex)
         auto self = shared_from_this();
         for (auto& [topicId, subscribers] : _topics)
         {
-            for (auto& [topic, subscriber] : subscribers.getSubscribers())
+            for (auto& [topic, _] : subscribers.getSubscribers())
             {
                 unique_lock<mutex> topicLock(topic->getMutex());
                 _topicLock = &topicLock;
