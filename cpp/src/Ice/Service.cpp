@@ -12,6 +12,7 @@
 #else
 #    include "Network.h"
 #    include <csignal>
+#    include <sys/resource.h>
 #    include <sys/stat.h>
 #    include <sys/types.h>
 #    ifdef ICE_USE_SYSTEMD
@@ -1598,13 +1599,18 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
             // have an opportunity to use stdin/stdout/stderr if necessary. This also
             // conveniently allows the Ice.PrintProcessId property to work as expected.
             //
-            int fdMax = static_cast<int>(sysconf(_SC_OPEN_MAX));
-            if (fdMax <= 0)
+            // Bound the probe loop by the soft RLIMIT_NOFILE — the kernel never allocates a
+            // descriptor at or above it — capped so the loop stays cheap even with a very large
+            // limit (such as LimitNOFILE=infinity under systemd).
+            //
+            rlim_t fdMax = 1 << 20;
+            rlimit fdLimit{};
+            if (getrlimit(RLIMIT_NOFILE, &fdLimit) == 0)
             {
-                throw SyscallException{__FILE__, __LINE__, "sysconf failed", errno};
+                fdMax = std::min(fdMax, fdLimit.rlim_cur);
             }
 
-            for (int i = 0; i < fdMax; ++i)
+            for (int i = 0; i < static_cast<int>(fdMax); ++i)
             {
                 if (fcntl(i, F_GETFL) != -1)
                 {
