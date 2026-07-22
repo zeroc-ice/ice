@@ -8,6 +8,12 @@ description: >
   kernel but strips them from the amd64 one, where `modprobe bluetooth` reports "Module bluetooth
   not found" even after the module package is installed.
 
+  Not referenced by ci.yml yet -- the C++ IceBT tests that need a controller don't exist, and the
+  point of this action is to be called only where Bluetooth is actually being tested. The job that
+  adds those tests should add `uses: ./.github/actions/setup-bluetooth` alongside them, on an
+  ubuntu-24.04-arm runner. Verified working as a step in that position; it is deliberately fatal,
+  since a missing controller would otherwise surface later as an unexplained IceBT failure.
+
 runs:
   using: "composite"
   steps:
