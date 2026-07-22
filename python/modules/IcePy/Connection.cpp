@@ -137,8 +137,9 @@ compress : Ice.CompressBatch
 
 Raises
 ------
-CommunicatorDestroyedException
-    If the communicator has been destroyed.)";
+LocalException
+    If the flush fails. For example, this method raises CommunicatorDestroyedException if the communicator
+    has been destroyed.)";
 
     constexpr const char* connectionFlushBatchRequestsAsync_doc =
         R"(flushBatchRequestsAsync(compress: Ice.CompressBatch) -> Awaitable[None]
@@ -160,7 +161,7 @@ Awaitable[None]
 Raises
 ------
 CommunicatorDestroyedException
-    If the communicator has been destroyed.)";
+    If the communicator has been destroyed. This exception is raised synchronously.)";
 
     constexpr const char* connectionSetCloseCallback_doc =
         R"(setCloseCallback(callback: Callable[[Connection], None] | None) -> None

@@ -117,7 +117,8 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
     ///
     /// - Parameter compress: Specifies whether or not the queued batch requests should be compressed
     /// before being sent over the wire.
-    /// - Throws: `CommunicatorDestroyedException` when the communicator has been destroyed.
+    /// - Throws: `LocalException` when the flush fails, for example `CommunicatorDestroyedException` when the
+    ///   communicator has been destroyed.
     func flushBatchRequests(_ compress: CompressBatch) async throws
 
     /// Sets a close callback on the connection. The callback is called by the connection when it's closed. The

@@ -483,7 +483,8 @@ public final class Communicator implements AutoCloseable {
      * @param compressBatch specifies whether or not the queued batch requests should be compressed
      *     before being sent over the wire
      * @return a future that will be completed when the invocation completes
-     * @throws CommunicatorDestroyedException if the communicator has been destroyed
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed; this exception is
+     *     thrown synchronously
      */
     public CompletableFuture<Void> flushBatchRequestsAsync(
             CompressBatch compressBatch) {

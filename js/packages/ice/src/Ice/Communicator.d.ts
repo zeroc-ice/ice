@@ -273,7 +273,8 @@ declare module "@zeroc/ice" {
              * communicator. Any errors that occur while flushing a connection are ignored.
              *
              * @returns A promise that resolves when the flush operation is complete.
-             * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
+             * @throws {@link CommunicatorDestroyedException} - Thrown synchronously when the communicator has been
+             * destroyed.
              */
             flushBatchRequests(): Promise<void>;
         }

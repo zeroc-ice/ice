@@ -278,7 +278,7 @@ namespace Ice
         /// and passes `false` as argument. If you set InitializationData::executor, the executor determines the
         /// thread that executes this function in the asynchronous case.
         /// @return A function that can be called to cancel the flush.
-        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
+        /// @throws CommunicatorDestroyedException Thrown synchronously when the communicator has been destroyed.
         std::function<void()> flushBatchRequestsAsync(
             CompressBatch compress,
             std::function<void(std::exception_ptr)> exception,
@@ -290,7 +290,7 @@ namespace Ice
         /// @param compress Specifies whether or not the queued batch requests should be compressed before being sent
         /// over the wire.
         /// @return A future that becomes available when all batch requests have been sent.
-        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
+        /// @throws CommunicatorDestroyedException Thrown synchronously when the communicator has been destroyed.
         [[nodiscard]] std::future<void> flushBatchRequestsAsync(CompressBatch compress);
 
         /// Adds the Admin object with all its facets to the provided object adapter. If `Ice.Admin.ServerId`

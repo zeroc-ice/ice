@@ -416,7 +416,8 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// <param name="progress">The sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>A task that completes when the flush completes for all connections.</returns>
-    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
+    /// <exception cref="CommunicatorDestroyedException">Thrown synchronously when the communicator has been
+    /// destroyed.</exception>
     public Task flushBatchRequestsAsync(
         CompressBatch compress,
         IProgress<bool>? progress = null,

@@ -562,7 +562,7 @@ class Communicator:
         Raises
         ------
         CommunicatorDestroyedException
-            If the communicator has been destroyed.
+            If the communicator has been destroyed. This exception is raised synchronously.
         """
         return self._impl.flushBatchRequestsAsync(compress)
 

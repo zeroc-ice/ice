@@ -423,7 +423,8 @@ classdef Communicator < IceInternal.WrapperObject
             %       Ice.Future scalar
             %
             %   Exceptions
-            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed.
+            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed. This exception is
+            %       thrown synchronously.
 
             arguments
                 obj (1, 1) Ice.Communicator

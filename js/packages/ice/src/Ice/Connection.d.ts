@@ -73,8 +73,9 @@ declare module "@zeroc/ice" {
             /**
              * Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
              * associated with the connection.
-             * @returns The asynchronous result object for the invocation.
-             * @throws {@link CommunicatorDestroyedException} - Thrown when the communicator has been destroyed.
+             * @returns The asynchronous result object for the invocation. If the flush fails, the promise is
+             * rejected with the corresponding exception, for example {@link CommunicatorDestroyedException} when
+             * the communicator has been destroyed.
              */
             flushBatchRequests(): Promise<void>;
 

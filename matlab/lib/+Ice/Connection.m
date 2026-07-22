@@ -128,7 +128,8 @@ classdef Connection < IceInternal.WrapperObject
             %       Ice.CompressBatch scalar
             %
             %   Exceptions
-            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed.
+            %     Ice.LocalException - If the flush fails. For example, this method throws an
+            %       Ice.CommunicatorDestroyedException if the communicator has been destroyed.
 
             arguments
                 obj (1, 1) Ice.Connection
@@ -151,7 +152,8 @@ classdef Connection < IceInternal.WrapperObject
             %       Ice.Future scalar
             %
             %   Exceptions
-            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed.
+            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed. This exception is
+            %       thrown synchronously.
 
             arguments
                 obj (1, 1) Ice.Connection

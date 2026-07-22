@@ -63,7 +63,8 @@ public interface Connection {
      *
      * @param compress Specifies whether or not the queued batch requests should be compressed before
      *     being sent over the wire.
-     * @throws CommunicatorDestroyedException if the communicator has been destroyed
+     * @throws LocalException if the flush fails; for example, this method throws
+     *     {@link CommunicatorDestroyedException} if the communicator has been destroyed
      */
     void flushBatchRequests(CompressBatch compress);
 
@@ -74,7 +75,8 @@ public interface Connection {
      * @param compress Specifies whether or not the queued batch requests should be compressed before
      *     being sent over the wire.
      * @return a future that becomes available when the flush completes
-     * @throws CommunicatorDestroyedException if the communicator has been destroyed
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed; this exception is
+     *     thrown synchronously
      */
     CompletableFuture<Void> flushBatchRequestsAsync(CompressBatch compress);
 
