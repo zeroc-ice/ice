@@ -20,7 +20,8 @@ runs:
         # linux-modules-extra, which the runner images don't install. btvirt (the virtual controller
         # tool) is in bluez-test-tools, not bluez.
         sudo apt-get update -qq
-        sudo apt-get install -y "linux-modules-extra-$(uname -r)" bluez bluez-test-tools
+        # bluez-test-tools has btvirt (the virtual controller); bluez-tools has bt-agent.
+        sudo apt-get install -y "linux-modules-extra-$(uname -r)" bluez bluez-test-tools bluez-tools
 
     - name: Load the modules
       shell: bash
@@ -77,33 +78,31 @@ runs:
         echo "## make the server controller discoverable"
         printf 'select %s\npower on\ndiscoverable on\npairable on\nquit\n' "$BT_ADDR" | sudo bluetoothctl
 
-        # Pairing needs an agent to answer the request, the same job btbond does on Android.
-        # NoInputNoOutput selects "just works" pairing, so nothing waits for a PIN or a confirmation
-        # that no one is there to give. Scan, pair, then trust: an unpaired, untrusted device is
-        # temporary, and BlueZ drops it from the object tree once discovery stops -- which is why
-        # the first attempt found the device during setup and IceBT saw nothing by test time.
+        # The agent that answers the pairing request has to outlive the pairing. Registering one
+        # inside a bluetoothctl session does not work: BlueZ answers the pending confirmation
+        # negatively the moment the registering process exits, which shows up as
+        # org.bluez.Error.AuthenticationFailed even though the SSP exchange itself succeeded.
+        # bt-agent runs as a daemon instead. NoInputNoOutput selects "just works" pairing, so
+        # nothing waits for input no one is there to give -- the job btbond does on Android.
+        sudo sh -c "nohup bt-agent --capability=NoInputNoOutput > '$GITHUB_WORKSPACE/bt-agent.log' 2>&1 &"
+        sleep 2
+
         echo "## scan, pair and trust from the client controller"
-        printf 'select %s\npower on\nagent NoInputNoOutput\ndefault-agent\nscan on\nquit\n' "$client" |
-          sudo bluetoothctl
+        printf 'select %s\npower on\nquit\n' "$client" | sudo bluetoothctl
         btctl --timeout 20 scan on
         btctl devices
-        # Pairing currently fails here with org.bluez.Error.AuthenticationFailed. Both controllers
-        # are managed by one bluetoothd, so it is initiator and responder at once, which BlueZ's own
-        # tests avoid by using an emulated peer rather than a second adapter. Attempt it and record
-        # the outcome, but don't gate on it: trust alone makes the device persistent, and whether
-        # IceBT needs the bond as well is exactly what running the tests will tell us.
-        btctl --timeout 30 pair "$BT_ADDR" || true
+        btctl --timeout 30 pair "$BT_ADDR"
+        # Trust as well: an unpaired, untrusted device is temporary and BlueZ drops it from the
+        # object tree once discovery stops, leaving IceBT nothing to resolve at test time.
         btctl trust "$BT_ADDR"
         btctl info "$BT_ADDR"
 
-        # Assert the device is known and persistent. Visibility alone is not enough -- an untrusted
-        # device is temporary and BlueZ drops it when discovery stops, leaving IceBT nothing to
-        # resolve at test time.
-        btctl info "$BT_ADDR" | grep -qi "Trusted: yes" || {
-          echo "$BT_ADDR is not a trusted device, so it will not survive to test time"
+        # IceBT uses secure RFCOMM, which needs the bond -- so this is the precondition that
+        # matters, not mere visibility.
+        btctl info "$BT_ADDR" | grep -qi "Paired: yes" || {
+          echo "$client did not pair with $BT_ADDR"
           echo "-- devices --"; btctl devices
-          echo "-- btvirt log --"; cat "$GITHUB_WORKSPACE/btvirt.log"
+          echo "-- agent --"; cat "$GITHUB_WORKSPACE/bt-agent.log"
+          echo "-- btvirt --"; cat "$GITHUB_WORKSPACE/btvirt.log"
           exit 1; }
-        btctl info "$BT_ADDR" | grep -qi "Paired: yes" \
-          && echo "client $client paired with server $BT_ADDR" \
-          || echo "NOTE: $BT_ADDR is trusted but not paired; continuing to see whether IceBT needs the bond"
+        echo "client $client paired with server $BT_ADDR"
