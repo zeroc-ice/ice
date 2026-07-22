@@ -62,6 +62,7 @@ class IceStorm(ProcessFromBinDir, Server):
             os.mkdir(self.dbdir)
 
     def teardown(self, current, success):
+        Server.teardown(self, current, success)
         if self.cleanDb:
             # Remove the database directory tree
             try:
