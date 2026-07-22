@@ -126,6 +126,9 @@ jobs:
             # a YAML boolean false is falsy in the `matrix.test_all || 'true'` default below.
             test_workers: 1
             test_all: "false"
+            # The job normally takes ~25 min; this is the bound the standalone workflow had, so a
+            # wedged emulator costs that rather than GitHub's 6h default.
+            job_timeout: 90
             # setup-bt exports $BT_CLIENT and $BT_ADDR; these flags are interpolated into a bash
             # command, so the shell expands them at run time.
             test_flags: >-
@@ -167,9 +170,11 @@ jobs:
             build_cpp_and_python: true
 
     runs-on: ${{ matrix.os }}
-    # Individual steps carry their own tighter limits; this is a backstop so a stall in a step that
-    # has none (SDK download, cache, artifact upload) can't sit on a runner for the 6h default.
-    timeout-minutes: 150
+    # Only android-bt sets this, restoring the bound its standalone workflow had; everything else
+    # keeps GitHub's default. A job-level limit has to clear the sum of the step limits on its
+    # longest path, not just observed runtimes, or a slow-but-valid run is killed -- and being
+    # killed here also skips the always() diagnostics and artifact steps.
+    timeout-minutes: ${{ matrix.job_timeout || 360 }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
