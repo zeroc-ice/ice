@@ -63,7 +63,7 @@ class BaseConnection(threading.Thread):
                         if len(data) == 0:
                             self.closed = True
                             break
-                        w.send(data)
+                        w.sendall(data)
             except InvalidRequest:
                 print("invalid request")
             except Exception:

@@ -4,6 +4,10 @@
 #include "../Ice/ConsoleUtil.h"
 #include "Ice/StringUtil.h"
 
+#include <algorithm>
+#include <cctype>
+#include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -477,14 +481,121 @@ namespace Glacier2
         return true;
     }
 
-    // Returns true when an endpoint of the proxy has a host longer than 255 characters. No legal host name or
-    // IP address is that long, and the bound keeps the cost of matching the address rules low.
-    static bool hasOversizedHost(const ObjectPrx& proxy)
+    // Splits host into its '.'-separated parts.
+    static vector<string> splitHost(const string& host)
+    {
+        vector<string> parts;
+        string::size_type start = 0;
+        while (true)
+        {
+            string::size_type dot = host.find('.', start);
+            parts.push_back(host.substr(start, dot == string::npos ? string::npos : dot - start));
+            if (dot == string::npos)
+            {
+                break;
+            }
+            start = dot + 1;
+        }
+        return parts;
+    }
+
+    // Returns true when every '.'-separated part of host is a numeral (digits, or a 0x prefix followed by
+    // hexadecimal digits): the host spells an IPv4 address in one of the many forms resolvers accept. This is
+    // a check on the spelling, not the value: a digit-only part covers the decimal and octal (leading zero)
+    // readings alike, and a bare 0x with no digits reads as 0.
+    static bool isIPv4Numeral(const string& host)
+    {
+        for (const string& part : splitHost(host))
+        {
+            bool digitsOnly =
+                !part.empty() && all_of(part.begin(), part.end(), [](unsigned char c) { return isdigit(c) != 0; });
+            bool hex = part.size() >= 2 && part[0] == '0' && (part[1] == 'x' || part[1] == 'X') &&
+                       all_of(part.begin() + 2, part.end(), [](unsigned char c) { return isxdigit(c) != 0; });
+            if (!digitsOnly && !hex)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Returns true when host is the canonical spelling of an IPv4 address: four decimal parts, each between 0
+    // and 255, with no leading zeros.
+    static bool isCanonicalIPv4Spelling(const string& host)
+    {
+        vector<string> parts = splitHost(host);
+        if (parts.size() != 4)
+        {
+            return false;
+        }
+        for (const string& part : parts)
+        {
+            bool digitsOnly =
+                !part.empty() && all_of(part.begin(), part.end(), [](unsigned char c) { return isdigit(c) != 0; });
+            if (!digitsOnly || part.size() > 3 || (part.size() > 1 && part[0] == '0') || stoi(part) > 255)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Returns the host of the innermost IP endpoint underlying an endpoint, or nullopt when no such endpoint
+    // exists: the transport is not IP based (such as Bluetooth), or it is unknown to this communicator. An
+    // unknown transport, including an IP-based one whose plug-in is not loaded, is opaque and carries no typed
+    // endpoint info, so it is indistinguishable from a non-IP transport here.
+    static optional<string> ipEndpointHost(const EndpointPtr& endpoint)
+    {
+        for (EndpointInfoPtr info = endpoint->getInfo(); info; info = info->underlying)
+        {
+            if (auto ipInfo = dynamic_pointer_cast<IPEndpointInfo>(info))
+            {
+                return ipInfo->host;
+            }
+        }
+        return nullopt;
+    }
+
+    // Returns true when an endpoint of the proxy has a host that the address rules cannot match reliably:
+    // - A non-IP endpoint (such as Bluetooth), or an endpoint whose transport is unknown to this communicator.
+    // - An empty host.
+    // - A host containing a control character or a space.
+    // - A host longer than 255 characters. No legal host name or IP address is that long.
+    // - A non-canonical spelling of an IPv4 address, such as 0x7f000001, 2130706433, 0177.0.0.1, or 127.1.
+    // - An IPv4 address with a trailing dot: the resolver reads it as a DNS name, not as an address.
+    // A DNS name with a trailing dot is fine: the resolver treats 'name.' as 'name', and the matching strips
+    // the dot the same way.
+    // Returns false for an indirect proxy: it has no endpoints, so there is no host to check here (the address
+    // rules match nothing, and the identity and adapter-id filters constrain it instead).
+    static bool hasDisallowedHost(const ObjectPrx& proxy)
     {
         for (const auto& endpoint : proxy->ice_getEndpoints())
         {
-            string host;
-            if (extractPart("-h ", endpoint->toString(), host) && host.size() > 255)
+            optional<string> optHost = ipEndpointHost(endpoint);
+            if (!optHost)
+            {
+                return true;
+            }
+            string host = std::move(*optHost);
+
+            if (host.empty())
+            {
+                return true;
+            }
+            if (any_of(host.begin(), host.end(), [](unsigned char c) { return c == ' ' || iscntrl(c) != 0; }))
+            {
+                return true;
+            }
+            if (host.size() > 255)
+            {
+                return true;
+            }
+            bool trailingDot = host.size() > 1 && host.back() == '.';
+            if (trailingDot)
+            {
+                host.pop_back();
+            }
+            if (isIPv4Numeral(host) && (trailingDot || !isCanonicalIPv4Spelling(host)))
             {
                 return true;
             }
@@ -580,6 +691,14 @@ namespace Glacier2
             }
             // Host names are case-insensitive; the rule was folded to lower case when parsed.
             host = toLower(host);
+
+            // The resolver treats the fully-qualified name 'name.' as 'name'; strip the trailing dot so the
+            // spelling matches the rules written for 'name'.
+            if (host.size() > 1 && host.back() == '.')
+            {
+                host.pop_back();
+            }
+
             string port;
             if (!extractPart("-p ", info, port))
             {
@@ -725,6 +844,13 @@ namespace Glacier2
                 // Host names are case-insensitive; fold the rule to lower case and match it against the
                 // lower-cased host.
                 addr = toLower(addr);
+
+                // The trailing dot of a fully-qualified name is stripped from the host before matching; strip
+                // it from the rule the same way.
+                if (addr.size() > 1 && addr.back() == '.')
+                {
+                    addr.pop_back();
+                }
 
                 //
                 // The addr portion can contain alphanumerics, * and
@@ -912,6 +1038,7 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator, int traceLe
     string s = _communicator->getProperties()->getIceProperty("Glacier2.Filter.Address.Accept");
     if (s != "")
     {
+        _hasAddressFilters = true;
         try
         {
             // An accept rule matches a proxy only when every endpoint matches it.
@@ -928,6 +1055,7 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator, int traceLe
     s = _communicator->getProperties()->getIceProperty("Glacier2.Filter.Address.Reject");
     if (s != "")
     {
+        _hasAddressFilters = true;
         try
         {
             // A reject rule matches a proxy as soon as one endpoint matches it.
@@ -980,7 +1108,7 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
 
     bool result = false;
 
-    if (Glacier2::hasOversizedHost(proxy))
+    if (_hasAddressFilters && Glacier2::hasDisallowedHost(proxy))
     {
         // Rejected regardless of the configured rules.
     }

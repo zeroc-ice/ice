@@ -141,8 +141,9 @@ class ControllerDriver(Driver):
                     sys.stdout.write("adding trust settings for the HTTP server certificate... ")
                     sys.stdout.flush()
                     if os.system("security add-trusted-cert -r trustAsRoot " + serverCert) != 0:
-                        print("error: couldn't add trust settings for the HTTP server certificate")
-                    print("ok")
+                        print("\nerror: couldn't add trust settings for the HTTP server certificate")
+                    else:
+                        print("ok")
                     print("run " + sys.argv[0] + " --clean to remove the trust setting")
 
         self.initCommunicator()
@@ -170,12 +171,15 @@ class ControllerDriver(Driver):
                     )
 
             def stopServerSide(self, success, c):
-                if self.serverSideRunning:
-                    try:
-                        self.current.serverTestCase._stopServerSide(self.current, success)
-                        return self.current.result.getOutput()
-                    except Exception as ex:
-                        raise Test_Common.TestCaseFailedException(self.current.result.getOutput() + "\n" + str(ex))
+                if not self.serverSideRunning:
+                    return self.current.result.getOutput()
+                try:
+                    self.current.serverTestCase._stopServerSide(self.current, success)
+                except Exception as ex:
+                    # Leave serverSideRunning set so destroy() retries the teardown.
+                    raise Test_Common.TestCaseFailedException(self.current.result.getOutput() + "\n" + str(ex))
+                self.serverSideRunning = False
+                return self.current.result.getOutput()
 
             def runClientSide(self, host, config, c):
                 self.updateCurrent(config)
@@ -187,6 +191,7 @@ class ControllerDriver(Driver):
 
             def destroy(self, c):
                 if self.serverSideRunning:
+                    self.serverSideRunning = False
                     try:
                         self.current.serverTestCase._stopServerSide(self.current, False)
                     except Exception:
@@ -238,8 +243,8 @@ class ControllerDriver(Driver):
             def getOptionOverrides(self, c):
                 return Test_Common.OptionOverrides(ipv6=([False] if not self.driver.hostIPv6 else [False, True]))
 
-            def getHost(self, name, ipv6, c):
-                pass
+            def getHost(self, protocol, ipv6, c):
+                return self.driver.getHost(protocol, ipv6)
 
         import Ice
 
@@ -356,14 +361,18 @@ class ControllerDriver(Driver):
     def getCurrent(self, mapping, testsuite, testcase, cross, protocol=None, host=None, args=[]):
         from Test import Common as Test_Common
 
-        mapping = Mapping.getByName(mapping)
-        if not mapping:
-            raise Test_Common.TestCaseNotExistException("unknown mapping {0}".format(mapping))
+        # Mapping.getByName raises RuntimeError for an unknown mapping, but runTestCase is declared to
+        # throw TestCaseNotExistException.
+        try:
+            mapping = Mapping.getByName(mapping)
+        except RuntimeError as ex:
+            raise Test_Common.TestCaseNotExistException(str(ex))
 
         if cross:
-            cross = Mapping.getByName(cross)
-            if not cross:
-                raise Test_Common.TestCaseNotExistException("unknown mapping {0} for cross testing".format(cross))
+            try:
+                cross = Mapping.getByName(cross)
+            except RuntimeError as ex:
+                raise Test_Common.TestCaseNotExistException("{0} for cross testing".format(ex))
 
         ts = mapping.findTestSuite(testsuite)
         if not ts:

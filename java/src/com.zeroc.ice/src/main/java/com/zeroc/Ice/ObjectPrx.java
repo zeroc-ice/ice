@@ -209,6 +209,7 @@ public interface ObjectPrx {
      *
      * @param newIdentity the identity for the new proxy
      * @return a proxy with the new identity
+     * @throws IllegalArgumentException if the name of the new identity is empty
      */
     ObjectPrx ice_identity(Identity newIdentity);
 
@@ -299,6 +300,7 @@ public interface ObjectPrx {
      *
      * @param connection the fixed proxy connection
      * @return a fixed proxy bound to the given connection
+     * @throws IllegalArgumentException if the connection is null or not a valid Ice connection
      */
     ObjectPrx ice_fixed(Connection connection);
 

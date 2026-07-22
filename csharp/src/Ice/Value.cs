@@ -44,8 +44,8 @@ public abstract class Value
     /// <summary>
     /// Returns the sliced data associated with this instance.
     /// </summary>
-    /// <returns>The sliced data if this value was sliced during unmarshaling; otherwise null. Unknown slices are
-    /// preserved only when the sender uses the sliced format.</returns>
+    /// <returns>The sliced data if this value was sliced during unmarshaling; otherwise, <see langword="null"/>.
+    /// Unknown slices are preserved only when the sender uses the sliced format.</returns>
     public SlicedData? ice_getSlicedData() => _slicedData;
 
     [EditorBrowsable(EditorBrowsableState.Never)]

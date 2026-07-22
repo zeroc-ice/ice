@@ -39,16 +39,16 @@ public class EndpointInfo
     public virtual short type() => underlying?.type() ?? -1;
 
     /// <summary>
-    /// Returns <see langword="true"/> if this endpoint's transport is a datagram transport (namely, UDP),
-    /// <see langword="false"/> otherwise.
+    /// Returns <see langword="true"/> if this endpoint's transport is a datagram transport (namely, UDP); otherwise,
+    /// <see langword="false"/>.
     /// </summary>
-    /// <returns><see langword="true"/> for a UDP endpoint, <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> for a UDP endpoint; otherwise, <see langword="false"/>.</returns>
     public virtual bool datagram() => underlying?.datagram() ?? false;
 
     /// <summary>
-    /// Returns <see langword="true"/> if this endpoint's transport uses SSL, <see langword="false"/> otherwise.
+    /// Returns <see langword="true"/> if this endpoint's transport uses SSL; otherwise, <see langword="false"/>.
     /// </summary>
-    /// <returns><see langword="true"/> for SSL and SSL-based transports, <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> for SSL and SSL-based transports; otherwise, <see langword="false"/>.</returns>
     public virtual bool secure() => underlying?.secure() ?? false;
 
     protected EndpointInfo(EndpointInfo underlying)

@@ -5,7 +5,7 @@ export class IdleTimeoutTransceiverDecorator {
         console.assert(idleTimeout > 0);
 
         this._decoratee = decoratee;
-        this._idleTimeout = idleTimeout * 1000; // Convert seconds to milliseconds
+        this._idleTimeoutMs = idleTimeout * 1000;
         this._timer = timer;
         this._connection = connection;
 
@@ -93,8 +93,8 @@ export class IdleTimeoutTransceiverDecorator {
         if (this._idleCheckEnabled) {
             this.cancelReadTimer();
             this._readTimerToken = this._timer.schedule(() => {
-                this._connection.idleCheck(this._idleTimeout);
-            }, this._idleTimeout);
+                this._connection.idleCheck(this._idleTimeoutMs / 1000);
+            }, this._idleTimeoutMs);
         }
     }
 
@@ -102,6 +102,6 @@ export class IdleTimeoutTransceiverDecorator {
         this.cancelWriteTimer();
         this._writeTimerToken = this._timer.schedule(() => {
             this._connection.sendHeartbeat();
-        }, this._idleTimeout / 2);
+        }, this._idleTimeoutMs / 2);
     }
 }

@@ -1,0 +1,53 @@
+name: Nightly Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: "Build number for nightly releases"
+        required: false
+        default: "1"
+      publish:
+        description: "Prune old nightly artifacts and publish the new packages"
+        required: false
+        default: false
+        type: boolean
+      authenticode_sign:
+        description: "Sign Windows binaries with Authenticode"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  build:
+    name: Build Release
+    uses: ./.github/workflows/build-release.yml
+    with:
+      quality: nightly
+      build_number: ${{ inputs.build_number }}
+      authenticode_sign: ${{ inputs.authenticode_sign }}
+    secrets: inherit
+
+  prune:
+    name: Prune Nightly Artifacts
+    if: ${{ inputs.publish == true }}
+    needs: build
+    uses: ./.github/workflows/prune-nightly-artifacts.yml
+    with:
+      channel: ${{ needs.build.outputs.channel }}
+    secrets: inherit
+
+  publish:
+    name: Publish Release
+    # Pruning removes dated packages from the APT and RPM repositories without
+    # updating their metadata. Publishing must run afterwards to rebuild it.
+    if: ${{ inputs.publish == true }}
+    needs:
+      - build
+      - prune
+    uses: ./.github/workflows/publish-release.yml
+    with:
+      channel: ${{ needs.build.outputs.channel }}
+      quality: nightly
+      run_id: ${{ github.run_id }}
+    secrets: inherit

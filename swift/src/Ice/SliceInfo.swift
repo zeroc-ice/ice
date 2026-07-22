@@ -4,7 +4,7 @@ import Foundation
 
 /// Encapsulates the details of a class slice with an unknown type.
 public struct SliceInfo {
-    /// The Slice type ID for this slice.
+    /// The Slice type ID for this slice. It's empty when the compact ID is set (`compactId` is not `-1`).
     public let typeId: String
 
     /// The Slice compact type ID for this slice, or `-1` if the slice has no compact ID.
