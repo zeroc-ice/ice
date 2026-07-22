@@ -13,11 +13,13 @@
 // Launch (via adb am start), reading the result from logcat tag BTBOND:
 //   server: am start -n com.zeroc.btbond/.MainActivity --es mode server --es uuid <uuid>
 //   client: am start -n com.zeroc.btbond/.MainActivity --es mode client --es peer <addr> --es uuid <uuid>
+
 package com.zeroc.btbond;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
@@ -61,7 +63,7 @@ public class MainActivity extends Activity {
     private final BroadcastReceiver pairingReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context ctx, Intent intent) {
-            BluetoothDevice dev = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            BluetoothDevice dev = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice.class);
             int variant = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_VARIANT, -1);
             if (dev == null) {
                 Log.w(TAG, "PAIRING_REQUEST variant=" + variant + " with no device; ignoring");
@@ -92,7 +94,10 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         // ACTION_PAIRING_REQUEST is a system broadcast; register exported (and unregister in onDestroy).
-        registerReceiver(pairingReceiver, new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST), Context.RECEIVER_EXPORTED);
+        registerReceiver(
+            pairingReceiver,
+            new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST),
+            Context.RECEIVER_EXPORTED);
         Intent it = getIntent();
         final String mode = it.getStringExtra("mode");
         final String peer = it.getStringExtra("peer");
@@ -161,9 +166,16 @@ public class MainActivity extends Activity {
     // pairing, which is the whole point of this app, so there is no insecure mode to select.
     void run(String mode, String peer, String uuidStr) {
         try {
-            BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-            if (adapter == null) { result(mode, false, "no adapter"); return; }
-            if (!adapter.isEnabled()) { result(mode, false, "adapter not enabled"); return; }
+            BluetoothManager manager = getSystemService(BluetoothManager.class);
+            BluetoothAdapter adapter = manager == null ? null : manager.getAdapter();
+            if (adapter == null) {
+                result(mode, false, "no adapter");
+                return;
+            }
+            if (!adapter.isEnabled()) {
+                result(mode, false, "adapter not enabled");
+                return;
+            }
             UUID uuid = UUID.fromString(uuidStr);
 
             if ("server".equals(mode)) {
@@ -181,7 +193,10 @@ public class MainActivity extends Activity {
                         Log.i(TAG, "server read " + n + " bytes");
                         // Only echo a complete probe: a short read is already a failure, and echoing
                         // it would just make the client report a mismatch instead of the real cause.
-                        if (n == buf.length) { out.write(buf); out.flush(); }
+                        if (n == buf.length) {
+                            out.write(buf);
+                            out.flush();
+                        }
                         result(mode, n == buf.length, "echoed " + n + " bytes");
                     } finally {
                         s.close();
@@ -212,7 +227,8 @@ public class MainActivity extends Activity {
                     Log.i(TAG, "connected");
                     OutputStream out = s.getOutputStream();
                     InputStream in = s.getInputStream();
-                    out.write(PROBE); out.flush();
+                    out.write(PROBE);
+                    out.flush();
                     byte[] buf = new byte[PROBE.length];
                     int n = readFully(in, buf);
                     String echo = new String(buf, 0, n, StandardCharsets.UTF_8);

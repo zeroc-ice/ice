@@ -6,7 +6,13 @@
 // installed as a privileged system app so it can auto-confirm pairing.
 plugins {
     id 'com.android.application' version '8.13.2'
+    id 'checkstyle'
+    id 'org.openrewrite.rewrite' version '7.19.0'
 }
+
+apply plugin: 'checkstyle'
+
+def runningInCi = providers.environmentVariable("CI").isPresent()
 
 android {
     namespace = 'com.zeroc.btbond'
@@ -51,4 +57,50 @@ android {
             minifyEnabled = false
         }
     }
+}
+
+// As in the controller app: this is an 'android' project rather than a 'java' one, so Checkstyle
+// doesn't generate a task for us and we declare our own.
+task checkstyle(type: Checkstyle) {
+    source 'src'
+    include '**/*.java'
+
+    // 'classpath' doesn't matter here, but we're required to provide a value for it.
+    classpath = files()
+}
+
+tasks.named('checkstyle').configure {
+    // Ensure that running checkstyle multiple times always yields the same output. Otherwise, after
+    // an initial run, the task is marked "UP TO DATE" and subsequent runs skip over it.
+    outputs.upToDateWhen { false }
+    doNotTrackState("Always run Checkstyle")
+}
+
+checkstyle {
+    toolVersion = '10.21.4'
+    ignoreFailures = false
+    showViolations = true
+
+    configDirectory = file("${rootProject.projectDir}/../../../config/checkstyle")
+
+    // In CI, fail the build on any warning.
+    if (runningInCi) {
+        maxWarnings = 0
+    }
+}
+
+rewrite {
+    configFile = "${rootProject.projectDir}/../../../rewrite.yml"
+
+    activeRecipe('com.zeroc.IceRewriteRecipes')
+    activeStyle('com.zeroc.IceRewriteStyle')
+
+    throwOnParseFailures = true
+    exportDatatables = true
+
+    exclusion(
+        // OpenRewrite can technically modify Groovy and Kotlin files, but we are avoiding this for now.
+        '**/*.gradle',
+        '**/*.kts',
+    )
 }
