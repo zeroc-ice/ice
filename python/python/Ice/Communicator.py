@@ -217,6 +217,8 @@ class Communicator:
         ------
         ParseException
             If ``str`` is not a valid proxy string.
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         return self._impl.stringToProxy(str)
 
@@ -251,6 +253,11 @@ class Communicator:
         -------
         ObjectPrx | None
             The proxy, or ``None`` if the property is not set.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         return self._impl.propertyToProxy(property)
 
@@ -305,6 +312,11 @@ class Communicator:
         -------
         ObjectAdapter
             The new object adapter.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         adapter = self._impl.createObjectAdapter(name)
         return ObjectAdapter(adapter)
@@ -326,6 +338,11 @@ class Communicator:
         -------
         ObjectAdapter
             The new object adapter.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         adapter = self._impl.createObjectAdapterWithEndpoints(name, endpoints)
         return ObjectAdapter(adapter)
@@ -346,6 +363,11 @@ class Communicator:
         -------
         ObjectAdapter
             The new object adapter.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         adapter = self._impl.createObjectAdapterWithRouter(name, router)
         return ObjectAdapter(adapter)
@@ -377,6 +399,11 @@ class Communicator:
         ----------
         adapter : ObjectAdapter | None
             The object adapter to associate with new outgoing connections.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         self._impl.setDefaultObjectAdapter(adapter)
 
@@ -452,6 +479,11 @@ class Communicator:
         ----------
         router : RouterPrx | None
             The new default router. Use ``None`` to remove the default router.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         self._impl.setDefaultRouter(router)
 
@@ -485,6 +517,11 @@ class Communicator:
         ----------
         locator : LocatorPrx | None
             The new default locator. Use ``None`` to remove the default locator.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         self._impl.setDefaultLocator(locator)
 
@@ -498,6 +535,11 @@ class Communicator:
         ----------
         compress : CompressBatch
             Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         self._impl.flushBatchRequests(compress)
 
@@ -516,6 +558,11 @@ class Communicator:
         -------
         Awaitable[None]
             An :class:`Awaitable` that completes when all batch requests have been sent.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed. This exception is raised synchronously.
         """
         return self._impl.flushBatchRequestsAsync(compress)
 
@@ -542,6 +589,8 @@ class Communicator:
         ------
         InitializationException
             If this function is called more than once.
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         return self._impl.createAdmin(adminAdapter, adminId)
 
@@ -582,6 +631,8 @@ class Communicator:
         ------
         AlreadyRegisteredException
             If a facet with the same name is already registered.
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         self._impl.addAdminFacet(servant, facet)
 
@@ -604,6 +655,8 @@ class Communicator:
         ------
         NotRegisteredException
             If no facet with the given name is registered.
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         return self._impl.removeAdminFacet(facet)
 
@@ -621,6 +674,11 @@ class Communicator:
         Object | IcePy.NativePropertiesAdmin | None
             The servant associated with this Admin facet, or ``None`` if no facet is registered with the given name,
             or if this facet is implemented by the Ice runtime and has no Python servant.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
 
         Notes
         -----
@@ -640,6 +698,11 @@ class Communicator:
         dict[str, Object | IcePy.NativePropertiesAdmin]
             A collection containing all the facet names and servants of the Admin object. Facets implemented by the
             Ice runtime with no Python servant are omitted; see :meth:`findAdminFacet`.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         return self._impl.findAllAdminFacets()
 

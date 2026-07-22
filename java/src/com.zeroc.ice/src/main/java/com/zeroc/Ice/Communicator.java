@@ -143,6 +143,7 @@ public final class Communicator implements AutoCloseable {
      * @param str the stringified proxy to convert into a proxy
      * @return the proxy, or null if {@code str} is an empty string
      * @throws ParseException if {@code str} is not a valid proxy string
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      * @see #proxyToString
      */
     public ObjectPrx stringToProxy(String str) {
@@ -168,6 +169,7 @@ public final class Communicator implements AutoCloseable {
      *
      * @param property the base property name
      * @return the proxy, or null if the property is not set
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      */
     public ObjectPrx propertyToProxy(String property) {
         String proxy = _instance.initializationData().properties.getProperty(property);
@@ -301,6 +303,7 @@ public final class Communicator implements AutoCloseable {
      * @param name the object adapter name
      * @param router the router
      * @return the new object adapter
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      * @see #createObjectAdapter
      * @see Properties
      */
@@ -336,6 +339,7 @@ public final class Communicator implements AutoCloseable {
      * communicator. This method has no effect on existing outgoing connections, or on incoming connections.
      *
      * @param adapter the object adapter to associate with new outgoing connections
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      * @see Connection#setAdapter
      */
     public void setDefaultObjectAdapter(ObjectAdapter adapter) {
@@ -412,6 +416,7 @@ public final class Communicator implements AutoCloseable {
      * This method has no effect on existing proxies.
      *
      * @param router the new default router. Use {@code null} to remove the default router.
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      * @see #getDefaultRouter
      * @see #createObjectAdapterWithRouter
      * @see Router
@@ -437,6 +442,7 @@ public final class Communicator implements AutoCloseable {
      * This method has no effect on existing proxies or object adapters.
      *
      * @param locator the new default locator. Use {@code null} to remove the default locator.
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      * @see #getDefaultLocator
      * @see Locator
      * @see ObjectAdapter#setLocator
@@ -449,7 +455,7 @@ public final class Communicator implements AutoCloseable {
      * Gets the plug-in manager of this communicator.
      *
      * @return this communicator's plug-in manager
-     * @throws CommunicatorDestroyedException if this communicator has been destroyed
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      * @see PluginManager
      */
     public PluginManager getPluginManager() {
@@ -463,6 +469,7 @@ public final class Communicator implements AutoCloseable {
      *
      * @param compressBatch specifies whether or not the queued batch requests should be compressed
      *     before being sent over the wire
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      */
     public void flushBatchRequests(CompressBatch compressBatch) {
         _iceI_flushBatchRequestsAsync(compressBatch).waitForResponse();
@@ -476,6 +483,8 @@ public final class Communicator implements AutoCloseable {
      * @param compressBatch specifies whether or not the queued batch requests should be compressed
      *     before being sent over the wire
      * @return a future that will be completed when the invocation completes
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed; this exception is
+     *     thrown synchronously
      */
     public CompletableFuture<Void> flushBatchRequestsAsync(
             CompressBatch compressBatch) {
@@ -518,6 +527,7 @@ public final class Communicator implements AutoCloseable {
      * {@code getAdmin} is called by the communicator initialization, after initialization of all plugins.
      *
      * @return a proxy to the main ("") facet of the Admin object, or null if no Admin object is configured
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      * @see #createAdmin
      */
     public ObjectPrx getAdmin() {
@@ -530,6 +540,7 @@ public final class Communicator implements AutoCloseable {
      * @param servant the servant that implements the new Admin facet
      * @param facet the name of the new Admin facet
      * @throws AlreadyRegisteredException if a facet with the same name is already registered
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      */
     public void addAdminFacet(Object servant, String facet) {
         _instance.addAdminFacet(servant, facet);
@@ -541,6 +552,7 @@ public final class Communicator implements AutoCloseable {
      * @param facet the name of the Admin facet
      * @return the servant associated with this Admin facet
      * @throws NotRegisteredException if no facet with the given name is registered
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      */
     public Object removeAdminFacet(String facet) {
         return _instance.removeAdminFacet(facet);
@@ -551,6 +563,7 @@ public final class Communicator implements AutoCloseable {
      *
      * @param facet the name of the Admin facet
      * @return the servant associated with this Admin facet, or null if no facet is registered with the given name
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      */
     public Object findAdminFacet(String facet) {
         return _instance.findAdminFacet(facet);
@@ -560,6 +573,7 @@ public final class Communicator implements AutoCloseable {
      * Returns a map of all facets of the Admin object.
      *
      * @return a collection containing all the facet names and servants of the Admin object
+     * @throws CommunicatorDestroyedException if the communicator has been destroyed
      * @see #findAdminFacet
      */
     public Map<String, Object> findAllAdminFacets() {

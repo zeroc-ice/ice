@@ -170,6 +170,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// <param name="str">The stringified proxy to convert into a proxy.</param>
     /// <returns>The proxy, or null if <paramref name="str" /> is an empty string.</returns>
     /// <exception cref="ParseException">Thrown when <paramref name="str" /> is not a valid proxy string.</exception>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public ObjectPrx? stringToProxy(string str)
     {
         Reference? reference = instance.referenceFactory().create(str, "");
@@ -191,6 +192,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// </summary>
     /// <param name="property">The base property name.</param>
     /// <returns>The proxy, or <c>null</c> if the property is not set.</returns>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public ObjectPrx? propertyToProxy(string property)
     {
         string proxy = instance.initializationData().properties!.getProperty(property);
@@ -225,6 +227,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// <returns>The new object adapter.</returns>
     /// <exception cref="InitializationException">Thrown when a named object adapter is created for which no
     /// configuration can be found.</exception>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public ObjectAdapter createObjectAdapter(
         string name,
         SslServerAuthenticationOptions? serverAuthenticationOptions = null) =>
@@ -239,6 +242,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// <param name="endpoints">The endpoints of the object adapter.</param>
     /// <param name="serverAuthenticationOptions">The SSL options for server connections.</param>
     /// <returns>The new object adapter.</returns>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public ObjectAdapter createObjectAdapterWithEndpoints(
         string name,
         string endpoints,
@@ -261,6 +265,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// <param name="name">The object adapter name.</param>
     /// <param name="router">The router.</param>
     /// <returns>The new object adapter.</returns>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public ObjectAdapter createObjectAdapterWithRouter(string name, RouterPrx router)
     {
         if (name.Length == 0)
@@ -286,6 +291,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// <see cref="setDefaultObjectAdapter" />.
     /// </summary>
     /// <returns>The object adapter associated by default with new outgoing connections.</returns>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     /// <seealso cref="Connection.getAdapter" />
     public ObjectAdapter? getDefaultObjectAdapter() => instance.outgoingConnectionFactory().getDefaultObjectAdapter();
 
@@ -294,6 +300,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// method has no effect on existing outgoing connections, or on incoming connections.
     /// </summary>
     /// <param name="adapter">The object adapter to associate with new outgoing connections.</param>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     /// <seealso cref="Connection.setAdapter" />
     public void setDefaultObjectAdapter(ObjectAdapter? adapter) =>
         instance.outgoingConnectionFactory().setDefaultObjectAdapter(adapter);
@@ -337,6 +344,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// Gets the default router for this communicator.
     /// </summary>
     /// <returns>The default router for this communicator.</returns>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public RouterPrx? getDefaultRouter() => instance.referenceFactory().getDefaultRouter();
 
     /// <summary>
@@ -346,12 +354,14 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// <see cref="ObjectPrx.ice_router(RouterPrx?)" /> on the proxy.
     /// </summary>
     /// <param name="router">The default router to use for this communicator.</param>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public void setDefaultRouter(RouterPrx? router) => instance.setDefaultRouter(router);
 
     /// <summary>
     /// Gets the default locator for this communicator.
     /// </summary>
     /// <returns>The default locator for this communicator.</returns>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public LocatorPrx? getDefaultLocator() => instance.referenceFactory().getDefaultLocator();
 
     /// <summary>
@@ -363,12 +373,14 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// object adapter.
     /// </summary>
     /// <param name="locator">The default locator to use for this communicator.</param>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public void setDefaultLocator(LocatorPrx? locator) => instance.setDefaultLocator(locator);
 
     /// <summary>
     /// Gets the plug-in manager for this communicator.
     /// </summary>
     /// <returns>This communicator's plug-in manager.</returns>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public PluginManager getPluginManager() => instance.pluginManager();
 
     /// <summary>
@@ -378,6 +390,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// </summary>
     /// <param name="compress">Specifies whether or not the queued batch requests should be compressed before being sent
     /// over the wire.</param>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public void flushBatchRequests(CompressBatch compress)
     {
         try
@@ -393,6 +406,18 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
         }
     }
 
+    /// <summary>
+    /// Flushes any pending batch requests for this communicator.
+    /// This means all batch requests invoked on fixed proxies for all connections associated with the communicator.
+    /// Any errors that occur while flushing a connection are ignored.
+    /// </summary>
+    /// <param name="compress">Specifies whether or not the queued batch requests should be compressed before being sent
+    /// over the wire.</param>
+    /// <param name="progress">The sent progress provider.</param>
+    /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+    /// <returns>A task that completes when the flush completes for all connections.</returns>
+    /// <exception cref="CommunicatorDestroyedException">Thrown synchronously when the communicator has been
+    /// destroyed.</exception>
     public Task flushBatchRequestsAsync(
         CompressBatch compress,
         IProgress<bool>? progress = null,
@@ -414,6 +439,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// set, create, activate and use the Ice.Admin object adapter.</param>
     /// <param name="adminId">The identity of the Admin object.</param>
     /// <returns>A proxy to the main ("") facet of the Admin object.</returns>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminId) =>
         instance.createAdmin(adminAdapter, adminId);
 
@@ -427,6 +453,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// </summary>
     /// <returns>A proxy to the main ("") facet of the Admin object, or a null proxy if no Admin object is configured.
     /// </returns>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public ObjectPrx? getAdmin() => instance.getAdmin();
 
     /// <summary>
@@ -435,6 +462,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// </summary>
     /// <param name="servant">The servant that implements the new Admin facet.</param>
     /// <param name="facet">The name of the new Admin facet.</param>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public void addAdminFacet(Object servant, string facet) => instance.addAdminFacet(servant, facet);
 
     /// <summary>
@@ -443,6 +471,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// </summary>
     /// <param name="facet">The name of the Admin facet.</param>
     /// <returns>The servant associated with this Admin facet.</returns>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public Object removeAdminFacet(string facet) => instance.removeAdminFacet(facet);
 
     /// <summary>
@@ -451,12 +480,14 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// <param name="facet">The name of the Admin facet.</param>
     /// <returns>The servant associated with this Admin facet, or null if no facet is registered with the given name.
     /// </returns>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public Object? findAdminFacet(string facet) => instance.findAdminFacet(facet);
 
     /// <summary>
     /// Returns a map of all facets of the Admin object.
     /// </summary>
     /// <returns>A collection containing all the facet names and servants of the Admin object.</returns>
+    /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public Dictionary<string, Object> findAllAdminFacets() => instance.findAllAdminFacets();
 }
 

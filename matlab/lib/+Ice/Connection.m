@@ -81,6 +81,9 @@ classdef Connection < IceInternal.WrapperObject
             %   Output Arguments
             %     r - A fixed proxy with the provided identity.
             %       Ice.ObjectPrx scalar
+            %
+            %   Exceptions
+            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed.
 
             arguments
                 obj (1, 1) Ice.Connection
@@ -123,6 +126,10 @@ classdef Connection < IceInternal.WrapperObject
             %     compress - Specifies whether or not the queued batch requests should be compressed before being sent
             %       over the wire.
             %       Ice.CompressBatch scalar
+            %
+            %   Exceptions
+            %     Ice.LocalException - If the flush fails. For example, this method throws an
+            %       Ice.CommunicatorDestroyedException if the communicator has been destroyed.
 
             arguments
                 obj (1, 1) Ice.Connection
@@ -143,6 +150,10 @@ classdef Connection < IceInternal.WrapperObject
             %   Output Arguments
             %     r - A future that will be completed when the invocation completes.
             %       Ice.Future scalar
+            %
+            %   Exceptions
+            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed. This exception is
+            %       thrown synchronously.
 
             arguments
                 obj (1, 1) Ice.Connection

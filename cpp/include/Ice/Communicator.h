@@ -79,6 +79,7 @@ namespace Ice
         /// @param str The stringified proxy to convert into a proxy.
         /// @return The proxy, or nullopt if @p str is an empty string.
         /// @throws ParseException Thrown when @p str is not a valid proxy string.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         /// @see #proxyToString
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         std::optional<Prx> stringToProxy(std::string_view str) const
@@ -106,6 +107,7 @@ namespace Ice
         /// @tparam Prx The type of the proxy to return.
         /// @param property The base property name.
         /// @return The proxy, or nullopt if the property is not set.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         std::optional<Prx> propertyToProxy(std::string_view property) const
         {
@@ -138,6 +140,7 @@ namespace Ice
         /// @param name The object adapter name.
         /// @param serverAuthenticationOptions The SSL options for server connections.
         /// @return The new object adapter.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         /// @see #createObjectAdapterWithEndpoints
         /// @see ObjectAdapter
         /// @see Properties
@@ -155,6 +158,7 @@ namespace Ice
         /// @param endpoints The endpoints of the object adapter.
         /// @param serverAuthenticationOptions The SSL options for server connections.
         /// @return The new object adapter.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         /// @see #createObjectAdapter
         /// @see Properties
         /// @see SSL::OpenSSLServerAuthenticationOptions
@@ -170,6 +174,7 @@ namespace Ice
         /// @param name The object adapter name.
         /// @param rtr The router.
         /// @return The new object adapter.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         /// @see #createObjectAdapter
         /// @see Properties
         ObjectAdapterPtr createObjectAdapterWithRouter(std::string name, RouterPrx rtr);
@@ -185,6 +190,7 @@ namespace Ice
         /// Sets the object adapter that will be associated with new outgoing connections created by this
         /// communicator. This function has no effect on existing outgoing connections, or on incoming connections.
         /// @param adapter The object adapter to associate with new outgoing connections.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         /// @see Connection::setAdapter
         void setDefaultObjectAdapter(ObjectAdapterPtr adapter);
 
@@ -222,6 +228,7 @@ namespace Ice
         /// Sets the default router of this communicator. All newly created proxies will use this default router. This
         /// function has no effect on existing proxies.
         /// @param rtr The new default router. Use `nullopt` to remove the default router.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         /// @see #getDefaultRouter
         /// @see #createObjectAdapterWithRouter
         /// @see Router
@@ -229,6 +236,7 @@ namespace Ice
 
         /// Gets the default locator of this communicator.
         /// @return The default locator of this communicator.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         /// @see #setDefaultLocator
         /// @see Locator
         [[nodiscard]] std::optional<Ice::LocatorPrx> getDefaultLocator() const;
@@ -236,6 +244,7 @@ namespace Ice
         /// Sets the default locator of this communicator. All newly created proxies will use this default locator.
         /// This function has no effect on existing proxies or object adapters.
         /// @param loc The new default locator. Use `nullopt` to remove the default locator.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         /// @see #getDefaultLocator
         /// @see Locator
         /// @see ObjectAdapter#setLocator
@@ -252,6 +261,7 @@ namespace Ice
         /// are ignored.
         /// @param compress Specifies whether or not the queued batch requests should be compressed before being sent
         /// over the wire.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         void flushBatchRequests(CompressBatch compress);
 
         /// Flushes any pending batch requests of this communicator. This means all batch requests invoked on fixed
@@ -268,6 +278,7 @@ namespace Ice
         /// and passes `false` as argument. If you set InitializationData::executor, the executor determines the
         /// thread that executes this function in the asynchronous case.
         /// @return A function that can be called to cancel the flush.
+        /// @throws CommunicatorDestroyedException Thrown synchronously when the communicator has been destroyed.
         std::function<void()> flushBatchRequestsAsync(
             CompressBatch compress,
             std::function<void(std::exception_ptr)> exception,
@@ -279,6 +290,7 @@ namespace Ice
         /// @param compress Specifies whether or not the queued batch requests should be compressed before being sent
         /// over the wire.
         /// @return A future that becomes available when all batch requests have been sent.
+        /// @throws CommunicatorDestroyedException Thrown synchronously when the communicator has been destroyed.
         [[nodiscard]] std::future<void> flushBatchRequestsAsync(CompressBatch compress);
 
         /// Adds the Admin object with all its facets to the provided object adapter. If `Ice.Admin.ServerId`
@@ -290,6 +302,7 @@ namespace Ice
         /// @param adminId The identity of the Admin object.
         /// @return A proxy to the main ("") facet of the Admin object.
         /// @throws InitializationException Thrown when this function is called more than once.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         /// @see #getAdmin
         ObjectPrx createAdmin(const ObjectAdapterPtr& adminAdapter, const Identity& adminId);
 
@@ -307,18 +320,21 @@ namespace Ice
         /// @param servant The servant that implements the new Admin facet.
         /// @param facet The name of the new Admin facet.
         /// @throws AlreadyRegisteredException Thrown when a facet with the same name is already registered.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         void addAdminFacet(ObjectPtr servant, std::string facet);
 
         /// Removes a facet from the Admin object.
         /// @param facet The name of the Admin facet.
         /// @return The servant associated with this Admin facet.
         /// @throws NotRegisteredException Thrown when no facet with the given name is registered.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         ObjectPtr removeAdminFacet(std::string_view facet);
 
         /// Returns a facet of the Admin object.
         /// @tparam T The type of the facet to return.
         /// @param facet The name of the Admin facet.
         /// @return The servant associated with this Admin facet, or null if no facet is registered with the given name.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         template<typename T = Object, std::enable_if_t<std::is_base_of_v<Object, T>, bool> = true>
         std::shared_ptr<T> findAdminFacet(std::string_view facet)
         {
@@ -327,6 +343,7 @@ namespace Ice
 
         /// Returns a map of all facets of the Admin object.
         /// @return A collection containing all the facet names and servants of the Admin object.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         /// @see #findAdminFacet
         FacetMap findAllAdminFacets();
 

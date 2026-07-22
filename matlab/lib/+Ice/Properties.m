@@ -94,8 +94,6 @@ classdef Properties < IceInternal.WrapperObject
         function r = getIceProperty(obj, key)
             %GETICEPROPERTY Gets an Ice property by key. If the property is not set, its default value is returned.
             %
-            %   Throws an Ice.PropertyException if the property is not a known Ice property.
-            %
             %   Input Arguments
             %     key - The property key.
             %       character vector
@@ -103,6 +101,9 @@ classdef Properties < IceInternal.WrapperObject
             %   Output Arguments
             %     r - The property value.
             %       character vector
+            %
+            %   Exceptions
+            %     Ice.PropertyException - If the property is not a known Ice property.
 
             arguments
                 obj (1, 1) Ice.Properties
@@ -136,8 +137,6 @@ classdef Properties < IceInternal.WrapperObject
         function r = getPropertyAsInt(obj, key)
             %GETPROPERTYASINT Gets a property as an integer. If the property is not set, 0 is returned.
             %
-            %   Throws an Ice.PropertyException if the property value is not a valid integer.
-            %
             %   Input Arguments
             %     key - The property key.
             %       character vector
@@ -145,6 +144,9 @@ classdef Properties < IceInternal.WrapperObject
             %   Output Arguments
             %     r - The property value interpreted as an integer.
             %       int32 scalar
+            %
+            %   Exceptions
+            %     Ice.PropertyException - If the property value is not a valid integer.
 
             arguments
                 obj (1, 1) Ice.Properties
@@ -159,9 +161,6 @@ classdef Properties < IceInternal.WrapperObject
             %GETICEPROPERTYASINT Gets an Ice property as an integer. If the property is not set, its default value is
             %   returned.
             %
-            %   Throws an Ice.PropertyException if the property is not a known Ice property or the value is not a
-            %   valid integer.
-            %
             %   Input Arguments
             %     key - The property key.
             %       character vector
@@ -169,6 +168,10 @@ classdef Properties < IceInternal.WrapperObject
             %   Output Arguments
             %     r - The property value interpreted as an integer.
             %       int32 scalar
+            %
+            %   Exceptions
+            %     Ice.PropertyException - If the property is not a known Ice property or the value is not a valid
+            %       integer.
 
             arguments
                 obj (1, 1) Ice.Properties
@@ -182,8 +185,6 @@ classdef Properties < IceInternal.WrapperObject
             %GETPROPERTYASINTWITHDEFAULT Gets a property as an integer. If the property is not set, the given default
             %   value is returned.
             %
-            %   Throws an Ice.PropertyException if the property value is not a valid integer.
-            %
             %   Input Arguments
             %     key - The property key.
             %       character vector
@@ -193,6 +194,9 @@ classdef Properties < IceInternal.WrapperObject
             %   Output Arguments
             %     r - The property value interpreted as an integer, or the default value.
             %       int32 scalar
+            %
+            %   Exceptions
+            %     Ice.PropertyException - If the property value is not a valid integer.
 
             arguments
                 obj (1, 1) Ice.Properties
@@ -235,8 +239,6 @@ classdef Properties < IceInternal.WrapperObject
             %   quotes, you can escape the quote in question with \, e.g. O'Reilly can be written as "O'Reilly" or
             %   'O\'Reilly'.
             %
-            %   Throws an Ice.PropertyException if the property is not a known Ice property.
-            %
             %   Input Arguments
             %     key - The property key.
             %       character vector
@@ -244,6 +246,9 @@ classdef Properties < IceInternal.WrapperObject
             %   Output Arguments
             %     r - The property value interpreted as a list of strings.
             %       string array
+            %
+            %   Exceptions
+            %     Ice.PropertyException - If the property is not a known Ice property.
 
             arguments
                 obj (1, 1) Ice.Properties

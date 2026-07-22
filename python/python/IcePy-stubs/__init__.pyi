@@ -134,6 +134,11 @@ class Connection:
         -------
         Ice.ObjectPrx
             A fixed proxy with the provided identity.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed.
         """
         ...
 
@@ -191,6 +196,12 @@ class Connection:
         ----------
         compress : Ice.CompressBatch
             Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
+
+        Raises
+        ------
+        LocalException
+            If the flush fails. For example, this method raises CommunicatorDestroyedException if the communicator
+            has been destroyed.
         """
         ...
 
@@ -212,6 +223,11 @@ class Connection:
         -------
         Awaitable[None]
             A future that becomes available when the flush completes.
+
+        Raises
+        ------
+        CommunicatorDestroyedException
+            If the communicator has been destroyed. This exception is raised synchronously.
         """
         ...
 
