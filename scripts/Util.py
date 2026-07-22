@@ -2689,10 +2689,16 @@ class AndroidProcessController(RemoteProcessController):
             raise RuntimeError(f"'{self.device}' did not go down after 'adb reboot': {ex}")
         self.waitForBoot()
 
-    def rootRemount(self, timeout=120):
+    def rootRemount(self, timeout=120, requireWritable=False):
         # `adb root` restarts adbd and can transiently fail ("failed to start daemon"), especially
         # when two emulators share one adb server. Retry until adbd is running as root, then remount
         # so /system is writable.
+        #
+        # remount stays tolerant: on the first pass it only disables dm-verity and cannot make
+        # /system writable until the reboot that follows, so a failure there is expected. Callers
+        # that are about to write to /system pass requireWritable=True, which keeps retrying until
+        # the filesystem really is writable -- otherwise a silently failed remount is only noticed
+        # after it has burned every push attempt against a read-only /system.
         deadline = time.time() + timeout
         while time.time() < deadline:
             self._adbTolerant("root")
@@ -2703,11 +2709,19 @@ class AndroidProcessController(RemoteProcessController):
             try:
                 if run(f"{self.adb()} shell id -u").strip() == "0":
                     self._adbTolerant("remount")
-                    return
+                    if not requireWritable:
+                        return
+                    # Probe rather than parse mount output: on system-as-root images /system isn't
+                    # its own entry, so writing is the only reliable check.
+                    probe = self._adbTolerant("shell touch /system/.rw && echo ok")
+                    if "ok" in probe:
+                        self._adbTolerant("shell rm -f /system/.rw")
+                        return
             except RuntimeError:
                 pass  # device offline mid-restart
             time.sleep(3)
-        raise RuntimeError(f"'{self.device}' did not become root within {timeout}s")
+        what = "have a writable /system" if requireWritable else "become root"
+        raise RuntimeError(f"'{self.device}' did not {what} within {timeout}s")
 
     def bluetoothAddress(self):
         return run(f"{self.adb()} shell settings get secure bluetooth_address").strip()
@@ -2759,7 +2773,7 @@ class AndroidProcessController(RemoteProcessController):
             # Retry the root+remount+push: adb root/remount can still flake under contention, which
             # would otherwise leave /system read-only and fail the push.
             for attempt in range(1, 4):
-                self.rootRemount()
+                self.rootRemount(requireWritable=True)
                 self._adbTolerant(f"shell mkdir -p /system/priv-app/{name}")
                 try:
                     run(f'{self.adb()} push "{apk}" /system/priv-app/{name}/{name}.apk')
