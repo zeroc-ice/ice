@@ -192,6 +192,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// </summary>
     /// <param name="property">The base property name.</param>
     /// <returns>The proxy, or <c>null</c> if the property is not set.</returns>
+    /// <exception cref="ParseException">Thrown when the property value is not a valid proxy string.</exception>
     /// <exception cref="CommunicatorDestroyedException">Thrown when the communicator has been destroyed.</exception>
     public ObjectPrx? propertyToProxy(string property)
     {

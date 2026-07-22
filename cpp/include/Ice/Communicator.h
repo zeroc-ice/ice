@@ -107,6 +107,7 @@ namespace Ice
         /// @tparam Prx The type of the proxy to return.
         /// @param property The base property name.
         /// @return The proxy, or nullopt if the property is not set.
+        /// @throws ParseException Thrown when the property value is not a valid proxy string.
         /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         std::optional<Prx> propertyToProxy(std::string_view property) const

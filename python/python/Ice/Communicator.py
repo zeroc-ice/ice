@@ -256,6 +256,8 @@ class Communicator:
 
         Raises
         ------
+        ParseException
+            If the property value is not a valid proxy string.
         CommunicatorDestroyedException
             If the communicator has been destroyed.
         """
