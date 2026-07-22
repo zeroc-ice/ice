@@ -232,7 +232,7 @@ public interface CommunicatorObserver
     /// <param name="c">The connection information.</param>
     /// <param name="e">The connection endpoint.</param>
     /// <param name="s">The state of the connection.</param>
-    /// <param name="o">The old connection observer if one is already set or a null reference otherwise.</param>
+    /// <param name="o">The old connection observer if one is already set; otherwise, <see langword="null"/>.</param>
     /// <returns>The connection observer to instrument the connection.</returns>
     ConnectionObserver getConnectionObserver(ConnectionInfo c, Endpoint e, ConnectionState s, ConnectionObserver o);
 
@@ -245,7 +245,7 @@ public interface CommunicatorObserver
     /// <param name="parent">The parent of the thread.</param>
     /// <param name="id">The ID of the thread to observe.</param>
     /// <param name="s">The state of the thread.</param>
-    /// <param name="o">The old thread observer if one is already set or a null reference otherwise.</param>
+    /// <param name="o">The old thread observer if one is already set; otherwise, <see langword="null"/>.</param>
     /// <returns>The thread observer to instrument the thread.</returns>
     ThreadObserver getThreadObserver(string parent, string id, ThreadState s, ThreadObserver o);
 
