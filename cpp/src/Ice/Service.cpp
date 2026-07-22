@@ -11,6 +11,7 @@
 #    include <winsock2.h>
 #else
 #    include "Network.h"
+#    include <algorithm>
 #    include <csignal>
 #    include <sys/resource.h>
 #    include <sys/stat.h>
