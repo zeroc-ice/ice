@@ -2,33 +2,49 @@
 
 import os
 import shutil
+from typing import TYPE_CHECKING, Any
 
 from Glacier2Util import Glacier2Router
 from IceBoxUtil import IceBox
 from Util import (
     Client,
     CSharpMapping,
+    Driver,
+    Envs,
     Linux,
     Mapping,
+    Process,
     ProcessFromBinDir,
     ProcessIsReleaseOnly,
+    Props,
     Server,
     TestCase,
+    TestSuite,
     platform,
     toplevel,
     val,
 )
 
+# IceGridProcess is mixed into the Client and Server specializations below rather than deriving from
+# Process, so that each can pick its own parent properties. Giving it Process as a base for type
+# checking only lets it use the Process API without changing the runtime method resolution order.
+_IceGridProcessBase = Process if TYPE_CHECKING else object
 
-class IceGridProcess:
-    def __init__(self, replica):
+
+class IceGridProcess(_IceGridProcessBase):
+    def __init__(self, replica: "IceGridRegistry | str | None"):
         self.replica = replica
 
-    def getProps(self, current):
+    def getParentProps(self, current: "Driver.Current") -> Props:
+        # Bound to the parent Client or Server getProps by each specialization below.
+        raise NotImplementedError()
+
+    def getProps(self, current: "Driver.Current") -> Props:
         props = self.getParentProps(current)
         testcase = current.testcase
         while testcase and not isinstance(testcase, IceGridTestCase):
             testcase = testcase.parent
+        assert isinstance(testcase, IceGridTestCase)
         if self.replica is None:
             props["Ice.Default.Locator"] = testcase.getMasterLocator(current)
         else:
@@ -41,23 +57,32 @@ class IceGridProcess:
 
 
 class IceGridServer(IceGridProcess, Server):
-    def __init__(self, replica=None, *args, **kargs):
+    def __init__(self, replica: "IceGridRegistry | str | None" = None, *args: Any, **kargs: Any):
         Server.__init__(self, *args, **kargs)
         IceGridProcess.__init__(self, replica)
 
-    getParentProps = Server.getProps  # Used by IceGridProcess to get the server properties
+    def getParentProps(self, current: "Driver.Current") -> Props:
+        return Server.getProps(self, current)
 
 
 class IceGridClient(IceGridProcess, Client):
-    def __init__(self, replica=None, *args, **kargs):
+    def __init__(self, replica: "IceGridRegistry | str | None" = None, *args: Any, **kargs: Any):
         Client.__init__(self, *args, **kargs)
         IceGridProcess.__init__(self, replica)
 
-    getParentProps = Client.getProps  # Used by IceGridProcess to get the client properties
+    def getParentProps(self, current: "Driver.Current") -> Props:
+        return Client.getProps(self, current)
 
 
 class IceGridAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceGridClient):
-    def __init__(self, replica=None, username="admin1", password="test1", *args, **kargs):
+    def __init__(
+        self,
+        replica: "IceGridRegistry | str | None" = None,
+        username: str = "admin1",
+        password: str = "test1",
+        *args: Any,
+        **kargs: Any,
+    ):
         IceGridClient.__init__(
             self,
             replica=replica,
@@ -69,10 +94,11 @@ class IceGridAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceGridClient):
         self.username = username
         self.password = password
 
-    def getExe(self, current):
+    def getExe(self, current: "Driver.Current") -> str:
+        assert self.exe is not None
         return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
 
-    def getProps(self, current):
+    def getProps(self, current: "Driver.Current") -> Props:
         props = IceGridClient.getProps(self, current)
         props["IceGridAdmin.Username"] = self.username
         props["IceGridAdmin.Password"] = self.password
@@ -80,7 +106,7 @@ class IceGridAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceGridClient):
 
 
 class IceGridNode(ProcessFromBinDir, Server):
-    def __init__(self, name="localnode", *args, **kargs):
+    def __init__(self, name: str = "localnode", *args: Any, **kargs: Any):
         Server.__init__(
             self,
             "icegridnode",
@@ -92,17 +118,18 @@ class IceGridNode(ProcessFromBinDir, Server):
         )
         self.name = name
 
-    def getExe(self, current):
+    def getExe(self, current: "Driver.Current") -> str:
+        assert self.exe is not None
         return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
 
-    def setup(self, current):
+    def setup(self, current: "Driver.Current") -> None:
         # Create the database directory
         self.dbdir = os.path.join(current.testsuite.getPath(), "node-{0}".format(self.name))
         if os.path.exists(self.dbdir):
             shutil.rmtree(self.dbdir)
         os.mkdir(self.dbdir)
 
-    def teardown(self, current, success):
+    def teardown(self, current: "Driver.Current", success: bool) -> None:
         Server.teardown(self, current, success)
         # Remove the database directory tree
         if success or current.driver.isInterrupted():
@@ -111,8 +138,11 @@ class IceGridNode(ProcessFromBinDir, Server):
             except Exception:
                 pass
 
-    def getProps(self, current):
-        props = {
+    def getProps(self, current: "Driver.Current") -> Props:
+        testcase = current.getTestCase()
+        assert isinstance(testcase, IceGridTestCase)
+        locator = testcase.getLocator(current)
+        props: Props = {
             "IceGrid.InstanceName": "TestIceGrid",
             "IceGrid.Node.Endpoints": "default",
             "IceGrid.Node.WaitTime": 240,
@@ -126,15 +156,15 @@ class IceGridNode(ProcessFromBinDir, Server):
             "IceGrid.Node.Name": self.name,
             "IceGrid.Node.Data": "{testdir}/node-{process.name}",
             "IceGrid.Node.PropertiesOverride": self.getPropertiesOverride(current),
-            "Ice.Default.Locator": current.testcase.getLocator(current),
+            "Ice.Default.Locator": locator,
         }
         return props
 
-    def getEnv(self, current):
+    def getEnv(self, current: "Driver.Current") -> Envs:
         # Add environment variable for servers based on the test case mapping.
         return Server().getEffectiveEnv(current)
 
-    def getPropertiesOverride(self, current):
+    def getPropertiesOverride(self, current: "Driver.Current") -> str:
         # Add properties for servers based on the test case mapping.
         props = Server().getEffectiveProps(current, {})
         # Remove Server thread pool properties set by the base Server class.
@@ -144,12 +174,14 @@ class IceGridNode(ProcessFromBinDir, Server):
         del props["Ice.ThreadPool.Server.SizeWarn"]
         return " ".join(["{0}={1}".format(k, val(v)) for k, v in props.items()])
 
-    def shutdown(self, current):
-        current.testcase.runadmin(current, "node shutdown {0}".format(self.name))
+    def shutdown(self, current: "Driver.Current") -> None:
+        testcase = current.getTestCase()
+        assert isinstance(testcase, IceGridTestCase)
+        testcase.runadmin(current, "node shutdown {0}".format(self.name))
 
 
 class IceGridRegistry(ProcessFromBinDir, Server):
-    def __init__(self, name, portnum=20, ready="AdminSessionManager", *args, **kargs):
+    def __init__(self, name: str, portnum: int = 20, ready: str = "AdminSessionManager", *args: Any, **kargs: Any):
         Server.__init__(
             self,
             "icegridregistry",
@@ -163,17 +195,18 @@ class IceGridRegistry(ProcessFromBinDir, Server):
         self.readyCount = -1
         self.name = name
 
-    def getExe(self, current):
+    def getExe(self, current: "Driver.Current") -> str:
+        assert self.exe is not None
         return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
 
-    def setup(self, current):
+    def setup(self, current: "Driver.Current") -> None:
         # Create the database directory
         self.dbdir = os.path.join(current.testsuite.getPath(), "registry-{0}".format(self.name))
         if os.path.exists(self.dbdir):
             shutil.rmtree(self.dbdir)
         os.mkdir(self.dbdir)
 
-    def teardown(self, current, success):
+    def teardown(self, current: "Driver.Current", success: bool) -> None:
         Server.teardown(self, current, success)
         # Remove the database directory tree
         if success or current.driver.isInterrupted():
@@ -182,8 +215,8 @@ class IceGridRegistry(ProcessFromBinDir, Server):
             except Exception:
                 pass
 
-    def getProps(self, current):
-        props = {
+    def getProps(self, current: "Driver.Current") -> Props:
+        props: Props = {
             "IceGrid.InstanceName": "TestIceGrid",
             "IceGrid.Registry.PermissionsVerifier": "TestIceGrid/NullPermissionsVerifier",
             "IceGrid.Registry.AdminPermissionsVerifier": "TestIceGrid/NullPermissionsVerifier",
@@ -211,23 +244,25 @@ class IceGridRegistry(ProcessFromBinDir, Server):
             props["IceGrid.Registry.Discovery.Interface"] = "::1" if current.config.ipv6 else "127.0.0.1"
         return props
 
-    def getEndpoints(self, current):
+    def getEndpoints(self, current: "Driver.Current") -> str:
         return current.getTestEndpoint(self.portnum)
 
-    def getLocator(self, current):
+    def getLocator(self, current: "Driver.Current") -> str:
         return "TestIceGrid/Locator:{0}".format(self.getEndpoints(current))
 
-    def shutdown(self, current):
-        current.testcase.runadmin(current, "registry shutdown {0}".format(self.name), replica=self.name)
+    def shutdown(self, current: "Driver.Current") -> None:
+        testcase = current.getTestCase()
+        assert isinstance(testcase, IceGridTestCase)
+        testcase.runadmin(current, "registry shutdown {0}".format(self.name), replica=self.name)
 
 
 class IceGridRegistryMaster(IceGridRegistry):
-    def __init__(self, portnum=20, *args, **kargs):
+    def __init__(self, portnum: int = 20, *args: Any, **kargs: Any):
         IceGridRegistry.__init__(self, "Master", portnum, *args, **kargs)
 
 
 class IceGridRegistrySlave(IceGridRegistry):
-    def __init__(self, replica=1, portnum=None, *args, **kargs):
+    def __init__(self, replica: int = 1, portnum: int | None = None, *args: Any, **kargs: Any):
         IceGridRegistry.__init__(
             self,
             "Slave{0}".format(replica),
@@ -236,24 +271,26 @@ class IceGridRegistrySlave(IceGridRegistry):
             **kargs,
         )
 
-    def getProps(self, current):
+    def getProps(self, current: "Driver.Current") -> Props:
         props = IceGridRegistry.getProps(self, current)
-        props["Ice.Default.Locator"] = current.testcase.getMasterLocator(current)
+        testcase = current.getTestCase()
+        assert isinstance(testcase, IceGridTestCase)
+        props["Ice.Default.Locator"] = testcase.getMasterLocator(current)
         return props
 
 
 class IceGridTestCase(TestCase):
     def __init__(
         self,
-        name="IceGrid",
-        icegridregistry=None,
-        icegridnode=None,
-        application="application.xml",
-        variables={},
-        targets=[],
-        exevars={},
-        *args,
-        **kargs,
+        name: str = "IceGrid",
+        icegridregistry: "IceGridRegistry | list[IceGridRegistry] | None" = None,
+        icegridnode: "IceGridNode | list[IceGridNode] | None" = None,
+        application: str = "application.xml",
+        variables: dict[str, Any] = {},
+        targets: list[str] = [],
+        exevars: dict[str, str] = {},
+        *args: Any,
+        **kargs: Any,
     ):
         TestCase.__init__(self, name, *args, **kargs)
         if icegridnode:
@@ -274,16 +311,16 @@ class IceGridTestCase(TestCase):
         self.exevars = {"server.dir": "server"}
         self.exevars.update(exevars)
 
-    def init(self, mapping, testsuite):
+    def init(self, mapping: Mapping, testsuite: TestSuite) -> None:
         TestCase.init(self, mapping, testsuite)
 
         #
         # Add IceGrid servers at the beginning of the server list, IceGrid needs to be
         # started first!
         #
-        self.servers = self.icegridregistry + self.icegridnode + self.servers
+        self.servers = list(self.icegridregistry) + list(self.icegridnode) + self.getServers()
 
-    def setupClientSide(self, current):
+    def setupClientSide(self, current: "Driver.Current") -> None:
         if self.application:
             try:
                 self.runadmin(current, "application remove Test", quiet=True)
@@ -291,7 +328,7 @@ class IceGridTestCase(TestCase):
                 pass
 
             javaHome = os.environ.get("JAVA_HOME", None)
-            variables = {
+            variables: dict[str, Any] = {
                 "test.dir": self.getPath(current),
                 "java.exe": os.path.join(javaHome, "bin", "java") if javaHome else "java",
                 "icebox.exe": IceBox().getCommandLine(current),
@@ -301,8 +338,9 @@ class IceGridTestCase(TestCase):
                 "properties-override": self.icegridnode[0].getPropertiesOverride(current),
             }
 
-            if platform.getDotNetExe():
-                variables["dotnet.exe"] = platform.getDotNetExe()
+            dotnetExe = platform.getDotNetExe()
+            if dotnetExe:
+                variables["dotnet.exe"] = dotnetExe
 
             # Add variables that point to the directories containing the built executables
             for k, v in self.exevars.items():
@@ -319,29 +357,37 @@ class IceGridTestCase(TestCase):
                 "application add {0} {1} {2}".format(application, varStr, targets),
             )
 
-    def teardownClientSide(self, current, success):
+    def teardownClientSide(self, current: "Driver.Current", success: bool) -> None:
         if (success or current.driver.isInterrupted()) and self.application:
             self.runadmin(current, "application remove Test")
 
-        for p in self.icegridnode + self.icegridregistry:
+        for p in list(self.icegridnode) + list(self.icegridregistry):
             p.shutdown(current)
 
-    def getLocator(self, current):
-        endpoints = ":".join([s.getEndpoints(current) for s in self.servers if isinstance(s, IceGridRegistry)])
+    def getLocator(self, current: "Driver.Current") -> str:
+        endpoints = ":".join([s.getEndpoints(current) for s in self.getServers() if isinstance(s, IceGridRegistry)])
         return "TestIceGrid/Locator:{0}".format(endpoints)
 
-    def getMasterLocator(self, current):
-        for s in self.servers:
+    def getMasterLocator(self, current: "Driver.Current") -> str | None:
+        for s in self.getServers():
             if isinstance(s, IceGridRegistryMaster):
                 return "TestIceGrid/Locator:{0}".format(s.getEndpoints(current))
+        return None
 
-    def runadmin(self, current, cmd, replica="Master", exitstatus=0, quiet=False):
+    def runadmin(
+        self,
+        current: "Driver.Current",
+        cmd: str,
+        replica: str = "Master",
+        exitstatus: int = 0,
+        quiet: bool = False,
+    ) -> str:
         admin = IceGridAdmin(args=["-r", replica, "-e", cmd], replica=replica, quiet=quiet)
         admin.run(current, exitstatus=exitstatus)
         return admin.getOutput(current)
 
-    def runWithDriver(self, current):
+    def runWithDriver(self, current: "Driver.Current") -> None:
         current.driver.runClientServerTestCase(current)
 
-    def getClientType(self):
+    def getClientType(self) -> str | None:
         return "client"

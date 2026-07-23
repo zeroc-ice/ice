@@ -53,7 +53,9 @@ jobs:
           make -C cpp srcs
           make -C python
 
+      # --project points pyright at the repository root configuration, which covers both the Ice for
+      # Python sources and the test framework in scripts.
       - name: Pyright check
         working-directory: python
         run: |
-          uv run pyright .
+          uv run pyright --project ..

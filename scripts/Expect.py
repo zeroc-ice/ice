@@ -12,38 +12,61 @@ import sys
 import threading
 import time
 import traceback
-import types
+from collections.abc import Callable
+from typing import Literal, Protocol, TextIO, overload
 
 __all__ = ["Expect", "EOF", "TIMEOUT"]
 
-win32 = sys.platform == "win32"
-if win32:
+if sys.platform == "win32":
     import ctypes
+
+win32 = sys.platform == "win32"
 
 
 class EOF:
     """Raised when EOF is read from a child."""
 
-    def __init__(self, value):
+    def __init__(self, value: object):
         self.value = value
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.value)
 
 
 class TIMEOUT(Exception):
     """Raised when a read time exceeds the timeout."""
 
-    def __init__(self, value):
+    def __init__(self, value: object):
         self.value = value
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.value)
 
 
-def escape(s, escapeNewlines=True):
-    if s == TIMEOUT:
+# An expect pattern: the string the caller asked for (or the TIMEOUT sentinel, which never matches
+# but lets a caller ask for the timeout to be reported rather than raised) and its compiled regexp.
+MatchPattern = tuple[str | type[TIMEOUT], re.Pattern[str] | None]
+
+# The result of a single (non matchall) match: the buffer that was matched against, the portion
+# before the match, the portion after it, the match object and the index of the pattern that
+# matched. When the caller asked for TIMEOUT, "after" is the TIMEOUT sentinel and the match is None.
+MatchResult = tuple[str, str, str | type[TIMEOUT], re.Match[str] | None, int]
+
+# A trace filter is either a regexp whose matching lines are suppressed, or a function that rewrites
+# the line.
+TraceFilter = re.Pattern[str] | Callable[[str], str]
+
+
+class WatchDog(Protocol):
+    """Notified each time a child process produces output, so a hang can be distinguished from slow progress."""
+
+    def reset(self) -> None: ...
+
+
+def escape(s: str | type[TIMEOUT], escapeNewlines: bool = True) -> str:
+    if s is TIMEOUT:
         return "<TIMEOUT>"
+    assert isinstance(s, str)
     o = io.StringIO()
     for c in s:
         if c == "\\":
@@ -73,7 +96,7 @@ def escape(s, escapeNewlines=True):
     return o.getvalue()
 
 
-def taskkill(args):
+def taskkill(args: str) -> None:
     p = subprocess.Popen(
         "taskkill {0}".format(args),
         shell=True,
@@ -81,18 +104,19 @@ def taskkill(args):
         stderr=subprocess.STDOUT,
     )
     p.wait()
+    assert p.stdout is not None
     p.stdout.close()
 
 
-def killProcess(p):
+def killProcess(p: "subprocess.Popen[bytes]") -> None:
     if win32:
         taskkill("/F /T /PID {0}".format(p.pid))
     else:
         os.kill(p.pid, signal.SIGKILL)
 
 
-def terminateProcess(p, hasInterruptSupport=True):
-    if win32:
+def terminateProcess(p: "subprocess.Popen[bytes]", hasInterruptSupport: bool = True) -> None:
+    if sys.platform == "win32":
         #
         # Signals under windows are all turned into CTRL_BREAK_EVENT, except with Java since
         # CTRL_BREAK_EVENT generates a stack trace. We don't use taskkill here because it
@@ -101,9 +125,6 @@ def terminateProcess(p, hasInterruptSupport=True):
         if hasInterruptSupport:
             try:
                 ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, p.pid)  # 1 is CTRL_BREAK_EVENT
-            except NameError:
-                taskkill("/F /T /PID {0}".format(p.pid))
-                pass
             except Exception:
                 traceback.print_exc(file=sys.stdout)
                 taskkill("/F /T /PID {0}".format(p.pid))
@@ -114,26 +135,27 @@ def terminateProcess(p, hasInterruptSupport=True):
 
 
 class reader(threading.Thread):
-    def __init__(self, desc, p, logfile):
+    def __init__(self, desc: str | None, p: "subprocess.Popen[bytes]", logfile: TextIO | None):
         self.desc = desc
         self.buf = io.StringIO()
         self.cv = threading.Condition()
         self.p = p
         self._trace = False
         self._tbuf = io.StringIO()
-        self._tracesuppress = None
+        self._tracesuppress: list[TraceFilter] | None = None
         self.logfile = logfile
-        self.watchDog = None
+        self.watchDog: WatchDog | None = None
         self._finish = False
         threading.Thread.__init__(self)
 
-    def setWatchDog(self, watchDog):
+    def setWatchDog(self, watchDog: WatchDog) -> None:
         self.watchDog = watchDog
 
-    def run(self):
+    def run(self) -> None:
         # Depending on the platform, the value read below is either a string or a single byte, in
         # which case it's decoded incrementally since a character can span several reads.
         decoder = codecs.getincrementaldecoder("utf-8")("replace")
+        assert self.p.stdout is not None
         try:
             while True:
                 c = self.p.stdout.read(1)
@@ -178,7 +200,7 @@ class reader(threading.Thread):
             self.cv.notify()
             self.cv.release()
 
-    def trace(self, c):
+    def trace(self, c: str | None) -> None:
         if self._trace:
             if self._tracesuppress:
                 if c is not None:
@@ -187,11 +209,12 @@ class reader(threading.Thread):
                     content = self._tbuf.getvalue()
                     suppress = False
                     for p in self._tracesuppress:
-                        if isinstance(p, types.LambdaType) or isinstance(p, types.FunctionType):
+                        if isinstance(p, re.Pattern):
+                            if p.search(content):
+                                suppress = True
+                                break
+                        else:
                             content = p(content)
-                        elif p.search(content):
-                            suppress = True
-                            break
                     if not suppress:
                         sys.stdout.write(content)
                     self._tbuf.truncate(0)
@@ -200,7 +223,7 @@ class reader(threading.Thread):
                 sys.stdout.write(c)
                 sys.stdout.flush()
 
-    def enabletrace(self, suppress=None):
+    def enabletrace(self, suppress: list[TraceFilter] | None = None) -> None:
         self.cv.acquire()
         try:
             if not self._trace:
@@ -211,7 +234,7 @@ class reader(threading.Thread):
         finally:
             self.cv.release()
 
-    def getbuf(self):
+    def getbuf(self) -> str:
         self.cv.acquire()
         try:
             buf = self.buf.getvalue()
@@ -219,11 +242,18 @@ class reader(threading.Thread):
             self.cv.release()
         return buf
 
-    def match(self, pattern, timeout, matchall=False):
+    @overload
+    def match(
+        self, pattern: list[MatchPattern], timeout: float | None, matchall: Literal[False] = False
+    ) -> MatchResult: ...
+
+    @overload
+    def match(self, pattern: list[MatchPattern], timeout: float | None, matchall: Literal[True]) -> str: ...
+
+    def match(self, pattern: list[MatchPattern], timeout: float | None, matchall: bool = False) -> str | MatchResult:
         # pattern is a list of string, regexp duples.
 
-        if timeout is not None:
-            end = time.time() + timeout
+        end = time.time() + timeout if timeout is not None else None
         start = time.time()
 
         # Trace the match
@@ -237,7 +267,7 @@ class reader(threading.Thread):
                 pdesc.write(escape(pattern[0][0]))
             else:
                 pdesc.write("[")
-                for index, (s, regexp) in enumerate(pattern):
+                for index, (s, _) in enumerate(pattern):
                     if index > 0:
                         pdesc.write(",")
                     pdesc.write(escape(s))
@@ -247,9 +277,10 @@ class reader(threading.Thread):
 
         maxend = None
 
-        def patternDesc():
-            return ",".join([escape(s) for (s, regexp) in pattern])
+        def patternDesc() -> str:
+            return ",".join([escape(s) for (s, _) in pattern])
 
+        buf = ""
         self.cv.acquire()
         try:
             try:  # This second try/except block is necessary because of python 2.3
@@ -267,6 +298,7 @@ class reader(threading.Thread):
                             # Don't try to match on an empty buffer, http://bugs.python.org/issue17998
                             #
                             break
+                        assert regexp is not None
                         m = regexp.search(buf)
                         if m is not None:
                             before = buf[: m.start()]
@@ -332,7 +364,7 @@ class reader(threading.Thread):
                             % (patternDesc(), escape(buf, False))
                         )
 
-                    if timeout is None:
+                    if end is None:
                         self.cv.wait()
                     else:
                         self.cv.wait(end - time.time())
@@ -356,8 +388,8 @@ class reader(threading.Thread):
             self.cv.release()
 
 
-def splitCommand(command_line):
-    arg_list = []
+def splitCommand(command_line: str) -> list[str]:
+    arg_list: list[str] = []
     arg = ""
 
     state_basic = 0
@@ -407,10 +439,10 @@ def splitCommand(command_line):
     return arg_list
 
 
-processes = {}
+processes: "dict[int, subprocess.Popen[bytes]]" = {}
 
 
-def cleanup():
+def cleanup() -> None:
     for key in processes.copy():
         try:
             killProcess(processes[key])
@@ -422,28 +454,28 @@ def cleanup():
 class Expect(object):
     def __init__(
         self,
-        command,
-        startReader=True,
-        timeout=30,
-        logfile=None,
-        mapping=None,
-        desc=None,
-        cwd=None,
-        env=None,
-        preexec_fn=None,
+        command: str,
+        startReader: bool = True,
+        timeout: float = 30,
+        logfile: TextIO | None = None,
+        mapping: str | None = None,
+        desc: str | None = None,
+        cwd: str | None = None,
+        env: dict[str, str] | None = None,
+        preexec_fn: Callable[[], object] | None = None,
     ):
         self.buf = ""  # The part before the match
         self.before = ""  # The part before the match
-        self.after = ""  # The part after the match
+        self.after: str | type[TIMEOUT] = ""  # The part after the match
         self.matchindex = 0  # the index of the matched pattern
-        self.match = None  # The last match
+        self.match: re.Match[str] | None = None  # The last match
         self.mapping = mapping  # The mapping of the test.
-        self.exitstatus = None  # The exitstatus, either -signal or, if positive, the exit code.
-        self.killed = None  # If killed, the signal that was sent.
+        self.exitstatus: int | None = None  # The exitstatus, either -signal or, if positive, the exit code.
+        self.killed: int | None = None  # If killed, the signal that was sent.
         self.desc = desc
         self.logfile = logfile
         self.timeout = timeout
-        self.p = None
+        self.p: "subprocess.Popen[bytes] | None" = None
         self.cwd = cwd
 
         if self.logfile:
@@ -486,7 +518,7 @@ class Expect(object):
         global processes
         processes[self.p.pid] = self.p
 
-        self.r = reader(desc, self.p, logfile)
+        self.r: reader | None = reader(desc, self.p, logfile)
 
         # The thread is marked as a daemon thread. This is done so that if
         # an expect script runs off the end of main without kill/wait on each
@@ -497,15 +529,16 @@ class Expect(object):
         if startReader:
             self.startReader()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "{0} pid={1}".format(self.desc, "<none>" if self.p is None else self.p.pid)
 
-    def startReader(self, watchDog=None):
+    def startReader(self, watchDog: WatchDog | None = None) -> None:
+        assert self.r is not None
         if watchDog is not None:
             self.r.setWatchDog(watchDog)
         self.r.start()
 
-    def expect(self, pattern, timeout=60):
+    def expect(self, pattern: str | list[str], timeout: float | None = 60) -> int:
         """pattern is either a string, or a list of string regexp patterns.
 
         timeout == None expect can block indefinitely.
@@ -518,12 +551,13 @@ class Expect(object):
         if not isinstance(pattern, list):
             pattern = [pattern]
 
-        def compile(s):
+        def compile(s: str) -> "re.Pattern[str] | None":
             if isinstance(s, str):
                 return re.compile(s, re.S)
             return None
 
-        pattern = [(p, compile(p)) for p in pattern]
+        compiled: list[MatchPattern] = [(p, compile(p)) for p in pattern]
+        assert self.r is not None
         try:
             (
                 self.buf,
@@ -531,7 +565,7 @@ class Expect(object):
                 self.after,
                 self.match,
                 self.matchindex,
-            ) = self.r.match(pattern, timeout)
+            ) = self.r.match(compiled, timeout)
         except TIMEOUT as e:
             self.buf = ""
             self.before = ""
@@ -541,7 +575,7 @@ class Expect(object):
             raise e
         return self.matchindex
 
-    def expectall(self, pattern, timeout=60):
+    def expectall(self, pattern: list[str], timeout: float | None = 60) -> None:
         """pattern is a list of string regexp patterns.
 
         timeout == None expect can block indefinitely.
@@ -551,9 +585,10 @@ class Expect(object):
         if timeout == -1:
             timeout = self.timeout
 
-        pattern = [(p, re.compile(p, re.S)) for p in pattern]
+        compiled: list[MatchPattern] = [(p, re.compile(p, re.S)) for p in pattern]
+        assert self.r is not None
         try:
-            self.buf = self.r.match(pattern, timeout, matchall=True)
+            self.buf = self.r.match(compiled, timeout, matchall=True)
             self.before = ""
             self.after = ""
             self.matchindex = 0
@@ -566,15 +601,16 @@ class Expect(object):
             self.match = None
             raise e
 
-    def sendline(self, data):
+    def sendline(self, data: str) -> None:
         """send data to the application."""
         if self.logfile:
             self.logfile.write('%s: sendline: "%s"\n' % (self.desc, escape(data)))
             self.logfile.flush()
         data = data + "\n"
+        assert self.p is not None and self.p.stdin is not None
         self.p.stdin.write(data.encode("utf-8"))
 
-    def wait(self, timeout=None):
+    def wait(self, timeout: float | None = None) -> int | None:
         """Wait for the application to terminate for up to timeout seconds, or
         raises a TIMEOUT exception. If timeout is None, the wait is
         indefinite.
@@ -598,7 +634,9 @@ class Expect(object):
             while self.p.poll() is None:
                 time.sleep(0.5)
 
-        if self.p is None:
+        # Another thread may have terminated the process while we were polling above. Pyright assumes
+        # single-threaded execution and so considers this check redundant with the one on entry.
+        if self.p is None:  # pyright: ignore[reportUnnecessaryComparison]
             return self.exitstatus
 
         self.exitstatus = self.p.wait()
@@ -610,6 +648,7 @@ class Expect(object):
         if self.p.pid in processes:
             del processes[self.p.pid]
         self.p = None
+        assert self.r is not None
         self.r.join()
         # Simulate a match on EOF
         self.buf = self.r.getbuf()
@@ -620,20 +659,21 @@ class Expect(object):
         #
         # ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='cp1252'>
         #
+        assert self.r.p.stdout is not None and self.r.p.stdin is not None
         self.r.p.stdout.close()
         self.r.p.stdin.close()
         self.r = None
 
         return self.exitstatus
 
-    def terminate(self):
+    def terminate(self) -> None:
         """Terminate the process."""
 
         if self.p is None:
             return
 
-        def kill():
-            ex = None
+        def kill() -> None:
+            ex: BaseException | None = None
             for _ in range(5):
                 try:
                     if not self.p:
@@ -662,6 +702,7 @@ class Expect(object):
             pass
 
         try:
+            assert self.p is not None
             terminateProcess(self.p, self.hasInterruptSupport())
         except KeyboardInterrupt:
             kill()
@@ -680,34 +721,39 @@ class Expect(object):
         except TIMEOUT:
             kill()
 
-    def kill(self, sig):
+    def kill(self, sig: int) -> None:
         """Send the signal to the process."""
         self.killed = sig  # Save the sent signal.
+        assert self.p is not None
         if win32:
             terminateProcess(self.p, self.hasInterruptSupport())
         else:
             os.kill(self.p.pid, sig)
 
-    def trace(self, suppress=None):
+    def trace(self, suppress: list[TraceFilter] | None = None) -> None:
+        assert self.r is not None
         self.r.enabletrace(suppress)
 
-    def waitSuccess(self, exitstatus=0, timeout=None):
+    def waitSuccess(self, exitstatus: int = 0, timeout: float | None = None) -> None:
         """Wait for the process to terminate for up to timeout seconds, and
         validate the exit status is as expected."""
         self.wait(timeout)
         self.testExitStatus(exitstatus)
 
-    def getOutput(self):
-        return self.buf if self.p is None else self.r.getbuf()
+    def getOutput(self) -> str:
+        if self.p is None:
+            return self.buf
+        assert self.r is not None
+        return self.r.getbuf()
 
-    def hasInterruptSupport(self):
+    def hasInterruptSupport(self) -> bool:
         """Return True if the application gracefully terminated, False otherwise."""
         if win32 and self.mapping == "java":
             return False
         return True
 
-    def testExitStatus(self, exitstatus):
-        def test(result, expected):
+    def testExitStatus(self, exitstatus: int) -> None:
+        def test(result: int | None, expected: int | list[int]) -> None:
             if not win32 and result == -2:  # Interrupted by Ctrl-C, simulate KeyboardInterrupt
                 raise KeyboardInterrupt()
             if isinstance(expected, list):
@@ -731,7 +777,8 @@ class Expect(object):
         else:
             test(self.exitstatus, exitstatus)
 
-    def stackDump(self):
+    def stackDump(self) -> None:
+        assert self.p is not None
         match platform.system():
             case "Linux":
                 dumpCmd = [
@@ -773,6 +820,7 @@ class Expect(object):
             assert os.path.isabs(cmd)
 
             exe = os.path.split(cmd)[1]
+            assert self.cwd is not None
             coreDumpFile = os.path.join(self.cwd, f"{exe}-{time.strftime('%m%d%y-%H%M')}-coredump.log")
             print(f"(dumping stack for {cmd} to {coreDumpFile})")
             with open(coreDumpFile, "w") as f:
