@@ -325,13 +325,13 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
 
 class LogHelper {
     static func createLogDirectory(_ path: String) -> URL {
-        // Get the appropriate directory (Documents for iOS)
-        guard let documentsDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else {
-            fatalError("Unable to access documents directory")
+        // Get the appropriate directory (Caches for iOS)
+        guard let cachesDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else {
+            fatalError("Unable to access caches directory")
         }
 
         // Create log directory path
-        let logDirectory = documentsDirectory.appendingPathComponent(path)
+        let logDirectory = cachesDirectory.appendingPathComponent(path)
 
         // Create directory if it doesn't exist
         try? FileManager.default.createDirectory(at: logDirectory, withIntermediateDirectories: true, attributes: nil)
