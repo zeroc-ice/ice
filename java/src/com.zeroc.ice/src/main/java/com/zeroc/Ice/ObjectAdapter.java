@@ -5,6 +5,8 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -13,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -703,9 +706,27 @@ public final class ObjectAdapter {
      */
     public synchronized Object dispatchPipeline() {
         if (_dispatchPipeline == null) {
-            _dispatchPipeline = _servantManager;
-            while (!_middlewareStack.isEmpty()) {
-                _dispatchPipeline = _middlewareStack.pop().apply(_dispatchPipeline);
+            try {
+                Object dispatchPipeline = _servantManager;
+                while (!_middlewareStack.isEmpty()) {
+                    dispatchPipeline = _middlewareStack.pop().apply(dispatchPipeline);
+                }
+                _dispatchPipeline = dispatchPipeline;
+            } catch (RuntimeException | Error ex) {
+                var sw = new StringWriter();
+                var pw = new PrintWriter(sw);
+                ex.printStackTrace(pw);
+                pw.flush();
+                _instance
+                    .initializationData()
+                    .logger
+                    .error(
+                        "failed to create the dispatch pipeline of object adapter '"
+                            + _name
+                            + "':\n"
+                            + sw.toString());
+                _middlewareStack.clear();
+                _dispatchPipeline = new FailedDispatchPipeline();
             }
         }
         return _dispatchPipeline;
@@ -1414,6 +1435,14 @@ public final class ObjectAdapter {
                 }
             }
             _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
+        }
+    }
+
+    // Installed as the dispatch pipeline when the creation of the actual pipeline fails.
+    private static class FailedDispatchPipeline implements Object {
+        @Override
+        public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request) {
+            throw new UnknownException("The object adapter could not create its dispatch pipeline.");
         }
     }
 }
