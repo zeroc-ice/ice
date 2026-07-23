@@ -79,7 +79,7 @@ NodeSessionManager::init()
     const string connectTo = communicator->getProperties()->getIceProperty("DataStorm.Node.ConnectTo");
     if (!connectTo.empty())
     {
-        connect(LookupPrx{communicator, communicator->identityToString(lookupIdentity) + ':' + connectTo}, _nodePrx);
+        connect(LookupPrx{communicator, communicator->identityToString(lookupIdentity()) + ':' + connectTo}, _nodePrx);
     }
 }
 

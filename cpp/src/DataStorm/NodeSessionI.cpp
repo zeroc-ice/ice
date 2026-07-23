@@ -186,7 +186,7 @@ NodeSessionI::enableAnnouncementForwarding()
 {
     if (!_lookup)
     {
-        _lookup = _connection->createProxy<LookupPrx>(lookupIdentity);
+        _lookup = _connection->createProxy<LookupPrx>(lookupIdentity());
     }
 }
 

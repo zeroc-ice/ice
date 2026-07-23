@@ -188,21 +188,22 @@ Instance::init(std::optional<Ice::SSL::ServerAuthenticationOptions> serverAuthen
     _nodeSessionManager = make_shared<NodeSessionManager>(self, _node);
     _nodeSessionManager->init();
 
+    const Identity lookupId = lookupIdentity();
     auto lookupI = make_shared<LookupI>(_nodeSessionManager, _topicFactory, _node->getProxy());
-    _adapter->add(lookupI, lookupIdentity);
+    _adapter->add(lookupI, lookupId);
     if (_multicastAdapter)
     {
-        auto lookup = _multicastAdapter->add<DataStormContract::LookupPrx>(lookupI, lookupIdentity);
+        auto lookup = _multicastAdapter->add<DataStormContract::LookupPrx>(lookupI, lookupId);
         // The lookup proxy can be customized by setting the property DataStorm.Node.Multicast.Proxy.
         if (!_communicator->getProperties()->getIceProperty("DataStorm.Node.Multicast.Proxy").empty())
         {
             // propertyToProxy only returns a nullopt proxy when the property is empty.
             lookup = *_communicator->propertyToProxy<DataStormContract::LookupPrx>("DataStorm.Node.Multicast.Proxy");
-            if (lookup->ice_getIdentity() != lookupIdentity)
+            if (lookup->ice_getIdentity() != lookupId)
             {
                 ostringstream os;
                 os << "property 'DataStorm.Node.Multicast.Proxy' has an invalid value: the proxy identity must be '"
-                   << identityToString(lookupIdentity) << "'";
+                   << identityToString(lookupId) << "'";
                 throw PropertyException{__FILE__, __LINE__, os.str()};
             }
         }

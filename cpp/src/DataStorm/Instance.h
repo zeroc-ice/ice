@@ -25,8 +25,9 @@ namespace DataStormI
     // The object identity of the Lookup servant. Ice 3.8.3 changed this from "DataStorm/Lookup" (used by Ice
     // 3.8.0-3.8.2) to segregate nodes speaking the incompatible pre-3.8.3 reader-initialization protocol: a node only
     // discovers peers whose Lookup servant uses the matching identity, so a 3.8.3 node never establishes a session
-    // with a 3.8.0-3.8.2 node. This constant must be used everywhere the Lookup identity is needed. See issue #5819.
-    inline const Ice::Identity lookupIdentity{.name = "Lookup2", .category = "DataStorm"};
+    // with a 3.8.0-3.8.2 node. This identity must be used everywhere the Lookup servant is registered or addressed. See
+    // issue #5819.
+    inline Ice::Identity lookupIdentity() { return {.name = "Lookup2", .category = "DataStorm"}; }
 
     class Instance final : public std::enable_shared_from_this<Instance>
     {
