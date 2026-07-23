@@ -332,7 +332,7 @@ get-program-targets = $2/$1$(EXE_EXT)
 # $(call create-component-with-config-targets,$1=project,$2=component,$3=platform,$4=config,$5=comp[platform-config],
 #                                             $6=nobuild)
 #
-# Defines target variables for the given component/paltform/configuration
+# Defines target variables for the given component/platform/configuration
 #
 define create-component-with-config-targets
 
@@ -478,7 +478,7 @@ $$(foreach e,$$($1_component_with_config_extensions),$$(eval $$(call $$e,$1,$2,$
 endif
 
 #
-# Order only prerequisties to ensure the object directory is created
+# Order only prerequisites to ensure the object directory is created
 # before we start building the objects
 #
 $$($5_objdir)/$$(call source-to-dependency,$$($5_sources)): | $$($5_objdir)
@@ -593,7 +593,7 @@ endif
 
 #
 # If sources are not specified for the component, we search for them in
-# the source directory and eventualy the slice directory if set.
+# the source directory and eventually the slice directory if set.
 #
 ifeq ($$($2_sources),)
 $2_sources      := $$(foreach e,$(source-extensions),$$(wildcard $$($2_srcdir)/*.$$(e)))
@@ -629,7 +629,7 @@ $1_slices       += $$(filter-out $$($2_slicedir)/%,$$($2_slices))
 #
 ifneq ($$(and $$($2_components),$$($2_slicedir)),)
 
-# Add an order-only prerequisities on the directory to trigger its creation if it doesn't exist.
+# Add an order-only prerequisite on the directory to trigger its creation if it doesn't exist.
 $$($1_generated_srcdir)/$$(call source-to-dependency,$$($2_slices)): | $$($1_generated_srcdir)
 
 ifneq ($$($1_generated_includedir),$$($2_generated_includedir))
@@ -761,7 +761,7 @@ endif
 #
 ifneq ($$($1_slicedirs),)
 
-# Add an order-only prerequisities on the directory to trigger its creation if it doesn't exist.
+# Add an order-only prerequisite on the directory to trigger its creation if it doesn't exist.
 $$($1_generated_srcdir)/$$(call source-to-dependency,$$($1_slices)): | $$($1_generated_srcdir)
 
 # Create generated include directory if different from generated source directory
@@ -976,7 +976,7 @@ var-names  = $(if $2,$2[$3-$4]_$1 $2[$3]_$1 $(foreach c,$(call subconfigs,$4),$2
 #
 # $(call var-value,$1=varname,$2=project,$3=component,$4=platform,$5=config,$6=fn)
 #
-# Returns the value of the given varible name for the given project/component/platform/configuration.
+# Returns the value of the given variable name for the given project/component/platform/configuration.
 # It returns the first defined variable from the set of variables returned by var-names defined above.
 # This checks first for component[platform-config]_varname, next for component[platform]_varname,
 # component[subconfig]_varname, ...

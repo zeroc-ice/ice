@@ -40,7 +40,7 @@ class ControllerDriver(Driver):
     def usage(self):
         print("")
         print("Controller driver options:")
-        print("--id=<identity>       The identify of the controller object.")
+        print("--id=<identity>       The identity of the controller object.")
         print("--endpoints=<endpts>  The endpoints to listen on.")
         print("--clean               Remove trust settings (macOS).")
 

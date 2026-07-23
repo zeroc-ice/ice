@@ -73,7 +73,7 @@ https://download.zeroc.com/nexus/repository/nuget-3.9-nightly/
 
 ### Ice for Java
 
-The nightly packages are available from the maven ZeroC maven-nightly repository.
+The nightly packages are available from the ZeroC maven-nightly repository.
 
 To use them, add the following Maven repository to your build configuration:
 
@@ -191,7 +191,7 @@ zeroc-ice
 
 #### Linux <!-- omit in toc -->
 
-Ice for Python is also available as a RPM or DEB package, depending on your distribution.
+Ice for Python is also available as an RPM or DEB package, depending on your distribution.
 
 First, enable the Ice nightly DNF or APT repository on your system as per [Linux Repositories](#linux-repositories).
 Then, install the Ice for Python package:
