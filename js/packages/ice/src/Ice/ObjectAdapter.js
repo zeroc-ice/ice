@@ -275,10 +275,12 @@ export class ObjectAdapter {
                 }
                 this._dispatchPipeline = dispatchPipeline;
             } catch (ex) {
+                // A middleware factory can throw a value that is not an Error, such as null or a symbol.
+                const details = ex instanceof Error ? `${ex}\n${ex.stack}` : String(ex);
                 this._instance
                     .initializationData()
                     .logger.error(
-                        `failed to create the dispatch pipeline of object adapter '${this._name}':\n${ex}\n${ex.stack}`,
+                        `failed to create the dispatch pipeline of object adapter '${this._name}':\n${details}`,
                     );
                 this._middlewareStack.length = 0;
                 this._dispatchPipeline = new FailedDispatchPipeline();
