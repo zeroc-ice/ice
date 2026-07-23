@@ -1,7 +1,6 @@
-- Fixed a bug in DataStorm where a partial update for a key with no current value was resolved against an invalid
-  base value: applications using class-typed values typically crashed, and with other value types the update was
-  silently applied to a default-constructed value, resurrecting removed keys. A key has no current value when no full
-  value was written for it yet, or when it was removed. A remove now clears the key's value; publishing a partial
-  update for a key with no value now throws `std::logic_error` on the writer and is discarded on the reader.
-- Fixed a bug in DataStorm where calling `getValue()` on a sample carrying the `Remove` event returned indeterminate
-  data instead of the documented default-constructed value, when the topic's value type is a scalar type.
+- Fixed the handling of partial updates for keys with no value. A key has no value when it was removed, or when no
+  full value was written for it yet. Previously, such a partial update crashed applications using class-typed
+  values; with other value types, it silently resurrected removed keys. Now a writer throws `std::logic_error`
+  when publishing such an update, and a reader discards incoming ones.
+- Fixed a bug where calling `getValue()` on a `Remove` sample could return indeterminate data instead of the
+  documented default value.
