@@ -179,6 +179,7 @@ classdef Communicator < IceInternal.WrapperObject
             %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
             %
             %   Exceptions
+            %     Ice.ParseException - If the property value is not a valid proxy string.
             %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed.
 
             arguments

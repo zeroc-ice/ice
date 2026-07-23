@@ -8,6 +8,9 @@ function r = stringToIdentity(s)
     %   Output Arguments
     %     r - The converted object identity.
     %       Ice.Identity scalar
+    %
+    %   Exceptions
+    %     Ice.ParseException - If s is not a valid identity string.
 
     % Copyright (c) ZeroC, Inc.
 
