@@ -78,8 +78,8 @@ class TestIntfI(Test.TestIntf):
     def startDispatch(self, current: Ice.Current):
         with self._cond:
             if self._shutdown:
-                # Ignore, this can occur with the forceful connection close test, shutdown can be dispatch
-                # before start dispatch.
+                # Ignore, this can occur with the forceful connection close test, shutdown can be dispatched
+                # before startDispatch.
                 v = Ice.Future()
                 v.set_result(None)
                 return v
@@ -93,7 +93,7 @@ class TestIntfI(Test.TestIntf):
         with self._cond:
             if self._shutdown:
                 return
-            elif self._pending:  # Pending might not be set yet if startDispatch is dispatch out-of-order
+            elif self._pending:  # Pending might not be set yet if startDispatch is dispatched out-of-order
                 self._pending.set_result(None)
                 self._pending = None
 

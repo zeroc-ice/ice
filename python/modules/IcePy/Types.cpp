@@ -37,7 +37,7 @@ namespace
 {
     //
     // This exception is raised if the factory specified in a sequence metadata
-    // cannot be load or is not valid
+    // cannot be loaded or is not valid
     //
     class InvalidSequenceFactoryException
     {

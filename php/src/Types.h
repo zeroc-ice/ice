@@ -109,7 +109,7 @@ namespace IcePHP
     public:
         virtual std::string getId() const = 0;
 
-        virtual bool validate(zval*, bool) = 0; // Validate type data. Bool enables excpetion throwing.
+        virtual bool validate(zval*, bool) = 0; // Validate type data. Bool enables exception throwing.
 
         virtual bool variableLength() const = 0;
         virtual int wireSize() const = 0;

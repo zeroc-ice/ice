@@ -312,7 +312,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
         rethrow_exception(exc);
     }
     // We need to catch and convert:
-    // - local exceptions thrown from MATLAB code for which we provide a convience constructor (e.g. MarshalException)
+    // - local exceptions thrown from MATLAB code for which we provide a convenience constructor (e.g. MarshalException)
     // - local exceptions that define extra properties we want to expose to MATLAB users (e.g. ObjectNotExistException
     // via its base class, RequestFailedException)
     catch (const Ice::AlreadyRegisteredException& e)
