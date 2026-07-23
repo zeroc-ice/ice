@@ -371,7 +371,7 @@ function checkChar(s, pos) {
         } else {
             msg = "first character";
         }
-        msg += " has invalid ordinal value" + c;
+        msg += " has invalid ordinal value " + c;
         throw new RangeError(msg);
     }
     return s.charAt(pos);

@@ -397,13 +397,13 @@ export class Properties {
                 return prop;
             }
 
-            // If the property has a property array, check if the key is a prefix of the property.
+            // If the property has a property array, check if the property is a prefix of the key.
             if (prop.propertyArray) {
-                // Check if the key is a prefix of the property.
+                // Check if the property pattern is a prefix of the key.
                 // The key must be:
-                // - shorter than the property pattern
-                // - the property pattern must start with the key
-                // - the pattern character after the key must be a dot
+                // - longer than the property pattern
+                // - the key must start with the property pattern
+                // - the key character after the property pattern must be a dot
                 if (key.length > prop.pattern.length && key.startsWith(`${prop.pattern}.`)) {
                     // Plus one to skip the dot.
                     let substring = key.substring(prop.pattern.length + 1);

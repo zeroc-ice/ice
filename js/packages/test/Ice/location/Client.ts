@@ -386,7 +386,7 @@ export class Client extends TestHelper {
                     await Ice.Promise.delay(10);
                 }
             } catch (ex) {
-                // Expected to fail once they endpoints have been updated in the background.
+                // Expected to fail once the endpoints have been updated in the background.
                 test(ex instanceof Ice.LocalException, ex as Error);
             }
             try {
@@ -395,7 +395,7 @@ export class Client extends TestHelper {
                     await Ice.Promise.delay(10);
                 }
             } catch (ex) {
-                // Expected to fail once they endpoints have been updated in the background.
+                // Expected to fail once the endpoints have been updated in the background.
                 test(ex instanceof Ice.LocalException, ex as Error);
             }
             await ic.destroy();
