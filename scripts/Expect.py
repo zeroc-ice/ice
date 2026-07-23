@@ -19,10 +19,13 @@ from typing import Literal, Protocol, TextIO, overload
 
 __all__ = ["Expect", "EOF", "TIMEOUT"]
 
+win32 = sys.platform == "win32"
+
+# This guard, and the one in terminateProcess below, compare sys.platform directly instead of testing
+# win32: type checkers only narrow the platform for the literal comparison, and ctypes.windll exists
+# on Windows only. Everywhere else, use win32.
 if sys.platform == "win32":
     import ctypes
-
-win32 = sys.platform == "win32"
 
 
 class EOF:
@@ -118,6 +121,7 @@ def killProcess(p: subprocess.Popen[bytes]) -> None:
 
 
 def terminateProcess(p: subprocess.Popen[bytes], hasInterruptSupport: bool = True) -> None:
+    # sys.platform rather than win32, so ctypes.windll below type checks; see the note on the import.
     if sys.platform == "win32":
         #
         # Signals under windows are all turned into CTRL_BREAK_EVENT, except with Java since

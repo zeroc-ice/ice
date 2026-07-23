@@ -60,7 +60,8 @@ class Ice(Util.Component):
         if isinstance(mapping, Util.CSharpMapping):
             return os.path.join(Util.toplevel, "csharp", "msbuild", "zeroc.ice.net.nuspec")
         else:
-            # Only the Windows nuget packages are named after the platform toolset.
+            # Every other mapping uses the C++ nuget package. It's only ever built on Windows, and is
+            # named after the platform toolset (for example zeroc.ice.v143.nuspec).
             assert isinstance(Util.platform, Util.Windows)
             return os.path.join(
                 Util.toplevel,
