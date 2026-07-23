@@ -458,6 +458,250 @@ void ::Reader::run(int argc, char* argv[])
         test(sample.getKey() == "elem1");
         test(sample.getValue() == "value1");
     }
+
+    // A late-joining reader of a multi-key writer must receive the initialization samples of every key it
+    // subscribes to.
+    {
+        Topic<string, string> topic(node, "lateJoinMultiKey");
+        Topic<string, int> barrier(node, "lateJoinMultiKeyBarrier");
+        Topic<string, int> done(node, "lateJoinMultiKeyDone");
+
+        // Attach and destroy a probe reader first: once its element-level attach completed, the topics are
+        // attached, so creating the reader below announces a new element on the already-attached session and the
+        // writer initiates the element attach (the initialization samples then arrive via the initSamples request).
+        {
+            auto probe = makeSingleKeyReader(topic, "elemA", "", config);
+            probe.waitForWriters(1);
+        }
+
+        // Wait until the writer published both keys.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(barrier, "barrier").getNextUnread();
+
+        auto reader = makeMultiKeyReader(topic, {"elemA", "elemB"}, "", config);
+        reader.waitForUnread(2);
+        map<string, string> values;
+        for (const auto& sample : reader.getAllUnread())
+        {
+            test(sample.getEvent() == SampleEvent::Add);
+            values[sample.getKey()] = sample.getValue();
+        }
+        test(values.size() == 2);
+        test(values["elemA"] == "valueA");
+        test(values["elemB"] == "valueB");
+
+        // A late-joining any-key reader must also receive every key's initialization samples.
+        auto anyKeyReader = makeAnyKeyReader(topic, "", config);
+        anyKeyReader.waitForUnread(2);
+        values.clear();
+        for (const auto& sample : anyKeyReader.getAllUnread())
+        {
+            values[sample.getKey()] = sample.getValue();
+        }
+        test(values.size() == 2);
+        test(values["elemA"] == "valueA");
+        test(values["elemB"] == "valueB");
+
+        // Signal the writer that both readers were initialized, so it can tear down.
+        auto doneWriter = makeSingleKeyWriter(done, "done");
+        doneWriter.waitForReaders();
+        doneWriter.update(0);
+    }
+
+    // Two late-joining single-key readers of a multi-key writer must each receive their own key's initialization
+    // samples, and neither the other reader's.
+    {
+        Topic<string, string> topic(node, "lateJoinSingleKeys");
+        Topic<string, int> barrier(node, "lateJoinSingleKeysBarrier");
+        Topic<string, int> done(node, "lateJoinSingleKeysDone");
+
+        // Probe reader: see the previous case.
+        {
+            auto probe = makeSingleKeyReader(topic, "elemA", "", config);
+            probe.waitForWriters(1);
+        }
+
+        [[maybe_unused]] auto _ = makeSingleKeyReader(barrier, "barrier").getNextUnread();
+
+        auto readerA = makeSingleKeyReader(topic, "elemA", "", config);
+        auto readerB = makeSingleKeyReader(topic, "elemB", "", config);
+
+        auto sample = readerA.getNextUnread();
+        test(sample.getKey() == "elemA");
+        test(sample.getValue() == "valueA");
+
+        sample = readerB.getNextUnread();
+        test(sample.getKey() == "elemB");
+        test(sample.getValue() == "valueB");
+
+        test(!readerA.hasUnread()); // readerA must not also receive elemB's sample
+        test(!readerB.hasUnread()); // readerB must not also receive elemA's sample
+
+        // Signal the writer that both readers were initialized, so it can tear down.
+        auto doneWriter = makeSingleKeyWriter(done, "done");
+        doneWriter.waitForReaders();
+        doneWriter.update(0);
+    }
+
+    // Two readers on the same key, created back-to-back so they attach to the writer element in one initialization
+    // round, must each receive the key's initialization sample exactly once. The live update "valueB" is published
+    // only after both attach and drain, so a duplicated initialization sample would surface as a second "valueA"
+    // ahead of it. This depends on the two readers coalescing into one round (very likely with back-to-back creation,
+    // though not guaranteed); when they do not, the case still passes.
+    {
+        Topic<string, string> topic(node, "coalescedSameKey");
+        Topic<string, int> barrier(node, "coalescedSameKeyBarrier");
+        Topic<string, int> ready(node, "coalescedSameKeyReady");
+
+        {
+            auto probe = makeSingleKeyReader(topic, "elemA", "", config);
+            probe.waitForWriters(1);
+        }
+
+        [[maybe_unused]] auto _ = makeSingleKeyReader(barrier, "barrier").getNextUnread();
+
+        auto readerA1 = makeSingleKeyReader(topic, "elemA", "", config);
+        auto readerA2 = makeSingleKeyReader(topic, "elemA", "", config);
+
+        auto initA1 = readerA1.getNextUnread();
+        test(initA1.getKey() == "elemA" && initA1.getValue() == "valueA");
+        auto initA2 = readerA2.getNextUnread();
+        test(initA2.getKey() == "elemA" && initA2.getValue() == "valueA");
+
+        auto readyWriter = makeSingleKeyWriter(ready, "ready");
+        readyWriter.waitForReaders();
+        readyWriter.update(0);
+
+        // The next sample of each reader must be the live update, not a duplicated initialization sample.
+        auto liveA1 = readerA1.getNextUnread();
+        test(liveA1.getKey() == "elemA" && liveA1.getValue() == "valueB");
+        test(!readerA1.hasUnread());
+
+        auto liveA2 = readerA2.getNextUnread();
+        test(liveA2.getKey() == "elemA" && liveA2.getValue() == "valueB");
+        test(!readerA2.hasUnread());
+    }
+
+    // A late-joining filtered reader must receive the initialization samples of exactly the writer keys its filter
+    // matches (not the writer's other keys), and must stay subscribed afterwards.
+    {
+        Topic<string, string> topic(node, "lateFilter");
+        Topic<string, int> barrier(node, "lateFilterBarrier");
+        Topic<string, int> ready(node, "lateFilterReady");
+
+        {
+            auto probe = makeSingleKeyReader(topic, "elem1", "", config);
+            probe.waitForWriters(1);
+        }
+
+        [[maybe_unused]] auto _ = makeSingleKeyReader(barrier, "barrier").getNextUnread();
+
+        auto reader = makeFilteredKeyReader(topic, Filter<string>("_regex", "elem[0-9]"), "", config);
+        reader.waitForUnread(2);
+        map<string, string> values;
+        for (const auto& sample : reader.getAllUnread())
+        {
+            values[sample.getKey()] = sample.getValue();
+        }
+        test(values.size() == 2); // "other" does not match the filter, so it is not delivered
+        test(values["elem1"] == "value1");
+        test(values["elem2"] == "value2");
+
+        auto readyWriter = makeSingleKeyWriter(ready, "ready");
+        readyWriter.waitForReaders();
+        readyWriter.update(0);
+
+        // The reader is still subscribed after initialization, so it receives the live update on a matching key.
+        auto live = reader.getNextUnread();
+        test(live.getKey() == "elem1");
+        test(live.getValue() == "value1Live");
+    }
+
+    // A late-joining reader of a key the writer covers but never wrote receives an empty initialization batch; it must
+    // still be marked initialized so a later live sample on that key is delivered.
+    {
+        Topic<string, string> topic(node, "lateEmptyBatch");
+        Topic<string, int> barrier(node, "lateEmptyBatchBarrier");
+        Topic<string, int> ready(node, "lateEmptyBatchReady");
+
+        {
+            auto probe = makeSingleKeyReader(topic, "elemA", "", config);
+            probe.waitForWriters(1);
+        }
+
+        [[maybe_unused]] auto _ = makeSingleKeyReader(barrier, "barrier").getNextUnread();
+
+        auto reader = makeSingleKeyReader(topic, "elemB", "", config);
+        reader.waitForWriters(1); // attached via the empty initialization batch; a live sample is now delivered
+
+        auto readyWriter = makeSingleKeyWriter(ready, "ready");
+        readyWriter.waitForReaders();
+        readyWriter.update(0);
+
+        // elemB had no queued sample, so initialization delivered nothing; the live update is the first sample.
+        auto sample = reader.getNextUnread();
+        test(sample.getKey() == "elemB");
+        test(sample.getValue() == "valueB");
+    }
+
+    // A late-joining multi-key reader must receive every key's initialization samples even when the sample ids
+    // interleave across keys (elemA: 1, 3; elemB: 2).
+    {
+        Topic<string, string> topic(node, "lateInterleaved");
+        Topic<string, int> barrier(node, "lateInterleavedBarrier");
+        Topic<string, int> done(node, "lateInterleavedDone");
+
+        {
+            auto probe = makeSingleKeyReader(topic, "elemA", "", config);
+            probe.waitForWriters(1);
+        }
+
+        [[maybe_unused]] auto _ = makeSingleKeyReader(barrier, "barrier").getNextUnread();
+
+        auto reader = makeMultiKeyReader(topic, {"elemA", "elemB"}, "", config);
+        reader.waitForUnread(3);
+        map<string, vector<string>> byKey;
+        for (const auto& sample : reader.getAllUnread())
+        {
+            byKey[sample.getKey()].push_back(sample.getValue());
+        }
+        test(byKey.size() == 2);
+        test((byKey["elemA"] == vector<string>{"valueA1", "valueA2"}));
+        test((byKey["elemB"] == vector<string>{"valueB1"}));
+
+        auto doneWriter = makeSingleKeyWriter(done, "done");
+        doneWriter.waitForReaders();
+        doneWriter.update(0);
+    }
+
+    // A late-joining reader of an any-key writer must receive every key's initialization samples. This exercises the
+    // any-key (always-match filter) writer branch.
+    {
+        Topic<string, string> topic(node, "lateAnyKeyWriter");
+        Topic<string, int> barrier(node, "lateAnyKeyWriterBarrier");
+        Topic<string, int> done(node, "lateAnyKeyWriterDone");
+
+        {
+            auto probe = makeSingleKeyReader(topic, "elemA", "", config);
+            probe.waitForWriters(1);
+        }
+
+        [[maybe_unused]] auto _ = makeSingleKeyReader(barrier, "barrier").getNextUnread();
+
+        auto reader = makeMultiKeyReader(topic, {"elemA", "elemB"}, "", config);
+        reader.waitForUnread(2);
+        map<string, string> values;
+        for (const auto& sample : reader.getAllUnread())
+        {
+            values[sample.getKey()] = sample.getValue();
+        }
+        test(values.size() == 2);
+        test(values["elemA"] == "valueA");
+        test(values["elemB"] == "valueB");
+
+        auto doneWriter = makeSingleKeyWriter(done, "done");
+        doneWriter.waitForReaders();
+        doneWriter.update(0);
+    }
 }
 
 DEFINE_TEST(::Reader)

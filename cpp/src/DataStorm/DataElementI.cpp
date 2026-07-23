@@ -189,7 +189,12 @@ DataElementI::attach(
     {
         auto q = data.lastIds.find(_id);
         int64_t lastId = q != data.lastIds.end() ? q->second : 0;
-        samples.push_back(getSamples(key, sampleFilter, data.config, lastId, now));
+        DataSamples ds = getSamples(key, sampleFilter, data.config, lastId, now);
+        // Address the batch to the peer reader element so the receiver initializes exactly that reader. A multi-key
+        // writer produces one batch per key here; the session merges the batches sharing a writer-reader pair before
+        // sending them.
+        ds.peerId = data.id;
+        samples.push_back(std::move(ds));
     }
 
     auto samplesI =
