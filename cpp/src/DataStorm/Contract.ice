@@ -68,13 +68,11 @@ module DataStormContract
         /// The unique identifier for the writer.
         long id;
 
-        /// The unique identifier for the reader element these samples initialize.
-        /// The sender produces one `DataSamples` per writer-reader pair, with its samples merged across the reader's
-        /// keys, so the receiver initializes exactly the reader element identified by `peerId`.
-        long peerId;
-
         /// The sequence of samples produced by the writer.
         DataSampleSeq samples;
+
+        /// The unique identifier for the reader element these samples initialize.
+        long peerId;
     }
     sequence<DataSamples> DataSamplesSeq;
 
@@ -465,9 +463,7 @@ module DataStormContract
 
     /// The lookup interface is used by DataStorm nodes to announce their topic readers and writers to other connected
     /// nodes. When multicast is enabled, the lookup interface also broadcasts these announcements.
-    /// Each DataStorm node hosts a lookup servant with the identity `DataStorm/Lookup2`. Ice 3.8.3 changed this
-    /// identity from `DataStorm/Lookup` (used by Ice 3.8.0 through 3.8.2) to prevent nodes running the incompatible
-    /// pre-3.8.3 reader-initialization protocol from establishing sessions with each other.
+    /// Each DataStorm node hosts a lookup servant with the same identity (currently, `DataStorm/Lookup2`).
     interface Lookup
     {
         /// Announce a topic reader.

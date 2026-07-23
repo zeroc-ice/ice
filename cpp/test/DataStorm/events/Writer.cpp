@@ -454,9 +454,9 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
-    // Two readers on the same key, created back-to-back, attach to the writer element in one initialization round.
-    // Each must receive the key's initialization sample exactly once; the live update below, published only after both
-    // readers drained their initialization sample, would surface a duplicated batch as a second "valueA" ahead of it.
+    // Two readers subscribing to the same key are distinct reader elements and must each be initialized with the key's
+    // sample exactly once. The live update below, published only after both readers drained their initialization
+    // sample, would surface a misrouted or duplicated initialization batch as a second "valueA" ahead of it.
     cout << "testing coalesced same-key readers... " << flush;
     {
         Topic<string, string> topic(node, "coalescedSameKey");

@@ -542,11 +542,10 @@ void ::Reader::run(int argc, char* argv[])
         doneWriter.update(0);
     }
 
-    // Two readers on the same key, created back-to-back so they attach to the writer element in one initialization
-    // round, must each receive the key's initialization sample exactly once. The live update "valueB" is published
-    // only after both attach and drain, so a duplicated initialization sample would surface as a second "valueA"
-    // ahead of it. This depends on the two readers coalescing into one round (very likely with back-to-back creation,
-    // though not guaranteed); when they do not, the case still passes.
+    // Two readers subscribing to the same key are distinct reader elements, so each must be initialized with the key's
+    // sample exactly once and stay independently subscribed. The live update "valueB", published only after both
+    // readers drain their initialization sample, must then be the next sample each sees; a reader initialized with the
+    // wrong reader's batch, or twice, would surface a second "valueA" ahead of it.
     {
         Topic<string, string> topic(node, "coalescedSameKey");
         Topic<string, int> barrier(node, "coalescedSameKeyBarrier");
@@ -659,14 +658,13 @@ void ::Reader::run(int argc, char* argv[])
 
         auto reader = makeMultiKeyReader(topic, {"elemA", "elemB"}, "", config);
         reader.waitForUnread(3);
-        map<string, vector<string>> byKey;
-        for (const auto& sample : reader.getAllUnread())
-        {
-            byKey[sample.getKey()].push_back(sample.getValue());
-        }
-        test(byKey.size() == 2);
-        test((byKey["elemA"] == vector<string>{"valueA1", "valueA2"}));
-        test((byKey["elemB"] == vector<string>{"valueB1"}));
+        // The samples must be delivered in global sample-id order (elemA:1, elemB:2, elemA:3), not grouped by key, so
+        // a broken or removed sort in the merge is caught.
+        auto samples = reader.getAllUnread();
+        test(samples.size() == 3);
+        test(samples[0].getKey() == "elemA" && samples[0].getValue() == "valueA1");
+        test(samples[1].getKey() == "elemB" && samples[1].getValue() == "valueB1");
+        test(samples[2].getKey() == "elemA" && samples[2].getValue() == "valueA2");
 
         auto doneWriter = makeSingleKeyWriter(done, "done");
         doneWriter.waitForReaders();

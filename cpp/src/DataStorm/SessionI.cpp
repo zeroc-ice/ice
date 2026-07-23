@@ -67,7 +67,10 @@ namespace
 
         for (auto& batch : merged)
         {
-            sort(
+            // stable_sort so that when two batches carry the same sample id, unique keeps the first in batch order.
+            // getSamples resolves the earliest delivered sample of each key to a full value per batch, so keeping the
+            // first-seen copy preserves that resolved base rather than an arbitrary duplicate.
+            stable_sort(
                 batch.samples.begin(),
                 batch.samples.end(),
                 [](const DataSample& lhs, const DataSample& rhs) { return lhs.id < rhs.id; });
