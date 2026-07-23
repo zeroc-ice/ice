@@ -3,8 +3,21 @@
 #include "TestHelper.h"
 #include "TestI.h"
 
+#include <stdexcept>
+
 using namespace std;
 using namespace Test;
+
+class NullLogger final : public Ice::Logger, public enable_shared_from_this<NullLogger>
+{
+public:
+    void print(const string&) final {}
+    void trace(const string&, const string&) final {}
+    void warning(const string&) final {}
+    void error(const string&) final {}
+    string getPrefix() final { return "NullLogger"; }
+    Ice::LoggerPtr cloneWithPrefix(string) final { return shared_from_this(); }
+};
 
 class Middleware final : public Ice::Object
 {
@@ -69,8 +82,52 @@ testMiddlewareExecutionOrder(const Ice::CommunicatorPtr& communicator)
 }
 
 void
+testMiddlewareFactoryException()
+{
+    cout << "testing middleware factory exception... " << flush;
+
+    // Use a separate communicator with a null logger: the pipeline creation failure is logged as an error.
+    Ice::InitializationData initData;
+    initData.logger = make_shared<NullLogger>();
+    Ice::CommunicatorHolder communicatorHolder{Ice::initialize(initData)};
+    const Ice::CommunicatorPtr& communicator = communicatorHolder.communicator();
+
+    Ice::ObjectAdapterPtr oa = communicator->createObjectAdapter("");
+    oa->add(make_shared<MyObjectI>(), Ice::Identity{"test", ""});
+
+    oa->use([](Ice::ObjectPtr) -> Ice::ObjectPtr { throw runtime_error{"middleware factory exception"}; });
+
+    MyObjectPrx p(communicator, "test");
+
+    try
+    {
+        p->ice_ping();
+        test(false);
+    }
+    catch (const Ice::UnknownException& ex)
+    {
+        // The message does not reveal the middleware factory exception.
+        test(string_view{ex.what()}.find("middleware factory exception") == string_view::npos);
+    }
+
+    // The failure is permanent for this object adapter.
+    try
+    {
+        p->ice_ping();
+        test(false);
+    }
+    catch (const Ice::UnknownException&)
+    {
+    }
+
+    oa->destroy();
+    cout << "ok" << endl;
+}
+
+void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     testMiddlewareExecutionOrder(communicator);
+    testMiddlewareFactoryException();
 }
