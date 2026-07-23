@@ -207,10 +207,11 @@ class IceStormProcess(_IceStormProcessBase):
         testcase = current.testcase
         while testcase and not isinstance(testcase, IceStormTestCase):
             testcase = testcase.parent
-        assert isinstance(testcase, IceStormTestCase)
         if self.instance:
+            # An explicit instance is enough; the enclosing IceStormTestCase (if any) isn't needed.
             props["IceStormAdmin.TopicManager.Default"] = self.instance.getTopicManager(current)
         else:
+            assert isinstance(testcase, IceStormTestCase)
             instanceNames = [self.instanceName] if self.instanceName else testcase.getInstanceNames()
             if len(instanceNames) == 1:
                 props["IceStormAdmin.TopicManager.Default"] = testcase.getTopicManager(current, instanceNames[0])

@@ -3357,8 +3357,10 @@ class Driver:
 
     # Set by the concrete driver (see LocalDriver): the mapping to run the server side against when
     # cross testing. It holds the mapping name while the command line options are parsed, and the
-    # resolved Mapping afterwards.
-    cross: Mapping | str = ""
+    # resolved Mapping afterwards. This is a bare annotation on purpose — giving it a value here would
+    # create a real class attribute, which the reflective parseOptions() in Driver.create() would then
+    # consume "--cross" into at the class level, before LocalDriver.__init__ parses it per instance.
+    cross: Mapping | str
 
     @classmethod
     def add(self, name: str, driver: type[Driver], default: bool = False) -> None:
