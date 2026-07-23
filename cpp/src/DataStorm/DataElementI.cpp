@@ -276,7 +276,14 @@ DataElementI::detachKey(
         return;
     }
 
+    // The subscriber can be gone when the element was already detached: the destroyed-topic cleanup paths can
+    // process an element a second time.
     auto subscriber = p->second.get(topicId, elementId);
+    if (!subscriber)
+    {
+        return;
+    }
+
     if (removeConnectedKey(key, subscriber))
     {
         if (key)
@@ -395,7 +402,14 @@ DataElementI::detachFilter(
         return;
     }
 
+    // The subscriber can be gone when the element was already detached: the destroyed-topic cleanup paths can
+    // process an element a second time.
     auto subscriber = p->second.get(topicId, filterId);
+    if (!subscriber)
+    {
+        return;
+    }
+
     if (removeConnectedKey(key, subscriber))
     {
         if (key)
@@ -597,7 +611,14 @@ DataElementI::addConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Subsc
 bool
 DataElementI::removeConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Subscriber>& subscriber)
 {
-    auto& subscribers = _connectedKeys[key];
+    // Don't use operator[]: a second detach of the same element looks up a key that was already removed, and
+    // must not insert an empty entry.
+    auto q = _connectedKeys.find(key);
+    if (q == _connectedKeys.end())
+    {
+        return false;
+    }
+    auto& subscribers = q->second;
     auto p = find(subscribers.begin(), subscribers.end(), subscriber);
     if (p != subscribers.end())
     {
@@ -609,7 +630,7 @@ DataElementI::removeConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Su
                 _executor->queue([callback = _onConnectedKeys, key]
                                  { callback(DataStorm::CallbackReason::Disconnect, key); });
             }
-            _connectedKeys.erase(key);
+            _connectedKeys.erase(q);
         }
         return true;
     }
