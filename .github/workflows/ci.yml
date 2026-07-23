@@ -24,9 +24,121 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # TEMPORARY -- every other configuration is removed so the Bluetooth work iterates
-          # without waiting on the full matrix. Restore this list from main before merging.
+          # Release builds
+          - os: macos-26
+            config: "release"
+            # We want to test C++ and Swift only (in each direction)
+            cross_test_flags: "--all-cross --filter cpp --filter swift"
+            python_tests: true
+          - os: ubuntu-24.04
+            config: "release"
+            cross_test_flags: "--all-cross"
+          - os: ubuntu-24.04-arm
+            config: "release"
+            build_flags: "SKIP=csharp" # Skip C# on ARM as .NET compiler keeps crashing
+            test_flags: "--rfilter=csharp"
+            python_tests: true
+          - os: windows-2022
+            config: "release"
+            build_flags: "/p:Platform=x64"
+            test_flags: "--platform=x64"
+            python_tests: true
+          - os: windows-2022
+            config: "cpp-win32-release"
+            working_directory: "cpp"
+            build_flags: "/p:Platform=Win32"
+            msbuild_project: "msbuild/ice.proj"
+            test_flags: "--platform=Win32"
+            python_tests: true
+          - os: windows-2025
+            config: "release"
+            build_flags: "/p:Platform=x64"
+            test_flags: "--platform=x64"
+            python_tests: true
+
+          # Debug builds
+          - os: macos-26
+            config: "debug"
+            build_flags: "OPTIMIZE=no"
+            test_flags: "--swift-config=debug --csharp-config=Debug"
+            python_tests: true
+            enable_csharp_analysis: true
+          - os: ubuntu-24.04
+            config: "debug"
+            build_flags: "OPTIMIZE=no"
+            test_flags: "--csharp-config=Debug"
+            python_tests: true
+            enable_csharp_analysis: true
+
+          # TODO - figure out how to properly install debug Python
+          - os: windows-2022
+            config: "debug"
+            working_directory: "cpp"
+            build_flags: "/p:Platform=x64 /p:Configuration=Debug"
+            test_flags: "--platform=x64 --config=Debug"
+            msbuild_project: "msbuild/ice.proj"
+            python_tests: true
+            enable_csharp_analysis: true
+
+          # iOS
+          - os: macos-26
+            config: "ios"
+            build_flags: "OPTIMIZE=no PLATFORMS='macosx iphonesimulator' CONFIGS='static shared' LANGUAGES='cpp swift'"
+            test_flags: "--languages='cpp,swift' --config=debug --platform=iphonesimulator --controller-app"
+            build_cpp_and_python: true
+
           # Static builds
+          - os: ubuntu-24.04
+            config: "static"
+            build_flags: "CONFIGS=static"
+            test_flags: "--config=static --filter=Ice/ --filter=IceDiscovery/"
+            working_directory: "cpp"
+
+          # MATLAB
+          - os: ubuntu-24.04
+            config: "matlab"
+            working_directory: "matlab"
+            build_cpp_and_python: true
+          - os: windows-2022
+            config: "matlab"
+            working_directory: "matlab"
+            build_flags: "/p:Platform=x64"
+            msbuild_project: "msbuild/ice.proj"
+            test_flags: "--platform=x64"
+            build_cpp_and_python: true
+
+          - os: ubuntu-24.04
+            config: "android"
+            working_directory: "java"
+            test_flags: "--android --controller-app"
+            build_cpp_and_python: true
+            build_android_controller: true
+
+          # .NET 10.0
+          - os: ubuntu-24.04
+            config: ".NET10"
+            working_directory: "csharp"
+            net_target_framework: "net10.0"
+            test_flags: "--target-framework=net10.0"
+            build_cpp_and_python: true
+
+          - os: windows-2025
+            config: ".NET10"
+            working_directory: "csharp"
+            msbuild_command: "dotnet msbuild"
+            build_flags: "/p:Platform=x64"
+            msbuild_project: "msbuild/ice.proj"
+            net_target_framework: "net10.0"
+            test_flags: "--target-framework=net10.0"
+            build_cpp_and_python: true
+
+          - os: macos-26
+            config: ".NET10"
+            working_directory: "csharp"
+            net_target_framework: "net10.0"
+            test_flags: "--target-framework=net10.0"
+            build_cpp_and_python: true
+
           # C++ IceBT over a pair of virtual Bluetooth controllers. arm64 only: the amd64 azure
           # kernel has the Bluetooth modules stripped, so setup-bluetooth cannot succeed there.
           # $BT_ADDR is exported by setup-bluetooth and expanded by the shell at run time.
