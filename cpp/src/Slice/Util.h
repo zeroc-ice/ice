@@ -110,7 +110,7 @@ namespace Slice
         /// Writes the dependencies in XML format to the specified file. If 'dependFile' is empty, it writes the
         /// dependencies to standard output instead.
         ///
-        /// This method write the dependencies for all visited units in a single XML document.
+        /// This method writes the dependencies for all visited units in a single XML document.
         ///
         /// @param dependFile The file to write the dependencies to or empty to write to standard output.
         void writeXMLDependencies(const std::string& dependFile);
@@ -118,7 +118,7 @@ namespace Slice
         /// Writes the dependencies in JSON format to the specified file. If 'dependFile' is empty, it writes the
         /// dependencies to standard output instead.
         ///
-        /// This method write the dependencies for all visited units in a single JSON document.
+        /// This method writes the dependencies for all visited units in a single JSON document.
         ///
         /// @param dependFile The file to write the dependencies to or empty to write to standard output.
         void writeJSONDependencies(const std::string& dependFile);
