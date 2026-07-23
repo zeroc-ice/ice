@@ -31,7 +31,7 @@ namespace IceStorm
 
         //
         // With older flex version <= 2.5.35 YY_INPUT second
-        // paramenter is of type int&, in newer versions it
+        // parameter is of type int&, in newer versions it
         // changes to size_t&
         //
         void getInput(char*, int&, size_t);

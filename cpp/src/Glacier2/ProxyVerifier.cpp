@@ -307,7 +307,7 @@ namespace Glacier2
                     }
                     else
                     {
-                        ostr << ", or";
+                        ostr << ", or ";
                     }
                     ostr << range.start << " up to " << range.end;
                 }
@@ -1032,7 +1032,7 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator, int traceLe
       _traceLevel(traceLevel)
 {
     //
-    // Evaluation order is dependant on how the rules are stored to the
+    // Evaluation order is dependent on how the rules are stored to the
     // rules vectors.
     //
     string s = _communicator->getProperties()->getIceProperty("Glacier2.Filter.Address.Accept");

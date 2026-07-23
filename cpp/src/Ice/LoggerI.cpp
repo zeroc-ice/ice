@@ -179,7 +179,7 @@ Ice::LoggerI::write(const string& message, bool indent)
                     _nextRetry = chrono::steady_clock::now() + retryTimeout;
 
                     //
-                    // We temporarily set the maximum size to 0 to ensure there isn't more rename attempts
+                    // We temporarily set the maximum size to 0 to ensure there aren't more rename attempts
                     // in the nested error call.
                     //
                     size_t sizeMax = _sizeMax;

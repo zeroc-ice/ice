@@ -1512,7 +1512,7 @@ ServerI::activate()
         transform(desc->envs.begin(), desc->envs.end(), back_inserter(envs), environmentEval);
 
         //
-        // Clear the adapters direct proxy (this is usefull if the server
+        // Clear the adapters direct proxy (this is useful if the server
         // was manually activated).
         //
         for (const auto& adpt : adpts)

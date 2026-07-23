@@ -68,8 +68,8 @@ namespace IceDB
     // write returns true on success, and false if the provided
     // array is too small.
     // On failure, MDB_val.mv_size contains the marshaled key
-    // size if known, and 0 if not know.
-    // static bool write(const T&, MDB_val&, H&);
+    // size if known, and 0 if not known.
+    // static bool write(const T&, MDB_val&);
     //
     template<typename T, typename C, typename H> struct Codec;
 
@@ -375,7 +375,7 @@ namespace IceDB
     //
     // Returns computed mapSize in bytes.
     // When the input parameter is <= 0, returns a platform-dependent default
-    // (currently 0 on Windows and 100 MB on other platforms).
+    // (currently 10 MB on Windows and 100 MB on other platforms).
     // Otherwise, returns input parameter * 1 MB.
     //
 

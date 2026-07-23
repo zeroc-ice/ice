@@ -71,9 +71,9 @@ NodeSessionManager::init()
 {
     auto instance = _instance.lock();
     assert(instance);
-    auto sessionForwader = make_shared<SessionForwarder>(shared_from_this());
-    instance->getObjectAdapter()->addDefaultServant(sessionForwader, "sf");
-    instance->getObjectAdapter()->addDefaultServant(sessionForwader, "pf");
+    auto sessionForwarder = make_shared<SessionForwarder>(shared_from_this());
+    instance->getObjectAdapter()->addDefaultServant(sessionForwarder, "sf");
+    instance->getObjectAdapter()->addDefaultServant(sessionForwarder, "pf");
 
     auto communicator = instance->getCommunicator();
     const string connectTo = communicator->getProperties()->getIceProperty("DataStorm.Node.ConnectTo");
@@ -561,7 +561,7 @@ NodeSessionManager::destroySession(const ConnectionPtr& connection, const NodePr
     // Drop any announcements received over this connection; they can no longer be reached or refreshed.
     removeAnnouncements(connection);
 
-    // Destroy the connection if the session is still using it, otherwise the node has already
+    // Destroy the session if it is still using this connection, otherwise the node has already
     // replaced its NodeSession and it is using a new connection.
     auto p = _sessions.find(node->ice_getIdentity());
     if (p != _sessions.end() && p->second->getConnection() == connection)

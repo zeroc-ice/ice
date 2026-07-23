@@ -429,7 +429,7 @@ void
 ServerInstanceDescriptorBuilder::addPropertySet(const string& service, const PropertySetDescriptor& desc)
 {
     //
-    // Allow re-opening of unamed property sets.
+    // Allow re-opening of unnamed property sets.
     //
     PropertySetDescriptor& p = service.empty() ? _descriptor.propertySet : _descriptor.servicePropertySets[service];
     p.references.insert(p.references.end(), desc.references.begin(), desc.references.end());
@@ -625,7 +625,7 @@ void
 CommunicatorDescriptorBuilder::addPropertySet(const PropertySetDescriptor& desc)
 {
     //
-    // Allow re-opening of unamed property sets.
+    // Allow re-opening of unnamed property sets.
     //
     PropertySetDescriptor& p = _descriptor->propertySet;
     p.references.insert(p.references.end(), desc.references.begin(), desc.references.end());
@@ -736,7 +736,7 @@ void
 ServiceInstanceDescriptorBuilder::addPropertySet(const PropertySetDescriptor& desc)
 {
     //
-    // Allow re-opening of unamed property sets.
+    // Allow re-opening of unnamed property sets.
     //
     PropertySetDescriptor& p = _descriptor.propertySet;
     p.references.insert(p.references.end(), desc.references.begin(), desc.references.end());

@@ -64,7 +64,7 @@ ConnectRequestHandler::getConnection()
     lock_guard lock(_mutex);
     //
     // First check for the connection, it's important otherwise the user could first get a connection
-    // and then the exception if he tries to obtain the proxy cached connection mutiple times (the
+    // and then the exception if he tries to obtain the proxy cached connection multiple times (the
     // exception can be set after the connection is set if the flush of pending requests fails).
     //
     if (_connection)

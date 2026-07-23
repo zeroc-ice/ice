@@ -675,7 +675,7 @@ NodeService::stop()
     }
 
     //
-    // Break cylic reference counts.
+    // Break cyclic reference counts.
     //
     if (_node)
     {

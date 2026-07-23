@@ -291,7 +291,7 @@ namespace Ice
         }
     };
 
-    /// Helper the array custom sequence mapping.
+    /// Helper for the array custom sequence mapping.
     template<typename T> struct StreamHelper<std::pair<const T*, const T*>, StreamHelperCategorySequence>
     {
         static void write(OutputStream* stream, std::pair<const T*, const T*> v) { stream->write(v.first, v.second); }

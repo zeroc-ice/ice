@@ -483,7 +483,7 @@ namespace
         wstring wbuffer;
 
         //
-        // The following code pages doesn't support MB_ERR_INVALID_CHARS flag
+        // The following code pages don't support the MB_ERR_INVALID_CHARS flag
         // see http://msdn.microsoft.com/en-us/library/windows/desktop/dd319072(v=vs.85).aspx
         //
         DWORD flags = (_cp == 50220 || _cp == 50221 || _cp == 50222 || _cp == 50225 || _cp == 50227 || _cp == 50229 ||

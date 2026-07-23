@@ -446,7 +446,7 @@ Ice::InputStream::readAndCheckSeqSize(int minSize)
     //
     // If there isn't enough data to read on the stream for the sequence (and
     // possibly enclosed sequences), something is wrong with the marshaled
-    // data: it's claiming having more data that what is possible to read.
+    // data: it's claiming having more data than what is possible to read.
     //
     if (_startSeq + minSeqSize > static_cast<int64_t>(b.size()))
     {
@@ -1143,7 +1143,7 @@ Ice::InputStream::readOptImpl(int32_t readTag, OptionalFormat expectedFormat)
         auto tag = static_cast<int32_t>(v >> 3);
         if (tag > 30)
         {
-            // We check for '> 30' instead of '> 29' because 30 is special sentinel tag, handled by the next block.
+            // We check for '> 30' instead of '> 29' because 30 is a special sentinel tag, handled by the next block.
             ostringstream os;
             os << "invalid tag '" << tag << "': tags larger than 29 must be encoded as a size";
             throw MarshalException(__FILE__, __LINE__, os.str());
@@ -1486,7 +1486,7 @@ Ice::InputStream::EncapsDecoder10::throwException(UserExceptionFactory exception
     assert(_sliceType == NoSlice);
 
     //
-    // User exception with the 1.0 encoding start with a boolean flag
+    // User exceptions with the 1.0 encoding start with a boolean flag
     // that indicates whether or not the exception has classes.
     //
     // This allows reading the pending values even if some part of
@@ -2102,7 +2102,7 @@ Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, const PatchFunc& 
 
     //
     // Get the object ID before we start reading slices. If some
-    // slices are skiped, the indirect object table are still read and
+    // slices are skipped, the indirect object table is still read and
     // might read other instances.
     //
     index = ++_valueIdIndex;

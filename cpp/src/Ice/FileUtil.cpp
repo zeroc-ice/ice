@@ -38,8 +38,8 @@ IceInternal::isAbsolutePath(const string& path)
     }
 
 #ifdef _WIN32
-    // We need at least 3 non whitespace character to have
-    // and absolute path
+    // We need at least 3 non whitespace characters to have
+    // an absolute path
     if (i + 3 > size)
     {
         return false;
@@ -199,7 +199,7 @@ int
 IceInternal::getcwd(string& cwd)
 {
     //
-    // Don't need to use a wide string converter, the wide string come
+    // Don't need to use a wide string converter, the wide string comes
     // from Windows API.
     //
     wchar_t cwdbuf[_MAX_PATH];
@@ -363,7 +363,7 @@ IceInternal::FileLock::FileLock(const std::string& path) : _path(path)
     //
 
     //
-    // Now that we have acquire an exclusive write lock,
+    // Now that we have acquired an exclusive write lock,
     // write the process pid there.
     //
     ostringstream os;

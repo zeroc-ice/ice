@@ -123,7 +123,7 @@ namespace Ice
         }
     };
 
-    /// Provides access to a TCP endpoint information.
+    /// Provides access to TCP endpoint information.
     /// @see Endpoint
     /// @headerfile Ice/Ice.h
     class ICE_API TCPEndpointInfo final : public IPEndpointInfo
@@ -155,7 +155,7 @@ namespace Ice
         const bool _secure;
     };
 
-    /// Provides access to a UDP endpoint information.
+    /// Provides access to UDP endpoint information.
     /// @see Endpoint
     /// @headerfile Ice/Ice.h
     class ICE_API UDPEndpointInfo final : public IPEndpointInfo
@@ -189,7 +189,7 @@ namespace Ice
         }
     };
 
-    /// Provides access to a WebSocket endpoint information.
+    /// Provides access to WebSocket endpoint information.
     /// @headerfile Ice/Ice.h
     class ICE_API WSEndpointInfo final : public EndpointInfo
     {
@@ -209,7 +209,7 @@ namespace Ice
         }
     };
 
-    /// Provides access to an IAP endpoint information.
+    /// Provides access to IAP endpoint information.
     /// @headerfile Ice/Ice.h
     class IAPEndpointInfo final : public EndpointInfo
     {

@@ -26,8 +26,8 @@ IceInternal::RetryTask::runTimerTask()
     _outAsync->retry(); // Retry again the invocation.
 
     //
-    // NOTE: this must be called last, destroy() blocks until all task
-    // are removed to prevent the client thread pool to be destroyed
+    // NOTE: this must be called last, destroy() blocks until all tasks
+    // are removed to prevent the client thread pool from being destroyed
     // (we still need the client thread pool at this point to call
     // exception callbacks with CommunicatorDestroyedException).
     //

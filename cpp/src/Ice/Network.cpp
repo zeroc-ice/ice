@@ -242,7 +242,7 @@ namespace
         if (pos != string::npos)
         {
             //
-            // If it's a link-local address, use the zone indice.
+            // If it's a link-local address, use the zone index.
             //
             isAddr = false;
             name = intf.substr(pos + 1);
@@ -387,7 +387,7 @@ namespace
                 while (paddrs)
                 {
                     //
-                    // Don't need to pass a wide string converter as the wide string come
+                    // Don't need to pass a wide string converter as the wide string comes
                     // from Windows API.
                     //
                     if (wstringToString(paddrs->FriendlyName, getProcessStringConverter()) == name)
@@ -580,7 +580,7 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
     } while (info == nullptr && rs == EAI_AGAIN && --retry >= 0);
 
     // In theory, getaddrinfo should only return EAI_NONAME if
-    // AI_NUMERICHOST is specified and the host name is not a IP
+    // AI_NUMERICHOST is specified and the host name is not an IP
     // address. However on some platforms (e.g. macOS 10.4.x)
     // EAI_NODATA is also returned so we also check for it.
 #ifdef EAI_NODATA
@@ -1826,7 +1826,7 @@ void
 IceInternal::doConnectAsync(SOCKET fd, const Address& addr, const Address& sourceAddr, AsyncInfo& info)
 {
     //
-    // NOTE: It's the caller's responsability to close the socket upon
+    // NOTE: It's the caller's responsibility to close the socket upon
     // failure to connect. The socket isn't closed by this method.
     //
     Address bindAddr;
