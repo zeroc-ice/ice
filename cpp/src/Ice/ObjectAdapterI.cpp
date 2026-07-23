@@ -563,12 +563,14 @@ Ice::ObjectAdapterI::dispatchPipeline() const noexcept
             Error out(_instance->initializationData().logger);
             out << "failed to create the dispatch pipeline of object adapter '" << _name << "':\n" << ex;
             _dispatchPipeline = make_shared<FailedDispatchPipeline>();
+            _middlewareFactoryStack = {};
         }
         catch (...)
         {
             Error out(_instance->initializationData().logger);
             out << "failed to create the dispatch pipeline of object adapter '" << _name << "': unknown c++ exception";
             _dispatchPipeline = make_shared<FailedDispatchPipeline>();
+            _middlewareFactoryStack = {};
         }
     }
     return _dispatchPipeline;
