@@ -221,12 +221,18 @@ namespace DataStormI
 
             std::map<TopicI*, TopicSubscriber>& getSubscribers() { return _subscribers; }
 
-            // Determine if the subscriber should be reaped.
-            [[nodiscard]] bool reap(int sessionInstanceId)
+            // Determine if the subscriber should be reaped. The detach callback is called for each removed
+            // subscriber, before it is removed.
+            [[nodiscard]] bool reap(int sessionInstanceId, const std::function<void(TopicI*, TopicSubscriber&)>& detach)
             {
                 if (sessionInstanceId != _sessionInstanceId)
                 {
                     // If using a prior session instance id, we can remove all subscribers.
+                    for (auto& [topic, subscriber] : _subscribers)
+                    {
+                        detach(topic, subscriber);
+                    }
+                    _subscribers.clear();
                     return true;
                 }
 
@@ -236,6 +242,7 @@ namespace DataStormI
                     if (p->second.sessionInstanceId != sessionInstanceId)
                     {
                         // Remove the subscriber if it is using a prior session instance id.
+                        detach(p->first, p->second);
                         _subscribers.erase(p++);
                     }
                     else
