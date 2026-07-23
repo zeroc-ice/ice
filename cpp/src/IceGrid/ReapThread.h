@@ -68,11 +68,13 @@ namespace IceGrid
     // by the IceGrid registry: admin sessions, client sessions (aka resource allocation sessions), internal node
     // sessions and internal replica sessions.
     // It supports two modes:
-    // - 0s timeout + non-null connection: the session is bound to the connection and is destroyed/reaped either
-    // explicitly (via a call to a Slice-defined destroy operation) or when the connection is closed
-    // - a null connection with usually a non-0 timeout: the session's lifetime is independent of the connection, and
-    // the reaper destroys the session when it doesn't receive a keepAlive call within timeout. If the timeout is 0s,
-    // the reaper only reaps the session when it's destroyed explicitly, or when the IceGrid registry shuts down.
+    // - 0s timeout + non-null connection (used by admin sessions and client sessions): the session is bound to the
+    // connection and is destroyed/reaped either explicitly (via a call to a Slice-defined destroy operation) or when
+    // the connection is closed
+    // - a null connection with usually a non-0 timeout (used by internal node sessions and internal replica sessions):
+    // the session's lifetime is independent of the connection, and the reaper destroys the session when it doesn't
+    // receive a keepAlive call within timeout. If the timeout is 0s, the reaper only reaps the session when it's
+    // destroyed explicitly, or when the IceGrid registry shuts down.
     class ReapThread final
     {
     public:
