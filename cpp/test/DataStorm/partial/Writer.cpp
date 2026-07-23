@@ -345,6 +345,21 @@ void ::Writer::run(int argc, char* argv[])
         [[maybe_unused]] auto _ = makeSingleKeyReader(initRemoveBarrier, "done").getNextUnread();
     }
     cout << "ok" << endl;
+
+    // A null class value is a valid base value. With no updater registered, the no-op updater resolves the partial
+    // update by carrying the previous value over: it clones the null base to null instead of dereferencing it.
+    Topic<string, StockPtr> nullValueTopic(node, "nullValueTopic");
+    nullValueTopic.setWriterDefaultConfig(config);
+    // Intentionally no updater registered, so the no-op updater resolves the partial update.
+    cout << "testing partial update against a null class value... " << flush;
+    {
+        auto writer = makeSingleKeyWriter(nullValueTopic, "AAPL");
+        writer.add(nullptr); // a legitimate null class value establishes the base
+        writer.partialUpdate<float>("price")(15.0f);
+        test(writer.getLast().getEvent() == SampleEvent::PartialUpdate);
+        test(writer.getLast().getValue() == nullptr); // the null base was cloned to null, not dereferenced
+    }
+    cout << "ok" << endl;
 }
 
 DEFINE_TEST(::Writer)
