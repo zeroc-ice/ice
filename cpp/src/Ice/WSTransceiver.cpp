@@ -421,7 +421,7 @@ IceInternal::WSTransceiver::closing(bool initiator, exception_ptr reason)
         //
         // If we initiated a close connection but also received a
         // close connection, we assume we didn't initiate the
-        // connection and we send the close frame now. This is to
+        // close and we send the close frame now. This is to
         // ensure that if both peers close the connection at the same
         // time we don't hang having both peers waiting for the close
         // frame of the other.

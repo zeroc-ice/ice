@@ -254,10 +254,10 @@ internal sealed class WSTransceiver : Transceiver
         {
             //
             // If we initiated a close connection but also received a
-            // close connection, we assume we didn't initiated the
-            // connection and we send the close frame now. This is to
+            // close connection, we assume we didn't initiate the
+            // close and we send the close frame now. This is to
             // ensure that if both peers close the connection at the same
-            // time we don't hang having both peer waiting for the close
+            // time we don't hang having both peers waiting for the close
             // frame of the other.
             //
             Debug.Assert(!initiator);
