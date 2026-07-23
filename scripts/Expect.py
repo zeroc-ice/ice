@@ -1,5 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import codecs
 import io
 import os
@@ -108,14 +110,14 @@ def taskkill(args: str) -> None:
     p.stdout.close()
 
 
-def killProcess(p: "subprocess.Popen[bytes]") -> None:
+def killProcess(p: subprocess.Popen[bytes]) -> None:
     if win32:
         taskkill("/F /T /PID {0}".format(p.pid))
     else:
         os.kill(p.pid, signal.SIGKILL)
 
 
-def terminateProcess(p: "subprocess.Popen[bytes]", hasInterruptSupport: bool = True) -> None:
+def terminateProcess(p: subprocess.Popen[bytes], hasInterruptSupport: bool = True) -> None:
     if sys.platform == "win32":
         #
         # Signals under windows are all turned into CTRL_BREAK_EVENT, except with Java since
@@ -135,7 +137,7 @@ def terminateProcess(p: "subprocess.Popen[bytes]", hasInterruptSupport: bool = T
 
 
 class reader(threading.Thread):
-    def __init__(self, desc: str | None, p: "subprocess.Popen[bytes]", logfile: TextIO | None):
+    def __init__(self, desc: str | None, p: subprocess.Popen[bytes], logfile: TextIO | None):
         self.desc = desc
         self.buf = io.StringIO()
         self.cv = threading.Condition()
@@ -439,7 +441,7 @@ def splitCommand(command_line: str) -> list[str]:
     return arg_list
 
 
-processes: "dict[int, subprocess.Popen[bytes]]" = {}
+processes: dict[int, subprocess.Popen[bytes]] = {}
 
 
 def cleanup() -> None:
@@ -475,7 +477,7 @@ class Expect(object):
         self.desc = desc
         self.logfile = logfile
         self.timeout = timeout
-        self.p: "subprocess.Popen[bytes] | None" = None
+        self.p: subprocess.Popen[bytes] | None = None
         self.cwd = cwd
 
         if self.logfile:
@@ -551,7 +553,7 @@ class Expect(object):
         if not isinstance(pattern, list):
             pattern = [pattern]
 
-        def compile(s: str) -> "re.Pattern[str] | None":
+        def compile(s: str) -> re.Pattern[str] | None:
             if isinstance(s, str):
                 return re.compile(s, re.S)
             return None

@@ -1,5 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
 
 from typing import Any
 
@@ -17,11 +18,11 @@ class IceBridge(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
             **kargs,
         )
 
-    def getExe(self, current: "Driver.Current") -> str:
+    def getExe(self, current: Driver.Current) -> str:
         assert self.exe is not None
         return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
 
-    def getProps(self, current: "Driver.Current") -> Props:
+    def getProps(self, current: Driver.Current) -> Props:
         props = Server.getProps(self, current)
         props.update(
             {

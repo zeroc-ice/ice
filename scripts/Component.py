@@ -1,5 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import os
 import re
 
@@ -37,14 +39,14 @@ class Ice(Util.Component):
         "mx": [True],
     }
 
-    def getInstallDir(self, mapping: Util.Mapping, current: "Util.Driver.Current") -> str:
+    def getInstallDir(self, mapping: Util.Mapping, current: Util.Driver.Current) -> str:
         # On Windows, the Ice MSI installation can only be used for C++
         envHomeName = (
             None if isinstance(Util.platform, Util.Windows) and not isinstance(mapping, Util.CppMapping) else "ICE_HOME"
         )
         return Util.Component._getInstallDir(self, mapping, current, envHomeName)
 
-    def getPhpExtension(self, mapping: Util.Mapping, current: "Util.Driver.Current") -> str:
+    def getPhpExtension(self, mapping: Util.Mapping, current: Util.Driver.Current) -> str:
         if isinstance(Util.platform, Util.Windows):
             return (
                 "php_ice.dll"
@@ -67,7 +69,7 @@ class Ice(Util.Component):
                 "zeroc.ice.{0}.nuspec".format(Util.platform.getPlatformToolset()),
             )
 
-    def getFilters(self, mapping: Util.Mapping, config: "Util.Mapping.Config") -> tuple[list[str], list[str]]:
+    def getFilters(self, mapping: Util.Mapping, config: Util.Mapping.Config) -> tuple[list[str], list[str]]:
         if config.buildPlatform in ["iphoneos", "iphonesimulator"]:
             return (
                 ["Ice/.*", "IceSSL/configuration"],
@@ -123,7 +125,7 @@ class Ice(Util.Component):
             )
         return ([], [])
 
-    def canRun(self, testId: str, mapping: Util.Mapping, current: "Util.Driver.Current") -> bool:
+    def canRun(self, testId: str, mapping: Util.Mapping, current: Util.Driver.Current) -> bool:
         match = re.match(r"^([\w]*).*", testId)
         assert match is not None
         parent = match.group(1)
@@ -141,7 +143,7 @@ class Ice(Util.Component):
     def isMainThreadOnly(self, testId: str) -> bool:
         return False  # By default, tests support being run concurrently
 
-    def getDefaultProcesses(self, mapping: Util.Mapping, processType: str, testId: str) -> "list[Util.Process] | None":
+    def getDefaultProcesses(self, mapping: Util.Mapping, processType: str, testId: str) -> list[Util.Process] | None:
         if testId.startswith("IceUtil"):
             return [Util.SimpleClient()]
         elif testId.startswith("IceGrid"):
@@ -151,7 +153,7 @@ class Ice(Util.Component):
                 return [IceGridUtil.IceGridServer()]
         return None
 
-    def getOptions(self, testcase: Util.TestCase, current: "Util.Driver.Current") -> "Util.Options | None":
+    def getOptions(self, testcase: Util.TestCase, current: Util.Driver.Current) -> Util.Options | None:
         match = re.match(r"^([\w]*).*", testcase.getTestSuite().getId())
         assert match is not None
         parent = match.group(1)

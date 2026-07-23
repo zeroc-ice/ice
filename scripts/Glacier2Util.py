@@ -1,5 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import os
 import sys
 from collections.abc import Callable
@@ -46,11 +48,11 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
         self.portnum = portnum
         self.passwords = passwords
 
-    def getExe(self, current: "Driver.Current") -> str:
+    def getExe(self, current: Driver.Current) -> str:
         assert self.exe is not None
         return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
 
-    def setup(self, current: "Driver.Current") -> None:
+    def setup(self, current: Driver.Current) -> None:
         if self.passwords:
             path = os.path.join(current.testsuite.getPath(), "passwords")
             with open(path, "w") as file:
@@ -78,7 +80,7 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
                     file.write("%s %s\n" % (user, hashedPassword))
             current.files.append(path)
 
-    def getProps(self, current: "Driver.Current") -> Props:
+    def getProps(self, current: Driver.Current) -> Props:
         props = Server.getProps(self, current)
         props.update(
             {
@@ -96,7 +98,7 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
             props.update(testsuite.getRouterProps(self, current))
         return props
 
-    def getClientProxy(self, current: "Driver.Current") -> str:
+    def getClientProxy(self, current: Driver.Current) -> str:
         return "Glacier2/router:{0}".format(current.getTestEndpoint(self.portnum))
 
 
@@ -104,8 +106,8 @@ class Glacier2TestSuite(TestSuite):
     def __init__(
         self,
         path: str,
-        routerProps: "Props | Callable[[Process, Driver.Current], Props]" = {},
-        testcases: "list[TestCase] | None" = None,
+        routerProps: Props | Callable[[Process, Driver.Current], Props] = {},
+        testcases: list[TestCase] | None = None,
         *args: Any,
         **kargs: Any,
     ):
@@ -114,5 +116,5 @@ class Glacier2TestSuite(TestSuite):
         TestSuite.__init__(self, path, testcases, *args, **kargs)
         self.routerProps = routerProps
 
-    def getRouterProps(self, process: "Process", current: "Driver.Current") -> Props:
+    def getRouterProps(self, process: Process, current: Driver.Current) -> Props:
         return self.routerProps(process, current) if callable(self.routerProps) else self.routerProps.copy()

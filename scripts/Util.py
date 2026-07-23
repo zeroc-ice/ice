@@ -1,5 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import copy
 import getopt
 import itertools
@@ -14,7 +16,6 @@ import sys
 import threading
 import time
 import traceback
-import types
 import uuid
 import xml.sax.saxutils
 from collections import OrderedDict
@@ -22,7 +23,7 @@ from collections.abc import Callable, Iterable
 from io import StringIO
 from pathlib import Path
 from platform import machine as platform_machine
-from typing import IO, TYPE_CHECKING, Any, Protocol, TextIO, runtime_checkable
+from typing import IO, TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 import Expect
 
@@ -46,12 +47,12 @@ toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # The platform this script is running on. Assigned at the bottom of this module, once the Platform
 # specializations are defined.
-platform: "Platform"
+platform: Platform
 
 # The mapping and configuration currently loading test suites. Set by Mapping.loadTestSuites so that
 # the TestSuite instances created by the test.py scripts it runs pick them up.
-currentMapping: "Mapping | None" = None
-currentConfig: "Mapping.Config | None" = None
+currentMapping: Mapping | None = None
+currentConfig: Mapping.Config | None = None
 
 
 def run(
@@ -141,9 +142,9 @@ class Component(object):
     """
 
     def __init__(self):
-        self.nugetVersion: dict["Mapping", str] = {}
+        self.nugetVersion: dict[Mapping, str] = {}
 
-    def getInstallDir(self, mapping: "Mapping", current: "Driver.Current") -> str:
+    def getInstallDir(self, mapping: Mapping, current: Driver.Current) -> str:
         """
         Returns the component installation directory if using a binary distribution
         or the mapping directory if using a source distribution.
@@ -153,7 +154,7 @@ class Component(object):
     def getSourceDir(self) -> str:
         return toplevel
 
-    def getTestDir(self, mapping: "Mapping") -> str:
+    def getTestDir(self, mapping: Mapping) -> str:
         if isinstance(mapping, JavaMapping):
             return os.path.join(mapping.getPath(), "test", "src", "main", "java", "test")
         return os.path.join(mapping.getPath(), "test")
@@ -161,10 +162,10 @@ class Component(object):
     def getScriptDir(self) -> str:
         return os.path.join(self.getSourceDir(), "scripts", "tests")
 
-    def getPhpExtension(self, mapping: "Mapping", current: "Driver.Current") -> str:
+    def getPhpExtension(self, mapping: Mapping, current: Driver.Current) -> str:
         raise RuntimeError("must be overridden if component provides php mapping")
 
-    def getNugetPackage(self, mapping: "Mapping") -> str:
+    def getNugetPackage(self, mapping: Mapping) -> str:
         if isinstance(mapping, CSharpMapping):
             toolset = "net"
         else:
@@ -173,7 +174,7 @@ class Component(object):
             toolset = platform.getPlatformToolset()
         return "zeroc.{0}.{1}".format(self.__class__.__name__.lower(), toolset)
 
-    def getNugetPackageVersion(self, mapping: "Mapping") -> str:
+    def getNugetPackageVersion(self, mapping: Mapping) -> str:
         if mapping not in self.nugetVersion:
             file = self.getNugetPackageVersionFile(mapping)
             expr = None
@@ -190,46 +191,46 @@ class Component(object):
                 raise RuntimeError("couldn't figure out the nuget version from `{0}'".format(file))
         return self.nugetVersion[mapping]
 
-    def getNugetPackageVersionFile(self, mapping: "Mapping") -> str:
+    def getNugetPackageVersionFile(self, mapping: Mapping) -> str:
         raise RuntimeError("must be overridden if component provides C++ or C# nuget packages")
 
-    def getFilters(self, mapping: "Mapping", config: "Mapping.Config") -> tuple[list[str], list[str]]:
+    def getFilters(self, mapping: Mapping, config: Mapping.Config) -> tuple[list[str], list[str]]:
         return ([], [])
 
-    def canRun(self, testId: str, mapping: "Mapping", current: "Driver.Current") -> bool:
+    def canRun(self, testId: str, mapping: Mapping, current: Driver.Current) -> bool:
         return True
 
     def isMainThreadOnly(self, testId: str) -> bool:
         return True
 
-    def getDefaultProcesses(self, mapping: "Mapping", processType: str, testId: str) -> "list[Process] | None":
+    def getDefaultProcesses(self, mapping: Mapping, processType: str, testId: str) -> list[Process] | None:
         return None
 
-    def getDefaultExe(self, mapping: "Mapping", processType: str) -> str | None:
+    def getDefaultExe(self, mapping: Mapping, processType: str) -> str | None:
         return None
 
-    def getDefaultSource(self, mapping: "Mapping", processType: str) -> str | None:
+    def getDefaultSource(self, mapping: Mapping, processType: str) -> str | None:
         return None
 
-    def getOptions(self, testcase: "TestCase", current: "Driver.Current") -> Options | None:
+    def getOptions(self, testcase: TestCase, current: Driver.Current) -> Options | None:
         return None
 
     def getRunOrder(self) -> list[str]:
         return []
 
-    def getEnv(self, process: "Process", current: "Driver.Current") -> Envs:
+    def getEnv(self, process: Process, current: Driver.Current) -> Envs:
         return {}
 
-    def getProps(self, process: "Process", current: "Driver.Current") -> Props:
+    def getProps(self, process: Process, current: Driver.Current) -> Props:
         return {}
 
-    def overrideConfig(self, mapping: "Mapping", config: "Mapping.Config") -> "Mapping.Config":
+    def overrideConfig(self, mapping: Mapping, config: Mapping.Config) -> Mapping.Config:
         return config
 
     def isCross(self, testId: str) -> bool:
         return False
 
-    def getSliceDir(self, mapping: "Mapping", current: "Driver.Current") -> str:
+    def getSliceDir(self, mapping: Mapping, current: Driver.Current) -> str:
         installDir = self.getInstallDir(mapping, current)
         if installDir.endswith(mapping.name):
             installDir = installDir[0 : len(installDir) - len(mapping.name) - 1]
@@ -241,19 +242,19 @@ class Component(object):
         else:
             return os.path.join(installDir, "slice")
 
-    def getBinDir(self, process: "Process", mapping: "Mapping", current: "Driver.Current") -> str:
+    def getBinDir(self, process: Process, mapping: Mapping, current: Driver.Current) -> str:
         return platform._getBinDir(self, process, mapping, current)
 
-    def getLibDir(self, process: "Process", mapping: "Mapping", current: "Driver.Current") -> str:
+    def getLibDir(self, process: Process, mapping: Mapping, current: Driver.Current) -> str:
         return platform._getLibDir(self, process, mapping, current)
 
-    def getPhpIncludePath(self, mapping: "Mapping", current: "Driver.Current") -> str:
+    def getPhpIncludePath(self, mapping: Mapping, current: Driver.Current) -> str:
         return "{0}/{1}".format(
             self.getInstallDir(mapping, current),
             "lib",
         )
 
-    def _getInstallDir(self, mapping: "Mapping", current: "Driver.Current", envHomeName: str | None) -> str:
+    def _getInstallDir(self, mapping: Mapping, current: Driver.Current, envHomeName: str | None) -> str:
         if mapping:
             return mapping.getPath()
         else:
@@ -280,7 +281,7 @@ class Platform(object):
         self._hasNodeJS: bool | None = None
         self._hasSwift: bool | None = None
 
-    def init(self, component: "Component") -> None:
+    def init(self, component: Component) -> None:
         self.parseBuildVariables(
             component,
             {
@@ -314,7 +315,7 @@ class Platform(object):
         return self._hasSwift
 
     def parseBuildVariables(
-        self, component: "Component", variables: "dict[str, tuple[str, Callable[[str], Any] | None]]"
+        self, component: Component, variables: dict[str, tuple[str, Callable[[str], Any] | None]]
     ) -> None:
         # Run make to get the values of the given variables
         cwd = None
@@ -338,23 +339,19 @@ class Platform(object):
     def getDefaultBuildConfig(self) -> str:
         return self.supportedConfigs[0]
 
-    def _getBinDir(
-        self, component: "Component", process: "Process", mapping: "Mapping", current: "Driver.Current"
-    ) -> str:
+    def _getBinDir(self, component: Component, process: Process, mapping: Mapping, current: Driver.Current) -> str:
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
             return os.path.join(installDir, "bin", mapping.getTargetFramework(current))
         return os.path.join(installDir, "bin")
 
-    def _getLibDir(
-        self, component: "Component", process: "Process", mapping: "Mapping", current: "Driver.Current"
-    ) -> str:
+    def _getLibDir(self, component: Component, process: Process, mapping: Mapping, current: Driver.Current) -> str:
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
             return os.path.join(installDir, "lib", "net8.0")
         return os.path.join(installDir, "lib")
 
-    def getBuildSubDir(self, mapping: "Mapping", name: str, current: "Driver.Current") -> str:
+    def getBuildSubDir(self, mapping: Mapping, name: str, current: Driver.Current) -> str:
         # Return the build sub-directory, to be overridden by specializations
         buildPlatform = current.driver.configs[mapping].buildPlatform
         buildConfig = current.driver.configs[mapping].buildConfig
@@ -366,7 +363,7 @@ class Platform(object):
     def getInstallDir(self) -> str | None:
         return "/usr"
 
-    def getNugetPackageDir(self, component: "Component", mapping: "Mapping", current: "Driver.Current") -> str | None:
+    def getNugetPackageDir(self, component: Component, mapping: Mapping, current: Driver.Current) -> str | None:
         if not self.nugetPackageCache:
             return None
         return os.path.join(
@@ -402,7 +399,7 @@ class Linux(Platform):
         self.buildPlatform: str | None = None
         self.foreignPlatforms: list[str] = []
 
-    def init(self, component: "Component") -> None:
+    def init(self, component: Component) -> None:
         Platform.init(self, component)
         self.parseBuildVariables(
             component,
@@ -423,9 +420,7 @@ class Linux(Platform):
     def hasOpenSSL(self) -> bool:
         return True
 
-    def _getBinDir(
-        self, component: "Component", process: "Process", mapping: "Mapping", current: "Driver.Current"
-    ) -> str:
+    def _getBinDir(self, component: Component, process: Process, mapping: Mapping, current: Driver.Current) -> str:
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
             return Platform._getBinDir(self, component, process, mapping, current)
@@ -440,9 +435,7 @@ class Linux(Platform):
                 return binDir
         return os.path.join(installDir, "bin")
 
-    def _getLibDir(
-        self, component: "Component", process: "Process", mapping: "Mapping", current: "Driver.Current"
-    ) -> str:
+    def _getLibDir(self, component: Component, process: Process, mapping: Mapping, current: Driver.Current) -> str:
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
             return Platform._getLibDir(self, component, process, mapping, current)
@@ -459,7 +452,7 @@ class Linux(Platform):
             return os.path.join(installDir, "lib", self.multiArch[buildPlatform])
         return os.path.join(installDir, "lib")
 
-    def getBuildSubDir(self, mapping: "Mapping", name: str, current: "Driver.Current") -> str:
+    def getBuildSubDir(self, mapping: Mapping, name: str, current: Driver.Current) -> str:
         buildPlatform = current.driver.configs[mapping].buildPlatform
         buildConfig = current.driver.configs[mapping].buildConfig
         if self.linuxId in ["ubuntu", "debian"]:
@@ -477,7 +470,7 @@ class Windows(Platform):
         self.compiler: str | None = None
 
     def parseBuildVariables(
-        self, component: "Component", variables: "dict[str, tuple[str, Callable[[str], Any] | None]]"
+        self, component: Component, variables: dict[str, tuple[str, Callable[[str], Any] | None]]
     ) -> None:
         pass  # Nothing to do, we don't support the make build system on Windows
 
@@ -499,9 +492,7 @@ class Windows(Platform):
     def getPlatformToolset(self) -> str:
         return self.getCompiler().replace("VC", "v")
 
-    def _getBinDir(
-        self, component: "Component", process: "Process", mapping: "Mapping", current: "Driver.Current"
-    ) -> str:
+    def _getBinDir(self, component: Component, process: Process, mapping: Mapping, current: Driver.Current) -> str:
         installDir = component.getInstallDir(mapping, current)
         platform = current.driver.configs[mapping].buildPlatform
         config = "Debug" if current.driver.configs[mapping].buildConfig.find("Debug") >= 0 else "Release"
@@ -522,9 +513,7 @@ class Windows(Platform):
         else:
             return os.path.join(installDir, "bin", platform, config)
 
-    def _getLibDir(
-        self, component: "Component", process: "Process", mapping: "Mapping", current: "Driver.Current"
-    ) -> str:
+    def _getLibDir(self, component: Component, process: Process, mapping: Mapping, current: Driver.Current) -> str:
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
             return os.path.join(installDir, "lib/net8.0")
@@ -544,7 +533,7 @@ class Windows(Platform):
             else:
                 return os.path.join(installDir, "bin", platform, config)
 
-    def getBuildSubDir(self, mapping: "Mapping", name: str, current: "Driver.Current") -> str:
+    def getBuildSubDir(self, mapping: Mapping, name: str, current: Driver.Current) -> str:
         buildPlatform = current.driver.configs[mapping].buildPlatform
         buildConfig = current.driver.configs[mapping].buildConfig
         if os.path.exists(os.path.join(current.getTestCase().getPath(current), "msbuild", name)):
@@ -558,7 +547,7 @@ class Windows(Platform):
     def getInstallDir(self) -> str | None:
         return None  # No default installation directory on Windows
 
-    def getNugetPackageDir(self, component: "Component", mapping: "Mapping", current: "Driver.Current") -> str | None:
+    def getNugetPackageDir(self, component: Component, mapping: Mapping, current: Driver.Current) -> str | None:
         if isinstance(mapping, CSharpMapping) and current.config.dotnet:
             return Platform.getNugetPackageDir(self, component, mapping, current)
         else:
@@ -580,7 +569,7 @@ class Windows(Platform):
             return None
 
 
-def parseOptions(obj: Any, options: "list[Option]", mapped: dict[str, str] = {}) -> None:
+def parseOptions(obj: Any, options: list[Option], mapped: dict[str, str] = {}) -> None:
     # Transform configuration options provided on the command line to
     # object data members. The data members must be already set on the
     # object and with the correct type.
@@ -589,7 +578,7 @@ def parseOptions(obj: Any, options: "list[Option]", mapped: dict[str, str] = {})
     # driver instances and with the Driver class itself.
     if not hasattr(obj, "parsedOptions"):
         obj.parsedOptions = []
-    remaining: "list[Option]" = []
+    remaining: list[Option] = []
     for o, a in options:
         if o.startswith("--"):
             o = o[2:]
@@ -626,8 +615,8 @@ similar.
 
 
 class Mapping(object):
-    mappings: "OrderedDict[str, Mapping]" = OrderedDict()
-    disabled: "OrderedDict[str, Mapping]" = OrderedDict()
+    mappings: OrderedDict[str, Mapping] = OrderedDict()
+    disabled: OrderedDict[str, Mapping] = OrderedDict()
 
     class Config(object):
         @classmethod
@@ -667,7 +656,7 @@ class Mapping(object):
             print("--config=<config>     Build configuration for native executables.")
             print("--platform=<platform> Build platform for native executables.")
 
-        def __init__(self, options: "list[Option]" = []):
+        def __init__(self, options: list[Option] = []):
             # Build configuration
             self.parsedOptions: list[str] = []
             self.buildConfig = os.environ.get("CONFIGS", "").split(" ")[0]
@@ -729,11 +718,11 @@ class Mapping(object):
                     s.append(o if isinstance(v, bool) else str(v))
             return ",".join(s)
 
-        def getAll(self, current: "Driver.Current", testcase: "TestCase", rand: bool = False) -> "list[Mapping.Config]":
+        def getAll(self, current: Driver.Current, testcase: TestCase, rand: bool = False) -> list[Mapping.Config]:
             #
             # A generator to generate combinations of options (e.g.: tcp/compress/mx, ssl/ipv6/serialize, etc)
             #
-            def gen(options: Options | None) -> "Iterable[Mapping.Config]":
+            def gen(options: Options | None) -> Iterable[Mapping.Config]:
                 if not options:
                     yield self
                     return
@@ -771,7 +760,7 @@ class Mapping(object):
                 # Now, for the length of the longest array of values, we return
                 # an array with the supported option combinations
                 for _ in range(0, length):
-                    combination: "list[Option]" = []
+                    combination: list[Option] = []
                     for k, cycle in cycles.items():
                         v = next(cycle)
                         if v:
@@ -810,7 +799,7 @@ class Mapping(object):
                     # Server has a restriction that client doesn't - add it
                     options[k] = v
 
-        def getMergedOptions(self, current: "Driver.Current") -> Options:
+        def getMergedOptions(self, current: Driver.Current) -> Options:
             """
             Get test options merged from the testcase, testsuite, and mapping. When running cross
             tests, options from both client and server mappings are intersected to ensure only
@@ -829,7 +818,7 @@ class Mapping(object):
             options.update(current.getTestCase().getOptions(current))
             return options
 
-        def canRun(self, testId: str, current: "Driver.Current") -> bool:
+        def canRun(self, testId: str, current: Driver.Current) -> bool:
             if not current.driver.getComponent().canRun(testId, current.getTestCase().getMapping(), current):
                 return False
 
@@ -845,7 +834,7 @@ class Mapping(object):
             else:
                 return True
 
-        def cloneRunnable(self, current: "Driver.Current") -> "Mapping.Config":
+        def cloneRunnable(self, current: Driver.Current) -> Mapping.Config:
             #
             # Clone this configuration and make sure all the options are supported
             #
@@ -857,7 +846,7 @@ class Mapping(object):
                     setattr(clone, o, options[o][0] if len(options[o]) > 0 else None)
             return clone
 
-        def cloneAndOverrideWith(self, current: "Driver.Current") -> "Mapping.Config":
+        def cloneAndOverrideWith(self, current: Driver.Current) -> Mapping.Config:
             #
             # Clone this configuration and override options with options from the given configuration
             # (the parent configuration). This is useful when running cross-testing. For example, JS
@@ -871,10 +860,10 @@ class Mapping(object):
             clone.parsedOptions = current.config.parsedOptions
             return clone
 
-        def getArgs(self, process: "Process", current: "Driver.Current") -> Args:
+        def getArgs(self, process: Process, current: Driver.Current) -> Args:
             return []
 
-        def getProps(self, process: "Process", current: "Driver.Current") -> Props:
+        def getProps(self, process: Process, current: Driver.Current) -> Props:
             props: Props = {}
             if isinstance(process, IceProcess):
                 props["Ice.Warn.Connections"] = True
@@ -914,13 +903,13 @@ class Mapping(object):
             return props
 
     @classmethod
-    def getByName(self, name: str) -> "Mapping":
+    def getByName(self, name: str) -> Mapping:
         if name not in self.mappings:
             raise RuntimeError("unknown mapping: `{0}', known mappings: `{1}'".format(name, list(self.mappings)))
         return self.mappings[name]
 
     @classmethod
-    def getByPath(self, path: str) -> "Mapping | None":
+    def getByPath(self, path: str) -> Mapping | None:
         path = os.path.normpath(path)
         for m in self.mappings.values():
             if path.startswith(os.path.normpath(m.getTestDir())):
@@ -928,9 +917,9 @@ class Mapping(object):
         return None
 
     @classmethod
-    def getAllByPath(self, path: str) -> "list[Mapping]":
+    def getAllByPath(self, path: str) -> list[Mapping]:
         path = os.path.abspath(path)
-        mappings: "list[Mapping]" = []
+        mappings: list[Mapping] = []
         for m in self.mappings.values():
             if path.startswith(m.getPath() + os.sep):
                 mappings.append(m)
@@ -940,8 +929,8 @@ class Mapping(object):
     def add(
         self,
         name: str,
-        mapping: "Mapping",
-        component: "Component",
+        mapping: Mapping,
+        component: Component,
         path: str | None = None,
         enable: bool = True,
     ) -> None:
@@ -964,7 +953,7 @@ class Mapping(object):
         del self.mappings[name]
 
     @classmethod
-    def getAll(self, driver: "Driver | None" = None, includeDisabled: bool = False) -> "list[Mapping]":
+    def getAll(self, driver: Driver | None = None, includeDisabled: bool = False) -> list[Mapping]:
         return [m for m in self.mappings.values() if not driver or driver.matchLanguage(str(m))] + (
             [m for m in self.disabled.values() if not driver or driver.matchLanguage(str(m))] if includeDisabled else []
         )
@@ -973,10 +962,10 @@ class Mapping(object):
         self.name = ""
         # Empty until init() computes it from the component source directory.
         self.path = os.path.abspath(path) if path else ""
-        self.component: "Component"
-        self.testsuites: "dict[str, TestSuite]" = {}
+        self.component: Component
+        self.testsuites: dict[str, TestSuite] = {}
 
-    def init(self, name: str, component: "Component", path: str | None = None) -> "Mapping":
+    def init(self, name: str, component: Component, path: str | None = None) -> Mapping:
         self.name = name
         self.component = component
         if not self.path:
@@ -989,16 +978,16 @@ class Mapping(object):
     def getTestDir(self) -> str:
         return self.component.getTestDir(self)
 
-    def createConfig(self, options: "list[Option]") -> "Mapping.Config":
+    def createConfig(self, options: list[Option]) -> Mapping.Config:
         config = self.Config(options)
         return self.component.overrideConfig(self, config)
 
     def filterTestSuite(
         self,
         testId: str,
-        config: "Mapping.Config",
-        filters: "list[re.Pattern[str]]" = [],
-        rfilters: "list[re.Pattern[str]]" = [],
+        config: Mapping.Config,
+        filters: list[re.Pattern[str]] = [],
+        rfilters: list[re.Pattern[str]] = [],
     ) -> bool:
         if len(filters) > 0:
             for f in filters:
@@ -1017,9 +1006,9 @@ class Mapping(object):
     def loadTestSuites(
         self,
         tests: list[str] | None,
-        config: "Mapping.Config",
-        filters: "list[re.Pattern[str]]" = [],
-        rfilters: "list[re.Pattern[str]]" = [],
+        config: Mapping.Config,
+        filters: list[re.Pattern[str]] = [],
+        rfilters: list[re.Pattern[str]] = [],
     ) -> None:
         global currentMapping
         currentMapping = self
@@ -1077,23 +1066,23 @@ class Mapping(object):
             currentMapping = None
             sys.path = origsyspath
 
-    def getTestSuites(self, ids: list[str] = []) -> "list[TestSuite]":
+    def getTestSuites(self, ids: list[str] = []) -> list[TestSuite]:
         if not ids:
             return list(self.testsuites.values())
         return [self.testsuites[testSuiteId] for testSuiteId in ids if testSuiteId in self.testsuites]
 
-    def addTestSuite(self, testsuite: "TestSuite") -> str:
+    def addTestSuite(self, testsuite: TestSuite) -> str:
         assert len(testsuite.path) > len(self.getTestDir()) + 1
         testSuiteId = testsuite.path[len(self.getTestDir()) + 1 :].replace("\\", "/")
         self.testsuites[testSuiteId] = testsuite
         return testSuiteId
 
-    def findTestSuite(self, testsuite: "TestSuite | str") -> "TestSuite | None":
+    def findTestSuite(self, testsuite: TestSuite | str) -> TestSuite | None:
         return self.testsuites.get(testsuite if isinstance(testsuite, str) else testsuite.id)
 
-    def computeTestCases(self, testId: str, files: list[str]) -> "list[TestCase] | None":
+    def computeTestCases(self, testId: str, files: list[str]) -> list[TestCase] | None:
         # Instantiate a new test suite if the directory contains well-known source files.
-        def checkFile(f: str, m: "Mapping") -> bool:
+        def checkFile(f: str, m: Mapping) -> bool:
             try:
                 # If given mapping is same as local mapping, just check the files set, otherwise check
                 # with the mapping
@@ -1108,7 +1097,7 @@ class Mapping(object):
         def checkServer(f: str) -> bool:
             return checkFile(f, self.getServerMapping(testId))
 
-        testcases: "list[TestCase]" = []
+        testcases: list[TestCase] = []
         if checkClient("client") and checkServer("server"):
             testcases.append(ClientServerTestCase())
         if checkClient("client") and checkServer("serveramd") and self.getServerMapping(testId) == self:
@@ -1136,7 +1125,7 @@ class Mapping(object):
     def getPath(self) -> str:
         return self.path
 
-    def getTestCwd(self, process: "Process", current: "Driver.Current") -> str:
+    def getTestCwd(self, process: Process, current: Driver.Current) -> str:
         return current.getTestCase().getPath(current)
 
     def getDefaultSource(self, processType: str) -> str:
@@ -1145,7 +1134,7 @@ class Mapping(object):
             return default
         return self._getDefaultSource(processType)
 
-    def getDefaultProcesses(self, processType: str, testsuite: "TestSuite") -> "list[Process]":
+    def getDefaultProcesses(self, processType: str, testsuite: TestSuite) -> list[Process]:
         default = self.component.getDefaultProcesses(self, processType, testsuite.getId())
         if default:
             return default
@@ -1160,7 +1149,7 @@ class Mapping(object):
     def _getDefaultSource(self, processType: str) -> str:
         return processType
 
-    def _getDefaultProcesses(self, processType: str) -> "list[Process]":
+    def _getDefaultProcesses(self, processType: str) -> list[Process]:
         #
         # If no server or client is explicitly set with a testcase, getDefaultProcess is called
         # to figure out which process class to instantiate.
@@ -1173,18 +1162,18 @@ class Mapping(object):
     def _getDefaultExe(self, processType: str) -> str:
         return os.path.splitext(self.getDefaultSource(processType))[0]
 
-    def getClientMapping(self, testId: str | None = None) -> "Mapping":
+    def getClientMapping(self, testId: str | None = None) -> Mapping:
         # The client mapping is always the same as this mapping.
         return self
 
-    def getServerMapping(self, testId: str | None = None) -> "Mapping":
+    def getServerMapping(self, testId: str | None = None) -> Mapping:
         # Can be overridden for client-only mapping that relies on another mapping for servers
         return self
 
-    def getBuildDir(self, name: str, current: "Driver.Current") -> str:
+    def getBuildDir(self, name: str, current: Driver.Current) -> str:
         return platform.getBuildSubDir(self, name, current)
 
-    def getCommandLine(self, current: "Driver.Current", process: "Process", exe: str, args: str) -> str:
+    def getCommandLine(self, current: Driver.Current, process: Process, exe: str, args: str) -> str:
         cmd = ""
         if process.isFromBinDir():
             # If it's a process from the bin directory, the location is platform specific
@@ -1201,7 +1190,7 @@ class Mapping(object):
 
         return cmd + " " + args if args else cmd
 
-    def getProps(self, process: "Process", current: "Driver.Current") -> Props:
+    def getProps(self, process: Process, current: Driver.Current) -> Props:
         props: Props = {}
         if isinstance(process, IceProcess):
             if current.config.protocol in ["bt", "bts"]:
@@ -1210,10 +1199,10 @@ class Mapping(object):
                 props.update(self.getSSLProps(process, current))
         return props
 
-    def getPluginEntryPoint(self, plugin: str, process: "Process", current: "Driver.Current") -> str:
+    def getPluginEntryPoint(self, plugin: str, process: Process, current: Driver.Current) -> str:
         raise RuntimeError("must be overridden if the mapping supports Ice plug-ins")
 
-    def getSSLProps(self, process: "Process", current: "Driver.Current") -> Props:
+    def getSSLProps(self, process: Process, current: Driver.Current) -> Props:
         sslProps: Props = {
             "IceSSL.Password": "password",
             "IceSSL.DefaultDir": ""
@@ -1230,13 +1219,13 @@ class Mapping(object):
 
         return sslProps
 
-    def getArgs(self, process: "Process", current: "Driver.Current") -> Args:
+    def getArgs(self, process: Process, current: Driver.Current) -> Args:
         return []
 
-    def getEnv(self, process: "Process", current: "Driver.Current") -> Envs:
+    def getEnv(self, process: Process, current: Driver.Current) -> Envs:
         return {}
 
-    def getOptions(self, current: "Driver.Current") -> Options:
+    def getOptions(self, current: Driver.Current) -> Options:
         return {}
 
 
@@ -1249,15 +1238,15 @@ class Runnable(object):
     def __init__(self, desc: str | None = None):
         self.desc = desc
 
-    def setup(self, current: "Driver.Current") -> None:
+    def setup(self, current: Driver.Current) -> None:
         # Only called when ran from testcase
         pass
 
-    def teardown(self, current: "Driver.Current", success: bool) -> None:
+    def teardown(self, current: Driver.Current, success: bool) -> None:
         # Only called when ran from testcase
         pass
 
-    def run(self, current: "Driver.Current") -> None:
+    def run(self, current: Driver.Current) -> None:
         pass
 
 
@@ -1270,7 +1259,7 @@ class RunningProcess(Protocol):
 
     def getOutput(self) -> str: ...
 
-    def trace(self, outfilters: "list[Expect.TraceFilter] | None", /) -> None: ...
+    def trace(self, outfilters: list[Expect.TraceFilter] | None, /) -> None: ...
 
     def waitReady(self, ready: str | None, readyCount: int, startTimeout: float, /) -> None: ...
 
@@ -1280,7 +1269,7 @@ class RunningProcess(Protocol):
 
     def terminate(self) -> None: ...
 
-    def teardown(self, current: "Driver.Current", success: bool) -> None: ...
+    def teardown(self, current: Driver.Current, success: bool) -> None: ...
 
 
 #
@@ -1294,19 +1283,19 @@ class Process(Runnable):
     def __init__(
         self,
         exe: str | None = None,
-        outfilters: "list[Expect.TraceFilter] | None" = None,
+        outfilters: list[Expect.TraceFilter] | None = None,
         quiet: bool = False,
-        args: "Args | Callable[[Process, Driver.Current], Args] | None" = None,
-        props: "Props | Callable[[Process, Driver.Current], Props] | None" = None,
-        envs: "Envs | Callable[[Process, Driver.Current], Envs] | None" = None,
+        args: Args | Callable[[Process, Driver.Current], Args] | None = None,
+        props: Props | Callable[[Process, Driver.Current], Props] | None = None,
+        envs: Envs | Callable[[Process, Driver.Current], Envs] | None = None,
         desc: str | None = None,
-        mapping: "Mapping | None" = None,
-        preexec_fn: "Callable[[], object] | None" = None,
-        traceProps: "Props | Callable[[Process, Driver.Current], Props] | None" = None,
+        mapping: Mapping | None = None,
+        preexec_fn: Callable[[], object] | None = None,
+        traceProps: Props | Callable[[Process, Driver.Current], Props] | None = None,
     ):
         Runnable.__init__(self, desc)
         self.exe = exe
-        self.outfilters: "list[Expect.TraceFilter]" = outfilters or []
+        self.outfilters: list[Expect.TraceFilter] = outfilters or []
         self.quiet = quiet
         self.args = args or []
         self.props = props or {}
@@ -1320,7 +1309,7 @@ class Process(Runnable):
             return str(self.__class__)
         return self.exe + (" ({0})".format(self.desc) if self.desc else "")
 
-    def getOutput(self, current: "Driver.Current", encoding: str = "utf-8") -> str:
+    def getOutput(self, current: Driver.Current, encoding: str = "utf-8") -> str:
         assert self in current.processes
 
         def d(s: str | bytes) -> str:
@@ -1358,7 +1347,7 @@ class Process(Runnable):
 
     def run(
         self,
-        current: "Driver.Current",
+        current: Driver.Current,
         args: Args = [],
         props: Props = {},
         exitstatus: int = 0,
@@ -1420,7 +1409,7 @@ class Process(Runnable):
         finally:
             self.stop(current, True, exitstatus)
 
-    def getEffectiveArgs(self, current: "Driver.Current", args: Args) -> list[str]:
+    def getEffectiveArgs(self, current: Driver.Current, args: Args) -> list[str]:
         allArgs: Args = []
         allArgs += current.driver.getArgs(self, current)
         allArgs += current.config.getArgs(self, current)
@@ -1431,7 +1420,7 @@ class Process(Runnable):
         allArgs += args
         return [str(a) for a in allArgs]
 
-    def getEffectiveProps(self, current: "Driver.Current", props: Props) -> Props:
+    def getEffectiveProps(self, current: Driver.Current, props: Props) -> Props:
         allProps: Props = {}
         allProps.update(current.driver.getProps(self, current))
         allProps.update(current.driver.getComponent().getProps(self, current))
@@ -1443,7 +1432,7 @@ class Process(Runnable):
         allProps.update(props)
         return allProps
 
-    def getEffectiveEnv(self, current: "Driver.Current") -> Envs:
+    def getEffectiveEnv(self, current: Driver.Current) -> Envs:
         def merge(envs: Envs, newEnvs: Envs) -> None:
             if platform.getLdPathEnvName() in newEnvs and platform.getLdPathEnvName() in envs:
                 newEnvs[platform.getLdPathEnvName()] += os.pathsep + envs[platform.getLdPathEnvName()]
@@ -1457,7 +1446,7 @@ class Process(Runnable):
         merge(allEnvs, self.envs(self, current) if callable(self.envs) else self.envs)
         return allEnvs
 
-    def getEffectiveTraceProps(self, current: "Driver.Current") -> Props:
+    def getEffectiveTraceProps(self, current: Driver.Current) -> Props:
         traceProps: Props = {}
         traceProps.update(current.getTestCase().getTraceProps(self, current))
         traceProps.update(self.traceProps(self, current) if callable(self.traceProps) else self.traceProps)
@@ -1465,10 +1454,10 @@ class Process(Runnable):
 
     def start(
         self,
-        current: "Driver.Current",
+        current: Driver.Current,
         args: Args = [],
         props: Props = {},
-        watchDog: "Expect.WatchDog | None" = None,
+        watchDog: Expect.WatchDog | None = None,
     ) -> None:
         allArgs = self.getEffectiveArgs(current, args)
         allProps = self.getEffectiveProps(current, props)
@@ -1483,11 +1472,11 @@ class Process(Runnable):
             self.stop(current)
             raise
 
-    def waitForStart(self, current: "Driver.Current") -> None:
+    def waitForStart(self, current: Driver.Current) -> None:
         # To be overridden in specialization to wait for a token indicating the process readiness.
         pass
 
-    def stop(self, current: "Driver.Current", waitSuccess: bool = False, exitstatus: int = 0) -> None:
+    def stop(self, current: Driver.Current, waitSuccess: bool = False, exitstatus: int = 0) -> None:
         if self in current.processes:
             process = current.processes[self]
             try:
@@ -1521,31 +1510,31 @@ class Process(Runnable):
                 if not self.quiet:  # Write the output to the test case (but not on stdout)
                     current.write(self.getOutput(current), stdout=False)
 
-    def teardown(self, current: "Driver.Current", success: bool) -> None:
+    def teardown(self, current: Driver.Current, success: bool) -> None:
         if self in current.processes:
             current.processes[self].teardown(current, success)
 
-    def expect(self, current: "Driver.Current", pattern: str | list[str], timeout: float | None = 60) -> int:
+    def expect(self, current: Driver.Current, pattern: str | list[str], timeout: float | None = 60) -> int:
         process = current.processes[self]
         assert isinstance(process, Expect.Expect)
         return process.expect(pattern, timeout)
 
-    def expectall(self, current: "Driver.Current", pattern: list[str], timeout: float | None = 60) -> None:
+    def expectall(self, current: Driver.Current, pattern: list[str], timeout: float | None = 60) -> None:
         process = current.processes[self]
         assert isinstance(process, Expect.Expect)
         return process.expectall(pattern, timeout)
 
-    def sendline(self, current: "Driver.Current", data: str) -> None:
+    def sendline(self, current: Driver.Current, data: str) -> None:
         process = current.processes[self]
         assert isinstance(process, Expect.Expect)
         return process.sendline(data)
 
-    def getMatch(self, current: "Driver.Current") -> "re.Match[str] | None":
+    def getMatch(self, current: Driver.Current) -> re.Match[str] | None:
         process = current.processes[self]
         assert isinstance(process, Expect.Expect)
         return process.match
 
-    def isStarted(self, current: "Driver.Current") -> bool:
+    def isStarted(self, current: Driver.Current) -> bool:
         return self in current.processes and not current.processes[self].isTerminated()
 
     def isFromBinDir(self) -> bool:
@@ -1554,26 +1543,26 @@ class Process(Runnable):
     def isReleaseOnly(self) -> bool:
         return False
 
-    def getArgs(self, current: "Driver.Current") -> Args:
+    def getArgs(self, current: Driver.Current) -> Args:
         return []
 
-    def getProps(self, current: "Driver.Current") -> Props:
+    def getProps(self, current: Driver.Current) -> Props:
         return {}
 
-    def getEnv(self, current: "Driver.Current") -> Envs:
+    def getEnv(self, current: Driver.Current) -> Envs:
         return {}
 
-    def getMapping(self, current: "Driver.Current") -> "Mapping":
+    def getMapping(self, current: Driver.Current) -> Mapping:
         if self.mapping:
             return self.mapping
         return current.getTestCase().getMapping()
 
-    def getProcessType(self, current: "Driver.Current") -> str | None:
+    def getProcessType(self, current: Driver.Current) -> str | None:
         if self.processType:
             return self.processType
         return current.getTestCase().getProcessType(self)
 
-    def getExe(self, current: "Driver.Current") -> str:
+    def getExe(self, current: Driver.Current) -> str:
         # Only look up the process type when the executable isn't set: a test case that doesn't
         # define a client or server type has none to give.
         if self.exe:
@@ -1582,7 +1571,7 @@ class Process(Runnable):
         assert processType is not None
         return self.getMapping(current).getDefaultExe(processType)
 
-    def getCommandLine(self, current: "Driver.Current", args: str = "") -> str:
+    def getCommandLine(self, current: Driver.Current, args: str = "") -> str:
         return self.getMapping(current).getCommandLine(current, self, self.getExe(current), args).strip()
 
 
@@ -1630,7 +1619,7 @@ class Server(IceProcess):
         self.ready = ready
         self.startTimeout = startTimeout
 
-    def getProps(self, current: "Driver.Current") -> Props:
+    def getProps(self, current: Driver.Current) -> Props:
         props = IceProcess.getProps(self, current)
 
         mapping = self.getMapping(current)
@@ -1653,7 +1642,7 @@ class Server(IceProcess):
         )
         return props
 
-    def waitForStart(self, current: "Driver.Current") -> None:
+    def waitForStart(self, current: Driver.Current) -> None:
         # Wait for the process to be ready
         current.processes[self].waitReady(
             self.ready,
@@ -1668,7 +1657,7 @@ class Server(IceProcess):
         if not self.quiet and not current.driver.isWorkerThread():
             current.processes[self].trace(self.outfilters)
 
-    def stop(self, current: "Driver.Current", waitSuccess: bool = False, exitstatus: int = 0) -> None:
+    def stop(self, current: Driver.Current, waitSuccess: bool = False, exitstatus: int = 0) -> None:
         IceProcess.stop(self, current, waitSuccess and self.waitForShutdown, exitstatus)
 
 
@@ -1711,7 +1700,7 @@ class SliceTranslator(ProcessFromBinDir, ProcessIsReleaseOnly, SimpleClient):
     def __init__(self, translator: str, quiet: bool = False):
         SimpleClient.__init__(self, exe=translator, quiet=quiet, mapping=Mapping.getByName("cpp"))
 
-    def getCommandLine(self, current: "Driver.Current", args: str = "") -> str:
+    def getCommandLine(self, current: Driver.Current, args: str = "") -> str:
         #
         # Look for slice2py installed by pip if not found in the bin directory
         #
@@ -1736,7 +1725,7 @@ class EchoServer(Server):
     def __init__(self):
         Server.__init__(self, mapping=Mapping.getByName("cpp"), quiet=True, waitForShutdown=False)
 
-    def getProps(self, current: "Driver.Current") -> Props:
+    def getProps(self, current: Driver.Current) -> Props:
         props = Server.getProps(self, current)
         props["Ice.MessageSizeMax"] = 8192  # Don't limit the amount of data to transmit between client/server
         # Set the program name to avoid conflicts with the log files. Without this both the JavaScript
@@ -1744,7 +1733,7 @@ class EchoServer(Server):
         props["Ice.ProgramName"] = "EchoServer"
         return props
 
-    def getCommandLine(self, current: "Driver.Current", args: str = "") -> str:
+    def getCommandLine(self, current: Driver.Current, args: str = "") -> str:
         assert self.mapping is not None
         testsuite = self.mapping.findTestSuite("Ice/echo")
         assert testsuite is not None
@@ -1772,23 +1761,23 @@ class TestCase(Runnable):
     def __init__(
         self,
         name: str,
-        client: "Process | str | None" = None,
-        clients: "list[Runnable] | None" = None,
-        server: "Process | str | None" = None,
-        servers: "list[Process] | None" = None,
+        client: Process | str | None = None,
+        clients: list[Runnable] | None = None,
+        server: Process | str | None = None,
+        servers: list[Process] | None = None,
         args: Args | None = None,
         props: Props | None = None,
         envs: Envs | None = None,
-        options: "Options | Callable[[Driver.Current], Options] | None" = None,
+        options: Options | Callable[[Driver.Current], Options] | None = None,
         desc: str | None = None,
         traceProps: Props | None = None,
     ):
         Runnable.__init__(self, desc)
 
         self.name = name
-        self.parent: "TestCase | None" = None
-        self.mapping: "Mapping | None" = None
-        self.testsuite: "TestSuite | None" = None
+        self.parent: TestCase | None = None
+        self.mapping: Mapping | None = None
+        self.testsuite: TestSuite | None = None
         self.options = options or {}
         self.args = args or []
         self.props = props or {}
@@ -1799,7 +1788,7 @@ class TestCase(Runnable):
         # Setup client list, "client" can be a string in which case it's assumed to
         # to the client executable name.
         #
-        self.clients: "list[Runnable] | None" = clients
+        self.clients: list[Runnable] | None = clients
         if client:
             client = Client(exe=client) if isinstance(client, str) else client
             self.clients = [client] if not self.clients else self.clients + [client]
@@ -1808,7 +1797,7 @@ class TestCase(Runnable):
         # Setup server list, "server" can be a string in which case it's assumed to
         # to the server executable name.
         #
-        self.servers: "list[Process] | None" = servers
+        self.servers: list[Process] | None = servers
         if server:
             server = Server(exe=server) if isinstance(server, str) else server
             self.servers = [server] if not self.servers else self.servers + [server]
@@ -1816,7 +1805,7 @@ class TestCase(Runnable):
     def __str__(self) -> str:
         return self.name
 
-    def init(self, mapping: "Mapping", testsuite: "TestSuite") -> None:
+    def init(self, mapping: Mapping, testsuite: TestSuite) -> None:
         # init is called when the testcase is added to the given testsuite
         self.mapping = mapping
         self.testsuite = testsuite
@@ -1844,85 +1833,85 @@ class TestCase(Runnable):
             else:
                 self.servers = []
 
-    def getOptions(self, current: "Driver.Current") -> Options:
+    def getOptions(self, current: Driver.Current) -> Options:
         return self.options(current) if callable(self.options) else self.options
 
-    def canRun(self, current: "Driver.Current") -> bool:
+    def canRun(self, current: Driver.Current) -> bool:
         # Can be overridden
         return True
 
-    def setupServerSide(self, current: "Driver.Current") -> None:
+    def setupServerSide(self, current: Driver.Current) -> None:
         # Can be overridden to perform setup activities before the server side is started
         pass
 
-    def teardownServerSide(self, current: "Driver.Current", success: bool) -> None:
+    def teardownServerSide(self, current: Driver.Current, success: bool) -> None:
         # Can be overridden to perform teardown after the server side is stopped
         pass
 
-    def setupClientSide(self, current: "Driver.Current") -> None:
+    def setupClientSide(self, current: Driver.Current) -> None:
         # Can be overridden to perform setup activities before the client side is started
         pass
 
-    def teardownClientSide(self, current: "Driver.Current", success: bool) -> None:
+    def teardownClientSide(self, current: Driver.Current, success: bool) -> None:
         # Can be overridden to perform teardown after the client side is stopped
         pass
 
-    def startServerSide(self, current: "Driver.Current") -> None:
+    def startServerSide(self, current: Driver.Current) -> None:
         for server in self.getServers():
             self._startServer(current, server)
 
-    def stopServerSide(self, current: "Driver.Current", success: bool) -> None:
+    def stopServerSide(self, current: Driver.Current, success: bool) -> None:
         for server in reversed(self.getServers()):
             self._stopServer(current, server, success)
 
-    def runClientSide(self, current: "Driver.Current") -> None:
+    def runClientSide(self, current: Driver.Current) -> None:
         for client in self.getClients():
             self._runClient(current, client)
 
-    def getClients(self) -> "list[Runnable]":
+    def getClients(self) -> list[Runnable]:
         # The clients are set by init(), which is called when the test case is added to a test suite.
         assert self.clients is not None
         return self.clients
 
-    def getServers(self) -> "list[Process]":
+    def getServers(self) -> list[Process]:
         # The servers are set by init(), which is called when the test case is added to a test suite.
         assert self.servers is not None
         return self.servers
 
-    def getTestSuite(self) -> "TestSuite":
+    def getTestSuite(self) -> TestSuite:
         assert self.testsuite is not None
         return self.testsuite
 
-    def getParent(self) -> "TestCase | None":
+    def getParent(self) -> TestCase | None:
         return self.parent
 
     def getName(self) -> str:
         return self.name
 
-    def getPath(self, current: "Driver.Current") -> str:
+    def getPath(self, current: Driver.Current) -> str:
         path = self.getTestSuite().getPath()
         if current.config.pathOverride:
             return path.replace(toplevel, current.config.pathOverride)
         else:
             return path
 
-    def getMapping(self) -> "Mapping":
+    def getMapping(self) -> Mapping:
         assert self.mapping is not None
         return self.mapping
 
-    def getArgs(self, process: "Process", current: "Driver.Current") -> Args:
+    def getArgs(self, process: Process, current: Driver.Current) -> Args:
         return self.args
 
-    def getProps(self, process: "Process", current: "Driver.Current") -> Props:
+    def getProps(self, process: Process, current: Driver.Current) -> Props:
         return self.props
 
-    def getTraceProps(self, process: "Process", current: "Driver.Current") -> Props:
+    def getTraceProps(self, process: Process, current: Driver.Current) -> Props:
         return self.traceProps
 
-    def getEnv(self, process: "Process", current: "Driver.Current") -> Envs:
+    def getEnv(self, process: Process, current: Driver.Current) -> Envs:
         return self.envs
 
-    def getProcessType(self, process: "Process") -> str | None:
+    def getProcessType(self, process: Process) -> str | None:
         if process in self.getClients():
             return self.getClientType()
         elif process in self.getServers():
@@ -1942,16 +1931,16 @@ class TestCase(Runnable):
         # if no server is explicitly provided
         return None
 
-    def getServerTestCase(self, cross: "Mapping | str | None" = None) -> "TestCase | None":
+    def getServerTestCase(self, cross: Mapping | str | None = None) -> TestCase | None:
         mapping = cross if isinstance(cross, Mapping) else self.getMapping()
         testsuite = mapping.getServerMapping(self.getTestSuite().getId()).findTestSuite(self.getTestSuite())
         return testsuite.findTestCase(self) if testsuite else None
 
-    def getClientTestCase(self) -> "TestCase | None":
+    def getClientTestCase(self) -> TestCase | None:
         testsuite = self.getMapping().getClientMapping(self.getTestSuite().getId()).findTestSuite(self.getTestSuite())
         return testsuite.findTestCase(self) if testsuite else None
 
-    def _startServerSide(self, current: "Driver.Current") -> str | None:
+    def _startServerSide(self, current: Driver.Current) -> str | None:
         # Set the host to use for the server side
         current.push(self)
         current.host = current.driver.getProcessController(current).getHost(current)
@@ -1965,7 +1954,7 @@ class TestCase(Runnable):
         finally:
             current.pop()
 
-    def _stopServerSide(self, current: "Driver.Current", success: bool) -> None:
+    def _stopServerSide(self, current: Driver.Current, success: bool) -> None:
         current.push(self)
         try:
             self.stopServerSide(current, success)
@@ -1976,7 +1965,7 @@ class TestCase(Runnable):
             self.teardownServerSide(current, success)
             current.pop()
 
-    def _startServer(self, current: "Driver.Current", server: "Process") -> None:
+    def _startServer(self, current: Driver.Current, server: Process) -> None:
         if server.desc:
             current.write("starting {0}... ".format(server.desc))
         server.setup(current)
@@ -1984,7 +1973,7 @@ class TestCase(Runnable):
         if server.desc:
             current.writeln("ok")
 
-    def _stopServer(self, current: "Driver.Current", server: "Process", success: bool) -> None:
+    def _stopServer(self, current: Driver.Current, server: Process, success: bool) -> None:
         try:
             server.stop(current, success)
         except Exception:
@@ -1993,7 +1982,7 @@ class TestCase(Runnable):
         finally:
             server.teardown(current, success)
 
-    def _runClientSide(self, current: "Driver.Current", host: str | None = None) -> None:
+    def _runClientSide(self, current: Driver.Current, host: str | None = None) -> None:
         current.push(self, host)
         self.setupClientSide(current)
         success = False
@@ -2004,7 +1993,7 @@ class TestCase(Runnable):
             self.teardownClientSide(current, success)
             current.pop()
 
-    def _runClient(self, current: "Driver.Current", client: "Runnable") -> None:
+    def _runClient(self, current: Driver.Current, client: Runnable) -> None:
         success = False
         if client.desc:
             current.writeln("running {0}...".format(client.desc))
@@ -2015,11 +2004,11 @@ class TestCase(Runnable):
         finally:
             client.teardown(current, success)
 
-    def runWithDriver(self, current: "Driver.Current") -> None:
+    def runWithDriver(self, current: Driver.Current) -> None:
         # Overridden by test case specializations to hand the test case to the driver.
         raise NotImplementedError()
 
-    def run(self, current: "Driver.Current") -> None:
+    def run(self, current: Driver.Current) -> None:
         try:
             current.push(self)
             if not self.parent:
@@ -2042,7 +2031,7 @@ class ClientTestCase(TestCase):
     def __init__(self, name: str = "client", *args: Any, **kargs: Any):
         TestCase.__init__(self, name, *args, **kargs)
 
-    def runWithDriver(self, current: "Driver.Current") -> None:
+    def runWithDriver(self, current: Driver.Current) -> None:
         current.driver.runTestCase(current)
 
     def getClientType(self) -> str | None:
@@ -2053,7 +2042,7 @@ class ClientServerTestCase(ClientTestCase):
     def __init__(self, name: str = "client/server", *args: Any, **kargs: Any):
         TestCase.__init__(self, name, *args, **kargs)
 
-    def runWithDriver(self, current: "Driver.Current") -> None:
+    def runWithDriver(self, current: Driver.Current) -> None:
         current.driver.runClientServerTestCase(current)
 
     def getServerType(self) -> str | None:
@@ -2082,21 +2071,21 @@ ResultKey = tuple[TestCase | None, Mapping.Config] | str
 
 
 class Result:
-    def getKey(self, current: "Driver.Current | str") -> ResultKey:
+    def getKey(self, current: Driver.Current | str) -> ResultKey:
         return (current.testcase, current.config) if isinstance(current, Driver.Current) else current
 
-    def getDesc(self, current: "Driver.Current | str") -> str:
+    def getDesc(self, current: Driver.Current | str) -> str:
         return current.desc if isinstance(current, Driver.Current) else ""
 
-    def __init__(self, testsuite: "TestSuite", writeToStdout: bool):
+    def __init__(self, testsuite: TestSuite, writeToStdout: bool):
         self.testsuite = testsuite
-        self._failed: "dict[ResultKey, str]" = {}
-        self._skipped: "dict[ResultKey, str]" = {}
+        self._failed: dict[ResultKey, str] = {}
+        self._skipped: dict[ResultKey, str] = {}
         self._stdout = StringIO()
         self._writeToStdout = writeToStdout
         # For each result: the start and end offsets of its output in _stdout, its duration and its
         # configuration description.
-        self._testcases: "dict[ResultKey, tuple[int, int, float, str]]" = {}
+        self._testcases: dict[ResultKey, tuple[int, int, float, str]] = {}
         self._duration = 0.0
         self._testCaseDuration = 0.0
         self._start = 0
@@ -2107,11 +2096,11 @@ class Result:
     def finished(self) -> None:
         self._duration = time.time() - self._duration
 
-    def started(self, current: "Driver.Current | str") -> None:
+    def started(self, current: Driver.Current | str) -> None:
         self._testCaseDuration = time.time()
         self._start = self._stdout.tell()
 
-    def failed(self, current: "Driver.Current | str", exception: str) -> None:
+    def failed(self, current: Driver.Current | str, exception: str) -> None:
         print(exception)
         key = self.getKey(current)
         self._testCaseDuration = time.time() - self._testCaseDuration
@@ -2134,7 +2123,7 @@ class Result:
                 else:
                     self.writeln(run("lsof -n -P -i; ps ax"))
 
-    def succeeded(self, current: "Driver.Current | str") -> None:
+    def succeeded(self, current: Driver.Current | str) -> None:
         key = self.getKey(current)
         self._testCaseDuration = time.time() - self._testCaseDuration
         self._testcases[key] = (
@@ -2144,20 +2133,20 @@ class Result:
             self.getDesc(current),
         )
 
-    def skipped(self, current: "Driver.Current | str", reason: str) -> None:
+    def skipped(self, current: Driver.Current | str, reason: str) -> None:
         self.writeln("skipped, " + reason)
         self._skipped[self.getKey(current)] = reason
 
     def isSuccess(self) -> bool:
         return len(self._failed) == 0
 
-    def getFailed(self) -> "dict[ResultKey, str]":
+    def getFailed(self) -> dict[ResultKey, str]:
         return self._failed
 
     def getDuration(self) -> float:
         return self._duration
 
-    def getOutput(self, key: "ResultKey | None" = None) -> str:
+    def getOutput(self, key: ResultKey | None = None) -> str:
         if key:
             if key in self._testcases:
                 (start, end, _, _) = self._testcases[key]
@@ -2206,7 +2195,7 @@ class Result:
             len(self._failed),
         )
 
-    def writeAsXml(self, out: "IO[str]", hostname: str = "") -> None:
+    def writeAsXml(self, out: IO[str], hostname: str = "") -> None:
         # Don't keep track of the setup/teardown steps (they use string keys) and don't write skipped
         # tests, this doesn't really provide useful information and clutters the output.
         testcases = [(k, v) for k, v in self._testcases.items() if not isinstance(k, str) and k not in self._skipped]
@@ -2265,13 +2254,13 @@ class TestSuite(object):
     def __init__(
         self,
         path: str,
-        testcases: "list[TestCase] | None" = None,
-        options: "Options | Callable[[Driver.Current], Options] | None" = None,
+        testcases: list[TestCase] | None = None,
+        options: Options | Callable[[Driver.Current], Options] | None = None,
         libDirs: list[str] | None = None,
         runOnMainThread: bool = False,
         chdir: bool = False,
         multihost: bool = True,
-        mapping: "Mapping | None" = None,
+        mapping: Mapping | None = None,
     ):
         global currentMapping
         self.path = os.path.dirname(path) if os.path.basename(path) == "test.py" else path
@@ -2291,7 +2280,7 @@ class TestSuite(object):
         if testcases is None:
             files = [f for f in os.listdir(self.path) if os.path.isfile(os.path.join(self.path, f))]
             testcases = self.mapping.computeTestCases(self.id, files)
-        self.testcases: "OrderedDict[str, TestCase]" = OrderedDict()
+        self.testcases: OrderedDict[str, TestCase] = OrderedDict()
         for testcase in testcases if testcases else []:
             testcase.init(self.mapping, self)
             if testcase.name in self.testcases:
@@ -2304,19 +2293,19 @@ class TestSuite(object):
     def getId(self) -> str:
         return self.id
 
-    def getOptions(self, current: "Driver.Current") -> Options:
+    def getOptions(self, current: Driver.Current) -> Options:
         return self.options(current) if callable(self.options) else self.options
 
     def getPath(self) -> str:
         return self.path
 
-    def getMapping(self) -> "Mapping":
+    def getMapping(self) -> Mapping:
         return self.mapping
 
     def getLibDirs(self) -> list[str]:
         return self.libDirs
 
-    def isMainThreadOnly(self, driver: "Driver") -> bool:
+    def isMainThreadOnly(self, driver: Driver) -> bool:
         if self.runOnMainThread or driver.getComponent().isMainThreadOnly(self.id):
             return True
 
@@ -2328,22 +2317,22 @@ class TestSuite(object):
             return True  # Not supported yet for tests that require a remote process controller
         return False
 
-    def addTestCase(self, testcase: "TestCase") -> None:
+    def addTestCase(self, testcase: TestCase) -> None:
         if testcase.name in self.testcases:
             raise RuntimeError("duplicate testcase {0} in testsuite {1}".format(testcase, self))
         testcase.init(self.mapping, self)
         self.testcases[testcase.name] = testcase
 
-    def findTestCase(self, testcase: "TestCase | str") -> "TestCase | None":
+    def findTestCase(self, testcase: TestCase | str) -> TestCase | None:
         return self.testcases.get(testcase if isinstance(testcase, str) else testcase.name)
 
-    def getTestCases(self) -> "list[TestCase]":
+    def getTestCases(self) -> list[TestCase]:
         return list(self.testcases.values())
 
-    def setup(self, current: "Driver.Current") -> None:
+    def setup(self, current: Driver.Current) -> None:
         pass
 
-    def run(self, current: "Driver.Current") -> None:
+    def run(self, current: Driver.Current) -> None:
         cwd = None
         try:
             current.result.start()
@@ -2356,7 +2345,7 @@ class TestSuite(object):
                 os.chdir(cwd)
             current.result.finished()
 
-    def teardown(self, current: "Driver.Current", success: bool) -> None:
+    def teardown(self, current: Driver.Current, success: bool) -> None:
         pass
 
     def isMultiHost(self) -> bool:
@@ -2364,24 +2353,24 @@ class TestSuite(object):
 
 
 class ProcessController:
-    def __init__(self, current: "Driver.Current"):
+    def __init__(self, current: Driver.Current):
         pass
 
-    def getHost(self, current: "Driver.Current") -> str:
+    def getHost(self, current: Driver.Current) -> str:
         raise NotImplementedError()
 
     def start(
         self,
-        process: "Process",
-        current: "Driver.Current",
+        process: Process,
+        current: Driver.Current,
         args: list[str],
         props: Props,
         envs: Envs,
-        watchDog: "Expect.WatchDog | None",
-    ) -> "RunningProcess":
+        watchDog: Expect.WatchDog | None,
+    ) -> RunningProcess:
         raise NotImplementedError()
 
-    def destroy(self, driver: "Driver") -> None:
+    def destroy(self, driver: Driver) -> None:
         pass
 
 
@@ -2402,7 +2391,7 @@ class LocalProcessController(ProcessController):
         def isTerminated(self) -> bool:
             return self.p is None
 
-        def teardown(self, current: "Driver.Current", success: bool) -> None:
+        def teardown(self, current: Driver.Current, success: bool) -> None:
             if self.traceFile:
                 if not current.driver.keepLogs and (success or current.driver.isInterrupted()):
                     try:
@@ -2412,18 +2401,18 @@ class LocalProcessController(ProcessController):
                 else:
                     current.writeln("saved {0}".format(self.traceFile))
 
-    def getHost(self, current: "Driver.Current") -> str:
+    def getHost(self, current: Driver.Current) -> str:
         return current.driver.getHost(current.config.protocol, current.config.ipv6)
 
     def start(
         self,
-        process: "Process",
-        current: "Driver.Current",
+        process: Process,
+        current: Driver.Current,
         args: list[str],
         props: Props,
         envs: Envs,
-        watchDog: "Expect.WatchDog | None",
-    ) -> "RunningProcess":
+        watchDog: Expect.WatchDog | None,
+    ) -> RunningProcess:
         #
         # Props and arguments can use the format parameters set below in the kargs
         # dictionary. It's time to convert them to their values.
@@ -2527,7 +2516,7 @@ class RemoteProcessController(ProcessController):
         def getOutput(self) -> str:
             return self.output
 
-        def trace(self, outfilters: "list[Expect.TraceFilter] | None") -> None:
+        def trace(self, outfilters: list[Expect.TraceFilter] | None) -> None:
             self.stdout = True
 
         def isTerminated(self) -> bool:
@@ -2539,10 +2528,10 @@ class RemoteProcessController(ProcessController):
             if self.stdout and self.output:
                 print(self.output)
 
-        def teardown(self, current: "Driver.Current", success: bool) -> None:
+        def teardown(self, current: Driver.Current, success: bool) -> None:
             pass
 
-    def __init__(self, current: "Driver.Current", endpoints: str | None):
+    def __init__(self, current: Driver.Current, endpoints: str | None):
         self.processControllerProxies: dict[Any, Any] = {}
         self.controllerApps: list[Any] = []
         self.driver = current.driver
@@ -2554,7 +2543,7 @@ class RemoteProcessController(ProcessController):
         from Test import Common as Test_Common  # pyright: ignore[reportMissingImports]
 
         class ProcessControllerRegistryI(Test_Common.ProcessControllerRegistry):  # pyright: ignore[reportUntypedBaseClass]
-            def __init__(self, remoteProcessController: "RemoteProcessController"):
+            def __init__(self, remoteProcessController: RemoteProcessController):
                 self.remoteProcessController = remoteProcessController
 
             def setProcessController(self, proxy: Any, current: Any) -> None:
@@ -2576,21 +2565,21 @@ class RemoteProcessController(ProcessController):
     def __str__(self) -> str:
         return "remote controller"
 
-    def setup(self, current: "Driver.Current") -> None:
+    def setup(self, current: Driver.Current) -> None:
         pass
 
-    def getHost(self, current: "Driver.Current") -> str:
+    def getHost(self, current: Driver.Current) -> str:
         return self.getController(current).getHost(current.config.protocol, current.config.ipv6)
 
-    def getControllerIdentity(self, current: "Driver.Current") -> Any:
+    def getControllerIdentity(self, current: Driver.Current) -> Any:
         # Must be overridden to return the identity of the process controller
         raise NotImplementedError()
 
-    def getControllerEndpoints(self, current: "Driver.Current") -> str | None:
+    def getControllerEndpoints(self, current: Driver.Current) -> str | None:
         # Can be overridden to return a direct endpoint to the process controller
         return None
 
-    def getController(self, current: "Driver.Current") -> Any:
+    def getController(self, current: Driver.Current) -> Any:
         from Test import Common as Test_Common  # pyright: ignore[reportMissingImports]
 
         import Ice
@@ -2689,10 +2678,10 @@ class RemoteProcessController(ProcessController):
                 if conn == self.processControllerProxies[proxy.ice_getIdentity()].ice_getCachedConnection():
                     del self.processControllerProxies[proxy.ice_getIdentity()]
 
-    def startControllerApp(self, current: "Driver.Current", ident: Any) -> None:
+    def startControllerApp(self, current: Driver.Current, ident: Any) -> None:
         pass
 
-    def restartControllerApp(self, current: "Driver.Current", ident: Any) -> None:
+    def restartControllerApp(self, current: Driver.Current, ident: Any) -> None:
         self.stopControllerApp(ident)
         self.startControllerApp(current, ident)
 
@@ -2701,13 +2690,13 @@ class RemoteProcessController(ProcessController):
 
     def start(
         self,
-        process: "Process",
-        current: "Driver.Current",
+        process: Process,
+        current: Driver.Current,
         args: list[str],
         props: Props,
         envs: Envs,
-        watchDog: "Expect.WatchDog | None",
-    ) -> "RunningProcess":
+        watchDog: Expect.WatchDog | None,
+    ) -> RunningProcess:
         # Get the process controller
         processController = self.getController(current)
 
@@ -2742,7 +2731,7 @@ class RemoteProcessController(ProcessController):
 
         return RemoteProcessController.RemoteProcess(exe, Test_Common.ProcessPrx.uncheckedCast(prx))
 
-    def destroy(self, driver: "Driver") -> None:
+    def destroy(self, driver: Driver) -> None:
         if driver.controllerApp:
             for ident in self.controllerApps:
                 self.stopControllerApp(ident)
@@ -2752,29 +2741,29 @@ class RemoteProcessController(ProcessController):
 
 
 class AndroidProcessController(RemoteProcessController):
-    def __init__(self, current: "Driver.Current"):
+    def __init__(self, current: Driver.Current):
         RemoteProcessController.__init__(self, current, None)
         self.device = current.config.device if current.config.device != "" else None
         self.avd = current.config.avd
         self.createdAvd = False  # Only the AVD we create is deleted on shutdown
         # Keep a reference to the android emulator process
-        self.emulator: "subprocess.Popen[bytes] | None" = None
+        self.emulator: subprocess.Popen[bytes] | None = None
         self.controllerPid: str | None = None
 
     def __str__(self) -> str:
         return "Android"
 
-    def setup(self, current: "Driver.Current") -> None:
+    def setup(self, current: Driver.Current) -> None:
         print("forwarding port 15001 to the controller app")
         run(f"{self.adb()} forward tcp:15001 tcp:15001")
 
     def supportsDiscovery(self) -> bool:
         return False
 
-    def getControllerIdentity(self, current: "Driver.Current") -> Any:
+    def getControllerIdentity(self, current: Driver.Current) -> Any:
         return "Android/ProcessController"
 
-    def getControllerEndpoints(self, current: "Driver.Current") -> str | None:
+    def getControllerEndpoints(self, current: Driver.Current) -> str | None:
         return "tcp -h 127.0.0.1 -p 15001"
 
     def adb(self) -> str:
@@ -2830,7 +2819,7 @@ class AndroidProcessController(RemoteProcessController):
             # This runs if the while loop completes without breaking
             raise RuntimeError(f"emulator '{avd}' not booted after 300s")
 
-    def startControllerApp(self, current: "Driver.Current", ident: Any) -> None:
+    def startControllerApp(self, current: Driver.Current, ident: Any) -> None:
         mapping = current.getTestCase().getMapping()
         assert isinstance(mapping, JavaMapping)
         if current.config.avd:
@@ -2989,7 +2978,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
     device = "iOSSimulatorProcessController"
     deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-15"
 
-    def __init__(self, current: "Driver.Current"):
+    def __init__(self, current: Driver.Current):
         RemoteProcessController.__init__(self, current, None)
         self.simulatorID: str | None = None
         self.runtimeID: str | None = None
@@ -3015,12 +3004,12 @@ class iOSSimulatorProcessController(RemoteProcessController):
         assert self.runtimeID is not None
         return "iOS Simulator ({})".format(self.runtimeID.replace("com.apple.CoreSimulator.SimRuntime.", "").strip())
 
-    def getControllerIdentity(self, current: "Driver.Current") -> Any:
+    def getControllerIdentity(self, current: Driver.Current) -> Any:
         mapping = current.getTestCase().getMapping()
         assert isinstance(mapping, (CppMapping, SwiftMapping))
         return mapping.getIOSControllerIdentity(current)
 
-    def startControllerApp(self, current: "Driver.Current", ident: Any) -> None:
+    def startControllerApp(self, current: Driver.Current, ident: Any) -> None:
         sys.stdout.write("locating iOS simulator controller application... ")
         sys.stdout.flush()
         mapping = current.getTestCase().getMapping()
@@ -3086,7 +3075,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
                 sys.stdout.flush()
         # No "ok" as the command prints its own output
 
-    def restartControllerApp(self, current: "Driver.Current", ident: Any) -> None:
+    def restartControllerApp(self, current: Driver.Current, ident: Any) -> None:
         # We reboot the simulator if the controller fails to start. Terminating the controller app
         # with simctl terminate doesn't always work, it can hang if the controller app died because
         # of the springboard watchdog.
@@ -3120,7 +3109,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
         except Exception:
             pass
 
-    def destroy(self, driver: "Driver") -> None:
+    def destroy(self, driver: Driver) -> None:
         RemoteProcessController.destroy(self, driver)
 
         sys.stdout.write("shutting down simulator... ")
@@ -3144,18 +3133,18 @@ class iOSSimulatorProcessController(RemoteProcessController):
 class iOSDeviceProcessController(RemoteProcessController):
     appPath = "cpp/test/ios/controller/build"
 
-    def __init__(self, current: "Driver.Current"):
+    def __init__(self, current: Driver.Current):
         RemoteProcessController.__init__(self, current, None)
 
     def __str__(self) -> str:
         return "iOS Device"
 
-    def getControllerIdentity(self, current: "Driver.Current") -> Any:
+    def getControllerIdentity(self, current: Driver.Current) -> Any:
         mapping = current.getTestCase().getMapping()
         assert isinstance(mapping, (CppMapping, SwiftMapping))
         return mapping.getIOSControllerIdentity(current)
 
-    def startControllerApp(self, current: "Driver.Current", ident: Any) -> None:
+    def startControllerApp(self, current: Driver.Current, ident: Any) -> None:
         # TODO: use ios-deploy to deploy and run the application on an attached device?
         pass
 
@@ -3164,11 +3153,11 @@ class iOSDeviceProcessController(RemoteProcessController):
 
 
 class BrowserProcessController(RemoteProcessController):
-    def __init__(self, current: "Driver.Current"):
+    def __init__(self, current: Driver.Current):
         self.host = current.driver.host or "127.0.0.1"
         RemoteProcessController.__init__(self, current, "ws -h {0} -p 15002:wss -h {0} -p 15003".format(self.host))
-        self.httpServer: "Expect.Expect | None" = None
-        self.httpsServer: "Expect.Expect | None" = None
+        self.httpServer: Expect.Expect | None = None
+        self.httpsServer: Expect.Expect | None = None
         self.url: str | None = None
         # The Selenium WebDriver used to drive the browser, when one is configured.
         self.driver: Any = None
@@ -3192,7 +3181,7 @@ class BrowserProcessController(RemoteProcessController):
     def supportsDiscovery(self) -> bool:
         return False
 
-    def getControllerIdentity(self, current: "Driver.Current") -> Any:
+    def getControllerIdentity(self, current: Driver.Current) -> Any:
         import Ice
 
         #
@@ -3249,7 +3238,7 @@ class BrowserProcessController(RemoteProcessController):
 
         return "Browser/ProcessController"
 
-    def getController(self, current: "Driver.Current") -> Any:
+    def getController(self, current: Driver.Current) -> Any:
         try:
             return RemoteProcessController.getController(self, current)
         except RuntimeError as ex:
@@ -3270,7 +3259,7 @@ class BrowserProcessController(RemoteProcessController):
                     pass  # Not all browsers support retrieving the browser console log
             raise ex
 
-    def destroy(self, driver: "Driver") -> None:
+    def destroy(self, driver: Driver) -> None:
         RemoteProcessController.destroy(self, driver)
         if self.httpServer:
             self.httpServer.terminate()
@@ -3288,7 +3277,7 @@ class BrowserProcessController(RemoteProcessController):
 
 class Driver:
     class Current:
-        def __init__(self, driver: "Driver", testsuite: "TestSuite", result: "Result"):
+        def __init__(self, driver: Driver, testsuite: TestSuite, result: Result):
             self.driver = driver
             self.testsuite = testsuite
             self.config = driver.configs[testsuite.getMapping()]
@@ -3296,13 +3285,13 @@ class Driver:
             self.result = result
             self.host: str | None = None
             # The test case being run. Set by push() before any of the accessors below are used.
-            self.testcase: "TestCase | None" = None
-            self.testcases: "list[tuple[TestCase | None, Mapping.Config, str | None]]" = []
-            self.processes: "dict[Process, RunningProcess]" = {}
+            self.testcase: TestCase | None = None
+            self.testcases: list[tuple[TestCase | None, Mapping.Config, str | None]] = []
+            self.processes: dict[Process, RunningProcess] = {}
             self.dirs: list[str] = []
             self.files: list[str] = []
 
-        def getTestCase(self) -> "TestCase":
+        def getTestCase(self) -> TestCase:
             assert self.testcase is not None
             return self.testcase
 
@@ -3312,7 +3301,7 @@ class Driver:
         def getBuildDir(self, name: str) -> str:
             return self.getTestCase().getMapping().getBuildDir(name, self)
 
-        def getPluginEntryPoint(self, plugin: str, process: "Process") -> str:
+        def getPluginEntryPoint(self, plugin: str, process: Process) -> str:
             return self.getTestCase().getMapping().getPluginEntryPoint(plugin, process, self)
 
         def write(self, *args: Any, **kargs: Any) -> None:
@@ -3321,7 +3310,7 @@ class Driver:
         def writeln(self, *args: Any, **kargs: Any) -> None:
             self.result.writeln(*args, **kargs)
 
-        def push(self, testcase: "TestCase", host: str | None = None) -> None:
+        def push(self, testcase: TestCase, host: str | None = None) -> None:
             if not testcase.mapping:
                 assert not testcase.parent and not testcase.testsuite
                 testcase.mapping = self.getTestCase().getMapping()
@@ -3363,27 +3352,27 @@ class Driver:
                 if os.path.exists(f):
                     os.unlink(f)
 
-    drivers: "dict[str, type[Driver]]" = {}
+    drivers: dict[str, type[Driver]] = {}
     driver = "local"
 
     # Set by the concrete driver (see LocalDriver): the mapping to run the server side against when
     # cross testing. It holds the mapping name while the command line options are parsed, and the
     # resolved Mapping afterwards.
-    cross: "Mapping | str" = ""
+    cross: Mapping | str = ""
 
     @classmethod
-    def add(self, name: str, driver: "type[Driver]", default: bool = False) -> None:
+    def add(self, name: str, driver: type[Driver], default: bool = False) -> None:
         if default:
             Driver.driver = name
         self.driver = name
         self.drivers[name] = driver
 
     @classmethod
-    def getAll(self) -> "list[type[Driver]]":
+    def getAll(self) -> list[type[Driver]]:
         return list(self.drivers.values())
 
     @classmethod
-    def create(self, options: "list[Option]", component: "Component") -> "Driver":
+    def create(self, options: list[Option], component: Component) -> Driver:
         parseOptions(self, options)
         driver = self.drivers.get(self.driver)
         if not driver:
@@ -3433,13 +3422,13 @@ class Driver:
         print("--valgrind            Start executables with valgrind.")
         print("--keep-logs           Keep log files from successful runs.")
 
-    def __init__(self, options: "list[Option]", component: "Component"):
+    def __init__(self, options: list[Option], component: Component):
         self.component = component
         self.debug = False
         # Holds the regexps as strings while the command line options are parsed, then the compiled
         # patterns.
-        self.filters: "list[Any]" = []
-        self.rfilters: "list[Any]" = []
+        self.filters: list[Any] = []
+        self.rfilters: list[Any] = []
         self.host = ""
         self.hostIPv6 = ""
         self.hostBT = ""
@@ -3448,9 +3437,9 @@ class Driver:
         languages = ",".join(os.environ.get("LANGUAGES", "").split(" "))
         self.languages = [languages] if languages else []
         self.rlanguages: list[str] = []
-        self.failures: "list[Any]" = []
+        self.failures: list[Any] = []
         self.keepLogs = False
-        self.configs: "dict[Mapping, Mapping.Config]"
+        self.configs: dict[Mapping, Mapping.Config]
 
         logDir = os.path.join(toplevel, "logs")
         os.makedirs(logDir, exist_ok=True)
@@ -3484,14 +3473,14 @@ class Driver:
 
         self.communicator: Any = None
         self.interface = ""
-        self.processControllers: "dict[type[ProcessController], ProcessController]" = {}
+        self.processControllers: dict[type[ProcessController], ProcessController] = {}
 
-    def setConfigs(self, configs: "dict[Mapping, Mapping.Config]") -> None:
+    def setConfigs(self, configs: dict[Mapping, Mapping.Config]) -> None:
         self.configs = configs
 
     def getFilters(
-        self, mapping: "Mapping", config: "Mapping.Config"
-    ) -> "tuple[list[re.Pattern[str]], list[re.Pattern[str]]]":
+        self, mapping: Mapping, config: Mapping.Config
+    ) -> tuple[list[re.Pattern[str]], list[re.Pattern[str]]]:
         # Return the driver and component filters
         (filters, rfilters) = self.component.getFilters(mapping, config)
         (filters, rfilters) = (
@@ -3510,7 +3499,7 @@ class Driver:
         else:
             return self.host or "127.0.0.1"
 
-    def getComponent(self) -> "Component":
+    def getComponent(self) -> Component:
         return self.component
 
     def isWorkerThread(self) -> bool:
@@ -3528,16 +3517,16 @@ class Driver:
         # Overridden by the concrete driver to restrict the option combinations that are run.
         return options
 
-    def run(self, mappings: "list[Mapping]", testSuiteIds: list[str]) -> int:
+    def run(self, mappings: list[Mapping], testSuiteIds: list[str]) -> int:
         raise NotImplementedError()
 
-    def runTestSuite(self, current: "Driver.Current") -> None:
+    def runTestSuite(self, current: Driver.Current) -> None:
         raise NotImplementedError()
 
-    def runTestCase(self, current: "Driver.Current") -> None:
+    def runTestCase(self, current: Driver.Current) -> None:
         raise NotImplementedError()
 
-    def runClientServerTestCase(self, current: "Driver.Current") -> None:
+    def runClientServerTestCase(self, current: Driver.Current) -> None:
         raise NotImplementedError()
 
     def getTestEndpoint(self, portnum: int, protocol: str = "default") -> str:
@@ -3546,11 +3535,11 @@ class Driver:
     def getTestPort(self, portnum: int) -> int:
         return 12010 + portnum
 
-    def getArgs(self, process: "Process", current: "Driver.Current") -> Args:
+    def getArgs(self, process: Process, current: Driver.Current) -> Args:
         # Return driver specific arguments
         return []
 
-    def getProps(self, process: "Process", current: "Driver.Current") -> Props:
+    def getProps(self, process: Process, current: Driver.Current) -> Props:
         props: Props = {}
         if isinstance(process, IceProcess):
             if not self.host:
@@ -3559,7 +3548,7 @@ class Driver:
                 props["Ice.Default.Host"] = self.host
         return props
 
-    def getMappings(self) -> "list[Mapping]":
+    def getMappings(self) -> list[Mapping]:
         # Return additional mappings to load required by the driver
         return []
 
@@ -3618,8 +3607,8 @@ class Driver:
 
         self.communicator = Ice.initialize(initData=initData)
 
-    def getProcessController(self, current: "Driver.Current", process: "Process | None" = None) -> "ProcessController":
-        processController: "type[ProcessController]"
+    def getProcessController(self, current: Driver.Current, process: Process | None = None) -> ProcessController:
+        processController: type[ProcessController]
         if current.config.buildPlatform == "iphonesimulator":
             processController = iOSSimulatorProcessController
         elif current.config.buildPlatform == "iphoneos":
@@ -3638,9 +3627,7 @@ class Driver:
         self.processControllers[processController] = processController(current)
         return self.processControllers[processController]
 
-    def getProcessProps(
-        self, current: "Driver.Current", ready: str | None, readyCount: int, mapping: "Mapping"
-    ) -> Props:
+    def getProcessProps(self, current: Driver.Current, ready: str | None, readyCount: int, mapping: Mapping) -> Props:
         props: Props = {}
         if ready or readyCount > 0:
             if current.config.buildPlatform not in [
@@ -3677,7 +3664,7 @@ class CppMapping(Mapping):
             print("--cpp-platform=<platform> C++ build platform for native executables (overrides --platform).")
             print("--openssl                 Run SSL tests with OpenSSL instead of the default platform SSL engine.")
 
-        def __init__(self, options: "list[Option]" = []):
+        def __init__(self, options: list[Option] = []):
             Mapping.Config.__init__(self, options)
 
             if self.buildConfig == platform.getDefaultBuildConfig():
@@ -3701,13 +3688,13 @@ class CppMapping(Mapping):
             if self.pathOverride:
                 self.pathOverride = os.path.abspath(self.pathOverride)
 
-    def getProps(self, process: "Process", current: "Driver.Current") -> Props:
+    def getProps(self, process: Process, current: Driver.Current) -> Props:
         props = Mapping.getProps(self, process, current)
         if isinstance(process, IceProcess):
             props["Ice.PrintStackTraces"] = "1"
         return props
 
-    def getSSLProps(self, process: "Process", current: "Driver.Current") -> Props:
+    def getSSLProps(self, process: Process, current: Driver.Current) -> Props:
         props = Mapping.getSSLProps(self, process, current)
         server = isinstance(process, Server)
 
@@ -3726,7 +3713,7 @@ class CppMapping(Mapping):
             )
         return props
 
-    def getPluginEntryPoint(self, plugin: str, process: "Process", current: "Driver.Current") -> str:
+    def getPluginEntryPoint(self, plugin: str, process: Process, current: Driver.Current) -> str:
         return {
             "IceSSL": "IceSSL:createIceSSL",
             "IceBT": "IceBT:createIceBT",
@@ -3734,7 +3721,7 @@ class CppMapping(Mapping):
             "IceLocatorDiscovery": "IceLocatorDiscovery:createIceLocatorDiscovery",
         }[plugin]
 
-    def getEnv(self, process: "Process", current: "Driver.Current") -> Envs:
+    def getEnv(self, process: Process, current: Driver.Current) -> Envs:
         #
         # On Windows, add the testcommon directories to the PATH
         #
@@ -3777,11 +3764,11 @@ class CppMapping(Mapping):
     def _getDefaultExe(self, processType: str) -> str:
         return Mapping._getDefaultExe(self, processType).lower()
 
-    def getIOSControllerIdentity(self, current: "Driver.Current") -> str:
+    def getIOSControllerIdentity(self, current: Driver.Current) -> str:
         category = "iPhoneSimulator" if current.config.buildPlatform == "iphonesimulator" else "iPhoneOS"
         return "{0}/com.zeroc.Cpp-Test-Controller".format(category)
 
-    def getIOSAppFullPath(self, current: "Driver.Current") -> str:
+    def getIOSAppFullPath(self, current: Driver.Current) -> str:
         cmd = "xcodebuild -project '{0}/cpp/test/ios/controller/C++ Test Controller.xcodeproj' \
                           -scheme 'C++ Test Controller' \
                           -configuration {1} \
@@ -3815,7 +3802,7 @@ class JavaMapping(Mapping):
             print("--avd=<name>              Start specific Android Virtual Device.")
             print("--jacoco=<path>           Path to the JaCoCo agent.")
 
-    def getCommandLine(self, current: "Driver.Current", process: "Process", exe: str, args: str) -> str:
+    def getCommandLine(self, current: Driver.Current, process: Process, exe: str, args: str) -> str:
         javaHome = os.getenv("JAVA_HOME", "")
         java = os.path.join(javaHome, "bin", "java") if javaHome else "java"
         javaArgs = self.getJavaArgs(process, current)
@@ -3841,7 +3828,7 @@ class JavaMapping(Mapping):
         else:
             return "{0} -ea -Dtest.class={1}.{2} test.TestDriver {3}".format(java, package, exe, args)
 
-    def getJavaArgs(self, process: "Process", current: "Driver.Current") -> list[str]:
+    def getJavaArgs(self, process: Process, current: Driver.Current) -> list[str]:
         # TODO: WORKAROUND for https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=911925
         if isinstance(platform, Linux) and platform.getLinuxId() in [
             "debian",
@@ -3850,7 +3837,7 @@ class JavaMapping(Mapping):
             return ["-Djdk.net.URLClassPath.disableClassPathURLCheck=true"]
         return []
 
-    def getSSLProps(self, process: "Process", current: "Driver.Current") -> Props:
+    def getSSLProps(self, process: Process, current: Driver.Current) -> Props:
         props = Mapping.getSSLProps(self, process, current)
         props.update(
             {
@@ -3864,7 +3851,7 @@ class JavaMapping(Mapping):
         )
         return props
 
-    def getPluginEntryPoint(self, plugin: str, process: "Process", current: "Driver.Current") -> str:
+    def getPluginEntryPoint(self, plugin: str, process: Process, current: Driver.Current) -> str:
         return {
             "IceSSL": "",
             "IceBT": "com.zeroc.IceBT.PluginFactory",
@@ -3872,7 +3859,7 @@ class JavaMapping(Mapping):
             "IceLocatorDiscovery": "com.zeroc.IceLocatorDiscovery.PluginFactory",
         }[plugin]
 
-    def getEnv(self, process: "Process", current: "Driver.Current") -> Envs:
+    def getEnv(self, process: Process, current: Driver.Current) -> Envs:
         return {"CLASSPATH": os.path.join(self.path, "lib", "test.jar")}
 
     def _getDefaultSource(self, processType: str) -> str:
@@ -3888,7 +3875,7 @@ class JavaMapping(Mapping):
             "arm64-v8a" if platform_machine() == "arm64" else "x86_64"
         )
 
-    def getApk(self, current: "Driver.Current") -> str:
+    def getApk(self, current: Driver.Current) -> str:
         return os.path.join(
             self.getPath(),
             "test",
@@ -3921,7 +3908,7 @@ class CSharpMapping(Mapping):
             print("                                It should match the target framework used to build the tests")
             print("                                (default: net8.0) supported values: (net8.0|net9.0|net10.0)")
 
-        def __init__(self, options: "list[Option]" = []):
+        def __init__(self, options: list[Option] = []):
             Mapping.Config.__init__(self, options)
 
             if self.buildConfig == platform.getDefaultBuildConfig():
@@ -3941,13 +3928,13 @@ class CSharpMapping(Mapping):
                 },
             )
 
-    def getTargetFramework(self, current: "Driver.Current") -> str:
+    def getTargetFramework(self, current: Driver.Current) -> str:
         return current.config.targetFramework
 
-    def getBuildDir(self, name: str, current: "Driver.Current") -> str:
+    def getBuildDir(self, name: str, current: Driver.Current) -> str:
         return os.path.join("msbuild", name, self.getTargetFramework(current))
 
-    def getSSLProps(self, process: "Process", current: "Driver.Current") -> Props:
+    def getSSLProps(self, process: Process, current: Driver.Current) -> Props:
         props = Mapping.getSSLProps(self, process, current)
         props.update(
             {
@@ -3960,7 +3947,7 @@ class CSharpMapping(Mapping):
         )
         return props
 
-    def getPluginEntryPoint(self, plugin: str, process: "Process", current: "Driver.Current") -> str:
+    def getPluginEntryPoint(self, plugin: str, process: Process, current: Driver.Current) -> str:
         plugindir = self.component.getLibDir(process, self, current)
 
         #
@@ -3984,7 +3971,7 @@ class CSharpMapping(Mapping):
             "IceLocatorDiscovery": plugindir + "IceLocatorDiscovery.dll:IceLocatorDiscovery.PluginFactory",
         }[plugin]
 
-    def getEnv(self, process: "Process", current: "Driver.Current") -> Envs:
+    def getEnv(self, process: Process, current: Driver.Current) -> Envs:
         env = {}
         if isinstance(platform, Windows):
             env["PATH"] = os.path.join(
@@ -4014,11 +4001,11 @@ class CSharpMapping(Mapping):
     def _getDefaultExe(self, processType: str) -> str:
         return Mapping._getDefaultExe(self, processType).lower()
 
-    def getOptions(self, current: "Driver.Current") -> Options:
+    def getOptions(self, current: Driver.Current) -> Options:
         # Disable IPv6 for .NET on macOS to workaround https://github.com/dotnet/runtime/issues/121848
         return {"ipv6": [False]} if isinstance(platform, Darwin) else {}
 
-    def getCommandLine(self, current: "Driver.Current", process: "Process", exe: str, args: str) -> str:
+    def getCommandLine(self, current: Driver.Current, process: Process, exe: str, args: str) -> str:
         if process.isFromBinDir():
             assert isinstance(process, ProcessFromBinDir) and process.binDir is not None
             path = os.path.join(self.component.getSourceDir(), "csharp", process.binDir)
@@ -4068,7 +4055,7 @@ class CppBasedMapping(Mapping):
             )
             print("--openssl                 Run SSL tests with OpenSSL instead of the default platform SSL engine.")
 
-        def __init__(self, options: "list[Option]" = []):
+        def __init__(self, options: list[Option] = []):
             Mapping.Config.__init__(self, options)
             parseOptions(
                 self,
@@ -4079,13 +4066,13 @@ class CppBasedMapping(Mapping):
                 },
             )
 
-    def getSSLProps(self, process: "Process", current: "Driver.Current") -> Props:
+    def getSSLProps(self, process: Process, current: Driver.Current) -> Props:
         return Mapping.getByName("cpp").getSSLProps(process, current)
 
-    def getPluginEntryPoint(self, plugin: str, process: "Process", current: "Driver.Current") -> str:
+    def getPluginEntryPoint(self, plugin: str, process: Process, current: Driver.Current) -> str:
         return Mapping.getByName("cpp").getPluginEntryPoint(plugin, process, current)
 
-    def getEnv(self, process: "Process", current: "Driver.Current") -> Envs:
+    def getEnv(self, process: Process, current: Driver.Current) -> Envs:
         env = Mapping.getEnv(self, process, current)
         if self.component.getInstallDir(self, current) != platform.getInstallDir():
             # If not installed in the default platform installation directory, add
@@ -4111,7 +4098,7 @@ class PythonMapping(CppBasedMapping):
             print("--load-slice             Use Ice.loadSlice instead of the slice2py static generated code.")
             print("--pip-package            Use the installed pip package instead of the local build.")
 
-        def __init__(self, options: "list[Option]" = []):
+        def __init__(self, options: list[Option] = []):
             Mapping.Config.__init__(self, options)
             self.pythonVersion: tuple[int, ...] | None = None
 
@@ -4129,7 +4116,7 @@ class PythonMapping(CppBasedMapping):
                 self.pythonVersion = tuple(int(num) for num in version.split("."))
             return self.pythonVersion
 
-    def getCommandLine(self, current: "Driver.Current", process: "Process", exe: str, args: str) -> str:
+    def getCommandLine(self, current: Driver.Current, process: Process, exe: str, args: str) -> str:
         if current.config.loadSlice:
             args = f"--load-slice {args}"
 
@@ -4140,7 +4127,7 @@ class PythonMapping(CppBasedMapping):
             args,
         )
 
-    def getEnv(self, process: "Process", current: "Driver.Current") -> Envs:
+    def getEnv(self, process: Process, current: Driver.Current) -> Envs:
         env = CppBasedMapping.getEnv(self, process, current)
         dirs = []
         if not current.config.pipPackage and self.component.getInstallDir(self, current) != platform.getInstallDir():
@@ -4153,7 +4140,7 @@ class PythonMapping(CppBasedMapping):
         env["PYTHONPATH"] = os.pathsep.join(dirs)
         return env
 
-    def getPythonDirs(self, iceDir: str, config: "Mapping.Config") -> list[str]:
+    def getPythonDirs(self, iceDir: str, config: Mapping.Config) -> list[str]:
         dirs = []
         if isinstance(platform, Windows):
             dirs.append(os.path.join(iceDir, "python", config.buildPlatform, config.buildConfig))
@@ -4173,14 +4160,14 @@ class CppBasedClientMapping(CppBasedMapping):
     def loadTestSuites(
         self,
         tests: list[str] | None,
-        config: "Mapping.Config",
-        filters: "list[re.Pattern[str]]" = [],
-        rfilters: "list[re.Pattern[str]]" = [],
+        config: Mapping.Config,
+        filters: list[re.Pattern[str]] = [],
+        rfilters: list[re.Pattern[str]] = [],
     ) -> None:
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)
         self.getServerMapping().loadTestSuites(list(self.testsuites.keys()), config)
 
-    def getServerMapping(self, testId: str | None = None) -> "Mapping":
+    def getServerMapping(self, testId: str | None = None) -> Mapping:
         return Mapping.getByName("cpp")  # By default, run clients against C++ mapping executables
 
 
@@ -4189,10 +4176,10 @@ class RubyMapping(CppBasedClientMapping):
         mappingName = "ruby"
         mappingDesc = "Ruby"
 
-    def getCommandLine(self, current: "Driver.Current", process: "Process", exe: str, args: str) -> str:
+    def getCommandLine(self, current: Driver.Current, process: Process, exe: str, args: str) -> str:
         return "ruby  {0} {1} {2}".format(os.path.join(self.path, "test", "TestHelper.rb"), exe, args)
 
-    def getEnv(self, process: "Process", current: "Driver.Current") -> Envs:
+    def getEnv(self, process: Process, current: Driver.Current) -> Envs:
         env = CppBasedMapping.getEnv(self, process, current)
         dirs = []
         if self.component.getInstallDir(self, current) != platform.getInstallDir():
@@ -4211,7 +4198,7 @@ class RubyMapping(CppBasedClientMapping):
 class _HasPhpArgs(Protocol):
     """A process that contributes extra arguments to the PHP interpreter command line."""
 
-    def getPhpArgs(self, current: "Driver.Current") -> list[str]: ...
+    def getPhpArgs(self, current: Driver.Current) -> list[str]: ...
 
 
 class PhpMapping(CppBasedClientMapping):
@@ -4219,10 +4206,10 @@ class PhpMapping(CppBasedClientMapping):
         mappingName = "php"
         mappingDesc = "PHP"
 
-        def __init__(self, options: "list[Option]" = []):
+        def __init__(self, options: list[Option] = []):
             CppBasedClientMapping.Config.__init__(self, options)
 
-    def getCommandLine(self, current: "Driver.Current", process: "Process", exe: str, args: str) -> str:
+    def getCommandLine(self, current: Driver.Current, process: Process, exe: str, args: str) -> str:
         phpArgs = []
         php = "php"
 
@@ -4265,7 +4252,7 @@ class MatlabMapping(CppBasedClientMapping):
         mappingName = "matlab"
         mappingDesc = "MATLAB"
 
-    def getCommandLine(self, current: "Driver.Current", process: "Process", exe: str, args: str) -> str:
+    def getCommandLine(self, current: Driver.Current, process: Process, exe: str, args: str) -> str:
         # The MATLAB_COMMAND environment variable can be used to specify the MATLAB command.
         # This is currently used for GitHub Actions to specify the path to a custom MATLAB executable
         # which is required to run the tests and does not need any additional arguments.
@@ -4287,13 +4274,13 @@ class MatlabMapping(CppBasedClientMapping):
             args,
         )
 
-    def getServerMapping(self, testId: str | None = None) -> "Mapping":
+    def getServerMapping(self, testId: str | None = None) -> Mapping:
         return Mapping.getByName("python")  # Run clients against Python mapping servers
 
     def _getDefaultSource(self, processType: str) -> str:
         return {"client": "Client.m"}[processType]
 
-    def getOptions(self, current: "Driver.Current") -> Options:
+    def getOptions(self, current: Driver.Current) -> Options:
         #
         # Metrics tests configuration not supported with MATLAB they use the Admin adapter.
         #
@@ -4312,28 +4299,28 @@ class JavaScriptMixin(_JavaScriptMixinBase):
     def loadTestSuites(
         self,
         tests: list[str] | None,
-        config: "Mapping.Config",
-        filters: "list[re.Pattern[str]]" = [],
-        rfilters: "list[re.Pattern[str]]" = [],
+        config: Mapping.Config,
+        filters: list[re.Pattern[str]] = [],
+        rfilters: list[re.Pattern[str]] = [],
     ) -> None:
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)
         self.getServerMapping().loadTestSuites(list(self.testsuites.keys()) + ["Ice/echo"], config)
 
-    def getServerMapping(self, testId: str | None = None) -> "Mapping":
+    def getServerMapping(self, testId: str | None = None) -> Mapping:
         if testId and self.hasSource(testId, "server"):
             return self
         else:
             return Mapping.getByName("cpp")  # Run clients against C++ mapping servers if no JS server provided
 
-    def _getDefaultProcesses(self, processType: str) -> "list[Process]":
+    def _getDefaultProcesses(self, processType: str) -> list[Process]:
         if processType.startswith("server"):
             return [EchoServer(), Server()]
         return Mapping._getDefaultProcesses(self, processType)
 
-    def getCommonDir(self, current: "Driver.Current") -> str:
+    def getCommonDir(self, current: Driver.Current) -> str:
         return os.path.join(self.getTestDir(), "Common")
 
-    def getCommandLine(self, current: "Driver.Current", process: "Process", exe: str, args: str) -> str:
+    def getCommandLine(self, current: Driver.Current, process: Process, exe: str, args: str) -> str:
         coverage = ""
 
         src_path = os.path.join(self.getPath(), "packages", "ice", "src")
@@ -4360,17 +4347,17 @@ class JavaScriptMixin(_JavaScriptMixinBase):
 
         return f"{coverage} {node_command}".strip()
 
-    def getProps(self, process: "Process", current: "Driver.Current") -> Props:
+    def getProps(self, process: Process, current: Driver.Current) -> Props:
         props = Mapping.getProps(self, process, current)
         if isinstance(process, IceProcess) and not current.config.browser:
             if "Ice.ProgramName" not in props:
                 props["Ice.ProgramName"] = f"{process.getProcessType(current)}"
         return props
 
-    def getSSLProps(self, process: "Process", current: "Driver.Current") -> Props:
+    def getSSLProps(self, process: Process, current: Driver.Current) -> Props:
         return {}
 
-    def getOptions(self, current: "Driver.Current") -> Options:
+    def getOptions(self, current: Driver.Current) -> Options:
         options = {
             "protocol": ["ws", "wss"] if current.config.browser else ["tcp", "ws", "wss"],
             "compress": [False],
@@ -4395,7 +4382,7 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
             print("--worker              Run with Web workers enabled.")
             print("--coverage            Collect code coverage using c8. Only supported for Node.js.")
 
-        def __init__(self, options: "list[Option]" = []):
+        def __init__(self, options: list[Option] = []):
             Mapping.Config.__init__(self, options)
 
             if self.browser and self.protocol == "tcp":
@@ -4404,7 +4391,7 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
     def getTestDir(self) -> str:
         return os.path.join(self.getPath(), "packages", "test")
 
-    def getEnv(self, process: "Process", current: "Driver.Current") -> Envs:
+    def getEnv(self, process: Process, current: Driver.Current) -> Envs:
         if not current.config.browser and current.config.protocol == "wss":
             # When running with WSS in Node.js, we need to set the NODE_EXTRA_CA_CERTS environment variable
             # so Node.js trusts our custom Certificate Authority (CA) used to sign the server certificate.
@@ -4422,10 +4409,10 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
     def _getDefaultExe(self, processType: str) -> str:
         return self.getDefaultSource(processType)
 
-    def getTestCwd(self, process: "Process", current: "Driver.Current") -> str:
+    def getTestCwd(self, process: Process, current: Driver.Current) -> str:
         return os.path.join(self.path)
 
-    def getOptions(self, current: "Driver.Current") -> Options:
+    def getOptions(self, current: Driver.Current) -> Options:
         options = JavaScriptMixin.getOptions(self, current)
         options.update(
             {
@@ -4440,13 +4427,13 @@ class SwiftMapping(Mapping):
         mappingName = "swift"
         mappingDesc = "Swift"
 
-        def __init__(self, options: "list[Option]" = []):
+        def __init__(self, options: list[Option] = []):
             CppBasedClientMapping.Config.__init__(self, options)
             if self.buildConfig == platform.getDefaultBuildConfig():
                 # Check the OPTIMIZE environment variable to figure out if it's debug/release build
                 self.buildConfig = "release" if os.environ.get("OPTIMIZE", "yes") != "no" else "debug"
 
-    def getCommandLine(self, current: "Driver.Current", process: "Process", exe: str, args: str) -> str:
+    def getCommandLine(self, current: Driver.Current, process: Process, exe: str, args: str) -> str:
         testdir = self.component.getTestDir(self)
         assert current.getTestCase().getPath(current).startswith(testdir)
         package = current.getTestCase().getPath(current)[len(testdir) + 1 :].replace(os.sep, "_")
@@ -4463,11 +4450,11 @@ class SwiftMapping(Mapping):
             "collocated": "Collocated.swift",
         }[processType]
 
-    def getIOSControllerIdentity(self, current: "Driver.Current") -> str:
+    def getIOSControllerIdentity(self, current: Driver.Current) -> str:
         category = "iPhoneSimulator" if current.config.buildPlatform == "iphonesimulator" else "iPhoneOS"
         return "{0}/com.zeroc.Swift-Test-Controller".format(category)
 
-    def getIOSAppFullPath(self, current: "Driver.Current") -> str:
+    def getIOSAppFullPath(self, current: Driver.Current) -> str:
         cmd = "xcodebuild -project {0} \
                           -scheme 'TestDriverApp' \
                           -configuration {1} \
@@ -4485,7 +4472,7 @@ class SwiftMapping(Mapping):
         testDriver = os.path.join(m.group(1), "TestDriverApp.app")
         return testDriver
 
-    def getSSLProps(self, process: "Process", current: "Driver.Current") -> Props:
+    def getSSLProps(self, process: Process, current: Driver.Current) -> Props:
         props = Mapping.getByName("cpp").getSSLProps(process, current)
         props["IceSSL.DefaultDir"] = (
             "certs/common/ca"
@@ -4494,10 +4481,10 @@ class SwiftMapping(Mapping):
         )
         return props
 
-    def getPluginEntryPoint(self, plugin: str, process: "Process", current: "Driver.Current") -> str:
+    def getPluginEntryPoint(self, plugin: str, process: Process, current: Driver.Current) -> str:
         return Mapping.getByName("cpp").getPluginEntryPoint(plugin, process, current)
 
-    def getXcodeProject(self, current: "Driver.Current") -> str:
+    def getXcodeProject(self, current: Driver.Current) -> str:
         return "{0}/{1}".format(current.getTestCase().getMapping().getPath(), "test/ios/TestDriverApp.xcodeproj")
 
 
@@ -4540,7 +4527,7 @@ def runTestsWithPath(path: str) -> None:
     runTests(mappings)
 
 
-def runTests(mappings: "list[Mapping] | None" = None, drivers: "list[type[Driver]] | None" = None) -> None:
+def runTests(mappings: list[Mapping] | None = None, drivers: list[type[Driver]] | None = None) -> None:
     allMappings = mappings or Mapping.getAll()
     allDrivers = drivers or Driver.getAll()
 
@@ -4571,7 +4558,7 @@ def runTests(mappings: "list[Mapping] | None" = None, drivers: "list[type[Driver
             shortOptions += so
             longOptions += lo
         parsedOpts, args = getopt.gnu_getopt(sys.argv[1:], shortOptions, longOptions)
-        opts: "list[Option]" = list(parsedOpts)
+        opts: list[Option] = list(parsedOpts)
 
         for o, _ in opts:
             if o in ["-h", "--help"]:
@@ -4586,7 +4573,7 @@ def runTests(mappings: "list[Mapping] | None" = None, drivers: "list[type[Driver
         #
         # Create the configurations for each mapping.
         #
-        configs: "dict[Mapping, Mapping.Config]" = {}
+        configs: dict[Mapping, Mapping.Config] = {}
         for mapping in Mapping.getAll():
             if mapping not in configs:
                 configs[mapping] = mapping.createConfig(opts[:])

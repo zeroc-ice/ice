@@ -1,19 +1,18 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import re
 import time
 from collections.abc import Callable
 from typing import Any
 
 from Util import (
-    Args,
     Client,
     ClientServerTestCase,
     Darwin,
     Driver,
-    Envs,
     Mapping,
-    Options,
     Process,
     ProcessFromBinDir,
     Props,
@@ -54,7 +53,7 @@ def waitForLogMessage(path: str, pattern: str, timeout: float = 60) -> None:
 
 
 class DataStormProcess(Process):
-    def getEffectiveProps(self, current: "Driver.Current", props: Props) -> Props:
+    def getEffectiveProps(self, current: Driver.Current, props: Props) -> Props:
         props = Process.getEffectiveProps(self, current, props)
         for key, value in props.items():
             if key.startswith("DataStorm.Node.") and type(value) is str:
@@ -71,7 +70,7 @@ class Writer(Client, DataStormProcess):
     def __init__(self, instanceName: str | None = None, instance: Any = None, *args: Any, **kargs: Any):
         Client.__init__(self, *args, **kargs)
 
-    def getEffectiveProps(self, current: "Driver.Current", props: Props) -> Props:
+    def getEffectiveProps(self, current: Driver.Current, props: Props) -> Props:
         props = DataStormProcess.getEffectiveProps(self, current, props)
         if ("DataStorm.Node.Multicast.Enabled", 1) in props.items():
             port = current.driver.getTestPort(20)
@@ -103,7 +102,7 @@ class Reader(Server, DataStormProcess):
         # when both DataStorm.Node.Server.Enabled and DataStorm.Node.Multicast.Enabled are set to 0.
         Server.__init__(self, readyCount=0, *args, **kargs)
 
-    def getEffectiveProps(self, current: "Driver.Current", props: Props) -> Props:
+    def getEffectiveProps(self, current: Driver.Current, props: Props) -> Props:
         props = DataStormProcess.getEffectiveProps(self, current, props)
         if ("DataStorm.Node.Multicast.Enabled", 1) in props.items():
             port = current.driver.getTestPort(20)
@@ -130,29 +129,29 @@ class Node(ProcessFromBinDir, Server, DataStormProcess):
     def __init__(self, desc: str | None = None, *args: Any, **kargs: Any):
         Server.__init__(self, "dsnode", mapping=Mapping.getByName("cpp"), desc=desc or "DataStorm node", *args, **kargs)
 
-    def shutdown(self, current: "Driver.Current") -> None:
+    def shutdown(self, current: Driver.Current) -> None:
         if self in current.processes:
             current.processes[self].terminate()
 
-    def getProps(self, current: "Driver.Current") -> Props:
+    def getProps(self, current: Driver.Current) -> Props:
         props = Server.getProps(self, current)
         props["Ice.ProgramName"] = self.desc
         return props
 
-    def getEffectiveProps(self, current: "Driver.Current", props: Props) -> Props:
+    def getEffectiveProps(self, current: Driver.Current, props: Props) -> Props:
         return DataStormProcess.getEffectiveProps(self, current, props)
 
 
 class NodeTestCase(ClientServerTestCase):
     def __init__(
         self,
-        nodes: "list[Node] | None" = None,
-        nodeProps: "Props | Callable[[Process, Driver.Current], Props] | None" = None,
+        nodes: list[Node] | None = None,
+        nodeProps: Props | Callable[[Process, Driver.Current], Props] | None = None,
         *args: Any,
         **kargs: Any,
     ):
         ClientServerTestCase.__init__(self, *args, **kargs)
-        self.nodes: "list[Node] | None"
+        self.nodes: list[Node] | None
         if nodes:
             self.nodes = nodes
         elif nodeProps:
@@ -165,7 +164,7 @@ class NodeTestCase(ClientServerTestCase):
         if self.nodes:
             self.servers = self.nodes + self.getServers()
 
-    def teardownClientSide(self, current: "Driver.Current", success: bool) -> None:
+    def teardownClientSide(self, current: Driver.Current, success: bool) -> None:
         if self.nodes:
             for n in self.nodes:
                 n.shutdown(current)
