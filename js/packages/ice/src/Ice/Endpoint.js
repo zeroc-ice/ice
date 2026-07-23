@@ -64,7 +64,7 @@ export class IPEndpointInfo extends EndpointInfo {
 }
 
 /**
- *  Provides access to a TCP endpoint information.
+ *  Provides access to TCP endpoint information.
  *  @see {@link Endpoint}
  */
 export class TCPEndpointInfo extends IPEndpointInfo {
@@ -84,7 +84,7 @@ export class TCPEndpointInfo extends IPEndpointInfo {
 }
 
 /**
- *  Provides access to a WebSocket endpoint information.
+ *  Provides access to WebSocket endpoint information.
  */
 export class WSEndpointInfo extends EndpointInfo {
     constructor(underlying, resource) {

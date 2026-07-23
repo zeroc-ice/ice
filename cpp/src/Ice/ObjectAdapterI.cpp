@@ -95,7 +95,7 @@ Ice::ObjectAdapterI::activate()
         //
         // One off initializations of the adapter: update the
         // locator registry and print the "adapter ready"
-        // message. We set set state to StateActivating to prevent
+        // message. We set state to StateActivating to prevent
         // deactivation from other threads while these one off
         // initializations are done.
         //
@@ -121,7 +121,7 @@ Ice::ObjectAdapterI::activate()
             //
             // If we couldn't update the locator registry, we let the
             // exception go through and don't activate the adapter to
-            // allow to user code to retry activating the adapter
+            // allow user code to retry activating the adapter
             // later.
             //
             {

@@ -107,7 +107,7 @@ GPLv2 terms and conditions. ZeroC also grants a few [exceptions](ICE_LICENSE) to
 If you purchase a commercial or closed-source license for Ice, you must comply with the terms and conditions listed in
 the associated license agreement; the GPLv2 terms and conditions do not apply.
 
-The Ice software itself remains the same: the only difference between an open-source Ice and a commercial Ice are the
+The Ice software itself remains the same: the only difference between an open-source Ice and a commercial Ice is the
 license terms.
 
 [ci-home]: https://github.com/zeroc-ice/ice/actions/workflows/ci.yml

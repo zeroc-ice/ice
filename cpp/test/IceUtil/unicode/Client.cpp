@@ -24,7 +24,7 @@ using namespace std;
 
 //
 // Note that each file starts with a BOM; stringToWstring and wstringToString
-// converts these BOMs back and forth.
+// convert these BOMs back and forth.
 //
 
 #if defined(_WIN32)

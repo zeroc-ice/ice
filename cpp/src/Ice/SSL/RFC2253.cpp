@@ -242,7 +242,7 @@ parseAttributeType(const string& data, size_t& pos)
     eatWhite(data, pos);
     if (pos >= data.size())
     {
-        throw Ice::ParseException(__FILE__, __LINE__, "invalid attribute type (expected end of data)");
+        throw Ice::ParseException(__FILE__, __LINE__, "invalid attribute type (unexpected end of data)");
     }
 
     string result;

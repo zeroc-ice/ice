@@ -88,12 +88,12 @@ public class Client extends TestHelper {
                             seenEndpoint.put(endpoint.hashCode(), endpoint);
                         }
                         //
-                        // Check the same endpoint produce always the same hash
+                        // Check the same endpoint always produces the same hash
                         //
                         test(endpoint.hashCode() == endpoint.hashCode());
                     }
                     //
-                    // Check the same proxy produce always the same hash
+                    // Check the same proxy always produces the same hash
                     //
                     test(obj.hashCode() == obj.hashCode());
                 }
@@ -126,7 +126,7 @@ public class Client extends TestHelper {
                         seenProxy.put(obj.hashCode(), obj.getProxy());
                     }
                     //
-                    // Check the same proxy produce always the same hash
+                    // Check the same proxy always produces the same hash
                     //
                     test(obj.hashCode() == obj.hashCode());
                 }
@@ -159,7 +159,7 @@ public class Client extends TestHelper {
                         seenProxy.put(obj.hashCode(), obj.getProxy());
                     }
                     //
-                    // Check the same proxy produce always the same hash
+                    // Check the same proxy always produces the same hash
                     //
                     test(obj.hashCode() == obj.hashCode());
                 }
@@ -358,7 +358,7 @@ public class Client extends TestHelper {
                         seenPointF.put(pf.hashCode(), pf);
                     }
                     //
-                    // Check the same struct produce always the same hash
+                    // Check the same struct always produces the same hash
                     //
                     test(pf.hashCode() == pf.hashCode());
                 }
@@ -378,7 +378,7 @@ public class Client extends TestHelper {
                         seenPointD.put(pd.hashCode(), pd);
                     }
                     //
-                    // Check the same struct produce always the same hash
+                    // Check the same struct always produces the same hash
                     //
                     test(pd.hashCode() == pd.hashCode());
                 }
@@ -404,7 +404,7 @@ public class Client extends TestHelper {
                         seenPolyline.put(polyline.hashCode(), polyline);
                     }
                     //
-                    // Check the same struct produce always the same hash
+                    // Check the same struct always produces the same hash
                     //
                     test(polyline.hashCode() == polyline.hashCode());
                 }
@@ -434,7 +434,7 @@ public class Client extends TestHelper {
                         seenColorPalette.put(colorPalette.hashCode(), colorPalette);
                     }
                     //
-                    // Check the same struct produce always the same hash
+                    // Check the same struct always produces the same hash
                     //
                     test(colorPalette.hashCode() == colorPalette.hashCode());
                 }
@@ -459,7 +459,7 @@ public class Client extends TestHelper {
                         seenColor.put(c.hashCode(), c);
                     }
                     //
-                    // Check the same struct produce always the same hash
+                    // Check the same struct always produces the same hash
                     //
                     test(c.hashCode() == c.hashCode());
                 }
@@ -494,7 +494,7 @@ public class Client extends TestHelper {
                         seenDraw.put(draw.hashCode(), draw);
                     }
                     //
-                    // Check the same struct produce always the same hash
+                    // Check the same struct always produces the same hash
                     //
                     test(draw.hashCode() == draw.hashCode());
                 }

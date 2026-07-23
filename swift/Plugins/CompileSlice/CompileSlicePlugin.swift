@@ -49,7 +49,7 @@ enum PluginError: Error {
             return "Missing slice compiler: '\(path)'."
         case .missingConfigFile(let path, let target):
             return
-                "Missing config file '\(path)` for target `\(target)`. '. This file must be included in your sources."
+                "Missing config file '\(path)' for target '\(target)'. This file must be included in your sources."
         case .missingIceSliceFiles(let path):
             return "The Ice slice files are missing. Expected location: `\(path)`"
         }

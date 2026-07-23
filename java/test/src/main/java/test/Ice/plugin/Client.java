@@ -15,7 +15,7 @@ import java.io.PrintWriter;
 public class Client extends TestHelper {
     public void run(String[] args) {
         //
-        // Under Android the class comes from the communicators classloader which
+        // Under Android the class comes from the communicator's classloader which
         // is setup in the android test driver.
         //
         String jarFile = isAndroid() ? "" : "../../../../../../../lib/IceTestPlugins.jar";

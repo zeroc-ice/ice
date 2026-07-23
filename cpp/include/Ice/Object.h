@@ -36,12 +36,12 @@ namespace Ice
         /// not throw any exception and any @p sendResponse wrapper must not throw any exception. @p sendResponse can be
         /// called by the thread that called dispatch (the "dispatch thread") or by another thread. The implementation
         /// must call @p sendResponse exactly once or throw an exception.
-        /// @remark Calling @p sendResponse can be thought as returning the outgoing response. Just like when you return
-        /// a value from a remote operation, you can only return it once and you don't know if the client receives this
-        /// value. In practice, the Ice-provided @p sendResponse attempts to send the response to the client
-        /// synchronously, but may send it asynchronously. It can also silently fail to send the response back to the
-        /// client. This function is the main building block for the Ice dispatch pipeline. The implementation provided
-        /// by the base class (Object) dispatches incoming requests to the four `Object` operations (`ice_isA`,
+        /// @remark Calling @p sendResponse can be thought of as returning the outgoing response. Just like when you
+        /// return a value from a remote operation, you can only return it once and you don't know if the client
+        /// receives this value. In practice, the Ice-provided @p sendResponse attempts to send the response to the
+        /// client synchronously, but may send it asynchronously. It can also silently fail to send the response back to
+        /// the client. This function is the main building block for the Ice dispatch pipeline. The implementation
+        /// provided by the base class (Object) dispatches incoming requests to the four `Object` operations (`ice_isA`,
         /// `ice_ping`, `ice_ids` and `ice_id`), and throws OperationNotExistException for all other operations. This
         /// base implementation is trivial and should be overridden and fully replaced by all derived classes.
         virtual void dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse);

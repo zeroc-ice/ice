@@ -5,7 +5,7 @@
 
 #include "Ice/Ice.h"
 
-// Surpress various warnings emitted from including the PHP headers
+// Suppress various warnings emitted from including the PHP headers
 #if defined(__clang__)
 #    pragma clang diagnostic ignored "-Wconversion"
 #    pragma clang diagnostic ignored "-Wsign-conversion"
@@ -46,7 +46,7 @@ extern zend_module_entry ice_module_entry;
 #define phpext_ice_ptr &ice_module_entry
 
 #ifdef ZTS
-//  If building for thread-safe enviroment, include the Thread Safe Resource Manager.
+//  If building for thread-safe environment, include the Thread Safe Resource Manager.
 #    include "TSRM.h"
 #endif
 

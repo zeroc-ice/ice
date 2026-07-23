@@ -26,7 +26,7 @@ Client::run(int argc, char** argv)
     communicator->setDefaultRouter(router);
 
     //
-    // First try to create a non ssl sessions.
+    // First try to create a non ssl session.
     //
     cout << "creating non-ssl session with tcp connection... ";
     try

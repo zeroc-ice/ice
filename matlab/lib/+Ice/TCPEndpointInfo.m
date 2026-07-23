@@ -1,5 +1,5 @@
 classdef (Sealed) TCPEndpointInfo < Ice.IPEndpointInfo
-    %TCPENDPOINTINFO Provides access to a TCP endpoint information.
+    %TCPENDPOINTINFO Provides access to TCP endpoint information.
     %
     %   TCPEndpointInfo Methods:
     %     type - Returns the type of the endpoint.

@@ -618,8 +618,8 @@ CallbackClient::run(int argc, char** argv)
     }
 
     //
-    // Send 3 twoway request to callback the receiver. The callback
-    // receiver only reply to the callback once it received the 3
+    // Send 3 twoway requests to callback the receiver. The callback
+    // receiver only replies to the callback once it received the 3
     // callbacks. This test ensures that Glacier2 doesn't serialize
     // twoway requests (see bug 337 for more information).
     //
@@ -755,7 +755,7 @@ CallbackClient::run(int argc, char** argv)
         //
         // Initiate few callbacks with a large payload. Because of
         // the buffered mode, this shouldn't block even though the
-        // misbehaved client are not answering their callback
+        // misbehaved clients are not answering their callback
         // requests.
         //
         Context context;

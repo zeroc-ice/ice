@@ -7,7 +7,7 @@ class Server: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         //
-        // Its possible to have batch oneway requests dispatched
+        // It's possible to have batch oneway requests dispatched
         // after the adapter is deactivated due to thread
         // scheduling so we suppress this warning.
         //

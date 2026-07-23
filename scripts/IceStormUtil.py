@@ -177,9 +177,9 @@ class IceStormProcess:
     def getProps(self, current):
         #
         # An IceStorm client is provided with the IceStormAdmin.TopicManager.Default property set
-        # to the "instance" topic manager proxy if "instance" is set. Otherwise, if a single it's
+        # to the "instance" topic manager proxy if "instance" is set. Otherwise, it's
         # set to the replicated topic manager if a specific "instance name" is provided or there's
-        # only one IceStorm instance name deployed. If IceStorm multiple instance names are set,
+        # only one IceStorm instance name deployed. If multiple IceStorm instance names are set,
         # the client is given an IceStormAdmin.<instance name> property for each instance containing
         # the replicated topic manager proxy.
         #

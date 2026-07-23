@@ -214,7 +214,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         rethrow_exception(_verificationException);
     }
 
-    // Retrieve the certificate chain if the verification callback has not already fill it.
+    // Retrieve the certificate chain if the verification callback has not already filled it.
     if (!_peerCertificate)
     {
         // When calling on the server side the peer certificate is not included in SSL_get_peer_cert_chain and must be

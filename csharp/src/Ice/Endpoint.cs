@@ -91,7 +91,7 @@ public class IPEndpointInfo : EndpointInfo
 }
 
 /// <summary>
-/// Provides access to a TCP endpoint information.
+/// Provides access to TCP endpoint information.
 /// </summary>
 public sealed class TCPEndpointInfo : IPEndpointInfo
 {
@@ -117,7 +117,7 @@ public sealed class TCPEndpointInfo : IPEndpointInfo
 }
 
 /// <summary>
-/// Provides access to a UDP endpoint information.
+/// Provides access to UDP endpoint information.
 /// </summary>
 public sealed class UDPEndpointInfo : IPEndpointInfo
 {
@@ -150,7 +150,7 @@ public sealed class UDPEndpointInfo : IPEndpointInfo
 }
 
 /// <summary>
-/// Provides access to a WebSocket endpoint information.
+/// Provides access to WebSocket endpoint information.
 /// </summary>
 public sealed class WSEndpointInfo : EndpointInfo
 {

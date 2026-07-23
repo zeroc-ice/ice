@@ -34,8 +34,8 @@ namespace
     //
     // Retrieve the name of a cipher, SSLCipherSuite includes duplicated values for TLS/SSL
     // protocol ciphers, for example SSL_RSA_WITH_RC4_128_MD5/TLS_RSA_WITH_RC4_128_MD5
-    // are represented by the same SSLCipherSuite value, the names return by this method
-    // doesn't include a protocol prefix.
+    // are represented by the same SSLCipherSuite value, the names returned by this method
+    // don't include a protocol prefix.
     //
     string cipherName(SSLCipherSuite cipher)
     {

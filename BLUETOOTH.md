@@ -82,6 +82,6 @@ On Android, go to Settings → About phone → Status (or Settings → System �
 - Ensure IP addresses and Bluetooth addresses are correct
 - Use `--debug` flag for verbose output to diagnose connection issues
 
-[Android test controller]: java/test//android/controller/
+[Android test controller]: java/test/android/controller/
 [cpp/BUILDING.md]: cpp/BUILDING.md
 [java/BUILDING.md]: java/BUILDING.md

@@ -255,7 +255,7 @@ final class ReferenceFactory {
 
                 case 'e': {
                     if (argument == null) {
-                        throw new ParseException("no argument provided for -e option in in proxy string '" + s + "'");
+                        throw new ParseException("no argument provided for -e option in proxy string '" + s + "'");
                     }
 
                     try {

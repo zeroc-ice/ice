@@ -37,7 +37,7 @@ public interface NetworkProxy
     // If the proxy host needs to be resolved, this should return
     // a new NetworkProxy containing the IP address of the proxy.
     // This is called from the endpoint host resolver thread, so
-    // it's safe if this this method blocks.
+    // it's safe if this method blocks.
     //
     NetworkProxy resolveHost(int protocolSupport);
 
@@ -217,7 +217,7 @@ public sealed class HTTPNetworkProxy : NetworkProxy
         {
             //
             // Read one more byte, we can't easily read bytes in advance
-            // since the transport implementation might be be able to read
+            // since the transport implementation might be able to read
             // the data from the memory instead of the socket.
             //
             buf.resize(buf.size() + 1, true);

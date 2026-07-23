@@ -9,7 +9,7 @@ using namespace std;
 void
 IceInternal::addDefaultPluginFactories(vector<Ice::PluginFactory>& pluginFactories)
 {
-    // These built-in plug-ins are always available and not returned by a Ice::namePluginFactory function.
+    // These built-in plug-ins are always available and not returned by an Ice::namePluginFactory function.
     vector<Ice::PluginFactory> defaultPluginFactories{{Ice::tcpPluginFactory(), Ice::sslPluginFactory()}};
 
     Ice::PluginFactory udpPluginFactory{Ice::udpPluginFactory()};

@@ -507,7 +507,7 @@ public sealed class InputStream
         //
         // If there isn't enough data to read on the stream for the sequence (and
         // possibly enclosed sequences), something is wrong with the marshaled
-        // data: it's claiming having more data that what is possible to read.
+        // data: it's claiming having more data than what is possible to read.
         //
         if (_startSeq + minSeqSize > _buf.size())
         {
@@ -1865,7 +1865,8 @@ public sealed class InputStream
             int tag = v >> 3;
             if (tag > 30)
             {
-                // We check for '> 30' instead of '> 29' because 30 is special sentinel tag, handled by the next block.
+                // We check for '> 30' instead of '> 29' because 30 is a special sentinel tag, handled by the next
+                // block.
                 throw new MarshalException($"Invalid tag '{tag}': tags larger than 29 must be encoded as a size.");
             }
             if (tag == 30)

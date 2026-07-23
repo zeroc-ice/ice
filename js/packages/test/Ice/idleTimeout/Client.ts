@@ -103,16 +103,16 @@ async function testConnectionAbortedByIdleCheck(properties: Ice.Properties, help
     }
 }
 
-// Verifies the behavior with the server idle check enabled or disabled when the client and the server have mismatched idle
+// Verifies the behavior with the idle check enabled or disabled when the client and the server have mismatched idle
 // timeouts (here: 3s on the server side and 1s on the client side).
-async function testServerWithEnableDisableIdleCheck(
+async function testEnableDisableIdleCheck(
     enabled: boolean,
     properties: Ice.Properties,
     helper: TestHelper,
 ): Promise<void> {
     const output = helper.getWriter();
     const enabledString = enabled ? "enabled" : "disabled";
-    output.write(`testing with server idle check ${enabledString}... `);
+    output.write(`testing connection with idle check ${enabledString}... `);
 
     // The server has 3s idle timeout, and enabled idle check.
     const proxyString3s = `test: ${helper.getTestEndpoint(2)}`;
@@ -179,8 +179,8 @@ export class Client extends TestHelper {
         await testConnectionAbortedByIdleCheck(communicator.getProperties(), this);
         await testConnectionNotAbortedByIdleCheck(communicator.getProperties(), this);
 
-        await testServerWithEnableDisableIdleCheck(true, communicator.getProperties(), this);
-        await testServerWithEnableDisableIdleCheck(false, communicator.getProperties(), this);
+        await testEnableDisableIdleCheck(true, communicator.getProperties(), this);
+        await testEnableDisableIdleCheck(false, communicator.getProperties(), this);
 
         await testNoIdleTimeout(communicator.getProperties(), this);
 

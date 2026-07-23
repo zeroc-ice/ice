@@ -106,7 +106,7 @@ testWithOutstandingRequest(TestIntfPrx p, bool oneway)
     }
     else
     {
-        // With a two-way invocation, the inactivity timeout should not shutdown any connection.
+        // With a two-way invocation, the inactivity timeout should not shut down any connection.
         test(connection2 == connection);
     }
     connection2->close().get();

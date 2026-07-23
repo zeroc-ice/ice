@@ -36,8 +36,8 @@ namespace Ice
         std::size_t _sizeMax;
 
         //
-        // In case of a log file rename failure is set to the time in milliseconds
-        // after which rename could be attempted again. Otherwise is set to zero.
+        // In case of a log file rename failure, set to the time point after which
+        // the rename can be attempted again. Otherwise, set to the epoch (zero).
         //
         std::chrono::steady_clock::time_point _nextRetry;
     };

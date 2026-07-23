@@ -186,7 +186,7 @@ class ReplicaGroup extends TreeNode {
 
     void rebuild(ReplicaGroupDescriptor descriptor) {
         _descriptor = descriptor;
-        // And that's it since there is no children
+        // And that's it since there are no children
     }
 
     private ReplicaGroupDescriptor _descriptor;

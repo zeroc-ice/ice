@@ -3371,7 +3371,7 @@ yyreduce:
         EnumeratorList enumerators = cont->enumerators(scoped->v);
         if (enumerators.size() == 1)
         {
-            // We found the enumerator the user must of been referencing.
+            // We found the enumerator the user must have been referencing.
             cl.push_back(enumerators.front());
             scoped->v = enumerators.front()->scoped();
         }

@@ -220,7 +220,7 @@ internal class RFC2253
         eatWhite(data, ref pos);
         if (pos >= data.Length)
         {
-            throw new ParseException("invalid attribute type (expected end of data)");
+            throw new ParseException("invalid attribute type (unexpected end of data)");
         }
 
         string result = "";

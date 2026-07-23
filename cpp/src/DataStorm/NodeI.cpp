@@ -47,7 +47,7 @@ namespace
 NodeI::NodeI(const shared_ptr<Instance>& instance, std::string name)
     : _instance(instance),
       _proxy{instance->getObjectAdapter()->createProxy<NodePrx>(Identity{.name = std::move(name), .category = ""})},
-      // The subscriber and publisher collocated forwarders are initalized here to avoid using a nullable proxy. These
+      // The subscriber and publisher collocated forwarders are initialized here to avoid using a nullable proxy. These
       // objects are only used after the node is initialized and are removed in destroy implementation.
       _publisherForwarder{instance->getCollocatedForwarder()->add<PublisherSessionPrx>(
           [this](const ByteSeq& inParams, const Current& current) { forwardToPublishers(inParams, current); })},

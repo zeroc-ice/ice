@@ -4,7 +4,7 @@ The `CompileSlice` plugin is a SwiftPM plugin that compiles Slice files to Swift
 compiling Slice files as part of the SwiftPM build process, without having to manually run the `slice2swift`
 compiler.
 
-To use the plugin with with a target that relies on generated Swift files, add the plugin to the target's plugins
+To use the plugin with a target that relies on generated Swift files, add the plugin to the target's plugins
 list:
 
 ```swift

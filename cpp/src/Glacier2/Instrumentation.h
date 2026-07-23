@@ -57,7 +57,7 @@ namespace Glacier2::Instrumentation
             const std::shared_ptr<SessionObserver>& old) = 0;
 
         /// Glacier2 calls this method on initialization. The add-in implementing this interface can use this object
-        /// to get Glacier2 to re-obtain observers for topics and subscribers.
+        /// to get Glacier2 to re-obtain observers for its sessions.
         /// @param updater The observer updater object.
         virtual void setObserverUpdater(const std::shared_ptr<ObserverUpdater>& updater) = 0;
     };

@@ -108,7 +108,7 @@ Slice::validateMetadata(const UnitPtr& unit, string_view prefix, map<string, Met
             }
         }
         return nullopt;
-    },
+    };
     knownMetadata.emplace("deprecate", std::move(deprecatedInfo));
 
     // "format"
@@ -464,7 +464,8 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
         {
             // We make a special exception to uniqueness for metadata on forward declarations, since there can be
             // multiple forward declarations for the same entity, but they all share a single backing `MetadataList`.
-            // So for these types, even 'unique' metadata to appear multiple times, but we require them to be identical.
+            // So for these types, we let even 'unique' metadata appear multiple times, but we require them to be
+            // identical.
             if (dynamic_pointer_cast<ClassDecl>(p) || dynamic_pointer_cast<InterfaceDecl>(p))
             {
                 const MetadataPtr& previousMetadata = _seenDirectives[directive];

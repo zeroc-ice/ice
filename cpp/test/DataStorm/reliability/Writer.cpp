@@ -53,9 +53,9 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
-    // Publish a batch of samples to a topic's key, follow by two consecutive session recovery events without writer
+    // Publish a batch of samples to a topic's key, followed by two consecutive session recovery events without writer
     // activity on the given key.
-    // Then send a second batch of samples to the same topic's key and ensure the reader continue reading from when it
+    // Then send a second batch of samples to the same topic's key and ensure the reader continues reading from when it
     // left off.
     cout << "testing reader multiple connection closure without writer activity... " << flush;
     {
@@ -77,11 +77,11 @@ void ::Writer::run(int argc, char* argv[])
         auto writerB = makeSingleKeyWriter(topic, "writer_barrier");
         writerB.update(0);
 
-        // Wait for a second control sample from the reader indicating the second session closure. The writer process
+        // Wait for a second control sample from the reader indicating the second session closure. The writer processes
         // this sample after the second session reestablishment.
         sample = readerB.getNextUnread();
 
-        // Session has been reestablish twice without activity in "element" key. Send the second batch of samples.
+        // Session has been reestablished twice without activity in "element" key. Send the second batch of samples.
         for (int i = 0; i < 100; ++i)
         {
             writer.update(i + 100);

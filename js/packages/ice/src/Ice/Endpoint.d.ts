@@ -83,13 +83,13 @@ declare module "@zeroc/ice" {
         }
 
         /**
-         * Provides access to a TCP endpoint information.
+         * Provides access to TCP endpoint information.
          * @see Endpoint
          */
         class TCPEndpointInfo extends IPEndpointInfo {}
 
         /**
-         * Provides access to a WebSocket endpoint information.
+         * Provides access to WebSocket endpoint information.
          */
         class WSEndpointInfo extends EndpointInfo {
             /**

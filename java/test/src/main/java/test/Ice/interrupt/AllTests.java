@@ -158,7 +158,7 @@ public class AllTests {
                 //
                 // Test interrupt of waitForSent. Here hold the adapter and send a large payload.
                 // The
-                // thread is interrupted in 500ms which should result in a operation interrupted
+                // thread is interrupted in 500ms which should result in an operation interrupted
                 // exception.
                 //
                 executor.submit(

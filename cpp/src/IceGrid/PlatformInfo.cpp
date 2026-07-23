@@ -68,8 +68,8 @@ namespace
         if (!glpi)
         {
             Ice::Warning out(logger);
-            out << "Unable to figure out the number of process sockets:\n";
-            out << "GetLogicalProcessInformation not supported on this OS;";
+            out << "Unable to figure out the number of processor sockets:\n";
+            out << "GetLogicalProcessorInformation not supported on this OS;";
             return 0;
         }
 
@@ -88,7 +88,7 @@ namespace
                 else
                 {
                     Ice::Warning out(logger);
-                    out << "Unable to figure out the number of process sockets:\n";
+                    out << "Unable to figure out the number of processor sockets:\n";
                     out << IceInternal::lastErrorToString();
                     return 0;
                 }
@@ -146,7 +146,7 @@ PlatformInfo::PlatformInfo(
     //
 #if defined(_WIN32)
     _terminated = false;
-    _usages1.insert(_usages1.end(), 1 * 60 / 5, 0);    // 1 sample every 5 seconds during 1 minutes.
+    _usages1.insert(_usages1.end(), 1 * 60 / 5, 0);    // 1 sample every 5 seconds during 1 minute.
     _usages5.insert(_usages5.end(), 5 * 60 / 5, 0);    // 1 sample every 5 seconds during 5 minutes.
     _usages15.insert(_usages15.end(), 15 * 60 / 5, 0); // 1 sample every 5 seconds during 15 minutes.
     _last1Total = 0;

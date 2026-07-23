@@ -79,24 +79,20 @@ Directs dependency information to the specified file. The output
 format depends on whether --depend or --depend-xml is also specified.
 
 .TP
-.BR \-\-all\fR
+.BR \-\-build " " modules|index|all\fR
 .br
-Generate code for all Slice definitions, including those from included files.
+Control which types of Python files are generated from the Slice definitions:
+modules generates only the Python module files, index generates only the Python
+package index files (__init__.py), and all generates both (the default).
 
 .TP
-.BR \-\-prefix " " PREFIX\fR
+.BR \-\-list\-generated " " modules|index|all\fR
 .br
-Use PREFIX as the prefix for generated file names.
-
-.TP
-.BR \-\-no-package\fR
-.br
-Do not generate Python package hierarchy.
-
-.TP
-.BR \-\-build-package\fR
-.br
-Only generate Python package hierarchy.
+List the Python files that would be generated for the given Slice definitions,
+without producing any output files: modules lists only the Python module files,
+index lists only the Python package index files (__init__.py), and all lists
+both. All paths are relative to the directory specified with --output-dir, and
+each file is listed on a separate line.
 
 .SH SEE ALSO
 

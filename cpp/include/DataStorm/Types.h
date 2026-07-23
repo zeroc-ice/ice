@@ -22,7 +22,7 @@ namespace DataStorm
         /// Samples are never discarded.
         None,
 
-        /// Samples are discared based on the sample timestamp. If the received sample timestamp is older than the
+        /// Samples are discarded based on the sample timestamp. If the received sample timestamp is older than the
         /// last received sample, the sample is discarded. This ensures that readers will eventually always end up
         /// with the same view of the data if multiple writers are sending samples.
         SendTime,
@@ -36,7 +36,7 @@ namespace DataStorm
     /// event of the received sample.
     enum struct ClearHistoryPolicy
     {
-        /// Clear the sample history when a Add sample is received.
+        /// Clear the sample history when an Add sample is received.
         OnAdd,
 
         /// Clear the sample history when a Remove sample is received.
@@ -81,7 +81,7 @@ namespace DataStorm
         std::optional<int> sampleLifetime;
 
         /// The clear history policy specifies when samples are removed from the sample history. By default,
-        /// samples are removed when a new sample is is received which effectively disables the sample history.
+        /// samples are removed when a new sample is received which effectively disables the sample history.
         std::optional<ClearHistoryPolicy> clearHistory;
     };
 
@@ -146,7 +146,7 @@ namespace DataStorm
         Disconnect
     };
 
-    /// The Encoder template provides a method to encode decode user types.
+    /// The Encoder template provides a method to encode user types.
     /// The encoder template can be specialized to provide encoding for types that don't support being encoded with
     /// Ice. By default, the Slice encoding is used if no Encoder template specialization is provided for the type.
     /// @headerfile DataStorm/DataStorm.h
@@ -181,7 +181,7 @@ namespace DataStorm
         /// Clones the given value. This helper is used when processing partial update to clone the previous value
         /// and compute the new value with the partial update. The default implementation performs a plain C++ copy
         /// with the copy constructor.
-        /// @param value The value to encode
+        /// @param value The value to clone
         /// @return The cloned value
         static T clone(const T& value) noexcept { return value; }
     };

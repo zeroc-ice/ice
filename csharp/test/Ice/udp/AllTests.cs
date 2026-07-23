@@ -90,7 +90,7 @@ public class AllTests : global::Test.AllTests
         if (communicator.getProperties().getIcePropertyAsInt("Ice.Override.Compress") == 0)
         {
             //
-            // Only run this test if compression is disabled, the test expect fixed message size
+            // Only run this test if compression is disabled, the test expects fixed message size
             // to be sent over the wire.
             //
             byte[] seq = null;
@@ -110,7 +110,7 @@ public class AllTests : global::Test.AllTests
             {
                 //
                 // The server's Ice.UDP.RcvSize property is set to 16384, which means that DatagramLimitException
-                // will be throw when try to send a packet bigger than that.
+                // will be thrown when trying to send a packet bigger than that.
                 //
                 test(seq.Length > 16384);
             }
@@ -144,7 +144,7 @@ public class AllTests : global::Test.AllTests
         Console.Out.Flush();
         var endpoint = new StringBuilder();
         //
-        // Use loopback to prevent other machines to answer.
+        // Use loopback to prevent other machines from answering.
         //
         if (communicator.getProperties().getIceProperty("Ice.IPv6") == "1")
         {
@@ -181,7 +181,7 @@ public class AllTests : global::Test.AllTests
             {
                 if (communicator.getProperties().getIceProperty("Ice.IPv6") == "1")
                 {
-                    // Multicast IPv6 not supported on the platform. This occurs for example on macOS big_suir
+                    // Multicast IPv6 not supported on the platform. This occurs for example on macOS Big Sur
                     Console.Out.Write("(not supported) ");
                     ret = true;
                     break;

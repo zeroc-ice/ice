@@ -219,7 +219,7 @@ public class AllTests : Test.AllTests
             }
 
             // Ensure that the previous updates were committed, the setProperties call returns before
-            // notifying the callbacks so to ensure all the update callbacks have be notified we call
+            // notifying the callbacks so to ensure all the update callbacks have been notified we call
             // a second time, this will block until all the notifications from the first update have
             // completed.
             _serverProps.setProperties([]);

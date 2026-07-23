@@ -86,7 +86,7 @@ public func allTests(_ helper: TestHelper) async throws {
 
     if try communicator.getProperties().getIcePropertyAsInt("Ice.Override.Compress") == 0 {
         //
-        // Only run this test if compression is disabled, the test expect fixed message size
+        // Only run this test if compression is disabled, the test expects fixed message size
         // to be sent over the wire.
         //
         var seq: ByteSeq
@@ -102,7 +102,7 @@ public func allTests(_ helper: TestHelper) async throws {
         } catch is Ice.DatagramLimitException {
             //
             // The server's Ice.UDP.RcvSize property is set to 16384, which means that DatagramLimitException
-            // will be throw when try to send a packet bigger than that.
+            // will be thrown when trying to send a packet bigger than that.
             //
             try test(seq.count > 16384)
         }

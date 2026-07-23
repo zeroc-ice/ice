@@ -467,7 +467,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     public void addAdminFacet(Object servant, string facet) => instance.addAdminFacet(servant, facet);
 
     /// <summary>
-    /// Removes the following facet to the Admin object.
+    /// Removes a facet from the Admin object.
     /// Removing a facet that was not previously registered throws <see cref="NotRegisteredException" />.
     /// </summary>
     /// <param name="facet">The name of the Admin facet.</param>

@@ -696,7 +696,7 @@ public class Server extends Communicator {
                     }
 
                     if (_serviceObserver != null) {
-                        // Add observer to service manager using AMI call Note that duplicate
+                        // Add observer to service manager using AMI call. Note that duplicate
                         // registrations are ignored
 
                         ServiceManagerPrx serviceManager = getServiceManager();

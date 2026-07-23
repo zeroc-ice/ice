@@ -112,7 +112,7 @@ namespace Slice::Java
         std::string& formalType);
 
     /// Converts a Slice-formatted link into a JavaDoc formatted link.
-    /// @param rawLink The references's raw text, taken verbatim from the doc-comment.
+    /// @param rawLink The reference's raw text, taken verbatim from the doc-comment.
     /// @param source A pointer to the Slice element that the doc-comment (and reference) are written on.
     /// @param target A pointer to the Slice element that is being referenced, or `nullptr` if it doesn't exist.
     /// @returns A pair containing:
