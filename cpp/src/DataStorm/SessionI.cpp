@@ -250,8 +250,9 @@ SessionI::attachTopic(TopicSpec spec, const Current&)
                         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
                         out << _id << ": matched elements '" << spec << "' on '" << topic << "'";
                     }
-                    // Don't wait for the response here, the peer session will send an ack.
-                    _session->attachElementsAsync(topic->getId(), specs, true, nullptr);
+                    // Don't wait for the response here, the peer session will send an ack. The request is addressed
+                    // to the remote topic instance we are attaching to (spec.id).
+                    _session->attachElementsAsync(topic->getId(), spec.id, specs, true, nullptr);
                 }
             });
     }
@@ -384,13 +385,14 @@ SessionI::announceElements(int64_t topicId, ElementInfoSeq elements, const Curre
                     out << _id << ": announcing elements matched '[" << specs << "]@" << topicId << "' on topic '"
                         << topic << "'";
                 }
-                _session->attachElementsAsync(topic->getId(), specs, false, nullptr);
+                // Addressed to the remote topic instance that announced these elements (topicId).
+                _session->attachElementsAsync(topic->getId(), topicId, specs, false, nullptr);
             }
         });
 }
 
 void
-SessionI::attachElements(int64_t topicId, ElementSpecSeq elements, bool initialize, const Current&)
+SessionI::attachElements(int64_t topicId, int64_t peerTopicId, ElementSpecSeq elements, bool initialize, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -399,11 +401,11 @@ SessionI::attachElements(int64_t topicId, ElementSpecSeq elements, bool initiali
     }
 
     auto now = chrono::system_clock::now();
-    // For each local topic that has a subscriber for the remote topic:
-    // - Attach the elements to the topic.
-    // - ACK the attached elements to the peer session.
+    // Attach the elements to the addressed local topic and ack them to the peer. Routing to exactly the addressed
+    // topic (rather than every same-name topic) keeps the echoed element and key ids unambiguous.
     runWithTopics(
         topicId,
+        peerTopicId,
         [&](TopicI* topic, TopicSubscriber& subscriber)
         {
             if (_traceLevels->session > 2)
@@ -435,13 +437,14 @@ SessionI::attachElements(int64_t topicId, ElementSpecSeq elements, bool initiali
                     out << _id << ": attaching elements matched '[" << specAck << "]@" << topicId << "' on topic '"
                         << topic << "'";
                 }
-                _session->attachElementsAckAsync(topic->getId(), specAck, nullptr);
+                // Addressed back to the remote topic instance that sent attachElements (topicId).
+                _session->attachElementsAckAsync(topic->getId(), topicId, specAck, nullptr);
             }
         });
 }
 
 void
-SessionI::attachElementsAck(int64_t topicId, ElementSpecAckSeq elements, const Current&)
+SessionI::attachElementsAck(int64_t topicId, int64_t peerTopicId, ElementSpecAckSeq elements, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -451,6 +454,7 @@ SessionI::attachElementsAck(int64_t topicId, ElementSpecAckSeq elements, const C
     auto now = chrono::system_clock::now();
     runWithTopics(
         topicId,
+        peerTopicId,
         [&](TopicI* topic, TopicSubscriber&)
         {
             if (_traceLevels->session > 2)
@@ -473,7 +477,8 @@ SessionI::attachElementsAck(int64_t topicId, ElementSpecAckSeq elements, const C
                     out << _id << ": initializing elements '[" << initializationBatches << "]@" << topicId
                         << "' on topic '" << topic << "'";
                 }
-                _session->initSamplesAsync(topic->getId(), initializationBatches, nullptr);
+                // Addressed back to the remote topic instance that sent the ack (topicId).
+                _session->initSamplesAsync(topic->getId(), topicId, initializationBatches, nullptr);
             }
 
             if (!removedIds.empty())
@@ -525,7 +530,7 @@ SessionI::detachElements(int64_t id, LongSeq elements, const Current&)
 }
 
 void
-SessionI::initSamples(int64_t topicId, DataSamplesSeq initializationBatches, const Current&)
+SessionI::initSamples(int64_t topicId, int64_t peerTopicId, DataSamplesSeq initializationBatches, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -544,6 +549,7 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq initializationBatches, con
     {
         runWithTopics(
             topicId,
+            peerTopicId,
             [&](TopicI* topic, TopicSubscriber& subscriber)
             {
                 ElementSubscribers* elementSubscribers = subscriber.get(initializationBatch.id);
@@ -1448,6 +1454,40 @@ SessionI::runWithTopics(int64_t topicId, const function<void(TopicI*, TopicSubsc
             callback(topic, subscriber);
             _topicLock = nullptr;
         }
+    }
+}
+
+void
+SessionI::runWithTopics(int64_t topicId, int64_t peerTopicId, const function<void(TopicI*, TopicSubscriber&)>& callback)
+{
+    auto t = _topics.find(topicId);
+    if (t != _topics.end())
+    {
+        for (auto& [topic, subscriber] : t->second.getSubscribers())
+        {
+            if (topic->getId() != peerTopicId)
+            {
+                continue;
+            }
+            unique_lock<mutex> lock(topic->getMutex());
+            if (!topic->isDestroyed())
+            {
+                _topicLock = &lock;
+                callback(topic, subscriber);
+                _topicLock = nullptr;
+            }
+            return;
+        }
+    }
+
+    // No local topic addressed by peerTopicId is subscribed to the remote topic: it was never attached, or was
+    // destroyed and reaped during the handshake. Dropping the request is correct, but trace it so it is not
+    // mistaken for a lost message.
+    if (_traceLevels->session > 2)
+    {
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+        out << _id << ": no local topic '" << peerTopicId << "' subscribed to remote topic '" << topicId
+            << "', ignoring the request";
     }
 }
 
