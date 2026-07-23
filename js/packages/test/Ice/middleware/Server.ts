@@ -30,6 +30,20 @@ class Middleware extends Ice.Object {
     private _outLog: string[];
 }
 
+class NullLogger implements Ice.Logger {
+    print(_message: string): void {}
+
+    trace(_category: string, _message: string): void {}
+
+    warning(_message: string): void {}
+
+    error(_message: string): void {}
+
+    cloneWithPrefix(_prefix: string): Ice.Logger {
+        return this;
+    }
+}
+
 class MyObjectI extends Test.MyObject {
     constructor() {
         super();
@@ -66,6 +80,8 @@ export class Server extends TestHelper {
                 .use((next: Ice.Object) => new Middleware(next, "B", inLog, outLog))
                 .use((next: Ice.Object) => new Middleware(next, "C", inLog, outLog));
             await communicator.waitForShutdown();
+
+            await this.testMiddlewareFactoryException(communicator, args);
         } finally {
             const out = this.getWriter();
             out.write("testing middleware execution order... ");
@@ -89,5 +105,50 @@ export class Server extends TestHelper {
                 await communicator.destroy();
             }
         }
+    }
+
+    // Verifies a middleware factory exception makes all dispatches fail with a generic UnknownException.
+    async testMiddlewareFactoryException(invokingCommunicator: Ice.Communicator, args: string[]) {
+        const out = this.getWriter();
+        out.write("testing middleware factory exception... ");
+
+        // Use a separate communicator with a null logger: the pipeline creation failure is logged as an error.
+        const initData = new Ice.InitializationData();
+        [initData.properties] = this.createTestProperties(args);
+        initData.logger = new NullLogger();
+        const [communicator] = this.initialize(initData);
+        try {
+            const echo = new Test.EchoPrx(communicator, `__echo:${this.getTestEndpoint()}`);
+            const adapter = await communicator.createObjectAdapter("");
+            await echo.setConnection();
+            echo.ice_getCachedConnection()!.setAdapter(adapter);
+
+            adapter.add(new MyObjectI(), new Ice.Identity("test"));
+            adapter.use(() => {
+                throw new Error("middleware factory exception");
+            });
+
+            const prx = new Test.MyObjectPrx(invokingCommunicator, `test: ${this.getTestEndpoint()}`);
+
+            try {
+                await prx.getName();
+                test(false);
+            } catch (ex) {
+                test(ex instanceof Ice.UnknownException);
+                // The message does not reveal the middleware factory exception.
+                test(!(ex as Ice.UnknownException).message.includes("middleware factory exception"));
+            }
+
+            // The failure is permanent for this object adapter.
+            try {
+                await prx.getName();
+                test(false);
+            } catch (ex) {
+                test(ex instanceof Ice.UnknownException);
+            }
+        } finally {
+            await communicator.destroy();
+        }
+        out.writeLine("ok");
     }
 }
