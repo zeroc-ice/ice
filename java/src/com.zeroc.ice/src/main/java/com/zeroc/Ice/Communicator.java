@@ -169,6 +169,7 @@ public final class Communicator implements AutoCloseable {
      *
      * @param property the base property name
      * @return the proxy, or null if the property is not set
+     * @throws ParseException if the property value is not a valid proxy string
      * @throws CommunicatorDestroyedException if the communicator has been destroyed
      */
     public ObjectPrx propertyToProxy(String property) {
