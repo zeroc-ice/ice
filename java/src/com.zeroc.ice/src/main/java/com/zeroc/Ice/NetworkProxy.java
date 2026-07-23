@@ -23,7 +23,7 @@ interface NetworkProxy {
 
     // If the proxy host needs to be resolved, this should return
     // a new NetworkProxy containing the IP address of the proxy.
-    // This is called from the endpoint host resolver thread, so it's safe if this this method blocks.
+    // This is called from the endpoint host resolver thread, so it's safe if this method blocks.
     NetworkProxy resolveHost(int protocolSupport);
 
     // Returns the IP address of the network proxy. This method must not block.

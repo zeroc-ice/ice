@@ -117,7 +117,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         public synchronized String toString(Number timestamp) {
             Date date = new Date(timestamp.longValue());
             if (date.getTime() < 1000) {
-                // When the x axis is first draw we don't have times to display.
+                // When the x axis is first drawn we don't have times to display.
                 return "";
             } else {
                 return _dateFormat.format(date);
@@ -698,7 +698,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     }
 
     // Added a new chart series to an existing row, the graph series will use the
-    // same configuration, the row cell field must be reset so calculations doesn't
+    // same configuration, the row cell field must be reset so calculations don't
     // take into account previous data. If we don't reset fields here, calculations
     // can be bogus in case the view was disabled and the data in the view was reset.
     void addSeries(final MetricsRow row) {
@@ -859,8 +859,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     }
                     samples--;
 
-                    // Remove empty series not longer in use, if there is only one
-                    // series that is keep to add new values.
+                    // Remove empty series no longer in use, if there is only one
+                    // series that is kept to add new values.
                     if (series.getData().isEmpty() && row.series.size() > 1) {
                         row.series.remove(series);
                         i--;
@@ -1410,7 +1410,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         };
 
     //
-    // The metrics view being graph
+    // The metrics view being graphed
     //
 
     //

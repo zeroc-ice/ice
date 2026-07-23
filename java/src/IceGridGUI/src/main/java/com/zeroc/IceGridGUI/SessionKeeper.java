@@ -825,7 +825,7 @@ public class SessionKeeper {
         private boolean _isDefault;
     }
 
-    // FocusListener implementation that unselect the text
+    // FocusListener implementation that unselects the text
     // of a text component after focus gained.
     public class FocusListener implements java.awt.event.FocusListener {
         public FocusListener(JTextComponent field) {
@@ -2393,7 +2393,7 @@ public class SessionKeeper {
         }
 
         boolean validateConfiguration() {
-            // If there isn't secure endpoints, we must set auth type to username password
+            // If there are no secure endpoints, we must set auth type to username password
             // and use X509 certificate to false.
             if (!hasSecureEndpoints()) {
                 _x509CertificateNoButton.setSelected(true);
@@ -2674,7 +2674,7 @@ public class SessionKeeper {
         // Finish configuration panel components
         private boolean _connectNow;
 
-        // The wizard steps the user has walked throw.
+        // The wizard steps the user has walked through.
         Stack<WizardStep> _wizardSteps = new Stack<>();
 
         ConnectionInfo _conf;
@@ -3944,7 +3944,7 @@ public class SessionKeeper {
         builder.border(Borders.DIALOG);
         builder.rowGroupingEnabled(true);
         builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
-        builder.addSeparator("Subject Alternate Names");
+        builder.addSeparator("Subject Alternative Names");
         builder.nextLine();
 
         Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
@@ -4533,7 +4533,7 @@ public class SessionKeeper {
                 .setText("Logged into Slave Registry '" + _replicaName + "'");
         }
 
-        // Create the session in its own thread as it made remote calls
+        // Create the session in its own thread as it makes remote calls
         _coordinator
             .getExecutor()
             .submit(

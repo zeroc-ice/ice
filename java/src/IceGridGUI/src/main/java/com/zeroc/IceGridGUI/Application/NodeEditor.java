@@ -126,7 +126,7 @@ class NodeEditor extends Editor {
             "<html>A floating point value.<br>"
                 + "When not specified, IceGrid uses 1.0 divided by the<br>"
                 + "<i>number of threads</i> on all platforms except Windows;<br>"
-                + "on Windows, IceGrid uses 1.0.<html>");
+                + "on Windows, IceGrid uses 1.0.</html>");
     }
 
     @Override

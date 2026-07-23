@@ -77,7 +77,7 @@ class PluginI implements Plugin {
                     exception(ex);
                 }
             } else {
-                // The proxy didn't change, so retrying wont help.
+                // The proxy didn't change, so retrying won't help.
                 assert (_exception != null);
                 _future.completeExceptionally(_exception);
             }
@@ -259,7 +259,7 @@ class PluginI implements Plugin {
                                 + "'\n"
                                 + "This is typically the case if multiple Ice locators"
                                 + " with different instance names are deployed and the"
-                                + " property `IceLocatorDiscovery.InstanceName'is not"
+                                + " property `IceLocatorDiscovery.InstanceName' is not"
                                 + " set.");
                 }
                 return;

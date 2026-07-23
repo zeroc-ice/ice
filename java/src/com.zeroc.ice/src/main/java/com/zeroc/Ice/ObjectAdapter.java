@@ -109,7 +109,7 @@ public final class ObjectAdapter {
 
             // One off initializations of the adapter:
             // update the locator registry and print the "adapter ready" message.
-            // We set set state to StateActivating to prevent deactivation from other threads
+            // We set state to StateActivating to prevent deactivation from other threads
             // while these one off initializations are done.
             _state = StateActivating;
 

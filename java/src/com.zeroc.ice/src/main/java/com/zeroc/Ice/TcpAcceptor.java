@@ -13,7 +13,7 @@ class TcpAcceptor implements Acceptor {
 
     @Override
     public void setReadyCallback(ReadyCallback callback) {
-        // No need to for the ready callback.
+        // No need for the ready callback.
     }
 
     @Override
