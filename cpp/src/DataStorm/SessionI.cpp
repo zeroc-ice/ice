@@ -570,9 +570,10 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Current&
                     out << _id << ": initializing samples from 'e" << samples.id << "' on '" << element << "'";
                 }
 
-                elementSubscriber.initialized = true;
                 if (samples.samples.empty())
                 {
+                    // An empty batch carries no history; mark the reader initialized so its live samples can flow.
+                    elementSubscriber.initialized = true;
                     return;
                 }
 
@@ -603,6 +604,9 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Current&
                         sample.timestamp));
                 }
 
+                // Mark the reader initialized only after its samples are decoded and built: if decoding or sample
+                // construction above throws, the reader stays uninitialized so a later redelivery can initialize it.
+                elementSubscriber.initialized = true;
                 elementSubscriber.lastId = samplesI.back()->id;
                 element->initSamples(samplesI, topicId, samples.id, elementSubscribers->priority, now, samples.id < 0);
             });
