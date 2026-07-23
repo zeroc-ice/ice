@@ -567,7 +567,7 @@ allTests(Test::TestHelper* helper)
         test(p->getProperty("AppVarProp") == "AppVar");
         test(p->getProperty("NodeVarProp") == "NodeVar");
         test(p->getProperty("RecursiveAppVarProp") == "Test");
-        test(p->getProperty("AppVarOverridedProp") == "OverridedInNode");
+        test(p->getProperty("AppVarOverriddenProp") == "OverriddenInNode");
         test(p->getProperty("AppVarDefinedInNodeProp") == "localnode");
         test(p->getProperty("EscapedAppVarProp") == "${escaped}");
         test(p->getProperty("RecursiveEscapedAppVarProp") == "${escaped}");
@@ -584,30 +584,30 @@ allTests(Test::TestHelper* helper)
     test(obj->getProperty("Param2Prop") == "AppVar");
     test(obj->getProperty("ParamEscapedProp") == "${escaped}");
     test(obj->getProperty("ParamDoubleEscapedProp") == "$escapedvalue");
-    test(obj->getProperty("AppVarOverridedByParamProp") == "Overrided");
-    test(obj->getProperty("NodeVarOverridedByParamProp") == "Test");
+    test(obj->getProperty("AppVarOverriddenByParamProp") == "Overridden");
+    test(obj->getProperty("NodeVarOverriddenByParamProp") == "Test");
     test(obj->getProperty("DefaultParamProp") == "VALUE");
     obj = TestIntfPrx(comm, "Server2@Server2.Server");
     test(obj->getProperty("Param1Prop") == "Param12");
-    test(obj->getProperty("Param2Prop") == "OverridedInNode");
+    test(obj->getProperty("Param2Prop") == "OverriddenInNode");
     test(obj->getProperty("ParamEscapedProp") == "${escaped}");
     test(obj->getProperty("ParamDoubleEscapedProp") == "$escapedvalue");
-    test(obj->getProperty("AppVarOverridedByParamProp") == "Overrided");
-    test(obj->getProperty("NodeVarOverridedByParamProp") == "Test");
+    test(obj->getProperty("AppVarOverriddenByParamProp") == "Overridden");
+    test(obj->getProperty("NodeVarOverriddenByParamProp") == "Test");
     test(obj->getProperty("DefaultParamProp") == "OTHERVALUE");
 
     obj = TestIntfPrx(comm, "IceBox1-Service1@IceBox1.Service1.Service1");
-    test(obj->getProperty("AppVarOverridedByParamProp") == "Test");
-    test(obj->getProperty("NodeVarOverridedByParamProp") == "Overrided");
+    test(obj->getProperty("AppVarOverriddenByParamProp") == "Test");
+    test(obj->getProperty("NodeVarOverriddenByParamProp") == "Overridden");
     obj = TestIntfPrx(comm, "IceBox1-Service2@IceBox1Service2Adapter");
-    test(obj->getProperty("AppVarOverridedByParamProp") == "Test");
-    test(obj->getProperty("NodeVarOverridedByParamProp") == "Test");
+    test(obj->getProperty("AppVarOverriddenByParamProp") == "Test");
+    test(obj->getProperty("NodeVarOverriddenByParamProp") == "Test");
     obj = TestIntfPrx(comm, "IceBox2-Service1@IceBox2.Service1.Service1");
-    test(obj->getProperty("AppVarOverridedByParamProp") == "Test");
-    test(obj->getProperty("NodeVarOverridedByParamProp") == "Overrided");
+    test(obj->getProperty("AppVarOverriddenByParamProp") == "Test");
+    test(obj->getProperty("NodeVarOverriddenByParamProp") == "Overridden");
     obj = TestIntfPrx(comm, "IceBox2-Service2@IceBox2Service2Adapter");
-    test(obj->getProperty("AppVarOverridedByParamProp") == "Test");
-    test(obj->getProperty("NodeVarOverridedByParamProp") == "Test");
+    test(obj->getProperty("AppVarOverriddenByParamProp") == "Test");
+    test(obj->getProperty("NodeVarOverriddenByParamProp") == "Test");
 
     cout << "ok" << endl;
 

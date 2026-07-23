@@ -6,17 +6,17 @@
 
   <server-template id="IceBoxTemplate">
     <parameter name="name"/>
-    <parameter name="AppVarOverridedByParam"/>
+    <parameter name="AppVarOverriddenByParam"/>
 
     <icebox id="${name}" exe="${icebox.exe}" activation="on-demand" pwd=".">
-      <service-instance template="ServiceTemplate" name="Service1" NodeVarOverridedByParam="Overrided"/>
+      <service-instance template="ServiceTemplate" name="Service1" NodeVarOverriddenByParam="Overridden"/>
       <service-instance template="SecondServiceTemplate" name="Service2">
         <properties>
           <property name="ServiceInstanceProperty" value="${name}"/>
         </properties>
       </service-instance>
       <target name="moreservices">
-        <service-instance template="ServiceTemplate" name="Service3" NodeVarOverridedByParam="Overrided"/>
+        <service-instance template="ServiceTemplate" name="Service3" NodeVarOverriddenByParam="Overridden"/>
       </target>
 
       <service name="Service4" entry="TestService:create">

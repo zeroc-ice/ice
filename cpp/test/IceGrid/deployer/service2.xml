@@ -10,15 +10,15 @@
       </adapter>
 
       <properties>
-        <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
-        <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
+        <property name="AppVarOverriddenByParamProp" value="${AppVarOverriddenByParam}"/>
+        <property name="NodeVarOverriddenByParamProp" value="${NodeVarOverriddenByParam}"/>
 
         <property name="${name}Data.Identity" value="${server}-${name}"/>
         <property name="${name}Data.Type" value="nonstandard"/>
         <property name="${name}Data.ServiceName" value="${name}"/>
 
-        <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
-        <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
+        <property name="AppVarOverriddenByParamProp" value="${AppVarOverriddenByParam}"/>
+        <property name="NodeVarOverriddenByParamProp" value="${NodeVarOverriddenByParam}"/>
       </properties>
     </service>
   </service-template>

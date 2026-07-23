@@ -5,7 +5,7 @@
     <description>APP ${AppVar}</description>
 
     <properties id="AppProperties2">
-      <property name="AppProperty2" value="${AppVarOverrided}"/>
+      <property name="AppProperty2" value="${AppVarOverridden}"/>
       <property name="AppProperty21" value="${RecursiveAppVar}"/>
     </properties>
 
@@ -32,7 +32,7 @@
     <!-- Variables for variable test -->
     <variable name="AppVar" value="AppVar"/>
     <variable name="RecursiveAppVar" value="${var1}"/>
-    <variable name="AppVarOverrided" value="OverrideMe"/>
+    <variable name="AppVarOverridden" value="OverrideMe"/>
     <variable name="var1" value="${application}"/>
     <variable name="AppVarDefinedInNode" value="${RecursiveNodeVar}"/>
     <variable name="EscapedAppVar" value="$${escaped}"/>
@@ -45,7 +45,7 @@
     <variable name="encoding13" value="1.3"/>
 
     <!-- Variables for parameter test -->
-    <variable name="AppVarOverridedByParam" value="Test"/>
+    <variable name="AppVarOverriddenByParam" value="Test"/>
 
     <!-- Variables for object identity test -->
     <variable name="ObjectId" value="cat/name1"/>
@@ -66,16 +66,16 @@
 
       <!-- Variables for variable test -->
       <variable name="NodeVar" value="NodeVar"/>
-      <variable name="AppVarOverrided" value="OverridedInNode"/>
+      <variable name="AppVarOverridden" value="OverriddenInNode"/>
       <variable name="RecursiveNodeVar" value="${node}"/>
 
       <!-- Variables for parameter test -->
-      <variable name="NodeVarOverridedByParam" value="Test"/>
+      <variable name="NodeVarOverriddenByParam" value="Test"/>
       <variable name="escaped" value="escapedvalue"/>
       <variable name="varpe" value="$${escaped}"/>
       <variable name="varpde" value="$$${escaped}"/>
 
-      <server-instance template="IceBoxTemplate" name="IceBox1" AppVarOverridedByParam="Overrided">
+      <server-instance template="IceBoxTemplate" name="IceBox1" AppVarOverriddenByParam="Overridden">
         <properties service="Service1">
           <property name="ServerInstanceServiceProperty" value="service1"/>
         </properties>
@@ -83,7 +83,7 @@
           <property name="ServerInstanceServiceProperty" value="service4"/>
         </properties>
       </server-instance>
-      <server-instance template="IceBoxTemplate" name="IceBox2" AppVarOverridedByParam="Overrided">
+      <server-instance template="IceBoxTemplate" name="IceBox2" AppVarOverriddenByParam="Overridden">
         <properties>
           <property name="IceBox.InheritProperties" value="1"/>
           <property name="IceBoxInstanceProperty" value="${name}"/>
@@ -94,11 +94,11 @@
       </server-instance>
 
       <server-instance template="ServerTemplate" name="Server1"
-        AppVarOverridedByParam="Overrided" Param1="Param1"
+        AppVarOverriddenByParam="Overridden" Param1="Param1"
         Param2="${AppVar}" ParamEscaped="$${escaped}" ParamDoubleEscaped="$$${escaped}"/>
       <server-instance template="ServerTemplate" name="Server2"
-        AppVarOverridedByParam="Overrided" Param1="Param12"
-        Param2="${AppVarOverrided}" ParamEscaped="${varpe}"
+        AppVarOverriddenByParam="Overridden" Param1="Param12"
+        Param2="${AppVarOverridden}" ParamEscaped="${varpe}"
         ParamDoubleEscaped="${varpde}" DefaultParam="OTHERVALUE">
         <properties>
           <property name="ServerInstanceProperty" value="${name}"/>
@@ -162,10 +162,10 @@
       </icebox>
 
       <target name="moreservers">
-        <server-instance template="IceBoxTemplate" name="IceBox3" AppVarOverridedByParam="Overrided"/>
+        <server-instance template="IceBoxTemplate" name="IceBox3" AppVarOverriddenByParam="Overridden"/>
         <server-instance template="ServerTemplate" name="Server3"
-          AppVarOverridedByParam="Overrided" Param1="Param12"
-          Param2="${AppVarOverrided}" ParamEscaped="${varpe}" ParamDoubleEscaped="${varpde}"/>
+          AppVarOverriddenByParam="Overridden" Param1="Param12"
+          Param2="${AppVarOverridden}" ParamEscaped="${varpe}" ParamDoubleEscaped="${varpde}"/>
       </target>
 
       <server id="LogServer" exe="${server.dir}/server" activation="on-demand" pwd=".">
