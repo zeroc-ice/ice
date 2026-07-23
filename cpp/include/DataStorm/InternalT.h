@@ -403,7 +403,9 @@ namespace DataStormI
 
     private:
         bool _hasValue;
-        Value _value;
+        // Value-initialized so a value-less sample (such as a remove) holds a determinate default value: scalar
+        // types would otherwise be indeterminate, and encodeValue encodes this member for remove samples.
+        Value _value{};
     };
 
     template<typename Key, typename Value, typename UpdateTag> class SampleFactoryT final : public SampleFactory

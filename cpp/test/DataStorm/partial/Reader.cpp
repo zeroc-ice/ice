@@ -333,6 +333,93 @@ void ::Reader::run(int argc, char* argv[])
         done.waitForReaders();
         done.update(0);
     }
+
+    // A partial update requires the key to have a current value: after a remove, publishing a partial update throws
+    // on the writer and nothing is published; the next full value makes the key updatable again.
+    Topic<string, StockPtr> removeTopic(node, "removeTopic");
+    removeTopic.setReaderDefaultConfig(config);
+    removeTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    {
+        auto reader = makeSingleKeyReader(removeTopic, "AAPL");
+
+        auto sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Add);
+        test(sample.getValue()->price == 12.0f);
+
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Remove);
+
+        // The discarded partial update was never published: the next sample is the full update.
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Update);
+        test(sample.getValue()->price == 20.0f);
+    }
+
+    // Two writers publish the same key: writer 2's partial update reaches the reader after writer 1's remove
+    // cleared the key's value. The reader discards the partial update and resynchronizes on writer 2's next full
+    // value.
+    Topic<string, StockPtr> twoWritersTopic(node, "twoWritersTopic");
+    twoWritersTopic.setReaderDefaultConfig(config);
+    twoWritersTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    {
+        auto reader = makeSingleKeyReader(twoWritersTopic, "AAPL");
+
+        // Consume until writer 2's resynchronizing full value; the partial update published after the remove must
+        // never surface.
+        bool sawRemove = false;
+        shared_ptr<Stock> resync;
+        while (!resync)
+        {
+            auto sample = reader.getNextUnread();
+            test(sample.getEvent() != SampleEvent::PartialUpdate);
+            if (sample.getEvent() == SampleEvent::Remove)
+            {
+                sawRemove = true;
+            }
+            else if (sample.getValue()->price == 200.0f)
+            {
+                resync = sample.getValue();
+            }
+        }
+        test(sawRemove);
+        test(resync->lastBid == 201.0f); // writer 2's full value, not a merge against a stale base
+    }
+
+    // A late-joining reader initializes across a remove. It receives the add, the remove, the re-add, and the partial
+    // update as initialization samples; the remove clears the key's base within the init batch and the partial
+    // resolves against the re-added value, not the pre-remove value or a default-constructed one.
+    Topic<string, StockPtr> initRemoveTopic(node, "initRemoveTopic");
+    initRemoveTopic.setReaderDefaultConfig(config);
+    initRemoveTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    Topic<string, int> initRemoveBarrier(node, "initRemoveBarrier");
+    {
+        // Wait until the writer has published all four samples, then attach as a late joiner.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(initRemoveBarrier, "barrier").getNextUnread();
+
+        auto reader = makeSingleKeyReader(initRemoveTopic, "AAPL");
+
+        auto sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Add);
+        test(sample.getValue()->price == 12.0f);
+
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Remove);
+
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Add);
+        test(sample.getValue()->price == 20.0f);
+
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::PartialUpdate);
+        test(sample.getValue()->price == 25.0f);   // resolved against the re-added value
+        test(sample.getValue()->lastBid == 21.0f); // carried from the re-added value, not the pre-remove value
+        test(sample.getValue()->lastAsk == 22.0f);
+
+        // Tell the writer the samples were verified.
+        auto done = makeSingleKeyWriter(initRemoveBarrier, "done");
+        done.waitForReaders();
+        done.update(0);
+    }
 }
 
 DEFINE_TEST(::Reader)

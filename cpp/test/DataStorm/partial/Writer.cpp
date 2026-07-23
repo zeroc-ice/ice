@@ -266,6 +266,100 @@ void ::Writer::run(int argc, char* argv[])
         [[maybe_unused]] auto _ = makeSingleKeyReader(throwBarrier, "done").getNextUnread();
     }
     cout << "ok" << endl;
+
+    // A partial update requires the key to have a current value: after a remove, publishing a partial update is an
+    // application error that throws logic_error and publishes nothing; the next full value makes the key updatable
+    // again.
+    Topic<string, StockPtr> removeTopic(node, "removeTopic");
+    removeTopic.setWriterDefaultConfig(config);
+    removeTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    cout << "testing partial update after remove... " << flush;
+    {
+        auto writer = makeSingleKeyWriter(removeTopic, "AAPL");
+        writer.waitForReaders();
+        writer.add(make_shared<Stock>(12.0f, 13.0f, 14.0f));
+        writer.remove();
+        try
+        {
+            writer.partialUpdate<float>("price")(15.0f);
+            test(false);
+        }
+        catch (const std::logic_error&)
+        {
+        }
+        test(writer.getLast().getEvent() == SampleEvent::Remove); // the rejected update was not published
+        writer.update(make_shared<Stock>(20.0f, 21.0f, 22.0f));
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
+    // Two writers publish the same key: writer 2's partial update reaches the reader after writer 1's remove
+    // cleared the key's value. The reader discards the partial update and resynchronizes on writer 2's next full
+    // value. Both writers deliver through the node's single session connection and the reader node dispatches
+    // samples serialized, so the reader is guaranteed to process the remove before the partial update.
+    Topic<string, StockPtr> twoWritersTopic(node, "twoWritersTopic");
+    twoWritersTopic.setWriterDefaultConfig(config);
+    twoWritersTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    cout << "testing partial update after another writer's remove... " << flush;
+    {
+        auto writer1 = makeSingleKeyWriter(twoWritersTopic, "AAPL", "writer1");
+        auto writer2 = makeSingleKeyWriter(twoWritersTopic, "AAPL", "writer2");
+        writer1.waitForReaders();
+        writer2.waitForReaders();
+        writer1.add(make_shared<Stock>(12.0f, 13.0f, 14.0f));
+        writer2.add(make_shared<Stock>(100.0f, 101.0f, 102.0f));
+        writer1.remove();
+        // Writer 2 resolves the partial update against its own value and publishes it, but the reader no longer
+        // has a value for the key.
+        writer2.partialUpdate<float>("price")(55.0f);
+        test(writer2.getLast().getEvent() == SampleEvent::PartialUpdate);
+        test(writer2.getLast().getValue()->price == 55.0f);
+        writer2.update(make_shared<Stock>(200.0f, 201.0f, 202.0f));
+        writer1.waitForNoReaders();
+        writer2.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
+    // A reader that joins late initializes across a remove: the writer's history holds an add, a remove, a re-add,
+    // and a partial update, all delivered as initialization samples. The remove clears the key's base within the
+    // init batch, the re-add re-establishes it, and the trailing partial update resolves against the re-added value.
+    Topic<string, StockPtr> initRemoveTopic(node, "initRemoveTopic");
+    initRemoveTopic.setWriterDefaultConfig(config); // keep full history so the reader initializes from all four samples
+    initRemoveTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    Topic<string, int> initRemoveBarrier(node, "initRemoveBarrier");
+    cout << "testing partial update to a late joiner across a remove... " << flush;
+    {
+        auto writer = makeSingleKeyWriter(initRemoveTopic, "AAPL");
+        writer.add(make_shared<Stock>(12.0f, 13.0f, 14.0f));
+        writer.remove();
+        writer.add(make_shared<Stock>(20.0f, 21.0f, 22.0f));
+        writer.partialUpdate<float>("price")(25.0f); // resolves against the re-added value
+
+        // Let the reader attach as a late joiner, after all four samples are in history.
+        auto barrier = makeSingleKeyWriter(initRemoveBarrier, "barrier");
+        barrier.waitForReaders();
+        barrier.update(0);
+
+        // The reader only consumes initialization samples, so wait until it verified them rather than on the reader
+        // count, which would race with its attach/detach.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(initRemoveBarrier, "done").getNextUnread();
+    }
+    cout << "ok" << endl;
+
+    // A null class value is a valid base value. With no updater registered, the no-op updater resolves the partial
+    // update by carrying the previous value over: it clones the null base to null instead of dereferencing it.
+    Topic<string, StockPtr> nullValueTopic(node, "nullValueTopic");
+    nullValueTopic.setWriterDefaultConfig(config);
+    // Intentionally no updater registered, so the no-op updater resolves the partial update.
+    cout << "testing partial update against a null class value... " << flush;
+    {
+        auto writer = makeSingleKeyWriter(nullValueTopic, "AAPL");
+        writer.add(nullptr); // a legitimate null class value establishes the base
+        writer.partialUpdate<float>("price")(15.0f);
+        test(writer.getLast().getEvent() == SampleEvent::PartialUpdate);
+        test(writer.getLast().getValue() == nullptr); // the null base was cloned to null, not dereferenced
+    }
+    cout << "ok" << endl;
 }
 
 DEFINE_TEST(::Writer)

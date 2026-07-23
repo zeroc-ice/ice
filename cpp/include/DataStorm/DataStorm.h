@@ -10,6 +10,7 @@
 #include "Node.h"
 #include "Types.h"
 
+#include <cassert>
 #include <regex>
 
 #if defined(__clang__)
@@ -766,6 +767,10 @@ namespace DataStorm
         /// function generates a SampleEvent::PartialUpdate sample with the given partial update value.
         /// The UpdateValue template parameter must match the UpdateValue type used to register the updater with
         /// the Topic::setUpdater method.
+        /// A partial update resolves against the key's current value, so the key must have a current value when the
+        /// returned function is called: a full value was written for the key and the key was not since removed.
+        /// Calling the returned function for a key with no current value is an application error that throws
+        /// std::logic_error and publishes nothing.
         /// @param tag The partial update tag.
         template<typename UpdateValue>
         [[nodiscard]] std::function<void(const UpdateValue&)> partialUpdate(const UpdateTag& tag);
@@ -819,6 +824,10 @@ namespace DataStorm
         /// function generates a SampleEvent::PartialUpdate sample with the given partial update value.
         /// The UpdateValue template parameter must match the UpdateValue type used to register the updater with
         /// the Topic::setUpdater method.
+        /// A partial update resolves against the key's current value, so the key must have a current value when the
+        /// returned function is called: a full value was written for the key and the key was not since removed.
+        /// Calling the returned function for a key with no current value is an application error that throws
+        /// std::logic_error and publishes nothing.
         /// @param tag The partial update tag.
         template<typename UpdateValue>
         [[nodiscard]] std::function<void(const Key&, const UpdateValue&)> partialUpdate(const UpdateTag& tag);
@@ -1630,8 +1639,14 @@ namespace DataStorm
                                            const std::shared_ptr<DataStormI::Sample>& next,
                                            const Ice::CommunicatorPtr& communicator)
             {
-                Value value;
-                if (previous)
+                // Every updater call site ensures the previous sample exists and has a value before invoking the
+                // updater (the writer throws otherwise, the reader drops the sample), so this assert holds and the
+                // clone below always runs. The guarded branch is not a safe release-build fallback for a broken
+                // invariant: a default-constructed base is null for class-typed values, which the user's updater
+                // would dereference just as if the guard were absent.
+                assert(previous && previous->hasValue());
+                Value value{};
+                if (previous && previous->hasValue())
                 {
                     value = Cloner<Value>::clone(
                         std::static_pointer_cast<DataStormI::SampleT<Key, Value, UpdateTag>>(previous)->getValue());
