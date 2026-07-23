@@ -211,7 +211,7 @@ public class MainActivity extends Activity {
                     dev.createBond();
                     long deadline = System.currentTimeMillis() + 60000;
                     while (dev.getBondState() != BluetoothDevice.BOND_BONDED
-                            && System.currentTimeMillis() < deadline) {
+                        && System.currentTimeMillis() < deadline) {
                         Thread.sleep(1000);
                     }
                     Log.i(TAG, "final bond state=" + dev.getBondState());

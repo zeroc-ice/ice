@@ -2718,8 +2718,10 @@ class AndroidProcessController(RemoteProcessController):
                         return
                     # Probe rather than parse mount output: on system-as-root images /system isn't
                     # its own entry, so writing is the only reliable check.
-                    probe = self._adbTolerant("shell touch /system/.rw && echo ok")
-                    if "ok" in probe:
+                    # Quote the whole thing: run() is shell=True, so an unquoted && would bind to
+                    # the local shell and could report success on a device-side failure.
+                    probe = self._adbTolerant("shell 'touch /system/.rw && echo RW_OK'")
+                    if "RW_OK" in probe:
                         self._adbTolerant("shell rm -f /system/.rw")
                         return
             except RuntimeError:
