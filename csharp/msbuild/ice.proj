@@ -16,9 +16,6 @@
         <DistPackage Include="ZeroC.Glacier2">
             <ProjectDir>$(MSBuildThisFileDirectory)..\src\Glacier2</ProjectDir>
         </DistPackage>
-        <DistPackage Include="ZeroC.Ice">
-            <ProjectDir>$(MSBuildThisFileDirectory)..\src\Ice</ProjectDir>
-        </DistPackage>
         <DistPackage Include="ZeroC.IceBox">
             <ProjectDir>$(MSBuildThisFileDirectory)..\src\IceBox</ProjectDir>
         </DistPackage>
