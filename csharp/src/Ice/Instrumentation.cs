@@ -183,7 +183,7 @@ public interface InvocationObserver : Observer
 public interface ObserverUpdater
 {
     /// <summary>
-    /// Update connection observers associated with each of the Ice connection from the communicator and its object
+    /// Update connection observers associated with each of the Ice connections from the communicator and its object
     /// adapters.
     /// When called, this method goes through all the connections and for each connection
     /// CommunicatorObserver.getConnectionObserver is called. The implementation of getConnectionObserver has
@@ -192,7 +192,7 @@ public interface ObserverUpdater
     void updateConnectionObservers();
 
     /// <summary>
-    /// Update thread observers associated with each of the Ice thread from the communicator and its object adapters.
+    /// Update thread observers associated with each of the Ice threads from the communicator and its object adapters.
     /// When called, this method goes through all the threads and for each thread
     /// CommunicatorObserver.getThreadObserver is called. The implementation of getThreadObserver has the
     /// possibility to return an updated observer if necessary.

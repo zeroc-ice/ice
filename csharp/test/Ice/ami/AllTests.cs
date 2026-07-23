@@ -281,7 +281,7 @@ public class AllTests : global::Test.AllTests
             {
             }
 
-            // Ensures no exception is called when response is received
+            // Ensures no exception is thrown when response is received
             test(await p.ice_isAAsync("::Test::TestIntf"));
             await p.opAsync();
             await p.opWithResultAsync();
@@ -621,7 +621,7 @@ public class AllTests : global::Test.AllTests
             }
             catch (Ice.OperationNotExistException)
             {
-                // Expected with cross testing, this opXxxAsyncDispatch methods are C# only.
+                // Expected with cross testing, these opXxxAsyncDispatch methods are C# only.
             }
         };
         task().Wait();

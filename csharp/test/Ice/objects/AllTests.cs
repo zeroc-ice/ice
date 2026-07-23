@@ -343,7 +343,7 @@ namespace Ice.objects
                 test(i2.called);
 
                 var s1 = new S1();
-                // The struct default constructor do not call ice_initialize
+                // The struct default constructor does not call ice_initialize
                 test(s1.id == 0);
                 s1 = new S1(2);
                 // The id should have the value set by ice_initialize and not 2

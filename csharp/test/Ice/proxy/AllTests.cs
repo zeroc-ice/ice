@@ -1002,7 +1002,7 @@ public class AllTests : global::Test.AllTests
 
         try
         {
-            // Invalid lenght for base64 input
+            // Invalid length for base64 input
             communicator.stringToProxy("id:opaque -t 99 -v xc");
             test(false);
         }
