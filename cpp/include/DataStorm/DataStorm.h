@@ -1639,8 +1639,11 @@ namespace DataStorm
                                            const std::shared_ptr<DataStormI::Sample>& next,
                                            const Ice::CommunicatorPtr& communicator)
             {
-                // Callers discard partial updates that have no usable base before invoking the updater; assert that
-                // here, and keep the default-value fallback as defense in depth for release builds.
+                // Every updater call site ensures the previous sample exists and has a value before invoking the
+                // updater (the writer throws otherwise, the reader drops the sample), so this assert holds and the
+                // clone below always runs. The guarded branch is not a safe release-build fallback for a broken
+                // invariant: a default-constructed base is null for class-typed values, which the user's updater
+                // would dereference just as if the guard were absent.
                 assert(previous && previous->hasValue());
                 Value value{};
                 if (previous && previous->hasValue())

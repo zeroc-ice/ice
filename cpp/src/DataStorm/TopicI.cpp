@@ -15,8 +15,10 @@ namespace
     static Topic::Updater noOpUpdater = // NOLINT(cert-err58-cpp)
         [](const shared_ptr<Sample>& previous, const shared_ptr<Sample>& next, const CommunicatorPtr&)
     {
-        // Callers discard partial updates that have no usable base before invoking the updater; assert that here,
-        // and keep the default-value fallback as defense in depth for release builds.
+        // Every updater call site ensures the previous sample exists and has a value before invoking the updater
+        // (the writer throws otherwise, the reader drops the sample), so this assert holds. A broken invariant is not
+        // made safe here: setValue(nullptr) stores a default-constructed value with _hasValue == true, resurrecting
+        // the removed key from a default value — the very bug the call sites prevent.
         assert(previous && previous->hasValue());
         next->setValue(previous && previous->hasValue() ? previous : nullptr);
     };

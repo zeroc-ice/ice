@@ -319,6 +319,32 @@ void ::Writer::run(int argc, char* argv[])
         writer2.waitForNoReaders();
     }
     cout << "ok" << endl;
+
+    // A reader that joins late initializes across a remove: the writer's history holds an add, a remove, a re-add,
+    // and a partial update, all delivered as initialization samples. The remove clears the key's base within the
+    // init batch, the re-add re-establishes it, and the trailing partial update resolves against the re-added value.
+    Topic<string, StockPtr> initRemoveTopic(node, "initRemoveTopic");
+    initRemoveTopic.setWriterDefaultConfig(config); // keep full history so the reader initializes from all four samples
+    initRemoveTopic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
+    Topic<string, int> initRemoveBarrier(node, "initRemoveBarrier");
+    cout << "testing partial update to a late joiner across a remove... " << flush;
+    {
+        auto writer = makeSingleKeyWriter(initRemoveTopic, "AAPL");
+        writer.add(make_shared<Stock>(12.0f, 13.0f, 14.0f));
+        writer.remove();
+        writer.add(make_shared<Stock>(20.0f, 21.0f, 22.0f));
+        writer.partialUpdate<float>("price")(25.0f); // resolves against the re-added value
+
+        // Let the reader attach as a late joiner, after all four samples are in history.
+        auto barrier = makeSingleKeyWriter(initRemoveBarrier, "barrier");
+        barrier.waitForReaders();
+        barrier.update(0);
+
+        // The reader only consumes initialization samples, so wait until it verified them rather than on the reader
+        // count, which would race with its attach/detach.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(initRemoveBarrier, "done").getNextUnread();
+    }
+    cout << "ok" << endl;
 }
 
 DEFINE_TEST(::Writer)
