@@ -571,7 +571,8 @@ Slice::TypesVisitor::visitStructStart(const StructPtr& p)
     _out << eb;
 
     _out << sp;
-    _out << nl << "/// An `Ice.InputStream` extension to read `" << docName << "` structured values from the stream.";
+    _out << nl << "/// An " << iceDocLink("InputStream", swiftModule) << " extension to read `" << docName
+         << "` structured values from the stream.";
     _out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
     _out << sb;
 
@@ -622,7 +623,8 @@ Slice::TypesVisitor::visitStructStart(const StructPtr& p)
     _out << eb;
 
     _out << sp;
-    _out << nl << "/// An `Ice.OutputStream` extension to write `" << docName << "` structured values from the stream.";
+    _out << nl << "/// An " << iceDocLink("OutputStream", swiftModule) << " extension to write `" << docName
+         << "` structured values to the stream.";
     _out << nl << "public extension " << getUnqualified("Ice.OutputStream", swiftModule);
     _out << sb;
 
@@ -701,7 +703,8 @@ Slice::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp;
     _out << nl << "/// Helper class to read and write `" << unescapedName << "` sequence values from";
-    _out << nl << "/// `Ice.InputStream` and `Ice.OutputStream`.";
+    _out << nl << "/// " << iceDocLink("InputStream", swiftModule) << " and " << iceDocLink("OutputStream", swiftModule)
+         << ".";
     _out << nl << "public struct " << unescapedName << "Helper";
     _out << sb;
 
@@ -845,7 +848,8 @@ Slice::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp;
     _out << nl << "/// Helper class to read and write `" << unescapedName << "` dictionary values from";
-    _out << nl << "/// `Ice.InputStream` and `Ice.OutputStream`.";
+    _out << nl << "/// " << iceDocLink("InputStream", swiftModule) << " and " << iceDocLink("OutputStream", swiftModule)
+         << ".";
     _out << nl << "public struct " << unescapedName << "Helper";
     _out << sb;
 
@@ -1002,7 +1006,8 @@ Slice::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << eb;
 
     _out << sp;
-    _out << nl << "/// An `Ice.InputStream` extension to read `" << docName << "` enumerated values from the stream.";
+    _out << nl << "/// An " << iceDocLink("InputStream", swiftModule) << " extension to read `" << docName
+         << "` enumerated values from the stream.";
     _out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
     _out << sb;
 
@@ -1037,7 +1042,8 @@ Slice::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << eb;
 
     _out << sp;
-    _out << nl << "/// An `Ice.OutputStream` extension to write `" << docName << "` enumerated values to the stream.";
+    _out << nl << "/// An " << iceDocLink("OutputStream", swiftModule) << " extension to write `" << docName
+         << "` enumerated values to the stream.";
     _out << nl << "public extension " << getUnqualified("Ice.OutputStream", swiftModule);
     _out << sb;
 
@@ -1167,8 +1173,7 @@ Slice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "///    - proxyString: The proxy string to parse.";
     _out << nl << "///    - type: The type of the new proxy.";
     _out << nl << "/// - Returns: A new proxy with the requested type.";
-    _out << nl << "/// - Throws: " << (swiftModule == "Ice" ? "``ParseException``" : "`Ice.ParseException`")
-         << " if the proxy string is invalid.";
+    _out << nl << "/// - Throws: " << iceDocLink("ParseException", swiftModule) << " if the proxy string is invalid.";
     _out << nl << "public func makeProxy(communicator: Ice.Communicator, proxyString: String, type: " << prx
          << ".Protocol) throws -> " << prx;
     _out << sb;
@@ -1193,8 +1198,7 @@ Slice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "///   - context: The optional context dictionary for the remote invocation.";
     _out << nl
          << "/// - Returns: A proxy with the requested type or nil if the target object does not support this type.";
-    _out << nl << "/// - Throws: " << (swiftModule == "Ice" ? "``LocalException``" : "`Ice.LocalException`")
-         << " if a communication error occurs.";
+    _out << nl << "/// - Throws: " << iceDocLink("LocalException", swiftModule) << " if a communication error occurs.";
     _out << nl << "public func checkedCast" << spar << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
          << ("type: " + prx + ".Protocol") << ("facet: Swift.String? = nil")
          << ("context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil") << epar << " async throws -> " << prx
@@ -1238,7 +1242,8 @@ Slice::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // InputStream extension
     //
     _out << sp;
-    _out << nl << "/// Extension to `Ice.InputStream` class to support reading proxies of type";
+    _out << nl << "/// Extension to " << iceDocLink("InputStream", swiftModule)
+         << " class to support reading proxies of type";
     _out << nl << "/// `" << prx << "`.";
     _out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
     _out << sb;

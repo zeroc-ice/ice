@@ -11,7 +11,7 @@ import Foundation
 /// You create a communicator with `Ice.initialize`, and it's usually the first object you create when programming
 /// with Ice. You can create multiple communicators in a single program, but this is not common.
 public protocol Communicator: AnyObject, Sendable {
-    /// Destroys this communicator. This method calls ``shutdown()`` implicitly. Calling ``destroy()`` destroys all
+    /// Destroys this communicator. This method calls ``shutdown()`` implicitly. Calling `destroy()` destroys all
     /// object adapters and closes all outgoing connections. This method waits for all outstanding dispatches to
     /// complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
     func destroy()
@@ -168,8 +168,7 @@ public protocol Communicator: AnyObject, Sendable {
     func flushBatchRequests(_ compress: CompressBatch) async throws
 
     /// Adds the Admin object with all its facets to the provided object adapter. If `Ice.Admin.ServerId`
-    /// is set and the provided object adapter has a Locator, ``createAdmin(adminAdapter:adminId:)`` registers the
-    /// Admin's Process facet with
+    /// is set and the provided object adapter has a Locator, this method registers the Admin's Process facet with
     /// the Locator's LocatorRegistry.
     ///
     /// - Parameters:
@@ -178,15 +177,15 @@ public protocol Communicator: AnyObject, Sendable {
     ///   - adminId: The identity of the Admin object.
     /// - Returns: A proxy to the main ("") facet of the Admin object.
     /// - Throws:
-    ///   - ``InitializationException`` when ``createAdmin(adminAdapter:adminId:)`` is called more than once.
+    ///   - ``InitializationException`` when this method is called more than once.
     ///   - ``CommunicatorDestroyedException`` when the communicator has been destroyed.
     func createAdmin(adminAdapter: ObjectAdapter?, adminId: Identity) throws -> ObjectPrx
 
-    /// Gets a proxy to the main facet of the Admin object. ``getAdmin()`` also creates the Admin object and creates
+    /// Gets a proxy to the main facet of the Admin object. This method also creates the Admin object and creates
     /// and activates the `Ice.Admin` object adapter to host this Admin object if `Ice.Admin.Endpoints` is set. The
-    /// identity of the Admin object created by ``getAdmin()`` is `{value of Ice.Admin.InstanceName}/admin`, or
+    /// identity of the Admin object created by this method is `{value of Ice.Admin.InstanceName}/admin`, or
     /// `{UUID}/admin` when `Ice.Admin.InstanceName` is not set. If `Ice.Admin.DelayCreation` is `0` or not set,
-    /// ``getAdmin()`` is called by the communicator initialization, after initialization of all plugins.
+    /// `getAdmin()` is called by the communicator initialization, after initialization of all plugins.
     ///
     /// - Returns: A proxy to the main ("") facet of the Admin object, or `nil` if no Admin object is configured.
     /// - Throws: ``CommunicatorDestroyedException`` when the communicator has been destroyed.

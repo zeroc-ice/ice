@@ -12,8 +12,8 @@ public protocol ServantLocator: Sendable {
     ///
     /// - Remark: The caller (the object adapter) does not insert the returned servant into its Active Servant Map.
     ///   This must be done by the servant locator implementation, if this is desired.
-    /// - Remark: If you call ``locate(_:)`` from your own code, you must also call ``finished(curr:servant:cookie:)``
-    ///   when you have finished using the servant, provided that ``locate(_:)`` returned a non-nil servant.
+    /// - Remark: If you call `locate(_:)` from your own code, you must also call ``finished(curr:servant:cookie:)``
+    ///   when you have finished using the servant, provided that `locate(_:)` returned a non-nil servant.
     ///
     /// - Parameter curr: Information about the incoming request for which a servant is required.
     /// - Returns: A tuple containing:
@@ -31,9 +31,8 @@ public protocol ServantLocator: Sendable {
     ///   - servant: The servant that was returned by ``locate(_:)``.
     ///   - cookie: The cookie that was returned by ``locate(_:)``.
     /// - Throws: The implementation can throw any exception, including ``UserException``.
-    ///   The Ice runtime will marshal this exception in the response. If both the dispatch and
-    ///   ``finished(curr:servant:cookie:)`` throw an exception, the exception thrown by
-    ///   ``finished(curr:servant:cookie:)`` prevails and is marshaled back to the client.
+    ///   The Ice runtime will marshal this exception in the response. If both the dispatch and this method throw
+    ///   an exception, the exception thrown by this method prevails and is marshaled back to the client.
     func finished(curr: Current, servant: Dispatcher, cookie: AnyObject?) throws
 
     /// Notifies this servant locator that the object adapter in which it's installed is being destroyed.

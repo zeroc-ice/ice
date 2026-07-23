@@ -378,6 +378,14 @@ Slice::Swift::swiftLinkFormatter(const string& rawLink, const ContainedPtr& sour
     }
 }
 
+string
+Slice::Swift::iceDocLink(const string& name, const string& swiftModule)
+{
+    // DocC does not support cross-module linking, so we can only emit a symbol link when the generated code is part
+    // of the Ice module itself.
+    return swiftModule == "Ice" ? "``" + name + "``" : "`Ice." + name + "`";
+}
+
 void
 Slice::Swift::validateSwiftMetadata(const UnitPtr& unit)
 {
