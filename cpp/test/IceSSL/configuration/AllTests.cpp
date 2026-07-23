@@ -911,7 +911,7 @@ testFindCert(const string& factoryRef, const string& defaultDir, const Ice::Prop
         initData.properties->setProperty("IceSSL.KeychainPassword", "password");
         initData.properties->setProperty("IceSSL.FindCert", clientFindCertProperties[i]);
 
-// Use TrustOnly to ensure the peer has picked the expected certificate.
+        // Use TrustOnly to ensure the peer has picked the expected certificate.
 #    ifndef ICE_USE_SECURE_TRANSPORT_IOS
         initData.properties->setProperty("IceSSL.TrustOnly", "CN=ca1.server");
 #    endif

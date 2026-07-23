@@ -77,7 +77,7 @@ open class IPEndpointInfo: EndpointInfo {
     }
 }
 
-/// Provides access to TCP endpoint information.
+/// Provides access to a TCP endpoint's information.
 public final class TCPEndpointInfo: IPEndpointInfo {
     private let _type: Int16
     private let _secure: Bool
@@ -97,11 +97,11 @@ public final class TCPEndpointInfo: IPEndpointInfo {
     }
 }
 
-/// Provides access to SSL endpoint information.
+/// Provides access to an SSL endpoint's information.
 public final class SSLEndpointInfo: EndpointInfo {
 }
 
-/// Provides access to UDP endpoint information.
+/// Provides access to a UDP endpoint's information.
 public final class UDPEndpointInfo: IPEndpointInfo {
     /// The multicast interface.
     public let mcastInterface: String
@@ -127,7 +127,7 @@ public final class UDPEndpointInfo: IPEndpointInfo {
     }
 }
 
-/// Provides access to WebSocket endpoint information.
+/// Provides access to a WebSocket endpoint's information.
 public final class WSEndpointInfo: EndpointInfo {
     /// The URI configured with the endpoint.
     public let resource: String
@@ -138,7 +138,7 @@ public final class WSEndpointInfo: EndpointInfo {
     }
 }
 
-/// Provides access to IAP endpoint information.
+/// Provides access to an IAP endpoint's information.
 public final class IAPEndpointInfo: EndpointInfo {
     /// The accessory manufacturer. Can be empty.
     public let manufacturer: String

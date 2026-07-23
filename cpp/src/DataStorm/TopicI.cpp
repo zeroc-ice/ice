@@ -781,7 +781,7 @@ TopicI::forward(const ByteSeq& inParams, const Current& current) const
     // Forwarder proxy must be called with the mutex locked!
     for (const auto& [_, listener] : _listeners)
     {
-        // Forward the call to all listeners using their session proxy, passing nullptr for the callbacks because we
+        // Forward the call to all listeners using their session proxies, passing nullptr for the callbacks because we
         // don't need to check the result.
         listener.proxy
             ->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, nullptr, nullptr, current.ctx);

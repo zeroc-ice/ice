@@ -18,7 +18,7 @@ module IceMX
     /// A dictionary of strings to integers.
     dictionary<string, int> StringIntDict;
 
-    /// The base class for metrics. A metrics object represents a collection of measurements associated to a given
+    /// The base class for metrics. A metrics object represents a collection of measurements associated with a given
     /// system.
     class Metrics
     {

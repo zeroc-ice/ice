@@ -10,7 +10,7 @@ export LDFLAGS="-fprofile-instr-generate"
 export LLVM_PROFILE_FILE="${PWD}/coverage/%m.profraw"
 export OPTIMIZE=no
 
-# The llvm tools used below come from the Xcode Command Line Tools, so this script is macOS only
+# The llvm tools used below come from the Xcode Command Line Tools, so this script is macOS only.
 if [ "$(uname)" != "Darwin" ]; then
     echo "This script is only supported on macOS"
     exit 1

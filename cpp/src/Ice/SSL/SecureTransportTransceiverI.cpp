@@ -229,7 +229,7 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
                     continue; // Call SSLHandshake to resume the handshake.
                 }
             }
-            // Let it fall through, this will raise a ProtocolException with the SSLCopyPeerTrust error.
+            // Let it fall through, this will throw a ProtocolException with the SSLCopyPeerTrust error.
         }
         else if (err == errSSLClosedGraceful || err == errSSLClosedAbort)
         {

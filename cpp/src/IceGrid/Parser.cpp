@@ -2401,11 +2401,6 @@ Parser::showWarranty()
     consoleOut << "This command is not implemented." << endl;
 }
 
-//
-// With older flex version <= 2.5.35 YY_INPUT second
-// parameter is of type int&, in newer versions it
-// changes to size_t&
-//
 void
 Parser::getInput(char* buf, int& result, size_t maxSize)
 {

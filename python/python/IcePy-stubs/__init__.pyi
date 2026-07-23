@@ -659,7 +659,7 @@ class SSLConnectionInfo(ConnectionInfo):
     """str: The peer certificate, PEM-encoded, or an empty string if the peer did not provide one."""
 
 class SSLEndpointInfo(EndpointInfo):
-    """Provides access to SSL endpoint information."""
+    """Provides access to an SSL endpoint's information."""
 
     ...
 
@@ -673,7 +673,7 @@ class TCPConnectionInfo(IPConnectionInfo):
     """int: The size of the send buffer."""
 
 class TCPEndpointInfo(IPEndpointInfo):
-    """Provides access to TCP endpoint information."""
+    """Provides access to a TCP endpoint's information."""
 
     ...
 
@@ -693,7 +693,7 @@ class UDPConnectionInfo(IPConnectionInfo):
     """int: The size of the send buffer."""
 
 class UDPEndpointInfo(IPEndpointInfo):
-    """Provides access to UDP endpoint information."""
+    """Provides access to a UDP endpoint's information."""
 
     mcastInterface: str
     """str: The multicast interface."""
@@ -709,7 +709,7 @@ class WSConnectionInfo(ConnectionInfo):
     connection, and the response headers for an outgoing connection."""
 
 class WSEndpointInfo(EndpointInfo):
-    """Provides access to WebSocket endpoint information."""
+    """Provides access to a WebSocket endpoint's information."""
 
     resource: str
     """str: The URI configured with the endpoint."""

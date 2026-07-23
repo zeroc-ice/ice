@@ -274,7 +274,7 @@ namespace IcePy
         .tp_basicsize = sizeof(EndpointInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(endpointInfoDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = PyDoc_STR("Provides access to TCP endpoint information."),
+        .tp_doc = PyDoc_STR("Provides access to a TCP endpoint's information."),
         .tp_new = reinterpret_cast<newfunc>(endpointInfoNew),
     };
 
@@ -284,7 +284,7 @@ namespace IcePy
         .tp_basicsize = sizeof(EndpointInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(endpointInfoDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = PyDoc_STR("Provides access to UDP endpoint information."),
+        .tp_doc = PyDoc_STR("Provides access to a UDP endpoint's information."),
         .tp_getset = UDPEndpointInfoGetters,
         .tp_new = reinterpret_cast<newfunc>(endpointInfoNew),
     };
@@ -295,7 +295,7 @@ namespace IcePy
         .tp_basicsize = sizeof(EndpointInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(endpointInfoDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = PyDoc_STR("Provides access to WebSocket endpoint information."),
+        .tp_doc = PyDoc_STR("Provides access to a WebSocket endpoint's information."),
         .tp_getset = WSEndpointInfoGetters,
         .tp_new = reinterpret_cast<newfunc>(endpointInfoNew),
     };
@@ -306,7 +306,7 @@ namespace IcePy
         .tp_basicsize = sizeof(EndpointInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(endpointInfoDealloc),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = PyDoc_STR("Provides access to SSL endpoint information."),
+        .tp_doc = PyDoc_STR("Provides access to an SSL endpoint's information."),
         .tp_new = reinterpret_cast<newfunc>(endpointInfoNew),
     };
 

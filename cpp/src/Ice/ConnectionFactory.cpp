@@ -426,7 +426,7 @@ IceInternal::OutgoingConnectionFactory::getConnection(
             throw Ice::CommunicatorDestroyedException(__FILE__, __LINE__);
         }
 
-        // Search for existing connections matching one of the given endpoints.
+        // Search for an existing connection matching one of the given endpoints.
         Ice::ConnectionIPtr connection = findConnection(connectors, compress);
         if (connection)
         {

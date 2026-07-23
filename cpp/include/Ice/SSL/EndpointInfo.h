@@ -15,7 +15,7 @@
 
 namespace Ice::SSL
 {
-    /// Provides access to SSL endpoint information.
+    /// Provides access to an SSL endpoint's information.
     class ICE_API EndpointInfo final : public Ice::EndpointInfo
     {
     public:

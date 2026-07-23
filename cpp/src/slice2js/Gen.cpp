@@ -928,8 +928,8 @@ Slice::ImportVisitor::writeImports(
 
         if (jsModule == jsImportedModule || jsImportedModule.empty())
         {
-            // For Slice modules mapped to the same JavaScript module, or Slice files that don't use "js:module".
-            // We import them using their Slice include relative path.
+            // For Slice modules mapped to the same JavaScript module, or Slice files that don't use "js:module",
+            // we import them using their Slice include relative path.
             string f = toRelativePath(removeExtension(included) + ".js", unit->topLevelFile());
             imports[f] = sliceTopLevelModules;
             localImports.insert(f);

@@ -124,7 +124,7 @@ DataElementI::attach(
         name = os.str();
     }
 
-    // Attach the key or filter, and if the attach succeeds compute the ACK data to send to the peer.
+    // Attach the key or filter, and if the attach succeeds, compute the ACK data to send to the peer.
     if ((id > 0 &&
          attachKey(topicId, data.id, key, sampleFilter, session, std::move(prx), facet, id, name, priority)) ||
         (id < 0 &&

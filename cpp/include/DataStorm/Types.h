@@ -181,8 +181,8 @@ namespace DataStorm
         /// Clones the given value. This helper is used when processing partial update to clone the previous value
         /// and compute the new value with the partial update. The default implementation performs a plain C++ copy
         /// with the copy constructor.
-        /// @param value The value to clone
-        /// @return The cloned value
+        /// @param value The value to clone.
+        /// @return The cloned value.
         static T clone(const T& value) noexcept { return value; }
     };
 

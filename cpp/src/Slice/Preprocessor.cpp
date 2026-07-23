@@ -256,7 +256,7 @@ Slice::Preprocessor::preprocess(const string& languageArg)
         char* buf = mcpp_get_mem_buffer(Out);
 
         //
-        // First try to open temporary file in tmp directory.
+        // First try to open a temporary file in the 'tmp' directory.
         //
 #ifdef _WIN32
         //
