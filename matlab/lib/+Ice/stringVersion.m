@@ -1,6 +1,6 @@
 function r = stringVersion()
     %STRINGVERSION Returns the Ice version in the form A.B.C, where A indicates the major version, B indicates the
-    %   minor version, and C indicates the patch level, with an optional pre-release suffix, e.g. '3.9.0-alpha.0'.
+    %   minor version, and C indicates the patch level.
     %
     %   Output Arguments
     %     r - The Ice version.

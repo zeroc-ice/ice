@@ -62,8 +62,7 @@ def initialize(
 def stringVersion() -> str:
     """
     Returns the Ice version in the form ``A.B.C``, where ``A`` indicates the major version,
-    ``B`` indicates the minor version, and ``C`` indicates the patch level, with an optional pre-release suffix,
-    e.g. ``3.9.0-alpha.0``.
+    ``B`` indicates the minor version, and ``C`` indicates the patch level.
 
     Returns
     -------
@@ -77,9 +76,7 @@ def intVersion() -> int:
     """
     Returns the Ice version as an integer in the form ``AABBCC``, where ``AA`` indicates the major version,
     ``BB`` indicates the minor version, and ``CC`` indicates the patch level.
-    For example, for Ice 3.9.1, the returned value is 30901.
-    For pre-releases, ``CC`` encodes the pre-release instead of the patch version.
-    For example, for Ice 3.9.0-alpha.0 the returned value is 30950.
+    For example, for Ice 3.8.3, the returned value is 30803.
 
     Returns
     -------
