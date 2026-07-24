@@ -103,7 +103,7 @@ python allTests.py --server=server --protocol=bt --cross=java --android --contro
 ```
 
 Pass as many suites as you like. CI's list is in the `android-bt` entry of
-`.github/workflows/ci.yml`; its setup is in `.github/actions/setup-bt`.
+`.github/workflows/ci.yml`; its setup is in `.github/actions/setup-android-bt`.
 
 Dump an emulator's controller state (pid, adb forwards, logcat):
 

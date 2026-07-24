@@ -1,4 +1,4 @@
-name: Setup Bluetooth
+name: Setup Android Bluetooth
 description: >
   Prepares a pair of Android emulators for IceBT testing. GitHub-hosted runners cannot host a
   Bluetooth stack, but the Android emulator ships a userspace virtual Bluetooth controller
