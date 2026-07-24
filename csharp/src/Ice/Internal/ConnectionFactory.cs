@@ -1290,7 +1290,7 @@ internal sealed class IncomingConnectionFactory : EventHandler, ConnectionI.Star
 
         _endpoint = endpoint;
         _adapter = adapter;
-        _warn = _instance.initializationData().properties!.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
+        _warn = _instance.warnConnections();
         _connections = [];
         _state = StateHolding;
         _acceptorStarted = false;

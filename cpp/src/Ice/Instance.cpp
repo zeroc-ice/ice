@@ -79,6 +79,8 @@ using namespace IceInternal;
 
 namespace
 {
+    const int udpOverhead = 20 + 8;
+
     mutex staticMutex;
     bool oneOffDone = false;
     std::list<IceInternal::Instance*>* instanceList = nullptr;
@@ -1143,6 +1145,15 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
             // The property is specified in kibibytes (KiB); _batchAutoFlushSize is stored in bytes.
             const_cast<int32_t&>(_batchAutoFlushSize) = batchAutoFlushSize * 1024;
         }
+
+        const_cast<bool&>(_warnConnections) = _initData.properties->getIcePropertyAsInt("Ice.Warn.Connections") > 0;
+        const_cast<bool&>(_warnDatagrams) = _initData.properties->getIcePropertyAsInt("Ice.Warn.Datagrams") > 0;
+
+        const_cast<int32_t&>(_compressionLevel) =
+            std::clamp(_initData.properties->getIcePropertyAsInt("Ice.Compression.Level"), 1, 9);
+
+        const_cast<int32_t&>(_udpSndSize) =
+            _initData.properties->getPropertyAsIntWithDefault("Ice.UDP.SndSize", 65535 - udpOverhead);
 
         int32_t classGraphDepthMax = _initData.properties->getIcePropertyAsInt("Ice.ClassGraphDepthMax");
         if (classGraphDepthMax < 1)

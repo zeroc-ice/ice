@@ -1380,8 +1380,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         _inactivityTimeout = endpoint.datagram() ? TimeSpan.Zero : options.inactivityTimeout;
         _maxDispatches = options.maxDispatches;
         _removeFromFactory = removeFromFactory;
-        _warn = initData.properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
-        _warnUdp = initData.properties.getIcePropertyAsInt("Ice.Warn.Datagrams") > 0;
+        _warn = instance.warnConnections();
+        _warnUdp = instance.warnDatagrams();
         _nextRequestId = 1;
         _messageSizeMax = connector is null ? adapter.messageSizeMax() : instance.messageSizeMax();
         _batchRequestQueue = new BatchRequestQueue(instance, _endpoint.datagram());
@@ -1393,15 +1393,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         _upcallCount = 0;
         _state = StateNotInitialized;
 
-        _compressionLevel = initData.properties.getIcePropertyAsInt("Ice.Compression.Level");
-        if (_compressionLevel < 1)
-        {
-            _compressionLevel = 1;
-        }
-        else if (_compressionLevel > 9)
-        {
-            _compressionLevel = 9;
-        }
+        _compressionLevel = instance.compressionLevel();
 
         if (options.idleTimeout > TimeSpan.Zero && !endpoint.datagram())
         {

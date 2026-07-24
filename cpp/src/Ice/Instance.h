@@ -86,6 +86,10 @@ namespace IceInternal
         [[nodiscard]] Ice::PluginManagerPtr pluginManager() const;
         [[nodiscard]] std::int32_t messageSizeMax() const { return _messageSizeMax; }
         [[nodiscard]] std::int32_t batchAutoFlushSize() const { return _batchAutoFlushSize; }
+        [[nodiscard]] bool warnConnections() const { return _warnConnections; }
+        [[nodiscard]] bool warnDatagrams() const { return _warnDatagrams; }
+        [[nodiscard]] std::int32_t compressionLevel() const { return _compressionLevel; }
+        [[nodiscard]] std::int32_t udpSndSize() const { return _udpSndSize; }
         [[nodiscard]] std::int32_t classGraphDepthMax() const { return _classGraphDepthMax; }
         [[nodiscard]] Ice::ToStringMode toStringMode() const { return _toStringMode; }
         [[nodiscard]] bool acceptClassCycles() const { return _acceptClassCycles; }
@@ -155,6 +159,10 @@ namespace IceInternal
         const DefaultsAndOverridesPtr _defaultsAndOverrides;               // Immutable, not reset by destroy().
         const std::int32_t _messageSizeMax{0};                             // Immutable, not reset by destroy().
         const std::int32_t _batchAutoFlushSize{0};                         // Immutable, not reset by destroy().
+        const bool _warnConnections{false};                                // Immutable, not reset by destroy().
+        const bool _warnDatagrams{false};                                  // Immutable, not reset by destroy().
+        const std::int32_t _compressionLevel{1};                           // Immutable, not reset by destroy().
+        const std::int32_t _udpSndSize{0};                                 // Immutable, not reset by destroy().
         const std::int32_t _classGraphDepthMax{0};                         // Immutable, not reset by destroy().
         const Ice::ToStringMode _toStringMode{Ice::ToStringMode::Unicode}; // Immutable, not reset by destroy().
         const bool _acceptClassCycles{false};                              // Immutable, not reset by destroy().

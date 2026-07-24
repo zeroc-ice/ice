@@ -134,6 +134,11 @@ Instance.prototype.batchAutoFlushSize = function () {
     return this._batchAutoFlushSize;
 };
 
+Instance.prototype.warnConnections = function () {
+    // This value is immutable.
+    return this._warnConnections;
+};
+
 Instance.prototype.classGraphDepthMax = function () {
     // This value is immutable.
     return this._classGraphDepthMax;
@@ -224,6 +229,8 @@ Instance.prototype.finishSetup = function (communicator) {
             // The property is specified in kibibytes (KiB); _batchAutoFlushSize is stored in bytes.
             this._batchAutoFlushSize = batchAutoFlushSize * 1024;
         }
+
+        this._warnConnections = this._initData.properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
 
         let classGraphDepthMax = this._initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
         if (classGraphDepthMax < 1) {

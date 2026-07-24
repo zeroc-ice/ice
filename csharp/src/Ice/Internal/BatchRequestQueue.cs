@@ -46,9 +46,7 @@ internal sealed class BatchRequestQueue
         _maxSize = instance.batchAutoFlushSize();
         if (_maxSize > 0 && datagram)
         {
-            int udpSndSize = initData.properties.getPropertyAsIntWithDefault(
-                "Ice.UDP.SndSize",
-                65535 - _udpOverhead);
+            int udpSndSize = instance.udpSndSize();
             if (udpSndSize < _maxSize)
             {
                 _maxSize = udpSndSize;
@@ -227,5 +225,4 @@ internal sealed class BatchRequestQueue
     private readonly BatchRequestI _request;
     private LocalException _exception;
     private readonly int _maxSize;
-    private const int _udpOverhead = 20 + 8;
 }

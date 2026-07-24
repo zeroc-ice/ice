@@ -1897,26 +1897,15 @@ Ice::ConnectionI::ConnectionI(
       // suppress inactivity timeout for datagram connections
       _inactivityTimeout(endpoint->datagram() ? chrono::seconds::zero() : options.inactivityTimeout),
       _removeFromFactory(std::move(removeFromFactory)),
-      _warn(_instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Connections") > 0),
-      _warnUdp(_instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Datagrams") > 0),
+      _warn(_instance->warnConnections()),
+      _warnUdp(_instance->warnDatagrams()),
+      _compressionLevel(_instance->compressionLevel()),
       _asyncRequestsHint(_asyncRequests.end()),
       _messageSizeMax(connector ? _instance->messageSizeMax() : adapter->messageSizeMax()),
       _batchRequestQueue(new BatchRequestQueue(instance, endpoint->datagram())),
       _readStream{instance.get(), currentProtocolEncoding},
       _maxDispatches(options.maxDispatches)
 {
-    const Ice::PropertiesPtr& properties = _instance->initializationData().properties;
-
-    int& compressionLevel = const_cast<int&>(_compressionLevel);
-    compressionLevel = properties->getIcePropertyAsInt("Ice.Compression.Level");
-    if (compressionLevel < 1)
-    {
-        compressionLevel = 1;
-    }
-    else if (compressionLevel > 9)
-    {
-        compressionLevel = 9;
-    }
 }
 
 Ice::ConnectionIPtr

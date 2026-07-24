@@ -84,7 +84,7 @@ export class ConnectionI {
 
         this._hasMoreData = { value: false };
 
-        this._warn = initData.properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
+        this._warn = instance.warnConnections();
         this._nextRequestId = 1;
         this._messageSizeMax = instance.messageSizeMax();
         this._batchRequestQueue = new BatchRequestQueue(instance);

@@ -1061,8 +1061,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         _maxDispatches = options.maxDispatches();
         _timer = instance.timer();
         _removeFromFactory = removeFromFactory;
-        _warn = initData.properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
-        _warnUdp = instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Datagrams") > 0;
+        _warn = instance.warnConnections();
+        _warnUdp = instance.warnDatagrams();
         _nextRequestId = 1;
         _messageSizeMax = connector == null ? adapter.messageSizeMax() : instance.messageSizeMax();
         _batchRequestQueue = new BatchRequestQueue(instance, _endpoint.datagram());
@@ -1074,13 +1074,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         _upcallCount = 0;
         _state = StateNotInitialized;
 
-        int compressionLevel = initData.properties.getIcePropertyAsInt("Ice.Compression.Level");
-        if (compressionLevel < 1) {
-            compressionLevel = 1;
-        } else if (compressionLevel > 9) {
-            compressionLevel = 9;
-        }
-        _compressionLevel = compressionLevel;
+        _compressionLevel = instance.compressionLevel();
 
         if (options.idleTimeout() > 0 && !endpoint.datagram()) {
             _idleTimeoutTransceiver =

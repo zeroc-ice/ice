@@ -12,8 +12,6 @@ using namespace IceInternal;
 
 namespace
 {
-    const int udpOverhead = 20 + 8;
-
     class BatchRequestI final : public Ice::BatchRequest
     {
     public:
@@ -53,8 +51,7 @@ BatchRequestQueue::BatchRequestQueue(const InstancePtr& instance, bool datagram)
     _maxSize = instance->batchAutoFlushSize();
     if (_maxSize > 0 && datagram)
     {
-        const Ice::InitializationData& initData = instance->initializationData();
-        int32_t udpSndSize = initData.properties->getPropertyAsIntWithDefault("Ice.UDP.SndSize", 65535 - udpOverhead);
+        int32_t udpSndSize = instance->udpSndSize();
         if (udpSndSize < _maxSize)
         {
             _maxSize = udpSndSize;

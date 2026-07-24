@@ -1496,7 +1496,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(
               : instance->initializationData().properties->getPropertyAsInt(adapter->getName() + ".MaxConnections")),
       _endpoint(endpoint),
       _adapter(adapter),
-      _warn(_instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Connections") > 0)
+      _warn(_instance->warnConnections())
 {
 }
 

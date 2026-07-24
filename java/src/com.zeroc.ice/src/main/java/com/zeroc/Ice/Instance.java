@@ -263,6 +263,26 @@ public final class Instance {
         return _batchAutoFlushSize;
     }
 
+    public boolean warnConnections() {
+        // No mutex lock, immutable.
+        return _warnConnections;
+    }
+
+    public boolean warnDatagrams() {
+        // No mutex lock, immutable.
+        return _warnDatagrams;
+    }
+
+    public int compressionLevel() {
+        // No mutex lock, immutable.
+        return _compressionLevel;
+    }
+
+    public int udpSndSize() {
+        // No mutex lock, immutable.
+        return _udpSndSize;
+    }
+
     public int classGraphDepthMax() {
         // No mutex lock, immutable.
         return _classGraphDepthMax;
@@ -597,6 +617,15 @@ public final class Instance {
                 // The property is specified in kibibytes (KiB); _batchAutoFlushSize is stored in bytes.
                 _batchAutoFlushSize = batchAutoFlushSize * 1024;
             }
+
+            _warnConnections = properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
+            _warnDatagrams = properties.getIcePropertyAsInt("Ice.Warn.Datagrams") > 0;
+
+            _compressionLevel =
+                Math.min(Math.max(properties.getIcePropertyAsInt("Ice.Compression.Level"), 1), 9);
+
+            _udpSndSize =
+                properties.getPropertyAsIntWithDefault("Ice.UDP.SndSize", 65535 - _udpOverhead);
 
             int classGraphDepthMax = properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
             if (classGraphDepthMax < 1) {
@@ -1303,6 +1332,12 @@ public final class Instance {
     private DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private int _messageSizeMax; // Immutable, not reset by destroy().
     private int _batchAutoFlushSize; // Immutable, not reset by destroy().
+    private static final int _udpOverhead = 20 + 8;
+
+    private boolean _warnConnections; // Immutable, not reset by destroy().
+    private boolean _warnDatagrams; // Immutable, not reset by destroy().
+    private int _compressionLevel; // Immutable, not reset by destroy().
+    private int _udpSndSize; // Immutable, not reset by destroy().
     private int _classGraphDepthMax; // Immutable, not reset by destroy().
     private ToStringMode _toStringMode; // Immutable, not reset by destroy().
     private int _cacheMessageBuffers; // Immutable, not reset by destroy().
