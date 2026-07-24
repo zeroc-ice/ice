@@ -1,14 +1,22 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import os
 import sys
+from collections.abc import Callable
+from typing import Any
 
 from Util import (
     ClientServerTestCase,
+    Driver,
     Mapping,
+    Process,
     ProcessFromBinDir,
     ProcessIsReleaseOnly,
+    Props,
     Server,
+    TestCase,
     TestSuite,
     run,
     toplevel,
@@ -21,7 +29,13 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
     # Glacier2/router test authenticates against it where the native crypt library supports bcrypt.
     hashedPasswords = {"bcryptuser": "$2b$04$cVv0r3VdmM5qjmJwUjDIne19WwQxB6Q8Py8MKRRDtcSU9Fo0ESRiK"}
 
-    def __init__(self, portnum=50, passwords={"userid": "abc123"}, *args, **kargs):
+    def __init__(
+        self,
+        portnum: int = 50,
+        passwords: dict[str, str] = {"userid": "abc123"},
+        *args: Any,
+        **kargs: Any,
+    ):
         Server.__init__(
             self,
             "glacier2router",
@@ -34,10 +48,11 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
         self.portnum = portnum
         self.passwords = passwords
 
-    def getExe(self, current):
+    def getExe(self, current: Driver.Current) -> str:
+        assert self.exe is not None
         return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
 
-    def setup(self, current):
+    def setup(self, current: Driver.Current) -> None:
         if self.passwords:
             path = os.path.join(current.testsuite.getPath(), "passwords")
             with open(path, "w") as file:
@@ -65,7 +80,7 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
                     file.write("%s %s\n" % (user, hashedPassword))
             current.files.append(path)
 
-    def getProps(self, current):
+    def getProps(self, current: Driver.Current) -> Props:
         props = Server.getProps(self, current)
         props.update(
             {
@@ -77,21 +92,29 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
         )
         if self.passwords:
             props["Glacier2.CryptPasswords"] = os.path.join(current.testsuite.getPath(), "passwords")
-        if isinstance(current.testcase.getTestSuite(), Glacier2TestSuite):
+        testsuite = current.getTestCase().getTestSuite()
+        if isinstance(testsuite, Glacier2TestSuite):
             # Add the properties provided by the Glacier2TestSuite routerProps parameter.
-            props.update(current.testcase.getTestSuite().getRouterProps(self, current))
+            props.update(testsuite.getRouterProps(self, current))
         return props
 
-    def getClientProxy(self, current):
+    def getClientProxy(self, current: Driver.Current) -> str:
         return "Glacier2/router:{0}".format(current.getTestEndpoint(self.portnum))
 
 
 class Glacier2TestSuite(TestSuite):
-    def __init__(self, path, routerProps={}, testcases=None, *args, **kargs):
+    def __init__(
+        self,
+        path: str,
+        routerProps: Props | Callable[[Process, Driver.Current], Props] = {},
+        testcases: list[TestCase] | None = None,
+        *args: Any,
+        **kargs: Any,
+    ):
         if testcases is None:
             testcases = [ClientServerTestCase(servers=[Glacier2Router(), Server()])]
         TestSuite.__init__(self, path, testcases, *args, **kargs)
         self.routerProps = routerProps
 
-    def getRouterProps(self, process, current):
+    def getRouterProps(self, process: Process, current: Driver.Current) -> Props:
         return self.routerProps(process, current) if callable(self.routerProps) else self.routerProps.copy()
