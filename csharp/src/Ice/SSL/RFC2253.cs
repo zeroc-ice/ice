@@ -266,7 +266,7 @@ internal class RFC2253
                     // 1*DIGIT must follow "."
                     if (pos < data.Length && !char.IsDigit(data[pos]))
                     {
-                        throw new ParseException("invalid attribute type (expected end of data)");
+                        throw new ParseException("invalid attribute type (missing digit after '.')");
                     }
                 }
                 else

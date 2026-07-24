@@ -290,7 +290,7 @@ parseAttributeType(const string& data, size_t& pos)
                 // 1*DIGIT must follow "."
                 if (pos < data.size() && !IceInternal::isDigit(data[pos]))
                 {
-                    throw Ice::ParseException(__FILE__, __LINE__, "invalid attribute type (expected end of data)");
+                    throw Ice::ParseException(__FILE__, __LINE__, "invalid attribute type (missing digit after '.')");
                 }
             }
             else

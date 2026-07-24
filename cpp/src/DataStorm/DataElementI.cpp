@@ -680,7 +680,7 @@ DataElementI::forward(const ByteSeq& inParams, const Current& current) const
         // If we are forwarding a sample check if at least one of the listeners is interested in the sample.
         if (!_sample || listener.matchOne(_sample, false))
         {
-            // Forward the call using the listener's session proxy, don't need to wait for the result.
+            // Forward the call using the listener's session proxy. We don't need to wait for the result.
             listener.proxy
                 ->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, nullptr, nullptr, current.ctx);
         }
@@ -1639,7 +1639,7 @@ KeyDataWriterI::forward(const ByteSeq& inParams, const Current& current) const
         // and an unmatched key's sample would be wasted bandwidth at best (the receiver never subscribed its id).
         if (!_sample || listener.matchOne(_sample, true))
         {
-            // Forward the call using the listener's session proxy, don't need to wait for the result.
+            // Forward the call using the listener's session proxy. We don't need to wait for the result.
             listener.proxy
                 ->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, nullptr, nullptr, current.ctx);
         }

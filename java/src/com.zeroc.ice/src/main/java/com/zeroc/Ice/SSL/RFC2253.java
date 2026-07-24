@@ -158,7 +158,7 @@ class RFC2253 {
                     ++state.pos;
                     // 1*DIGIT must follow "."
                     if (state.pos < state.data.length() && !Character.isDigit(state.data.charAt(state.pos))) {
-                        throw new ParseException("invalid attribute type (expected end of data)");
+                        throw new ParseException("invalid attribute type (missing digit after '.')");
                     }
                 } else {
                     break;

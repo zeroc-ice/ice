@@ -859,8 +859,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     }
                     samples--;
 
-                    // Remove empty series no longer in use, if there is only one
-                    // series that is kept to add new values.
+                    // Remove empty series that are no longer in use. Always keep one
+                    // series, so that new values can still be added.
                     if (series.getData().isEmpty() && row.series.size() > 1) {
                         row.series.remove(series);
                         i--;

@@ -81,7 +81,8 @@ void ::Writer::run(int argc, char* argv[])
         // this sample after the second session reestablishment.
         sample = readerB.getNextUnread();
 
-        // Session has been reestablished twice without activity in "element" key. Send the second batch of samples.
+        // The session has been reestablished twice without activity on the "element" key. Send the second batch of
+        // samples.
         for (int i = 0; i < 100; ++i)
         {
             writer.update(i + 100);

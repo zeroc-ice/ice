@@ -1232,7 +1232,7 @@ export class InputStream {
         //
         // If there isn't enough data to read on the stream for the sequence (and
         // possibly enclosed sequences), something is wrong with the marshaled
-        // data: it's claiming having more data than what is possible to read.
+        // data: it's claiming to have more data than what is possible to read.
         //
         if (this._startSeq + this._minSeqSize > this._buf.limit) {
             throw new MarshalException(endOfBufferMessage);
