@@ -634,7 +634,7 @@ class Mapping(object):
         dotnetCoverageSession: str
 
         @classmethod
-        def getSupportedArgs(self) -> tuple[str, list[str]]:
+        def getSupportedArgs(cls) -> tuple[str, list[str]]:
             return (
                 "",
                 [
@@ -653,11 +653,11 @@ class Mapping(object):
             )
 
         @classmethod
-        def usage(self) -> None:
+        def usage(cls) -> None:
             pass
 
         @classmethod
-        def commonUsage(self) -> None:
+        def commonUsage(cls) -> None:
             print("")
             print("Mapping options:")
             print("--protocol=<prot>     Run with the given protocol.")
@@ -915,31 +915,31 @@ class Mapping(object):
             return props
 
     @classmethod
-    def getByName(self, name: str) -> Mapping:
-        if name not in self.mappings:
-            raise RuntimeError("unknown mapping: `{0}', known mappings: `{1}'".format(name, list(self.mappings)))
-        return self.mappings[name]
+    def getByName(cls, name: str) -> Mapping:
+        if name not in cls.mappings:
+            raise RuntimeError("unknown mapping: `{0}', known mappings: `{1}'".format(name, list(cls.mappings)))
+        return cls.mappings[name]
 
     @classmethod
-    def getByPath(self, path: str) -> Mapping | None:
+    def getByPath(cls, path: str) -> Mapping | None:
         path = os.path.normpath(path)
-        for m in self.mappings.values():
+        for m in cls.mappings.values():
             if path.startswith(os.path.normpath(m.getTestDir())):
                 return m
         return None
 
     @classmethod
-    def getAllByPath(self, path: str) -> list[Mapping]:
+    def getAllByPath(cls, path: str) -> list[Mapping]:
         path = os.path.abspath(path)
         mappings: list[Mapping] = []
-        for m in self.mappings.values():
+        for m in cls.mappings.values():
             if path.startswith(m.getPath() + os.sep):
                 mappings.append(m)
         return mappings
 
     @classmethod
     def add(
-        self,
+        cls,
         name: str,
         mapping: Mapping,
         component: Component,
@@ -949,25 +949,25 @@ class Mapping(object):
         name = name.replace("\\", "/")
         m = mapping.init(name, component, path)
         if enable:
-            self.mappings[name] = m
+            cls.mappings[name] = m
         else:
-            self.disabled[name] = m
+            cls.disabled[name] = m
 
     @classmethod
-    def disable(self, name: str) -> None:
-        m = self.mappings[name]
+    def disable(cls, name: str) -> None:
+        m = cls.mappings[name]
         if m:
-            self.disabled[name] = m
-            del self.mappings[name]
+            cls.disabled[name] = m
+            del cls.mappings[name]
 
     @classmethod
-    def remove(self, name: str) -> None:
-        del self.mappings[name]
+    def remove(cls, name: str) -> None:
+        del cls.mappings[name]
 
     @classmethod
-    def getAll(self, driver: Driver | None = None, includeDisabled: bool = False) -> list[Mapping]:
-        return [m for m in self.mappings.values() if not driver or driver.matchLanguage(str(m))] + (
-            [m for m in self.disabled.values() if not driver or driver.matchLanguage(str(m))] if includeDisabled else []
+    def getAll(cls, driver: Driver | None = None, includeDisabled: bool = False) -> list[Mapping]:
+        return [m for m in cls.mappings.values() if not driver or driver.matchLanguage(str(m))] + (
+            [m for m in cls.disabled.values() if not driver or driver.matchLanguage(str(m))] if includeDisabled else []
         )
 
     def __init__(self, path: str | None = None):
@@ -3726,26 +3726,26 @@ class Driver:
     cross: Mapping | str
 
     @classmethod
-    def add(self, name: str, driver: type[Driver], default: bool = False) -> None:
+    def add(cls, name: str, driver: type[Driver], default: bool = False) -> None:
         if default:
             Driver.driver = name
-        self.driver = name
-        self.drivers[name] = driver
+        cls.driver = name
+        cls.drivers[name] = driver
 
     @classmethod
-    def getAll(self) -> list[type[Driver]]:
-        return list(self.drivers.values())
+    def getAll(cls) -> list[type[Driver]]:
+        return list(cls.drivers.values())
 
     @classmethod
-    def create(self, options: list[Option], component: Component) -> Driver:
-        parseOptions(self, options)
-        driver = self.drivers.get(self.driver)
+    def create(cls, options: list[Option], component: Component) -> Driver:
+        parseOptions(cls, options)
+        driver = cls.drivers.get(cls.driver)
         if not driver:
-            raise RuntimeError("unknown driver `{0}'".format(self.driver))
+            raise RuntimeError("unknown driver `{0}'".format(cls.driver))
         return driver(options, component)
 
     @classmethod
-    def getSupportedArgs(self) -> tuple[str, list[str]]:
+    def getSupportedArgs(cls) -> tuple[str, list[str]]:
         return (
             "dlrR",
             [
@@ -3766,11 +3766,11 @@ class Driver:
         )
 
     @classmethod
-    def usage(self) -> None:
+    def usage(cls) -> None:
         pass
 
     @classmethod
-    def commonUsage(self) -> None:
+    def commonUsage(cls) -> None:
         print("")
         print("Driver options:")
         print("-d | --debug          Verbose information.")
@@ -4018,11 +4018,11 @@ class Driver:
 class CppMapping(Mapping):
     class Config(Mapping.Config):
         @classmethod
-        def getSupportedArgs(self) -> tuple[str, list[str]]:
+        def getSupportedArgs(cls) -> tuple[str, list[str]]:
             return ("", ["cpp-config=", "cpp-platform=", "cpp-path=", "openssl"])
 
         @classmethod
-        def usage(self) -> None:
+        def usage(cls) -> None:
             print("")
             print("C++ Mapping options:")
             print("--cpp-path=<path>         Path of alternate source tree for the C++ mapping.")
@@ -4156,11 +4156,11 @@ class CppMapping(Mapping):
 class JavaMapping(Mapping):
     class Config(Mapping.Config):
         @classmethod
-        def getSupportedArgs(self) -> tuple[str, list[str]]:
+        def getSupportedArgs(cls) -> tuple[str, list[str]]:
             return ("", ["device=", "avd=", "android", "jacoco="])
 
         @classmethod
-        def usage(self) -> None:
+        def usage(cls) -> None:
             print("")
             print("Java Mapping options:")
             print("--android                 Run the Android tests.")
@@ -4261,11 +4261,11 @@ class JavaMapping(Mapping):
 class CSharpMapping(Mapping):
     class Config(Mapping.Config):
         @classmethod
-        def getSupportedArgs(self) -> tuple[str, list[str]]:
+        def getSupportedArgs(cls) -> tuple[str, list[str]]:
             return ("", ["csharp-config=", "coverage-session=", "target-framework="])
 
         @classmethod
-        def usage(self) -> None:
+        def usage(cls) -> None:
             print("")
             print("C# mapping options:")
             print("--csharp-config=<config>        C# build configuration for .NET executables (overrides --config).")
@@ -4395,28 +4395,28 @@ class CppBasedMapping(Mapping):
         mappingDesc: str
 
         @classmethod
-        def getSupportedArgs(self) -> tuple[str, list[str]]:
+        def getSupportedArgs(cls) -> tuple[str, list[str]]:
             return (
                 "",
                 [
-                    self.mappingName + "-config=",
-                    self.mappingName + "-platform=",
+                    cls.mappingName + "-config=",
+                    cls.mappingName + "-platform=",
                     "openssl",
                 ],
             )
 
         @classmethod
-        def usage(self) -> None:
+        def usage(cls) -> None:
             print("")
-            print(self.mappingDesc + " mapping options:")
+            print(cls.mappingDesc + " mapping options:")
             print(
                 "--{0}-config=<config>     {1} build configuration for native executables (overrides --config).".format(
-                    self.mappingName, self.mappingDesc
+                    cls.mappingName, cls.mappingDesc
                 )
             )
             print(
                 "--{0}-platform=<platform> {1} build platform for native executables (overrides --platform).".format(
-                    self.mappingName, self.mappingDesc
+                    cls.mappingName, cls.mappingDesc
                 )
             )
             print("--openssl                 Run SSL tests with OpenSSL instead of the default platform SSL engine.")
@@ -4453,11 +4453,11 @@ class PythonMapping(CppBasedMapping):
         mappingDesc = "Python"
 
         @classmethod
-        def getSupportedArgs(self) -> tuple[str, list[str]]:
+        def getSupportedArgs(cls) -> tuple[str, list[str]]:
             return ("", ["python=", "load-slice", "pip-package"])
 
         @classmethod
-        def usage(self) -> None:
+        def usage(cls) -> None:
             print("")
             print("Python mapping options:")
             print("--python=<interpreter>   Choose the interpreter used to run python tests")
@@ -4737,11 +4737,11 @@ class JavaScriptMixin(_JavaScriptMixinBase):
 class JavaScriptMapping(JavaScriptMixin, Mapping):
     class Config(Mapping.Config):
         @classmethod
-        def getSupportedArgs(self) -> tuple[str, list[str]]:
+        def getSupportedArgs(cls) -> tuple[str, list[str]]:
             return ("", ["browser=", "worker", "coverage"])
 
         @classmethod
-        def usage(self) -> None:
+        def usage(cls) -> None:
             print("")
             print("JavaScript mapping options:")
             print("--browser=<name>      Run with the given browser.")
