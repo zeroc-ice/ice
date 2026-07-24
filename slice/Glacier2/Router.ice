@@ -64,8 +64,8 @@ module Glacier2
         /// @throws PermissionDeniedException Thrown when an authentication or authorization failure occurs.
         /// @throws CannotCreateSessionException Thrown when the session cannot be created.
         /// @see Session
-        /// @see SessionManager
-        /// @see PermissionsVerifier
+        /// @see SSLSessionManager
+        /// @see SSLPermissionsVerifier
         Session* createSessionFromSecureConnection()
             throws PermissionDeniedException, CannotCreateSessionException;
 

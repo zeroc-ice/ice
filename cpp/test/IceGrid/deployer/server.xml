@@ -3,7 +3,7 @@
   <server-template id="ServerTemplate">
 
     <parameter name="name"/>
-    <parameter name="AppVarOverridedByParam"/>
+    <parameter name="AppVarOverriddenByParam"/>
     <parameter name="Param1"/>
     <parameter name="Param2"/>
     <parameter name="ParamEscaped"/>
@@ -53,8 +53,8 @@
         <property name="Param2Prop" value="${Param2}"/>
         <property name="ParamEscapedProp" value="${ParamEscaped}"/>
         <property name="ParamDoubleEscapedProp" value="${ParamDoubleEscaped}"/>
-        <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
-        <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
+        <property name="AppVarOverriddenByParamProp" value="${AppVarOverriddenByParam}"/>
+        <property name="NodeVarOverriddenByParamProp" value="${NodeVarOverriddenByParam}"/>
         <property name="DefaultParamProp" value="${DefaultParam}"/>
       </properties>
 

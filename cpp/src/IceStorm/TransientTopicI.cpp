@@ -205,7 +205,7 @@ TransientTopicImpl::unsubscribe(optional<Ice::ObjectPrx> subscriber, const Ice::
     lock_guard lock(_mutex);
 
     // First remove the subscriber from the subscribers list. Note
-    // that its possible that the subscriber isn't in the list, but is
+    // that it's possible that the subscriber isn't in the list, but is
     // in the database if the subscriber was locally reaped.
     auto p = find(_subscribers.begin(), _subscribers.end(), id);
     if (p != _subscribers.end())
@@ -304,7 +304,7 @@ TransientTopicImpl::unlink(optional<TopicPrx> topic, const Ice::Current& current
     }
 
     // Remove the subscriber from the subscribers list. Note
-    // that its possible that the subscriber isn't in the list, but is
+    // that it's possible that the subscriber isn't in the list, but is
     // in the database if the subscriber was locally reaped.
     auto p = find(_subscribers.begin(), _subscribers.end(), id);
     if (p != _subscribers.end())
@@ -455,7 +455,7 @@ TransientTopicImpl::publish(bool forwarded, const EventDataSeq& events)
         for (const auto& id : ids)
         {
             //
-            // Its possible for the subscriber to already have been
+            // It's possible for the subscriber to already have been
             // removed since the copy is iterated over outside of
             // mutex protection.
             //

@@ -184,7 +184,7 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string_vie
     lock_guard lock(_mutex);
 
     //
-    // This assert is not valid if the adapter dispatch incoming
+    // This assert is not valid if the adapter dispatches incoming
     // requests from bidir connections. This method might be called if
     // requests are received over the bidir connection after the
     // adapter was deactivated.
@@ -277,7 +277,7 @@ IceInternal::ServantManager::hasServant(const Identity& ident) const
     lock_guard lock(_mutex);
 
     //
-    // This assert is not valid if the adapter dispatch incoming
+    // This assert is not valid if the adapter dispatches incoming
     // requests from bidir connections. This method might be called if
     // requests are received over the bidir connection after the
     // adapter was deactivated.
@@ -360,7 +360,7 @@ IceInternal::ServantManager::findServantLocator(const string_view category) cons
     lock_guard lock(_mutex);
 
     //
-    // This assert is not valid if the adapter dispatch incoming
+    // This assert is not valid if the adapter dispatches incoming
     // requests from bidir connections. This method might be called if
     // requests are received over the bidir connection after the
     // adapter was deactivated.

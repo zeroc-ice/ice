@@ -11,7 +11,7 @@ public class Server : TestHelper
         var initData = new InitializationData();
         initData.properties = createTestProperties(ref args);
         //
-        // Its possible to have batch oneway requests dispatched
+        // It's possible to have batch oneway requests dispatched
         // after the adapter is deactivated due to thread
         // scheduling so we suppress this warning.
         //

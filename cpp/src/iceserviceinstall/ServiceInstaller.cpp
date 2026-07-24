@@ -557,7 +557,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
         GetNamedSecurityInfoW(const_cast<wchar_t*>(stringToWstring(path).c_str()), type, flags, 0, 0, &acl, 0, &sd);
     if (res != ERROR_SUCCESS)
     {
-        throw runtime_error("Could not retrieve securify info for " + path + ": " + IceInternal::errorToString(res));
+        throw runtime_error("Could not retrieve security info for " + path + ": " + IceInternal::errorToString(res));
     }
 
     //
@@ -567,7 +567,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
     {
         if (!AuthzInitializeResourceManager(AUTHZ_RM_FLAG_NO_AUDIT, 0, 0, 0, 0, &manager))
         {
-            throw runtime_error("AutzInitializeResourceManager failed: " + IceInternal::lastErrorToString());
+            throw runtime_error("AuthzInitializeResourceManager failed: " + IceInternal::lastErrorToString());
         }
 
         LUID unusedId = {0};

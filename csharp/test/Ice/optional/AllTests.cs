@@ -1381,7 +1381,7 @@ public class AllTests : global::Test.AllTests
             test(ArraysEqual(arr, p1));
             @in.endEncapsulation();
 
-            // Check the outEncaps size matches the expected size, 6 bytes for the encapsulation, plus each
+            // Check the outEncaps size matches the expected size, 6 bytes for the encapsulation, plus
             // 12 bytes for each sequence ( 1 byte tag, 1 byte size, 10 byte contents)
             test(outEncaps.Length == 12 + 12 + 6);
 

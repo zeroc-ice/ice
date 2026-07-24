@@ -617,7 +617,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
         catch (...)
         {
             //
-            // We clean it up, even through this error is not recoverable
+            // We clean it up, even though this error is not recoverable
             // (can't call again createAdmin after fixing the problem since all the facets
             // in the adapter are lost)
             //
@@ -676,7 +676,7 @@ IceInternal::Instance::getAdmin()
         catch (...)
         {
             //
-            // We clean it up, even through this error is not recoverable
+            // We clean it up, even though this error is not recoverable
             // (can't call again createAdmin after fixing the problem since all the facets
             // in the adapter are lost)
             //

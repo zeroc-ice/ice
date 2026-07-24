@@ -510,7 +510,7 @@ final class LocatorInfo {
     private void finishRequest(Reference ref, List<Reference> wellKnownRefs, ObjectPrx proxy, boolean notRegistered) {
         if (proxy == null || ((_ObjectPrxI) proxy)._getReference().isIndirect()) {
             // Remove the cached references of well-known objects for which we tried
-            // to resolved the endpoints if these endpoints are empty.
+            // to resolve the endpoints if these endpoints are empty.
             for (Reference r : wellKnownRefs) {
                 _table.removeObjectReference(r.getIdentity());
             }

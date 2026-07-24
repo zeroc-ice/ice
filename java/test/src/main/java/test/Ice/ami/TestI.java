@@ -157,7 +157,7 @@ public class TestI implements TestIntf {
     public synchronized CompletionStage<Void> startDispatchAsync(Current current) {
         if (_shutdown) {
             // Ignore, this can occur with the forceful connection close test, shutdown can be
-            // dispatch before start dispatch.
+            // dispatched before startDispatch.
             CompletableFuture<Void> v = new CompletableFuture<>();
             v.complete(null);
             return v;
@@ -173,7 +173,7 @@ public class TestI implements TestIntf {
         if (_shutdown) {
             return;
         } else if (_pending != null) {
-            // Pending might not be set yet if startDispatch is dispatch out-of-order
+            // Pending might not be set yet if startDispatch is dispatched out-of-order
             _pending.complete(null);
             _pending = null;
         }

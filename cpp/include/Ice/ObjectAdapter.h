@@ -290,7 +290,7 @@ namespace Ice
         virtual void setLocator(std::optional<LocatorPrx> loc) = 0;
 
         /// Gets the Ice locator used by this object adapter.
-        /// @return The locator used by this object adapter, or nullptr if no locator is used by this object adapter.
+        /// @return The locator used by this object adapter, or nullopt if no locator is used by this object adapter.
         [[nodiscard]] virtual std::optional<LocatorPrx> getLocator() const noexcept = 0;
 
         /// Gets the set of endpoints configured on this object adapter.

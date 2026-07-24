@@ -30,7 +30,7 @@ namespace Slice
         /// @param paramName If @p paramPtr is non-null, this is the mapped name of the parameter being referenced.
         /// Otherwise, this is the identifier after '@p', taken verbatim from the doc-comment.
         /// @param paramPtr A pointer to the parameter that is being referenced, or `nullptr` if it doesn't exist.
-        /// @return A properly formatted parameters reference in the target language. The doc-comment parser will
+        /// @return A properly formatted parameter reference in the target language. The doc-comment parser will
         /// replace the entire "@p <rawParamName>" string with the returned value.
         //
         // By default we just emit the parameter's name in code formatting.
@@ -48,7 +48,7 @@ namespace Slice
 
         /// This function is called by the doc-comment parser to map see-also references ('@see <rawLink>') into each
         /// language's syntax.
-        /// @param rawLink The references's raw text, taken verbatim from the doc-comment.
+        /// @param rawLink The reference's raw text, taken verbatim from the doc-comment.
         /// @param source A pointer to the Slice element that the doc-comment (and reference) are written on.
         /// @param target A pointer to the Slice element that is being referenced, or `nullptr` if it doesn't exist.
         /// @return A properly formatted see-also-link in the target language. This value will be stored in the

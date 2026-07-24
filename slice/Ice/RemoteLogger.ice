@@ -110,13 +110,13 @@ module Ice
         /// Retrieves recently logged log messages.
         /// @param messageTypes The list of message types that the caller wishes to receive. An empty list means no
         /// filtering (send all message types).
-        /// @param traceCategories The categories of traces that caller wish to receive. This parameter is ignored if
-        /// @p messageTypes is not empty and does not include trace. An empty list means no filtering (send all trace
-        /// categories).
+        /// @param traceCategories The categories of traces that the caller wishes to receive. This parameter is
+        /// ignored if @p messageTypes is not empty and does not include trace. An empty list means no filtering (send
+        /// all trace categories).
         /// @param messageMax The maximum number of log messages (of all types) to be returned. A negative value
         /// requests all messages available.
         /// @param prefix The prefix of the associated local logger.
-        /// @return The Log messages.
+        /// @return The log messages.
         LogMessageSeq getLog(
             LogMessageTypeSeq messageTypes,
             StringSeq traceCategories,

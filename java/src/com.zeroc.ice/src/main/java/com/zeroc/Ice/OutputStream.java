@@ -1805,7 +1805,7 @@ public final class OutputStream {
         private void writeInstance(Value v) {
             assert (v != null);
 
-            // If the instance was already marshaled, just write it's ID.
+            // If the instance was already marshaled, just write its ID.
             Integer p = _marshaledMap.get(v);
             if (p != null) {
                 _stream.writeSize(p);

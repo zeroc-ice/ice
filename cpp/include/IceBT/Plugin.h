@@ -15,7 +15,7 @@ namespace IceBT
 {
     /// Returns the factory for the Bluetooth transport plug-in, IceBT.
     /// @return The factory for the IceBT plug-in.
-    /// @see InitializationData::pluginFactories
+    /// @see Ice::InitializationData::pluginFactories
     ICEBT_API Ice::PluginFactory btPluginFactory();
 
     /// A name-value map.

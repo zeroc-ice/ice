@@ -366,7 +366,7 @@ public abstract class OutgoingAsyncBase
 //
 // Base class for proxy based invocations. This class handles the
 // retry for proxy invocations. It also ensures the child observer is
-// correct notified of failures and make sure the retry task is
+// correctly notified of failures and makes sure the retry task is
 // correctly canceled when the invocation completes.
 //
 public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask

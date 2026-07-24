@@ -17,7 +17,7 @@ public final class TwowayOnlyException extends LocalException {
         super(
             "Cannot invoke operation '"
                 + operation
-                + "' with a oneway, batchOneway, datagram, of batchDatagram proxy.");
+                + "' with a oneway, batchOneway, datagram, or batchDatagram proxy.");
         this.operation = operation;
     }
 

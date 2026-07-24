@@ -510,7 +510,7 @@ namespace Ice
         void read(std::vector<std::int32_t>& v);
 
         /// Reads a long from the stream.
-        /// @param[out]v The extracted long.
+        /// @param[out] v The extracted long.
         void read(std::int64_t& v);
 
         /// Reads a sequence of longs from the stream.

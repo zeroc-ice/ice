@@ -16,7 +16,7 @@ using namespace std;
 namespace
 {
     mutex consoleMutex;
-    // We leak consoleUtil object to ensure that is available during static destruction.
+    // We leak consoleUtil object to ensure that it is available during static destruction.
     ConsoleUtil* consoleUtil = 0;
 }
 

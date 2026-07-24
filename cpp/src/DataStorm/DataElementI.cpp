@@ -54,7 +54,7 @@ DataElementI::DataElementI(TopicI* parent, string name, int64_t id, const DataSt
       _id(id),
       _config(make_shared<ElementConfig>()),
       _executor(parent->instance()->getCallbackExecutor()),
-      // The collocated forwarder is initalized here to avoid using a nullable proxy. The forwarder is only used by
+      // The collocated forwarder is initialized here to avoid using a nullable proxy. The forwarder is only used by
       // the instance that owns it and is removed in destroy implementation.
       _forwarder{parent->instance()->getCollocatedForwarder()->add<SessionPrx>(
           [this](const ByteSeq& inParams, const Current& current) { forward(inParams, current); })},
@@ -125,7 +125,7 @@ DataElementI::attach(
         name = os.str();
     }
 
-    // Attach the key or filter, and if attach success compute the ACK data to send to the peer.
+    // Attach the key or filter, and if the attach succeeds, compute the ACK data to send to the peer.
     if ((id > 0 &&
          attachKey(topicId, data.id, key, sampleFilter, session, std::move(prx), facet, id, name, priority)) ||
         (id < 0 &&
@@ -682,10 +682,10 @@ DataElementI::forward(const ByteSeq& inParams, const Current& current) const
 {
     for (const auto& [_, listener] : _listeners)
     {
-        // If we are forwarding a sample check if at least once of the listeners is interested in the sample.
+        // If we are forwarding a sample, check whether at least one of the listeners is interested in it.
         if (!_sample || listener.matchOne(_sample, false))
         {
-            // Forward the call using the listener's session proxy don't need to wait for the result.
+            // Forward the call using the listener's session proxy. We don't need to wait for the result.
             listener.proxy
                 ->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, nullptr, nullptr, current.ctx);
         }
@@ -1566,7 +1566,7 @@ KeyDataWriterI::getSamples(
         cleanOldSamples(_samples, now, *_config->sampleLifetime);
     }
 
-    // Compute the stale time, according to the callers sample lifetime configuration.
+    // Compute the stale time, according to the caller's sample lifetime configuration.
     chrono::time_point<chrono::system_clock> staleTime = chrono::time_point<chrono::system_clock>::min();
     if (config->sampleLifetime && *config->sampleLifetime > 0)
     {
@@ -1644,7 +1644,7 @@ KeyDataWriterI::forward(const ByteSeq& inParams, const Current& current) const
         // and an unmatched key's sample would be wasted bandwidth at best (the receiver never subscribed its id).
         if (!_sample || listener.matchOne(_sample, true))
         {
-            // Forward the call using the listener's session proxy, don't need to wait for the result.
+            // Forward the call using the listener's session proxy. We don't need to wait for the result.
             listener.proxy
                 ->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, nullptr, nullptr, current.ctx);
         }

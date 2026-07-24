@@ -616,7 +616,7 @@ class Expect(object):
         self.before = self.buf
         self.after = ""
         #
-        # Without this we get warnings when runing with python_d on Windows
+        # Without this we get warnings when running with python_d on Windows
         #
         # ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='cp1252'>
         #
@@ -701,7 +701,7 @@ class Expect(object):
         return self.buf if self.p is None else self.r.getbuf()
 
     def hasInterruptSupport(self):
-        """Return True if the application gracefully terminated, False otherwise."""
+        """Return True if the process can be terminated gracefully with a signal, False otherwise."""
         if win32 and self.mapping == "java":
             return False
         return True

@@ -49,6 +49,7 @@ class Properties:
         Examples
         --------
         .. code-block:: python
+
             # Create a new empty property set.
             properties = Ice.Properties()
 

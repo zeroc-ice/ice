@@ -109,7 +109,7 @@ def ping_pong(host, port, payload=b"", timeout=10.0):
     Upgrade, send a PING with the given payload, and return the PONG payload.
 
     Non-PONG frames the server emits first (e.g. its Ice connection-validation
-    message) are skipped. Raises if the server sends CLOSE or never ponngs.
+    message) are skipped. Raises if the server sends CLOSE or never PONGs.
     """
     with socket.create_connection((host, port), timeout=timeout) as sock:
         reader = _Reader(sock, _upgrade(sock, host, port))

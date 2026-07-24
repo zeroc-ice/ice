@@ -399,7 +399,7 @@ public class AllTests : global::Test.AllTests
 
                 {
                     //
-                    // This should l because the self signed certificate used by the server is not
+                    // This should fail because the self signed certificate used by the server is not
                     // trusted.
                     //
                     initData = createClientProps(defaultProperties);
@@ -565,7 +565,7 @@ public class AllTests : global::Test.AllTests
                     }
                     //
                     // Target host matches the certificate Common Name and the certificate has
-                    // a DNS altName that does not matches the target host
+                    // a DNS altName that does not match the target host
                     //
                     {
                         initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
@@ -1512,7 +1512,7 @@ public class AllTests : global::Test.AllTests
                         initData.properties.setProperty("IceSSL.CertStoreLocation", "CurrentUser");
                         initData.properties.setProperty("IceSSL.FindCert", clientFindCertProperties[i]);
 
-                        // Use TrustOnly to ensure the peer has pick the expected certificate.
+                        // Use TrustOnly to ensure the peer has picked the expected certificate.
                         initData.properties.setProperty("IceSSL.TrustOnly", "CN=ca1.server");
                         using var comm = new Ice.Communicator(initData);
 
@@ -1520,7 +1520,7 @@ public class AllTests : global::Test.AllTests
                             Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                         d = createServerProps(defaultProperties, "", "ca1/ca1");
                         d["IceSSL.FindCert"] = serverFindCertProperties[i];
-                        // Use TrustOnly to ensure the peer has pick the expected certificate.
+                        // Use TrustOnly to ensure the peer has picked the expected certificate.
                         d["IceSSL.TrustOnly"] = "CN=ca1.client";
 
                         ServerPrx server = fact.createServer(d);
@@ -1571,7 +1571,7 @@ public class AllTests : global::Test.AllTests
                 }
 
                 //
-                // These must fail because we have already remove the certificates.
+                // These must fail because we have already removed the certificates.
                 //
                 foreach (string s in clientFindCertProperties)
                 {

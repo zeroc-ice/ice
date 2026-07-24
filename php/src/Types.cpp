@@ -3215,7 +3215,7 @@ IcePHP::ExceptionReader::ExceptionReader(const CommunicatorInfoPtr& communicator
 IcePHP::ExceptionReader::~ExceptionReader()
 {
 #ifdef NDEBUG
-    // BUGFIX: releasing this object trigers an assert in PHP objects_store
+    // BUGFIX: releasing this object triggers an assert in PHP objects_store
     // https://github.com/php/php-src/issues/10593
     if (!Z_ISUNDEF(_ex))
     {

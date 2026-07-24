@@ -18,7 +18,7 @@ module IceGrid
 
     class InternalAdapterDescriptor
     {
-        /// The identifier of the server.
+        /// The adapter ID.
         string id;
 
         /// Specifies if the lifetime of the adapter is the same as the server.
@@ -100,7 +100,7 @@ module IceGrid
     {
         /// Activate this adapter. If this adapter can be activated, this will activate the adapter and return the
         /// direct proxy of the adapter once it's active. If this adapter can be activated on demand, this will return
-        /// `null` if the adapter is inactive or the adapter direct proxy it's active.
+        /// `null` if the adapter is inactive or the adapter direct proxy if it's active.
         ["amd"] Object* activate();
 
         /// Get the adapter's direct proxy. The adapter's direct proxy is a proxy created with the object adapter.
@@ -171,7 +171,7 @@ module IceGrid
         /// @return The server state.
         ["cpp:const"] idempotent ServerState getState();
 
-        /// Get the server's pid. Note that the value returned by this method is system dependant. On Unix operating
+        /// Get the server's pid. Note that the value returned by this method is system dependent. On Unix operating
         /// systems, it's the pid value returned by the `fork()` system call and converted to an integer.
         ["cpp:const"] idempotent int getPid();
 
@@ -345,10 +345,10 @@ module IceGrid
         /// The network name of the host running this node (as defined in `uname()`).
         string hostname;
 
-        /// The operation system release level (as defined in `uname()`).
+        /// The operating system release level (as defined in `uname()`).
         string release;
 
-        /// The operation system version (as defined in `uname()`).
+        /// The operating system version (as defined in `uname()`).
         string version;
 
         /// The machine hardware type (as defined in `uname()`).
@@ -387,8 +387,8 @@ module IceGrid
         NodeSession* registerNode(InternalNodeInfo info, Node* prx, LoadInfo loadInf)
             throws NodeActiveException, PermissionDeniedException;
 
-        /// Register a replica with the registry. If a replica with the same name is already registered,
-        /// this operation overrides the existing registration only when the previously registered node is not active.
+        /// Register a replica with the registry. If a replica with the same name is already registered, this
+        /// operation overrides the existing registration only when the previously registered replica is not active.
         /// @param info Some information on the replica.
         /// @param prx The proxy of the replica.
         /// @return The replica session proxy.

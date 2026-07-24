@@ -325,7 +325,7 @@ public final class Communicator implements AutoCloseable {
     /**
      * Gets the object adapter that is associated by default with new outgoing connections created
      * by this communicator. This method returns null unless you set a non-null default object
-     * adapter using {@link setDefaultObjectAdapter}.
+     * adapter using {@link #setDefaultObjectAdapter}.
      *
      * @return the object adapter associated by default with new outgoing connections
      * @throws CommunicatorDestroyedException if the communicator has been destroyed
@@ -493,7 +493,7 @@ public final class Communicator implements AutoCloseable {
     }
 
     private CommunicatorFlushBatch _iceI_flushBatchRequestsAsync(CompressBatch compressBatch) {
-        // This callback object receives the results of all invocations of Connection.begin_flushBatchRequests.
+        // This callback object receives the results of the batch flush performed on each connection.
         var f = new CommunicatorFlushBatch(this, _instance);
         f.invoke(compressBatch);
         return f;

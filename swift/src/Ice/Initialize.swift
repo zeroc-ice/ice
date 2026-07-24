@@ -6,7 +6,7 @@ import IceImpl
 // Factories are registered once when `factoriesRegistered' is lazy initialized,
 // all Swift global variables are lazy initialized.
 //
-// All code paths that require the use of the factories before `initialize' is call
+// All code paths that require the use of the factories before `initialize' is called
 // should check `factoriesRegistered' to ensure lazy initialization occurs before
 // the factories are used.
 //
@@ -75,7 +75,7 @@ public func initialize(_ initData: InitializationData = InitializationData()) th
 
         precondition(propsHandle === handle.getProperties(), "initialize changed the properties object")
 
-        // Update newInitData.logger reference in case we are using a C++ logger (defined though a property) or
+        // Update newInitData.logger reference in case we are using a C++ logger (defined through a property) or
         // a C++ logger plug-in installed a new logger.
         if let objcLogger = handle.getLogger() as? ICELogger {
             newInitData.logger = objcLogger.getSwiftObject(ObjcLoggerWrapper.self) {
