@@ -127,7 +127,7 @@ Selector::getNextHandler(SocketOperation& status, DWORD& count, int& error, int 
             }
             else
             {
-                // This indicates a internal error with the IOCP completion port, we log the error and abort.
+                // This indicates an internal error with the IOCP completion port, we log the error and abort.
                 Ice::SocketException ex(__FILE__, __LINE__, err);
                 Ice::Error out(_instance->initializationData().logger);
                 out << "could not dequeue packet from completion port:\n" << ex;
@@ -478,7 +478,7 @@ Selector::startSelect()
 
     //
     // If there are ready handlers, don't block in select, just do a non-blocking
-    // select to retrieve new ready handlers from the Java selector.
+    // select to retrieve new ready handlers from the selector.
     //
     _selectNow = !_readyHandlers.empty();
 }
@@ -556,7 +556,7 @@ Selector::select(int timeout)
     }
     else if (timeout > 0)
     {
-        // kqueue use seconds, epoll use milliseconds
+        // kqueue uses seconds, epoll uses milliseconds
 #    ifdef ICE_USE_EPOLL
         timeout = timeout * 1000;
 #    endif
@@ -591,7 +591,7 @@ Selector::select(int timeout)
                 continue;
             }
 
-            // This indicates a internal error with the selector, we log the error and abort.
+            // This indicates an internal error with the selector, we log the error and abort.
             Ice::SocketException ex(__FILE__, __LINE__, IceInternal::getSocketErrno());
             Ice::Error out(_instance->initializationData().logger);
             out << "selector failed:\n" << ex;

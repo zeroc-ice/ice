@@ -38,7 +38,7 @@ public class Server : global::Test.TestHelper
 
         var endpoint = new StringBuilder();
         //
-        // Use loopback to prevent other machines to answer.
+        // Use loopback to prevent other machines from answering.
         //
         if (properties.getIceProperty("Ice.IPv6") == "1")
         {

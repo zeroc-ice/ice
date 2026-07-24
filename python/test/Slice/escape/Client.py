@@ -91,7 +91,7 @@ class Client(TestHelper):
     def run(self, args: list[str]):
         properties = self.createTestProperties(args)
         #
-        # Its possible to have batch oneway requests dispatched after the
+        # It's possible to have batch oneway requests dispatched after the
         # adapter is deactivated due to thread scheduling so we suppress
         # this warning.
         #

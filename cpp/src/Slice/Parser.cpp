@@ -79,10 +79,10 @@ namespace
     /// Reports any naming conflicts between @p name and @p definitions.
     /// This should only be called for Slice elements that are _not_ defined at module scope.
     /// For example, this is fine to use for operations, enumerators, data members, and parameters.
-    /// For elements that are defined within directly within modules, `findContents` must be used instead.
+    /// For elements that are defined directly within modules, `findContents` must be used instead.
     /// @param name The name to check for conflicts.
     /// @param kind The kind of element that we're checking (only used for error messages).
-    /// @param definitions A list of definitions check @p name against.
+    /// @param definitions A list of definitions to check @p name against.
     /// @return @c false if there are no name conflicts, @c true otherwise.
     bool doesNameConflict(string_view name, string_view kind, const ContainedList& definitions)
     {
@@ -865,8 +865,8 @@ Slice::Contained::Contained(const ContainerPtr& container, string name) : _conta
 void
 Slice::Container::destroyContents()
 {
-    // Container has pointers to all it's contents (since it logically owns them).
-    // But each Contained also keeps a pointer to it's parent, creating a cycle.
+    // Container has pointers to all its contents (since it logically owns them).
+    // But each Contained also keeps a pointer to its parent, creating a cycle.
     // We need to break this cycle.
     for (const auto& i : _contents)
     {
@@ -999,7 +999,7 @@ Slice::Container::createClassDef(const string& name, int32_t id, const ClassDefP
     def->_declaration = decl;
     decl->_definition = def;
 
-    // Patch forward declarations which may of been created in other openings of this class' module.
+    // Patch forward declarations which may have been created in other openings of this class' module.
     for (const auto& q : matches)
     {
         dynamic_pointer_cast<ClassDecl>(q)->_definition = def;
@@ -1135,7 +1135,7 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
     def->_declaration = decl;
     decl->_definition = def;
 
-    // Patch forward declarations which may of been created in other openings of this interface's module.
+    // Patch forward declarations which may have been created in other openings of this interface's module.
     for (const auto& q : matches)
     {
         dynamic_pointer_cast<InterfaceDecl>(q)->_definition = def;

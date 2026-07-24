@@ -109,7 +109,7 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
             generatedCompiledPaths.AddRange(
                 GeneratedCompiledItems(source).Select(item => item.GetMetadata("FullPath")));
             //
-            // Check if the Slice compiler is older than the source file
+            // Check if the Slice compiler is newer than the generated files
             //
             var sliceCompiler = new FileInfo(Path.Combine(IceSliceToolsPath, ToolName));
             FileInfo? generatedInfo = null;
@@ -154,7 +154,7 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
                 else if (sourceInfo.LastWriteTime.ToFileTime() > dependInfo.LastWriteTime.ToFileTime())
                 {
                     Log.LogMessage(MessageImportance.Low,
-                        string.Format("Build required because source: {0} is older than depend file {1}",
+                        string.Format("Build required because source: {0} is newer than depend file {1}",
                                         source.GetMetadata("Identity"),
                                         TaskUtil.MakeRelative(WorkingDirectory, dependInfo.FullName)));
                     skip = false;
@@ -204,7 +204,7 @@ public abstract class SliceDependTask : Microsoft.Build.Utilities.Task
                     else if (sourceInfo.LastWriteTime.ToFileTime() > generatedInfo.LastWriteTime.ToFileTime())
                     {
                         Log.LogMessage(MessageImportance.Low,
-                            string.Format("Build required because source: {0} is older than target {1}",
+                            string.Format("Build required because source: {0} is newer than target {1}",
                                             source.GetMetadata("Identity"),
                                             TaskUtil.MakeRelative(WorkingDirectory, generatedInfo.FullName)));
                         skip = false;

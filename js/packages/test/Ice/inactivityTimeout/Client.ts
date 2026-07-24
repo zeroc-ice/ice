@@ -66,7 +66,7 @@ async function testWithOutstandingRequest(p: Test.TestIntfPrx, oneway: boolean, 
         // With a oneway invocation, the inactivity timeout on the client side shut down the first connection.
         test(connection2 != connection);
     } else {
-        // With a two-way invocation, the inactivity timeout should not shutdown any connection.
+        // With a two-way invocation, the inactivity timeout should not shut down any connection.
         test(connection2 == connection);
     }
     await connection2.close();

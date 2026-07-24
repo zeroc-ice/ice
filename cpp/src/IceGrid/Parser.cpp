@@ -49,7 +49,7 @@ namespace
          "                          Print the differences between the application\n"
          "                          described in DESC and the current deployment.\n"
          "                          If -s or --servers is specified, print the\n"
-         "                          the list of servers affected by the differences.\n"},
+         "                          list of servers affected by the differences.\n"},
         {"application",
          "update",
          "application update [-n | --no-restart] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
@@ -103,7 +103,7 @@ namespace
         {"server", "describe", "server describe ID        Describe server ID.\n"},
         {"server", "properties", "server properties ID      Get the runtime properties of server ID.\n"},
         {"server", "property", "server property ID NAME   Get the runtime property NAME of server ID.\n"},
-        {"server", "status", "server status ID           Get the status of server ID.\n"},
+        {"server", "status", "server status ID          Get the status of server ID.\n"},
         {"server", "pid", "server pid ID             Get the process id of server ID.\n"},
         {"server", "start", "server start ID           Start server ID.\n"},
         {"server", "stop", "server stop ID            Stop server ID.\n"},
@@ -1676,7 +1676,7 @@ Parser::propertiesService(const list<string>& args, bool single)
     }
     else if (!single && args.size() != 2)
     {
-        invalidCommand("service properties", "requires exactly two argument");
+        invalidCommand("service properties", "requires exactly two arguments");
         return;
     }
 
@@ -2401,11 +2401,6 @@ Parser::showWarranty()
     consoleOut << "This command is not implemented." << endl;
 }
 
-//
-// With older flex version <= 2.5.35 YY_INPUT second
-// paramenter is of type int&, in newer versions it
-// changes to size_t&
-//
 void
 Parser::getInput(char* buf, int& result, size_t maxSize)
 {

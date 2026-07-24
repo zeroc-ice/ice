@@ -69,7 +69,7 @@ class Executor:
         while True:
             item = self.get(total, mainThread)
             if not item:
-                results.put(None)  # Notify the main thread that there are not more tests to run
+                results.put(None)  # Notify the main thread that there are no more tests to run
                 break
 
             (testsuite, index) = item
@@ -132,7 +132,7 @@ class Executor:
             self.runTestSuites(driver, total, results, True)
 
             #
-            # Dequeue results and print out the testuite output for each test.
+            # Dequeue results and print out the testsuite output for each test.
             #
             count = len(threads) + 1
             while count > 0:
@@ -398,7 +398,7 @@ class LocalDriver(Driver):
         print("--all-cross           Run all sensible permutations of cross language tests.")
         print("--client=<proxy>      The endpoint of the controller to run the client side.")
         print("--server=<proxy>      The endpoint of the controller to run the server side.")
-        print("--show-durations      Print out the duration of each tests.")
+        print("--show-durations      Print out the duration of each test.")
         print("--export-xml=<file>   Export JUnit XML test report.")
 
     def __init__(self, options, *args, **kargs):
@@ -689,7 +689,7 @@ class LocalDriver(Driver):
         self.executor.setInterrupt(value)
 
     def getTestPort(self, portnum):
-        # Return a port number in the range 14100-14199 for the first thread, 14200-14299 for the
+        # Return a port number in the range 14000-14099 for the first thread, 14100-14199 for the
         # second thread, etc.
         assert portnum < 100
         baseport = 14000 + self.threadlocal.num * 100 if hasattr(self.threadlocal, "num") else 12010

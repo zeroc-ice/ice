@@ -229,7 +229,7 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
                     continue; // Call SSLHandshake to resume the handshake.
                 }
             }
-            // Let it fall through, this will raise a SecurityException with the SSLCopyPeerTrust error.
+            // Let it fall through, this will throw a ProtocolException with the SSLCopyPeerTrust error.
         }
         else if (err == errSSLClosedGraceful || err == errSSLClosedAbort)
         {
@@ -351,7 +351,7 @@ Ice::SSL::SecureTransport::TransceiverI::write(IceInternal::Buffer& buf)
             }
 
             //
-            // SSL protocol errors are defined in SecureTransport.h are in the range
+            // SSL protocol errors defined in SecureTransport.h are in the range
             // -9800 to -9849
             //
             if (err <= -9800 && err >= -9849)
@@ -424,7 +424,7 @@ Ice::SSL::SecureTransport::TransceiverI::read(IceInternal::Buffer& buf)
             }
 
             //
-            // SSL protocol errors are defined in SecureTransport.h are in the range
+            // SSL protocol errors defined in SecureTransport.h are in the range
             // -9800 to -9849
             //
             if (err <= -9800 && err >= -9849)

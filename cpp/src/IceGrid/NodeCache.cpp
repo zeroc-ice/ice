@@ -292,7 +292,7 @@ NodeEntry::canRemove()
 {
     lock_guard lock(_mutex);
 
-    // The cache mutex must be locked to acesss _selfRemovingRefCount
+    // The cache mutex must be locked to access _selfRemovingRefCount
     return _servers.empty() && !_session && _descriptors.empty() && _selfRemovingRefCount == 0;
 }
 
@@ -759,13 +759,13 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
 
         if (hasProperty(info.descriptor->propertySet.properties, "Ice.Admin.Enabled"))
         {
-            // Ice.Admin.Enabled explicitely set, leave Ice.Admin.Endpoints alone
+            // Ice.Admin.Enabled explicitly set, leave Ice.Admin.Endpoints alone
             server->processRegistered =
                 getPropertyAsInt(info.descriptor->propertySet.properties, "Ice.Admin.Enabled") > 0;
         }
         else if (hasProperty(info.descriptor->propertySet.properties, "Ice.Admin.Endpoints"))
         {
-            // Ice.Admin.Endpoints explicitely set, check if not ""
+            // Ice.Admin.Endpoints explicitly set, check if not ""
             server->processRegistered =
                 getProperty(info.descriptor->propertySet.properties, "Ice.Admin.Endpoints") != "";
         }

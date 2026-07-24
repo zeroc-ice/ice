@@ -6,7 +6,7 @@ Ice is a complete RPC framework that helps you build networked applications, and
 [Interface Definition Language].
 
 Ice and Ice-based applications use the Slice language to describe remote APIs in a purely declarative manner. For
-instance, here the Slice definition for a simple Greeter API:
+instance, here is the Slice definition for a simple Greeter API:
 
 ```ice
 module VisitorCenter

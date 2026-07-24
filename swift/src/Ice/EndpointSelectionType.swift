@@ -15,7 +15,7 @@ public enum EndpointSelectionType: UInt8 {
     }
 }
 
-/// An `Ice.InputStream` extension to read `EndpointSelectionType` enumerated values from the stream.
+/// An ``InputStream`` extension to read ``EndpointSelectionType`` enumerated values from the stream.
 extension InputStream {
     /// Reads an enumerated value.
     ///
@@ -40,7 +40,7 @@ extension InputStream {
     }
 }
 
-/// An `Ice.OutputStream` extension to write `EndpointSelectionType` enumerated values to the stream.
+/// An ``OutputStream`` extension to write ``EndpointSelectionType`` enumerated values to the stream.
 extension OutputStream {
     /// Writes an enumerated value to the stream.
     ///

@@ -47,7 +47,7 @@ class PropertyHandler(ContentHandler):
     def __init__(self, language):
         # The language we are generating properties for
         self.language = language
-        # The section section we are currently parsing
+        # The section we are currently parsing
         self.parentNodeName = None
         # Dictionary of section names to attr dicts
         self.propertyArrayDict: dict[str, PropertyArray] = dict()

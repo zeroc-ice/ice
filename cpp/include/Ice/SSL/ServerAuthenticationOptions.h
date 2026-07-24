@@ -84,7 +84,7 @@ namespace Ice::SSL
         /// @snippet Ice/SSL/SchannelServerAuthenticationOptions.cpp clientCertificateValidationCallback
         ///
         /// @param context An opaque object representing the security context associated with the current connection.
-        /// This context contains security data relevant for validation, such as the server's certificate chain and
+        /// This context contains security data relevant for validation, such as the client's certificate chain and
         /// cipher suite.
         /// @param info The connection info object that provides additional connection-related data. The
         /// `ConnectionInfo` type is an alias for the platform-specific connection info class.

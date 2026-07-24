@@ -82,7 +82,7 @@ IceRuby_Endpoint_cmp(VALUE self, VALUE other)
         }
         if (!checkEndpoint(other))
         {
-            throw RubyException(rb_eTypeError, "argument must be a endpoint");
+            throw RubyException(rb_eTypeError, "argument must be an endpoint");
         }
         Ice::EndpointPtr p1 = Ice::EndpointPtr(*reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self)));
         Ice::EndpointPtr p2 = Ice::EndpointPtr(*reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(other)));

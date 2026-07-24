@@ -39,7 +39,7 @@ namespace IceStorm::Instrumentation
         /// Notification of some events being queued.
         virtual void queued(int count) = 0;
 
-        /// Notification of a some events being sent.
+        /// Notification of some events being sent.
         virtual void outstanding(int count) = 0;
 
         /// Notification of some events being delivered.
@@ -55,7 +55,7 @@ namespace IceStorm::Instrumentation
     public:
         virtual ~ObserverUpdater() = default;
 
-        /// Update topic observers associated with each topics.
+        /// Update topic observers associated with each topic.
         /// When called, this method goes through all the topics and for each topic
         /// TopicManagerObserver::getTopicObserver is called. The implementation of getTopicObserver has the
         /// possibility to return an updated observer if necessary.

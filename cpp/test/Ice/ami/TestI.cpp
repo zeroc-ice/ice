@@ -152,7 +152,7 @@ TestIntfI::finishDispatch(const Ice::Current&)
     {
         return;
     }
-    else if (_pending) // Pending might not be set yet if startDispatch is dispatch out-of-order
+    else if (_pending) // Pending might not be set yet if startDispatch is dispatched out-of-order
     {
         _pending();
         _pending = nullptr;

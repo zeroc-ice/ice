@@ -72,12 +72,12 @@ public class Client : Test.TestHelper
                         seenEndpoint[endpoint.GetHashCode()] = endpoint;
                     }
                     //
-                    // Check the same endpoint produce always the same hash
+                    // Check the same endpoint always produces the same hash
                     //
                     test(endpoint.GetHashCode() == endpoint.GetHashCode());
                 }
                 //
-                // Check the same proxy produce always the same hash
+                // Check the same proxy always produces the same hash
                 //
                 test(obj.GetHashCode() == obj.GetHashCode());
             }
@@ -111,7 +111,7 @@ public class Client : Test.TestHelper
                         seenProxy[comparer.GetHashCode(obj)] = obj;
                     }
                     //
-                    // Check the same proxy produce always the same hash
+                    // Check the same proxy always produces the same hash
                     //
                     test(comparer.GetHashCode(obj) == comparer.GetHashCode(obj));
                 }
@@ -148,7 +148,7 @@ public class Client : Test.TestHelper
                     seenProxy[comparer.GetHashCode(obj)] = obj;
                 }
                 //
-                // Check the same proxy produce always the same hash
+                // Check the same proxy always produces the same hash
                 //
                 test(comparer.GetHashCode(obj) == comparer.GetHashCode(obj));
             }
@@ -264,7 +264,7 @@ public class Client : Test.TestHelper
                     seenException[ex.GetHashCode()] = ex;
                 }
                 //
-                // Check the same exception produce always the same hash
+                // Check the same exception always produces the same hash
                 //
                 test(ex.GetHashCode() == ex.GetHashCode());
             }
@@ -300,7 +300,7 @@ public class Client : Test.TestHelper
                     seenException[ex.GetHashCode()] = ex;
                 }
                 //
-                // Check the same exception produce always the same hash
+                // Check the same exception always produces the same hash
                 //
                 test(ex.GetHashCode() == ex.GetHashCode());
             }
@@ -330,7 +330,7 @@ public class Client : Test.TestHelper
                 }
 
                 //
-                // Check the same exception produce always the same hash
+                // Check the same exception always produces the same hash
                 //
                 test(ex.GetHashCode() == ex.GetHashCode());
 
@@ -349,7 +349,7 @@ public class Client : Test.TestHelper
                 }
 
                 //
-                // Check the same exception produce always the same hash
+                // Check the same exception always produces the same hash
                 //
                 test(ex.GetHashCode() == ex.GetHashCode());
             }
@@ -381,7 +381,7 @@ public class Client : Test.TestHelper
                     seenPointF[pf.GetHashCode()] = pf;
                 }
                 //
-                // Check the same struct produce always the same hash
+                // Check the same struct always produces the same hash
                 //
                 test(pf.GetHashCode() == pf.GetHashCode());
             }
@@ -405,7 +405,7 @@ public class Client : Test.TestHelper
                     seenPointD[pd.GetHashCode()] = pd;
                 }
                 //
-                // Check the same struct produce always the same hash
+                // Check the same struct always produces the same hash
                 //
                 test(pd.GetHashCode() == pd.GetHashCode());
             }
@@ -436,7 +436,7 @@ public class Client : Test.TestHelper
                     seenPolyline[polyline.GetHashCode()] = polyline;
                 }
                 //
-                // Check the same struct produce always the same hash
+                // Check the same struct always produces the same hash
                 //
                 test(polyline.GetHashCode() == polyline.GetHashCode());
             }
@@ -466,7 +466,7 @@ public class Client : Test.TestHelper
                     seenColorPalette[colorPalette.GetHashCode()] = colorPalette;
                 }
                 //
-                // Check the same struct produce always the same hash
+                // Check the same struct always produces the same hash
                 //
                 test(colorPalette.GetHashCode() == colorPalette.GetHashCode());
             }
@@ -490,7 +490,7 @@ public class Client : Test.TestHelper
                     seenColor[c.GetHashCode()] = c;
                 }
                 //
-                // Check the same struct produce always the same hash
+                // Check the same struct always produces the same hash
                 //
                 test(c.GetHashCode() == c.GetHashCode());
             }
@@ -521,7 +521,7 @@ public class Client : Test.TestHelper
                     seenDraw[draw.GetHashCode()] = draw;
                 }
                 //
-                // Check the same struct produce always the same hash
+                // Check the same struct always produces the same hash
                 //
                 test(draw.GetHashCode() == draw.GetHashCode());
             }

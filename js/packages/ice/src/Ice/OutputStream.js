@@ -434,7 +434,7 @@ class EncapsEncoder11 extends EncapsEncoder {
         console.assert(v !== null && v !== undefined);
 
         //
-        // If the instance was already marshaled, just write it's ID.
+        // If the instance was already marshaled, just write its ID.
         //
         const p = this._marshaledMap.get(v);
         if (p !== undefined) {

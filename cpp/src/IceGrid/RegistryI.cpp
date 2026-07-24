@@ -1220,7 +1220,7 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
 NodePrxSeq
 RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const NodePrxSeq& dbNodes)
 {
-    // Get proxies for slaves that we we connected with on last  shutdown.
+    // Get proxies for slaves that we were connected with on last shutdown.
     //
     // We first get the internal registry proxies and then also check
     // the public registry proxies. If we find public registry

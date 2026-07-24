@@ -64,7 +64,7 @@ namespace IceInternal
         [[nodiscard]] virtual EndpointIPtr connectionId(const std::string&) const = 0;
 
         //
-        // Return true if the endpoints support bzip2 compress, or false
+        // Return true if the endpoint supports bzip2 compression, or false
         // otherwise.
         //
         [[nodiscard]] virtual bool compress() const = 0;

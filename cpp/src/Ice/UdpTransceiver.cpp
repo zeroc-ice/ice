@@ -699,8 +699,8 @@ IceInternal::UdpTransceiver::UdpTransceiver(
     }
 
     //
-    // In general, connecting a datagram socket should be non-blocking as this just setups
-    // the default destination address for the socket. However, on some OS, connect sometime
+    // In general, connecting a datagram socket should be non-blocking as this just sets up
+    // the default destination address for the socket. However, on some OS, connect sometimes
     // returns EWOULDBLOCK. If that's the case, we keep the state as StateNeedConnect. This
     // will make sure the transceiver is notified when the socket is ready for sending (see
     // the initialize() implementation).

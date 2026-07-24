@@ -74,7 +74,7 @@ namespace IceStorm
         const std::shared_ptr<Instance> _instance;
         const IceStorm::SubscriberRecord _rec;             // The subscriber record.
         const int _retryCount;                             // The retryCount.
-        const int _maxOutstanding;                         // The maximum number of oustanding events.
+        const int _maxOutstanding;                         // The maximum number of outstanding events.
         const std::optional<Ice::ObjectPrx> _proxy;        // The per subscriber object proxy, if any.
         const std::optional<Ice::ObjectPrx> _proxyReplica; // The replicated per subscriber object proxy, if any.
 

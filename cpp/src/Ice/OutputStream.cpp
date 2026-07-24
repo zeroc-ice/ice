@@ -1006,7 +1006,7 @@ void
 Ice::OutputStream::EncapsEncoder10::write(const UserException& v)
 {
     //
-    // User exception with the 1.0 encoding start with a boolean
+    // User exceptions with the 1.0 encoding start with a boolean
     // flag that indicates whether or not the exception uses
     // classes.
     //
@@ -1398,7 +1398,7 @@ Ice::OutputStream::EncapsEncoder11::writeInstance(const shared_ptr<Value>& v)
     assert(v);
 
     //
-    // If the instance was already marshaled, just write it's ID.
+    // If the instance was already marshaled, just write its ID.
     //
     auto q = _marshaledMap.find(v);
     if (q != _marshaledMap.end())

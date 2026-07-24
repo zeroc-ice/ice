@@ -82,7 +82,7 @@ IceInternal::validatePropertiesWithPrefix(
     PropertyDict props = properties->getPropertiesForPrefix(string{prefix} + ".");
     for (const auto& p : props)
     {
-        // Plus one to include the dot.
+        // Plus one to skip the dot.
         if (!findProperty(p.first.substr(prefix.size() + 1), propertyArray))
         {
             unknownProps.push_back(p.first);

@@ -120,10 +120,10 @@ module IceGrid
         /// The network name of the host running this node.
         string hostname;
 
-        /// The operation system release level.
+        /// The operating system release level.
         string release;
 
-        /// The operation system version.
+        /// The operating system version.
         string version;
 
         /// The machine hardware type.
@@ -349,9 +349,9 @@ module IceGrid
         void instantiateServer(string application, string node, ServerInstanceDescriptor desc)
             throws AccessDeniedException, ApplicationNotExistException, DeploymentException;
 
-        /// Gets an application descriptor.
+        /// Gets information about an application.
         /// @param name The application name.
-        /// @return The application descriptor.
+        /// @return The application information.
         /// @throws ApplicationNotExistException Thrown when the application doesn't exist.
         ["cpp:const"]
         idempotent ApplicationInfo getApplicationInfo(string name)
@@ -660,7 +660,7 @@ module IceGrid
         /// message doesn't exceed the given size.
         /// @param lines The lines read from the file. If there was nothing to read from the file since the last call to
         /// read, an empty sequence is returned. The last line of the sequence is always incomplete (and therefore no
-        /// newline character should be added when writing the last line to the to the output device).
+        /// newline character should be added when writing the last line to the output device).
         /// @return `true` if EOF is encountered.
         /// @throws FileNotAvailableException Thrown when the implementation failed to read from the file.
         bool read(int size, out Ice::StringSeq lines)
@@ -798,7 +798,7 @@ module IceGrid
         /// @param info The details of the new adapter.
         void adapterAdded(AdapterInfo info);
 
-        // Notifies the observer that a dynamically-registered adapter was updated.
+        /// Notifies the observer that a dynamically-registered adapter was updated.
         /// @param info The details of the updated adapter.
         void adapterUpdated(AdapterInfo info);
 
@@ -867,9 +867,9 @@ module IceGrid
         /// session.
         /// @param registryObs The registry observer identity.
         /// @param nodeObs The node observer identity.
-        /// @param appObs The application observer.
-        /// @param adptObs The adapter observer.
-        /// @param objObs The object observer.
+        /// @param appObs The application observer identity.
+        /// @param adptObs The adapter observer identity.
+        /// @param objObs The object observer identity.
         /// @throws ObserverAlreadyRegisteredException Thrown when an observer is already registered with this registry.
         idempotent void setObserversByIdentity(
             Ice::Identity registryObs,
