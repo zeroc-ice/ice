@@ -372,7 +372,7 @@ classdef (Hidden) EncapsDecoder11 < IceInternal.EncapsDecoder
 
             obj.classGraphDepth = obj.classGraphDepth - 1;
 
-            if ~isobject(obj.current) && obj.patchMapLength > 0
+            if ~isobject(obj.current) && obj.patchMap.numEntries > 0
                 %
                 % If any entries remain in the patch map, the sender has sent an index for an instance, but failed
                 % to supply the instance.
