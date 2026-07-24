@@ -1460,7 +1460,7 @@ Ice::InputStream::EncapsDecoder10::read(PatchFunc patchFunc, void* patchAddr)
     //
     int32_t index;
     _stream->read(index);
-    if (index > 0)
+    if (index > 0 || index == INT32_MIN)
     {
         throw MarshalException(__FILE__, __LINE__, "invalid object id");
     }
