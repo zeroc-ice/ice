@@ -290,9 +290,11 @@ namespace
         mxArray* ex;
 
         // keep going on error
-        mexCallMATLABWithTrap(1, &ex, static_cast<int>(params.size()), params.data(), className.c_str());
-        if (!ex)
+        mxArray* error =
+            mexCallMATLABWithTrap(1, &ex, static_cast<int>(params.size()), params.data(), className.c_str());
+        if (error)
         {
+            mxDestroyArray(error);
             mexCallMATLAB(1, &ex, static_cast<int>(params.size()), params.data(), "Ice.LocalException");
         }
 
