@@ -1,3 +1,4 @@
 pluginManagement {
     includeBuild "../../../tools/slice-tools"
 }
+rootProject.name = "controller"
