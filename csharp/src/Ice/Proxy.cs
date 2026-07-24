@@ -235,7 +235,10 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
-    /// <param name="newTimeout">The new invocation timeout.</param>
+    /// <param name="newTimeout">The new invocation timeout. A positive timeout is rounded down to the nearest
+    /// millisecond.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="newTimeout"/> is greater than
+    /// <see cref="int.MaxValue"/> milliseconds.</exception>
     ObjectPrx ice_invocationTimeout(TimeSpan newTimeout);
 
     /// <summary>
@@ -1044,8 +1047,17 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <param name="newTimeout">The new invocation timeout.</param>
     /// <returns>The new proxy with the specified invocation timeout.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="newTimeout"/> is greater than
+    /// <see cref="int.MaxValue"/> milliseconds.</exception>
     public ObjectPrx ice_invocationTimeout(TimeSpan newTimeout)
     {
+        if (newTimeout > TimeSpan.FromMilliseconds(int.MaxValue))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(newTimeout),
+                $"The invocation timeout cannot be greater than {int.MaxValue} milliseconds.");
+        }
+
         if (newTimeout == _reference.getInvocationTimeout())
         {
             return this;
