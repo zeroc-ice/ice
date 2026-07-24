@@ -673,12 +673,12 @@ classdef InputStream < handle
         function r = readProxyOpt(obj, tag, cls)
             if obj.readOptional(tag, Ice.OptionalFormat.FSize)
                 obj.skip(4);
-                if nargin == 1
+                if nargin == 2
                     r = obj.readProxy();
                 else
                     r = obj.readProxy(cls);
                 end
-            elseif nargin == 1
+            elseif nargin == 2
                 r = Ice.ObjectPrx.empty;
             else
                 emptyFunc = str2func(strcat(cls, '.empty'));
