@@ -624,35 +624,39 @@ class Expect(object):
         The exit status is returned. A negative exit status means
         the application was killed by a signal.
         """
-        if self.p is None:
+        # self.p is held in a local, and re-read after the wait below, because terminate() running on
+        # another thread clears it once the process has been reaped. The local is the same object
+        # whenever self.p is set, so polling through it is equivalent to polling self.p.
+        p = self.p
+        if p is None:
             return self.exitstatus
 
         # Unfortunately, with the subprocess module there is no
         # better method of doing a timed wait.
         if timeout is not None:
             end = time.time() + timeout
-            while time.time() < end and self.p and self.p.poll() is None:
+            while time.time() < end and self.p and p.poll() is None:
                 time.sleep(0.1)
-            if self.p and self.p.poll() is None:
+            if self.p and p.poll() is None:
                 raise TIMEOUT("timed wait exceeded timeout")
         elif win32:
             # We poll on Windows or otherwise KeyboardInterrupt isn't delivered
-            while self.p.poll() is None:
+            while p.poll() is None:
                 time.sleep(0.5)
 
-        # Another thread may have terminated the process while we were polling above. Pyright assumes
-        # single-threaded execution and so considers this check redundant with the one on entry.
-        if self.p is None:  # pyright: ignore[reportUnnecessaryComparison]
+        # Another thread may have terminated the process while we were polling above.
+        p = self.p
+        if p is None:
             return self.exitstatus
 
-        self.exitstatus = self.p.wait()
+        self.exitstatus = p.wait()
 
         # A Windows application killed with CTRL_BREAK. Fudge the exit status.
         if win32 and self.exitstatus != 0 and self.killed is not None:
             self.exitstatus = -self.killed
         global processes
-        if self.p.pid in processes:
-            del processes[self.p.pid]
+        if p.pid in processes:
+            del processes[p.pid]
         self.p = None
         assert self.r is not None
         self.r.join()
