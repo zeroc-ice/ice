@@ -275,6 +275,25 @@ Client::run(int, char**)
         communicator->destroy();
         cout << " ok" << endl;
     }
+
+    {
+        cout << "testing that a connection attempt with an invalid connection property throws an exception... "
+             << flush;
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties();
+        initData.properties->setProperty("Ice.Warn.Connections", "x");
+        Ice::CommunicatorHolder communicator = Ice::initialize(std::move(initData));
+        Ice::ObjectPrx p{communicator.communicator(), "test:tcp -h 127.0.0.1 -p 12345"};
+        try
+        {
+            p->ice_ping();
+            test(false);
+        }
+        catch (const Ice::PropertyException&)
+        {
+        }
+        cout << "ok" << endl;
+    }
 }
 
 DEFINE_TEST(Client)
