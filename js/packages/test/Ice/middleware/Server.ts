@@ -81,8 +81,6 @@ export class Server extends TestHelper {
                 .use((next: Ice.Object) => new Middleware(next, "C", inLog, outLog));
             await communicator.waitForShutdown();
 
-            await this.testMiddlewareFactoryException(communicator, args);
-        } finally {
             const out = this.getWriter();
             out.write("testing middleware execution order... ");
 
@@ -97,6 +95,8 @@ export class Server extends TestHelper {
             test(outLog[2] === "A");
             out.writeLine("ok");
 
+            await this.testMiddlewareFactoryException(args);
+        } finally {
             if (echo) {
                 await echo.shutdown();
             }
@@ -108,7 +108,7 @@ export class Server extends TestHelper {
     }
 
     // Verifies a middleware factory exception makes all dispatches fail with a generic UnknownException.
-    async testMiddlewareFactoryException(invokingCommunicator: Ice.Communicator, args: string[]) {
+    async testMiddlewareFactoryException(args: string[]) {
         const out = this.getWriter();
         out.write("testing middleware factory exception... ");
 
@@ -120,6 +120,7 @@ export class Server extends TestHelper {
         try {
             const echo = new Test.EchoPrx(communicator, `__echo:${this.getTestEndpoint()}`);
             const adapter = await communicator.createObjectAdapter("");
+            // Takes over the echo server's single relay connection: the main test must be finished by now.
             await echo.setConnection();
             echo.ice_getCachedConnection()!.setAdapter(adapter);
 
@@ -128,7 +129,7 @@ export class Server extends TestHelper {
                 throw new Error("middleware factory exception");
             });
 
-            const prx = new Test.MyObjectPrx(invokingCommunicator, `test: ${this.getTestEndpoint()}`);
+            const prx = new Test.MyObjectPrx(communicator, `test: ${this.getTestEndpoint()}`);
 
             try {
                 await prx.getName();
