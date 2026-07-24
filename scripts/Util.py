@@ -4671,5 +4671,7 @@ def runTests(mappings=None, drivers=None):
             driver.destroy()
 
     except Exception:
-        print(sys.argv[0] + ": unexpected exception raised:\n" + traceback.format_exc())
+        # stderr, so a caller capturing stdout -- e.g. `ADDR=$(Controller.py --bt-prepare ...)` --
+        # still sees the failure instead of swallowing it into the variable.
+        print(sys.argv[0] + ": unexpected exception raised:\n" + traceback.format_exc(), file=sys.stderr)
         sys.exit(1)

@@ -87,18 +87,9 @@ runs:
         # --bt-prepare boots-waits both emulators, installs btbond as a privileged system app,
         # enables Bluetooth, bonds them, and prints the server's address. Progress and the
         # per-device setup_{client,server}.log contents go to stderr.
-        # Don't wrap this in $(...): runTests reports failures on stdout, so command substitution
-        # captures the traceback into the variable and the step fails with no diagnostics at all.
-        # Redirect to a file, always echo it, then take the address from the last line.
-        set +e
-        python3 scripts/Controller.py --android --bt-prepare \
+        BT_ADDR=$(python3 scripts/Controller.py --android --bt-prepare \
           --bt-client="${{ inputs.client }}" --bt-server="${{ inputs.server }}" \
-          --bt-setup="$BTBOND_APK" --uuid="${{ inputs.uuid }}" > /tmp/bt-prepare.out
-        rc=$?
-        set -e
-        cat /tmp/bt-prepare.out
-        [ "$rc" -eq 0 ] || { echo "--bt-prepare failed (exit $rc)"; exit 1; }
-        BT_ADDR=$(tail -1 /tmp/bt-prepare.out)
+          --bt-setup="$BTBOND_APK" --uuid="${{ inputs.uuid }}")
         [ -n "$BT_ADDR" ] || { echo "no server Bluetooth address"; exit 1; }
         echo "server (${{ inputs.server }}) Bluetooth address = $BT_ADDR"
         echo "BT_ADDR=$BT_ADDR" >> "$GITHUB_ENV"
