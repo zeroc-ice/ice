@@ -240,8 +240,8 @@ public sealed class Properties
     }
 
     /// <summary>
-    /// Get all properties whose keys begin with prefix.
-    /// If prefix is an empty string, then all
+    /// Get all properties whose keys begin with <paramref name="prefix" />.
+    /// If <paramref name="prefix" /> is an empty string, then all
     /// properties are returned.
     /// </summary>
     /// <param name="prefix">The prefix to search for (empty string if none).</param>

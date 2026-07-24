@@ -1103,7 +1103,7 @@ SessionRouterI::startCreateSession(const shared_ptr<CreateSession>& cb, const Co
     {
         //
         // No session exists yet, so we will try to create one. To
-        // avoid that other threads try to create sessions for the
+        // prevent other threads from creating a session for the
         // same connection, we add our connection to _pending.
         //
         _pending.insert(make_pair(connection, cb));

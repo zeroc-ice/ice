@@ -32,7 +32,7 @@ module IceMX
         /// The number of objects currently observed by this metrics.
         int current = 0;
 
-        /// The sum of the lifetime of each observed object. This does not include the lifetime of objects which are
+        /// The sum of the lifetimes of each observed object. This does not include the lifetimes of objects which are
         /// currently observed, only the objects observed in the past.
         long totalLifetime = 0;
 

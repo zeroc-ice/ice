@@ -826,7 +826,7 @@ public class SessionKeeper {
     }
 
     // FocusListener implementation that unselects the text
-    // of a text component after focus gained.
+    // of a text component after it gains focus.
     public class FocusListener implements java.awt.event.FocusListener {
         public FocusListener(JTextComponent field) {
             _field = field;

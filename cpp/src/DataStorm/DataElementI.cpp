@@ -677,7 +677,7 @@ DataElementI::forward(const ByteSeq& inParams, const Current& current) const
 {
     for (const auto& [_, listener] : _listeners)
     {
-        // If we are forwarding a sample check if at least one of the listeners is interested in the sample.
+        // If we are forwarding a sample, check whether at least one of the listeners is interested in it.
         if (!_sample || listener.matchOne(_sample, false))
         {
             // Forward the call using the listener's session proxy. We don't need to wait for the result.

@@ -62,9 +62,9 @@ namespace IceGrid
     public:
         virtual ~RegistryPluginFacade();
 
-        /// Gets an application descriptor.
+        /// Gets information about an application.
         /// @param name The application name.
-        /// @return The application descriptor.
+        /// @return The application information.
         /// @throws IceGrid::ApplicationNotExistException Thrown when the application doesn't exist.
         [[nodiscard]] virtual ApplicationInfo getApplicationInfo(const std::string& name) const = 0;
 
