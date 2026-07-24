@@ -112,11 +112,22 @@ runs:
         printf 'select %s\npower on\ndiscoverable on\npairable on\nquit\n' "$BT_ADDR" | sudo bluetoothctl
         printf 'select %s\npower on\nquit\n' "$BT_CLIENT_ADDR" | sudo bluetoothctl
         sudo bluetoothctl --timeout 20 scan on < /dev/null
-        sudo bluetoothctl --timeout 30 pair "$BT_ADDR" < /dev/null
-        sudo bluetoothctl trust "$BT_ADDR" < /dev/null
+        # Stop discovery before pairing: pairing while a scan is running is unreliable, and
+        # bluetoothctl has been seen to segfault (exit 139) part-way through the pair when it does.
+        sudo bluetoothctl scan off < /dev/null || true
+
         # Assert on the stored link key rather than `bluetoothctl info`: the bond is what the tests
         # need, and the device object can be pruned while the key on disk remains valid.
         key="/var/lib/bluetooth/$BT_CLIENT_ADDR/$BT_ADDR/info"
+        # Retry, gating on that key rather than on bluetoothctl's exit status -- the bond is what
+        # matters and the tool itself can crash mid-pair.
+        for attempt in 1 2 3; do
+          sudo grep -q "\[LinkKey\]" "$key" 2>/dev/null && break
+          echo "pairing attempt $attempt"
+          sudo bluetoothctl --timeout 30 pair "$BT_ADDR" < /dev/null || echo "  pair exited $?"
+          sudo bluetoothctl trust "$BT_ADDR" < /dev/null || true
+          sleep 2
+        done
         sudo grep -q "\[LinkKey\]" "$key" 2>/dev/null || {
           echo "no link key at $key -- $BT_CLIENT_ADDR did not bond with $BT_ADDR"
           sudo find /var/lib/bluetooth -name info 2>/dev/null
