@@ -47,7 +47,7 @@ void ::Reader::run(int argc, char* argv[])
         test(sample.getUpdateTag() == "price");
         test(sample.getValue()->price == 18.0f);
 
-        // Late joining reader should still receive update events instead of partial updates
+        // Late joining reader with full history should still receive the partial update events
         auto reader2 = makeSingleKeyReader(topic, "AAPL");
         sample = reader2.getNextUnread();
         test(sample.getEvent() == SampleEvent::Add);

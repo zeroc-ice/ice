@@ -1310,7 +1310,7 @@ TopicImpl::removeSubscribers(const Ice::IdentitySeq& ids)
 
     if (found)
     {
-        // Then remove the subscriber from the subscribers list. Its
+        // Then remove the subscriber from the subscribers list. It's
         // possible that some of these subscribers have already been
         // removed (consider, for example, a concurrent reap call from two
         // replicas on the same subscriber). To avoid sending unnecessary

@@ -437,7 +437,7 @@ NodeI::merge(const set<int>& coordinatorSet)
             return;
         }
 
-        // Add each of the invited nodes in the invites issed set.
+        // Add each of the invited nodes in the invites issued set.
         _invitesIssued.insert(invited.begin(), invited.end());
 
         if (_traceLevels->election > 0)
@@ -540,7 +540,7 @@ NodeI::mergeContinue()
         out << "node id=" << _id << " llu=" << myLlu.generation << "/" << myLlu.iteration;
     }
 
-    // If its not us then we have to get the latest database data from
+    // If it's not us then we have to get the latest database data from
     // the replica with the latest set.
     // if(maxllu > _replica->getLastLogUpdate())
     if (maxllu > myLlu)
@@ -1072,7 +1072,7 @@ NodeI::destroy()
 }
 
 // A node should only receive an observer init call if the node is
-// reorganizing and its not the coordinator.
+// reorganizing and it's not the coordinator.
 void
 NodeI::checkObserverInit(int64_t)
 {
@@ -1095,7 +1095,7 @@ NodeI::startUpdate(int64_t& generation, const char* file, int line)
 
     unique_lock<mutex> lock(_mutex);
 
-    // If we've actively replicating & lost the majority of our replicas then recover.
+    // If we're actively replicating & lost the majority of our replicas then recover.
     if (!_coordinatorProxy && !_destroy && _state == NodeState::NodeStateNormal && !majority)
     {
         recovery(lock);

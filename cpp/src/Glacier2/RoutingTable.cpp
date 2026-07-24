@@ -51,7 +51,7 @@ Glacier2::RoutingTable::add(
     size_t sz = _map.size();
 
     //
-    // We 'pre-scan' the list, applying our validation rules. The
+    // We 'pre-scan' the list, applying our validation rules. This
     // ensures that our state is not modified if this operation results
     // in a rejection.
     //

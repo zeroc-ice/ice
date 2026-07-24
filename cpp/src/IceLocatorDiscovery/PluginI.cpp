@@ -542,7 +542,7 @@ LocatorI::foundLocator(const Ice::LocatorPrx& locator)
             out << "received Ice locator with different instance name:\n";
             out << "using = '" << _locator->ice_getIdentity().category << "'\n";
             out << "received = '" << locator->ice_getIdentity().category << "'\n";
-            out << "This is typically the case if multiple Ice locators with different";
+            out << "This is typically the case if multiple Ice locators with different ";
             out << "instance names are deployed and the property 'IceLocatorDiscovery.InstanceName' ";
             out << "is not set.";
         }

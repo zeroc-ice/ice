@@ -1008,7 +1008,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
             // We send a heartbeat to the peer to generate a "write" on the connection. This write
             // in turns creates a read on the peer, and resets the peer's idle check timer. When
-            // _sendStream is not empty, there is already an outstanding write, so we don't need to
+            // _sendStreams is not empty, there is already an outstanding write, so we don't need to
             // send a heartbeat. It's possible the first message of _sendStreams was already sent
             // but not yet removed from _sendStreams: it means the last write occurred very
             // recently, which is good enough with respect to the idle check.
@@ -1475,12 +1475,12 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
     /**
      * Sends the next queued messages. This method is called by message() once the message which is
-     * being sent (_sendStreams.First) is fully sent. Before sending the next message, this message
-     * is removed from _sendsStream. If any, its sent callback is also queued in given callback queue.
+     * being sent (_sendStreams.getFirst()) is fully sent. Before sending the next message, this message
+     * is removed from _sendStreams. If any, its sent callback is also queued in given callback queue.
      *
      * @param callbacks The sent callbacks to call for the messages that were sent.
      * @return The socket operation to register with the thread pool's selector to send the
-     *     remainder of the pending message being sent (_sendStreams.First).
+     *     remainder of the pending message being sent (_sendStreams.getFirst()).
      */
     private int sendNextMessage(List<OutgoingMessage> callbacks) {
         if (_sendStreams.isEmpty()) {

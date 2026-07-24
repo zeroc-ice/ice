@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** Provides access to a WebSocket endpoint information. */
+/** Provides access to a WebSocket endpoint's information. */
 public final class WSEndpointInfo extends EndpointInfo {
     /** The URI configured with the endpoint. */
     public final String resource;

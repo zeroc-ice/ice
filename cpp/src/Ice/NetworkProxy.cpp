@@ -233,7 +233,7 @@ HTTPNetworkProxy::endRead(Buffer& buf)
     {
         //
         // Read one more byte, we can't easily read bytes in advance
-        // since the transport implementation might be be able to read
+        // since the transport implementation might be able to read
         // the data from the memory instead of the socket. This is for
         // instance the case with the OpenSSL transport (or we would
         // have to use a buffering BIO).

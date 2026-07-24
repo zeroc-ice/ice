@@ -469,7 +469,7 @@ IceRuby::OperationI::unmarshalResults(const vector<byte>& bytes, const Ice::Comm
 
     //
     // Unmarshal the results. If there is more than one value to be returned, then return them
-    // in a tuple of the form (result, outParam1, ...). Otherwise just return the value.
+    // in an array of the form [result, outParam1, ...]. Otherwise just return the value.
     //
     Ice::InputStream is{communicator, bytes, lookupSliceLoader(communicator)};
 

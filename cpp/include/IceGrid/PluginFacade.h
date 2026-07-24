@@ -62,9 +62,9 @@ namespace IceGrid
     public:
         virtual ~RegistryPluginFacade();
 
-        /// Gets an application descriptor.
+        /// Gets information about an application.
         /// @param name The application name.
-        /// @return The application descriptor.
+        /// @return The application information.
         /// @throws IceGrid::ApplicationNotExistException Thrown when the application doesn't exist.
         [[nodiscard]] virtual ApplicationInfo getApplicationInfo(const std::string& name) const = 0;
 
@@ -143,7 +143,7 @@ namespace IceGrid
         /// Removes a replica group filter.
         /// @param id The identifier of the filter.
         /// @param filter The filter implementation.
-        /// @return `true` of the filter was removed, `false` otherwise.
+        /// @return `true` if the filter was removed, `false` otherwise.
         virtual bool
         removeReplicaGroupFilter(const std::string& id, const std::shared_ptr<ReplicaGroupFilter>& filter) noexcept = 0;
 
@@ -153,9 +153,9 @@ namespace IceGrid
         virtual void addTypeFilter(const std::string& type, const std::shared_ptr<TypeFilter>& filter) noexcept = 0;
 
         /// Removes a type filter.
-        /// @param type The type to register this filter with.
+        /// @param type The type the filter is registered with.
         /// @param filter The filter implementation.
-        /// @return `true` of the filter was removed, `false` otherwise.
+        /// @return `true` if the filter was removed, `false` otherwise.
         virtual bool removeTypeFilter(const std::string& type, const std::shared_ptr<TypeFilter>& filter) noexcept = 0;
     };
 

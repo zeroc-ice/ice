@@ -148,8 +148,8 @@ public class TestI : Test.TestIntfDisp_
         {
             if (_shutdown)
             {
-                // Ignore, this can occur with the forceful connection close test, shutdown can be dispatch
-                // before start dispatch.
+                // Ignore, this can occur with the forceful connection close test, shutdown can be dispatched
+                // before startDispatch.
                 var v = new TaskCompletionSource<object>();
                 v.SetResult(null);
                 return v.Task;
@@ -172,7 +172,7 @@ public class TestI : Test.TestIntfDisp_
             {
                 return;
             }
-            else // Pending might not be set yet if startDispatch is dispatch out-of-order
+            else // Pending might not be set yet if startDispatch is dispatched out-of-order
             {
                 _pending?.SetResult(null);
                 _pending = null;

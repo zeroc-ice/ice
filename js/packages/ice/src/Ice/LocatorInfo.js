@@ -287,7 +287,7 @@ export class LocatorInfo {
         if (proxy === null || proxy._getReference().isIndirect()) {
             //
             // Remove the cached references of well-known objects for which we tried
-            // to resolved the endpoints if these endpoints are empty.
+            // to resolve the endpoints if these endpoints are empty.
             //
             for (let i = 0; i < wellKnownRefs.length; ++i) {
                 this._table.removeObjectReference(wellKnownRefs[i].getIdentity());

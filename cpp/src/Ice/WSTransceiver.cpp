@@ -420,10 +420,10 @@ IceInternal::WSTransceiver::closing(bool initiator, exception_ptr reason)
     {
         //
         // If we initiated a close connection but also received a
-        // close connection, we assume we didn't initiated the
-        // connection and we send the close frame now. This is to
+        // close connection, we assume we didn't initiate the
+        // close and we send the close frame now. This is to
         // ensure that if both peers close the connection at the same
-        // time we don't hang having both peer waiting for the close
+        // time we don't hang having both peers waiting for the close
         // frame of the other.
         //
         assert(!initiator);
@@ -575,8 +575,8 @@ IceInternal::WSTransceiver::read(Buffer& buf)
     }
 
     //
-    // If we read the full Ice message, handle it before trying
-    // reading anymore data from the WS connection.
+    // If we read the full Ice message, handle it before trying to
+    // read any more data from the WS connection.
     //
     if (buf.i == buf.b.end())
     {
@@ -1654,7 +1654,7 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
         // 32-bit value, so we copy the entire message into the internal buffer
         // for writing. For incoming connections, we just copy the start of the
         // message in the internal buffer after the header. If the message is
-        // larger, the reminder is sent directly from the message buffer to avoid
+        // larger, the remainder is sent directly from the message buffer to avoid
         // copying.
         //
 

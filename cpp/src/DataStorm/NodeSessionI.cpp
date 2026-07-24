@@ -15,10 +15,10 @@ namespace
 {
     // The NodeForwarder class forwards calls to a Node that lacks a public endpoint.
     //
-    // This class implements the Slice DataContract::Node interface by forwarding calls to the target Node object
+    // This class implements the Slice DataStormContract::Node interface by forwarding calls to the target Node object
     // using the connection established during the creation of the NodeSession object.
     //
-    // The NodeForwarder wraps the node and session proxy parameters passed to the DataContract::Node operations
+    // The NodeForwarder wraps the node and session proxy parameters passed to the DataStormContract::Node operations
     // in forwarder proxies, which handle forwarding to the corresponding target objects.
     class NodeForwarder : public AsyncNode, public enable_shared_from_this<NodeForwarder>
     {

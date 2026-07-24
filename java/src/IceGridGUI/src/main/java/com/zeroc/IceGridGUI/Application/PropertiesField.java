@@ -77,7 +77,7 @@ public class PropertiesField extends JTable {
         // since they already appear in the Adapter pages
         Set<String> hiddenPropertyNames = new HashSet<>();
 
-        // We also hide properties whose value match an object or allocatable
+        // We also hide properties whose value matches an object or allocatable
         Set<String> hiddenPropertyValues = new HashSet<>();
 
         _hiddenProperties.clear();

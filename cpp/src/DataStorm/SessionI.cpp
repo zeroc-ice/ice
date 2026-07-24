@@ -98,7 +98,7 @@ SessionI::SessionI(shared_ptr<Instance> instance, shared_ptr<NodeI> parent, Node
 void
 SessionI::init()
 {
-    // Even though the node register a default servant for sessions, we still need to register the session servant
+    // Even though the node registers a default servant for sessions, we still need to register the session servant
     // explicitly here to ensure collocation works. The default servant from the node is used for facet calls.
     _instance->getObjectAdapter()->add(
         make_shared<DispatchInterceptorI>(shared_from_this(), _instance->getCallbackExecutor()),
@@ -1016,7 +1016,7 @@ SessionI::checkSession()
             if (_connection)
             {
                 // Make sure the connection is still established. It's possible that the connection got closed and we
-                // were not notified yet by the connection manager. Check session explicitly check for the connection
+                // were not notified yet by the connection manager. checkSession explicitly checks for the connection
                 // to make sure that if we get a session creation request from a peer (which might detect the connection
                 // closure before), it doesn't get ignored.
                 try

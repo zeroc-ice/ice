@@ -1249,8 +1249,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             _deltas.put(m.id, d2);
 
             if (d1 == null) {
-                // Return null indicate the graph to ignore this measurement. We need two
-                // measurement to calculate the delta increments.
+                // Return null to indicate the graph should ignore this measurement. We need two
+                // measurements to calculate the delta increments.
                 return null;
             }
 

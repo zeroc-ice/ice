@@ -188,7 +188,7 @@ public class AllTests {
                 Thread.sleep(50);
             } catch (InterruptedException ex) {}
 
-            // We set a connect timeout of '1s', so the connection should still be useable here.
+            // We set a connect timeout of '1s', so the connection should still be usable here.
             try {
                 connection.getInfo(); // getInfo() doesn't throw in the closing state.
             } catch (LocalException ex) {

@@ -256,7 +256,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 }
 
   /* Matches the end of a double-quoted string literal, but only while scanning a string literal. Flex always prefers
-   * to match the longest string it can, so quotes preceeded with a literal '\' will match the rules above this one. */
+   * to match the longest string it can, so quotes preceded with a literal '\' will match the rules above this one. */
 <STRING_LITERAL>"\"" {
     popState();
     endLocation(yylloc);
@@ -556,7 +556,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     return BAD_TOKEN;
 }
 
-  /* Matches any valid character (except newlines) not matched by another rule and fowards it to the parser.
+  /* Matches any valid character (except newlines) not matched by another rule and forwards it to the parser.
    * This is the lowest priority rule in the scanner, and is only active while not in a sub-scanner. */
 . {
     setLocation(yylloc);
@@ -701,7 +701,7 @@ namespace
         keywordMap["Value"] = ICE_VALUE;
     }
 
-    // This function is always called directly after a match has been made, but directly before it's action block is run.
+    // This function is always called directly after a match has been made, but directly before its action block is run.
     void preAction()
     {
         yycolno += yyleng;

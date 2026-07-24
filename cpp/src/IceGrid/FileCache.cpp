@@ -59,7 +59,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
         }
         else
         {
-            is.seekg(0, ios::beg); // We've reach the beginning of the file.
+            is.seekg(0, ios::beg); // We've reached the beginning of the file.
         }
 
         //
@@ -93,7 +93,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
         else if (totalCount < originalCount)
         {
             //
-            // Otherwise, it we still didn't find the required number of lines,
+            // Otherwise, if we still didn't find the required number of lines,
             // read another block of text before this block.
             //
             lastBlockOffset -= blockSize; // Position of the block we just read.

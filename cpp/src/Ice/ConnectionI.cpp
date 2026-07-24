@@ -643,7 +643,7 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
 
     std::lock_guard lock(_mutex);
     //
-    // If the exception is closed before we even have a chance
+    // If the connection is closed before we even have a chance
     // to send our request, we always try to send the request
     // again.
     //
@@ -1591,7 +1591,7 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
     }
 
     // If there are no callbacks to call, we don't call ioCompleted() since we're not going to call code that will
-    // potentially block (this avoids promoting a new leader and unecessary thread creation, especially if this is
+    // potentially block (this avoids promoting a new leader and unnecessary thread creation, especially if this is
     // called on shutdown).
     if (!_connectionStartCompleted && !_connectionStartFailed && _sendStreams.empty() && _asyncRequests.empty() &&
         !_closeCallback)
@@ -2169,7 +2169,7 @@ Ice::ConnectionI::setState(State state)
 
                 //
                 // Don't need to close now for connections so only close the transceiver
-                // if the selector request it.
+                // if the selector requests it.
                 //
                 if (_threadPool->finish(shared_from_this(), false))
                 {
@@ -2396,7 +2396,7 @@ Ice::ConnectionI::sendHeartbeat() noexcept
         }
 
         // We send a heartbeat to the peer to generate a "write" on the connection. This write in turns creates
-        // a read on the peer, and resets the peer's idle check timer. When _sendStream is not empty, there is
+        // a read on the peer, and resets the peer's idle check timer. When _sendStreams is not empty, there is
         // already an outstanding write, so we don't need to send a heartbeat. It's possible the first message
         // of _sendStreams was already sent but not yet removed from _sendStreams: it means the last write
         // occurred very recently, which is good enough with respect to the idle check.

@@ -11,7 +11,7 @@
 
 module IceStormElection
 {
-    /// The contents of topic.
+    /// The contents of a topic.
     struct TopicContent
     {
         /// The topic identity.
@@ -123,10 +123,10 @@ module IceStormElection
         /// The node id.
         int id;
 
-        /// The nodes coordinator.
+        /// The node's coordinator.
         int coord;
 
-        /// The nodes group name.
+        /// The node's group name.
         string group;
 
         /// The replica the node is managing.
@@ -135,7 +135,7 @@ module IceStormElection
         /// The node state.
         NodeState state;
 
-        /// The sequence of nodes in this nodes group.
+        /// The sequence of nodes in this node's group.
         GroupInfoSeq up;
 
         /// The highest priority node that this node has seen.

@@ -80,7 +80,7 @@ Client5::run(int, char**)
 
     //
     // Run Client application configured to generate 1024 bytes, the application is configured
-    // to archive log files when size is greatert than 128 bytes, there should be 7 archived files
+    // to archive log files when size is greater than 128 bytes, there should be 7 archived files
     // and current log file, all files must have 128 bytes size.
     //
     {
@@ -98,7 +98,7 @@ Client5::run(int, char**)
 
     //
     // Same as above but maximum size is lower than the message size, in this case we should
-    // get the same result as messages are not trucated.
+    // get the same result as messages are not truncated.
     //
     {
         Ice::InitializationData id;

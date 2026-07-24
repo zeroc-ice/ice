@@ -256,11 +256,11 @@ Slice::Preprocessor::preprocess(const string& languageArg)
         char* buf = mcpp_get_mem_buffer(Out);
 
         //
-        // First try to open temporay file in tmp directory.
+        // First try to open a temporary file in the 'tmp' directory.
         //
 #ifdef _WIN32
         //
-        // We use an unique id as the tmp file name prefix to avoid problems with this code being called concurrently
+        // We use a unique id as the tmp file name prefix to avoid problems with this code being called concurrently
         // from several processes, otherwise there is a chance that two processes call _wtempnam before any of them
         // opens the file and they will end up using the same tmp file. We then open the file with O_EXCL to atomically
         // create it -- this closes the TOCTOU window between _wtempnam returning a name and our opening it. The

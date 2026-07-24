@@ -78,7 +78,7 @@ namespace IceGrid
         if (sz == -1)
         {
             Ice::Warning out(traceLevels->logger);
-            out << "error rerporting child error msg: '" << msg << "'";
+            out << "error reporting child error msg: '" << msg << "'";
         }
         close(fd);
 
@@ -690,7 +690,7 @@ Activator::activate(
     }
 
     //
-    // Don't print the following trace, this might interfer with the
+    // Don't print the following trace, this might interfere with the
     // output of the started process if it fails with an error message.
     //
     //     if(_traceLevels->activator > 0)

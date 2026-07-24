@@ -32,7 +32,7 @@ public sealed class TestI : Test.AsyncTestIntfDisp_
         {
             //
             // Return a value so we can be sure that the stream position
-            // is reset correctly iuf finished throws.
+            // is reset correctly if finished() throws.
             //
             return Task.FromResult<string>("Hello");
         }
@@ -49,7 +49,7 @@ public sealed class TestI : Test.AsyncTestIntfDisp_
         {
             //
             // Return a value so we can be sure that the stream position
-            // is reset correctly iuf finished throws.
+            // is reset correctly if finished() throws.
             //
             return Task.FromResult<string>("Hello");
         }

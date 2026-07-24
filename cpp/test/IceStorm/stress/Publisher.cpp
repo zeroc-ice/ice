@@ -83,7 +83,7 @@ Publisher::run(int argc, char** argv)
     {
         if (maxQueueTest && i == 10)
         {
-            // Sleep one seconds to give some time to IceStorm to connect to the subscriber
+            // Sleep one second to give some time to IceStorm to connect to the subscriber
             this_thread::sleep_for(1s);
         }
         proxy->pub(i);

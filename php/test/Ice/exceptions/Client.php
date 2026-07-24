@@ -351,7 +351,7 @@ class Client extends TestHelper
             $properties = $this->createTestProperties($args);
             $properties->setProperty("Ice.MessageSizeMax", "10");
             //
-            // This property is set by the test suite, howerver we need to override it for this test.
+            // This property is set by the test suite, however we need to override it for this test.
             // Unlike C++, we can not pass $argv into Ice::createProperties, so we just set it after.
             //
             $properties->setProperty("Ice.Warn.Connections", "0");

@@ -35,7 +35,7 @@ module IceMX
         /// The number of outstanding events.
         int outstanding = 0;
 
-        /// The number of forwarded events.
+        /// The number of delivered events.
         long delivered = 0;
     }
 }

@@ -152,7 +152,7 @@ def createCRLServer(
 
 
 class ThreadedServer:
-    # run HTPPServer in its own thread
+    # run HTTPServer in its own thread
 
     def __init__(self, hostname, port, handler):
         self.handler = handler

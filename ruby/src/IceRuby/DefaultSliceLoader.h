@@ -8,7 +8,7 @@
 
 namespace IceRuby
 {
-    /// Instantiates generated Python classes/exceptions based on the Slice type ID.
+    /// Instantiates generated Ruby classes/exceptions based on the Slice type ID.
     class DefaultSliceLoader final : public Ice::SliceLoader
     {
     public:

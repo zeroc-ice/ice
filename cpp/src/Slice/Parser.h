@@ -401,7 +401,7 @@ namespace Slice
         /// @remark Equivalent to `mappedScope(separator, leading) + mappedName()`.
         [[nodiscard]] std::string mappedScoped(const std::string& separator, bool leading = false) const;
 
-        /// Returns the mapped scope that this element will be generated in in the target language.
+        /// Returns the mapped scope in which this element will be generated in the target language.
         /// @param separator This string will be used to separate scope segments.
         /// @param leading If true, the returned string will have a leading `separator` (defaults to false).
         [[nodiscard]] std::string mappedScope(const std::string& separator, bool leading = false) const;
@@ -510,7 +510,7 @@ namespace Slice
         /// The user should disambiguate by qualifying the type-reference as 'Outer::H'.
         void checkHasChangedMeaning(const std::string& name, ContainedPtr namedThing = nullptr);
 
-        /// Returns `true` if this container is the global scope (i.e. it's of type `Unit`), and `false` otherwise.
+        /// Returns `false` if this container is the global scope (i.e. it's of type `Unit`), and `true` otherwise.
         /// If false, we emit an error message. So this function should only be called for types which cannot appear at
         /// global scope... so everything except for `Module`s.
         bool checkForGlobalDefinition(const char* definitionKindPlural);
@@ -733,7 +733,7 @@ namespace Slice
         [[nodiscard]] ParameterPtr returnParameter(const std::string& name);
 
         /// Returns this operation's out parameters and return type sorted in this order: '(required..., optional...)'.
-        /// If the this operation's return type is non-void and non-optional, it is at the end of the 'required' list.
+        /// If this operation's return type is non-void and non-optional, it is at the end of the 'required' list.
         /// Otherwise, required parameters are kept in definition order and optional parameters are sorted by tag.
         ///
         /// For convenience, non-void return types are represented by a dummy `Parameter` in this list.

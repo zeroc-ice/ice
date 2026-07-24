@@ -762,7 +762,7 @@ public sealed class Instance
             bool ipv6 = isIPv6Supported && _initData.properties.getIcePropertyAsInt("Ice.IPv6") > 0;
             if (!ipv4 && !ipv6)
             {
-                throw new Ice.InitializationException("Both IPV4 and IPv6 support cannot be disabled.");
+                throw new Ice.InitializationException("Both IPv4 and IPv6 support cannot be disabled.");
             }
             else if (ipv4 && ipv6)
             {

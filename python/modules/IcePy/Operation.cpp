@@ -1679,7 +1679,7 @@ IcePy::AsyncTypedInvocation::handleResponse(PyObject* future, bool ok, pair<cons
             }
             else if (PyTuple_GET_SIZE(args.get()) == 1)
             {
-                // PyTuple_GET_ITEM steals a reference.
+                // PyTuple_GET_ITEM returns a borrowed reference.
                 PyObject* obj = PyTuple_GET_ITEM(args.get(), 0);
                 assert(obj);
                 r = PyObjectHandle{Py_NewRef(obj)};
@@ -1924,7 +1924,7 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
     // lookupType() returns a borrowed reference.
     PyObject* dispatchMethod{lookupType("Ice.Dispatch.dispatch")};
     assert(dispatchMethod);
-    // Ensure we release the reference when this method exist.
+    // Ensure we release the reference when this method exits.
     PyObjectHandle dispatchMethodHandle{Py_NewRef(dispatchMethod)};
 
     PyObjectHandle dispatchArgs{PyTuple_New(3)};

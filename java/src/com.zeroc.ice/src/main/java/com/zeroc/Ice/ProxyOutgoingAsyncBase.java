@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Base class for proxy based invocations. This class handles the retry for proxy invocations.
- * It also ensures the child observer is correct notified of failures and make sure the retry task is
+ * It also ensures the child observer is correctly notified of failures and makes sure the retry task is
  * correctly canceled when the invocation completes.
  */
 abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
@@ -361,7 +361,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
                 throw ex;
             }
         } else if (ex instanceof RequestFailedException) {
-            // For all other cases, we don't retry ObjectNotExistException
+            // We don't retry other *NotExistException, which are all derived from RequestFailedException.
             throw ex;
         }
 
