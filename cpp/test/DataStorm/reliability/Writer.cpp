@@ -114,6 +114,28 @@ void ::Writer::run(int argc, char* argv[])
         sample = readerB.getNextUnread();
     }
     cout << "ok" << endl;
+
+    cout << "testing partial update after reconnect... " << flush;
+    {
+        Topic<string, string> topic(node, "partialUpdateReconnect");
+        Topic<string, int> barrier(node, "partialUpdateReconnectBarrier");
+        topic.setUpdater<string>("append", [](string& value, const string& suffix) { value += suffix; });
+        auto writer = makeSingleKeyWriter(topic, "key", "", config);
+        writer.waitForReaders();
+        writer.add("base");
+
+        // Wait until the reader consumes the full value, closes the connection, and reconnects. The reconnect resumes
+        // after the add, so this partial update must resolve against the reader's retained pre-disconnect base.
+        [[maybe_unused]] auto ready = makeSingleKeyReader(barrier, "ready").getNextUnread();
+        writer.waitForReaders();
+        writer.partialUpdate<string>("append")("-after-reconnect");
+        writer.update("done");
+
+        // Keep the writer alive until the reader verifies both post-reconnect samples.
+        [[maybe_unused]] auto done = makeSingleKeyReader(barrier, "done").getNextUnread();
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
 }
 
 DEFINE_TEST(::Writer)

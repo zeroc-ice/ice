@@ -168,6 +168,41 @@ void ::Reader::run(int argc, char* argv[])
         writerB.waitForReaders();
         writerB.update(0);
     }
+
+    {
+        Topic<string, string> topic(node, "partialUpdateReconnect");
+        Topic<string, int> barrier(node, "partialUpdateReconnectBarrier");
+        topic.setUpdater<string>("append", [](string& value, const string& suffix) { value += suffix; });
+        auto reader = makeSingleKeyReader(topic, "key", "", config);
+
+        auto sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Add);
+        test(sample.getValue() == "base");
+
+        // Force a reconnect after the reader has established its partial-update base. Reconnection resumes from the
+        // reader's last sample id, so the writer does not resend the full value; the reader must retain its base.
+        auto connection = node.getSessionConnection(sample.getSession());
+        test(connection);
+        connection->close().get();
+
+        // Signal the writer after the session has reconnected, then expect a partial update followed by a full update.
+        // The trailing full update makes a dropped partial fail immediately instead of leaving this test blocked.
+        auto ready = makeSingleKeyWriter(barrier, "ready");
+        ready.waitForReaders();
+        ready.update(0);
+
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::PartialUpdate);
+        test(sample.getValue() == "base-after-reconnect");
+
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Update);
+        test(sample.getValue() == "done");
+
+        auto done = makeSingleKeyWriter(barrier, "done");
+        done.waitForReaders();
+        done.update(0);
+    }
 }
 
 DEFINE_TEST(::Reader)
