@@ -48,6 +48,10 @@ class TIMEOUT(Exception):
         return str(self.value)
 
 
+# What a caller passes to expect(): a regexp string, or the TIMEOUT sentinel to have an expiry
+# reported as a match on it rather than raised.
+ExpectPattern = str | type[TIMEOUT]
+
 # An expect pattern: the string the caller asked for (or the TIMEOUT sentinel, which never matches
 # but lets a caller ask for the timeout to be reported rather than raised) and its compiled regexp.
 MatchPattern = tuple[str | type[TIMEOUT], re.Pattern[str] | None]
@@ -544,8 +548,10 @@ class Expect(object):
             self.r.setWatchDog(watchDog)
         self.r.start()
 
-    def expect(self, pattern: str | list[str], timeout: float | None = 60) -> int:
-        """pattern is either a string, or a list of string regexp patterns.
+    def expect(self, pattern: ExpectPattern | list[ExpectPattern], timeout: float | None = 60) -> int:
+        """pattern is either a string, or a list of string regexp patterns. The TIMEOUT sentinel can
+        be given in place of a pattern to have an expiry reported as a match on it, rather than
+        raised.
 
         timeout == None expect can block indefinitely.
 
@@ -557,7 +563,8 @@ class Expect(object):
         if not isinstance(pattern, list):
             pattern = [pattern]
 
-        def compile(s: str) -> re.Pattern[str] | None:
+        def compile(s: ExpectPattern) -> re.Pattern[str] | None:
+            # The TIMEOUT sentinel has no regexp: match() skips it and reports it on expiry.
             if isinstance(s, str):
                 return re.compile(s, re.S)
             return None

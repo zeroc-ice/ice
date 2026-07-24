@@ -1521,7 +1521,12 @@ class Process(Runnable):
         if self in current.processes:
             current.processes[self].teardown(current, success)
 
-    def expect(self, current: Driver.Current, pattern: str | list[str], timeout: float | None = 60) -> int:
+    def expect(
+        self,
+        current: Driver.Current,
+        pattern: Expect.ExpectPattern | list[Expect.ExpectPattern],
+        timeout: float | None = 60,
+    ) -> int:
         process = current.processes[self]
         assert isinstance(process, Expect.Expect)
         return process.expect(pattern, timeout)
