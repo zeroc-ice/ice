@@ -178,8 +178,8 @@ public final class InputStream {
     }
 
     /// Indicates that unmarshaling is complete, except for any class instances. The application must call this method
-    /// only if the stream actually contains class instances. With the 1.0 encoding, calling `readPendingValues`
-    /// triggers the calls to consumers provided to the class-read methods (`read(cb:)` and `read(_:cb:)`) to inform
+    /// only if the stream actually contains class instances. With the 1.0 encoding, calling `readPendingValues()`
+    /// triggers the calls to consumers provided to the class-read methods (``read(cb:)`` and ``read(_:cb:)``) to inform
     /// the application that unmarshaling of an instance is complete; with the 1.1 encoding, the consumers are called
     /// while the instance is read and this method does nothing.
     public func readPendingValues() throws {

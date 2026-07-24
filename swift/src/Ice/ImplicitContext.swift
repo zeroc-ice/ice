@@ -4,7 +4,7 @@ import Foundation
 
 /// Represents the request context associated with a communicator. When you make a remote invocation without an
 /// explicit request context parameter, Ice uses the per-proxy request context (if any) combined with the
-/// `ImplicitContext` associated with your communicator.
+/// ``ImplicitContext`` associated with your communicator.
 /// The property `Ice.ImplicitContext` controls if your communicator has an associated implicit context,
 /// and when it does, whether this implicit context is per-thread or shared by all threads:
 /// - `None`: No implicit context at all.

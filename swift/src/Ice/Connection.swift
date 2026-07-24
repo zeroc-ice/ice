@@ -18,7 +18,7 @@ public enum CompressBatch: UInt8 {
     }
 }
 
-/// An `Ice.InputStream` extension to read `CompressBatch` enumerated values from the stream.
+/// An ``InputStream`` extension to read ``CompressBatch`` enumerated values from the stream.
 extension InputStream {
     /// Reads an enumerated value.
     ///
@@ -43,7 +43,7 @@ extension InputStream {
     }
 }
 
-/// An `Ice.OutputStream` extension to write `CompressBatch` enumerated values to the stream.
+/// An ``OutputStream`` extension to write ``CompressBatch`` enumerated values to the stream.
 extension OutputStream {
     /// Writes an enumerated value to the stream.
     ///
@@ -88,7 +88,7 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
     /// - Parameter id: The identity of the target object.
     /// - Returns: A fixed proxy with the provided identity.
     /// - Precondition: `id.name` must not be empty.
-    /// - Throws: `CommunicatorDestroyedException` when the communicator has been destroyed.
+    /// - Throws: ``CommunicatorDestroyedException`` when the communicator has been destroyed.
     func createProxy(_ id: Identity) throws -> ObjectPrx
 
     /// Associates an object adapter with this connection. When a connection receives a request, it dispatches this
@@ -117,7 +117,7 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
     ///
     /// - Parameter compress: Specifies whether or not the queued batch requests should be compressed
     /// before being sent over the wire.
-    /// - Throws: `LocalException` when the flush fails, for example `CommunicatorDestroyedException` when the
+    /// - Throws: ``LocalException`` when the flush fails, for example ``CommunicatorDestroyedException`` when the
     ///   communicator has been destroyed.
     func flushBatchRequests(_ compress: CompressBatch) async throws
 

@@ -283,14 +283,14 @@ extension Communicator {
     /// Initializes the configured plug-ins. The communicator automatically initializes
     /// the plug-ins by default, but an application may need to interact directly with
     /// a plug-in prior to initialization. In this case, the application must set
-    /// `Ice.InitPlugins=0` and then invoke `initializePlugins` manually. The plug-ins are
+    /// `Ice.InitPlugins=0` and then invoke `initializePlugins()` manually. The plug-ins are
     /// initialized in the order in which they are loaded. If a plug-in throws an exception
     /// during initialization, the communicator invokes destroy on the plug-ins that have
     /// already been initialized.
     ///
     /// - Throws:
-    ///   - `InitializationException` if the plug-ins have already been initialized.
-    ///   - `CommunicatorDestroyedException` if the communicator has been destroyed.
+    ///   - ``InitializationException`` if the plug-ins have already been initialized.
+    ///   - ``CommunicatorDestroyedException`` if the communicator has been destroyed.
     public func initializePlugins() throws {
         try autoreleasepool {
             try (self as! CommunicatorI).handle.initializePlugins()

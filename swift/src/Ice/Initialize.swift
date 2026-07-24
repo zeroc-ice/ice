@@ -187,10 +187,10 @@ public let Encoding_1_0 = EncodingVersion(major: 1, minor: 0)
 /// Identifies encoding version 1.1.
 public let Encoding_1_1 = EncodingVersion(major: 1, minor: 1)
 
-/// Converts a stringified identity into an `Identity`.
+/// Converts a stringified identity into an ``Identity``.
 ///
 /// - Parameter string: The stringified identity.
-/// - Returns: An `Identity` containing the name and category components.
+/// - Returns: An ``Identity`` containing the name and category components.
 /// - Throws: ``ParseException`` if `string` cannot be converted to an identity; a ``LocalException`` if the
 ///   identity has an empty name.
 public func stringToIdentity(_ string: String) throws -> Identity {
@@ -205,7 +205,7 @@ public func stringToIdentity(_ string: String) throws -> Identity {
     }
 }
 
-/// Converts an `Identity` into a string using the specified mode.
+/// Converts an ``Identity`` into a string using the specified mode.
 ///
 /// - Parameters:
 ///   - id: The object identity to convert.
