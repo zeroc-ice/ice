@@ -55,10 +55,7 @@ namespace
     public:
         void dispatch(IncomingRequest&, std::function<void(OutgoingResponse)>) final
         {
-            throw UnknownException{
-                __FILE__,
-                __LINE__,
-                "the object adapter could not create its dispatch pipeline"};
+            throw UnknownException{__FILE__, __LINE__, "the object adapter could not create its dispatch pipeline"};
         }
     };
 }
