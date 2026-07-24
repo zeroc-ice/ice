@@ -188,7 +188,7 @@ Instance::init(std::optional<Ice::SSL::ServerAuthenticationOptions> serverAuthen
     _nodeSessionManager = make_shared<NodeSessionManager>(self, _node);
     _nodeSessionManager->init();
 
-    const Identity lookupId{.name = "Lookup", .category = "DataStorm"};
+    const Identity lookupId = lookupIdentity();
     auto lookupI = make_shared<LookupI>(_nodeSessionManager, _topicFactory, _node->getProxy());
     _adapter->add(lookupI, lookupId);
     if (_multicastAdapter)

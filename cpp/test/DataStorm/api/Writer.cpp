@@ -171,7 +171,7 @@ void ::Writer::run(int argc, char* argv[])
                 test(holder.communicator()->getDefaultObjectAdapter() == nullptr);
                 holder.communicator()->getProperties()->setProperty(
                     "DataStorm.Node.Multicast.Proxy",
-                    "DataStorm/Lookup -d:udp -h 239.255.0.1 -p 10000");
+                    "DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p 10000");
                 Node n17{holder.communicator()};
             }
         }

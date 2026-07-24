@@ -407,6 +407,166 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
+    // A late-joining reader of a multi-key writer must receive the initialization samples of every key it
+    // subscribes to, not just the first key's batch.
+    cout << "testing late-joining multi-key reader... " << flush;
+    {
+        Topic<string, string> topic(node, "lateJoinMultiKey");
+        Topic<string, int> barrier(node, "lateJoinMultiKeyBarrier");
+        Topic<string, int> done(node, "lateJoinMultiKeyDone");
+
+        auto writer = makeMultiKeyWriter(topic, {"elemA", "elemB"}, "", config);
+        writer.add("elemA", "valueA");
+        writer.add("elemB", "valueB");
+
+        // The reader side attaches (and destroys) a probe first, then waits on the barrier before creating the
+        // late-joining reader.
+        auto barrierWriter = makeSingleKeyWriter(barrier, "barrier");
+        barrierWriter.waitForReaders();
+        barrierWriter.update(0);
+
+        // Gate teardown on the reader signalling that both its readers were initialized, so this writer never races
+        // the late readers' lifetime through a listener count that can drop back to zero before it is observed.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(done, "done").getNextUnread();
+    }
+    cout << "ok" << endl;
+
+    // Two late-joining single-key readers of a multi-key writer must each receive their own key's initialization
+    // samples: the batches target the same writer element and must be routed per reader.
+    cout << "testing late-joining single-key readers... " << flush;
+    {
+        Topic<string, string> topic(node, "lateJoinSingleKeys");
+        Topic<string, int> barrier(node, "lateJoinSingleKeysBarrier");
+        Topic<string, int> done(node, "lateJoinSingleKeysDone");
+
+        auto writer = makeMultiKeyWriter(topic, {"elemA", "elemB"}, "", config);
+        writer.add("elemA", "valueA");
+        writer.add("elemB", "valueB");
+
+        // See the previous case regarding the reader-side probe.
+        auto barrierWriter = makeSingleKeyWriter(barrier, "barrier");
+        barrierWriter.waitForReaders();
+        barrierWriter.update(0);
+
+        // Gate teardown on the reader signalling that both readers were initialized, so this writer never races their
+        // lifetime through a listener count that can drop back to zero before it is observed.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(done, "done").getNextUnread();
+    }
+    cout << "ok" << endl;
+
+    // Two readers subscribing to the same key are distinct reader elements and must each be initialized with the key's
+    // sample exactly once. The live update below, published only after both readers drained their initialization
+    // sample, would surface a misrouted or duplicated initialization batch as a second "valueA" ahead of it.
+    cout << "testing coalesced same-key readers... " << flush;
+    {
+        Topic<string, string> topic(node, "coalescedSameKey");
+        Topic<string, int> barrier(node, "coalescedSameKeyBarrier");
+        Topic<string, int> ready(node, "coalescedSameKeyReady");
+
+        auto writer = makeSingleKeyWriter(topic, "elemA", "", config);
+        writer.add("valueA");
+
+        auto barrierWriter = makeSingleKeyWriter(barrier, "barrier");
+        barrierWriter.waitForReaders();
+        barrierWriter.update(0);
+
+        // Gate the live update on the readers signalling that they attached and drained one initialization sample, so
+        // this writer never races the late readers' lifetime through waitForReaders/waitForNoReaders.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(ready, "ready").getNextUnread();
+        writer.update("valueB");
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
+    // A late-joining filtered reader must receive the initialization samples of exactly the writer keys its filter
+    // matches, and must stay subscribed so it still receives a later live update on a matching key.
+    cout << "testing late-joining filtered reader... " << flush;
+    {
+        Topic<string, string> topic(node, "lateFilter");
+        Topic<string, int> barrier(node, "lateFilterBarrier");
+        Topic<string, int> ready(node, "lateFilterReady");
+
+        auto writer = makeMultiKeyWriter(topic, {"elem1", "elem2", "other"}, "", config);
+        writer.add("elem1", "value1");
+        writer.add("elem2", "value2");
+        writer.add("other", "valueOther");
+
+        auto barrierWriter = makeSingleKeyWriter(barrier, "barrier");
+        barrierWriter.waitForReaders();
+        barrierWriter.update(0);
+
+        // Publish a live update on a matching key only after the reader drained its initialization samples. The reader
+        // must still be subscribed to receive it.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(ready, "ready").getNextUnread();
+        writer.update("elem1", "value1Live");
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
+    // A late-joining reader of a key the writer covers but never wrote receives an empty initialization batch. The
+    // reader must still be marked initialized so a later live sample on that key is delivered.
+    cout << "testing late-joining reader of an unwritten key... " << flush;
+    {
+        Topic<string, string> topic(node, "lateEmptyBatch");
+        Topic<string, int> barrier(node, "lateEmptyBatchBarrier");
+        Topic<string, int> ready(node, "lateEmptyBatchReady");
+
+        auto writer = makeMultiKeyWriter(topic, {"elemA", "elemB"}, "", config);
+        writer.add("elemA", "valueA"); // elemB is covered but never written
+
+        auto barrierWriter = makeSingleKeyWriter(barrier, "barrier");
+        barrierWriter.waitForReaders();
+        barrierWriter.update(0);
+
+        // Delivered only if the empty initialization batch for elemB marked the reader initialized.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(ready, "ready").getNextUnread();
+        writer.update("elemB", "valueB");
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
+    // A late-joining multi-key reader must receive every key's initialization samples even when the sample ids
+    // interleave across keys (elemA: 1, 3; elemB: 2).
+    cout << "testing late-joining reader with interleaved sample ids... " << flush;
+    {
+        Topic<string, string> topic(node, "lateInterleaved");
+        Topic<string, int> barrier(node, "lateInterleavedBarrier");
+        Topic<string, int> done(node, "lateInterleavedDone");
+
+        auto writer = makeMultiKeyWriter(topic, {"elemA", "elemB"}, "", config);
+        writer.add("elemA", "valueA1");    // id 1
+        writer.add("elemB", "valueB1");    // id 2
+        writer.update("elemA", "valueA2"); // id 3
+
+        auto barrierWriter = makeSingleKeyWriter(barrier, "barrier");
+        barrierWriter.waitForReaders();
+        barrierWriter.update(0);
+
+        // Gate teardown on the reader signalling completion, so this writer does not race the late reader's lifetime.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(done, "done").getNextUnread();
+    }
+    cout << "ok" << endl;
+
+    // A late-joining reader of an any-key writer must receive every key's initialization samples. This exercises the
+    // any-key (always-match filter) writer branch.
+    cout << "testing late-joining reader of an any-key writer... " << flush;
+    {
+        Topic<string, string> topic(node, "lateAnyKeyWriter");
+        Topic<string, int> barrier(node, "lateAnyKeyWriterBarrier");
+        Topic<string, int> done(node, "lateAnyKeyWriterDone");
+
+        auto writer = makeAnyKeyWriter(topic, "", config);
+        writer.add("elemA", "valueA");
+        writer.add("elemB", "valueB");
+
+        auto barrierWriter = makeSingleKeyWriter(barrier, "barrier");
+        barrierWriter.waitForReaders();
+        barrierWriter.update(0);
+
+        [[maybe_unused]] auto _ = makeSingleKeyReader(done, "done").getNextUnread();
+    }
+    cout << "ok" << endl;
+
     cout << "testing topic collocated key reader and writer... " << flush;
     {
         Topic<string, string> topic(node, "collocated");

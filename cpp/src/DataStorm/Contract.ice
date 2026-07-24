@@ -61,7 +61,7 @@ module DataStormContract
     /// A queue of {@link DataSample}
     ["cpp:type:std::deque<DataSample>"] sequence<DataSample> DataSampleSeq;
 
-    /// Represents a collection of data samples produced by a specific writer.
+    /// Represents a collection of data samples produced by a specific writer to initialize a specific reader.
     ["cpp:custom-print"]
     struct DataSamples
     {
@@ -70,6 +70,9 @@ module DataStormContract
 
         /// The sequence of samples produced by the writer.
         DataSampleSeq samples;
+
+        /// The unique identifier for the reader element these samples initialize.
+        long peerId;
     }
     sequence<DataSamples> DataSamplesSeq;
 
@@ -460,7 +463,7 @@ module DataStormContract
 
     /// The lookup interface is used by DataStorm nodes to announce their topic readers and writers to other connected
     /// nodes. When multicast is enabled, the lookup interface also broadcasts these announcements.
-    /// Each DataStorm node hosts a lookup servant with the identity `DataStorm/Lookup`.
+    /// Each DataStorm node hosts a lookup servant with the same identity (currently, `DataStorm/Lookup2`).
     interface Lookup
     {
         /// Announce a topic reader.
