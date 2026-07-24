@@ -499,6 +499,12 @@ namespace DataStorm
     };
 
     /// The key reader to read the data element associated with a given set of keys.
+    ///
+    /// Like a multi-key writer, a multi-key reader retains the current value of every key it has received and not since
+    /// seen removed, so that it can resolve later partial updates against it. This per-key state is independent of the
+    /// reader's @c sampleCount and @c sampleLifetime history settings, and is released when the key's writer removes
+    /// the key. A reader connected to writers over an unbounded set of keys therefore accumulates one current value per
+    /// key.
     /// @headerfile DataStorm/DataStorm.h
     template<typename Key, typename Value, typename UpdateTag = std::string>
     class MultiKeyReader : public Reader<Key, Value, UpdateTag>
@@ -647,6 +653,11 @@ namespace DataStorm
     }
 
     /// The filtered reader to read data elements whose key match a given filter.
+    ///
+    /// A filtered reader retains the current value of every key it has received and not since seen removed, so that it
+    /// can resolve later partial updates against it. This per-key state is independent of the reader's @c sampleCount
+    /// and @c sampleLifetime history settings, and is released when the key's writer removes the key. A reader matching
+    /// an unbounded set of keys therefore accumulates one current value per key.
     /// @headerfile DataStorm/DataStorm.h
     template<typename Key, typename Value, typename UpdateTag = std::string>
     class FilteredKeyReader : public Reader<Key, Value, UpdateTag>
