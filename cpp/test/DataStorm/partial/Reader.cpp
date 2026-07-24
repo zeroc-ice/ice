@@ -18,6 +18,38 @@ public:
     void run(int, char**) override;
 };
 
+// A value type with a custom encoding whose default value (0) encodes to zero bytes. The default Ice encoding never
+// produces an empty byte sequence, so only a custom Encoder can, and such a full value must remain a usable
+// partial-update base.
+struct Counter
+{
+    int value = 0;
+};
+
+namespace DataStorm
+{
+    template<> struct Encoder<Counter>
+    {
+        static Ice::ByteSeq encode(const Ice::CommunicatorPtr&, const Counter& value)
+        {
+            // The default value encodes to zero bytes; any other value encodes to a single byte.
+            if (value.value == 0)
+            {
+                return {};
+            }
+            return {static_cast<std::byte>(value.value)};
+        }
+    };
+
+    template<> struct Decoder<Counter>
+    {
+        static Counter decode(const Ice::CommunicatorPtr&, const Ice::ByteSeq& data)
+        {
+            return Counter{data.empty() ? 0 : static_cast<int>(data[0])};
+        }
+    };
+}
+
 void ::Reader::run(int argc, char* argv[])
 {
     Node node(argc, argv);
@@ -419,6 +451,25 @@ void ::Reader::run(int argc, char* argv[])
         auto done = makeSingleKeyWriter(initRemoveBarrier, "done");
         done.waitForReaders();
         done.update(0);
+    }
+
+    // A full value whose custom encoding is empty is still a usable partial-update base: the empty-encoded add is
+    // decoded into a value-bearing sample, so the following partial update resolves against it instead of being
+    // discarded for want of a base.
+    Topic<string, Counter> emptyEncodedTopic(node, "emptyEncodedTopic");
+    emptyEncodedTopic.setReaderDefaultConfig(config);
+    emptyEncodedTopic.setUpdater<int>("increment", [](Counter& counter, int delta) { counter.value += delta; });
+    {
+        auto reader = makeSingleKeyReader(emptyEncodedTopic, "key");
+
+        auto sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::Add);
+        test(sample.getValue().value == 0); // the empty encoding decodes to the default value
+
+        sample = reader.getNextUnread();
+        test(sample.getEvent() == SampleEvent::PartialUpdate);
+        test(sample.getUpdateTag() == "increment");
+        test(sample.getValue().value == 5); // resolved against the empty-encoded base
     }
 }
 

@@ -393,12 +393,19 @@ namespace DataStormI
 
         void decode(const Ice::CommunicatorPtr& communicator) final
         {
-            if (!_encodedValue.empty())
+            // A remove sample has no value and is left value-less and default-constructed. Callers already skip
+            // decode for removes, but guarding here keeps that state independent of the caller.
+            if (event == DataStorm::SampleEvent::Remove)
             {
-                _hasValue = true;
-                _value = DecoderT<Value>::decode(communicator, _encodedValue);
-                _encodedValue.clear();
+                return;
             }
+
+            // Decode full samples even when the encoded value is empty. A custom Encoder specialization may encode
+            // a value to zero bytes, and the Decoder (default or specialized) defines the meaning of empty input;
+            // the resulting value-bearing sample can then serve as a partial-update base like any other full value.
+            _hasValue = true;
+            _value = DecoderT<Value>::decode(communicator, _encodedValue);
+            _encodedValue.clear();
         }
 
     private:
