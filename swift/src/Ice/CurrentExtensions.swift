@@ -17,7 +17,7 @@ extension Current {
         }
     }
 
-    /// Creates an OutgoingResponse with reply status ``ReplyStatus/ok``.
+    /// Creates an OutgoingResponse with a reply status of ``ReplyStatus/ok``.
     ///
     /// - Parameters:
     ///   - result: The result to marshal into the response payload.
@@ -37,7 +37,7 @@ extension Current {
         return OutgoingResponse(ostr)
     }
 
-    /// Creates an empty OutgoingResponse with reply status ``ReplyStatus/ok`` and an empty payload.
+    /// Creates an empty OutgoingResponse with a reply status of ``ReplyStatus/ok`` and an empty payload.
     ///
     /// - Returns: The new response.
     public func makeEmptyOutgoingResponse() -> OutgoingResponse {
@@ -48,7 +48,7 @@ extension Current {
         return OutgoingResponse(ostr)
     }
 
-    /// Creates an OutgoingResponse with the specified payload with reply status ``ReplyStatus/ok`` or
+    /// Creates an OutgoingResponse with the specified payload and a reply status of ``ReplyStatus/ok`` or
     /// ``ReplyStatus/userException``.
     ///
     /// - Parameters:
