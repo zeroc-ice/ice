@@ -7,7 +7,9 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.ErrorObserverMiddleware;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.IncomingRequest;
+import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.Logger;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectPrx;
@@ -15,6 +17,7 @@ import com.zeroc.Ice.OutgoingResponse;
 import com.zeroc.Ice.ServantLocator;
 import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UserException;
+import com.zeroc.Ice.Util;
 
 import test.Ice.middleware.Test.MyException;
 import test.Ice.middleware.Test.MyObject;
@@ -146,6 +149,47 @@ public class AllTests {
         testErrorObserverMiddleware(communicator, output, true, true);
 
         testMiddlewareObservesLocatorDispatchError(communicator, output);
+        testMiddlewareFactoryException(output);
+    }
+
+    // Verifies a middleware factory exception makes all dispatches fail with a generic UnknownException.
+    private static void testMiddlewareFactoryException(PrintWriter output) {
+        output.write("testing middleware factory exception... ");
+        output.flush();
+
+        // Use a separate communicator with a null logger: the pipeline creation failure is logged as an error.
+        var initData = new InitializationData();
+        initData.logger = new NullLogger();
+
+        try (Communicator communicator = Util.initialize(initData)) {
+            ObjectAdapter oa = communicator.createObjectAdapter("");
+            ObjectPrx obj = oa.add(new MyObjectI(), new Identity("test", ""));
+
+            oa.use(
+                next -> {
+                    throw new IllegalStateException("middleware factory exception");
+                });
+
+            var p = MyObjectPrx.uncheckedCast(obj);
+
+            try {
+                p.ice_ping();
+                test(false);
+            } catch (UnknownException ex) {
+                // The message does not reveal the middleware factory exception.
+                test(!ex.getMessage().contains("middleware factory exception"));
+            }
+
+            // The failure is permanent for this object adapter.
+            try {
+                p.ice_ping();
+                test(false);
+            } catch (UnknownException ex) {}
+
+            oa.destroy();
+        }
+
+        output.println("ok");
     }
 
     private static void testMiddlewareExecutionOrder(
@@ -250,6 +294,33 @@ public class AllTests {
 
         output.println("ok");
         oa.destroy();
+    }
+
+    private static class NullLogger implements Logger {
+        @Override
+        public void print(String message) {}
+
+        @Override
+        public void trace(String category, String message) {}
+
+        @Override
+        public void warning(String message) {}
+
+        @Override
+        public void error(String message) {}
+
+        @Override
+        public String getPrefix() {
+            return "NullLogger";
+        }
+
+        @Override
+        public Logger cloneWithPrefix(String prefix) {
+            return new NullLogger();
+        }
+
+        @Override
+        public void close() {}
     }
 
     private static void test(boolean b) {

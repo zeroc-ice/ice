@@ -48,6 +48,16 @@ namespace
     inline EndpointIPtr toEndpointI(const EndpointPtr& endp) { return dynamic_pointer_cast<EndpointI>(endp); }
 
     string emptyName{};
+
+    // Installed as the dispatch pipeline when the creation of the actual pipeline fails.
+    class FailedDispatchPipeline final : public Object
+    {
+    public:
+        void dispatch(IncomingRequest&, std::function<void(OutgoingResponse)>) final
+        {
+            throw UnknownException{__FILE__, __LINE__, "the object adapter could not create its dispatch pipeline"};
+        }
+    };
 }
 
 Ice::ObjectAdapter::~ObjectAdapter() = default; // avoid weak vtable
@@ -535,11 +545,29 @@ Ice::ObjectAdapterI::dispatchPipeline() const noexcept
     lock_guard lock(_mutex);
     if (!_dispatchPipeline)
     {
-        _dispatchPipeline = _servantManager;
-        while (!_middlewareFactoryStack.empty())
+        try
         {
-            _dispatchPipeline = _middlewareFactoryStack.top()(std::move(_dispatchPipeline));
-            _middlewareFactoryStack.pop();
+            ObjectPtr dispatchPipeline = _servantManager;
+            while (!_middlewareFactoryStack.empty())
+            {
+                dispatchPipeline = _middlewareFactoryStack.top()(std::move(dispatchPipeline));
+                _middlewareFactoryStack.pop();
+            }
+            _dispatchPipeline = std::move(dispatchPipeline);
+        }
+        catch (const std::exception& ex)
+        {
+            Error out(_instance->initializationData().logger);
+            out << "failed to create the dispatch pipeline of object adapter '" << _name << "':\n" << ex;
+            _dispatchPipeline = make_shared<FailedDispatchPipeline>();
+            _middlewareFactoryStack = {};
+        }
+        catch (...)
+        {
+            Error out(_instance->initializationData().logger);
+            out << "failed to create the dispatch pipeline of object adapter '" << _name << "': unknown c++ exception";
+            _dispatchPipeline = make_shared<FailedDispatchPipeline>();
+            _middlewareFactoryStack = {};
         }
     }
     return _dispatchPipeline;
