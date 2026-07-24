@@ -7,9 +7,8 @@ classdef (Hidden, Abstract) EncapsDecoder < handle
             obj.encaps = encaps;
             obj.classGraphDepthMax = classGraphDepthMax;
             obj.classGraphDepth = 0;
-            obj.patchMap = {};
-            obj.patchMapLength = 0;
-            obj.unmarshaledMap = {};
+            obj.patchMap = configureDictionary('int32', 'cell');
+            obj.unmarshaledMap = configureDictionary('int32', 'cell');
             obj.valueList = {};
             obj.delayedPostUnmarshal = {};
         end
@@ -68,25 +67,15 @@ classdef (Hidden, Abstract) EncapsDecoder < handle
             r = obj.is.getCommunicator().getSliceLoader().newInstance(typeId);
         end
 
-        function r = hasPatchList(obj, index)
-            % True if patchMap holds an actual patch list at index. Cell arrays auto-extend with
-            % empty filler slots when a higher index is assigned, so an in-range index is not
-            % enough -- the slot must be non-empty.
-            r = index <= length(obj.patchMap) && ~isempty(obj.patchMap{index});
-        end
-
         function addPatchEntry(obj, index, cb)
             %assert(index > 0);
             %
             % Check if we have already unmarshaled the instance. If that's the case,
             % just invoke the callback and we're done.
             %
-            if index <= length(obj.unmarshaledMap)
-                v = obj.unmarshaledMap{index};
-                if ~isempty(v)
-                    cb(v);
-                    return;
-                end
+            if isKey(obj.unmarshaledMap, index)
+                cb(obj.unmarshaledMap{index});
+                return;
             end
 
             %
@@ -94,7 +83,7 @@ classdef (Hidden, Abstract) EncapsDecoder < handle
             % the callback will be called when the instance is
             % unmarshaled.
             %
-            if obj.hasPatchList(index)
+            if isKey(obj.patchMap, index)
                 pl = obj.patchMap{index};
             else
                 %
@@ -102,7 +91,6 @@ classdef (Hidden, Abstract) EncapsDecoder < handle
                 % entry in the patch map.
                 %
                 pl = {};
-                obj.patchMapLength = obj.patchMapLength + 1;
             end
 
             %
@@ -127,17 +115,17 @@ classdef (Hidden, Abstract) EncapsDecoder < handle
             %
             v.iceRead(obj.is);
 
-            if obj.hasPatchList(index)
+            if isKey(obj.patchMap, index)
                 %
                 % Patch all instances now that the instance is unmarshaled.
                 %
-                l = obj.patchMap{index};
+                pl = obj.patchMap{index};
 
                 %
                 % Patch all pointers that refer to the instance.
                 %
-                for i = 1:length(l)
-                    e = l{i};
+                for i = 1:length(pl)
+                    e = pl{i};
                     e.cb(v);
                 end
 
@@ -145,11 +133,10 @@ classdef (Hidden, Abstract) EncapsDecoder < handle
                 % Clear out the patch map for that index -- there is nothing left
                 % to patch for that index for the time being.
                 %
-                obj.patchMap{index} = [];
-                obj.patchMapLength = obj.patchMapLength - 1;
+                obj.patchMap = remove(obj.patchMap, index);
             end
 
-            if obj.patchMapLength == 0 && isempty(obj.valueList)
+            if obj.patchMap.numEntries == 0 && isempty(obj.valueList)
                 if v.iceDelayPostUnmarshal()
                     obj.delayedPostUnmarshal{end + 1} = v; % See finish()
                 else
@@ -158,7 +145,7 @@ classdef (Hidden, Abstract) EncapsDecoder < handle
             else
                 obj.valueList{end + 1} = v;
 
-                if obj.patchMapLength == 0
+                if obj.patchMap.numEntries == 0
                     %
                     % Iterate over the instance list and invoke ice_postUnmarshal on
                     % each instance. We must do this after all instances have been
@@ -184,7 +171,6 @@ classdef (Hidden, Abstract) EncapsDecoder < handle
         classGraphDepth
         classGraphDepthMax
         patchMap
-        patchMapLength
     end
     properties (Access = private)
         unmarshaledMap
