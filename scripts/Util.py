@@ -29,6 +29,11 @@ from typing import IO, TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 import Expect
 
+if TYPE_CHECKING:
+    # Ice is imported lazily at run time, since the tests can be listed without it being built.
+    # Importing it here as well gives the annotations below something real to refer to.
+    import Ice
+
 # Ice configuration properties passed to a process. Values are converted to strings by val().
 Props = dict[str, Any]
 
@@ -2544,11 +2549,12 @@ class RemoteProcessController(ProcessController):
             pass
 
     def __init__(self, current: Driver.Current, endpoints: str | None):
-        self.processControllerProxies: dict[Any, Any] = {}
+        # Keyed by the controller's identity; the values are generated ProcessControllerPrx proxies.
+        self.processControllerProxies: dict[Ice.Identity, Any] = {}
         self.controllerApps: list[Any] = []
         self.driver = current.driver
         self.cond = threading.Condition()
-        self.adapter: Any = None
+        self.adapter: Ice.ObjectAdapter | None = None
 
         comm = current.driver.getCommunicator()
         # Test.Common is generated at runtime by Ice.loadSlice, so it can't be resolved statically.
@@ -3830,7 +3836,7 @@ class Driver:
             [re.compile(a) for a in self.rfilters],
         )
 
-        self.communicator: Any = None
+        self.communicator: Ice.Communicator | None = None
         self.interface = ""
         self.processControllers: dict[type[ProcessController], ProcessController] = {}
 
@@ -3918,8 +3924,9 @@ class Driver:
             return False
         return True
 
-    def getCommunicator(self) -> Any:
+    def getCommunicator(self) -> "Ice.Communicator":
         self.initCommunicator()
+        assert self.communicator is not None
         return self.communicator
 
     def initCommunicator(self) -> None:
