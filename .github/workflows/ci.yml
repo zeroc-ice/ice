@@ -173,8 +173,8 @@ jobs:
             build_cpp_and_python: true
 
           # C++ IceBT over a pair of virtual Bluetooth controllers. arm64 only: the amd64 azure
-          # kernel has the Bluetooth modules stripped, so setup-bluetooth cannot succeed there.
-          # $BT_ADDR is exported by setup-bluetooth and expanded by the shell at run time.
+          # kernel has the Bluetooth modules stripped, so setup-vhci cannot succeed there.
+          # $BT_ADDR is exported by setup-vhci and expanded by the shell at run time.
           - os: ubuntu-24.04-arm
             config: "cpp-bt"
             working_directory: "cpp"
