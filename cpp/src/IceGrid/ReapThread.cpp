@@ -183,6 +183,10 @@ ReapThread::connectionClosed(const Ice::ConnectionPtr& con)
         }
         reapables.swap(p->second);
         _connections.erase(p);
+
+        // Also erase the matching _sessions entries: the run thread can sleep forever when all remaining sessions
+        // have a 0s timeout, so it can't be relied upon to erase them.
+        _sessions.remove_if([&con](const ReapableItem& item) { return item.connection == con; });
     }
 
     // Destroy the reapables outside the lock, like run() and terminate().
