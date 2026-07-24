@@ -82,7 +82,7 @@ public sealed class DefaultsAndOverrides
             {
                 throw new InitializationException($"invalid value for Ice.Default.InvocationTimeout: {value}");
             }
-            defaultInvocationTimeout = TimeSpan.FromMilliseconds(value);
+            defaultInvocationTimeoutMs = value;
         }
 
         val = properties.getIceProperty("Ice.Default.EncodingVersion");
@@ -99,7 +99,7 @@ public sealed class DefaultsAndOverrides
     public bool defaultCollocationOptimization;
     public Ice.EndpointSelectionType defaultEndpointSelection;
     public TimeSpan defaultLocatorCacheTimeout;
-    public TimeSpan defaultInvocationTimeout;
+    public int defaultInvocationTimeoutMs;
     public Ice.EncodingVersion defaultEncoding;
     public Ice.FormatType defaultFormat;
 

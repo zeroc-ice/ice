@@ -235,7 +235,10 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
-    /// <param name="newTimeout">The new invocation timeout.</param>
+    /// <param name="newTimeout">The new invocation timeout. The timeout is rounded down to the nearest millisecond.
+    /// </param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="newTimeout"/> is not between
+    /// <see cref="int.MinValue"/> and <see cref="int.MaxValue"/> milliseconds.</exception>
     ObjectPrx ice_invocationTimeout(TimeSpan newTimeout);
 
     /// <summary>
@@ -1029,31 +1032,43 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Gets the invocation timeout of this proxy.
     /// </summary>
     /// <returns>The invocation timeout value.</returns>
-    public TimeSpan ice_getInvocationTimeout() => _reference.getInvocationTimeout();
+    public TimeSpan ice_getInvocationTimeout() => TimeSpan.FromMilliseconds(_reference.getInvocationTimeoutMs());
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
     /// <param name="newTimeout">The new invocation timeout (in milliseconds).</param>
     /// <returns>The new proxy with the specified invocation timeout.</returns>
-    public ObjectPrx ice_invocationTimeout(int newTimeout) =>
-        ice_invocationTimeout(TimeSpan.FromMilliseconds(newTimeout));
-
-    /// <summary>
-    /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
-    /// </summary>
-    /// <param name="newTimeout">The new invocation timeout.</param>
-    /// <returns>The new proxy with the specified invocation timeout.</returns>
-    public ObjectPrx ice_invocationTimeout(TimeSpan newTimeout)
+    public ObjectPrx ice_invocationTimeout(int newTimeout)
     {
-        if (newTimeout == _reference.getInvocationTimeout())
+        if (newTimeout == _reference.getInvocationTimeoutMs())
         {
             return this;
         }
         else
         {
-            return iceNewInstance(_reference.changeInvocationTimeout(newTimeout));
+            return iceNewInstance(_reference.changeInvocationTimeoutMs(newTimeout));
         }
+    }
+
+    /// <summary>
+    /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
+    /// </summary>
+    /// <param name="newTimeout">The new invocation timeout. The timeout is rounded down to the nearest millisecond.
+    /// </param>
+    /// <returns>The new proxy with the specified invocation timeout.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="newTimeout"/> is not between
+    /// <see cref="int.MinValue"/> and <see cref="int.MaxValue"/> milliseconds.</exception>
+    public ObjectPrx ice_invocationTimeout(TimeSpan newTimeout)
+    {
+        if (newTimeout > TimeSpan.FromMilliseconds(int.MaxValue) ||
+            newTimeout < TimeSpan.FromMilliseconds(int.MinValue))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(newTimeout),
+                $"The invocation timeout must be between {int.MinValue} and {int.MaxValue} milliseconds.");
+        }
+        return ice_invocationTimeout((int)newTimeout.TotalMilliseconds);
     }
 
     /// <summary>

@@ -66,8 +66,8 @@ public abstract class Reference : IEquatable<Reference>
 
     public Dictionary<string, string> getContext() => _context;
 
-    public TimeSpan
-    getInvocationTimeout() => _invocationTimeout;
+    public int
+    getInvocationTimeoutMs() => _invocationTimeoutMs;
 
     public bool?
     getCompress() => _compress;
@@ -138,10 +138,10 @@ public abstract class Reference : IEquatable<Reference>
         return r;
     }
 
-    public Reference changeInvocationTimeout(TimeSpan newTimeout)
+    public Reference changeInvocationTimeoutMs(int newTimeout)
     {
         Reference r = _instance.referenceFactory().copy(this);
-        r._invocationTimeout = newTimeout;
+        r._invocationTimeoutMs = newTimeout;
         return r;
     }
 
@@ -350,7 +350,7 @@ public abstract class Reference : IEquatable<Reference>
         hash.Add(_facet);
         hash.Add(_compress);
         // We don't hash protocol and encoding; they are usually "1.0" and "1.1" respectively.
-        hash.Add(_invocationTimeout);
+        hash.Add(_invocationTimeoutMs);
         return hash.ToHashCode();
     }
 
@@ -366,7 +366,7 @@ public abstract class Reference : IEquatable<Reference>
             _compress == other._compress &&
             _protocol == other._protocol &&
             _encoding == other._encoding &&
-            _invocationTimeout == other._invocationTimeout;
+            _invocationTimeoutMs == other._invocationTimeoutMs;
     }
 
     public override bool Equals(object obj) => Equals(obj as Reference);
@@ -384,7 +384,7 @@ public abstract class Reference : IEquatable<Reference>
     private string _facet;
     private Ice.ProtocolVersion _protocol;
     private Ice.EncodingVersion _encoding;
-    private TimeSpan _invocationTimeout;
+    private int _invocationTimeoutMs;
     private bool? _compress;
 
     protected Reference(
@@ -396,7 +396,7 @@ public abstract class Reference : IEquatable<Reference>
         bool? compress,
         Ice.ProtocolVersion protocol,
         Ice.EncodingVersion encoding,
-        TimeSpan invocationTimeout,
+        int invocationTimeoutMs,
         Dictionary<string, string> context)
     {
         // Validate string arguments.
@@ -410,7 +410,7 @@ public abstract class Reference : IEquatable<Reference>
         _facet = facet;
         _protocol = protocol;
         _encoding = encoding;
-        _invocationTimeout = invocationTimeout;
+        _invocationTimeoutMs = invocationTimeoutMs;
         _compress = compress;
     }
 
@@ -431,7 +431,7 @@ public class FixedReference : Reference
         Ice.ProtocolVersion protocol,
         Ice.EncodingVersion encoding,
         Ice.ConnectionI connection,
-        TimeSpan invocationTimeout,
+        int invocationTimeoutMs,
         Dictionary<string, string> context)
     : base(
         instance,
@@ -442,7 +442,7 @@ public class FixedReference : Reference
         compress,
         protocol,
         encoding,
-        invocationTimeout,
+        invocationTimeoutMs,
         context) =>
         _fixedConnection = connection;
 
@@ -707,7 +707,7 @@ public class RoutableReference : Reference
             getProtocol(),
             getEncoding(),
             connection,
-            getInvocationTimeout(),
+            getInvocationTimeoutMs(),
             getContext());
     }
 
@@ -795,7 +795,7 @@ public class RoutableReference : Reference
             [prefix + ".LocatorCacheTimeout"] =
                 _locatorCacheTimeout.TotalSeconds.ToString(CultureInfo.InvariantCulture),
             [prefix + ".InvocationTimeout"] =
-                getInvocationTimeout().TotalMilliseconds.ToString(CultureInfo.InvariantCulture)
+                getInvocationTimeoutMs().ToString(CultureInfo.InvariantCulture)
         };
 
         if (_routerInfo != null)
@@ -1028,7 +1028,7 @@ public class RoutableReference : Reference
         bool cacheConnection,
         Ice.EndpointSelectionType endpointSelection,
         TimeSpan locatorCacheTimeout,
-        TimeSpan invocationTimeout,
+        int invocationTimeoutMs,
         Dictionary<string, string> context)
     : base(
         instance,
@@ -1039,7 +1039,7 @@ public class RoutableReference : Reference
         compress,
         protocol,
         encoding,
-        invocationTimeout,
+        invocationTimeoutMs,
         context)
     {
         _endpoints = endpoints;

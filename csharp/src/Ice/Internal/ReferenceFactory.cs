@@ -68,7 +68,7 @@ internal class ReferenceFactory
             Protocol.Protocol_1_0,
             _instance.defaultsAndOverrides().defaultEncoding,
             connection,
-            TimeSpan.FromMilliseconds(-1),
+            invocationTimeoutMs: -1,
             null);
     }
 
@@ -659,7 +659,7 @@ internal class ReferenceFactory
         bool cacheConnection = true;
         Ice.EndpointSelectionType endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
         TimeSpan locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
-        TimeSpan invocationTimeout = defaultsAndOverrides.defaultInvocationTimeout;
+        int invocationTimeoutMs = defaultsAndOverrides.defaultInvocationTimeoutMs;
         Dictionary<string, string> context = null;
 
         //
@@ -734,8 +734,7 @@ internal class ReferenceFactory
                 properties.getPropertyAsIntWithDefault(property, (int)locatorCacheTimeout.TotalSeconds));
 
             property = propertyPrefix + ".InvocationTimeout";
-            invocationTimeout = TimeSpan.FromMilliseconds(
-                properties.getPropertyAsIntWithDefault(property, (int)invocationTimeout.TotalMilliseconds));
+            invocationTimeoutMs = properties.getPropertyAsIntWithDefault(property, invocationTimeoutMs);
 
             property = propertyPrefix + ".Context.";
             Dictionary<string, string> contexts = properties.getPropertiesForPrefix(property);
@@ -769,7 +768,7 @@ internal class ReferenceFactory
             cacheConnection,
             endpointSelection,
             locatorCacheTimeout,
-            invocationTimeout,
+            invocationTimeoutMs,
             context);
     }
 
