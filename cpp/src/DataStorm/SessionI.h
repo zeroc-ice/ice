@@ -196,7 +196,7 @@ namespace DataStormI
         class TopicSubscribers
         {
         public:
-            // Add the give topic as a subscriber, if a subscription already exists, update the session instance id.
+            // Add the given topic as a subscriber, if a subscription already exists, update the session instance id.
             void addSubscriber(TopicI* topic, int sessionInstanceId)
             {
                 _sessionInstanceId = sessionInstanceId;

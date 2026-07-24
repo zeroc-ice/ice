@@ -17,6 +17,10 @@ namespace Slice::Swift
     std::string
     swiftLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 
+    /// Returns a doc-comment reference to a symbol of the Ice module: a DocC symbol link when the generated code is
+    /// part of the Ice module itself, and the qualified name in monospace formatting otherwise.
+    std::string iceDocLink(const std::string& name, const std::string& swiftModule);
+
     void validateSwiftMetadata(const UnitPtr& unit);
 
     // Swift only allows 1 package per file, so this function checks that if there are multiple top-level-modules

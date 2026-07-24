@@ -614,7 +614,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         {
             //
             // Remove the cached references of well-known objects for which we tried
-            // to resolved the endpoints if these endpoints are empty.
+            // to resolve the endpoints if these endpoints are empty.
             //
             foreach (Reference r in wellKnownRefs)
             {

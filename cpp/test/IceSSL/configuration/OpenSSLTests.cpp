@@ -181,7 +181,7 @@ clientRejectsServerUsingCAFile(Test::TestHelper* helper, const string& testDir)
     SSL_CTX_use_PrivateKey_file(serverSSLContext, serverKeyFile.c_str(), SSL_FILETYPE_PEM);
     SSL_CTX_set_default_passwd_cb(serverSSLContext, passwordCallback);
 
-    // The CAs used by the client doesn't trust the server certificate.
+    // The CAs used by the client don't trust the server certificate.
     const string clientCAFile = testDir + "/ca2/ca2_cert.pem";
     SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_client_method());
     SSL_CTX_load_verify_file(clientSSLContext, clientCAFile.c_str());
@@ -335,7 +335,7 @@ serverValidatesClientUsingCAFile(Test::TestHelper* helper, const string& testDir
 {
     cout << "server validates client certificate using a CAFile... " << flush;
 
-    // The CA used by the server trust the client certificate.
+    // The CA used by the server trusts the client certificate.
     const string serverCertFile = testDir + "/ca1/server_cert.pem";
     const string serverKeyFile = testDir + "/ca1/server_key.pem";
     const string serverCAFile = testDir + "/ca1/ca1_cert.pem";
@@ -458,7 +458,7 @@ serverRejectsClientUsingCAFile(Test::TestHelper* helper, const string& testDir)
 {
     cout << "server rejects client certificate using a CAFile... " << flush;
 
-    // The CAs used by the server doesn't trust the certificate used by the client.
+    // The CAs used by the server don't trust the certificate used by the client.
     const string serverCertFile = testDir + "/ca1/server_cert.pem";
     const string serverKeyFile = testDir + "/ca1/server_key.pem";
     const string serverCAFile = testDir + "/ca2/ca2_cert.pem";

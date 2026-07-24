@@ -208,7 +208,7 @@ def getSliceDir() -> str | None:
         The absolute path of the directory containing the Ice Slice files, or ``None`` if the directory cannot be found.
     """
 
-    # Get the parent of the directory containing this file (__init__.py).
+    # Get the parent of the directory containing this file (Util.py).
     pyHome = os.path.join(os.path.dirname(__file__), "..")
 
     # Detect setup.py installation in site-packages. The slice files live one level above this file.

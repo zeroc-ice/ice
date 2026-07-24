@@ -93,7 +93,7 @@ namespace
         return SCH_CREDENTIALS{
             .dwVersion = SCH_CREDENTIALS_VERSION,
             // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with Java certificate validation and
-            // Schannel doesn't seems to send the root certificate either way.
+            // Schannel doesn't seem to send the root certificate either way.
             .dwFlags = SCH_CRED_NO_SYSTEM_MAPPER | SCH_USE_STRONG_CRYPTO};
     }
 }
@@ -1105,8 +1105,8 @@ Schannel::TransceiverI::TransceiverI(
                 false);       // Whether or not revocation checks only uses cached information.
         };
     }
-    // If the user provides a validation callback is up to the callback to validate the certificate chain.
-    // If the user doesn't set the trusted root certificates, we use Schannel default behavior, with uses the system
+    // If the user provides a validation callback, it is up to the callback to validate the certificate chain.
+    // If the user doesn't set the trusted root certificates, we use Schannel default behavior, which uses the system
     // trusted root certificates.
 }
 

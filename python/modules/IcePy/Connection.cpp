@@ -26,7 +26,7 @@ namespace
 
 #ifndef _WIN64
     //
-    // COMPILERFIX: With Windows 64 the templates bellow will produce trucation warnings,
+    // COMPILERFIX: With Windows 64 the templates below will produce truncation warnings,
     // we ifdef them out as they are never used with Windows 64.
     //
     template<> struct Hasher<4, 4>
@@ -46,7 +46,7 @@ namespace
         {
             auto v = reinterpret_cast<intptr_t>(ptr);
 
-            // Eliminate lower 4 bits as objecs are usually aligned on 16 bytes boundaries,
+            // Eliminate lower 4 bits as objects are usually aligned on 16 bytes boundaries,
             // then eliminate upper bits
             return (v >> 4) & 0xFFFFFFFF;
         }

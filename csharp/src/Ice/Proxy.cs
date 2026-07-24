@@ -423,7 +423,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
 
     /// <summary>
     /// Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
-    /// the given connection.
+    /// to the given connection.
     /// </summary>
     /// <param name="connection">The fixed proxy connection.</param>
     /// <returns>A fixed proxy bound to the given connection.</returns>
@@ -522,7 +522,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
 
     /// <summary>
     /// Returns whether this proxy equals the passed object. Two proxies are equal if they are equal in all
-    /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
+    /// respects, that is, if their object identity, endpoints, timeout settings, and so on are all equal.
     /// </summary>
     /// <param name="other">The proxy to compare this proxy with.</param>
     /// <returns><see langword="true"/> if this proxy is equal to <paramref name="other"/>; otherwise,
@@ -1373,7 +1373,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
 
     /// <summary>
     /// Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
-    /// the given connection.
+    /// to the given connection.
     /// </summary>
     /// <param name="connection">The fixed proxy connection.</param>
     /// <returns>A fixed proxy bound to the given connection.</returns>
@@ -1455,7 +1455,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     public Connection? ice_getCachedConnection() => _requestHandlerCache.cachedConnection;
 
     /// <summary>
-    /// Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
+    /// Flushes any pending batched requests for this proxy. The call blocks until the flush is complete.
     /// </summary>
     public void ice_flushBatchRequests()
     {

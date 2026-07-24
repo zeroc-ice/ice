@@ -656,7 +656,7 @@ Subscriber::queue(bool forwarded, EventDataSeq events)
 {
     lock_guard lock(_mutex);
 
-    // If this is a link subscriber if the set of events were
+    // If this is a link subscriber and the set of events were
     // forwarded from another IceStorm instance then do not queue the
     // events.
     if (forwarded && _rec.link)
@@ -863,8 +863,8 @@ Subscriber::error(bool dec, exception_ptr e)
 
     //
     // A twoway subscriber can queue multiple send events and
-    // therefore its possible to get multiple error'd replies. Ignore
-    // replies if we're retrying and its not yet time to process the
+    // therefore it's possible to get multiple error'd replies. Ignore
+    // replies if we're retrying and it's not yet time to process the
     // next request.
     //
     auto now = std::chrono::steady_clock::now();

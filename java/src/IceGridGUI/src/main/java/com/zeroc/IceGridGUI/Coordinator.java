@@ -1247,7 +1247,7 @@ public class Coordinator {
         _liveApplications.clear();
 
         //
-        // Close al graphs
+        // Close all graphs
         //
         List<IGraphView> views = new ArrayList<>(_graphViews);
         for (IGraphView v : views) {
@@ -1364,7 +1364,7 @@ public class Coordinator {
                     //
                     // Compare the server certificate with a previous accepted certificate if
                     // any, the transient certificate is reset by Coordinator.login, and is only
-                    // useful in case the connection is retry, because a timeout or ACM closed it
+                    // useful in case the connection is retried, because a timeout or ACM closed it
                     // while the certificate verifier was waiting for the user decision.
                     //
                     // This avoids to show the dialog again if the user already granted the cert for
@@ -2814,7 +2814,7 @@ public class Coordinator {
                                 (String)
                                     JOptionPane.showInputDialog(
                                         _mainFrame,
-                                        "Which application do you to display",
+                                        "Which application do you want to display",
                                         "Show details",
                                         JOptionPane.QUESTION_MESSAGE,
                                         null,
@@ -3528,7 +3528,7 @@ public class Coordinator {
     private MainPane _mainPane;
 
     //
-    // Keep tracks of serial number when viewing/editing application definitions (not used for
+    // Keep track of serial number when viewing/editing application definitions (not used for
     // displaying live deployment)
     //
     private int _latestSerial = -1;

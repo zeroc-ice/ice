@@ -99,7 +99,7 @@ public class XMLWriter {
             }
         }
         if (hasReserved) {
-            // First convert all '&' to '&amp';
+            // First convert all '&' to '&amp;'.
             if (v.indexOf('&') != -1) {
                 v = v.replaceAll("&", "&amp;");
             }

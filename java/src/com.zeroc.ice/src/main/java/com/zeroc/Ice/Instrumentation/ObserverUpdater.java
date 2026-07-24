@@ -11,7 +11,7 @@ package com.zeroc.Ice.Instrumentation;
  */
 public interface ObserverUpdater {
     /**
-     * Update connection observers associated with each of the Ice connection from the communicator
+     * Update connection observers associated with each of the Ice connections from the communicator
      * and its object adapters. When called, this method goes through all the connections and for
      * each connection {@link CommunicatorObserver#getConnectionObserver} is called. The
      * implementation of getConnectionObserver has the possibility to return an updated observer if necessary.
@@ -19,7 +19,7 @@ public interface ObserverUpdater {
     void updateConnectionObservers();
 
     /**
-     * Update thread observers associated with each of the Ice thread from the communicator and its
+     * Update thread observers associated with each of the Ice threads from the communicator and its
      * object adapters. When called, this method goes through all the threads and for each thread
      * {@link CommunicatorObserver#getThreadObserver} is called. The implementation of
      * getThreadObserver has the possibility to return an updated observer if necessary.

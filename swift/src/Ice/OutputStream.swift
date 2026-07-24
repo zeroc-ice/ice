@@ -696,7 +696,7 @@ private final class EncapsEncoder10: EncapsEncoder {
     }
 
     func writeException(v: UserException) {
-        // User exception with the 1.0 encoding start with a boolean
+        // User exception with the 1.0 encoding starts with a boolean
         // flag that indicates whether or not the exception uses classes.
         //
         // This allows reading the pending instances even if some part of
@@ -884,7 +884,7 @@ private final class EncapsEncoder11: EncapsEncoder {
         os.write(UInt8(0))  // Placeholder for the slice flags
 
         // For instance slices, encode the flag and the type ID either as a
-        // string or index. For exception slices, always encode the type ID a string.
+        // string or index. For exception slices, always encode the type ID as a string.
         if current.sliceType == SliceType.ValueSlice {
             // Encode the type ID (only in the first slice for the compact encoding).
             if encaps.format == .slicedFormat || current.firstSlice {
@@ -992,7 +992,7 @@ private final class EncapsEncoder11: EncapsEncoder {
     }
 
     func writeInstance(_ v: Value) {
-        // If the instance was already marshaled, just write it's ID.
+        // If the instance was already marshaled, just write its ID.
         if let p = marshaledMap[ValueHolder(v)] {
             os.write(size: p)
             return

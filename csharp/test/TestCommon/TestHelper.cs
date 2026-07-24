@@ -17,7 +17,7 @@ public abstract class TestHelper
 
     static TestHelper()
     {
-        // Replace the default trace listener that is responsible of displaying the retry/abort dialog
+        // Replace the default trace listener that is responsible for displaying the retry/abort dialog
         // with our custom trace listener that always aborts upon failure.
         // see: https://docs.microsoft.com/en-us/dotnet/api/system.diagnostics.defaulttracelistener?view=net-5.0#remarks
         Trace.Listeners.Clear();

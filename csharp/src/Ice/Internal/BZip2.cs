@@ -198,7 +198,7 @@ public static class BZip2
         int decompressedSize = buf.b.getInt();
         if (decompressedSize <= headerSize)
         {
-            throw new MarshalException("compressed size <= header size");
+            throw new MarshalException("decompressed size <= header size");
         }
         if (decompressedSize > messageSizeMax)
         {

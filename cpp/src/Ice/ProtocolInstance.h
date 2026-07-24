@@ -59,7 +59,7 @@ namespace IceInternal
         ProtocolInstance(const InstancePtr&, std::int16_t, std::string, bool);
         friend class Instance;
         // Use a weak pointer to avoid circular references. The communicator owns the endpoint factory, which in
-        // turn own this protocol instance.
+        // turn owns this protocol instance.
         const std::weak_ptr<Instance> _instance;
         const int _traceLevel;
         const std::string _traceCategory;

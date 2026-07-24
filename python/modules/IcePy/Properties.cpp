@@ -69,7 +69,7 @@ propertiesInit(PropertiesObject* self, PyObject* args, PyObject* /*kwds*/)
         }
         else if (defaultsObj != Py_None)
         {
-            PyErr_Format(PyExc_ValueError, "defaults must be None or a Ice.Properties");
+            PyErr_Format(PyExc_ValueError, "defaults must be None or an Ice.Properties");
             return -1;
         }
     }

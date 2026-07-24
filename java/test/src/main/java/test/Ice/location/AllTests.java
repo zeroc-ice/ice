@@ -493,7 +493,7 @@ public class AllTests {
                         Thread.sleep(10);
                     }
                 } catch (LocalException ex) {
-                    // Expected to fail once they endpoints have been updated in the background.
+                    // Expected to fail once the endpoints have been updated in the background.
                 }
 
                 try {
@@ -504,7 +504,7 @@ public class AllTests {
                         Thread.sleep(10);
                     }
                 } catch (LocalException ex) {
-                    // Expected to fail once they endpoints have been updated in the background.
+                    // Expected to fail once the endpoints have been updated in the background.
                 }
             }
         }
@@ -583,18 +583,18 @@ public class AllTests {
         id.name = UUID.randomUUID().toString();
         adapter.add(new HelloI(), id);
 
-        // Ensure that calls on the well-known proxy is collocated.
+        // Ensure that calls on the well-known proxy are collocated.
         HelloPrx helloPrx =
             HelloPrx.checkedCast(
                 communicator.stringToProxy(
                     "\"" + communicator.identityToString(id) + "\""));
         test(helloPrx.ice_getConnection() == null);
 
-        // Ensure that calls on the indirect proxy (with adapter ID) is collocated
+        // Ensure that calls on the indirect proxy (with adapter ID) are collocated
         helloPrx = HelloPrx.checkedCast(adapter.createIndirectProxy(id));
         test(helloPrx.ice_getConnection() == null);
 
-        // Ensure that calls on the direct proxy is collocated
+        // Ensure that calls on the direct proxy are collocated
         helloPrx = HelloPrx.checkedCast(adapter.createDirectProxy(id));
         test(helloPrx.ice_getConnection() == null);
 

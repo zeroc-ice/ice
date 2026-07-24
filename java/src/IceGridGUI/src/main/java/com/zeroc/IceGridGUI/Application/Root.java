@@ -729,7 +729,7 @@ public class Root extends ListTreeNode {
             JOptionPane.showMessageDialog(
                 _coordinator.getMainFrame(),
                 e.toString(),
-                "Bad Application Descriptor: Unable reload Application",
+                "Bad Application Descriptor: Unable to reload Application",
                 JOptionPane.ERROR_MESSAGE);
             return;
         }

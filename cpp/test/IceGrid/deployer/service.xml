@@ -2,7 +2,7 @@
 
   <service-template id="ServiceTemplate">
     <parameter name="name"/>
-    <parameter name="NodeVarOverridedByParam"/>
+    <parameter name="NodeVarOverriddenByParam"/>
 
     <service name="${name}" entry="TestService:create">
 
@@ -29,8 +29,8 @@
 
       <include file="varproperties.xml"/>
 
-      <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
-      <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
+      <property name="AppVarOverriddenByParamProp" value="${AppVarOverriddenByParam}"/>
+      <property name="NodeVarOverriddenByParamProp" value="${NodeVarOverriddenByParam}"/>
 
     </service>
   </service-template>

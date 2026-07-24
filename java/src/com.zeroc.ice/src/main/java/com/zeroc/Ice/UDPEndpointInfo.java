@@ -3,7 +3,7 @@
 package com.zeroc.Ice;
 
 /**
- * Provides access to a UDP endpoint information.
+ * Provides access to a UDP endpoint's information.
  *
  * @see Endpoint
  */

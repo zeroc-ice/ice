@@ -74,7 +74,7 @@ allTests(Test::TestHelper* helper)
     if (communicator->getProperties()->getIcePropertyAsInt("Ice.Override.Compress") == 0)
     {
         //
-        // Only run this test if compression is disabled, the test expect fixed message size
+        // Only run this test if compression is disabled, the test expects fixed message size
         // to be sent over the wire.
         //
 

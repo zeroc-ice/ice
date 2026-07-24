@@ -175,7 +175,7 @@ class ReplicaGroupEditor extends Editor {
             "<html>IceGrid returns the endpoints of "
                 + "up to <i>number</i> adapters<br>"
                 + "when resolving a replica group ID.<br>"
-                + "Enter 0 to returns the endpoints of all adapters.</html>");
+                + "Enter 0 to return the endpoints of all adapters.</html>");
 
         _loadSample.setEditable(true);
         JTextField loadSampleTextField = (JTextField) _loadSample.getEditor().getEditorComponent();

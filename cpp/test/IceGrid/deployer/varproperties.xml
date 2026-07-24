@@ -2,7 +2,7 @@
   <property name="AppVarProp" value="${AppVar}"/>
   <property name="NodeVarProp" value="${NodeVar}"/>
   <property name="RecursiveAppVarProp" value="${RecursiveAppVar}"/>
-  <property name="AppVarOverridedProp" value="${AppVarOverrided}"/>
+  <property name="AppVarOverriddenProp" value="${AppVarOverridden}"/>
   <property name="AppVarDefinedInNodeProp" value="${AppVarDefinedInNode}"/>
   <property name="EscapedAppVarProp" value="${EscapedAppVar}"/>
   <property name="RecursiveEscapedAppVarProp" value="${RecursiveEscapedAppVar}"/>

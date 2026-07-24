@@ -491,7 +491,7 @@ public class AllTests : global::Test.AllTests
             }
             catch (Ice.LocalException)
             {
-                // Expected to fail once they endpoints have been updated in the background.
+                // Expected to fail once the endpoints have been updated in the background.
             }
             try
             {
@@ -503,7 +503,7 @@ public class AllTests : global::Test.AllTests
             }
             catch (Ice.LocalException)
             {
-                // Expected to fail once they endpoints have been updated in the background.
+                // Expected to fail once the endpoints have been updated in the background.
             }
         }
         output.WriteLine("ok");
@@ -583,16 +583,16 @@ public class AllTests : global::Test.AllTests
         adapter.add(new HelloI(), id);
         adapter.activate();
 
-        // Ensure that calls on the well-known proxy is collocated.
+        // Ensure that calls on the well-known proxy are collocated.
         Test.HelloPrx helloPrx = Test.HelloPrxHelper.checkedCast(
             communicator.stringToProxy("\"" + communicator.identityToString(id) + "\""));
         test(helloPrx.ice_getConnection() == null);
 
-        // Ensure that calls on the indirect proxy (with adapter ID) is collocated
+        // Ensure that calls on the indirect proxy (with adapter ID) are collocated
         helloPrx = Test.HelloPrxHelper.checkedCast(adapter.createIndirectProxy(id));
         test(helloPrx.ice_getConnection() == null);
 
-        // Ensure that calls on the direct proxy is collocated
+        // Ensure that calls on the direct proxy are collocated
         helloPrx = Test.HelloPrxHelper.checkedCast(adapter.createDirectProxy(id));
         test(helloPrx.ice_getConnection() == null);
 

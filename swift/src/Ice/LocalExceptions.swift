@@ -20,7 +20,7 @@ public class DispatchException: LocalException, @unchecked Sendable {
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    /// - Precondition: `replyStatus` must be greater than `ReplyStatus.userException`.
+    /// - Precondition: `replyStatus` must be greater than ``ReplyStatus/userException``.
     public init(
         replyStatus: UInt8, message: String? = nil, file: String = #fileID, line: Int32 = #line
     ) {
@@ -172,8 +172,8 @@ public final class OperationNotExistException: RequestFailedException, @unchecke
     }
 }
 
-/// The exception that is thrown when a dispatch failed with an exception that is not a `LocalException` or a
-/// `UserException`.
+/// The exception that is thrown when a dispatch failed with an exception that is not a ``LocalException`` or a
+/// ``UserException``.
 public class UnknownException: DispatchException, @unchecked Sendable {
     @available(*, deprecated, renamed: "message")
     public var reason: String { message }
@@ -187,14 +187,14 @@ public class UnknownException: DispatchException, @unchecked Sendable {
     }
 }
 
-/// The exception that is thrown when a dispatch failed with a `LocalException` that is not a `DispatchException`.
+/// The exception that is thrown when a dispatch failed with a ``LocalException`` that is not a ``DispatchException``.
 public final class UnknownLocalException: UnknownException, @unchecked Sendable {
     public required init(_ message: String, file: String = #fileID, line: Int32 = #line) {
         super.init(replyStatus: .unknownLocalException, message: message, file: file, line: line)
     }
 }
 
-/// The exception that is thrown when a client receives a `UserException` that was not declared in the operation's
+/// The exception that is thrown when a client receives a ``UserException`` that was not declared in the operation's
 /// exception specification.
 public final class UnknownUserException: UnknownException, @unchecked Sendable {
     public required init(_ message: String, file: String = #fileID, line: Int32 = #line) {

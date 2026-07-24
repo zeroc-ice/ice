@@ -1829,7 +1829,7 @@ YY_RULE_SETUP
 }
 	YY_BREAK
 /* Matches the end of a double-quoted string literal, but only while scanning a string literal. Flex always prefers
-   * to match the longest string it can, so quotes preceeded with a literal '\' will match the rules above this one. */
+   * to match the longest string it can, so quotes preceded with a literal '\' will match the rules above this one. */
 case 18:
 YY_RULE_SETUP
 #line 261 "src/Slice/Scanner.l"
@@ -2233,7 +2233,7 @@ YY_RULE_SETUP
     return BAD_TOKEN;
 }
 	YY_BREAK
-/* Matches any valid character (except newlines) not matched by another rule and fowards it to the parser.
+/* Matches any valid character (except newlines) not matched by another rule and forwards it to the parser.
    * This is the lowest priority rule in the scanner, and is only active while not in a sub-scanner. */
 case 50:
 YY_RULE_SETUP
@@ -3390,7 +3390,7 @@ namespace
         keywordMap["Value"] = ICE_VALUE;
     }
 
-    // This function is always called directly after a match has been made, but directly before it's action block is run.
+    // This function is always called directly after a match has been made, but directly before its action block is run.
     void preAction()
     {
         yycolno += yyleng;

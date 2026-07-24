@@ -34,7 +34,7 @@ class Server: TestHelperI, @unchecked Sendable {
 
         var endpoint = "udp -h "
         //
-        // Use loopback to prevent other machines to answer.
+        // Use loopback to prevent other machines from answering.
         //
         if properties.getIceProperty("Ice.IPv6") == "1" {
             endpoint += "\"ff15::1:1\""
