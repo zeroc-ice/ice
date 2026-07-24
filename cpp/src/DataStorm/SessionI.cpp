@@ -461,18 +461,19 @@ SessionI::attachElementsAck(int64_t topicId, ElementSpecAckSeq elements, const C
             }
 
             LongSeq removedIds;
-            auto samples = topic->attachElementsAck(topicId, elements, shared_from_this(), *_session, now, removedIds);
-            if (!samples.empty())
+            auto initializationBatches =
+                topic->attachElementsAck(topicId, elements, shared_from_this(), *_session, now, removedIds);
+            if (!initializationBatches.empty())
             {
                 // Collapse the per-key batches into one addressed DataSamples per writer-reader pair before sending.
-                samples = mergeInitSamples(std::move(samples));
+                initializationBatches = mergeInitSamples(std::move(initializationBatches));
                 if (_traceLevels->session > 2)
                 {
                     Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-                    out << _id << ": initializing elements '[" << samples << "]@" << topicId << "' on topic '" << topic
-                        << "'";
+                    out << _id << ": initializing elements '[" << initializationBatches << "]@" << topicId
+                        << "' on topic '" << topic << "'";
                 }
-                _session->initSamplesAsync(topic->getId(), samples, nullptr);
+                _session->initSamplesAsync(topic->getId(), initializationBatches, nullptr);
             }
 
             if (!removedIds.empty())
@@ -524,7 +525,7 @@ SessionI::detachElements(int64_t id, LongSeq elements, const Current&)
 }
 
 void
-SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Current&)
+SessionI::initSamples(int64_t topicId, DataSamplesSeq initializationBatches, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -539,13 +540,13 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Current&
     // batch to exactly that reader. This delivers every key's samples to a multi-key or any-key reader in a single
     // merged batch, and tells two readers of one writer apart by their element id. An empty batch still marks its
     // reader initialized, enabling the reader's live sample delivery.
-    for (const auto& samples : samplesSeq)
+    for (const auto& initializationBatch : initializationBatches)
     {
         runWithTopics(
             topicId,
             [&](TopicI* topic, TopicSubscriber& subscriber)
             {
-                ElementSubscribers* elementSubscribers = subscriber.get(samples.id);
+                ElementSubscribers* elementSubscribers = subscriber.get(initializationBatch.id);
                 if (!elementSubscribers)
                 {
                     return;
@@ -557,7 +558,7 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Current&
                 auto q = find_if(
                     subscribers.begin(),
                     subscribers.end(),
-                    [&](const auto& s) { return s.first->getId() == samples.peerId; });
+                    [&](const auto& s) { return s.first->getId() == initializationBatch.peerId; });
                 if (q == subscribers.end() || q->second.initialized)
                 {
                     return;
@@ -567,10 +568,11 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Current&
                 if (_traceLevels->session > 2)
                 {
                     Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-                    out << _id << ": initializing samples from 'e" << samples.id << "' on '" << element << "'";
+                    out << _id << ": initializing samples from 'e" << initializationBatch.id << "' on '" << element
+                        << "'";
                 }
 
-                if (samples.samples.empty())
+                if (initializationBatch.samples.empty())
                 {
                     // An empty batch carries no history; mark the reader initialized so its live samples can flow.
                     elementSubscriber.initialized = true;
@@ -578,9 +580,9 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Current&
                 }
 
                 vector<shared_ptr<Sample>> samplesI;
-                samplesI.reserve(samples.samples.size());
+                samplesI.reserve(initializationBatch.samples.size());
                 const auto& sampleFactory = topic->getSampleFactory();
-                for (const auto& sample : samples.samples)
+                for (const auto& sample : initializationBatch.samples)
                 {
                     shared_ptr<Key> key;
                     if (sample.keyValue.empty())
@@ -608,7 +610,13 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Current&
                 // construction above throws, the reader stays uninitialized so a later redelivery can initialize it.
                 elementSubscriber.initialized = true;
                 elementSubscriber.lastId = samplesI.back()->id;
-                element->initSamples(samplesI, topicId, samples.id, elementSubscribers->priority, now, samples.id < 0);
+                element->initSamples(
+                    samplesI,
+                    topicId,
+                    initializationBatch.id,
+                    elementSubscribers->priority,
+                    now,
+                    initializationBatch.id < 0);
             });
     }
 }

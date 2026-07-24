@@ -447,7 +447,7 @@ TopicI::attachElementsAck(
     const chrono::time_point<chrono::system_clock>& now,
     LongSeq& removedIds)
 {
-    DataSamplesSeq samples;
+    DataSamplesSeq batches;
     vector<function<void()>> initCallbacks;
     for (const auto& spec : elements)
     {
@@ -484,13 +484,13 @@ TopicI::attachElementsAck(
                             function<void()> initCb;
                             if (spec.id > 0) // Key
                             {
-                                initCb = dataElement
-                                             ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, samples);
+                                initCb =
+                                    dataElement->attach(topicId, spec.id, key, nullptr, session, prx, data, now, batches);
                             }
                             else if (filter->match(key)) // Filter
                             {
-                                initCb = dataElement
-                                             ->attach(topicId, spec.id, key, filter, session, prx, data, now, samples);
+                                initCb =
+                                    dataElement->attach(topicId, spec.id, key, filter, session, prx, data, now, batches);
                             }
 
                             if (initCb)
@@ -547,14 +547,13 @@ TopicI::attachElementsAck(
                             function<void()> initCb;
                             if (spec.id < 0) // Filter
                             {
-                                initCb =
-                                    dataElement
-                                        ->attach(topicId, spec.id, nullptr, filter, session, prx, data, now, samples);
+                                initCb = dataElement
+                                             ->attach(topicId, spec.id, nullptr, filter, session, prx, data, now, batches);
                             }
                             else if (filter->match(key))
                             {
-                                initCb = dataElement
-                                             ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, samples);
+                                initCb =
+                                    dataElement->attach(topicId, spec.id, key, nullptr, session, prx, data, now, batches);
                             }
 
                             if (initCb)
@@ -587,7 +586,7 @@ TopicI::attachElementsAck(
     {
         initCb();
     }
-    return samples;
+    return batches;
 }
 
 void
