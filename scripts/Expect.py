@@ -20,11 +20,7 @@ from typing import Literal, Protocol, TextIO, overload
 __all__ = ["Expect", "EOF", "TIMEOUT"]
 
 win32 = sys.platform == "win32"
-
-# This guard, and the one in terminateProcess below, compare sys.platform directly instead of testing
-# win32: type checkers only narrow the platform for the literal comparison, and ctypes.windll exists
-# on Windows only. Everywhere else, use win32.
-if sys.platform == "win32":
+if win32:
     import ctypes
 
 
@@ -121,8 +117,7 @@ def killProcess(p: subprocess.Popen[bytes]) -> None:
 
 
 def terminateProcess(p: subprocess.Popen[bytes], hasInterruptSupport: bool = True) -> None:
-    # sys.platform rather than win32, so ctypes.windll below type checks; see the note on the import.
-    if sys.platform == "win32":
+    if win32:
         #
         # Signals under windows are all turned into CTRL_BREAK_EVENT, except with Java since
         # CTRL_BREAK_EVENT generates a stack trace. We don't use taskkill here because it
@@ -130,7 +125,10 @@ def terminateProcess(p: subprocess.Popen[bytes], hasInterruptSupport: bool = Tru
         #
         if hasInterruptSupport:
             try:
-                ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, p.pid)  # 1 is CTRL_BREAK_EVENT
+                # ctypes is imported, and windll only declared, on Windows. win32 is a plain bool,
+                # so it doesn't narrow sys.platform: the type checker sees ctypes as possibly unbound
+                # and windll as unknown. 1 is CTRL_BREAK_EVENT.
+                ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, p.pid)  # pyright: ignore
             except Exception:
                 traceback.print_exc(file=sys.stdout)
                 taskkill("/F /T /PID {0}".format(p.pid))
