@@ -9,12 +9,20 @@ inputs:
     description: "Flags to pass to the test"
     default: ""
 
+  workers:
+    description: "How many tests to run in parallel"
+    default: "4"
+
+  all:
+    description: "Run each test case under every configuration it supports"
+    default: "true"
+
 runs:
   using: "composite"
   steps:
     - name: Test
       working-directory: ${{ inputs.working_directory }}
-      run: python3 allTests.py --debug --all --keep-logs --continue --workers=4 --export-xml=test-report.xml ${{ inputs.flags }}
+      run: python3 allTests.py --debug ${{ inputs.all == 'true' && '--all' || '' }} --keep-logs --continue --workers=${{ inputs.workers }} --export-xml=test-report.xml ${{ inputs.flags }}
       shell: bash
       if: runner.os == 'macOS'
 
@@ -22,12 +30,12 @@ runs:
       working-directory: ${{ inputs.working_directory }}
       run: |
         ulimit -c unlimited
-        python3 allTests.py --debug --all --keep-logs --continue --workers=4 --export-xml=test-report.xml ${{ inputs.flags }}
+        python3 allTests.py --debug ${{ inputs.all == 'true' && '--all' || '' }} --keep-logs --continue --workers=${{ inputs.workers }} --export-xml=test-report.xml ${{ inputs.flags }}
       shell: bash
       if: runner.os == 'Linux'
 
     - name: Test
       working-directory: ${{ inputs.working_directory }}
-      run: python allTests.py --debug --all --keep-logs --continue --workers=4 --export-xml=test-report.xml ${{ inputs.flags }}
+      run: python allTests.py --debug ${{ inputs.all == 'true' && '--all' || '' }} --keep-logs --continue --workers=${{ inputs.workers }} --export-xml=test-report.xml ${{ inputs.flags }}
       shell: powershell
       if: runner.os == 'Windows'
