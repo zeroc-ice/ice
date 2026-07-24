@@ -89,7 +89,7 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
         {
             // We only reach here with _proxies empty, i.e. no replica-group response arrived. _latency is set only
             // together with inserting into _proxies, so the latency timer is not running.
-            Debug.Assert(_latency == 0);
+            Debug.Assert(_latency == TimeSpan.Zero);
 
             // Restart the replica-group latency window so it's measured from this round rather than from request
             // creation.
@@ -104,12 +104,12 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
         if (isReplicaGroup)
         {
             _proxies.Add(proxy);
-            if (_latency == 0)
+            if (_latency == TimeSpan.Zero)
             {
                 // The aggregation window is the measured response time, scaled by IceDiscovery.LatencyMultiplier,
                 // with a 1ms floor so we never schedule a degenerate zero-length window.
                 double responseTimeMs = TimeSpan.FromTicks(DateTime.Now.Ticks - _start).TotalMilliseconds;
-                _latency = Math.Max(1, (long)(responseTimeMs * lookup_.latencyMultiplier()));
+                _latency = TimeSpan.FromMilliseconds(Math.Max(1, (long)(responseTimeMs * lookup_.latencyMultiplier())));
                 lookup_.timer().cancel(this);
                 lookup_.timer().schedule(this, _latency);
             }
@@ -178,7 +178,7 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
     //
     private readonly HashSet<Ice.ObjectPrx> _proxies = new HashSet<Ice.ObjectPrx>();
     private long _start;
-    private long _latency;
+    private TimeSpan _latency;
 }
 
 internal class ObjectRequest : Request<Ice.Identity>, Ice.Internal.TimerTask
@@ -226,7 +226,7 @@ internal class LookupI : LookupDisp_
     {
         _registry = registry;
         _lookup = lookup;
-        _timeout = properties.getIcePropertyAsInt("IceDiscovery.Timeout");
+        _timeout = TimeSpan.FromMilliseconds(properties.getIcePropertyAsInt("IceDiscovery.Timeout"));
         _retryCount = properties.getIcePropertyAsInt("IceDiscovery.RetryCount");
         _latencyMultiplier = properties.getIcePropertyAsInt("IceDiscovery.LatencyMultiplier");
         if (_latencyMultiplier < 1)
@@ -541,7 +541,7 @@ internal class LookupI : LookupDisp_
     private readonly LocatorRegistryI _registry;
     private readonly LookupPrx _lookup;
     private readonly Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
-    private readonly int _timeout;
+    private readonly TimeSpan _timeout;
     private readonly int _retryCount;
     private readonly int _latencyMultiplier;
     private readonly string _domainId;
