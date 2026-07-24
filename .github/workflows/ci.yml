@@ -172,6 +172,25 @@ jobs:
             test_flags: "--target-framework=net10.0"
             build_cpp_and_python: true
 
+          # C++ IceBT over a pair of virtual Bluetooth controllers. arm64 only: the amd64 azure
+          # kernel has the Bluetooth modules stripped, so setup-vhci cannot succeed there.
+          # $BT_ADDR is exported by setup-vhci and expanded by the shell at run time.
+          - os: ubuntu-24.04-arm
+            config: "cpp-bt"
+            working_directory: "cpp"
+            bluetooth: true
+            build_cpp_and_python: true
+            # One pair of controllers, and only the configuration under test -- --all would fan
+            # each suite out over configurations that don't apply to Bluetooth. Keep test_all a
+            # quoted string: a YAML boolean false is falsy in the `matrix.test_all || 'true'`
+            # default the Test step uses.
+            test_workers: 1
+            test_all: "false"
+            # --cross=cpp keeps this to client/server cases. The collocated case has no server side,
+            # so Ice.Default.Host stays 127.0.0.1 and IceBT rejects it as a device address -- the
+            # same reason the Android job passes --cross=java.
+            test_flags: "--server=server --protocol=bt --cross=cpp --host-bt=$BT_ADDR Ice/operations"
+
     runs-on: ${{ matrix.os }}
     # Only android-bt sets this, restoring the bound its standalone workflow had; everything else
     # keeps GitHub's default. A job-level limit has to clear the sum of the step limits on its
@@ -298,6 +317,13 @@ jobs:
         if: matrix.config == 'android-bt'
         timeout-minutes: 30
         uses: ./.github/actions/setup-bt
+
+      # A different mechanism to the Android job above: virtual controllers on the runner itself,
+      # for the C++ transport, which needs a host Bluetooth stack rather than an emulator.
+      - name: Setup virtual Bluetooth controllers
+        if: matrix.bluetooth == true
+        timeout-minutes: 20
+        uses: ./.github/actions/setup-vhci
 
       - name: Test ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test
