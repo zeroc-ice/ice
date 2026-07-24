@@ -619,6 +619,13 @@ class Mapping(object):
     disabled: OrderedDict[str, Mapping] = OrderedDict()
 
     class Config(object):
+        # Set by CSharpMapping.Config. These are bare annotations on purpose: assigning a value here
+        # would create a real attribute, and parseOptions() would then consume "--targetFramework"
+        # (the form Config.getAll re-emits) into the base class, before CSharpMapping.Config resets
+        # it to its default and re-parses.
+        targetFramework: str
+        dotnetCoverageSession: str
+
         @classmethod
         def getSupportedArgs(self) -> tuple[str, list[str]]:
             return (
@@ -696,8 +703,6 @@ class Mapping(object):
             self.python = sys.executable
             self.loadSlice = False  # Use Ice.loadSlice instead of the static generated code
             self.pipPackage = False  # Use installed pip package instead of local build
-            self.dotnetCoverageSession = ""
-            self.targetFramework = "net8.0"
 
             parseOptions(
                 self,
