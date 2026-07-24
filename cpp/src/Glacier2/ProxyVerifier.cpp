@@ -6,6 +6,8 @@
 
 #include <algorithm>
 #include <cctype>
+#include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -538,36 +540,64 @@ namespace Glacier2
         return true;
     }
 
-    // Returns true when an endpoint of the proxy has a host that the address rules cannot match reliably;
-    // when an address filter is configured, such a proxy is rejected outright:
-    // - A host longer than 255 characters. No legal host name or IP address is that long, and the bound keeps
-    //   the cost of matching the address rules low.
+    // Returns the host of the innermost IP endpoint underlying an endpoint, or nullopt when no such endpoint
+    // exists: the transport is not IP based (such as Bluetooth), or it is unknown to this communicator. An
+    // unknown transport, including an IP-based one whose plug-in is not loaded, is opaque and carries no typed
+    // endpoint info, so it is indistinguishable from a non-IP transport here.
+    static optional<string> ipEndpointHost(const EndpointPtr& endpoint)
+    {
+        for (EndpointInfoPtr info = endpoint->getInfo(); info; info = info->underlying)
+        {
+            if (auto ipInfo = dynamic_pointer_cast<IPEndpointInfo>(info))
+            {
+                return ipInfo->host;
+            }
+        }
+        return nullopt;
+    }
+
+    // Returns true when an endpoint of the proxy has a host that the address rules cannot match reliably:
+    // - A non-IP endpoint (such as Bluetooth), or an endpoint whose transport is unknown to this communicator.
+    // - An empty host.
+    // - A host containing a control character or a space.
+    // - A host longer than 255 characters. No legal host name or IP address is that long.
     // - A non-canonical spelling of an IPv4 address, such as 0x7f000001, 2130706433, 0177.0.0.1, or 127.1.
-    //   The resolver accepts many aliases for the same address (with platform-dependent readings), so the
-    //   spelling would bypass rules written for the dotted quad.
     // - An IPv4 address with a trailing dot: the resolver reads it as a DNS name, not as an address.
     // A DNS name with a trailing dot is fine: the resolver treats 'name.' as 'name', and the matching strips
     // the dot the same way.
+    // Returns false for an indirect proxy: it has no endpoints, so there is no host to check here (the address
+    // rules match nothing, and the identity and adapter-id filters constrain it instead).
     static bool hasDisallowedHost(const ObjectPrx& proxy)
     {
         for (const auto& endpoint : proxy->ice_getEndpoints())
         {
-            string host;
-            if (extractPart("-h ", endpoint->toString(), host))
+            optional<string> optHost = ipEndpointHost(endpoint);
+            if (!optHost)
             {
-                if (host.size() > 255)
-                {
-                    return true;
-                }
-                bool trailingDot = host.size() > 1 && host.back() == '.';
-                if (trailingDot)
-                {
-                    host.pop_back();
-                }
-                if (isIPv4Numeral(host) && (trailingDot || !isCanonicalIPv4Spelling(host)))
-                {
-                    return true;
-                }
+                return true;
+            }
+            string host = std::move(*optHost);
+
+            if (host.empty())
+            {
+                return true;
+            }
+            if (any_of(host.begin(), host.end(), [](unsigned char c) { return c == ' ' || iscntrl(c) != 0; }))
+            {
+                return true;
+            }
+            if (host.size() > 255)
+            {
+                return true;
+            }
+            bool trailingDot = host.size() > 1 && host.back() == '.';
+            if (trailingDot)
+            {
+                host.pop_back();
+            }
+            if (isIPv4Numeral(host) && (trailingDot || !isCanonicalIPv4Spelling(host)))
+            {
+                return true;
             }
         }
         return false;

@@ -101,8 +101,8 @@ namespace
         {"server", "list", "server list               List all registered servers.\n"},
         {"server", "remove", "server remove ID          Remove server ID.\n"},
         {"server", "describe", "server describe ID        Describe server ID.\n"},
-        {"server", "properties", "server properties ID      Get the run-time properties of server ID.\n"},
-        {"server", "property", "server property ID NAME   Get the run-time property NAME of server ID.\n"},
+        {"server", "properties", "server properties ID      Get the runtime properties of server ID.\n"},
+        {"server", "property", "server property ID NAME   Get the runtime property NAME of server ID.\n"},
         {"server", "status", "server status ID           Get the status of server ID.\n"},
         {"server", "pid", "server pid ID             Get the process id of server ID.\n"},
         {"server", "start", "server start ID           Start server ID.\n"},
@@ -130,12 +130,12 @@ namespace
         {"service",
          "properties",
          "service properties ID NAME\n"
-         "                          Get the run-time properties of service NAME in\n"
+         "                          Get the runtime properties of service NAME in\n"
          "                          IceBox server ID.\n"},
         {"service",
          "property",
          "service property ID NAME PROPERTY\n"
-         "                          Get the run-time property PROPERTY of service NAME\n"
+         "                          Get the runtime property PROPERTY of service NAME\n"
          "                          from IceBox server ID.\n"},
         {"service", "list", "service list ID           List the services in IceBox server ID.\n"},
         {"adapter", "list", "adapter list              List all registered adapters.\n"},

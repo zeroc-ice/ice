@@ -152,6 +152,28 @@ void ::Writer::run(int argc, char* argv[])
                 Topic<int, string> topic(n15, "discardPolicyAlias");
                 auto reader = makeSingleKeyReader(topic, 0);
             }
+
+            // A DataStorm.Node.Multicast.Proxy value must carry the lookup object identity; any other identity is
+            // rejected by the Node constructor.
+            {
+                Ice::CommunicatorHolder holder{Ice::initialize(makeInitData(
+                    "DataStorm.Node.Multicast.Proxy",
+                    "DataStorm/CustomLookup -d:udp -h 239.255.0.1 -p 10000"))};
+                try
+                {
+                    Node n16{holder.communicator()};
+                    test(false);
+                }
+                catch (const Ice::PropertyException&)
+                {
+                }
+
+                test(holder.communicator()->getDefaultObjectAdapter() == nullptr);
+                holder.communicator()->getProperties()->setProperty(
+                    "DataStorm.Node.Multicast.Proxy",
+                    "DataStorm/Lookup2 -d:udp -h 239.255.0.1 -p 10000");
+                Node n17{holder.communicator()};
+            }
         }
 
         Node n3;
@@ -402,9 +424,22 @@ void ::Writer::run(int argc, char* argv[])
         test(skw.getLast().getKey() == "key");
         test(skw.getLast().getValue() == "");
         test(skw.getLast().getEvent() == SampleEvent::Remove);
+        // A partial update requires the key to have a current value; after the remove it has none, so publishing a
+        // partial update throws and the remove stays the last sample.
+        try
+        {
+            skw.partialUpdate<string>("partialupdate")("update");
+            test(false);
+        }
+        catch (const std::logic_error&)
+        {
+        }
+        test(skw.getLast().getEvent() == SampleEvent::Remove);
+        // A new full value makes the key updatable again.
+        skw.add("test3");
         skw.partialUpdate<string>("partialupdate")("update");
         test(skw.getLast().getKey() == "key");
-        test(skw.getLast().getValue() == "");
+        test(skw.getLast().getValue() == "test3"); // no updater is registered: the previous value carries over
         test(skw.getLast().getUpdateTag() == "partialupdate");
         test(skw.getLast().getEvent() == SampleEvent::PartialUpdate);
 

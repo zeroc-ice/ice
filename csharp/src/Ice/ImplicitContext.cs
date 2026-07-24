@@ -29,7 +29,8 @@ public interface ImplicitContext
     /// Checks if the specified key has an associated value in the request context.
     /// </summary>
     /// <param name="key">The key.</param>
-    /// <returns><see langword="true"/> if the key has an associated value, <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if the key has an associated value; otherwise,
+    /// <see langword="false"/>.</returns>
     bool containsKey(string key);
 
     /// <summary>

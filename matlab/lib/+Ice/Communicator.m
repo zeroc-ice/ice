@@ -114,8 +114,6 @@ classdef Communicator < IceInternal.WrapperObject
             %STRINGTOPROXY Converts a stringified proxy into a proxy.
             %   Deprecated: Use the constructor of your proxy class instead.
             %
-            %   Throws an Ice.ParseException if str is not a valid proxy string.
-            %
             %   Input Arguments
             %     str - The stringified proxy to convert into a proxy.
             %       character vector
@@ -123,6 +121,10 @@ classdef Communicator < IceInternal.WrapperObject
             %   Output Arguments
             %     r - The proxy, or an empty array if str is an empty string.
             %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
+            %
+            %   Exceptions
+            %     Ice.ParseException - If str is not a valid proxy string.
+            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed.
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -175,6 +177,10 @@ classdef Communicator < IceInternal.WrapperObject
             %   Output Arguments
             %     r - The proxy, or an empty array if the property is not set.
             %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
+            %
+            %   Exceptions
+            %     Ice.ParseException - If the property value is not a valid proxy string.
+            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed.
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -297,6 +303,9 @@ classdef Communicator < IceInternal.WrapperObject
             %   Output Arguments
             %     r - This communicator's default router.
             %       Ice.RouterPrx scalar | empty array of Ice.RouterPrx
+            %
+            %   Exceptions
+            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed.
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -318,6 +327,9 @@ classdef Communicator < IceInternal.WrapperObject
             %   Input Arguments
             %     proxy - The default router to use for this communicator.
             %       Ice.RouterPrx scalar | empty array of Ice.RouterPrx
+            %
+            %   Exceptions
+            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed.
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -337,6 +349,9 @@ classdef Communicator < IceInternal.WrapperObject
             %   Output Arguments
             %     r - This communicator's default locator.
             %       Ice.LocatorPrx scalar | empty array of Ice.LocatorPrx
+            %
+            %   Exceptions
+            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed.
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -358,6 +373,9 @@ classdef Communicator < IceInternal.WrapperObject
             %   Input Arguments
             %     proxy - The default locator to use for this communicator.
             %       Ice.LocatorPrx scalar | empty array of Ice.LocatorPrx
+            %
+            %   Exceptions
+            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed.
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -380,6 +398,9 @@ classdef Communicator < IceInternal.WrapperObject
             %     mode - Specifies whether or not the queued batch requests should be compressed before being sent over
             %       the wire.
             %       Ice.CompressBatch scalar
+            %
+            %   Exceptions
+            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed.
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -401,6 +422,10 @@ classdef Communicator < IceInternal.WrapperObject
             %   Output Arguments
             %     r - A future that completes when all batch requests have been sent.
             %       Ice.Future scalar
+            %
+            %   Exceptions
+            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed. This exception is
+            %       thrown synchronously.
 
             arguments
                 obj (1, 1) Ice.Communicator

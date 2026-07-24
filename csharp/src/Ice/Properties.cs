@@ -529,7 +529,7 @@ public sealed class Properties
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <param name="propertyArray">The property array to check.</param>
-    /// <returns>The <see cref="Property" /> if found, null otherwise.</returns>
+    /// <returns>The <see cref="Property" /> if found; otherwise, <see langword="null"/>.</returns>
     private static Property? findProperty(string key, PropertyArray propertyArray)
     {
         foreach (Property prop in propertyArray.properties)

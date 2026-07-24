@@ -24,8 +24,8 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// </summary>
     /// <param name="id">The type ID of the Slice interface to test against.</param>
     /// <param name="context">The request context.</param>
-    /// <returns><see langword="true"/> if the target object implements the Slice interface specified by <paramref name="id"/>
-    /// or implements a derived interface, and <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if the target object implements the Slice interface specified by
+    /// <paramref name="id"/> or implements a derived interface; otherwise, <see langword="false"/>.</returns>
     bool ice_isA(string id, Dictionary<string, string>? context = null);
 
     /// <summary>
@@ -36,8 +36,8 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>A task that will complete with <see langword="true"/> if the target object implements the Slice
-    /// interface specified by <paramref name="id"/> or implements a derived interface, and <see langword="false"/>
-    /// otherwise.</returns>
+    /// interface specified by <paramref name="id"/> or implements a derived interface; otherwise,
+    /// <see langword="false"/>.</returns>
     Task<bool> ice_isAAsync(
         string id,
         Dictionary<string, string>? context = null,
@@ -112,7 +112,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="context">The request context.</param>
     /// <returns>If the operation completed successfully, the return value is <see langword="true"/>.
     /// If the operation raises a user exception, the return value is <see langword="false"/>; in this case,
-    /// <paramref name="outEncaps"/> contains the encoded user exception. If the operation raises a run-time exception,
+    /// <paramref name="outEncaps"/> contains the encoded user exception. If the operation raises a runtime exception,
     /// it throws it directly.</returns>
     bool ice_invoke(
         string operation,
@@ -247,14 +247,14 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Returns whether this proxy caches connections.
     /// </summary>
-    /// <returns><see langword="true"/> if this proxy caches connections; <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if this proxy caches connections; otherwise, <see langword="false"/>.</returns>
     bool ice_isConnectionCached();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for connection caching.
     /// </summary>
-    /// <param name="newCache"><see langword="true"/> if the new proxy should cache connections;
-    /// <see langword="false"/> otherwise.</param>
+    /// <param name="newCache"><see langword="true"/> if the new proxy should cache connections; otherwise,
+    /// <see langword="false"/>.</param>
     /// <returns>The new proxy with the specified caching policy.</returns>
     ObjectPrx ice_connectionCached(bool newCache);
 
@@ -315,16 +315,16 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Returns whether this proxy uses collocation optimization.
     /// </summary>
-    /// <returns><see langword="true"/> if the proxy uses collocation optimization;
-    /// <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if the proxy uses collocation optimization; otherwise,
+    /// <see langword="false"/>.</returns>
     bool ice_isCollocationOptimized();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for collocation optimization.
     /// </summary>
-    /// <param name="collocated"><see langword="true"/> if the new proxy enables collocation optimization;
-    /// <see langword="false"/> otherwise.</param>
-    /// <returns>The new proxy the specified collocation optimization.</returns>
+    /// <param name="collocated"><see langword="true"/> if the new proxy enables collocation optimization; otherwise,
+    /// <see langword="false"/>.</param>
+    /// <returns>The new proxy with the specified collocation optimization.</returns>
     ObjectPrx ice_collocationOptimized(bool collocated);
 
     /// <summary>
@@ -336,8 +336,8 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Returns whether this proxy uses twoway invocations.
     /// </summary>
-    /// <returns><see langword="true"/> if this proxy uses twoway invocations;
-    /// <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if this proxy uses twoway invocations; otherwise,
+    /// <see langword="false"/>.</returns>
     bool ice_isTwoway();
 
     /// <summary>
@@ -349,8 +349,8 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Returns whether this proxy uses oneway invocations.
     /// </summary>
-    /// <returns><see langword="true"/> if this proxy uses oneway invocations;
-    /// <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if this proxy uses oneway invocations; otherwise,
+    /// <see langword="false"/>.</returns>
     bool ice_isOneway();
 
     /// <summary>
@@ -362,8 +362,8 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Returns whether this proxy uses batch oneway invocations.
     /// </summary>
-    /// <returns><see langword="true"/> if this proxy uses batch oneway invocations;
-    /// <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if this proxy uses batch oneway invocations; otherwise,
+    /// <see langword="false"/>.</returns>
     bool ice_isBatchOneway();
 
     /// <summary>
@@ -375,8 +375,8 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Returns whether this proxy uses datagram invocations.
     /// </summary>
-    /// <returns><see langword="true"/> if this proxy uses datagram invocations;
-    /// <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if this proxy uses datagram invocations; otherwise,
+    /// <see langword="false"/>.</returns>
     bool ice_isDatagram();
 
     /// <summary>
@@ -388,8 +388,8 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Returns whether this proxy uses batch datagram invocations.
     /// </summary>
-    /// <returns><see langword="true"/> if this proxy uses batch datagram invocations;
-    /// <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if this proxy uses batch datagram invocations; otherwise,
+    /// <see langword="false"/>.</returns>
     bool ice_isBatchDatagram();
 
     /// <summary>
@@ -403,8 +403,8 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Gets the compression override setting of this proxy.
     /// </summary>
-    /// <returns>The compression override setting. If null is returned, no override is set. Otherwise, <see langword="true"/>
-    /// if compression is enabled, <see langword="false"/> otherwise.</returns>
+    /// <returns>The compression override setting, or <see langword="null"/> if no override is set. When set, it's
+    /// <see langword="true"/> if compression is enabled; otherwise, <see langword="false"/>.</returns>
     bool? ice_getCompress();
 
     /// <summary>
@@ -432,7 +432,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Returns whether this proxy is a fixed proxy.
     /// </summary>
-    /// <returns><see langword="true"/> if this is a fixed proxy; <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if this is a fixed proxy; otherwise, <see langword="false"/>.</returns>
     bool ice_isFixed();
 
     /// <summary>
@@ -525,8 +525,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
     /// </summary>
     /// <param name="other">The proxy to compare this proxy with.</param>
-    /// <returns><see langword="true"/> if this proxy is equal to <paramref name="other"/>;
-    /// <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if this proxy is equal to <paramref name="other"/>; otherwise,
+    /// <see langword="false"/>.</returns>
     public bool Equals(ObjectPrx? other) =>
         other is not null && _reference == ((ObjectPrxHelperBase)other)._reference;
 
@@ -799,7 +799,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <returns>If the operation completed successfully, the return value is <see langword="true"/>.
     /// If the operation raises a user exception, the return value is <see langword="false"/>; in this case,
     /// <paramref name="outEncaps"/> contains the encoded user exception.
-    /// If the operation raises a run-time exception, it throws it directly.</returns>
+    /// If the operation raises a runtime exception, it throws it directly.</returns>
     public bool ice_invoke(
         string operation,
         OperationMode mode,
@@ -1059,14 +1059,14 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Returns whether this proxy caches connections.
     /// </summary>
-    /// <returns><see langword="true"/> if this proxy caches connections; <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if this proxy caches connections; otherwise, <see langword="false"/>.</returns>
     public bool ice_isConnectionCached() => _reference.getCacheConnection();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for connection caching.
     /// </summary>
-    /// <param name="newCache"><see langword="true"/> if the new proxy should cache connections;
-    /// <see langword="false"/>, otherwise.</param>
+    /// <param name="newCache"><see langword="true"/> if the new proxy should cache connections; otherwise,
+    /// <see langword="false"/>.</param>
     /// <returns>The new proxy with the specified caching policy.</returns>
     public ObjectPrx ice_connectionCached(bool newCache)
     {
@@ -1185,16 +1185,16 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Returns whether this proxy uses collocation optimization.
     /// </summary>
-    /// <returns><see langword="true"/> if the proxy uses collocation optimization;
-    /// <see langword="false"/>, otherwise.</returns>
+    /// <returns><see langword="true"/> if the proxy uses collocation optimization; otherwise,
+    /// <see langword="false"/>.</returns>
     public bool ice_isCollocationOptimized() => _reference.getCollocationOptimized();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for collocation optimization.
     /// </summary>
-    /// <param name="collocated"><see langword="true"/> if the new proxy enables collocation optimization;
-    /// <see langword="false"/>, otherwise.</param>
-    /// <returns>The new proxy the specified collocation optimization.</returns>
+    /// <param name="collocated"><see langword="true"/> if the new proxy enables collocation optimization; otherwise,
+    /// <see langword="false"/>.</param>
+    /// <returns>The new proxy with the specified collocation optimization.</returns>
     public ObjectPrx ice_collocationOptimized(bool collocated)
     {
         if (collocated == _reference.getCollocationOptimized())
@@ -1226,8 +1226,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Returns whether this proxy uses twoway invocations.
     /// </summary>
-    /// <returns><see langword="true"/> if this proxy uses twoway invocations;
-    /// <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if this proxy uses twoway invocations; otherwise,
+    /// <see langword="false"/>.</returns>
     public bool ice_isTwoway() => _reference.isTwoway;
 
     /// <summary>
@@ -1249,8 +1249,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Returns whether this proxy uses oneway invocations.
     /// </summary>
-    /// <returns><see langword="true"/> if this proxy uses oneway invocations;
-    /// <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if this proxy uses oneway invocations; otherwise,
+    /// <see langword="false"/>.</returns>
     public bool ice_isOneway() => _reference.getMode() == Reference.Mode.ModeOneway;
 
     /// <summary>
@@ -1272,8 +1272,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Returns whether this proxy uses batch oneway invocations.
     /// </summary>
-    /// <returns><see langword="true"/> if this proxy uses batch oneway invocations;
-    /// <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if this proxy uses batch oneway invocations; otherwise,
+    /// <see langword="false"/>.</returns>
     public bool ice_isBatchOneway() => _reference.getMode() == Reference.Mode.ModeBatchOneway;
 
     /// <summary>
@@ -1295,8 +1295,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Returns whether this proxy uses datagram invocations.
     /// </summary>
-    /// <returns><see langword="true"/> if this proxy uses datagram invocations;
-    /// <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if this proxy uses datagram invocations; otherwise,
+    /// <see langword="false"/>.</returns>
     public bool ice_isDatagram() => _reference.getMode() == Reference.Mode.ModeDatagram;
 
     /// <summary>
@@ -1318,8 +1318,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Returns whether this proxy uses batch datagram invocations.
     /// </summary>
-    /// <returns><see langword="true"/> if this proxy uses batch datagram invocations;
-    /// <see langword="false"/>, otherwise.</returns>
+    /// <returns><see langword="true"/> if this proxy uses batch datagram invocations; otherwise,
+    /// <see langword="false"/>.</returns>
     public bool ice_isBatchDatagram() => _reference.getMode() == Reference.Mode.ModeBatchDatagram;
 
     /// <summary>
@@ -1343,8 +1343,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Obtains the compression override setting of this proxy.
     /// </summary>
-    /// <returns>The compression override setting. If no optional value is present, no override is
-    /// set. Otherwise, <see langword="true"/> if compression is enabled, <see langword="false"/> otherwise.</returns>
+    /// <returns>The compression override setting, or <see langword="null"/> if no override is set. When set, it's
+    /// <see langword="true"/> if compression is enabled; otherwise, <see langword="false"/>.</returns>
     public bool? ice_getCompress() => _reference.getCompress();
 
     /// <summary>
@@ -1401,7 +1401,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Returns whether this proxy is a fixed proxy.
     /// </summary>
-    /// <returns><see langword="true"/> if this is a fixed proxy; <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if this is a fixed proxy; otherwise, <see langword="false"/>.</returns>
     public bool ice_isFixed() => _reference is Ice.Internal.FixedReference;
 
     public class GetConnectionTaskCompletionCallback : TaskCompletionCallback<Connection?>

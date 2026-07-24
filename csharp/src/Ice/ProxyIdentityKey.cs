@@ -22,8 +22,8 @@ public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Col
     /// </summary>
     /// <param name="x">The first proxy to compare.</param>
     /// <param name="y">The second proxy to compare.</param>
-    /// <returns><see langword="true"/> if the passed proxies have the same object identity; <see langword="false"/>,
-    /// otherwise.</returns>
+    /// <returns><see langword="true"/> if the passed proxies have the same object identity; otherwise,
+    /// <see langword="false"/>.</returns>
     public new bool Equals(object? x, object? y)
     {
         try
@@ -41,7 +41,8 @@ public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Col
     /// </summary>
     /// <param name="x">The first proxy to compare.</param>
     /// <param name="y">The second proxy to compare.</param>
-    /// <returns>Less than zero if x is less than y; greater than zero if x is greater than y; otherwise zero.</returns>
+    /// <returns>Less than zero if x is less than y; greater than zero if x is greater than y; otherwise,
+    /// zero.</returns>
     public int Compare(object? x, object? y)
     {
         var proxy1 = x as ObjectPrx;
@@ -82,8 +83,8 @@ public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, Syste
     /// </summary>
     /// <param name="x">The first proxy to compare.</param>
     /// <param name="y">The second proxy to compare.</param>
-    /// <returns><see langword="true"/> if the passed proxies have the same object identity and facet;
-    /// <see langword="false"/>, otherwise.</returns>
+    /// <returns><see langword="true"/> if the passed proxies have the same object identity and facet; otherwise,
+    /// <see langword="false"/>.</returns>
     public new bool Equals(object? x, object? y)
     {
         try
@@ -101,7 +102,8 @@ public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, Syste
     /// </summary>
     /// <param name="x">The first proxy to compare.</param>
     /// <param name="y">The second proxy to compare.</param>
-    /// <returns>Less than zero if x is less than y; greater than zero if x is greater than y; otherwise zero.</returns>
+    /// <returns>Less than zero if x is less than y; greater than zero if x is greater than y; otherwise,
+    /// zero.</returns>
     public int Compare(object? x, object? y)
     {
         var proxy1 = x as ObjectPrx;

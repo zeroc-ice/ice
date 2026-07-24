@@ -258,7 +258,8 @@ class RemoteTestCaseRunner(TestCaseRunner):
         for key, values in options.items():
             for opts in [self.serverOptions, self.clientOptions]:
                 if hasattr(opts, key) and getattr(opts, key) is not None:
-                    options[key] = [v for v in values if v in getattr(opts, key)]
+                    values = [v for v in values if v in getattr(opts, key)]
+            options[key] = values
         return options
 
     def startServerSide(self, testcase, current):
@@ -336,17 +337,20 @@ class RemoteTestCaseRunner(TestCaseRunner):
 
 
 class XmlExporter:
-    def __init__(self, results, duration, failures):
+    def __init__(self, results, duration):
         self.results = results
         self.duration = duration
-        self.failures = failures
 
     def save(self, filename, hostname):
+        # The root element aggregates the per-testsuite counts, each result can write several testcases.
+        counts = [r.getXmlCounts() for r in self.results]
         with open(filename, "w", encoding="utf-8") as out:
             out.write('<?xml version="1.1" encoding="UTF-8"?>\n')
             out.write(
                 '<testsuites tests="{0}" failures="{1}" time="{2:.9f}">\n'.format(
-                    len(self.results), self.duration, len(self.failures)
+                    sum(tests for (tests, _) in counts),
+                    sum(failures for (_, failures) in counts),
+                    self.duration,
                 )
             )
             for r in self.results:
@@ -428,8 +432,10 @@ class LocalDriver(Driver):
         )
 
         if self.cross:
-            self.cross = Mapping.getByName(self.cross)
-            if not self.cross:
+            # Mapping.getByName raises RuntimeError for an unknown mapping.
+            try:
+                self.cross = Mapping.getByName(self.cross)
+            except RuntimeError:
                 raise RuntimeError("unknown mapping `{0}' for --cross option".format(self.cross))
 
         self.results = []
@@ -493,7 +499,7 @@ class LocalDriver(Driver):
                 duration = time.time() - now
 
                 if self.exportToXml:
-                    XmlExporter(results, duration, failures).save(self.exportToXml, os.getenv("NODE_NAME", ""))
+                    XmlExporter(results, duration).save(self.exportToXml, os.getenv("NODE_NAME", ""))
 
                 m, s = divmod(duration, 60)
                 print("")
@@ -621,7 +627,7 @@ class LocalDriver(Driver):
                 # behind.
                 #
                 failure = []
-                sem = threading.Semaphore(0)
+                stopped = threading.Event()
 
                 def stopServerSide():
                     try:
@@ -630,23 +636,23 @@ class LocalDriver(Driver):
                         failure.append(ex)
                     except KeyboardInterrupt:  # Potentially raised by Except.py if Ctrl-C
                         pass
-                    sem.release()
+                    finally:
+                        stopped.set()
 
                 t = threading.Thread(target=stopServerSide)
                 t.start()
-                while True:
+                #
+                # NOTE: we can't just use join() here because of https://bugs.python.org/issue21822
+                # We wait on an event instead, which stays set once the servers are stopped, so a
+                # Ctrl-C interrupting the wait can't leave us blocking on an already consumed permit.
+                #
+                while not stopped.is_set():
                     try:
-                        #
-                        # NOTE: we can't just use join() here because of https://bugs.python.org/issue21822
-                        # We use a semaphore to wait for the servers to be stopped and return.
-                        #
-                        sem.acquire()
-                        if failure:
-                            raise failure[0]
-                        t.join()
-                        break
+                        stopped.wait()
                     except KeyboardInterrupt:
                         pass  # Ignore keyboard interrupts
+                if failure:
+                    raise failure[0]
 
     def runTestCase(self, current):
         if self.cross or self.allCross:

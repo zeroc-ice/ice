@@ -114,6 +114,39 @@ jobs:
             build_cpp_and_python: true
             build_android_controller: true
 
+          # Android<->Android IceBT over the emulator's virtual Bluetooth controller: one emulator
+          # runs the test server (started by setup-bt), the other runs the client.
+          - os: ubuntu-24.04
+            config: "android-bt"
+            working_directory: "java"
+            build_cpp_and_python: true
+            build_android_controller: true
+            # A single device, and only the configuration under test -- --all would fan each suite
+            # out over configurations that don't apply to Bluetooth. Keep test_all a quoted string:
+            # a YAML boolean false is falsy in the `matrix.test_all || 'true'` default below.
+            test_workers: 1
+            test_all: "false"
+            # Successful runs of this job take 23-29 minutes (worst observed: 29), so 60 gives 2x
+            # headroom over anything seen while still bounding a wedged runner. This is deliberately
+            # below the sum of the individual step limits: a run slow enough to hit 60 minutes is
+            # pathological here, and we accept that such a run is cut at the job level (skipping the
+            # always() diagnostics) in exchange for not tying up a runner for hours.
+            job_timeout: 60
+            # setup-bt exports $BT_CLIENT and $BT_ADDR; these flags are interpolated into a bash
+            # command, so the shell expands them at run time.
+            test_flags: >-
+              --android --controller-app --protocol=bt --cross=java --server=server
+              --device=$BT_CLIENT --host-bt=$BT_ADDR
+              Ice/operations Ice/ami Ice/enums Ice/exceptions Ice/facets
+              Ice/inheritance Ice/objects Ice/optional Ice/proxy
+            # bts is the same RFCOMM transport with SSL layered over it. The controller app bundles
+            # the keystores it needs (res/raw/*.p12), so this only needs the protocol switched. Kept
+            # to the core suites: it covers the SSL-over-Bluetooth path, not the marshalling again.
+            bts_test_flags: >-
+              --android --controller-app --protocol=bts --cross=java --server=server
+              --device=$BT_CLIENT --host-bt=$BT_ADDR
+              Ice/operations Ice/ami
+
           # .NET 10.0
           - os: ubuntu-24.04
             config: ".NET10"
@@ -147,15 +180,23 @@ jobs:
             working_directory: "cpp"
             bluetooth: true
             build_cpp_and_python: true
+            # One pair of controllers, and only the configuration under test -- --all would fan
+            # each suite out over configurations that don't apply to Bluetooth. Keep test_all a
+            # quoted string: a YAML boolean false is falsy in the `matrix.test_all || 'true'`
+            # default the Test step uses.
+            test_workers: 1
+            test_all: "false"
             # --cross=cpp keeps this to client/server cases. The collocated case has no server side,
             # so Ice.Default.Host stays 127.0.0.1 and IceBT rejects it as a device address -- the
             # same reason the Android job passes --cross=java.
-            # NB: the shared test action still hardcodes --all, so this also fans out over
-            # configurations that don't apply to Bluetooth. #5839 adds `all`/`workers` inputs to
-            # that action; wire this entry to them once it lands.
             test_flags: "--server=server --protocol=bt --cross=cpp --host-bt=$BT_ADDR Ice/operations"
 
     runs-on: ${{ matrix.os }}
+    # Only android-bt sets this, restoring the bound its standalone workflow had; everything else
+    # keeps GitHub's default. A job-level limit has to clear the sum of the step limits on its
+    # longest path, not just observed runtimes, or a slow-but-valid run is killed -- and being
+    # killed here also skips the always() diagnostics and artifact steps.
+    timeout-minutes: ${{ matrix.job_timeout || 360 }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -173,7 +214,7 @@ jobs:
 
       # Free up disk space to avoid running out of space when starting the Android emulator for tests
       - name: Free up disk space
-        if: matrix.config == 'android'
+        if: startsWith(matrix.config, 'android')
         run: |
           sudo rm -rf /usr/local/go* /opt/hostedtoolcache/go
           sudo rm -rf /usr/local/.ghcup
@@ -191,7 +232,7 @@ jobs:
         uses: ./.github/actions/setup-python
 
       - name: Setup .NET
-        if: matrix.config != 'android'
+        if: ${{ !startsWith(matrix.config, 'android') }}
         uses: ./.github/actions/setup-dotnet
         with:
           include_net10: ${{ matrix.net_target_framework == 'net10.0' }}
@@ -211,7 +252,7 @@ jobs:
         uses: ./.github/actions/setup-matlab
 
       - name: Setup Android
-        if: matrix.config == 'android'
+        if: startsWith(matrix.config, 'android')
         uses: ./.github/actions/setup-android
 
       - name: Install Windows Debug Tools
@@ -270,9 +311,19 @@ jobs:
         run: python3 -m pip install passlib cryptography numpy
         shell: bash
 
+      # Boots and bonds the emulator pair and starts the server-side process controller, so the
+      # test step below only has to run the client.
       - name: Setup Bluetooth
+        if: matrix.config == 'android-bt'
+        timeout-minutes: 30
+        uses: ./.github/actions/setup-bt
+
+      # A different mechanism to the Android job above: virtual controllers on the runner itself,
+      # for the C++ transport, which needs a host Bluetooth stack rather than an emulator.
+      - name: Setup virtual Bluetooth controllers
         if: matrix.bluetooth == true
-        uses: ./.github/actions/setup-bluetooth
+        timeout-minutes: 20
+        uses: ./.github/actions/setup-vhci
 
       - name: Test ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test
@@ -280,6 +331,36 @@ jobs:
         with:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: ${{ matrix.test_flags }}
+          workers: ${{ matrix.test_workers || 4 }}
+          all: ${{ matrix.test_all || 'true' }}
+
+      # Runs before the diagnostics step so a bts failure still gets the adb/logcat dump.
+      - name: Test ${{ matrix.config }} over bts on ${{ matrix.os }}
+        if: matrix.bts_test_flags != ''
+        uses: ./.github/actions/test
+        timeout-minutes: 20
+        with:
+          working_directory: ${{ matrix.working_directory || '.' }}
+          flags: ${{ matrix.bts_test_flags }}
+          workers: ${{ matrix.test_workers || 4 }}
+          all: ${{ matrix.test_all || 'true' }}
+
+      - name: Bluetooth diagnostics
+        if: always() && matrix.config == 'android-bt'
+        timeout-minutes: 5
+        run: |
+          set +e
+          echo "=== controller.log ==="; tail -40 controller.log
+          echo "=== emu_client.log ==="; tail -20 emu_client.log
+          echo "=== emu_server.log ==="; tail -20 emu_server.log
+          export PYTHONPATH="$GITHUB_WORKSPACE/python/python"
+          for d in "$BT_CLIENT" "$BT_SERVER"; do
+            echo "==================== $d ===================="
+            # `set +e` above stops the script aborting, but the step still exits with the status of
+            # its last command -- so keep the loop's status clean or diagnostics alone fails the job.
+            timeout 60 python3 scripts/Controller.py --android --device="$d" --bt-diagnostics || true
+          done
+        shell: bash
 
       - name: Cross Test ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test

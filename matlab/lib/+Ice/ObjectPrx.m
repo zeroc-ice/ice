@@ -91,6 +91,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %   Output Arguments
             %     obj - The new ObjectPrx.
             %       Ice.ObjectPrx scalar
+            %
+            %   Exceptions
+            %     Ice.ParseException - If proxyString is not a valid proxy string.
+            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed.
 
             if nargin == 0 % default constructor, typically called with multiple inheritance
                 superArgs = {};

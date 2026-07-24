@@ -563,7 +563,7 @@ public sealed class InputStream
     /// </summary>
     /// <param name="tag">The tag associated with the value.</param>
     /// <param name="expectedFormat">The optional format for the value.</param>
-    /// <returns><see langword="true"/> if the value is present, <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if the value is present; otherwise, <see langword="false"/>.</returns>
     public bool readOptional(int tag, OptionalFormat expectedFormat)
     {
         Debug.Assert(_encapsStack != null);
@@ -1755,7 +1755,7 @@ public sealed class InputStream
     /// </summary>
     /// <typeparam name="T">The type of the Slice value to extract.</typeparam>
     /// <param name="cb">The callback to notify the application when the extracted instance is available.
-    /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
+    /// The stream extracts Slice values in stages. The Ice runtime invokes the delegate when the
     /// corresponding instance has been fully unmarshaled.</param>
     public void readValue<T>(System.Action<T?> cb) where T : Value
     {
@@ -1777,7 +1777,7 @@ public sealed class InputStream
     /// Extracts the index of a Slice value from the stream.
     /// </summary>
     /// <param name="cb">The callback to notify the application when the extracted instance is available.
-    /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
+    /// The stream extracts Slice values in stages. The Ice runtime invokes the delegate when the
     /// corresponding instance has been fully unmarshaled.</param>
     public void readValue(System.Action<Value?> cb) => readValue<Value>(cb);
 
@@ -1836,7 +1836,8 @@ public sealed class InputStream
     /// <summary>
     /// Determines whether the stream is empty.
     /// </summary>
-    /// <returns><see langword="true"/> if the internal buffer has no data, <see langword="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if the internal buffer has no data; otherwise,
+    /// <see langword="false"/>.</returns>
     public bool isEmpty() => _buf.empty();
 
     private bool readOptImpl(int readTag, OptionalFormat expectedFormat)

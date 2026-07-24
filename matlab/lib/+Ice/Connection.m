@@ -81,6 +81,9 @@ classdef Connection < IceInternal.WrapperObject
             %   Output Arguments
             %     r - A fixed proxy with the provided identity.
             %       Ice.ObjectPrx scalar
+            %
+            %   Exceptions
+            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed.
 
             arguments
                 obj (1, 1) Ice.Connection
@@ -123,6 +126,10 @@ classdef Connection < IceInternal.WrapperObject
             %     compress - Specifies whether or not the queued batch requests should be compressed before being sent
             %       over the wire.
             %       Ice.CompressBatch scalar
+            %
+            %   Exceptions
+            %     Ice.LocalException - If the flush fails. For example, this method throws an
+            %       Ice.CommunicatorDestroyedException if the communicator has been destroyed.
 
             arguments
                 obj (1, 1) Ice.Connection
@@ -143,6 +150,10 @@ classdef Connection < IceInternal.WrapperObject
             %   Output Arguments
             %     r - A future that will be completed when the invocation completes.
             %       Ice.Future scalar
+            %
+            %   Exceptions
+            %     Ice.CommunicatorDestroyedException - If the communicator has been destroyed. This exception is
+            %       thrown synchronously.
 
             arguments
                 obj (1, 1) Ice.Connection
@@ -182,12 +193,15 @@ classdef Connection < IceInternal.WrapperObject
         end
 
         function r = getInfo(obj)
-            %GETINFO Returns the connection information. If the connection is closed, this method throws the exception
-            %   that caused the closure.
+            %GETINFO Returns the connection information.
             %
             %   Output Arguments
             %     r - The connection information.
             %       Ice.ConnectionInfo scalar
+            %
+            %   Exceptions
+            %     Ice.LocalException - If the connection is closed. This method throws the exception that caused the
+            %       closure.
 
             arguments
                 obj (1, 1) Ice.Connection
@@ -215,10 +229,12 @@ classdef Connection < IceInternal.WrapperObject
 
         function throwException(obj)
             %THROWEXCEPTION Throws the exception that provides the reason for the closure of this connection.
-            %   This method does nothing if the connection is not yet closing or closed. For example, this method
-            %   throws Ice.CloseConnectionException when the connection was closed gracefully by the peer,
-            %   Ice.ConnectionClosedException when the connection was closed gracefully by the application, and
-            %   Ice.ConnectionAbortedException when the connection was aborted with abort.
+            %   This method does nothing if the connection is not yet closing or closed.
+            %
+            %   Exceptions
+            %     Ice.CloseConnectionException - If the connection was closed gracefully by the peer.
+            %     Ice.ConnectionClosedException - If the connection was closed gracefully by the application.
+            %     Ice.ConnectionAbortedException - If the connection was aborted, for example with abort.
 
             arguments
                 obj (1, 1) Ice.Connection

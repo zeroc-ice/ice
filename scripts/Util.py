@@ -8,9 +8,11 @@ import os
 import random
 import re
 import runpy
+import shlex
 import shutil
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 import traceback
@@ -48,7 +50,8 @@ def run(cmd, cwd=None, expectErr=False, stdout=False, stdin=None, stdinRepeat=Tr
             except Exception:
                 pass
 
-        out = (p.stderr if stdout else p.stdout).read().decode("UTF-8").strip()
+        # With stdout=True, the child writes directly to our stdout, there's no pipe to read from.
+        out = "" if stdout else p.stdout.read().decode("UTF-8").strip()
 
         status = p.wait()
 
@@ -66,7 +69,8 @@ def run(cmd, cwd=None, expectErr=False, stdout=False, stdin=None, stdinRepeat=Tr
         #
         # ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='cp1252'>
         #
-        (p.stderr if stdout else p.stdout).close()
+        if p.stdout:
+            p.stdout.close()
         try:
             p.stdin.close()
         except Exception:
@@ -259,7 +263,7 @@ class Platform(object):
                 if m and m.group(1):
                     self._hasSwift = tuple([int(n) for n in m.group(1).split(".")]) >= version
                 else:
-                    self.hasSwift = False
+                    self._hasSwift = False
             except Exception:
                 self._hasSwift = False
         return self._hasSwift
@@ -951,10 +955,10 @@ class Mapping(object):
                         # WORKAROUND for Python issue 15230 (fixed in 3.2) where run_path doesn't work correctly.
                         #
                         # runpy.run_path(os.path.join(root, "test.py"))
-                        origsyspath = sys.path
+                        syspath = sys.path
                         sys.path = [root] + sys.path
                         runpy.run_module("test", init_globals=globals(), run_name=root)
-                        origsyspath = sys.path
+                        sys.path = syspath
                         continue
 
                     #
@@ -2017,10 +2021,21 @@ class Result:
         self._stdout.write(msg)
         self._stdout.write("\n")
 
+    def getXmlCounts(self):
+        # The (tests, failures) counts as written to the XML report by writeAsXml.
+        return (
+            len([k for k in self._testcases if not isinstance(k, str) and k not in self._skipped]),
+            len(self._failed),
+        )
+
     def writeAsXml(self, out, hostname=""):
+        # Don't keep track of the setup/teardown steps (they use string keys) and don't write skipped
+        # tests, this doesn't really provide useful information and clutters the output.
+        testcases = [(k, v) for k, v in self._testcases.items() if not isinstance(k, str) and k not in self._skipped]
+
         out.write(
             '  <testsuite tests="{0}" failures="{1}" skipped="{2}" time="{3:.9f}" name="{5}/{4}">\n'.format(
-                len(self._testcases) - 2,
+                len(testcases),
                 len(self._failed),
                 0,
                 self._duration,
@@ -2029,16 +2044,7 @@ class Result:
             )
         )
 
-        for k, v in self._testcases.items():
-            if isinstance(k, str):
-                # Don't keep track of setup/teardown steps
-                continue
-
-            # Don't write skipped tests, this doesn't really provide useful information and clutters
-            # the output.
-            if k in self._skipped:
-                continue
-
+        for k, v in testcases:
             (tc, cf) = k
             (s, e, d, c) = v
             if c:
@@ -2463,6 +2469,9 @@ class RemoteProcessController(ProcessController):
                 sys.stdout.write("controller application unreachable, restarting... ")
                 sys.stdout.flush()
                 self.restartControllerApp(current, ident)
+                # Re-run any host-side setup a restart may have invalidated (e.g. the Android adb
+                # host->device port forward).
+                self.setup(current)
                 print("ok")
 
         raise RuntimeError("couldn't reach the remote controller `{0}'".format(ident))
@@ -2473,6 +2482,13 @@ class RemoteProcessController(ProcessController):
             conn = proxy.ice_getConnection()
             proxy.ice_getConnection().setCloseCallback(lambda conn: self.clearProcessController(proxy, conn))
             self.cond.notify_all()
+
+    def bindProcessesToController(self):
+        # When true, proxies for spawned processes are rebound to the process-controller connection
+        # rather than trusting the endpoints the controller published. Needed when the controller is
+        # reached over a host-side tunnel (e.g. an adb port forward) whose host port differs from the
+        # device port the controller advertises for its process proxies.
+        return False
 
     def supportsDiscovery(self):
         return True
@@ -2523,8 +2539,11 @@ class RemoteProcessController(ProcessController):
 
         prx = processController.start(str(current.testsuite), exe, args)
 
-        # Create bi-dir proxy in case we're talking to a bi-bir process controller.
-        if self.adapter:
+        # Create bi-dir proxy in case we're talking to a bi-dir process controller, or when the
+        # controller wants its process proxies routed back over the controller connection (e.g. the
+        # Android controller, reached through an adb forward, publishes proxies on the device-side
+        # port which the host can't reach directly).
+        if self.adapter or self.bindProcessesToController():
             prx = processController.ice_getConnection().createProxy(prx.ice_getIdentity())
         from Test import Common as Test_Common
 
@@ -2544,27 +2563,352 @@ class AndroidProcessController(RemoteProcessController):
         RemoteProcessController.__init__(self, current, None)
         self.device = current.config.device if current.config.device != "" else None
         self.avd = current.config.avd
+        self.createdAvd = False  # Only the AVD we create is deleted on shutdown
         self.emulator = None  # Keep a reference to the android emulator process
         self.controllerPid = None
 
     def __str__(self):
         return "Android"
 
+    def hostPort(self):
+        # The controller app always listens on device port 15001, but when several emulators run on
+        # one host each needs its own host-side forward port. Derive it from the emulator serial
+        # (e.g. emulator-5554 -> 15554) so both setup() and getControllerEndpoints() agree.
+        if self.device and self.device.startswith("emulator-"):
+            try:
+                return 10000 + int(self.device.split("-", 1)[1])
+            except ValueError:
+                pass
+        return 15001
+
     def setup(self, current):
-        print(f"forwarding port 15001 to the controller app")
-        run(f"{self.adb()} forward tcp:15001 tcp:15001")
+        port = self.hostPort()
+        print(f"forwarding host port {port} to the controller app (device={self.device})")
+        run(f"{self.adb()} forward tcp:{port} tcp:15001")
+
+    def bindProcessesToController(self):
+        # The controller app advertises its process proxies on the device port (15001). The host only
+        # reaches the device through a per-emulator adb forward, so rebind process proxies onto the
+        # controller connection instead of connecting to the advertised (unreachable) endpoint.
+        return True
 
     def supportsDiscovery(self):
         return False
+
+    # NB: getHost is deliberately not overridden here, and this class's getHost is in fact never
+    # consulted for the host. _startServerSide calls getProcessController(current) with no process
+    # argument, and the Android branch of that dispatch is `elif process and config.android`, so it
+    # falls through to LocalProcessController -> Driver.getHost -> --host-bt.
+    #
+    # So --host-bt on the server-side Controller.py is load-bearing: it becomes the server's
+    # Ice.Default.Host, which IceBT's EndpointI uses as the endpoint address when no -a is given,
+    # and startServerSide hands the same value back for the client to use. (The --host-bt on the
+    # allTests.py side is inert for that reason -- the client takes the host from the server -- which
+    # is why passing a bogus one there does not fail the run. It is not a usable negative test.)
 
     def getControllerIdentity(self, current):
         return "Android/ProcessController"
 
     def getControllerEndpoints(self, current):
-        return "tcp -h 127.0.0.1 -p 15001"
+        return f"tcp -h 127.0.0.1 -p {self.hostPort()}"
+
+    def adbArgs(self):
+        # argv form, for the callers that run adb without a shell.
+        if self.device == "usb":
+            return ["adb", "-d"]
+        elif self.device:
+            # adb serials are emulator-NNNN, USB serials, or host:port -- including the bracketed
+            # IPv6 form adb reports for network devices, e.g. [2001:db8::1]:5555, optionally with a
+            # %scope. Validate the shape here; adb() quotes it for the shell, which also keeps the
+            # brackets from being read as a glob.
+            if not re.fullmatch(r"[A-Za-z0-9._:%\[\]-]+", self.device):
+                raise RuntimeError(f"invalid device serial: {self.device!r}")
+            return ["adb", "-s", self.device]
+        else:
+            return ["adb"]
 
     def adb(self):
-        return "adb -d" if self.device == "usb" else "adb"
+        # Shell form, for the f-string commands run with shell=True.
+        return " ".join(shlex.quote(arg) for arg in self.adbArgs())
+
+    @classmethod
+    def forDevice(cls, device):
+        # Build a lightweight controller bound to an emulator serial for device-level adb operations
+        # (Bluetooth setup and bonding). These only need adb, so we skip the process-controller and
+        # communicator wiring the normal constructor sets up.
+        self = cls.__new__(cls)
+        self.device = device if device else None
+        self.avd = None
+        self.emulator = None
+        self.controllerPid = None
+        return self
+
+    def _adbTolerant(self, args):
+        # Run an adb subcommand for this device, ignoring failures. Used for idempotent /
+        # environment-setup steps (root, remount, enable, grant) that the equivalent shell ran under
+        # `set +e` because they can harmlessly "fail" (already-root, already-enabled, ...).
+        return self._adbTolerantFor(self.adb(), args)
+
+    @staticmethod
+    def _adbTolerantFor(adb, args):
+        # As _adbTolerant, but for an explicitly given adb command (e.g. the bond peer's).
+        try:
+            return run(f"{adb} {args}")
+        except RuntimeError as ex:
+            # These prints are the only record of swallowed failures in setup_{client,server}.log,
+            # so keep adb's own output: run() puts the command on the first line and the reason
+            # after it, and printing only the first line would drop the reason entirely.
+            # stderr, not stdout: --bt-prepare's stdout carries only the server's Bluetooth address.
+            print(f"  (ignored) {ex}", file=sys.stderr)
+            return ""
+
+    def waitForBoot(self, timeout=300):
+        # Wait for the device to reconnect to adb and finish booting. Tolerant of the transient adb
+        # errors seen while a device is mid-reboot. One deadline covers both phases -- otherwise
+        # wait-for-device could consume the whole budget and the poll loop would start a fresh one,
+        # doubling the advertised timeout.
+        deadline = time.time() + timeout
+        try:
+            subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=timeout, check=False)
+        except subprocess.TimeoutExpired:
+            pass
+        name = self.device or self.avd or "device"
+        while time.time() <= deadline:
+            try:
+                if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
+                    return
+            except RuntimeError:
+                pass  # device offline mid-reboot
+            time.sleep(3)
+        raise RuntimeError(f"'{name}' not booted after {timeout}s")
+
+    def reboot(self):
+        # A reboot that doesn't happen must not be mistaken for one that did: waitForBoot's
+        # wait-for-device returns at once while the device is still up, and sys.boot_completed is
+        # still 1 from the old boot, so setup would carry on as though the /system changes had been
+        # applied. Fail on both a rejected `adb reboot` and a device that never drops off adb.
+        run(f"{self.adb()} reboot")
+        try:
+            subprocess.run([*self.adbArgs(), "wait-for-disconnect"], timeout=120, check=True)
+        except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as ex:
+            raise RuntimeError(f"'{self.device}' did not go down after 'adb reboot': {ex}")
+        self.waitForBoot()
+
+    def rootRemount(self, timeout=120, requireWritable=False):
+        # `adb root` restarts adbd and can transiently fail ("failed to start daemon"), especially
+        # when two emulators share one adb server. Retry until adbd is running as root, then remount
+        # so /system is writable.
+        #
+        # remount stays tolerant: on the first pass it only disables dm-verity and cannot make
+        # /system writable until the reboot that follows, so a failure there is expected. Callers
+        # that are about to write to /system pass requireWritable=True, which keeps retrying until
+        # the filesystem really is writable -- otherwise a silently failed remount is only noticed
+        # after it has burned every push attempt against a read-only /system.
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            self._adbTolerant("root")
+            try:
+                subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=60, check=False)
+            except subprocess.TimeoutExpired:
+                pass
+            try:
+                if run(f"{self.adb()} shell id -u").strip() == "0":
+                    self._adbTolerant("remount")
+                    if not requireWritable:
+                        return
+                    # Probe rather than parse mount output: on system-as-root images /system isn't
+                    # its own entry, so writing is the only reliable check.
+                    # Quote the whole thing: run() is shell=True, so an unquoted && would bind to
+                    # the local shell and could report success on a device-side failure.
+                    probe = self._adbTolerant("shell 'touch /system/.rw && echo RW_OK'")
+                    if "RW_OK" in probe:
+                        self._adbTolerant("shell rm -f /system/.rw")
+                        return
+            except RuntimeError:
+                pass  # device offline mid-restart
+            time.sleep(3)
+        what = "have a writable /system" if requireWritable else "become root"
+        raise RuntimeError(f"'{self.device}' did not {what} within {timeout}s")
+
+    def bluetoothAddress(self):
+        return run(f"{self.adb()} shell settings get secure bluetooth_address").strip()
+
+    def enableBluetooth(self):
+        # `adb root` restarts adbd; wait for the device to come back rather than assuming a fixed
+        # sleep is enough, as rootRemount does. Under --bt-prepare two of these run in parallel
+        # against one adb server, and the commands below are fatal, so a slow adbd would otherwise
+        # surface as a spurious "Bluetooth did not reach STATE_ON".
+        self._adbTolerant("root")
+        try:
+            subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=60, check=False)
+        except subprocess.TimeoutExpired:
+            pass
+        # Tolerant: enabling an already-enabled adapter fails harmlessly.
+        self._adbTolerant("shell cmd bluetooth_manager enable")
+        # Not tolerant: this is the only command that establishes the adapter actually reached
+        # STATE_ON. bluetooth_address can't stand in for it -- it is a persisted secure setting that
+        # stays populated while the adapter is off, and enableBluetooth runs just after
+        # installSystemApp's reboot, so it would still hold the value from the previous boot.
+        run(f"{self.adb()} shell cmd bluetooth_manager wait-for-state:STATE_ON")
+
+    def grantRuntimePermissions(self, package, permissions):
+        for permission in permissions:
+            # Fatal: granting an already-granted permission is idempotent, so the only failures are
+            # real ones (unknown package/permission), and swallowing those would let setup report
+            # success and surface later as an opaque SecurityException inside the helper.
+            run(f"{self.adb()} shell pm grant {package} {permission}")
+
+    def installSystemApp(self, apk, name, package, permissions):
+        # Install `apk` as a privileged system app (/system/priv-app/<name>) together with a
+        # privapp-permissions allowlist granting `permissions` to `package`. Requires an emulator
+        # booted with -writable-system. The remount->reboot->remount->push->reboot sequence first
+        # disables dm-verity, then makes /system writable so the app and allowlist can be pushed.
+        entries = "\n".join(f'        <permission name="{p}"/>' for p in permissions)
+        xml = (
+            "<permissions>\n"
+            f'    <privapp-permissions package="{package}">\n'
+            f"{entries}\n"
+            "    </privapp-permissions>\n"
+            "</permissions>\n"
+        )
+        with tempfile.NamedTemporaryFile("w", suffix=".xml", delete=False) as f:
+            f.write(xml)
+            xmlPath = f.name
+        try:
+            self.rootRemount()  # disables dm-verity
+            self.reboot()  # apply it so /system becomes writable
+            # Retry the root+remount+push: adb root/remount can still flake under contention, which
+            # would otherwise leave /system read-only and fail the push.
+            for attempt in range(1, 4):
+                self.rootRemount(requireWritable=True)
+                self._adbTolerant(f"shell mkdir -p /system/priv-app/{name}")
+                try:
+                    run(f'{self.adb()} push "{apk}" /system/priv-app/{name}/{name}.apk')
+                    run(f'{self.adb()} push "{xmlPath}" /system/etc/permissions/privapp-permissions-{name}.xml')
+                    break
+                except RuntimeError:
+                    if attempt == 3:
+                        raise
+                    print(f"  /system push failed (attempt {attempt}/3), retrying root+remount")
+                    time.sleep(5)
+        finally:
+            os.remove(xmlPath)
+        self.reboot()
+
+    def bond(self, peerDevice, uuid, package="com.zeroc.btbond"):
+        # Bond this (client) emulator to `peerDevice` (server) over secure RFCOMM using the btbond
+        # helper installed on both by installSystemApp: start its server mode on the peer, then
+        # connect + pair from this device. Bonding is what secure RFCOMM (and hence IceBT) requires.
+        # Build the peer's adb command through forDevice().adb() rather than by hand, so the peer
+        # serial goes through the same validation as our own (these all run with shell=True).
+        peerAdb = AndroidProcessController.forDevice(peerDevice).adb()
+        if not re.fullmatch(r"[A-Fa-f0-9-]+", uuid):
+            raise RuntimeError(f"invalid service UUID: {uuid!r}")
+        peerAddress = run(f"{peerAdb} shell settings get secure bluetooth_address").strip()
+        if not peerAddress or peerAddress == "null":
+            raise RuntimeError(f"could not read the Bluetooth address of peer '{peerDevice}'")
+        activity = f"{package}/.MainActivity"
+        # Clear both logs first: the result line is matched out of logcat below, and one left over
+        # from an earlier attempt would otherwise be read as this attempt's result.
+        # Ours must be fatal: it is the buffer the verdict is read from below, and a stale
+        # "RESULT client OK" left in it would be read as this attempt's result. The peer's is only
+        # tidiness -- nothing reads it -- so a transient failure there must not kill the bond.
+        run(f"{self.adb()} logcat -c")
+        self._adbTolerantFor(peerAdb, "logcat -c")
+        run(f"{peerAdb} shell am start -n {activity} --es mode server --es uuid {uuid}")
+        time.sleep(6)
+        run(f"{self.adb()} shell am start -n {activity} --es mode client --es peer {peerAddress} --es uuid {uuid}")
+        result = ""
+        verdict = ""
+        # Poll past btbond's own 150s watchdog (MainActivity.WATCHDOG_MS) with some margin: a bond
+        # that is slow but within the helper's budget must not be rejected by the host first, and if
+        # the watchdog does fire, its terminal FAIL verdict is worth collecting.
+        for _ in range(60):
+            result = self._adbTolerant("logcat -d -s BTBOND")
+            # Take the LAST verdict, not any match: if the activity ran more than once, an earlier
+            # line must not decide the outcome -- an old FAIL followed by an OK (or the reverse)
+            # would otherwise be read by substring search as whichever we happened to look for.
+            verdicts = re.findall(r"RESULT client (\w+)", result)
+            if verdicts:
+                # A recreated activity can leave two workers racing in one attempt, so a trailing
+                # verdict may land just after the first; settle briefly and re-read. The dumpsys
+                # check below stays the authority on the bond itself -- it reads device state, not
+                # logcat.
+                time.sleep(6)
+                result = self._adbTolerant("logcat -d -s BTBOND")
+                verdicts = re.findall(r"RESULT client (\w+)", result) or verdicts
+                verdict = verdicts[-1]
+                break
+            time.sleep(3)
+        # Match the verdict, not just the presence of a result: "RESULT client FAIL" also contains
+        # "RESULT client".
+        if verdict != "OK":
+            raise RuntimeError(f"btbond did not report a successful bond on '{self.device}'\n{result[-500:]}")
+        # dumpsys masks all but the last two octets of a bonded address, so match on those.
+        bonded = self._adbTolerant("shell dumpsys bluetooth_manager")
+        if peerAddress[-5:] not in bonded:
+            # Report the dumpsys output that actually failed, not the logcat tail -- which at this
+            # point necessarily contains "RESULT client OK" and reads as a contradiction.
+            raise RuntimeError(f"'{self.device}' did not bond to '{peerDevice}' ({peerAddress})\n{bonded[-500:]}")
+        return peerAddress
+
+    def diagnostics(self, package="com.zeroc.testcontroller"):
+        # Dump adb state useful for debugging a failed Bluetooth harness run on this device.
+        try:
+            pid = run(f"{self.adb()} shell pidof {package}").strip()
+        except RuntimeError:
+            pid = ""  # pidof exits non-zero when the app isn't running
+        print(f"controller app pid: {pid or '<none>'}")
+        print("-- adb forwards --")
+        print(self._adbTolerant("forward --list"))
+        print("-- controller app logcat --")
+        keep = re.compile("testcontroller|ControllerApp|ControllerActivity|AndroidRuntime|FATAL|IceInternal|com.zeroc")
+        lines = [ln for ln in self._adbTolerant("logcat -d").splitlines() if keep.search(ln)]
+        print("\n".join(lines[-50:]))
+
+    # Emulator flags for the Bluetooth harness: -writable-system allows installing btbond as a
+    # privileged system app, and -packet-streamer-endpoint attaches the emulator to the shared
+    # Netsim virtual Bluetooth network so the two emulators can reach each other.
+    bluetoothEmulatorFlags = [
+        "-no-audio",
+        "-partition-size",
+        "2048",
+        "-no-snapshot",
+        "-writable-system",
+        "-gpu",
+        "swiftshader_indirect",
+        "-accel",
+        "on",
+        "-no-boot-anim",
+        "-no-window",
+        "-packet-streamer-endpoint",
+        "default",
+    ]
+
+    @classmethod
+    def createBluetoothEmulator(cls, avd, image, port, logFile):
+        # Create the AVD (replacing any stale one) and launch it detached so the emulator outlives
+        # this process -- CI runs each step in a fresh shell, and the emulator must survive.
+        try:
+            run(f"avdmanager -v delete avd -n {avd}")
+        except RuntimeError:
+            pass  # no existing AVD to delete
+        run(f'echo no | avdmanager -v create avd -k "{image}" -d "Nexus 6" -n {avd}')
+        print(f"starting emulator '{avd}' on port {port} (log: {logFile})")
+        with open(logFile, "wb") as log:
+            emulator = subprocess.Popen(
+                ["emulator", "-avd", avd, "-port", str(port), *cls.bluetoothEmulatorFlags],
+                stdout=log,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+            )
+        # An emulator that rejects a flag (e.g. an image without Netsim support for
+        # -packet-streamer-endpoint) exits immediately. Catch that here rather than let it surface
+        # five minutes later as an opaque "not booted after 300s" with the cause only in the log.
+        time.sleep(2)
+        if emulator.poll() is not None:
+            with open(logFile) as log:
+                raise RuntimeError(f"emulator '{avd}' exited immediately:\n{log.read()[-1000:]}")
 
     def startEmulator(self, avd):
         #
@@ -2602,7 +2946,7 @@ class AndroidProcessController(RemoteProcessController):
         self.avd = avd
 
         print("waiting for the emulator to respond to adb")
-        subprocess.run([self.adb(), "wait-for-device"], timeout=60, check=True)
+        subprocess.run([*self.adbArgs(), "wait-for-device"], timeout=60, check=True)
 
         # Wait for the device to be ready
         print("waiting for the emulator to boot")
@@ -2628,8 +2972,11 @@ class AndroidProcessController(RemoteProcessController):
             except Exception:
                 pass
             run('avdmanager -v create avd -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
+            self.createdAvd = True
             self.startEmulator("IceTests")
-        elif current.config.device != "usb":
+        elif current.config.device != "usb" and not current.config.device.startswith("emulator-"):
+            # Local emulator serials aren't network targets: `adb connect emulator-5554` just prints
+            # "failed to resolve host" (and exits 0, so it was harmless -- only noisy).
             run("adb connect {}".format(current.config.device))
 
         # First try uninstall in case the controller was left behind from a previous run
@@ -2638,7 +2985,8 @@ class AndroidProcessController(RemoteProcessController):
         except Exception:
             pass
         print("installing the controller application")
-        run("{} install -t -r {}".format(self.adb(), current.testcase.getMapping().getApk(current)))
+        # -g grants runtime permissions (e.g. BLUETOOTH_CONNECT/SCAN) the controller needs for bt tests.
+        run("{} install -t -r -g {}".format(self.adb(), current.testcase.getMapping().getApk(current)))
         print("starting the controller application")
         run(
             '{} shell am start -n "{}" -a android.intent.action.MAIN -c android.intent.category.LAUNCHER'.format(
@@ -2651,7 +2999,7 @@ class AndroidProcessController(RemoteProcessController):
         sys.stdout.flush()
         for i in range(30):
             try:
-                self.controllerPid = run("adb shell pidof -s com.zeroc.testcontroller")
+                self.controllerPid = run(f"{self.adb()} shell pidof -s com.zeroc.testcontroller")
                 if self.controllerPid:
                     print(" ok (pid={})".format(self.controllerPid))
                     break
@@ -2667,7 +3015,7 @@ class AndroidProcessController(RemoteProcessController):
         try:
             print("pulling log files from the device")
             subprocess.run(
-                [self.adb(), "pull", "/sdcard/Android/data/com.zeroc.testcontroller/", androidLogsDir],
+                [*self.adbArgs(), "pull", "/sdcard/Android/data/com.zeroc.testcontroller/", androidLogsDir],
                 timeout=60,
                 check=True,
             )
@@ -2680,7 +3028,7 @@ class AndroidProcessController(RemoteProcessController):
             try:
                 logCatResult = subprocess.run(
                     [
-                        self.adb(),
+                        *self.adbArgs(),
                         "logcat",
                         "-d",
                         "-v",
@@ -2713,9 +3061,9 @@ class AndroidProcessController(RemoteProcessController):
             except Exception:
                 pass
 
-            if self.avd == "IceTests":
+            if self.createdAvd:
                 try:
-                    run("avdmanager -v delete avd -n IceTests")  # Delete the created device
+                    run("avdmanager -v delete avd -n IceTests")  # Delete the device we created
                 except Exception:
                     pass
 
@@ -2733,10 +3081,15 @@ class AndroidProcessController(RemoteProcessController):
                 sys.stdout.flush()
                 time.sleep(0.5)
 
-        try:
-            run("adb kill-server")
-        except Exception:
-            pass
+        # Only reset the adb server if we started (and just killed) our own emulator. When running
+        # against an externally-managed device/emulator serial -- especially with a second emulator
+        # in play for cross-tests -- `adb kill-server` would drop every device's port forwards and
+        # leave the peer controller unreachable.
+        if self.emulator:
+            try:
+                run("adb kill-server")
+            except Exception:
+                pass
 
 
 class iOSSimulatorDevice:
@@ -2905,7 +3258,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
         sys.stdout.write("shutting down simulator... ")
         sys.stdout.flush()
         try:
-            run('xcrun simctl shutdown "{0}"'.format(self.simulatorID))
+            run('xcrun simctl shutdown "{0}"'.format(self.device))
         except Exception:
             pass
         print("ok")
@@ -4318,5 +4671,7 @@ def runTests(mappings=None, drivers=None):
             driver.destroy()
 
     except Exception:
-        print(sys.argv[0] + ": unexpected exception raised:\n" + traceback.format_exc())
+        # stderr, so a caller capturing stdout -- e.g. `ADDR=$(Controller.py --bt-prepare ...)` --
+        # still sees the failure instead of swallowing it into the variable.
+        print(sys.argv[0] + ": unexpected exception raised:\n" + traceback.format_exc(), file=sys.stderr)
         sys.exit(1)

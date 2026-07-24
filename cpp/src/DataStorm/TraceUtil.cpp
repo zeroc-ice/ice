@@ -111,7 +111,7 @@ namespace DataStormContract
 
     ostream& operator<<(ostream& os, const DataSamples& samples)
     {
-        os << 'e' << samples.id << ":sz" << samples.samples.size();
+        os << 'e' << samples.id << "->e" << samples.peerId << ":sz" << samples.samples.size();
         return os;
     }
 }

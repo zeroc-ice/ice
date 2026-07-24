@@ -251,14 +251,14 @@ for m in filter(lambda x: os.path.isdir(os.path.join(Util.toplevel, x)), os.list
     elif m == "swift" or re.match("swift-.*", m):
         # Swift mapping requires Swift 5.0 or greater
         Util.Mapping.add(
-            "swift",
+            m,
             Util.SwiftMapping(),
             component,
             enable=Util.platform.hasSwift((5, 0)),
         )
-    elif m == "csharp" or re.match("charp-.*", m):
+    elif m == "csharp" or re.match("csharp-.*", m):
         Util.Mapping.add(
-            "csharp",
+            m,
             Util.CSharpMapping(),
             component,
             enable=isinstance(Util.platform, Util.Windows) or Util.platform.hasDotNet(),

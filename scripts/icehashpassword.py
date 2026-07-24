@@ -106,7 +106,7 @@ def main():
         #
         passScheme = passlib.hosts.host_context
 
-    if rounds:
+    if rounds is not None:
         if not passScheme.min_rounds <= rounds <= passScheme.max_rounds:
             print(
                 "Invalid number rounds for the digest algorithm. Value must be an integer between %s and %s"
@@ -114,26 +114,29 @@ def main():
             )
             usage()
             return 2
-    if salt:
-        if not passScheme.min_salt_size <= salt <= passScheme.max_salt_size:
+    if salt is not None:
+        # The schemes report a minimum salt size of 0, but hashing a password without a salt is never
+        # what the user wants: passlib emits an empty salt field that verifies just fine.
+        minSaltSize = max(1, passScheme.min_salt_size)
+        if not minSaltSize <= salt <= passScheme.max_salt_size:
             print(
                 "Invalid salt size for the digest algorithm. Value must be an integer between %s and %s"
-                % (passScheme.min_salt_size, passScheme.max_salt_size)
+                % (minSaltSize, passScheme.max_salt_size)
             )
             usage()
             return 2
 
     args = []
-    if sys.stdout.isatty():
+    if sys.stdin.isatty():
         args.append(getpass.getpass("Password: "))
     else:
-        args.append(sys.stdin.readline().strip())
+        args.append(sys.stdin.readline().removesuffix("\n").removesuffix("\r"))
 
     opts = {}
-    if salt:
+    if salt is not None:
         opts["salt_size"] = salt
 
-    if rounds:
+    if rounds is not None:
         opts["rounds"] = rounds
 
     # passlib 1.7 renamed encrypt to hash

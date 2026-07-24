@@ -9,7 +9,7 @@ namespace Ice;
 
 /// <summary>
 /// Applications implement this interface to provide a plug-in factory
-/// to the Ice run time.
+/// to the Ice runtime.
 /// </summary>
 public interface PluginFactory
 {
@@ -19,7 +19,7 @@ public interface PluginFactory
     string pluginName { get; }
 
     /// <summary>
-    /// Called by the Ice run time to create a new plug-in.
+    /// Called by the Ice runtime to create a new plug-in.
     /// </summary>
     ///
     /// <param name="communicator">The communicator that is in the process of being initialized.</param>

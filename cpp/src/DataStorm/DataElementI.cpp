@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <set>
+#include <stdexcept>
 
 using namespace std;
 using namespace DataStormI;
@@ -133,13 +134,13 @@ DataElementI::attach(
         auto q = data.lastIds.find(_id);
         int64_t lastId = q != data.lastIds.end() ? q->second : 0;
         LongLongDict lastIds = key ? session->getLastIds(topicId, id, shared_from_this()) : LongLongDict{};
-        DataSamples samples = getSamples(key, sampleFilter, data.config, lastId, now);
+        DataSamples initializationBatch = getSamples(key, sampleFilter, data.config, lastId, now);
 
         acks.push_back(ElementDataAck{
             .id = _id,
             .config = _config,
             .lastIds = std::move(lastIds),
-            .samples = std::move(samples.samples),
+            .samples = std::move(initializationBatch.samples),
             .peerId = data.id});
     }
 }
@@ -154,7 +155,7 @@ DataElementI::attach(
     SessionPrx prx,
     const ElementDataAck& data,
     const chrono::time_point<chrono::system_clock>& now,
-    DataSamplesSeq& samples)
+    DataSamplesSeq& initializationBatches)
 {
     // Called with the topic and session from TopicI::attachElementsAck locked.
     shared_ptr<Filter> sampleFilter;
@@ -189,7 +190,12 @@ DataElementI::attach(
     {
         auto q = data.lastIds.find(_id);
         int64_t lastId = q != data.lastIds.end() ? q->second : 0;
-        samples.push_back(getSamples(key, sampleFilter, data.config, lastId, now));
+        DataSamples initializationBatch = getSamples(key, sampleFilter, data.config, lastId, now);
+        // Address the batch to the peer reader element so the receiver initializes exactly that reader. A multi-key
+        // writer produces one batch per key here; the session merges the batches sharing a writer-reader pair before
+        // sending them.
+        initializationBatch.peerId = data.id;
+        initializationBatches.push_back(std::move(initializationBatch));
     }
 
     auto samplesI =
@@ -276,7 +282,14 @@ DataElementI::detachKey(
         return;
     }
 
+    // The subscriber can be gone when the element was already detached: the destroyed-topic cleanup paths can
+    // process an element a second time.
     auto subscriber = p->second.get(topicId, elementId);
+    if (!subscriber)
+    {
+        return;
+    }
+
     if (removeConnectedKey(key, subscriber))
     {
         if (key)
@@ -395,7 +408,14 @@ DataElementI::detachFilter(
         return;
     }
 
+    // The subscriber can be gone when the element was already detached: the destroyed-topic cleanup paths can
+    // process an element a second time.
     auto subscriber = p->second.get(topicId, filterId);
+    if (!subscriber)
+    {
+        return;
+    }
+
     if (removeConnectedKey(key, subscriber))
     {
         if (key)
@@ -597,7 +617,14 @@ DataElementI::addConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Subsc
 bool
 DataElementI::removeConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Subscriber>& subscriber)
 {
-    auto& subscribers = _connectedKeys[key];
+    // Don't use operator[]: a second detach of the same element looks up a key that was already removed, and
+    // must not insert an empty entry.
+    auto q = _connectedKeys.find(key);
+    if (q == _connectedKeys.end())
+    {
+        return false;
+    }
+    auto& subscribers = q->second;
     auto p = find(subscribers.begin(), subscribers.end(), subscriber);
     if (p != subscribers.end())
     {
@@ -609,7 +636,7 @@ DataElementI::removeConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Su
                 _executor->queue([callback = _onConnectedKeys, key]
                                  { callback(DataStorm::CallbackReason::Disconnect, key); });
             }
-            _connectedKeys.erase(key);
+            _connectedKeys.erase(q);
         }
         return true;
     }
@@ -770,8 +797,14 @@ DataReaderI::initSamples(
         {
             // The discard only affects the application-visible delivery: when the key has no base yet, still record
             // the discarded sample as the base partial updates resolve against, otherwise a later partial update on
-            // the key would have no base.
+            // the key would have no base. A remove carries no value and cannot serve as a base.
+            //
+            // Accepted trade-off (as in queue): a remove erases the key's base rather than leaving a tombstone, so a
+            // stale full update that loses the discard race can re-seed it here and let a following partial update
+            // resolve for a key last seen removed. This is strictly better than the pre-fix crash and a tombstone to
+            // distinguish the two states isn't worth it.
             if (sample->event != DataStorm::SampleEvent::PartialUpdate &&
+                sample->event != DataStorm::SampleEvent::Remove &&
                 previousByKey.find(sample->key) == previousByKey.end())
             {
                 try
@@ -797,11 +830,11 @@ DataReaderI::initSamples(
             if (sample->event == DataStorm::SampleEvent::PartialUpdate)
             {
                 auto p = previousByKey.find(sample->key);
-                if (p == previousByKey.end())
+                if (p == previousByKey.end() || !p->second->hasValue())
                 {
-                    // No base to resolve the partial update against (for example a peer writer that doesn't
-                    // bootstrap the base): drop the sample rather than apply the update to a default-constructed
-                    // value.
+                    // No usable base to resolve the partial update against (the key was never set, was removed, or
+                    // the base sample carries no value): drop the sample rather than apply the update to a
+                    // default-constructed value.
                     if (_traceLevels->data > 0)
                     {
                         Trace out(_traceLevels->logger, _traceLevels->dataCat);
@@ -826,8 +859,10 @@ DataReaderI::initSamples(
                     continue;
                 }
             }
-            else
+            else if (sample->event != DataStorm::SampleEvent::Remove)
             {
+                // A remove's value is irrelevant and is left default-constructed: skipping the decoding ensures a
+                // decoding failure cannot drop the remove and leave the key's stale base in place below.
                 try
                 {
                     sample->decode(_parent->instance()->getCommunicator());
@@ -841,7 +876,17 @@ DataReaderI::initSamples(
             }
         }
         valid.push_back(sample);
-        previousByKey[sample->key] = sample;
+
+        // A remove clears the per-key base: the key has no value anymore, so a later partial update for the key
+        // has no base to resolve against and is discarded.
+        if (sample->event == DataStorm::SampleEvent::Remove)
+        {
+            previousByKey.erase(sample->key);
+        }
+        else
+        {
+            previousByKey[sample->key] = sample;
+        }
     }
 
     if (_traceLevels->data > 2 && valid.size() < samples.size())
@@ -863,17 +908,15 @@ DataReaderI::initSamples(
             });
     }
 
+    // The per-key bases for partial updates are maintained even when the element keeps no history (sampleCount == 0),
+    // and even when every sample was discarded or dropped, so a later partial update on their keys can resolve.
+    _lastByKey = std::move(previousByKey);
+
     if (valid.empty())
     {
-        // Even when every sample was discarded or dropped, keep the bases recorded above so a later partial update
-        // on their keys can resolve.
-        _lastByKey = std::move(previousByKey);
         return;
     }
     _lastSendTime = valid.back()->timestamp;
-
-    // The per-key bases for partial updates are maintained even when the element keeps no history (sampleCount == 0).
-    _lastByKey = std::move(previousByKey);
 
     if (_config->sampleLifetime && *_config->sampleLifetime > 0)
     {
@@ -971,8 +1014,14 @@ DataReaderI::queue(
 
         // The discard only affects the application-visible delivery: when the key has no base yet, still record the
         // discarded sample as the base partial updates resolve against, otherwise a later partial update on the key
-        // would have no base.
-        if (sample->event != DataStorm::SampleEvent::PartialUpdate && _lastByKey.find(sample->key) == _lastByKey.end())
+        // would have no base. A remove carries no value and cannot serve as a base.
+        //
+        // Accepted trade-off: a remove erases the key's base rather than leaving a tombstone, so this cannot tell
+        // "removed" from "never seen". A stale full update that loses the discard race can re-seed the base here and
+        // let a following partial update resolve for a key the application last saw removed. This is strictly better
+        // than the pre-fix crash; distinguishing the two states would need a remove tombstone and isn't worth it.
+        if (sample->event != DataStorm::SampleEvent::PartialUpdate && sample->event != DataStorm::SampleEvent::Remove &&
+            _lastByKey.find(sample->key) == _lastByKey.end())
         {
             try
             {
@@ -995,10 +1044,11 @@ DataReaderI::queue(
         if (sample->event == DataStorm::SampleEvent::PartialUpdate)
         {
             auto p = _lastByKey.find(sample->key);
-            if (p == _lastByKey.end())
+            if (p == _lastByKey.end() || !p->second->hasValue())
             {
-                // No base to resolve the partial update against (for example a peer writer that doesn't bootstrap
-                // the base): drop the sample rather than apply the update to a default-constructed value.
+                // No usable base to resolve the partial update against (the key was never set, was removed, or the
+                // base sample carries no value): drop the sample rather than apply the update to a
+                // default-constructed value.
                 if (_traceLevels->data > 0)
                 {
                     Trace out(_traceLevels->logger, _traceLevels->dataCat);
@@ -1020,8 +1070,10 @@ DataReaderI::queue(
                 return;
             }
         }
-        else
+        else if (sample->event != DataStorm::SampleEvent::Remove)
         {
+            // A remove's value is irrelevant and is left default-constructed: skipping the decoding ensures a
+            // decoding failure cannot drop the remove and leave the key's stale base in place below.
             try
             {
                 sample->decode(_parent->instance()->getCommunicator());
@@ -1037,7 +1089,16 @@ DataReaderI::queue(
     _lastSendTime = sample->timestamp;
 
     // The per-key base for partial updates is maintained even when the element keeps no history (sampleCount == 0).
-    _lastByKey[sample->key] = sample;
+    // A remove clears the base: the key has no value anymore, so a later partial update for the key has no base to
+    // resolve against and is discarded.
+    if (sample->event == DataStorm::SampleEvent::Remove)
+    {
+        _lastByKey.erase(sample->key);
+    }
+    else
+    {
+        _lastByKey[sample->key] = sample;
+    }
 
     if (_onSamples)
     {
@@ -1154,8 +1215,18 @@ DataWriterI::publish(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
     {
         assert(!sample->hasValue());
         auto p = _lastByKey.find(key);
-        _parent->getUpdater(
-            sample->tag)(p == _lastByKey.end() ? nullptr : p->second, sample, _parent->instance()->getCommunicator());
+        if (p == _lastByKey.end() || !p->second->hasValue())
+        {
+            // No base to resolve the partial update against: the key was never given a full value, or its last
+            // value was removed. On the writer this is always an application sequencing error, because _lastByKey
+            // holds only this writer's own published samples, so no other writer's remove can clear it (unlike the
+            // reader, where a concurrent remove can legitimately leave the key with no base). Throw so the mistake
+            // surfaces at the partialUpdate call site instead of being silently dropped. The value-less check
+            // mirrors the reader's guards: a remove erases the base rather than storing a value-less one, so it
+            // can't fire here today, but both sides consume _lastByKey with identical semantics.
+            throw std::logic_error("cannot apply a partial update to a key that has no value");
+        }
+        _parent->getUpdater(sample->tag)(p->second, sample, _parent->instance()->getCommunicator());
     }
 
     sample->id = ++_parent->_nextSampleId;
@@ -1169,7 +1240,16 @@ DataWriterI::publish(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
     send(key, sample);
 
     // The per-key base for partial updates is maintained even when the element keeps no history (sampleCount == 0).
-    _lastByKey[key] = sample;
+    // A remove clears the base: the key has no value anymore, so a later partial update for the key has no base to
+    // resolve against and is discarded.
+    if (sample->event == DataStorm::SampleEvent::Remove)
+    {
+        _lastByKey.erase(key);
+    }
+    else
+    {
+        _lastByKey[key] = sample;
+    }
 
     if (_config->sampleLifetime && *_config->sampleLifetime > 0)
     {
@@ -1382,8 +1462,8 @@ KeyDataWriterI::getSamples(
     const chrono::time_point<chrono::system_clock>& now)
 {
     // Collect all queued samples that match the key and sample filter, are newer than the lastId, and are not stale.
-    DataSamples samples;
-    samples.id = _keys.empty() ? -_id : _id;
+    DataSamples initializationBatch;
+    initializationBatch.id = _keys.empty() ? -_id : _id;
 
     // Orders the source samples to deliver by id, caps them to the reader's history depth, and delivers them. A
     // partial base is sent as a full Update, and the earliest delivered sample of each key is likewise resolved to a
@@ -1441,16 +1521,16 @@ KeyDataWriterI::getSamples(
         set<shared_ptr<Key>> seen;
         for (const auto& sample : sources)
         {
-            DataSample ds = toSample(sample, getCommunicator(), _keys.empty());
+            DataSample initializationSample = toSample(sample, getCommunicator(), _keys.empty());
             // The earliest delivered sample of each key must carry a full value; a partial is sent as a full Update
             // built from the sample's own resolved value.
             if (seen.insert(sample->key).second && sample->event == DataStorm::SampleEvent::PartialUpdate)
             {
-                ds.tag = 0;
-                ds.event = DataStorm::SampleEvent::Update;
-                ds.value = sample->encodeValue(getCommunicator());
+                initializationSample.tag = 0;
+                initializationSample.event = DataStorm::SampleEvent::Update;
+                initializationSample.value = sample->encodeValue(getCommunicator());
             }
-            samples.samples.push_back(std::move(ds));
+            initializationBatch.samples.push_back(std::move(initializationSample));
         }
     };
 
@@ -1477,7 +1557,7 @@ KeyDataWriterI::getSamples(
     if (config->sampleCount && *config->sampleCount == 0)
     {
         finalize(collectBases({}));
-        return samples;
+        return initializationBatch;
     }
 
     // Reap stale samples before collecting any samples.
@@ -1541,7 +1621,7 @@ KeyDataWriterI::getSamples(
     auto bases = collectBases(covered);
     sources.insert(sources.end(), bases.begin(), bases.end());
     finalize(std::move(sources));
-    return samples;
+    return initializationBatch;
 }
 
 void

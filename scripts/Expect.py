@@ -1,5 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
+import codecs
 import io
 import os
 import platform
@@ -130,34 +131,52 @@ class reader(threading.Thread):
         self.watchDog = watchDog
 
     def run(self):
+        # Depending on the platform, the value read below is either a string or a single byte, in
+        # which case it's decoded incrementally since a character can span several reads.
+        decoder = codecs.getincrementaldecoder("utf-8")("replace")
         try:
             while True:
                 c = self.p.stdout.read(1)
                 if not c:
                     self.cv.acquire()
-                    self.trace(None)
-                    self._finish = True  # We have finished processing output
-                    self.cv.notify()
-                    self.cv.release()
+                    try:
+                        # Flush the character the decoder may still be holding, otherwise a process
+                        # exiting in the middle of a multi-byte sequence loses its last character.
+                        for char in decoder.decode(b"", True):
+                            self.trace(char)
+                            self.buf.write(char)
+                        self.trace(None)
+                        self._finish = True  # We have finished processing output
+                        self.cv.notify()
+                    finally:
+                        self.cv.release()
                     break
-                if c == "\r":
-                    continue
+                if not isinstance(c, str):
+                    c = decoder.decode(c)
+                    if not c:
+                        continue  # Incomplete character, read more bytes.
 
                 self.cv.acquire()
                 try:
-                    # Depending on Python version and platform, the value c could be a
-                    # string or a bytes object.
-                    if not isinstance(c, str):
-                        c = c.decode()
-                    self.trace(c)
+                    # Decoding can yield more than one character, so trace and buffer them one by one.
+                    for char in c:
+                        if char == "\r":
+                            continue
+                        self.trace(char)
+                        self.buf.write(char)
                     if self.watchDog is not None:
                         self.watchDog.reset()
-                    self.buf.write(c)
                     self.cv.notify()
                 finally:
                     self.cv.release()
-        except IOError as e:
+        except Exception as e:
             print(e)
+        finally:
+            # Always wake up the waiters, otherwise they would block until their timeout expires.
+            self.cv.acquire()
+            self._finish = True
+            self.cv.notify()
+            self.cv.release()
 
     def trace(self, c):
         if self._trace:
@@ -213,21 +232,24 @@ class reader(threading.Thread):
                 tdesc = "<infinite>"
             else:
                 tdesc = "%.2fs" % timeout
-            p = [escape(s) for (s, r) in pattern]
             pdesc = io.StringIO()
-            if len(p) == 1:
-                pdesc.write(escape(p[0]))
+            if len(pattern) == 1:
+                pdesc.write(escape(pattern[0][0]))
             else:
                 pdesc.write("[")
-                for pat in p:
-                    if pat != p[0]:
+                for index, (s, regexp) in enumerate(pattern):
+                    if index > 0:
                         pdesc.write(",")
-                    pdesc.write(escape(pat))
+                    pdesc.write(escape(s))
                 pdesc.write("]")
             self.logfile.write('%s: expect: "%s" timeout: %s\n' % (self.desc, pdesc.getvalue(), tdesc))
             self.logfile.flush()
 
         maxend = None
+
+        def patternDesc():
+            return ",".join([escape(s) for (s, regexp) in pattern])
+
         self.cv.acquire()
         try:
             try:  # This second try/except block is necessary because of python 2.3
@@ -306,7 +328,8 @@ class reader(threading.Thread):
                     # If no match and we have finished processing output raise a TIMEOUT
                     if self._finish:
                         raise TIMEOUT(
-                            'timeout exceeded in match\npattern: "%s"\nbuffer: "%s"\n' % (escape(s), escape(buf, False))
+                            'timeout exceeded in match\npattern: "%s"\nbuffer: "%s"\n'
+                            % (patternDesc(), escape(buf, False))
                         )
 
                     if timeout is None:
@@ -317,13 +340,13 @@ class reader(threading.Thread):
                             # Log the failure
                             if self.logfile:
                                 self.logfile.write(
-                                    '%s: match failed.\npattern: "%s"\nbuffer: "%s"\n"'
-                                    % (self.desc, escape(s), escape(buf))
+                                    '%s: match failed.\npattern: "%s"\nbuffer: "%s"\n'
+                                    % (self.desc, patternDesc(), escape(buf))
                                 )
                                 self.logfile.flush()
                             raise TIMEOUT(
                                 'timeout exceeded in match\npattern: "%s"\nbuffer: "%s"\n'
-                                % (escape(s), escape(buf, False))
+                                % (patternDesc(), escape(buf, False))
                             )
             except TIMEOUT as e:
                 if (TIMEOUT, None) in pattern:
@@ -432,8 +455,6 @@ class Expect(object):
             # import win32process
             # creationflags = win32process.CREATE_NEW_PROCESS_GROUP)
             #
-            # universal_newlines = True is necessary for Python 3 on Windows
-            #
             # We can't use shell=True because terminate() wouldn't
             # work. This means the PATH isn't searched for the
             # command.
@@ -449,7 +470,6 @@ class Expect(object):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 creationflags=CREATE_NEW_PROCESS_GROUP,
-                universal_newlines=True,
             )
         else:
             self.p = subprocess.Popen(
@@ -552,10 +572,7 @@ class Expect(object):
             self.logfile.write('%s: sendline: "%s"\n' % (self.desc, escape(data)))
             self.logfile.flush()
         data = data + "\n"
-        if win32 or sys.version_info[0] == 2:
-            self.p.stdin.write(data)
-        else:
-            self.p.stdin.write(data.encode("utf-8"))
+        self.p.stdin.write(data.encode("utf-8"))
 
     def wait(self, timeout=None):
         """Wait for the application to terminate for up to timeout seconds, or
@@ -617,12 +634,13 @@ class Expect(object):
 
         def kill():
             ex = None
-            while True:
+            for _ in range(5):
                 try:
                     if not self.p:
                         return
                     killProcess(self.p)
                     self.wait()
+                    ex = None
                     break
                 except KeyboardInterrupt as e:
                     ex = e

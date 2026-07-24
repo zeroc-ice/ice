@@ -89,12 +89,12 @@ def copy_with_pdb(binary: Path, dest_dir: Path) -> None:
     """Copy *binary* and its sibling .pdb (if any) into *dest_dir*."""
     dest_dir.mkdir(parents=True, exist_ok=True)
 
-    for src in (binary, binary.with_suffix(".pdb")):
+    for kind, src in (("Binary", binary), ("PDB", binary.with_suffix(".pdb"))):
         if src.exists():
             shutil.copy2(src, dest_dir / src.name)
             LOGGER.info("Copied %s → %s", src, dest_dir / src.name)
         else:
-            LOGGER.debug("PDB not found: %s", src)
+            LOGGER.debug("%s not found: %s", kind, src)
 
 
 def process_dump(dump: Path, workspace: Path, reports_root: Path, cdb_exe: str) -> None:
@@ -161,6 +161,8 @@ def main(argv: List[str] | None = None) -> None:
             process_dump(dump, args.workspace, args.reports, args.cdb)
         except subprocess.CalledProcessError as exc:
             LOGGER.error("cdb failed for %s (exit code %s)", dump, exc.returncode)
+        except Exception as exc:
+            LOGGER.error("Failed to process %s: %s", dump, exc)
 
 
 if __name__ == "__main__":

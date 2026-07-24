@@ -14,7 +14,14 @@ namespace
 {
     static Topic::Updater noOpUpdater = // NOLINT(cert-err58-cpp)
         [](const shared_ptr<Sample>& previous, const shared_ptr<Sample>& next, const CommunicatorPtr&)
-    { next->setValue(previous); };
+    {
+        // Every updater call site ensures the previous sample exists and has a value before invoking the updater
+        // (the writer throws otherwise, the reader drops the sample), so this assert holds. A broken invariant is not
+        // made safe here: setValue(nullptr) stores a default-constructed value with _hasValue == true, resurrecting
+        // the removed key from a default value — the very bug the call sites prevent.
+        assert(previous && previous->hasValue());
+        next->setValue(previous && previous->hasValue() ? previous : nullptr);
+    };
 
     // The always match filter always matches the value, it's used by the any key reader/writer.
     class AlwaysMatchFilter final : public Filter
@@ -447,7 +454,7 @@ TopicI::attachElementsAck(
     const chrono::time_point<chrono::system_clock>& now,
     LongSeq& removedIds)
 {
-    DataSamplesSeq samples;
+    DataSamplesSeq batches;
     vector<function<void()>> initCallbacks;
     for (const auto& spec : elements)
     {
@@ -485,12 +492,12 @@ TopicI::attachElementsAck(
                             if (spec.id > 0) // Key
                             {
                                 initCb = dataElement
-                                             ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, samples);
+                                             ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, batches);
                             }
                             else if (filter->match(key)) // Filter
                             {
                                 initCb = dataElement
-                                             ->attach(topicId, spec.id, key, filter, session, prx, data, now, samples);
+                                             ->attach(topicId, spec.id, key, filter, session, prx, data, now, batches);
                             }
 
                             if (initCb)
@@ -549,12 +556,12 @@ TopicI::attachElementsAck(
                             {
                                 initCb =
                                     dataElement
-                                        ->attach(topicId, spec.id, nullptr, filter, session, prx, data, now, samples);
+                                        ->attach(topicId, spec.id, nullptr, filter, session, prx, data, now, batches);
                             }
                             else if (filter->match(key))
                             {
                                 initCb = dataElement
-                                             ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, samples);
+                                             ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, batches);
                             }
 
                             if (initCb)
@@ -587,7 +594,7 @@ TopicI::attachElementsAck(
     {
         initCb();
     }
-    return samples;
+    return batches;
 }
 
 void

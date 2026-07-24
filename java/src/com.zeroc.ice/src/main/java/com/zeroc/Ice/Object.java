@@ -35,7 +35,7 @@ public interface Object {
         /**
          * {@code true} if the operation completed successfully, {@code false} if the operation threw a user exception.
          * If {@code false}, {@code outParams} contains the encoded user exception.
-         * If the operation raises a run-time exception, it throws it directly.
+         * If the operation raises a runtime exception, it throws it directly.
          */
         public boolean returnValue;
 
