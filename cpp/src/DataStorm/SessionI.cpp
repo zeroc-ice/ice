@@ -9,6 +9,8 @@
 #include "TopicI.h"
 #include "TraceUtil.h"
 
+#include <algorithm>
+
 using namespace std;
 using namespace DataStormI;
 using namespace DataStormContract;
@@ -36,6 +38,51 @@ namespace
         ObjectPtr _servant;
         shared_ptr<CallbackExecutor> _executor;
     };
+
+    // Collapses the per-key batches produced by TopicI::attachElementsAck into one DataSamples per writer-reader pair.
+    // A multi-key writer produces one batch per key, all under the same writer id and addressed to the same reader
+    // (peerId); merging them and ordering the result by sample id lets the reader's policies (SendTime, sampleCount,
+    // history clearing) observe the writer's global order. Duplicate sample ids (a sample matched by overlapping
+    // filters) are removed. The first-seen order of the pairs is preserved. An empty batch is kept: it still marks its
+    // reader initialized and enables the reader's live sample delivery.
+    DataSamplesSeq mergeInitSamples(DataSamplesSeq batches)
+    {
+        DataSamplesSeq merged;
+        map<pair<int64_t, int64_t>, size_t> index;
+        for (auto& batch : batches)
+        {
+            auto pairKey = make_pair(batch.id, batch.peerId);
+            auto p = index.find(pairKey);
+            if (p == index.end())
+            {
+                index.emplace(pairKey, merged.size());
+                merged.push_back(std::move(batch));
+            }
+            else
+            {
+                auto& samples = merged[p->second].samples;
+                samples.insert(samples.end(), batch.samples.begin(), batch.samples.end());
+            }
+        }
+
+        for (auto& batch : merged)
+        {
+            // stable_sort so that when two batches carry the same sample id, unique keeps the first in batch order.
+            // getSamples resolves the earliest delivered sample of each key to a full value per batch, so keeping the
+            // first-seen copy preserves that resolved base rather than an arbitrary duplicate.
+            stable_sort(
+                batch.samples.begin(),
+                batch.samples.end(),
+                [](const DataSample& lhs, const DataSample& rhs) { return lhs.id < rhs.id; });
+            batch.samples.erase(
+                unique(
+                    batch.samples.begin(),
+                    batch.samples.end(),
+                    [](const DataSample& lhs, const DataSample& rhs) { return lhs.id == rhs.id; }),
+                batch.samples.end());
+        }
+        return merged;
+    }
 }
 
 SessionI::SessionI(shared_ptr<Instance> instance, shared_ptr<NodeI> parent, NodePrx node, SessionPrx proxy)
@@ -414,16 +461,19 @@ SessionI::attachElementsAck(int64_t topicId, ElementSpecAckSeq elements, const C
             }
 
             LongSeq removedIds;
-            auto samples = topic->attachElementsAck(topicId, elements, shared_from_this(), *_session, now, removedIds);
-            if (!samples.empty())
+            auto initializationBatches =
+                topic->attachElementsAck(topicId, elements, shared_from_this(), *_session, now, removedIds);
+            if (!initializationBatches.empty())
             {
+                // Collapse the per-key batches into one addressed DataSamples per writer-reader pair before sending.
+                initializationBatches = mergeInitSamples(std::move(initializationBatches));
                 if (_traceLevels->session > 2)
                 {
                     Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-                    out << _id << ": initializing elements '[" << samples << "]@" << topicId << "' on topic '" << topic
-                        << "'";
+                    out << _id << ": initializing elements '[" << initializationBatches << "]@" << topicId
+                        << "' on topic '" << topic << "'";
                 }
-                _session->initSamplesAsync(topic->getId(), samples, nullptr);
+                _session->initSamplesAsync(topic->getId(), initializationBatches, nullptr);
             }
 
             if (!removedIds.empty())
@@ -475,7 +525,7 @@ SessionI::detachElements(int64_t id, LongSeq elements, const Current&)
 }
 
 void
-SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Current&)
+SessionI::initSamples(int64_t topicId, DataSamplesSeq initializationBatches, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -484,84 +534,89 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Current&
     }
 
     auto now = chrono::system_clock::now();
-    auto communicator = _instance->getCommunicator();
-    for (const auto& samples : samplesSeq)
+
+    // One initSamples request carries a whole initialization round. Each DataSamples is addressed to a specific reader
+    // element (peerId), and its samples were merged across the reader's keys and ordered by the sender, so route each
+    // batch to exactly that reader. This delivers every key's samples to a multi-key or any-key reader in a single
+    // merged batch, and tells two readers of one writer apart by their element id. An empty batch still marks its
+    // reader initialized, enabling the reader's live sample delivery.
+    for (const auto& initializationBatch : initializationBatches)
     {
         runWithTopics(
             topicId,
             [&](TopicI* topic, TopicSubscriber& subscriber)
             {
-                ElementSubscribers* elementSubscribers = subscriber.get(samples.id);
-                if (elementSubscribers)
+                ElementSubscribers* elementSubscribers = subscriber.get(initializationBatch.id);
+                if (!elementSubscribers)
                 {
-                    if (_traceLevels->session > 2)
-                    {
-                        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-                        out << _id << ": initializing samples from '" << samples.id << "'"
-                            << " on [";
-                        for (auto q = elementSubscribers->getSubscribers().begin();
-                             q != elementSubscribers->getSubscribers().end();
-                             ++q)
-                        {
-                            if (q != elementSubscribers->getSubscribers().begin())
-                            {
-                                out << ", ";
-                            }
-                            out << q->first;
-                            if (!q->second.facet.empty())
-                            {
-                                out << ":" << q->second.facet;
-                            }
-                        }
-                        out << "]";
-                    }
-
-                    vector<shared_ptr<Sample>> samplesI;
-                    samplesI.reserve(samples.samples.size());
-                    const auto& sampleFactory = topic->getSampleFactory();
-                    for (const auto& sample : samples.samples)
-                    {
-                        shared_ptr<Key> key;
-                        if (sample.keyValue.empty())
-                        {
-                            key = subscriber.keys[sample.keyId].first;
-                        }
-                        else
-                        {
-                            key = topic->getKeyFactory()->decode(_instance->getCommunicator(), sample.keyValue);
-                        }
-                        assert(key);
-
-                        samplesI.push_back(sampleFactory->create(
-                            _id,
-                            elementSubscribers->name,
-                            sample.id,
-                            sample.event,
-                            key,
-                            subscriber.tags[sample.tag],
-                            sample.value,
-                            sample.timestamp));
-                    }
-
-                    for (auto& [element, elementSubscriber] : elementSubscribers->getSubscribers())
-                    {
-                        if (!elementSubscriber.initialized)
-                        {
-                            elementSubscriber.initialized = true;
-                            if (!samplesI.empty())
-                            {
-                                elementSubscriber.lastId = samplesI.back()->id;
-                                element->initSamples(
-                                    samplesI,
-                                    topicId,
-                                    samples.id,
-                                    elementSubscribers->priority,
-                                    now,
-                                    samples.id < 0);
-                            }
-                        }
-                    }
+                    return;
                 }
+
+                // Initialize the reader element this batch is addressed to; the writer's other readers are initialized
+                // by their own batches.
+                auto& subscribers = elementSubscribers->getSubscribers();
+                auto q = find_if(
+                    subscribers.begin(),
+                    subscribers.end(),
+                    [&](const auto& s) { return s.first->getId() == initializationBatch.peerId; });
+                if (q == subscribers.end() || q->second.initialized)
+                {
+                    return;
+                }
+                auto& [element, elementSubscriber] = *q;
+
+                if (_traceLevels->session > 2)
+                {
+                    Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                    out << _id << ": initializing samples from 'e" << initializationBatch.id << "' on '" << element
+                        << "'";
+                }
+
+                if (initializationBatch.samples.empty())
+                {
+                    // An empty batch carries no history; mark the reader initialized so its live samples can flow.
+                    elementSubscriber.initialized = true;
+                    return;
+                }
+
+                vector<shared_ptr<Sample>> samplesI;
+                samplesI.reserve(initializationBatch.samples.size());
+                const auto& sampleFactory = topic->getSampleFactory();
+                for (const auto& sample : initializationBatch.samples)
+                {
+                    shared_ptr<Key> key;
+                    if (sample.keyValue.empty())
+                    {
+                        key = subscriber.keys[sample.keyId].first;
+                    }
+                    else
+                    {
+                        key = topic->getKeyFactory()->decode(_instance->getCommunicator(), sample.keyValue);
+                    }
+                    assert(key);
+
+                    samplesI.push_back(sampleFactory->create(
+                        _id,
+                        elementSubscribers->name,
+                        sample.id,
+                        sample.event,
+                        key,
+                        subscriber.tags[sample.tag],
+                        sample.value,
+                        sample.timestamp));
+                }
+
+                // Mark the reader initialized only after its samples are decoded and built: if decoding or sample
+                // construction above throws, the reader stays uninitialized so a later redelivery can initialize it.
+                elementSubscriber.initialized = true;
+                elementSubscriber.lastId = samplesI.back()->id;
+                element->initSamples(
+                    samplesI,
+                    topicId,
+                    initializationBatch.id,
+                    elementSubscribers->priority,
+                    now,
+                    initializationBatch.id < 0);
             });
     }
 }

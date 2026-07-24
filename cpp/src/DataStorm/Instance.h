@@ -22,6 +22,9 @@ namespace DataStormI
     class NodeI;
     class CallbackExecutor;
 
+    // The object identity shared by all Lookup servants and proxies.
+    inline Ice::Identity lookupIdentity() { return {.name = "Lookup2", .category = "DataStorm"}; }
+
     class Instance final : public std::enable_shared_from_this<Instance>
     {
     public:
