@@ -100,7 +100,7 @@ class RFC2253 {
         p.key = parseAttributeType(state);
         eatWhite(state);
         if (state.pos >= state.data.length()) {
-            throw new ParseException("invalid attribute type/value pair (unexpected end of state.data)");
+            throw new ParseException("invalid attribute type/value pair (unexpected end of data)");
         }
         if (state.data.charAt(state.pos) != '=') {
             throw new ParseException("invalid attribute type/value pair (missing =)");
@@ -113,7 +113,7 @@ class RFC2253 {
     private static String parseAttributeType(ParseState state) throws ParseException {
         eatWhite(state);
         if (state.pos >= state.data.length()) {
-            throw new ParseException("invalid attribute type (expected end of state.data)");
+            throw new ParseException("invalid attribute type (unexpected end of data)");
         }
 
         StringBuffer result = new StringBuffer();
@@ -158,7 +158,7 @@ class RFC2253 {
                     ++state.pos;
                     // 1*DIGIT must follow "."
                     if (state.pos < state.data.length() && !Character.isDigit(state.data.charAt(state.pos))) {
-                        throw new ParseException("invalid attribute type (expected end of state.data)");
+                        throw new ParseException("invalid attribute type (missing digit after '.')");
                     }
                 } else {
                     break;
@@ -212,7 +212,7 @@ class RFC2253 {
             ++state.pos;
             while (true) {
                 if (state.pos >= state.data.length()) {
-                    throw new ParseException("invalid attribute value (unexpected end of state.data)");
+                    throw new ParseException("invalid attribute value (unexpected end of data)");
                 }
                 // final terminating "
                 if (state.data.charAt(state.pos) == '"') {
@@ -254,7 +254,7 @@ class RFC2253 {
         ++state.pos;
 
         if (state.pos >= state.data.length()) {
-            throw new ParseException("invalid escape format (unexpected end of state.data)");
+            throw new ParseException("invalid escape format (unexpected end of data)");
         }
 
         if (special.indexOf(state.data.charAt(state.pos)) != -1

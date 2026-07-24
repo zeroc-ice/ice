@@ -521,7 +521,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         }
         catch (const Ice::LocalException&)
         {
-            // Expected to fail once they endpoints have been updated in the background.
+            // Expected to fail once the endpoints have been updated in the background.
         }
         try
         {
@@ -533,7 +533,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         }
         catch (const Ice::LocalException&)
         {
-            // Expected to fail once they endpoints have been updated in the background.
+            // Expected to fail once the endpoints have been updated in the background.
         }
         ic->destroy();
     }
@@ -611,15 +611,15 @@ allTests(Test::TestHelper* helper, const string& ref)
         id.name = Ice::generateUUID();
         adapter->add(std::make_shared<HelloI>(), id);
 
-        // Ensure that calls on the well-known proxy is collocated.
+        // Ensure that calls on the well-known proxy are collocated.
         HelloPrx helloPrx(communicator, communicator->identityToString(id));
         test(!helloPrx->ice_getConnection());
 
-        // Ensure that calls on the indirect proxy (with adapter ID) is collocated
+        // Ensure that calls on the indirect proxy (with adapter ID) are collocated
         helloPrx = adapter->createIndirectProxy<HelloPrx>(id);
         test(!helloPrx->ice_getConnection());
 
-        // Ensure that calls on the direct proxy is collocated
+        // Ensure that calls on the direct proxy are collocated
         helloPrx = adapter->createDirectProxy<HelloPrx>(id);
         test(!helloPrx->ice_getConnection());
 

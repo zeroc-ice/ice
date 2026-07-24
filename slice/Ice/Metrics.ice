@@ -18,7 +18,7 @@ module IceMX
     /// A dictionary of strings to integers.
     dictionary<string, int> StringIntDict;
 
-    /// The base class for metrics. A metrics object represents a collection of measurements associated to a given a
+    /// The base class for metrics. A metrics object represents a collection of measurements associated with a given
     /// system.
     class Metrics
     {
@@ -32,7 +32,7 @@ module IceMX
         /// The number of objects currently observed by this metrics.
         int current = 0;
 
-        /// The sum of the lifetime of each observed objects. This does not include the lifetime of objects which are
+        /// The sum of the lifetimes of each observed object. This does not include the lifetimes of objects which are
         /// currently observed, only the objects observed in the past.
         long totalLifetime = 0;
 
@@ -71,7 +71,7 @@ module IceMX
     /// metrics of an application that enabled the Ice administrative facility and configured one or more metrics views.
     interface MetricsAdmin
     {
-        /// Gets the names of enabled and disabled metrics.
+        /// Gets the names of the enabled and disabled metrics views.
         /// @param disabledViews The names of the disabled views.
         /// @return The names of the enabled views.
         Ice::StringSeq getMetricsViewNames(out Ice::StringSeq disabledViews);
@@ -107,7 +107,7 @@ module IceMX
         MetricsFailuresSeq getMapMetricsFailures(string view, string map)
             throws UnknownMetricsView;
 
-        /// Gets the metrics failure associated for the given metrics.
+        /// Gets the metrics failures associated with the given metrics.
         /// @param view The name of the metrics view.
         /// @param map The name of the metrics map.
         /// @param id The ID of the metrics.
@@ -170,7 +170,8 @@ module IceMX
     {
     }
 
-    /// Provide measurements for proxy invocations. Proxy invocations can either be sent over the wire or be collocated.
+    /// Provides measurements for proxy invocations. Proxy invocations can either be sent over the wire or be
+    /// collocated.
     class InvocationMetrics extends Metrics
     {
         /// The number of retries for the invocations.

@@ -1088,7 +1088,7 @@ namespace IceBT
             // 2) After we find the remote device, we have to register a client profile
             //    for the given UUID.
             //
-            // 3) After registering the profile, we have to invoke ConnectDevice on the
+            // 3) After registering the profile, we have to invoke ConnectProfile on the
             //    local device object corresponding to the target address. The Bluetooth
             //    service will attempt to establish a connection to the remote device.
             //    If the connection succeeds, our profile object will receive a

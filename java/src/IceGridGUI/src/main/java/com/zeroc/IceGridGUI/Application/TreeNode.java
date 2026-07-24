@@ -30,7 +30,7 @@ public abstract class TreeNode extends TreeNodeBase {
 
     abstract void write(XMLWriter writer) throws IOException;
 
-    // Ephemeral objects are destroyed when discard their changes
+    // Ephemeral objects are destroyed when their changes are discarded
     public boolean isEphemeral() {
         return false;
     }
@@ -50,7 +50,7 @@ public abstract class TreeNode extends TreeNodeBase {
     }
 
     TreeNode findChildLike(TreeNode other) {
-        // Default implementation just use id; not always appropriate
+        // Default implementation just uses id; not always appropriate
         return (TreeNode) findChild(other.getId());
     }
 

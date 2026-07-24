@@ -8,7 +8,7 @@ process_windows_crash_dumps.py - gather binaries & PDBs referenced by crash dump
 For every *.dmp* file found in the specified dumps directory this script:
   1. Launches `cdb.exe` to generate a *modules.txt* file containing full module list corresponding
      to the dlls and executables loaded by the crashed process.
-  2. Parses the modules and filter outs any modules that are located outside the GitHub workspace,
+  2. Parses the modules and filters out any modules that are located outside the GitHub workspace,
      this is to avoid copying binaries not belonging to the current build.
   3. Copies each matching binary **and** its companion PDB (if found) to a dedicated sub-folder under
      specified reports directory.

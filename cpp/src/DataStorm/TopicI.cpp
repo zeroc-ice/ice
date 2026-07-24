@@ -68,7 +68,7 @@ TopicI::TopicI(
       _instance(std::move(instance)),
       _traceLevels(_instance->getTraceLevels()),
       _id(id),
-      // The collocated forwarder is initalized here to avoid using a nullable proxy. The forwarder is only used by
+      // The collocated forwarder is initialized here to avoid using a nullable proxy. The forwarder is only used by
       // the instance that owns it and is removed in destroy implementation.
       _forwarder{_instance->getCollocatedForwarder()->add<SessionPrx>(
           [this](const ByteSeq& inParams, const Current& current) { forward(inParams, current); })}
@@ -158,7 +158,7 @@ ElementSpecSeq
 TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shared_ptr<SessionI>& session)
 {
     ElementSpecSeq specs;
-    // Iterate over the element infos representing the remote keys, and filters and compute the element spec for local
+    // Iterate over the element infos representing the remote keys and filters, and compute the element spec for local
     // keys and filters that match. Positive IDs represent keys and negative IDs represent filters.
     for (const auto& info : infos)
     {
@@ -788,7 +788,7 @@ TopicI::forward(const ByteSeq& inParams, const Current& current) const
     // Forwarder proxy must be called with the mutex locked!
     for (const auto& [_, listener] : _listeners)
     {
-        // Forward the call to all listeners using its session proxy, passing nullptr for the callbacks because we
+        // Forward the call to all listeners using their session proxies, passing nullptr for the callbacks because we
         // don't need to check the result.
         listener.proxy
             ->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, nullptr, nullptr, current.ctx);

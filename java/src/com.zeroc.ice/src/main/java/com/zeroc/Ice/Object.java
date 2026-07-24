@@ -123,7 +123,7 @@ public interface Object {
     }
 
     /**
-     * Dispatches an incoming request and returns a corresponding outgoing response for the {@link ice_isA} operation.
+     * Dispatches an incoming request and returns a corresponding outgoing response for the {@link #ice_isA} operation.
      *
      * @param obj the object to dispatch the request to
      * @param request the incoming request
@@ -142,7 +142,7 @@ public interface Object {
     }
 
     /**
-     * Dispatches an incoming request and returns a corresponding outgoing response for the {@link ice_ping} operation.
+     * Dispatches an incoming request and returns a corresponding outgoing response for the {@link #ice_ping} operation.
      *
      * @param obj the object to dispatch the request to
      * @param request the incoming request
@@ -156,7 +156,7 @@ public interface Object {
     }
 
     /**
-     * Dispatches an incoming request and returns a corresponding outgoing response for the {@link ice_ids} operation.
+     * Dispatches an incoming request and returns a corresponding outgoing response for the {@link #ice_ids} operation.
      *
      * @param obj the object to dispatch the request to
      * @param request the incoming request
@@ -174,7 +174,7 @@ public interface Object {
     }
 
     /**
-     * Dispatches an incoming request and returns a corresponding outgoing response for the {@link ice_id} operation.
+     * Dispatches an incoming request and returns a corresponding outgoing response for the {@link #ice_id} operation.
      *
      * @param obj the object to dispatch the request to
      * @param request the incoming request
@@ -189,7 +189,7 @@ public interface Object {
                 ret, (ostr, value) -> ostr.writeString(value), FormatType.CompactFormat));
     }
 
-    /** Implements {@link ice_isA} by checking all interfaces recursively. */
+    /** Implements {@link #ice_isA} by checking all interfaces recursively. */
     private static boolean isA(Class<?> type, String typeId) {
         for (var directInterface : type.getInterfaces()) {
             var sliceTypeIdAnnotation = directInterface.getAnnotation(SliceTypeId.class);

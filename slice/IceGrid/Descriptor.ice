@@ -87,7 +87,7 @@ module IceGrid
         ["deprecated:This field is provided for schema compatibility. It is no longer used."]
         bool registerProcess = false;
 
-        /// When `true`, the lifetime of this object adapter is the same of the server lifetime. This information is
+        /// When `true`, the lifetime of this object adapter is the same as the server lifetime. This information is
         /// used by the IceGrid node to figure out the server state: the server is active when all its "server lifetime"
         /// adapters are active.
         bool serverLifetime;
@@ -265,7 +265,7 @@ module IceGrid
     /// A mapping of template identifier to template descriptor.
     dictionary<string, TemplateDescriptor> TemplateDescriptorDict;
 
-    /// Describes an IceBox service.
+    /// Describes an IceBox service instance.
     struct ServiceInstanceDescriptor
     {
         /// The template used by this instance. It's empty when this instance does not use a template.
@@ -425,7 +425,7 @@ module IceGrid
         /// The name of the node to update.
         string name;
 
-        /// The updated description (or null if the description wasn't updated.)
+        /// The updated description (or null if the description wasn't updated).
         BoxedString description;
 
         /// The variables to update.
@@ -501,13 +501,13 @@ module IceGrid
         /// The server templates to update.
         TemplateDescriptorDict serverTemplates;
 
-        /// The IDs of the server template to remove.
+        /// The IDs of the server templates to remove.
         Ice::StringSeq removeServerTemplates;
 
         /// The service templates to update.
         TemplateDescriptorDict serviceTemplates;
 
-        /// The IDs of the service template to remove.
+        /// The IDs of the service templates to remove.
         Ice::StringSeq removeServiceTemplates;
 
         /// The application nodes to update.

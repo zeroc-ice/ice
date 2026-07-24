@@ -240,8 +240,8 @@ public sealed class Properties
     }
 
     /// <summary>
-    /// Get all properties whose keys begins with prefix.
-    /// If prefix is an empty string, then all
+    /// Get all properties whose keys begin with <paramref name="prefix" />.
+    /// If <paramref name="prefix" /> is an empty string, then all
     /// properties are returned.
     /// </summary>
     /// <param name="prefix">The prefix to search for (empty string if none).</param>
@@ -483,7 +483,7 @@ public sealed class Properties
 
         foreach (string p in props.Keys)
         {
-            // Plus one to include the dot.
+            // Plus one to skip the dot.
             if (findProperty(p[(prefix.Length + 1)..], propertyArray) is null)
             {
                 unknownProps.Add(p);
@@ -578,7 +578,7 @@ public sealed class Properties
     /// Gets the default value for a given Ice property.
     /// </summary>
     /// <param name="key">The Ice property key.</param>
-    /// <returns>The default property value, or an empty string the default is unspecified.</returns>
+    /// <returns>The default property value, or an empty string if the default is unspecified.</returns>
     /// <exception cref="PropertyException">Thrown if the property is not a known Ice property.</exception>
     private static string getDefaultProperty(string key)
     {

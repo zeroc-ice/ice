@@ -409,7 +409,7 @@ namespace Ice
         CommunicatorHolder& operator=(CommunicatorHolder&& holder) noexcept;
 
         /// Determines whether this holder holds a communicator.
-        /// @return `true` if the holder currently a holds communicator, `false` otherwise.
+        /// @return `true` if the holder currently holds a communicator, `false` otherwise.
         explicit operator bool() const noexcept { return _communicator != nullptr; }
 
         ~CommunicatorHolder();

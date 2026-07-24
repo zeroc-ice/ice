@@ -579,7 +579,7 @@ extension InputStream {
         // The goal of this check is to ensure that when we start un-marshaling
         // a new sequence, we check the minimal size of this new sequence against
         // the estimated remaining buffer size. This estimation is based on
-        // the minimum size of the enclosing sequences, it's minSeqSize.
+        // the minimum size of the enclosing sequences, i.e., minSeqSize.
         //
         // 'sz' is peer-controlled (up to Int32.max), so we compute the minimum size of this
         // sequence as an Int64: 'sz * minSize' would overflow a 32-bit value and bypass the
@@ -594,7 +594,7 @@ extension InputStream {
         //
         // If there isn't enough data to read on the stream for the sequence (and
         // possibly enclosed sequences), something is wrong with the marshaled
-        // data: it's claiming having more data that what is possible to read.
+        // data: it's claiming to have more data than what is possible to read.
         //
         if Int64(startSeq) + newMinSeqSize > Int64(data.count) {
             throw MarshalException(endOfBufferMessage)
@@ -638,7 +638,8 @@ extension InputStream {
             }
             var tag = Int32(v >> 3)
             if tag > 30 {
-                // We check for '> 30' instead of '> 29' because 30 is special sentinel tag, handled by the next block.
+                // We check for '> 30' instead of '> 29' because 30 is a special sentinel tag, handled by the next
+                // block.
                 throw MarshalException("invalid tag '\(tag)': tags larger than 29 must be encoded as a size")
             }
             if tag == 30 {
@@ -690,7 +691,7 @@ extension InputStream {
         }
     }
 
-    /// Reads an enumerator from the stream, as a Int32.
+    /// Reads an enumerator from the stream, as an Int32.
     ///
     /// - Parameter enumMaxValue: The maximum value for the enumerators (used only for the 1.0 encoding).
     /// - Returns: The enumerator's Int32 value.
@@ -1051,7 +1052,7 @@ private class EncapsDecoder10: EncapsDecoder {
         precondition(sliceType == .NoSlice)
 
         //
-        // User exception with the 1.0 encoding start with a boolean flag
+        // User exceptions with the 1.0 encoding start with a boolean flag
         // that indicates whether or not the exception has classes.
         //
         // This allows reading the pending instances even if some part of
@@ -1512,7 +1513,7 @@ private class EncapsDecoder11: EncapsDecoder {
 
         //
         // Read the indirect instance table. We read the instances or their
-        // IDs if the instance is a reference to an already unmarhshaled
+        // IDs if the instance is a reference to an already unmarshaled
         // instance.
         //
         if current.sliceFlags.contains(.FLAG_HAS_INDIRECTION_TABLE) {

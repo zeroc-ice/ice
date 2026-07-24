@@ -17,7 +17,7 @@ install a full Ice distribution if you want to use other Ice language
 mappings, or Ice services such as IceGrid, IceStorm and Glacier2.
 
 We provide extensive online documentation for Ice, the Ruby extension,
-and the other Ice language mappings and servicespec.
+and the other Ice language mappings and services.
 
 Join us on our user forums if you have questions about Ice.
 eos

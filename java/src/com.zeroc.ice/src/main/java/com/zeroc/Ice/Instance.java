@@ -693,7 +693,7 @@ public final class Instance {
             boolean ipv6 = isIPv6Supported ? properties.getIcePropertyAsInt("Ice.IPv6") > 0 : false;
 
             if (!ipv4 && !ipv6) {
-                throw new InitializationException("Both IPV4 and IPv6 support cannot be disabled.");
+                throw new InitializationException("Both IPv4 and IPv6 support cannot be disabled.");
             } else if (ipv4 && ipv6) {
                 _protocolSupport = Network.EnableBoth;
             } else if (ipv4) {

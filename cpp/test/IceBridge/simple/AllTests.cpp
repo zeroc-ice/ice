@@ -122,7 +122,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing ordering... " << flush;
     {
         //
-        // Make sure ordering is preserved on connection establishemnt.
+        // Make sure ordering is preserved on connection establishment.
         //
         int counter = 0;
         for (int i = 0; i < 10; ++i)

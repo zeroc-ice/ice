@@ -14,7 +14,7 @@ prefix                 ?= /opt/Ice-$(version)
 
 #
 # Define embedded_runpath as no if you don't want any runpath added to
-# the executables. If not set, defaults to to "yes"
+# the executables. If not set, defaults to "yes"
 #
 embedded_runpath       ?= yes
 

@@ -17,7 +17,7 @@ Server::run(int argc, char** argv)
 {
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
     //
-    // Its possible to have batch oneway requests dispatched after
+    // It's possible to have batch oneway requests dispatched after
     // the adapter is deactivated due to thread scheduling so we
     // suppress this warning.
     //

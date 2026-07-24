@@ -285,12 +285,12 @@ namespace
         openingEnd = (openingEnd == string::npos ? line.size() : openingEnd);
         auto count = openingEnd - pos;
 
-        // Find the closing delimeter, starting for the end of the opening delimeter.
+        // Find the closing delimiter, starting for the end of the opening delimiter.
         auto delimiter = string(count, '`');
         auto closingStart = line.find(delimiter, openingEnd);
         if (closingStart == string::npos)
         {
-            // No matching delimeter was found. Emit a warning, then skip to the next line. This one is broken.
+            // No matching delimiter was found. Emit a warning, then skip to the next line. This one is broken.
             const string msg = "unterminated code span: missing closing backtick delimiter";
             p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
 

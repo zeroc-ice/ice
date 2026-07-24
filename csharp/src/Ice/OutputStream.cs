@@ -2177,7 +2177,7 @@ public sealed class OutputStream
             Debug.Assert(v != null);
 
             //
-            // If the instance was already marshaled, just write it's ID.
+            // If the instance was already marshaled, just write its ID.
             //
             if (_marshaledMap.TryGetValue(v, out int p))
             {

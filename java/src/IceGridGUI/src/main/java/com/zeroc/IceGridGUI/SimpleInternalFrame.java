@@ -289,7 +289,7 @@ public class SimpleInternalFrame extends JPanel {
 
     /**
      * Determines and answers the header's text foreground color. Tries to lookup a special color
-     * from the L&amp;F. In case it is absent, it uses the standard internal frame forground.
+     * from the L&amp;F. In case it is absent, it uses the standard internal frame foreground.
      *
      * @param isSelected true to lookup the active color, false for the inactive
      * @return the color of the foreground text

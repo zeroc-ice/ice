@@ -193,7 +193,7 @@ ReplicaCache::subscribe(const ReplicaObserverPrx& observer)
         if (traceLevels)
         {
             Ice::Warning out(traceLevels->logger);
-            out << "unexpected exception while subscribing observer from replica observer topic:\n" << ex;
+            out << "unexpected exception while subscribing observer to replica observer topic:\n" << ex;
         }
     }
 }

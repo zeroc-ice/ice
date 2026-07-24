@@ -2034,7 +2034,7 @@ NodeHelper::NodeHelper(string name, NodeDescriptor descriptor, const Resolver& a
         //
         // Set the named property sets on the resolver. We use the
         // instantiated named property sets here -- named property sets
-        // must be fully definied at the node level.
+        // must be fully defined at the node level.
         //
         resolve.addPropertySets(_instance.propertySets);
     }
@@ -2526,7 +2526,7 @@ ApplicationHelper::ApplicationHelper(
         //
         // Set the named property sets on the resolver. We use the
         // instantiated named property sets here -- named property sets
-        // must be fully definied at the application level.
+        // must be fully defined at the application level.
         //
         resolve.addPropertySets(_instance.propertySets);
     }

@@ -233,7 +233,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                     "using = `" + _locator.ice_getIdentity().category + "'\n" +
                     "received = `" + locator.ice_getIdentity().category + "'\n" +
                     "This is typically the case if multiple Ice locators with different " +
-                    "instance names are deployed and the property `IceLocatorDiscovery.InstanceName'" +
+                    "instance names are deployed and the property `IceLocatorDiscovery.InstanceName' " +
                     "is not set.");
                 }
                 return;
