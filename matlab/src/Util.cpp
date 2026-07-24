@@ -193,6 +193,8 @@ IceMatlab::createStringMap(const map<string, string, std::less<>>& m)
         mxDestroyArray(valuesCell);
 
         mexCallMATLAB(1, &r, 2, params, "dictionary");
+        mxDestroyArray(params[0]);
+        mxDestroyArray(params[1]);
     }
     return r;
 }
