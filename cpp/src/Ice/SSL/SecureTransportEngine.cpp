@@ -337,7 +337,7 @@ namespace
             case TLS_PSK_WITH_AES_256_CBC_SHA384:
                 return "PSK_WITH_AES_256_CBC_SHA384";
             case TLS_PSK_WITH_NULL_SHA256:
-                return "WITH_NULL_SHA256";
+                return "PSK_WITH_NULL_SHA256";
             case TLS_PSK_WITH_NULL_SHA384:
                 return "PSK_WITH_NULL_SHA384";
 
