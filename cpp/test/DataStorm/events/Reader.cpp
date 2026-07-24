@@ -700,6 +700,70 @@ void ::Reader::run(int argc, char* argv[])
         doneWriter.waitForReaders();
         doneWriter.update(0);
     }
+
+    // Two same-name topics on this node, each with a single-key reader on a different key of the one multi-key
+    // writer. Each reader must receive only its own key's value even though the two topics number their reader
+    // elements and keys independently: the initialization is addressed to the exact destination topic, so the
+    // colliding ids resolve within the intended topic rather than the other same-name topic.
+    {
+        Topic<string, string> topicA(node, "sameNameInit");
+        Topic<string, string> topicB(node, "sameNameInit");
+
+        // A prior reader on each topic, so the reader under test is the second key element of its topic: with
+        // per-topic numbering the two topics then assign it the same element and key id.
+        auto firstA = makeSingleKeyReader(topicA, "firstA", "", config);
+        auto firstB = makeSingleKeyReader(topicB, "firstB", "", config);
+
+        auto readerA = makeSingleKeyReader(topicA, "elemA", "", config);
+        auto readerB = makeSingleKeyReader(topicB, "elemB", "", config);
+
+        auto sampleA = readerA.getNextUnread();
+        test(sampleA.getKey() == "elemA");
+        test(sampleA.getValue() == "valueA");
+
+        auto sampleB = readerB.getNextUnread();
+        test(sampleB.getKey() == "elemB");
+        test(sampleB.getValue() == "valueB");
+
+        test(!readerA.hasUnread()); // readerA must not also receive elemB's value
+        test(!readerB.hasUnread()); // readerB must not also receive elemA's value
+    }
+
+    // The same collision, but the writer has queued both keys before the readers attach, so each reader is
+    // initialized from the writer's queue (a non-empty initialization batch) rather than a live update. The
+    // initialization must be routed to the exact destination topic, or a reader is delivered the other key's value.
+    {
+        Topic<string, string> topicA(node, "lateSameNameInit");
+        Topic<string, string> topicB(node, "lateSameNameInit");
+        Topic<string, int> barrier(node, "lateSameNameInitBarrier");
+        Topic<string, int> done(node, "lateSameNameInitDone");
+
+        // Attach each topic to the writer's session and bump its element/key id counter, so the readers under test
+        // collide on the same element and key ids across the two same-name topics.
+        auto firstA = makeSingleKeyReader(topicA, "firstA", "", config);
+        auto firstB = makeSingleKeyReader(topicB, "firstB", "", config);
+
+        // Wait until the writer has queued both keys, so the readers below are initialized from the queue.
+        [[maybe_unused]] auto _ = makeSingleKeyReader(barrier, "barrier").getNextUnread();
+
+        auto readerA = makeSingleKeyReader(topicA, "elemA", "", config);
+        auto readerB = makeSingleKeyReader(topicB, "elemB", "", config);
+
+        auto sampleA = readerA.getNextUnread();
+        test(sampleA.getKey() == "elemA");
+        test(sampleA.getValue() == "valueA");
+
+        auto sampleB = readerB.getNextUnread();
+        test(sampleB.getKey() == "elemB");
+        test(sampleB.getValue() == "valueB");
+
+        test(!readerA.hasUnread());
+        test(!readerB.hasUnread());
+
+        auto doneWriter = makeSingleKeyWriter(done, "done");
+        doneWriter.waitForReaders();
+        doneWriter.update(0);
+    }
 }
 
 DEFINE_TEST(::Reader)
