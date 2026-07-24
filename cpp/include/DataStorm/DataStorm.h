@@ -1161,7 +1161,7 @@ namespace DataStorm
               std::move(name),
               config,
               sampleFilter.name,
-              Encoder<SampleFilterCriteria>::encode(topic.getCommunicator(), sampleFilter.criteria)))
+              DataStormI::EncoderT<SampleFilterCriteria>::encode(topic.getCommunicator(), sampleFilter.criteria)))
     {
     }
 
@@ -1206,7 +1206,7 @@ namespace DataStorm
               std::move(name),
               config,
               sampleFilter.name,
-              Encoder<SampleFilterCriteria>::encode(topic.getCommunicator(), sampleFilter.criteria)))
+              DataStormI::EncoderT<SampleFilterCriteria>::encode(topic.getCommunicator(), sampleFilter.criteria)))
     {
     }
 
@@ -1396,7 +1396,7 @@ namespace DataStorm
         auto updateTag = _tagFactory->create(tag);
         return [impl, updateTag](const UpdateValue& value)
         {
-            auto encoded = Encoder<UpdateValue>::encode(impl->getCommunicator(), value);
+            auto encoded = DataStormI::EncoderT<UpdateValue>::encode(impl->getCommunicator(), value);
             impl->publish(nullptr, std::make_shared<DataStormI::SampleT<Key, Value, UpdateTag>>(encoded, updateTag));
         };
     }
@@ -1464,7 +1464,7 @@ namespace DataStorm
         auto keyFactory = _keyFactory;
         return [impl, updateTag, keyFactory](const Key& key, const UpdateValue& value)
         {
-            auto encoded = Encoder<UpdateValue>::encode(impl->getCommunicator(), value);
+            auto encoded = DataStormI::EncoderT<UpdateValue>::encode(impl->getCommunicator(), value);
             impl->publish(
                 keyFactory->create(key),
                 std::make_shared<DataStormI::SampleT<Key, Value, UpdateTag>>(encoded, updateTag));
@@ -1651,7 +1651,7 @@ namespace DataStorm
                     value = Cloner<Value>::clone(
                         std::static_pointer_cast<DataStormI::SampleT<Key, Value, UpdateTag>>(previous)->getValue());
                 }
-                updater(value, Decoder<UpdateValue>::decode(communicator, next->getEncodedValue()));
+                updater(value, DataStormI::DecoderT<UpdateValue>::decode(communicator, next->getEncodedValue()));
                 std::static_pointer_cast<DataStormI::SampleT<Key, Value, UpdateTag>>(next)->setValue(std::move(value));
             } : std::function<void(const std::shared_ptr<DataStormI::Sample>&,
                                 const std::shared_ptr<DataStormI::Sample>&,

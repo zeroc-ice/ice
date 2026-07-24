@@ -17,6 +17,31 @@ public:
     void run(int, char**) override;
 };
 
+namespace
+{
+    // A user type whose codec specializations provide only the communicator-less (one-arg) encode/decode form. The
+    // reader and writer API adapt such codecs to their two-arg internal calls through DataStormI::EncoderT and
+    // DataStormI::DecoderT; routing this type through the sample-filter, partial-update, and updater paths below
+    // exercises that dispatch.
+    struct CustomValue
+    {
+        int value = 0;
+    };
+}
+
+namespace DataStorm
+{
+    template<> struct Encoder<CustomValue>
+    {
+        static Ice::ByteSeq encode(const CustomValue& value) { return {static_cast<std::byte>(value.value)}; }
+    };
+
+    template<> struct Decoder<CustomValue>
+    {
+        static CustomValue decode(const Ice::ByteSeq& data) { return CustomValue{static_cast<int>(data[0])}; }
+    };
+}
+
 void ::Writer::run(int argc, char* argv[])
 {
     Node node(argc, argv);
@@ -260,6 +285,9 @@ void ::Writer::run(int argc, char* argv[])
         t2.setReaderDefaultConfig(ReaderConfig());
 
         tc1.setUpdater<string>("test", [](string&, const string&) {});
+
+        // A communicator-less update codec goes through the DecoderT dispatcher in the registered updater.
+        tc1.setUpdater<CustomValue>("customtag", [](string&, CustomValue) {});
     }
     cout << "ok" << endl;
 
@@ -295,6 +323,8 @@ void ::Writer::run(int argc, char* argv[])
         skwm.add("test");
         skwm.update(string("test"));
         skwm.partialUpdate<int>("updatetag")(10);
+        // A communicator-less update codec goes through the EncoderT dispatcher when publishing the partial update.
+        skwm.partialUpdate<CustomValue>("customtag")(CustomValue{5});
         skwm.remove();
 
         auto skws = make_shared<SingleKeyWriter<string, string>>(topic, "key");
@@ -309,6 +339,7 @@ void ::Writer::run(int argc, char* argv[])
         mkwm.add("key", "test");
         mkwm.update("key", string("test"));
         mkwm.partialUpdate<int>("updatetag")("key", 10);
+        mkwm.partialUpdate<CustomValue>("customtag")("key", CustomValue{5});
         mkwm.remove("key");
 
         auto mkws = make_shared<MultiKeyWriter<string, string>>(topic, vector<string>{"key"});
@@ -349,12 +380,15 @@ void ::Writer::run(int argc, char* argv[])
         testReader(skr);
         auto skrsf = makeSingleKeyReader(topic, "key", Filter<string>("_regex", ".*"));
         skrsf = makeSingleKeyReader(topic, "key", Filter<string>("_regex", ".*"), "", ReaderConfig());
+        // A communicator-less sample-filter codec goes through the EncoderT dispatcher when encoding the criteria.
+        skrsf = makeSingleKeyReader(topic, "key", Filter<CustomValue>("customFilter", CustomValue{1}));
 
         auto mkr = makeMultiKeyReader(topic, {"key"});
         mkr = makeMultiKeyReader(topic, {"key"}, "", ReaderConfig());
         testReader(mkr);
         auto mkrsf = makeMultiKeyReader(topic, {"key"}, Filter<string>("_regex", ".*"));
         mkrsf = makeMultiKeyReader(topic, {"key"}, Filter<string>("_regex", ".*"), "", ReaderConfig());
+        mkrsf = makeMultiKeyReader(topic, {"key"}, Filter<CustomValue>("customFilter", CustomValue{1}));
 
         auto akr = makeAnyKeyReader(topic);
         akr = makeAnyKeyReader(topic, "", ReaderConfig());
@@ -372,6 +406,10 @@ void ::Writer::run(int argc, char* argv[])
             Filter<string>("_regex", ".*"),
             "",
             ReaderConfig());
+        frsf = makeFilteredKeyReader(
+            topic,
+            Filter<string>("_regex", ".*"),
+            Filter<CustomValue>("customFilter", CustomValue{1}));
 
         auto skrs = make_shared<SingleKeyReader<string, string>>(topic, "key");
         skrs = make_shared<SingleKeyReader<string, string>>(topic, "key", "", ReaderConfig());
