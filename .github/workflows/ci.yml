@@ -172,27 +172,17 @@ jobs:
             test_flags: "--target-framework=net10.0"
             build_cpp_and_python: true
 
-          # C++ IceBT over a pair of virtual Bluetooth controllers. arm64 only: the runners'
-          # 6.17 azure kernel ships the Bluetooth modules in linux-modules-extra for arm64 but not
-          # for amd64, where the package installs and contains no bluetooth module beyond an
-          # unrelated x86 rfkill driver (and depmod does not help). Note this is specific to that
-          # package -- the 6.8 amd64 azure kernel does include them -- so it is worth re-probing if
-          # the runner image ever changes.
-          # $BT_ADDR is exported by setup-vhci and expanded by the shell at run time.
+          # C++ IceBT over a pair of virtual Bluetooth controllers. arm64 only: the runners' azure
+          # kernel ships the Bluetooth modules in linux-modules-extra for arm64 but not for amd64.
           - os: ubuntu-24.04-arm
             config: "cpp-bt"
             working_directory: "cpp"
             bluetooth: true
             build_cpp_and_python: true
-            # One pair of controllers, and only the configuration under test -- --all would fan
-            # each suite out over configurations that don't apply to Bluetooth. Keep test_all a
-            # quoted string: a YAML boolean false is falsy in the `matrix.test_all || 'true'`
-            # default the Test step uses.
             test_workers: 1
-            test_all: "false"
-            # --cross=cpp keeps this to client/server cases. The collocated case has no server side,
-            # so Ice.Default.Host stays 127.0.0.1 and IceBT rejects it as a device address -- the
-            # same reason the Android job passes --cross=java.
+            test_all: "false" # quoted: a YAML false is falsy in `matrix.test_all || 'true'`
+            # --cross=cpp skips the collocated case, which has no server side and so leaves
+            # Ice.Default.Host as an IP address IceBT rejects.
             test_flags: "--server=server --protocol=bt --cross=cpp --host-bt=$BT_ADDR Ice/operations"
 
     runs-on: ${{ matrix.os }}
@@ -322,8 +312,6 @@ jobs:
         timeout-minutes: 30
         uses: ./.github/actions/setup-android-bt
 
-      # A different mechanism to the Android job above: virtual controllers on the runner itself,
-      # for the C++ transport, which needs a host Bluetooth stack rather than an emulator.
       - name: Setup virtual Bluetooth controllers
         if: matrix.bluetooth == true
         timeout-minutes: 20
