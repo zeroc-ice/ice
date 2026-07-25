@@ -81,7 +81,7 @@ export class Server extends TestHelper {
                 .use((next: Ice.Object) => new Middleware(next, "C", inLog, outLog));
             await communicator.waitForShutdown();
 
-            await this.testMiddlewareFactoryException(communicator, args);
+            await this.testMiddlewareFactoryException(communicator);
         } finally {
             const out = this.getWriter();
             out.write("testing middleware execution order... ");
@@ -108,13 +108,13 @@ export class Server extends TestHelper {
     }
 
     // Verifies a middleware factory exception makes all dispatches fail with a generic UnknownException.
-    async testMiddlewareFactoryException(invokingCommunicator: Ice.Communicator, args: string[]) {
+    async testMiddlewareFactoryException(invokingCommunicator: Ice.Communicator) {
         const out = this.getWriter();
         out.write("testing middleware factory exception... ");
 
         // Use a separate communicator with a null logger: the pipeline creation failure is logged as an error.
         const initData = new Ice.InitializationData();
-        [initData.properties] = this.createTestProperties(args);
+        initData.properties = invokingCommunicator.getProperties().clone();
         initData.logger = new NullLogger();
         const [communicator] = this.initialize(initData);
         try {
