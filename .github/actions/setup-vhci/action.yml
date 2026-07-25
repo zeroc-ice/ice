@@ -1,24 +1,10 @@
 name: Setup virtual Bluetooth controllers
 description: >
-  Builds a two-sided Bluetooth setup on one runner so the C++ IceBT transport can be tested. C++
-  IceBT drives BlueZ over D-Bus and needs a real host Bluetooth stack, so unlike the Java tests --
-  which run between two Android emulators -- it cannot be exercised without one.
+  Brings up a pair of bonded virtual Bluetooth controllers and starts the server-side process
+  controller, so the C++ IceBT transport can be tested on a single runner. Linux arm64 only.
 
-  Two things make this work on a single machine:
-
-  * Two BR/EDR-only virtual controllers from btvirt. LE is deliberately excluded: with LE enabled a
-    second bluetoothd cannot claim the adapters, failing on the GATT L2CAP bind.
-  * A second bluetoothd on a private D-Bus bus. BlueZ allows only one profile registration per UUID
-    per daemon (src/profile.c: "UUID already registered"), and Ice registers the same RFCOMM UUID on
-    both the client and the server side, so the two sides must talk to different daemons.
-
-  The server-side process controller is started against the system bus; DBUS_SYSTEM_BUS_ADDRESS is
-  then exported so every later step -- the test client -- uses the second daemon.
-
-  Linux arm64 only: Ubuntu builds the Bluetooth modules for the arm64 azure kernel but strips them
-  from the amd64 one, where modprobe reports "Module bluetooth not found".
-
-  Exports BT_ADDR (the server controller's address) and DBUS_SYSTEM_BUS_ADDRESS.
+  Exports BT_ADDR (the server controller's address) and DBUS_SYSTEM_BUS_ADDRESS, which points later
+  steps at the second bluetoothd. The steps below explain why each piece is shaped as it is.
 
 inputs:
   working_directory:
@@ -68,6 +54,9 @@ runs:
     - name: Start a second bluetoothd on a private bus
       shell: bash
       run: |
+        # Why a second daemon at all: BlueZ allows one profile registration per UUID per daemon
+        # (src/profile.c, "UUID already registered"), and Ice registers the same RFCOMM UUID on both
+        # the client and the server side -- so the two sides have to talk to different daemons.
         sudo systemctl start bluetooth
         cat > /tmp/bus2.conf <<'EOF'
         <!DOCTYPE busconfig PUBLIC "-//freedesktop//DTD D-Bus Bus Configuration 1.0//EN"
