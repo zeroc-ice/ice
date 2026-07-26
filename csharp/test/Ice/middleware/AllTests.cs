@@ -69,7 +69,7 @@ public class AllTests : global::Test.AllTests
         catch (UnknownException ex)
         {
             // The message does not reveal the middleware factory exception.
-            test(!ex.Message.Contains("middleware factory exception"));
+            test(!ex.Message.Contains("middleware factory exception", StringComparison.Ordinal));
         }
 
         // The failure is permanent for this object adapter.

@@ -95,7 +95,7 @@ testMiddlewareFactoryException()
     Ice::ObjectAdapterPtr oa = communicator->createObjectAdapter("");
     oa->add(make_shared<MyObjectI>(), Ice::Identity{"test", ""});
 
-    oa->use([](Ice::ObjectPtr) -> Ice::ObjectPtr { throw runtime_error{"middleware factory exception"}; });
+    oa->use([](const Ice::ObjectPtr&) -> Ice::ObjectPtr { throw runtime_error{"middleware factory exception"}; });
 
     MyObjectPrx p(communicator, "test");
 
