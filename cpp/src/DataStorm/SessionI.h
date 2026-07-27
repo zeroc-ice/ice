@@ -282,11 +282,13 @@ namespace DataStormI
         void detachTags(std::int64_t, Ice::LongSeq, const Ice::Current&) final;
 
         void announceElements(std::int64_t, DataStormContract::ElementInfoSeq, const Ice::Current&) final;
-        void attachElements(std::int64_t, DataStormContract::ElementSpecSeq, bool, const Ice::Current&) final;
-        void attachElementsAck(std::int64_t, DataStormContract::ElementSpecAckSeq, const Ice::Current&) final;
+        void
+        attachElements(std::int64_t, std::int64_t, DataStormContract::ElementSpecSeq, bool, const Ice::Current&) final;
+        void
+        attachElementsAck(std::int64_t, std::int64_t, DataStormContract::ElementSpecAckSeq, const Ice::Current&) final;
         void detachElements(std::int64_t, Ice::LongSeq, const Ice::Current&) final;
 
-        void initSamples(std::int64_t, DataStormContract::DataSamplesSeq, const Ice::Current&) final;
+        void initSamples(std::int64_t, std::int64_t, DataStormContract::DataSamplesSeq, const Ice::Current&) final;
 
         void disconnected(const Ice::Current&) final;
 
@@ -397,6 +399,20 @@ namespace DataStormI
         /// @param topicId The ID of the topic to process.
         /// @param callback The callback function to execute for each subscriber.
         void runWithTopics(std::int64_t topicId, const std::function<void(TopicI*, TopicSubscriber&)>& callback);
+
+        /// Runs the provided callback for the single local topic subscribing to the remote topic `topicId` whose own
+        /// id is `peerTopicId`. Routes a request to exactly the addressed topic instance instead of fanning it
+        /// over every same-name topic (the fan-out that lets same-name topics collide on echoed element and key ids).
+        /// The callback is executed with the topic's mutex locked; it runs at most once, and not at all if no such
+        /// topic is currently subscribed.
+        ///
+        /// @param topicId The remote (sender's) topic id the local topics are subscribed to.
+        /// @param peerTopicId The local topic instance the request is addressed to.
+        /// @param callback The callback function to execute for the subscriber.
+        void runWithTopics(
+            std::int64_t topicId,
+            std::int64_t peerTopicId,
+            const std::function<void(TopicI*, TopicSubscriber&)>& callback);
 
         /// Runs the provided callback function for the specified topic, if it is among the subscribers for the given
         /// topic ID.

@@ -567,6 +567,42 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
+    // A single multi-key writer read by two same-name reader topics on the peer node, each with a single-key
+    // reader on one of the writer's keys. Each reader's sample must reach the reader that subscribed the key,
+    // even though the two same-name reader topics assign colliding element and key ids: the attachment is addressed
+    // to the exact destination topic, so each topic holds only its own key mapping. Live sample delivery still fans
+    // out over both same-name topics, but each then delivers only the key it actually subscribes.
+    cout << "testing sample routing across same-name reader topics... " << flush;
+    {
+        Topic<string, string> topic(node, "sameNameInit");
+        auto writer = makeMultiKeyWriter(topic, {"elemA", "elemB"}, "", config);
+        writer.waitForReaders(2); // the two single-key readers whose keys the writer covers
+        writer.add("elemA", "valueA");
+        writer.add("elemB", "valueB");
+        writer.waitForNoReaders();
+    }
+    cout << "ok" << endl;
+
+    // The same collision, but the writer queues both keys before the readers attach, so each late reader is
+    // initialized from the queue. The initialization batches must be addressed to the exact destination topic.
+    cout << "testing initialization routing across same-name reader topics... " << flush;
+    {
+        Topic<string, string> topic(node, "lateSameNameInit");
+        Topic<string, int> barrier(node, "lateSameNameInitBarrier");
+        Topic<string, int> done(node, "lateSameNameInitDone");
+
+        auto writer = makeMultiKeyWriter(topic, {"elemA", "elemB"}, "", config);
+        writer.add("elemA", "valueA"); // queued (clearHistory=Never); the late readers are initialized from these
+        writer.add("elemB", "valueB");
+
+        auto barrierWriter = makeSingleKeyWriter(barrier, "barrier");
+        barrierWriter.waitForReaders();
+        barrierWriter.update(0);
+
+        [[maybe_unused]] auto _ = makeSingleKeyReader(done, "done").getNextUnread();
+    }
+    cout << "ok" << endl;
+
     cout << "testing topic collocated key reader and writer... " << flush;
     {
         Topic<string, string> topic(node, "collocated");

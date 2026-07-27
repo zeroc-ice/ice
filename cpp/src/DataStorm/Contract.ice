@@ -343,19 +343,24 @@ module DataStormContract
         /// This operation associates the provided elements, such as keys or filters, with the subscribers of the given
         /// topic.
         ///
-        /// @param topicId The unique identifier for the topic to which the elements belong.
+        /// @param topicId The unique identifier for the sender's topic to which the elements belong.
+        /// @param peerTopicId The id of the recipient's topic instance this request is addressed to. A node can host
+        /// several topics with the same name subscribed to one remote topic; the recipient routes the request to
+        /// exactly this topic instead of every same-name topic, so the echoed element and key ids stay unambiguous.
         /// @param elements The sequence of `ElementSpec` objects representing the elements to attach.
         /// @param initialize Indicates whether the elements are being attached during session initialization.
-        void attachElements(long topicId, ElementSpecSeq elements, bool initialize);
+        void attachElements(long topicId, long peerTopicId, ElementSpecSeq elements, bool initialize);
 
         /// Acknowledges the attachment of elements to the session in response to a previous attachElements request.
         ///
         /// This method confirms that the specified elements, such as keys or filters, have been successfully attached
         /// to the session.
         ///
-        /// @param topicId The unique identifier for the topic to which the elements belong.
+        /// @param topicId The unique identifier for the sender's topic to which the elements belong.
+        /// @param peerTopicId The id of the recipient's topic instance this acknowledgment is addressed to. See
+        /// {@link attachElements}.
         /// @param elements A sequence of `ElementSpecAck` objects representing the confirmed attachments.
-        void attachElementsAck(long topicId, ElementSpecAckSeq elements);
+        void attachElementsAck(long topicId, long peerTopicId, ElementSpecAckSeq elements);
 
         /// Instructs the peer to detach specific elements associated with a topic.
         ///
@@ -368,9 +373,11 @@ module DataStormContract
 
         /// Initializes the subscriber with the publisher queued samples for a topic during session establishment.
         ///
-        /// @param topicId The unique identifier for the topic.
+        /// @param topicId The unique identifier for the sender's topic.
+        /// @param peerTopicId The id of the recipient's topic instance these samples are addressed to. See
+        /// {@link attachElements}.
         /// @param samples A sequence of {@link DataSamples} containing the queued samples to initialize the subscriber.
-        void initSamples(long topicId, DataSamplesSeq samples);
+        void initSamples(long topicId, long peerTopicId, DataSamplesSeq samples);
 
         /// Notifies the peer that the session is being disconnected.
         ///
