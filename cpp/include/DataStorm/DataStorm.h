@@ -500,10 +500,10 @@ namespace DataStorm
 
     /// The key reader to read the data element associated with a given set of keys.
     ///
-    /// Like a multi-key writer, a multi-key reader retains the current value of every key it has received and not since
-    /// seen removed, so that it can resolve later partial updates against it. This per-key state is independent of the
-    /// reader's @c sampleCount and @c sampleLifetime history settings, and is released when the key's writer removes
-    /// the key. A reader connected to writers over an unbounded set of keys therefore accumulates one current value per
+    /// A multi-key reader retains the current value of every key it has received and not since seen removed, so that
+    /// it can resolve later partial updates against it. This per-key state is independent of the reader's
+    /// `sampleCount` and `sampleLifetime` history settings, and is released when the reader receives the key's remove
+    /// sample. A reader connected to writers over an unbounded set of keys therefore accumulates one current value per
     /// key.
     /// @headerfile DataStorm/DataStorm.h
     template<typename Key, typename Value, typename UpdateTag = std::string>
@@ -655,9 +655,9 @@ namespace DataStorm
     /// The filtered reader to read data elements whose key match a given filter.
     ///
     /// A filtered reader retains the current value of every key it has received and not since seen removed, so that it
-    /// can resolve later partial updates against it. This per-key state is independent of the reader's @c sampleCount
-    /// and @c sampleLifetime history settings, and is released when the key's writer removes the key. A reader matching
-    /// an unbounded set of keys therefore accumulates one current value per key.
+    /// can resolve later partial updates against it. This per-key state is independent of the reader's `sampleCount`
+    /// and `sampleLifetime` history settings, and is released when the reader receives the key's remove sample. A
+    /// reader matching an unbounded set of keys therefore accumulates one current value per key.
     /// @headerfile DataStorm/DataStorm.h
     template<typename Key, typename Value, typename UpdateTag = std::string>
     class FilteredKeyReader : public Reader<Key, Value, UpdateTag>
@@ -787,8 +787,8 @@ namespace DataStorm
         [[nodiscard]] std::function<void(const UpdateValue&)> partialUpdate(const UpdateTag& tag);
 
         /// Removes the data element. This generates a SampleEvent::Remove sample and releases the key's current value
-        /// on the writer and on its connected readers, so a later partial update has no value to resolve against and is
-        /// rejected until a new full value is written.
+        /// on the writer and on the readers that receive the sample, so a later partial update has no value to resolve
+        /// against and is rejected until a new full value is written.
         void remove() noexcept;
 
     private:
@@ -799,8 +799,8 @@ namespace DataStorm
     ///
     /// A multi-key writer retains the current value of every key it has written and not since removed, so that later
     /// partial updates and late-joining readers can resolve against it. This per-key state is the writer's current data
-    /// set, not retained history: it is independent of the @c sampleCount and @c sampleLifetime history settings, which
-    /// bound the retained samples but never the current value of a live key. An open-key writer (one constructed with
+    /// set, not retained history: it is independent of the `sampleCount` and `sampleLifetime` history settings, which
+    /// bound the retained samples but never the current value of a live key. An any-key writer (one constructed with
     /// an empty key vector) that writes to an unbounded set of keys therefore accumulates one current value per key;
     /// call remove(const Key&) to retire a key and release its state once the key is no longer in use.
     /// @headerfile DataStorm/DataStorm.h
@@ -852,9 +852,9 @@ namespace DataStorm
         template<typename UpdateValue>
         [[nodiscard]] std::function<void(const Key&, const UpdateValue&)> partialUpdate(const UpdateTag& tag);
 
-        /// Removes the data element. This generates a TopicEvent::Remove sample and retires the key: its current value
-        /// is released on the writer and on its connected readers, so a later partial update for the key has no value
-        /// to resolve against and is rejected until a new full value is written.
+        /// Removes the data element. This generates a SampleEvent::Remove sample and retires the key: its current value
+        /// is released on the writer and on the readers that receive the sample, so a later partial update for the key
+        /// has no value to resolve against and is rejected until a new full value is written.
         /// @param key The key
         void remove(const Key& key) noexcept;
 
