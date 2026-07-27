@@ -1878,7 +1878,7 @@ Ice::ConnectionI::ConnectionI(
     const EndpointIPtr& endpoint,
     const shared_ptr<ObjectAdapterI>& adapter,
     std::function<void(const ConnectionIPtr&)> removeFromFactory,
-    const ConnectionOptions& options) noexcept
+    const ConnectionOptions& options)
     : _communicator(std::move(communicator)),
       _instance(instance),
       _transceiver(transceiver),
