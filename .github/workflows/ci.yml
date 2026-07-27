@@ -122,7 +122,7 @@ jobs:
             build_cpp_and_python: true
             build_android_controller: true
             test_workers: 1
-            test_all: "false" # quoted: a YAML false is falsy in `matrix.test_all || 'true'`
+            skip_all_configs: true
             job_timeout: 60 # ~2x the observed runtime, to bound a wedged emulator
             # setup-android-bt exports $BT_CLIENT and $BT_ADDR; these flags are interpolated into a bash
             # command, so the shell expands them at run time.
@@ -172,7 +172,7 @@ jobs:
             bluetooth: true
             build_cpp_and_python: true
             test_workers: 1
-            test_all: "false" # quoted: a YAML false is falsy in `matrix.test_all || 'true'`
+            skip_all_configs: true
             job_timeout: 45 # ~2x the observed runtime, to bound a wedged setup
             # --cross=cpp skips the collocated case, which has no server side and so leaves
             # Ice.Default.Host as an IP address IceBT rejects. The suites are the ones the
@@ -323,7 +323,7 @@ jobs:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: ${{ matrix.test_flags }}
           workers: ${{ matrix.test_workers || 4 }}
-          all: ${{ matrix.test_all || 'true' }}
+          all: ${{ matrix.skip_all_configs != true }}
 
       # Runs before the diagnostics step so a bts failure still gets the adb/logcat dump.
       - name: Test ${{ matrix.config }} over bts on ${{ matrix.os }}
@@ -334,7 +334,7 @@ jobs:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: ${{ matrix.bts_test_flags }}
           workers: ${{ matrix.test_workers || 4 }}
-          all: ${{ matrix.test_all || 'true' }}
+          all: ${{ matrix.skip_all_configs != true }}
 
       - name: Bluetooth diagnostics
         if: always() && matrix.config == 'android-bt'
