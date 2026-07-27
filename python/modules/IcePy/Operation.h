@@ -73,6 +73,7 @@ namespace IcePy
         ServantWrapper(PyObject*);
         ~ServantWrapper() override;
 
+        /// Returns a new reference to the Python servant.
         PyObject* getObject();
 
     protected:
