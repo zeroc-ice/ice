@@ -1,11 +1,16 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import os
+from typing import Any
 
 from Util import (
+    Args,
     Client,
     CppMapping,
     CSharpMapping,
+    Driver,
     JavaMapping,
     Linux,
     Mapping,
@@ -17,12 +22,12 @@ from Util import (
 
 
 class IceBox(ProcessFromBinDir, Server):
-    def __init__(self, configFile=None, *args, **kargs):
+    def __init__(self, configFile: str | None = None, *args: Any, **kargs: Any):
         Server.__init__(self, *args, **kargs)
         self.configFile = configFile
         self.binDir = None
 
-    def getExe(self, current):
+    def getExe(self, current: Driver.Current) -> str:
         mapping = self.getMapping(current)
         if isinstance(mapping, JavaMapping):
             return "com.zeroc.IceBox.Server"
@@ -39,7 +44,7 @@ class IceBox(ProcessFromBinDir, Server):
                 name += "32"  # Multilib platform
             return name
 
-    def getEffectiveArgs(self, current, args):
+    def getEffectiveArgs(self, current: Driver.Current, args: Args) -> list[str]:
         args = Server.getEffectiveArgs(self, current, args)
         if self.configFile:
             mapping = self.getMapping(current)
@@ -51,7 +56,7 @@ class IceBox(ProcessFromBinDir, Server):
 
 
 class IceBoxAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, Client):
-    def getMapping(self, current):
+    def getMapping(self, current: Driver.Current) -> Mapping:
         # IceBox admin is only provided with the C++/Java, not C#
         mapping = Client.getMapping(self, current)
         if isinstance(mapping, CppMapping) or isinstance(mapping, JavaMapping):
@@ -59,7 +64,7 @@ class IceBoxAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, Client):
         else:
             return Mapping.getByName("cpp")
 
-    def getExe(self, current):
+    def getExe(self, current: Driver.Current) -> str:
         mapping = self.getMapping(current)
         if isinstance(mapping, JavaMapping):
             return "com.zeroc.IceBox.Admin"

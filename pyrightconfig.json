@@ -1,7 +1,28 @@
 {
-    "include": ["python"],
+    "include": ["python", "scripts"],
     "exclude": ["python/dist", "python/.venv"],
+    // Not annotated yet; drop entries as these files get type hints.
+    "ignore": [
+        "scripts/Controller.py",
+        "scripts/LocalDriver.py",
+        "scripts/NetworkProxy.py",
+        "scripts/collate_changelog.py",
+        "scripts/icehashpassword.py",
+        "scripts/process_linux_crash_dumps.py",
+        "scripts/process_windows_crash_dumps.py",
+        "scripts/ws_origin_probe.py",
+        "scripts/ws_ping_probe.py",
+        "scripts/tests"
+    ],
     "extraPaths": ["python/python"],
+    // The test framework modules under scripts import each other by name, so scripts is on the
+    // search path for the files it contains.
+    "executionEnvironments": [
+        {
+            "root": "scripts",
+            "extraPaths": ["scripts", "python/python"]
+        }
+    ],
     "typeCheckingMode": "standard",
     "reportMissingParameterType": "error",
     "reportUntypedFunctionDecorator": "error",
