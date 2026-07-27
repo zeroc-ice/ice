@@ -182,8 +182,15 @@ jobs:
             test_workers: 1
             test_all: "false" # quoted: a YAML false is falsy in `matrix.test_all || 'true'`
             # --cross=cpp skips the collocated case, which has no server side and so leaves
-            # Ice.Default.Host as an IP address IceBT rejects.
-            test_flags: "--server=server --protocol=bt --cross=cpp --host-bt=$BT_ADDR Ice/operations"
+            # Ice.Default.Host as an IP address IceBT rejects. The suites are the ones the
+            # android-bt job runs, so both transports cover the same ground.
+            test_flags: >-
+              --server=server --protocol=bt --cross=cpp --host-bt=$BT_ADDR
+              Ice/operations Ice/ami Ice/enums Ice/exceptions Ice/facets
+              Ice/inheritance Ice/objects Ice/optional Ice/proxy
+            bts_test_flags: >-
+              --server=server --protocol=bts --cross=cpp --host-bt=$BT_ADDR
+              Ice/operations Ice/ami
 
     runs-on: ${{ matrix.os }}
     # Only android-bt sets this, restoring the bound its standalone workflow had; everything else
