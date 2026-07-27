@@ -32,6 +32,12 @@ from Util import (
 
 class ControllerDriver(Driver):
     class Current(Driver.Current):
+        # The base declares serverTestCase as Any because LocalDriver's remote runner puts a proxy
+        # there. Here both sides are always real test cases -- getCurrent rejects the request
+        # otherwise -- so narrow them and let the TestCaseI calls below be checked.
+        serverTestCase: TestCase
+        clientTestCase: TestCase
+
         def __init__(
             self,
             driver: ControllerDriver,
@@ -46,7 +52,8 @@ class ControllerDriver(Driver):
             self.testcase = testcase
             serverTestCase = self.testcase.getServerTestCase(cross)
             clientTestCase = self.testcase.getClientTestCase()
-            # getCurrent rejects a test case without a server side before building a Current.
+            # getCurrent resolves both sides the same way and rejects the request if either is
+            # missing, so by here they are known to exist.
             assert serverTestCase is not None and clientTestCase is not None
             self.serverTestCase = serverTestCase
             self.clientTestCase = clientTestCase
@@ -61,7 +68,7 @@ class ControllerDriver(Driver):
             self.config.protocol = protocol or ""
 
     @classmethod
-    def getSupportedArgs(cls):
+    def getSupportedArgs(cls) -> tuple[str, list[str]]:
         return (
             "",
             [
@@ -81,7 +88,7 @@ class ControllerDriver(Driver):
         )
 
     @classmethod
-    def usage(cls):
+    def usage(cls) -> None:
         print("")
         print("Controller driver options:")
         print("--id=<identity>       The identity of the controller object.")
@@ -417,7 +424,10 @@ class ControllerDriver(Driver):
             raise Test_Common.TestCaseNotExistException("unknown testsuite {0}".format(testsuite))
 
         tc = ts.findTestCase("server" if ts.getId() == "Ice/echo" else (testcase or "client/server"))
-        if not tc or not tc.getServerTestCase():
+        # Resolve the server side against the cross mapping, the way Current does. Checking it
+        # without one only proves the test case's own mapping has a server side, which says nothing
+        # about the cross mapping and leaves Current to fail on a None it was told could not happen.
+        if not tc or not tc.getServerTestCase(crossMapping) or not tc.getClientTestCase():
             raise Test_Common.TestCaseNotExistException("unknown testcase {0}".format(testcase))
 
         return ControllerDriver.Current(self, ts, tc, crossMapping, protocol, host, args)
