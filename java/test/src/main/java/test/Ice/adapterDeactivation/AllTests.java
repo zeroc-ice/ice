@@ -17,6 +17,7 @@ import com.zeroc.Ice.ObjectAdapterDestroyedException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.OperationNotExistException;
 import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.PropertyException;
 import com.zeroc.Ice.RouterPrx;
 
 import test.Ice.adapterDeactivation.Test.TestIntfPrx;
@@ -367,6 +368,24 @@ public class AllTests {
                 communicator.createObjectAdapterWithRouter("AdapterWithRouter", router);
                 test(false);
             } catch (InitializationException ex) {}
+        }
+        out.println("ok");
+
+        out.print("testing UDP object adapter creation with an invalid thread pool property... ");
+        out.flush();
+        {
+            InitializationData initData = new InitializationData();
+            initData.properties = new Properties();
+            initData.properties.setProperty("Ice.ServerIdleTime", "invalid");
+            try (Communicator ic = new Communicator(initData)) {
+                try {
+                    ic.createObjectAdapterWithEndpoints("UdpAdapter", "udp -h 127.0.0.1 -p 0");
+                    test(false);
+                } catch (PropertyException ex) {
+                    // Expected: the server thread pool is created on demand by the UDP adapter, and its
+                    // creation reads Ice.ServerIdleTime.
+                }
+            }
         }
         out.println("ok");
 

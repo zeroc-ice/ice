@@ -330,6 +330,28 @@ public class AllTests : global::Test.AllTests
         }
         output.WriteLine("ok");
 
+        output.Write("testing UDP object adapter creation with an invalid thread pool property... ");
+        output.Flush();
+        {
+            var initData = new Ice.InitializationData()
+            {
+                properties = new Ice.Properties(),
+            };
+            initData.properties.setProperty("Ice.ServerIdleTime", "invalid");
+            using var ic = new Ice.Communicator(initData);
+            try
+            {
+                ic.createObjectAdapterWithEndpoints("UdpAdapter", "udp -h 127.0.0.1 -p 0");
+                test(false);
+            }
+            catch (Ice.PropertyException)
+            {
+                // Expected: the server thread pool is created on demand by the UDP adapter, and its creation
+                // reads Ice.ServerIdleTime.
+            }
+        }
+        output.WriteLine("ok");
+
         output.Write("testing object adapter creation with port in use... ");
         output.Flush();
         {

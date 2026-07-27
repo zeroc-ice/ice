@@ -1097,19 +1097,15 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
         _transceiver = transceiver;
 
-        try {
-            if (connector == null) { // server connection
-                assert adapter != null;
-                _threadPool = adapter.getThreadPool();
-            } else { // client connection
-                _threadPool = _instance.clientThreadPool();
-            }
-            _threadPool.initialize(this);
-        } catch (LocalException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            throw new SyscallException(ex);
+        if (connector == null) { // server connection
+            assert adapter != null;
+            _threadPool = adapter.getThreadPool();
+        } else { // client connection
+            _threadPool = _instance.clientThreadPool();
         }
+
+        // initialize only queues the handler registration with the selector; it doesn't throw.
+        _threadPool.initialize(this);
     }
 
     private static final int StateNotInitialized = 0;

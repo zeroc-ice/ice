@@ -321,6 +321,25 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
+    cout << "testing UDP object adapter creation with an invalid thread pool property... " << flush;
+    {
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties();
+        initData.properties->setProperty("Ice.ServerIdleTime", "invalid");
+        Ice::CommunicatorHolder ich{Ice::initialize(initData)};
+        try
+        {
+            ich->createObjectAdapterWithEndpoints("UdpAdapter", "udp -h 127.0.0.1 -p 0");
+            test(false);
+        }
+        catch (const Ice::PropertyException&)
+        {
+            // Expected: the server thread pool is created on demand by the UDP adapter, and its creation reads
+            // Ice.ServerIdleTime.
+        }
+    }
+    cout << "ok" << endl;
+
     cout << "testing object adapter creation with port in use... " << flush;
     {
         Ice::ObjectAdapterPtr adapter1 =
