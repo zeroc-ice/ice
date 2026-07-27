@@ -215,9 +215,7 @@ namespace DataStormI
 
             [[nodiscard]] TopicSubscriber& getSubscriber(const std::shared_ptr<TopicI>& topic)
             {
-                auto p = _subscribers.find(std::weak_ptr<TopicI>{topic});
-                assert(p != _subscribers.end());
-                return p->second;
+                return _subscribers.at(std::weak_ptr<TopicI>{topic});
             }
 
             void removeSubscriber(const std::shared_ptr<TopicI>& topic)

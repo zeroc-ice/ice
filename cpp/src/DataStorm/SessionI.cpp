@@ -1445,6 +1445,8 @@ SessionI::runWithTopics(int64_t topicId, const function<void(const shared_ptr<To
         auto p = subscribers.begin();
         while (p != subscribers.end())
         {
+            // The shared_ptr returned by lock() can be the last owning reference. TopicI's destructor must remain
+            // callback-free because the caller holds the session mutex.
             auto topic = p->first.lock();
             if (!topic)
             {
@@ -1475,6 +1477,8 @@ SessionI::runWithTopics(
         auto p = subscribers.begin();
         while (p != subscribers.end())
         {
+            // The shared_ptr returned by lock() can be the last owning reference. TopicI's destructor must remain
+            // callback-free because the caller holds the session mutex.
             auto topic = p->first.lock();
             if (!topic)
             {
