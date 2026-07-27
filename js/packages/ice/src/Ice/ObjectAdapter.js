@@ -9,6 +9,7 @@ import {
     InitializationException,
     ObjectAdapterDestroyedException,
     ParseException,
+    UnknownException,
 } from "./LocalExceptions.js";
 import { Ice as Ice_Router } from "./Router.js";
 const { RouterPrx } = Ice_Router;
@@ -266,12 +267,24 @@ export class ObjectAdapter {
 
     get dispatchPipeline() {
         if (this._dispatchPipeline === null) {
-            let dispatchPipeline = this._servantManager; // the "final" dispatcher
-            while (this._middlewareStack.length > 0) {
-                const middleware = this._middlewareStack.pop();
-                dispatchPipeline = middleware(dispatchPipeline);
+            try {
+                let dispatchPipeline = this._servantManager; // the "final" dispatcher
+                while (this._middlewareStack.length > 0) {
+                    const middleware = this._middlewareStack.pop();
+                    dispatchPipeline = middleware(dispatchPipeline);
+                }
+                this._dispatchPipeline = dispatchPipeline;
+            } catch (ex) {
+                // A middleware factory can throw a value that is not an Error, such as null or a symbol.
+                const details = ex instanceof Error ? `${ex}\n${ex.stack}` : String(ex);
+                this._instance
+                    .initializationData()
+                    .logger.error(
+                        `failed to create the dispatch pipeline of object adapter '${this._name}':\n${details}`,
+                    );
+                this._middlewareStack.length = 0;
+                this._dispatchPipeline = new FailedDispatchPipeline();
             }
-            this._dispatchPipeline = dispatchPipeline;
         }
         return this._dispatchPipeline;
     }
@@ -407,5 +420,12 @@ export class ObjectAdapter {
             this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat, msg);
         }
         return endpoints;
+    }
+}
+
+// Installed as the dispatch pipeline when the creation of the actual pipeline fails.
+class FailedDispatchPipeline {
+    dispatch() {
+        throw new UnknownException("The object adapter could not create its dispatch pipeline.");
     }
 }
