@@ -3,7 +3,6 @@
     "exclude": ["python/dist", "python/.venv"],
     // Not annotated yet; drop entries as these files get type hints.
     "ignore": [
-        "scripts/Controller.py",
         "scripts/LocalDriver.py"
     ],
     "extraPaths": ["python/python"],

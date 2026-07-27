@@ -3892,7 +3892,8 @@ class Driver:
         # Overridden by the concrete driver to restrict the option combinations that are run.
         return options
 
-    def run(self, mappings: list[Mapping], testSuiteIds: list[str]) -> int:
+    def run(self, mappings: list[Mapping], testSuiteIds: list[str]) -> int | None:
+        # None is a success, as sys.exit reads it.
         raise NotImplementedError()
 
     def runTestSuite(self, current: Driver.Current) -> None:

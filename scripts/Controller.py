@@ -2,17 +2,26 @@
 
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 import os
 import subprocess
 import sys
 import uuid
+from typing import IO, Any
 
 from Util import (
+    Args,
     Darwin,
     Driver,
     IceProcess,
     Mapping,
+    Option,
+    Process,
+    Props,
     Result,
+    TestCase,
+    TestSuite,
     parseOptions,
     platform,
     runTests,
@@ -23,15 +32,29 @@ from Util import (
 
 class ControllerDriver(Driver):
     class Current(Driver.Current):
-        def __init__(self, driver, testsuite, testcase, cross, protocol, host, args):
+        def __init__(
+            self,
+            driver: ControllerDriver,
+            testsuite: TestSuite,
+            testcase: TestCase,
+            cross: Mapping | None,
+            protocol: str | None,
+            host: str | None,
+            args: Args,
+        ):
             Driver.Current.__init__(self, driver, testsuite, Result(testsuite, driver.debug))
             self.testcase = testcase
-            self.serverTestCase = self.testcase.getServerTestCase(cross)
-            self.clientTestCase = self.testcase.getClientTestCase()
+            serverTestCase = self.testcase.getServerTestCase(cross)
+            clientTestCase = self.testcase.getClientTestCase()
+            # getCurrent rejects a test case without a server side before building a Current.
+            assert serverTestCase is not None and clientTestCase is not None
+            self.serverTestCase = serverTestCase
+            self.clientTestCase = clientTestCase
             self.cross = cross
             self.host = host
             self.args = args
-            self.config.protocol = protocol
+            if protocol:
+                self.config.protocol = protocol
 
     @classmethod
     def getSupportedArgs(self):
@@ -73,7 +96,7 @@ class ControllerDriver(Driver):
         print("--bt-image=<sdk>      System image used to create the AVDs for --bt-emulators.")
         print("--uuid=<uuid>         RFCOMM service UUID used when bonding.")
 
-    def __init__(self, options, *args, **kargs):
+    def __init__(self, options: list[Option], *args: Any, **kargs: Any):
         Driver.__init__(self, options, *args, **kargs)
         self.id = "controller"
         self.endpoints = ""
@@ -109,7 +132,7 @@ class ControllerDriver(Driver):
         if not self.endpoints:
             self.endpoints = ("tcp -h " + self.interface) if self.interface else "tcp"
 
-    def run(self, mappings, testSuiteIds):
+    def run(self, mappings: list[Mapping], testSuiteIds: list[str]) -> int | None:
         if self.btEmulators:
             return self.runBluetoothEmulators()
         if self.btPrepare:
@@ -151,15 +174,15 @@ class ControllerDriver(Driver):
 
         Ice.loadSlice([os.path.join(toplevel, "scripts", "Controller.ice")])
 
-        from Test import Common as Test_Common
+        from Test import Common as Test_Common  # pyright: ignore[reportMissingImports]
 
-        class TestCaseI(Test_Common.TestCase):
-            def __init__(self, driver, current):
+        class TestCaseI(Test_Common.TestCase):  # pyright: ignore[reportUntypedBaseClass]
+            def __init__(self, driver: ControllerDriver, current: ControllerDriver.Current):
                 self.driver = driver
                 self.current = current
                 self.serverSideRunning = False
 
-            def startServerSide(self, config, c):
+            def startServerSide(self, config: Any, c: Any) -> Any:
                 self.updateCurrent(config)
                 try:
                     self.serverSideRunning = True
@@ -170,7 +193,7 @@ class ControllerDriver(Driver):
                         self.current.result.getOutput() + "\n" + traceback.format_exc()
                     )
 
-            def stopServerSide(self, success, c):
+            def stopServerSide(self, success: bool, c: Any) -> str:
                 if not self.serverSideRunning:
                     return self.current.result.getOutput()
                 try:
@@ -181,7 +204,7 @@ class ControllerDriver(Driver):
                 self.serverSideRunning = False
                 return self.current.result.getOutput()
 
-            def runClientSide(self, host, config, c):
+            def runClientSide(self, host: str, config: Any, c: Any) -> str:
                 self.updateCurrent(config)
                 try:
                     self.current.clientTestCase._runClientSide(self.current, host)
@@ -189,7 +212,7 @@ class ControllerDriver(Driver):
                 except Exception as ex:
                     raise Test_Common.TestCaseFailedException(self.current.result.getOutput() + "\n" + str(ex))
 
-            def destroy(self, c):
+            def destroy(self, c: Any) -> None:
                 if self.serverSideRunning:
                     self.serverSideRunning = False
                     try:
@@ -198,7 +221,7 @@ class ControllerDriver(Driver):
                         pass
                 c.adapter.remove(c.id)
 
-            def updateCurrent(self, config):
+            def updateCurrent(self, config: Any) -> None:
                 attrs = [
                     "protocol",
                     "mx",
@@ -215,12 +238,12 @@ class ControllerDriver(Driver):
                             self.current.config.parsedOptions.append(a)
                         setattr(self.current.config, a, v)
 
-        class ControllerI(Test_Common.Controller):
-            def __init__(self, driver):
+        class ControllerI(Test_Common.Controller):  # pyright: ignore[reportUntypedBaseClass]
+            def __init__(self, driver: ControllerDriver):
                 self.driver = driver
                 self.testcase = None
 
-            def runTestCase(self, mapping, testsuite, testcase, cross, c):
+            def runTestCase(self, mapping: str, testsuite: str, testcase: str, cross: str, c: Any) -> Any:
                 if self.testcase:
                     try:
                         self.testcase.destroy()
@@ -235,29 +258,30 @@ class ControllerDriver(Driver):
                 )
                 return self.testcase
 
-            def getTestSuites(self, mapping, c):
-                mapping = Mapping.getByName(mapping)
-                config = self.driver.configs[mapping]
-                return [str(t) for t in mapping.getTestSuites() if not mapping.filterTestSuite(t.getId(), config)]
+            def getTestSuites(self, mapping: str, c: Any) -> list[str]:
+                m = Mapping.getByName(mapping)
+                config = self.driver.configs[m]
+                return [str(t) for t in m.getTestSuites() if not m.filterTestSuite(t.getId(), config)]
 
-            def getOptionOverrides(self, c):
+            def getOptionOverrides(self, c: Any) -> Any:
                 return Test_Common.OptionOverrides(ipv6=([False] if not self.driver.hostIPv6 else [False, True]))
 
-            def getHost(self, protocol, ipv6, c):
+            def getHost(self, protocol: str, ipv6: bool, c: Any) -> str:
                 return self.driver.getHost(protocol, ipv6)
 
         import Ice
 
         self.initCommunicator()
-        self.communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.endpoints)
-        self.communicator.getProperties().setProperty("ControllerAdapter.AdapterId", str(uuid.uuid4()))
-        adapter = self.communicator.createObjectAdapter("ControllerAdapter")
+        communicator = self.getCommunicator()
+        communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.endpoints)
+        communicator.getProperties().setProperty("ControllerAdapter.AdapterId", str(uuid.uuid4()))
+        adapter = communicator.createObjectAdapter("ControllerAdapter")
         adapter.add(ControllerI(self), Ice.stringToIdentity(self.id))
         adapter.activate()
-        self.communicator.waitForShutdown()
+        communicator.waitForShutdown()
 
     @staticmethod
-    def emulatorPort(serial):
+    def emulatorPort(serial: str) -> int:
         # "emulator-5554" -> 5554. The prefix has to be checked too, not just the port: adb names an
         # emulator after the port it is listening on, so a serial like "phone-5554" would boot an
         # emulator that adb knows as "emulator-5554" and leave every later command pointed at a
@@ -267,7 +291,7 @@ class ControllerDriver(Driver):
             raise RuntimeError(f"expected an emulator serial like 'emulator-5554', got '{serial}'")
         return int(port)
 
-    def runBluetoothEmulators(self):
+    def runBluetoothEmulators(self) -> int:
         # Create and boot the two emulators used by the Bluetooth harness. They are launched detached
         # so they outlive this process.
         from Util import AndroidProcessController
@@ -280,7 +304,7 @@ class ControllerDriver(Driver):
             )
         return 0
 
-    def runBluetoothPrepare(self):
+    def runBluetoothPrepare(self) -> int:
         # Prepare both emulators (in parallel, each with its own log) and bond the client to the
         # server. Progress goes to stderr and only the server's Bluetooth address to stdout, so
         # callers can capture it directly.
@@ -290,7 +314,7 @@ class ControllerDriver(Driver):
             raise RuntimeError("--bt-prepare requires --bt-client, --bt-server, --bt-setup=<apk> and --uuid")
 
         # Re-invoke this script per device so each emulator's setup keeps a separate log.
-        running = {}
+        running: dict[str, tuple[subprocess.Popen[bytes], IO[bytes]]] = {}
         try:
             for role, serial in (("client", self.btClient), ("server", self.btServer)):
                 log = open(f"setup_{role}.log", "wb")
@@ -325,7 +349,7 @@ class ControllerDriver(Driver):
         print(AndroidProcessController.forDevice(self.btServer).bluetoothAddress())
         return 0
 
-    def runBluetoothDevice(self):
+    def runBluetoothDevice(self) -> int:
         # adb-driven Bluetooth setup/diagnostics for one Android emulator, invoked by the Bluetooth CI
         # harness instead of inline `adb` shell. It reuses the adb helpers already on
         # AndroidProcessController (self.adb(), waitForBoot, install, etc.) rather than reimplementing
@@ -358,23 +382,33 @@ class ControllerDriver(Driver):
 
         return 0
 
-    def getCurrent(self, mapping, testsuite, testcase, cross, protocol=None, host=None, args=[]):
-        from Test import Common as Test_Common
+    def getCurrent(
+        self,
+        mapping: str,
+        testsuite: str,
+        testcase: str,
+        cross: str,
+        protocol: str | None = None,
+        host: str | None = None,
+        args: Args = [],
+    ) -> ControllerDriver.Current:
+        from Test import Common as Test_Common  # pyright: ignore[reportMissingImports]
 
         # Mapping.getByName raises RuntimeError for an unknown mapping, but runTestCase is declared to
         # throw TestCaseNotExistException.
         try:
-            mapping = Mapping.getByName(mapping)
+            clientMapping = Mapping.getByName(mapping)
         except RuntimeError as ex:
             raise Test_Common.TestCaseNotExistException(str(ex))
 
+        crossMapping = None
         if cross:
             try:
-                cross = Mapping.getByName(cross)
+                crossMapping = Mapping.getByName(cross)
             except RuntimeError as ex:
                 raise Test_Common.TestCaseNotExistException("{0} for cross testing".format(ex))
 
-        ts = mapping.findTestSuite(testsuite)
+        ts = clientMapping.findTestSuite(testsuite)
         if not ts:
             raise Test_Common.TestCaseNotExistException("unknown testsuite {0}".format(testsuite))
 
@@ -382,21 +416,22 @@ class ControllerDriver(Driver):
         if not tc or not tc.getServerTestCase():
             raise Test_Common.TestCaseNotExistException("unknown testcase {0}".format(testcase))
 
-        return ControllerDriver.Current(self, ts, tc, cross, protocol, host, args)
+        return ControllerDriver.Current(self, ts, tc, crossMapping, protocol, host, args)
 
-    def getProps(self, process, current):
+    def getProps(self, process: Process, current: Driver.Current) -> Props:
         props = Driver.getProps(self, process, current)
         if isinstance(process, IceProcess) and current.host:
             props["Ice.Default.Host"] = current.host
         return props
 
-    def getArgs(self, process, current):
+    def getArgs(self, process: Process, current: Driver.Current) -> Args:
+        assert isinstance(current, ControllerDriver.Current)
         return current.args
 
-    def isWorkerThread(self):
+    def isWorkerThread(self) -> bool:
         return True
 
-    def isInterrupted(self):
+    def isInterrupted(self) -> bool:
         return False
 
 
