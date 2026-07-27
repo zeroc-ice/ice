@@ -8,8 +8,6 @@
         "scripts/NetworkProxy.py",
         "scripts/collate_changelog.py",
         "scripts/icehashpassword.py",
-        "scripts/process_linux_crash_dumps.py",
-        "scripts/process_windows_crash_dumps.py",
         "scripts/ws_origin_probe.py",
         "scripts/ws_ping_probe.py",
         "scripts/tests"
