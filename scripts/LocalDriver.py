@@ -8,7 +8,7 @@ import sys
 import threading
 import time
 import traceback
-from typing import IO, Any
+from typing import Any
 
 from Util import (
     Driver,
