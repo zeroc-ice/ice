@@ -113,10 +113,10 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
     LocatorI(LookupPrx lookup, Ice.Properties properties, string instanceName, Ice.LocatorPrx voidLocator)
     {
         _lookup = lookup;
-        _timeout = properties.getIcePropertyAsInt("IceLocatorDiscovery.Timeout");
-        if (_timeout < 0)
+        _timeout = TimeSpan.FromMilliseconds(properties.getIcePropertyAsInt("IceLocatorDiscovery.Timeout"));
+        if (_timeout < TimeSpan.Zero)
         {
-            _timeout = 300;
+            _timeout = TimeSpan.FromMilliseconds(300);
         }
         _retryCount = properties.getIcePropertyAsInt("IceLocatorDiscovery.RetryCount");
         if (_retryCount < 0)
@@ -550,7 +550,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
     private readonly LookupPrx _lookup;
     private readonly Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
-    private readonly int _timeout;
+    private readonly TimeSpan _timeout;
     private readonly Ice.Internal.Timer _timer;
     private readonly int _traceLevel;
     private readonly int _retryCount;

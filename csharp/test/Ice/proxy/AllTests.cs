@@ -583,6 +583,16 @@ public class AllTests : global::Test.AllTests
         test(baseProxy.ice_invocationTimeout(0).ice_getInvocationTimeout() == TimeSpan.Zero);
         test(baseProxy.ice_invocationTimeout(-1).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
         test(baseProxy.ice_invocationTimeout(-2).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-2));
+        test(baseProxy.ice_invocationTimeout(int.MaxValue).ice_getInvocationTimeout() ==
+            TimeSpan.FromMilliseconds(int.MaxValue));
+        try
+        {
+            baseProxy.ice_invocationTimeout(TimeSpan.FromDays(30));
+            test(false);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+        }
 
         test(baseProxy.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout() == TimeSpan.Zero);
         test(baseProxy.ice_locatorCacheTimeout(-1).ice_getLocatorCacheTimeout() == TimeSpan.FromSeconds(-1));

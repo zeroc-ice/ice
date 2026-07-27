@@ -469,7 +469,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
                 TimeSpan invocationTimeout = proxy_.iceReference().getInvocationTimeout();
                 if (invocationTimeout > TimeSpan.Zero)
                 {
-                    instance_.timer().schedule(this, (long)invocationTimeout.TotalMilliseconds);
+                    instance_.timer().schedule(this, invocationTimeout);
                 }
             }
             else
