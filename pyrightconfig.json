@@ -21,6 +21,7 @@
     "reportUnnecessaryComparison": "error",
     "reportUnusedClass": "error",
     "reportUnusedFunction": "error",
+    "reportUnusedImport": "error",
     "reportUnusedVariable": "error",
     "pythonVersion": "3.12"
 }

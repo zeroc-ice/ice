@@ -275,8 +275,6 @@ class RemoteTestCaseRunner(TestCaseRunner):
     def filterOptions(self, options: Options | None) -> Options | None:
         if options is None:
             return None
-        import Ice
-
         options = options.copy()
         for key, values in options.items():
             for opts in [self.serverOptions, self.clientOptions]:

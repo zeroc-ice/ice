@@ -1,7 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
 import threading
-from collections.abc import Awaitable, Callable, Sequence
+from collections.abc import Awaitable, Sequence
 from typing import override
 
 import Ice
