@@ -620,7 +620,6 @@ void ::Reader::run(int argc, char* argv[])
     {
         Topic<string, string> topic(node, "lateEmptyBatch");
         Topic<string, int> barrier(node, "lateEmptyBatchBarrier");
-        Topic<string, int> ready(node, "lateEmptyBatchReady");
 
         {
             auto probe = makeSingleKeyReader(topic, "elemA", "", config);
@@ -631,10 +630,6 @@ void ::Reader::run(int argc, char* argv[])
 
         auto reader = makeSingleKeyReader(topic, "elemB", "", config);
         reader.waitForWriters(1); // attached via the empty initialization batch; a live sample is now delivered
-
-        auto readyWriter = makeSingleKeyWriter(ready, "ready");
-        readyWriter.waitForReaders();
-        readyWriter.update(0);
 
         // elemB had no queued sample, so initialization delivered nothing; the live update is the first sample.
         auto sample = reader.getNextUnread();
